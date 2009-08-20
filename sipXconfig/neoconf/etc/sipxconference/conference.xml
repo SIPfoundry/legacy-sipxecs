@@ -58,5 +58,7 @@
         <string password="yes" />
       </type>
     </setting>
+    <setting name="did">
+    </setting>
   </group>
 </model>

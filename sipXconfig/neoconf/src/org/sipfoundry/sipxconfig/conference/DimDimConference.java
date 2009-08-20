@@ -25,6 +25,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Adaptor for conference object that allows interacting with DimDim APIs
  */
 public class DimDimConference {
+
+    private static final String INTERTOLL = "internToll";
+
     private final Conference m_conference;
 
     public DimDimConference(Conference conference) {
@@ -43,19 +46,25 @@ public class DimDimConference {
         if (!isConfigured()) {
             return null;
         }
-        Map<String, String> params = new LinkedHashMap<String, String>();
-        params.put("name", getUser());
-        params.put("password", getPassword());
-        params.put("confname", m_conference.getName());
-        params.put("internToll", m_conference.getExtension());
-        addAttendeePwd(params);
+        Map<String, String> params1 = new LinkedHashMap<String, String>();
+        params1.put("name", getUser());
+        params1.put("password", getPassword());
+        params1.put("confname", m_conference.getName());
+        params1.put(INTERTOLL, m_conference.getExtension());
+
+        Map<String, String> params2 = new LinkedHashMap<String, String>();
+        params2.put(INTERTOLL, getDid());
+        addAttendeePasscode(params2);
+        addAttendeePwd(params2);
         String displayName = getDisplayName();
         if (StringUtils.isNotBlank(displayName)) {
-            params.put("displayname", displayName);
+            params2.put("displayname", displayName);
         }
 
         StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/start.action?");
-        uri.append(paramsToQuery(params));
+        uri.append(paramsToQuery(params1));
+        uri.append("&");
+        uri.append(paramsToQuery(params2));
         return uri.toString();
     }
 
@@ -65,8 +74,9 @@ public class DimDimConference {
         }
         Map<String, String> params = new LinkedHashMap<String, String>();
         params.put("meetingRoomName", getUser());
+        addAttendeePasscode(params);
         addAttendeePwd(params);
-        StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/join.action?");
+        StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/JoinForm.action?");
         uri.append(paramsToQuery(params));
         return uri.toString();
     }
@@ -99,10 +109,24 @@ public class DimDimConference {
         return m_conference.getSettingValue("web-meeting/password");
     }
 
+    String getDid() {
+        return m_conference.getSettingValue("web-meeting/did");
+    }
+
+    // attendeePwd, Attendee Password, which Attendees need to know this password
+    // to join the Dimdim Meeting.
     private void addAttendeePwd(Map<String, String> params) {
         final String accessCode = m_conference.getParticipantAccessCode();
         if (StringUtils.isNotBlank(accessCode)) {
             params.put("attendeePwd", accessCode);
+        }
+    }
+
+    // attendeePasscode, Attendee pass code, which Attendees use to access audio bridge.
+    private void addAttendeePasscode(Map<String, String> params) {
+        final String accessCode = m_conference.getParticipantAccessCode();
+        if (StringUtils.isNotBlank(accessCode)) {
+            params.put("attendeePasscode", accessCode);
         }
     }
 

@@ -1,0 +1,24 @@
+<div jwcid="@If" condition="ognl:dimDimConference.configured" renderTag="false">
+  <p>
+    <span key="prompt.createDimDim">To start dimdim conference click</span>&nbsp;
+    <a jwcid="@GenericLink" id="dimdimConference:link"
+      href="ognl:dimDimConference.createMeetingUrl"
+      target="_blank"><span key="prompt.here">here</span></a>
+  </p>
+  <form jwcid="@Form">
+    <table>
+      <tr jwcid="@common/FieldPanel"
+        for="dimdim:joinMeetingUrl"
+        label="message:label.joinMeetingUrl"
+        field="component:joinMeetingUrl"
+        description="message:description.joinMeetingUrl" >
+        <input jwcid="joinMeetingUrl@TextField"
+          id="dimdim:joinMeetingUrl"
+          value="ognl:dimDimConference.joinMeetingUrl"
+          readonly="readonly"
+          size="60"
+          displayName="message:label.joinMeetingUrl"/>
+      </tr>
+    </table>
+  </form>
+</div>

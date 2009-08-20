@@ -47,6 +47,7 @@ import org.sipfoundry.sipxconfig.conference.ActiveConferenceContext;
 import org.sipfoundry.sipxconfig.conference.ActiveConferenceMember;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.conference.DimDimConference;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
@@ -97,9 +98,17 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
 
     public abstract void setConferenceMemberNicknameMap(Map nicknameMap);
 
+    public abstract DimDimConference getDimDimConference();
+
+    public abstract void setDimDimConference(DimDimConference dim);
+
     public void pageBeginRender(PageEvent event) {
         if (getConferenceMemberNicknameMap() == null) {
             setConferenceMemberNicknameMap(new HashMap<String, String>());
+        }
+
+        if (getDimDimConference() == null) {
+            setDimDimConference(new DimDimConference(getConference()));
         }
     }
 

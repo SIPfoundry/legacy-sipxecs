@@ -25,14 +25,15 @@ public class DimDimConferenceTest extends TestCase {
     public void testGetCreateMeetingUrl() {
         DimDimConference dimDimConference = new DimDimConference(m_conference);
 
+        m_conference.setSettingTypedValue("web-meeting/did", "6131234567");
         m_conference.setSettingTypedValue("web-meeting/user", "dimUser");
         m_conference.setSettingTypedValue("web-meeting/password", "dimPass");
 
         assertTrue(dimDimConference.isConfigured());
         assertEquals(
-                "http://webmeeting.dimdim.com/portal/start.action?name=dimUser&password=dimPass&confname=my_conf&internToll=12345",
+                "http://webmeeting.dimdim.com/portal/start.action?name=dimUser&password=dimPass&confname=my_conf&internToll=12345&internToll=6131234567",
                 dimDimConference.getCreateMeetingUrl());
-        assertEquals("http://webmeeting.dimdim.com/portal/join.action?meetingRoomName=dimUser", dimDimConference
+        assertEquals("http://webmeeting.dimdim.com/portal/JoinForm.action?meetingRoomName=dimUser", dimDimConference
                 .getJoinMeetingUrl());
     }
 
@@ -47,12 +48,13 @@ public class DimDimConferenceTest extends TestCase {
         m_conference.setOwner(user);
         m_conference.setSettingTypedValue("web-meeting/password", "dimPass");
         m_conference.setSettingTypedValue(Conference.PARTICIPANT_CODE, "9988");
+        m_conference.setSettingTypedValue("web-meeting/did", "6131234567");
 
         assertTrue(dimDimConference.isConfigured());
         assertEquals(
-                "http://webmeeting.dimdim.com/portal/start.action?name=jadams&password=dimPass&confname=my_conf&internToll=12345&attendeePwd=9988&displayname=John+Adams",
+                "http://webmeeting.dimdim.com/portal/start.action?name=jadams&password=dimPass&confname=my_conf&internToll=12345&internToll=6131234567&attendeePasscode=9988&attendeePwd=9988&displayname=John+Adams",
                 dimDimConference.getCreateMeetingUrl());
-        assertEquals("http://webmeeting.dimdim.com/portal/join.action?meetingRoomName=jadams&attendeePwd=9988",
+        assertEquals("http://webmeeting.dimdim.com/portal/JoinForm.action?meetingRoomName=jadams&attendeePasscode=9988&attendeePwd=9988",
                 dimDimConference.getJoinMeetingUrl());
     }
 }
