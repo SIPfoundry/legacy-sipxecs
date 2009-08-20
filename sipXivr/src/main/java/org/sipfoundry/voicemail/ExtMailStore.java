@@ -841,6 +841,10 @@ public class ExtMailStore {
             // creating a login context failed
             // try plain password style login instead
             Subject.doAs(null, new ConnectAction());
+        } catch (SecurityException e) {
+            // creating a login context failed
+            // try plain password style login instead
+            Subject.doAs(null, new ConnectAction());
         } catch (MessagingException e) {
             // connection likely lost            
             CloseConnection(mbxid, true);
