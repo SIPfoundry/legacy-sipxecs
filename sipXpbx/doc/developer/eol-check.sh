@@ -11,6 +11,8 @@
 #            image, message, model, multipart, text, video)
 #    In addition:
 #        (4) all text files must end with a proper EOL.
+#        (5) text files must have no trailing whitespace on lines,
+#            and no final empty lines
 
 # Arguments are a list of files or directories in a Subversion working
 # copy to check for violations.  Default argument is ".".
@@ -156,6 +158,23 @@ cat $T.no-eol
 echo "----- [end]"
 echo
 
+# Report violations of the fifth rule:  No text file may have
+# extraneous (trailing) whitespace.
+
+while read F
+do
+  if grep -q $'[ \t]$' "$F" ||
+     tail -n 1 "$F" | grep -q $'^[ \t]*$'
+  then
+      echo "$F"
+  fi
+done <$T.text >$T.trailing
+
+echo "----- The following text files have trailing whitespace:"
+cat $T.trailing
+echo "----- [end]"
+echo
+
 # Return success only if all lists of violations are empty.
 # Record the return status we want.
 [[ ! -s $T.no-mime-type ]] && \
@@ -165,8 +184,11 @@ echo
 STATUS=$?
 
 # Delete the temporary files
-rm -f $T.all $T.binary $T.eol-style $T.invalid-mime-type $T.mime-type \
-    $T.no-eol-style $T.no-mime-type $T.temp1 $T.text $T.CR $T.LF $T.end \
-    $T.no-eol
+if true
+then
+    rm -f $T.all $T.binary $T.eol-style $T.invalid-mime-type $T.mime-type \
+	$T.no-eol-style $T.no-mime-type $T.temp1 $T.text $T.CR $T.LF $T.end \
+	$T.no-eol
+fi
 
 exit $STATUS
