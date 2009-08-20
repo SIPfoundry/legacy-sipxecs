@@ -911,13 +911,14 @@ class SipUtilities {
                                 it1.remove();
                             }
                         }
+                    } else if (attr.getName().equalsIgnoreCase("crypto")) {
+                        it1.remove(); 
+                        logger.debug("Not adding crypto"); 
+                    } else if (attr.getName().equalsIgnoreCase("encryption")) {
+                        it1.remove(); 
+                        logger.debug("Not adding encryption");
                     }
-                    /*
-                     * else if (attr.getName().equalsIgnoreCase("crypto")) {
-                     * it1.remove(); logger.debug("Not adding crypto"); } else
-                     * if (attr.getName().equalsIgnoreCase("encryption")) {
-                     * it1.remove(); logger.debug("Not adding encryption"); }
-                     */
+                     
                 }
 
             }
@@ -1001,7 +1002,21 @@ class SipUtilities {
             String attributeValue) {
 
         try {
-
+            Vector attributes = sessionDescription.getAttributes(false);
+            if ( attributes != null ) {
+                for ( Object attr : attributes ) {
+                    if ( attr instanceof Attribute ){
+                        Attribute attribute = (Attribute) attr ;
+                        if ( attribute.getName().equals("sendrecv") || 
+                                attribute.getName().equals("recvonly") ||
+                                attribute.getName().equals("sendonly")) {
+                            attribute.setName(attributeValue);
+                        }
+                    } else {
+                        logger.error("Unexpected type encountered " + attr.getClass().getName());
+                    }
+                }
+            }
             MediaDescriptionImpl md = (MediaDescriptionImpl) getMediaDescription(sessionDescription);
             md.setDuplexity(attributeValue);
 
