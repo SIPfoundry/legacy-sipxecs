@@ -17,7 +17,8 @@ public class PasswordEncoderImpl implements PasswordEncoder {
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {
         // dummy admin user is enabled only when running tests
-        if (AuthenticationDaoImpl.allowDummyUser(getUserName(salt))) {
+        if (salt instanceof UserDetailsImpl
+                && AuthenticationDaoImpl.allowDummyUser(getUserName(salt))) {
             return true;
         }
 
