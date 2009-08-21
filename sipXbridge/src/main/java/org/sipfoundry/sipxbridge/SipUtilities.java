@@ -694,13 +694,6 @@ class SipUtilities {
                 requestUri.removeParameter("user");
             }
 
-            /* if (itspAccount.getOutboundTransport() != null) {
-                requestUri
-                        .setTransportParam(itspAccount.getOutboundTransport());
-            } else {
-                requestUri.removeParameter("transport");
-            } */
-
             requestUri.removePort();
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random()
@@ -809,6 +802,7 @@ class SipUtilities {
             String messageString = new String(message.getRawContent());
             SessionDescription sd = SdpFactory.getInstance()
                 .createSessionDescription(messageString);
+            SipUtilities.removeCrypto(sd);
             return sd;
         } else {
             MultipartMimeContent mmc = ((MessageExt)message).getMultipartMimeContent();
@@ -821,6 +815,7 @@ class SipUtilities {
                     String messageString = new String(content.getContent().toString());
                     SessionDescription sd = SdpFactory.getInstance()
                         .createSessionDescription(messageString);
+                    SipUtilities.removeCrypto(sd);
                     return sd;
                 }
             }
@@ -859,6 +854,39 @@ class SipUtilities {
             throw new SipXbridgeException(
                     "Unexpected exception getting media formats", ex);
         }
+    }
+    
+    /**
+     * Remove the Crypto parameters from the request.
+     * 
+     * @param sessionDescription - the session description to clean.
+     * 
+     */
+    static void removeCrypto(SessionDescription sessionDescription) {
+        try {
+            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+                MediaDescription mediaDescription = (MediaDescription) it.next();
+                Vector attributes = mediaDescription.getAttributes(true);
+                for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+                    Attribute attr = (Attribute) it1.next();
+                    if (attr.getName().equalsIgnoreCase("crypto")) {
+                        it1.remove(); 
+                        logger.debug("remove crypto"); 
+                    } else if (attr.getName().equalsIgnoreCase("encryption")) {
+                        it1.remove(); 
+                        logger.debug("remove encryption");
+                    }
+                }
+
+            }
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new SipXbridgeException("Unexpected exception removing sdp encryption params",ex);
+        }
+
+
     }
 
     /**
