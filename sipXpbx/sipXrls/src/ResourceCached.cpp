@@ -204,10 +204,12 @@ void ResourceCached::generateBody(UtlString& rlmi,
                                   const UtlString& nameXml,
                                   const UtlString& displayName) const
 {
-   // Remove any suffix from the URI, for example it removes:
+
+   // Remove any suffix from the resource's URI (which is the
+   // UtlString-nature of *this).  For example it removes:
    // ";sipx-noroute=VoiceMail;sipx-userforward=false"
-   UtlString temp_uri = *(static_cast <const UtlString*> (this));
-   Url temp_url(temp_uri, TRUE);    // addr-spec format, i.e., URI
+   Url temp_url(*(static_cast <const UtlString*> (this)),
+                TRUE);    // addr-spec format, i.e., URI
    temp_url.removeUrlParameters();
    UtlString rlmi_uri;
    temp_url.getUri(rlmi_uri);       // addr-spec format, i.e., URI
