@@ -9,11 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static java.util.Collections.singleton;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
@@ -29,6 +37,8 @@ import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Comm
 import static org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command.STOP;
 
 public class ServiceConfiguratorImpl implements ServiceConfigurator {
+    private static final Log LOG = LogFactory.getLog(ServiceConfiguratorImpl.class);
+
     private SipxReplicationContext m_replicationContext;
 
     private SipxProcessContext m_sipxProcessContext;
@@ -149,13 +159,45 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             return;
         }
         LocationStatus locationStatus = m_sipxProcessContext.getLocationStatus(location);
+
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStopped(), STOP);
-        for (SipxService service : locationStatus.getToBeStarted()) {
-            replicateServiceConfig(location, service);
+        try {
+            Collection<SipxService> services = locationStatus.getToBeStarted();
+            ExecutorService executorService = Executors.newFixedThreadPool(services.size());
+            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(services.size());
+            for (SipxService service : services) {
+                futures.add(executorService.submit(new ReplicateServiceConfigurations(location, service)));
+            }
+            executorService.shutdown();
+
+            for (Future<Void> future : futures) {
+                future.get();
+            }
+        } catch (InterruptedException exception) {
+            LOG.error("Unexpected Interupt when replicating services", exception);
+        } catch (ExecutionException exception) {
+            LOG.error("Unexpected error when replicating services", exception);
         }
+
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStarted(), START);
         // some services will need to be restarted as a result of profile generation
         m_sipxProcessContext.restartMarkedServices(location);
+    }
+
+    class ReplicateServiceConfigurations implements Callable<Void> {
+        private final Location m_serviceLocation;
+        private final SipxService m_serviceToReplicate;
+
+        public ReplicateServiceConfigurations(Location serviceLocation, SipxService serviceToReplicate) {
+            super();
+            m_serviceLocation = serviceLocation;
+            m_serviceToReplicate = serviceToReplicate;
+        }
+
+        public Void call() throws InterruptedException {
+            replicateServiceConfig(m_serviceLocation, m_serviceToReplicate);
+            return null;
+        }
     }
 
     public void initLocations() {
