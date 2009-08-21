@@ -16,7 +16,7 @@ public class RtpPacketTest extends TestCase
       octets[ 2] = (byte)((sequenceNumber & 0xFF00) >> 8) ;
       octets[ 3] = (byte)((sequenceNumber & 0x00FF)) ;
    }
-   
+
    public void testGetSequenceNumber()
    {
       byte[] octets = new byte[10] ;
@@ -49,19 +49,19 @@ public class RtpPacketTest extends TestCase
       sequenceNumber = 42L ;
       setSequenceNumber(p, sequenceNumber) ;
       b = new RtpPacket(p) ;
-      
+
       e = a.equals(b);
       assertFalse(e) ;
 
       sequenceNumber = 0L ;
       setSequenceNumber(p, sequenceNumber) ;
       b = new RtpPacket(p) ;
-      
+
       e = a.equals(b);
       assertTrue(e) ;
 
    }
-   
+
    public void testCompareTo()
    {
       byte[] octets = new byte[10] ;
@@ -80,7 +80,7 @@ public class RtpPacketTest extends TestCase
       assertEquals(-1, a.compareTo(b)) ; // a (42) is less than b (43)
       assertEquals(1, b.compareTo(a)) ; // b (43) is greater than a (42)
 
-      
+
       sequenceNumber = 0L ;
       setSequenceNumber(p, sequenceNumber) ;
       a = new RtpPacket(p) ;
@@ -92,7 +92,7 @@ public class RtpPacketTest extends TestCase
       assertEquals(-1, a.compareTo(b)) ; // a (0) is less than b (1)
       assertEquals(1, b.compareTo(a)) ; // b (1) is greater than a (0)
 
-      
+
       sequenceNumber = 65535L ;
       setSequenceNumber(p, sequenceNumber) ;
       a = new RtpPacket(p) ;
@@ -117,8 +117,8 @@ public class RtpPacketTest extends TestCase
 
          assertEquals(-1, a.compareTo(b)) ;
          assertEquals(-1, a.compareTo(c)) ;
-         assertEquals(1, b.compareTo(a)) ; 
-         assertEquals(-1, b.compareTo(c)) ; 
+         assertEquals(1, b.compareTo(a)) ;
+         assertEquals(-1, b.compareTo(c)) ;
       }
    }
 
@@ -146,7 +146,7 @@ public void testQueue() {
       Queue<RtpPacket> q = new PriorityQueue<RtpPacket>();
       q.add(a);
       q.add(b);
-      
+
       assertTrue(q.contains(a));
       assertTrue(q.contains(b));
       assertTrue(q.contains(c));

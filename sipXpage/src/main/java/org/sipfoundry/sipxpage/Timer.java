@@ -3,7 +3,7 @@ package sipxpage;
 
 /**
  * A Timer class that supports Comparable on beatCount
- * 
+ *
  * @author Woof!
  *
  */
@@ -12,9 +12,9 @@ public class Timer implements Comparable<Timer>
    String name ;
    long beatCount ;
    LegListener legListener ;
-   
+
    /**
-    * 
+    *
     * @param name The name of this timer
     * @param beatCount The beat count at which to fire
     * @param legListener The listener that gets the fired event
@@ -25,26 +25,26 @@ public class Timer implements Comparable<Timer>
       this.beatCount = beatCount ;
       this.legListener = legListener ;
    }
-   
+
    public String getName()
    {
       return name ;
    }
-   
+
    public long getBeatCount()
    {
       return beatCount ;
    }
-   
+
    public LegListener getLegListener()
    {
       return legListener ;
    }
-   
+
    /**
-    * @param a Compare this timer's beatCount, name, and legListener to a's.  
+    * @param a Compare this timer's beatCount, name, and legListener to a's.
     * @return <0, 0, or >0
-    * 
+    *
     * Must compare all elements, as PriorityQueue.remove(Timer) will call
     * compareTo() to see if it equals Timer.  If just beatCount is used,
     * the wrong element may be removed.
@@ -64,7 +64,7 @@ public class Timer implements Comparable<Timer>
       }
       return comp ;
    }
-   
+
    /**
     * Compare this timer based on name and legListener.  If both are the same, return true
     * @param name The name to compare
@@ -76,4 +76,3 @@ public class Timer implements Comparable<Timer>
       return name.equals(this.name) && legListener.equals(this.legListener) ;
    }
 }
-

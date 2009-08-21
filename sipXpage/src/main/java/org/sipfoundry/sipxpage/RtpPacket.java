@@ -7,7 +7,7 @@ import java.net.DatagramPacket;
 /**
  * Wraps an RTP Datagram with a class that supports Comparable based on sequence number.
  * This allows a Jitter Buffer to sort on sequence number order.
- * 
+ *
  * @author Woof!
  *
  */
@@ -15,7 +15,7 @@ public class RtpPacket implements Comparable<RtpPacket>
 {
    long sequenceNumber ;
    DatagramPacket packet ;
-   
+
    public RtpPacket(DatagramPacket packet)
    {
       byte [] octets = packet.getData() ;
@@ -23,22 +23,22 @@ public class RtpPacket implements Comparable<RtpPacket>
       sequenceNumber = ((octets[2] & 0xFF) << 8) + (octets[3] & 0xFF) ;
       this.packet = packet ;
    }
-   
+
    public long getSequenceNumber()
    {
       return sequenceNumber ;
    }
-   
+
    public DatagramPacket getDatagram()
    {
       return packet ;
    }
-   
+
    public int hashCode()
    {
 	   return (int)sequenceNumber;
    }
-   
+
    public boolean equals(Object a)
    {
 	   try {
@@ -49,12 +49,12 @@ public class RtpPacket implements Comparable<RtpPacket>
 		   return false ;
 	   }
    }
-   
+
    public int compareTo(RtpPacket a)
    {
       return RtpPacket.compareSequence(sequenceNumber, a.getSequenceNumber()) ;
    }
-   
+
    public static int compareSequence(long a, long b)
    {
 
@@ -79,4 +79,3 @@ public class RtpPacket implements Comparable<RtpPacket>
       return lA.compareTo(b) ;
    }
 }
-

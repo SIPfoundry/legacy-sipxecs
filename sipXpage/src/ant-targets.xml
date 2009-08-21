@@ -32,7 +32,7 @@
   <property name="test.classes.dir" value="${build.dir}/tests"/>
 
   <!-- Default patterns for unittest naming schema -->
-  <patternset id="test.classes" includes="**/*Test.class" /> 
+  <patternset id="test.classes" includes="**/*Test.class" />
 
 
   <!--

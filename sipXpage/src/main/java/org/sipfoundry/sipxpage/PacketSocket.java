@@ -14,7 +14,7 @@ import java.net.SocketException;
  * <p>
  * Wraps a DatagramSocket with a buffer and some helpers
  * that deal with the exceptions.
- * 
+ *
  * @author Woof!
  *
  */
@@ -22,8 +22,8 @@ public class PacketSocket
 {
    DatagramSocket socket ;
    byte[] buf = new byte[65536] ;
-   
-      
+
+
    /*
     * An inbound socket.  Setup a listen port, and a packet to hold the received datagram
     */
@@ -37,7 +37,7 @@ public class PacketSocket
    {
       this.socket = socket ;
    }
-   
+
    public DatagramPacket read()
    {
       DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -59,7 +59,7 @@ public class PacketSocket
          socket.send(packet);
       } catch (IOException e) {}
    }
-   
+
    public InetSocketAddress getInetSocketAddress()
    {
       return new InetSocketAddress(socket.getLocalAddress(), socket.getLocalPort()) ;

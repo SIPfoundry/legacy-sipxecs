@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 
 /**
  * A sequence number based Jitter buffer.
- * 
+ *
  * Install packets in the order they arrive from the network.
  * Remove packets in sequence number order.
  * <p>
@@ -22,9 +22,9 @@ import org.apache.log4j.Logger;
  * then it returns the next best packet.
  * <p>
  * This will "delay" a packet by at most one time interval if a missing
- * packet is detected, giving it one time interval to show up before 
+ * packet is detected, giving it one time interval to show up before
  * skipping it.
- * 
+ *
  * @author Woof!
  *
  */
@@ -42,9 +42,9 @@ public class JitterBuffer
       this.maxDepth = maxDepth ;
       queue = new PriorityQueue<RtpPacket>(maxDepth) ;
    }
-   
+
    /**
-    * 
+    *
     * @param packet The DatagramPacket (assumed to be RTP) to put into the Jitter Buffer
     * @return true for success, false for failure
     */
@@ -54,9 +54,9 @@ public class JitterBuffer
       RtpPacket rtpPacket = new RtpPacket(packet) ;
       return add(rtpPacket) ;
    }
-   
+
    /**
-    * 
+    *
     * @param rtpPacket The RtpPacket to put into the Jitter Buffer
     * @return true for success, false for failure
     */
@@ -80,17 +80,17 @@ public class JitterBuffer
          LOG.debug(String.format("JitterBuffer::add sequence duplication "+rtpPacket.getSequenceNumber())) ;
          return queue.add(rtpPacket) ;
       }
-      
+
       // If the queue is full, toss the last packet to make room.
       if (queue.size() >= maxDepth)
       {
          removeRtpPacket() ;
       }
-      
+
 //      LOG.debug(String.format("sequence added "+rtpPacket.getSequenceNumber())) ;
       return queue.add(rtpPacket) ;
    }
-   
+
    /**
     * Remove the next available RtpPacket from the Jitter Buffer, in sequence number
     * order.
@@ -107,7 +107,7 @@ public class JitterBuffer
       boolean sendIt = true ;
       @SuppressWarnings("unused")
       String msg = "";
-      
+
       // No packets in the queue.
       if (rtpPacket == null)
       {
@@ -122,7 +122,7 @@ public class JitterBuffer
 
       long nextSequenceNumber = (lastSequenceNumber + 1) & 0xFFFF;
       long sequenceNumber = rtpPacket.getSequenceNumber();
-      
+
       for(;;)
       {
          if (lastSequenceNumber < 0) // -1 indicates not yet set
@@ -130,7 +130,7 @@ public class JitterBuffer
             msg = "First sequence" ;
             break ;
          }
-         
+
          // If the next packet in the queue happens to be the next natural
          // packet to send, then send it.  Even if it empties the queue.
          if (sequenceNumber == nextSequenceNumber)
@@ -138,14 +138,14 @@ public class JitterBuffer
             msg = "Natural sequence" ;
             break ;
          }
-         
+
          // If there is more than one packet left in the queue, send the lowest one.
          if(queue.size() > 1)
          {
             msg = "Size sequence" ;
             break ;
          }
-         
+
          // If this is the second time with the same packet left, send it on.
          if (oneLeft)
          {
@@ -153,11 +153,11 @@ public class JitterBuffer
             msg = "oneLeft sequence" ;
             break ;
          }
-         
+
          sendIt = false ;
          break ;
       }
-      
+
       if (sendIt)
       {
          // Save the last sequence number for later
@@ -183,7 +183,7 @@ public class JitterBuffer
       RtpPacket rtpPacket = removeRtpPacket() ;
       return rtpPacket == null ? null : rtpPacket.getDatagram() ;
    }
-   
+
    public int size()
    {
       return queue.size();

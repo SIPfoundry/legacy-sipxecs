@@ -48,4 +48,3 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpage-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage-config
-

@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
  * A PageGroup is the object that, given an inbound call,
  * generates all the outbound calls to the phones and manages
  * the lifetimes of the calls and the RTP forking.
- * 
+ *
  * @author Woof!
  *
  */
@@ -45,34 +45,34 @@ public class PageGroup implements LegListener
       this.ipAddress = ipAddress ;
       this.rtpPort = rtpPort ;
       this.tossPort = rtpPort+2 ;
-      
+
       rtpSocket = new PacketSocket(rtpPort);
       tossSocket = new PacketSocket(tossPort);
       rtpFork = new RtpFork(rtpSocket, 20, this) ;
-      
+
       resetDestinations() ;
-      
-      outbounds = new Vector<Leg>() ; 
+
+      outbounds = new Vector<Leg>() ;
    }
-   
+
    public void resetDestinations()
    {
       destinations = new Vector<String>() ;
    }
-   
+
    /**
     * Add a phone to be paged to the group.
-    * 
+    *
     * @param device The SIP URL of the phone.
     */
    public void addDestination(String device)
    {
       destinations.add(device) ;
    }
-   
+
    /**
     * Set the beep to be used when this group is paged.
-    * 
+    *
     * @param beep A file: URL (or just a rooted pathname)
     * of an audio file to be used for the beep.
     */
@@ -90,19 +90,19 @@ public class PageGroup implements LegListener
          LOG.warn("PageGroup::setBeep failed", e) ;
       }
    }
-   
+
    /**
     * Set the timeout to be used when this group is paged.
-    * 
+    *
    * @param timeout The page timeout in mS
     */
    public void setMaximumDuration(int timeout)
    {
        this.maximumDuration = timeout;
-   }   
-   
+   }
+
    /**
-    * 
+    *
     * @return true if this PageGroup is currently involved
     * in a page.
     */
@@ -110,19 +110,19 @@ public class PageGroup implements LegListener
    {
       return busy ;
    }
-   
+
    /**
-    * 
+    *
     * @return the inbound call this page is using
     */
    public Leg getInbound()
    {
       return inbound ;
    }
-   
+
    /**
     * Trigger a page of all the destinations.
-    * 
+    *
     * @param inbound  The inbound Leg (audio from here goes to all destinations)
     * @param inboundRtp The destination to send RTP packets so the inbound caller can hear.
     * @param alertInfoKey The magic key needed for Polycom Auto-Answer
@@ -136,7 +136,7 @@ public class PageGroup implements LegListener
          busy = true ;
          this.inbound = inbound ;
          this.inboundRtp = inboundRtp ;
-         
+
          // Spin up the RTP forker
          rtpFork.start() ;
          try
@@ -148,7 +148,7 @@ public class PageGroup implements LegListener
 
             // Answer the inbound call.
             inbound.acceptCall(rtpPort) ;
-            
+
             // Start the timers
             if (maximumDuration > 0)
             {
@@ -163,7 +163,7 @@ public class PageGroup implements LegListener
                // Compare the originator with the destination.  Only place an outbound call
                // if they aren't the same.  We don't make a call to the same destination that
                // is initiating the page.
-               if (destination.compareToIgnoreCase(pageOriginatorAddress) != 0) 
+               if (destination.compareToIgnoreCase(pageOriginatorAddress) != 0)
                {
                   Leg outbound = placeCall(inbound.getDisplayName(), destination, alertInfoKey) ;
                   if (outbound != null)
@@ -187,19 +187,19 @@ public class PageGroup implements LegListener
       LOG.debug("PageGroup::page failed") ;
       return false ;
    }
-   
+
    /**
     * End this page, by clearing up all timers, outbound calls, the inbound call,
     * and the RTP forker.
-    * 
+    *
     * synchronized so multiple calls are serialized.  Only the first should
-    * be needed.  
+    * be needed.
     */
    public synchronized void end()
    {
       // Remove all timers associated with me
       Timers.removeTimer(this) ;
-      
+
       // Hangup on all outbound calls.
       for(Leg outbound : outbounds)
       {
@@ -212,11 +212,11 @@ public class PageGroup implements LegListener
          }
       }
       outbounds.removeAllElements() ;
-      
+
       // Stop the RTP processing.
       rtpFork.stop() ;
       rtpFork.removeAllDestinations() ;
-      
+
       // Hangup on the inbound call
       if (inbound != null)
       {
@@ -225,7 +225,7 @@ public class PageGroup implements LegListener
             inbound.destroyLeg() ;
          } catch (Exception e)
          {
-            
+
             LOG.error("PageGroup::end inbound", e) ;
          }
          inbound = null ;
@@ -235,7 +235,7 @@ public class PageGroup implements LegListener
 
    /**
     * Place an outbound call
-    * 
+    *
     * @param fromName  The name to display as "from"
     * @param destination The user@host to call
     * @param alertInfoKey The magic key needed for Polycom Auto-Answer
@@ -246,16 +246,16 @@ public class PageGroup implements LegListener
       LOG.debug(String.format("PageGroup::placeCall(%s, %s)", fromName, destination));
       OutboundLeg oLeg = null ;
       try {
-         oLeg = new OutboundLeg(legSipListener, this) ; 
-         SipURI toAddress = new SipUri(); 
+         oLeg = new OutboundLeg(legSipListener, this) ;
+         SipURI toAddress = new SipUri();
          String dogs[] = destination.split("@") ;
          String user = dogs[0] ;
          String host = dogs[1] ;
          toAddress.setUser(user);
          toAddress.setHost(host);
-           
+
          SessionDescription sdp = legSipListener.buildSdp(new InetSocketAddress(ipAddress, tossPort), false) ;
-           
+
          oLeg.createLeg(toAddress, "Page from "+fromName, sdp, alertInfoKey);
 
       } catch (Throwable t) {
@@ -266,17 +266,17 @@ public class PageGroup implements LegListener
          } catch (Exception e1){}
          oLeg = null ;
       }
-      
+
       return oLeg ;
    }
-   
+
    /**
     * The event handler for this group's timers, RtpFork, and calls.
     */
    public boolean onEvent(LegEvent event)
    {
       LOG.debug("PageGroup::onEvent got event "+ event.getDescription()) ;
-      
+
       if (event.getDescription().equals("timer: status=fired name=maximum_duration"))
       {
          // Maximum duration timer fired, end the page.

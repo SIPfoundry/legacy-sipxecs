@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
  * <p>
  * Keeps track of the local RTP port used to advertise SDP, and the
  * remote RTP Addresses where RTP is sent.
- * 
+ *
  * @author Woof!
  *
  */
@@ -30,13 +30,13 @@ public abstract class Leg implements LegListener
    InetSocketAddress previousRtpAddress;
    Transaction inviteTransaction;   // The transaction from the INVITE
    boolean isServer ;               // True if the above transaction is a ServerTransaction
-   String myId ;                    // An id string for logging 
+   String myId ;                    // An id string for logging
    String callId ;                  // The call-id used in the Dialog
    String displayName ;             // The display name used in the Dialog
    SipUri requestUri ;              // The request URI that created the Dialog
    int rtpPort ;                    // The inbound RTP port (for OUR sdp)
    String tag ;                     // This leg's tag (random number)
-   boolean m_gotBye;                // True if the far end sent this leg a bye 
+   boolean m_gotBye;                // True if the far end sent this leg a bye
 
    public Leg (LegSipListener legSipListener, LegListener otherListener)
    {
@@ -50,7 +50,7 @@ public abstract class Leg implements LegListener
 
    /**
     * Tear down this leg, ending any call it is associated with.
-    * 
+    *
     * @throws Exception
     */
    public void destroyLeg() throws Exception
@@ -63,7 +63,7 @@ public abstract class Leg implements LegListener
 
    /**
     * Accept the offered call.
-    * 
+    *
     * @param rtpPort
     * @throws Exception
     */
@@ -75,25 +75,25 @@ public abstract class Leg implements LegListener
          legSipListener.acceptCall(this) ;
       }
    }
-   
+
    /**
-    * Called by LegSipListener when events of interest to 
+    * Called by LegSipListener when events of interest to
     * this leg are detected.
     * <p>
     * Forwards on events to otherListener if there is one.
     */
    public boolean onEvent(LegEvent event)
    {
-      LOG.debug(String.format("Leg::onEvent %s got event %s%n", 
+      LOG.debug(String.format("Leg::onEvent %s got event %s%n",
             myId, event.getDescription()));
-      
+
       if (event.getDescription().equals("sdp"))
       {
          gotSdp(event.getSdpAddress()) ;
       } else if (event.getDescription().startsWith("dialog bye")) {
           m_gotBye = true;
       }
-      
+
       if (otherListener != null)
       {
          event.setLeg(this) ; // Add this leg to the event so the otherListener can id it from us
@@ -112,7 +112,7 @@ public abstract class Leg implements LegListener
     */
    void gotSdp(InetSocketAddress sdpAddress)
    {
-      LOG.debug(String.format("Leg::gotSdp %s got remote RTP address %s%n", myId, 
+      LOG.debug(String.format("Leg::gotSdp %s got remote RTP address %s%n", myId,
             sdpAddress.toString()));
       if (remoteRtpAddress == null)
       {
@@ -123,12 +123,12 @@ public abstract class Leg implements LegListener
       {
          if (remoteRtpAddress.equals(sdpAddress))
          {
-            LOG.debug(String.format("Leg::gotSdp %s already knows remote RTP address %s%n", 
+            LOG.debug(String.format("Leg::gotSdp %s already knows remote RTP address %s%n",
                   myId, sdpAddress.toString()));
          }
          else
          {
-            LOG.debug(String.format("Leg::gotSdp %s switching remote RTP address %s to %s%n", 
+            LOG.debug(String.format("Leg::gotSdp %s switching remote RTP address %s to %s%n",
                   myId, remoteRtpAddress, sdpAddress.toString()));
             previousRtpAddress = remoteRtpAddress ;
             remoteRtpAddress = sdpAddress ;
@@ -148,7 +148,7 @@ public abstract class Leg implements LegListener
 
    public void setInviteTransaction(Transaction inviteTransaction, boolean isServer)
    {
-      this.inviteTransaction = inviteTransaction ; 
+      this.inviteTransaction = inviteTransaction ;
       this.isServer = isServer ;
       if (inviteTransaction == null)
       {
@@ -165,22 +165,22 @@ public abstract class Leg implements LegListener
    {
       return inviteTransaction ;
    }
-   
+
    public String getTag()
    {
       return tag ;
    }
-   
+
    public void setDisplayName(String name)
    {
-      displayName = name ;  
+      displayName = name ;
    }
-   
+
    public String getDisplayName()
    {
       return displayName ;
    }
-   
+
    public String getCallId()
    {
       return callId ;
@@ -190,17 +190,17 @@ public abstract class Leg implements LegListener
    {
       return requestUri ;
    }
-   
+
    public void setRtpPort(int rtpPort)
    {
       this.rtpPort = rtpPort ;
    }
-   
+
    public int getRtpPort()
    {
       return rtpPort ;
    }
-   
+
    public boolean isServer()
    {
       return isServer ;

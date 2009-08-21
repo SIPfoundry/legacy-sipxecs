@@ -8,11 +8,11 @@ import java.util.concurrent.TimeUnit;
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * A simple timer service.
  * The listener is sent an event when the timer expires.
- * 
- * 
+ *
+ *
  * @author Woof!
  *
  */
@@ -25,7 +25,7 @@ public class Timers implements Runnable
 
    ScheduledExecutorService service ;
    PriorityQueue<Timer> timerQueue ;
-   
+
    /**
     * @param rhythm  millisecond tick rate.  Timer resolution is at this rate.
     */
@@ -33,9 +33,9 @@ public class Timers implements Runnable
    {
       this.rhythm = rhythm ;
 
-      LOG.debug(String.format("Timers::Timers(%d)", rhythm)) ; 
+      LOG.debug(String.format("Timers::Timers(%d)", rhythm)) ;
       timerQueue = new PriorityQueue<Timer>() ;
-      
+
       if (rhythm > 0)
       {
          service = new ScheduledThreadPoolExecutor(1) ;
@@ -48,7 +48,7 @@ public class Timers implements Runnable
          // directly without interfearence from real time.
       }
    }
-   
+
    /**
     * @param timerName The name of the timer (one per legListener)
     * @param mS in how many mS to fire the timer
@@ -77,7 +77,7 @@ public class Timers implements Runnable
          timerQueue.add(t) ;
       }
    }
-   
+
    /**
     * @param timerName remove this name from the timer list for legListener
     * @param legListener the listener that gets the event
@@ -86,7 +86,7 @@ public class Timers implements Runnable
    {
       synchronized (timerQueue)
       {
-         LOG.debug(String.format("Timers::remove(%s, %s)", 
+         LOG.debug(String.format("Timers::remove(%s, %s)",
                timerName, legListener.toString())) ;
          for (Timer inQueue : timerQueue)
          {
@@ -100,10 +100,10 @@ public class Timers implements Runnable
          }
       }
    }
-   
+
    /**
     * Remove all timers on this legListener
-    * 
+    *
     * @param legListener
     */
    private void remove(LegListener legListener)
@@ -123,10 +123,10 @@ public class Timers implements Runnable
             }
          }
       }
-      
+
    }
-   
-  
+
+
    /**
     * Beat (as in musical beat)
     * Called periodically based on {@link rhythm rhythm}.
@@ -158,7 +158,7 @@ public class Timers implements Runnable
          }
       }
    }
-   
+
    void trigger(String event, LegListener legListener)
    {
       LOG.debug(String.format("Timers::trigger event(%s)", event)) ;
@@ -173,7 +173,7 @@ public class Timers implements Runnable
    {
       beat() ;
    }
-   
+
    public static synchronized Timers start(int rhythm)
    {
       /*
@@ -185,7 +185,7 @@ public class Timers implements Runnable
       }
       return me ;
    }
-   
+
    public static synchronized void stop()
    {
       if (me != null)
@@ -197,12 +197,12 @@ public class Timers implements Runnable
          me = null ;
       }
    }
-   
+
    public static synchronized Timers getTimers()
    {
       return me ;
    }
- 
+
    /**
     * @param timerName The name of the timer (one per legListener)
     * @param mS in how many mS to fire the timer
@@ -215,7 +215,7 @@ public class Timers implements Runnable
          me.add(timerName, mS, legListener) ;
       }
    }
- 
+
    /**
     * @param timerName remove this name from the timer list for legListener
     * @param legListener the listener that gets the event

@@ -9,13 +9,13 @@ import java.util.Vector;
 
 /**
  * Holds the configuration data neede for the Page Server.
- * 
+ *
  * @author Woof!
  *
  */
 public class Configuration
 {
-   
+
    class PageGroupConfig {
       String description ;    // A description of this group (just for logging)
       String user ;           // The sip user part that pages this group
@@ -32,14 +32,14 @@ public class Configuration
    int tcpSipPort ;           // The SIP Listen port for TCP
    int tlsSipPort ;           // The SIP Listen port for TLS
    int startingRtpPort ;      // The starting RTP port range (4 per page group)
-   
+
    Vector<PageGroupConfig> pageGroups ;
-   
+
    Configuration()
    {
       properties() ;
    }
-   
+
    void internal()
    {
       logLevel = "DEBUG" ;
@@ -49,7 +49,7 @@ public class Configuration
       tcpSipPort = 5050 ;
       tlsSipPort = 5051 ;
       startingRtpPort = 4242 ;
-      
+
       pageGroups = new Vector<PageGroupConfig>() ;
       PageGroupConfig p = new PageGroupConfig() ;
       p.description= "First Group" ;
@@ -57,14 +57,14 @@ public class Configuration
       p.user = "1" ;
       p.urls = "200@cdhcp151.pingtel.com" ;
       pageGroups.add(p) ;
-      
+
       p = new PageGroupConfig() ;
       p.description = "Number Two" ;
       p.beep = "/home/woof/Downloads/PagerAudio/fanfare.wav" ;
       p.user = "42" ;
       p.urls = "200@cdhcp151.pingtel.com,203@cdhcp151.pingtel.com,204@cdhcp151.pingtel.com" ;
       pageGroups.add(p) ;
-      
+
       // Create a master "page all" group from all the urls in the other groups
       // (with no duplicates)
       StringBuffer urls = new StringBuffer() ;
@@ -84,7 +84,7 @@ public class Configuration
          }
       }
       urls.deleteCharAt(urls.length()-1) ; // Remove trailing comma
-      
+
       p = new PageGroupConfig() ;
       p.description = "Page All" ;
       p.beep = "/home/woof/Downloads/PagerAudio/attention.wav" ;
@@ -92,7 +92,7 @@ public class Configuration
       p.urls = urls.toString() ;
       pageGroups.add(p) ;
    }
-   
+
    void properties()
    {
       String path = System.getProperty("conf.dir") ;
@@ -117,13 +117,13 @@ public class Configuration
          e.printStackTrace();
          System.exit(1) ;
       }
-    
+
       String prop = null ;
       try
-      { 
+      {
          logLevel = props.getProperty(prop="log.level") ;
          logFile = props.getProperty(prop="log.file") ;
-         
+
          ipAddress = props.getProperty(prop="sip.address") ;
          udpSipPort = Integer.parseInt(props.getProperty(prop="sip.udpPort")) ;
          tcpSipPort = Integer.parseInt(props.getProperty(prop="sip.tcpPort")) ;
@@ -135,7 +135,7 @@ public class Configuration
          }
 
          startingRtpPort = Integer.parseInt(props.getProperty(prop="rtp.port"));
-      
+
          pageGroups = new Vector<PageGroupConfig>() ;
          for(int i=1;;i++)
          {
@@ -155,7 +155,7 @@ public class Configuration
             {
                p.maximumDuration = Integer.parseInt(temp) ;
             }
-         
+
             pageGroups.add(p) ;
          }
       }

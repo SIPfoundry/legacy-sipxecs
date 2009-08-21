@@ -21,9 +21,9 @@ import org.apache.log4j.Logger;
 /**
  * Accept inbound RTP packets, and forward the RTP packets to zero or more destinations.
  * This enables a "paging service" where one phone's RTP is "broadcast" to many other phones.
- * 
+ *
  * Destinations may be added and removed "on the fly" without locks.
- * 
+ *
  * Call the {@link #beat beat} method at a fixed rate periodically (once every 20 mS is ideal).  One
  * way to do that is with a thread service ({@code beat} is called by {@link run run}):
  *
@@ -32,13 +32,13 @@ import org.apache.log4j.Logger;
  * service = new ScheduledThreadPoolExecutor(1) ;
  * service.scheduleAtFixedRate(rtpFork, 0, 20, TimeUnit.MILLISECONDS);
  * </pre>
- * 
+ *
  * Note that RTCP packets are ignored (and may generate ICMP packets as there is no socket open
  * to eat them)
- * 
+ *
  * The listener gets the following events:
  *    "localAudio end"  when the audio specified by setLocalAudio() ends.
- *    
+ *
  * @author Woof!
  *
  */
@@ -60,10 +60,10 @@ public class RtpFork implements Runnable
    AudioInputStream ulawStream = null ; // A local uLaw stream of bytes to packetize
    LegListener legListener ;
 
-   ScheduledExecutorService service ;   
+   ScheduledExecutorService service ;
 
    public static final int BYTES_PER_MS = 8;   // 8 bytes per mS at 8000 samples/second uLaw
-   
+
    /**
     * @param socket The socket on which to recieve RTP packets.
     * @param rhythm The packitization rhythm (nominally 20 mS)
@@ -82,7 +82,7 @@ public class RtpFork implements Runnable
       rtpOutPacket = new DatagramPacket(rtpOutBuf, rtpOutBuf.length) ;
       jitterBuff = new JitterBuffer(5) ;
    }
-   
+
    /**
     * @param packet The packet to send to each destination
     */
@@ -96,7 +96,7 @@ public class RtpFork implements Runnable
       }
    }
 
-   static 
+   static
    void dumpBytes(byte [] bytes, int length)
    {
      if (length > bytes.length)
@@ -143,14 +143,14 @@ public class RtpFork implements Runnable
    void rtpSend(DatagramPacket origRtp)
       {
          byte [] octets = origRtp.getData() ;
-   
+
          // dumpBytes(octets, 12) ;
          sequenceNumber = ++sequenceNumber & 0xFFFF ;  // Increment and wrap at 16 bits
-         
+
          // Install sequence number into RTP header in big endian order
          octets[ 2] = (byte)((sequenceNumber & 0xFF00) >> 8) ;
          octets[ 3] = (byte)((sequenceNumber & 0x00FF)) ;
-         
+
          // Calculate payload length
          int numSamples = origRtp.getLength() - 12 ;  // 12 bytes of header, minimum
          if ((octets[0] & 0x20) != 0)                 // Padding bit set
@@ -161,26 +161,26 @@ public class RtpFork implements Runnable
          }
          int csrcCount = octets[0] & 0x0F ;
          numSamples -= csrcCount*4 ;                  // and CSRC identifiers
-         
+
          // Increment the timestamp by the payload length
          // (assumes one byte per sample codec, like PCMU)
          timestamp = (timestamp + numSamples) & 0xFFFFFFFF ; // Increment and wrap at 32 bits
-   
+
          // Install into RTP header in big endian order
          octets[ 4] = (byte)((timestamp & 0xFF000000) >> 24) ;
          octets[ 5] = (byte)((timestamp & 0x00FF0000) >> 16) ;
          octets[ 6] = (byte)((timestamp & 0x0000FF00) >>  8) ;
          octets[ 7] = (byte)((timestamp & 0x000000FF)) ;
-   
+
          // Install ssrc into RTP header in big endian order
          octets[ 8] = 'W' ;
          octets[ 9] = 'O' ;
          octets[10] = 'O' ;
          octets[11] = 'F' ;
-   
+
      //    if (debug)
      //       dumpBytes(octets, origRtp.getLength()) ;
-   
+
          send(origRtp) ;
       }
 
@@ -195,7 +195,7 @@ public class RtpFork implements Runnable
          destinations.add(address);
       }
    }
-   
+
    /**
     * @param address Remove this address from the list of destinations for the forked RTP
     */
@@ -207,13 +207,13 @@ public class RtpFork implements Runnable
          destinations.remove(address) ;
       }
    }
-   
+
    public void removeAllDestinations()
    {
       LOG.debug(String.format("RtpFork::removeAllDestinations")) ;
       destinations.clear() ;
    }
-   
+
    public void stopLocalAudio()
    {
       LOG.debug(String.format("RtpFork::closeLocalAudio")) ;
@@ -228,7 +228,7 @@ public class RtpFork implements Runnable
       LegEvent event = new LegEvent(null, "localAudio end") ;
       legListener.onEvent(event) ;
    }
-   
+
    public void startLocalAudio(URL audioSource)
    {
       final AudioFormat ULAW_FORMAT_1 =
@@ -271,7 +271,7 @@ public class RtpFork implements Runnable
          }
       }
    }
-   
+
    /**
     * Get the next RTP packet of local audio.
     * @return A datagram of an RTP packet containing the audio payload, or null if none is available.
@@ -283,7 +283,7 @@ public class RtpFork implements Runnable
          // No stream is available, return null ;
          return null ;
       }
-      
+
       byte [] octets = rtpOutPacket.getData() ;
       int n = 0 ;
       try
@@ -299,24 +299,24 @@ public class RtpFork implements Runnable
                   octets[n+12] = (byte)0xff ; // Pad rest of payload with with uLaw silence
                }
             }
-            
-            // Fill in static RTP header bytes 
+
+            // Fill in static RTP header bytes
             octets[0] = (byte)0x80 ;      // V=2, CC=0
             octets[1] = (byte)0 ;         // M=0, PT=0 (uLaw)
-            
+
             return rtpOutPacket ;
          }
          LOG.debug("RtpFork::getLocalAudioRtp EOF on ulawStream") ;
-            
+
       } catch (IOException e) {
          LOG.error("RtpFork::getLocalAudioRtp", e) ;
       }
-      
+
       // When an error occurs or EOF is reached, close the stream
       stopLocalAudio() ;
       return null ;
    }
-   
+
    /**
     * Beat (as in musical beat)
     * Call this method at a fixed rate periodically based on {@link rhythm rhythm}, or use
@@ -402,13 +402,13 @@ public class RtpFork implements Runnable
          // Add the packet into the jitter buffer
          jitterBuff.add(packet) ;
       }
-      
+
       if (localPacket != null)
       {
          // Don't send network packets if we are sending local packets
          return ;
       }
-      
+
       /*
        * Pull network packets (possibly re-ordered) out of the jitter buffer
        * and send them.
@@ -435,16 +435,16 @@ public class RtpFork implements Runnable
    {
       beat() ;
    }
-   
+
    public void start()
    {
       /*
        * Using a single thread, read and retransmit packets every rhythm mS.
        * By doing it this way, inbound packets accumulate in the OS's IP buffers.  If the far
-       * end is sending at the same rhythm, there will either be 0, 1 or 2 packets available to read, 
+       * end is sending at the same rhythm, there will either be 0, 1 or 2 packets available to read,
        * depending on jitter and clock skew.
-       * 
-       * By not waking up on every inbound packet, and instead polling perodically, we save effort, 
+       *
+       * By not waking up on every inbound packet, and instead polling perodically, we save effort,
        * and are more efficient.  It also means it is much easier to stop this, as we won't have
        * a thread blocked in I/O that we somehow have to cancel.
        */
@@ -452,7 +452,7 @@ public class RtpFork implements Runnable
       service = new ScheduledThreadPoolExecutor(1) ;
       service.scheduleAtFixedRate(this, 0, rhythm, TimeUnit.MILLISECONDS);
    }
-   
+
    public void stop()
    {
       if (service != null)
@@ -460,5 +460,5 @@ public class RtpFork implements Runnable
          service.shutdown() ;
       }
    }
-   
+
 }

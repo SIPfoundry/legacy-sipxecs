@@ -21,8 +21,8 @@ public class RtpForkTest extends TestCase implements LegListener
       public String sent ;
       long seqs[] = new long[5] ;
       int n = 0 ;
-      
-      
+
+
       public TestSocket(DatagramSocket socket)
       {
          super(socket);
@@ -32,14 +32,14 @@ public class RtpForkTest extends TestCase implements LegListener
       {
          super(port);
       }
-      
+
 
       public void reset()
       {
          sent = "" ;
          n = 0 ;
       }
-      
+
       @Override
       public InetSocketAddress getInetSocketAddress()
       {
@@ -60,10 +60,10 @@ public class RtpForkTest extends TestCase implements LegListener
 
          seqs[n++] = rtp.getSequenceNumber() ;
       }
-      
+
    }
-   
-   
+
+
    public void testDestinations()
    {
       PacketSocket s = null;
@@ -106,11 +106,11 @@ public class RtpForkTest extends TestCase implements LegListener
          DatagramPacket packet = new DatagramPacket(oa, oa.length) ;
          oa[0] = 0 ;
          SocketAddress b = new InetSocketAddress(88) ;
-         
+
          t.reset() ;
          r.send(packet) ;
          assertEquals("", t.sent) ;
-         
+
          r.addDestination(a) ;
          t.reset() ;
          r.send(packet) ;
@@ -120,12 +120,12 @@ public class RtpForkTest extends TestCase implements LegListener
          t.reset() ;
          r.send(packet) ;
          assertEquals("Sent to 0.0.0.0/0.0.0.0:42: 0%nSent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
-         
+
          r.removeDestination(a);
          t.reset() ;
          r.send(packet) ;
          assertEquals("Sent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
-         
+
       } catch (SocketException e)
       {
          fail(e.toString()) ;
@@ -147,11 +147,11 @@ public class RtpForkTest extends TestCase implements LegListener
          DatagramPacket packet = new DatagramPacket(oa, oa.length) ;
          oa[0] = 0 ;
          SocketAddress b = new InetSocketAddress(88) ;
-         
+
          t.reset() ;
          r.rtpSend(packet) ; // seq 43
          assertEquals(0, t.n) ;
-         
+
          r.addDestination(a) ;
          t.reset() ;
          r.rtpSend(packet) ; // seq 44
@@ -163,7 +163,7 @@ public class RtpForkTest extends TestCase implements LegListener
          r.rtpSend(packet) ; // seq 45
          assertEquals("Sent to 0.0.0.0/0.0.0.0:42: 0%nSent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
          assertEquals(45L, t.seqs[0]) ;
-         
+
          r.removeDestination(a);
          t.reset() ;
          r.rtpSend(packet) ; // seq 46
@@ -171,11 +171,11 @@ public class RtpForkTest extends TestCase implements LegListener
          assertEquals("Sent to 0.0.0.0/0.0.0.0:88: 0%nSent to 0.0.0.0/0.0.0.0:88: 0%n", t.sent) ;
          assertEquals(46L, t.seqs[0]) ;
          assertEquals(47L, t.seqs[1]) ;
-         
+
       } catch (SocketException e)
       {
          fail(e.toString()) ;
-      }   
+      }
    }
 
    public void testStartLocalAudio()

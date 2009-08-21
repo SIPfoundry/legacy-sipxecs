@@ -37,22 +37,22 @@ public class SipXpage implements LegListener
    private Configuration config ;
    private Vector<PageGroup> pageGroups = new Vector<PageGroup>();
    private HashMap<String, PageGroup>user2Group = new HashMap<String, PageGroup>() ;
-   
-   
+
+
    /**
     * Initialize everything.
-    * 
+    *
     * Load the configuration, start the stack
     */
    private void init()
    {
       // Load the configuration
       config = new Configuration() ;
-      
+
       // Configure log4j
       Properties props = new Properties() ;
       props.setProperty("log4j.rootLogger","warn, file") ;
-      props.setProperty("log4j.logger.org.sipfoundry.sipxpage", 
+      props.setProperty("log4j.logger.org.sipfoundry.sipxpage",
             SipFoundryLayout.mapSipFoundry2log4j(config.logLevel).toString()) ;
       props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender") ;
       props.setProperty("log4j.appender.file.File", "./sipxpage.log") ;
@@ -74,7 +74,7 @@ public class SipXpage implements LegListener
          System.err.println(msg);
          System.exit(1) ;
       }
-      
+
       properties.setProperty("javax.sip.STACK_NAME", "sipXpage");
 
       properties.setProperty("gov.nist.javax.sip.DEBUG_LOG",
@@ -89,9 +89,9 @@ public class SipXpage implements LegListener
       // You need 16 (or TRACE) for logging traces. 32 (or DEBUG) for debug + traces.
       // Your code will limp at 32 but it is best for debugging.
       properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", config.traceLevel);
-      
+
       properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
-      properties.setProperty("gov.nist.javax.sip.LOG_FACTORY", 
+      properties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
     		  "org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory");
 
 
@@ -105,7 +105,7 @@ public class SipXpage implements LegListener
          // Create SipStack object
          sipStack = sipFactory.createSipStack(properties);
          System.out.println("createSipStack " + sipStack);
-         
+
       } catch (PeerUnavailableException e) {
          // could not find
          // gov.nist.jain.protocol.ip.sip.SipStackImpl
@@ -120,7 +120,7 @@ public class SipXpage implements LegListener
          tcpListeningPoint = sipStack.createListeningPoint(config.ipAddress, config.tcpSipPort, "tcp");
          sipProvider = sipStack.createSipProvider(udpListeningPoint);
          sipProvider.addListeningPoint(tcpListeningPoint) ;
-         
+
          legSipListener= new LegSipListener() ;
          legSipListener.init(sipFactory, sipProvider, this);
       } catch (Exception e) {
@@ -154,7 +154,7 @@ public class SipXpage implements LegListener
             p.setBeep(pc.beep) ;
             LOG.debug(String.format("Page Group %s adding timeout %d",
                   user, pc.maximumDuration));
-            p.setMaximumDuration(pc.maximumDuration);            
+            p.setMaximumDuration(pc.maximumDuration);
             user2Group.put(user, p) ;
             for (String dest : pc.urls.split(","))
             {
@@ -165,27 +165,27 @@ public class SipXpage implements LegListener
             pageGroups.add(p) ;
             rtpPort += 4 ;
          }
-         
+
       } catch (Exception e)
       {
-         LOG.fatal(String.format("Cannot create PageGroup  %s (%s)", 
+         LOG.fatal(String.format("Cannot create PageGroup  %s (%s)",
                user, pageGroupDescription), e) ;
          e.printStackTrace() ;
          System.exit(1);
       }
 
 
-      
-      LOG.info(String.format("sipXpage listening on %s:%04d/UDP %04d/TCP", 
+
+      LOG.info(String.format("sipXpage listening on %s:%04d/UDP %04d/TCP",
          config.ipAddress, config.udpSipPort, config.tcpSipPort)) ;
    }
-   
+
    /**
     * @param args
     */
    public static void main(String[] args)
    {
-      try 
+      try
       {
          SipXpage pager = new SipXpage() ;
          pager.init() ;
@@ -201,16 +201,16 @@ public class SipXpage implements LegListener
          t.printStackTrace() ;
          System.exit(1) ;
       }
-      
+
    }
 
    /**
     * When an incoming call arrives, find the appropriate PageGroup
     * (based on the user name that was called), and page that group.
-    * 
+    *
     * If the user name isn't found, or that group is currently involved
     * in a page already, reject the call.
-    * 
+    *
     * @param event The event that describes the incoming call.
     */
    private void page(LegEvent event)
@@ -220,7 +220,7 @@ public class SipXpage implements LegListener
       String alertInfoKey = leg.getRequestUri().getParameter("Alert-info") ;
       String user = leg.getRequestUri().getUser() ;
       PageGroup pageGroup = null ;
-      
+
 
       pageGroup = user2Group.get(user) ;
       LOG.info("SipXpage::page user="+user) ;
@@ -238,7 +238,7 @@ public class SipXpage implements LegListener
          return ;
       }
 
-      if (pageGroup.isBusy() == true ||   
+      if (pageGroup.isBusy() == true ||
           pageGroup.page(leg, sdpAddress, alertInfoKey) == false)
       {
          // Already have an inbound call for that page group.  Return busy here response.
@@ -251,9 +251,9 @@ public class SipXpage implements LegListener
          }
       }
    }
-   
+
    /**
-    * As this is the LegListener that gets invoked for incoming calls, 
+    * As this is the LegListener that gets invoked for incoming calls,
     * dispatch the invite and bye events.
     */
    public boolean onEvent(LegEvent event)

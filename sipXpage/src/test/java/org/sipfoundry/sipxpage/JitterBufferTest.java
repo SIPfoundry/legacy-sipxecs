@@ -15,18 +15,18 @@ public class JitterBufferTest extends TestCase
       octets[ 3] = (byte)((sequenceNumber & 0x00FF)) ;
       return new DatagramPacket(octets,4) ;
    }
-   
+
    public void testAdd()
    {
       JitterBuffer j = new JitterBuffer(5) ;
       DatagramPacket p ;
-      
+
       p = j.removeDatagram() ;
       if (p != null)
       {
          fail("Empty JitterBuffer did not return null");
       }
-      
+
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(2)) ;
@@ -37,7 +37,7 @@ public class JitterBufferTest extends TestCase
    public void testAddDuplicate()
    {
       JitterBuffer j = new JitterBuffer(5) ;
-      
+
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(2)) ;
@@ -49,7 +49,7 @@ public class JitterBufferTest extends TestCase
    public void testAddDuplicate2()
    {
       JitterBuffer j = new JitterBuffer(5) ;
-      
+
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.removeRtpPacket() ;
@@ -62,11 +62,11 @@ public class JitterBufferTest extends TestCase
    public void testAddDuplicate3()
    {
       JitterBuffer j = new JitterBuffer(5) ;
-      
+
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.removeRtpPacket() ;
-      j.add(generate(0)) ; 
+      j.add(generate(0)) ;
       j.removeRtpPacket() ;
 
       assertEquals(0, j.size()) ;
@@ -94,7 +94,7 @@ public class JitterBufferTest extends TestCase
       assertEquals(2, r.getSequenceNumber()) ;
 
    }
-   
+
    public void testRemoveReverseOrder()
    {
       JitterBuffer j = new JitterBuffer(5) ;
@@ -104,7 +104,7 @@ public class JitterBufferTest extends TestCase
       j.add(generate(2)) ;
       j.add(generate(1)) ;
       j.add(generate(0)) ;
-      
+
       // Check they come out in order
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -126,7 +126,7 @@ public class JitterBufferTest extends TestCase
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(3)) ;
-      
+
       // Check the first two come out in order
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -134,11 +134,11 @@ public class JitterBufferTest extends TestCase
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
       assertEquals(1, r.getSequenceNumber()) ;
-      
+
       // The third call should return null
       r = j.removeRtpPacket() ;
       assertNull(r) ;
-      
+
       // The fourth call should return the last packet
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -154,7 +154,7 @@ public class JitterBufferTest extends TestCase
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(3)) ;
-      
+
       // Check the first two come out in order
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -162,14 +162,14 @@ public class JitterBufferTest extends TestCase
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
       assertEquals(1, r.getSequenceNumber()) ;
-      
+
       // The third call should return null
       r = j.removeRtpPacket() ;
       assertNull(r) ;
-      
+
       // Now sequence 2 arrives:
       j.add(generate(2)) ;
-      
+
       // The fourth call should return 2
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -190,7 +190,7 @@ public class JitterBufferTest extends TestCase
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(3)) ;
-      
+
       // Check the first two come out in order
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -198,14 +198,14 @@ public class JitterBufferTest extends TestCase
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
       assertEquals(1, r.getSequenceNumber()) ;
-      
+
       // The third call should return null
       r = j.removeRtpPacket() ;
       assertNull(r) ;
-      
+
       // Now sequence 4 arrives:
       j.add(generate(4)) ;
-      
+
       // The fourth call should return 3
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -226,7 +226,7 @@ public class JitterBufferTest extends TestCase
       j.add(generate(0)) ;
       j.add(generate(1)) ;
       j.add(generate(3)) ;
-      
+
       // Check the first two come out in order
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -234,14 +234,14 @@ public class JitterBufferTest extends TestCase
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
       assertEquals(1, r.getSequenceNumber()) ;
-      
+
       // The third call should return null
       r = j.removeRtpPacket() ;
       assertNull(r) ;
-      
+
       // Now sequence 65535 arrives (it should fail)
       assertFalse(j.add(generate(65535))) ;
-      
+
       // The fourth call should return 3
       r = j.removeRtpPacket() ;
       assertNotNull(r) ;
@@ -314,7 +314,7 @@ public class JitterBufferTest extends TestCase
       {
          j.add(generate(i)) ;
       }
-      
+
       for(int i=6;i<=10;i++)
       {
          // Check they come out in order, starting with the 6th
@@ -322,7 +322,7 @@ public class JitterBufferTest extends TestCase
          assertNotNull(r) ;
          assertEquals(i, r.getSequenceNumber()) ;
       }
-      
+
       // And the last is null
       r = j.removeRtpPacket() ;
       assertNull(r) ;
@@ -332,7 +332,7 @@ public class JitterBufferTest extends TestCase
    {
       JitterBuffer j = new JitterBuffer(5) ;
       RtpPacket r ;
-      
+
       for(int i=0; i<65535*2; i++)
       {
          j.add(generate(i)) ;

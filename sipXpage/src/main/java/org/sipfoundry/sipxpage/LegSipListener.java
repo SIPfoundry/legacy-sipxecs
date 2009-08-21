@@ -58,11 +58,11 @@ import gov.nist.javax.sip.address.SipUri;
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * The main class that deals with the NIST SIP stack, handling
  * the details of what the SIP stack desires, and in turn generating
  * LegEvents to the various legs and other LegListeners.
- * 
+ *
  * @author Woof!
  *
  */
@@ -76,43 +76,43 @@ public class LegSipListener implements SipListener
    AddressFactory addressFactory ;
    HeaderFactory headerFactory ;
    ListeningPoint udpListeningPoint;
-   
+
    String fromIPAddress ;
    String fromSipAddress ;
    UserAgentHeader userAgent  ;
    LegListener inviteListener ;        // The object we tell about new INVITE messages
-   
+
    ConcurrentHashMap<Dialog, Leg> dialogLegMap ;
    ConcurrentHashMap<Leg, Dialog> legDialogMap ;
-   
+
    static final String PCMU = Integer.toString(SdpConstants.PCMU) ;
-   
+
    public void init(SipFactory sipFactory, SipProvider sipProvider, LegListener inviteListener) throws Exception
    {
       this.sipProvider = sipProvider;
       this.sipFactory = sipFactory;
       this.inviteListener = inviteListener ;
-      
+
       sipProvider.addSipListener(this);
       sipStack = sipProvider.getSipStack() ;
       udpListeningPoint = sipProvider.getListeningPoint(ListeningPoint.UDP);
       fromIPAddress = udpListeningPoint.getIPAddress() ;
       fromSipAddress = fromIPAddress + ":" + udpListeningPoint.getPort() ;
-            
+
       messageFactory = sipFactory.createMessageFactory();
       headerFactory = sipFactory.createHeaderFactory() ;
       addressFactory = sipFactory.createAddressFactory() ;
-      
+
       // Create a UserAgent Header
       ArrayList<String> uaList = new ArrayList<String>() ;
       uaList.add("sipXpage/1.0") ;
       userAgent = headerFactory.createUserAgentHeader(uaList) ;
-      
+
       // Create a mapping between dialogs and legs
       dialogLegMap = new ConcurrentHashMap<Dialog, Leg>(50) ;
       legDialogMap = new ConcurrentHashMap<Leg, Dialog>(50) ;
    }
-   
+
    void triggerLegEvent(LegEvent legEvent)
    {
       LegListener legListener = legEvent.getLeg() ;
@@ -142,12 +142,12 @@ public class LegSipListener implements SipListener
          }
       }
    }
-   
+
 
    /**
     * Place an outbound call.
-    * 
-    * @param leg 
+    *
+    * @param leg
     * @param uri The destination of the call
     * @return The callId of the created call
     */
@@ -157,14 +157,14 @@ public class LegSipListener implements SipListener
       // send to the registered phones.
       LOG.info(String.format("LegSipListener::placeCall to %s", toAddress.toString())) ;
       Request request = buildInviteRequest(leg, displayName, toAddress, alertInfoKey);
-      
+
       // Create ContentTypeHeader
       ContentTypeHeader contentTypeHeader = headerFactory
             .createContentTypeHeader("application", "sdp");
-      
+
       request.setContent(sdp, contentTypeHeader) ;
-      
-      
+
+
       // Create a client transaction, find the associated dialog
       ClientTransaction inviteTid = sipProvider.getNewClientTransaction(request);
       Dialog dialog = inviteTid.getDialog();
@@ -173,36 +173,36 @@ public class LegSipListener implements SipListener
       dialogLegMap.put(dialog, leg) ;
       legDialogMap.put(leg, dialog) ;
       LOG.debug(String.format("LegSipListener::placeCall associating dialog(%s) with leg(%s)", dialog.toString(), leg.toString())) ;
-      
+
       // Associate the invite transaction with the leg (for later cancel)
       leg.setInviteTransaction(inviteTid, false) ;
       inviteTid.setApplicationData(leg) ;
-      
+
       // Set the name
       leg.setDisplayName(displayName) ;
-      
+
       // send the request out.
       inviteTid.sendRequest();
-      
+
       return dialog.getCallId().toString() ;
    }
-   
+
    public void endCall(Leg leg) throws Exception
    {
       LOG.info(String.format("LegSipListener::endCall Leg %s", leg.toString())) ;
       Dialog dialog = legDialogMap.get(leg) ;
-      
+
       if (dialog == null)
       {
          LOG.debug(String.format("LegSipListener::endCall Hmm, dialog not found for leg %s%n", leg)) ;
          return ;
       }
-      
+
       // Invite tx still exists, send a CANCEL or 4xx
       Transaction origInviteTransaction = leg.getInviteTransaction() ;
       if (origInviteTransaction != null)
       {
-    	 LOG.info(String.format("LegSipListener::endCall Leg %s origInviteTransaction exists", leg.toString())) ; 
+    	 LOG.info(String.format("LegSipListener::endCall Leg %s origInviteTransaction exists", leg.toString())) ;
          if (leg.isServer())
          {
             // Send a Busy Here response
@@ -229,7 +229,7 @@ public class LegSipListener implements SipListener
       // Already terminated, call is ended.
       if (dialogState == null || dialogState == DialogState.TERMINATED)
       {
-    	 LOG.info(String.format("LegSipListener::endCall Leg %s dialogState null or TERMINATED", leg.toString())) ; 
+    	 LOG.info(String.format("LegSipListener::endCall Leg %s dialogState null or TERMINATED", leg.toString())) ;
          return ;
       }
       else
@@ -237,7 +237,7 @@ public class LegSipListener implements SipListener
          if (leg.isByed()) {
              LOG.info(String.format("LegSipListener::endcall Leg %s got a bye, so don't send one", leg.toString()));
          } else {
-         	 LOG.info(String.format("LegSipListener::endCall Leg %s dialog %s needs a BYE", leg.toString(), dialog.toString())) ; 
+         	 LOG.info(String.format("LegSipListener::endCall Leg %s dialog %s needs a BYE", leg.toString(), dialog.toString())) ;
              // Build a BYE request
              Request request = dialog.createRequest(Request.BYE) ;
              request.addHeader(userAgent);
@@ -246,7 +246,7 @@ public class LegSipListener implements SipListener
              // Send it (in Dialog)
              dialog.sendRequest(byeTransaction) ;
          }
-      }      
+      }
    }
 
    public void acceptCall(Leg leg) throws Throwable
@@ -255,10 +255,10 @@ public class LegSipListener implements SipListener
 
       Transaction transactionId = leg.getInviteTransaction() ;
       ServerTransaction serverTransactionId = (ServerTransaction)transactionId ;
-      
+
       // Clear the invite transaction of the leg
       leg.setInviteTransaction(null, false) ;
-      
+
 
       Request request = serverTransactionId.getRequest() ;
 
@@ -269,7 +269,7 @@ public class LegSipListener implements SipListener
          displayName = fromHeader.getAddress().getURI().toString() ;
       }
       leg.setDisplayName(displayName) ;
-      
+
       InetSocketAddress localRtpAddress = new
          InetSocketAddress(udpListeningPoint.getIPAddress(), leg.getRtpPort()) ;
       SessionDescription sdp = buildSdp(localRtpAddress, leg.getRtpPort() == 0) ;
@@ -278,13 +278,13 @@ public class LegSipListener implements SipListener
       // Add Leg's tag
       ToHeader toHeader = (ToHeader)response.getHeader(ToHeader.NAME);
       toHeader.setTag(leg.getTag()) ;
-      
+
       // Create contact headers
       SipURI fromURI = addressFactory.createSipURI("pager", fromSipAddress);
       SipURI contactUrl = fromURI;
       contactUrl.setPort(udpListeningPoint.getPort());
 
-      
+
       // Create the contact name address.
       Address contactAddress = addressFactory.createAddress(fromURI);
       ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
@@ -293,16 +293,16 @@ public class LegSipListener implements SipListener
       // Create ContentTypeHeader
       ContentTypeHeader contentTypeHeader = headerFactory
             .createContentTypeHeader("application", "sdp");
-      
+
       // Add the sdp
       response.setContent(sdp, contentTypeHeader) ;
       sendServerResponse(serverTransactionId, response);
    }
-   
+
    /**
     * Build an INVITE request to the paged phone, with various headers needed
     * to trigger Auto-Answer on Polycom, SNOM, and other phones.
-    * 
+    *
     * <p>
     * Adds an Alert-info header if alertInfoKey is not null.
     *    Polycom uses this.
@@ -310,7 +310,7 @@ public class LegSipListener implements SipListener
     * Adds a Call-info header with <phone>;answer-after=0
     *    SNOM and others use this.
     * </p>
-    * 
+    *
     * @param leg The leg that will be sending this INVITE (uses it's tag for "from")
     * @param fromDisplayName The text to be used in the From display
     * @param toAddress The request URI being INVITEd
@@ -326,14 +326,14 @@ public class LegSipListener implements SipListener
       fromNameAddress.setDisplayName(fromDisplayName);
       FromHeader fromHeader = headerFactory.createFromHeader(fromNameAddress,
             leg.getTag()); // Use leg's tag
-      
+
       // create To Header
       Address toNameAddress = addressFactory.createAddress(toAddress);
       ToHeader toHeader = headerFactory.createToHeader(toNameAddress, null);
 
       // create Request URI
       SipURI requestURI = toAddress;
-      
+
       // Add the sipx-noroute=VoiceMail and sipx-userforward=false parameters
       requestURI.setParameter("sipx-noroute", "VoiceMail") ;
       requestURI.setParameter("sipx-userforward", "false") ;
@@ -363,10 +363,10 @@ public class LegSipListener implements SipListener
       Request request = messageFactory.createRequest(requestURI,
             Request.INVITE, callIdHeader, cSeqHeader, fromHeader,
             toHeader, viaHeaders, maxForwards);
-      
+
       // Add user agent
       request.addHeader(userAgent);
-      
+
       if (alertInfoKey != null)
       {
          // Add Alert-Info header (Cannot use headerFactory.createAlertInfoHeader(URI), so
@@ -374,18 +374,18 @@ public class LegSipListener implements SipListener
          Header alertInfo = headerFactory.createHeader("Alert-info", alertInfoKey) ;
          request.addHeader(alertInfo) ;
       }
-      
+
       // Add Call-Info header
       CallInfoHeader callInfo = headerFactory.createCallInfoHeader(toAddress) ;
       callInfo.setParameter("answer-after", "0") ;
       request.addHeader(callInfo) ;
-      
+
       // Create contact headers
       SipURI contactUrl = fromURI;
       contactUrl.setPort(udpListeningPoint.getPort());
       contactUrl.setLrParam();
 
-      
+
       // Create the contact name address.
       Address contactAddress = addressFactory.createAddress(fromURI);
 
@@ -399,9 +399,9 @@ public class LegSipListener implements SipListener
    /**
     * Build the Session Description corresponding to an RTP address
     * (Assuming uLaw, ptime=20 mS, AVP=audio)
-    * 
+    *
     * @param localRtpAddress IP and Port of the desired SDP
-    * @param sendOnly True if this SDP is to be marked "sendonly".  If so, localRtpAddress 
+    * @param sendOnly True if this SDP is to be marked "sendonly".  If so, localRtpAddress
     * is not used.
     * @return The Session Description
     * @throws Exception
@@ -439,15 +439,15 @@ public class LegSipListener implements SipListener
       md.setAttributes(attrs);
       mediaList.add(md);
       sdp.setMediaDescriptions(mediaList) ;
-      
+
       return sdp ;
    }
 
    Response processInvite(Request request, ServerTransaction serverTransactionId) throws Throwable
    {
       Dialog dialog = null ;
-      
-      
+
+
       if (serverTransactionId != null)
       {
          // An existing dialog, it must be a re-invite
@@ -461,7 +461,7 @@ public class LegSipListener implements SipListener
             serverTransactionId.setApplicationData(leg) ;
             leg.setInviteTransaction(serverTransactionId, true) ;
          }
-         
+
          InetSocketAddress addressPort = handleSdp(request) ;
          if (addressPort != null)
          {
@@ -481,11 +481,11 @@ public class LegSipListener implements SipListener
          // A new call
 
          LOG.info("LegSipListener::processInvite new Invite") ;
-         
+
          // Create a new transaction
          serverTransactionId = sipProvider.getNewServerTransaction(request);
          dialog = serverTransactionId.getDialog() ;
-         
+
          // Create the leg and mappings
          InboundLeg leg = new InboundLeg(this, inviteListener) ;
          SIPRequest sipReq = (SIPRequest) request;
@@ -507,11 +507,11 @@ public class LegSipListener implements SipListener
          LegEvent legEvent = new LegEvent(leg, "invite") ;
          legEvent.setSdpAddress(handleSdp(request)) ;
          leg.setInviteTransaction(serverTransactionId, true) ;
-         inviteListener.onEvent(legEvent) ; 
+         inviteListener.onEvent(legEvent) ;
       }
       return null ;  // No response.  Let the appropriate LegListener handle that.
    }
-   
+
    Response processBye(Request request, ServerTransaction serverTransactionId) throws ParseException
    {
       Dialog dialog = serverTransactionId.getDialog() ;
@@ -523,12 +523,12 @@ public class LegSipListener implements SipListener
    {
       return messageFactory.createResponse(Response.ACCEPTED,request) ;
    }
-   
+
    public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedReceivedEvent)
    {
-      Dialog dialog = dialogTerminatedReceivedEvent.getDialog() ; 
+      Dialog dialog = dialogTerminatedReceivedEvent.getDialog() ;
       LOG.info(String.format("LegSipListener Dialog Terminated Event on dialog id " + dialog.getDialogId()));
-      
+
       // Tell the leg goodbye and remove the mapping
       triggerLegEvent(dialog, "dialog terminated") ;
       Leg leg = dialogLegMap.remove(dialog) ;
@@ -549,13 +549,13 @@ public class LegSipListener implements SipListener
             .getServerTransaction();
       Leg leg = serverTransactionId != null ? (Leg)serverTransactionId.getApplicationData() : null ;
 
-      LOG.info(String.format("LegSipListener::processRequest %s received at %s", 
+      LOG.info(String.format("LegSipListener::processRequest %s received at %s",
             request.getMethod(), sipStack.getStackName())) ;
-   
-      LOG.info(String.format("LegSipListener::processRequest transactionId %s Leg %s", 
-         serverTransactionId != null ? serverTransactionId.toString() : "(null)", 
+
+      LOG.info(String.format("LegSipListener::processRequest transactionId %s Leg %s",
+         serverTransactionId != null ? serverTransactionId.toString() : "(null)",
          leg != null ? leg.toString() : "(null)")) ;
-      
+
       Response response = null ;
       try
       {
@@ -576,7 +576,7 @@ public class LegSipListener implements SipListener
          {
             response = processInvite(request, serverTransactionId);
          }
-         else 
+         else
          {
             response = messageFactory.createResponse(Response.BAD_REQUEST,request) ;
          }
@@ -585,7 +585,7 @@ public class LegSipListener implements SipListener
          LOG.fatal("LegSipListener::processRequest", t) ;
          System.exit(1) ;
       }
-      
+
       if (response != null)
       {
          sendServerResponse(serverTransactionId, response);
@@ -630,9 +630,9 @@ public class LegSipListener implements SipListener
 			transactionDialog = clientTransactionId.getDialog();
 		}
 
-		LOG.info("LegSipListener::processResponse " + response.getReasonPhrase() 
-				+ " received at " + sipStack.getStackName() 
-				+ " with client transaction id "+ clientTransactionId 
+		LOG.info("LegSipListener::processResponse " + response.getReasonPhrase()
+				+ " received at " + sipStack.getStackName()
+				+ " with client transaction id "+ clientTransactionId
 				+ " tx dialog " + transactionDialog
 				+ " event dialog " + eventDialog);
 
@@ -645,7 +645,7 @@ public class LegSipListener implements SipListener
 				// Add user agent
 				ackRequest.addHeader(userAgent);
 
-				
+
 				// If the eventDialog is not the transactionDialog, this 200 OK is from a fork.
 				if (transactionDialog == null || !eventDialog.equals(transactionDialog)) {
 					// Send ACK in statelessly so as NOT to accept it
@@ -653,7 +653,7 @@ public class LegSipListener implements SipListener
 
 					// Send a BYE, we cannot handle multiple forks.
 					LOG.debug("LegSipListener::processResponse second 200 OK (forked INVITE?), send BYE");
-	
+
 					// Build a BYE request
 					Request byeRequest;
 					byeRequest = eventDialog.createRequest(Request.BYE);
@@ -664,7 +664,7 @@ public class LegSipListener implements SipListener
 							.getNewClientTransaction(byeRequest);
 					// Send it (in Dialog)
 					eventDialog.sendRequest(byeTransaction);
- 										
+
 					return ;
 				} else {
 					// Send ACK in Dialog to accept it
@@ -717,7 +717,7 @@ public class LegSipListener implements SipListener
    /**
 	 * Given a SIP message, find any SDP embedded in it and return the IP
 	 * address and port number that represents uLaw audio.
-	 * 
+	 *
 	 * @param message
 	 * @return The InetSocketAddress or null if nothing found
 	 */
@@ -739,7 +739,7 @@ public class LegSipListener implements SipListener
                for (Iterator iter = mediaDescriptions.iterator(); iter.hasNext();)
                {
                   MediaDescription md = (MediaDescription) iter.next();
-                  
+
                   Media media = md.getMedia() ;
                   if (media.getMediaType().compareToIgnoreCase("audio") == 0)
                   {
@@ -747,7 +747,7 @@ public class LegSipListener implements SipListener
                      for (Iterator iter2 = formats.iterator(); iter2.hasNext();)
                      {
                         String format = (String) iter2.next();
-                        if (format.equals(PCMU)) 
+                        if (format.equals(PCMU))
                         {
                            // Check the connection with the media
                            Connection c = md.getConnection() ;
@@ -770,7 +770,7 @@ public class LegSipListener implements SipListener
          } catch (SdpException e)
          {
             // Guess the content wasn't sdp (or not valid sdp).  Ignore it then
-         } 
+         }
       }
       return null ;
    }
@@ -785,7 +785,7 @@ public class LegSipListener implements SipListener
    {
       Transaction tid ;
       String ua = "dunno" ;
-     
+
       if (transactionTerminatedReceivedEvent.isServerTransaction())
       {
          ua = "Server" ;
@@ -794,11 +794,11 @@ public class LegSipListener implements SipListener
       else
       {
          ua = "Client" ;
-         tid = transactionTerminatedReceivedEvent.getClientTransaction() ; 
+         tid = transactionTerminatedReceivedEvent.getClientTransaction() ;
       }
-      LOG.info(String.format("LegSipListener::processTransactionTerminated Event on %s transaction %s id %s", ua, 
+      LOG.info(String.format("LegSipListener::processTransactionTerminated Event on %s transaction %s id %s", ua,
             tid.getRequest().getMethod(), tid.toString()));
-      
+
       // Clear this transaction from the leg
       Leg leg = (Leg)tid.getApplicationData() ;
       if (leg != null)
