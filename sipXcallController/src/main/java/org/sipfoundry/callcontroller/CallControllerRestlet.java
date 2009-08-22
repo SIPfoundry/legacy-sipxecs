@@ -34,7 +34,7 @@ public class CallControllerRestlet extends Restlet {
     public void handle(Request request, Response response) {
         try {
             Method httpMethod = request.getMethod();
-            if (!httpMethod.equals(Method.GET) && !httpMethod.equals(Method.PUT)) {
+            if (!httpMethod.equals(Method.POST) && !httpMethod.equals(Method.GET)) {
                 response.setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
                 return;
             }
@@ -91,7 +91,7 @@ public class CallControllerRestlet extends Restlet {
 
             SipStackBean stackBean = SipStackBean.getInstance();
 
-            if (httpMethod.equals(Method.PUT)) {
+            if (httpMethod.equals(Method.POST)) {
                 String fwdAllowed = (String) request.getAttributes().get(
                         CallControllerParams.FORWARDING_ALLOWED);
                 boolean isForwardingAllowed = fwdAllowed == null ? false : Boolean
@@ -110,6 +110,8 @@ public class CallControllerRestlet extends Restlet {
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
 
                 }
+                response.setEntity("http://callcontroller/"+callingParty+"/" + calledParty, MediaType.TEXT_URI_LIST);
+                
              
             } else {
                 DialogContext dialogContext = SipStackBean.getInstance().getDialogContext(key);
@@ -121,7 +123,7 @@ public class CallControllerRestlet extends Restlet {
                 }
                 response.setEntity(dialogContext.getStatus(), MediaType.TEXT_PLAIN);
             }
-            response.setStatus(Status.SUCCESS_OK);
+             response.setStatus(Status.SUCCESS_OK);
         } catch (Exception ex) {
             logger.error("An exception occured while processing the request. : ", ex);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);

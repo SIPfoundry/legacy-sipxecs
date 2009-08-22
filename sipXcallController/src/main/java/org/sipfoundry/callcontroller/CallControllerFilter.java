@@ -12,6 +12,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.restlet.Filter;
 import org.restlet.Restlet;
+import org.restlet.data.ChallengeRequest;
+import org.restlet.data.ChallengeResponse;
+import org.restlet.data.ChallengeScheme;
 import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.data.Request;
@@ -57,17 +60,16 @@ public class CallControllerFilter extends Filter {
                   return Filter.CONTINUE;
               }
           }
-
-
-       
-          String agentName = ((String) request.getAttributes().get(CallControllerParams.AGENT)).trim();
-          String passWord = ((String) request.getAttributes().get(CallControllerParams.PIN)).trim();
-
-          logger.debug("AgentName = " + agentName);
-          logger.debug("password " + passWord);
           
-          if ( passWord == null ) {
-              passWord = "";
+          
+        
+       
+          String agentName = ((String) request.getAttributes().get(CallControllerParams.AGENT));
+       
+          
+          logger.debug("AgentName = " + agentName);
+          if ( agentName == null ) {
+              agentName = (String)request.getAttributes().get(CallControllerParams.CALLING_PARTY);
           }
 
           User user = CallController.getAccountManager().getUser(agentName);
@@ -79,6 +81,22 @@ public class CallControllerFilter extends Filter {
               response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
               return Filter.STOP;
           }
+          
+          ChallengeResponse challengeResponse = request.getChallengeResponse();
+          
+          String passWord = new String(challengeResponse.getSecret());
+          
+          if ( passWord == null ) {
+              logger.debug("Requesting BASIC credentials");
+              ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
+                      CallController.getCallControllerConfig().getSipxProxyDomain());
+              response.setChallengeRequest(challengeRequest);
+              response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
+              return Filter.STOP;
+          }
+
+
+          
           String userName = user.getUserName();
           logger.debug("userName = " + userName);
 
@@ -87,8 +105,8 @@ public class CallControllerFilter extends Filter {
           passWord;
 
           String hashVal = DigestUtils.md5Hex(userDomainPassword);
-          System.out.println("pintoken " + user.getPintoken());
-          System.out.println("hashval "  + hashVal);
+          logger.debug("pintoken " + user.getPintoken());
+          logger.debug("hashval "  + hashVal);
           if (user.getPintoken() == null || hashVal.equals(user.getPintoken())) {
               return Filter.CONTINUE;
           } else {
