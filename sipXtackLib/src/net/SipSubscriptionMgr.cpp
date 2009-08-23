@@ -273,7 +273,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
         // make up a To tag and set it
         UtlString toTag;
-        CallId::getNewTag(dialogHandle.data(), toTag);
+        CallId::getNewTag(toTag);
 
         // Acceptable expiration, create a subscription and dialog
         if(expiration >= mMinExpiration ||
@@ -500,7 +500,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
 
         // make up a To tag and set it
         UtlString toTag;
-        CallId::getNewTag(dialogHandle.data(), toTag);
+        CallId::getNewTag(toTag);
 
         // Create a dialog and subscription state even if
         // the expiration is zero as we need the dialog info

@@ -761,9 +761,7 @@ void SipMessage::setResponseData(int statusCode,
        && strstr(toField, ";tag=") == NULL)
    {
       UtlString tagValue;
-      CallId::getNewTag(fromField, // Use fromField as the seed, as it should
-                                   // contain the to-tag from the other end.
-                        tagValue);
+      CallId::getNewTag(tagValue);
       UtlString toFieldS(toField);
       setUriParameter(&toFieldS, "tag", tagValue);
       setRawToField(toFieldS);

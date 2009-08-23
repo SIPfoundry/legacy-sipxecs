@@ -225,7 +225,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     {
         UtlString fromFieldValue;
         fromUrl.toString(fromFieldValue);
-        CallId::getNewTag("", fromTag);
+        CallId::getNewTag(fromTag);
         fromUrl.setFieldParameter("tag", fromTag);
         fromUrl.toString(fromFieldValue);
         subscriptionRequest.setRawFromField(fromFieldValue);

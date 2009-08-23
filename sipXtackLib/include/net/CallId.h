@@ -41,28 +41,13 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   //! Generate a new Call-Id with the default prefix ("s").
-   static void getNewCallId(/// output UtlString
-                            UtlString& callId);
-
-   //! Generate a new Call-Id with the specified prefix.
-   static void getNewCallId(/// the prefix to use (10 chars max.)
-                            const char* callIdPrefix,
-                            /// output UtlString
-                            UtlString& callId);
+   //! Generate a new Call-Id
+   static void getNewCallId(UtlString& callId ///< output UtlString
+                            );
 
    //! Generate a new tag.
-   static void getNewTag(/// seed string
-                         const char* seed,
-                         /**< Ideally, a pointer to an externally-generated
-                          *   crypto-random string, especially the tag
-                          *   from the other end of a dialog.
-                          *   Don't bother using an internally-generated
-                          *   string, which doesn't add any entropy,
-                          *   use "" instead.
-                          */
-                         /// output UtlString
-                         UtlString& tag);
+   static void getNewTag(UtlString& tag ///< output UtlString
+                         );
 
 /* ============================ ACCESSORS ================================= */
 
@@ -81,16 +66,13 @@ private:
    static UtlString sChainValue;
 
    //! Flag to record if sChainValue has been initialized.
-   static UtlBoolean sChainValueInitialized;
-
-   //! Secret key value.
-   static UtlString sKey;
+   static bool sChainValueInitialized;
 
    //! Initialize the chain value.
    static void initialize();
 
    //! Compute the next chain value.
-   static void nextValue(const char* seed);
+   static void nextValue();
 
 };
 

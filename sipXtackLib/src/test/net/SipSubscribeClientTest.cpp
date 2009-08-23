@@ -1504,7 +1504,7 @@ public:
             );
          // Set a different to-tag.
          UtlString secondToTag;
-         CallId::getNewTag("", secondToTag);
+         CallId::getNewTag(secondToTag);
          secondNotifyMessage.setFromFieldTag(secondToTag);
          CPPUNIT_ASSERT(userAgentp->send(secondNotifyMessage));
 

@@ -122,11 +122,7 @@ void runListener(OsMsgQ& msgQueue, //< OsMsgQ to listen on
             toUrl.getFieldParameter("tag", *toTagp);
             if (toTagp->isNull())
             {
-               Url fromUrl;
-               requestResponse.getFromUrl(fromUrl);
-               UtlString fromTag;
-               fromUrl.getFieldParameter("tag", fromTag);
-               CallId::getNewTag(fromTag, *toTagp);
+               CallId::getNewTag(*toTagp);
                requestResponse.setToFieldTag(*toTagp);
             }
          }

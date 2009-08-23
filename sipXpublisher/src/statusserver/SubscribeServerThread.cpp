@@ -944,14 +944,8 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     }
     else
     {
-       // Generate to-tag.
-       // Get the from-tag to seed the random generator.
-       Url fromUrl;
-       subscribeMessage->getFromUrl(fromUrl);
-       UtlString fromTag;
-       fromUrl.getFieldParameter("tag", fromTag);
        // Generate a random to-tag.
-       CallId::getNewTag(fromTag.data(), newToTag);
+       CallId::getNewTag(newToTag);
        // Add it to the remembered To header value.
        to.append(";tag=");
        to.append(newToTag);
