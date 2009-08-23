@@ -14,31 +14,35 @@
 #include "utl/UtlRegex.h"
 
 #include "net/NetMd5Codec.h"
+#include "net/NetBase64Codec.h"
 
 #include "net/BranchId.h"
 #include "net/SipMessage.h"
 
-//#define TEST_LOG
+#define TEST_LOG
 
 /* ****************************************************************
  * The syntax for a sipXecs branch id is:
  *
  * branchid           ::= cookie "-" uniquepart [ "~" loopdetectkey ]
- * cookie             ::= 3261cookie "-sipXecs"
+ * cookie             ::= 3261cookie "-XX"
  * 3261cookie         ::= "z9hG4bK"
  * uniquepart         ::= smCounter signed-branch
- * signed-branch      ::= MD5(smIdSecret smCounter call-id)
- * loopdetectkey      ::= MD5(loop-detect-inputs)
+ * signed-branch      ::= MD5SIG(smIdSecret smCounter call-id)
+ * loopdetectkey      ::= MD5TRUNC(loop-detect-inputs)
  * loop-detect-inputs ::= (concatenated request URIs for all forks of this
  *                         message, in addr-spec form, sorted lexically)
+ *
+ * MD5SIG(x)   - a 22 character base 64 encoding of MD5
+ * MD5TRUNC(x) - a 64 encoding of MD5, truncated to 11 characters
  *
  * Examples:
  *
  * - With no loop detect key (an unforked request):
- *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d
+ *   z9hG4bK-XX-0000_bNn4F5MrwgKhQ9yK9XRDQ
  *
  * - With a loop detect key (a forked request):
- *   z9hG4bK-sipXecs-0000f9b367e05e4caf080a850f722bd5d10d~cffa2937819b53a8b7cee52b0fcba1f7
+ *   z9hG4bK-XX-0014xXPnvpKqfTHmjFlrAD5sPA~1Pke3N5l0uqpDw00P`ZWYw
  *
  * **************************************************************** */
 
@@ -57,7 +61,7 @@ const char* StripHeaderParams[] =
 };
 
 #ifndef SIPXECS_COOKIE_EXTENSION
-#  define SIPXECS_COOKIE_EXTENSION "-sipXecs-"
+#  define SIPXECS_COOKIE_EXTENSION "-XX-"
 #endif
 const char*        SIPXECS_MAGIC_COOKIE        = RFC3261_MAGIC_COOKIE_VALUE SIPXECS_COOKIE_EXTENSION;
 const size_t       SIPXECS_MAGIC_COOKIE_LENGTH = strlen(SIPXECS_MAGIC_COOKIE);
@@ -69,15 +73,13 @@ UtlString BranchId::smIdSecret;
 
 /// A monotonically increasing value that ensures some input to unique part is always different.
 unsigned int BranchId::smCounter;
-/// the number of hex digits needed to encode smCounter
-#define SEQUENCE_COUNTER_LENGTH 4 
 
 const RegEx SipXBranchRecognizer(
    "^" RFC3261_MAGIC_COOKIE_VALUE SIPXECS_COOKIE_EXTENSION // the fixed cookie values
-   "([0-9a-fA-F]{4})"                                   // the sequence counter
-   "(" MD5_REGEX ")"                                    // the signed-branch
+   "([0-9a-fA-F]{4})"                                      // the sequence counter
+   "(" MD5_B64SIG_REGEX ")"                                   // the signed-branch
    "(?:" "\\" SIPXECS_LOOP_KEY_SEPARATOR                   // loop key separator
-   "(" MD5_REGEX ")"                                    // the loopdetectkey
+   "(" MD5_B64SIG_REGEX ")"                                   // the loopdetectkey
    ")?$"
                                  );
    
@@ -303,7 +305,7 @@ void BranchId::generateFullValue()
       {
          loopDetectKey.hash(*contact);
       }
-      loopDetectKey.appendHashValue(mLoopDetectionKey);
+      loopDetectKey.appendBase64Sig(mLoopDetectionKey);
 
       // get the unique part of the existing value
       unsigned int existingCounter;
@@ -315,9 +317,7 @@ void BranchId::generateFullValue()
          // rebuild the parent string with the existing unique part and the new key
          remove(0);
          append(SIPXECS_MAGIC_COOKIE);
-         char hexCounter[5];
-         sprintf(hexCounter, "%04x", existingCounter & 0xFFFF);
-         append(hexCounter);
+         appendNumber(existingCounter & 0xFFFF, "%04x");
          append(existingUniquePart);
          if (!mLoopDetectionKey.isNull())
          {
@@ -440,9 +440,7 @@ void BranchId::generateUniquePart(const SipMessage& message,
    NetMd5Codec branchSignature;
    branchSignature.hash(smIdSecret);
 
-   char hexCounter[5];
-   sprintf(hexCounter, "%04x", uniqueCounter & 0xFFFF);
-   uniqueValue.append(hexCounter);
+   uniqueValue.appendNumber(uniqueCounter & 0xFFFF, "%04x");
    
    branchSignature.hash(&uniqueCounter, sizeof(uniqueCounter));
    
@@ -450,7 +448,7 @@ void BranchId::generateUniquePart(const SipMessage& message,
    message.getCallIdField(&callValue);
    branchSignature.hash(callValue);
    
-   branchSignature.appendHashValue(uniqueValue);
+   branchSignature.appendBase64Sig(uniqueValue);
 }
 
 /// destructor

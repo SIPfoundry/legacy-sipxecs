@@ -50,7 +50,7 @@ class BranchIdTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-
+   
    void testBranchIdisRFC3261()
       {
          CPPUNIT_ASSERT(BranchId::isRFC3261("z9hG4bK11e0671922444aa6a5f7f10b5"));
@@ -79,11 +79,11 @@ public:
          CPPUNIT_ASSERT(uniqueValue.isNull());
          CPPUNIT_ASSERT(loopDetectKey.isNull());
 
-         CPPUNIT_ASSERT(BranchId::parse("z9hG4bK-sipXecs-000752b10d50c0eeb623b035fe30c8f85dea",
+         CPPUNIT_ASSERT(BranchId::parse("z9hG4bK-XX-0014xXPnvpKqfTHmjFlrAD5sPA~1Pke3N5l0uqpDw00P`ZWYw",
                                         counter, uniqueValue, loopDetectKey));
-         CPPUNIT_ASSERT_EQUAL(7U, counter);
-         ASSERT_STR_EQUAL("52b10d50c0eeb623b035fe30c8f85dea", uniqueValue.data());
-         CPPUNIT_ASSERT(loopDetectKey.isNull());
+         CPPUNIT_ASSERT_EQUAL(20U, counter);
+         ASSERT_STR_EQUAL("xXPnvpKqfTHmjFlrAD5sPA", uniqueValue.data());
+         ASSERT_STR_EQUAL("1Pke3N5l0uqpDw00P`ZWYw", loopDetectKey.data());
       }
 
    void testBranchIdUniqueness()
@@ -242,7 +242,7 @@ public:
 
    void testBranchCopy()
       {
-         UtlString sipXbranchId("z9hG4bK-sipXecs-000af33a294c2143da892d81dbc8183fd7f8");
+         UtlString sipXbranchId("z9hG4bK-XX-000af33a294c2143da892d81dbc8183fd7f8");
          BranchId  sipXcopied(sipXbranchId);
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
