@@ -20,6 +20,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 const unsigned int NetMd5Codec::ENCODED_SIZE = 32;
+const unsigned int NetMd5Codec::BASE64_ENCODED_SIZE = 22;
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -69,30 +70,65 @@ void NetMd5Codec::appendHashValue(UtlString& output)
    output.append(szTmp);
 }
 
+/// Append a base64-encoded ascii representation of the md5 value to output.
+void NetMd5Codec::appendBase64Sig(UtlString& output, NetBase64Codec::Base64Alphabet alphabet)
+{
+   /* The MD5Final operation is not idempotent, so this may only be called once */
+   assert(!mFinalized);
+   mFinalized = true;
+   MD5Final (mDigest, &mContext);
+
+   UtlString encodedHash;
+   NetBase64Codec::encode(16, (char*)mDigest, encodedHash, alphabet);
+   encodedHash.remove(BASE64_ENCODED_SIZE);
+   output.append(encodedHash);
+}
 
 void NetMd5Codec::encode(const char* text, UtlString& encodedText)
 {
 
-    // This stuff should be packaged into a real class where the
-    // init and update happens in the constructor, and the final is a method
-  MD5_CTX_PT context;
-  unsigned char digest[16];
-  size_t len = strlen (text);
-  unsigned int i;
-  char szTmp[MD5_SIZE];
+   // This stuff should be packaged into a real class where the
+   // init and update happens in the constructor, and the final is a method
+   MD5_CTX_PT context;
+   unsigned char digest[16];
+   size_t len = strlen (text);
+   unsigned int i;
+   char szTmp[MD5_SIZE];
 
-  memset(digest,0,sizeof(digest));
-  MD5Init (&context);
-  MD5Update (&context, (const unsigned char*)text, len);
-  MD5Final (digest, &context);
+   memset(digest,0,sizeof(digest));
+   MD5Init (&context);
+   MD5Update (&context, (const unsigned char*)text, len);
+   MD5Final (digest, &context);
 
-  // Empty encodedText.
-  encodedText.remove(0);
-  for (i = 0; i < 16; i++)
-    {
+   // Empty encodedText.
+   encodedText.remove(0);
+   for (i = 0; i < 16; i++)
+   {
       sprintf(szTmp, "%02x", digest[i]);
       encodedText.append(szTmp);
-    }
+   }
+}
+
+void NetMd5Codec::encodeBase64Sig(const char* text, UtlString& encodedText,
+                                  NetBase64Codec::Base64Alphabet alphabet
+                                  )
+{
+
+   // This stuff should be packaged into a real class where the
+   // init and update happens in the constructor, and the final is a method
+   MD5_CTX_PT context;
+   unsigned char digest[16];
+   size_t len = strlen (text);
+
+   memset(digest,0,sizeof(digest));
+   MD5Init (&context);
+   MD5Update (&context, (const unsigned char*)text, len);
+   MD5Final (digest, &context);
+
+   // Empty encodedText.
+   encodedText.remove(0);
+   NetBase64Codec::encode(16, (char*)digest, encodedText, alphabet);
+   encodedText.remove(BASE64_ENCODED_SIZE);
 }
 
 /* ============================ ACCESSORS ================================= */

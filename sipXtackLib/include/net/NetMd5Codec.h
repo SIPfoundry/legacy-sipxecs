@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include <net/NetBase64Codec.h>
 #include <utl/UtlString.h>
 
 // DEFINES
@@ -20,6 +21,7 @@
 #define MD5_SIZE NetMd5Codec::ENCODED_SIZE
 // a recognizer for an MD5 value for use in regular expressions
 #define MD5_REGEX "[0-9a-f]{32}"
+#define MD5_B64SIG_REGEX "[0-9a-zA-Z_`]{22}"
 
 // FORWARD DECLARATIONS
 
@@ -120,6 +122,7 @@ class NetMd5Codec
 
    /// The number of ascii characters in the conventional hash representation.
    static const unsigned int ENCODED_SIZE;
+   static const unsigned int BASE64_ENCODED_SIZE;
    
    /// Prepare to generate an md5 hash value.
    NetMd5Codec();
@@ -153,8 +156,23 @@ class NetMd5Codec
     * It is an error (which asserts) to call this function more than once.
     */
 
-   /// Convenience method for use when all the data to be hashed is contiguous.
-   static void encode(const char* test, UtlString& encodedText);
+   /// Append a base64-encoded ascii representation of the md5 value to output.
+   void appendBase64Sig(UtlString& output, NetBase64Codec::Base64Alphabet alphabet=NetBase64Codec::SipTokenSafeAlphabet);
+   /**<
+    * @note It is an error (which asserts) to call this function more than once.
+    *
+    * This is a specialized function for producing a more compact text representation
+    * of the hash value than the standard hex form.  This version represents the
+    * hash as a 22 character base64-encoded string.  This should _not_ be used when
+    * recovery of the original binary representation of the hash is needed, since the
+    * two padding characters from the base64 encoding are removed, so the reverse
+    * transformation is non-trivial.  If the purpose of the hash value is just to
+    * compare it to another hash value for equality (the usual case for MD5 hashes),
+    * the reverse transformation is not needed and this method may be used.
+    */
+
+   /// Convenience method for use when all the data to be hashed is contiguous - standard encoding.
+   static void encode(const char* text, UtlString& encodedText);
    /**<
     * Generate the MD5 hash of *test into encodedText (as a string of
     * 32 hex digits).
@@ -162,6 +180,21 @@ class NetMd5Codec
     * If the inputs to the hash are not already contiguous, don't construct
     * a string to pass to this method - use the constructor/hash/appendHashValue
     * sequence described above to avoid the data copies.
+    */
+
+   /// Convenience method for use when all the data to be hashed is contiguous - base64 encoding
+   static void encodeBase64Sig(const char* text, UtlString& encodedText,
+                               NetBase64Codec::Base64Alphabet alphabet=NetBase64Codec::SipTokenSafeAlphabet);
+   /**<
+    * Generate the MD5 hash of *test into encodedText (as a string of
+    * 24 base64 digits).
+    *
+    * If the inputs to the hash are not already contiguous, don't construct
+    * a string to pass to this method - use the constructor/hash/appendHashValue
+    * sequence described above to avoid the data copies.
+    *
+    * This method produces the same encoding as appendBase64Sig - see that method
+    * for when this is an appropriate encoding.
     */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
