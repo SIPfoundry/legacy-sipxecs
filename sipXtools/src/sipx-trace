@@ -3,7 +3,7 @@
 ### SIP Trace something
 ###
 
-MyName=`basename $0`
+MyName=$(basename $0)
 
 Action=LOCAL
 Prefix=""
@@ -19,6 +19,8 @@ AllComponents=TRUE
 Components=""
 
 dump=cat
+
+myBinDir=$(dirname $0)
 
 while [ $# -ne 0 ]
 do
@@ -47,8 +49,7 @@ do
                 Action=USAGE
                 break
             else
-                Action=LOCAL
-                Prefix="${Prefix} ${2}"
+                Prefix="${Prefix} $(echo ${2} | perl -pe 's|/$||')"
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -132,18 +133,29 @@ then
 fi
 
 getAllComponents() {
+    TMP=$(mktemp -t sipx-trace.components.XXXXXX)
+    trap "rm $TMP* 2>/dev/null" 0
+
     case ${Action} in
         USAGE)
             ;;
 
         SERVER)
-            echo "the --all-components option is not yet available for remote servers" 1>&2
-            exit 1
+            for server in $Server
+            do
+                echo -n "finding ${server} components"
+                for prefix in ${Prefix}
+                do
+                    for c in $(ssh ${server} ls -1 ${prefix}/var/log/sipxpbx | grep -E "\.log${LogExtension}\$")
+                    do
+                        basename $c .log${LogExtension} >> $TMP
+                    done
+                done
+                echo ""
+            done
             ;;
 
         LOCAL)
-            TMP=`mktemp -t sipx-trace.components.XXXXXX`
-            trap "rm $TMP* 2>/dev/null" 0
             for prefix in ${Prefix}
             do
                 for c in ${prefix}/var/log/sipxpbx/*.log${LogExtension}
@@ -151,10 +163,11 @@ getAllComponents() {
                     basename $c .log${LogExtension} >> $TMP
                 done
             done
-            Components=`sort -u $TMP`
-            rm -f $TMP
             ;;
     esac
+
+    Components=$(sort -u $TMP)
+    rm -f $TMP
 }
 
 if [ ${AllComponents} = TRUE ]
@@ -176,7 +189,7 @@ else
     Token="${Token})"
 fi
 
-Trace=`mktemp -t -d trace.XXXXXXXX` || exit
+Trace=$(mktemp -t -d trace.XXXXXXXX) || exit
 
 pullServer() { # server
     local system
@@ -184,8 +197,8 @@ pullServer() { # server
 
     for c in ${Components}
     do
-      echo searching ${system} $c log
-      ssh ${1} "${dump} /var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
+      echo searching ${system} ${prefix} $c log
+      ssh ${1} "${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
         > ${Trace}/${system}.${c}.log
     done
 }
@@ -194,7 +207,7 @@ grepLog() { # prefix
     local prefix
     prefix=$1
 
-    alias=`echo "$prefix" | perl -p -e 's|/|_|g; s|^\.|_|'`
+    alias=$(echo "$prefix" | perl -p -e 's|/|_|g; s|^\.|_|')
     for c in ${Components}
     do
       echo searching ${prefix} ${c} log
@@ -214,9 +227,11 @@ Usage:
    ${MyName} <options> <token>...
 
    options:
+           [ {-s|--server} <server> ] ... 
+           [ {-P|--prefix} <prefix-dir> ] ...
+           [ {-e|--extension} <log-extension> ] ...
            { {-a|--all-components} | {-c|--component} <component-name> ... }
-           [ { {-P|--prefix} <prefix-dir> }* | { {-s|--server} <server> }* ]
-           [-o|--output]
+           [ [-o|--output] <output-file> ]
            [-h|--help]
            
    Select all messages containing any <token> from a set of sipX component log files,
@@ -249,17 +264,17 @@ esac
 
 for log in ${Trace}/*.log
 do 
-  xtract=`basename ${log} .log`
+  xtract=$(basename ${log} .log)
   echo translating ${xtract}
-  syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
+  ${myBinDir}/syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
 done
 
 echo merging
-siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
+${myBinDir}/siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
 
 if [ -z "${Output}" ]
 then
-    sipviewer ${Trace}/merged.xml
+    ${myBinDir}/sipviewer ${Trace}/merged.xml
 else
     cp -v ${Trace}/merged.xml ${Output} 
 fi
