@@ -1,12 +1,16 @@
 package org.sipfoundry.commons.jainsip;
 
+import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.ViaList;
+import gov.nist.javax.sip.message.MessageFactoryExt;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Properties;
 import java.util.Timer;
 
@@ -36,25 +40,19 @@ public abstract class AbstactSipStackBean {
 
     private static final Logger logger = Logger.getLogger(AbstactSipStackBean.class);
 
-    private int m_port;
-
     private Properties m_properties;
 
     private AddressFactory m_addressFactory;
 
     private HeaderFactory m_headerFactory;
 
-    private MessageFactory m_messageFactory;
-
-    private SipProvider m_sipProvider;
-
-    private ListeningPoint m_udpListeningPoint;
-    
-    private ListeningPoint m_tcpListeningPoint;
+    private MessageFactory m_messageFactory; 
 
     private SipStack m_sipStack;
 
     private AuthenticationHelper m_authenticationHelper;
+    
+    private HashSet<SipProvider> sipProviders = new HashSet<SipProvider>();
 
 
     /**
@@ -97,9 +95,7 @@ public abstract class AbstactSipStackBean {
             serverLogger.setLevel(Level.DEBUG);
            
         }
-        m_port = getSipPort();
        
-      
         try {
             m_sipStack = factory.createSipStack(m_properties);
            
@@ -108,18 +104,21 @@ public abstract class AbstactSipStackBean {
             m_addressFactory = factory.createAddressFactory();
             m_headerFactory = factory.createHeaderFactory();
             m_messageFactory = factory.createMessageFactory();
-            ViaList.setPrettyEncode(true);
             RouteList.setPrettyEncode(true);
-
-            m_udpListeningPoint = stack.createListeningPoint(getHostIpAddress(), m_port, "udp");
-            m_sipProvider = stack.createSipProvider(m_udpListeningPoint);
+            ViaList.setPrettyEncode(true);
             
-            m_tcpListeningPoint = stack.createListeningPoint(getHostIpAddress(), m_port, "tcp");
-
-            SipListener m_sipListener = getSipListener(this); 
-            m_sipProvider.addSipListener(m_sipListener);
+            for ( ListeningPointAddress hpt : this.getListeningPointAddresses()) {
+              ListeningPoint listeningPoint = stack.createListeningPoint(hpt.getHost(), hpt.getPort(), hpt.getTransport());
+              hpt.listeningPoint = listeningPoint;
+              SipProvider sipProvider = stack.createSipProvider(listeningPoint);
+              hpt.sipProvider = sipProvider;
+              if (!this.sipProviders.contains(sipProvider)) {
+                  this.sipProviders.add(sipProvider);     
+                  sipProvider.addSipListener(getSipListener(this));
+              }
+            }
+          
             SipStackExt impl = (SipStackExt) stack;
-            SecureAccountManager  accountManager = getAccountManager();
             m_authenticationHelper = impl.getSecureAuthenticationHelper(getAccountManager(), m_headerFactory);  
             
         } catch (Exception e) {
@@ -127,9 +126,7 @@ public abstract class AbstactSipStackBean {
         }
     }
    
-    public SipProvider getSipProvider() {
-        return m_sipProvider;
-    }
+    
   
     public HeaderFactory getHeaderFactory() {
         return m_headerFactory;
@@ -143,12 +140,10 @@ public abstract class AbstactSipStackBean {
         return m_addressFactory;
     }
     
-    public ListeningPoint getTcpListeningPoint() {
-        return m_tcpListeningPoint;
-    }
+  
     
-    public ListeningPoint getUdpListeningPoint() {
-        return m_udpListeningPoint;
+    public ListeningPoint getListeningPoint(ListeningPointAddress hostPortTransport) {
+        return hostPortTransport.listeningPoint;
     }
     
     public AuthenticationHelper getAuthenticationHelper() {
@@ -157,10 +152,9 @@ public abstract class AbstactSipStackBean {
 
     public abstract String getLogLevel();
     public abstract SecureAccountManager getAccountManager();
-    public abstract int getSipPort();
-    public abstract String getHostIpAddress() ;
     public abstract SipListener getSipListener(AbstactSipStackBean abstactSipStackBean);
     public abstract String getStackName() ;    
     public abstract Appender getStackAppender() ;
+    public abstract Collection<ListeningPointAddress> getListeningPointAddresses();
     
 }

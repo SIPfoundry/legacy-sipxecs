@@ -17,8 +17,10 @@ import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import java.text.ParseException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
@@ -29,6 +31,7 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
+import javax.sip.ListeningPoint;
 import javax.sip.SipException;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
@@ -57,6 +60,7 @@ import javax.sip.message.Response;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.jainsip.AbstactSipStackBean;
+import org.sipfoundry.commons.jainsip.ListeningPointAddress;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 
 public class SipStackBean extends AbstactSipStackBean {
@@ -72,6 +76,10 @@ public class SipStackBean extends AbstactSipStackBean {
     private int m_maxForwards = 70;
   
     private SipListenerImpl m_sipListener;
+    
+    private ListeningPointAddress udpListeningPointAddress;
+    
+    private ListeningPointAddress tcpListeningPointAddress;
 
     private final Timer m_timer = new Timer();
     
@@ -79,7 +87,12 @@ public class SipStackBean extends AbstactSipStackBean {
         new HashMap<String,DialogContext>();
 
 
+    private ListeningPoint getUdpListeningPoint() {
+        return this.udpListeningPointAddress.getListeningPoint();
+    }
     
+    
+ 
    
     public static SipStackBean getInstance() throws Exception {
     	if (SipStackBean.instance == null ) {
@@ -90,6 +103,7 @@ public class SipStackBean extends AbstactSipStackBean {
     }
   
    
+    
     
     public final SecureAccountManager getAccountManager() {
         return CallController.getAccountManager();
@@ -110,9 +124,7 @@ public class SipStackBean extends AbstactSipStackBean {
         return  CallController.getCallControllerConfig().getIpAddress();
     }
 
-    private SipURI createOurSipUri(String userName) throws ParseException {
-        return getAddressFactory().createSipURI(userName, getSipDomain());
-    }
+  
 
     private FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {
         Address fromNameAddress = getAddressFactory().createAddress(fromDisplayName, fromAddress);
@@ -127,7 +139,11 @@ public class SipStackBean extends AbstactSipStackBean {
         CSeqHeader cseqHeader = (CSeqHeader) sipMessage.getHeader(CSeqHeader.NAME);
         return cseqHeader.getSeqNumber();
     }
-
+    
+    final SipProvider getSipProvider() {
+        return this.udpListeningPointAddress.getSipProvider();
+    }
+    
     final ToHeader createToHeader(SipURI toURI) throws ParseException {
         Address toAddress = getAddressFactory().createAddress(toURI);   
         return getHeaderFactory().createToHeader(toAddress, null);
@@ -137,8 +153,7 @@ public class SipStackBean extends AbstactSipStackBean {
 
         String host = getUdpListeningPoint().getIPAddress();
         int port = getUdpListeningPoint().getPort();
-
-        String transport = getUdpListeningPoint().getTransport();
+        String transport = "UDP";
         // Leave the via header branch Id null.
         // The transaction layer will assign the via header branch Id.
         return getHeaderFactory().createViaHeader(host, port, transport, null);
@@ -287,7 +302,7 @@ public class SipStackBean extends AbstactSipStackBean {
     }
 
     public String formatWithIpAddress(String format) {
-        String ipAddress = getUdpListeningPoint().getIPAddress();
+        String ipAddress = CallController.getCallControllerConfig().getIpAddress();
         return String.format(format, ipAddress);
     }
 
@@ -332,13 +347,8 @@ public class SipStackBean extends AbstactSipStackBean {
         }
        return this.m_sipListener;
     }
-    
-
-    @Override
-    public int getSipPort() {
-       return CallController.getCallControllerConfig().getSipPort();
-    }
-    
+      
+   
     public SipURI getProxySipURI() {
         try {
             AddressFactory addressFactory = getAddressFactory();
@@ -366,6 +376,29 @@ public class SipStackBean extends AbstactSipStackBean {
     
     public synchronized DialogContext getDialogContext(String key ) {
         return this.dialogContextTable.get(key);
+    }
+
+
+
+    @Override
+    public Collection<ListeningPointAddress> getListeningPointAddresses() {
+        
+        String host = CallController.getCallControllerConfig().getIpAddress();
+        int port = CallController.getCallControllerConfig().getSipPort();
+        HashSet<ListeningPointAddress> lpaCollection = new HashSet<ListeningPointAddress>();
+        for (String transport : new String[]{"tcp","udp"}  ) {
+            
+            ListeningPointAddressImpl lpaImpl = 
+                new ListeningPointAddressImpl(host,port,transport);
+            if ( transport.equals("tcp")) {
+               this.tcpListeningPointAddress = lpaImpl; 
+            } else {
+                this.udpListeningPointAddress = lpaImpl;
+            }
+            lpaCollection.add(lpaImpl);
+        }
+        return lpaCollection;
+      
     }
 
    
