@@ -2,4 +2,5 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
   <phonebook name="phonebook_test" phonebook_id="2001" />
+  <phonebook name="phonebook_test2" phonebook_id="2002" />
 </dataset>

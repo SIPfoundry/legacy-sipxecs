@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -112,5 +113,30 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(2, entries.size());
         assertEquals("Abe", it.next().getFirstName());
         assertEquals("William", it.next().getFirstName());
+    }
+
+    public void testDeletePhonebooks() throws Exception {
+        loadDataSet("phonebook/PhonebookFileEntriesSeed.db.xml");
+        Collection<Phonebook> booksBeforeDelete = m_phonebookManager.getPhonebooks();
+        assertEquals(2, booksBeforeDelete.size());
+
+        m_phonebookManager.deletePhonebooks(Arrays.asList(2001, 2002));
+        Collection<Phonebook> books = m_phonebookManager.getPhonebooks();
+        assertEquals(0, books.size());
+    }
+
+    public void testDeletePhonebookWithEntries() throws Exception {
+        loadDataSet("phonebook/PhonebookFileEntriesSeed.db.xml");
+        Collection<Phonebook> booksBeforeDelete = m_phonebookManager.getPhonebooks();
+        assertEquals(2, booksBeforeDelete.size());
+
+        Phonebook book = m_phonebookManager.getPhonebook(new Integer(2001));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook.csv"));
+        Collection<PhonebookEntry> entries = m_phonebookManager.getEntries(book);
+        assertEquals(1, entries.size());
+
+        m_phonebookManager.deletePhonebooks(Arrays.asList(2001));
+        Collection<Phonebook> books = m_phonebookManager.getPhonebooks();
+        assertEquals(1, books.size());
     }
 }
