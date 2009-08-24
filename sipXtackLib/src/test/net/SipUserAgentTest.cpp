@@ -154,6 +154,7 @@ public:
             sipUA.shutdown(TRUE);
             lineMgr.requestShutdown();
 
+            KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
 
             OsTimerTask::destroyTimerTask();

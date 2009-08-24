@@ -352,6 +352,7 @@ public:
          earlyDialogMsg.append("'\n  notify: '");
          earlyDialogMsg.append(smClientNotifyEarlyDialog);
          earlyDialogMsg.append("'");
+         KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
          CPPUNIT_ASSERT_MESSAGE(earlyDialogMsg.data(),
                                 compareHandles(smClientSubEarlyDialog.data(),
                                                smClientNotifyEarlyDialog.data()));

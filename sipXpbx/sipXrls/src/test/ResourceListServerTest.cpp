@@ -603,6 +603,7 @@ public:
       UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
                                "         <unknown-param name=\"path\">&lt;sip:127.0.0.1:45141&gt;</unknown-param>\r\n");
 
+      KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
       CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", "<sip:127.0.0.1:45141;lr>"));
    }
 
@@ -611,6 +612,7 @@ public:
       UtlString regContactxml ("         <uri>sip:user@127.0.0.1:45141</uri>\r\n"
                                "         <unknown-param name=\"+sip.instance\">\"&lt;urn:uuid:f81d4fae"
                                                               "-7dec-11d0-a765-00a0c91e6bf6&gt;\"</unknown-param>\r\n");
+      KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
       CPPUNIT_ASSERT(ContactSetTest(regContactxml, "sip:user@127.0.0.1:45141", ""));
    }
 
