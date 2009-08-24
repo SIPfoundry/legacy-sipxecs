@@ -4,8 +4,10 @@
   </h2>
 
   <div id="settings-content">
-    <span jwcid="@common/ErrorMsg"/>
-    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+    <span jwcid="@If" condition="ognl:!parentSetting && !tab.equals('schedules')">
+       <span jwcid="@common/ErrorMsg" />
+    </span>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
 
   <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('personal-attendant')">
