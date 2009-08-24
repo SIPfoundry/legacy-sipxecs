@@ -51,7 +51,7 @@ bool CallId::sChainValueInitialized = false;
 //
 // The Call-ID is composed of two concatenated fields:
 // - a 60-bit (10 byte base64) pseudo-random number
-// - a 32-bit (4 byte hex) sequence number.
+// - a 16-bit (4 byte hex) sequence number.
 //
 // The sequence number is for human convenience, and although it
 // significantly reduces the probability of collisions, it is not
