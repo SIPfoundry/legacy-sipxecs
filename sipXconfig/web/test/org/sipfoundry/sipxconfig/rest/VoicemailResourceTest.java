@@ -19,15 +19,17 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.restlet.data.ChallengeResponse;
 import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
@@ -49,12 +51,16 @@ public class VoicemailResourceTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         TimeZone.setDefault(m_timeZone);
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testFeed() throws Exception {
         User user = new User();
         user.setUniqueId();
         user.setUserName("joeuser");
+
+        Authentication token = new TestAuthenticationToken(user, false, false).authenticateToken();
+        SecurityContextHolder.getContext().setAuthentication(token);
 
         Mailbox mailbox = new Mailbox(null, "joeuser");
 
@@ -88,7 +94,7 @@ public class VoicemailResourceTest extends TestCase {
         }
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUserByUserName("joeuser");
+        coreContext.loadUser(user.getId());
         expectLastCall().andReturn(user);
 
         MailboxManager mailboxManager = createMock(MailboxManager.class);
@@ -110,8 +116,6 @@ public class VoicemailResourceTest extends TestCase {
         request.setOriginalRef(new Reference("https://example.com:8034/sipxconfig/rest/my/feed/voicemail/inbox"));
         request.setRootRef(new Reference("https://example.com:8034/sipxconfig/rest"));
 
-        ChallengeResponse challengeResponse = new ChallengeResponse(null, "joeuser", new char[0]);
-        request.setChallengeResponse(challengeResponse);
         resource.init(null, request, null);
 
         Representation representation = resource.represent(new Variant(APPLICATION_RSS_XML));

@@ -11,6 +11,10 @@ package org.sipfoundry.sipxconfig.rest;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import org.acegisecurity.Authentication;
+import org.acegisecurity.context.SecurityContextHolder;
+import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
@@ -39,6 +43,9 @@ public class ContactInformationResourceTest extends TestCase {
         m_user.setUniqueId();
         m_user.setUserName("200");
 
+        Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
+        SecurityContextHolder.getContext().setAuthentication(token);
+
         AddressBookEntry addressBook = new AddressBookEntry();
         addressBook.setJobTitle("Data Entry Assistant");
         addressBook.setJobDept("Data Management Services");
@@ -56,11 +63,16 @@ public class ContactInformationResourceTest extends TestCase {
         m_user.setAddressBookEntry(addressBook);
 
         m_coreContext = createMock(CoreContext.class);
-        m_coreContext.loadUserByUserName(m_user.getUserName());
+        m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user);
         m_coreContext.saveUser(m_user);
         expectLastCall().andReturn(false);
         replay(m_coreContext);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public void testRepresentXml() throws Exception {

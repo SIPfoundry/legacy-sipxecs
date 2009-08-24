@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.site;
 
@@ -19,17 +19,12 @@ import java.net.UnknownHostException;
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
-
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.servlet.JettyWebConfiguration;
 import org.mortbay.jetty.servlet.WebApplicationContext;
 import org.mortbay.jetty.servlet.XMLConfiguration;
 import org.mortbay.util.InetAddrPort;
-import org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl;
 
-/**
- * Assumes you've run ant to build test war file first ant build-test-war
- */
 public class JettyTestSetup extends TestSetup {
 
     private static boolean START_SERVER = true;
@@ -40,9 +35,9 @@ public class JettyTestSetup extends TestSetup {
 
     private static Server m_server;
 
-    private int m_port = 9999;
+    private final int m_port = 9999;
 
-    private String m_url = "http://localhost:" + m_port + "/sipxconfig";
+    private final String m_url = "http://localhost:" + m_port + "/sipxconfig";
 
     static {
         // shows which URLs were accessed among other diagnotics
@@ -62,6 +57,7 @@ public class JettyTestSetup extends TestSetup {
      * "Leaks" the web server on purpose, but does gracefully shutdown server when JVM shutsdown.
      * First test will start server, subsequent tests will use shared server instance.
      */
+    @Override
     protected void setUp() throws Exception {
         if (START_SERVER && m_server == null) {
             m_server = startServer();
@@ -81,9 +77,6 @@ public class JettyTestSetup extends TestSetup {
             XMLConfiguration.class.getName(), JettyTestWebConfiguration.class.getName()
         };
         context.setConfigurationClassNames(configurationClassNames);
-
-        // enable dummy admin user for unit testing
-        AuthenticationDaoImpl.setDummyAdminUserEnabled(true);
 
         // start monitor thread that allows stopping server
         Monitor.monitor(MONITOR_PORT, MONITOR_KEY);
@@ -144,6 +137,7 @@ public class JettyTestSetup extends TestSetup {
      * Special version of JettyConfiguration that appends class path
      */
     public static class JettyTestWebConfiguration extends JettyWebConfiguration {
+        @Override
         public void configureClassPath() throws Exception {
             getWebApplicationContext().addClassPath(SiteTestHelper.getArtificialSystemRootDirectory() + "/etc");
         }

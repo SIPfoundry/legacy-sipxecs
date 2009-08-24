@@ -7,16 +7,16 @@
  *
  *
  */
-
 package org.sipfoundry.sipxconfig.rest;
 
 import org.restlet.Context;
-import org.restlet.data.ChallengeResponse;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Resource;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.security.StandardUserDetailsService;
+import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Required;
 
 /**
@@ -34,9 +34,10 @@ public class UserResource extends Resource {
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
-        ChallengeResponse challengeResponse = request.getChallengeResponse();
-        String username = challengeResponse.getIdentifier();
-        m_user = m_coreContext.loadUserByUserName(username);
+        UserDetailsImpl userDetails = StandardUserDetailsService.getUserDetails();
+        if (userDetails != null) {
+            m_user = m_coreContext.loadUser(userDetails.getUserId());
+        }
     }
 
     @Required

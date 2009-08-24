@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.login;
 
@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
+import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
+import org.acegisecurity.ui.WebAuthenticationDetails;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -26,8 +29,10 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
-public class LoginContextImpl implements LoginContext {
+public class LoginContextImpl implements LoginContext, ApplicationListener {
     private static final String USERLOGINS_LOG = "sipxconfig-logins.log";
 
     private static final Log LOG = LogFactory.getLog("login");
@@ -66,12 +71,6 @@ public class LoginContextImpl implements LoginContext {
         return null;
     }
 
-    public User checkAndLogCredentials(String userNameOrAlias, String password, String remoteIp) {
-        User user = checkCredentials(userNameOrAlias, password);
-        logLoginAttempt(userNameOrAlias, user != null, remoteIp);
-        return user;
-    }
-
     private void logLoginAttempt(String userNameOrAlias, boolean success, String remoteIp) {
         if (remoteIp == null) {
             return;
@@ -80,14 +79,11 @@ public class LoginContextImpl implements LoginContext {
             LOG.info(LoginEvent.formatLogToRecord(LoginEvent.SUCCESS, userNameOrAlias, remoteIp));
         } else {
             LOG.warn(LoginEvent.formatLogToRecord(LoginEvent.FAILURE, userNameOrAlias, remoteIp));
-            m_alarmContext.raiseAlarm("LOGIN_FAILED", userNameOrAlias);
         }
-
     }
 
     public String getEncodedPassword(String userName, String password) {
-        return Md5Encoder.digestPassword(userName, m_coreContext.getAuthorizationRealm(),
-                password);
+        return Md5Encoder.digestPassword(userName, m_coreContext.getAuthorizationRealm(), password);
     }
 
     public boolean isAdmin(Integer userId) {
@@ -135,5 +131,29 @@ public class LoginContextImpl implements LoginContext {
 
     public void setLogDirectory(String logDirectory) {
         m_logDirectory = logDirectory;
+    }
+
+    /**
+     * Log WEB authentication attempts
+     */
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (!(event instanceof AbstractAuthenticationEvent)) {
+            return;
+        }
+
+        AbstractAuthenticationEvent authEvent = (AbstractAuthenticationEvent) event;
+        final String username = authEvent.getAuthentication().getName();
+        final boolean success = event instanceof InteractiveAuthenticationSuccessEvent;
+        if (!success) {
+            m_alarmContext.raiseAlarm("LOGIN_FAILED", username);
+        }
+
+        Object details = authEvent.getAuthentication().getDetails();
+        if (details instanceof WebAuthenticationDetails) {
+            String remoteIp = null;
+            WebAuthenticationDetails webDetails = (WebAuthenticationDetails) details;
+            remoteIp = webDetails.getRemoteAddress();
+            logLoginAttempt(username, success, remoteIp);
+        }
     }
 }

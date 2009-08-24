@@ -48,7 +48,7 @@ public class SiteTestHelper {
      */
     public static final String TEST_USER = "testuser";
 
-    public static final String TEST_PAGE_URL = "/app?page=TestPage&service=page";
+    public static final String TEST_PAGE_URL = "/TestPage.html";
 
     /**
      * The name of the checkbox used in standard tables
@@ -156,7 +156,7 @@ public class SiteTestHelper {
      * Works only for pages that use "user:error:text" id to display user errors. All pages with
      * ErrorMsg component belong to this category. It does check for tapestry errors as well: no
      * need to call assertNoException.
-     * 
+     *
      * Handling errors is kind of strange: there is no easy way to get text by id, so we do not
      * bother unless we discover that there is "user:error" in the page.
      */
@@ -186,7 +186,7 @@ public class SiteTestHelper {
 
     /**
      * Translates between Tapestry index and normal index
-     * 
+     *
      * @param id
      * @param index
      */
@@ -201,7 +201,7 @@ public class SiteTestHelper {
 
     /**
      * Select/unselect rows in the table Only works if there is a single table on the screen.
-     * 
+     *
      * @param tester
      * @param index row number starting from 0
      * @param enable True to select checkbox, false otherwise
@@ -231,7 +231,7 @@ public class SiteTestHelper {
 
     /**
      * Translates between Tapestry index and normal index
-     * 
+     *
      * @param id HTML element id
      * @param index tapestry index
      */
@@ -290,7 +290,7 @@ public class SiteTestHelper {
 
     /**
      * Get the full path and copy file from etc incase there are modiifcations to it
-     * 
+     *
      * @param path relative to etc dir e.g. "kphone/phone.xml"
      * @return full path to config file
      */
@@ -367,7 +367,7 @@ public class SiteTestHelper {
 
     /**
      * Create a new group, user or phone
-     * 
+     *
      * @param pageLinkId From the TestPage, what link to click to get to new group page
      */
     public static void seedGroup(WebTester tester, String pageLinkId, int count) {
@@ -383,7 +383,7 @@ public class SiteTestHelper {
 
     /**
      * Initializes upload elements on the form using ad hoc created temporary file.
-     * 
+     *
      * @param form form for which upload fields will be initialized
      * @param fileNamePrefix at least 3 chatracters - use test name
      */

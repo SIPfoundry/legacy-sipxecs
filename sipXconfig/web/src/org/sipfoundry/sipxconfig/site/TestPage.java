@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site;
 
@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
+import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
@@ -63,20 +64,18 @@ import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
-import org.sipfoundry.sipxconfig.permission.Permission;
-import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.search.IndexManager;
+import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
@@ -90,6 +89,9 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+
+import static org.sipfoundry.sipxconfig.permission.PermissionName.PERSONAL_AUTO_ATTENDANT;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
 
 /**
  * TestPage page
@@ -117,9 +119,9 @@ public abstract class TestPage extends BasePage {
 
     public static final String TEST_PHONE_MODEL_ID = "acmePhoneStandard";
 
-    public static final String PA_PERMISSION = "permission/application/personal-auto-attendant";
     public static final String USER_WITHOUT_PA_PERMISSION = "testUserWithoutAutoAttendantPermission";
     public static final String USER_WITH_PA_PERMISSION = "testUserWithAutoAttendantPermission";
+    public static final String USER_WITHOUT_VM_PERMISSION = "testUserWithoutVoicemailPermission";
 
     public static final String SIPX_BRIDGE_MODEL = "sipXbridgeSbcModel";
 
@@ -131,9 +133,6 @@ public abstract class TestPage extends BasePage {
 
     @InjectObject("spring:nakedGatewayModelSource")
     public abstract ModelSource<GatewayModel> getGatewayModels();
-
-    @InjectObject("spring:permissionManager")
-    public abstract PermissionManager getPermissionManager();
 
     public abstract PhoneContext getPhoneContext();
 
@@ -354,8 +353,8 @@ public abstract class TestPage extends BasePage {
         bridgeSbc.setName("sipXbridge");
         bridgeSbc.setLocation(getLocationsManager().getPrimaryLocation());
         bridgeSbc.setAddress(getLocationsManager().getPrimaryLocation().getAddress());
-        bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", getLocationsManager().
-                getPrimaryLocation().getId());
+        bridgeSbc.setSettingTypedValue("bridge-configuration/location-id", getLocationsManager()
+                .getPrimaryLocation().getId());
         bridgeSbc.setProcessContext(processContext);
         getSbcDeviceManager().storeSbcDevice(bridgeSbc);
     }
@@ -422,26 +421,25 @@ public abstract class TestPage extends BasePage {
         if (userId == null) {
             login();
         } else {
-            userSession.login(userId, admin, supervisor, true);
+            User user = getCoreContext().loadUser(userId);
+            login(user, admin, supervisor);
         }
     }
 
     public void seedTestUser() {
-        createTestUserIfMissing();
+        createUserIfMissing(TEST_USER_USERNAME + System.currentTimeMillis(), VOICEMAIL, true);
     }
 
     private User createTestUserIfMissing() {
-        String userName = TEST_USER_USERNAME;
-        if (null != getCoreContext().loadUserByUserName(TEST_USER_USERNAME)) {
-            // we already have test user - get a unique name for a new one
-            userName = TEST_USER_USERNAME + System.currentTimeMillis();
+        User user = getCoreContext().loadUserByUserName(TEST_USER_USERNAME);
+        if (user != null) {
+            return user;
         }
-        String firstName = TEST_USER_FIRSTNAME;
-        User user = new User();
-        user.setUserName(userName);
-        user.setFirstName(firstName);
+        user = getCoreContext().newUser();
+        user.setUserName(TEST_USER_USERNAME);
+        user.setFirstName(TEST_USER_FIRSTNAME);
         user.setLastName(TEST_USER_LASTNAME);
-        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES : EMPTY_STRING);
+        user.setAliasesString(TEST_USER_ALIASES);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
         return user;
@@ -453,7 +451,7 @@ public abstract class TestPage extends BasePage {
         String authorizationRealm = coreContext.getAuthorizationRealm();
         for (int i = 0; i < MANY_USERS; i++) {
             String firstName = TEST_USER_FIRSTNAME + i;
-            User user = new User();
+            User user = getCoreContext().newUser();
             user.setUserName("xuser" + (l + i));
             user.setFirstName(firstName);
             user.setLastName(TEST_USER_LASTNAME);
@@ -471,38 +469,30 @@ public abstract class TestPage extends BasePage {
         }
 
         // Log it in
-        UserSession userSession = getUserSession();
-        userSession.login(user.getId(), false, true, true);
+        login(user, false, true);
     }
 
     public void loginTestUserWithAutoAttendantPermission() {
-        User user = getCoreContext().loadUserByUserName(USER_WITH_PA_PERMISSION);
-        if (user == null) {
-            user = new User();
-            user.setPermissionManager(getPermissionManager());
-            user.setUserName(USER_WITH_PA_PERMISSION);
-            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
-            Setting paSetting = user.getSettings().getSetting(PA_PERMISSION);
-            paSetting.setValue(Permission.ENABLE);
-            getCoreContext().saveUser(user);
-        }
-
-        getUserSession().login(user.getId(), false, true, true);
+        User user = createUserIfMissing(USER_WITH_PA_PERMISSION, PERSONAL_AUTO_ATTENDANT, true);
+        login(user, false, true);
     }
 
     public void loginTestUserWithoutAutoAttendantPermission() {
-        User user = getCoreContext().loadUserByUserName(USER_WITHOUT_PA_PERMISSION);
-        if (user == null) {
-            user = new User();
-            user.setPermissionManager(getPermissionManager());
-            user.setUserName(USER_WITHOUT_PA_PERMISSION);
-            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
-            Setting paSetting = user.getSettings().getSetting(PA_PERMISSION);
-            paSetting.setValue(Permission.DISABLE);
-            getCoreContext().saveUser(user);
-        }
+        User user = createUserIfMissing(USER_WITHOUT_PA_PERMISSION, PERSONAL_AUTO_ATTENDANT, false);
+        login(user, false, true);
+    }
 
-        getUserSession().login(user.getId(), false, true, true);
+    private User createUserIfMissing(String username, PermissionName permissionName, boolean enabled) {
+        User user = getCoreContext().loadUserByUserName(username);
+        if (user != null) {
+            return user;
+        }
+        user = getCoreContext().newUser();
+        user.setUserName(username);
+        user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
+        user.setPermission(permissionName, enabled);
+        getCoreContext().saveUser(user);
+        return user;
     }
 
     public IPage seedFxoGateway() {
@@ -577,7 +567,12 @@ public abstract class TestPage extends BasePage {
 
     public void login() {
         User user = createTestUserIfMissing();
-        getUserSession().login(user.getId(), true, true, true);
+        login(user, true, true);
+    }
+
+    private void login(User user, boolean isAdmin, boolean isSupervisor) {
+        TestAuthenticationToken token = new TestAuthenticationToken(user, isAdmin, isSupervisor);
+        SecurityContextHolder.getContext().setAuthentication(token.authenticateToken());
     }
 
     public void generateDataSet(String setName) {
@@ -614,11 +609,8 @@ public abstract class TestPage extends BasePage {
     }
 
     public void loginUserWithDisabledVoicemailPermission() {
-        // reload from db, ensures spring has injected permission manager
-        User user = getCoreContext().loadUser(createTestUserIfMissing().getId());
-        user.setPermission(PermissionName.VOICEMAIL, false);
-        getCoreContext().saveUser(user);
-        getUserSession().login(user.getId(), true, true, true);
+        User user = createUserIfMissing(USER_WITHOUT_VM_PERMISSION, PermissionName.VOICEMAIL, false);
+        login(user, true, true);
     }
 
     public void disableVoicemail() {

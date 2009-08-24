@@ -43,10 +43,6 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 public class User extends BeanWithGroups implements NamedObject {
     public static final String GROUP_RESOURCE_ID = "user";
 
-    // security roles
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
-
     // property names
     public static final String ALIASES_PROP = "aliases";
     public static final String FIRST_NAME_PROP = "firstName";

@@ -263,7 +263,7 @@
     description="Runs Jetty on current code, development purpose only">
   	<echo/>
     <echo>Web UI will be available at URL:</echo>
-  	<echo>http://localhost:9999/sipxconfig/app?page=TestPage&amp;service=page</echo>
+    <echo>http://localhost:9999/sipxconfig/TestPage.html</echo>
   	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath path="${classpath.build}"/>

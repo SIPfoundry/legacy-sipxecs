@@ -5,12 +5,11 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
-
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRender;
@@ -26,10 +25,14 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
+import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
+
+import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
+import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class BorderTest extends TestCase {
 
@@ -91,22 +94,21 @@ public class BorderTest extends TestCase {
     }
 
     private static class MockUserSession extends UserSession {
-        private final boolean m_admin;
+        private final UserDetailsImpl m_userDetailsImpl;
 
         MockUserSession(boolean admin) {
-            m_admin = admin;
+            User user = new User();
+            if (admin) {
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth(), Admin.toAuth());
+            } else {
+                m_userDetailsImpl = new UserDetailsImpl(user, "bongo", User.toAuth());
+            }
         }
 
         @Override
-        public Integer getUserId() {
-            return new Integer(5);
+        protected UserDetailsImpl getUserDetails() {
+            return m_userDetailsImpl;
         }
-
-        @Override
-        public boolean isAdmin() {
-            return m_admin;
-        }
-
     }
 
     private static class MockBorder extends Border {
@@ -184,6 +186,7 @@ public class BorderTest extends TestCase {
         public SkinControl getSkin() {
             return null;
         }
+
         @Override
         public String getClientId() {
             return m_clientId;

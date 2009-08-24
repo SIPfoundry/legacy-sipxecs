@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.security;
@@ -14,34 +14,33 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class UserDetailsImpl implements UserDetails {
-    private String m_canonicalUserName;
-    private String m_userNameOrAlias;
-    private String m_pintoken;  // MD5-encoded password
-    private GrantedAuthority[] m_authorities;
-    
+    private final String m_canonicalUserName;
+    private final Integer m_userId;
+    private final String m_userNameOrAlias;
+    private final String m_pintoken;  // MD5-encoded password
+    private final GrantedAuthority[] m_authorities;
+
     /**
      * UserDetails constructor
-     * 
+     *
      * Create an Acegi Security UserDetails object based on the sipXconfig User, the
      * userNameOrAlias that is the userName part of the user's credentials, and the
      * authorities granted to this user.
      */
-    public UserDetailsImpl(User user, String userNameOrAlias, GrantedAuthority[] authorities) {
+    public UserDetailsImpl(User user, String userNameOrAlias, GrantedAuthority... authorities) {
         m_canonicalUserName = user.getUserName();
+        m_userId = user.getId();
         m_userNameOrAlias = userNameOrAlias;
         m_pintoken = user.getPintoken();
         m_authorities = authorities;
     }
-    
-    //================================================================================
-    // Implement UserDetails interface
-    
+
     public boolean isAccountNonExpired() {
-        return true;            // accounts don't expire
+        return true;
     }
 
     public boolean isAccountNonLocked() {
-        return true;            // accounts are never locked
+        return true;
     }
 
     public GrantedAuthority[] getAuthorities() {
@@ -49,11 +48,11 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public boolean isCredentialsNonExpired() {
-        return true;            // credentials don't expire
+        return true;
     }
 
     public boolean isEnabled() {
-        return true;            // accounts are always enabled
+        return true;
     }
 
     /** Return the MD5-encoded password, a.k.a. "pintoken" */
@@ -67,10 +66,9 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return m_userNameOrAlias;
     }
-    //================================================================================
 
-    public void setAuthorities(GrantedAuthority[] authorities) {
-        m_authorities = authorities;
+    public Integer getUserId() {
+        return m_userId;
     }
 
     /**
