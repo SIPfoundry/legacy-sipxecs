@@ -23,6 +23,10 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxSaaService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -30,7 +34,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
-public class SipxReplicationContextImpl implements ApplicationEventPublisherAware, BeanFactoryAware,
+public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, BeanFactoryAware,
         SipxReplicationContext {
 
     private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
@@ -44,6 +48,8 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     private LocationsManager m_locationsManager;
     // should be replicated every time aliases are replicated
     private ConfigurationFile m_validUsersConfig;
+    private SipxServiceManager m_sipxServiceManager;
+    protected abstract ServiceConfigurator getServiceConfigurator();
 
     public void generate(DataSet dataSet) {
         if (inInitializationPhase()) {
@@ -62,6 +68,8 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         // replication valid users when aliases are replicated
         if (DataSet.ALIAS.equals(dataSet)) {
             replicate(m_validUsersConfig);
+            SipxService sipxSaaService = m_sipxServiceManager.getServiceByBeanId(SipxSaaService.BEAN_ID);
+            getServiceConfigurator().replicateServiceConfig(sipxSaaService);
         }
     }
 
@@ -77,7 +85,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
             return;
         }
-        
+
         Location[] locations = m_locationsManager.getLocations();
         replicateWorker(locations, file);
     }
@@ -87,7 +95,7 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             LOG.debug(IGNORE_REPLICATION_MESSAGE + file.getName());
             return;
         }
-        
+
         Location[] locations = new Location[] {
             location
         };
@@ -134,13 +142,13 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
             }
         }
     }
-    
+
     private boolean inInitializationPhase() {
         String initializationPhase = System.getProperty("sipxconfig.initializationPhase");
         if (initializationPhase == null) {
             return false;
         }
-        
+
         return Boolean.parseBoolean(initializationPhase);
     }
 
@@ -175,6 +183,11 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
     @Required
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         m_applicationEventPublisher = applicationEventPublisher;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void publishEvent(ApplicationEvent event) {

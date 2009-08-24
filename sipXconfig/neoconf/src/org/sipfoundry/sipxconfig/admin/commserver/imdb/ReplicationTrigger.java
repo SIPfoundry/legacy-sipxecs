@@ -15,10 +15,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxSaaService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -28,8 +24,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
 
     private SipxReplicationContext m_replicationContext;
-    private SipxServiceManager m_sipxServiceManager;
-    private ServiceConfigurator m_serviceConfigurator;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
@@ -37,16 +31,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     @Required
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
     }
 
     public boolean isReplicateOnStartup() {
@@ -87,8 +71,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             }
         } else if (User.class.equals(c)) {
             m_replicationContext.generateAll();
-            SipxService sipxSaaService = m_sipxServiceManager.getServiceByBeanId(SipxSaaService.BEAN_ID);
-            m_serviceConfigurator.replicateServiceConfig(sipxSaaService);
         }
     }
 }

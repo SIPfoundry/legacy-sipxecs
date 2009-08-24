@@ -81,6 +81,8 @@
     <property name="jobContext" ref="jobContext" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="validUsersConfig" ref="validUsersConfig" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
   </bean>
 
   <bean id="sipxReplicationContextDao"
@@ -232,8 +234,6 @@
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="registrationContext"
