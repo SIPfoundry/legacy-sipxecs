@@ -1086,7 +1086,7 @@ class SipUtilities {
              * Privacy enabled ? if so, remove private headers while sending
              * response.
              */
-            if (dialog.getApplicationData() != null
+            if (dialog != null && dialog.getApplicationData() != null
                     && DialogContext.get(dialog).getItspInfo() != null
                     && DialogContext.get(dialog).getItspInfo()
                             .stripPrivateHeaders()
@@ -1588,17 +1588,17 @@ class SipUtilities {
     /**
      * This routine copies headers from inbound to outbound responses.
      *
-     * @param response
-     * @param newResponse
+     * @param message
+     * @param newMessage
      */
-    public static void copyHeaders(Response response, Response newResponse) {
-        Iterator<String> headerNames = response.getHeaderNames();
+    public static void copyHeaders(Message message, Message newMessage) {
+        Iterator<String> headerNames = message.getHeaderNames();
         while (headerNames.hasNext()) {
             String headerName = headerNames.next();
-           if ( newResponse.getHeader(headerName) == null) {
-               ListIterator<Header> responseHeaderIterator = response.getHeaders(headerName);
+           if ( newMessage.getHeader(headerName) == null) {
+               ListIterator<Header> responseHeaderIterator = message.getHeaders(headerName);
                while (responseHeaderIterator.hasNext()) {
-                   newResponse.addHeader(responseHeaderIterator.next());
+                   newMessage.addHeader(responseHeaderIterator.next());
                }
            }
         }
@@ -1727,5 +1727,7 @@ class SipUtilities {
         CSeqHeader cseqHeader = (CSeqHeader) message.getHeader(CSeqHeader.NAME);
         return cseqHeader.getMethod();
     }
+
+  
 
 }

@@ -238,7 +238,6 @@ public class SipListenerImpl implements SipListener {
                     }
                 }
 
-
             }
 
             if (dialog.getState() == DialogState.CONFIRMED) {
@@ -352,34 +351,39 @@ public class SipListenerImpl implements SipListener {
 
             }
 
+            if (method.equals(Request.INVITE) 
+                    || method.equals(Request.ACK)
+                    || method.equals(Request.CANCEL) 
+                    || method.equals(Request.BYE)
+                    || method.equals(Request.OPTIONS)
+                    || method.equals(Request.REFER) 
+                    || method.equals(Request.PRACK)) {
+                Gateway.getCallControlManager().processRequest(requestEvent);
+            } else if ( method.equals(Request.REGISTER) && provider == Gateway.getLanProvider() ) {
+                ItspAccountInfo itspAccount = Gateway.getAccountManager().getAccount(request);
+                Gateway.getRegistrationManager().proxyRegisterRequest(requestEvent,itspAccount);
+          } else {
+                try {
+                    Response response = ProtocolObjects.messageFactory
+                    .createResponse(Response.METHOD_NOT_ALLOWED, request);
+                    ServerTransaction st = requestEvent.getServerTransaction();
+                    if (st == null) {
+                        st = provider.getNewServerTransaction(request);
+                    }
+                    st.sendResponse(response);
+                } catch (TransactionAlreadyExistsException ex) {
+                    logger.error("transaction already exists", ex);
+                } catch (Exception ex) {
+                    logger.error("unexpected exception", ex);
+                    throw new SipXbridgeException("Unexpected exceptione", ex);
+                }
+            }
         } catch (TransactionAlreadyExistsException ex) {
             logger.error("transaction already exists", ex);
             return;
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new SipXbridgeException("Unexpected exceptione", ex);
-        }
-
-        if (method.equals(Request.INVITE) || method.equals(Request.ACK)
-                || method.equals(Request.CANCEL) || method.equals(Request.BYE)
-                || method.equals(Request.OPTIONS)
-                || method.equals(Request.REFER) || method.equals(Request.PRACK)) {
-            Gateway.getCallControlManager().processRequest(requestEvent);
-        } else {
-            try {
-                Response response = ProtocolObjects.messageFactory
-                        .createResponse(Response.METHOD_NOT_ALLOWED, request);
-                ServerTransaction st = requestEvent.getServerTransaction();
-                if (st == null) {
-                    st = provider.getNewServerTransaction(request);
-                }
-                st.sendResponse(response);
-            } catch (TransactionAlreadyExistsException ex) {
-                logger.error("transaction already exists", ex);
-            } catch (Exception ex) {
-                logger.error("unexpected exception", ex);
-                throw new SipXbridgeException("Unexpected exceptione", ex);
-            }
         }
 
     }

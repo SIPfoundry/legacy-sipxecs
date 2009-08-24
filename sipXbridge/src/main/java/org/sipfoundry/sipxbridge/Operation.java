@@ -40,6 +40,7 @@ package org.sipfoundry.sipxbridge;
  *   <li> CANCEL_REPLACED_INVITE -- CANCEL INVITE when error is encountered during call
  *           xfer. </li>
  *   <li> SEND_PRACK -- send a PRACK. </li>
+ *   <li>PROXY_REGISTER_REQUEST -- proxy the REGISTER request when sipxbridge </li>
  *  </ul>
  *
  * @author M. Ranganathan
@@ -69,6 +70,7 @@ public enum Operation {
     CANCEL_REPLACED_INVITE,
     SEND_PRACK,
     CANCEL_MOH_INVITE,
-    CANCEL_INVITE, SEND_BYE_FOR_TEARDOWN;
+    CANCEL_INVITE, SEND_BYE_FOR_TEARDOWN,
+    PROXY_REGISTER_REQUEST;
 
 }

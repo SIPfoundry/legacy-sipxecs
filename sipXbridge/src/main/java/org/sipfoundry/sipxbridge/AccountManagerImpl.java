@@ -40,16 +40,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
     private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
-
-
-    /*
-     * The reverse name lookup map
-     */
-    private ConcurrentMap<String, String> addressToDomainNameMap = new ConcurrentHashMap<String, String>();
-
+ 
     private BridgeConfiguration bridgeConfiguration;
 
-    private Hashtable<String, Boolean> alarmTable = new Hashtable<String, Boolean>();
 
     public AccountManagerImpl() {
 
@@ -138,15 +131,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     }
                 }
             }
-           /*
-             * logger.error( Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri ); try {
-             *
-             * if (alarmTable.get(sipUri.getHost()) == null) { alarmTable.put(sipUri.getHost(),
-             * true); Gateway.getAlarmClient().raiseAlarm(Gateway.ACCOUNT_NOT_FOUND_ALARM_ID,
-             * sipUri.getHost()); } } catch (XmlRpcException e) { logger.error("Could not send
-             * alarm " + Gateway.ACCOUNT_NOT_FOUND_ALARM_ID + " uri = " + sipUri); }
-             */
-
+          
             /*
              * If an account is not found return an account record with the
              * domain set to the outbound request domain. The INVITE will be

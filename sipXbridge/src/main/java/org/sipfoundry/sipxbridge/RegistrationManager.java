@@ -8,17 +8,26 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.ClientTransactionExt;
 
+import java.text.ParseException;
 import java.util.ListIterator;
 import java.util.TimerTask;
 
 import javax.sip.ClientTransaction;
+import javax.sip.InvalidArgumentException;
+import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
+import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.TransactionAlreadyExistsException;
+import javax.sip.TransactionState;
+import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -106,10 +115,12 @@ public class RegistrationManager {
      * re-register after the current registration expires.
      *
      * @param responseEvent
+     * @throws InvalidArgumentException 
+     * 
      */
     @SuppressWarnings("unchecked")
     public void processResponse(ResponseEvent responseEvent)
-            throws SipXbridgeException, SipException {
+            throws SipXbridgeException, SipException, InvalidArgumentException {
 
         Response response = responseEvent.getResponse();
         logger.debug("registrationManager.processResponse() "
@@ -124,20 +135,33 @@ public class RegistrationManager {
                 .getHeader(ContactHeader.NAME);
         SipURI requestContactUri = (SipURI) requestContactHeader.getAddress()
                 .getURI();
-
-        if (response.getStatusCode() == Response.OK) {
-            ListIterator contactHeaders = (ListIterator) response
-                    .getHeaders(ContactHeader.NAME);
+        TransactionContext transactionContext = TransactionContext.get(ct);
+        ItspAccountInfo itspAccount = transactionContext.getItspAccountInfo();
+        
+        if (!itspAccount.isRegisterOnInitialization() ) {
+            /*
+             * Somebody sent a request to the ITSP from within the PBX and we are not handling the 
+             * REGISTER for this account. In that case we simply proxy  the response.
+             */
+            ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+            if ( serverTransaction.getState() != TransactionState.TERMINATED) {
+                Response newResponse = SipUtilities.createResponse(serverTransaction, response.getStatusCode());
+                SipUtilities.copyHeaders(response, newResponse);
+                serverTransaction.sendResponse(newResponse);
+            }
+        } else if (response.getStatusCode() == Response.OK) {
+                    
+            ListIterator contactHeaders = (ListIterator) response.getHeaders(ContactHeader.NAME);
             int time = 0;
 
             if (contactHeaders != null && contactHeaders.hasNext()) {
                 while (contactHeaders.hasNext()) {
                     ContactHeader contactHeader = (ContactHeader) contactHeaders
-                            .next();
+                    .next();
                     SipURI responseContactUri = (SipURI) contactHeader
-                            .getAddress().getURI();
+                    .getAddress().getURI();
                     int port = ((SipURI) contactHeader.getAddress().getURI())
-                            .getPort();
+                    .getPort();
                     if (port == -1) {
                         port = 5060;
                     }
@@ -152,22 +176,21 @@ public class RegistrationManager {
             } else {
                 time = ct.getRequest().getExpires().getExpires();
             }
-            ItspAccountInfo itspAccount = ((TransactionContext) ct
-                    .getApplicationData()).getItspAccountInfo();
+
             if (itspAccount.getSipKeepaliveMethod().equals("REGISTER")) {
                 time = ct.getRequest().getExpires().getExpires();
             }
-            
+
             if (time == 0 ) {
-            	logger.warn("ITSP did not return a contact address matching the REGISTER contact address - report this to your ITSP\n");
-            	time = itspAccount.getRegistrationInterval();
+                logger.warn("ITSP did not return a contact address matching the REGISTER contact address - report this to your ITSP\n");
+                time = itspAccount.getRegistrationInterval();
             }
 
             if (time > 2 * Gateway.REGISTER_DELTA) {
                 time = time - Gateway.REGISTER_DELTA;
             }
-            
-            
+
+
             if (itspAccount.isAlarmSent() && time > 0) {
                 try {
                     Gateway.getAlarmClient().raiseAlarm(
@@ -194,11 +217,9 @@ public class RegistrationManager {
                 TimerTask ttask = new RegistrationTimerTask(itspAccount,callId,cseq);
                 Gateway.getTimer().schedule(ttask, time * 1000);
             }
-
-        } else {
+      } else {
             if (response.getStatusCode() == Response.FORBIDDEN) {
-                ItspAccountInfo itspAccount = ((TransactionContext) ct
-                        .getApplicationData()).getItspAccountInfo();
+               
                 itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
@@ -214,8 +235,6 @@ public class RegistrationManager {
                     }
                 }
             } else if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
-                ItspAccountInfo itspAccount = ((TransactionContext) ct
-                        .getApplicationData()).getItspAccountInfo();
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
                 }
@@ -240,8 +259,6 @@ public class RegistrationManager {
             } else if (response.getStatusCode() / 100 == 5
                     || response.getStatusCode() / 100 == 6
                     || response.getStatusCode() / 100 == 4) {
-                ItspAccountInfo itspAccount = ((TransactionContext) ct
-                        .getApplicationData()).getItspAccountInfo();
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
                 }
@@ -301,6 +318,39 @@ public class RegistrationManager {
             logger.error("Could not send alarm.", ex);
         }
 
+    }
+
+    public void proxyRegisterRequest(RequestEvent requestEvent, ItspAccountInfo itspAccount) throws 
+        SipException, ParseException, InvalidArgumentException  {
+
+        ServerTransaction st = requestEvent.getServerTransaction();
+      
+        if (st == null) {
+            st = provider.getNewServerTransaction(requestEvent.getRequest());
+        }
+        
+        Request request = requestEvent.getRequest();
+
+        if (itspAccount.isRegisterOnInitialization()) {
+            Response response = ProtocolObjects.messageFactory
+            .createResponse(Response.METHOD_NOT_ALLOWED, request);
+            response.setReasonPhrase("sipXbridge handles registration for this account");
+            st.sendResponse(response);
+            return;
+
+        }
+        TransactionContext tad = TransactionContext.attach(st,Operation.PROXY_REGISTER_REQUEST);
+        CallIdHeader callId = Gateway.getWanProvider(itspAccount.getOutboundTransport()).getNewCallId();
+        Request newRequest = SipUtilities.createRegistrationRequest(Gateway.getWanProvider(itspAccount.getOutboundTransport()), itspAccount, 
+                callId.getCallId(), 1L);
+        SipUtilities.setGlobalAddresses(newRequest);
+        ClientTransaction newClientTransaction = Gateway.getWanProvider(itspAccount.getOutboundTransport()).getNewClientTransaction(newRequest);
+        SipUtilities.copyHeaders(request,newRequest);
+        tad.setClientTransaction(newClientTransaction);
+        tad.setItspAccountInfo(itspAccount);
+        Hop hop = ((ClientTransactionExt)newClientTransaction).getNextHop();
+        itspAccount.setHopToRegistrar(hop);
+        newClientTransaction.sendRequest();
     }
 
 }
