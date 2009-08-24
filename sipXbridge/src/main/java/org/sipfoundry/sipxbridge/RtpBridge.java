@@ -7,9 +7,9 @@
 package org.sipfoundry.sipxbridge;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashSet;
 
-import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.message.Request;
@@ -34,11 +34,12 @@ class RtpBridge  {
         
         try {
 
-            this.sessionDescription = SdpFactory.getInstance().createSessionDescription(
-                    new String(request.getRawContent()));
+            this.sessionDescription = SipUtilities.getSessionDescription(request);
             this.bridge = bridge;
         } catch (SdpParseException ex) {
             throw new IOException("Unable to parse SDP ");
+        } catch (ParseException ex) {
+            throw new IOException ("Invalid message body");
         }
     }
     

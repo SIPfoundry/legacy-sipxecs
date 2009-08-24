@@ -16,6 +16,9 @@ import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
+import gov.nist.javax.sip.message.Content;
+import gov.nist.javax.sip.message.MessageExt;
+import gov.nist.javax.sip.message.MultipartMimeContent;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
@@ -93,7 +96,11 @@ class SipUtilities {
     static UserAgentHeader userAgent;
     static ServerHeader serverHeader;
     private static final String CONFIG_PROPERTIES = "config.properties";
-
+    
+    private static final String APPLICATION = "application";
+    
+    private static final String SDP = "sdp";
+  
     /**
      * Create the UA header.
      *
@@ -689,13 +696,6 @@ class SipUtilities {
                 requestUri.removeParameter("user");
             }
 
-            /* if (itspAccount.getOutboundTransport() != null) {
-                requestUri
-                        .setTransportParam(itspAccount.getOutboundTransport());
-            } else {
-                requestUri.removeParameter("transport");
-            } */
-
             requestUri.removePort();
 
             fromHeader.setTag(new Long(Math.abs(new java.util.Random()
@@ -769,8 +769,6 @@ class SipUtilities {
            // maddr parameter is obsolete but some ITSP do not like
            // Route param ( dont support loose routing on initial invite)
            // so we use a maddr parameter to send the request
-           // to such ITSPs. Also see :
-           // http://track.sipfoundry.org/browse/XX-5884
            if (itspAccount.isAddLrRoute()) {
                RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);
                request.setHeader(proxyRoute);
@@ -805,13 +803,34 @@ class SipUtilities {
     }
 
     static SessionDescription getSessionDescription(Message message)
-            throws SdpParseException {
+            throws SdpParseException, ParseException {
         if (message.getRawContent() == null)
             throw new SdpParseException(0, 0, "Missing sdp body");
-        String messageString = new String(message.getRawContent());
-        SessionDescription sd = SdpFactory.getInstance()
+        ContentTypeHeader cth = (ContentTypeHeader) message.getHeader(ContentTypeHeader.NAME);
+        if (cth.getContentType().equalsIgnoreCase(APPLICATION) &&
+                cth.getContentSubType().equalsIgnoreCase(SDP) ) {
+            String messageString = new String(message.getRawContent());
+            SessionDescription sd = SdpFactory.getInstance()
                 .createSessionDescription(messageString);
-        return sd;
+            SipUtilities.removeCrypto(sd);
+            return sd;
+        } else {
+            MultipartMimeContent mmc = ((MessageExt)message).getMultipartMimeContent();
+            Iterator<Content> contentIterator = mmc.getContents();
+            while ( contentIterator.hasNext() ) {
+                Content content = contentIterator.next();
+                ContentTypeHeader ccth = content.getContentTypeHeader();
+                if ( ccth.getContentType().equalsIgnoreCase(APPLICATION) && 
+                        ccth.getContentSubType().equalsIgnoreCase(SDP)) {
+                    String messageString = new String(content.getContent().toString());
+                    SessionDescription sd = SdpFactory.getInstance()
+                        .createSessionDescription(messageString);
+                    SipUtilities.removeCrypto(sd);
+                    return sd;
+                }
+            }
+        }
+        throw new SdpParseException(0,0,"SDP Content Not found");
 
     }
 
@@ -845,6 +864,39 @@ class SipUtilities {
             throw new SipXbridgeException(
                     "Unexpected exception getting media formats", ex);
         }
+    }
+    
+    /**
+     * Remove the Crypto parameters from the request.
+     * 
+     * @param sessionDescription - the session description to clean.
+     * 
+     */
+    static void removeCrypto(SessionDescription sessionDescription) {
+        try {
+            Vector mediaDescriptions = sessionDescription.getMediaDescriptions(true);
+
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+                MediaDescription mediaDescription = (MediaDescription) it.next();
+                Vector attributes = mediaDescription.getAttributes(true);
+                for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+                    Attribute attr = (Attribute) it1.next();
+                    if (attr.getName().equalsIgnoreCase("crypto")) {
+                        it1.remove(); 
+                        logger.debug("remove crypto"); 
+                    } else if (attr.getName().equalsIgnoreCase("encryption")) {
+                        it1.remove(); 
+                        logger.debug("remove encryption");
+                    }
+                }
+
+            }
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new SipXbridgeException("Unexpected exception removing sdp encryption params",ex);
+        }
+
+
     }
 
     /**

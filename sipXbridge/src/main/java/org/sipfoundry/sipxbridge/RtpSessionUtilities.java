@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.text.ParseException;
+
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
@@ -238,9 +240,9 @@ public class RtpSessionUtilities {
 	 *             sending bye to MOH server.
 	 * 
 	 */
-	 static RtpSessionOperation reAssignRtpSessionParameters(
-			
-			ServerTransaction serverTransaction) throws SdpParseException, SipException {
+	 static RtpSessionOperation reAssignRtpSessionParameters(	
+			ServerTransaction serverTransaction) 
+	    throws SdpParseException, ParseException, SipException {
 		 
 	
 		Dialog dialog = serverTransaction.getDialog();
@@ -261,8 +263,7 @@ public class RtpSessionUtilities {
 		
 		logger.debug("rtpSession.getTransmitter().sessionDescription = " + rtpSession.getTransmitter().getSessionDescription());
 
-		SessionDescription sessionDescription = SipUtilities
-				.getSessionDescription(request);
+		SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
 
 		int newport = SipUtilities
 				.getSessionDescriptionMediaPort(sessionDescription);
