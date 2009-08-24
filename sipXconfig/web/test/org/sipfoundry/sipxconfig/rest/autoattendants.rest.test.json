@@ -1,0 +1,12 @@
+{"autoAttendants": [
+  {
+    "name": "operator",
+    "systemId": "operator",
+    "specialSelected": false
+  },
+  {
+    "name": "After hours",
+    "systemId": "afterhour",
+    "specialSelected": true
+  }
+]}
