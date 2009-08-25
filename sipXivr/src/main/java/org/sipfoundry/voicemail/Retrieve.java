@@ -939,9 +939,13 @@ public class Retrieve {
                     }
 
                     // "You selected the {type} greeting."
+                    PromptList pl = m_loc.getPromptList(greetingFrag);
+                    
                     // "If this is correct, press 1."
                     // "To select a different greeting, press 2."
-                    vmd = new VmDialog(m_vm, greetingFrag);
+                    pl.addFragment("selected_greeting_confirm");
+                    vmd = new VmDialog(m_vm, null);
+                    vmd.setPromptList(pl);
                     String digit2 = vmd.collectDigit("12");
                     if (digit2 == null) {
                         continue voicemailOptions;
@@ -949,6 +953,7 @@ public class Retrieve {
 
                     if (digit2.equals("1")) {
                         m_mailbox.getMailboxPreferences().setActiveGreeting(type);
+                        m_mailbox.writeMailboxPreferences();
                         // Active greeting set successfully.
                         m_loc.play("selected_greeting_okay", "");
                         continue voicemailOptions;
