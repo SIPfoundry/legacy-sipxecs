@@ -76,4 +76,8 @@
     <property name="itspTemplate" value="voipms.xml" />
   </bean>
 
+   <bean id="itspCS1000" parent="sipTrunkItsp">
+    <property name="itspName" value="Nortel CS1000" />
+    <property name="itspTemplate" value="cs1000.xml" />
+  </bean>
 </beans>
