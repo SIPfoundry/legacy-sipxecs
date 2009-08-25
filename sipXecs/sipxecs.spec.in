@@ -38,6 +38,7 @@ Requires: sipxtools >= %version
 Requires: sipxecs-doc >= %version
 Requires: sipxivr >= %version
 Requires: sipxsaa >= %version
+Requires: sipxopenfire >= %version
 
 Source: %name-%version.tar.gz
 

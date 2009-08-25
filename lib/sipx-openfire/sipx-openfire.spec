@@ -20,6 +20,7 @@ XMPP (Jabber) protocol. It has great performance, is easy to setup and use,
 and delivers an innovative feature set.
 
 Requires: unpack200
+Requires: shadow-utils
 
 Obsoletes: openfire
 
