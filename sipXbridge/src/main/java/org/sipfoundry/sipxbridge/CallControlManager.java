@@ -41,6 +41,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AcceptLanguageHeader;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
@@ -245,6 +246,8 @@ class CallControlManager implements SymmitronResetHandler {
              * In this case the phone will solicit the ITSP for an offer See Issue 1739
              */
             Request newRequest = peerDialog.createRequest(Request.INVITE);
+            
+            
 
             /*
              * Contact header for the re-INVITE we are about to send.
@@ -292,6 +295,18 @@ class CallControlManager implements SymmitronResetHandler {
              * the Ack along with the SDP that is offered.
              */
             peerDat.setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
+            if ( (peerDat.getItspInfo() == null || 
+                    peerDat.getItspInfo().getPassword() == null ) &&
+                   request.getHeader(AuthorizationHeader.NAME) != null ) {
+                /*
+                 * We have no password information for the peer so just
+                 * accept any incoming authorization information from the 
+                 * caller.
+                 */
+                AuthorizationHeader authHeader = (AuthorizationHeader) 
+                        request.getHeader(AuthorizationHeader.NAME);
+                newRequest.setHeader(authHeader);
+            } 
             peerDat.sendReInvite(ctx);
             // peerDialog.sendRequest(ctx);
 

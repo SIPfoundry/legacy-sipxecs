@@ -124,11 +124,11 @@ public class SipListenerImpl implements SipListener {
          * exceeded the failure count. If we have exceeded that count then
          * we are done with this request.
          */
-
-        if (accountInfo != null
-                && !accountInfo.isDummyAccount()
-                && (accountInfo.incrementFailureCount(callId) > 1 || accountInfo
-                        .getPassword() == null)) {
+        ServerTransaction stx = TransactionContext.get(ctx).getServerTransaction();
+        
+        if (accountInfo != null && stx == null &&
+                 ( accountInfo.incrementFailureCount(callId) > 1 || 
+                         accountInfo.getPassword() == null ) ) {
 
             /*
              * Got a 4xx response. Increment the failure count for the account
@@ -161,14 +161,13 @@ public class SipListenerImpl implements SipListener {
             }
             return;
 
-        } else if ( accountInfo != null && accountInfo.isDummyAccount() ) {
+        } else if ( accountInfo != null && accountInfo.getPassword() == null && stx != null ) {
             /*
              * Forward the challenge back to the call originator if this is a dummy account we
              * created for purposes of bridging the call.
              */
             logger.debug("Forwarding challenge from WAN for dummy account");
-            ServerTransaction stx = TransactionContext.get(ctx).getServerTransaction();
-            if (stx != null &&  stx.getState() != TransactionState.TERMINATED ) {
+             if (stx.getState() != TransactionState.TERMINATED ) {
                 Response errorResponse = SipUtilities.createResponse(stx, statusCode);
                 SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
                 errorResponse.removeHeader(ContactHeader.NAME);
@@ -182,7 +181,7 @@ public class SipListenerImpl implements SipListener {
                 		"Discarding the response.");
                 return;
             }
-        }
+        } 
 
         ClientTransaction newClientTransaction = Gateway
                 .getAuthenticationHelper().handleChallenge(response,

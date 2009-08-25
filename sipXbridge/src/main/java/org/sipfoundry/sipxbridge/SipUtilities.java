@@ -435,22 +435,31 @@ class SipUtilities {
             throw new SipException("No route to Registrar found for "
                     + itspAccount.getProxyDomain());
         }
+        
+        Hop hop = null;
+        
+        hop = itspAccount.getHopToRegistrar();
+        
+        if (hop == null ) {
 
-        SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
-                outboundRegistrar);
+            SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
+                    outboundRegistrar);
 
-        if (itspAccount.isInboundProxyPortSet()) {
-            registrarUri.setPort(itspAccount.getInboundProxyPort());
-        }
-        Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
-
-
-        if ( hops == null || hops.isEmpty() )  {
-            throw new SipException ("No route to registrar found");
-        }
+            if (itspAccount.isInboundProxyPortSet()) {
+                registrarUri.setPort(itspAccount.getInboundProxyPort());
+            }
+            Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
 
 
-        RouteHeader routeHeader  = SipUtilities.createRouteHeader(hops.iterator().next());
+            if ( hops == null || hops.isEmpty() )  {
+                throw new SipException ("No route to registrar found");
+            }
+
+            hop = hops.iterator().next();
+        
+        } 
+        
+        RouteHeader routeHeader  = SipUtilities.createRouteHeader(hop);
         request.setHeader(routeHeader);
         return request;
     }

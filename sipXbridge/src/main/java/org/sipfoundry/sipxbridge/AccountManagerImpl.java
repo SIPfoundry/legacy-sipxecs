@@ -131,6 +131,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     }
                 }
             }
+            
+            String userName = ((SipURI)((FromHeader)request.getHeader(FromHeader.NAME)).getAddress().getURI()).getUser();
           
             /*
              * If an account is not found return an account record with the
@@ -140,7 +142,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
              */
             accountFound = new ItspAccountInfo();
             accountFound.setProxyDomain(sipUri.getHost());
-            accountFound.setUserName(sipUri.getUser());
+            accountFound.setUserName(userName);
             accountFound.setOutboundProxyPort(sipUri.getPort());
             accountFound.setOutboundTransport(sipUri.getTransportParam());
             accountFound.setGlobalAddressingUsed(true);

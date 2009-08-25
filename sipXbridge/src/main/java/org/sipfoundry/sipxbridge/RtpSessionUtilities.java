@@ -19,7 +19,9 @@ import javax.sip.DialogState;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -124,15 +126,28 @@ public class RtpSessionUtilities {
 			if (peerDat.getItspInfo() == null
 					|| peerDat.getItspInfo().isGlobalAddressingUsed()) {
 				if (Gateway.getGlobalAddress() != null) {
-					SipUtilities.setGlobalAddresses(newInvite);
+					SipUtilities.setGlobalAddresses(newInvite);	        
 				} else {
 					javax.sip.header.ReasonHeader warning = ProtocolObjects.headerFactory
 							.createReasonHeader("SipXbridge", ReasonCode.SIPXBRIDGE_CONFIG_ERROR,
 									"Public address of bridge is not known.");
 					b2bua.tearDown(warning);
-
 				}
 			}
+			
+			/*
+			 * We do not have any password information for the 
+			 * ITSP and this is included in the inbound request
+			 * so extract it and send it along.
+			 */
+			Request request = serverTransaction.getRequest();
+            if ( (peerDat.getItspInfo() == null || 
+                    peerDat.getItspInfo().getPassword() == null ) &&
+                   request.getHeader(AuthorizationHeader.NAME) != null ) {
+                AuthorizationHeader authHeader = (AuthorizationHeader) 
+                        request.getHeader(AuthorizationHeader.NAME);
+                newInvite.setHeader(authHeader);
+            }
 
 		} else {
 		    SipUtilities.addLanAllowHeaders(newInvite);
@@ -163,10 +178,8 @@ public class RtpSessionUtilities {
 		 */
 		DialogContext peerDialogContext = DialogContext.get(peerDialog);
 		peerDialogContext.setPeerDialog(dialog);
-
 		
-		
-		
+				
 
 		DialogContext.get(peerDialog).sendReInvite(ctx);
 	}

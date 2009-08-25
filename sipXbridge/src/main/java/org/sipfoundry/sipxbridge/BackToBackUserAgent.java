@@ -51,6 +51,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.CallInfoHeader;
@@ -1446,10 +1447,21 @@ public class BackToBackUserAgent {
                     FromHeader.NAME).clone();
             Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
 
+            
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
-                    itspAccountInfo, fromHeader, this.creatingCallId + "."
-                            + this.counter++, addresses);
+                    itspAccountInfo, fromHeader, this.creatingCallId, addresses);
+            /*
+             * If we have no authorization information, we can attach it to the outbound request.
+             */
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) != null && 
+                    itspAccountInfo.getPassword() == null ) {
+                AuthorizationHeader authorization = (AuthorizationHeader)
+                    incomingRequest.getHeader(AuthorizationHeader.NAME);
+                outgoingRequest.setHeader(authorization);
+              
+                
+            }
 
             String callId = SipUtilities.getCallId(incomingRequest);
             ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,

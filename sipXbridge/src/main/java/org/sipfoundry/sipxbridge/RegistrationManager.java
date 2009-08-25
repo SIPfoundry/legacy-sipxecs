@@ -25,6 +25,7 @@ import javax.sip.TransactionState;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ViaHeader;
@@ -340,12 +341,17 @@ public class RegistrationManager {
 
         }
         TransactionContext tad = TransactionContext.attach(st,Operation.PROXY_REGISTER_REQUEST);
-        CallIdHeader callId = Gateway.getWanProvider(itspAccount.getOutboundTransport()).getNewCallId();
+        String callId = SipUtilities.getCallId(request);
         Request newRequest = SipUtilities.createRegistrationRequest(Gateway.getWanProvider(itspAccount.getOutboundTransport()), itspAccount, 
-                callId.getCallId(), 1L);
+                callId, SipUtilities.getSeqNumber(request));
         SipUtilities.setGlobalAddresses(newRequest);
+        if ( request.getHeader(AuthorizationHeader.NAME) != null ) {
+            // Need to fix up the authorization header to point to the ITSP
+            AuthorizationHeader authorizationHeader = (AuthorizationHeader) request.getHeader(AuthorizationHeader.NAME);
+            newRequest.setHeader(authorizationHeader);
+        }
         ClientTransaction newClientTransaction = Gateway.getWanProvider(itspAccount.getOutboundTransport()).getNewClientTransaction(newRequest);
-        SipUtilities.copyHeaders(request,newRequest);
+        SipUtilities.addWanAllowHeaders(newRequest);
         tad.setClientTransaction(newClientTransaction);
         tad.setItspAccountInfo(itspAccount);
         Hop hop = ((ClientTransactionExt)newClientTransaction).getNextHop();
