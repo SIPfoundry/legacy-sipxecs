@@ -214,15 +214,21 @@ bool CallTracker::notifyIncomingDialogFormingInvite( SipMessage& request, RouteS
       }
    }
    
-   if( prCaller->getLocationCode() == REMOTE_NATED && 
-       prCaller->getPublicTransportAddress().getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) == 0 &&
-       !mpCallerPinholeInformation && 
-       mpNatMaintainer )
+   // If the method successfully completed and if the caller is a remote worker then add it to the 
+   // list of endpoints whose NAT pinholes need to be kept alive for the duration of the call.
+   // NOTE: the called party is already handled the NatMaintainer's RegDB lookups. 
+   if( bResult == true )
    {
-      mpCallerPinholeInformation = new TransportData( prCaller->getPublicTransportAddress().getAddress(),
-                                                      prCaller->getPublicTransportAddress().getPort() );
-
-      mpNatMaintainer->addEndpointToKeepAlive( *mpCallerPinholeInformation );
+      if( prCaller->getLocationCode() == REMOTE_NATED && 
+          prCaller->getPublicTransportAddress().getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) == 0 &&
+          !mpCallerPinholeInformation && 
+          mpNatMaintainer )
+      {
+         mpCallerPinholeInformation = new TransportData( prCaller->getPublicTransportAddress().getAddress(),
+                                                         prCaller->getPublicTransportAddress().getPort() );
+   
+         mpNatMaintainer->addEndpointToKeepAlive( *mpCallerPinholeInformation );
+      }
    }
    return bResult;
 }
