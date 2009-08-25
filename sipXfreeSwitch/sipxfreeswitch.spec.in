@@ -42,6 +42,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
 
 %post
-freeswitch.sh --configtest
+freeswitch.sh --config
 if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
 

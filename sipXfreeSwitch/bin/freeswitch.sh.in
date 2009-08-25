@@ -21,6 +21,10 @@ do
             Action=CONFIGTEST
             ;;
 
+        --config)
+            Action=CONFIG
+            ;;
+
         --stop)
             Action=STOP
             ;;
@@ -78,6 +82,19 @@ case ${Action} in
      fi
 
      exit $?
+     ;;
+
+   CONFIG)
+     if [ $iam = root ]
+     then
+        Status=0
+        echo -e "\n Installing FreeSWITCH folder \n"
+        rm -rf $SIPXDIRS
+        @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
+     else
+        Status=1
+        echo -e "\n must be root to run this \n" >&2
+     fi  
      ;;
 
    CONFIGTEST)
