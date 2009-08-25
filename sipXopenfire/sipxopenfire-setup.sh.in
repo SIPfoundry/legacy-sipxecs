@@ -11,69 +11,66 @@ OPENFIRE_LIB=@OPENFIRE_HOME@/lib
 SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
 SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 # Stop openfire if it is running.
-@SIPX_BINDIR@/sipxopenfire.sh --stop
+@SIPX_BINDIR@/sipxopenfire.sh --stop > /dev/null
 if [ -e @OPENFIRE_HOME@  ]
 then
-   rm -f $OPENFIRE_LIB/log4j.jar
-   ln -s $SIPX_COMMONS/log4j.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/xmlrpc-common.jar
-   ln -s $SIPX_COMMONS/xmlrpc-common.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/xmlrpc-server.jar
-   ln -s $SIPX_COMMONS/xmlrpc-server.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/xmlrpc-client.jar
-   ln -s $SIPX_COMMONS/xmlrpc-client.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/ws-commons-util.jar
-   ln -s $SIPX_COMMONS/ws-commons-util.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/commons-collections.jar
-   ln -s $SIPX_COMMONS/commons-collections.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/commons-digester.jar
-   ln -s $SIPX_COMMONS/commons-digester.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/commons-beanutils.jar
-   ln -s $SIPX_COMMONS/commons-beanutils.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/dom4j.jar
-   ln -s $SIPX_COMMONS/dom4j.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/jain-sip-sdp.jar
-   ln -s $SIPX_COMMONS/jain-sip-sdp.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/dnsjava.jar
-   ln -s $SIPX_COMMONS/dnsjava.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/sipxcommons.jar
-   ln -s $SIPX_COMMONS/sipxcommons.jar $OPENFIRE_LIB/
-   rm -f $OPENFIRE_LIB/libhostname.so
-   ln -s $SIPX_COMMONS/libhostname.so $OPENFIRE_LIB/
-   chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@
-   chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@
-   chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@
-   rm  -f @OPENFIRE_HOME@/resources/security/truststore
-   rm  -f @OPENFIRE_HOME@/resources/security/keystore
-   ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore
-   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore
-   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar
-   ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire.jar @OPENFIRE_HOME@/plugins
-   rm -f @OPENFIRE_HOME@/conf/openfire.xml
-   ln -s ${SIPX_OPENFIRE_DIR}/conf/openfire.xml @OPENFIRE_HOME@/conf
-   mkdir -p @SIPX_LOGDIR@/openfire
-   chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire
-   rm -rf @OPENFIRE_HOME@/logs/
-   rm -f @OPENFIRE_HOME@/logs
-   ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs
-   mkdir @OPENFIRE_HOME@/audit/
-   chown @SIPXPBXUSER@ @OPENFIRE_HOME@/audit/
+   rm -f $OPENFIRE_LIB/log4j.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/log4j.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/xmlrpc-common.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/xmlrpc-common.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/xmlrpc-server.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/xmlrpc-server.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/xmlrpc-client.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/xmlrpc-client.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/ws-commons-util.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/ws-commons-util.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/commons-collections.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/commons-collections.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/commons-digester.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/commons-digester.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/commons-beanutils.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/commons-beanutils.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/dom4j.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/dom4j.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/jain-sip-sdp.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/jain-sip-sdp.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/dnsjava.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/dnsjava.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/sipxcommons.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/sipxcommons.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/libhostname.so 2> /dev/null
+   ln -s $SIPX_COMMONS/libhostname.so $OPENFIRE_LIB/ 2> /dev/null
+   chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
+   chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
+   chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@ 2> /dev/null
+   rm  -f @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
+   rm  -f @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
+   ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
+   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
+   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire.jar @OPENFIRE_HOME@/plugins 2> /dev/null
+   rm -f @OPENFIRE_HOME@/conf/openfire.xml 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/conf/openfire.xml @OPENFIRE_HOME@/conf 2> /dev/null
+   mkdir -p @SIPX_LOGDIR@/openfire 2> /dev/null
+   chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire 2> /dev/null
+   rm -rf @OPENFIRE_HOME@/logs/ 2> /dev/null
+   ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs 2> /dev/null
+   mkdir @OPENFIRE_HOME@/audit/ 2> /dev/null
+   chown @SIPXPBXUSER@ @OPENFIRE_HOME@/audit/ 2> /dev/null
 fi 
-echo "Done linking files"
+
 # Check if we have created the database. If not create it.
-chmod u+x @SIPX_BINDIR@/sipxopenfire.sh
-rm  @SIPX_TMPDIR@/sipxopenfire.version
-@SIPX_BINDIR@/sipxopenfire.sh --database check
+chmod u+x @SIPX_BINDIR@/sipxopenfire.sh 2> /dev/null
+rm  @SIPX_TMPDIR@/sipxopenfire.version 2> /dev/null
+@SIPX_BINDIR@/sipxopenfire.sh --database check 2> /dev/null
 if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]  
 then
-    echo "Initializing Openfire Database"
-    @SIPX_BINDIR@/sipxopenfire.sh --database create
-    @SIPX_BINDIR@/sipxopenfire.sh --database create-tables
-    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME}
+    @SIPX_BINDIR@/sipxopenfire.sh --database create 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database create-tables 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
 else
-    echo "sipxopenfire: postgres is already initialized only resetting the domain"
-    @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME}
+    @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
 fi
 
 #if openfire service is running stop it.
-sudo /sbin/service openfire stop
+sudo /sbin/service openfire stop 2> /dev/null
