@@ -113,7 +113,7 @@ public class RlmiMultipartMessage  extends MultipartMessage
 					dialogsList = emptyCollection;
 				}
 				ResourceDialogsDescriptor desc = new ResourceDialogsDescriptor( 
-														dialogInfoMessagePart.getEntity(),
+                                          resourceInfo.getUri(),
 														dialogInfoMessagePart.getState(),
 														dialogsList );	
 				stateUpdates.add( desc );

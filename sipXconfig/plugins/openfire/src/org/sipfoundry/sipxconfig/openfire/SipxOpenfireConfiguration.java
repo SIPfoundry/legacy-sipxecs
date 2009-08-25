@@ -33,7 +33,7 @@ public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
         User user = m_coreContext.getSpecialUser(XMPP_SERVER);
         context.put("username", username);
         context.put("password", user.getSipPassword());
-        context.put("resource-list", SpeedDial.getResourceListId(username, false));
+        context.put("resource-list", SpeedDial.getResourceListId(username, true));
 
         return context;
     }

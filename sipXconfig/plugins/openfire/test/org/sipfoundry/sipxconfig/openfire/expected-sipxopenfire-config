@@ -4,7 +4,7 @@
 	<sipx-proxy-port>5060</sipx-proxy-port>
 	<user-name>~~id~xmpprlsclient</user-name>
 	<password>1234</password>
-	<resource-list>~~rl~F~~~id~xmpprlsclient</resource-list>
+	<resource-list>~~rl~C~~~id~xmpprlsclient</resource-list>
 	<watcher-address>locationTest</watcher-address>
 	<watcher-port>5064</watcher-port>
 	<log-directory>LogDirTest</log-directory>
