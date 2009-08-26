@@ -1,0 +1,78 @@
+$TXT
+## Speed dial generation goes here
+$ speed dial phone
+#set($button_id = -1)
+#foreach ($button in $speeddial.buttons)
+#set($button_id = $velocityCount - 1)
+line${button_id}Name=$button.getLabel()
+line${button_id}Url=$button.getNumber()@$phone.getPhoneContext().getPhoneDefaults().getDomainName()
+
+#end
+#if($button_id < 0)
+line0Name=
+line0Url=
+
+#end
+#if($button_id < 1)
+line1Name=
+line1Url=
+
+#end
+#if($button_id < 2)
+line2Name=
+line2Url=
+
+#end
+#if($button_id < 3)
+line3Name=
+line3Url=
+
+#end
+#if($button_id < 4)
+line4Name=
+line4Url=
+
+#end
+#if($button_id < 5)
+line5Name=
+line5Url=
+
+#end
+#if($button_id < 6)
+line6Name=
+line6Url=
+
+#end
+#if($button_id < 7)
+line7Name=
+line7Url=
+
+#end
+#if($button_id < 8)
+line8Name=
+line8Url=
+
+#end
+#if($button_id < 9)
+line9Name=
+line9Url=
+
+#end
+
+## Config file starts here
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+$ ${group.ProfileName}
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+$ ${group.ProfileName}
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+
+#end

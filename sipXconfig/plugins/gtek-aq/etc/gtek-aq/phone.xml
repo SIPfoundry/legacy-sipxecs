@@ -1,0 +1,527 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="AutoConfigVersion" hidden="yes">
+    <label>Auto Config Version</label>
+    <profileName>Auto Config Version</profileName>
+    <setting name="AutoConfigVersion">
+      <label>Version</label>
+      <type>
+        <integer />
+      </type>
+    </setting>
+  </group>
+  <group name="PhoneForward" hidden="yes">
+    <label>Phone Forward</label>
+    <profileName>Phone Forward</profileName>
+    <setting name="ph1AllFwd">
+      <label>Enable All Forward</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ph1BusyFwd">
+      <label>Enable Busy Forward</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ph1NoAnsFwd">
+      <label>Enable No Answer Forward</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ph1AllFwdName">
+      <label>All Forward Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1AllFwdUrl">
+      <label>All Forward URL</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1BusyFwdName">
+      <label>Busy Forward Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1BusyFwdUrl">
+      <label>Busy Forward URL</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1NoAnsFwdName">
+      <label>No Answer Forward Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1NoAnsFwdUrl">
+      <label>No Answer Forward URL</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1NoAnsTimeOut">
+      <label>No Answer Ring Count</label>
+      <type>
+        <integer min="2" max="8" />
+      </type>
+      <value>4</value>
+    </setting>
+  </group>
+  <group name="MoHSettings">
+    <label>Music on Hold</label>
+    <profileName>MoH Settings</profileName>
+    <setting name="ph1HoldRFCEnable">
+      <label>Enable MoH</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="NMOH" advanced="yes">
+      <label>MoH URL</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+  <group name='SNTP_Settings'>
+    <label>Time</label>
+    <setting name="SNTPEnable">
+      <label>Enable SNTP</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='SNTP1stServ'>
+      <value />
+    </setting>
+    <setting name='SNTP2ndServ'>
+      <value />
+    </setting>
+    <setting name='SNTPTimeZone'>
+      <type>
+        <enum>
+          <option>
+            <label>-12:00</label>
+            <value>-12:00</value>
+          </option>
+          <option>
+            <label>-11:00</label>
+            <value>-11:00</value>
+          </option>
+          <option>
+            <label>-10:00</label>
+            <value>-10:00</value>
+          </option>
+          <option>
+            <label>-09:00</label>
+            <value>-09:00</value>
+          </option>
+          <option>
+            <label>-08:00</label>
+            <value>-08:00</value>
+          </option>
+          <option>
+            <label>-07:00</label>
+            <value>-07:00</value>
+          </option>
+          <option>
+            <label>-06:00</label>
+            <value>-06:00</value>
+          </option>
+          <option>
+            <label>-05:00</label>
+            <value>-05:00</value>
+          </option>
+          <option>
+            <label>-04:00</label>
+            <value>-04:00</value>
+          </option>
+          <option>
+            <label>-03:00</label>
+            <value>-03:00</value>
+          </option>
+          <option>
+            <label>-02:00</label>
+            <value>-02:00</value>
+          </option>
+          <option>
+            <label>-01:00</label>
+            <value>-01:00</value>
+          </option>
+          <option>
+            <label>+01:00</label>
+            <value>+01:00</value>
+          </option>
+          <option>
+            <label>+01:00</label>
+            <value>+01:00</value>
+          </option>
+          <option>
+            <label>+02:00</label>
+            <value>+02:00</value>
+          </option>
+          <option>
+            <label>+03:00</label>
+            <value>+03:00</value>
+          </option>
+          <option>
+            <label>+04:00</label>
+            <value>+04:00</value>
+          </option>
+          <option>
+            <label>+05:00</label>
+            <value>+05:00</value>
+          </option>
+          <option>
+            <label>+06:00</label>
+            <value>+06:00</value>
+          </option>
+          <option>
+            <label>+07:00</label>
+            <value>+07:00</value>
+          </option>
+          <option>
+            <label>+08:00</label>
+            <value>+08:00</value>
+          </option>
+          <option>
+            <label>+09:00</label>
+            <value>+09:00</value>
+          </option>
+          <option>
+            <label>+10:00</label>
+            <value>+10:00</value>
+          </option>
+          <option>
+            <label>+11:00</label>
+            <value>+11:00</value>
+          </option>
+          <option>
+            <label>+12:00</label>
+            <value>+12:00</value>
+          </option>
+          <option>
+            <label>+0:00</label>
+            <value>+0:00</value>
+          </option>
+        </enum>
+      </type>
+      <value>-08:00</value>
+    </setting>
+    <setting name='SNTPSyncTime'>
+      <type>
+        <enum>
+          <option>
+            <label>1 hours</label>
+            <value>00:01:00</value>
+          </option>
+          <option>
+            <label>3 hours</label>
+            <value>00:03:00</value>
+          </option>
+          <option>
+            <label>6 hours</label>
+            <value>00:06:00</value>
+          </option>
+          <option>
+            <label>12 hours</label>
+            <value>00:12:00</value>
+          </option>
+        </enum>
+      </type>
+      <value>00:06:00</value>
+    </setting>
+  </group>
+  <group name="PortSettings">
+    <label>Ports</label>
+    <profileName>Port Settings</profileName>
+    <setting name="ph1SIPPort">
+      <label>SIP Listen Port</label>
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="ph1RTPPort">
+      <label>RTP Port Base</label>
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>10000</value>
+    </setting>
+  </group>
+  <group name="CodecSettings">
+    <label>Codecs</label>
+    <profileName>Codec Settings</profileName>
+    <setting name="CodecPri1">
+      <label>First Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="CodecPri2">
+      <label>Second Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="CodecPri3">
+      <label>Third Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="CodecPri4">
+      <label>Fourth Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="G723Enable">
+      <label>Enable Codec G.723</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="G723pkl">
+      <label>G.723 Payload Size</label>
+      <type>
+        <enum>
+          <option>
+            <label>30 ms</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>60 ms</label>
+            <value>6</value>
+          </option>
+          <option>
+            <label>90 ms</label>
+            <value>9</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="G711G729pkl">
+      <label>G.711/G.729 Payload Size</label>
+      <type>
+        <enum>
+          <option>
+            <label>20 ms</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>30 ms</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>40 ms</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>50 ms</label>
+            <value>5</value>
+          </option>
+          <option>
+            <label>60 ms</label>
+            <value>6</value>
+          </option>
+          <option>
+            <label>70 ms</label>
+            <value>7</value>
+          </option>
+          <option>
+            <label>80 ms</label>
+            <value>8</value>
+          </option>
+          <option>
+            <label>90 ms</label>
+            <value>9</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+  </group>
+  <group name="SIPOtherSettings">
+    <label>SIP</label>
+    <profileName>SIP Other Settings</profileName>
+    <setting name="DTMF">
+      <label>DTMF Type</label>
+      <type>
+        <enum>
+          <option>
+            <label>RFC2833</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Inband</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>SIP Info</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ph1RportEnable">
+      <label>RPort</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="SIPExpireTime">
+      <label>Expire Time</label>
+      <type>
+        <integer min="60" max="3600" />
+      </type>
+      <value>3600</value>
+    </setting>
+  </group>
+  <group name="STUNSettings">
+    <label>STUN</label>
+    <profileName>STUN Settings</profileName>
+    <setting name="ph1STUNEnable">
+      <label>Enable STUN</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="STUNServ">
+      <label>STUN Server</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="STUNPort">
+      <label>STUN Port</label>
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>3478</value>
+    </setting>
+  </group>
+  <group name="VLANSettings">
+    <label>VLAN</label>
+    <profileName>VLAN Settings</profileName>
+    <setting name="VLANEnable">
+      <label>Enable VLAN</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VLANTag">
+      <label>VLAN Tag</label>
+      <type>
+        <integer min="1" max="4094" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="VLANPriority">
+      <label>VLAN Priority</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VLANCFI">
+      <label>VLAN CFI</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+</model>

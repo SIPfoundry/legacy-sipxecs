@@ -269,6 +269,7 @@ rm -rf $RPM_BUILD_ROOT
 %config %{sipxpbxconf}/region_*/*
 %config(noreplace) %{sipxpbxconf}/grandstream/*
 %config(noreplace) %{sipxpbxconf}/gtek/*
+%config(noreplace) %{sipxpbxconf}/gtek-aq/*
 %config(noreplace) %{sipxpbxconf}/hitachi/*
 %config(noreplace) %{sipxpbxconf}/ipDialog/*
 %dir %{sipxpbxconf}/lg-nortel

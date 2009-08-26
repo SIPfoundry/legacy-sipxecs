@@ -115,6 +115,7 @@ AC_CONFIG_FILES([
     plugins/ciscoplus/Makefile
     plugins/clearone/Makefile
     plugins/gtek/Makefile
+    plugins/gtek-aq/Makefile
     plugins/hitachi/Makefile
     plugins/ipdialog/Makefile
     plugins/lg-nortel/Makefile

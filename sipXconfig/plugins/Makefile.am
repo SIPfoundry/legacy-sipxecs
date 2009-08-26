@@ -3,6 +3,7 @@ SUBDIRS = \
 	ciscoplus \
 	clearone \
 	gtek \
+	gtek-aq \
 	hitachi \
 	ipdialog \
 	lg-nortel \
