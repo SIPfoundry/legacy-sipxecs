@@ -103,9 +103,10 @@ void NameValuePair::setValue(const char* newValue)
                         delete[] valueString;
                         valueString = new char[len + 1];
                 }
-                else
-                if (!valueString)
-                        valueString = new char[len + 1];
+                else if (!valueString)
+                {
+                         valueString = new char[len + 1];
+                }
 
                 memcpy(valueString, newValue, len + 1 );
         }

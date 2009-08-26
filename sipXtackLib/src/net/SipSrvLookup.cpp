@@ -895,6 +895,9 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
          // res_query failed, return.
          break;
       }
+      // done with res state struct, so cleanup
+      res_nclose(&res);
+
       response = res_parse((char*) &answer);
       if (response == NULL)
       {
