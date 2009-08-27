@@ -185,7 +185,12 @@ public class Cdr {
             if (m_calleeRoute != null) {
                 if (m_calleeRoute.endsWith("STS") 
                     || m_calleeRoute.endsWith("LD") 
-                    || m_calleeRoute.endsWith("TF")) {
+                    || m_calleeRoute.endsWith("TF") 
+                    || m_calleeRoute.endsWith("REST") 
+                    || m_calleeRoute.endsWith("LOCL") 
+                    || m_calleeRoute.endsWith("INTN") 
+                    || m_calleeRoute.endsWith("EMERG") 
+                    || m_calleeRoute.endsWith("CUST")) {
                     direction = CALL_TANDEM;
                 }
             }
