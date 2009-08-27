@@ -36,6 +36,7 @@
 #include <net/Url.h>
 #include "NatTraversalAgent.h"
 #include "CallTracker.h"
+#include "SessionContext.h"
 #include "NatMaintainer.h"
 #include "MediaRelay.h"
 
@@ -208,66 +209,88 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          UtlString method;
          const EndpointDescriptor* pCaller;
          const EndpointDescriptor* pCallee;
+         bool bDeleteEndpointDescriptors = false;
          CallTracker* pCallTracker = 0;
          
          request.getCallIdField( &callId );
          request.getRequestMethod(&method);
          pCallTracker = getCallTrackerFromCallId( callId );
          
-         // If we are dealing with a dialog-forming INVITE, we may be in the presence
-         // of a new call that we are not already tracking or a new call leg of an
-         // already tracked call.  Figure out which case we are in by trying to find
-         // the CallId in our CallTrackers map
-         if( method.compareTo( SIP_INVITE_METHOD ) == 0 && routeState.isMutable() )
+         // Determine if the request is dialog-forming or not based on mutability of route state
+         if( routeState.isMutable() )
          {
-            if( pCallTracker == 0 )
+            // If we are dealing with a dialog-forming INVITE, we may be in the presence
+            // of a new call that we are not already tracking or a new call leg of an
+            // already tracked call.  Figure out which case we are in by trying to find
+            // the CallId in our CallTrackers map
+            if( method.compareTo( SIP_INVITE_METHOD ) == 0 )
             {
-               // We are not tracking this call, this means that it is 
-               // a new call that we haven't seen yet.  Instantiate
-               // a new tracker to follow its media session negotiations
-               // and intervene as necessary to facilitate NAT traversal.
-               pCallTracker = createCallTrackerAndAddToMap( callId, mNextAvailableCallTrackerHandle );   
-               OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%zu] to track call id %s"
-                                                  , mInstanceName.data(), mNextAvailableCallTrackerHandle, callId.data() );
-               mNextAvailableCallTrackerHandle++;
+               if( pCallTracker == 0 )
+               {
+                  // We are not tracking this call, this means that it is 
+                  // a new call that we haven't seen yet.  Instantiate
+                  // a new tracker to follow its media session negotiations
+                  // and intervene as necessary to facilitate NAT traversal.
+                  if( ( pCallTracker = createCallTrackerAndAddToMap( callId, mNextAvailableCallTrackerHandle ) ) != 0 )
+                  {
+                     // We have a dialog-forming INVITE.  Inform the call tracker
+                     // so that it can start tracking the media session that will ensue.
+                     OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::authorizeAndModify create new call tracker[%zu] to track call id %s"
+                                                        , mInstanceName.data(), mNextAvailableCallTrackerHandle, callId.data() );
+                     pCallTracker->notifyIncomingDialogFormingInvite( request, routeState, pCaller, pCallee );
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_NAT, PRI_CRIT, "NatTraversalAgent[%s]::authorizeAndModify failed to create call tracker to track call id %s"
+                                                        , mInstanceName.data(), callId.data() );
+                  }
+                  mNextAvailableCallTrackerHandle++;
+               }
+            }
+            else // non-INVITE dialog-forming request
+            {
+               // create endpoint descriptors for the caller and callee.  The location information
+               // they contain will be needed to encode the endpoints' public transport in the 
+               // route state later
+               pCaller = SessionContext::createCallerEndpointDescriptor( request, mNatTraversalRules );
+               pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, mpRegistrationDB );
+               // set flag that will cause caller and callee endpoint descriptors to be deleted
+               // once this routine is done - for non-INVITE dialogs, endpoint descriptors are only
+               // needed for the dialog-forming requests and never after.
+               bDeleteEndpointDescriptors = true;
             }
             
-            if( pCallTracker )
+            // Look at the locations of the 
+            // the returned caller and callee EndpointDescriptors to learn more about
+            // the location of the caller and callee endpoints. If either of these endpoints
+            // are located behind a remote NAT then special processing is required to ensure
+            // that the requests will be sent to the endpoint's public IP address and not its
+            // private IP address as will be the case if nothing is done about it.  The approach
+            // is as follows.  The caller and callee locations are inspected.  If the caller
+            // is REMOTE_NATED then a 'CrT' (CallerTransport) parameter containing the caller's
+            // public transport information will be added to the RouteState. If the callee
+            // is REMOTE_NATED then a 'CeT' (CalleeTransport) parameter containing the callee's
+            // public transport information will be added to the RouteState.
+            // Every time requests are processed by this routine, if the request travels in the
+            // caller->callee direction and no top route exists, a special X-SipX-Nat-Route:
+            // header containing the callee's public IP address is added.  A symmetric operation
+            // is performed when requests travel in the callee->caller direction. The sipXtackLib is built  
+            // to understand that header, strip it and route the request to the hostport it contains,
+            // The net result of that operation is that the request will be sent to the endpoint's public
+            // IP address and the request as seen on the wire will not contain X-SipX-Nat-Route: as it is
+            // removed by the stack before sending the message out.
+            if( pCaller && pCallee )
             {
-               // We have a dialog-forming INVITE.  Inform the call tracker
-               // so that it can start tracking the media session that will ensue.
-               if( pCallTracker->notifyIncomingDialogFormingInvite( request, routeState, pCaller, pCallee ) )
+               UtlString urlString;
+               if( pCaller->getLocationCode() == REMOTE_NATED )
                {
-                  // We are initiating the tracking of a new fork.  Look at the locations of the 
-                  // the returned caller and callee EndpointDescriptors to learn more about
-                  // the location of the caller and callee endpoints. If either of these endpoints
-                  // are located behind a remote NAT then special processing is required to ensure
-                  // that the requests will be sent to the endpoint's public IP address and not its
-                  // private IP address as will be the case if nothing is done about it.  The approach
-                  // is as follows.  The caller and callee locations are inspected.  If the caller
-                  // is REMOTE_NATED then a 'CrT' (CallerTransport) parameter containing the caller's
-                  // public transport information will be added to the RouteState. If the callee
-                  // is REMOTE_NATED then a 'CeT' (CalleeTransport) parameter containing the callee's
-                  // public transport information will be added to the RouteState.
-                  // Every time requests are processed by this routine, if the request travels in the
-                  // caller->callee direction and no top route exists, a special X-SipX-Nat-Route:
-                  // header containing the callee's public IP address is added.  A symmetric operation
-                  // is performed when requests travel in the callee->caller direction. The sipXtackLib is built  
-                  // to understand that header, strip it and route the request to the hostport it contains,
-                  // The net result of that operation is that the request will be sent to the endpoint's public
-                  // IP address and the request as seen on the wire will not contain X-SipX-Nat-Route: as it is
-                  // removed by the stack before sending the message out.
-                  UtlString urlString;
-                  if( pCaller->getLocationCode() == REMOTE_NATED )
-                  {
-                     pCaller->getPublicTransportAddress().toUrlString( urlString );
-                     routeState.setParameter( mInstanceName.data(), CALLER_PUBLIC_TRANSPORT_PARAM, urlString );
-                  }         
-                  if( pCallee->getLocationCode() == REMOTE_NATED )
-                  {
-                     pCallee->getPublicTransportAddress().toUrlString( urlString );
-                     routeState.setParameter( mInstanceName.data(), CALLEE_PUBLIC_TRANSPORT_PARAM, urlString );
-                  }  
+                  pCaller->getPublicTransportAddress().toUrlString( urlString );
+                  routeState.setParameter( mInstanceName.data(), CALLER_PUBLIC_TRANSPORT_PARAM, urlString );
+               }         
+               if( pCallee->getLocationCode() == REMOTE_NATED )
+               {
+                  pCallee->getPublicTransportAddress().toUrlString( urlString );
+                  routeState.setParameter( mInstanceName.data(), CALLEE_PUBLIC_TRANSPORT_PARAM, urlString );
                }
             }
          }
@@ -349,11 +372,28 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                request.setHeaderValue( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, "true", 0 );  
             }      
          }
+         
+         if( bDeleteEndpointDescriptors == true )
+         {
+            delete pCaller;
+            delete pCallee;
+         }
       }
       // before to send out the message, undo any changes we may have performed on the Request-URI. Note that these
       // changes are performed even when the NAT traversal feature is disabled, that is why this operation is
       // performed whether or not the NAT traversal feature is disabled. 
       UndoChangesToRequestUri( request );
+      // Also, when are dealing with a non-INVITE requests,w e have seen cases where
+      // our modified Contacts cause mis-routed re-SUBSCRIBEs (XX-6244 for example).
+      // Given that our modified contacts do not play an active role in message routing
+      // for non-INVITE transactions, we will undo our modifications here.
+      // NOTE: for INVITE transactions, the modified Contact is required for 
+      // proper NAT traversal of call park and call pickup involving remote workers,
+      // that is why we only undo our contacts for non-INVITE transactions.
+      if( method.compareTo( SIP_INVITE_METHOD ) != 0 )
+      {
+         restoreOriginalContact( request );
+      }      
    }
    return result;
 }
@@ -762,6 +802,33 @@ CallTracker* NatTraversalAgent::getCallTrackerFromCallId( const UtlString& callI
    CallTracker* pCallTracker = 0;
    pCallTracker = dynamic_cast<CallTracker*>(mCallTrackersMap.findValue( &callId ) );
    return pCallTracker;
+}
+
+bool NatTraversalAgent::restoreOriginalContact( SipMessage& request )
+{
+   bool rc = false;
+   UtlString contactString;
+   if( request.getContactEntry(0, &contactString) )
+   {
+      Url contactUri( contactString );
+      UtlString privateContact;
+      if( contactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
+      {
+         Url privateContactAsUrl;
+         UtlString hostAddressString;
+         privateContactAsUrl.fromString( privateContact );
+         privateContactAsUrl.getHostAddress( hostAddressString );
+         contactUri.setHostAddress( hostAddressString );
+         contactUri.setHostPort( privateContactAsUrl.getHostPort() );
+         contactUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
+         UtlString contactAsString;
+         contactUri.includeAngleBrackets();
+         contactUri.toString( contactAsString );
+         request.setContactField(contactAsString, 0);
+         rc = true;
+      }
+   }
+   return rc;
 }
 
 /// destructor

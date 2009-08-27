@@ -93,16 +93,17 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    virtual OsStatus signal(intptr_t eventData);
 
   protected:
-     // header manipulatiuon routines for NAT traversal
+     // header manipulation routines for NAT traversal
      void adjustViaForNatTraversal( SipMessage& message, const char* address, int port );
      void adjustRecordRouteForNatTraversal( SipMessage& message, const char* address, int port );
      void adjustReferToHeaderForNatTraversal( SipMessage& message, const char* address, int port );
+     bool restoreOriginalContact( SipMessage& request );
      
      // Call Tracker Manipulation methods
      CallTracker* createCallTrackerAndAddToMap( const UtlString& callId , ssize_t trackerHandle );
      CallTracker* getCallTrackerForMessage( const SipMessage& sipMessage );
      CallTracker* getCallTrackerFromCallId( const UtlString& callId );
-     
+
   private:
    bool              mbNatTraversalFeatureEnabled;
    bool              mbOutputProcessorRegistrrationDone;

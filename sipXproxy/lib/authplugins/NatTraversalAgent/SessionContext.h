@@ -224,6 +224,31 @@ public:
    // Methods used by CallTracker //
    // /////////////////////////// //
    DialogTracker* getDialogTrackerForMessage( const SipMessage& message ) const;
+
+   // //////////////////////////////////////////////// //
+   // Utility methods for creating EndpointDescriptors //
+   // //////////////////////////////////////////////// //
+   /**
+    * Creates an endpoint descriptor representing the caller
+    * \param [in] sipRequest - request from which caller endpoint descritptor will be initialized
+    * \param [in] natTraversalRules - rules containing valuable topology info to initialize descriptor
+    * \return new EndpointDescriptor instance representing the caller.  The invoker of this method
+    *         is responsible for deleting the instance once it is done with it.
+    */                         
+   static EndpointDescriptor* createCallerEndpointDescriptor( const SipMessage& sipRequest, 
+                                                              const NatTraversalRules& natTraversalRules );
+
+   /**
+    * Creates an endpoint descriptor representing the callee
+    * \param [in] sipRequest - request from which callee endpoint descritptor will be initialized
+    * \param [in] natTraversalRules - rules containing valuable topology info to initialize descriptor
+    * \param [in] pRegistrationDB - pointer to registration DB sometimes used to deduce the callee's location info
+    * \return new EndpointDescriptor instance representing the callee.  The invoker of this method
+    *         is responsible for deleting the instance once it is done with it.
+    */                         
+   static EndpointDescriptor* createCalleeEndpointDescriptor( const SipMessage& sipRequest, 
+                                                              const NatTraversalRules& natTraversalRules,
+                                                              const RegistrationDB* pRegistrationDB );
    
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 

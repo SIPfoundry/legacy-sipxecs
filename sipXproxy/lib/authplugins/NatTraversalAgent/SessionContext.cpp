@@ -40,12 +40,9 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    // initialize the members of session context based on the content of the 
    // SIP request passed to this c'tor
    
-   // First, initialize the caller descriptor based on the Contact header
+   // First, initialize the caller descriptor
    {
-      sipRequest.getContactEntry( 0, &tmpString );
-      Url contactUri( tmpString );
-      mpCaller = new EndpointDescriptor( contactUri, *mpNatTraversalRules );
-
+      mpCaller = createCallerEndpointDescriptor( sipRequest, *mpNatTraversalRules );
       mpCaller->toString( tmpString ); 
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Caller transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
@@ -53,19 +50,11 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 
    // Second, initialize the callee descriptor based on the Request URI header
    {
-      UtlBoolean bIsAddrSpec = FALSE;
-      if( !sipRequest.getRouteUri( 0, &tmpString ) )
-      {
-         bIsAddrSpec = TRUE;
-         sipRequest.getRequestUri( &tmpString );
-      }
-      Url requestUri( tmpString, bIsAddrSpec );
-      mpCallee = new EndpointDescriptor( requestUri, *mpNatTraversalRules, pRegistrationDB );
-
+      mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegistrationDB );
       mpCallee->toString( tmpString ); 
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
-   } 
+   }
 
    // Create the string that will be used to mark packets as handled by this system.  This
    // string must be unique for this system and is set to the system's private:public IP pair
@@ -77,6 +66,35 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "+SessionContext tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
+}
+
+EndpointDescriptor*
+SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules )
+{
+   // The Caller endpoint descriptor is initialized based on the information contained in the 
+   // contact URI.  This is where the NAT traversal feature encodes location information about
+   // the caller for dialog-forming requests.
+   UtlString tmpString;
+   sipRequest.getContactEntry( 0, &tmpString );
+   Url contactUri( tmpString );
+   return new EndpointDescriptor( contactUri, natTraversalRules );
+}
+
+EndpointDescriptor*
+SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const RegistrationDB* pRegistrationDB )
+{
+   // The Callee endpoint descriptor is initialized based on the information contained in the 
+   // Route if present or the Request URI.  The R-URI is where the NAT traversal feature encodes location 
+   // information about the callee for dialog-forming requests.
+   UtlString tmpString;
+   UtlBoolean bIsAddrSpec = FALSE;
+   if( !sipRequest.getRouteUri( 0, &tmpString ) )
+   {
+      bIsAddrSpec = TRUE;
+      sipRequest.getRequestUri( &tmpString );
+   }
+   Url requestUri( tmpString, bIsAddrSpec );
+   return new EndpointDescriptor( requestUri, natTraversalRules, pRegistrationDB );
 }
 
 SessionContext::~SessionContext()
