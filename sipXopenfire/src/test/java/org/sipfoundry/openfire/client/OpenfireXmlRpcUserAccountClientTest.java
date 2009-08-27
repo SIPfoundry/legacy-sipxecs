@@ -99,9 +99,9 @@ public class OpenfireXmlRpcUserAccountClientTest extends TestCase {
     
     
     public void testCreateGroup() throws Exception {
-        client.createGroup("TestGroup", "A test group");
+        client.createGroup("TestGroup", "user1", "A test group");
         assertTrue("Group exists",client.groupExists("TestGroup"));
-        client.addUserToGroup("admin", "TestGroup", true);
+        client.addUserToGroup("admin", "TestGroup");
         assertTrue("User must be in group", client.isUserInGroup("admin","TestGroup"));
         client.removeUserFromGroup("admin","TestGroup");
         assertTrue("User must not be in group", !client.isUserInGroup("admin","TestGroup"));

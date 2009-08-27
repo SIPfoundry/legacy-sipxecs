@@ -157,9 +157,10 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
      * @param groupName -- the group name.
      */
     
-    public Map createGroup(String groupName, String groupDescription ) {
+    public Map createGroup(String groupName, String administrator, String groupDescription ) {
         try {
-            getPlugin().createGroup(groupName, groupDescription);
+            String adminJid = appendDomain(administrator);
+            getPlugin().createGroup(groupName, adminJid, groupDescription);
             return createSuccessMap();
         } catch (Exception ex) {
             return createErrorMap(ErrorCode.GROUP_CREATION_ERROR,ex.getMessage());
@@ -190,11 +191,10 @@ public class XmlRpcUserAccountProvider extends XmlRpcProvider {
      * @param isAdmin -- flag that indicates whether or not user is an admin.
      * 
      */
-    public Map addUserToGroup(String userName, String groupName, String isAdmin) {
+    public Map addUserToGroup(String userName, String groupName) {
         try {
-            boolean isAdminFlag = Boolean.parseBoolean(isAdmin);
             String userJid = appendDomain(userName);
-            getPlugin().addUserToGroup(userJid, groupName, isAdminFlag);
+            getPlugin().addUserToGroup(userJid, groupName);
             return createSuccessMap();
         } catch (Exception ex) {
             return createErrorMap(ErrorCode.ADD_USER_TO_GROUP_ERROR,ex.getMessage());

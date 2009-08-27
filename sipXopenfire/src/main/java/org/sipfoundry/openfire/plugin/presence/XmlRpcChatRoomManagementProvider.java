@@ -12,7 +12,9 @@ public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
     public final static String SERVER = "chatRoomManagementServer";
    
     
-    public Map createChatRoom(String subdomain, String roomName,  
+    public Map createChatRoom(String subdomain, 
+            String owner,
+            String roomName,  
             String description, 
             String password, 
             String conferenceExtension) {
@@ -24,11 +26,13 @@ public class XmlRpcChatRoomManagementProvider extends XmlRpcProvider {
             boolean allowInvite = true;
             boolean publicRoom = false;
             boolean logConversations = false;
+            boolean isPersistent = false;
             log.info(String.format("createChatRoom %s\n %s\n %s\n %s\n", 
                     subdomain,roomName,description,conferenceExtension));
-            getPlugin().createChatRoom(subdomain,roomName, 
+            String ownerJid = this.appendDomain(owner);
+            getPlugin().createChatRoom(subdomain,ownerJid,roomName, 
                     listRoom,moderated,membersOnly,allowInvite,publicRoom,logConversations,
-                    description, password, conferenceExtension);
+                     isPersistent, password, description, conferenceExtension);
             return createSuccessMap();
         } catch (Exception ex) {
             log.error("Processing error " , ex);

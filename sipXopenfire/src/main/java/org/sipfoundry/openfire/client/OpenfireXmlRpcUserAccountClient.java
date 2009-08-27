@@ -111,34 +111,7 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         return (String) retval.get(XmlRpcPresenceProvider.SIP_ID);
     }
     
-    public void setSipPassword(String userName, String sipPassword) throws OpenfireClientException {
-        Object[] args = new Object[2];
-        args[0] = userName ;
-        args[1] = sipPassword;
-        Map retval;
-        try {
-            retval = execute("setSipPassword", args);
-        } catch ( XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }
-        if (retval.get(XmlRpcPresenceProvider.STATUS_CODE).equals(XmlRpcPresenceProvider.ERROR)) {
-            throw new OpenfireClientException("Error in processing request "
-                    + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
-        }
-    }
-    
-    public String getSipPassword(String userName) throws OpenfireClientException {
-        Object[] args = new Object[1];
-        args[0] = userName;
-        Map retval;
-        try {
-            retval = execute("getSipPassword",args);
-        } catch ( XmlRpcException ex) {
-            throw new OpenfireClientException(ex);
-        }
-        
-        return (String) retval.get(XmlRpcPresenceProvider.SIP_PASSWORD);
-    }
+   
     
     public void setOnThePhoneMessage(String sipUserName, String onThePhoneMessage) throws OpenfireClientException {
         Object[] args = new Object[2];
@@ -178,10 +151,11 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
        
     }
     
-    public void createGroup(String groupName, String description) throws OpenfireClientException {
-        Object[] args = new Object[2];
+    public void createGroup(String groupName, String admin, String description) throws OpenfireClientException {
+        Object[] args = new Object[3];
         args[0] = groupName;
-        args[1] = description;
+        args[1] = admin;
+        args[2] = description;
         Map retval ;
         
         try {
@@ -201,12 +175,12 @@ public class OpenfireXmlRpcUserAccountClient extends OpenfireXmlRpcClient {
         }
     }
     
-    public void addUserToGroup(String userName, String groupName, boolean isAdmin) 
+    public void addUserToGroup(String userName, String groupName) 
     throws OpenfireClientException  {
-        Object[] args = new Object[3];
+        Object[] args = new Object[2];
         args[0] = userName;
         args[1] = groupName;
-        args[2] = new Boolean(isAdmin).toString();
+        
         try {
             execute("addUserToGroup", args);
         } catch (XmlRpcException ex) {
