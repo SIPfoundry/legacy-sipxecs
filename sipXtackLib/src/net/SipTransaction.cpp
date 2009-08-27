@@ -2581,8 +2581,8 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                     }
 
                     numSrvRecords++;
-                }
-            }
+                }   // end create SRV child transactions
+            }   // end valid SRV records
             // We got no useful DNS records back
             else
             {
