@@ -175,10 +175,10 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, "is-unlocked-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "pin-sound", DEFAULT_AUDIO_ENTER_PIN);
             addParam(profile, "bad-pin-sound", DEFAULT_AUDIO_BAD_PIN);
-            addParam(profile, "confort-noise-level", "1400");
+            addParam(profile, "comfort-noise-level", "1400");
             addParam(profile, "caller-id-name", "$${outbound_caller_name}");
             addParam(profile, "caller-id-number", "$${outbound_caller_id}");
-            addParam(profile, "confort-noise", "true");
+            addParam(profile, "comfort-noise", "true");
             if (conference != null) {
                 Integer val = (Integer) conference.getSettingTypedValue(Conference.MAX_LEGS);
                 if (val != null) {
