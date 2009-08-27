@@ -86,7 +86,7 @@ const RegEx SipXBranchRecognizer(
 /// constructor for a client transaction in a User Agent Client
 BranchId::BranchId(const SipMessage& message)
 {
-   unsigned int uniqueCounter = smCounter;
+   size_t uniqueCounter = smCounter;
    smCounter++;
    smCounter &= 0xFFFF;
    generateUniquePart(message, uniqueCounter, *this);
@@ -106,7 +106,7 @@ BranchId::BranchId(BranchId&         parentId, ///< the branchid of the server t
                    const SipMessage& message   ///< the new message
                    )
 {
-   unsigned int uniqueCounter = smCounter;
+   size_t uniqueCounter = smCounter;
    smCounter++;
    smCounter &= 0xFFFF;
    generateUniquePart(message, uniqueCounter, *this);
@@ -181,7 +181,7 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
       UtlString branch;
       if (SipMessage::getViaTag(via.data(), "branch", branch))
       {
-         unsigned int counter = 0;
+         size_t       counter = 0;
          UtlString    uniqueKey;
          UtlString    loopDetectKey;
          if (parse(branch, counter, uniqueKey, loopDetectKey)) 
@@ -252,7 +252,7 @@ void BranchId::addFork(const Url& contact)
 
 /// Parse a sipXecs branch id into its component parts.
 bool BranchId::parse(const UtlString& branchValue,   ///< input
-                     unsigned int&    uniqueCounter, ///< output sequence value
+                     size_t&          uniqueCounter, ///< output sequence value
                      UtlString&       uniqueValue,   ///< output
                      UtlString&       loopDetectKey  ///< output
                      )
@@ -308,7 +308,7 @@ void BranchId::generateFullValue()
       loopDetectKey.appendBase64Sig(mLoopDetectionKey);
 
       // get the unique part of the existing value
-      unsigned int existingCounter;
+      size_t       existingCounter;
       UtlString    existingUniquePart;
       UtlString    oldLoopKey;
       if (parse(*this, existingCounter, existingUniquePart, oldLoopKey))
@@ -349,7 +349,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
          UtlString branch;
          if (SipMessage::getViaTag(via.data(), "branch", branch))
          {
-            unsigned int counter = 0;
+            size_t       counter = 0;
             UtlString    uniqueKey;
             UtlString    loopDetectKey;
             if (parse(branch, counter, uniqueKey, loopDetectKey)) 
@@ -425,7 +425,7 @@ void BranchId::setSecret(const UtlString& secret /**< used as input to sign the 
 
 
 void BranchId::generateUniquePart(const SipMessage& message,
-                                  unsigned int uniqueCounter,
+                                  size_t uniqueCounter,
                                   UtlString& uniqueValue
                                   )
 {

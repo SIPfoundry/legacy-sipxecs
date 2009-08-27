@@ -60,7 +60,7 @@ private:
    static OsMutex sCallIdMutex;
 
    //! Call counter for generating Call-IDs.
-   static unsigned int sCallNum;
+   static size_t sCallNum;
 
    //! Chain pseudo-random value.
    static UtlString sChainValue;

@@ -188,13 +188,13 @@ class BranchId : protected UtlString
 
    /// Calculate a value universally unique to this message.
    static void generateUniquePart(const SipMessage& message,
-                                  unsigned int uniqueCounter,
+                                  size_t uniqueCounter,
                                   UtlString& uniqueValue
                                   );
 
    /// Parse a sipXecs branch id into its component parts.
    static bool parse(const UtlString& branchValue,   ///< input
-                     unsigned int&    uniqueCounter, ///< output sequence value
+                     size_t&          uniqueCounter, ///< output sequence value
                      UtlString&       uniqueValue,   ///< output
                      UtlString&       loopDetectKey  ///< output
                      );

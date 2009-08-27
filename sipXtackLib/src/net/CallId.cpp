@@ -35,7 +35,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 
 OsMutex CallId::sCallIdMutex(OsMutex::Q_FIFO);
-unsigned int CallId::sCallNum = 0;
+size_t CallId::sCallNum = 0;
 UtlString CallId::sChainValue;
 bool CallId::sChainValueInitialized = false;
 

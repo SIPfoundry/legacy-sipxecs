@@ -60,7 +60,7 @@ public:
    
    void testBranchIdparse()
       {
-         unsigned int counter;
+         size_t       counter;
          UtlString    uniqueValue;
          UtlString    loopDetectKey;
          
@@ -81,7 +81,7 @@ public:
 
          CPPUNIT_ASSERT(BranchId::parse("z9hG4bK-XX-0014xXPnvpKqfTHmjFlrAD5sPA~1Pke3N5l0uqpDw00P`ZWYw",
                                         counter, uniqueValue, loopDetectKey));
-         CPPUNIT_ASSERT_EQUAL(20U, counter);
+         CPPUNIT_ASSERT_EQUAL((size_t)20, counter);
          ASSERT_STR_EQUAL("xXPnvpKqfTHmjFlrAD5sPA", uniqueValue.data());
          ASSERT_STR_EQUAL("1Pke3N5l0uqpDw00P`ZWYw", loopDetectKey.data());
       }
