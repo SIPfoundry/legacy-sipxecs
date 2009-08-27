@@ -1,0 +1,4 @@
+
+    <!-- Forwarding rules to implement the TCP and UDP SRV aliases. -->
+    <routeFrom>udp.@SIPXCHANGE_DOMAIN_NAME@</routeFrom>
+    <routeFrom>tcp.@SIPXCHANGE_DOMAIN_NAME@</routeFrom>
