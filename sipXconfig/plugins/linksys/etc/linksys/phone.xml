@@ -212,6 +212,53 @@
       <type refid="yes-no" />
       <value>yes</value>
     </setting>
+    <setting name="PC_Port_VLAN_Highest_Priority">
+      <label>PC Port VLAN Highest Priority</label>
+      <profileName>System/VLAN_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>No Limit</value>
+          </option>
+        </enum>
+      </type>
+      <value>No Limit</value>
+    </setting>
+    <setting name="Enable_PC_Port_VLAN_Tagging" advanced="yes">
+      <label>Enable PC Port VLAN Tagging</label>
+      <profileName>System/VLAN_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="PC_Port_VLAN_ID" advanced="yes">
+      <label>PC Port VLAN ID</label>
+      <profileName>System/VLAN_Settings</profileName>
+      <value />
+    </setting>
   </group>
 
   <group name="SIP_Parameters">
@@ -320,6 +367,12 @@
     </setting>
     <setting name="Random_REG_CID_On_Reboot">
       <label>Random REG CID On Reboot</label>
+      <profileName>SIP_Parameters</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Mark_All_AVT_Packets">
+      <label>Mark All AVT Packets</label>
       <profileName>SIP_Parameters</profileName>
       <type refid="yes-no" />
       <value>no</value>
@@ -772,7 +825,7 @@
     <setting name="Profile_Rule" hidden="yes" advanced="yes">
       <label>Profile Rule</label>
       <profileName>Provisioning/Configuration_Profile</profileName>
-      <value>/spa$MA.cfg</value>
+      <value>/spa$MAU.cfg</value>
     </setting>
     <setting name="Profile_Rule_B" advanced="yes">
       <label>Profile Rule B</label>
@@ -1137,7 +1190,7 @@
       <profileName>Regional/Miscellaneous</profileName>
       <value>GMT</value>
     </setting>
-    <setting name="Time_Offset_HH_mm">
+    <setting name="Time_Offset__HH_mm_">
       <label>Time Offset HH mm</label>
       <profileName>Regional/Miscellaneous</profileName>
       <value />
@@ -1159,6 +1212,45 @@
       <label>Text Logo</label>
       <profileName>phone/General</profileName>
       <value />
+    </setting>
+    <setting name="Select_Logo">
+      <label>Select Logo</label>
+      <profileName>phone/General</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Default</value>
+          </option>
+          <option>
+            <value>BMP Picture</value>
+          </option>
+          <option>
+            <value>Text Logo</value>
+          </option>
+          <option>
+            <value>None</value>
+          </option>
+        </enum>
+      </type>
+      <value>Text Logo</value>
+    </setting>
+    <setting name="Select_Background_Picture">
+      <label>Select Background Picture</label>
+      <profileName>phone/General</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>BMP Picture</value>
+          </option>
+          <option>
+            <value>Text Logo</value>
+          </option>
+          <option>
+            <value>None</value>
+          </option>
+        </enum>
+      </type>
+      <value>Text Logo</value>
     </setting>
     <setting name="Extension_1_">
       <label>Extension 1</label>
@@ -1184,7 +1276,7 @@
     <setting name="Short_Name_2_">
       <label>Short Name 2</label>
       <profileName>phone/Line_Key_2</profileName>
-      <value>2</value>
+      <value></value>
     </setting>
     <setting name="Extension_3_">
       <label>Extension 3</label>

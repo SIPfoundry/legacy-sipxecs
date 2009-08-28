@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.linksys;
@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
+import static org.sipfoundry.sipxconfig.common.SipUri.stripSipPrefix;
+
 /**
  * Linksys942 phone.
  */
@@ -35,8 +37,15 @@ public class LinksysPhone extends Linksys {
     }
 
     @Override
+    protected void initialize() {
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
+        addDefaultBeanSettingHandler(new LinksysPhoneDefaults(defaults));
+    }
+
+    @Override
     public void initializeLine(Line line) {
-        line.addDefaultBeanSettingHandler(new LinksysLineDefaults(line));
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
+        line.addDefaultBeanSettingHandler(new LinksysLineDefaults(defaults, line));
     }
 
     public Collection<Setting> getProfileLines() {
@@ -60,10 +69,25 @@ public class LinksysPhone extends Linksys {
         return linesSettings;
     }
 
-    public static class LinksysLineDefaults {
-        private Line m_line;
+    public static class LinksysPhoneDefaults {
+        private final DeviceDefaults m_defaults;
 
-        LinksysLineDefaults(Line line) {
+        LinksysPhoneDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+
+        @SettingEntry(path = "Phone/Voice_Mail_Number")
+        public String getVoicemailNumber() {
+            return m_defaults.getVoiceMail();
+        }
+    }
+
+    public static class LinksysLineDefaults {
+        private final Line m_line;
+        private final DeviceDefaults m_defaults;
+
+        LinksysLineDefaults(DeviceDefaults defaults, Line line) {
+            m_defaults = defaults;
             m_line = line;
         }
 
@@ -101,6 +125,21 @@ public class LinksysPhone extends Linksys {
         public String getRegistrationServer() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = "Call_Feature_Settings/MOH_Server")
+        public String getMohUrl() {
+            String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+            return stripSipPrefix(mohUri);
+        }
+
+        @SettingEntry(path = "Call_Feature_Settings/Voice_Mail_Server")
+        public String getVoicemailServer() {
+            User user = m_line.getUser();
+            if (user != null) {
+                return stripSipPrefix(user.getAddrSpec(m_defaults.getDomainName()));
+            }
+            return null;
         }
     }
 
