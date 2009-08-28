@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
-import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.NO_UPDATES_AVAILABLE;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATE_COMPLETED;
 
@@ -95,8 +94,12 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
         return getPackageUpdateManager().getState().equals(UPDATE_COMPLETED);
     }
 
+    public boolean getCheckUpdates() {
+        return getCurrentVersion() != null && !getCurrentVersion().equals(UpdateApi.VERSION_NOT_DETERMINED);
+    }
+
     public void pageBeginRender(PageEvent event) {
-        if (getPackageUpdateManager().getState().equals(NO_UPDATES_AVAILABLE) && getCurrentVersion() == null) {
+        if (getCurrentVersion() == null) {
             try {
                 setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
             } catch (UserException e) {
@@ -132,7 +135,7 @@ public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginR
 
     public String getFormattedCurrentVersion() {
         String currentVersion = getCurrentVersion();
-        if (currentVersion == null) {
+        if (currentVersion.equals(UpdateApi.VERSION_NOT_DETERMINED)) {
             return getMessages().getMessage("label.version.undetermined");
         }
         return getMessages().format("label.version", getCurrentVersion());

@@ -51,7 +51,7 @@ def check_version():
        sipxPackage = yumBase.rpmdb.searchAll("sipxcommserverlib")
  
     if len(sipxPackage) > 0:
-       print sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
+       print "version:" + sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
     else:
        print "Could not determine version"
 

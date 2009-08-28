@@ -15,6 +15,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public interface UpdateApi {
+    static final String VERSION_NOT_DETERMINED = "Could not determine version";
     void installUpdates();
     String getCurrentVersion();
     List<PackageUpdate> getAvailableUpdates();
