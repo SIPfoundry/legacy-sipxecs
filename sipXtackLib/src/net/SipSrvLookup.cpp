@@ -268,7 +268,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                                 ///< preferred transport protocol
    )
 {
-   server_t* list;
+   server_t* serverList;
    int list_length_allocated;
    int list_length_used = 0;
    struct sockaddr_in in;
@@ -279,7 +279,7 @@ server_t* SipSrvLookup::servers(const char* domain,
                  domain, service, OsSocket::ipProtocolString(socketType), port);
 
    // Initialize the list of servers.
-   server_list_initialize(list, list_length_allocated, list_length_used);
+   server_list_initialize(serverList, list_length_allocated, list_length_used);
 
    // Seize the lock.
    OsLock lock(sMutex);
@@ -314,11 +314,14 @@ server_t* SipSrvLookup::servers(const char* domain,
       {
          socketType = OsSocket::SSL_SOCKET;
       }
-      server_insert_addr(list, list_length_allocated, list_length_used,
+      server_insert_addr(serverList, list_length_allocated, list_length_used,
                          domain, socketType, in, 0, 0);
    }
    else
    {
+      // Free unused server_t instances, pointer must always be reloaded in this path
+      delete[] serverList;
+
       SipSrvLookupThread ** myQueryThreads = SipSrvLookupThread::getLookupThreads();
 
       // Initialize the SRV lookup thread args, and the A Record lookup thread args.
@@ -397,7 +400,7 @@ server_t* SipSrvLookup::servers(const char* domain,
          // No SRV query results. Discard the SRV Lookup lists, continue with  
          // and  return the A Record list back to the caller.
          delete[] srvLookupArgs.list;
-         list = aRecordLookupArgs.list;
+         serverList = aRecordLookupArgs.list;
          list_length_used = *(aRecordLookupArgs.list_length_used);
          list_length_allocated = *(aRecordLookupArgs.list_length_allocated);
       }
@@ -406,7 +409,7 @@ server_t* SipSrvLookup::servers(const char* domain,
          // We got SRV query results. Discard the A Record Lookup lists, 
          // continue with and return the SRV list back to the caller.
          delete[] aRecordLookupArgs.list;
-         list = srvLookupArgs.list;
+         serverList = srvLookupArgs.list;
          list_length_used = *(srvLookupArgs.list_length_used);
          list_length_allocated = *(srvLookupArgs.list_length_allocated);
 
@@ -417,7 +420,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    // so the pseudo-random scores we calculate for them are deterministic.
    if (options[OptionCodeSortServers])
    {
-      qsort(list, list_length_used, sizeof (server_t), server_compare_presort);
+      qsort(serverList, list_length_used, sizeof (server_t), server_compare_presort);
    }
 
    // Apply the scores to the list of servers.
@@ -425,10 +428,10 @@ server_t* SipSrvLookup::servers(const char* domain,
    // sipXtackLib/doc/developer/scores/README.
    for (int j = 0; j < list_length_used; j++)
    {
-      if (list[j].weight == 0)
+      if (serverList[j].weight == 0)
       {
          // If weight is 0, set score to infinity.
-         list[j].score = 1000;
+         serverList[j].score = 1000;
       }
       else
       {
@@ -438,25 +441,25 @@ server_t* SipSrvLookup::servers(const char* domain,
          {
             i = 1;
          }
-         list[j].score = - log(((float) i) / RAND_MAX) / list[j].weight;
+         serverList[j].score = - log(((float) i) / RAND_MAX) / serverList[j].weight;
       }
    }
 
    // Sort the list of servers found by priority and score.
    if (preferredTransport == OsSocket::UDP) // list order is UDP before TCP
    {
-       qsort(list, list_length_used, sizeof (server_t),
+       qsort(serverList, list_length_used, sizeof (server_t),
              server_compare_prefer_udp);
    }
    else // list order puts TCP before UDP (large requests need this)
    {
-       qsort(list, list_length_used, sizeof (server_t),
+       qsort(serverList, list_length_used, sizeof (server_t),
              server_compare_prefer_tcp);
    }
 
    // Add ending empty element to list (after sorting the real entries).
    memset(&in, 0, sizeof(in)) ;
-   server_insert(list, list_length_allocated, list_length_used,
+   server_insert(serverList, list_length_allocated, list_length_used,
                  NULL, OsSocket::UNKNOWN, in, 0, 0);
 
    // Return the list of servers.
@@ -465,27 +468,27 @@ server_t* SipSrvLookup::servers(const char* domain,
       // Debugging print of list of servers.
       for (int j = 0; j < list_length_used; j++)
       {
-         if (list[j].isValidServerT())
+         if (serverList[j].isValidServerT())
          {
             UtlString host;
-            list[j].getHostNameFromServerT(host);
+            serverList[j].getHostNameFromServerT(host);
             UtlString ip_addr;
-            list[j].getIpAddressFromServerT(ip_addr);
+            serverList[j].getIpAddressFromServerT(ip_addr);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipSrvLookup::servers host = '%s', IP addr = '%s', "
                           "port = %d, weight = %u, score = %f, "
                           "priority = %u, proto = %s",
                           host.data(), ip_addr.data(),
-                          list[j].getPortFromServerT(),
-                          list[j].getWeightFromServerT(),
-                          list[j].getScoreFromServerT(),
-                          list[j].getPriorityFromServerT(),
-                          OsSocket::ipProtocolString(list[j].getProtocolFromServerT())
+                          serverList[j].getPortFromServerT(),
+                          serverList[j].getWeightFromServerT(),
+                          serverList[j].getScoreFromServerT(),
+                          serverList[j].getPriorityFromServerT(),
+                          OsSocket::ipProtocolString(serverList[j].getProtocolFromServerT())
                           );
          }
       }
    }
-   return list;
+   return serverList;
 }
 
 /// Set an option value.
@@ -892,9 +895,16 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (res_nquery(&res, name, C_IN, type,
                     (unsigned char*) answer, sizeof (answer)) == -1)
       {
+          // done with res state struct, so cleanup
+          // must close once and only once per res_ninit, after res_nquery
+          res_nclose(&res);     
          // res_query failed, return.
          break;
       }
+      // done with res state struct, so cleanup
+      // must close once and only once per res_ninit, after res_nquery
+      res_nclose(&res);
+
       response = res_parse((char*) &answer);
       if (response == NULL)
       {
