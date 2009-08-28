@@ -176,7 +176,8 @@ public class Cdr {
                 if (m_calleeRoute.endsWith("INT")  
                     || m_calleeRoute.endsWith("AA") 
                     || m_calleeRoute.endsWith("VM") 
-                    || m_calleeRoute.endsWith("VMR")) {
+                    || m_calleeRoute.endsWith("VMR")
+                    || m_calleeRoute.endsWith("AL")) {
                     direction = CALL_INTERNAL;
                 }
             }
