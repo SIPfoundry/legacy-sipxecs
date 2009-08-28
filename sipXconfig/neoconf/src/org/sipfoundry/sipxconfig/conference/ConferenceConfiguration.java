@@ -40,6 +40,7 @@ public class ConferenceConfiguration extends XmlFile {
     private static final String DEFAULT_AUDIO_ENTER_PIN = "conf/confid.wav";
     private static final String DEFAULT_AUDIO_BAD_PIN = "conf/authfailed.wav";
     private static final String DEFAULT_AUDIO_ENTER = "conf/JoinTone.wav";
+    private static final String ZERO = "0";
 
     private Bridge m_bridge;
 
@@ -158,7 +159,8 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, CALLER_CONTROLS, SIPX_CALLER_CONTROLS);
             addParam(profile, "rate", "8000");
             addParam(profile, "interval", "20");
-            addParam(profile, "energy-level", "300");
+            addParam(profile, "energy-level", ZERO);
+            addParam(profile, "member-flags", "waste");
             addParam(profile, "sound-prefix", m_bridge.getAudioDirectory());
             addParam(profile, "ack-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "nack-sound", DEFAULT_AUDIO_BEEP);
@@ -175,10 +177,9 @@ public class ConferenceConfiguration extends XmlFile {
             addParam(profile, "is-unlocked-sound", DEFAULT_AUDIO_BEEP);
             addParam(profile, "pin-sound", DEFAULT_AUDIO_ENTER_PIN);
             addParam(profile, "bad-pin-sound", DEFAULT_AUDIO_BAD_PIN);
-            addParam(profile, "comfort-noise-level", "1400");
             addParam(profile, "caller-id-name", "$${outbound_caller_name}");
             addParam(profile, "caller-id-number", "$${outbound_caller_id}");
-            addParam(profile, "comfort-noise", "true");
+            addParam(profile, "comfort-noise", ZERO);
             if (conference != null) {
                 Integer val = (Integer) conference.getSettingTypedValue(Conference.MAX_LEGS);
                 if (val != null) {

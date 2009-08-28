@@ -21,7 +21,8 @@
       <param name="caller-controls" value="sipx-default"/>
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
-      <param name="energy-level" value="300"/>
+      <param name="energy-level" value="0"/>
+      <param name="member-flags" value="waste"/>
       <param name="sound-prefix"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
@@ -38,17 +39,17 @@
       <param name="is-unlocked-sound" value="beep.wav"/>
       <param name="pin-sound" value="conf/confid.wav"/>
       <param name="bad-pin-sound" value="conf/authfailed.wav"/>
-      <param name="comfort-noise-level" value="1400"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <param name="comfort-noise" value="true"/>
+      <param name="comfort-noise" value="0"/>
     </profile>
     <profile name="234">
       <param name="domain" value="example.com"/>
       <param name="caller-controls" value="sipx-default"/>
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
-      <param name="energy-level" value="300"/>
+      <param name="energy-level" value="0"/>
+      <param name="member-flags" value="waste"/>
       <param name="sound-prefix"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
@@ -65,10 +66,9 @@
       <param name="is-unlocked-sound" value="beep.wav"/>
       <param name="pin-sound" value="conf/confid.wav"/>
       <param name="bad-pin-sound" value="conf/authfailed.wav"/>
-      <param name="comfort-noise-level" value="1400"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <param name="comfort-noise" value="true"/>
+      <param name="comfort-noise" value="0"/>
       <param name="max-members" value="4"/>
     </profile>
     <profile name="123">
@@ -76,7 +76,8 @@
       <param name="caller-controls" value="sipx-default"/>
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
-      <param name="energy-level" value="300"/>
+      <param name="energy-level" value="0"/>
+      <param name="member-flags" value="waste"/>
       <param name="sound-prefix"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
@@ -93,10 +94,9 @@
       <param name="is-unlocked-sound" value="beep.wav"/>
       <param name="pin-sound" value="conf/confid.wav"/>
       <param name="bad-pin-sound" value="conf/authfailed.wav"/>
-      <param name="comfort-noise-level" value="1400"/>
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <param name="comfort-noise" value="true"/>
+      <param name="comfort-noise" value="0"/>
       <param name="max-members" value="0"/>
     </profile>
   </profiles>
