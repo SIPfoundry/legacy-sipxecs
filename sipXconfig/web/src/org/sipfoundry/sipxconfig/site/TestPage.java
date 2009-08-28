@@ -51,6 +51,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -214,6 +215,9 @@ public abstract class TestPage extends BasePage {
     @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getSipxProcessContext();
 
+    @InjectObject("spring:branchManager")
+    public abstract BranchManager getBranchManager();
+
     @InjectPage(WaitingPage.PAGE)
     public abstract WaitingPage getWaitingPage();
 
@@ -267,6 +271,10 @@ public abstract class TestPage extends BasePage {
 
     public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
+    }
+
+    public void resetBranchManager() {
+        getBranchManager().clear();
     }
 
     public void createTestBridge() {

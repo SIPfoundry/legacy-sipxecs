@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 
@@ -28,6 +29,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     private String m_description;
     private String m_resource;
     private Integer m_weight;
+    private Branch m_branch;
 
     public String getName() {
         return m_name;
@@ -64,6 +66,14 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     public void setWeight(Integer weight) {
         m_weight = weight;
+    }
+
+    public Branch getBranch() {
+        return m_branch;
+    }
+
+    public void setBranch(Branch branch) {
+        m_branch = branch;
     }
 
     public int compareTo(Object arg0) {

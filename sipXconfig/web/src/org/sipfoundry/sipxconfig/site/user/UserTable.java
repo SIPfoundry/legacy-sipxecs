@@ -41,6 +41,8 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
 
     public abstract Integer getGroupId();
     
+    public abstract Integer getBranchId();
+
     public abstract String getSearchString();
     
     public abstract boolean getSearchMode();
@@ -56,7 +58,7 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
     
     public IBasicTableModel getTableModel() {
         String searchQuery = getSearchMode() ? getSearchString() : null;
-        return new UserTableModel(getCoreContext(), getGroupId(), searchQuery);
+        return new UserTableModel(getCoreContext(), getGroupId(), getBranchId(), searchQuery);
     }
 
     public void pageBeginRender(PageEvent event_) {

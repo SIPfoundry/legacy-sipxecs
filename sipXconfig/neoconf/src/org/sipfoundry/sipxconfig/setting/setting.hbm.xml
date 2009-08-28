@@ -26,6 +26,7 @@
       <property name="description"/>
       <property name="resource"/>
       <property name="weight"/>
+      <many-to-one name="branch" column="branch_id" not-found="ignore" />
     </joined-subclass>  	
   </class>  
 
@@ -48,5 +49,9 @@
   <query name="groupIdsWithNameAndResource">
     <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>       
   </query>
-  
+
+  <query name="groupsForBranch">
+    <![CDATA[from Group g where g.branch = :branch]]>
+  </query>
+
 </hibernate-mapping>

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.device;
 import java.io.File;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
@@ -32,6 +33,8 @@ public abstract class Device extends BeanWithGroups {
     private String m_serialNumber;
 
     private DeviceVersion m_version;
+
+    private Branch m_branch;
 
     protected ProfileContext createContext() {
         return new ProfileContext(this, getModel().getProfileTemplate());
@@ -155,6 +158,10 @@ public abstract class Device extends BeanWithGroups {
         return null;
     }
 
+    public Branch getBranch() {
+        return m_branch;
+    }
+
     public ProfileGenerator getProfileGenerator() {
         return m_profileGenerator;
     }
@@ -189,6 +196,10 @@ public abstract class Device extends BeanWithGroups {
 
     public void setSerialNumber(String serialNumber) {
         m_serialNumber = serialNumber;
+    }
+
+    public void setBranch(Branch branch) {
+        m_branch = branch;
     }
 
     /**

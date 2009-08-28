@@ -59,6 +59,7 @@
       classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml
       classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
       classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/branch/branch.beans.xml
       classpath*:/sipxplugin.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
       classpath*:/dialplan/*.dialrules.beans.xml

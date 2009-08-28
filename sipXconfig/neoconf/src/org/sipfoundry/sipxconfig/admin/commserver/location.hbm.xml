@@ -32,9 +32,15 @@
       <property name="startRtpPort" />
       <property name="stopRtpPort" />
     </component>
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
   <query name="locationsByBundle">
     <![CDATA[select location from Location location
         where :locationBundle in elements(location.installedBundles)]]>
   </query>
+
+  <query name="locationsForBranch">
+    <![CDATA[from Location l where l.branch = :branch]]>
+  </query>
+
 </hibernate-mapping>

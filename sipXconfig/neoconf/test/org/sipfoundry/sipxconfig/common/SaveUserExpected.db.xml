@@ -12,6 +12,7 @@
         value_storage_id="[null]"
         address_book_entry_id="[null]"
         cfwd_time="20"
+        branch_id="[null]"
         />
     <user_alias user_id="[user_id]" alias="1234"/>
 </dataset>

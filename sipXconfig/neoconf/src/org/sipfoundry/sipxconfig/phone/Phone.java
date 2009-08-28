@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone;
 
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -22,6 +21,8 @@ import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.sip.SipService;
+
+import static org.sipfoundry.sipxconfig.common.DataCollectionUtil.updatePositions;
 
 /**
  * Base class for managed phone subclasses
@@ -127,7 +128,7 @@ public abstract class Phone extends Device {
 
     public void removeLine(Line line) {
         getLines().remove(line);
-        DataCollectionUtil.updatePositions(getLines());
+        updatePositions(getLines());
     }
 
     protected void sendCheckSyncToFirstLine() {
@@ -207,7 +208,7 @@ public abstract class Phone extends Device {
 
     /**
      * Find a phone user. By convention phone user is a user associated with the phone first line.
-     * 
+     *
      */
     public User getPrimaryUser() {
         List<Line> lines = getLines();
@@ -232,5 +233,4 @@ public abstract class Phone extends Device {
     public void setProfileDir(String profileDir) {
         m_profileDir = profileDir;
     }
-
 }

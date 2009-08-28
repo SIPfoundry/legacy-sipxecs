@@ -7,14 +7,13 @@
   <description>Drop-down box for filtering and searching</description>
   
   <parameter name="selectedGroupId" required="yes"/>
-  <parameter name="groups" required="yes"/>
   <parameter name="queryText" required="yes"/>
   <parameter name="searchMode" required="yes"/>
   
   <inject property="tapestry" object="spring:tapestry"/>
   
   <property name="groupId"/>
-  
+
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
   
   <component id="groupFilter" type="common/FlexiblePropertySelection">

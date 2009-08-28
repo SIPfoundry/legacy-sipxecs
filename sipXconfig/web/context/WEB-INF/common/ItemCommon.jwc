@@ -10,5 +10,4 @@
   <parameter name="extensionValidator" required="no" default-value="spring-validators:required,validPhone" />
   <parameter name="maxDescriptionLen" required="no" default-value="255" />
   <parameter name="disableEnabledCheckbox" required="no" default-value="false" />
-
 </component-specification>

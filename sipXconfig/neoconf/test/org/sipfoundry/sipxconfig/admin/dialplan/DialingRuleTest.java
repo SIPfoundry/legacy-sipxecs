@@ -19,10 +19,9 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * DialingRuleTest
@@ -143,28 +142,28 @@ public class DialingRuleTest extends TestCase {
     }
 
     public void testGetSiteTransforms() {
-        Group montrealSite = new Group();
+        Branch montrealSite = new Branch();
         montrealSite.setName("Montreal");
 
-        Group lisbonSite = new Group();
+        Branch lisbonSite = new Branch();
         lisbonSite.setName("Lisbon");
 
         Gateway montreal = new Gateway();
         montreal.setUniqueId();
         montreal.setAddress("montreal.example.org");
-        montreal.setSite(montrealSite);
+        montreal.setBranch(montrealSite);
         montreal.setShared(false);
 
         Gateway montreal2 = new Gateway();
         montreal2.setUniqueId();
         montreal2.setAddress("montreal2.example.org");
-        montreal2.setSite(montrealSite);
+        montreal2.setBranch(montrealSite);
         montreal2.setShared(false);
 
         Gateway lisbon = new Gateway();
         lisbon.setUniqueId();
         lisbon.setAddress("lisbon.example.org");
-        lisbon.setSite(lisbonSite);
+        lisbon.setBranch(lisbonSite);
 
         Gateway shared = new Gateway();
         shared.setUniqueId();

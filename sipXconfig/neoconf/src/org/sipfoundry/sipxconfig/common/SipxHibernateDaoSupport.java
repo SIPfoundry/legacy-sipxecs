@@ -90,9 +90,14 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
         return copy;
     }
 
-    public List loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
+    public List loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
             String[] orderBy, boolean orderAscending) {
-        Criteria c = getByGroupCriteria(beanClass, groupId);
+        Criteria c;
+        if (groupId != null) {
+            c = getByGroupCriteria(beanClass, groupId);
+        } else {
+            c = getByBranchCriteria(beanClass, branchId);
+        }
         c.setFirstResult(firstRow);
         c.setMaxResults(pageSize);
         for (int i = 0; i < orderBy.length; i++) {
@@ -127,6 +132,19 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
         if (groupId != null) {
             crit.createCriteria("groups", "g");
             crit.add(Restrictions.eq("g.id", groupId));
+        }
+        return crit;
+    }
+
+    /**
+     * Create and return a Criteria object for filtering beans by group membership. The class
+     * passed in should extend BeanWithGroups. If groupId is null, then don't filter by group.
+     */
+    public Criteria getByBranchCriteria(Class klass, Integer branchId) {
+        Criteria crit = getSession().createCriteria(klass);
+        if (branchId != null) {
+            crit.createCriteria("branch", "b");
+            crit.add(Restrictions.eq("b.id", branchId));
         }
         return crit;
     }

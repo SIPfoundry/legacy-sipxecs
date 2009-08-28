@@ -321,7 +321,7 @@
     display_name CDATA #IMPLIED
     url_parameters CDATA #IMPLIED
     shared CDATA #REQUIRED
-    site_id CDATA #IMPLIED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -331,6 +331,7 @@
     description CDATA #IMPLIED
     resource CDATA #IMPLIED
     weight CDATA #IMPLIED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT group_weight EMPTY>
@@ -472,6 +473,7 @@
     public_port CDATA #REQUIRED
     start_rtp_port CDATA #REQUIRED
     stop_rtp_port CDATA #REQUIRED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT location_bundle EMPTY>
@@ -604,6 +606,7 @@
     value_storage_id CDATA #IMPLIED
     model_id CDATA #REQUIRED
     device_version_id CDATA #IMPLIED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT phone_group EMPTY>
@@ -676,6 +679,7 @@
     model_id CDATA #REQUIRED
     device_version_id CDATA #IMPLIED
     port CDATA #REQUIRED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT sbc_route_domain EMPTY>
@@ -847,6 +851,7 @@
     value_storage_id CDATA #IMPLIED
     address_book_entry_id CDATA #IMPLIED
     cfwd_time CDATA #IMPLIED
+    branch_id CDATA #IMPLIED
 >
 
 <!ELEMENT value_storage EMPTY>
@@ -860,3 +865,9 @@
     applied CDATA #REQUIRED
 >
 
+<!ELEMENT branch EMPTY>
+<!ATTLIST branch
+    branch_id CDATA #REQUIRED
+    name CDATA #IMPLIED
+    description CDATA #IMPLIED
+>

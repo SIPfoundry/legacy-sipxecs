@@ -8,18 +8,4 @@
   <parameter name="groupId" required="no" />
   <parameter name="callback" required="no" />
   <inject property="settingContext" object="spring:settingDao"/>
-  <component id="groupForm" type="Form">
-    <binding name="delegate" value="validator"/>
-  </component>
-  <component id="itemCommon" type="common/ItemCommon">
-    <binding name="item" value="group"/>
-    <binding name="nameValidator" value="spring-validators:required,noWhitespace"/>
-    <binding name="useEnabled" value="literal:false"/>
-    <binding name="useExtension" value="literal:false"/>
-  </component>
-  <component id="formActions" type="common/FormActions">
-    <binding name="listener" value="listener:apply"/>
-    <binding name="callback" value="callback"/>
-    <binding name="validator" value="validator"/>
-  </component>
 </component-specification>

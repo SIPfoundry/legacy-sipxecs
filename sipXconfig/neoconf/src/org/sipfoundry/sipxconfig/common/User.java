@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -22,6 +21,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -75,6 +75,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private AddressBookEntry m_addressBookEntry;
 
     private boolean m_isShared;
+
+    private Branch m_branch;
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -167,6 +169,14 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
+    }
+
+    public Branch getBranch() {
+        return m_branch;
+    }
+
+    public void setBranch(Branch branch) {
+        m_branch = branch;
     }
 
     private List<String> getNumericAliases() {
@@ -389,13 +399,12 @@ public class User extends BeanWithGroups implements NamedObject {
         }
     }
 
-    public Group getSite() {
-        Set<Group> groups = getGroups();
-        if (groups.isEmpty()) {
-            return null;
+    public Branch getSite() {
+        Branch branch = getBranch();
+        if (branch != null) {
+            return branch;
         }
-        // first group represents user location
-        return groups.iterator().next();
+        return getInheritedBranch();
     }
 
     public void addSupervisorForGroup(Group group) {
@@ -406,6 +415,16 @@ public class User extends BeanWithGroups implements NamedObject {
             m_supervisorForGroups = new HashSet();
         }
         m_supervisorForGroups.add(group);
+    }
+
+    /**
+     * Check if the branch in question is referenced by this user
+     *
+     * @param Branch
+     * @return true if any references have been found false otherwise
+     */
+    public boolean checkBranch(Branch branch) {
+        return m_branch.equals(branch);
     }
 
     public String getName() {

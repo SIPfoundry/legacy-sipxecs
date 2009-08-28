@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -38,7 +39,6 @@ import org.sipfoundry.sipxconfig.service.SipxPageService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
@@ -205,22 +205,22 @@ public class FallbackRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithGatewaysAndShared() throws Exception {
-        Group montrealSite = new Group();
+        Branch montrealSite = new Branch();
         montrealSite.setName("Montreal");
 
-        Group lisbonSite = new Group();
+        Branch lisbonSite = new Branch();
         lisbonSite.setName("Lisbon");
 
         Gateway montreal = new Gateway();
         montreal.setUniqueId();
         montreal.setAddress("montreal.example.org");
-        montreal.setSite(montrealSite);
+        montreal.setBranch(montrealSite);
         montreal.setShared(false);
 
         Gateway lisbon = new Gateway();
         lisbon.setUniqueId();
         lisbon.setAddress("lisbon.example.org");
-        lisbon.setSite(lisbonSite);
+        lisbon.setBranch(lisbonSite);
         lisbon.setPrefix("9");
 
         Gateway shared = new Gateway();

@@ -27,9 +27,7 @@ import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYP
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -39,8 +37,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware {
 
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
-
-    private static final String PARAM_USER_GROUP = "userGroup";
 
     private static final String AUDIT_LOG_CONFIG_TYPE = "Gateway";
 
@@ -158,7 +154,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     /**
      * Returns the list of gateways available for a specific rule
-     * 
+     *
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
@@ -237,10 +233,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return new OnSbcDeviceDelete();
     }
 
-    public UserGroupDeleteListener createUserGroupDeleteListener() {
-        return new OnUserGroupDelete();
-    }
-
     private class OnSbcDeviceDelete extends SbcDeviceDeleteListener {
         @Override
         protected void onSbcDeviceDelete(SbcDevice sbcDevice) {
@@ -252,26 +244,5 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
                 }
             }
         }
-    }
-
-    private class OnUserGroupDelete extends UserGroupDeleteListener {
-        @Override
-        protected void onUserGroupDelete(Group group) {
-            // get all gateways for the user group and reset specific location
-            List<Gateway> gateways = getGatewaysForUserGroup(group);
-            if (gateways != null && gateways.size() > 0) {
-                List<Gateway> gatewaysToModify = new ArrayList<Gateway>();
-                for (Gateway gateway : gateways) {
-                    gateway.setSite(null);
-                    gatewaysToModify.add(gateway);
-                }
-                getHibernateTemplate().saveOrUpdateAll(gatewaysToModify);
-            }
-        }
-    }
-
-    private List<Gateway> getGatewaysForUserGroup(Group userGroup) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("gatewaysForUserGroup", PARAM_USER_GROUP,
-                userGroup);
     }
 }

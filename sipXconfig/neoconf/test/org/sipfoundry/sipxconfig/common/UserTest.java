@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -248,25 +248,34 @@ public class UserTest extends TestCase {
 
         assertNull(user.getSite());
 
-        Group madrid = new Group();
-        madrid.setUniqueId();
-        madrid.setWeight(100);
-        user.addGroup(madrid);
+        Group madridGroup = new Group();
+        madridGroup.setUniqueId();
+        madridGroup.setWeight(100);
+        user.addGroup(madridGroup);
+
+        Branch madrid = new Branch();
+        madridGroup.setBranch(madrid);
 
         assertSame(madrid, user.getSite());
 
-        Group lisbon = new Group();
-        lisbon.setUniqueId();
-        lisbon.setWeight(50);
-        user.addGroup(lisbon);
+        Group lisbonGroup = new Group();
+        lisbonGroup.setUniqueId();
+        lisbonGroup.setWeight(50);
+        Branch lisbon = new Branch();
+        lisbonGroup.setBranch(lisbon);
+
+        user.addGroup(lisbonGroup);
 
         assertSame(lisbon, user.getSite());
 
-        user.removeGroup(lisbon);
-        lisbon.setWeight(150);
-        user.addGroup(lisbon);
+        user.removeGroup(lisbonGroup);
+        lisbonGroup.setWeight(150);
+        user.addGroup(lisbonGroup);
 
         assertSame(madrid, user.getSite());
+
+        user.setBranch(lisbon);
+        assertSame(lisbon, user.getSite());
     }
 
     private String getPintoken(String username, String pin) {

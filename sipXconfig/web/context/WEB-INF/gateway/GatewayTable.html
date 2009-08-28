@@ -9,8 +9,8 @@
 		<span jwcid="@Insert" value="ognl:currentRow.model.label"/>
 	</span>
 	<span jwcid="siteColumnValue@Block">
-		<span jwcid="@If" condition="ognl:currentRow.site != null">
-			<span jwcid="@Insert" value="ognl:currentRow.site.name"/>
+		<span jwcid="@If" condition="ognl:currentRow.branch != null">
+			<span jwcid="@Insert" value="ognl:currentRow.branch.name"/>
 		</span>
 		<span jwcid="@Else">
 			<span key="all"/>

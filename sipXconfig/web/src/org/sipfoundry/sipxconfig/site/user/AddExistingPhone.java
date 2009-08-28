@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -36,6 +36,7 @@ public abstract class AddExistingPhone extends UserBasePage {
     @Bean
     public abstract SelectMap getSelections();
 
+    @Override
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -69,7 +70,7 @@ public abstract class AddExistingPhone extends UserBasePage {
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {
-            return new PhoneTableModel(getPhoneContext(), getGroupId());
+            return new PhoneTableModel(getPhoneContext(), getGroupId(), null);
         }
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
     }

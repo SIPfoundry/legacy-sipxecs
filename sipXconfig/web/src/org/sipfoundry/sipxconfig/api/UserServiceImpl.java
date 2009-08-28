@@ -1,11 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.api;
 
@@ -102,19 +101,17 @@ public class UserServiceImpl implements UserService {
         if (search == null) {
             users = m_coreContext.loadUsers();
         } else if (search.getByUserName() != null) {
-            org.sipfoundry.sipxconfig.common.User user = m_coreContext.loadUserByUserName(search
-                    .getByUserName());
+            org.sipfoundry.sipxconfig.common.User user = m_coreContext.loadUserByUserName(search.getByUserName());
             if (user != null) {
                 users = Collections.singletonList(user);
             }
         } else if (search.getByFuzzyUserNameOrAlias() != null) {
-            users = m_coreContext.loadUsersByPage(search.getByFuzzyUserNameOrAlias(), null, 0,
-                    PAGE_SIZE, SORT_ORDER, true);
+            users = m_coreContext.loadUsersByPage(search.getByFuzzyUserNameOrAlias(), null, null, 0, PAGE_SIZE,
+                    SORT_ORDER, true);
             warnIfOverflow(users, PAGE_SIZE);
         } else if (search.getByGroup() != null) {
             Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, search.getByGroup());
-            users = m_coreContext
-                    .loadUsersByPage(null, g.getId(), 0, PAGE_SIZE, SORT_ORDER, true);
+            users = m_coreContext.loadUsersByPage(null, g.getId(), null, 0, PAGE_SIZE, SORT_ORDER, true);
             warnIfOverflow(users, PAGE_SIZE);
         }
 
@@ -153,15 +150,13 @@ public class UserServiceImpl implements UserService {
             if (removeGroup != null) {
                 Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, removeGroup);
                 if (g != null) {
-                    DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g
-                            .getPrimaryKey());
+                    DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g.getPrimaryKey());
                 }
             }
 
             boolean newUsername = m_coreContext.saveUser(myUsers[i]);
             if (edit != null) {
-                Property emailProperty = ApiBeanUtil.findProperty(edit,
-                        MailboxPreferences.EMAIL_PROP);
+                Property emailProperty = ApiBeanUtil.findProperty(edit, MailboxPreferences.EMAIL_PROP);
                 if (emailProperty != null) {
                     updateMailbox(myUsers[i].getUserName(), emailProperty.getValue(), newUsername);
                 }
@@ -184,5 +179,4 @@ public class UserServiceImpl implements UserService {
         mailboxPreferences.setEmailAddress(emailAddress);
         m_mailboxManager.saveMailboxPreferences(mailbox, mailboxPreferences);
     }
-
 }

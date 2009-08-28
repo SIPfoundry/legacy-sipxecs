@@ -1,11 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -64,15 +63,15 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      * the searchString against user names, first names, last names, and aliases. Matching is
      * case-insensitive and also matches substrings. For example, the search string "cn" will
      * match the last name "McNamara".
-     * 
+     *
      * @param groupId ID of a group, or null to match all groups
      * @param searchString string to search with, or null to not search
      * @return number of users
      */
     int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
 
-    List<User> loadUsersByPage(String search, Integer groupId, int page, int pageSize, String orderBy,
-            boolean orderAscending);
+    List<User> loadUsersByPage(String search, Integer groupId, Integer branchId, int page, int pageSize,
+            String orderBy, boolean orderAscending);
 
     List<User> loadUserByTemplateUser(User template);
 
@@ -91,7 +90,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
      * aliases are stored as a Set.) If there is a collision, then return the bad name (username
      * or alias). Otherwise return null. If there are multiple collisions, then it's arbitrary
      * which name is returned.
-     * 
+     *
      * @param user user to test
      * @return name that collides
      */
@@ -99,7 +98,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     /**
      * Determines whether or not the application is running in debug mode.
-     * 
+     *
      * @return true if we are running a DEBUG build; false if not.
      */
     boolean getDebug();
@@ -114,7 +113,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     /**
      * Retrieves user group by name.
-     * 
+     *
      * @param userGroupName name of the group
      * @param createIfNotFound if true a new group with this name will be created, if false null
      *        is returned if group with a phoneGroupName is not found
@@ -136,7 +135,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     /**
      * Called by the bootstrap page to create the superadmin user, giving it the specified pin
-     * 
+     *
      * @param pin
      */
     void createAdminGroupAndInitialUser(String pin);

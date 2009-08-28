@@ -59,7 +59,7 @@ public class ExportCsv {
         int phoneIndex = 0;
         int size = 0;
         do {
-            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, phoneIndex,
+            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, null, phoneIndex,
                     DEFAULT_PAGE_SIZE, order, true);
             size = phones.size();
             phoneIndex += size;
@@ -144,7 +144,7 @@ public class ExportCsv {
         int userIndex = 0;
         int size = 0;
         do {
-            List<User> users = m_coreContext.loadUsersByPage(null, null, userIndex,
+            List<User> users = m_coreContext.loadUsersByPage(null, null, null, userIndex,
                     DEFAULT_PAGE_SIZE, "userName", true);
             size = users.size();
             userIndex += size;

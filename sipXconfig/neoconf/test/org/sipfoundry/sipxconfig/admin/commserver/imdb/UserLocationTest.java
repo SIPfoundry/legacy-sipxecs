@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.io.InputStream;
@@ -11,14 +20,19 @@ import java.util.Map;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class UserLocationTest extends XMLTestCase {
     public UserLocationTest() {
@@ -52,9 +66,15 @@ public class UserLocationTest extends XMLTestCase {
             user.setLastName(ud[1]);
             user.setUserName(ud[2]);
             if (ud[3] != null) {
+                Branch branch = new Branch();
+                branch.setUniqueId();
+                branch.setName(ud[3]);
+
                 Group site = new Group();
                 site.setUniqueId();
-                site.setName(ud[3]);
+                site.setName("group" + ud[3]);
+                site.setBranch(branch);
+
                 user.addGroup(site);
             }
             m_users.add(user);
@@ -69,18 +89,18 @@ public class UserLocationTest extends XMLTestCase {
             }
         };
 
-        CoreContext coreContext = EasyMock.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsers();
-        EasyMock.expectLastCall().andReturn(Collections.emptyList());
+        expectLastCall().andReturn(Collections.emptyList());
 
         ul.setCoreContext(coreContext);
 
-        EasyMock.replay(coreContext);
+        replay(coreContext);
 
         List<Map<String, String>> document = ul.generate();
         assertEquals(0, document.size());
 
-        EasyMock.verify(coreContext);
+        verify(coreContext);
     }
 
     public void testGenerate() throws Exception {
@@ -91,13 +111,13 @@ public class UserLocationTest extends XMLTestCase {
             }
         };
 
-        CoreContext coreContext = EasyMock.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsers();
-        EasyMock.expectLastCall().andReturn(m_users);
+        expectLastCall().andReturn(m_users);
 
         ul.setCoreContext(coreContext);
 
-        EasyMock.replay(coreContext);
+        replay(coreContext);
 
         Document document = ul.generateXml();
         String ulXml = TestUtil.asString(document);
@@ -105,6 +125,6 @@ public class UserLocationTest extends XMLTestCase {
         InputStream referenceXmlStream = UserLocationTest.class.getResourceAsStream("userlocation.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(ulXml));
 
-        EasyMock.verify(coreContext);
+        verify(coreContext);
     }
 }

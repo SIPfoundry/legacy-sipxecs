@@ -24,6 +24,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
@@ -57,6 +58,9 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     @InjectObject("spring:modelFilesContext")
     public abstract ModelFilesContext getModelFilesContext();
+
+    @InjectObject("spring:branchManager")
+    public abstract BranchManager getBranchManager();
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -101,7 +105,7 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     private IPropertySelectionModel createSiteModel() {
         ObjectSelectionModel rawModel = new ObjectSelectionModel();
-        rawModel.setArray(getCoreContext().getGroups().toArray());
+        rawModel.setArray(getBranchManager().getBranches().toArray());
         rawModel.setLabelExpression("name");
         return getTapestry().addExtraOption(rawModel, getMessages(), "label.allSites");
     }

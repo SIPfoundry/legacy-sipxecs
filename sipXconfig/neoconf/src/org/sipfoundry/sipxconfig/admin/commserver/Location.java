@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.RandomStringUtils;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
@@ -52,6 +53,7 @@ public class Location extends BeanWithId {
 
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
+    private Branch m_branch;
 
     public String getName() {
         return m_name;
@@ -139,6 +141,14 @@ public class Location extends BeanWithId {
      */
     public void setServices(Collection<LocationSpecificService> services) {
         m_services = services;
+    }
+
+    public Branch getBranch() {
+        return m_branch;
+    }
+
+    public void setBranch(Branch branch) {
+        m_branch = branch;
     }
 
     /**

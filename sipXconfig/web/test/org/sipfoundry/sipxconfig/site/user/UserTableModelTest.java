@@ -40,10 +40,10 @@ public class UserTableModelTest extends TestCase {
         IMocksControl coreContextCtrl = EasyMock.createControl();
         CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
 
-        coreContext.loadUsersByPage(null, null, 0, 1, "userName", true);
+        coreContext.loadUsersByPage(null, null, null, 0, 1, "userName", true);
         coreContextCtrl.andReturn(page1);
 
-        coreContext.loadUsersByPage(null, groupId, 1, 1, "userName", true);
+        coreContext.loadUsersByPage(null, groupId, null, 1, 1, "userName", true);
         coreContextCtrl.andReturn(page2);
 
         coreContextCtrl.replay();

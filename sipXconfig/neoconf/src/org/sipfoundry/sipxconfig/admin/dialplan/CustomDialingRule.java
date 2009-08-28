@@ -19,9 +19,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
-import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * CustomDialingRule
@@ -115,7 +115,7 @@ public class CustomDialingRule extends DialingRule {
             List<Gateway> siteGateways = entry.getValue();
             // most anywhere gateways are good for any site - need to be re-added
             for (Gateway g : anywhereGateways) {
-                Group s = g.getSite();
+                Branch s = g.getBranch();
                 if (s == null || !s.getName().equals(site)) {
                     siteGateways.add(g);
                 }
@@ -134,7 +134,7 @@ public class CustomDialingRule extends DialingRule {
     private void sortGateways(Map<String, List<Gateway>> sitesToGateways, List<Gateway> anywhereGateways) {
         List<Gateway> gateways = getGateways();
         for (Gateway g : gateways) {
-            Group site = g.getSite();
+            Branch site = g.getBranch();
             if (site == null) {
                 anywhereGateways.add(g);
                 continue;

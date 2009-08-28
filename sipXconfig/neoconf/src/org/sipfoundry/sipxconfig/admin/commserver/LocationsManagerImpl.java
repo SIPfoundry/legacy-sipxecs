@@ -27,7 +27,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
-
     private DaoEventPublisher m_daoEventPublisher;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
@@ -47,8 +46,8 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     private List<Location> getLocationsByBundle(String bundle) {
-        List<Location> locations = getHibernateTemplate().
-            findByNamedQueryAndNamedParam("locationsByBundle", "locationBundle", bundle);
+        List<Location> locations = getHibernateTemplate().findByNamedQueryAndNamedParam("locationsByBundle",
+                "locationBundle", bundle);
         return locations;
     }
 
@@ -86,7 +85,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         } else {
             m_daoEventPublisher.publishSave(location);
             getHibernateTemplate().update(location);
-        }        
+        }
     }
 
     public void deleteLocation(Location location) {
@@ -98,7 +97,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
     }
 
-    public List <Location> getLocationsForService(SipxService service) {
+    public List<Location> getLocationsForService(SipxService service) {
         List<Location> locations = new ArrayList<Location>();
         for (Location location : getLocations()) {
             if (location.isServiceInstalled(service)) {

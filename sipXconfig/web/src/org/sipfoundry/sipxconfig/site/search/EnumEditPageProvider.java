@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.search;
 
@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.LocalRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -45,6 +46,7 @@ import org.sipfoundry.sipxconfig.site.acd.EditAcdLine;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue;
 import org.sipfoundry.sipxconfig.site.admin.EditCallGroup;
 import org.sipfoundry.sipxconfig.site.admin.EditParkOrbit;
+import org.sipfoundry.sipxconfig.site.branch.EditBranch;
 import org.sipfoundry.sipxconfig.site.conference.EditBridge;
 import org.sipfoundry.sipxconfig.site.conference.EditConference;
 import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendant;
@@ -111,6 +113,8 @@ public class EnumEditPageProvider implements EditPageProvider {
             EditAcdLine.PAGE, "acdLineId"
         }, AcdAgent.class, new String[] {
             EditAcdAgent.PAGE, "acdAgentId"
+        }, Branch.class, new String[] {
+            EditBranch.PAGE, "branchId"
         }
     };
 

@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -112,9 +111,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
                 }
             }
         }
-
         getHibernateTemplate().saveOrUpdate(user);
-
         return newUserName;
     }
 
@@ -332,12 +329,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         return new ArrayList<User>(sharedUsers);
     }
 
-    public List<User> loadUsersByPage(final String search, final Integer groupId, final int firstRow,
-            final int pageSize, final String orderBy, final boolean orderAscending) {
+    public List<User> loadUsersByPage(final String search, final Integer groupId, final Integer branchId,
+            final int firstRow, final int pageSize, final String orderBy, final boolean orderAscending) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
-                return loader.loadUsersByPage(search, groupId, firstRow, pageSize, orderBy, orderAscending);
+                return loader
+                        .loadUsersByPage(search, groupId, branchId, firstRow, pageSize, orderBy, orderAscending);
             }
         };
         List<User> users = getHibernateTemplate().executeFind(callback);

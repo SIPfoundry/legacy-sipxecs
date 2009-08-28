@@ -28,7 +28,6 @@ import net.sourceforge.jwebunit.html.Row;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -399,7 +398,7 @@ public class SiteTestHelper {
     /**
      * Turn on/off javascript, make sure to restore state to true after you're done
      */
-    public static boolean setScriptingEnabled(WebTester tester, boolean enabled) {
+    public static boolean setScriptingEnabled(WebTester tester, @SuppressWarnings("unused") boolean enabled) {
         // FIXME: always switch off - dojo is not parsed correctly
         tester.setScriptingEnabled(false);
         return false;

@@ -1,28 +1,30 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.branch.Branch;
 
 public class BeanWithGroupsTest extends TestCase {
     private BeanWithGroups m_bean;
 
+    @Override
     protected void setUp() throws Exception {
         m_bean = new BirdWithGroups();
     }
 
     static class BirdWithGroups extends BeanWithGroups {
+        @Override
         protected Setting loadSettings() {
             return TestHelper.loadSettings(BeanWithGroupsTest.class, "birds.xml");
         }
@@ -91,5 +93,33 @@ public class BeanWithGroupsTest extends TestCase {
         assertEquals("", m_bean.getGroupsNames());
         m_bean.setGroupsAsList(Arrays.asList(groups));
         assertEquals("g1 g2", m_bean.getGroupsNames());
+    }
+
+    public void testGetInheritedBranch() {
+        Branch b1 = new Branch();
+        Branch b2 = new Branch();
+
+        Group g1 = new Group();
+        g1.setWeight(100);
+        g1.setBranch(b1);
+
+        // group 2 has bigger weight
+        Group g2 = new Group();
+        g1.setWeight(200);
+
+        BirdWithGroups bean = new BirdWithGroups();
+        assertNull(bean.getInheritedBranch());
+
+        bean.addGroup(g2);
+        assertNull(bean.getInheritedBranch());
+
+        bean.addGroup(g1);
+        assertSame(b1, bean.getInheritedBranch());
+
+        bean.addGroup(g2);
+        assertSame(b1, bean.getInheritedBranch());
+
+        g2.setBranch(b2);
+        assertSame(b2, bean.getInheritedBranch());
     }
 }

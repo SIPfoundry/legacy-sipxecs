@@ -79,7 +79,7 @@
       foreign-key="fk_acd_agent_server" lazy="proxy"/>
 		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-		<many-to-one name="user" column="user_id" not-null="true"
+		<many-to-one name="user" cascade="save-update" column="user_id" not-null="true"
 			class="org.sipfoundry.sipxconfig.common.User"/>
 		<list name="queues" table="acd_agent_queue" cascade="all">
 			<key column="acd_agent_id"/>

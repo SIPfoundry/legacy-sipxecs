@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
@@ -46,19 +46,19 @@ public class PersonalAttendant extends BeanWithId {
     public boolean getOverrideLanguage() {
         return m_overrideLanguage;
     }
-    
+
     public void setOverrideLanguage(boolean overrideLanguage) {
         m_overrideLanguage = overrideLanguage;
     }
-    
+
     public String getLanguage() {
         return m_language;
     }
-    
+
     public void setLanguage(String language) {
         m_language = language;
     }
-    
+
     public String getOperator() {
         return m_operator;
     }
@@ -77,7 +77,7 @@ public class PersonalAttendant extends BeanWithId {
 
     /**
      * Generate personal AA VXML file (from the template)
-     * 
+     *
      * @param location profile destination
      * @param domain SIP domain for which we are generating VXML
      * @param generator Velocity based VXML generator
@@ -88,12 +88,12 @@ public class PersonalAttendant extends BeanWithId {
         AttendantProfileContext vxmlContext = new AttendantProfileContext(
                 this, domain, "sipxvxml/savemessage.vxml.vm");
         generator.generate(location, vxmlContext, null, "savemessage.vxml");
-        
+
     }
 
     /**
      * Generate personal AA Properties file (from the template)
-     * 
+     *
      * @param location profile destination
      * @param domain SIP domain for which we are generating this file
      * @param generator Velocity based generator
@@ -107,8 +107,8 @@ public class PersonalAttendant extends BeanWithId {
     }
 
     public static class MenuItem {
-        private String m_key;
-        private String m_uri;
+        private final String m_key;
+        private final String m_uri;
 
         public MenuItem(String key, String uri) {
             m_key = key;
@@ -125,8 +125,8 @@ public class PersonalAttendant extends BeanWithId {
     }
 
     public static class AttendantProfileContext extends ProfileContext {
-        private PersonalAttendant m_aa;
-        private String m_domain;
+        private final PersonalAttendant m_aa;
+        private final String m_domain;
 
         public AttendantProfileContext(PersonalAttendant aa, String domain, String template) {
             super(null, template);
@@ -134,6 +134,7 @@ public class PersonalAttendant extends BeanWithId {
             m_domain = domain;
         }
 
+        @Override
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             context.put("user", m_aa.getUser() != null);

@@ -1,11 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.search;
 
@@ -31,6 +30,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
@@ -44,9 +44,9 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     /** only those classes can be used to search by class */
     public static final Class[] CLASSES = {
         // TODO: inject externally
-        User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class,
-        Bridge.class, Conference.class, ParkOrbit.class, AutoAttendant.class,  Upload.class,
-        AcdServer.class, AcdQueue.class, AcdLine.class, AcdAgent.class
+        User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class, Bridge.class,
+        Conference.class, ParkOrbit.class, AutoAttendant.class, Upload.class, AcdServer.class, AcdQueue.class,
+        AcdLine.class, AcdAgent.class, Branch.class
     };
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
@@ -62,14 +62,13 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
      * List of fields that will be part of index name
      */
     private static final String[] NAME_FIELDS = {
-        "lastName", "firstName", "name", "extension", "userName", "serialNumber",
-        "host"
+        "lastName", "firstName", "name", "extension", "userName", "serialNumber", "host"
     };
 
     /**
      * Remaining fields - they are not displayed in name or description but one can order and
      * search for them.
-     * 
+     *
      * Please note that all String properties are indexed you only need to list a field
      * explicitely if you want to use its name in search queries.
      */
@@ -107,8 +106,8 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     /**
      * @return true if the document should be added to index
      */
-    public boolean documentFromBean(Document document, Object bean, Serializable id,
-            Object[] state, String[] fieldNames, Type[] types) {
+    public boolean documentFromBean(Document document, Object bean, Serializable id, Object[] state,
+            String[] fieldNames, Type[] types) {
         if (!indexClass(document, bean.getClass())) {
             return false;
         }
@@ -126,16 +125,14 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     private boolean indexField(Document document, Object state, String fieldName, Type type) {
         if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
             // index all fields we know about
-            document.add(new Field(fieldName, (String) state, Field.Store.YES,
-                    Field.Index.TOKENIZED));
-            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
-                    Field.Index.TOKENIZED));
+            document.add(new Field(fieldName, (String) state, Field.Store.YES, Field.Index.TOKENIZED));
+            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.TOKENIZED));
             return true;
         } else if (type instanceof StringType) {
             // index all strings with the exception of the fields explicitly listed as sensitive
             if (Arrays.binarySearch(SENSITIVE_FIELDS, fieldName) < 0) {
-                document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
-                        Field.Index.TOKENIZED));
+                document
+                        .add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.TOKENIZED));
             }
             return true;
         } else if (fieldName.equals("aliases")) {
@@ -143,8 +140,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
             for (Iterator a = aliases.iterator(); a.hasNext();) {
                 String alias = (String) a.next();
                 document.add(new Field("alias", alias, Field.Store.NO, Field.Index.TOKENIZED));
-                document.add(new Field(Indexer.DEFAULT_FIELD, alias, Field.Store.NO,
-                        Field.Index.TOKENIZED));
+                document.add(new Field(Indexer.DEFAULT_FIELD, alias, Field.Store.NO, Field.Index.TOKENIZED));
             }
             return true;
         }
@@ -155,8 +151,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         for (int i = 0; i < m_indexedClasses.length; i++) {
             Class klass = m_indexedClasses[i];
             if (klass.isAssignableFrom(beanClass)) {
-                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES,
-                        Field.Index.UN_TOKENIZED));
+                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
                 return true;
             }
         }

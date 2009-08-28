@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
@@ -15,8 +15,8 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.html.Table;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import net.sourceforge.jwebunit.junit.WebTester;
-
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoException;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
@@ -34,7 +34,7 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
 public class GatewaysTestUi extends WebTestCase {
 
     private static final String ALL = "-- all --";
-    private static final String GROUP = "seedGroup0";
+    private static final String BRANCH = "seedBranch0";
 
     public static Test suite() throws Exception {
         return webTestSuite(GatewaysTestUi.class);
@@ -46,6 +46,7 @@ public class GatewaysTestUi extends WebTestCase {
         home(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("resetDialPlans");
+        clickLink("resetBranches");
     }
 
     public void testLinks() {
@@ -98,14 +99,15 @@ public class GatewaysTestUi extends WebTestCase {
 
     }
 
-    public void testGroup() {
+    public void testBranch() {
         clickLink("ManageUsers");
-        SiteTestHelper.seedGroup(tester, "NewUserGroup", 1);
+        BranchesPageTestUi.seedBranch(tester, 1);
+        home(tester);
         clickLink("ListGateways");
         assertTablePresent("list:gateway");
         SiteTestHelper.selectOption(tester, "selectGatewayModel", "Unmanaged gateway");
-        addGateway("sharedG", true, GROUP);
-        assertTextInTable("list:gateway", GROUP);
+        addGateway("sharedG", true, BRANCH);
+        assertTextInTable("list:gateway", BRANCH);
     }
 
     public void testEditGatewaySettings() throws Exception {

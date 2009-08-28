@@ -6,8 +6,13 @@
   <property name="resource"  persist="session"/>
   <property name="groupId"  persist="session"/>
   <property name="group" />
+  <property name="branch" persist="session"/>
   <inject property="settingContext" object="spring:settingDao"/>
+  <inject property="branchManager" object="spring:branchManager"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+
   <component id="errorMsg" type="common/ErrorMsg">
     <binding name="validator" value="bean:validator"/>
   </component>

@@ -1,0 +1,14 @@
+<div jwcid="@common/Border">
+  <h2><span key="title">Branch</span></h2>
+  <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
+  <form jwcid="branchForm@Form">
+    <div jwcid="@common/ItemCommon"
+      item="ognl:branch"
+      nameValidator="spring-validators:required,noWhitespace"
+      useEnabled="false"
+      useExtension="false" />
+    <span jwcid="@common/FormActions"
+      listener="listener:apply"
+      callback="ognl:callback" />
+  </form>
+</div>

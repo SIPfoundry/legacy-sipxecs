@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -18,6 +18,7 @@ import java.util.TreeSet;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.iterators.TransformIterator;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 
 /**
@@ -57,14 +58,31 @@ public abstract class BeanWithGroups extends BeanWithSettings {
         getGroups().clear();
         getGroups().addAll(groups);
     }
-    
+
     public Group getFirstGroupDefaultIsSetFor(Setting setting) {
         for (Group g : getGroups()) {
             if (g.getSettingValue(setting) != null) {
                 return g;
             }
         }
-        
+
+        return null;
+    }
+
+    /**
+     * Finds the first group for which branch is defined and returns that branch.
+     *
+     * Should be used when determining the effective branch for phone and user.
+     *
+     * @return effective branch for this bean
+     */
+    public Branch getInheritedBranch() {
+        for (Group group : getGroups()) {
+            Branch branch = group.getBranch();
+            if (branch != null) {
+                return branch;
+            }
+        }
         return null;
     }
 
@@ -91,13 +109,12 @@ public abstract class BeanWithGroups extends BeanWithSettings {
         if (groups == null) {
             return StringUtils.EMPTY;
         }
-        TransformIterator namesIterator = new TransformIterator(groups.iterator(),
-                new NamedObject.ToName());
+        TransformIterator namesIterator = new TransformIterator(groups.iterator(), new NamedObject.ToName());
         return StringUtils.join(namesIterator, " ");
     }
 
     public static class AddTag implements Transformer {
-        private Group m_tag;
+        private final Group m_tag;
 
         public AddTag(Group tag) {
             m_tag = tag;
@@ -111,7 +128,7 @@ public abstract class BeanWithGroups extends BeanWithSettings {
     }
 
     public static class RemoveTag implements Transformer {
-        private Group m_tag;
+        private final Group m_tag;
 
         public RemoveTag(Group tag) {
             m_tag = tag;

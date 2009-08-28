@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
 	<phone 
 		serial_number="999123456" 

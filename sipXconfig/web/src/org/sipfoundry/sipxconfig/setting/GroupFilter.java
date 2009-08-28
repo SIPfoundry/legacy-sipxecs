@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.setting;
 
@@ -17,6 +17,7 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
@@ -44,6 +45,7 @@ public abstract class GroupFilter extends BaseComponent {
 
     public abstract void setQueryText(String queryText);
 
+    @Parameter(required = false, defaultValue = "ognl:new java.util.ArrayList()")
     public abstract Collection getGroups();
 
     public abstract TapestryContext getTapestry();
@@ -68,6 +70,7 @@ public abstract class GroupFilter extends BaseComponent {
         return getTapestry().addExtraOption(model, getMessages(), "label.filter");
     }
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         if (!cycle.isRewinding()) {
             Integer groupId = getSelectedGroupId();
@@ -97,8 +100,8 @@ public abstract class GroupFilter extends BaseComponent {
      * LabelOptionAdapter
      */
     private static class LabelOptionAdapter implements OptionAdapter {
-        private String m_label;
-        private Messages m_messages;
+        private final String m_label;
+        private final Messages m_messages;
 
         public LabelOptionAdapter(Messages messages, String label) {
             m_messages = messages;
@@ -119,7 +122,7 @@ public abstract class GroupFilter extends BaseComponent {
     }
 
     private static class GroupOptionAdapter implements OptionAdapter {
-        private Group m_group;
+        private final Group m_group;
 
         public GroupOptionAdapter(Group group) {
             m_group = group;

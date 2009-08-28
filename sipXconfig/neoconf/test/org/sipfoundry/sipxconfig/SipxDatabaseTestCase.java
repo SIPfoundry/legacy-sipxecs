@@ -22,8 +22,8 @@ public abstract class SipxDatabaseTestCase extends TestCase {
         try {
             super.runBare();
         } catch (SQLException e) {
-            dumpSqlExceptionMessages(e);
-            throw e;
+            dumpSqlExceptionMessages(e.getNextException());
+            throw e.getNextException();
         } catch (DataIntegrityViolationException e) {
             dumpSqlExceptionMessages(e);
             throw e;

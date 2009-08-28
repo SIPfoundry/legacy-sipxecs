@@ -5,7 +5,6 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -27,6 +26,7 @@ public class UserLoader {
     private static final Log LOG = LogFactory.getLog(UserLoader.class);
 
     private static final String PARAM_VALUE = "value";
+    private static final String AND = " and ";
 
     // checkstyle wants you to name your string literals
     private static final String SPACE = " ";
@@ -47,10 +47,10 @@ public class UserLoader {
         m_session = session;
     }
 
-    public List loadUsersByPage(String search, Integer groupId, int firstRow, int pageSize, String orderBy,
-            boolean orderAscending) {
+    public List loadUsersByPage(String search, Integer groupId, Integer branchId, int firstRow, int pageSize,
+            String orderBy, boolean orderAscending) {
         // create the query
-        Query query = createUserQuery(search, groupId, orderBy, orderAscending, false);
+        Query query = createUserQuery(search, groupId, branchId, orderBy, orderAscending, false);
 
         // execute the query and return results
         List users = queryUsersByPage(query, firstRow, pageSize);
@@ -74,7 +74,7 @@ public class UserLoader {
         }
 
         // create the query
-        Query query = createUserQuery(search, groupId, null, true, false);
+        Query query = createUserQuery(search, groupId, null, null, true, false);
 
         // execute it & get a bunch of IDs
         List ids = query.list();
@@ -86,13 +86,14 @@ public class UserLoader {
 
     // Create and return the user query.
     // If getUserIdsOnly is true, then get just the user IDs, not the users.
-    private Query createUserQuery(String search, Integer groupId, String orderBy, boolean orderAscending,
-            boolean getUserIdsOnly) {
+    private Query createUserQuery(String search, Integer groupId, Integer branchId, String orderBy,
+            boolean orderAscending, boolean getUserIdsOnly) {
         init(getUserIdsOnly);
 
         // add constraints
         handleSearchConstraint(search, groupId);
         handleGroupConstraint(groupId);
+        handleBranchConstraint(branchId);
 
         // sort the results
         m_queryBuf.append(" order by u.");
@@ -148,11 +149,26 @@ public class UserLoader {
             // If we are piggybacking on an existing "where" clause then use "and"
             // to combine this constraint with the previous one
             if (!addedWhere) {
-                m_queryBuf.append(" and ");
+                m_queryBuf.append(AND);
             }
 
             m_queryBuf.append(" ugroups.id = :groupId ");
             m_params.put("groupId", groupId);
+        }
+    }
+
+    private void handleBranchConstraint(Integer branchId) {
+        if (branchId != null) {
+            boolean addedWhere = addWhere();
+
+            // If we are piggybacking on an existing "where" clause then use "and"
+            // to combine this constraint with the previous one
+            if (!addedWhere) {
+                m_queryBuf.append(AND);
+            }
+
+            m_queryBuf.append(" u.branch.id = :branchId ");
+            m_params.put("branchId", branchId);
         }
     }
 
@@ -317,5 +333,4 @@ public class UserLoader {
         }
         return uniqueUsers;
     }
-
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -43,8 +43,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     }
 
     public void deleteGroups(Collection<Integer> groupIds) {
-        BeanWithId.IdToBean idToBean = new BeanWithId.IdToBean(getHibernateTemplate(),
-                Group.class);
+        BeanWithId.IdToBean idToBean = new BeanWithId.IdToBean(getHibernateTemplate(), Group.class);
         Transformer publishDelete = new Transformer() {
             public Object transform(Object input) {
                 m_daoEventPublisher.publishDelete(input);
@@ -86,8 +85,8 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         Object[] values = new Object[] {
             group.getResource(), group.getName()
         };
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "groupIdsWithNameAndResource", params, values);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam("groupIdsWithNameAndResource", params,
+                values);
         DaoUtils.checkDuplicates(group, objs, new DuplicateGroupException(group.getName()));
     }
 
@@ -138,21 +137,28 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     }
 
     public List<Group> getGroups(String resource) {
-        List<Group> groups = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "groupsByResource", RESOURCE_PARAM, resource);
+        List<Group> groups = getHibernateTemplate().findByNamedQueryAndNamedParam("groupsByResource",
+                RESOURCE_PARAM, resource);
         return groups;
     }
 
     public Map<Integer, Long> getGroupMemberCountIndexedByGroupId(Class groupOwner) {
-        String query = "select g.id, count(*) from " + groupOwner.getName()
-                + " o join o.groups g group by g.id";
+        String query = "select g.id, count(*) from " + groupOwner.getName() + " o join o.groups g group by g.id";
         List<Object[]> l = getHibernateTemplate().find(query);
         Map<Integer, Long> members = asMap(l);
 
         return members;
     }
 
-    private Map asMap(List<Object[]> l) {
+    public Map<Integer, Long> getBranchMemberCountIndexedByBranchId(Class branchOwner) {
+        String query = "select b.id, count(*) from " + branchOwner.getName() + " o join o.branch b group by b.id";
+        List<Object[]> l = getHibernateTemplate().find(query);
+        Map<Integer, Long> members = asMap(l);
+
+        return members;
+    }
+
+    public static Map asMap(List<Object[]> l) {
         Map m = new HashMap(l.size());
         for (int i = 0; i < l.size(); i++) {
             Object[] row = l.get(i);

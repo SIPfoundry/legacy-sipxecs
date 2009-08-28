@@ -12,8 +12,8 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.Group;
 
 public class UserLocation extends DataSetGenerator {
 
@@ -33,7 +33,7 @@ public class UserLocation extends DataSetGenerator {
 
     protected void addUser(List<Map<String, String>> items, User user, String domainName) {
         String url = user.getAddrSpec(domainName);
-        Group site = user.getSite();
+        Branch site = user.getSite();
         if (site != null) {
             addUserLocationItem(items, url, site.getName());
         }

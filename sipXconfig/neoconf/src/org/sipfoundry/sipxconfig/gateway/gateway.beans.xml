@@ -52,8 +52,6 @@
 
   <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl" factory-method="createSbcDeviceDeleteListener" />
 
-  <bean id="gatewayContextUserGroupDelete" factory-bean="gatewayContextImpl" factory-method="createUserGroupDeleteListener" />
-
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>

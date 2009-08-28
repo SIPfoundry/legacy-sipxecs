@@ -46,7 +46,7 @@
       <one-to-many class="FxoPort" />
     </list>
 
-    <many-to-one name="site" column="site_id" foreign-key="fk_gateway_site" />
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
     <property name="shared" />
   </class>
 
@@ -71,8 +71,8 @@
     <![CDATA[select g.id from Gateway g where g.serialNumber = :value]]>
   </query>
 
-  <query name="gatewaysForUserGroup">
-    <![CDATA[from Gateway g where g.site = :userGroup]]>
+  <query name="gatewaysForBranch">
+    <![CDATA[from Gateway g where g.branch = :branch]]>
   </query>
 
   <sql-query name="sipTrunks">

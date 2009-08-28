@@ -35,7 +35,10 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
     </set>
     <many-to-one name="addressBookEntry" class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
-      unique="true" cascade="all" column="address_book_entry_id" />
+    unique="true"
+    cascade="all"
+    column="address_book_entry_id"/>
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
 
   <class name="SpecialUser" table="special_user">
@@ -91,6 +94,10 @@
 
   <query name="groupSupervisors">
     <![CDATA[select u from User u join u.supervisorForGroups as sgroups where sgroups.id = :groupId]]>
+  </query>
+
+  <query name="usersForBranch">
+    <![CDATA[from User u where u.branch = :branch]]>
   </query>
 
   <query name="usersThatISupervise">

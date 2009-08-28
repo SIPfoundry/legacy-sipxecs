@@ -1,11 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
@@ -41,13 +40,13 @@ public abstract class UserCloud extends BaseComponent {
 
     public abstract User getUser();
 
+    @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         if (getUsers() == null) {
             CoreContext coreContext = getCoreContext();
             // TODO: replace by loading lightweight user substitute
-            List<User> users = coreContext.loadUsersByPage(null, null, 0, 25, "userName",
-                    true);
+            List<User> users = coreContext.loadUsersByPage(null, null, null, 0, 25, "userName", true);
             setUsers(users);
             setCount(coreContext.getUsersCount());
         }
