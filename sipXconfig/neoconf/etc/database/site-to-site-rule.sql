@@ -13,4 +13,12 @@ create table site_to_site_dial_pattern (
    primary key (site_to_site_dialing_rule_id, index)
 );
 
-alter table site_to_site_dial_pattern add constraint FK8D4D2DC1454433A4 foreign key (site_to_site_dialing_rule_id) references site_to_site_dialing_rule;
+alter table site_to_site_dialing_rule
+    add constraint site_to_site_dialing_rule_dialing_rule
+    foreign key (site_to_site_dialing_rule_id)
+    references dialing_rule;
+
+alter table site_to_site_dial_pattern
+    add constraint site_to_site_dialing_pattern_dialing_rule
+    foreign key (site_to_site_dialing_rule_id)
+    references site_to_site_dialing_rule;

@@ -18,6 +18,7 @@ create table version_history(
  * For sipXconfig v3.9-r11768, the database version is 7.
  * For sipXconfig v3.10.3-r11768, the database version is 8.
  * For sipXconfig v3.11, the database version is 9.
+ * For sipXconfig v4.0.2, the database version is 10.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
@@ -28,6 +29,7 @@ insert into version_history (version, applied) values (6, now());
 insert into version_history (version, applied) values (7, now());
 insert into version_history (version, applied) values (8, now());
 insert into version_history (version, applied) values (9, now());
+insert into version_history (version, applied) values (10, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -391,6 +393,21 @@ create table holiday_dates (
    primary key (attendant_dialing_rule_id, position)
 );
   
+create table site_to_site_dialing_rule (
+   site_to_site_dialing_rule_id int4 not null,
+   call_pattern_digits varchar(255),
+   call_pattern_prefix varchar(255),
+   primary key (site_to_site_dialing_rule_id)
+);
+
+create table site_to_site_dial_pattern (
+   site_to_site_dialing_rule_id int4 not null,
+   element_prefix varchar(255),
+   element_digits int4,
+   index int4 not null,
+   primary key (site_to_site_dialing_rule_id, index)
+);
+
 create table ldap_connection (
     ldap_connection_id int4 not null,
     host varchar(255),
@@ -896,6 +913,16 @@ alter table users add constraint user_fk1 foreign key (value_storage_id) referen
 alter table user_group add constraint user_group_fk1 foreign key (user_id) references users;
 alter table user_group add constraint user_group_fk2 foreign key (group_id) references group_storage;
 alter table user_alias add constraint user_alias_fk1 foreign key (user_id) references users;
+
+alter table site_to_site_dialing_rule
+    add constraint site_to_site_dialing_rule_dialing_rule
+    foreign key (site_to_site_dialing_rule_id)
+    references dialing_rule;
+
+alter table site_to_site_dial_pattern
+    add constraint site_to_site_dialing_pattern_dialing_rule
+    foreign key (site_to_site_dialing_rule_id)
+    references site_to_site_dialing_rule;
 
 alter table meetme_conference
     add constraint fk_meetme_conference_bridge
