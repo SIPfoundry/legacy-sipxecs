@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.gtek_aq;
 
+import org.apache.commons.lang.math.RandomUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -22,9 +23,8 @@ public class GtekAquiferPhoneDefaults {
     }
 
     @SettingEntry(path = "AutoConfigVersion/AutoConfigVersion")
-    public long getAutoConfigVersion() {
-        // need to generate ever increasing series of numbers...
-        return System.currentTimeMillis() / 1000 - 1250000000;
+    public int getAutoConfigVersion() {
+        return RandomUtils.nextInt(256);
     }
 
     @SettingEntry(path = "MoHSettings/NMOH")

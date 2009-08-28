@@ -49,7 +49,7 @@ public class GtekAquiferPhoneTest extends TestCase {
 
         String actual = location.toString("0004f200e06b.dat");
         // normalize config version
-        actual = actual.replaceFirst("\nAutoConfigVersion=\\d+", "\nAutoConfigVersion=1");
+        actual = actual.replaceFirst("\nAutoConfigVersion=\\d{1,3}", "\nAutoConfigVersion=1");
 
         assertEquals(expected, actual);
     }
@@ -121,7 +121,7 @@ public class GtekAquiferPhoneTest extends TestCase {
 
         String actual = location.toString("0004f200e06b.dat");
         // normalize config version
-        actual = actual.replaceFirst("\nAutoConfigVersion=\\d+", "\nAutoConfigVersion=1");
+        actual = actual.replaceFirst("\nAutoConfigVersion=\\d{1,3}", "\nAutoConfigVersion=1");
 
         assertEquals(expected, actual);
     }
