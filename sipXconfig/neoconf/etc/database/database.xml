@@ -313,7 +313,7 @@
   <target name="version9" description="upgrade from version 8" unless="version10">
     <antcall target="site-to-site-rule" />
     <antcall target="attendant_dialing_rule_migrate" />
-    <!-- sipx-version version="10" -->
+    <sipx-version version="10"/>
   </target>
 
   <target name="version10" description="upgrade from version 9" unless="version11">
