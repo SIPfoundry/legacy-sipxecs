@@ -40,7 +40,7 @@ then
 fi
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=9
+RequiredDatabaseVersion=10
 IndexDir=${TmpDir}/index
 
 # jars that we expect to be installed on the system
