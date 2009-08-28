@@ -5199,9 +5199,7 @@ UtlBoolean SipMessage::getSipETagField(UtlString& sipETagField) const
 SipMessage::SipMessageFieldProps::SipMessageFieldProps()
 {
    // Call the initializer functions.
-//   initNames();
-   initNamesLong();
-   initNamesShort();
+   initNames();
    initDisallowedUrlHeaders();
    initUniqueUrlHeaders();
 }
@@ -5246,40 +5244,6 @@ void SipMessage::SipMessageFieldProps::initNames()
                                                  nvPair->data()));
    }
 }
-
-void SipMessage::SipMessageFieldProps::initNamesLong()
-{
-   // Load the table to translate long header names to short names.
-
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_TYPE_FIELD, SIP_SHORT_CONTENT_TYPE_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_ENCODING_FIELD, SIP_SHORT_CONTENT_ENCODING_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_FROM_FIELD, SIP_SHORT_FROM_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CALLID_FIELD, SIP_SHORT_CALLID_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTACT_FIELD, SIP_SHORT_CONTACT_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_CONTENT_LENGTH_FIELD, SIP_SHORT_CONTENT_LENGTH_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_REFERRED_BY_FIELD, SIP_SHORT_REFERRED_BY_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_REFER_TO_FIELD, SIP_SHORT_REFER_TO_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_SUBJECT_FIELD, SIP_SHORT_SUBJECT_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_SUPPORTED_FIELD, SIP_SHORT_SUPPORTED_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_TO_FIELD, SIP_SHORT_TO_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_VIA_FIELD, SIP_SHORT_VIA_FIELD));
-   mLongFieldNames.insert(new NameValuePair(SIP_EVENT_FIELD, SIP_SHORT_EVENT_FIELD));
-}
-
-void SipMessage::SipMessageFieldProps::initNamesShort()
-{
-   // Reverse the pairs to load the table to translate short header names to
-   // long ones.
-
-   UtlHashBagIterator iterator(mLongFieldNames);
-   NameValuePair* nvPair;
-   while ((nvPair = dynamic_cast <NameValuePair*> (iterator())))
-   {
-      mShortFieldNames.insert(new NameValuePair(nvPair->getValue(),
-                                                 nvPair->data()));
-   }
-}
-
 
 void SipMessage::SipMessageFieldProps::initDisallowedUrlHeaders()
 {
