@@ -45,6 +45,9 @@
   <table name="attendant_dialing_rule"/>
   <table name="holiday_dates"/>
   <table name="attendant_working_hours"/>
+  <table name="site_to_site_dialing_rule"/>
+  <table name="site_to_site_dialing_rule"/>
+  <table name="site_to_site_dial_pattern"/>
 
   <!-- park orbit -->
   <table name="park_orbit"/>  
