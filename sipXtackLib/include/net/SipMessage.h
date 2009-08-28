@@ -1364,8 +1364,6 @@ private:
           UtlHashBag mUniqueUrlHeaders;
 
           void initNames();
-          void initNamesLong();
-          void initNamesShort();
           void initDisallowedUrlHeaders();
           void initUniqueUrlHeaders();
        };
