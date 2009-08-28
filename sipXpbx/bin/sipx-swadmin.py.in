@@ -83,10 +83,11 @@ def update():
     sys.stdout.write('***END***\n')
     sys.stdout.flush()
     sys.stderr.flush()
+    restart()
     
-# Restarts the system
+# Restarts the sipXecs
 def restart():
-    print "Restarting the system...\n\n"
+    print "Restarting the sipXecs...\n\n"
     sys.stdout.flush()
 
 #   Turn buffering of the output off so we can get intermittent results.

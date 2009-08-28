@@ -37,9 +37,6 @@
         <span jwcid="@If" condition="ognl:readyToInstall" renderTag="ognl:false"> 
             <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="message:button.install" />
         </span>
-        <span jwcid="@If" condition="ognl:updateCompleted" renderTag="ognl:false">
-          <input jwcid="@Submit" listener="listener:restart" disabled="ognl:!updateCompleted" value="message:button.restart" />
-        </span>
 	    </div>
     </form>
     </span>
