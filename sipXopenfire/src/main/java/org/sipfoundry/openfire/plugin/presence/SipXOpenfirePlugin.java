@@ -18,6 +18,7 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.jivesoftware.openfire.PacketRouter;
 import org.jivesoftware.openfire.PresenceManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
@@ -27,11 +28,14 @@ import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
+import org.jivesoftware.openfire.muc.CannotBeInvitedException;
+import org.jivesoftware.openfire.muc.ForbiddenException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.MultiUserChatManager;
 import org.jivesoftware.openfire.muc.MultiUserChatService;
 import org.jivesoftware.openfire.muc.NotAllowedException;
+import org.jivesoftware.openfire.muc.MUCRole.Affiliation;
 import org.jivesoftware.openfire.muc.MUCRole.Role;
 import org.jivesoftware.openfire.spi.PresenceManagerImpl;
 import org.jivesoftware.openfire.user.User;
@@ -711,6 +715,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      */
     public Collection<String> getMembers(String domain, String roomName) throws NotFoundException {
         MultiUserChatService mucService = this.multiUserChatManager.getMultiUserChatService(domain);
+        if (mucService == null ) {
+            throw new NotFoundException("Service not found for domain " + domain);
+        }
         MUCRoom mucRoom = mucService.getChatRoom(roomName);
         if ( mucRoom == null ){
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
@@ -809,6 +816,79 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             retval.addAll(chatRooms);
         }
         return retval;
+    }
+    
+    public void pruneChatServices(Collection<String> subdomains) throws Exception {
+       
+        HashSet<MultiUserChatService> pruneSet = new HashSet<MultiUserChatService>();
+        pruneSet.addAll(this.multiUserChatManager.getMultiUserChatServices());
+        
+        for ( MultiUserChatService service : pruneSet) {
+            String subdomain = service.getServiceDomain().split("\\.")[0];
+            if ( !subdomains.contains(subdomain) ) {
+                this.multiUserChatManager.removeMultiUserChatService(subdomain);
+            }
+        }
+    }
+    
+    
+    public void kickOccupant(String subdomain, 
+            String roomName, String password, String memberJid, String reason)
+        throws NotAllowedException {
+        MUCRoom mucRoom = this.multiUserChatManager.getMultiUserChatService(subdomain).
+            getChatRoom(roomName);
+        String roomPassword = mucRoom.getPassword();
+        if ( password == null && roomPassword != null ) {
+            throw new NotAllowedException("Password mismatch"); 
+        }
+        if (mucRoom.getPassword() != null && ! mucRoom.getPassword().equals(password) ){
+            throw new NotAllowedException("Password mismatch");
+        }
+        String actorJid = mucRoom.getOwners().iterator().next();
+        JID memberJID = new JID(memberJid);
+        JID actorJID = new JID(actorJid);
+        mucRoom.kickOccupant(memberJID, actorJID, reason);
+          
+    }
+    
+    public void inviteOccupant(String subdomain, String roomName,  
+            String memberJid, String password, String reason)
+        throws Exception {
+        MultiUserChatService service = this.multiUserChatManager.getMultiUserChatService(subdomain);
+        if ( service == null ) {
+            throw new NotFoundException("MUC service not found for " + subdomain);
+        }
+        MUCRoom mucRoom = service.getChatRoom(roomName);
+        if ( mucRoom == null ) {
+            throw new NotFoundException ("Room not found for "
+                    + subdomain + " roomName " + roomName);
+        }
+        String roomPassword = mucRoom.getPassword();
+        if ( password == null && roomPassword != null ) {
+            throw new NotAllowedException("Password mismatch"); 
+        }
+        if (mucRoom.getPassword() != null && ! mucRoom.getPassword().equals(password) ){
+            throw new NotAllowedException("Password mismatch");
+        }
+        String ownerJid = mucRoom.getOwners().iterator().next();
+        if (! mucRoom.getOccupants().contains(new JID(ownerJid))) {
+            throw new NotAllowedException("Owner is not in te room -- cannot invite");
+        }
+        
+        
+        List<MUCRole> roles = mucRoom.getOccupantsByBareJID(ownerJid);
+        JID memberJID = new JID (memberJid);
+        for ( MUCRole role : roles) {
+            if ( role.getAffiliation() == Affiliation.owner ){
+                mucRoom.sendInvitation(memberJID, reason, role, null);
+                break;
+            }
+        }
+       
+    }
+    
+    public  PacketRouter getPacketRouter() {
+        return this.getServer().getPacketRouter();
     }
    
     

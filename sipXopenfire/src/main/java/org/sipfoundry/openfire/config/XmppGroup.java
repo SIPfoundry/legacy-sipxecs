@@ -1,6 +1,7 @@
 package org.sipfoundry.openfire.config;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
@@ -12,7 +13,7 @@ public class XmppGroup {
     
     private String administrator;
     
-    private HashSet<XmppGroupMember> members = new HashSet<XmppGroupMember>();
+    private HashMap<String,XmppGroupMember> members = new HashMap<String,XmppGroupMember>();
 
     /**
      * @param groupName the groupName to set
@@ -43,11 +44,11 @@ public class XmppGroup {
     }
     
     public Collection<XmppGroupMember> getMembers() {
-        return this.members;
+        return this.members.values();
     }
     
     public void addMember(XmppGroupMember member) {
-        this.members.add(member);
+        this.members.put(member.getUserName(),member);
     }
 
     
@@ -64,6 +65,10 @@ public class XmppGroup {
      */
     public String getAdministrator() {
         return administrator;
+    }
+
+    public boolean hasMember(String bareJID) {
+        return this.members.containsKey(bareJID);
     }
     
     

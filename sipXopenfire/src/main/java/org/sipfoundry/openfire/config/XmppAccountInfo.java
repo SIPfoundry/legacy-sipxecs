@@ -97,4 +97,8 @@ public class XmppAccountInfo {
         return this.chatRooms.get(key);
     }
 
+    public Collection<XmppChatRoom> getXmppChatRooms() {
+       return this.chatRooms.values();
+    }
+
 }

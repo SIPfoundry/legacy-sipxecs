@@ -7,14 +7,6 @@
         <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.PresenceStatusServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>UserAccountServlet</servlet-name>
-        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.UserAccountServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>OpenfireServerControlServlet</servlet-name>
-        <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.OpenfireServerControlServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>ChatRoomManagementServlet</servlet-name>
         <servlet-class>org.sipfoundry.openfire.plugin.presence.servlets.ChatRoomManagementServlet</servlet-class>
     </servlet>
@@ -23,14 +15,6 @@
     <servlet-mapping>
         <servlet-name>PresenceStatusServlet</servlet-name>
         <url-pattern>/status</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>UserAccountServlet</servlet-name>
-        <url-pattern>/user</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>OpenfireServerControlServlet</servlet-name>
-        <url-pattern>/serverctl</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>ChatRoomManagementServlet</servlet-name>

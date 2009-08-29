@@ -12,12 +12,20 @@ import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
+import org.jivesoftware.openfire.PacketRouter;
 import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
+import org.jivesoftware.openfire.muc.MultiUserChatService;
+import org.jivesoftware.openfire.muc.spi.LocalMUCRole;
+import org.jivesoftware.openfire.muc.spi.LocalMUCRoom;
+import org.jivesoftware.openfire.muc.spi.LocalMUCUser;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.xml.sax.InputSource;
+import org.xmpp.packet.JID;
+import org.xmpp.packet.Presence;
 
 public class AccountsParser {
 
@@ -73,20 +81,45 @@ public class AccountsParser {
                         if ( accountInfo.getXmppGroup(group.getName()) == null ) {
                             logger.debug("Cannot find group in config directory " + group.getName());
                             plugin.deleteGroup(group.getName());
+                            continue;
+                        }
+                        XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
+                        Collection<JID> members = group.getMembers();
+                        for (JID member : members) {
+                            /* Make sure we have a record for this member 
+                             * in our sipxconfig generated group.
+                             */
+                            if ( !xmppGroup.hasMember(member.toBareJID())) {
+                                group.getMembers().remove(member);
+                            }
+                            
                         }
                     }
                     Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
-
+                    /*
+                     * Remove any chat rooms that do not appear in the xml file.
+                     */
                     for (MUCRoom mucRoom : chatRooms) {
                         String domain = mucRoom.getMUCService()
                         .getServiceDomain().split("\\.")[0];
                         logger.debug("Checking MUCRoom" + domain);
-                        if (accountInfo.getXmppChatRoom(domain, mucRoom.getName()) == null) {
-                            plugin.removeChatRoom(domain,
-                                    mucRoom.getName());
-                        }
+                        XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom.getName());
+                        if (xmppChatRoom == null) {
+                            logger.debug("Remove MUCRoom " + mucRoom.getName());
+                            plugin.removeChatRoom(domain,mucRoom.getName());
+                           
+                        } 
                     }
-
+                    
+                    /*
+                     * Restrict the chat services to those that are in xmpp-account-info.xml
+                     */
+                    HashSet<String>allowedDomains = new HashSet<String>();
+                    for ( XmppChatRoom chatRoom: accountInfo.getXmppChatRooms()) {
+                        allowedDomains.add(chatRoom.getSubdomain());
+                    }
+                    plugin.pruneChatServices(allowedDomains);
+                    
                 }
             } catch (Exception ex) {
                 logger.error("Exception caught while parsing accountsdb ", ex);

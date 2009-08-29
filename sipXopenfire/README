@@ -26,6 +26,10 @@ This will change when full sipxconfig support becomes available and you will not
 Until sipxconfig support becomes available, hand edit the sixpopenfire.xml file in this directory.
 Copy it to /usr/local/sipx/etc
 
+Hand edit xmpp-account-info.xml.example to define the users and groups you want. 
+Copy it to /usr/local/sipx/etc/xmpp-account-info.xml
+
+
 Make sure the xml rpc ports in sipxopenfire matches the web server port
 in openfire.xml. You will find openfire.xml in OPENFIRE_HOME/config after
 you install openfire and configure it. 

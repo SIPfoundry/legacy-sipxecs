@@ -12,7 +12,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcProvider;
-import org.sipfoundry.openfire.plugin.presence.XmlRpcUserAccountProvider;
+
 
 public abstract class OpenfireXmlRpcClient {
     private static Logger logger = Logger.getLogger (OpenfireXmlRpcClient.class);

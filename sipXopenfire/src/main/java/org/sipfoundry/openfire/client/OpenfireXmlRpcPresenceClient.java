@@ -14,7 +14,7 @@ import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
-import org.sipfoundry.openfire.plugin.presence.XmlRpcUserAccountProvider;
+
 
 public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
     
