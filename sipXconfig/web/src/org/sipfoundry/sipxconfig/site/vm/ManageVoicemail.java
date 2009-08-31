@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
@@ -78,6 +79,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     @InjectObject("spring:sip")
     public abstract SipService getSipService();
+
+    @InjectObject("spring:privateUserKeyManager")
+    public abstract PrivateUserKeyManager getPrivateUserKeyManager();
 
     public abstract VoicemailSource getVoicemailSource();
 
@@ -208,7 +212,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         Voicemail voicemail = getVoicemail();
         PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), voicemail
                 .getMessageId());
-        PlayVoicemailService.Info [] infos = new PlayVoicemailService.Info[1];
+        PlayVoicemailService.Info[] infos = new PlayVoicemailService.Info[1];
         infos[0] = info;
         return getPlayVoicemailService().getLink(false, infos).getURL();
     }
@@ -307,5 +311,10 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         } else {
             LOG.error("Failed to get URI to call: " + fromUri);
         }
+    }
+
+    public String getFeedLink() {
+        String key = getPrivateUserKeyManager().getPrivateKeyForUser(getUser());
+        return String.format("/sipxconfig/rest/private/%s/feed/voicemail/inbox", key);
     }
 }

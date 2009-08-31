@@ -3,7 +3,7 @@
     rel="alternate"
     type="application/rss+xml"
     title="RSS"
-    href="/sipxconfig/rest/my/feed/voicemail/inbox" />
+    href="ognl:feedLink" />
   <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
     <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>            
   </span>
