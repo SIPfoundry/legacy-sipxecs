@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,13 +27,13 @@
 // FORWARD DECLARATIONS
 
 /* ============================ CREATORS ================================== */
-ForwardByDistListCGI::ForwardByDistListCGI(	
+ForwardByDistListCGI::ForwardByDistListCGI(
     const char* comments,
     const UtlString& commentsDuration,
     const UtlString& commentsTimestamp,
     const int commentsSize,
     const Url& fromMailbox,
-    const UtlString& fromFolder, 
+    const UtlString& fromFolder,
     const UtlString& messageIds,
     const UtlString& toDistList  ) :
    m_commentsDuration ( commentsDuration ),
@@ -64,7 +64,7 @@ ForwardByDistListCGI::~ForwardByDistListCGI()
 }
 
 OsStatus
-ForwardByDistListCGI::execute(UtlString* out) 
+ForwardByDistListCGI::execute(UtlString* out)
 {
    OsStatus result = OS_SUCCESS;
    bool atLeastOneSucceed = false;
@@ -101,23 +101,23 @@ ForwardByDistListCGI::execute(UtlString* out)
             // Lazy create and validate the designated mailbox
             result = validateMailboxHelper.execute( out );
 
-            if ( result == OS_SUCCESS ) 
+            if ( result == OS_SUCCESS )
             {
                // extension or the mailbox id is valid.
                UtlString toMailboxIdentity;
                validateMailboxHelper.getMailboxIdentity( toMailboxIdentity );
 
 
-               // Forward call to Mailbox Manager where the configuration 
+               // Forward call to Mailbox Manager where the configuration
                // header subject etc can be added to the filename
                result = pMailboxManager->forwardMessages(
-                  m_comments, 
-                  m_commentsDuration, 
+                  m_comments,
+                  m_commentsDuration,
                   m_commentsTimestamp,
-                  m_commentsSize, 
-                  m_fromMailboxIdentity, 
+                  m_commentsSize,
+                  m_fromMailboxIdentity,
                   m_fromFolder,
-                  m_messageIds, 
+                  m_messageIds,
                   toMailboxIdentity );
 
                if (result == OS_SUCCESS && !atLeastOneSucceed)
@@ -152,7 +152,7 @@ ForwardByDistListCGI::execute(UtlString* out)
 
    dynamicVxml += VXML_END;
 
-   if (out) 
+   if (out)
    {
       out->remove(0);
       UtlString responseHeaders;
@@ -161,6 +161,6 @@ ForwardByDistListCGI::execute(UtlString* out)
       out->append(responseHeaders.data());
       out->append(dynamicVxml.data());
    }
-   
+
    return OS_SUCCESS;
 }

@@ -12,5 +12,3 @@ libsipxcgi_la_LIBADD = \
 
 libsipxcgi_la_SOURCES = \
     CgiValues.cpp
-
-

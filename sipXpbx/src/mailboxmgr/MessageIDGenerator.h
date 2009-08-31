@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ public:
     OsStatus getNextMessageID ( UtlString& rMessageName ) const;
 
 protected:
-    /** 
+    /**
      * Method to recursively search the mailbox folder hierarchy for the highest
      * MessageID, this returns that ID + 1 and writes to the file sytem
      */
@@ -73,7 +73,7 @@ private:
     // Exclusive binary lock
     static OsMutex sLockMutex;
 
-    // Fully qualified filename 
+    // Fully qualified filename
     UtlString m_dataFileName;
 };
 

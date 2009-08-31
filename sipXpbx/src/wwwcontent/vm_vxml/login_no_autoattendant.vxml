@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <vxml version="2.0" application="root.vxml">
-    <!-- 
+    <!--
         This script takes care of voicemail owner login.
     -->
     <form id="vmowner">
@@ -15,7 +15,7 @@
         <var name="from" />
         <var name="mediaserverurl" />
         <var name="securemediaserverurl" />
-    
+
         <!-- Action attribute is required by the CGI -->
         <var name="action" expr="'login'"/>
 
@@ -38,7 +38,7 @@
                 <goto nextitem="pin"/>
             </if>
         </block>
-    
+
 
         <!-- Get user's extension -->
         <field name="extension" type="digits?minlength=1;maxlength=100">
@@ -109,7 +109,7 @@
             </filled>
         </subdialog>
 
-        <!--    Plays mailbox status like 
+        <!--    Plays mailbox status like
              "You have 2 unheard messages, 5 heard messages and 1 saved message"
          -->
         <block name="playstatus" cond="login.result == 'success'">
@@ -192,4 +192,3 @@
 
     </form>
 </vxml>
-

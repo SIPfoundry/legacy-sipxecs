@@ -7,13 +7,13 @@
 ##
 ## DeletionThreshold -  disk usage threshhold at which the script will attempt to
 ##                      delete old log files (leaving th last 7 day of files) and
-##                      old voicemails. 
+##                      old voicemails.
 ##
 ## An an empty variable will  suppress any action if a threshold is exceeded.
 ##
 ## Example: DeletionThreshold=""  will disable the deletion mechanism
 ##
-## It is important that these thresholds be 
+## It is important that these thresholds be
 ##
 ##    DeletionThreshold > MailThreshold
 
@@ -147,7 +147,7 @@ if [ -n "$DeletionThreshold" ]; then
   if [ -n "$Report" ]; then
       DeletionThresholdAction
     exit 1
-  fi   
+  fi
 fi
 
 if [ -n "$MailThreshold" ]; then
@@ -155,6 +155,5 @@ if [ -n "$MailThreshold" ]; then
   if [ -n "$Report" ]; then
       MailThresholdAction
     exit 2
-  fi   
+  fi
 fi
-

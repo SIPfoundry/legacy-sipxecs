@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -102,15 +102,15 @@ OsMutex         MailboxManager::sLockMutex (OsMutex::Q_FIFO);
 
 
 AutoAttendantSchedule::AutoAttendantSchedule()
-{    
-    mHolidayMenu = HOLIDAY_MENU;   
+{
+    mHolidayMenu = HOLIDAY_MENU;
     mRegularMenu = REGULAR_MENU;
     mAfterHourMenu = AFTERHOUR_MENU;
 }
 
 AutoAttendantSchedule::~AutoAttendantSchedule()
 {
-    mHolidays.destroyAll();    
+    mHolidays.destroyAll();
     mRegularFromHour.destroyAll();
     mRegularToHour.destroyAll();
 }
@@ -1269,7 +1269,7 @@ MailboxManager::saveMessage (
                         from = userId;
 
                      UtlString wavFileName;
-                           
+
                      if (nextMessageID == "-1")
                      {
                         // Message from direct deposit
@@ -1292,7 +1292,7 @@ MailboxManager::saveMessage (
                                             datasize);
                       }
 
-                  } 
+                  }
                   else
                   {
                      // Delete the WAV and XML file as we failed to
@@ -1735,7 +1735,7 @@ MailboxManager::validateMailbox (
         {
            // this method should return a good URL from the input string
            // even if it is url encoded or if it comes directly from the web
-           // where it may not be url encoded or may be missing the 'sip:' 
+           // where it may not be url encoded or may be missing the 'sip:'
            // prefix
            Url mailboxUrl;
            getWellFormedURL ( userOrExtensionAtOptDomain, mailboxUrl );
@@ -1754,7 +1754,7 @@ MailboxManager::validateMailbox (
                              mailboxUrl.toString().data(), realmName.data(),
                              authType.data());
                 writeToLog( "validateMailbox", "found mailboxUrl", PRI_DEBUG );
-                
+
                 // Flag to indicate if we found correct permission for this credential
                 UtlBoolean permissionFound = FALSE;
                 if( requiredPermissions != MB_REQUIRE_NONE )
@@ -1766,50 +1766,50 @@ MailboxManager::validateMailbox (
                         getPermissions( mailboxUrl, permissions );
 
                     if ( permissions.getSize() > 0 )
-                    {                        
+                    {
                         // Ensure user has proper permissions before proceeding
                         for ( int i=0; i<permissions.getSize(); i++ )
                         {
                             UtlHashMap record;
                             permissions.getIndex( i, record );
                             UtlString permission = *((UtlString*)record.findValue(&permissionKey));
-                            
+
                             switch (requiredPermissions)
                             {
                             case MB_REQUIRE_VOICEMAIL:
                                 if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0)
                                 {
-                                    permissionFound = TRUE;                            
+                                    permissionFound = TRUE;
                                 }
                                 break ;
                             case MB_REQUIRE_AUTOATTENDANT:
                                 if ( permission.compareTo( "AutoAttendant", UtlString::ignoreCase ) == 0)
                                 {
                                     permissionFound = TRUE;
-                                }                                
+                                }
                                 break ;
                             case MB_REQUIRE_EITHER:
                                 if ( permission.compareTo( "Voicemail", UtlString::ignoreCase ) == 0 ||
                                      permission.compareTo( "AutoAttendant",  UtlString::ignoreCase ) == 0 )
                                 {
                                     permissionFound = TRUE;
-                                }                                
+                                }
                                 break ;
                             default:
                                 assert(false);
                             }
-                            
+
                             if (permissionFound)
                             {
                                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
-                                              "MailboxManager::validateMailbox: found requested permission (%d)", 
-                                              requiredPermissions);                                
+                                              "MailboxManager::validateMailbox: found requested permission (%d)",
+                                              requiredPermissions);
                                 validated = TRUE;
-                                break ;                                
+                                break ;
                             }
                         }
                     }
-                } 
+                }
                 else
                 {
                     permissionFound = TRUE;
@@ -1841,7 +1841,7 @@ MailboxManager::validateMailbox (
                         UtlString inboxDirName =
                             m_mailstoreRoot + OsPathBase::separator +
                             MAILBOX_DIR + OsPathBase::separator +
-                            mailboxId + OsPathBase::separator + 
+                            mailboxId + OsPathBase::separator +
                             m_inboxFolder;
                         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                                       "MailboxManager::validateMailbox: inboxDirName = '%s'",
@@ -2700,8 +2700,8 @@ MailboxManager::updateMessageStates(
       if (messageids == REFRESH_ALL_MSG_STATES)
       {
          // Refresh message states, trigger NOTIFY
-         msgCount = 1;         
-      } 
+         msgCount = 1;
+      }
       else if (messageids == UPDATE_ALL_MSG_STATES)
       {
          // messageids == "-1" means to update all messages to "heard" status.
@@ -2809,7 +2809,7 @@ MailboxManager::updateMessageStates(
       if (errorCount > 0)
       {
          logContents = (const UtlString) ("Could not find " + errorCount) +
-            " messages from list '" + messageids + 
+            " messages from list '" + messageids +
             "' in " + category;
          result = OS_NOT_FOUND;
       }
@@ -3082,7 +3082,7 @@ MailboxManager::forwardMessages (
     {
         if ( credentials.getSize() <= 0 )
         {
-            logContents = "Unable to get credentials for " + 
+            logContents = "Unable to get credentials for " +
                 fromIdentityUrl.toString();
             break ;
         }
@@ -3153,7 +3153,7 @@ MailboxManager::forwardMessages (
             result = m_pMsgIDGenerator->getNextMessageID( nextMessageID );
             if ( result != OS_SUCCESS )
             {
-                logContents = "Failed to generate next message id for " 
+                logContents = "Failed to generate next message id for "
                                  + toMailbox ;
                 break ;
             }
@@ -3166,12 +3166,12 @@ MailboxManager::forwardMessages (
             while ( moreMessages == OS_SUCCESS )
             {
                 // Construct a file object.
-                UtlString fromFileLocation = 
-                    fromMailboxPath + OsPathBase::separator + 
+                UtlString fromFileLocation =
+                    fromMailboxPath + OsPathBase::separator +
                     entry.getFilename() + entry.getExt();
                 OsFile fromFile( fromFileLocation );
                 UtlString filename = entry.getFilename();
-                UtlString fromMessageDepth = 
+                UtlString fromMessageDepth =
                     filename(filename.index('-')+1, filename.length());
 
                 if( fromMessageDepth == forwardedMsgsPlayListExtn )
@@ -3191,7 +3191,7 @@ MailboxManager::forwardMessages (
                     {
                         UtlString toFileLocation =
                             toMailboxPath + OsPathBase::separator +
-                            nextMessageID + "-" + toMessageDepth + 
+                            nextMessageID + "-" + toMessageDepth +
                             entry.getExt();
                         fromFile.copy(toFileLocation);
                     }
@@ -3203,8 +3203,8 @@ MailboxManager::forwardMessages (
                             // Get the message subject from the -00.xml file
                             UtlHashMap *msgInfoHash = new UtlHashMap();
                             parseMessageDescriptor(fromFileLocation, msgInfoHash );
-                            UtlString *rwMsgSubject = 
-                                (UtlString *)msgInfoHash->findValue( 
+                            UtlString *rwMsgSubject =
+                                (UtlString *)msgInfoHash->findValue(
                                                    new UtlString("subject") ) ;
                             originalMsgSubject = rwMsgSubject->data() ;
 
@@ -3241,13 +3241,13 @@ MailboxManager::forwardMessages (
                 break ;
             }
 
-            UtlString mergedOutputFileLocation = 
+            UtlString mergedOutputFileLocation =
                 toMailboxPath +
                 OsPathBase::separator +
                 nextMessageID + "-" + forwardedMsgsPlayListExtn + ".wav";
 
             UtlString subject = forwardedMsgSubjectPrefix + originalMsgSubject ;
-            UtlString messageDescriptorLoc = 
+            UtlString messageDescriptorLoc =
                 toMailboxPath +
                 OsPathBase::separator +
                 nextMessageID + "-00.xml";
@@ -3267,7 +3267,7 @@ MailboxManager::forwardMessages (
                 inputFileArray[2] = "" ;
 
                 result = mergeWaveFiles(inputFileArray, mergedOutputFileLocation );
-                logContents = "Unable to merge file " + mergeFileInput1 + 
+                logContents = "Unable to merge file " + mergeFileInput1 +
                    "with " + mergeFileInput2 ;
             }
             else
@@ -3275,7 +3275,7 @@ MailboxManager::forwardMessages (
                 // Use the original file
                 OsFile originalMsg (mergeFileInput2) ;
                 result = originalMsg.copy(mergedOutputFileLocation);
-                logContents = "Unable to copy file " + mergeFileInput2 + 
+                logContents = "Unable to copy file " + mergeFileInput2 +
                     "to " + mergedOutputFileLocation ;
             }
 
@@ -3288,7 +3288,7 @@ MailboxManager::forwardMessages (
             result = file.open() ;
             if (result != OS_SUCCESS)
             {
-                logContents = "Unable to open merged file " + 
+                logContents = "Unable to open merged file " +
                    mergedOutputFileLocation ;
                 break ;
             }
@@ -3318,7 +3318,7 @@ MailboxManager::forwardMessages (
                         else
                            from = userId;
 
-                        UtlString wavFileName = nextMessageID + "-" + 
+                        UtlString wavFileName = nextMessageID + "-" +
                            forwardedMsgsPlayListExtn + ".wav";
 
                         const char* data = (const char*) buffer;
@@ -4362,7 +4362,7 @@ MailboxManager::getMWINotifyText (
     int unheard = 0;
     int total = 0;
     UtlString inboxPathName;
-    
+
     if ( iMailboxPath ) // caller provided the mailbox path
     {
        UtlString mailboxPath;
@@ -4372,7 +4372,7 @@ MailboxManager::getMWINotifyText (
     else
     {
        UtlString mailboxPath;
-       
+
        result = getMailboxPath( mailboxIdentity, mailboxPath );
        if ( OS_SUCCESS == result )
        {
@@ -4391,13 +4391,13 @@ MailboxManager::getMWINotifyText (
     {
        // get the unheard and total counts from the inbox
        getMailboxCounts (inboxPathName, unheard, total );
-    
+
        const char* messageSummaryFormat =
           "Messages-Waiting: %s\r\n"
           "Voice-Message: %d/%d (0/0)\r\n"
           "\r\n";
        char messageSummary[200];
-          sprintf(messageSummary, messageSummaryFormat, 
+          sprintf(messageSummary, messageSummaryFormat,
                   unheard ? "yes" : "no", // messages-waiting value
                   unheard, total-unheard
                   );
@@ -4406,7 +4406,7 @@ MailboxManager::getMWINotifyText (
     else
     {
        // simplest to just give it a dummy answer.
-       rNotifyText = 
+       rNotifyText =
           "Messages-Waiting: no\r\n"
           "Voice-Message: 0/0 (0/0)\r\n"
           "\r\n";
@@ -4414,7 +4414,7 @@ MailboxManager::getMWINotifyText (
        // could not find the inbox
        result = OS_FAILED;
     }
-    
+
     return result;
 }
 
@@ -4487,7 +4487,7 @@ MailboxManager::generateDefaultGreetings (
 
 
             result = mergeWaveFiles(infiles, greetingLocation);
-        } 
+        }
         else
         {
             UtlString identity, extension ;
@@ -4528,7 +4528,7 @@ MailboxManager::generateDefaultGreetings (
                    generic = false ;
                 }
             }
-            
+
             if (generic)
             {
                // "The owner of this extension" + {suffix}"
@@ -4559,7 +4559,7 @@ MailboxManager::generateDefaultGreetings (
                {
                    // First element of the array is the prefix greeting URL
                    infiles[0] = extensionUrl ;
-   
+
                    // Get individual digits of the extension
                    int arrayIndex = 1 ;
                    while( extensionLength > 0 )
@@ -4587,7 +4587,7 @@ MailboxManager::generateDefaultGreetings (
        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
           "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
           greetingType.data(), mailboxIdentity.data());
-                  
+
     }
     return result ;
 }
@@ -4946,7 +4946,7 @@ MailboxManager::saveSystemPrompts (
                 result = setActiveSystemPrompt( promptType );
                 if( result != OS_SUCCESS )
                     logContents = "Failed to set " + promptType + " as the active system prompt" ;
-#endif                    
+#endif
             } else
             {
                 logContents = "Unable to create " + filename ;
@@ -5173,7 +5173,7 @@ MailboxManager::createOrganizationPrefsFile( const UtlString& orgPrefsFileLocati
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "createOrganizationPrefsFile creating a default file %s",
                   orgPrefsFileLocation.data());
-                  
+
     OsFile prefsFile (orgPrefsFileLocation);
     OsStatus result = prefsFile.open(OsFile::CREATE);
     if (result == OS_SUCCESS)
@@ -5184,14 +5184,14 @@ MailboxManager::createOrganizationPrefsFile( const UtlString& orgPrefsFileLocati
             "   <specialoperation>" + UtlString( "false" ) + "</specialoperation>\n"
             "   <autoattendant>" + UtlString( "afterhour" ) + "</autoattendant>\n"
             "</organizationprefs>";
-   
+
         size_t bytes_written = 0;
         result = prefsFile.write(defaultPrefsData.data(),
                                  defaultPrefsData.length(),
                                  bytes_written);
         prefsFile.close();
     }
-   
+
     return result;
 }
 
@@ -5272,7 +5272,7 @@ MailboxManager::parseOrganizationPrefsFile ( UtlHashMap* rOrgPrefsHashDict) cons
             }
         }
     }
-    
+
     return result;
 }
 
@@ -5419,7 +5419,7 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
        {
           // Search in each list
           for (TiXmlNode *groupNode = rootNode->FirstChild("list");
-               groupNode; 
+               groupNode;
                groupNode = groupNode->NextSibling("list"))
           {
              // Compare the value of distId with the index in this list
@@ -5427,7 +5427,7 @@ MailboxManager::parseDistributionFile(const UtlString& distFile, const UtlString
              {
                 // The requested distribution list is found
                 for (TiXmlNode *destNode = groupNode->FirstChild("destination");
-                     destNode; 
+                     destNode;
                      destNode = destNode->NextSibling("destination"))
                 {
                    UtlString mailbox = (destNode->FirstChild())->Value();
@@ -5452,7 +5452,7 @@ MailboxManager::setPassword (
     const UtlString& newPassToken )
 {
    OsStatus result = OS_FAILED;
-   
+
    // Get the user id from the loginString
    int substrLength = loginString.index("@");
    UtlString userId = loginString(0, substrLength);
@@ -5481,7 +5481,7 @@ MailboxManager::setPassword (
                  "Sending the new pin to Config server for user %s", userId.data());
 
    // Send to the config server
-#ifdef USE_SOAP   
+#ifdef USE_SOAP
    Url userServiceUrl(m_configServerSecureUrl + "//pds/soap/services/urn:UserService");
    userServiceUrl.setUserId("superadmin");
    userServiceUrl.setPassword(dbPassToken.data());
@@ -5493,7 +5493,7 @@ MailboxManager::setPassword (
            soap_xsi_ns.data(), soap_xsd_ns.data(),
            "setPintoken", "urn:UserService", userId.data(), newPassToken.data(), "setPintoken");
 
-   UtlString soapMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + UtlString(buffer);    
+   UtlString soapMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + UtlString(buffer);
 
    HttpMessage *pRequest = new HttpMessage();
    pRequest->setFirstHeaderLine(HTTP_POST_METHOD, "//pds/soap/services/urn:UserService", HTTP_PROTOCOL_VERSION_1_1);
@@ -5532,7 +5532,7 @@ MailboxManager::setPassword (
       Url dataSetServiceUrl(m_configServerSecureUrl + "//pds/soap/services/urn:DataSetService");
       dataSetServiceUrl.setUserId("superadmin");
       dataSetServiceUrl.setPassword(dbPassToken.data());
-      
+
       // Send out resync command
       sprintf(buffer, _SOAP_MSG_NO_ARG_TEMPLATE_,
               soap_env_ns.data(), soap_env_enc.data(),
@@ -5540,17 +5540,17 @@ MailboxManager::setPassword (
               "rebuildDataSets", "urn:DataSetService", "rebuildDataSets");
 
       soapMessage = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + UtlString(buffer);
-            
+
       delete pRequest;
       delete pResponse;
-      
+
       pRequest = new HttpMessage();
       pRequest->setFirstHeaderLine(HTTP_POST_METHOD, "//pds/soap/services/urn:DataSetService", HTTP_PROTOCOL_VERSION_1_1);
       pRequest->addHeaderField("Connection", "close");
       pRequest->addHeaderField("Accept", "text/xml");
       pRequest->addHeaderField("Accept", "multipart/*");
       pRequest->setUserAgentField("Media-Server");
-      
+
       body = new HttpBody(soapMessage.data(),
                           soapMessage.length(),
                           CONTENT_TYPE_TEXT_XML);
@@ -5562,7 +5562,7 @@ MailboxManager::setPassword (
 
       pResponse = new HttpMessage();
       pResponse->get(dataSetServiceUrl, *pRequest, 5*1000, false);
-      
+
       pResponse->getResponseStatusText(&status);
 
       if (status.compareTo("OK") == 0)
@@ -5582,7 +5582,7 @@ MailboxManager::setPassword (
                     "setPassword failed with status = %s", status.data());
       result = OS_FAILED;
    }
-   
+
    delete pRequest;
    delete pResponse;
 #else
@@ -5595,7 +5595,7 @@ MailboxManager::setPassword (
    NetMd5Codec::encode(textToEncode, encodedToken);
    sprintf(buffer, "%s;%s;%s", userId.data(), dbPassToken.data(), encodedToken.data());
 
-   UtlString httpMessage = UtlString(buffer);    
+   UtlString httpMessage = UtlString(buffer);
 
    HttpMessage *pRequest = new HttpMessage();
    pRequest->setFirstHeaderLine(HTTP_POST_METHOD, "/sipxconfig/api/change-pintoken", HTTP_PROTOCOL_VERSION_1_1);
@@ -5637,12 +5637,12 @@ MailboxManager::setPassword (
                     "setPassword failed with status = %s", status.data());
       result = OS_FAILED;
    }
-   
+
    delete pRequest;
    delete pResponse;
 
 #endif
-  
+
    return result;
 }
 
@@ -5653,17 +5653,17 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
                                      UtlString& rAAName ) const
 {
     OsStatus result = OS_FAILED;
-    
+
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "getTimeBasedAAName local time = %s", rLocalTime.data());
-                  
+
     // Mon, 25-Sep-2002 05:51:44 PM EST
     UtlString dayOfWeek;
     UtlString time;
     UtlString day;
     UtlString hour;
     UtlString minute;
-    
+
     dayOfWeek = rLocalTime(0, 3);
 
     int dayLength = rLocalTime.index(" ", 5);
@@ -5672,7 +5672,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     {
        day = "0" + day;
     }
-    
+
     int timeLength = rLocalTime.index(" ", dayLength+1);
     time = rLocalTime(dayLength+1, timeLength-dayLength-1);
     hour = time(0, 2);
@@ -5695,29 +5695,29 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     else
     {
        // 1-11 AM, no change needed.
-       if (hr == 12) 
+       if (hr == 12)
        {
           // 12 AM is midnight or 0 hours
           currentTime -= 1200 ;
        }
     }
-    
+
     OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                   "getTimeBasedAAName dayOfWeek = %s, day = %s, currentTime = %d",
                   dayOfWeek.data(), day.data(), currentTime);
-                  
+
     UtlString scheduleFileLocation;
     result = getScheduleFileLocation( rName, scheduleFileLocation );
     if( result == OS_SUCCESS )
     {
         // Check whether the special case is on or not
-        UtlHashMap rOrgPrefsHashDict;        
+        UtlHashMap rOrgPrefsHashDict;
         result = parseOrganizationPrefsFile(&rOrgPrefsHashDict);
         UtlString key("specialoperation");
         UtlString* special = (UtlString *) rOrgPrefsHashDict.findValue(&key);
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
                       "getTimeBasedAAName special operation = %s", special->data());
-        
+
         if (special->compareTo("true", UtlString::ignoreCase) == 0)
         {
             UtlString name("autoattendant");
@@ -5728,7 +5728,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
         {
             AutoAttendantSchedule scheduleFile;
             result = parseAutoAttendantSchduleFile( scheduleFileLocation, &scheduleFile );
-            
+
             if (result == OS_SUCCESS)
             {
                 // Check whether it is on holiday
@@ -5751,7 +5751,7 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
                             rAAName = scheduleFile.mRegularMenu;
                         }
                         else
-                        {        
+                        {
                             rAAName = scheduleFile.mAfterHourMenu;
                         }
                     }
@@ -5764,11 +5764,11 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
             {
                 OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                               "getTimeBasedAAName failed to parse the schedule file %s", scheduleFileLocation.data());
-                
+
             }
-        }  
+        }
     }
-    
+
     return result;
 }
 
@@ -5789,7 +5789,7 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
         if (rootNode != NULL)
         {
 /*
-            // 3. Get individual element values.              
+            // 3. Get individual element values.
             //
             //<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
             //<schedules>\n" \
@@ -5829,7 +5829,7 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
             //  </autoattendant>\n" \
             //</schedules>";
 */
-              
+
             TiXmlNode* aaNode = rootNode->FirstChild("autoattendant");
             if (aaNode != NULL)
             {
@@ -5838,13 +5838,13 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
                 if (holidayNode != NULL)
                 {
                     for (TiXmlNode* dateNode = holidayNode->FirstChild("date");
-                         dateNode; 
+                         dateNode;
                          dateNode = dateNode->NextSibling("date"))
                     {
                         UtlString date = dateNode->FirstChild()->Value();
                         rSchedule->mHolidays.insert(new UtlString(date));
                     }
-                      
+
                     TiXmlNode* holidayName = holidayNode->FirstChild("filename");
                     if (holidayName != NULL)
                     {
@@ -6013,7 +6013,7 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
                         rSchedule->mAfterHourMenu = afterhourName->FirstChild()->Value();
                     }
                 }
-                
+
                 result = OS_SUCCESS;
             }
         }
@@ -6032,7 +6032,7 @@ MailboxManager::getScheduleFileLocation( UtlString& rFileName, UtlString& rSched
     if (!m_mediaserverRoot.isNull() && m_mediaserverRoot != "")
     {
         rScheduleFileLocation = m_mediaserverRoot + OsPathBase::separator + AA_SCHEDULE_DIR + rFileName + "-schedule.xml";
-    
+
         if ( OsFileSystem::exists(rScheduleFileLocation) )
         {
             result = OS_SUCCESS;
@@ -6049,7 +6049,7 @@ MailboxManager::getScheduleFileLocation( UtlString& rFileName, UtlString& rSched
         OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                       "getScheduleFileLocation failed to find mailserver root dir");
     }
-        
+
 
     return result;
 }
@@ -6057,13 +6057,13 @@ MailboxManager::getScheduleFileLocation( UtlString& rFileName, UtlString& rSched
 
 int MailboxManager::timeValue(const char* currentTime) const
 {
-    UtlString time(currentTime);  
+    UtlString time(currentTime);
     UtlString hour = time(0, 2);
     UtlString minute = time(3, 2);
     int timeInValue = atoi(hour)*100 + atoi(minute);
-    
+
     return timeInValue;
-}    
+}
 
 
 OsStatus
@@ -6071,7 +6071,7 @@ MailboxManager::setSystemOverallAAMenu(  bool special ) const
 {
     OsStatus result = OS_FAILED;
     UtlString logContents;
-                
+
     UtlString prefFileLocation;
     result = getOrgPrefsFileLocation( prefFileLocation );
     if( result == OS_SUCCESS )

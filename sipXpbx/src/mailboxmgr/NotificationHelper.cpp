@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -176,7 +176,7 @@ NotificationHelper::send (
     {
         if( response.length() > 0 )
         {
-            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR, 
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
                           "NotificationHelper: "
                           "Error sending e-mail to '%s' via SMTP server '%s'\n    %s",
                           rContact.data(), rSMTPServer.data(), response.data());

@@ -97,7 +97,7 @@ configuration page of your master system.\
        cleanExit()
 
 def upgrade_completed () :
-    
+
     completedMessage ="\
 Your upgrade is complete.\
 "
@@ -137,7 +137,7 @@ Your upgrade is complete.\
             log_printout('--- Rebooting the host ---' )
             execNext('shutdown', ['-r', 'now'])
             # execNext does not return
-            
+
         else :
             log_printout('--- Exit to shell ---' )
 
@@ -167,7 +167,7 @@ try:
     upgrade_completed()
     # upgrade_completed does not return
 
-    
+
 except:
     excType, excData, excTrace = sys.exc_info()
     if   excType == KeyboardInterrupt:
@@ -181,5 +181,3 @@ except:
         errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
         log_printout ( errMsg )
     cleanExit()
-
-

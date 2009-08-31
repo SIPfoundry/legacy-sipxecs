@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <vxml version="2.0" application="root.vxml">
-    <!-- 
+    <!--
       Allows mailbox owner to forward a message.
     -->
     <form id="fwdmessage">
@@ -72,7 +72,7 @@
                 <reprompt />
             </nomatch>
         </field>
-            
+
         <!-- Prompts user to record their comments -->
         <field name="commentprompt" type="digits?maxlength=1;minlength=1" cond="alreadyrecorded=='0'">
             <prompt timeout="1s">
@@ -94,7 +94,7 @@
                 <goto nextitem="comments" />
             </noinput>
         </field>
-    
+
         <!-- Records the comments -->
         <record name="comments" cond="alreadyrecorded=='0'" beep="true" finalsilence="8000ms" dtmfterm="true">
             <filled>
@@ -163,7 +163,7 @@
             </nomatch>
         </field>
 
-        
+
         <!-- Prompts user for the destination extension -->
         <field name="toextension" cond="confirm == '2' || withcomments == 'no'" type="digits?minlength=1;maxlength=100">
             <prompt>

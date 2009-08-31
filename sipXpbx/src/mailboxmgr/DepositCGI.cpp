@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -121,7 +121,7 @@ DepositCGI::execute(UtlString* out)
             "<var name=\"msgurltype\" expr=\"'alphanumeric'\"/>\n";
       }
 
-      // If mailboxpath/savemessage.vxml exists, use it, otherwise use the 
+      // If mailboxpath/savemessage.vxml exists, use it, otherwise use the
       // generic version
       UtlString src ;
       UtlString vxmlScript ;
@@ -129,7 +129,7 @@ DepositCGI::execute(UtlString* out)
       vxmlScript += OsPath::separator + "savemessage.vxml" ;
       if (OsFileSystem::exists(vxmlScript))
       {
-         // use the user specific one 
+         // use the user specific one
          pMailboxManager->getMailboxURL(m_mailboxIdentity, src, false);
          src += "/savemessage.vxml" ;
          OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,

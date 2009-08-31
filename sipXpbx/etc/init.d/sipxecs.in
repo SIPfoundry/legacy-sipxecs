@@ -252,7 +252,7 @@ global_setup_check () {
 The basic configuration for the @SIPXECS_NAME@ services has
 not been established.
 
-   Please run 'sipxecs-setup' 
+   Please run 'sipxecs-setup'
 
 EOF
         setup_status=1
@@ -623,7 +623,7 @@ do_check() {
 
     # Checking the supervisor is not done before normal start, only on explicit configtest
     # because it can fail in the cold start case when sipXconfig has not run yet.
-    if [ "${check_super}" = "CHECK_SUPERVISOR" ] 
+    if [ "${check_super}" = "CHECK_SUPERVISOR" ]
     then
         # Iterate through the processes and let each shell script do its own checks
         start_check sipxsupervisor
@@ -644,7 +644,7 @@ do_stop() {
    echo "Stopping sipXpbx: "
 
    echo -n "Stopping apache: "
-   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf 
+   @APACHE2_HTTPD@ -k stop -f @SIPX_CONFDIR@/httpd.conf
    echo
 
    stop      sipxsupervisor

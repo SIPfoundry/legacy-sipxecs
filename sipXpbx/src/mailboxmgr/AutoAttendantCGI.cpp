@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -71,7 +71,7 @@ AutoAttendantCGI::execute(UtlString* out)
       // Use the default AA name
       aaName = DEFAULT_AA_NAME;
    }
-   
+
    // Construct the dynamic VXML
    UtlString dynamicVxml = getVXMLHeader();
    dynamicVxml +=  "<form>\n";
@@ -84,7 +84,7 @@ AutoAttendantCGI::execute(UtlString* out)
    dynamicVxml += VXML_END;
 
    // Write out the dynamic VXML script to be processed by OpenVXI
-   if (out) 
+   if (out)
    {
       out->remove(0);
       UtlString responseHeaders;
@@ -95,5 +95,3 @@ AutoAttendantCGI::execute(UtlString* out)
    }
    return OS_SUCCESS;
 }
-
-

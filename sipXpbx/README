@@ -20,6 +20,3 @@ To inspect what processes are running:
   service sipxecs status
     or
   /usr/local/sipx/etc/init.d/sipxecs status
-
-
-

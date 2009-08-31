@@ -14,7 +14,7 @@ do
         ##
         --)
             while [ $# -ne 1 ]
-            do 
+            do
                 Uninterpreted="${Uninterpreted} ${2}"
                 shift # consume all but one
             done
@@ -38,7 +38,7 @@ do
                 break
             fi
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -48,7 +48,7 @@ then
     cat <<USAGE
 
 Usage:
-    
+
     gen-config <sipx-config-dir>
 
 

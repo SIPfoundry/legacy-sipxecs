@@ -1,2 +1,2 @@
 SUBDIRS = \
-	sipxcgi 
+	sipxcgi

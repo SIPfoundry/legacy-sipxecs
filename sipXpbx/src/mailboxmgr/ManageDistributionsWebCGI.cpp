@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -141,7 +141,7 @@ ManageDistributionsWebCGI::getManageDistributionsUI(UtlString* out)
 
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
 
-   // Check if the distribution list file exists or not 
+   // Check if the distribution list file exists or not
    if( OsFileSystem::exists(m_filename) )
    {
 
@@ -423,7 +423,7 @@ ManageDistributionsWebCGI::saveDistribution() const
    if( m_action == "adddistribution" )
    {
       result = pMailboxManager->parseDistributionFile (m_filename, m_index, destinations);
-      
+
       if ( result == OS_SUCCESS )
          return OS_NAME_IN_USE;
    }
@@ -491,7 +491,7 @@ ManageDistributionsWebCGI::saveDistribution() const
 
       delete [] pBuffer;
    }
-      
+
    // Add the distribution list to the file
    UtlString distributionData =
       "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
@@ -524,7 +524,7 @@ ManageDistributionsWebCGI::saveDistribution() const
 
             distributionData += "  </list>\n";
          }
-      }   
+      }
       else
       {
          if ( m_action == "editdistribution" )
@@ -571,7 +571,7 @@ ManageDistributionsWebCGI::saveDistribution() const
    if ( result == OS_SUCCESS )
    {
       size_t bytes_written = 0;
-      result = distributionFile.write( distributionData.data(), 
+      result = distributionFile.write( distributionData.data(),
                                        distributionData.length(),
                                        bytes_written );
       distributionFile.close();

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -52,11 +52,11 @@ public:
     virtual ~NotificationHelper();
 
     /**
-     * 
-     * @param rMailboxIdentity 
+     *
+     * @param rMailboxIdentity
      * @param rSMTPServer           the outbound SMTP Server address
      * @param rServerRoot           root for apache web server
-     * @param rContact              
+     * @param rContact
      * @param rFrom
      * @param rReplyTo
      * @param rDate                 timestamp of the file
@@ -64,8 +64,8 @@ public:
      * @param rAttachmentFileName   the name of the attachment (relative to root)
      * @param rIsHtmlFormat
      * @param rAttachmentEnabled
-     * 
-     * @return 
+     *
+     * @return
      */
     OsStatus send (
         const UtlString& rMailboxIdentity,
@@ -96,4 +96,3 @@ private:
 };
 
 #endif //NOTIFICATIONHELPER_H
-

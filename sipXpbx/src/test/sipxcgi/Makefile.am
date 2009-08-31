@@ -6,7 +6,7 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite
 
-testsuite_LDFLAGS = 
+testsuite_LDFLAGS =
 
 testsuite_LDADD = \
     ../../sipxcgi/libsipxcgi.la \

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -822,7 +822,7 @@ main(int argc, char* argv[])
                 const char* messageIds = gValues->valueOf ( "messageids" );
                 const char* toDistList = gValues->valueOf ( "selectdistlist" );
 
-                if( !size) 
+                if( !size)
                 {
                     UtlString   strTimeStamp ;
                     OsDateTime::getLocalTimeString(strTimeStamp) ;
@@ -831,7 +831,7 @@ main(int argc, char* argv[])
                                 "0",
                                 "0",
                                 strTimeStamp,
-                                0, 
+                                0,
                                 fromMailbox,
                                 fromFolder,
                                 messageIds,
@@ -1067,7 +1067,7 @@ main(int argc, char* argv[])
                 if ( sName ) {
                   cmd->setLang( sName );
                 }
-                
+
                 if ( cmd->execute(&outStr) == OS_SUCCESS )
                 {
                     OsSysLog::add(

@@ -1,4 +1,4 @@
-SUBDIRS = 
+SUBDIRS =
 
 cgidir=@wwwdir@/cgi-bin
 mediaservercgidir = $(cgidir)/voicemail

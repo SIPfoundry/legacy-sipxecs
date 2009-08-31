@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -41,7 +41,7 @@ SpecialAAMenuCGI::execute(UtlString* out)
 
     // Instantiate the mailbox manager
     MailboxManager* pMailboxManager = MailboxManager::getInstance();
-   
+
     if (mOption.compareTo("true", UtlString::ignoreCase) == 0)
     {
         result = pMailboxManager->setSystemOverallAAMenu(true);
@@ -49,7 +49,7 @@ SpecialAAMenuCGI::execute(UtlString* out)
     else
     {
         result = pMailboxManager->setSystemOverallAAMenu(false);
-    }    
+    }
 
     UtlString dynamicVxml = getVXMLHeader();
 
@@ -72,7 +72,7 @@ SpecialAAMenuCGI::execute(UtlString* out)
        out->remove(0);
        UtlString responseHeaders;
        MailboxManager::getResponseHeaders(dynamicVxml.length(), responseHeaders);
-      
+
        out->append(responseHeaders.data());
        out->append(dynamicVxml.data());
     }

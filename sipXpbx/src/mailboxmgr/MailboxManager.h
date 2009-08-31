@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -167,14 +167,14 @@ public:
     AutoAttendantSchedule();
 
     virtual ~AutoAttendantSchedule();
-    
+
     UtlHashBag mHolidays;
     UtlString mHolidayMenu;
 
     UtlHashMap mRegularFromHour;
     UtlHashMap mRegularToHour;
     UtlString mRegularMenu;
-    
+
     UtlString mAfterHourMenu;
 };
 
@@ -183,8 +183,8 @@ public:
  */
 typedef enum MailboxPermissions
 {
-    MB_REQUIRE_NONE          = 0, /**< Do not require any permissions */ 
-    MB_REQUIRE_VOICEMAIL     = 1, /**< Require voicemail only */    
+    MB_REQUIRE_NONE          = 0, /**< Do not require any permissions */
+    MB_REQUIRE_VOICEMAIL     = 1, /**< Require voicemail only */
     MB_REQUIRE_AUTOATTENDANT = 2, /**< Require autoattendant only */
     MB_REQUIRE_EITHER        = 3  /**< Require either voicemail or autoattendant */
 } MailboxPermissions ;
@@ -606,7 +606,7 @@ public:
      */
     OsStatus getMWINotifyText (
         const UtlString& mailboxIdentity, ///< identity of mailbox owner
-        const UtlString* iMailboxPath,     ///< if specified, the path to the inbox 
+        const UtlString* iMailboxPath,     ///< if specified, the path to the inbox
         UtlString& rNotifyText            ///< application/message-summary body
         ) const;
 
@@ -857,13 +857,13 @@ private:
      */
     OsStatus restoreMailbox ( const UtlString& mailboxIdentity ) const;
 
-    
+
     /// Count the messages in a mailbox
     void getMailboxCounts( const UtlString& mailboxPath,  ///< full path to the mailbox
                           int&              rUnheardCount,///< output count of unheard messages
                           int&              rTotalCount   ///< output count of all messages
                           ) const;
-    
+
     /// If there are any subscribers to this mailbox, send them an update
     void updateMailboxStatus (
        const UtlString& mailboxIdentity, ///< SIP identity of mailbox owner
@@ -874,7 +874,7 @@ private:
      * so this determines whether or not the mailbox is an inbox before actually counting
      * messages and generating a notice.
      */
-    
+
     /**
      * Parses an XML file containing the settings for the mailboxmanager
      *
@@ -1143,7 +1143,7 @@ private:
      * @JC No longer need to store pointers to the individual tables, sipdbmanager takes care
      * of reference counting and destruction
      */
-    MessageIDGenerator* m_pMsgIDGenerator;    
+    MessageIDGenerator* m_pMsgIDGenerator;
 };
 
 #endif //MAILBOXMANAGER_H

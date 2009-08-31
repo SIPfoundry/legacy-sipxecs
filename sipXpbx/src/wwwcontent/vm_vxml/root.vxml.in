@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <vxml version="2.0">
     <!-- This is the root vxml file for the whole mediaserver application.
-         It will be included by all the other vxml scripts 
+         It will be included by all the other vxml scripts
     -->
 
     <!-- ===== PLEASE DO NOT EDIT PARAMETERS DEFINED HERE - BLOCK START ==== -->
@@ -20,24 +20,24 @@
     <!-- ====== PLEASE DO NOT EDIT PARAMETERS DEFINED HERE - BLOCK END ===== -->
 
     <!-- ================ CUSTOMIZABLE PARAMETERS ========================== -->
-        
+
     <!-- Address of 'operator' -->
     <var name="operatoraddr" expr="'sip:0@%SIP_DOMAIN_NAME%'" />
 
     <!-- Auto attendant options - Valid values are:
         i.  dialbyname - transfers to dial by name functionality
         ii. repeatprompt - replays the prompt
-        iii.voicemail - redirects to voicemail for users to retrieve voicemail, 
+        iii.voicemail - redirects to voicemail for users to retrieve voicemail,
         set voicemail settings, etc
-        iv. transfertoextension - transfers to the extension specified by the 
+        iv. transfertoextension - transfers to the extension specified by the
         corresponding aa_option_N_extn variable.
         v.  hangup - disconnects the call
-        vi. none - no action taken. If user chooses the digit associated with 
+        vi. none - no action taken. If user chooses the digit associated with
         none, user will be re-prompted.
     -->
 
-    <!-- Note: In other parts of the voicemail system, 0 is always associated 
-         with operator. It is advisable to maintain this mapping in the 
+    <!-- Note: In other parts of the voicemail system, 0 is always associated
+         with operator. It is advisable to maintain this mapping in the
          autoattendant as well.
     -->
     <var name="aa_option_0" expr="'transfertoextension'" />
@@ -67,8 +67,8 @@
     <var name="aa_option_8" expr="'none'" />
     <var name="aa_option_8_extn" expr="'none'" />
 
-    <!-- Note: In other parts of the voicemail system, 9 is always associated 
-         with dial by name. It is advisable to maintain this mapping in 
+    <!-- Note: In other parts of the voicemail system, 9 is always associated
+         with dial by name. It is advisable to maintain this mapping in
          autoattendant as well.
     -->
     <var name="aa_option_9" expr="'dialbyname'" />
@@ -79,7 +79,5 @@
 
     <var name="aa_option_pound" expr="'voicemail'" />
     <var name="aa_option_pound_extn" expr="'none'" />
-        
+
 </vxml>
-
-

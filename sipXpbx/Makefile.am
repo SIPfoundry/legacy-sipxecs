@@ -27,7 +27,7 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/svn-version \
     config/Doxyfile.in \
-    sipxpbx.spec 
+    sipxpbx.spec
 
 install-data-hook :
 	$(INSTALL) -d $(DESTDIR)@wwwdir@/doc

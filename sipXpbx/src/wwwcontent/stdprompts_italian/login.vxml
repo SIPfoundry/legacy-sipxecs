@@ -4,8 +4,8 @@
     <!--  SCRIPT DI GESTIONE DEL LOG-IN AL SISTEMA DI VOICE MAIL - V 1.0  -->
 
     <!--  Voicemail Log-in script - V 1.0  -->
-   
-    <!--  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+
+    <!--  Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
     <!--  Contributors retain copyright to elements licensed under a Contributor Agreement.
     <!--  Licensed to the User under the LGPL license.
 
@@ -21,7 +21,7 @@
         <var name="from" />
         <var name="mediaserverurl" />
         <var name="securemediaserverurl" />
-    
+
         <!-- Action attribute is required by the CGI -->
         <var name="action" expr="'login'"/>
 
@@ -44,7 +44,7 @@
                 <goto nextitem="pin"/>
             </if>
         </block>
-    
+
 
         <!-- Get user's extension -->
         <field name="extension" type="digits?minlength=1;maxlength=100">
@@ -126,15 +126,15 @@
             </filled>
         </subdialog>
 
-        <!--    Plays mailbox status like 
+        <!--    Plays mailbox status like
              "You have 2 unheard messages, 5 heard messages and 1 saved message"
          -->
         <block name="playstatus" cond="login.result == 'success'">
-            
+
 		<prompt>
                 <audio expr="mediaserverurl + promptsalias + 'you_have.wav'"/>
             </prompt>
-            
+
 	<if cond="login.unheard > 0">
                 <prompt cond="login.unheard > 1">
                     <say-as type="number">
@@ -205,4 +205,3 @@
 
     </form>
 </vxml>
-

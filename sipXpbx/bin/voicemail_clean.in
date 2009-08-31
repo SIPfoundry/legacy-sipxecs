@@ -1,10 +1,10 @@
 #!@BASH@
 # voicemail_clean.sh: cleans up deleted voicemail messages older than n days.
 # where a day is defined as a 24 hour period.
-# If a message has been deleted, restored, saved or moved in some other 
-# way before it was deleted last time, only the last delete date will 
+# If a message has been deleted, restored, saved or moved in some other
+# way before it was deleted last time, only the last delete date will
 # be used in determining the age of this message.
- 
+
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 MAILSTORE_DIR=@SIPX_VXMLDATADIR@/mailstore
@@ -23,24 +23,24 @@ CleanList=`mktemp -t voicemail_clean.XXXXXX`
 trap "rm $TMP* 2>/dev/null" 0
 
 if [ -d ${MAILSTORE_DIR} ]
-then 
+then
     for deleted_dir in `find ${MAILSTORE_DIR} -type d -name deleted -maxdepth 2`
     do
         if cd "${deleted_dir}" > /dev/null 2>&1
         then
             # Find all voice messages that are more than $DAYS old.  Base the test
-            # on the last modified date for the voice message "envelope" file.        
+            # on the last modified date for the voice message "envelope" file.
             cat /dev/null > ${CleanList}
             for name_prefix in `find . -mtime +${DAYS} -name "*-*.xml" | cut -d - -f 1`
             do
                 # Remove all files with a .sta, .wav or .xml extension that have the
                 # same filename prefix as the old voice message envelope.
-                for expired in ${name_prefix}-*.{sta,wav,xml} 
+                for expired in ${name_prefix}-*.{sta,wav,xml}
                 do
                   test -f $expired && echo $expired >> ${CleanList}
                 done
             done
-        
+
             if [ -s ${CleanList} ]
             then
                 # Now that we've deleted messages, the summary.xml file is no longer
@@ -52,7 +52,7 @@ then
             echo "failed to cd to '${deleted_dir}'" 1>&2
         fi
     done
- 
+
 else
     echo "Mailstore '${MAILSTORE_DIR}' not found" 1>&2
     exit 1

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <vxml version="2.0" application="root.vxml">
-    <!-- 
+    <!--
         This script takes care of voicemail owner login.
     -->
     <form id="vmowner">
@@ -39,7 +39,7 @@
                 <goto nextitem="pin"/>
             </if>
         </block>
-    
+
 
         <!-- Get user's extension -->
         <field name="extension" type="digits?minlength=1;maxlength=100">
@@ -104,8 +104,8 @@
                         <goto nextitem="playstatus"/>
                     <else/>
                         <!-- This routine is only entered when user's AttendantDirectory permission
-                        is enabled but Voicemail is not to allow user to record name for                                                          autoattendant dial-by-name  --> 
-                        <goto nextitem="recordname"/> 
+                        is enabled but Voicemail is not to allow user to record name for                                                          autoattendant dial-by-name  -->
+                        <goto nextitem="recordname"/>
                     </if>
                 <elseif cond="login_attempts == '2'"/>
                     <!-- Extension and pin do not match. Only 3 attempts allowed. -->
@@ -128,7 +128,7 @@
             </filled>
         </subdialog>
 
-        <!--    Plays mailbox status like 
+        <!--    Plays mailbox status like
              "You have 2 unheard messages, 5 heard messages and 1 saved message"
          -->
         <block name="playstatus" cond="login.result == 'success'">
@@ -219,4 +219,3 @@
 
     </form>
 </vxml>
-

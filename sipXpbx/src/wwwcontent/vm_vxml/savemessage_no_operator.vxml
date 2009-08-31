@@ -7,7 +7,7 @@
         <property name="interdigittimeout" value="3s" />
         <property name="timeout" value="7s" />
 
-        <!-- Record noinput count 
+        <!-- Record noinput count
 	     For some reason, the input count does not increment in record.
 	     This is a manual way to count the noinput events.
 	-->
@@ -125,7 +125,7 @@
         </field>
 
 	<!-- Proceed to login menu -->
-	<subdialog name="login" cond="action=='login'" method="get" 
+	<subdialog name="login" cond="action=='login'" method="get"
           src="login.vxml">
 	    <param name="mailbox" expr="mailbox" />
 	    <param name="extn" expr="mailbox" />
@@ -174,7 +174,7 @@
                 </if>
             </noinput>
         </record>
-    
+
         <!-- Prompt user's to confirm that their message can be sent -->
         <field name="confirm"  cond="vm != 'undefined'" type="digits?minlength=1;maxlength=1">
             <prompt>
@@ -551,4 +551,3 @@
         </catch>
     </form>
 </vxml>
-

@@ -219,7 +219,7 @@ $(foreach C,$(COMPONENTS),$(C)-rpm): %-rpm:
 # coding standards.
 
 # Check that the rules for tabs have not been violated
-# The complex 'find' selects the files within which we want to enforce the 
+# The complex 'find' selects the files within which we want to enforce the
 # ban on tabs.  The '-prune -false -o -type f' construction prevents
 # recursion into directories of specified names, but also restricts the
 # output of the find to ordinary files.  The long list of -name's before

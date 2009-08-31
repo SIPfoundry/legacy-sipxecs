@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ public:
                           const UtlString& commentsTimestamp,
                           const int  commentsSize,
                           const Url& fromMailboxIdentity,
-                          const UtlString& fromFolder, 
+                          const UtlString& fromFolder,
                           const UtlString& messageIds,
                           const UtlString& toDistList ) ;
     /**

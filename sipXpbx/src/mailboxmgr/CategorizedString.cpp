@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -46,16 +46,16 @@ CategorizedString::~CategorizedString()
 
 /* ============================ ACCESSORS ================================= */
 
-// Return a read-only pointer to the underlying data. 
-const char* CategorizedString::data() const  
+// Return a read-only pointer to the underlying data.
+const char* CategorizedString::data() const
 {
-    return mString; 
+    return mString;
 }
 
 // Returns a hash value for the object. The algorithm is copied from UtlString,
 // which uses the algorithm in g_string_hash() in glib, but also adds the
 // priority value.
-unsigned CategorizedString::hash() const  
+unsigned CategorizedString::hash() const
 {
    const char* pHashData = mString;
    unsigned hashValue = 0;
@@ -109,9 +109,9 @@ int CategorizedString::compareTo(UtlContainable const * compareContainable)
 }
 
 
-// Test this object to another like object for equality. 
+// Test this object to another like object for equality.
 UtlBoolean CategorizedString::isEqual(UtlContainable const* compareContainable)
-   const 
+   const
 {
     return (compareTo(compareContainable) == 0);
 }

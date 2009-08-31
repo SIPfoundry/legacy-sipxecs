@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@
 
 /* ============================ CREATORS ================================== */
 
-RetrieveCGI::RetrieveCGI ( 
+RetrieveCGI::RetrieveCGI (
    const UtlBoolean& requestIsFromWebUI,
    const UtlString& from ) :
    m_from ( from ),
@@ -66,7 +66,7 @@ RetrieveCGI::handleWebRequest( UtlString* out )
    // Get the time in minutes after which the page should refresh automatically.
    UtlString refreshInterval;
 
-   if ( result == OS_SUCCESS ) 
+   if ( result == OS_SUCCESS )
    {
       // Get the fully qualified mailbox id.
       UtlString fromIdentity;
@@ -79,9 +79,9 @@ RetrieveCGI::handleWebRequest( UtlString* out )
       MailboxManager* pMailboxManager = MailboxManager::getInstance();
 
       // Call the method on Mailbox Manager to get the mailbox status
-      result = pMailboxManager->getMailboxStatus( fromIdentity, 
+      result = pMailboxManager->getMailboxStatus( fromIdentity,
                                                   "inbox",
-                                                  rUnheardCount, 
+                                                  rUnheardCount,
                                                   rTotalCount );
       if( rUnheardCount == "0" )
          outputString = "You have no new messages in your inbox";
@@ -97,7 +97,7 @@ RetrieveCGI::handleWebRequest( UtlString* out )
       outputString = "Voicemail is not enabled for this user";
    }
 
-   
+
    UtlString dynamicHtml =  NO_HTML_CACHE_HEADER \
       "<HTML>\n" \
       "<HEAD>\n" \
@@ -140,7 +140,7 @@ RetrieveCGI::handleWebRequest( UtlString* out )
       "</BODY>\n" \
       "</HTML>";
 
-   if (out) 
+   if (out)
    {
       out->remove(0);
       out->append(dynamicHtml.data());
@@ -185,7 +185,7 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
    // HttpMessage::escape( escapedFrom );
    MailboxManager::convertUrlStringToXML(vxmlFriendlyFrom);
    // Construct the VXML script for invoking login script.
-   dynamicVxml +=  
+   dynamicVxml +=
       "<subdialog name=\"send_msg\" src=\"" + mediaserverUrl + "/vm_vxml/login.vxml\">\n" \
       "<param name=\"extn\" value=\"" + fromIdentity + "\"/>\n" \
       "<param name=\"from\" value=\"" + vxmlFriendlyFrom + "\"/>\n" \
@@ -197,7 +197,7 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
    dynamicVxml += VXML_END;
 
    // Write out the dynamic VXML script to be processed by OpenVXI
-   if (out) 
+   if (out)
    {
       out->remove(0);
       UtlString responseHeaders;
@@ -209,5 +209,3 @@ RetrieveCGI::handleOpenVXIRequest( UtlString* out )
 
    return OS_SUCCESS;
 }
-
-

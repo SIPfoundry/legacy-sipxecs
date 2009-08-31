@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -72,7 +72,7 @@ TransferToExtnCGI::execute(UtlString* out)
             // Write out the dynamic VXML script to be processed by OpenVXI
     } else
     {
-        dynamicVxml =  getVXMLHeader() + 
+        dynamicVxml =  getVXMLHeader() +
                        VXML_INVALID_EXTN_SNIPPET\
                        VXML_END;
     }

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,11 +29,11 @@
 /* ============================ CREATORS ================================== */
 SendByDistListCGI::SendByDistListCGI( const Url& from,
                                       const UtlString& identity,
-                                      const UtlString& distlist, 
+                                      const UtlString& distlist,
                                       const UtlString& duration,
                                       const UtlString& timestamp,
-                                      const char* termchar, 
-                                      const char* data, 
+                                      const char* termchar,
+                                      const char* data,
                                       int   datasize ) :
     m_from ( from ),
     m_identity ( identity ),
@@ -68,11 +68,11 @@ SendByDistListCGI::~SendByDistListCGI()
 }
 
 OsStatus
-SendByDistListCGI::execute(UtlString* out) 
+SendByDistListCGI::execute(UtlString* out)
 {
    OsStatus result = OS_SUCCESS;
    bool atLeastOneSucceed = false;
-   
+
    UtlString dynamicVxml = getVXMLHeader();
 
    MailboxManager* pMailboxManager = MailboxManager::getInstance();
@@ -109,23 +109,23 @@ SendByDistListCGI::execute(UtlString* out)
                // Lazy create and validate the designated mailbox
                result = validateMailboxHelper.execute( out );
 
-               if ( result == OS_SUCCESS ) 
+               if ( result == OS_SUCCESS )
                {
                   // extension or the mailbox id is valid.
                   UtlString mailboxIdentity;
                   validateMailboxHelper.getMailboxIdentity( mailboxIdentity );
 
 
-                  // Forward call to Mailbox Manager where the configuration 
+                  // Forward call to Mailbox Manager where the configuration
                   // header subject etc can be added to the filename
                   result = pMailboxManager->saveMessage(
-                     m_from, 
-                     mailboxIdentity, 
+                     m_from,
+                     mailboxIdentity,
                      m_duration,
-                     m_timestamp, 
-                     m_data, 
+                     m_timestamp,
+                     m_data,
                      m_datasize );
-                     
+
                   if (result == OS_SUCCESS && !atLeastOneSucceed)
                   {
                      atLeastOneSucceed = true;
@@ -164,10 +164,10 @@ SendByDistListCGI::execute(UtlString* out)
          "<return namelist=\"result\"/>\n"
          "</block> </form>\n";
    }
-   
+
    dynamicVxml += VXML_END;
 
-   if (out) 
+   if (out)
    {
       out->remove(0);
       UtlString responseHeaders;

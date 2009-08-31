@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,9 +45,9 @@ public:
      */
     virtual ~ValidateMailboxCGIHelper();
 
-    /** 
-     * This does the work, lazy creates a mailbox if 
-     * required and validates the identity/extension 
+    /**
+     * This does the work, lazy creates a mailbox if
+     * required and validates the identity/extension
      */
     virtual OsStatus execute (  UtlString* out = NULL );
 
@@ -60,8 +60,8 @@ public:
     void getExtension( UtlString& extension ) const;
 
     /** updates m_mailboxIdentity & m_extension and verifies validity */
-    OsStatus validateIdentityAndGetExtension  ( 
-        UtlString& rMailboxIdentity, 
+    OsStatus validateIdentityAndGetExtension  (
+        UtlString& rMailboxIdentity,
         UtlString& rExtension,
         const MailboxPermissions requiredPermissions = MB_REQUIRE_VOICEMAIL );
 
@@ -79,13 +79,12 @@ private:
     // mailbox identity, this is a simple sip identity
     UtlString m_mailboxIdentity;
 
-    // mailbox extension, this is the entry that 
+    // mailbox extension, this is the entry that
     // corresponds to m_mailbox in the AliasDB
     UtlString m_extension;
 
-    // flag indicating whether we need to lazy create/validate 
+    // flag indicating whether we need to lazy create/validate
     bool m_isValidated;
 };
 
 #endif //VALIDATEMAILBOXCGIHELPER_H
-

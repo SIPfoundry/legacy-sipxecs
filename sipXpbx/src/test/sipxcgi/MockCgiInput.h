@@ -1,12 +1,12 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
-                                                                                                              
+
 #ifndef _MockCgiInput_h_
 #define _MockCgiInput_h_
 
@@ -14,7 +14,7 @@
 #include <cgicc/CgiInput.h>
 
 class OsConfigDb;
-                                                                                                              
+
 /**
  * Emulate a cgi environment from text input files.
  */
@@ -43,4 +43,3 @@ class MockCgiInput : public cgicc::CgiInput
 };
 
 #endif // _MockCgiInput_h_
-

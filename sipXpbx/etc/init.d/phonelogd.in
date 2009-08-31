@@ -42,7 +42,7 @@ The phonelogd service requires that rsyslog be installed.
 phonelogd disabled.
 EOF
    exit 1
-else 
+else
     # calculate the correct arguments based on the major version
     rsyslogVersion=$(${SyslogCmd} -v | perl -ne 'm/^rsyslogd\s+(\d+)/ && print $1')
     RsyslogVersionArgs=""
@@ -102,7 +102,7 @@ copy2chroot () {
     local file=$1
     local dir=$(dirname ${file})
 
-    if [ -e ${PhoneLogRoot}${file} ] 
+    if [ -e ${PhoneLogRoot}${file} ]
     then
         if ! cmp ${file} ${PhoneLogRoot}${file} 2> /dev/null
         then
@@ -119,9 +119,9 @@ do_setup () {
     # if needed, construct the chroot environment for the phonelog daemon
     test -d ${PhoneLogRoot}         || mkdir ${PhoneLogRoot}
     test -d ${PhoneLogRoot}/dev     || mkdir ${PhoneLogRoot}/dev # needed for socket we don't use
-    test -d ${PhoneLogRoot}/var     || mkdir ${PhoneLogRoot}/var 
+    test -d ${PhoneLogRoot}/var     || mkdir ${PhoneLogRoot}/var
     test -d ${PhoneLogRoot}/var/run || mkdir ${PhoneLogRoot}/var/run # needed for pid file
-    
+
     # copy the configuration into the chroot
     cp @SIPX_CONFDIR@/phonelog.conf ${PhoneLogRoot}/phonelog.conf
 
@@ -137,7 +137,7 @@ do_setup () {
     for obj in ${SyslogCmd} $syslog_libs
     do
         copy2chroot $obj
-        for lib in $(ldd "$obj" | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||') 
+        for lib in $(ldd "$obj" | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||')
         do
             copy2chroot $lib
         done

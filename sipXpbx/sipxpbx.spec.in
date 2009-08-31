@@ -70,7 +70,7 @@ The sipXpbx project is a comprehensive small/medium scale Enterprise SIP PBX. It
 Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
-Summary: Internal documentation for %name 
+Summary: Internal documentation for %name
 Requires: sipxcommserverlib-devel >= %version
 Requires: sipxcalllib-devel >= %version
 
@@ -208,7 +208,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 rm -f %{_bindir}/backup-mailstore.sh
-rm -f %{_bindir}/restore-configs.sh 
+rm -f %{_bindir}/restore-configs.sh
 rm -f %{_bindir}/restore-mailstore.sh
 rm -f %{_bindir}/backup-configs.sh
 rm -rf %{_datadir}/www/cgi-bin/processmonitor
@@ -238,7 +238,7 @@ fi
 sipx-sendmail-configure %{buildno}
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
-%{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1 
+%{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1
 
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets

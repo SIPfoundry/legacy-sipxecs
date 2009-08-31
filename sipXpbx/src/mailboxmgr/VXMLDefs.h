@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -59,11 +59,11 @@
 
 #define VXML_INVALID_LIST_SNIPPET "<form> <block>\n" \
 	VXML_INVALID_LIST_BLOCK \
-    "</block> </form>\n"	
-		
+    "</block> </form>\n"
+
 #define VXML_INVALID_LIST_BLOCK "<var name=\"result\" expr=\"'invalidlist'\"/>\n" \
-	"<return namelist=\"result\"/>\n" 
-	 
+	"<return namelist=\"result\"/>\n"
+
 #define VXML_SUCCESS_BLOCK "<var name=\"result\" expr=\"'success'\"/>\n" \
     "<return namelist=\"result\"/>\n"
 

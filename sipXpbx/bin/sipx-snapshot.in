@@ -287,7 +287,7 @@ Usage:
     By default, all passwords and other secrets are removed from the recorded
     configuration files.  If diagnosing a particular problem requires that the
     real secret information be included, the --include-secrets switch
-    causes it to be left in. 
+    causes it to be left in.
 
     The --no-www switch disables saving the apache configuration files.
 
@@ -299,10 +299,10 @@ Usage:
 
     The --log-start and --log-stop switches allow you to limit the log file
     size that is included in the snapshot to the times between the start and
-    stop times.  Times MUST be specified in UCT (aka GMT) as used in the log 
+    stop times.  Times MUST be specified in UCT (aka GMT) as used in the log
     files.  Only times in the 'current' log may be specified (not in archived
     logs).  If the --log-stop switch is not specified, the extract is from the
-    start time to the end of the log file. 
+    start time to the end of the log file.
 
       --log-start '2004-12-08 17:45:30' --log-stop '2004-12-08 18:12:52'
 
@@ -311,8 +311,8 @@ Usage:
     left in for backward compatibility - use '--logs none').
 
     The --profiles switch includes generated Phone and Gateway profile files,
-    based on those that match a predefined filter.  Any passwords or other 
-    confidential information in these files will be included in the snapshot. 
+    based on those that match a predefined filter.  Any passwords or other
+    confidential information in these files will be included in the snapshot.
 
     The --cdr switch includes the data from call detail records; this is
     useful for debugging problems with the CDR system itself.
@@ -364,7 +364,7 @@ function hasTimestamps () {
 }
 
 # If ${log} has timestamps then the 'sipx-log-cut' script will be called, and its exit
-# code will be used as the return value of this function.  (It will be 0, 1, or 2.  
+# code will be used as the return value of this function.  (It will be 0, 1, or 2.
 # See the 'sipx-log-cut' script's documentation for details.)
 # If ${log} is empty, then this function will return 0.
 # If ${log} is non-empty but does not have timestamps, then this function will return 1.
@@ -404,7 +404,7 @@ function cutIfTimestamps() {
          echo "${outFile}" >> $Work.copy-files
          return 0
       else
-         # It has contents, but not recognizable timestamps.  Keep the whole file, 
+         # It has contents, but not recognizable timestamps.  Keep the whole file,
          # but don't continue cutting.
          echo "No timestamps found in file: '${log}'; including full log" >> ${cutDir}/extract.log
          echo $log >> $Work.copy-files
@@ -613,7 +613,7 @@ then
     getenforce                  >> ${SystemConfig}
 else
     echo    "   Disabled"       >> ${SystemConfig}
-fi 
+fi
 echo ""                         >> ${SystemConfig}
 
 echo "NTP Peers:"               >> ${SystemConfig}
@@ -723,7 +723,7 @@ do
   echo "${file_output}"                 >> ${SystemConfig}
   echo "from executable: ${Executable}" >> ${SystemConfig}
 
-  # Accumulate the list of files to be added to the snapshot in 
+  # Accumulate the list of files to be added to the snapshot in
   echo "${Core}" >>${Work}.core-related-files
 
   # Check that the executable file exists.
@@ -910,7 +910,7 @@ then
         echo "${PROFILES_PATH}/${macfile}" >> $Work.copy-files
     done
 
-    # Loop through all the profile file extensions to be picked up.  
+    # Loop through all the profile file extensions to be picked up.
     for Extension in ${ProfileExtensions}
     do
         for configfile in `ls ${PROFILES_PATH}/*.${Extension} 2> /dev/null`
@@ -919,7 +919,7 @@ then
         done
     done
   fi
- 
+
   # Copy all the files and directories that should be copied.
   for file in `sort -u $Work.copy-files`
   do
@@ -968,7 +968,7 @@ then
     perl -pi @SIPX_LIBEXECDIR@/sipx-strip-db-secrets.pl ${ConfigDb}
   fi
 
-  # If we cut out a timeslice of the logs, 
+  # If we cut out a timeslice of the logs,
   #   relocate them as though they were full logs in the working copy to be tarred
   #   delete the cut copy under the original log directory
   if [ "${Logs}" = "cut" ]
