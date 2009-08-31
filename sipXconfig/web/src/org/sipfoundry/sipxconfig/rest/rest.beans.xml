@@ -6,7 +6,7 @@
     SpringBeanRouter finds all resources in the application context. Aliases starting from '/' are bind as routes for
     referenced resources.
   -->
-  <bean id="restletSpringBeanRouter" class="org.restlet.ext.spring.SpringBeanRouter" />
+  <bean id="restletSpringBeanRouter" class="org.sipfoundry.sipxconfig.rest.SipxSpringBeanRouter" />
 
   <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.rest.PhonebookResource" scope="prototype">
     <property name="phonebookManager" ref="phonebookManager" />
@@ -40,7 +40,7 @@
     <property name="available" value="false" />
     <property name="readable" value="false" />
   </bean>
-  <alias name="callResource" alias="/call/{to}" />
+  <alias name="callResource" alias="/my/call/{to}" />
 
   <bean id="voicemailPinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPinResource" scope="prototype">
     <property name="domainManager" ref="domainManager" />
@@ -81,7 +81,8 @@
   </bean>
   <alias name="autoAttendantsResource" alias="/auto-attendant/" />
 
-  <bean id="selectSpecialAttendantResource" class="org.sipfoundry.sipxconfig.rest.SelectSpecialAttendantResource" scope="prototype">
+  <bean id="selectSpecialAttendantResource" class="org.sipfoundry.sipxconfig.rest.SelectSpecialAttendantResource"
+    scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="available" value="false" />
