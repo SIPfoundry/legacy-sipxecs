@@ -75,8 +75,8 @@ public class SnomTest extends TestCase {
 
         String profile = location.toString();
 
-        assertTrue(profile.contains("<speed idx=\"0\" perm=\"R\">yogi@example.com<speed>"));
-        assertTrue(profile.contains("<speed idx=\"1\" perm=\"R\">213<speed>"));
+        assertTrue(profile.contains("<speed idx=\"0\" perm=\"R\">yogi@example.com</speed>"));
+        assertTrue(profile.contains("<speed idx=\"1\" perm=\"R\">213</speed>"));
 
         phoneContextControl.verify();
     }
