@@ -156,6 +156,8 @@
     <property name="objectDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /rest/auto-attendant/.*/special=ROLE_ATTENDANT_ADMIN
+        /rest/auto-attendant/specialmode=ROLE_ATTENDANT_ADMIN
         /rest/call/.*=ROLE_USER
         /rest/my/.*=ROLE_USER
         /rest/private/.*=ROLE_USER

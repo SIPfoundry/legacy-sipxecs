@@ -79,7 +79,7 @@
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="readable" value="true" />
   </bean>
-  <alias name="autoAttendantsResource" alias="/auto-attendant/" />
+  <alias name="autoAttendantsResource" alias="/auto-attendant" />
 
   <bean id="selectSpecialAttendantResource" class="org.sipfoundry.sipxconfig.rest.SelectSpecialAttendantResource"
     scope="prototype">

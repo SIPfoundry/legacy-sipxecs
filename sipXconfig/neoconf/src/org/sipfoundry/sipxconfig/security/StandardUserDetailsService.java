@@ -24,9 +24,11 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
 import static org.sipfoundry.sipxconfig.security.UserRole.AcdAgent;
 import static org.sipfoundry.sipxconfig.security.UserRole.AcdSupervisor;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
+import static org.sipfoundry.sipxconfig.security.UserRole.AttendantAdmin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class StandardUserDetailsService implements UserDetailsService {
@@ -53,6 +55,9 @@ public class StandardUserDetailsService implements UserDetailsService {
         boolean isAgent = m_acdContext.getUsersWithAgents().contains(user);
         if (isAgent) {
             gas.add(AcdAgent.toAuth());
+        }
+        if (user.hasPermission(RECORD_SYSTEM_PROMPTS)) {
+            gas.add(AttendantAdmin.toAuth());
         }
 
         return new UserDetailsImpl(user, userNameOrAlias, gas.toArray(new GrantedAuthority[gas.size()]));

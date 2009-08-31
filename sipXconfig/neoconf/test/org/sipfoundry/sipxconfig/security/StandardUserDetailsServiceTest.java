@@ -61,6 +61,7 @@ public class StandardUserDetailsServiceTest extends TestCase {
         assertTrue(contains(authorities, UserRole.User.toAuth()));
         assertFalse(contains(authorities, UserRole.AcdAgent.toAuth()));
         assertFalse(contains(authorities, UserRole.AcdSupervisor.toAuth()));
+        assertTrue(contains(authorities, UserRole.AttendantAdmin.toAuth()));
 
         verify(coreContext, acdContext);
     }
@@ -97,6 +98,7 @@ public class StandardUserDetailsServiceTest extends TestCase {
         assertTrue(contains(authorities, UserRole.User.toAuth()));
         assertTrue(contains(authorities, UserRole.AcdAgent.toAuth()));
         assertFalse(contains(authorities, UserRole.AcdSupervisor.toAuth()));
+        assertFalse(contains(authorities, UserRole.AttendantAdmin.toAuth()));
 
         verify(coreContext, acdContext);
     }

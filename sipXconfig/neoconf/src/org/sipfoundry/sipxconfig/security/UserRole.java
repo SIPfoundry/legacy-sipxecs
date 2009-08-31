@@ -14,7 +14,8 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.GrantedAuthorityImpl;
 
 public enum UserRole {
-    User("ROLE_USER"), Admin("ROLE_ADMIN"), AcdAgent("ROLE_ACD_AGENT"), AcdSupervisor("ROLE_ACD_SUPERVISOR");
+    User("ROLE_USER"), Admin("ROLE_ADMIN"), AcdAgent("ROLE_ACD_AGENT"), AcdSupervisor("ROLE_ACD_SUPERVISOR"),
+        AttendantAdmin("ROLE_ATTENDANT_ADMIN");
 
     private String m_role;
 
