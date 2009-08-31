@@ -15,6 +15,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+        /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
         /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
         /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
         /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,exceptionTranslationFilter
@@ -122,6 +123,10 @@
     <property name="defaultTargetUrl" value="/Home.html" />
   </bean>
 
+  <bean id="privateUserKeyProcessingFilter" class="org.sipfoundry.sipxconfig.security.PrivateUserKeyProcessingFilter">
+    <property name="privateUserKeyManager" ref="privateUserKeyManager" />
+  </bean>
+
   <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions">
       <value>false</value>
@@ -153,6 +158,7 @@
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         /rest/call/.*=ROLE_USER
         /rest/my/.*=ROLE_USER
+        /rest/private/.*=ROLE_USER
         /(services|rest)/.*=ROLE_ADMIN
         /initial-config/.*=ROLE_LOCATION
       </value>

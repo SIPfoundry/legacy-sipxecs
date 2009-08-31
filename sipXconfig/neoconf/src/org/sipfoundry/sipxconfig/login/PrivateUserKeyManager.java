@@ -11,13 +11,8 @@ package org.sipfoundry.sipxconfig.login;
 
 import org.sipfoundry.sipxconfig.common.User;
 
-public interface LoginContext {
+public interface PrivateUserKeyManager {
+    User getUserFromPrivateKey(String privateKey);
 
-    User checkCredentials(String userName, String password);
-
-    String getEncodedPassword(String userName, String password);
-
-    boolean isAdmin(Integer userId);
-
-    LoginEvent[] getUserLoginLog(LogFilter filter);
+    String getPrivateKeyForUser(User user);
 }

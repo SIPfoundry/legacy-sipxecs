@@ -328,6 +328,7 @@
     <antcall target="add_phonebook_file_entry" />
     <antcall target="special-attendant" />
     <antcall target="branch" />
+    <antcall target="private-user-key" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -986,6 +987,9 @@
   </target>
   <target name="branch" unless="branch">
     <db-patch patch="branch"/>
+  </target>
+  <target name="private-user-key" unless="private-user-key">
+    <db-patch patch="private-user-key"/>
   </target>
 
   <!--
