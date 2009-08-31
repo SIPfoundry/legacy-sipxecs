@@ -15,7 +15,7 @@
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
         /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
         /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
         /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,exceptionTranslationFilter
       </value>
@@ -92,7 +92,7 @@
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
   <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
-    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
   </bean>
 
   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
@@ -102,6 +102,18 @@
 
   <bean id="basicProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicProcessingFilterEntryPoint">
     <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter">
+    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+    <property name="userCache" ref="userCache" />
+    <property name="userDetailsService" ref="standardUserDetailsService" />
+    <property name="passwordAlreadyEncoded" value="true" />
+  </bean>
+
+  <bean id="digestProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestProcessingFilterEntryPoint">
+    <property name="domainManager" ref="domainManager" />
+    <property name="key" value="sipXconfig" />
   </bean>
 
   <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
