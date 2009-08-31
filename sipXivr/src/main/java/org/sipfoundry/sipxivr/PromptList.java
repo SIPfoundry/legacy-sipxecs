@@ -163,6 +163,13 @@ public class PromptList {
         addPromptsPrefixed(fragmentPrefix, m_resourceBundle.getString(fragment + ".prompts"), vars);
     }
 
+    public void addUrl(String url) {
+        PromptGroup pg = new PromptGroup();
+        pg.m_prefix = null;
+        pg.m_prompts.add(url);
+        pg.m_variables = null;
+        this.m_promptGroups.add(pg);
+    }
     /**
      * Get the prompts as an ArrayList
      * 

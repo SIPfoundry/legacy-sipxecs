@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.Mwistatus;
@@ -78,13 +79,17 @@ public class SipXivr implements Runnable {
 		        if (action == null) {
 		            LOG.warn("Cannot determine which application to run as the action parameter is missing.");
 		        } else if (action.contentEquals("autoattendant")) {
-		            // Run the Attendant.
+		            // Run the Auto Attendant.
 		            Attendant app = new Attendant(s_config, m_fses, parameters);
 		            app.run();
 		        } else if (action.equals("deposit") || action.equals("retrieve")) {
 		        	// Run VoiceMail
 		        	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
 		        	app.run();
+		        } else if (action.equals("moh")) {
+		            // Run Music On Hold
+		            Moh app = new Moh(s_config, m_fses, parameters);
+		            app.run() ;
 		        } else {
 		            // Nothing else to run...
 		            LOG.warn("Cannot determine which application to run from action="+ action);

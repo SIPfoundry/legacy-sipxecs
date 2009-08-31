@@ -104,4 +104,21 @@ public class PromptListTest extends TestCase {
         pl2.addPrompts(pl);
         assertEquals("glob/fuzzy:glob/woof", pl2.toString());
     }
+
+    public void testAddPromptsUrl() {
+        ResourceBundle rb = new MyResources();
+        TextToPrompts ttp = new TextToPrompts_en();
+        ttp.setPrefix("/TTP");
+
+        PromptList pl = new PromptList(rb, null, ttp);
+        pl.addFragment("test1");
+        assertEquals("glob/woof", pl.toString());
+
+        PromptList pl2 = new PromptList(rb, null, ttp);
+        pl2.addUrl("fuzzy://dog");
+        assertEquals("fuzzy://dog", pl2.toString());
+        pl2.addPrompts(pl);
+        assertEquals("fuzzy://dog:glob/woof", pl2.toString());
+    }
+
 }
