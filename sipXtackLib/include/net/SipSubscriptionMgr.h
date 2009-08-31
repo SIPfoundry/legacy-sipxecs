@@ -58,7 +58,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Add/Update subscription for the given SUBSCRIBE request
-    /** The resourceId, eventTypeKey, and eventType are set based on
+    /** The resourceId and eventTypeKey are set based on
      *  the subscription.  If the subscription already existed, they
      *  are extracted from the subscription state.  If this is a new
      *  subscription, handler.getKeys() is called to compute them.
@@ -69,8 +69,6 @@ public:
                                         UtlString& resourceId,
                                         /// the event type key for the events
                                         UtlString& eventTypeKey,
-                                        /// the event type for the events
-                                        UtlString& eventType,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
@@ -155,18 +153,21 @@ public:
     *  (now in notifyRequest) and XML version (as specified by 'version').
     */
    virtual void updateVersion(SipMessage& notifyRequest,
-                              int version);
+                              int version,
+                              const UtlString& eventTypeKey);
 
    /// Perform substitutions in NOTIFY message content.
    /*  This routine retrieves the current content version number for the dialog
     *  of notifyRequest.  It then calls the application's substitution callback
     *  function (setContentInfo), which replaces the version number in the dialog message.
     *  On a successful replacement, it then increments the dialog version number.
-    *  Returns the version number used via the 'version' parameter.
+    *  Returns the version number used via the 'version' parameter
+    *  and sets the eventTypeKey from the subscription.
     */
    virtual void updateNotifyVersion(SipContentVersionCallback setContentInfo,
                                     SipMessage& notifyRequest,
-                                    int& version);
+                                    int& version,
+                                    UtlString& eventTypeKey);
 
     //! Set the minimum, default, and maximum subscription times that will be granted.
     UtlBoolean setSubscriptionTimes(int minExpiration,

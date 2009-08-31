@@ -115,7 +115,8 @@ void SubscriptionServerState::dumpState()
    // indented 6
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', mAcceptHeaderValue = '%s', mExpirationDate = %+d, mDialogVer = %d",
+                 "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', "
+                 "mAcceptHeaderValue = '%s', mExpirationDate = %+d, mDialogVer = %d",
                  this, data(), mResourceId.data(), mEventTypeKey.data(),
                  mAcceptHeaderValue.data(),
                  (int) (mExpirationDate - OsDateTime::getSecsSinceEpoch()),
@@ -172,7 +173,6 @@ SipSubscriptionMgr::operator=(const SipSubscriptionMgr& rhs)
 UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeRequest,
                                                 UtlString& resourceId,
                                                 UtlString& eventTypeKey,
-                                                UtlString& eventType,
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew,
                                                 UtlBoolean& isSubscriptionExpired,
@@ -285,7 +285,8 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
            expiration == 1)
         {
             // Call the event-specific function to determine the resource ID
-            // and event type for this SUBSCRIBE.
+            // and event type key for this SUBSCRIBE.
+            UtlString eventType;
             handler.getKeys(subscribeRequest,
                             resourceId,
                             eventTypeKey,
@@ -338,14 +339,15 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             lock();
             mSubscriptionStatesByDialogHandle.insert(state);
             mSubscriptionStateResourceIndex.insert(stateKey);
-	    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-	    {
-	       UtlString requestContact;
-	       subscribeRequest.getContactField(0, requestContact);
-	       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-			     "SipSubscriptionMgr::updateDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
-			     state->data(), stateKey->data(),
-                             requestContact.data(), state->mExpirationDate);
+            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            {
+               UtlString requestContact;
+               subscribeRequest.getContactField(0, requestContact);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipSubscriptionMgr::updateDialogInfo insert early-dialog subscription for dialog handle '%s', key '%s', "
+                             "contact '%s', mExpirationDate %ld, eventTypeKey '%s'",
+                             state->data(), stateKey->data(),
+                             requestContact.data(), state->mExpirationDate, state->mEventTypeKey.data());
             }
 
             // Not safe to touch these after we unlock
@@ -423,8 +425,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 // Set the resource information so our caller can generate a NOTIFY.
                 resourceId = state->mResourceId;
                 eventTypeKey = state->mEventTypeKey;
-                // Unfortuantely, we don't record the eventType separately.
-                eventType = state->mEventTypeKey;
             }
 
             // No state, but SUBSCRIBE had a to-tag.
@@ -529,7 +529,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         state->mExpirationDate = expires;
         state->mDialogVer = version;
 
-        // TODO: currently the SipSubsribeServer does not handle timeout
+        // TODO: currently the SipSubscribeServer does not handle timeout
         // events to send notifications that the subscription has ended.
         // So we do not set a timer at the end of the subscription
         state->mpExpirationTimer = NULL;
@@ -633,7 +633,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
 
             state->mExpirationDate = expires;
             state->mDialogVer = version;
-            // TODO: currently the SipSubsribeServer does not handle timeout
+            // TODO: currently the SipSubscribeServer does not handle timeout
             // events to send notifications that the subscription has ended.
             // So we do not set a timer at the end of the subscription
             state->mpExpirationTimer = NULL;
@@ -889,12 +889,12 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
                 mSubscriptionStatesByDialogHandle.removeReference(state);
                 mSubscriptionStateResourceIndex.removeReference(stateIndex);
                 if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-	        {
-		   UtlString requestContact;
-		   state->mpLastSubscribeRequest->getContactField(0, requestContact);
-		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::endSubscription Delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
-				 state->data(), stateIndex->data(),
+                {
+                    UtlString requestContact;
+                    state->mpLastSubscribeRequest->getContactField(0, requestContact);
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipSubscriptionMgr::endSubscription Delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+                                 state->data(), stateIndex->data(),
                                  requestContact.data(), state->mExpirationDate);
                 }
 
@@ -988,7 +988,8 @@ void SipSubscriptionMgr::setNextNotifyCSeq(
 
 // Store the NOTIFY cseq now in notifyRequest and the specified version.
 void SipSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
-                                       int version)
+                                       int version,
+                                       const UtlString& eventTypeKey)
 {
    // Does nothing.
 }
@@ -997,7 +998,8 @@ void SipSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
 // substitution callback function.
 void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setContentInfo,
                                              SipMessage& notifyRequest,
-                                             int& version)
+                                             int& version,
+                                             UtlString& eventTypeKey)
 {
    UtlString dialogHandle;
    notifyRequest.getDialogHandleReverse(dialogHandle);
@@ -1020,11 +1022,12 @@ void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setConten
          // Increment the saved "last XML version number".
          // Keep that value for insertion into the XML.
          version = ++state->mDialogVer;
+         eventTypeKey = state->mEventTypeKey;
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipSubscriptionMgr::updateNotifyVersion "
-                       "dialogHandle = '%s', new mDialogVer = %d",
-                       dialogHandle.data(), state->mDialogVer);
+                       "dialogHandle = '%s', new mDialogVer = %d, eventTypeKey = '%s'",
+                       dialogHandle.data(), state->mDialogVer, eventTypeKey.data());
       }
       else
       {

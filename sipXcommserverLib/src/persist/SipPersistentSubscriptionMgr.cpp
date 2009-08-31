@@ -268,7 +268,6 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    const SipMessage& subscribeRequest,
    UtlString& resourceId,
    UtlString& eventTypeKey,
-   UtlString& eventType,
    UtlString& subscribeDialogHandle,
    UtlBoolean& isNew,
    UtlBoolean& isSubscriptionExpired,
@@ -286,7 +285,6 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    ret = SipSubscriptionMgr::updateDialogInfo(subscribeRequest,
                                               resourceId,
                                               eventTypeKey,
-                                              eventType,
                                               subscribeDialogHandle,
                                               isNew,
                                               isSubscriptionExpired,
@@ -322,10 +320,11 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::updateDialogInfo "
-                    "mComponent = '%s', requestUri = '%s', callId = '%s', contactEntry = '%s', expires = %d, to = '%s', from = '%s', key = '%s', route = '%s', accept = '%s'",
+                    "mComponent = '%s', requestUri = '%s', callId = '%s', contactEntry = '%s', expires = %d, "
+                    "to = '%s', from = '%s', eventTypeKey = '%s', key = '%s', route = '%s', accept = '%s'",
                     mComponent.data(), requestUri.data(),
                     callId.data(), contactEntry.data(), expires,
-                    to.data(), from.data(), resourceId.data(), route.data(),
+                    to.data(), from.data(), eventTypeKey.data(), resourceId.data(), route.data(),
                     accept.data());
 
       // Attempt to update an existing row.
@@ -338,7 +337,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       {
          // Add a new row.
 
-         // This call assumes that eventTypeKey is OK for use as the <eventtype>,
+         // This call assumes that eventTypeKey (as set by the handler) is OK for use as the <eventtype>,
          // and that the NOTIFY CSeq's will start at 1.  0 is used as
          // the initial XML version.
          ret = mSubscriptionDBInstance->insertRow(
@@ -544,12 +543,13 @@ void SipPersistentSubscriptionMgr::setNextNotifyCSeq(
 }
 
 // Update the IMDB with the NOTIFY CSeq now in notifyRequest and the
-// specified 'version'.
+// specified 'version' for the given eventTypeKey.
 void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
-                                                 int version)
+                                                 int version,
+                                                 const UtlString& eventTypeKey)
 {
    // Call the superclass's updateVersion.
-   SipSubscriptionMgr::updateVersion(notifyRequest, version);
+   SipSubscriptionMgr::updateVersion(notifyRequest, version, eventTypeKey);
 
    // Extract from the NOTIFY the information we need to find the right
    // IMDB row.
@@ -574,10 +574,10 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "
-                 "callId = '%s', to = '%s', from = '%s', eventType = '%s', eventId = '%s', cseq = %d, version = %d",
-                 callId.data(), to.data(), from.data(), eventType.data(), eventId.data(), cseq, version);
+                 "callId = '%s', to = '%s', from = '%s', eventType = '%s', eventTypeKey = '%s', eventId = '%s', cseq = %d, version = %d",
+                 callId.data(), to.data(), from.data(), eventType.data(), eventTypeKey.data(), eventId.data(), cseq, version);
    mSubscriptionDBInstance->updateNotifyUnexpiredSubscription(
-      mComponent, to, from, callId, eventType, eventId, now, cseq, version);
+      mComponent, to, from, callId, eventTypeKey, eventId, now, cseq, version);
 
    // Start the save timer.
    mPersistenceTimer.oneshotAfter(sPersistInterval);

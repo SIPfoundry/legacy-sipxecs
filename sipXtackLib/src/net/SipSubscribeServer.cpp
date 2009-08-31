@@ -233,16 +233,18 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
                // Call the application callback to edit the NOTIFY
                // content if that is required for this event type.
-               // Sets 'version'.
+               // Sets 'version' and 'eventTypeKey'.
+               UtlString savedEventTypeKey;
                eventData->mpEventSpecificSubscriptionMgr->
                   updateNotifyVersion(eventData->mpEventSpecificContentVersionCallback, 
                                       *notify,
-                                      version);
+                                      version,
+                                      savedEventTypeKey);
 
                // Update the saved record of the NOTIFY CSeq and the
-               // XML version number.
+               // XML version number for the specified eventTypeKey.
                eventData->mpEventSpecificSubscriptionMgr->
-                  updateVersion(*notify, version);
+                  updateVersion(*notify, version, savedEventTypeKey);
 
                // Set up the NOTIFY To/From headers.
                setContact(notify);
@@ -665,7 +667,6 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                       subscribeRequest,
                       resourceId, 
                       eventTypeKey, 
-                      eventType,
                       subscribeDialogHandle, 
                       isNewDialog, 
                       isExpiredSubscription,
@@ -716,12 +717,13 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        eventPackageInfo->mpEventSpecificSubscriptionMgr->
                           updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback, 
                                               notifyRequest,
-                                              version);
+                                              version,
+                                              eventTypeKey);
 
                        // Update the saved XML version number, if the content exists to
                        // give us a version number.
                        eventPackageInfo->mpEventSpecificSubscriptionMgr->
-                          updateVersion(notifyRequest, version);
+                          updateVersion(notifyRequest, version, eventTypeKey);
 
                        setContact(&notifyRequest);
                     }

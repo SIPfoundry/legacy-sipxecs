@@ -110,7 +110,6 @@ public:
    virtual UtlBoolean updateDialogInfo(const SipMessage& subscribeRequest,
                                        UtlString& resourceId,
                                        UtlString& eventTypeKey,
-                                       UtlString& eventType,
                                        UtlString& subscribeDialogHandle,
                                        UtlBoolean& isNew,
                                        UtlBoolean& isExpired,
@@ -171,7 +170,8 @@ public:
     *  the XML version (as specified).
     */
    virtual void updateVersion(SipMessage& notifyRequest,
-                              int version);
+                              int version,
+                              const UtlString& eventTypeKey);
 
 /* ============================ ACCESSORS ================================= */
 
