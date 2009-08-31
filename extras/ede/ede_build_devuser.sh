@@ -219,7 +219,7 @@ fi
 sudo killall httpd 2> /dev/null
 
 # Make a fresh EDE log dir.
-rm -rf $EDE_LOGS.old 2> /dev/null
+sudo rm -rf $EDE_LOGS.old 2> /dev/null
 mv $EDE_LOGS $EDE_LOGS.old 2> /dev/null
 mkdir $EDE_LOGS
 
