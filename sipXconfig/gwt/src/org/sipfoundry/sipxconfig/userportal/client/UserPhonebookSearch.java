@@ -9,138 +9,173 @@
 package org.sipfoundry.sipxconfig.userportal.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.RequestCallback;
-import com.google.gwt.http.client.RequestException;
-import com.google.gwt.http.client.Response;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.json.client.JSONParser;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.SuggestOracle.Suggestion;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.smartgwt.client.data.DataSource;
+import com.smartgwt.client.types.OperatorId;
+import com.smartgwt.client.types.VisibilityMode;
+import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.TextItem;
+import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
+import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
+import com.smartgwt.client.widgets.grid.ListGrid;
+import com.smartgwt.client.widgets.grid.ListGridField;
+import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
+import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
+import com.smartgwt.client.widgets.layout.SectionStack;
+import com.smartgwt.client.widgets.layout.SectionStackSection;
+import com.smartgwt.client.widgets.layout.VLayout;
+import com.smartgwt.client.widgets.viewer.DetailViewer;
+import com.smartgwt.client.widgets.viewer.DetailViewerField;
+
+import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
 
 public class UserPhonebookSearch implements EntryPoint {
-    private static final String NUMBER = "number";
+
     private static final String FIRST_NAME = "first-name";
     private static final String LAST_NAME = "last-name";
-    private static final String QUERY = "query";
-    private static final String VALUE = "value";
-    private static final String EMPTY = "";
-
-    private final MultiWordSuggestOracle m_userList = new MultiWordSuggestOracle();
-    private final SuggestBox m_suggestBox = new SuggestBox(m_userList);
-    private final Button m_resetButton = new Button();
+    private static final String NUMBER = "number";
+    private static final String MAX_WIDTH = "100%";
 
     @Override
     public void onModuleLoad() {
 
-        doGet("/sipxconfig/rest/my/phonebook");
-        SearchConstants searchConstants = (SearchConstants) GWT.create(SearchConstants.class);
-        // Create the suggest box
+        DataSource phonebookDS = new PhonebookDataSource("phonebookGridId");
+        final ListGrid phonebookGrid = new ListGrid();
+        phonebookGrid.setEmptyMessage("No users found.");
+        phonebookGrid.setWidth(MAX_WIDTH);
+        phonebookGrid.setHeight("40%");
+        phonebookGrid.setAlternateRecordStyles(true);
+        phonebookGrid.setDataSource(phonebookDS);
+        phonebookGrid.fetchData();
 
-        HorizontalPanel componentPanel = new HorizontalPanel();
-        HTML title = new HTML(searchConstants.searchWidgetTitle());
-        title.setStylePrimaryName("gwt-SipxSearchTitle");
-        HTML description = new HTML(searchConstants.searchWidgetDescription());
-        description.setStylePrimaryName("gwt-SipxSearchHelp");
-        m_suggestBox.addValueChangeHandler(new SearchChangeListener());
-        m_suggestBox.addSelectionHandler(new SearchSelectionListener());
+        ListGridField firstNameField = new ListGridField(FIRST_NAME, "First name");
+        ListGridField lastNameField = new ListGridField(LAST_NAME, "Last name");
+        ListGridField numberField = new ListGridField(NUMBER, "Phone Number");
+        phonebookGrid.setFields(firstNameField, lastNameField, numberField);
 
-        m_resetButton.setText(searchConstants.resetButton());
-        m_resetButton.addClickHandler(new ClickListener());
+        final DynamicForm searchForm = new DynamicForm();
+        searchForm.setDataSource(phonebookDS);
+        searchForm.setOperator(OperatorId.OR);
 
-        VerticalPanel titlePanel = new VerticalPanel();
-        titlePanel.add(title);
+        final TextItem searchTextItem = new TextItem();
+        searchTextItem.setCriteriaField(FIRST_NAME);
+        searchTextItem.setOperator(OperatorId.ISTARTS_WITH);
+        searchTextItem.setTitle("Search");
+        searchTextItem.setWidth(MAX_WIDTH);
 
-        VerticalPanel suggestPanel = new VerticalPanel();
-        HorizontalPanel widgetPanel = new HorizontalPanel();
-        widgetPanel.add(m_suggestBox);
-        widgetPanel.add(m_resetButton);
-        suggestPanel.add(widgetPanel);
-        suggestPanel.add(description);
-        suggestPanel.addStyleName("demo-panel-padded");
+        final TextItem searchTextItem2 = new TextItem();
+        searchTextItem2.setCriteriaField(LAST_NAME);
+        searchTextItem2.setOperator(OperatorId.ISTARTS_WITH);
+        searchTextItem2.setVisible(false);
 
-        componentPanel.add(titlePanel);
-        componentPanel.setSpacing(5);
-        componentPanel.setCellVerticalAlignment(title, HasVerticalAlignment.ALIGN_MIDDLE);
-        componentPanel.setCellHorizontalAlignment(title, HasHorizontalAlignment.ALIGN_LEFT);
-        componentPanel.add(suggestPanel);
-        componentPanel.setCellHorizontalAlignment(suggestPanel, HasHorizontalAlignment.ALIGN_LEFT);
+        final TextItem searchTextItem3 = new TextItem();
+        searchTextItem3.setCriteriaField(NUMBER);
+        searchTextItem3.setOperator(OperatorId.ISTARTS_WITH);
+        searchTextItem3.setVisible(false);
 
-        RootPanel.get("user_phonebook_search").add(componentPanel);
-    }
-
-    private void doGet(String url) {
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-        builder.setHeader("Accept", "application/json");
-        try {
-            builder.sendRequest(null, new RequestCallback() {
-                public void onResponseReceived(Request request, Response response) {
-                    JSONObject result = JSONParser.parse(response.getText()).isObject();
-                    JSONArray usersListJSON = result.get("phonebook").isArray();
-                    for (int i = 0; i < usersListJSON.size(); i++) {
-                        JSONObject userJSON = usersListJSON.get(i).isObject();
-                        if (userJSON.get(NUMBER) != null) {
-                            m_userList.add(userJSON.get(NUMBER).isString().stringValue().trim());
-                        }
-                        if (userJSON.get(FIRST_NAME) != null) {
-                            m_userList.add(userJSON.get(FIRST_NAME).isString().stringValue().trim());
-                        }
-                        if (userJSON.get(LAST_NAME) != null) {
-                            m_userList.add(userJSON.get(LAST_NAME).isString().stringValue().trim());
-                        }
-                    }
+        searchTextItem.addChangedHandler(new ChangedHandler() {
+            @Override
+            public void onChanged(ChangedEvent event) {
+                searchTextItem2.setValue((String) searchTextItem.getValue());
+                searchTextItem3.setValue((String) searchTextItem.getValue());
+                if (searchTextItem.getValue() != null) {
+                    phonebookGrid.filterData(searchForm.getValuesAsCriteria());
+                } else {
+                    phonebookGrid.filterData();
                 }
+            }
+        });
+        searchForm.setFields(searchTextItem, searchTextItem2, searchTextItem3);
 
-                public void onError(Request request, Throwable exception) {
-                    // TODO: handle errors - warning on the screen
-                }
-            });
-        } catch (RequestException e) {
-            Window.alert(e.getMessage());
-        }
+        final DetailViewer phonebookViewer = new PhonebookViewer();
+
+        phonebookGrid.addRecordClickHandler(new RecordClickHandler() {
+            @Override
+            public void onRecordClick(RecordClickEvent event) {
+                phonebookViewer.setData(phonebookGrid.getSelection());
+            }
+        });
+
+        SectionStack contactStack = new SectionStack();
+        contactStack.setVisibilityMode(VisibilityMode.MULTIPLE);
+        contactStack.setWidth(MAX_WIDTH);
+        SectionStackSection contactSection = new SectionStackSection();
+        contactSection.setTitle("Contact information");
+        contactSection.setExpanded(false);
+        contactSection.setItems(phonebookViewer);
+        contactStack.setSections(contactSection);
+
+        VLayout gridLayout = new VLayout();
+        gridLayout.setWidth(500);
+        gridLayout.setHeight(800);
+        gridLayout.addMember(searchForm);
+        gridLayout.addMember(phonebookGrid);
+        gridLayout.addMember(contactStack);
+
+        RootPanel.get("user_phonebook_grid").add(gridLayout);
     }
 
-    public class SearchChangeListener implements ValueChangeHandler<String> {
-        public void onValueChange(ValueChangeEvent<String> chEvent) {
-            if (chEvent.getSource().equals(m_suggestBox)) {
-                RootPanel.get(QUERY).getElement().setAttribute(VALUE, chEvent.getValue());
-            }
-        }
-    }
+    private static class PhonebookViewer extends DetailViewer {
+        private static final String[][] FIELDS = {
+            {
+                "jobTitle", "Title"
+            }, {
+                "jobDept", "Department"
+            }, {
+                "companyName", "Company"
+            }, {
+                "assistantName", "Assistant"
+            }, {
+                "location", "Location"
+            }, {
+                "cellPhoneNumber", "Cellular number"
+            }, {
+                "homePhoneNumber", "Home number"
+            }, {
+                "assistantPhoneNumber", "Assistant number"
+            }, {
+                "faxNumber", "Fax number"
+            }, {
+                "imId", "IM id"
+            }, {
+                "alternateImId", "alternate IM id"
+            }, {
+                "homeStreet", "Home street"
+            }, {
+                "homeCity", "Home city"
+            }, {
+                "homeCountry", "Home country"
+            }, {
+                "homeState", "Home state"
+            }, {
+                "homeZip", "Home zip"
+            }, {
+                "officeStreet", "Office street"
+            }, {
+                "officeCity", "Office city"
+            }, {
+                "officeCountry", "Office country"
+            }, {
+                "officeState", "Office state"
+            }, {
+                "officeZip", "Office zip"
+            }, {
+                "officeDesignation", "Office designation"
+            },
+        };
 
-    public class SearchSelectionListener implements SelectionHandler<Suggestion> {
-        public void onSelection(SelectionEvent<Suggestion> selEvent) {
-            if (selEvent.getSource().equals(m_suggestBox) && selEvent.getSelectedItem() != null) {
-                RootPanel.get(QUERY).getElement().setAttribute(VALUE,
-                        selEvent.getSelectedItem().getReplacementString());
-            }
+        public PhonebookViewer() {
+            setEmptyMessage("Select a user to see contact information.");
+            setHeight(MAX_WIDTH);
+            setFields(createFields(FIELDS));
         }
-    }
 
-    public class ClickListener implements ClickHandler {
-        public void onClick(ClickEvent event) {
-            if (event.getSource().equals(m_resetButton)) {
-                m_suggestBox.setText(EMPTY);
-                RootPanel.get(QUERY).getElement().setAttribute(VALUE, EMPTY);
+        private DetailViewerField[] createFields(String[][] descriptors) {
+            DetailViewerField[] fields = new DetailViewerField[descriptors.length];
+            for (int i = 0; i < fields.length; i++) {
+                fields[i] = new DetailViewerField(descriptors[i][0], descriptors[i][1]);
             }
+            return fields;
         }
     }
 }

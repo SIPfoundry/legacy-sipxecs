@@ -4,8 +4,11 @@
 	<inherits name="com.google.gwt.user.User" />
 	<inherits name="com.google.gwt.json.JSON" />
 	<inherits name="com.google.gwt.i18n.I18N"/>
+    <inherits name='com.smartgwt.SmartGwt'/>
     <extend-property name="locale" values="it"/>
     <extend-property name="locale" values="en"/>
+	<source path="client" />
+	<source path="widget" />
     <stylesheet src="UserPhonebookSearch.css"/>
 	<entry-point
 		class="org.sipfoundry.sipxconfig.userportal.client.UserPhonebookSearch" />

@@ -1,4 +1,5 @@
 <div jwcid="@common/Border" restricted="false">
+  <script type="text/javascript">var isomorphicDir = "/sipxconfig/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/sc/";</script>
   <script jwcid="@Any" type="text/javascript" src="asset:userPhonebookSearchJs"/>
   <h2><span key="title">User Phonebook</span></h2>
   <span jwcid="@common/ErrorMsg"/>
@@ -6,16 +7,7 @@
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
      <span jwcid="query@Hidden" value="ognl:query" encode="false"/>
-      <table>
-		<tr id="user_phonebook_search"/>
-      </table>
     </fieldset>
-    <ul class="component-submit">
-      <li>
-        <input jwcid="@Submit" id="userPhonebook:search" value="message:button.search"
-          action="listener:search" updateComponents="phonebook"/>
-      </li>
-    </ul>
     <fieldset jwcid="phonebook@Any">
       <ul class="component-links">
         <li>
@@ -24,22 +16,9 @@
           </a>
         </li>
       </ul>
-      <table jwcid="@common/Table" id="userPhonebook:phonebookTable"
-        source="ognl:phonebookEntries"
-        columns="* firstName,lastName,!phoneNumber"
-        row="ognl:phonebookEntry"
-        usePager="ognl:true"
-        volatile="ognl:true">
-        <span jwcid="phoneNumberColumnValue@Block">
-          <a jwcid="@DirectLink"
-            title="message:tooltip.call"
-            listener="listener:call"
-            parameters="ognl:currentNumber"
-            asyn="ognl:true">
-            <span jwcid="@Insert" value="ognl:currentNumber"/>
-          </a>
-        </span>
-      </table>
+      <div class="component">
+	    <div id="user_phonebook_grid"/>
+	  </div>
     </fieldset>
   </form>
 </div>
