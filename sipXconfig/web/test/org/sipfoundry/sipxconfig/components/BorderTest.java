@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Locale;
+
 import junit.framework.TestCase;
+import org.apache.hivemind.Messages;
+import org.apache.hivemind.impl.AbstractMessages;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRender;
@@ -31,6 +35,10 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
@@ -91,6 +99,21 @@ public class BorderTest extends TestCase {
         } catch (PageRedirectException e) {
             fail("unexpected expected");
         }
+    }
+
+    public void testGetPageTitle() {
+        IPage page = createMock(IPage.class);
+        expect(page.getMessages()).andReturn(new FullMessages());
+        expect(page.getMessages()).andReturn(new EmptyMessages());
+        replay(page);
+
+        Border border = new MockBorder(false, true, new MockUserSession(true));
+        border.setPage(page);
+
+        assertEquals("Product::PageTitle", border.getPageTitle());
+        assertEquals("Product", border.getPageTitle());
+
+        verify(page);
     }
 
     private static class MockUserSession extends UserSession {
@@ -238,6 +261,41 @@ public class BorderTest extends TestCase {
 
         @Override
         public IAsset getBorderDateScript() {
+            return null;
+        }
+
+        @Override
+        public Messages getMessages() {
+            return new FullMessages();
+        }
+    }
+
+    private static class FullMessages extends AbstractMessages {
+        @Override
+        protected Locale getLocale() {
+            return Locale.US;
+        }
+
+        @Override
+        protected String findMessage(String key) {
+            if (key.equals("product.name")) {
+                return "Product";
+            }
+            if (key.equals("title")) {
+                return "PageTitle";
+            }
+            return null;
+        }
+    }
+
+    private static class EmptyMessages extends AbstractMessages {
+        @Override
+        protected Locale getLocale() {
+            return Locale.US;
+        }
+
+        @Override
+        protected String findMessage(String key) {
             return null;
         }
     }

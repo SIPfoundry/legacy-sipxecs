@@ -225,4 +225,13 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         User user = userSession.getUser(getCoreContext());
         return user.getLabel();
     }
+
+    public String getPageTitle() {
+        String productTitle = getMessages().getMessage("product.name");
+        String pageTitle = LocalizationUtils.getMessage(getPage().getMessages(), "title", null);
+        if (pageTitle == null) {
+            return productTitle;
+        }
+        return String.format("%s::%s", productTitle, pageTitle);
+    }
 }
