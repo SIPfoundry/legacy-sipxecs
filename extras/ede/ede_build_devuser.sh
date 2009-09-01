@@ -211,10 +211,13 @@ function uninstall_sipxecs_rpms {
 # Stop the old (which may not be running, or even installed...)
 if test -x /etc/init.d/sipxpbx
 then
-   sudo /sbin/service sipxpbx stop
+   sudo /sbin/service sipxpbx stop 2> /dev/null
 elif test -x /etc/init.d/sipxecs
 then
-   sudo /sbin/service sipxecs stop
+   sudo /sbin/service sipxecs stop 2> /dev/null
+elif test -x $INSTALL/etc/init.d/sipxecs
+then
+   sudo $INSTALL/etc/init.d/sipxecs stop 2> /dev/null
 fi
 sudo killall httpd 2> /dev/null
 
@@ -258,6 +261,11 @@ echo CODE=`pwd`/$CODE >> env
 echo LINKS=`pwd`/$LINKS >> env
 echo DIST=`pwd`/$DIST >> env
 sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR
+for lib_comp in $(ls $CODE/lib);
+do
+   sudo rm -rf $CODE/lib/$lib_comp/build
+done
+sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
 sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
 sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
 mkdir $INSTALL 
@@ -510,12 +518,9 @@ if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
    echo "Skipping sipxecs-setup and /etc/init.d/sipxecs start..."
 else
    $FULL_INSTALL_PATH/bin/sipxecs-setup
-   sleep 3
-   $ETC_AND_VAR_PATH/etc/init.d/sipxecs status > /dev/null
-   if [ $? != 0 ]; then
-      sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start
-   fi
 fi
+
+$FULL_INSTALL_PATH/etc/init.d/sipxecs status
 
 echo ""
 echo "DONE!"
