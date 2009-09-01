@@ -7,6 +7,8 @@
   <path id="base.path">
     <pathelement location="${gwt-user.jar}" />
     <pathelement location="${gwt-dev-linux.jar}" />
+    <pathelement location="${smartgwt.jar}" />
+    <pathelement location="${smartgwt-skins.jar}" />
   </path>
   <target name="default" depends="gwt.compile.module" />
 

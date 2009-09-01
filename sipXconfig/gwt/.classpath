@@ -2,9 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/gwt-dev-linux-1.7.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/gwt-user-1.7.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/smartgwt-1.2.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/smartgwt-skins-1.2.jar"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
