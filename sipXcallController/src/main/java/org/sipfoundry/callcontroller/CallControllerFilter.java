@@ -47,7 +47,7 @@ public class CallControllerFilter extends Filter {
           logger.debug("Authentication request " + remoteAddr );
 
          
-          if ( ! request.getProtocol().equals(Protocol.HTTPS) && CallController.isSecure) {
+          if ( ! request.getProtocol().equals(Protocol.HTTPS) && CallController.isSecure ) {
               logger.debug("Request was not recieved over HTTPS protocol");
               return Filter.STOP;
           }
@@ -83,10 +83,8 @@ public class CallControllerFilter extends Filter {
           }
           
           ChallengeResponse challengeResponse = request.getChallengeResponse();
-          
-          String passWord = new String(challengeResponse.getSecret());
-          
-          if ( passWord == null ) {
+          char[] secret = challengeResponse.getSecret();
+          if ( secret == null ) {
               logger.debug("Requesting BASIC credentials");
               ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
                       CallController.getCallControllerConfig().getSipxProxyDomain());
@@ -94,8 +92,7 @@ public class CallControllerFilter extends Filter {
               response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
               return Filter.STOP;
           }
-
-
+          String passWord = new String(challengeResponse.getSecret());
           
           String userName = user.getUserName();
           logger.debug("userName = " + userName);

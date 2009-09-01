@@ -22,15 +22,15 @@ public class CallControllerApplication extends Application {
 	   logger.debug("createRoot");
 	   Context context = getContext();
 	   Router router = new Router(context); 
-	   CallControllerFilter filter = new CallControllerFilter();
+	   CallControllerDigestAuthenticationFilter filter = new CallControllerDigestAuthenticationFilter();
 	   filter.setNext(new CallControllerRestlet(context));
 	   router.attachDefault(CallControllerDefault.class);
 	   Route route = router.attach("/callcontroller/{callingParty}/{calledParty}", filter); 
 	   route.extractQuery(CallControllerParams.METHOD, CallControllerParams.METHOD, true);
 	   route.extractQuery(CallControllerParams.AGENT,CallControllerParams.AGENT,true);
 	   route.extractQuery(CallControllerParams.FORWARDING_ALLOWED, CallControllerParams.FORWARDING_ALLOWED, true);
-	   route.extractQuery(CallControllerParams.PIN, CallControllerParams.PIN, true);
 	   route.extractQuery(CallControllerParams.SUBJECT, CallControllerParams.SUBJECT, true);
+	 
 	   return router;
 	}
 

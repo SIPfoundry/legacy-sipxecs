@@ -41,6 +41,8 @@ public class CallController {
 
     private static HttpServer webServer;
     
+    private static HttpServer externalWebServer;
+    
     static boolean isSecure = true;
     
     public static final Timer timer = new Timer();
@@ -129,8 +131,9 @@ public class CallController {
             webServer.addListener(socketListener);
            
         }
+        
+                       
         HttpContext httpContext = new HttpContext();
-
         httpContext.setContextPath("/");
         httpContext.setInitParameter("org.restlet.application", 
                 CallControllerApplication.class.getName());
@@ -138,14 +141,30 @@ public class CallController {
         Class<?> servletClass = com.noelios.restlet.ext.servlet.ServerServlet.class;
         servletHandler.addServlet("callcontroller", "/*",
                 servletClass.getName());
-        
-             
         httpContext.addHandler(servletHandler);
-        
-       
         webServer.addContext(httpContext);
-        
+       
+        externalWebServer = new HttpServer();   
+        InetAddrPort externalInetAddrPort = new InetAddrPort(callControllerConfig.getIpAddress(),
+                callControllerConfig.getPublicHttpPort());
+        SocketListener socketListener = new SocketListener(externalInetAddrPort);
+        socketListener.setMaxThreads(32);
+        socketListener.setMinThreads(4);
+        socketListener.setLingerTimeSecs(30000);
+        externalWebServer.addListener(socketListener);
+         
+        HttpContext extHttpContext = new HttpContext();
+        extHttpContext.setInitParameter("org.restlet.application", 
+                CallControllerApplication.class.getName()); 
+        ServletHandler extServletHandler = new ServletHandler();   
+        extHttpContext.setContextPath("/");
+        extServletHandler.addServlet("callcontroller", "/*", servletClass.getName());
+        extHttpContext.addHandler(extServletHandler);
+        externalWebServer.addContext(extHttpContext);   
+    
+       
         webServer.start();
+        externalWebServer.start();
 
     }
 

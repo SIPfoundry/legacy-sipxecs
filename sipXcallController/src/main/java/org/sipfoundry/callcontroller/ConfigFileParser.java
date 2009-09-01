@@ -19,7 +19,7 @@ public class ConfigFileParser {
             Integer.class});
         digester.addCallMethod( String.format("%s/%s", CALL_CONTROLLER_CONFIG,"https-port"), "setHttpPort",0, new Class[] {
             Integer.class});
-        digester.addCallMethod( String.format("%s/%s", CALL_CONTROLLER_CONFIG,"external-https-port"), "setExternalHttpPort",0, new Class[] {
+        digester.addCallMethod( String.format("%s/%s", CALL_CONTROLLER_CONFIG,"external-http-port"), "setPublicHttpPort",0, new Class[] {
             Integer.class});
         digester.addCallMethod( String.format("%s/%s", CALL_CONTROLLER_CONFIG,"sipx-proxy-domain"), "setSipxProxyDomain",0);
         digester.addCallMethod( String.format("%s/%s", CALL_CONTROLLER_CONFIG,"log-directory"), "setLogDirectory",0);
