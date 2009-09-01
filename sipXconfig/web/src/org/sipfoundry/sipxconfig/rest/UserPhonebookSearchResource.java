@@ -22,7 +22,9 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -54,7 +56,8 @@ public class UserPhonebookSearchResource extends UserResource {
     protected ArrayList<Representable> convertPhonebookEntries(Collection<PhonebookEntry> entries) {
         ArrayList<Representable> entriesArray = new ArrayList<Representable>();
         for (PhonebookEntry entry : entries) {
-            entriesArray.add(new Representable(entry.getFirstName(), entry.getLastName(), entry.getNumber()));
+            entriesArray.add(new Representable(entry.getFirstName(), entry.getLastName(), entry.getNumber(), entry
+                    .getAddressBookEntry()));
         }
         return entriesArray;
     }
@@ -79,11 +82,14 @@ public class UserPhonebookSearchResource extends UserResource {
         private final String m_lastName;
         @SuppressWarnings("unused")
         private final String m_number;
+        @SuppressWarnings("unused")
+        private final AddressBookEntry m_addressBookEntry;
 
-        public Representable(String firstName, String lastName, String number) {
+        public Representable(String firstName, String lastName, String number, AddressBookEntry addressBookEntry) {
             m_firstName = firstName;
             m_lastName = lastName;
             m_number = number;
+            m_addressBookEntry = addressBookEntry;
         }
     }
 
@@ -99,10 +105,12 @@ public class UserPhonebookSearchResource extends UserResource {
 
         @Override
         protected void configureXStream(XStream xstream) {
+            xstream.omitField(BeanWithId.class, "m_id");
             xstream.alias("phonebook", List.class);
             xstream.alias("entry", Representable.class);
             xstream.aliasField("first-name", Representable.class, "firstName");
             xstream.aliasField("last-name", Representable.class, "lastName");
+            xstream.aliasField("contact-information", Representable.class, "addressBookEntry");
         }
     }
 }

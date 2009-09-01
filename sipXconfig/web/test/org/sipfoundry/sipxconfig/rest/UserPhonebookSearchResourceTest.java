@@ -21,6 +21,7 @@ import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -70,12 +71,16 @@ public class UserPhonebookSearchResourceTest extends TestCase{
         expectLastCall().andReturn("LastName1");
         entry1.getNumber();
         expectLastCall().andReturn("200");
+        entry1.getAddressBookEntry();
+        expectLastCall().andReturn(new AddressBookEntry()).anyTimes();
         entry2.getFirstName();
         expectLastCall().andReturn("FirstName2");
         entry2.getLastName();
         expectLastCall().andReturn("LastName2");
         entry2.getNumber();
         expectLastCall().andReturn("201");
+        entry2.getAddressBookEntry();
+        expectLastCall().andReturn(new AddressBookEntry()).anyTimes();
 
         replay(entry1, entry2);
 
