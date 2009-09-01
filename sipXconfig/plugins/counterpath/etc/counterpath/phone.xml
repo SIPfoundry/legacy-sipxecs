@@ -687,6 +687,13 @@ If this setting is true and the computer has a low bandwidth connection, then th
 
   <group name="provisioning">
     <label>Provisioning</label>
+      <setting name="feature:call:enable_recording">
+        <label>Call Record</label>
+        <type refid="true-false"/>
+        <value>true</value>
+        <description> Enable/Disable Call Record feature.
+        </description>
+      </setting>
     <group name="auto_update">
       <label>Auto update</label>
       <setting name="system:auto_update:code_server_url" advanced="yes">
