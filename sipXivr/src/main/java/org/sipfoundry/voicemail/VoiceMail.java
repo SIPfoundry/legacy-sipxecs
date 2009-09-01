@@ -187,6 +187,11 @@ public class VoiceMail {
                 
             } catch (DisconnectException e) {
             } finally {
+                try {
+                    // Let FS finish any recording's it might be doing
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
                 // Deliver any messages that are pending
                 for (Message message : m_messages) {
                     message.storeInInbox();

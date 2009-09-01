@@ -114,6 +114,10 @@ public class Message {
         deleteTempWav();
         
         LOG.info("Message::storeInInbox stored messageId "+getMessageId());
+        long secs = getDuration();
+        if (secs == 0) {
+            LOG.warn("Message::storeInInbox messageId "+getMessageId()+" has zero length");
+        }
         return Reason.SAVED;
     }
     

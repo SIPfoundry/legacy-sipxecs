@@ -648,7 +648,7 @@ public class Retrieve {
                     // "To accept your comments, press 2."  
                     // "To delete these comments and try again, press 3."  
                     // To cancel, press *"
-                    commentsFile = recordDialog("msg_record_comments", "msg_confirm_record");
+                    commentsFile = recordDialog("msg_record_comments", "msg_confirm_comments");
                     
                     if (commentsFile == null) {
                         continue ;
@@ -705,7 +705,7 @@ public class Retrieve {
         // "To accept your comments, press 2."  
         // "To delete these comments and try again, press 3."  
         // To cancel, press *"
-        File commentsFile = recordDialog("msg_record_comments", "msg_confirm_record");
+        File commentsFile = recordDialog("msg_record_comments", "msg_confirm_comments");
 
         if (commentsFile == null) {
             return;
