@@ -99,7 +99,10 @@ public class Deposit {
             
             if (message == null) {
                 try {
-                    wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
+                    // Create in the deleted directory, so if somehow things fail, they'll get removed
+                    // as they age out.
+                    wavFile = File.createTempFile("temp_recording_", ".wav",
+                            new File(m_mailbox.getDeletedDirectory()));
                     wavPath = wavFile.getPath();
                 } catch (IOException e) {
                     throw new RuntimeException("Cannot create temp recording file", e);

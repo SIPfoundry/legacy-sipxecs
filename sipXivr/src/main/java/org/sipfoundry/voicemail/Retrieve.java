@@ -256,7 +256,10 @@ public class Retrieve {
     File makeTempWavFile() {
         File wavFile = null;
         try {
-            wavFile = File.createTempFile("temp_recording_", ".wav"); // TODO which tmp dir?
+            // Create in the deleted directory, so if somehow things fail, they'll get removed
+            // as they age out.
+            wavFile = File.createTempFile("temp_recording_", ".wav", 
+                    new File(m_mailbox.getDeletedDirectory()));
             m_tempRecordings.add(wavFile);
         } catch (IOException e) {
             throw new RuntimeException("Cannot create temp recording file", e);

@@ -369,8 +369,10 @@ public class ExtMailStore {
             boolean success;
 
             for (GreetingType greettype : GreetingType.values()) {
-
-                TempFile = File.createTempFile("wav_", null);
+                // Create in the deleted directory, so if somehow things fail, they'll get removed
+                // as they age out.
+                TempFile = File.createTempFile("wav_", null, 
+                        new File(mbx.getDeletedDirectory()));
                 success = FetchBodyFromFolder(grtfolder, greettype.getId(), TempFile);
                 if (success) {
                     Greeting greet = new Greeting(mbx);
