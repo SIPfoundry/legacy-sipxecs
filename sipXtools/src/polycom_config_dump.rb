@@ -37,6 +37,11 @@ if 1 <= ARGV.length
    root_uri_str = ARGV[0]   
 end
 
+match_name="APPLICATION"
+if 2 <= ARGV.length
+   match_name = ARGV[1]
+end
+
 def get_file_io(uri_str)
    uri=URI::parse(uri_str)
    if "file" == uri.scheme # e.g. file:///./3.1.0/000000000000.cfg
@@ -105,14 +110,49 @@ def add_config(config_hash, config_doc)
    add_config_from_elements(config_hash, config_doc.elements[1].name, config_doc.elements[1].elements)
 end
 
-def config_dump(root_uri_str)
+
+def get_matching_application_element(element, match_name)
+   if nil == element
+      nil
+   elsif match_name == element.name
+      element
+   else
+      return_value=nil
+      element.elements.each do |child|
+         result=get_matching_application_element(child, match_name)
+         if result != nil
+            return_value=child
+            break
+         end
+      end
+      return_value
+   end
+end
+
+def config_dump(root_uri_str, match_name)
    # Get the root configuration document.
    mac_cfg_doc = get_file_xml(root_uri_str)
    mac_str = File.basename(root_uri_str, ".cfg")
    base_uri_str = root_uri_str.chomp(File.basename(root_uri_str))
 
    # Extract the names of the configuration files.
-   config_file_basenames = mac_cfg_doc.elements[1].attributes['CONFIG_FILES'].split(%r{,\s*})
+   application_element=get_matching_application_element(mac_cfg_doc.elements[1], match_name)
+   if nil == application_element
+      puts "ERROR: Failed to find an application element named '#{match_name}'."
+      exit 1
+   end
+   config_attribute_value=nil
+   application_element.attributes.each do |name,value|
+      if 0 == name.index("CONFIG_FILES")
+         config_attribute_value=value
+         break
+      end
+   end
+   if nil == config_attribute_value
+      puts "ERROR: Failed to find CONFIG_FILES attribute in the #{match_name} element."
+      exit 2
+   end
+   config_file_basenames = config_attribute_value.split(%r{,\s*})
    # Limitation: Polycom allows for these to be full URIs.  This script assumes 
    # they are simple filenames only, and that each file will be found in the same
    # directory as the <MAC>.cfg file.
@@ -150,6 +190,6 @@ def config_dump(root_uri_str)
 
 end
 
-config_dump(root_uri_str)
+config_dump(root_uri_str, match_name)
 
 
