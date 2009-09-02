@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xmpp-account-info xmlns="http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00">
+  <user>
+    <user-name>One_IM</user-name>
+    <sip-user-name>One</sip-user-name>
+    <display-name>One_IM_DisplayName</display-name>
+    <password>One_IM</password>
+    <on-the-phone-message>testing phone message</on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <user>
+    <user-name>Three_IM</user-name>
+    <sip-user-name>Three</sip-user-name>
+    <display-name>Three</display-name>
+    <password>Three_IM</password>
+    <on-the-phone-message></on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <group/>
+  <chat-room/>
+</xmpp-account-info>

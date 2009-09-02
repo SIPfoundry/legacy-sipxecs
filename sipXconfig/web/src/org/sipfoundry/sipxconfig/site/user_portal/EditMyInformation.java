@@ -163,6 +163,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         tabNames.add("info");
         tabNames.add("distributionLists");
         tabNames.add(TAB_CONFERENCES);
+        tabNames.add("openfire");
 
         String paPermissionValue = getUser().getSettingValue("permission/application/personal-auto-attendant");
         if (Permission.isEnabled(paPermissionValue)) {

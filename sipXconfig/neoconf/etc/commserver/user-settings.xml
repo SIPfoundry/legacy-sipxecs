@@ -150,4 +150,24 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="openfire">
+    <setting name="advertise-sip-presence">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="include-call-info">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="on-the-phone-message">
+      <type>
+        <string />
+      </type>
+      <value>On the phone</value>
+    </setting>
+  </group>
 </model>

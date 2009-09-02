@@ -1,0 +1,24 @@
+<fieldset>
+  <table>
+    <tr jwcid="@common/FieldPanel" for="imId"
+      field="component:imId"
+      label="message:label.imId"
+      description="message:description.imId">
+      <span jwcid="imId@TextField" id="imId" maxlength="255"
+        value="ognl:user.imId"
+        type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="imDisplayName"
+      field="component:imDisplayName"
+      label="message:label.imDisplayName"
+      description="message:description.imDisplayName">
+      <span jwcid="imDisplayName@TextField" id="imDisplayName" maxlength="255"
+        value="ognl:user.imDisplayName"
+        type="text" autocomplete="off"/>
+    </tr>
+  </table>
+</fieldset>
+<fieldset jwcid="@setting/SettingsFieldset"
+  settings="ognl:openfireSettings"
+  renderGroupTitle="ognl:false"/>
+<span jwcid="@common/FormActions" listener="listener:save" callback="ognl:container.callback"/>

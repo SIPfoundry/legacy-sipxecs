@@ -71,6 +71,15 @@
     <binding name="validators" value="spring-validators:validSipUserId"/>
     <binding name="displayName" value="message:label.imId"/>
   </component>
+  <component id="imDisplayNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.imDisplayName"/>
+    <binding name="label" value="message:label.imDisplayName"/>
+    <binding name="description" value="message:description.imDisplayName"/>
+  </component>
+  <component id="imDisplayName" type="TextField">
+    <binding name="value" value="user.imDisplayName"/>
+    <binding name="displayName" value="message:label.imDisplayName"/>
+  </component>
    <component id="pin" type="user/ConfirmPassword">
     <binding name="password" value="pin"/>
     <binding name="passwordDisplayName" value="message:label.pin"/>

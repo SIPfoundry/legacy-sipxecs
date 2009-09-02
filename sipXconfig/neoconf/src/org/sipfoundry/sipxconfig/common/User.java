@@ -449,6 +449,20 @@ public class User extends BeanWithGroups implements NamedObject {
         m_addressBookEntry.setImId(id);
     }
 
+    public String getImDisplayName() {
+        if (m_addressBookEntry == null) {
+            return null;
+        }
+        return m_addressBookEntry.getImDisplayName();
+    }
+
+    public void setImDisplayName(String imDisplayName) {
+        if (m_addressBookEntry == null) {
+            m_addressBookEntry = new AddressBookEntry();
+        }
+        m_addressBookEntry.setImDisplayName(imDisplayName);
+    }
+
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
     }

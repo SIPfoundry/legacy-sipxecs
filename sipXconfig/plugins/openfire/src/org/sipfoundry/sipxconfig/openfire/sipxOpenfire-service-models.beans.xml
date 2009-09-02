@@ -21,6 +21,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxOpenfireConfiguration" />
+        <ref bean="xmppAccountInfo" />
       </list>
     </property>
     <property name="bundles">
@@ -38,16 +39,22 @@
     <property name="coreContext" ref="coreContext" />
   </bean>
 
-  <bean id="sipxOpenfireContext" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireContextImpl">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="openfireApiProvider" ref="openfireApiProvider" />
-    <property name="mailboxManager" ref="mailboxManager" />
-  </bean>
-
   <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="userAccountServer." />
     <property name="secure" value="false" />
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.openfire.OpenfireApi" />
+  </bean>
+
+  <bean id="xmppAccountInfo" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo"
+    parent="defaultConfigurationFile">
+    <property name="name" value="xmpp-account-info.xml"/>
+    <property name="coreContext" ref="coreContext" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="configurationFile" ref="xmppAccountInfo" />
   </bean>
 
 </beans>

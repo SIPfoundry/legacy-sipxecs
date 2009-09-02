@@ -25,6 +25,7 @@ public class AddressBookEntry extends BeanWithId {
     private String m_assistantPhoneNumber;
     private String m_faxNumber;
     private String m_imId;
+    private String m_imDisplayName;
     private String m_alternateImId;
 
     public String getJobTitle() {
@@ -121,6 +122,14 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setImId(String imId) {
         m_imId = imId;
+    }
+
+    public String getImDisplayName() {
+        return m_imDisplayName;
+    }
+
+    public void setImDisplayName(String imDisplayName) {
+        m_imDisplayName = imDisplayName;
     }
 
     public String getAlternateImId() {

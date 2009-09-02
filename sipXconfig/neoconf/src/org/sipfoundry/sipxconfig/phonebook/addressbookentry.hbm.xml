@@ -18,6 +18,7 @@
     <property name="assistantPhoneNumber" />
     <property name="faxNumber" />
     <property name="imId" />
+    <property name="imDisplayName" />
     <property name="alternateImId" />
     <property name="location" />
     <component name="homeAddress" class="Address">

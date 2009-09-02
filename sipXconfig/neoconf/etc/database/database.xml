@@ -329,6 +329,7 @@
     <antcall target="special-attendant" />
     <antcall target="branch" />
     <antcall target="private-user-key" />
+    <antcall target="add_addressbook_imDisplayName" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -990,6 +991,9 @@
   </target>
   <target name="private-user-key" unless="private-user-key">
     <db-patch patch="private-user-key"/>
+  </target>
+  <target name="add_addressbook_imDisplayName" unless="add_addressbook_imDisplayName">
+    <db-patch patch="add_addressbook_imDisplayName"/>
   </target>
 
   <!--
