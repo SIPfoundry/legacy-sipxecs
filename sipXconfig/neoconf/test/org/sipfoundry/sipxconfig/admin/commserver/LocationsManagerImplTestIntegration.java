@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
@@ -38,9 +39,9 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locations = m_out.getLocations();
-        assertEquals(2, locations.length);
+        assertEquals(3, locations.length);
         assertEquals("https://localhost:8092/RPC2", locations[0].getProcessMonitorUrl());
-        assertEquals("https://remotehost.example.org:8092/RPC2", locations[1].getProcessMonitorUrl());
+        assertEquals("https://secondary.example.org:8092/RPC2", locations[1].getProcessMonitorUrl());
     }
 
     public void testGetLocationByFqdn() throws Exception {
@@ -63,12 +64,12 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locations = m_out.getLocations();
 
-        Location firstLocation = locations[0];
-        int locationId = firstLocation.getId();
+        Location secondLocation = locations[1];
+        int locationId = secondLocation.getId();
 
         Location locationById = m_out.getLocation(locationId);
         assertNotNull(locationById);
-        assertEquals(firstLocation.getName(), locationById.getName());
+        assertEquals(secondLocation.getName(), locationById.getName());
 
         Collection<LocationSpecificService> services = locationById.getServices();
         assertNotNull(services);
@@ -80,6 +81,17 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location location = m_out.getPrimaryLocation();
         assertNotNull(location);
         assertEquals(101, (int) location.getId());
+    }
+
+    public void testDeletePrimaryLocation() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        Location location = m_out.getPrimaryLocation();
+        try {
+            m_out.deleteLocation(location);
+            fail("Deletion of primary location failed");
+        } catch (UserException e) {
+
+        }
     }
 
     public void testStore() throws Exception {
@@ -111,7 +123,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
 
-        Location locationToDelete = m_out.getLocation(101);
+        Location locationToDelete = m_out.getLocation(102);
 
         DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
         daoEventPublisher.publishDelete(locationToDelete);
@@ -123,7 +135,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
-        assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
+        assertEquals("localhost", locationsAfterDelete[0].getFqdn());
 
         EasyMock.verify(daoEventPublisher);
     }
@@ -131,7 +143,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     public void testDeleteWithServices() throws Exception {
         loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
         Location[] locationsBeforeDelete = m_out.getLocations();
-        assertEquals(2, locationsBeforeDelete.length);
+        assertEquals(3, locationsBeforeDelete.length);
 
         Location locationToDelete = m_out.getLocation(101);
 
@@ -144,8 +156,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         m_out.deleteLocation(locationToDelete);
 
         Location[] locationsAfterDelete = m_out.getLocations();
-        assertEquals(1, locationsAfterDelete.length);
-        assertEquals("remotehost.example.org", locationsAfterDelete[0].getFqdn());
+        assertEquals(2, locationsAfterDelete.length);
+        assertEquals("remotehost.example.org", locationsAfterDelete[1].getFqdn());
     }
 
     public void testAcdBridgePublishSaveDelete() throws Exception {

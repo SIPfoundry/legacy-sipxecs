@@ -3,6 +3,7 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class LocationsPageTestUi extends WebTestCase {
@@ -44,21 +45,40 @@ public class LocationsPageTestUi extends WebTestCase {
 
         SiteTestHelper.assertNoUserError(tester);
         assertTextPresent("another.example.org");
-        assertEquals("Uninitialized", SiteTestHelper.getCellAsText(getTable("locations:list"), 2, 4));
-        clickLink("editLocationLink_0");
+        boolean uninitialized1 = StringUtils.equals("Uninitialized", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
+        boolean uninitialized2 = StringUtils.equals("Uninitialized", SiteTestHelper.getCellAsText(getTable("locations:list"), 2, 4));
+        assertTrue(uninitialized1 || uninitialized2);
+        if (uninitialized1) {
+            clickLink("editLocationLink_0");
+        } else if (uninitialized2) {
+            clickLink("editLocationLink_0");
+        }
         assertLinkNotPresent("link:configureLocation");
         assertLinkNotPresent("link:listServices");
         assertLinkNotPresent("link:monitorTarget");
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testDeleteLocation() {
+    public void testDeleteLocation() throws Exception {
+        setUp();
         SiteTestHelper.assertNoUserError(tester);
+        clickLink("locations:add");
+        SiteTestHelper.assertNoUserError(tester);
+        setTextField("location:description", "newLocation");
+        setTextField("location:address", "192.168.1.1");
+        setTextField("location:fqdn", "another.example.org");
+        setTextField("location:password", "123");
+        clickButton("form:ok");
         setWorkingForm("Form");
         SiteTestHelper.selectRow(tester, 0, true);
+        SiteTestHelper.selectRow(tester, 1, true);
         clickButton("locations:delete");
-        SiteTestHelper.assertNoUserError(tester);
-        assertTextNotPresent("host.example.org");
+        //exception thrown when tried to delete the primary location
+        SiteTestHelper.assertUserError(tester);
+        //added secondary locations deleted
+        assertTextNotPresent("another.example.org");
+        //primary location not deleted
+        assertTextPresent("host.example.org");
     }
 
     public void testSendProfiles() {

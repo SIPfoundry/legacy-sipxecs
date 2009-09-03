@@ -17,6 +17,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -89,6 +90,9 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     }
 
     public void deleteLocation(Location location) {
+        if (location.isPrimary()) {
+            throw new UserException("&error.delete.primary", location.getFqdn());
+        }
         m_daoEventPublisher.publishDelete(location);
         getHibernateTemplate().delete(location);
     }
@@ -97,6 +101,15 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
     }
 
+    /**
+     * Convenience method used only in tests for resetting primary location when needed
+     * @see TestPage.resetPrimaryLocation
+     */
+    public void deletePrimaryLocation() {
+        Location location = getPrimaryLocation();
+        m_daoEventPublisher.publishDelete(location);
+        getHibernateTemplate().delete(location);
+    }
     public List<Location> getLocationsForService(SipxService service) {
         List<Location> locations = new ArrayList<Location>();
         for (Location location : getLocations()) {

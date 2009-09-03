@@ -54,10 +54,10 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         submit("submit:ok");
 
         // Go back and delete the bridge.
-        SiteTestHelper.home(tester);
-        clickLink("link:locations");
-        checkCheckbox("checkbox");
-        submit("locations:delete");
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(getTester());
+        //besides deleting all locations, we need to reset primary location as well (it has the bridge attached)
+        clickLink("seedLocationsManager");
 
         // Now go back to the group - make sure there is no exception page, and that the default option
         // gets selected.

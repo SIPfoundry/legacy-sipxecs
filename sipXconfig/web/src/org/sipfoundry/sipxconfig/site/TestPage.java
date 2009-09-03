@@ -306,17 +306,21 @@ public abstract class TestPage extends BasePage {
         getMailboxManager().clearPersonalAttendants();
     }
 
+    private void resetPrimaryLocation() {
+        getLocationsManager().deletePrimaryLocation();
+        Location primaryLocation = new Location();
+        primaryLocation.setName(TEST_LOCATION_NAME);
+        primaryLocation.setFqdn(TEST_LOCATION_FQDN);
+        primaryLocation.setAddress("192.168.155.100");
+        primaryLocation.setPrimary(true);
+        primaryLocation.initBundles(getSipxServiceManager());
+        primaryLocation.setRegistered(true);
+        getLocationsManager().storeLocation(primaryLocation);
+    }
+
     public void seedLocationsManager() {
         deleteLocations();
-
-        Location remoteLocation = new Location();
-        remoteLocation.setName(TEST_LOCATION_NAME);
-        remoteLocation.setFqdn(TEST_LOCATION_FQDN);
-        remoteLocation.setAddress("192.168.155.100");
-        remoteLocation.setPrimary(true);
-        remoteLocation.initBundles(getSipxServiceManager());
-        remoteLocation.setRegistered(true);
-        getLocationsManager().storeLocation(remoteLocation);
+        resetPrimaryLocation();
     }
 
     public void seedService(String beanId) {
@@ -346,7 +350,6 @@ public abstract class TestPage extends BasePage {
 
     public void seedBridgeSbc() {
         resetSbcDevices();
-        deleteLocations();
         seedLocationsManager();
 
         getSbcDescriptor().setModelId(SIPX_BRIDGE_MODEL);
@@ -371,12 +374,16 @@ public abstract class TestPage extends BasePage {
         resetSbcDevices();
         deleteLocations();
     }
-
+    /**
+     * Clear all locations. Primary location is not allowed to be deleted
+     */
     private void deleteLocations() {
         resetAcdContext();
         Location[] existingLocations = getLocationsManager().getLocations();
         for (Location location : existingLocations) {
-            getLocationsManager().deleteLocation(location);
+            if (!location.isPrimary()) {
+                getLocationsManager().deleteLocation(location);
+            }
         }
     }
 

@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -111,7 +112,11 @@ public abstract class LocationsPage extends BasePage implements PageBeginRenderL
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
         for (Integer id : selectedLocations) {
             Location locationToDelete = getLocationsManager().getLocation(id);
-            getLocationsManager().deleteLocation(locationToDelete);
+            try {
+                getLocationsManager().deleteLocation(locationToDelete);
+            } catch (UserException e) {
+                getValidator().record(e, getMessages());
+            }
         }
 
         // update locations list

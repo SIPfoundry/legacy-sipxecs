@@ -47,4 +47,10 @@ public interface LocationsManager {
     void deleteLocation(Location location);
 
     List<Location> getLocationsForService(SipxService service);
+
+    /**
+     * Convenience method used only in tests for resetting primary location when needed
+     * @see TestPage.resetPrimaryLocation
+     */
+    public void deletePrimaryLocation();
 }
