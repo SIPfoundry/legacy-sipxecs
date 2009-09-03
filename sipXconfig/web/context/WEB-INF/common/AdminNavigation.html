@@ -1,4 +1,4 @@
-<span jwcid="ieHackScript"/>
+<span jwcid="ieHackScript@Script" script="AdminNavigation.script" />
 <ul id="nav">
   <li>
     <a><span key="menu.section.user">Users</span></a>
@@ -39,6 +39,9 @@
       <li><a jwcid="@PageLink" id="menu.callPark" page="admin/ListParkOrbits"><span key="menu.callPark">Call Park</span></a></li>
       <li><a jwcid="@PageLink" id="menu.musicOnHold" page="admin/MusicOnHold"><span key="menu.musicOnHold">Music on Hold</span></a></li>
       <li><a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a></li>
+      <li jwcid="@If" condition="ognl:openFireEnabled">
+        <a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
+      </li>
     </ul>
   </li>
   <li>
@@ -60,7 +63,7 @@
         <a jwcid="@PageLink" id="menu.softwareUpdates" page="admin/softwareupdates/SoftwareUpdatesPage"><span key="menu.softwareUpdates">Software Updates</span></a>
       </li>
       <li><a jwcid="@PageLink" id="menu.timeSettings" page="admin/TimeSettingsPage"><span key="menu.timeSettings">Time Settings</span></a></li>
-	  <li><a jwcid="@PageLink" id="menu.loggingLevels" page="admin/ManageLoggingLevels"><span key="menu.loggingLevels">Logging Levels</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.loggingLevels" page="admin/ManageLoggingLevels"><span key="menu.loggingLevels">Logging Levels</span></a></li>
     </ul>
   </li>
   <li>
@@ -84,8 +87,8 @@
       <li><a jwcid="@PageLink" id="menu.configdiag" page="admin/configdiag/ConfigurationDiagnosticPage"><span key="menu.configdiag">Configuration Tests</span></a></li>
       <li><a jwcid="@PageLink" id="menu.snapshot" page="admin/SnapshotPage"><span key="menu.snapshot">Snapshot</span></a></li>
       <li><a jwcid="@PageLink" id="menu.loginhistory" page="admin/LoginHistoryPage"><span key="menu.loginhistory">Login History</span></a></li>
-	  <li><a jwcid="@PageLink" id="menu.Alarms" page="admin/AlarmsPage"><span key="menu.Alarms">Alarms</span></a></li>
-      <li><a jwcid="@PageLink" id="menu.DnsTest" page="admin/DnsTestPage"><span key="menu.DnsTest">Dns Test</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.alarms" page="admin/AlarmsPage"><span key="menu.alarms">Alarms</span></a></li>
+      <li><a jwcid="@PageLink" id="menu.dnsTest" page="admin/DnsTestPage"><span key="menu.dnsTest">Dns Test</span></a></li>
     </ul>
   </li>
 </ul>

@@ -42,10 +42,10 @@
       </div>
       <div id="navigation">
         <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-          <span jwcid="@common/AdminNavigation">Navigation bar goes here.</span>
+          <span jwcid="@common/AdminNavigation" />
         </span>
         <span jwcid="@Else" renderTag="false">
-          <span jwcid="@user_portal/UserPortalNavigation">User portal navigation bar goes here.</span>
+          <span jwcid="@user_portal/UserPortalNavigation" />
         </span>
       </div>
     </div>

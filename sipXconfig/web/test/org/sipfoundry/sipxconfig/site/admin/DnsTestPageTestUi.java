@@ -1,7 +1,15 @@
+/*
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
-
 import net.sourceforge.jwebunit.junit.WebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -20,7 +28,7 @@ public class DnsTestPageTestUi extends WebTestCase {
     private void clickDnsTestPage() {
         SiteTestHelper.home(tester);
         clickLink("toggleNavigation");
-        clickLink("menu.DnsTest");
+        clickLink("menu.dnsTest");
     }
 
     private void assertNeedToRunTest() {
@@ -29,7 +37,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
         assertElementNotPresent("testResults_0");
-        //assert help
+        // assert help
         setWorkingForm("detailedHelpForm");
         assertElementPresent("setting:toggle");
         assertElementNotPresent("detailedHelp");
@@ -46,7 +54,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
         assertElementPresent("testResults_0");
-        //assert results / help
+        // assert results / help
         assertElementNotPresent("dnsTestStatus");
         SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
         assertElementPresent("dnsTestStatus");
@@ -81,7 +89,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         submit("runTest");
         assertTestRan();
 
-        //add location
+        // add location
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
         clickLink("seedLocationsManager");
@@ -91,7 +99,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         setTextField("location:description", "newLocation");
         setTextField("location:address", "192.168.1.2");
         setTextField("location:fqdn", "another.example.org");
-        setTextField("location:password","123");
+        setTextField("location:password", "123");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 
@@ -101,5 +109,4 @@ public class DnsTestPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
-
 }

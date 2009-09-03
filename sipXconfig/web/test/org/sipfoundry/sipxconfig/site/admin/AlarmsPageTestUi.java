@@ -5,13 +5,12 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
-
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class AlarmsPageTestUi extends WebTestCase {
@@ -19,13 +18,14 @@ public class AlarmsPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(AlarmsPageTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.setScriptingEnabled(tester, true);
         SiteTestHelper.home(tester);
         clickLink("seedLocationsManager");
         clickLink("toggleNavigation");
-        clickLink("menu.Alarms");
+        clickLink("menu.alarms");
     }
 
     public void testDisplayEdit() throws Exception {
