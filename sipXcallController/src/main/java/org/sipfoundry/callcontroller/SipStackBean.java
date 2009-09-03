@@ -11,6 +11,7 @@ package org.sipfoundry.callcontroller;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.ListeningPointExt;
+import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
@@ -399,6 +400,25 @@ public class SipStackBean extends AbstactSipStackBean {
         }
         return lpaCollection;
       
+    }
+
+
+
+
+    /**
+     * We do not support plain text passwords here so return null.
+     */
+    @Override
+    public AccountManager getPlainTextPasswordAccountManager() {   
+        return null;
+    }
+
+
+
+
+    @Override
+    public SecureAccountManager getHashedPasswordAccountManager() {
+        return CallController.getAccountManager();
     }
 
    

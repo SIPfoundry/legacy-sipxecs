@@ -7,7 +7,6 @@ import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
-import org.sipfoundry.sipcallwatcher.ProtocolObjects;
 import org.sipfoundry.sipcallwatcher.SipResourceState;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.sipfoundry.sipcallwatcher.ResourceStateEvent;
@@ -21,13 +20,13 @@ public class ResourceStateChangeListenerImpl implements ResourceStateChangeListe
 
     public ResourceStateChangeListenerImpl(SipXOpenfirePlugin plugin) {
         this.plugin = plugin;
-        logger.addAppender(CallWatcher.getLogAppender());
+        logger.addAppender(CallWatcher.getSipStackBean().getStackAppender());
     }
 
     public void handleResourceStateChange(ResourceStateEvent resourceStateEvent) {
         try {
             String resource = resourceStateEvent.getUser();
-            SipURI sipUri = (SipURI) ProtocolObjects.addressFactory.createURI(resource);
+            SipURI sipUri = (SipURI) CallWatcher.getSipStackBean().getAddressFactory().createURI(resource);
             String user = sipUri.getUser() + "@" + sipUri.getHost();
             SipResourceState resourceState = resourceStateEvent.getState();
             String xmppId = plugin.getXmppId(user);

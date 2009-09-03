@@ -7,25 +7,28 @@
  * 
  *
  */
-package org.sipfoundry.callcontroller;
+package org.sipfoundry.commons.jainsip;
 
 import org.sipfoundry.commons.userdb.User;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
 
-class UserCredentialsImpl implements UserCredentialHash {
+public class UserCredentialsImpl implements UserCredentialHash {
    
     User user;
     String userName;
+    private String sipDomain;
 
     public UserCredentialsImpl(User user) {
-       userName = user.getIdentity().split("@")[0];     
+       String[] nameDomain = user.getIdentity().split("@");
+       userName = nameDomain[0];     
        this.user = user;
+       this.sipDomain = nameDomain[1];
     }
 
     public String getSipDomain() {
-       return CallController.getCallControllerConfig().getSipxProxyDomain();
+        return sipDomain;
     }
 
     public String getUserName() {

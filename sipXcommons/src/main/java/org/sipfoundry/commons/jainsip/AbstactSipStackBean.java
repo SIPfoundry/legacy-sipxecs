@@ -1,33 +1,43 @@
 package org.sipfoundry.commons.jainsip;
 
+import gov.nist.javax.sip.ClientTransactionExt;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
+import gov.nist.javax.sip.TransactionExt;
+import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.MessageFactoryExt;
+import gov.nist.javax.sip.message.SIPRequest;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Timer;
 
+import javax.sip.ClientTransaction;
 import javax.sip.ListeningPoint;
+import javax.sip.SipException;
 import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
+import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.log4j.ServerLoggerImpl;
 import org.sipfoundry.commons.log4j.StackLoggerImpl;
+
 
 /**
  * 
@@ -50,7 +60,7 @@ public abstract class AbstactSipStackBean {
 
     private SipStack m_sipStack;
 
-    private AuthenticationHelper m_authenticationHelper;
+    private AuthenticationHelper m_authenticationHelper = null;
     
     private HashSet<SipProvider> sipProviders = new HashSet<SipProvider>();
 
@@ -113,19 +123,34 @@ public abstract class AbstactSipStackBean {
               SipProvider sipProvider = stack.createSipProvider(listeningPoint);
               hpt.sipProvider = sipProvider;
               if (!this.sipProviders.contains(sipProvider)) {
-                  this.sipProviders.add(sipProvider);     
+                  this.sipProviders.add(sipProvider); 
                   sipProvider.addSipListener(getSipListener(this));
               }
+            
             }
           
             SipStackExt impl = (SipStackExt) stack;
-            m_authenticationHelper = impl.getSecureAuthenticationHelper(getAccountManager(), m_headerFactory);  
+            if ( getHashedPasswordAccountManager() != null ) {
+                m_authenticationHelper = impl.getSecureAuthenticationHelper(getHashedPasswordAccountManager(), m_headerFactory);
+            } else if ( getPlainTextPasswordAccountManager() != null ) {
+                m_authenticationHelper = impl.getAuthenticationHelper(getPlainTextPasswordAccountManager(), m_headerFactory);
+            }
             
         } catch (Exception e) {
             throw new SipxSipException("JainSip initialization exception", e);
         }
     }
    
+   
+    public ClientTransaction handleChallenge(Response response, ClientTransaction tid) throws SipException    {
+    
+        SipProvider sipProvider = ((TransactionExt)tid).getSipProvider();
+        ClientTransaction ctx =  m_authenticationHelper.handleChallenge(response, tid,
+                sipProvider, 1800);
+        ctx.sendRequest();
+        ctx.setApplicationData(tid.getApplicationData());
+        return ctx;
+    }
     
   
     public HeaderFactory getHeaderFactory() {
@@ -141,6 +166,9 @@ public abstract class AbstactSipStackBean {
     }
     
   
+    public SipStackExt getSipStack() {
+        return (SipStackExt) this.m_sipStack;
+    }
     
     public ListeningPoint getListeningPoint(ListeningPointAddress hostPortTransport) {
         return hostPortTransport.listeningPoint;
@@ -151,7 +179,17 @@ public abstract class AbstactSipStackBean {
     }
 
     public abstract String getLogLevel();
-    public abstract SecureAccountManager getAccountManager();
+    /**
+     * @return Secure Account manager or null if hashed passwords are not supported.
+     */
+    public abstract SecureAccountManager getHashedPasswordAccountManager(); 
+    
+    /**
+     * 
+     * @return plain text password account manager or null if plain text passwords
+     * not supported. Note that only one type of account is supported.
+     */
+    public abstract AccountManager getPlainTextPasswordAccountManager();
     public abstract SipListener getSipListener(AbstactSipStackBean abstactSipStackBean);
     public abstract String getStackName() ;    
     public abstract Appender getStackAppender() ;

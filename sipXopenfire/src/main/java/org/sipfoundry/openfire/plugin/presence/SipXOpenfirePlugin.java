@@ -52,9 +52,7 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
-import org.sipfoundry.openfire.config.XmppAccountInfo;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
-import org.sipfoundry.sipcallwatcher.ProtocolObjects;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.xmpp.component.Component;
 import org.xmpp.component.ComponentManager;
@@ -143,7 +141,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                     watcherConfig.setLogLevel(level);
                 }
             }
-            logAppender = new SipFoundryAppender(new SipFoundryLayout(), logFile);
+            setLogAppender(new SipFoundryAppender(new SipFoundryLayout(), logFile));
             // TODO -- this should be org.sipfoundry.openfire.
             Logger applicationLogger = Logger.getLogger("org.sipfoundry");
 
@@ -157,12 +155,12 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         .getLogLevel()));
             }
 
-            applicationLogger.addAppender(logAppender);
+            applicationLogger.addAppender(getLogAppender());
             if (System.getProperty("output.console") != null) {
                 applicationLogger.addAppender(new ConsoleAppender(new PatternLayout()));
             }
 
-            CallWatcher.setLogAppender(logAppender);
+            CallWatcher.setLogAppender(getLogAppender());
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         }
@@ -263,12 +261,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public void destroyPlugin() {
         log.debug("DestroyPlugin");
-        // Remove presence plugin component
-        try {
-            ProtocolObjects.stop();
-        } catch (Exception e) {
-            componentManager.getLog().error(e);
-        }
     }
 
     public String getName() {
@@ -874,5 +866,21 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public CallControllerConfig getCallControllerConfig() {
         return callControllerConfig;
     }
+
+    /**
+     * @param logAppender the logAppender to set
+     */
+    public static void setLogAppender(SipFoundryAppender logAppender) {
+        SipXOpenfirePlugin.logAppender = logAppender;
+    }
+
+    /**
+     * @return the logAppender
+     */
+    public static SipFoundryAppender getLogAppender() {
+        return logAppender;
+    }
+
+   
 
 }

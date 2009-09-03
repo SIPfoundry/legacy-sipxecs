@@ -29,6 +29,7 @@
     <pathelement location="${src.dir}/lib/xmlrpc-common.jar"/>
     <pathelement location="${src.dir}/lib/dnsjava.jar"/>
     <pathelement location="${src.dir}/lib/commons-codec.jar"/>
+    <pathelement location="${src.dir}/lib/commons-digester.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 

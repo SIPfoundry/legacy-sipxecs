@@ -23,21 +23,11 @@ public class CallWatcher
     // //////////////// //	
 	private static SipFoundryAppender logAppender;
 	private static WatcherConfig watcherConfig;
-	private static SipProvider sipProvider;
 	private static String configurationPath = "/etc/sipxpbx/";
     private static String configurationFile;
-    private static String logFile;
-    private static ListeningPoint udpListeningPoint;
-    private static ListeningPoint tcpListeningPoint;
-    private static Subscriber subscriber;
+    private static SipStackBean sipStackBean;
     
-    /**
-     * @return the sipProvider
-     */
-    static SipProvider getSipProvider() 
-    {
-        return sipProvider;
-    }
+  
 
     public static WatcherConfig getConfig() 
     {
@@ -57,59 +47,17 @@ public class CallWatcher
         watcherConfig  = parser.parse( "file://" + configurationFile );
     }
     
+    
     static void initializeJainSip() throws Exception {
-        ProtocolObjects.init();
-        udpListeningPoint = ProtocolObjects.getSipStack().createListeningPoint(watcherConfig.getWatcherAddress(), watcherConfig.getWatcherPort(), "udp");
-        tcpListeningPoint = ProtocolObjects.getSipStack().createListeningPoint(watcherConfig.getWatcherAddress(), watcherConfig.getWatcherPort(), "tcp");
-        sipProvider = ProtocolObjects.getSipStack().createSipProvider(udpListeningPoint);
-        subscriber = new Subscriber( sipProvider,  watcherConfig );
-        sipProvider.addSipListener( subscriber );      
-        ProtocolObjects.start();
+        sipStackBean = new SipStackBean();
+        sipStackBean.init();
+        sipStackBean.getSipStack().start();
     }
 	
-    static void initializeLogging() throws Exception {
-        try {
-            String javaClassPaths = System.getProperty("java.class.path");
-            String openfireHome = System.getProperty("openfireHome");
-            StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome+ "/lib/sipxcommons.jar");
-            System.setProperty("java.class.path",sb.toString());
-            String log4jPropertiesFile = configurationPath + "/log4j.properties";
-
-            if (new File(log4jPropertiesFile).exists()) 
-            {
-                /*
-                 * Override the file configuration setting.
-                 */
-                Properties props = new Properties();
-                props.load(new FileInputStream(log4jPropertiesFile));
-                String level = props.getProperty("log4j.category.org.sipfoundry.sipxcallwatcher");
-                if (level != null) 
-                {
-                	watcherConfig.setLogLevel(level);
-                }
-            }
-            logAppender = new SipFoundryAppender(new SipFoundryLayout(), logFile );
-            Logger applicationLogger = Logger.getLogger(CallWatcher.class.getPackage().getName());
-
-            /*
-             * Set the log level.
-             */
-            if (watcherConfig.getLogLevel().equals("TRACE")) {
-                applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
-            } else {
-                applicationLogger.setLevel(org.apache.log4j.Level.toLevel(watcherConfig.getLogLevel()));
-            }
-
-            applicationLogger.addAppender(logAppender);
-            if( System.getProperty( "output.console" ) != null )
-            {
-            	applicationLogger.addAppender( new ConsoleAppender( new PatternLayout() ) );
-            }
-        } catch (Exception ex) 
-        {
-            throw new Exception(ex);
-        }
+    public static SipStackBean getSipStackBean() {
+        return sipStackBean;
     }
+  
     
     /**
      * Entry point to get things going from the openfire plugin.
@@ -119,14 +67,11 @@ public class CallWatcher
     
     public static void init() throws Exception {
         System.out.println("path is " + CallWatcher.configurationPath );
-        CallWatcher.parseConfigurationFile();
-        logFile = watcherConfig.getLogDirectory() + "/sipxcallwatcher.log";
-        
-        //Initialize the logging subsystem
-        initializeLogging();
-        //Create Listening Point
+        CallWatcher.parseConfigurationFile();   
+         //Create Listening Point
         initializeJainSip();
-        subscriber.start();
+        Thread.sleep(100);
+        sipStackBean.getSubscriber().start();
     }
 
     /**
@@ -139,7 +84,9 @@ public class CallWatcher
     public static void pluginInit() throws Exception  {
         //Create Listening Point
         initializeJainSip();
-        subscriber.start();
+        Thread.sleep(100);
+        sipStackBean.getSubscriber().start();
+       
     }
     
     
@@ -147,15 +94,7 @@ public class CallWatcher
         CallWatcher.configurationPath = configurationPath;     
     }  
     
-
-
-    /**
-     * @return the logAppender
-     */
-    public static SipFoundryAppender getLogAppender() {
-        return logAppender;
-    }
-    
+ 
     
     
 
@@ -173,7 +112,7 @@ public class CallWatcher
      * @return the subscriber
      */
     public static Subscriber getSubscriber() {
-        return subscriber;
+        return sipStackBean.getSubscriber();
     }
     
     

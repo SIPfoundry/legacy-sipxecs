@@ -34,14 +34,14 @@ class SipUtilities
                     Properties configProperties = new Properties();
 
                     configProperties.load(cfg);
-                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory.createHeader(
+                    userAgent = (UserAgentHeader) CallWatcher.getSipStackBean().getHeaderFactory().createHeader(
                             UserAgentHeader.NAME, String.format(
                                     "sipXecs/%s sipXecs/sipxcallwatcher (Linux)", configProperties
                                             .get("version")));
                     cfg.close();
                     return userAgent;
                 } else {
-                    userAgent = (UserAgentHeader) ProtocolObjects.headerFactory.createHeader(
+                    userAgent = (UserAgentHeader) CallWatcher.getSipStackBean().getHeaderFactory().createHeader(
                             UserAgentHeader.NAME, String.format(
                                     "sipXecs/%s sipXecs/sipxcallwatcher (Linux)", "1.0"));
                     logger.warn("Creating Default User Agent Header");
@@ -71,14 +71,14 @@ class SipUtilities
                 if (cfg != null) {
                     Properties configProperties = new Properties();
                     configProperties.load(cfg);
-                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory.createHeader(
+                    serverHeader = (ServerHeader) CallWatcher.getSipStackBean().getHeaderFactory().createHeader(
                             ServerHeader.NAME, String.format(
                                     "sipXecs/%s sipXecs/sipxbridge (Linux)", configProperties
                                             .get("version")));
                     cfg.close();
                     return serverHeader;
                 } else {
-                    serverHeader = (ServerHeader) ProtocolObjects.headerFactory.createHeader(
+                    serverHeader = (ServerHeader) CallWatcher.getSipStackBean().getHeaderFactory().createHeader(
                             ServerHeader.NAME, String.format(
                                     "sipXecs/%s sipXecs/sipxbridge (Linux)", "xxxx.yyyy"));
                     logger.warn("Creating Default Server Header");

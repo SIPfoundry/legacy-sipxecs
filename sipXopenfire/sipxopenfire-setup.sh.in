@@ -40,6 +40,10 @@ then
    ln -s $SIPX_COMMONS/sipxcommons.jar $OPENFIRE_LIB/ 2> /dev/null
    rm -f $OPENFIRE_LIB/libhostname.so 2> /dev/null
    ln -s $SIPX_COMMONS/libhostname.so $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/com.noelios.restlet.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/com.noelios.restlet.jar $OPENFIRE_LIB/ 2> /dev/null
+   rm -f $OPENFIRE_LIB/org.restlet.jar 2> /dev/null
+   ln -s $SIPX_COMMONS/org.restlet.jar $OPENFIRE_LIB/ 2> /dev/null
    chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
    chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@ 2> /dev/null

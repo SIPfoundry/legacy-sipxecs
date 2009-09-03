@@ -3,6 +3,7 @@ package org.sipfoundry.sipcallwatcher;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
+import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.stack.SIPTransactionStack;
 
@@ -51,13 +52,14 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.openfire.config.WatcherConfig;
 
 /**
  * Class implementing the SipListener interface and is responsible for creating and refreshing its
  * subscription with a resource list server and track the state of the monitored resources.
  */
-public class Subscriber implements SipListener, AccountManager {
+public class Subscriber implements SipListener {
     // //////////////// //
     // static variables //
     // //////////////// //
@@ -75,19 +77,20 @@ public class Subscriber implements SipListener, AccountManager {
     private int count;
     private Dialog subscriberDialog;
     private Dialog forkedDialog;
-    private SipProvider sipProvider;
     private ClientTransaction subscribeTransaction;
     private WatcherConfig watcherConfig;
     private Timer refreshTimer; // tracks the time when a re-subscribe is required to refresh the
-                                // subscription
+    // subscription
     private Timer subscribeRetryTimer; // used to provoke retries when dialog-forming SUBSCRIBEs
-                                        // fail to establish a dialog
+    // fail to establish a dialog
     private Timer subscriptionExpiryTimer; // tracks the expiration of the subsctiption
     private ResourcesDialogInformation resourcesDialogInformation = new ResourcesDialogInformation();
     private boolean bSubscriptionActive;
     private int rlmiVersion;
 
     private ResourceStateChangeListener resourceStateChangeListener;
+    private SipStackBean stackBean;
+    private SipProvider sipProvider;
 
     // ////////////////
     // inner classes //
@@ -120,8 +123,8 @@ public class Subscriber implements SipListener, AccountManager {
             boolean hasStateChanged = false;
             this.updateId = updateId;
             if (updatedDialogs.size() == 0) {
-                if(isFullState){
-                    // Full state of the resource is an empty list of dialogs... 
+                if (isFullState) {
+                    // Full state of the resource is an empty list of dialogs...
                     // There are no dialogs associated with this resource so it
                     // is clearly idle.
                     activeDialogStates.clear();
@@ -277,12 +280,12 @@ public class Subscriber implements SipListener, AccountManager {
                 // locate the record for that resource in our resourcesDialogInfoMap
                 DialogInformation dialogInfo = resourcesDialogInfoMap.get(dialogsDesc
                         .getResourceName());
-                if ( dialogInfo == null ) {
+                if (dialogInfo == null) {
                     dialogInfo = new DialogInformation(dialogsDesc.getResourceName());
                     resourcesDialogInfoMap.put(dialogsDesc.getResourceName(), dialogInfo);
                 }
 
-                if ( dialogInfo.updateDialogStates(dialogsDesc.isFullState(), dialogsDesc
+                if (dialogInfo.updateDialogStates(dialogsDesc.isFullState(), dialogsDesc
                         .getDialogsList(), updateId)) {
                     newState = dialogInfo.getCompoundState();
                 }
@@ -307,40 +310,25 @@ public class Subscriber implements SipListener, AccountManager {
      * @param sipProvider
      * @param watcherConfig
      */
-    Subscriber(SipProvider sipProvider, WatcherConfig watcherConfig) {
-        this.sipProvider = sipProvider;
-        this.watcherConfig = watcherConfig;
+    Subscriber(SipStackBean stackBean) {
+
+        this.watcherConfig = CallWatcher.getConfig();
         this.transport = "udp";
         this.bSubscriptionActive = false;
+        this.stackBean = stackBean;
 
-        try {
-            headerFactory = SipFactory.getInstance().createHeaderFactory();
-            addressFactory = SipFactory.getInstance().createAddressFactory();
-            messageFactory = SipFactory.getInstance().createMessageFactory();
-        } catch (Exception ex) {
-            logger.error("Caught " + ex.getMessage());
-            ex.printStackTrace();
-        }
+        headerFactory = this.stackBean.getHeaderFactory();
+        addressFactory = this.stackBean.getAddressFactory();
+        messageFactory = this.stackBean.getMessageFactory();
+
+    }
+
+    public void setProvider(SipProvider provider) {
+        this.sipProvider = provider;
     }
 
     public void start() {
         sendDialogFormingSubscribe();
-    }
-
-    public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
-        return new UserCredentials() {
-            public String getPassword() {
-                return Subscriber.this.watcherConfig.getPassword();
-            }
-
-            public String getSipDomain() {
-                return Subscriber.this.watcherConfig.getProxyDomain();
-            }
-
-            public String getUserName() {
-                return Subscriber.this.watcherConfig.getUserName();
-            }
-        };
     }
 
     public synchronized void processRequest(RequestEvent requestReceivedEvent) {
@@ -350,8 +338,8 @@ public class Subscriber implements SipListener, AccountManager {
                 .getParameter("branch");
 
         logger.info("\n\nRequest " + request.getMethod() + " received at "
-                + ProtocolObjects.getSipStack().getStackName() + " with server transaction id "
-                + serverTransactionId + " branch ID = " + viaBranch);
+                + stackBean.getStackName() + " with server transaction id " + serverTransactionId
+                + " branch ID = " + viaBranch);
 
         if (request.getMethod().equals(Request.NOTIFY)) {
             processNotify(requestReceivedEvent, serverTransactionId);
@@ -381,7 +369,7 @@ public class Subscriber implements SipListener, AccountManager {
                     forkedDialog = dialog;
                 } else {
                     if (forkedDialog != dialog) {
-                        ((SIPTransactionStack) ProtocolObjects.getSipStack()).printDialogTable();
+                        ((SIPTransactionStack) stackBean.getSipStack()).printDialogTable();
                     }
                     assert (forkedDialog == dialog);
                 }
@@ -490,14 +478,7 @@ public class Subscriber implements SipListener, AccountManager {
             if (tid == subscribeTransaction) {
                 logger.debug("dialog and tid match: " + subscriberDialog.getDialogId());
                 if (response.getStatusCode() == Response.UNAUTHORIZED) {
-                    AuthenticationHelper authenticationHelper = ((SipStackExt) ProtocolObjects
-                            .getSipStack()).getAuthenticationHelper(this,
-                            ProtocolObjects.headerFactory);
-
-                    subscribeTransaction = authenticationHelper.handleChallenge(response, tid,
-                            sipProvider, 1800);
-                    subscribeTransaction.sendRequest();
-
+                    stackBean.handleChallenge(response, tid);
                 } else if (response.getStatusCode() == Response.ACCEPTED
                         || response.getStatusCode() == Response.OK) {
                     // update dialog
@@ -629,13 +610,12 @@ public class Subscriber implements SipListener, AccountManager {
 
             // create Request URI
             SipURI requestURI = addressFactory.createSipURI(toUser, toSipAddress);
-            requestURI.setPort(watcherConfig.getProxyPort());
-            // requestURI.setTransportParam( transport );
+           
 
             // Create ViaHeaders
             // TODO: do this right
             ArrayList viaHeaders = new ArrayList();
-            int port = sipProvider.getListeningPoint(transport).getPort();
+            int port = CallWatcher.getConfig().getWatcherPort();
             ViaHeader viaHeader = headerFactory.createViaHeader(
                     watcherConfig.getWatcherAddress(), watcherConfig.getProxyPort(), transport,
                     null);
@@ -665,7 +645,7 @@ public class Subscriber implements SipListener, AccountManager {
             // Create the contact name address.
             SipURI contactURI = addressFactory.createSipURI(fromName, host);
             contactURI.setTransportParam(transport);
-            contactURI.setPort(sipProvider.getListeningPoint(transport).getPort());
+            contactURI.setPort(CallWatcher.getConfig().getWatcherPort());
 
             Address contactAddress = addressFactory.createAddress(contactURI);
 

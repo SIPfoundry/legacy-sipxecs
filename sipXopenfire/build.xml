@@ -44,6 +44,8 @@
 			    <pathelement location="${sipxcommons}" />
 			    <pathelement location="${commons-digester}" />
 			    <pathelement location="${commons-beanutils}" />
+			    <pathelement location="${noelios-restlet}" />
+			    <pathelement location="${restlet}" />
 			</classpath>
 		</openfire-javac>
 	</target>

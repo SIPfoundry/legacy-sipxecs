@@ -16,6 +16,7 @@ import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
+import org.sipfoundry.commons.jainsip.AccountManagerImpl;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
