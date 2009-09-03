@@ -206,8 +206,8 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
 
          UtlString callId;
          UtlString method;
-         const EndpointDescriptor* pCaller;
-         const EndpointDescriptor* pCallee;
+         const EndpointDescriptor* pCaller = 0;
+         const EndpointDescriptor* pCallee = 0;
          CallTracker* pCallTracker = 0;
          
          request.getCallIdField( &callId );
