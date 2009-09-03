@@ -31,5 +31,7 @@
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/openfire.jar" sourcepath="/OPENFIRE-PROJECT-ROOT/src"/>
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/postgres.jar"/>
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/servlet.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/com.noelios.restlet.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -143,10 +143,14 @@ public class AccountsParser {
             throw new SipXOpenfirePluginException("Account db file not found : "
                     + accountDbFileName);
         }
+      
+    }
+
+    public void startScanner() {
         Scanner scanner = new Scanner();
         timer.schedule(scanner, 0, 10000);
     }
-
+    
     private static void addCallMethod(String elementName, String methodName) {
         digester.addCallMethod(String.format("%s/%s", currentTag, elementName), methodName, 0);
     }
