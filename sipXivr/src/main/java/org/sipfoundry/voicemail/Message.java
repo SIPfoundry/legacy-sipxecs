@@ -84,7 +84,7 @@ public class Message {
     }
     
     public void deleteTempWav() {
-        if (m_wavFile.exists()) {
+        if (m_wavFile != null && m_wavFile.exists()) {
             LOG.debug("Message:deleteTempWav deleting "+ m_wavFile.getPath());
             FileUtils.deleteQuietly(m_wavFile) ;
         }
@@ -144,14 +144,17 @@ public class Message {
 
     public long getDuration() {
         // Calculate the duration (in seconds) from the Wav file
-        try {
-            AudioInputStream ais = AudioSystem.getAudioInputStream(getWavFile());
-            float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
-            m_duration = Math.round(secs); // Round up.
-        } catch (Exception e) {
-            String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
-            LOG.error(trouble, e);
-            throw new RuntimeException(trouble, e);            
+        File wavFile = getWavFile();
+        if (wavFile != null) {
+            try {
+                AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
+                float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
+                m_duration = Math.round(secs); // Round up.
+            } catch (Exception e) {
+                String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
+                LOG.error(trouble, e);
+                throw new RuntimeException(trouble, e);            
+            }
         }
         return m_duration;
     }

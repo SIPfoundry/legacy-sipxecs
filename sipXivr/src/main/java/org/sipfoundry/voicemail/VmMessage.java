@@ -368,7 +368,7 @@ public class VmMessage {
             } else {
                 FileUtils.touch(me.m_audioFile); // Create an empty NewID-00.wav file
                 // Copy the old audiofile by itself to NewID-FW.wav
-                FileUtils.copyFile(me.m_audioFile, me.m_combinedAudioFile, true);
+                FileUtils.copyFile(me.m_originalAudioFile, me.m_combinedAudioFile, true);
             }
             
             

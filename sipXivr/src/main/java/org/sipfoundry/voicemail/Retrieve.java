@@ -268,7 +268,9 @@ public class Retrieve {
     }
 
     void dontDeleteTempFile(File tempFile) {
-        m_tempRecordings.remove(tempFile);
+        if (tempFile != null) {
+            m_tempRecordings.remove(tempFile);
+        }
     }
     
     void main_menu() {
@@ -661,9 +663,9 @@ public class Retrieve {
                     continue;
                 }
                 askAboutComments = false;
-             // Build a message with the comments (if any)
+             // Build a message with the comments (if any) from the logged in user
                 comments = Message.newMessage(null, commentsFile, 
-                        m_fses.getDisplayUri(), Priority.NORMAL);
+                        m_mailbox.getUser().getUri(), Priority.NORMAL);
             }
 
             
