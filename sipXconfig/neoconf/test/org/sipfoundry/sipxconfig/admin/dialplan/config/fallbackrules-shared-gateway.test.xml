@@ -60,5 +60,61 @@
         <fieldparams>q=0.867</fieldparams>
       </transform>
     </userMatch>
+    <userMatch>
+      <!--emergency name-->
+      <description>emergency description</description>
+      <callTag>EMERG</callTag>
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <callerLocationMatch>
+        <callerLocation>Montreal</callerLocation>
+        <transform>
+          <user>911</user>
+          <host>montreal.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+        <transform>
+          <user>8911</user>
+          <host>example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.9</fieldparams>
+        </transform>
+        <transform>
+          <user>9911</user>
+          <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.85</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <callerLocationMatch>
+        <callerLocation>Lisbon</callerLocation>
+        <transform>
+          <user>9911</user>
+          <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.933</fieldparams>
+        </transform>
+        <transform>
+          <user>8911</user>
+          <host>example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.867</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <transform>
+        <user>8911</user>
+        <host>example.org</host>
+        <headerparams>expires=60</headerparams>
+        <fieldparams>q=0.933</fieldparams>
+      </transform>
+      <transform>
+        <user>9911</user>
+        <host>lisbon.example.org</host>
+        <headerparams>expires=60</headerparams>
+        <fieldparams>q=0.867</fieldparams>
+      </transform>
+    </userMatch>
   </hostMatch>
 </mappings>

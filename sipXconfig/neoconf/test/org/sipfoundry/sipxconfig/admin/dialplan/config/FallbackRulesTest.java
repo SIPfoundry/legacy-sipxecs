@@ -9,6 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
+import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,6 +38,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallDigits;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.domain.Domain;
@@ -40,14 +49,6 @@ import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxRlsService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createStrictMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.assertElementInNamespace;
-import static org.sipfoundry.sipxconfig.XmlUnitHelper.setNamespaceAware;
 
 public class FallbackRulesTest extends XMLTestCase {
 
@@ -135,8 +136,29 @@ public class FallbackRulesTest extends XMLTestCase {
 
         replay(rule);
 
+        IDialingRule emergencyRule = createStrictMock(IDialingRule.class);
+        emergencyRule.isInternal();
+        expectLastCall().andReturn(false);
+        emergencyRule.getHostPatterns();
+        expectLastCall().andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
+        emergencyRule.getName();
+        expectLastCall().andReturn("emergency name");
+        emergencyRule.getDescription();
+        expectLastCall().andReturn("emergency description");
+        emergencyRule.getCalltag();
+        expectLastCall().andReturn("EMERG").anyTimes();
+        emergencyRule.getPatterns();
+        expectLastCall().andReturn(array("sos", "911", "9911"));
+        emergencyRule.getSiteTransforms();
+        Map<String, List< ? extends Transform>> emergencySiteMap = new HashMap<String, List< ? extends Transform>>();
+        emergencySiteMap.put(StringUtils.EMPTY, Arrays.asList(t1));
+        expectLastCall().andReturn(emergencySiteMap);
+
+        replay(emergencyRule);
+
         m_out.begin();
         m_out.generate(rule);
+        m_out.generate(emergencyRule);
         m_out.end();
         m_out.localizeDocument(TestUtil.createDefaultLocation());
 
@@ -178,8 +200,27 @@ public class FallbackRulesTest extends XMLTestCase {
 
         replay(rule);
 
+        IDialingRule emergencyRule = createStrictMock(IDialingRule.class);
+        emergencyRule.isInternal();
+        expectLastCall().andReturn(false);
+        emergencyRule.getHostPatterns();
+        expectLastCall().andReturn(ArrayUtils.EMPTY_STRING_ARRAY);
+        emergencyRule.getName();
+        expectLastCall().andReturn("emergency name");
+        emergencyRule.getDescription();
+        expectLastCall().andReturn("emergency description");
+        emergencyRule.getCalltag();
+        expectLastCall().andReturn("EMERG").anyTimes();
+        emergencyRule.getPatterns();
+        expectLastCall().andReturn(array("sos", "911", "9911"));
+        emergencyRule.getSiteTransforms();
+        expectLastCall().andReturn(siteTr);
+
+        replay(emergencyRule);
+
         m_out.begin();
         m_out.generate(rule);
+        m_out.generate(emergencyRule);
         m_out.end();
         m_out.localizeDocument(TestUtil.createDefaultLocation());
 
@@ -239,8 +280,19 @@ public class FallbackRulesTest extends XMLTestCase {
         rule.setCallPattern(new CallPattern("444", CallDigits.NO_DIGITS));
         rule.setDialPatterns(Arrays.asList(new DialPattern("x", DialPattern.VARIABLE_DIGITS)));
 
+        EmergencyRule emergencyRule = new EmergencyRule();
+        emergencyRule.setName("emergency name");
+        emergencyRule.setDescription("emergency description");
+        emergencyRule.setCalltag("EMERG");
+        emergencyRule.setEmergencyNumber("911");
+        emergencyRule.setOptionalPrefix("9");
+        emergencyRule.addGateway(shared);
+        emergencyRule.addGateway(montreal);
+        emergencyRule.addGateway(lisbon);
+
         m_out.begin();
         m_out.generate(rule);
+        m_out.generate(emergencyRule);
         m_out.end();
         m_out.localizeDocument(TestUtil.createDefaultLocation());
 
