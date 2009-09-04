@@ -19,6 +19,19 @@
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>
   </user>
-  <group/>
+  <group>
+    <group-name>group1</group-name>
+    <description>my group</description>
+    <user>
+      <user-name>One</user-name>
+    </user>
+    <user>
+      <user-name>Two</user-name>
+    </user>
+  </group>
+  <group>
+    <group-name>group2</group-name>
+    <description>empty group</description>
+  </group>
   <chat-room/>
 </xmpp-account-info>

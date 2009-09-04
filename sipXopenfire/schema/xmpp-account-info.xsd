@@ -55,7 +55,7 @@
     				<documentation>The xmpp group name.</documentation>
     			</annotation>
 		</element>
-    		<element name="administrator" type="string" minOccurs="1" maxOccurs="1">
+		    <element name="administrator" type="string" minOccurs="0" maxOccurs="1">
     			<annotation>
     				<documentation>The xmpp group administrator.</documentation>
     			</annotation>

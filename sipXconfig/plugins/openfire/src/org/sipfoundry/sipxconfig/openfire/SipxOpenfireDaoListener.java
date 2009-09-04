@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class SipxOpenfireDaoListener implements DaoEventListener {
 
@@ -20,15 +21,26 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
     private ConfigurationFile m_configurationFile;
 
     public void onDelete(Object entity) {
-        if (entity instanceof User) {
+        if (checkGenerateConfig(entity)) {
             generateOpenfireConfig();
         }
     }
 
     public void onSave(Object entity) {
-        if (entity instanceof User) {
+        if (checkGenerateConfig(entity)) {
             generateOpenfireConfig();
         }
+    }
+
+    private boolean checkGenerateConfig(Object entity) {
+        if (entity instanceof User) {
+            return true;
+        }
+        if (entity instanceof Group) {
+            Group group = (Group) entity;
+            return User.GROUP_RESOURCE_ID.equals(group.getResource());
+        }
+        return false;
     }
 
     /**

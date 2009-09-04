@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -16,6 +17,7 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 public class XmppAccountInfo extends XmlFile {
@@ -38,7 +40,10 @@ public class XmppAccountInfo extends XmlFile {
                 createUserAccount(user, accountInfos);
             }
         }
-        accountInfos.addElement("group", NAMESPACE);
+        List<Group> groups = m_coreContext.getGroups();
+        for (Group group : groups) {
+            createXmmpGroup(group, accountInfos);
+        }
         accountInfos.addElement("chat-room", NAMESPACE);
 
         return document;
@@ -61,11 +66,25 @@ public class XmppAccountInfo extends XmlFile {
         userAccounts.addElement("display-name").setText(displayName);
         userAccounts.addElement("password").setText(user.getImId());
         userAccounts.addElement("on-the-phone-message").setText(onPhoneMessage);
-        userAccounts.addElement("advertise-on-call-status").setText(((Boolean) user.getSettingTypedValue(
-                        "openfire/advertise-sip-presence")).toString());
-        userAccounts.addElement("show-on-call-details").setText(((Boolean) user.getSettingTypedValue(
-                        "openfire/include-call-info")).toString());
-
+        userAccounts.addElement("advertise-on-call-status").setText(
+                ((Boolean) user.getSettingTypedValue("openfire/advertise-sip-presence")).toString());
+        userAccounts.addElement("show-on-call-details").setText(
+                ((Boolean) user.getSettingTypedValue("openfire/include-call-info")).toString());
     }
 
+    private void createXmmpGroup(Group group, Element accountInfos) {
+        Element xmmpGroup = accountInfos.addElement("group");
+        xmmpGroup.addElement("group-name").setText(group.getName());
+        String groupDescription = group.getDescription();
+        if (groupDescription != null) {
+            xmmpGroup.addElement("description").setText(groupDescription);
+        }
+        Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
+        if (groupMembers != null && groupMembers.size() > 0) {
+            for (User user : groupMembers) {
+                Element userElement = xmmpGroup.addElement("user");
+                userElement.addElement("user-name").setText(user.getName());
+            }
+        }
+    }
 }
