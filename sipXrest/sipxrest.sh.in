@@ -74,8 +74,9 @@ CONFIG_FILES="\
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXrest/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXrest/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXrest/plugins/*.jar`
 ClassPath=$LibPath
+PluginDir=@SIPX_JAVADIR@/sipXrest/plugins
 
 X509Algorithm=`$JavaCmd \
        -classpath "$ClassPath" \
@@ -89,6 +90,7 @@ case ${Action} in
    RUN)
       echo $$ > @SIPX_RUNDIR@/sipxrest.pid
       exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+         -Dplugin.dir=$PluginDir                        \
 	 $TrustStoreOpts 				\
 	 $KeyStoreOpts					\
 	 -Djetty.x509.algorithm=$X509Algorithm		\
@@ -96,7 +98,7 @@ case ${Action} in
 	 -Djetty.ssl.keypassword=$KeyStorePassword	\
 	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
          -Dsipxrest.command=start 			  \
-         -cp $ClassPath org.sipfoundry.restServer.RestServer \
+         -cp $ClassPath org.sipfoundry.sipxrest.RestServer \
 	 $Args
      ;;
 

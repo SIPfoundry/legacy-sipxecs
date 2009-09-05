@@ -1,9 +1,13 @@
-package org.sipfoundry.restServer;
+package org.sipfoundry.sipxrest;
 
 import java.io.File;
 import java.util.Timer;
 
 import javax.net.ssl.SSLServerSocket;
+import javax.sip.SipFactory;
+import javax.sip.address.AddressFactory;
+import javax.sip.header.HeaderFactory;
+import javax.sip.message.MessageFactory;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
@@ -16,20 +20,21 @@ import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
+import org.sipfoundry.commons.jainsip.AccountManagerImpl;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.restconfig.ConfigFileParser;
+import org.sipfoundry.commons.restconfig.RestServerConfig;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 
 public class RestServer {
     
     private static Logger logger = Logger.getLogger(RestServer.class);
     
-    static final String PACKAGE = "org.sipfoundry.restServer";
+    static final String PACKAGE = "org.sipfoundry.sipxrest";
     
     private static String configFileName = "/etc/sipxpbx/sipxrest.xml";
-
-    private static String accountFileName = "/etc/sipxpbx/validusers.xml";
-
-    private static AccountManagerImpl accountManager;
 
     private static Appender appender;
     
@@ -41,14 +46,19 @@ public class RestServer {
     
     public static final Timer timer = new Timer();
     
+    private static MessageFactory messageFactory;
+    
+    private static AddressFactory addressFactory;
+    
+    private static HeaderFactory headerFactory;
+
+    private static RestServiceFinder restServiceFinder;
+    
   
     public static RestServerConfig getRestServerConfig() {
         return restServerConfig;
     }
-
-    public static AccountManagerImpl getAccountManager() {
-        return accountManager;
-    }
+   
    
     /**
      * @param appender the appender to set
@@ -66,6 +76,8 @@ public class RestServer {
 
  
     private static void initWebServer() throws Exception {
+        
+       
         webServer = new HttpServer();
         InetAddrPort inetAddrPort = new InetAddrPort(restServerConfig.getIpAddress(),
                 restServerConfig.getHttpPort());
@@ -147,11 +159,39 @@ public class RestServer {
     }
 
     /**
+     * @return the messageFactory
+     */
+    public static MessageFactory getMessageFactory() {
+        return messageFactory;
+    }
+
+   
+    /**
+     * @return the addressFactory
+     */
+    public static AddressFactory getAddressFactory() {
+        return addressFactory;
+    }
+
+   
+    /**
+     * @return the headerFactory
+     */
+    public static HeaderFactory getHeaderFactory() {
+        return headerFactory;
+    }
+    
+  
+    
+    public static RestServiceFinder getServiceFinder() {
+        return restServiceFinder;
+    }
+    /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
 
-        accountFileName = System.getProperties().getProperty("conf.dir", "/etc/sipxpbx")
+        String accountFileName = System.getProperties().getProperty("conf.dir", "/etc/sipxpbx")
                 + "/validusers.xml";
 
         configFileName = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx")
@@ -163,23 +203,33 @@ public class RestServer {
         }
 
         if (!new File(configFileName).exists()) {
-            System.err.println("Cannot find the accounts file");
+            System.err.println("Cannot find the config file");
             System.exit(-1);
         }
-
-        restServerConfig = new ConfigFileParser().createRestServerConfig("file://"
+        SipFactory factory = SipFactory.getInstance();
+        factory.setPathName("gov.nist");
+        addressFactory = factory.createAddressFactory();
+        headerFactory = factory.createHeaderFactory();
+        messageFactory = factory.createMessageFactory();
+    
+    
+        restServerConfig = new ConfigFileParser().parse("file://"
                 + configFileName);
-        accountManager = new AccountManagerImpl();
         Logger.getLogger(PACKAGE).setLevel(Level.toLevel(restServerConfig.getLogLevel()));
         setAppender(new SipFoundryAppender(new SipFoundryLayout(),
                 RestServer.getRestServerConfig().getLogDirectory()
-                +"/sipxrestServer.log"));
+                +"/sipxrest.log"));
         Logger.getLogger(PACKAGE).addAppender(getAppender());
-      
+        restServiceFinder = new RestServiceFinder();
+     
         initWebServer();
        
         logger.debug("Web server started.");
 
     }
+
+   
+
+
 
 }

@@ -1,4 +1,4 @@
-package org.sipfoundry.restServer;
+package org.sipfoundry.sipxrest;
 
 import org.restlet.Context;
 import org.restlet.data.MediaType;
@@ -19,7 +19,8 @@ public class RestServerDefault extends Resource {
          * Need to put something here to redirect to the wiki page.
          */
         Response response = getResponse();
-        response.setEntity("Hello World!", MediaType.TEXT_PLAIN);  
+        String descriptionPage = RestServer.getServiceFinder().getDescriptions();
+        response.setEntity(descriptionPage, MediaType.TEXT_HTML);  
         response.setStatus(Status.SUCCESS_OK);
     }
     

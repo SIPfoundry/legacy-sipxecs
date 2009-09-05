@@ -1,4 +1,4 @@
-package org.sipfoundry.restServer;
+package org.sipfoundry.commons.restconfig;
 
 import org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
@@ -26,8 +26,8 @@ public class ConfigFileParser {
         digester.addCallMethod( String.format("%s/%s", REST_CONFIG,"log-level"), "setLogLevel",0);
     }
     
-    RestServerConfig createRestServerConfig(String url) {
-  	Digester digester = new Digester();
+    public RestServerConfig parse(String url) {
+        Digester digester = new Digester();
         addRules(digester);
         try {
             InputSource inputSource = new InputSource(url);
@@ -35,7 +35,7 @@ public class ConfigFileParser {
             RestServerConfig restServerConfig = (RestServerConfig) digester.getRoot();
             return restServerConfig;
         } catch (Exception ex) {
-      	  throw new SipxSipException(ex);
+      	  throw new RuntimeException(ex);
         }
      
   }

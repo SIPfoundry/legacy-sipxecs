@@ -51,6 +51,7 @@
                 <pathelement location="${noelios-restlet-ext-servlet}" />
                 <pathelement location="${noelios-restlet}" />
                 <pathelement location="${restlet}" />
+                <pathelement location="${sipxrest.dir}/sipXrest.jar" />
 	</path>
 
 	<path id="base.path">
@@ -105,23 +106,40 @@
   	</target>
 
 
-<!-- Compile the soruce code -->
+<!-- Compile the soruce code and install the test cases. -->
 
-	<target name="compile.test"  description="compile the source and tests ">
+	<target name="compiletest"  description="compile tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<echo>test path ${test.path}</echo>
 		<mkdir dir="${classes}" />
-		<javac srcdir="${src}"
+		<javac srcdir="${src.dir}/src/test/java"
 			destdir="${classes}"
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
-		 	classpathref="test.path" deprecation="off" />
-			<assertions>
-				<enable />
-			</assertions>
+		 	classpathref="test.path" deprecation="off">
+	        </javac>
+		<jar jarfile="${build.dir}/dist/restleta.jar">
+			<fileset dir="${classes}" >
+				<include name="org/sipfoundry/sipxrest/testa/**/*.class" />
+			</fileset>
+			 <fileset dir="${src.dir}/src/test/java/org/sipfoundry/sipxrest/testa" >
+			         <include name="plugin.xml" />
+			</fileset>
+		</jar>
+    	        <copy file="${build.dir}/dist/restleta.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
+		<jar jarfile="${build.dir}/dist/restletb.jar">
+			<fileset dir="${classes}" >
+				<include name="org/sipfoundry/sipxrest/testb/**/*.class" />
+			</fileset>
+			 <fileset dir="${src.dir}/src/test/java/org/sipfoundry/sipxrest/testb" >
+			         <include name="plugin.xml" />
+			</fileset>
+		</jar>
+    	        <copy file="${build.dir}/dist/restletb.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
 	</target>
 
+<!-- Compile the soruce code exclude the test cases. -->
 	<target name="compile-exclude-tests"  description="compile the source no tests">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<mkdir dir="${classes}" />
@@ -130,14 +148,13 @@
 			debug="${javac.debug}"
 			optimize= "${javac.optimize}"
 			debuglevel = "${javac.debuglevel}"
-		 	classpathref="base.path" deprecation="off" />
-			<assertions>
-				<enable />
-			</assertions>
+		 	classpathref="base.path" deprecation="off" >
+		</javac>
 	</target>
 
 <!-- BUILD a Jar file -->
-	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
+	<target name="jar" 
+	depends="compile-exclude-tests" description="create a jar file" >
 		<mkdir dir="${build.dir}/dist" />
 		<copy file="${build.dir}/config.properties" todir="${classes}" />
 		<jar jarfile="${build.dir}/dist/sipxrest.jar">
@@ -150,7 +167,7 @@
 
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxrest.dir}"/>
-    	<mkdir dir="${dest.dir}${sipxrest.dir}/restplugins"/>
+    	<mkdir dir="${dest.dir}${sipxrest.dir}/plugins"/>
     	<copy file="${build.dir}/dist/sipxrest.jar" todir="${dest.dir}${sipxrest.dir}"/>
     </target>
 
@@ -163,18 +180,6 @@
 	<delete dir="${doc}/javadoc" />
 </target>
 
-<!-- Start sipxrest from ant.  for experimental purposes only. WARNING cleans logs  -->
-<target name="sipxrest" description="Start sipXrest" depends="clean,compile" >
-     <java fork="yes" classname="org.sipfoundry.sipxrest.restServer">
-           <classpath>
-		  <pathelement location="${classes}" />
-                  <fileset dir="./lib">
-                         <include name="**/*.jar" />
-                  </fileset>
-           </classpath>
-           <jvmarg value="-Dconf.dir=/usr/local/sipx/etc/sipxpbx"/>
-     </java>
-</target>
 
 
 

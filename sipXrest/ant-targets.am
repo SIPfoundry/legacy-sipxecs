@@ -24,3 +24,6 @@ install : all install-data-hook  dist install-binSCRIPTS
 
 check :
 	$(ANT_CMD) $(ANT_FLAGS) test
+
+installtest : install
+	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) -Ddata.dir=$(datadir) compiletest

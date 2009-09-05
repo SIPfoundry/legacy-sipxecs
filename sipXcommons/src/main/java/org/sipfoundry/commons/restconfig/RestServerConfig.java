@@ -1,4 +1,4 @@
-package org.sipfoundry.restServer;
+package org.sipfoundry.commons.restconfig;
 
 import java.util.Date;
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/com.noelios.restlet.ext.servlet.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/com.noelios.restlet.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jain-sip-sdp.jar" sourcepath="/home/mranga/workspace/jain-sip/src"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/commons-digester.jar"/>
+	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/BUILD1/sipXcommons/dist/sipxcommons.jar" sourcepath="SIPX-PROJECT-ROOT/sipXcommons/src"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/log4j.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/jetty.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/dnsjava.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/org.restlet.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
