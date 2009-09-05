@@ -171,6 +171,17 @@ public class RegistrationManager {
                             requestContactUri.getHost())
                             && requestContactUri.getPort() == port) {
                         time = contactHeader.getExpires();
+                        // No contact parameter present but there may be an Expires header.
+                        if ( time == -1 ) {
+                            if ( response.getExpires() != null ) {
+                                time = response.getExpires().getExpires();
+                            } else {
+                                // This is a protocol error but we keep retrying anyway.
+                                logger.warn("ITSP did not return an Expires interval for the contact - " +
+                                "using Expires from the Request");
+                                time = ct.getRequest().getExpires().getExpires();
+                            }
+                        }
                         break;
                     }
                 }
