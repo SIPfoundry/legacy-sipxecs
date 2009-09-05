@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipXrest" default="jar" basedir="." >
+
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${JainSip.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dnsjava.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipxrest.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+  -->
+  <target name="install">
+
+  <!-- BINARIES/LIB/SCRIPTS -->
+  <delete dir="${dest.dir}${sipxrest.dir}"/>
+  <mkdir dir="${dest.dir}${sipxrest.dir}"/>
+  <copy file="${build.dir}/dist/sipxrest.jar" todir="${dest.dir}${sipxrest.dir}"/>
+
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipxrest.sh"/>
+    <delete dir="${dest.dir}${sipxrest.dir}"/>
+  </target>
+
+</project>

@@ -1,0 +1,12 @@
+
+SipX REST Server
+===========================
+
+This is the RESTLET based server that implements a plugin mechanism whereby REST 
+services can be added seperately.
+
+The RESTLET based server application starts up a Jetty Server that will listen in
+on a port designated for HTTP requests and another port for HTTPS requests.
+
+Plugins are to be designed as RESTLET applications that implement a defined interface (IPlugin)
+and are expected to setup their route and parameters appropriately.
