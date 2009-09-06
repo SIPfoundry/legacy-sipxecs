@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ OrbitListener::~OrbitListener()
 
 UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 {
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+   OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "OrbitListener::handleMessage - "
                  "message type %d subtype %d",
                  rMsg.getMsgType(), rMsg.getMsgSubType());
@@ -116,19 +116,19 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
       UtlString  callIdTao = argTao[TAO_OFFER_PARAM_CALLID] ;
       UtlString  addressTao = argTao[TAO_OFFER_PARAM_ADDRESS] ;
 
-      switch (taoEventId) 
+      switch (taoEventId)
       {
          case PtEvent::CONNECTION_OFFERED:
          {
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitListener::handleMessage - %d "
-                          "Call offered: callId: '%s', address: '%s'", 
+                          "Call offered: callId: '%s', address: '%s'",
                           taoEventId, callIdTao.data(), addressTao.data());
             if (mTransferCalls.find(&callIdTao))
             {
                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::handleMessage - %d "
-                             "callId: '%s', address: '%s' found in mTransferCalls", 
+                             "callId: '%s', address: '%s' found in mTransferCalls",
                              taoEventId, callIdTao.data(), addressTao.data());
             }
 
@@ -217,9 +217,9 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
          case PtEvent::CONNECTION_ESTABLISHED:
          {
-             if (localConnectionTao) 
+             if (localConnectionTao)
              {
-                OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                               "OrbitListener::handleMessage - %d "
                               "Call established: callId '%s', address: '%s'",
                               taoEventId, callIdTao.data(), addressTao.data());
@@ -228,13 +228,13 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    // found call-id in transfer hashmap, get origi call-id value (if any)
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
-                                 "callId: '%s', address: '%s' found in mTransferCalls", 
+                                 "callId: '%s', address: '%s' found in mTransferCalls",
                                  taoEventId, callIdTao.data(), addressTao.data());
                     UtlString* idOfOrigCallTxfr =
                       dynamic_cast <UtlString*> (mTransferCalls.findValue(&callIdTao));
                    if (idOfOrigCallTxfr)
                    {
-                      // If we have a ParkedCallObject for the originalCallId, 
+                      // If we have a ParkedCallObject for the originalCallId,
                       // remove it from the hashmap and re-insert it with the new callId
                       // Then update "originalCallId" in PCO to new callid.
                       OsSysLog::add(FAC_PARK, PRI_DEBUG,
@@ -255,31 +255,31 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                       }
                       else
                       {
-                         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                         OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                        "OrbitListener::handleMessage - %d "
-                                       "found parked call object %p for '%s'", 
+                                       "found parked call object %p for '%s'",
                                        taoEventId, pCall, callIdTao.data());
 
-                         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                         OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                        "OrbitListener::handleMessage - %d "
                                        "replacing parked call(%p) object key "
-                                       "was %s changes to '%s'", 
+                                       "was %s changes to '%s'",
                                        taoEventId, pCall, idOfOrigCallTxfr->data(), callIdTao.data());
 
                          mCalls.remove(idOfOrigCallTxfr);
                          mCalls.insertKeyAndValue(new UtlString(callIdTao),pCall);
-                         pCall->setCurrentCallId(callIdTao); 
+                         pCall->setCurrentCallId(callIdTao);
                       }
                    }    // end found original call-id as value in mTransferCalls hashmap
                 }   // end found call-id in mTransferCalls hashmap
 
 
                 // CallId at this point is either the callId of a normal call or the original callId
-                // of a second leg of a transfer. 
+                // of a second leg of a transfer.
 
                 // Test if this is a call retrieval operation
                 bool bIsRetrieve = !isCallRetrievalInvite(callIdTao.data(), addressTao.data());
-                OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                               "OrbitListener::handleMessage - %d "
                               "is %scall retrieval call '%s'",
                               taoEventId,
@@ -288,7 +288,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
 
                 if (bIsRetrieve)
                 {
-                  ParkedCallObject* pThisCall = 
+                  ParkedCallObject* pThisCall =
                       dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
                   if (pThisCall != NULL)
                   {
@@ -302,15 +302,15 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    setUpRetrievalCall(callIdTao, addressTao);
                 }
              }  // end is localConnection
-             else 
+             else
              {
-                ParkedCallObject* pThisCall = 
+                ParkedCallObject* pThisCall =
                     dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
                 if (pThisCall != NULL)
                 {
                    if(pThisCall->getEstablished())
                    {
-                      OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                      OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                     "OrbitListener::handleMessage - %d "
                                     "remote setUpParkedCallEstablished",
                                     taoEventId);
@@ -322,13 +322,13 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
              }  // end is not localConnection
          }
          break;
-            
+
 
          case PtEvent::CONNECTION_DISCONNECTED:
          {
              if (!localConnectionTao)
              {
-                OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                OsSysLog::add(FAC_PARK, PRI_DEBUG,
                               "OrbitListener::handleMessage - %d "
                               "Call disconnected: callId '%s', address: '%s'",
                               taoEventId, callIdTao.data(), addressTao.data());
@@ -370,18 +370,18 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
                                  "Address mismatch passed in '%s' / stored '%s'",
-                                 taoEventId, addressTao.data(), 
+                                 taoEventId, addressTao.data(),
                                  pDroppedCall->getCurrentAddress());
                 }
              }
          }
          break;
-            
+
          case PtEvent::CONNECTION_FAILED:
          {
-            OsSysLog::add(FAC_PARK, PRI_WARNING, 
+            OsSysLog::add(FAC_PARK, PRI_WARNING,
                           "OrbitListener::handleMessage - %d "
-                          "Connection failed: '%s'", 
+                          "Connection failed: '%s'",
                           taoEventId, callIdTao.data());
 
             // If this is a CONNECTION_FAILED on a transfer
@@ -399,7 +399,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                 "OrbitListener::handleMessage - %d "
                                 "transfer - Call failed: "
-                                "callId: '%s', address: '%s', originalCallId: '%s'", 
+                                "callId: '%s', address: '%s', originalCallId: '%s'",
                                 taoEventId, callIdTao.data(), addressTao.data(),
                                 originalCallId->data());
 
@@ -415,7 +415,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   }
                   else
                   {
-                     OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+                     OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                    "OrbitListener::handleMessage - %d "
                                    "found call object %p for '%s'",
                                    taoEventId, pCall, callIdTao.data());
@@ -425,13 +425,13 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   }
                }
             }
-            
+
             // Delete the transfer call (if it is one).
             // This deletes *originalCallId, so do it after we are
             // done with originalCallId.
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitListener::handleMessage - %d "
-                          "callId: '%s', address: '%s' removed from mTransferCalls", 
+                          "callId: '%s', address: '%s' removed from mTransferCalls",
                           taoEventId, callIdTao.data(), addressTao.data());
             mTransferCalls.destroy(&callIdTao);
 
@@ -447,8 +447,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                              "due to failed connection",
                              taoEventId, pDroppedCall, callIdTao.data());
                mCalls.destroy(&callIdTao);
-            }      
-            
+            }
+
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
                           "OrbitListener::handleMessage - %d "
                           "Dropping callId '%s' because received CONNECTION_DISCONNECTED",
@@ -499,21 +499,21 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                  "transfer callid: '%s'",
                                  taoEventId, callIdTao.data(), transferCallIdTao.data());
 
-                   if ( !callIdTao.isEqual(&transferCallIdTao) 
+                   if ( !callIdTao.isEqual(&transferCallIdTao)
                        && mTransferCalls.find(&transferCallIdTao))
                    {
                       OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                     "OrbitListener::handleMessage - %d "
-                                    "transfer - Remove from mTransferCalls '%s'", 
+                                    "transfer - Remove from mTransferCalls '%s'",
                                     taoEventId, transferCallIdTao.data());
                       // Remove this call ID from the list of transfer pseudo-calls we
                       // are monitoring.
                       mTransferCalls.destroy(&transferCallIdTao);
-    
+
                       // start hy
                       ParkedCallObject* pCall =
                           dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
-                   
+
                       if(pCall)
                       {
                          // Transfer is complete; clearTransfer flag.
@@ -536,14 +536,14 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
          case PtEvent::MULTICALL_META_REPLACE_ENDED:
          {
                 // Only one MULTICALL_META_REPLACE_ENDED will occur, since
-                // only one CpCall exists to hold the metaEvent.  
+                // only one CpCall exists to hold the metaEvent.
                 // The metaEvent is stopped(and removed) at the first of:
                 // 1- ACK recieved for the new call (INVITE with REPLACES)
                 // 2- 200 OK recieved for BYE to replaced dialog
-                // 
+                //
                 // Either case sets transfer call id the new dialog's value.
                 // All transfer state and info must be cleared here.
-                // No call needs to be dropped, the replaced dialog is 
+                // No call needs to be dropped, the replaced dialog is
                 // terminated from SipConnection::processInviteRequest
                 // and the CpCall continues to exist, with a new dialog.
                 if (localConnectionTao)
@@ -554,12 +554,12 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                                  "transfer - Transfer ended: callId '%s', "
                                  "transfer callid: '%s'",
                                  taoEventId, callIdTao.data(), transferCallIdTao.data());
-    
+
                    if ( mTransferCalls.find(&transferCallIdTao))
                    {
                       OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                     "OrbitListener::handleMessage - %d "
-                                    "transfer - Remove from mTransferCalls '%s'", 
+                                    "transfer - Remove from mTransferCalls '%s'",
                                     taoEventId, transferCallIdTao.data());
                       // Remove this call ID from the list of transfer pseudo-calls we
                       // are monitoring.
@@ -567,7 +567,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                            // start hy
                       ParkedCallObject* pCall =
                           dynamic_cast <ParkedCallObject *> (mCalls.findValue(&callIdTao));
-    
+
                       if(pCall)
                       {
                          // Transfer is complete; clearTransfer flag.
@@ -580,7 +580,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                    {
                        OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                      "OrbitListener::handleMessage - %d "
-                                     "transfer - '%s' not found in mTransferCalls ", 
+                                     "transfer - '%s' not found in mTransferCalls ",
                                      taoEventId, transferCallIdTao.data());
                    }
                 }
@@ -677,7 +677,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             // ParkedCallObject to allow further transfer attempts.
             pParkedCallObject->clearTransfer();
             break;
-   
+
          case ParkedCallObject::KEEPALIVE_TIMEOUT:
          {
             OsSysLog::add(FAC_PARK, PRI_DEBUG,
@@ -689,15 +689,15 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             // Check if the call manager knows about this callId, remove from list if not.
             // Another way to check if this callId is valid is to test the returned callId
             // in the SipDialog.
-            // Sometimes getSipDialog does not fail but returns with an empty callId.               
+            // Sometimes getSipDialog does not fail but returns with an empty callId.
             // Note that getSipDialog looks up using the current Call-ID, not the original
             // Call-ID.
             OsStatus ret =
                mpCallManager->getSipDialog(pParkedCallObject->getCurrentCallId(),
                                            pParkedCallObject->getCurrentAddress(), dialog);
             UtlString tCallId;
-            dialog.getCallId(tCallId);               
-                  
+            dialog.getCallId(tCallId);
+
             if (ret == OS_SUCCESS && !tCallId.isNull())
             {
                // Send a keep alive signal back to the caller
@@ -705,7 +705,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
             }
             else
             {
-               OsSysLog::add(FAC_PARK, PRI_ERR, 
+               OsSysLog::add(FAC_PARK, PRI_ERR,
                              "OrbitListener::handleMessage - "
                              "ParkedCallObject::KEEPALIVE_TIMEOUT Unknown callId '%s', "
                              "remove from list", pParkedCallObject->getCurrentCallId());
@@ -741,7 +741,7 @@ void OrbitListener::dumpCallsAndTransfers()
 {
    // Dump mCalls and mTransferCalls.
    {
-      UtlHashMapIterator iterator(mCalls);      
+      UtlHashMapIterator iterator(mCalls);
       UtlString *pKey;
       while ((pKey = dynamic_cast <UtlString*> (iterator())))
       {
@@ -792,15 +792,15 @@ OsStatus OrbitListener::validateOrbit(const UtlString& callId,
                                       int& capacity)
 {
    // Retrieve the request URI
-   SipDialog dialog;               
+   SipDialog dialog;
    mpCallManager->getSipDialog(callId,
                                address,
                                dialog);
-   UtlString request;   
+   UtlString request;
    dialog.getRemoteRequestUri(request);
-  
+
    // If the call is initiated by the orbit
-   // get the local user Id. 
+   // get the local user Id.
    if(request.isNull())
    {
       Url localIdentity;
@@ -841,7 +841,7 @@ OsStatus OrbitListener::validateOrbit(const UtlString& callId,
          keycode = orbit_data->mKeycode;
          capacity = orbit_data->mCapacity;
       }
-     
+
    }
 
    if (audio != "")
@@ -869,16 +869,16 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
                                                       UtlString& address)
 {
    ParkedCallObject* pCall;
-   ParkedCallObject* pReturn = NULL;  
+   ParkedCallObject* pReturn = NULL;
    UtlString *pKey;
    UtlString oldestKey("");
    UtlString oldestAddress("");
    OsTime oldest;
    OsTime parked;
-   
+
    OsDateTime::getCurTime(oldest);
-   
-   UtlHashMapIterator iterator(mCalls);      
+
+   UtlHashMapIterator iterator(mCalls);
    // Loop through the call list to find the oldest call.
    // Remove calls that are unknown by the Call Manager, in case we lost
    // track of them.
@@ -891,7 +891,7 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
          // so far, that it is not a retrieval call, and that it's not being transferred
          // back to its parker.
          pCall->getTimeParked(parked);
-         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+         OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitListener::getOldestCallInOrbit "
                        "Entry for callId '%s', orbit '%s', time %ld.%06ld, "
                        "isPickupCall %d, transferInProgress %d",
@@ -906,31 +906,31 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
             // Check if the call manager knows about this callId, remove from list if not.
             // Another way to check if this callId is valid is to test the returned callId
             // in the SipDialog.
-            // Sometimes getSipDialog does not fail but returns with an empty callId. 
+            // Sometimes getSipDialog does not fail but returns with an empty callId.
             // Note that getSipDialog looks up using the current Call-ID, not the original
             // Call-ID.
             OsStatus ret =
                mpCallManager->getSipDialog(pCall->getCurrentCallId(),
                                            pCall->getCurrentAddress(), dialog);
             UtlString tCallId;
-            dialog.getCallId(tCallId);               
-                  
+            dialog.getCallId(tCallId);
+
             if (ret == OS_SUCCESS && !tCallId.isNull())
             {
-               // Copy 'new' oldest data 
+               // Copy 'new' oldest data
                oldest = parked;
                oldestKey = *pKey;
                oldestAddress = pCall->getCurrentAddress();
                pReturn = pCall;
-                  
-               OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+
+               OsSysLog::add(FAC_PARK, PRI_DEBUG,
                              "OrbitListener::getOldestCallInOrbit "
                              "Valid callId '%s', address '%s'",
                              oldestKey.data(), oldestAddress.data());
             }
             else
             {
-               OsSysLog::add(FAC_PARK, PRI_ERR, 
+               OsSysLog::add(FAC_PARK, PRI_ERR,
                              "OrbitListener::getOldestCallInOrbit "
                              "Unknown callId '%s', remove from list",
                              pKey->data());
@@ -940,16 +940,16 @@ ParkedCallObject* OrbitListener::getOldestCallInOrbit(const UtlString& orbit,
       }
       else
       {
-         OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+         OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitListener::getOldestCallInOrbit "
-                       "No call object found for callId '%s'", 
-                       pKey->data());                    
+                       "No call object found for callId '%s'",
+                       pKey->data());
       }
    }
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+   OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "OrbitListener::getOldestCallInOrbit "
                  "Returning pCall %p, callId '%s', address '%s'",
-                 pReturn, oldestKey.data(), oldestAddress.data());   
+                 pReturn, oldestKey.data(), oldestAddress.data());
    callId = oldestKey;
    address = oldestAddress;
    return pReturn;
@@ -962,8 +962,8 @@ int OrbitListener::getNumCallsInOrbit(const UtlString& orbit,
    ParkedCallObject* pCall;
    UtlString *pKey;
    int callsInOrbit = 0;
-   
-   UtlHashMapIterator iterator(mCalls);      
+
+   UtlHashMapIterator iterator(mCalls);
    // Loop through the call list to count calls in this orbit.
    // Remove calls that are unknown by the Call Manager, in case we lost
    // track of them.
@@ -974,8 +974,8 @@ int OrbitListener::getNumCallsInOrbit(const UtlString& orbit,
       {
          OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getNumCallsInOrbit "
                        "Entry for callId '%s', orbit '%s'",
-                       pKey->data(), pCall->getOrbit());                   
-         // Found a call, make sure that the orbit matches and 
+                       pKey->data(), pCall->getOrbit());
+         // Found a call, make sure that the orbit matches and
          // that it is not a retrieval call.
          // If onlyAvailable, check that transferInProgress() is FALSE.
          if (orbit.compareTo(pCall->getOrbit()) == 0 &&
@@ -986,15 +986,15 @@ int OrbitListener::getNumCallsInOrbit(const UtlString& orbit,
             // Check if the call manager knows about this callId, remove from list if not.
             // Another way to check if this callId is valid is to test the returned callId
             // in the SipDialog.
-            // Sometimes getSipDialog does not fail but returns with an empty callId.               
+            // Sometimes getSipDialog does not fail but returns with an empty callId.
             // Note that getSipDialog looks up using the current Call-ID, not the original
             // Call-ID.
             OsStatus ret =
                mpCallManager->getSipDialog(pCall->getCurrentCallId(),
                                            pCall->getCurrentAddress(), dialog);
             UtlString tCallId;
-            dialog.getCallId(tCallId);               
-                  
+            dialog.getCallId(tCallId);
+
             if (ret == OS_SUCCESS && !tCallId.isNull())
             {
                // Increment the count of calls in this orbit.
@@ -1015,8 +1015,8 @@ int OrbitListener::getNumCallsInOrbit(const UtlString& orbit,
       else
       {
          OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getNumCallsInOrbit "
-                       "No call object found for callId '%s'", 
-                       pKey->data());                    
+                       "No call object found for callId '%s'",
+                       pKey->data());
       }
    }
    OsSysLog::add(FAC_PARK, PRI_DEBUG, "OrbitListener::getNumCallsInOrbit - Returning %d",
@@ -1031,8 +1031,8 @@ ParkedCallObject* OrbitListener::findBySeqNo(int seqNo)
    ParkedCallObject* pCall;
    ParkedCallObject* ret;
    UtlBoolean found;
-   
-   UtlHashMapIterator iterator(mCalls);      
+
+   UtlHashMapIterator iterator(mCalls);
    // Loop through the call list.
    ret = NULL;
    found = FALSE;
@@ -1059,19 +1059,19 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
                                           const char* address)
 {
    bool bRet = false;
-   
+
    // Retrieve the request URI
-   SipDialog dialog;               
+   SipDialog dialog;
    mpCallManager->getSipDialog(callId,
                                address,
                                dialog);
-   UtlString request;   
+   UtlString request;
    dialog.getRemoteRequestUri(request);
-                               
-   OsSysLog::add(FAC_PARK, PRI_DEBUG, 
+
+   OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "OrbitListener::isCallRetrievalInvite "
                  "remote request URI '%s'", request.data());
-   
+
    Url requestURI(request, TRUE);
    UtlString urlParam;
 
@@ -1079,7 +1079,7 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
    {
       if (urlParam.compareTo(CALL_RETRIEVE_URI_VALUE, UtlString::ignoreCase) == 0)
       {
-         bRet = true;         
+         bRet = true;
          OsSysLog::add(FAC_PARK, PRI_DEBUG,
                        "OrbitListener::isCallRetrievalInvite "
                        "URL parameter '%s=%s' found ",
@@ -1097,12 +1097,12 @@ bool OrbitListener::isCallRetrievalInvite(const char* callId,
 }
 
 
-void OrbitListener::dumpTaoMessageArgs(TaoObjHandle eventId, TaoString& args) 
+void OrbitListener::dumpTaoMessageArgs(TaoObjHandle eventId, TaoString& args)
 {
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                  "OrbitListener::dumpTaoMessageArgs Tao event id: %ld local: %s args: %d",
                  eventId, args[TAO_OFFER_PARAM_LOCAL_CONNECTION], args.getCnt()) ;
-        
+
    int argc = args.getCnt();
    for(int argIndex = 0; argIndex < argc; argIndex++)
    {
@@ -1270,7 +1270,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
                        pThisCall->getCurrentAddress(),
                        pThisCall->getOriginalAddress());
 
-       
+
          // Audio continues playing from the previous dialog's media processing.
 
          // Check if Tao message has enough parameters to contain a new call Id.
@@ -1283,7 +1283,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
          {
             OsSysLog::add(FAC_PARK, PRI_ERR,
                           "OrbitListener::setUpParkedCallEstablished "
-                          "Tao message does not contain new callId for call '%s'", 
+                          "Tao message does not contain new callId for call '%s'",
                           callId.data());
          }
 
@@ -1311,7 +1311,7 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
                     "OrbitListener::setUpParkedCallEstablished "
                     "No recorded call for callId '%s'",
                     callId.data());
-   }      
+   }
 }
 
 
@@ -1324,14 +1324,14 @@ void OrbitListener::setUpRetrievalCall(const UtlString& callId,
    // a call to retrieve.
    UtlString orbit, audio;
    int timeout, keycode, capacity;
-                  
+
    // Get Orbit out of the requestUri and use that to find the oldest call.
    validateOrbit(callId, address, orbit, audio, timeout,
                  keycode, capacity);
-                  
+
    // Find oldest call for the orbit.
    UtlString retrievedCallId;
-   UtlString retrievedAddress;                  
+   UtlString retrievedAddress;
    ParkedCallObject* pCallToRetrieve =
       getOldestCallInOrbit(orbit, retrievedCallId, retrievedAddress);
    OsSysLog::add(FAC_PARK, PRI_DEBUG,
@@ -1345,9 +1345,9 @@ void OrbitListener::setUpRetrievalCall(const UtlString& callId,
                     "OrbitListener::setUpRetrievalCall "
                     "transferring original callId '%s', address '%s' "
                     "to callId '%s', address '%s'",
-                    retrievedCallId.data(), retrievedAddress.data(), 
+                    retrievedCallId.data(), retrievedAddress.data(),
                     callId.data(), address.data());
-                                                     
+
       mpCallManager->transfer(retrievedCallId, retrievedAddress,
                               callId, address,
                               false /* do not hold before transfer */
@@ -1409,7 +1409,7 @@ DummyListener::~DummyListener()
 }
 
 // Assignment operator
-DummyListener& 
+DummyListener&
 DummyListener::operator=(const DummyListener& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case

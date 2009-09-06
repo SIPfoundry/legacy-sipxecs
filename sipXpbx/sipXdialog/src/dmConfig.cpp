@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ bool AddExtension::execute(const HttpRequestContext& requestContext,
                            XmlRpcMethod::ExecutionStatus& status)
 {
    bool result = false;
-   
+
    int totalParams = params.entries();
    if (totalParams > 2)
    {
@@ -72,7 +72,7 @@ bool AddExtension::execute(const HttpRequestContext& requestContext,
       UtlString extension;
       for (int index = 0; index < totalParams; index++)
       {
-               
+
          UtlContainable *value = params.at(index);
          if (index == 0 || index == 1)
          {
@@ -87,33 +87,33 @@ bool AddExtension::execute(const HttpRequestContext& requestContext,
                {
                   extension = *((UtlString *)value);
                }
-               
+
                result = true;
             }
             else
             {
                response.setFault(ILLEGAL_PARAM_FAULT_CODE, ILLEGAL_PARAM_FAULT_STRING);
                result = false;
-            }  
+            }
          }
       }
-      
+
       if (result)
       {
          SipDialogMonitor* dialogMonitor = (SipDialogMonitor *) userData;
-         
+
          Url extensionUrl(extension);
-             
+
          dialogMonitor->addExtension(groupName, extensionUrl);
-         
+
          status = XmlRpcMethod::OK;
-         
+
          // Construct the response
          UtlString responseText("method call \"addExtension\" successful");
          response.setResponse(&responseText);
       }
    }
-   
+
    return true;
 }
 
@@ -175,7 +175,7 @@ bool RemoveExtension::execute(const HttpRequestContext& requestContext,
       UtlString extension;
       for (int index = 0; index < totalParams; index++)
       {
-               
+
          UtlContainable *value = params.at(index);
          if (index == 0 || index == 1)
          {
@@ -190,33 +190,33 @@ bool RemoveExtension::execute(const HttpRequestContext& requestContext,
                {
                   extension = *((UtlString *)value);
                }
-               
+
                result = true;
             }
             else
             {
                response.setFault(ILLEGAL_PARAM_FAULT_CODE, ILLEGAL_PARAM_FAULT_STRING);
                result = false;
-            }  
+            }
          }
       }
-      
+
       if (result)
       {
          SipDialogMonitor* dialogMonitor = (SipDialogMonitor *) userData;
-             
+
          Url extensionUrl(extension);
 
          dialogMonitor->removeExtension(groupName, extensionUrl);
-         
+
          status = XmlRpcMethod::OK;
-         
+
          // Construct the response
          UtlString responseText("method call \"removeExtension\" successful");
          response.setResponse(&responseText);
       }
    }
-   
+
    return true;
 }
 

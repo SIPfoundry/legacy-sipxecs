@@ -24,4 +24,3 @@ noinst_HEADERS = \
 install-exec-hook :
 
 install-data-hook :
-

@@ -5,5 +5,3 @@ SIPX_PROCESS_DEFS = \
 
 EXTRA_DIST = \
     sipxpark-process.xml.in
-
-

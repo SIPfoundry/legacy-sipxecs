@@ -32,5 +32,3 @@ EXTRA_DIST = \
 install-exec-hook : editscripts
 
 .PHONY : editscripts
-
-

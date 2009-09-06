@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ const int ParkedCallObject::sSeqNoMask = 0x3FFFFFF8;
 
 // Constructor
 ParkedCallObject::ParkedCallObject(const UtlString& orbit,
-                                   CallManager* callManager, 
+                                   CallManager* callManager,
                                    const UtlString& callId,
                                    const UtlString& address,
                                    const UtlString& playFile,
@@ -87,14 +87,14 @@ ParkedCallObject::~ParkedCallObject()
    // Terminate the audio player, if any.
    if (mpPlayer)
    {
-      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, 
+      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER,
                                    mCurrentCallId,
                                    mpPlayer);
    }
    // Stop the escape timer and stop listening for DTMF.
    stopEscapeTimer();
 }
-   
+
 
 const char* ParkedCallObject::getOriginalAddress()
 {
@@ -135,7 +135,7 @@ const char* ParkedCallObject::getOrbit()
 {
    return mOrbit.data();
 }
-   
+
 
 void ParkedCallObject::getTimeParked(OsTime& parked)
 {
@@ -159,7 +159,7 @@ OsStatus ParkedCallObject::playAudio()
                  mCurrentCallId.data());
 
    // Create an audio player and queue up the audio to be played.
-   mpCallManager->createPlayer(MpPlayer::STREAM_PLAYER, 
+   mpCallManager->createPlayer(MpPlayer::STREAM_PLAYER,
                                mCurrentCallId,
                                mFile.data(),
                                STREAM_SOUND_REMOTE | STREAM_FORMAT_WAV,
@@ -263,7 +263,7 @@ void ParkedCallObject::stopEscapeTimer()
    mTimeoutTimer.stop();
    if (mKeycode != OrbitData::NO_KEYCODE)
    {
-      // We can't use removeDtmfEvent() here, because it would try to 
+      // We can't use removeDtmfEvent() here, because it would try to
       // free mDtmfEvent.
       mpCallManager->disableDtmfEvent(mCurrentCallId.data(),
                                       &mDtmfEvent);
@@ -289,8 +289,8 @@ void ParkedCallObject::startBlindTransfer()
       // We work around the bug in Polycom 2.0.0 by only transferring on
       // key-up events, so the key is never down when we send the phone
       // a re-INVITE.
-      mpCallManager->transfer_blind(mCurrentCallId, 
-                                    mParker, 
+      mpCallManager->transfer_blind(mCurrentCallId,
+                                    mParker,
                                     NULL, NULL,
                                     TRUE);
    }
@@ -362,8 +362,8 @@ void ParkedCallObject::keypress(int keycode)
                  "callId = '%s', parker = '%s', keycode = %d",
                  mCurrentCallId.data(), mParker.data(), keycode);
    // Must test if the keypress is to cause a transfer.
-   if (mKeycode != OrbitData::NO_KEYCODE 
-       && keycode == mKeycode 
+   if (mKeycode != OrbitData::NO_KEYCODE
+       && keycode == mKeycode
        && !mParker.isNull())
    {
       // Call startBlindTransfer, which will check if a transfer is

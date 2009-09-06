@@ -5,5 +5,3 @@ SIPX_PROCESS_DEFS = \
 
 EXTRA_DIST = \
 	sipxrls-process.xml.in
-
-

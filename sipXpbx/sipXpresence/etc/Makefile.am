@@ -5,4 +5,3 @@ SIPX_PROCESS_DEFS = \
 
 EXTRA_DIST = \
     sipxpresence-process.xml.in
-

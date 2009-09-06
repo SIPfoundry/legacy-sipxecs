@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -300,7 +300,7 @@ int main(int argc, char* argv[])
    {
       UdpPort = DEFAULT_UDP_PORT;
    }
-   
+
    int TcpPort;
    if (configDb.get(CONFIG_SETTING_TCP_PORT, TcpPort) != OS_SUCCESS)
    {
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
    {
       HttpPort = DEFAULT_HTTP_PORT;
    }
-   
+
    // Bind the SIP user agent to a port and start it up
    SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort);
    userAgent->start();
@@ -334,10 +334,10 @@ int main(int argc, char* argv[])
                                   true);
    // Create a XmlRpcDispatch
    XmlRpcDispatch XmlRpcServer(HttpPort, false, "/RPC2");
-   
+
    // Register all the XML-RPC methods
    DialogMonitorConfig xmlRpcMethods(&XmlRpcServer, &dialogMonitor);
-    
+
    // Loop forever until signaled to shut down
    while (!gShutdownFlag)
    {
@@ -367,4 +367,3 @@ int JNI_LightButton(long)
 {
    return 0;
 }
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +96,7 @@ const char* PARK_SERVER_ID_TOKEN = "~~id~park"; // see sipXregistry/doc/service-
                                                  // fail, 60 seconds.
 #define DEFAULT_ONE_BUTTON_BLF        true
 #define DEFAULT_KEEPALIVE_TIME        300        // Default time to send periodic
-                                                 // keepalive signals, in order to 
+                                                 // keepalive signals, in order to
                                                  // check if the call is still connected.
 #define CONS_XFER_WAIT                1          // Time to wait for a cons. transfer
                                                  // to succeed or fail, 1 second.
@@ -135,7 +135,7 @@ public:
 
        // Wait for a signal.  This will unblock signals
        // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process 
+       // to catch an async signal directed to the process
        // from the outside.
        res = awaitSignal(sig_num);
        if (res == OS_SUCCESS)
@@ -387,15 +387,15 @@ int main(int argc, char* argv[])
 
     SipLine*    line = NULL;
     SipLineMgr* lineMgr = NULL;
-    
+
     OsConfigDb  domainConfiguration;
     OsPath      domainConfigPath = SipXecsService::domainConfigPath();
-   
+
     if (OS_SUCCESS == domainConfiguration.loadFromFile(domainConfigPath.data()))
     {
        domainConfiguration.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, domain);
        domainConfiguration.get(SipXecsService::DomainDbKey::SIP_REALM, realm);
-      
+
        if (!domain.isNull() && !realm.isNull())
        {
           CredentialDB* credentialDb;
@@ -408,7 +408,7 @@ int main(int argc, char* argv[])
 
              UtlString ha1_authenticator;
              UtlString authtype;
-         
+
              if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
                 if ((line = new SipLine( identity // user entered url
@@ -569,7 +569,7 @@ int main(int argc, char* argv[])
     UtlString localAddress;
     int localPort ;
     userAgent->getLocalAddress(&localAddress, &localPort) ;
-    if (localAddress.isNull()) 
+    if (localAddress.isNull())
         OsSocket::getHostIp(&localAddress);
 
     // Construct an address to be used in outgoing requests (primarily
@@ -589,7 +589,7 @@ int main(int argc, char* argv[])
                            RtpBase + (2 * MaxSessions),       // rtp end
                            localAddress,
                            localAddress,
-                           userAgent, 
+                           userAgent,
                            0,                                 // sipSessionReinviteTimer
                            NULL,                              // mgcpStackTask
                            outgoingAddress,                   // defaultCallExtension
@@ -641,11 +641,11 @@ int main(int argc, char* argv[])
 
     // Start up the call processing system
     callManager.start();
-   
+
     // Loop forever until signaled to shut down
 
     int numTwoSecIntervals = 0;
-    int CleanLoopWaitTimeSecs = 10; 
+    int CleanLoopWaitTimeSecs = 10;
 
     while (!gShutdownFlag)
     {

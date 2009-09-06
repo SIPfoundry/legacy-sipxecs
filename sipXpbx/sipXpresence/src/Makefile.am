@@ -20,7 +20,7 @@ sipxpresence_SOURCES =  \
     ../../config/sipxpbx-buildstamp.cpp \
 	main.cpp
 
-noinst_HEADERS = 
+noinst_HEADERS =
 
 install-exec-hook :
 

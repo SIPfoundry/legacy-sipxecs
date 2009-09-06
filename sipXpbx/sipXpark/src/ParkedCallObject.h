@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ public:
 
    ParkedCallObject(const UtlString& orbit,
                     CallManager* callManager,
-                    const UtlString& callId, 
+                    const UtlString& callId,
                     const UtlString& address,
                     const UtlString& playFile,
                     bool bPickup,
@@ -78,17 +78,17 @@ public:
    const char* getOriginalAddress();
    void setCurrentAddress(const UtlString& address);
    const char* getCurrentAddress();
-   
+
    const char* getOriginalCallId();
    void setCurrentCallId(const UtlString& callId);
    const char* getCurrentCallId();
-   
+
    const char* getOrbit();
    void getTimeParked(OsTime& parked);
    bool isPickupCall();
 
    OsStatus playAudio();
-   
+
    // Set up the "escape from parking orbit" mechanisms:
    // If a parker URI and timeout are supplied, set a timer to trigger
    // a transfer to the parker.
@@ -183,14 +183,14 @@ private:
     // Call Manager events for the different legs are distinguished by
     // the address-of-the-other-end field of its messages.
     UtlString mOriginalAddress, mCurrentAddress;
-    
+
     MpStreamPlayer* mpPlayer;
     UtlString mFile;
     // The orbit number for this call.
     UtlString mOrbit;
-    
+
     bool mbPickup;             // Call is a retrieval call
-    
+
     bool mbEstablished;         /**< CALL_ESTABLISHED has been seen
                                  *   for this call. */
     OsTime mParked;             /**< When the ParkedCallObject was created,

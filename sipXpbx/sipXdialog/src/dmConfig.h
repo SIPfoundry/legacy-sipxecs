@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,10 +40,10 @@ class SipDialogMonitor;
 /**
  * A AddExtension is a XmlRpcMethod that adds an extension to be monitored
  * by the dialog monitor. It has two parameters:
- * 
+ *
  * - groupName that the extension belongs to
  * - extensionUrl that specifies the extension
- * 
+ *
  */
 
 class AddExtension : public XmlRpcMethod
@@ -55,7 +55,7 @@ public:
 
    /// Get the instance of this method.
    static AddExtension* get();
-   
+
    /// Destructor
    virtual ~AddExtension();
 
@@ -67,11 +67,11 @@ public:
                         void* userData, ///< user data
                         XmlRpcResponse& response, ///< request response
                         XmlRpcMethod::ExecutionStatus& status); ///< execution status
-   
-   
+
+
 /* ============================ ACCESSORS ================================= */
 
-   
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -94,10 +94,10 @@ private:
 /**
  * A RemoveExtension is a XmlRpcMethod that adds an extension to be monitored
  * by the dialog monitor. It has two parameters:
- * 
+ *
  * - groupName that the extension belongs to
  * - extensionUrl that specifies the extension
- * 
+ *
  */
 
 class RemoveExtension : public XmlRpcMethod
@@ -109,7 +109,7 @@ public:
 
    /// Get the instance of this method.
    static RemoveExtension* get();
-   
+
    /// Destructor
    virtual ~RemoveExtension();
 
@@ -121,11 +121,11 @@ public:
                         void* userData, ///< user data
                         XmlRpcResponse& response, ///< request response
                         XmlRpcMethod::ExecutionStatus& status); ///< execution status
-   
-   
+
+
 /* ============================ ACCESSORS ================================= */
 
-   
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -150,7 +150,7 @@ private:
  * A DialogMonitorConfig is a object that contains a group of XML-RPC methods
  * derived from XmlRpcMethod. This object provides the configuration ability
  * for ACD-like clients to provision the dialog monitor.
- * 
+ *
  */
 
 class DialogMonitorConfig
@@ -171,7 +171,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -182,7 +182,7 @@ protected:
 private:
 
    XmlRpcDispatch* mpDispatch;
-  
+
    /// Disabled copy constructor
    DialogMonitorConfig(const DialogMonitorConfig& rDialogMonitorConfig);
 
@@ -194,5 +194,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _DMCONFIG_H_
-
-

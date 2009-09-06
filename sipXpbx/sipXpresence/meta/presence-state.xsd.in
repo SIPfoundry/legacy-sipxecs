@@ -37,14 +37,14 @@
 	    Specifies that this is a sipXpresence state information file.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
       <attribute name='timestamp' type='integer'>
 	<annotation>
 	  <documentation>
 	    Gives the Unix epoch when the state was stored.
 	  </documentation>
 	</annotation>
-      </attribute>	
+      </attribute>
     </complexType>
   </element>
 

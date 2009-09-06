@@ -19,4 +19,3 @@ editscripts :
 
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1
-

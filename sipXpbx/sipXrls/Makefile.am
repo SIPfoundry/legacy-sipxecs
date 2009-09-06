@@ -2,7 +2,7 @@
 
 include $(top_srcdir)/config/subdir.am
 
-unconditional_SUBDIRS = . src bin meta etc 
+unconditional_SUBDIRS = . src bin meta etc
 
 include $(top_srcdir)/config/conditional_doc.am
 
