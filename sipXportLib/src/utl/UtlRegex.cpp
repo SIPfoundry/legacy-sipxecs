@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ RegEx::RegEx(const char * regex, int options, unsigned long int maxDepth)
    // set the maximum recursion depth option in the pcre_extra (pe) block
    pe->flags |= PCRE_EXTRA_MATCH_LIMIT_RECURSION;
    pe->match_limit_recursion = maxDepth;
-      
+
    // allocate space for match results based on how many substrings
    // there are in the expression (+1 for the entire match)
    pcre_fullinfo(re, pe, PCRE_INFO_CAPTURECOUNT, &substrcount);
@@ -99,13 +99,13 @@ RegEx::RegEx(const RegEx& regex)
    const char * error = __FILE__ ": unknown error in RegEx(RegEx)";
 
    // allocate memory for the compiled regular expression information
-   re = (pcre*)pcre_malloc(regex.re_size); 
+   re = (pcre*)pcre_malloc(regex.re_size);
    if (re)
    {
       // copy the compiled regular expression information
       memcpy(re, regex.re, regex.re_size);
       re_size = regex.re_size;
-         
+
       pe = NULL;
       study_size = 0;
       allocated_study = false;
@@ -231,7 +231,7 @@ bool RegEx::SearchAgain(int options)
      // If the pattern allows a null string to match, then another call to pcre_exec
      // would return that match, so don't do that.
      // Instead, return no match to prevent an infinite loop.
-     matched = false; 
+     matched = false;
   }
   return matched;
 }
@@ -243,7 +243,7 @@ int RegEx::Matches()
     * Get the maximum number of substrings matched by a previous Search or SearchAgain call.
     * May only be called after a successful
     * call to Search() or SearchAgain() and applies to the results of
-    * that call. 
+    * that call.
     * - any negative return indicates a caller error - the preceeding search call did not match
     * - a return value of 1 indicates that the entire pattern matched, but no substrings
     *   within it matched.
@@ -264,7 +264,7 @@ int RegEx::Matches()
 bool RegEx::BeforeMatchString(UtlString* before)
 {
    bool hadBefore = false; // assume no match
-   
+
    if (lastMatches) // any matches in the last search?
    {
       int startOffset = ovector[0]; // start of all of most recent match
@@ -278,18 +278,18 @@ bool RegEx::BeforeMatchString(UtlString* before)
          hadBefore = true;
       }
    }
-   return hadBefore;      
+   return hadBefore;
 }
 
 ////////////////
-int RegEx::AfterMatch(int i ///< the substring specifier 
+int RegEx::AfterMatch(int i ///< the substring specifier
                       )
 {
    /*
     * Get the offset of the first character past the matched value
     *
     * May only be called after a successful call to Search() or SearchAgain() and applies to
-    * the results of that call. 
+    * the results of that call.
     */
    return (  i < lastMatches
            ? ovector[(2*i)+1]
@@ -300,7 +300,7 @@ int RegEx::AfterMatch(int i ///< the substring specifier
 bool RegEx::AfterMatchString(UtlString* after)
 {
    bool hadAfter = false; // assume no match
-   
+
    if (lastMatches) // any matches in the last search?
    {
       int endOffset = ovector[1]; // end of all of most recent match
@@ -314,13 +314,13 @@ bool RegEx::AfterMatchString(UtlString* after)
          hadAfter = true;
       }
    }
-   return hadAfter;      
+   return hadAfter;
 }
 
 bool RegEx::MatchString(UtlString* matched, int i)
 {
    bool hadMatch = false; // assume no match
-   
+
    if (i < lastMatches) // enough matches in the last search?
    {
       if (-1 == i) // return entire subject string
@@ -352,7 +352,7 @@ bool RegEx::MatchString(UtlString* matched, int i)
          }
       }
    }
-   return hadMatch;      
+   return hadMatch;
 }
 
 /////////////////////////////////
@@ -362,7 +362,7 @@ bool RegEx::Match(const int i, ///< input - must be < SubStrings() */
                   )
 {
    bool i_matched;
-   
+
 /*
  * Get a string matched by a previous Search or SearchAgain call.
  * May only be called after a successful
@@ -386,7 +386,7 @@ bool RegEx::Match(const int i, ///< input - must be < SubStrings() */
    {
       i_matched = false;
    }
-   
+
    return i_matched;
 }
 
@@ -466,6 +466,3 @@ int main(int argc, char * argv[])
 }
 
 #endif // REGEX_DEMO
-
-
-

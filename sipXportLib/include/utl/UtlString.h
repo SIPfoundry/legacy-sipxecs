@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ public:
 // ================================================================
 /** @name              Substring Operators
  *
- * Extract a portion of the string value.  
+ * Extract a portion of the string value.
  */
 ///@{
 
@@ -181,7 +181,7 @@ public:
      * @note
      * This method constructs a temporary UtlString object.  It will usually be more efficient
      * to use the append method taking a UtlString, postion, and length.
-     * 
+     *
      */
 
     /// Get the character at position N.
@@ -353,11 +353,11 @@ public:
     UtlString& operator+=(const UtlString& s);
 
     /// Append a UtlString to this string.
-    UtlString& append(const UtlString& str ///< source string 
+    UtlString& append(const UtlString& str ///< source string
                       );
 
     /// Append a substring of a UtlString to this string.
-    UtlString& append(const UtlString& str, ///< source string 
+    UtlString& append(const UtlString& str, ///< source string
                       size_t position,      ///< offset into source to start copy
                       size_t length ///< length of substring to copy
                       );
@@ -627,7 +627,7 @@ public:
     void setLength(size_t newLength);
     /**<
      * This resets the value that would be returned by UtlString::length and
-     * adds a zero byte after that length.  
+     * adds a zero byte after that length.
      * The newLength value MUST be <= (UtlString::capacity - 1).
      *
      * This allows external code to directly manipulate the contents of
@@ -643,7 +643,7 @@ public:
      *   }
      * @endcode
      */
-       
+
 ///@}
 // ================================================================
 /** @name           Container Support Operations
@@ -664,7 +664,7 @@ public:
      * This returns a unique type for UtlString
      */
 
-    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
     /// Compare to any other UtlContainable
     virtual int compareTo(UtlContainable const *other) const;

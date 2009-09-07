@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 
 // SYSTEM INCLUDES
 
-// APPLICATION INCLUDES                      
+// APPLICATION INCLUDES
 #include "os/OsBSem.h"
 #include "os/OsMutex.h"
 #include "os/OsSysLog.h"
@@ -20,7 +20,7 @@
 
 // DEFINES
 // MACROS
-// EXTERNAL FUNCTIONS                                       
+// EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
@@ -55,7 +55,7 @@ class OsSSL
 /* ============================ CREATORS ================================== */
 
 /* ============================ MANIPULATORS ============================== */
- 
+
 /* ============================ ACCESSORS ================================= */
 
    /// Get an SSL server connection handle
@@ -99,7 +99,7 @@ class OsSSL
                                 const char* callerMsg,  ///< Identifies circumstances of connection
                                 SSL*  connection  ///< SSL connection to be described
                                 );
-   
+
 
    /// Log an error resulting from an SSL call, with the SSL error text expanded
    static void logError(const OsSysLogFacility facility, ///< callers facility
@@ -107,16 +107,16 @@ class OsSSL
                         const char* callerMsg,  ///< Identifies caller and what failed
                         int errCode             ///< error returned from ssl routine
                         );
-   
+
    /// Set OpenSSL callbacks for locking and thread id
    void OpenSSL_thread_setup();
-   
+
    /// Cleanup OpenSSL callbacks
    void OpenSSL_thread_cleanup();
-   
+
    /// callback for OpenSSL CRYPTO_set_id_callback
    static unsigned long OpenSSL_id_function(void);
-   
+
    /// callback for OpenSSL CRYPTO_set_locking_callback
    static void OpenSSL_locking_function(int mode, int n, const char *file, int line);
 
@@ -130,7 +130,7 @@ class OsSSL
   private:
 
    static bool sInitialized;
-   
+
    SSL_CTX* mCTX;
 
    /// Certificate chain validation hook called by openssl
@@ -143,7 +143,7 @@ class OsSSL
     */
 
    static OsMutex* spOpenSSL_locks[CRYPTO_NUM_LOCKS];
-   
+
    /// Disable copy constructor
    OsSSL(const OsSSL& rOsSSL);
 
@@ -155,19 +155,19 @@ class OsSSL
 class OsSharedSSL
 {
   public:
-   
+
    static OsSSL* get();
-   
+
   private:
 
    static OsBSem* spSslLock;
    static OsSSL*  spSharedSSL;
-   
+
    /// singleton constructor
    OsSharedSSL();
 
    ~OsSharedSSL();
-   
+
    /// Disable copy constructor
    OsSharedSSL(const OsSharedSSL& r);
 

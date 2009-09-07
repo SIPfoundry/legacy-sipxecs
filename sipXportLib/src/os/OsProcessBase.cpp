@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -102,7 +102,7 @@ OsStatus OsProcessBase::getEnv(UtlString &rKey, UtlString &rValue)
 OsStatus OsProcessBase::getProcessName(UtlString &rProcessName)
 {
     OsStatus retval = OS_FAILED;
-    
+
     if (!mProcessName.isNull())
     {
         rProcessName = mProcessName;
@@ -144,7 +144,7 @@ OsStatus OsProcessBase::ApplyEnv()
 
         mEnvList.getNext(searchKey,nextKey, nextValue);
     }
-    
+
     if (!bFailed)
         retval = OS_SUCCESS;
 
@@ -154,7 +154,3 @@ OsStatus OsProcessBase::ApplyEnv()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-
-

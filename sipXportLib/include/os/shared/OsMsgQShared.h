@@ -1,10 +1,10 @@
 //
-// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -99,13 +99,13 @@ public:
 #ifdef OS_MSGQ_DEBUG
    int getFullCount(void) { return mFull.getValue();}
    int getEmptyCount(void) { return mEmpty.getValue();}
-   UtlDList& getList() { return mDlist;} 
+   UtlDList& getList() { return mDlist;}
 #endif
 
    virtual int numMsgs(void);
      //:Return the number of messages in the queue
 
-#ifdef MSGQ_IS_VALID_CHECK 
+#ifdef MSGQ_IS_VALID_CHECK
    virtual void show(void);
      //:Print information on the message queue to the console
      // Output enabled via a compile-time #ifdef
@@ -116,7 +116,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-#ifdef MSGQ_IS_VALID_CHECK 
+#ifdef MSGQ_IS_VALID_CHECK
    virtual void testMessageQ();
 #endif
 
@@ -175,4 +175,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsMsgQShared_h_
-

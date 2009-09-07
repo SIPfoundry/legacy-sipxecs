@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long
 {
    if (mIsConnected)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsSSLConnectionSocket::_(socket %d , timeout %ld)",
                     connectedSocketDescriptor, timeoutInSecs
                     );
@@ -76,7 +76,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
                     "OsSSLConnectionSocket::_ underlying OsConnectionSocket not connected!!");
    }
 }
@@ -88,7 +88,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescript
 {
     mbExternalSSLSocket = TRUE;
     socketDescriptor = connectedSocketDescriptor;
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                   "OsSSLConnectionSocket::_(SSL %p, socket %d)", s, connectedSocketDescriptor);
 }
 
@@ -104,7 +104,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
     mbExternalSSLSocket = FALSE;
     if (mIsConnected)
     {
-       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                      "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
                      serverPort, serverName, timeoutInSecs
                      );
@@ -116,7 +116,7 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
 // Destructor
 OsSSLConnectionSocket::~OsSSLConnectionSocket()
 {
-   OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsSSLConnectionSocket::~"
                  );
    remoteHostName = OsUtil::NULL_OS_STRING;
@@ -266,7 +266,7 @@ bool OsSSLConnectionSocket::isEncrypted() const
    return true;
 }
 
-   
+
 /// Get any authenticated peer host names.
 bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
                                          ,UtlString* commonName
@@ -288,9 +288,9 @@ bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
          OsSysLog::add(FAC_SIP, PRI_WARNING,
                        "OsSSLConnectionSocket::peerIdentity %p OsSSL returned NOT trusted",
                        this);
-      }      
+      }
    }
-   
+
    /*
     * - true if the connection is TLS/SSL and the peer has presented
     *        a certificate signed by a trusted certificate authority
@@ -321,7 +321,7 @@ bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
          }
       }
    }
-      
+
    return TRUSTED == mPeerIdentity;
 }
 
@@ -357,7 +357,7 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
                              SSL_get_error(mSSL, err));
              mIsConnected = FALSE;
              OsConnectionSocket::close();
-             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;          
+             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
           }
        }
        else

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -43,13 +43,13 @@ public:
    //:Constructor to set up TCP socket server
    // Sets the socket connection queue and starts listening on the
    // port for requests to connect.
-   // 
+   //
    //!param: connectionQueueSize - The maximum number of outstanding
    // connection requests which are allowed before subsequent requests
    // are turned away.
    //!param: serverPort - The port on which the server will listen to
    // accept connection requests.  PORT_DEFAULT means let OS pick port.
-   
+
    OsServerSocket& operator=(const OsServerSocket& rhs);
      //:Assignment operator
 
@@ -69,14 +69,14 @@ public:
    // Blocks and waits for the next TCP connection request.
    //!returns: Returns a socket connected to the client requesting the
    //!returns: connection.  If an error occurs returns NULL.
-   
+
    virtual OsConnectionSocket* accept(long waitMilliseconds);
    //:Blocking accept of next connection with a timeout
    // Blocks and waits for the next TCP connection request until timeout
    // period.
    //!returns: Returns a socket connected to the client requesting the
    //!returns: connection.  If an error occurs returns NULL.
-   
+
 
    void close();
    //: Close down the server
@@ -99,7 +99,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
    int socketDescriptor;
    int localHostPort;
@@ -118,4 +118,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsServerSocket_h_
-

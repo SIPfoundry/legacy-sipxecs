@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,13 +27,13 @@
 // FORWARD DECLARATIONS
 
 /**
- * An UtlContainable object is an abstract object that serves as the base 
- * class for anything that can be contained in one of the UtlContainer- 
- * derived classes.  One of the largest values of a UtlContainable-derived 
- * object is the ability for any UtlContainer to destroy objects, sort 
+ * An UtlContainable object is an abstract object that serves as the base
+ * class for anything that can be contained in one of the UtlContainer-
+ * derived classes.  One of the largest values of a UtlContainable-derived
+ * object is the ability for any UtlContainer to destroy objects, sort
  * objects, etc.
  */
-class UtlContainable 
+class UtlContainable
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -58,7 +58,7 @@ public:
      * The hash method should return a value that is a function of the key used to
      * locate the object.  As much as possible, hash values should be uniformly
      * distributed over the range of legal unsigned values.
-     * 
+     *
      * \par Requirements
      * if A.isEqual(B) then A.hash() must == B.hash()
      */
@@ -83,7 +83,7 @@ public:
      * int Foo::compareTo(UtlContainable const* other) const
      * {
      *    int result;
-     * 
+     *
      *    result =
      *       this > other ? 1 :
      *       this < other ? -1 :
@@ -93,7 +93,7 @@ public:
      * }
      * </pre>
      */
-    
+
     /// Provides a hash function appropriate for null-terminated string values.
     static unsigned stringHash(char const* value);
     /**<
@@ -105,8 +105,8 @@ public:
      * </pre>
      */
 
-    /// Compare this object to another object. 
-    virtual int compareTo(UtlContainable const *) const = 0  ;    
+    /// Compare this object to another object.
+    virtual int compareTo(UtlContainable const *) const = 0  ;
     /**<
      * Results of comparison to an object not of the same UtlContainableType
      * may be undefined.
@@ -119,7 +119,7 @@ public:
      * - if A.compareTo(B) > 0 then B.compareTo(A) must be < 0
      * - if A.compareTo(B) < 0 and B.compareTo(C) < 0 then A.compareTo(C) must be < 0
      * etc.
-     * 
+     *
      * Results for comparing with a non-like object are undefined,
      * other than that it must return non-equal.
      * Note that a copy of an object might not compare equal to the
@@ -136,7 +136,7 @@ public:
      */
 
     /// Determine if this object is of the specified UtlContainableType.
-    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const ; 
+    virtual UtlBoolean isInstanceOf(const UtlContainableType type) const ;
     /**<
      * Determine if this object is an instance of the designated runtime
      * class identifer.  For example:
@@ -167,7 +167,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-        
+
 } ;
 
 /* ============================ INLINE METHODS ============================ */

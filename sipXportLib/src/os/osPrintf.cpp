@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ static int bEnableConsoleOutput = FALSE ;  /**< Should osPrintf print to console
 
 // Layer of indirection over printf
 
-extern "C" void enableConsoleOutput(int bEnable) 
+extern "C" void enableConsoleOutput(int bEnable)
 {
     bEnableConsoleOutput = bEnable ;
 }
@@ -65,7 +65,7 @@ extern "C" void osPrintf(const char* format, ...)
         char *p;
 
         p = (char*) malloc(size) ;
-     
+
         while (p != NULL)
         {
             /* Try to print in the allocated space. */
@@ -101,4 +101,3 @@ extern "C" void osPrintf(const char* format, ...)
         va_end(args) ;
     }
 }
-

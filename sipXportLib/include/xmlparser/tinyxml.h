@@ -74,7 +74,7 @@ const int TIXML_MAJOR_VERSION = 2;
 const int TIXML_MINOR_VERSION = 3;
 const int TIXML_PATCH_VERSION = 4;
 
-/*	Internal structure for tracking location of items 
+/*	Internal structure for tracking location of items
 	in the XML file.
 */
 struct TiXmlCursor
@@ -88,8 +88,8 @@ struct TiXmlCursor
 
 
 // Only used by Attribute::Query functions
-enum 
-{ 
+enum
+{
 	TIXML_SUCCESS,
 	TIXML_NO_ATTRIBUTE,
 	TIXML_WRONG_TYPE
@@ -140,7 +140,7 @@ public:
 
 	/**	All TinyXml classes can print themselves to a filestream.
 		This is a formatted print, and will insert tabs and newlines.
-		
+
 		(For an unformatted stream, use the << operator.)
 	*/
 	virtual void Print( FILE* cfile, int depth ) const = 0;
@@ -184,8 +184,8 @@ public:
 	// in the UTF-8 sequence.
 	static const int utf8ByteTable[256];
 
-	virtual const char* Parse(	const char* p, 
-								TiXmlParsingData* data, 
+	virtual const char* Parse(	const char* p,
+								TiXmlParsingData* data,
 								TiXmlEncoding encoding /*= TIXML_ENCODING_UNKNOWN */ ) = 0;
 
 	enum
@@ -222,9 +222,9 @@ protected:
 	};
 
 	static const char*	SkipWhiteSpace( const char*, TiXmlEncoding encoding );
-	inline static bool	IsWhiteSpace( char c )		
-	{ 
-		return ( isspace( (unsigned char) c ) || c == '\n' || c == '\r' ); 
+	inline static bool	IsWhiteSpace( char c )
+	{
+		return ( isspace( (unsigned char) c ) || c == '\n' || c == '\r' );
 	}
 
 	virtual void StreamOut (TIXML_OSTREAM *) const = 0;
@@ -307,7 +307,7 @@ protected:
 
     /// Field containing a generic user pointer
 	void*			userData;
-	
+
 	// None of these methods are reliable for any language except English.
 	// Good for approximation, not great for accuracy.
 	static int IsAlpha( unsigned char anyByte, TiXmlEncoding encoding );
@@ -359,7 +359,7 @@ class TiXmlNode : public TiXmlBase
 	friend class TiXmlElement;
 
 public:
-	#ifdef TIXML_USE_STL	
+	#ifdef TIXML_USE_STL
 
 	    /** An input stream operator, for every class. Tolerant of newlines and
 		    formatting, but doesn't expect them.
@@ -373,7 +373,7 @@ public:
 		    The operator<< and operator>> are not completely symmetric. Writing
 		    a node to a stream is very well defined. You'll get a nice stream
 		    of output, without any extra whitespace or newlines.
-		    
+
 		    But reading is not as well defined. (As it always is.) If you create
 		    a TiXmlElement (for example) and read that from an input stream,
 		    the text needs to define an element or junk will result. This is
@@ -381,7 +381,7 @@ public:
 
 		    A TiXmlDocument will read nodes until it reads a root element, and
 			all the children of that root element.
-	    */	
+	    */
 	    friend std::ostream& operator<< (std::ostream& out, const TiXmlNode& base);
 
 		/// Appends the XML node or attribute to a std::string.
@@ -435,11 +435,11 @@ public:
 
     #ifdef TIXML_USE_STL
 	/// STL std::string form.
-	void SetValue( const std::string& _value )    
-	{	  
+	void SetValue( const std::string& _value )
+	{
 		StringToBuffer buf( _value );
-		SetValue( buf.buffer ? buf.buffer : "" );    	
-	}	
+		SetValue( buf.buffer ? buf.buffer : "" );
+	}
 	#endif
 
 	/// Delete all the children of this node. Does not affect 'this'.
@@ -457,7 +457,7 @@ public:
 	const TiXmlNode* LastChild() const	{ return lastChild; }		/// The last child of this node. Will be null if there are no children.
 	TiXmlNode* LastChild()	{ return lastChild; }
 	const TiXmlNode* LastChild( const char * value ) const;			/// The last child of this node matching 'value'. Will be null if there are no children.
-	TiXmlNode* LastChild( const char * value );	
+	TiXmlNode* LastChild( const char * value );
 
     #ifdef TIXML_USE_STL
 	const TiXmlNode* FirstChild( const std::string& _value ) const	{	return FirstChild (_value.c_str ());	}	///< STL std::string form.
@@ -614,7 +614,7 @@ public:
 	TiXmlDeclaration* ToDeclaration()	{ return ( this && type == DECLARATION ) ? (TiXmlDeclaration*) this : 0; } ///< Cast to a more defined type. Will return null not of the requested type.
 
 	/** Create an exact duplicate of this node and return it. The memory must be deleted
-		by the caller. 
+		by the caller.
 	*/
 	virtual TiXmlNode* Clone() const = 0;
 
@@ -699,7 +699,7 @@ public:
 
 	/** QueryIntValue examines the value string. It is an alternative to the
 		IntValue() method with richer error checking.
-		If the value is an integer, it is stored in 'value' and 
+		If the value is an integer, it is stored in 'value' and
 		the call returns TIXML_SUCCESS. If it is not
 		an integer, it returns TIXML_WRONG_TYPE.
 
@@ -718,16 +718,16 @@ public:
 
     #ifdef TIXML_USE_STL
 	/// STL std::string form.
-	void SetName( const std::string& _name )	
-	{	
+	void SetName( const std::string& _name )
+	{
 		StringToBuffer buf( _name );
-		SetName ( buf.buffer ? buf.buffer : "error" );	
+		SetName ( buf.buffer ? buf.buffer : "error" );
 	}
-	/// STL std::string form.	
-	void SetValue( const std::string& _value )	
-	{	
+	/// STL std::string form.
+	void SetValue( const std::string& _value )
+	{
 		StringToBuffer buf( _value );
-		SetValue( buf.buffer ? buf.buffer : "error" );	
+		SetValue( buf.buffer ? buf.buffer : "error" );
 	}
 	#endif
 
@@ -769,7 +769,7 @@ private:
 
 /*	A class used to manage a group of attributes.
 	It is only used internally, both by the ELEMENT and the DECLARATION.
-	
+
 	The set can be changed transparent to the Element and Declaration
 	classes that use it, but NOT transparent to the Attribute
 	which has to implement a next() and previous() method. Which makes
@@ -850,11 +850,11 @@ public:
 
 	/** QueryIntAttribute examines the attribute - it is an alternative to the
 		Attribute() method with richer error checking.
-		If the attribute is an integer, it is stored in 'value' and 
+		If the attribute is an integer, it is stored in 'value' and
 		the call returns TIXML_SUCCESS. If it is not
 		an integer, it returns TIXML_WRONG_TYPE. If the attribute
 		does not exist, then TIXML_NO_ATTRIBUTE is returned.
-	*/	
+	*/
 	int QueryIntAttribute( const char* name, int* value ) const;
 	/// QueryDoubleAttribute examines the attribute - see QueryIntAttribute().
 	int QueryDoubleAttribute( const char* name, double* value ) const;
@@ -879,20 +879,20 @@ public:
 	int QueryDoubleAttribute( const std::string& name, double* value ) const { return QueryDoubleAttribute( name.c_str(), value ); }
 
 	/// STL std::string form.
-	void SetAttribute( const std::string& name, const std::string& _value )	
-	{	
+	void SetAttribute( const std::string& name, const std::string& _value )
+	{
 		StringToBuffer n( name );
 		StringToBuffer v( _value );
 		if ( n.buffer && v.buffer )
-			SetAttribute (n.buffer, v.buffer );	
-	}	
+			SetAttribute (n.buffer, v.buffer );
+	}
 	///< STL std::string form.
-	void SetAttribute( const std::string& name, int _value )	
-	{	
+	void SetAttribute( const std::string& name, int _value )
+	{
 		StringToBuffer n( name );
 		if ( n.buffer )
-			SetAttribute (n.buffer, _value);	
-	}	
+			SetAttribute (n.buffer, _value);
+	}
 	#endif
 
 	/** Sets an attribute of name to a given value. The attribute
@@ -1197,7 +1197,7 @@ public:
 		- The ErrorId() will contain the integer identifier of the error (not generally useful)
 		- The ErrorDesc() method will return the name of the error. (very useful)
 		- The ErrorRow() and ErrorCol() will return the location of the error (if known)
-	*/	
+	*/
 	bool Error() const						{ return error; }
 
 	/// Contains a textual (english) description of the error if one occurs.
@@ -1208,7 +1208,7 @@ public:
 	*/
 	const int ErrorId()	const				{ return errorId; }
 
-	/** Returns the location (if known) of the error. The first column is column 1, 
+	/** Returns the location (if known) of the error. The first column is column 1,
 		and the first row is row 1. A value of 0 means the row and column wasn't applicable
 		(memory errors, for example, have no row/column) or the parser lost the error. (An
 		error in the error reporting, in that case.)
@@ -1245,11 +1245,11 @@ public:
 	/** If you have handled the error, it can be reset with this call. The error
 		state is automatically cleared if you Parse a new XML block.
 	*/
-	void ClearError()						{	error = false; 
-												errorId = 0; 
-												errorDesc = ""; 
-												errorLocation.row = errorLocation.col = 0; 
-												//errorLocation.last = 0; 
+	void ClearError()						{	error = false;
+												errorId = 0;
+												errorDesc = "";
+												errorLocation.row = errorLocation.col = 0;
+												//errorLocation.last = 0;
 											}
 
 	/** Dump the document to standard out. */
@@ -1294,7 +1294,7 @@ private:
 	<Document>
 	@endverbatim
 
-	Assuming you want the value of "attributeB" in the 2nd "Child" element, it's very 
+	Assuming you want the value of "attributeB" in the 2nd "Child" element, it's very
 	easy to write a *lot* of code that looks like:
 
 	@verbatim
@@ -1314,7 +1314,7 @@ private:
 	@endverbatim
 
 	And that doesn't even cover "else" cases. TiXmlHandle addresses the verbosity
-	of such code. A TiXmlHandle checks for null	pointers so it is perfectly safe 
+	of such code. A TiXmlHandle checks for null	pointers so it is perfectly safe
 	and correct to use:
 
 	@verbatim
@@ -1335,7 +1335,7 @@ private:
 	What they should not be used for is iteration:
 
 	@verbatim
-	int i=0; 
+	int i=0;
 	while ( true )
 	{
 		TiXmlElement* child = docHandle.FirstChild( "Document" ).FirstChild( "Element" ).Child( "Child", i ).Element();
@@ -1346,8 +1346,8 @@ private:
 	}
 	@endverbatim
 
-	It seems reasonable, but it is in fact two embedded while loops. The Child method is 
-	a linear walk to find the element, so this code would iterate much more than it needs 
+	It seems reasonable, but it is in fact two embedded while loops. The Child method is
+	a linear walk to find the element, so this code would iterate much more than it needs
 	to. Instead, prefer:
 
 	@verbatim
@@ -1377,20 +1377,20 @@ public:
 	/// Return a handle to the first child element with the given name.
 	TiXmlHandle FirstChildElement( const char * value ) const;
 
-	/** Return a handle to the "index" child with the given name. 
+	/** Return a handle to the "index" child with the given name.
 		The first child is 0, the second 1, etc.
 	*/
 	TiXmlHandle Child( const char* value, int index ) const;
-	/** Return a handle to the "index" child. 
+	/** Return a handle to the "index" child.
 		The first child is 0, the second 1, etc.
 	*/
 	TiXmlHandle Child( int index ) const;
-	/** Return a handle to the "index" child element with the given name. 
+	/** Return a handle to the "index" child element with the given name.
 		The first child element is 0, the second 1, etc. Note that only TiXmlElements
 		are indexed: other types are not counted.
 	*/
 	TiXmlHandle ChildElement( const char* value, int index ) const;
-	/** Return a handle to the "index" child element. 
+	/** Return a handle to the "index" child element.
 		The first child element is 0, the second 1, etc. Note that only TiXmlElements
 		are indexed: other types are not counted.
 	*/
@@ -1405,7 +1405,7 @@ public:
 	#endif
 
 	/// Return the handle as a TiXmlNode. This may return null.
-	TiXmlNode* Node() const			{ return node; } 
+	TiXmlNode* Node() const			{ return node; }
 	/// Return the handle as a TiXmlElement. This may return null.
 	TiXmlElement* Element() const	{ return ( ( node && node->ToElement() ) ? node->ToElement() : 0 ); }
 	/// Return the handle as a TiXmlText. This may return null.

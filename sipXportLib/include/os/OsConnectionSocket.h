@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 class UtlSList;
 
 //: Implements TCP version of OsSocket
-// This class provides the implementation of the TCP datagram 
+// This class provides the implementation of the TCP datagram
 // based socket class which may be instantiated.
 class OsConnectionSocket : public OsSocket
 {
@@ -37,7 +37,7 @@ class OsConnectionSocket : public OsSocket
 public:
 
    static const unsigned int DefaultConnectionTimeoutMs;
-   
+
    /// Determine whether or not the values in a containable are comparable.
    virtual UtlContainableType getContainableType() const;
    /**<
@@ -49,9 +49,9 @@ public:
    /// Create a new connection
    OsConnectionSocket(int          remoteHostPort,
                       const char*  remoteHostName, ///< May be dns name or ip address as string
-                      UtlBoolean   makeBlocking = TRUE, 
+                      UtlBoolean   makeBlocking = TRUE,
                       const char*  localIp = NULL, ///< Defaults to INADDR_ANY
-                      unsigned int timeoutInMilliseconds = DefaultConnectionTimeoutMs 
+                      unsigned int timeoutInMilliseconds = DefaultConnectionTimeoutMs
                       /**< If non-zero, connection attempt will wait that long,
                        *   then return, regardless of makeBlocking.
                        *   If 0 and makeBlocking, then waits for connect or error.
@@ -63,7 +63,7 @@ public:
    /// Wrap an existing socket in an OsConnectionSocket object
    OsConnectionSocket(int connectedSocketDescriptor);
 
-   
+
    OsConnectionSocket(const char* localIp,
                       int connectedSocketDescriptor);
 
@@ -72,23 +72,23 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
- 
+
    virtual UtlBoolean reconnect();
    //: Sets up the connection again, assuming the connection failed
 
    virtual int read(char* buffer, int bufferLength);
    //:Blocking read from the socket
-   // Read bytes into the buffer from the socket up to a maximum of 
+   // Read bytes into the buffer from the socket up to a maximum of
    // bufferLength bytes.  This method will block until there is
    // something to read from the socket.
    //!param: buffer - Place to put bytes read from the socket.
    //!param: bufferLength - The maximum number of bytes buffer will hold.
    //!returns: The number of bytes actually read.
 
-   virtual int read(char* buffer, int bufferLength, 
+   virtual int read(char* buffer, int bufferLength,
                     UtlString* ipAddress, int* port);
    //:Blocking read from the socket
-   // Read bytes into the buffer from the socket up to a maximum of 
+   // Read bytes into the buffer from the socket up to a maximum of
    // bufferLength bytes.  This method will block until there is
    // something to read from the socket.
    //!param: buffer - Place to put bytes read from the socket.
@@ -112,7 +112,7 @@ public:
 
    /// Is this connection encrypted using TLS/SSL?
    virtual bool isEncrypted() const;
-   
+
    /// Get any authenticated peer host names.
    virtual bool peerIdentity( UtlSList* altNames = NULL /**< UtlStrings for verfied subjectAltNames
                                                          *   are added to this
@@ -133,7 +133,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -151,4 +151,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsConnectionSocket_h_
-

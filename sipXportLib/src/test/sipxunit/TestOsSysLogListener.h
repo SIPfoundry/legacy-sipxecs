@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _TESTOSSYSLOGLISTENER_H_
 #define _TESTOSSYSLOGLISTENER_H_
@@ -23,7 +23,7 @@ class Test;
 /**
  * Long description
  */
-class TestOsSysLogListener : public CPPUNIT_NS::TestListener 
+class TestOsSysLogListener : public CPPUNIT_NS::TestListener
 {
   public:
    /*! Constructs a TextTestProgressListener object.
@@ -45,7 +45,7 @@ class TestOsSysLogListener : public CPPUNIT_NS::TestListener
 
    /// There is no assignment operator.
    TestOsSysLogListener& operator=(const TestOsSysLogListener& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _TESTOSSYSLOGLISTENER_H_

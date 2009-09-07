@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ int           UtlRscTrace::sTraceFlag = 0; // If non-zero, trace calls to the
 unsigned long UtlRscTrace::sStartTime  = 0; //
 pthread_t     UtlRscTrace::mTaskId         = 0;
 
-long              UtlRscTrace::mCheckpoint = 0L; // Used to remember the net number of 
+long              UtlRscTrace::mCheckpoint = 0L; // Used to remember the net number of
 OsMutex   *UtlRscTrace::mpResourceStoreLock = new OsMutex(OsMutex::Q_PRIORITY);
 UtlRscStore UtlRscTrace::mUtlRscStore = UtlRscStore();
 
@@ -72,7 +72,7 @@ UtlRscTrace::~UtlRscTrace()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-UtlRscTrace& 
+UtlRscTrace&
 UtlRscTrace::operator=(const UtlRscTrace& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -90,11 +90,11 @@ void UtlRscTrace::checkpoint()
 
 void UtlRscTrace::addAllocCnt(int size,
                                                           intptr_t addr,
-                                                          const char* name, 
-                                                          int pArg, 
-                                                          int priority, 
+                                                          const char* name,
+                                                          int pArg,
+                                                          int priority,
                                                           int options,
-                                                          pthread_t taskId) 
+                                                          pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
                 return;
@@ -102,17 +102,17 @@ void UtlRscTrace::addAllocCnt(int size,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[1024];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %s %6d %6d %6d", taskId, addr, size, ts, taskName(taskId), 
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %s %6d %6d %6d", taskId, addr, size, ts, taskName(taskId),
                                                                                         name, pArg, priority, options);
 
-#else 
+#else
         time( (time_t*)&ts );
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d %6d", taskId, addr, size, ts, 
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d %6d", taskId, addr, size, ts,
                                                                                         name, pArg, priority, options);
 #endif
 
@@ -125,7 +125,7 @@ void UtlRscTrace::addAllocCnt(int size,
 }
 
 void UtlRscTrace::addAllocCnt(intptr_t addr,
-                                                          const char* name, 
+                                                          const char* name,
                                                           pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
@@ -134,14 +134,14 @@ void UtlRscTrace::addAllocCnt(intptr_t addr,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[1024];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
         sprintf(buf, "0x%08x 0x%08x %12d %s %s", taskId, addr, ts, taskName(taskId), name);
 
-#else 
+#else
         time( (time_t*)&ts );
         sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, name);
 #endif
@@ -156,7 +156,7 @@ void UtlRscTrace::addAllocCnt(intptr_t addr,
 
 void UtlRscTrace::addAllocCnt(int options,
                                                           intptr_t addr,
-                                                          int state, 
+                                                          int state,
                                                           pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
@@ -165,16 +165,16 @@ void UtlRscTrace::addAllocCnt(int options,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[512];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
         sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d", taskId, addr, options, ts, taskName(taskId), state);
 
-#else 
+#else
         time( (time_t*)&ts );
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %6d %6d", taskId, addr, options, ts, state); 
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %6d %6d", taskId, addr, options, ts, state);
 #endif
 
         if (OS_SUCCESS != mUtlRscStore.insert(addr, buf))
@@ -187,8 +187,8 @@ void UtlRscTrace::addAllocCnt(int options,
 
 void UtlRscTrace::addAllocCnt(int state,
                                                           intptr_t addr,
-                                                          int timerId, 
-                                                          int type, 
+                                                          int timerId,
+                                                          int type,
                                                           pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
@@ -197,16 +197,16 @@ void UtlRscTrace::addAllocCnt(int state,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[512];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
         sprintf(buf, "0x%08x 0x%08x %6d %12d %s %6d %6d", taskId, addr, state, ts, taskName(taskId), timerId, type);
 
-#else 
+#else
         time( (time_t*)&ts );
-        sprintf(buf, "0x%08x 0x%08x %6d %12d %6d %6d", taskId, addr, state, ts, timerId, type); 
+        sprintf(buf, "0x%08x 0x%08x %6d %12d %6d %6d", taskId, addr, state, ts, timerId, type);
 #endif
 
         if (OS_SUCCESS != mUtlRscStore.insert(addr, buf))
@@ -227,14 +227,14 @@ void UtlRscTrace::addAllocCnt(int size,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[512];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
         sprintf(buf, "0x%08x 0x%08x %6d %12d %s", taskId, addr, size, ts, taskName(taskId));
 
-#else 
+#else
         time( (time_t*)&ts );
         sprintf(buf, "0x%08x 0x%08x %6d %12d", taskId, addr, size, ts);
 #endif
@@ -246,7 +246,7 @@ void UtlRscTrace::addAllocCnt(int size,
         sTraceFlag = traceFlag;
         mpResourceStoreLock->release();
 }
- 
+
 void UtlRscTrace::addAllocCnt(intptr_t addr,
                                                           pthread_t taskId)
 {
@@ -256,14 +256,14 @@ void UtlRscTrace::addAllocCnt(intptr_t addr,
     mpResourceStoreLock->acquire();
         int traceFlag = sTraceFlag;
         sTraceFlag = 0;
-        
+
         char buf[512];
     long  ts;
 #ifdef _VXWORKS
     ts = *osTimerCtr - sStartTime;
         sprintf(buf, "0x%08x 0x%08x %12d %s", taskId, addr, ts, taskName(taskId));
 
-#else 
+#else
         time( (time_t*)&ts );
         sprintf(buf, "0x%08x 0x%08x %12d", taskId, addr, ts);
 #endif
@@ -275,7 +275,7 @@ void UtlRscTrace::addAllocCnt(intptr_t addr,
         sTraceFlag = traceFlag;
         mpResourceStoreLock->release();
 }
- 
+
 void UtlRscTrace::addFreeCnt(intptr_t addr, pthread_t taskId)
 {
         if (mTaskId && (mTaskId != taskId))
@@ -340,11 +340,11 @@ int UtlRscTrace::allocCnt(pthread_t taskId)
         case OSSOCKET:
                 printf("  taskId     address     time     taskName\n");
                 break;
-       
+
         case OSMSGQ:
                 printf("  taskId     address     time     taskName           qName\n");
                 break;
-  
+
         case OSBSEM:
                 printf("  taskId     address  options  time     taskName     state\n");
                 break;
@@ -447,13 +447,13 @@ int UtlRscTrace::netAllocCnt(pthread_t taskId)
         return cnt;
 }
 
-int UtlRscTrace::enableMemTracking(pthread_t taskId) 
-{ 
+int UtlRscTrace::enableMemTracking(pthread_t taskId)
+{
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = MEMORY; 
+        sTraceFlag = MEMORY;
         return mTaskId;
 }
 
@@ -461,9 +461,9 @@ int UtlRscTrace::enableMsgQTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSMSGQ; 
+        sTraceFlag = OSMSGQ;
         return mTaskId;
 }
 
@@ -471,9 +471,9 @@ int UtlRscTrace::enableBSemTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSBSEM; 
+        sTraceFlag = OSBSEM;
         return mTaskId;
 }
 
@@ -481,9 +481,9 @@ int UtlRscTrace::enableCSemTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSCSEM; 
+        sTraceFlag = OSCSEM;
         return mTaskId;
 }
 
@@ -491,9 +491,9 @@ int UtlRscTrace::enableMutexTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSMUTEX; 
+        sTraceFlag = OSMUTEX;
         return mTaskId;
 }
 
@@ -501,9 +501,9 @@ int UtlRscTrace::enableRWMutexTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSRWMUTEX; 
+        sTraceFlag = OSRWMUTEX;
         return mTaskId;
 }
 
@@ -511,9 +511,9 @@ int UtlRscTrace::enableTimerTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSTIMER; 
+        sTraceFlag = OSTIMER;
         return mTaskId;
 }
 
@@ -521,9 +521,9 @@ int UtlRscTrace::enableTaskTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSTASK; 
+        sTraceFlag = OSTASK;
         return mTaskId;
 }
 
@@ -531,16 +531,16 @@ int UtlRscTrace::enableSocketTracking(pthread_t taskId)
 {
 #ifdef _VXWORKS
     sStartTime = *osTimerCtr;
-#endif 
+#endif
         mTaskId = taskId;
-        sTraceFlag = OSSOCKET; 
+        sTraceFlag = OSSOCKET;
         return mTaskId;
 }
 
-int UtlRscTrace::disableTracking() 
-{ 
+int UtlRscTrace::disableTracking()
+{
         allocCnt(0);
-        sTraceFlag = NONE; 
+        sTraceFlag = NONE;
         mTaskId = 0;
         mUtlRscStore.cleanUp();
         return sTraceFlag;
@@ -555,4 +555,3 @@ int UtlRscTrace::disableTracking()
 /* ============================ FUNCTIONS ================================= */
 
 #endif // RSC_TEST
-

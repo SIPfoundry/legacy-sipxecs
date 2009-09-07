@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ public:
      * Constructor accepting an optional default value.
      */
     UtlInt(intptr_t initialValue = 0) ;
-      
+
     /**
      * Destructor
      */
@@ -73,7 +73,7 @@ public:
     /**
      * Get the int wrapped by this object.
      */
-    intptr_t getValue() const ;    
+    intptr_t getValue() const ;
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -87,30 +87,30 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */
 
 /* ============================ INQUIRY =================================== */
 
     /**
-     * Compare this object to another like-object.  Results for 
+     * Compare this object to another like-object.  Results for
      * comparing to a non-like object are undefined.
      *
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
-    virtual int compareTo(UtlContainable const *) const ;    
+    virtual int compareTo(UtlContainable const *) const ;
 
     /**
-     * Test this object to another like-object for equality.  This method 
+     * Test this object to another like-object for equality.  This method
      * returns false if unlike-objects are specified.
      */
-    virtual UtlBoolean isEqual(UtlContainable const *) const ; 
+    virtual UtlBoolean isEqual(UtlContainable const *) const ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    intptr_t mValue ;    /** < The int wrapped by this object */ 
+    intptr_t mValue ;    /** < The int wrapped by this object */
 
 } ;
 

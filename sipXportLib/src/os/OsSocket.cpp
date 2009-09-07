@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -671,7 +671,7 @@ const char* OsSocket::ipProtocolString(OsSocket::IpProtocolSocketType type)
    case OsSocket::UNKNOWN:
       return socketType_UNKNOWN;
       break;
-   case OsSocket::TCP:      
+   case OsSocket::TCP:
       return socketType_TCP;
       break;
    case OsSocket::UDP:
@@ -724,7 +724,7 @@ void OsSocket::makeBlocking()
 UtlBoolean OsSocket::socketInit()
 {
         UtlBoolean returnCode = TRUE;
-        
+
         mInitializeSem.acquire();
         if(!socketInitialized)
         {
@@ -744,7 +744,7 @@ UtlBoolean OsSocket::socketInit()
                 }
 #               endif
 
-                
+
         }
         else
         {
@@ -777,7 +777,7 @@ unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
     if (numAdapters < 2)
     {
         retip = htonl(INADDR_ANY);
-    } 
+    }
     else
     {
         char ipaddress[20];
@@ -789,7 +789,7 @@ unsigned long OsSocket::initDefaultAdapterID(UtlString &interface_id)
         strcpy(adapter_id, interface_id.data());
 
         //if this fails, then we need to choose any address
-        if (strlen(adapter_id) == 0 || 
+        if (strlen(adapter_id) == 0 ||
                 lookupIpAddressByMacAddress(adapter_id, ipaddress) == -1)
         {
             retip = htonl(INADDR_ANY);
@@ -1001,7 +1001,7 @@ int OsSocket::getRemoteHostPort() const
 
 UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddress)
 {
-    UtlBoolean bSuccess = FALSE; 
+    UtlBoolean bSuccess = FALSE;
 
     struct hostent* server;
     socketInit();
@@ -1035,7 +1035,7 @@ UtlBoolean OsSocket::getHostIpByName(const char* hostName, UtlString* hostAddres
             bSuccess = TRUE ;
         }
         else
-        {                                                
+        {
             *hostAddress = "0.0.0.0";
         }
     }

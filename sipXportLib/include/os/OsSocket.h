@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -64,16 +64,16 @@ typedef enum
     RELAY,      /**< Relay address (e.g. TURN)                */
     CONFIG,     /**< Manually configured address              */
 
-    AUTO = -1,  /**< Automatic contact selection; used for API 
+    AUTO = -1,  /**< Automatic contact selection; used for API
                      parameters */
     ALL  = -2   /**< Filter value for the SipContactDb, for looking
                      up records of all types. */
-                     
+
 } CONTACT_TYPE ;
 
 
 /** Type for storing Contact Record identifiers */
-typedef int CONTACT_ID; 
+typedef int CONTACT_ID;
 
 /**
  * The CONTACT_ADDRESS struct includes contact information (ip and port),
@@ -89,7 +89,7 @@ struct CONTACT_ADDRESS
         id = 0;
         iPort = -1;
     }
-    
+
     // copy contstructor
     CONTACT_ADDRESS(const CONTACT_ADDRESS& ref)
     {
@@ -99,7 +99,7 @@ struct CONTACT_ADDRESS
         this->id = ref.id;
         this->iPort = ref.iPort;
     }
-    
+
     // assignment operator
     CONTACT_ADDRESS& operator=(const CONTACT_ADDRESS& ref)
     {
@@ -111,10 +111,10 @@ struct CONTACT_ADDRESS
         this->eContactType = ref.eContactType;
         this->id = ref.id;
         this->iPort = ref.iPort;
-        
+
         return *this;
     }
-        
+
     CONTACT_ID   id;              /**< Contact record Id */
     CONTACT_TYPE eContactType ;   /**< Address type/source */
     char              cInterface[32] ; /**< Source interface    */
@@ -146,7 +146,7 @@ public:
     * This returns a unique type for this class.
     */
 
-   typedef enum 
+   typedef enum
    {
       UNKNOWN = -1,
       TCP = 0,
@@ -157,7 +157,7 @@ public:
    //: Protocol Types
    //  Note: If you add a value to this enum, add a case in OsSocket::isFramed
    //  and OsSocket::isReliable.
-   
+
 /* ============================ CREATORS ================================== */
    OsSocket();
      //:Default constructor
@@ -243,9 +243,9 @@ public:
    virtual OsSocket::IpProtocolSocketType getIpProtocol() const = 0;
    //:Return the protocol type of this socket
 
-   /// return the string representation of the SocketProtocolType 
+   /// return the string representation of the SocketProtocolType
    static const char* ipProtocolString(OsSocket::IpProtocolSocketType);
-   
+
    virtual UtlBoolean reconnect() = 0;
    //:Set up the connection again, assuming the connection failed
 
@@ -281,12 +281,12 @@ public:
    // Returns the ip address for this host on which this socket is communicating
    // On multi-homed machines, this is the address to the NIC over which the
    // socket communicates. The format is of the form: xx.x.xxx.x
-   
+
    const UtlString& getLocalIp() const;
    //:Return this socket's Local Ip Address
-   
+
    void setLocalIp(const UtlString& localIp) { mLocalIp = localIp; }
-   
+
    virtual int getLocalHostPort() const;
    //:Return the local port number
    // Returns the port to which this socket is bound on this host.
@@ -370,7 +370,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
    static OsBSem mInitializeSem;
    int socketDescriptor;
 

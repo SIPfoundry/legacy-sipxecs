@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ OsStatus OsCSemLinux::acquire(const OsTime& rTimeout)
       OsUtilLinux::cvtOsTimeToTimespec(rTimeout, &timeout);
       res = (pt_sem_timedwait(&mSemImp, &timeout) == POSIX_OK) ? OS_SUCCESS : OS_WAIT_TIMEOUT;
    }
-   
+
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)
    {
@@ -105,13 +105,13 @@ OsStatus OsCSemLinux::acquire(const OsTime& rTimeout)
 
    return res;
 }
-     
+
 // Conditionally acquire the semaphore (i.e., don't block)
 // Return OS_BUSY if the semaphore is held by some other task
 OsStatus OsCSemLinux::tryAcquire(void)
 {
    OsStatus res;
-   
+
    res = (pt_sem_trywait(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
 
 #ifdef OS_CSEM_DEBUG
@@ -157,7 +157,7 @@ OsStatus OsCSemLinux::release(void)
 #endif
 
     return res;
-}    
+}
 
 
 /* ============================ INQUIRY =================================== */
@@ -170,4 +170,3 @@ OsStatus OsCSemLinux::release(void)
 void OsCSemLinux::init(void)
 {
 }
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ extern "C" {
 /* EXTERNAL FUNCTIONS */
 
 /*
- * OsAssert_SetFailureAction(boolean): 
+ * OsAssert_SetFailureAction(boolean):
  *   Set action on assert() failure:  reboot system, or suspend calling task
  */
 #ifdef _VXWORKS /* [ */
@@ -54,4 +54,3 @@ extern int assertCount(void);
 }
 #endif
 #endif  /* _OsAssert_h_ */
-

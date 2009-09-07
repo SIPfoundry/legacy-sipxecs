@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,9 +36,9 @@ UtlList::UtlList()
 UtlList::~UtlList()
 {
    UtlContainer::acquireIteratorConnectionLock();
-   
+
    OsLock take(mContainerLock);
-      
+
    LIST_SANITY_CHECK;
 
    invalidateIterators();
@@ -56,28 +56,28 @@ UtlList::~UtlList()
 
 
 // Removes and returns the first item in the list (pop).
-UtlContainable* UtlList::get() 
+UtlContainable* UtlList::get()
 {
    OsLock take(mContainerLock);
-   
+
    LIST_SANITY_CHECK;
    UtlContainable* firstElement = NULL;
 
    UtlLink* firstNode = head();
-    
+
    if(firstNode)
    {
       firstElement = (UtlContainable*) firstNode->data;
       removeLink(firstNode);
    }
-    
+
    return(firstElement);
 }
 
 
 
 // Removed the designated object by reference.
-UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatch) 
+UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatch)
 {
    UtlContainable* foundElement = NULL;
 
@@ -85,7 +85,7 @@ UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatc
    UtlLink* listNode;
 
    OsLock take(mContainerLock);
-   
+
    LIST_SANITY_CHECK;
 
    for(listNode = head(); listNode && !foundElement; listNode = listNode->next())
@@ -96,12 +96,12 @@ UtlContainable* UtlList::removeReference(const UtlContainable* containableToMatc
          foundElement = (UtlContainable*) listNode->data;
       }
    }
-    
+
    if (foundNode)
    {
       removeLink(foundNode);
    }
-    
+
    return(foundElement);
 }
 
@@ -112,7 +112,7 @@ void UtlList::removeLink(UtlLink* toBeRemoved)
 
    UtlLink*         listNode = NULL;
    UtlListIterator* eachIterator;
-   
+
    for (listNode = mIteratorList.head(); listNode; listNode = listNode->next())
    {
       eachIterator = (UtlListIterator*)listNode->data;
@@ -124,22 +124,22 @@ void UtlList::removeLink(UtlLink* toBeRemoved)
 
 
 // Removes and frees the designated objects.
-UtlBoolean UtlList::destroy(const UtlContainable* obj) 
+UtlBoolean UtlList::destroy(const UtlContainable* obj)
 {
    UtlBoolean result = FALSE;
 
    // this does not take the mContainerLock, because all the container state changes
    // are made inside the remove method, which already takes it.
 
-   UtlContainable* removed = remove(obj); 
-        
+   UtlContainable* removed = remove(obj);
+
     if (removed)
     {
         result = TRUE;
-        delete removed; 
+        delete removed;
     }
-     
-    return result; 
+
+    return result;
 }
 
 
@@ -149,7 +149,7 @@ void UtlList::destroyAll()
    UtlLink* node;
 
    OsLock take(mContainerLock);
-   
+
    LIST_SANITY_CHECK;
    while((node = head()))
    {
@@ -169,7 +169,7 @@ UtlContainable* UtlList::removeAt(const size_t N)
    UtlContainable* removed = NULL;
 
    OsLock take(mContainerLock);
-   
+
    UtlLink* link;
    size_t n;
    for (n = 0, link = head(); link && n < N; link = link->next(), n++)
@@ -191,7 +191,7 @@ void UtlList::removeAll()
    UtlLink* node;
 
    OsLock take(mContainerLock);
-   
+
    LIST_SANITY_CHECK;
    while((node = head()))
    {
@@ -202,21 +202,21 @@ void UtlList::removeAll()
 /* ============================ ACCESSORS ================================= */
 
 // Return the first element (head) of the list.
-UtlContainable* UtlList::first() const 
+UtlContainable* UtlList::first() const
 {
    OsLock take(mContainerLock);
-   
+
    UtlLink* firstNode = head();
-   
+
    return firstNode ? (UtlContainable*) firstNode->data : NULL;
 }
 
 
 // Return the last element (tail) of the list.
-UtlContainable* UtlList::last() const 
+UtlContainable* UtlList::last() const
 {
    OsLock take(mContainerLock);
-   
+
    UtlLink* lastNode = tail();
 
    return lastNode ? (UtlContainable*) lastNode->data : NULL;
@@ -224,7 +224,7 @@ UtlContainable* UtlList::last() const
 
 
 // Return the element at position N.
-UtlContainable* UtlList::at(size_t N) const 
+UtlContainable* UtlList::at(size_t N) const
 {
    OsLock take(mContainerLock);
 
@@ -242,7 +242,7 @@ UtlContainable* UtlList::at(size_t N) const
 size_t UtlList::entries() const
 {
    OsLock take(mContainerLock);
-   
+
    size_t count;
    UtlLink* node;
    for (count = 0, node = head(); node; count++, node=node->next())
@@ -253,27 +253,27 @@ size_t UtlList::entries() const
 
 
 // Return true of the container is empty.
-UtlBoolean UtlList::isEmpty() const 
+UtlBoolean UtlList::isEmpty() const
 {
-   return !head(); 
+   return !head();
 }
 
 
 // Return true if the container includes the designated object.
-UtlBoolean UtlList::contains(const UtlContainable* object) const 
+UtlBoolean UtlList::contains(const UtlContainable* object) const
 {
    return(find(object) != NULL);
 }
 
 
 // Return true if the list contains the designated object reference .
-UtlBoolean UtlList::containsReference(const UtlContainable* containableToMatch) const 
+UtlBoolean UtlList::containsReference(const UtlContainable* containableToMatch) const
 {
    UtlLink* listNode;
    UtlBoolean isMatch = FALSE;
 
    OsLock take(mContainerLock);
-   
+
    for(listNode = head(); listNode && !isMatch; listNode = listNode->next())
    {
       if((UtlContainable*)listNode->data == containableToMatch)
@@ -298,7 +298,7 @@ bool UtlList::sanityCheck() const
 {
    UtlLink* thisNode;
    UtlLink* prevNode;
-   
+
    // The caller already holds the mContainerLock.
 
    for ( ( prevNode=NULL, thisNode=head() );
@@ -321,4 +321,3 @@ bool UtlList::sanityCheck() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

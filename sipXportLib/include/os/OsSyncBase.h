@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ protected:
             mTrail[crumb].taskId    = 0;
          }
       }
-      
+
       /// record the task id and operation in the mTrail circular buffer
       void dropCrumb(pthread_t id, OsSyncOperation op)
       {
@@ -114,24 +114,24 @@ protected:
          mTrail[mCrumb].taskId    = id;
          OsDateTime::getCurTime(mTrail[mCrumb].time);
       }
-      
+
       ~OsSyncCrumbs()
       {
          // better if the destructor in the object calls, but make sure there is something.
          dropCrumb(0, crumbDeleted);
       }
-      
+
      private:
 
       unsigned int mCrumb;  ///< circular index into mTrail: most recently used entry
       struct
-      {         
+      {
          OsSyncOperation operation; ///< operation on the syncronizer
          pthread_t       taskId;    ///< the ID of the task that touched the syncronizer
          OsTime          time;      ///< when the operation happened
       } mTrail[NUMBER_OF_CRUMBS];
    } mSyncCrumbs;
-   
+
 #  endif
 
    OsSyncBase() { };
@@ -148,4 +148,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsSyncBase_h_
-

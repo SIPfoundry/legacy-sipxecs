@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -54,14 +54,14 @@ OsPathWnt::~OsPathWnt()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsPathWnt& 
+OsPathWnt&
 OsPathWnt::operator=(const OsPathWnt& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
       return *this;
-   
+
    OsPathBase::operator=(rhs.data());
-   
+
    return *this;
 }
 
@@ -76,6 +76,3 @@ OsPathWnt::operator=(const OsPathWnt& rhs)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

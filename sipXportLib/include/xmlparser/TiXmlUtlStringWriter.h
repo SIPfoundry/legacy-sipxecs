@@ -9,7 +9,7 @@
 class TiXmlUtlStringWriter : public TiXmlOutStream
 {
   public:
-   
+
    virtual ~TiXmlUtlStringWriter()
       {
       }

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #define _UtlContainer_h_
 
 // SYSTEM INCLUDES
-#include <stdlib.h> 
+#include <stdlib.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
@@ -32,7 +32,7 @@
 // FORWARD DECLARATIONS
 
 /**
- * UtlContainer defines and abstract container designed to hold UtlContainable 
+ * UtlContainer defines and abstract container designed to hold UtlContainable
  * derived objects.
  */
 class UtlContainer : public UtlContainable
@@ -40,7 +40,7 @@ class UtlContainer : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 /* ============================ CREATORS ================================== */
-   
+
     /**
      * Default Constructor
      */
@@ -49,22 +49,22 @@ public:
     /**
      * Destructor
      */
-    virtual ~UtlContainer(); 
+    virtual ~UtlContainer();
 
 /* ============================ MANIPULATORS ============================== */
 
     /**
      * Inserts the designated containable object into the list
-     * 
+     *
      * @return the object if successful, otherwise null
      */
     virtual UtlContainable* insert(UtlContainable* obj) = 0;
 
     /**
-     * Removes the designated objects from the list and frees the object 
+     * Removes the designated objects from the list and frees the object
      * by calling delete.
-     */ 
-    virtual UtlBoolean destroy(const UtlContainable*) = 0;    
+     */
+    virtual UtlBoolean destroy(const UtlContainable*) = 0;
 
     /**
      * Removes all elements from the container and deletes each one.
@@ -73,7 +73,7 @@ public:
 
     /**
      * Removes the designated object by reference
-     * (as opposed to searching for an equality match).  
+     * (as opposed to searching for an equality match).
      *
      * @return the object if successful, otherwise null
      */
@@ -89,7 +89,7 @@ public:
     /**
      * Find the designated value within the container
      */
-    virtual UtlContainable* find(const UtlContainable*) const = 0;   
+    virtual UtlContainable* find(const UtlContainable*) const = 0;
 
 
     /**
@@ -104,7 +104,7 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */ 
+    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
 /* ============================ INQUIRY =================================== */
 
@@ -120,16 +120,16 @@ public:
 
     /**
      * Determine the number of elements within the container.
-     */     
+     */
     virtual size_t entries() const = 0;
 
     /**
-     * Compare the this object to another like-objects.  Results for 
+     * Compare the this object to another like-objects.  Results for
      * designating a non-like object are undefined.
      *
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
-    virtual int compareTo(const UtlContainable* otherObject) const;    
+    virtual int compareTo(const UtlContainable* otherObject) const;
 
     /// Lock the linkage between containers and iterators
     static void acquireIteratorConnectionLock();
@@ -164,14 +164,14 @@ protected:
                         ) const;
     /**<
      * <strong>
-     *   The caller must be holding both this->mContainerLock and 
-     *   existingIterator->mContainerRefLock; see also acquireIteratorConnectionLock. 
+     *   The caller must be holding both this->mContainerLock and
+     *   existingIterator->mContainerRefLock; see also acquireIteratorConnectionLock.
      * </strong>
      *
      * Remove the existingIterator from the list to be called for
      * changes to this UtlContainer.
      */
-    
+
     /// Call the invalidate method on all iterators
     void invalidateIterators();
     /**<
@@ -199,7 +199,7 @@ protected:
      * on a const UtlContainer, and that iterator must be added to
      * mIteratorList as other references to the UtlContainer might change it.
      */
-    mutable UtlChain mIteratorList; 
+    mutable UtlChain mIteratorList;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -265,13 +265,13 @@ private:
      *
      *   UtlContainer::acquireIteratorConnectionLock();
      *   OsLock take(mContainerRefLock);
-     *  
+     *
      *   UtlList* myList = dynamic_cast<UtlList*>(mpMyContainer);
      *   if (myList != NULL)
      *   {
      *      OsLock take(myList->mContainerLock);
      *      UtlContainer::releaseIteratorConnectionLock(); // as soon as both locks are taken
-     *  
+     *
      *      myList->removeIterator(this);
      *      mpMyContainer = NULL;
      *   }
@@ -296,4 +296,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlContainer_h_
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"  
+#include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsProcess.h"
 #include "os/OsProcessIterator.h"
@@ -43,7 +43,7 @@ public:
 /* ============================ CREATORS ================================== */
    OsProcessIteratorWnt();
      //:Default constructor
-   
+
    virtual ~OsProcessIteratorWnt();
      //:Destructor
 
@@ -63,7 +63,7 @@ public:
 
 
 /* ============================ INQUIRY =================================== */
-    
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -82,5 +82,3 @@ private:
 
 
 #endif  // _OsProcessIteratorWnt_h_
-
-

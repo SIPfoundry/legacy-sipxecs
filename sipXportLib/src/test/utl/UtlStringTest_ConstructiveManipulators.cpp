@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -318,7 +318,7 @@ public:
        // and the length returned by the copy has been
        CPPUNIT_ASSERT_EQUAL(strlen(shortdata),copy.length());
     }
-   
+
     /**
      * Test to see how the compiler resolves the cases that gave Scott
      * trouble, viz. append(char*, int) and append(UtlString, int).
@@ -1610,7 +1610,7 @@ public:
          ASSERT_STR_EQUAL("Number: 8", t.data());
 
       }
-   
+
 } ;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlStringTest_ConstructiveManipulators);

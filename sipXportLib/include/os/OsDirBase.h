@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -53,28 +53,28 @@ public:
    virtual OsStatus create() const;
      //: Create the path specified by this object
      //  Returns OS_SUCCESS if successful, or OS_INVALID
-   
+
    virtual OsStatus remove(UtlBoolean bRecursive, UtlBoolean bForce) const;
      //: Removes the directory name specified by this object
      //: Set bForce to TRUE to remove read-only directory
      //: Set bRecursive to TRUE remove sub-directories
-     //  Returns: 
+     //  Returns:
      //         OS_SUCCESS if successful
      //         OS_FILE_ACCESS_DENIED if directory is in use or contains files
      //         OS_FILE_PATH_NOT_FOUND if specifed directory is not found
-    
+
    virtual OsStatus rename(const char* name);
      //: Renames the current directory to the name specified
-     //  Returns: 
+     //  Returns:
      //         OS_SUCCESS if successful
      //         OS_INVALID if failed
 
 /* ============================ ACCESSORS ================================= */
 
    virtual OsStatus getFileInfo(OsFileInfoBase& rFileInfo);
-     //: Returns the file information for this objects path (see 
+     //: Returns the file information for this objects path (see
      //:        OsFileInfo for more detail)
-     //  Returns: 
+     //  Returns:
      //         OS_SUCCESS if successful
      //         OS_INVALID if failed
 
@@ -85,7 +85,7 @@ public:
 
    virtual UtlBoolean exists();
      //: Returns TRUE if the directory specified by this object exists
-      
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    OsDirBase& operator=(const OsDirBase& rhs);
@@ -102,5 +102,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsDirBase_h_
-
-

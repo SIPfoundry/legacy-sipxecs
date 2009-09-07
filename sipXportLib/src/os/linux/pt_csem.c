@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,8 +30,8 @@
 
 /*
  * bandreasen/2007-11-14: I've found that pthread_cond_timedwait returns with
- *   ETIMEDOUT immediately when running under both GDB and Fedora Core 5. 
- *   Uncomment the #define GDB_PTHREAD_TIMEDWAIT_WORKAROUND to apply a 
+ *   ETIMEDOUT immediately when running under both GDB and Fedora Core 5.
+ *   Uncomment the #define GDB_PTHREAD_TIMEDWAIT_WORKAROUND to apply a
  *   simple (but ugly) work around for this problem.  This is not a problem
  *   when running without GDB.
  */
@@ -55,7 +55,7 @@ int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout)
     while (0 == retval && !sem->count)
     {
 #ifdef GDB_PTHREAD_TIMEDWAIT_WORKAROUND
-try_again:            
+try_again:
 #endif //  GDB_PTHREAD_TIMEDWAIT_WORKAROUND
         retval = pthread_cond_timedwait(&sem->cond,&sem->mutex,timeout);
 #ifdef GDB_PTHREAD_TIMEDWAIT_WORKAROUND
@@ -71,9 +71,9 @@ try_again:
                         now.tv_sec - timeout->tv_sec,
                         timeout->tv_sec, timeout->tv_nsec,
                         now.tv_sec, (now.tv_usec/1000)) ;
-#endif                            
+#endif
                         usleep(16) ;
-                        goto try_again ;                    
+                        goto try_again ;
             }
         }
 #endif //  GDB_PTHREAD_TIMEDWAIT_WORKAROUND

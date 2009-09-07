@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifdef _VXWORKS /* [ */
 
 /* SYSTEM INCLUDES */
-#include <stdio.h> 
+#include <stdio.h>
 #include <taskLib.h>
 #include <sysLib.h>
 
@@ -103,7 +103,7 @@ void __assert(const char *msg)
 {
 
 /* The user can set the PHONESET_ASSERT_ACTION to RESTART or SUSPEND
- * the default (which is set in initConfigDb) is to restart 
+ * the default (which is set in initConfigDb) is to restart
  */
 
    taskLock();

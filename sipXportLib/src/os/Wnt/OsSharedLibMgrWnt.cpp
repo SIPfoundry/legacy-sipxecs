@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ UtlString(libName ? libName : "")
 
 // STATIC VARIABLE INITIALIZATIONS
 
-    
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 
@@ -69,7 +69,7 @@ OsStatus OsSharedLibMgrWnt::loadSharedLib(const char* libName)
     // Check if we aready have a handle for this lib
     UtlString collectableName(libName ? libName : "");
     sLock.acquire();
-    OsSharedLibHandleWnt* collectableLibHandle = 
+    OsSharedLibHandleWnt* collectableLibHandle =
         (OsSharedLibHandleWnt*) mLibraryHandles.find(&collectableName);
     sLock.release();
 
@@ -81,7 +81,7 @@ OsStatus OsSharedLibMgrWnt::loadSharedLib(const char* libName)
 
         // Load the shared library
         HMODULE libHandle = NULL;
-        
+
         if(libName)
         {
             libHandle = LoadLibraryEx(libName, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
@@ -105,7 +105,7 @@ OsStatus OsSharedLibMgrWnt::loadSharedLib(const char* libName)
         else
         {
             osPrintf("Loaded shared lib %s\n", libName ? libName : "(null)");
-            OsSharedLibHandleWnt* collectableHandle = 
+            OsSharedLibHandleWnt* collectableHandle =
                 new OsSharedLibHandleWnt(libName, libHandle);
 
             sLock.acquire();
@@ -137,14 +137,14 @@ OsStatus OsSharedLibMgrWnt::loadSharedLib(const char* libName)
 //!param: (in) libName - name of library, may include absolute or relative path
 //!param: (in) symbolName - name of the variable or function exported in the shared lib
 //!param: (out) symbolAddress - the address of the function or variable
-OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName, 
+OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
                               const char* symbolName,
                               void*& symbolAddress)
 {
     OsStatus status = OS_INVALID;
     UtlString collectableName(libName ? libName : "");
     sLock.acquire();
-    OsSharedLibHandleWnt* collectableLibHandle = 
+    OsSharedLibHandleWnt* collectableLibHandle =
         (OsSharedLibHandleWnt*) mLibraryHandles.find(&collectableName);
 
     if(!collectableLibHandle)
@@ -152,32 +152,32 @@ OsStatus OsSharedLibMgrWnt::getSharedLibSymbol(const char* libName,
         sLock.release();
         loadSharedLib(libName);
         sLock.acquire();
-        collectableLibHandle = 
+        collectableLibHandle =
             (OsSharedLibHandleWnt*) mLibraryHandles.find(&collectableName);
     }
 
     if(collectableLibHandle)
     {
         // Get a named symbol from the shared library
-        symbolAddress = GetProcAddress(collectableLibHandle->mLibHandle, 
+        symbolAddress = GetProcAddress(collectableLibHandle->mLibHandle,
                                        symbolName);
 
-        if (!symbolAddress) 
+        if (!symbolAddress)
         {
             int errorCode = GetLastError();
             osPrintf("Failed to find symbol: %s in shared lib: %s error: %d\n",
                 symbolName, libName ? libName : "(null)", errorCode);
 
             LPVOID lpMsgBuf;
-            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-                FORMAT_MESSAGE_FROM_SYSTEM | 
+            FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                FORMAT_MESSAGE_FROM_SYSTEM |
                 FORMAT_MESSAGE_IGNORE_INSERTS,
                 NULL,
                 errorCode,
                 0, // Default language
                 (LPTSTR) &lpMsgBuf,
                 0,
-                NULL 
+                NULL
             );
             osPrintf("%s\n", lpMsgBuf);
             LocalFree(lpMsgBuf);
@@ -209,7 +209,7 @@ OsStatus OsSharedLibMgrWnt::unloadSharedLib(const char* libName)
 
 
 // Assignment operator
-OsSharedLibMgrWnt& 
+OsSharedLibMgrWnt&
 OsSharedLibMgrWnt::operator=(const OsSharedLibMgrWnt& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -227,5 +227,3 @@ OsSharedLibMgrWnt::operator=(const OsSharedLibMgrWnt& rhs)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

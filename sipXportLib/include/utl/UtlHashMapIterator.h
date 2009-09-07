@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class UtlPair;
 /**
  * UtlHashMapIterator allows developers to iterate (walks through) the
  * objects in a UtlHashMap.
- * 
+ *
  * @see UtlIterator
  * @see UtlSList
  */
@@ -43,7 +43,7 @@ class UtlHashMapIterator : public UtlIterator
 /* ============================ CREATORS ================================== */
 
    /**
-    * Constructor accepting a source UtlHashMap 
+    * Constructor accepting a source UtlHashMap
     */
    UtlHashMapIterator(const UtlHashMap& hashMap);
 
@@ -56,7 +56,7 @@ class UtlHashMapIterator : public UtlIterator
 /* ============================ MANIPULATORS ============================== */
 
    /**
-    * Return the key for the next element. 
+    * Return the key for the next element.
     *
     * @return The next element key or NULL if no more elements are available.
     */
@@ -65,9 +65,9 @@ class UtlHashMapIterator : public UtlIterator
 
    /**
     * Reset the list by moving the iterator cursor to the location before the
-    * first element. 
+    * first element.
     */
-   virtual void reset(); 
+   virtual void reset();
 
 
 /* ============================ ACCESSORS ================================= */
@@ -124,10 +124,9 @@ class UtlHashMapIterator : public UtlIterator
 
    // no copy constructor
    UtlHashMapIterator(UtlHashMapIterator&);
-   
+
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlHashMapIterator_h_
-

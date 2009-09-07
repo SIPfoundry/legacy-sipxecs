@@ -73,7 +73,7 @@ SipxUpgrade() {
 ##
 ##    The following variables are available:
 ##
-##          $Version   a version string of a previously installed project 
+##          $Version   a version string of a previously installed project
 ##                     RPM in the format x.y.z, or the null string,
 ##                     if there was no previously installed project
 ##          $ShortVersion  a version string in the format x.y
@@ -90,7 +90,7 @@ SipxUpgrade() {
 ###########################################################################
 
 ##########################
-## Upgrade the commserver lib 
+## Upgrade the commserver lib
 ##########################
 UpgradeCommserver() {
     case $Version in
@@ -116,12 +116,12 @@ UpgradeCommserver() {
        directory.
 
        If you are using another certificate authority, you need
-       to copy the authority certificate for it (in PEM format) 
+       to copy the authority certificate for it (in PEM format)
        into that directory as a file with a '.crt' suffix.
 
     In either case, then (as root) run:
 
-        @bindir@/ssl-cert/ca_rehash 
+        @bindir@/ssl-cert/ca_rehash
 
 EOF
             fi
@@ -154,7 +154,7 @@ EOF
 }
 
 ##########################
-## Upgrade the registry 
+## Upgrade the registry
 ##########################
 UpgradeRegistry() {
    case $Version in
@@ -194,7 +194,7 @@ UpgradeRegistry2_6To2_8() {
     # add the namespace to an existing 2.6.x mappingrules or fallbackrules file
     for f in ${SysConfDir}/sipxpbx/mappingrules.xml.in \
              ${SysConfDir}/sipxpbx/fallbackrules.xml.in
-    do 
+    do
         if test -r $f
         then
             cp $f $f.OLD
@@ -227,7 +227,7 @@ UpgradeRegistry2_8To3_0() {
 }
 
 ##########################
-## Upgrade the proxy 
+## Upgrade the proxy
 ##########################
 UpgradeProxy() {
     case $Version in
@@ -278,7 +278,7 @@ SIP_PROXY_CALL_STATE_DB : ${CALLRESOLVER_CALL_STATE_DB}
             ;;
     esac
 }
- 
+
 ##########################
 ## Upgrade the subscription database
 ##########################
@@ -312,9 +312,9 @@ RemoveObsoleteVoicemailSummaryFiles () {
 }
 
 UpgradeMailstoreNoPrivateFolders () {
-    # As of 3.7, the mailstore no longer supports private folders. 
+    # As of 3.7, the mailstore no longer supports private folders.
     # Move anything in a private folder into the "saved" folder
-    f=${LocalStateDir}/sipxdata/mediaserver/data/mailstore/sipx-upgrade-3.6-mailstore.log 
+    f=${LocalStateDir}/sipxdata/mediaserver/data/mailstore/sipx-upgrade-3.6-mailstore.log
     if test -r $f
     then
         true # Already done.  No need to do it again
@@ -324,7 +324,7 @@ UpgradeMailstoreNoPrivateFolders () {
 }
 
 ##########################
-## Upgrade the PBX 
+## Upgrade the PBX
 ##########################
 UpgradePbx() {
     case $Version in
@@ -411,7 +411,7 @@ ConfigDiff() { # (File with new props, Original file)
         then
             NewLine=`grep ^${Key}${KeyValueDelim} $NewFile`
             echo $NewLine
-        fi 
+        fi
      done
 }
 
@@ -437,7 +437,7 @@ SipxReadVersion() {
     Version=""
     if [ -n "$1" ]; then
         Version=$OldVersion
-        # Make sure the user specified a sensible version number, which 
+        # Make sure the user specified a sensible version number, which
         # is either a triple-dotted-number, or null.
         if ! echo "$Version" | grep -sE '^([0-9]+\.[0-9]+\.[0-9]+)?$'; then
             echo >&2 "Bad format for --oldversion: $1"
@@ -502,7 +502,7 @@ do
         -p | --project)
             shift
             Project=${1}
-            ;;    
+            ;;
 
         --bdir)
             shift

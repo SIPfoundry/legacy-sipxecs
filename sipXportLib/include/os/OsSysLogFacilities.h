@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,21 +26,21 @@
 //
 // NOTE: If you need a new facility, please first look for an enum value
 //       that is available for re-use.  (e.g. FAC_AVAILABLE_FOR_REUSE)
-//       If no enum values are available for re-use, then add a new one, 
-//       but please: 
+//       If no enum values are available for re-use, then add a new one,
+//       but please:
 //        1) Insert it before the FAC_MAX_FACILITY.
 //        2) Update OsSysLogFacilities.cpp to include the
 //           string name.
 //        3) Update the !enum comments below.
-//         
+//
 //       If removing a facility, do NOT delete the enum value.
-//       Instead, please: 
+//       Instead, please:
 //        1) Rename the enum value to flag it as available for re-use.
 //           (e.g. FAC_AVAILABLE_FOR_REUSE)
 //        2) Update OsSysLogFacilities.cpp to change the string name
 //           to "UNUSED".
 //        3) Update the !enum comments below.
-// 
+//
 // *** READ THIS ***
 //
 //
@@ -61,7 +61,7 @@ enum tagOsSysLogFacility
    FAC_JNI,                ///< JNI Layer related
    FAC_JAVA,               ///< Java related
    FAC_LOG,                ///< OsSysLog related
-   FAC_SUPERVISOR,         ///< sipXsupervisor 
+   FAC_SUPERVISOR,         ///< sipXsupervisor
    FAC_SIP_OUTGOING,       ///< Outgoing SIP messages
    FAC_SIP_INCOMING,       ///< Incoming SIP messages
    FAC_SIP_INCOMING_PARSED,///< Incoming SIP messages after being parsed

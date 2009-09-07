@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ const UtlContainableType UtlHashBag::TYPE = "UtlHashBag";
  * Each entry in the dynamic mBucket array is a list header for the items in that bucket.
  * The bucket number for an item is its hash code, XOR-folded to the mBucketBits
  * The entries in each bucket list are sorted into ascending order, so that the worst case
- * lookup performance (when all items hash to the same bucket) is no worse than a linear 
+ * lookup performance (when all items hash to the same bucket) is no worse than a linear
  * search (if the hash functions are any good, it should almost always be better).
  */
 
@@ -56,7 +56,7 @@ UtlHashBag::~UtlHashBag()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerLock);
-      
+
    invalidateIterators();
 
    UtlContainer::releaseIteratorConnectionLock();
@@ -79,7 +79,7 @@ UtlHashBag::~UtlHashBag()
 /*
  * Allocate additional buckets and redistribute existing contents.
  * This should only be called through resizeIfNeededAndSafe.
- */          
+ */
 void UtlHashBag::resize()
 {
    // already holding the mContainerLock
@@ -97,7 +97,7 @@ void UtlHashBag::resize()
 
    // allocate the new buckets
    newBucket = new UtlChain[NUM_HASHBAG_BUCKETS(newBucketBits)];
-   
+
    if (newBucket)
    {
       // save the old buckets until we move the entries out of them
@@ -140,15 +140,15 @@ UtlContainable* UtlHashBag::insert(UtlContainable* insertedContainable)
 {
    if (insertedContainable) // NULL keys are not allowed
    {
-      OsLock take(mContainerLock);   
+      OsLock take(mContainerLock);
 
       UtlLink*  link;
-      
+
       link = UtlLink::get();
       link->data  = insertedContainable;
       link->hash  = insertedContainable->hash();
-      
-      mElements++; 
+
+      mElements++;
       insert(link, &mpBucket[bucketNumber(link->hash)]);
    }
 
@@ -163,7 +163,7 @@ void UtlHashBag::insert(UtlLink*       link,  ///< The UtlLink for the entry if 
                         )
 {
    UtlLink* inBucket;
-   
+
    for (inBucket = static_cast<UtlLink*>(bucket->listHead());
         (   inBucket                     // not end of list
          && link->hash > inBucket->hash  // hash list is ordered, so if > then we're done.
@@ -173,27 +173,27 @@ void UtlHashBag::insert(UtlLink*       link,  ///< The UtlLink for the entry if 
    {
    }
    link->UtlChain::listBefore(bucket, inBucket);
-   
+
    resizeIfNeededAndSafe();
 }
 
 UtlContainable* UtlHashBag::remove(const UtlContainable* object)
 {
    UtlContainable* removed = NULL;
-   
+
    if (object)
    {
       OsLock take(mContainerLock);
 
       UtlLink*  link;
       UtlChain* bucket;
-      
+
       if ( lookup(object, bucket, link) )
       {
          removed = link->data;
-         
+
          notifyIteratorsOfRemove(link);
-         
+
          link->detachFromList(bucket);
          removed = link->data;
          link->release();
@@ -201,7 +201,7 @@ UtlContainable* UtlHashBag::remove(const UtlContainable* object)
          mElements--;
       }
    }
-   
+
    return removed;
 }
 
@@ -214,7 +214,7 @@ UtlContainable* UtlHashBag::remove(const UtlContainable* object)
 UtlContainable* UtlHashBag::removeReference(const UtlContainable* object)
 {
    UtlContainable* removed = NULL;
-   
+
    if (object)
    {
       size_t   keyHash = object->hash();
@@ -224,10 +224,10 @@ UtlContainable* UtlHashBag::removeReference(const UtlContainable* object)
       UtlLink*  link;
       UtlChain* bucket;
       UtlLink* check;
-   
+
       bucket = &mpBucket[bucketNumber(keyHash)];
       for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
-           (   !link                  // not found 
+           (   !link                  // not found
             && check                  // not end of list
             && check->hash <= keyHash // hash list is ordered, so if > then it's not in the list
             );
@@ -243,7 +243,7 @@ UtlContainable* UtlHashBag::removeReference(const UtlContainable* object)
       if (link)
       {
          notifyIteratorsOfRemove(link);
-         
+
          link->detachFromList(bucket);
          removed = link->data;
          link->release();
@@ -251,7 +251,7 @@ UtlContainable* UtlHashBag::removeReference(const UtlContainable* object)
          mElements--;
       }
    }
-   
+
    return removed;
 }
 
@@ -333,12 +333,12 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
 
    UtlLink*  link;
    UtlChain* bucket;
-   
+
    if (lookup(object, bucket, link))
    {
       foundObject = link->data;
    }
-   
+
    return foundObject;
 }
 
@@ -349,7 +349,7 @@ UtlContainable* UtlHashBag::find(const UtlContainable* object) const
 UtlContainable* UtlHashBag::findReference(const UtlContainable* object) const
 {
    UtlContainable* found = NULL;
-   
+
    if (object)
    {
       OsLock take(mContainerLock);
@@ -357,14 +357,14 @@ UtlContainable* UtlHashBag::findReference(const UtlContainable* object) const
       UtlLink*  link = NULL;
       UtlChain* bucket;
       UtlLink* check;
-   
+
       // walk the buckets
       for (size_t i = 0; link == NULL && i < numberOfBuckets(); i++)
       {
          bucket = &mpBucket[i];
 
          for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
-              (   !link                  // not found 
+              (   !link                  // not found
                && check                  // not end of list
                  );
               check = check->next()
@@ -382,7 +382,7 @@ UtlContainable* UtlHashBag::findReference(const UtlContainable* object) const
          found = link->data;
       }
    }
-   
+
    return found;
 }
 
@@ -410,7 +410,7 @@ UtlBoolean UtlHashBag::contains(const UtlContainable* object)  const
 {
    UtlLink*  link;
    UtlChain* bucket;
-   
+
    OsLock take(mContainerLock);
 
    return lookup(object, bucket, link);
@@ -433,7 +433,7 @@ void UtlHashBag::notifyIteratorsOfRemove(const UtlLink* link)
 {
    UtlLink* listNode;
    UtlHashBagIterator* foundIterator;
-   
+
    for (listNode = mIteratorList.head(); listNode; listNode = listNode->next())
    {
       foundIterator = (UtlHashBagIterator*)listNode->data;
@@ -455,10 +455,10 @@ bool UtlHashBag::lookup(const UtlContainable* key, ///< The key to locate.
 {
    UtlLink* check;
    size_t   keyHash = key->hash();
-   
+
    bucket = &mpBucket[bucketNumber(keyHash)];
    for (link = NULL, check = static_cast<UtlLink*>(bucket->listHead());
-        (   !link                  // not found 
+        (   !link                  // not found
          && check                  // not end of list
          && check->hash <= keyHash // hash list is ordered, so if > then it's not in the list
          );
@@ -477,7 +477,7 @@ size_t UtlHashBag::bucketNumber(unsigned hash) const
 {
    /*
     * We only use mBucketBits of the hash to index mpBucket, but we don't want to
-    * loose the information in the higher bits of the hash code.  So we 'fold' the 
+    * loose the information in the higher bits of the hash code.  So we 'fold' the
     * high order bits by XORing them mBucketBits at a time into the bits we'll
     * use until there are no non-zero high order bits left.
     */
@@ -488,7 +488,7 @@ size_t UtlHashBag::bucketNumber(unsigned hash) const
    for ( (foldedHash = hash & lowBitsMask, // get the low bits we want into the folded value
           highBits   = hash                // don't bother masking off the low bits
           );
-         (highBits = highBits >> mBucketBits); // shift out bits already used until zero 
+         (highBits = highBits >> mBucketBits); // shift out bits already used until zero
          foldedHash ^= highBits & lowBitsMask // incorporate non-zero
         )
    {
@@ -496,4 +496,3 @@ size_t UtlHashBag::bucketNumber(unsigned hash) const
    }
    return foldedHash;
 }
-

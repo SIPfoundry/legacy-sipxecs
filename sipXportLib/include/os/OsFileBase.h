@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ class OsFileBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-    
+
    enum Mode {
       READ_ONLY = 1,
       WRITE_ONLY = 2,
@@ -50,12 +50,12 @@ public:
       FSLOCK_WRITE = 128,
       FSLOCK_WAIT  = 256
    };
-   
+
    //: Options for the origin in setting the file position.
     enum FilePositionOrigin {
-      START     = 0,   
-      CURRENT   = 1, 
-      END       = 2      
+      START     = 0,
+      CURRENT   = 1,
+      END       = 2
     };
       //!enumcode: Start       - Set position relative to start of file.
       //!enumcode: Current     - Set position relative to current file position.
@@ -82,7 +82,7 @@ public:
      //:   SHARED_NONE to get exclusive lock
      //:   SHARED_READ to allow others READ access
      //:   SHARED_WAIT to lock and wait for the file to be free before the open will continue
-   
+
    virtual OsStatus fileunlock();
      //: Unlocks the file for across process access
 
@@ -93,7 +93,7 @@ public:
      //:        OS_FAILED if unsuccessful
      //: Notes: Use FSLOCK_READ only on read or read/write files
      //:        Use FSLOCK_WRITE only only files you can write to.
-   
+
    virtual OsStatus flush();
      //: Flushes any pending output
 
@@ -120,30 +120,30 @@ public:
 
 
    virtual OsStatus remove(UtlBoolean bForce = FALSE);
-     //: Removes the file specified by this object 
+     //: Removes the file specified by this object
      //: Set bForce to TRUE to remove read-only files
-     //: Returns: 
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_INVALID if failed
 
-   virtual OsStatus rename(const OsPathBase& rNewFilename); 
-     //: Rename this file to the new file name 
-     //: Returns: 
+   virtual OsStatus rename(const OsPathBase& rNewFilename);
+     //: Rename this file to the new file name
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_INVALID if failed
 
    virtual OsStatus copy(const OsPathBase& rNewFilename);
      //: Copy this file to the new specified location
-     //: Returns: 
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:        OS_FILE_WRITE_FAILED if it fails to create the file.
 
    virtual OsStatus setReadOnly(UtlBoolean isReadOnly);
      //: Sets the file to the new state
-     //: Returns: 
+     //: Returns:
      //:        OS_SUCCESS if successful
      //:         OS_INVALID if failed
-    
+
    virtual OsStatus touch();
      //: Updates the date and time on the file.  Creates if needed.
 
@@ -157,12 +157,12 @@ public:
 
    virtual OsStatus read(void *pBuf, size_t bufLen, size_t &rBytesRead);
      //: Read X bytes from file
-    
+
    virtual OsStatus readLine(UtlString &str);
      //: Read bytes up to \n or eof, whichever comes first
      //: Return
    virtual UtlBoolean close();
-     //: Closes the file. 
+     //: Closes the file.
 
    OsStatus getLength(size_t &length);
      //: Returns the length of the file specified by the object
@@ -217,5 +217,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsFile_h_
-
-

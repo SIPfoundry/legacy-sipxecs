@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,15 +35,15 @@ class UtlString;
  * @code
  * OsTimeLog log;
  * UtlString results;
- * 
+ *
  *  results.append("Entries");
- * 
+ *
  *  log.addEvent("event 1");
  *  log.addEvent("event 2");
  *  log.addEvent("event 3");
  *  log.addEvent("event 4");
  *  log.addEvent("event 5");
- *       
+ *
  *  log.getLogString(results);
  * @endcode
  * Produces a log result string like:

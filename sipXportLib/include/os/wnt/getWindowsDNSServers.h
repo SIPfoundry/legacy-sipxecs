@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #define getWindowsDNSServers_h_
 
 #ifdef WIN32
-#define MAXIPLEN 40 
+#define MAXIPLEN 40
 
 #include <time.h>
 
@@ -152,7 +152,7 @@ typedef struct SOCKET_ADDRESS_XYZ {
 typedef struct _IP_ADAPTER_UNICAST_ADDRESS {
     union {
         ULONGLONG Alignment;
-        struct { 
+        struct {
             ULONG Length;
             DWORD Flags;
         };
@@ -171,7 +171,7 @@ typedef struct _IP_ADAPTER_UNICAST_ADDRESS {
 typedef struct _IP_ADAPTER_ANYCAST_ADDRESS {
     union {
         ULONGLONG Alignment;
-        struct { 
+        struct {
             ULONG Length;
             DWORD Flags;
         };

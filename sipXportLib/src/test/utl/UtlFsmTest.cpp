@@ -60,7 +60,7 @@ public:
    {
       return "State";
    }
-   
+
    virtual void DoEntryAction( Context& context )
    {
       StateChanges += m_entryString;
@@ -71,7 +71,7 @@ public:
 
    virtual void DoExitAction( Context& context )
    {
-      StateChanges += m_exitString;  
+      StateChanges += m_exitString;
       StateChanges += " ";
    }
 
@@ -162,7 +162,7 @@ private:
    //  | ---------------------         |
    //  |                               |
    //  ---------------------------------
-  
+
 public:
    UtlFsmTest() :
         A  ( &stateA ),
@@ -171,13 +171,13 @@ public:
         A1a( &stateA1a ),
         A1b( &stateA1b ),
         B  ( &stateB ){}
-       
-   
+
+
    void setUp()
    {
       StateChanges = "";
       context.SetCurrentState( 0 );
-   
+
       stateA   = State( 0,  A1,  "A",   "xA" );
       stateA1  = State( A,  A1a, "A1",  "xA1" );
       stateA2  = State( A,  0,   "A2",  "xA2" );
@@ -188,7 +188,7 @@ public:
 
    void tearDown()
    {
-   } 
+   }
 
    void testTransitionFromA1aToA1a()
    {
@@ -196,7 +196,7 @@ public:
       StateAlg::ChangeState( context, A1a, A1a );
       CPPUNIT_ASSERT( StateChanges == "xA1a A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
-   }  
+   }
 
    void testTransitionFromA1aToA1b()
    {
@@ -205,7 +205,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a A1b " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1b );
    }
-   
+
    void testTransitionFromA1aToA1 ()
    {
       context.SetCurrentState( A1a );
@@ -213,7 +213,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA1aToA  ()
    {
       context.SetCurrentState( A1a );
@@ -221,7 +221,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA1aToA2 ()
    {
       context.SetCurrentState( A1a );
@@ -229,7 +229,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A2 " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A2 );
    }
-   
+
    void testTransitionFromA1aToB  ()
    {
       context.SetCurrentState( A1a );
@@ -237,8 +237,8 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
-   
+
+
    void testTransitionFromA1bToA  ()
    {
       context.SetCurrentState( A1b );
@@ -246,8 +246,8 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1b xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
-   
+
+
    void testTransitionFromA1ToA1a ()
    {
       context.SetCurrentState( A1a );
@@ -255,7 +255,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA1ToA1b ()
    {
       context.SetCurrentState( A1a );
@@ -263,7 +263,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A1 A1b " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1b );
    }
-   
+
    void testTransitionFromA1ToA1  ()
    {
       context.SetCurrentState( A1a );
@@ -271,7 +271,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA1ToA   ()
    {
       context.SetCurrentState( A1a );
@@ -279,7 +279,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA1ToA2  ()
    {
       context.SetCurrentState( A1a );
@@ -287,7 +287,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 A2 " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A2 );
    }
-   
+
    void testTransitionFromA1ToB   ()
    {
       context.SetCurrentState( A1a );
@@ -295,8 +295,8 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
-   
+
+
    void testTransitionFromA2ToA1a ()
    {
       context.SetCurrentState( A2 );
@@ -304,7 +304,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA2ToA1b ()
    {
       context.SetCurrentState( A2 );
@@ -312,7 +312,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 A1 A1b " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1b );
    }
-   
+
    void testTransitionFromA2ToA1  ()
    {
       context.SetCurrentState( A2 );
@@ -320,7 +320,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA2ToA   ()
    {
       context.SetCurrentState( A2 );
@@ -328,7 +328,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromA2ToA2  ()
    {
       context.SetCurrentState( A2 );
@@ -336,7 +336,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 A2 " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A2 );
    }
-   
+
    void testTransitionFromA2ToB   ()
    {
       context.SetCurrentState( A2 );
@@ -344,8 +344,8 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA2 xA B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
-   
+
+
    void testTransitionFromAToA1a  ()
    {
       context.SetCurrentState( A1a );
@@ -353,7 +353,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromAToA1b  ()
    {
       context.SetCurrentState( A1a );
@@ -361,7 +361,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1b " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1b );
    }
-   
+
    void testTransitionFromAToA1   ()
    {
       context.SetCurrentState( A1a );
@@ -369,7 +369,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromAToA    ()
    {
       context.SetCurrentState( A1a );
@@ -377,7 +377,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromAToA2   ()
    {
       context.SetCurrentState( A1a );
@@ -385,7 +385,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA A A2 " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A2 );
    }
-   
+
    void testTransitionFromAToB    ()
    {
       context.SetCurrentState( A1a );
@@ -393,7 +393,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xA1a xA1 xA B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
+
    void testTransitionFromBToA1a  ()
    {
       context.SetCurrentState( B );
@@ -401,7 +401,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromBToA1b  ()
    {
       context.SetCurrentState( B );
@@ -409,7 +409,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB A A1 A1b " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1b );
    }
-   
+
    void testTransitionFromBToA1   ()
    {
       context.SetCurrentState( B );
@@ -417,7 +417,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromBToA    ()
    {
       context.SetCurrentState( B );
@@ -425,7 +425,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testTransitionFromBToA2   ()
    {
       context.SetCurrentState( B );
@@ -433,7 +433,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB A A2 " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A2 );
    }
-   
+
    void testTransitionFromBToB    ()
    {
       context.SetCurrentState( B );
@@ -441,7 +441,7 @@ public:
       CPPUNIT_ASSERT( StateChanges == "xB B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
+
    void testTransitionsInEntryActions()
    {
       State stateC;
@@ -450,27 +450,27 @@ public:
       State* D = &stateD;
       stateC = State( 0,  0, "C", "xC", D );
       stateD = State( 0,  0, "D", "xD", A1 );
-   
+
       context.SetCurrentState( B );
       StateAlg::ChangeState( context, B, C );
       CPPUNIT_ASSERT( StateChanges == "xB C xC D xD A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testStartStateMachineAtCompositeState()
    {
       StateAlg::StartStateMachine( context, A );
       CPPUNIT_ASSERT( StateChanges == "A A1 A1a " );
       CPPUNIT_ASSERT( context.GetCurrentState() == A1a );
    }
-   
+
    void testStartStateMachineAtSimpleState()
    {
       StateAlg::StartStateMachine( context, B );
       CPPUNIT_ASSERT( StateChanges == "B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-   
+
    void testStartStateMachineAtCompositeStateFollowedByEntryAction()
    {
       stateA1a = State( A1, 0, "A1a", "xA1a", B );
@@ -478,6 +478,6 @@ public:
       CPPUNIT_ASSERT( StateChanges == "A A1 A1a xA1a xA1 xA B " );
       CPPUNIT_ASSERT( context.GetCurrentState() == B );
    }
-}; 
+};
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlFsmTest);

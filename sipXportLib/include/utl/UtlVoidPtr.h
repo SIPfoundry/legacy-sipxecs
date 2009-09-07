@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ public:
      * Constructor accepting an optional default value.
      */
     UtlVoidPtr(void * pPtr = NULL) ;
-     
+
     /**
      * Destructor
      */
@@ -69,13 +69,13 @@ public:
     /**
      * Get the void ptr wrapped by this object.
      */
-    void* getValue() const ;    
+    void* getValue() const ;
 
     /**
      * Calculate a unique hash code for this object.  If the equals
      * operator returns true for another object, then both of those
      * objects must return the same hashcode.
-     */    
+     */
     virtual unsigned hash() const ;
 
     /**
@@ -83,19 +83,19 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE ;   /**< Class type used for runtime checking */ 
+    static const UtlContainableType TYPE ;   /**< Class type used for runtime checking */
 
 /* ============================ INQUIRY =================================== */
 
     /**
-     * Compare the this object to another like-objects.  Results for 
+     * Compare the this object to another like-objects.  Results for
      * designating a non-like object are undefined.
      *
      * @returns Compares the contained pointers and returns 0 if equal, < 0 if less than and >0 if greater.
      */
     virtual int compareTo(UtlContainable const *) const ;
 
-  
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

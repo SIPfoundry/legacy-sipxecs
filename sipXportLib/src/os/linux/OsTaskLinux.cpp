@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -53,7 +53,7 @@ OsTaskLinux::OsTaskLinux(const UtlString& name,
 // Destructor
 OsTaskLinux::~OsTaskLinux()
 {
-   waitUntilShutDown(); 
+   waitUntilShutDown();
 }
 
 void OsTaskLinux::ackShutdown()
@@ -77,7 +77,7 @@ void OsTaskLinux::ackShutdown()
                     "OsTaskLinux::ackShutdown '%s' shut down",
                         taskName.data());
       }
-      
+
       // DEBUGGING HACK:  Suspend requestor if target is suspended $$$
       while (isSuspended())
       {
@@ -85,7 +85,7 @@ void OsTaskLinux::ackShutdown()
          suspend();
          mDataGuard.acquire();
       }
-      
+
       // taskUnregister sets mTaskId to zero, so this serves as a flag
       // If this method is called more than once, then on the first
       // call savedTaskId will be non-zero, but on subsequent calls
@@ -173,7 +173,7 @@ UtlBoolean OsTaskLinux::start(void)
       pthread_attr_t            attributes;
 
       /*
-        Set the mDeleteGuard initial state to Acquired.  We use try here 
+        Set the mDeleteGuard initial state to Acquired.  We use try here
         because if it is already aquired (as it starts that way), that's just
         fine.  This lets us restart from the TERMINATED state, which leaves
         the mDeleteGuard released.  Thus we have to Acquire it.
@@ -219,7 +219,7 @@ UtlBoolean OsTaskLinux::start(void)
                        "OsTaskLinux:start pthread_attr_setdetachstate error %d %s",
                        linuxRes, strerror(linuxRes));
       }
-   
+
       linuxRes = pthread_create(&mTaskId, &attributes, taskEntry, (void *)this);
       OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                     "OsTaskLinux::start '%s' this = %p, mTaskId = %ld",
@@ -254,7 +254,7 @@ UtlBoolean OsTaskLinux::start(void)
    }
    return RUNNING == mState;
 }
-     
+
 // Suspend the task.
 // This routine suspends the task. Suspension is additive: thus, tasks
 // can be delayed and suspended, or pended and suspended. Suspended,
@@ -352,7 +352,7 @@ OsStatus OsTaskLinux::awaitSignal(int& sig_num)
       res = sigwait(&sig_set, &sig_num);
    } while (res == EINTR); // bug in older glibc sometimes returns EINTR here
    errno = res;            // set errno so it can be seen outside this function
-   
+
    return res == 0 ? OS_SUCCESS : OS_FAILED;
 }
 
@@ -393,7 +393,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
                     current ? current->mName.data() : "<UNKNOWN>", taskName.data(),
                     TaskStateName(mState));
    }
-   
+
    switch (mState)
    {
    case UNINITIALIZED:
@@ -404,7 +404,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
 
       mDeleteGuard.release(); // if anyone else is waiting, let them run too.
       break;
-      
+
    case RUNNING:
       // no one has asked the task to shut down yet, so give it a chance
       mDataGuard.release();
@@ -447,7 +447,7 @@ UtlBoolean OsTaskLinux::waitUntilShutDown(int milliSecToWait)
          mDeleteGuard.release(); // if anyone else is waiting, let them run too.
       }
       break;
-      
+
    case TERMINATED:
       // no need to wait - the task is gone.
       mDataGuard.release();
@@ -544,7 +544,7 @@ int OsTaskLinux::getOptions(void)
 {
    return mOptions;
 }
-     
+
 // Return the priority of the task
 OsStatus OsTaskLinux::getPriority(int& rPriority)
 {
@@ -570,14 +570,14 @@ OsStatus OsTaskLinux::getPriority(int& rPriority)
 OsStatus OsTaskLinux::id(pthread_t& rId)
 {
    OsStatus retVal = OS_SUCCESS;
-   
+
    //if started, return the taskId, otherwise return -1
    if (isStarted())
       rId = mTaskId;
    else
    {
       retVal = OS_TASK_NOT_STARTED;
-      rId = (pthread_t) (-1);  
+      rId = (pthread_t) (-1);
    }
 
 
@@ -591,7 +591,7 @@ UtlBoolean OsTaskLinux::isReady(void)
 {
    if (!isStarted())
       return FALSE;
-   
+
    return (!isSuspended());
 }
 
@@ -664,17 +664,17 @@ void * OsTaskLinux::taskEntry(void* arg)
    {
       // Use FIFO realtime scheduling
       param.sched_priority = linuxPriority;
-      linuxRes = sched_setscheduler(0, SCHED_FIFO, &param); 
+      linuxRes = sched_setscheduler(0, SCHED_FIFO, &param);
       if (linuxRes == POSIX_OK)
       {
-         OsSysLog::add(FAC_KERNEL, PRI_INFO, 
-                       "OsTaskLinux::taskEntry: starting '%s' at RT linux priority: %d", 
+         OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                       "OsTaskLinux::taskEntry: starting '%s' at RT linux priority: %d",
                        pTask->mName.data(), linuxPriority);
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, 
-                       "OsTaskLinux::taskEntry '%s' failed to set RT linux priority %d", 
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                       "OsTaskLinux::taskEntry '%s' failed to set RT linux priority %d",
                        pTask->mName.data(), linuxPriority);
       }
 
@@ -684,8 +684,8 @@ void * OsTaskLinux::taskEntry(void* arg)
          linuxRes = mlockall(MCL_CURRENT|MCL_FUTURE);
          if (linuxRes != POSIX_OK)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, 
-                          "OsTaskLinux::taskEntry '%s' failed to lock memory", 
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                          "OsTaskLinux::taskEntry '%s' failed to lock memory",
                           pTask->mName.data());
          }
       }
@@ -702,7 +702,7 @@ void * OsTaskLinux::taskEntry(void* arg)
 
    // Run the code the task is supposed to run, namely the run()
    // method of its class.
-   pTask->run(pTask->getArg());   
+   pTask->run(pTask->getArg());
 
    // The thread has completed now, so clean up and signal the destructor
    pTask->ackShutdown();

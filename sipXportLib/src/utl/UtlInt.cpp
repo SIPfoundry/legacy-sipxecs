@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ UtlContainableType UtlInt::TYPE = "UtlInt" ;
 UtlInt::UtlInt(intptr_t value)
 {
     mValue = value ;
-} 
+}
 
 
 // Copy constructor
@@ -82,15 +82,15 @@ intptr_t UtlInt::setValue(intptr_t iValue)
 
 /* ============================ ACCESSORS ================================= */
 
-intptr_t UtlInt::getValue() const 
+intptr_t UtlInt::getValue() const
 {
-    return mValue ; 
+    return mValue ;
 }
 
 
 unsigned UtlInt::hash() const
 {
-   return mValue ; 
+   return mValue ;
 }
 
 
@@ -103,17 +103,17 @@ UtlContainableType UtlInt::getContainableType() const
 
 int UtlInt::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
+   int result ;
+
    if (inVal->isInstanceOf(UtlInt::TYPE))
     {
-        UtlInt* temp = (UtlInt*)inVal ; 
-        intptr_t inInt = temp -> getValue() ; 
-        result = mValue - inInt ; 
+        UtlInt* temp = (UtlInt*)inVal ;
+        intptr_t inInt = temp -> getValue() ;
+        result = mValue - inInt ;
     }
     else
     {
-        result = INT_MAX ; 
+        result = INT_MAX ;
     }
 
     return result ;
@@ -122,7 +122,7 @@ int UtlInt::compareTo(UtlContainable const * inVal) const
 
 UtlBoolean UtlInt::isEqual(UtlContainable const * inVal) const
 {
-    return (compareTo(inVal) == 0) ; 
+    return (compareTo(inVal) == 0) ;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

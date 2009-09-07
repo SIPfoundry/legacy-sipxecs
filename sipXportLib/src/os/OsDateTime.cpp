@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ int                     OsDateTimeBase::sTzOffsetSecs = 0;
 // Uses individual members for the month, day, year, hour, minute, second
 // second and microsecond.
 
-const char* OsDateTimeBase::spMonthStrings[12] = 
+const char* OsDateTimeBase::spMonthStrings[12] =
 {
     "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"
 };
@@ -80,7 +80,7 @@ OsDateTimeBase::OsDateTimeBase(const unsigned short year,
    mSecond(second)
 {
    // no work required beyond what's been done by the initializers
-    
+
 }
 
 // Copy constructor
@@ -104,7 +104,7 @@ OsDateTimeBase::~OsDateTimeBase()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsDateTimeBase& 
+OsDateTimeBase&
 OsDateTimeBase::operator=(const OsDateTimeBase& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -127,10 +127,10 @@ time_t OsDateTimeBase::tm2Epoch(const struct tm *t)
     /*
      * tm2sec converts a GMT tm structure into the number of seconds since
      * 1st January 1970 UT.  Note that we ignore tm_wday, tm_yday, and tm_dst.
-     * 
+     *
      * The return value is always a valid time_t value -- (time_t)0 is returned
      * if the input date is outside that capable of being represented by time(),
-     * i.e., before Thu, 01 Jan 1970 00:00:00 for all systems and 
+     * i.e., before Thu, 01 Jan 1970 00:00:00 for all systems and
      * beyond 2038 for 32bit systems.
      *
      * This routine is intended to be very fast, much faster than mktime().
@@ -177,7 +177,7 @@ time_t OsDateTimeBase::convertHttpDateToEpoch(const char *date)
      * 0 if this would be out of range or if the date is invalid.
      *
      * The restricted HTTP syntax is
-     * 
+     *
      *     HTTP-date    = rfc1123-date | rfc850-date | asctime-date
      *
      *     rfc1123-date = wkday "," SP date1 SP time SP "GMT"
@@ -238,7 +238,7 @@ time_t OsDateTimeBase::convertHttpDateToEpoch(const char *date)
 
     ++date;    /* Now pointing to first char after space, which should be */
                /* start of the actual date information for all 3 formats. */
-    
+
     if (checkmask(date, "## @$$ #### ##:##:## *")) {     /* RFC 1123 format */
         ds.tm_year = ((date[7] - '0') * 10 + (date[8] - '0') - 19) * 100;
         if (ds.tm_year < 0)
@@ -296,7 +296,7 @@ time_t OsDateTimeBase::convertHttpDateToEpoch(const char *date)
             break;
     if (mon == 12)
         return BAD_DATE;
-    
+
     if ((ds.tm_mday == 31) && (mon == 3 || mon == 5 || mon == 8 || mon == 10))
         return BAD_DATE;
 
@@ -339,13 +339,13 @@ void OsDateTimeBase::getDayOfWeek(int year, int  month, int dayOfMonth, int& day
     month++;
 
 //    osPrintf("getDayOfWeek (IN): year=%d, month=%d, dayofmonth=%d\n",year,month,dayOfMonth);
-    
+
     int a = (14 - month)/12;
     int gy = year - a;
-    
+
     int m = month + (12 * a) - 2;
     dayOfWeek = (dayOfMonth + gy + (gy/4) - (gy/100) + (gy/400) + (31 * m) / 12) % 7;
-    
+
 //    osPrintf("Month: %d day: %d, %d is on day of week: %d \n",
 //        month, dayOfMonth, year, dayOfWeek);
 }
@@ -355,7 +355,7 @@ void OsDateTimeBase::getDayOfWeek(int& dayOfWeek)
     getDayOfWeek(mYear, mMonth, mDay, dayOfWeek);
 }
 
-// Convert the OsDateTimeBase value to an OsTime value. 
+// Convert the OsDateTimeBase value to an OsTime value.
 // The OsTime value is relative to midnight (0 hour) 01/01/70.
 OsStatus OsDateTimeBase::cvtToTimeSinceEpoch(OsTime& rTime) const
 {
@@ -370,7 +370,7 @@ OsStatus OsDateTimeBase::cvtToTimeSinceEpoch(OsTime& rTime) const
    thisTime.tm_min   = mMinute;
    thisTime.tm_sec   = mSecond;
    thisTime.tm_wday  = 0;
-   thisTime.tm_yday  = 0;     
+   thisTime.tm_yday  = 0;
    thisTime.tm_isdst = 0;
 
    thisTimeAsTimeT  = tm2Epoch(&thisTime);
@@ -391,7 +391,7 @@ void OsDateTimeBase::getHttpTimeString(UtlString& dateString)
     getDayOfWeek(dayOfTheWeek);
 
     // Wed, 06 Mar 2002 05:51:44 GMT
-    sprintf(dateBuffer, "%s, %.2d %s %d %.2d:%.2d:%.2d GMT", 
+    sprintf(dateBuffer, "%s, %.2d %s %d %.2d:%.2d:%.2d GMT",
             spDayStrings[dayOfTheWeek],
             mDay, spMonthStrings[mMonth], mYear,
             mHour, mMinute, mSecond);
@@ -404,8 +404,8 @@ void OsDateTimeBase::getHttpTimeString(UtlString& dateString)
 void OsDateTimeBase::getSqlTimeStringZ(UtlString& dateString)
 {
    dateString.resize(24);
-   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02d %02d:%02d:%02d.%03d", 
-           mYear, mMonth+1, mDay, 
+   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02d %02d:%02d:%02d.%03d",
+           mYear, mMonth+1, mDay,
            mHour, mMinute, mSecond, mMicrosecond/MICROSECS_PER_MILLISEC
            );
 }
@@ -415,8 +415,8 @@ void OsDateTimeBase::getSqlTimeStringZ(UtlString& dateString)
 void OsDateTimeBase::getIsoTimeStringZ(UtlString& dateString)
 {
    dateString.resize(24);
-   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02dT%02d:%02d:%02d.%03dZ", 
-           mYear, mMonth+1, mDay, 
+   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02dT%02d:%02d:%02d.%03dZ",
+           mYear, mMonth+1, mDay,
            mHour, mMinute, mSecond, mMicrosecond/MICROSECS_PER_MILLISEC
            );
 }
@@ -426,8 +426,8 @@ void OsDateTimeBase::getIsoTimeStringZ(UtlString& dateString)
 void OsDateTimeBase::getIsoTimeStringZus(UtlString& dateString)
 {
    dateString.resize(27);
-   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02dT%02d:%02d:%02d.%06dZ", 
-           mYear, mMonth+1, mDay, 
+   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02dT%02d:%02d:%02d.%06dZ",
+           mYear, mMonth+1, mDay,
            mHour, mMinute, mSecond, mMicrosecond
            );
 }
@@ -441,8 +441,8 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
 #ifndef _VXWORKS
 
     /* Set time zone from TZ environment variable. If TZ is not set,
-     * the operating system is queried to obtain the default value 
-     * for the variable. 
+     * the operating system is queried to obtain the default value
+     * for the variable.
      */
     tzset();
 #endif /* _VXWORKS*/
@@ -489,10 +489,10 @@ void OsDateTimeBase::getLocalTimeString(UtlString& dateString)
     tz[3] = 0;
 
     // Mon, 25-Sep-2002 05:51:44 EST
-    sprintf(dateBuffer, "%s, %d-%s-%d %.2d:%.2d:%.2d %s %s", 
-            spDayStrings[today->tm_wday], 
-            today->tm_mday, spMonthStrings[today->tm_mon], (today->tm_year + 1900), 
-            today->tm_hour, today->tm_min, today->tm_sec, 
+    sprintf(dateBuffer, "%s, %d-%s-%d %.2d:%.2d:%.2d %s %s",
+            spDayStrings[today->tm_wday],
+            today->tm_mday, spMonthStrings[today->tm_mon], (today->tm_year + 1900),
+            today->tm_hour, today->tm_min, today->tm_sec,
             ampm,
             tz);
 
@@ -532,7 +532,7 @@ int OsDateTimeBase::checkmask(const char *data, const char *mask)
      *   & - hex digit
      *   # - digit
      *   ~ - digit or space
-     *   * - swallow remaining characters 
+     *   * - swallow remaining characters
      *  <x> - exact match for any other character
      */
     int i;
@@ -563,5 +563,3 @@ int OsDateTimeBase::checkmask(const char *data, const char *mask)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ public:
         OsMsg* pMsg1;
         OsMsg* pMsg2;
         OsMsg* pRecvMsg;
-        
+
         pMsgQ1 = new OsMsgQ(OsMsgQ::DEF_MAX_MSGS, OsMsgQ::DEF_MAX_MSG_LEN,
                        OsMsgQ::Q_PRIORITY, "MQ1");
 
@@ -82,6 +82,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsMsgQTest);
-
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@
  * the actual search, so if an expression is frequently reused, it is best to
  * compile it only once and then construct the expression to use in the search
  * using the copy constructor.
- * 
+ *
  *
  * @nosubgrouping
  */
@@ -59,7 +59,7 @@ class RegEx : public UtlContainableAtomic
 /** @name    Constructors, Destructor, and Expression Information
  */
 ///@{
-   
+
    /// Compile a regular expression to create the matching object.
   RegEx( const char *      regex,       //< the regular expression
          int               options = 0, //< any sum of PCRE options bits
@@ -94,8 +94,8 @@ class RegEx : public UtlContainableAtomic
    * shorten the length of the strings that a pattern that has nested parenthesis
    * will match.
    */
-  
-  /// Construct from a constant regex to save compilation time. 
+
+  /// Construct from a constant regex to save compilation time.
   RegEx( const RegEx& );
   /**<
    * If you are using the same constant regular expression frequently, you can
@@ -143,7 +143,7 @@ class RegEx : public UtlContainableAtomic
      * This returns a unique type for UtlString
      */
 
-    static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+    static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 // ================================================================
@@ -186,7 +186,7 @@ class RegEx : public UtlContainableAtomic
    *    The start of this search is not considered the start of the subject for
    *    the purposes of anchoring.  So if the expresssion is "^xx", then subject
    *    "fooxx" will not match, even if offset is passed as '3'.
-   *    
+   *
    */
 
 
@@ -209,7 +209,7 @@ class RegEx : public UtlContainableAtomic
    *    \endcode
    *    Would print "A1\n" and then "A2\n".
    *
-   * @note Prefer MatchString over the less efficient Match 
+   * @note Prefer MatchString over the less efficient Match
    */
 
 ///@}
@@ -234,7 +234,7 @@ class RegEx : public UtlContainableAtomic
   int Matches();
   /**<
    * May only be called after a successful search using one of the searching interfaces,
-   * and applies to the results of that call. 
+   * and applies to the results of that call.
    * - any negative return indicates a caller error - the preceeding search call did not match
    * - a return value of 1 indicates that the entire pattern matched, but no substrings
    *   within it matched.
@@ -245,7 +245,7 @@ class RegEx : public UtlContainableAtomic
    * expression "(foo|(bar))(bing)" matches subject "foobingo", and Matches would return 4
    * because substring 3 "bing" was matched, but substring 2 would be the null string for
    * that match.
-   * 
+   *
    */
 
 
@@ -263,7 +263,7 @@ class RegEx : public UtlContainableAtomic
                    );
   /**<
    * May only be called after a successful search
-   * and applies to the results of that call. 
+   * and applies to the results of that call.
    * @returns true if there was an ith match, false if not
    *
    * Example:@code
@@ -280,7 +280,7 @@ class RegEx : public UtlContainableAtomic
    *  - getBs to "BBBB"
    *  - getB  to "B"
    */
-  
+
 
   /// Get the position and length of a match in the subject
   bool Match(const int i, ///< input - must be < SubStrings() */
@@ -305,20 +305,20 @@ class RegEx : public UtlContainableAtomic
    * int offset = 1;
    * if (matchABCs.SearchAt(subject, offset))
    * {
-   *   int all    = matchABCs.Match(0, allStart, allLength); 
-   *   int firstB = matchABCs.Match(1, firstB, numBs); 
-   *   int firstC = matchABCs.Match(2, firstC, numCs); 
+   *   int all    = matchABCs.Match(0, allStart, allLength);
+   *   int firstB = matchABCs.Match(1, firstB, numBs);
+   *   int firstC = matchABCs.Match(2, firstC, numCs);
    * }
    * @endcode
    * would set the values
    *  - allStart = 1, allLength = 2
    *  - firstB = 3, numBs = 4
    *  - firstC = 7, numCs = 1
-   * 
+   *
    * @note
    * The returned start position is relative to the beginning of the subject string,
    * not from any offset value.
-   * 
+   *
    */
 
 
@@ -362,7 +362,7 @@ class RegEx : public UtlContainableAtomic
    * May only be called after a successful search and applies to
    * the results of that call. This is equivalent to the Perl $` variable.
    *
-   * @returns true if there was a string before the match, false if not 
+   * @returns true if there was a string before the match, false if not
    * Example:@code
    * RegEx matchB("B");
    * UtlString getBefore;
@@ -374,7 +374,7 @@ class RegEx : public UtlContainableAtomic
    *
    * would set the UtlString getBefore to "xxa".
    */
-  
+
   /// Append string following the most recently matched value to a UtlString.
   bool AfterMatchString(UtlString* before /**< string to append to -
                                             * may be NULL, in which case no string is returned,
@@ -386,7 +386,7 @@ class RegEx : public UtlContainableAtomic
    * May only be called after a successful search and applies to
    * the results of that call. This is equivalent to the Perl $' variable.
    *
-   * @returns true if there was a string following the match, false if not 
+   * @returns true if there was a string following the match, false if not
    * Example:@code
    * RegEx matchB("B");
    * UtlString getAfter;
@@ -400,11 +400,11 @@ class RegEx : public UtlContainableAtomic
    */
 
   /// Get the offset of the first character past the matched value
-  int AfterMatch(int i ///< the substring specifier 
+  int AfterMatch(int i ///< the substring specifier
                  );
   /**<
    * May only be called after a successful search and applies to
-   * the results of that call. 
+   * the results of that call.
    *
    * Example:@code
    * RegEx matchBseq("A+(B+)C+");
@@ -419,7 +419,7 @@ class RegEx : public UtlContainableAtomic
    * - afterB = 7
    * - afterC = 10
    */
-  
+
 
   /// Get a string matched by a previous search
   const char * Match(int i = 0 /**< must be < SubStrings() */ );
@@ -427,7 +427,7 @@ class RegEx : public UtlContainableAtomic
    * @note
    * This does more memory allocation and data copying than any of the other results methods;
    * use one of the others when possible.
-   * 
+   *
    *
    * May only be called after a successful search, and applies to the results of
    * that call. Parameter i must be less than

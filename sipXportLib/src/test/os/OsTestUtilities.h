@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -22,21 +22,21 @@ class OsTestUtilities
      * Create root dir for tests
      */
     static void createTestDir(OsPath &root);
-    
+
     /**
      * Destroy root dir for tests
      */
     static void removeTestDir(OsPath &root);
 
-    /** 
-     * create a simple buffer w/all possible chars 
+    /**
+     * create a simple buffer w/all possible chars
      */
     static void initDummyBuffer(char *buff, int size);
 
-    /** 
-     * test that simple buffer is read correctly 
+    /**
+     * test that simple buffer is read correctly
      */
-    static UtlBoolean testDummyBuffer(char *buff, unsigned long size, 
+    static UtlBoolean testDummyBuffer(char *buff, unsigned long size,
             unsigned long position);
 
     /**
@@ -51,4 +51,3 @@ class OsTestUtilities
 };
 
 #endif
-

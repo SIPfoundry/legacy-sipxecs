@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -19,7 +19,7 @@ class UtlChainTest :
 {
    CPPUNIT_TEST_SUITE(UtlChainTest);
    CPPUNIT_TEST(testBefore);
-   CPPUNIT_TEST(testAfter);   
+   CPPUNIT_TEST(testAfter);
    CPPUNIT_TEST(testUnchainUnlinked);
    CPPUNIT_TEST(testUnchainFirst);
    CPPUNIT_TEST(testUnchainLast);
@@ -55,7 +55,7 @@ public:
          CPPUNIT_ASSERT(chain2.next == &chain3);
          CPPUNIT_ASSERT(chain3.prev == &chain2);
          CPPUNIT_ASSERT(chain3.next == NULL);
-         
+
          chain1.chainBefore(&chain2);
 
          CPPUNIT_ASSERT(chain1.prev == NULL);
@@ -65,8 +65,8 @@ public:
          CPPUNIT_ASSERT(chain3.prev == &chain2);
          CPPUNIT_ASSERT(chain3.next == NULL);
       }
-   
-   
+
+
    void testAfter()
       {
          UtlChain chain1;
@@ -89,7 +89,7 @@ public:
          CPPUNIT_ASSERT(chain2.next == NULL);
          CPPUNIT_ASSERT(chain3.prev == NULL);
          CPPUNIT_ASSERT(chain3.next == NULL);
-         
+
          chain3.chainAfter(&chain2);
 
          CPPUNIT_ASSERT(chain1.prev == NULL);
@@ -113,7 +113,7 @@ public:
          CPPUNIT_ASSERT(unlinked.prev == NULL);
          CPPUNIT_ASSERT(unlinked.next == NULL);
       }
-   
+
 
    void testUnchainFirst()
       {
@@ -139,7 +139,7 @@ public:
          CPPUNIT_ASSERT(chain3.next == NULL);
 
          chain1.unchain();
-         
+
          CPPUNIT_ASSERT(chain1.prev == NULL);
          CPPUNIT_ASSERT(chain1.next == NULL);
          CPPUNIT_ASSERT(chain2.prev == NULL);
@@ -173,7 +173,7 @@ public:
          CPPUNIT_ASSERT(chain3.next == NULL);
 
          chain3.unchain();
-         
+
          CPPUNIT_ASSERT(chain1.prev == NULL);
          CPPUNIT_ASSERT(chain1.next == &chain2);
          CPPUNIT_ASSERT(chain2.prev == &chain1);
@@ -182,7 +182,7 @@ public:
          CPPUNIT_ASSERT(chain3.next == NULL);
       }
 
-   
+
    void testUnchainMiddle()
       {
          UtlChain chain1;
@@ -207,7 +207,7 @@ public:
          CPPUNIT_ASSERT(chain3.next == NULL);
 
          chain2.unchain();
-         
+
          CPPUNIT_ASSERT(chain1.prev == NULL);
          CPPUNIT_ASSERT(chain1.next == &chain3);
          CPPUNIT_ASSERT(chain2.prev == NULL);
@@ -230,7 +230,7 @@ public:
          CPPUNIT_ASSERT(chain3.next == NULL);
 
          chain1.chainBefore(&chain1);
-         
+
          CPPUNIT_ASSERT(chain1.prev == &chain1);
          CPPUNIT_ASSERT(chain1.next == &chain1);
          CPPUNIT_ASSERT(chain2.prev == NULL);
@@ -287,9 +287,9 @@ public:
    void testListBefore()
       {
          UtlChain list;
-         
+
          UtlChain link1;
-         
+
          link1.listBefore(&list, NULL);
 
          CPPUNIT_ASSERT(link1.prev == NULL);
@@ -324,7 +324,7 @@ public:
 
          returnedLink = link2.detachFromList(&list);
          CPPUNIT_ASSERT(returnedLink == &link2);
-         
+
          CPPUNIT_ASSERT(list.next == &link1);
          CPPUNIT_ASSERT(link1.prev == NULL);
          CPPUNIT_ASSERT(link1.next == &link3);

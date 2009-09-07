@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ const UtlContainableType OsRpcMsg::TYPE = "OsRpcMsg";
 OsRpcMsg::OsRpcMsg(const unsigned char msgType,
                    const unsigned char msgSubType,
                    const OsEvent& rEvent)
-:  
+:
    OsMsg(msgType, msgSubType),
    mpEvent((OsEvent*) &rEvent)
 {
@@ -59,7 +59,7 @@ OsRpcMsg::~OsRpcMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsRpcMsg& 
+OsRpcMsg&
 OsRpcMsg::operator=(const OsRpcMsg& rhs)
 {
    if (this != &rhs)            // handle the assignment to self case
@@ -67,7 +67,7 @@ OsRpcMsg::operator=(const OsRpcMsg& rhs)
       OsMsg::operator=(rhs);
       mpEvent = rhs.mpEvent;
    }
-   
+
    return *this;
 }
 
@@ -100,5 +100,3 @@ UtlContainableType OsRpcMsg::getContainableType() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

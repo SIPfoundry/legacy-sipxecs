@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// sFacilityName provides string based representations of the various 
+// sFacilityName provides string based representations of the various
 // facilities within the system.  Indexed by enum tagOsSysLogFacility values.
 const char* OsSysLog::sFacilityNames[] =
 {
@@ -92,5 +92,3 @@ const char* OsSysLog::sFacilityNames[] =
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

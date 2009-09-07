@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,74 +26,74 @@
 // The following variables have been defined in the base class
 // and will be used in all the string tests
 /**
-const int UtlStringTest::commonTestSetLength; 
+const int UtlStringTest::commonTestSetLength;
 const char* UtlStringTest::longAlphaString;
-const char* UtlStringTest::splCharString; 
-const BasicStringVerifier UtlStringTest::commonTestSet[]; 
-const int UtlStringTest::commonTestSetLength ; 
+const char* UtlStringTest::splCharString;
+const BasicStringVerifier UtlStringTest::commonTestSet[];
+const int UtlStringTest::commonTestSetLength ;
 */
 
-/**  This class is used to test the UtlString class. 
+/**  This class is used to test the UtlString class.
 *
 *    PLEASE READ THE README FILE THAT CAN FOUND IN THE PARENT OF THE DIRECTORY
 *    OF THIS FILE. The Readme describes the organization / flow of tests and
 *    without reading this file, the following class (and all unit tests)
-*    may not make a lot of sense and might be difficult to comprehend. 
+*    may not make a lot of sense and might be difficult to comprehend.
 */
 class UtlStringTest_NonMutating : public UtlStringTest
 {
 
     CPPUNIT_TEST_SUITE(UtlStringTest_NonMutating);
     CPPUNIT_TEST(testSubstring);
-    CPPUNIT_TEST(testCompareTo_exactMatch); 
-    CPPUNIT_TEST(testCompareTo_ignoreCase); 
-    CPPUNIT_TEST(testIsEquals); 
-    CPPUNIT_TEST(testEqualityOperator); 
-    CPPUNIT_TEST(testEqualityOperator2); 
+    CPPUNIT_TEST(testCompareTo_exactMatch);
+    CPPUNIT_TEST(testCompareTo_ignoreCase);
+    CPPUNIT_TEST(testIsEquals);
+    CPPUNIT_TEST(testEqualityOperator);
+    CPPUNIT_TEST(testEqualityOperator2);
     CPPUNIT_TEST(testIndex_EmptyString);
-    CPPUNIT_TEST(testIndex_SearchFromStart); 
-    CPPUNIT_TEST(testIndex_DontStartFromStart); 
-    CPPUNIT_TEST(testIndex_CaseInsensitiveMatch); 
+    CPPUNIT_TEST(testIndex_SearchFromStart);
+    CPPUNIT_TEST(testIndex_DontStartFromStart);
+    CPPUNIT_TEST(testIndex_CaseInsensitiveMatch);
     CPPUNIT_TEST(testIndex_char_SearchFromStart);
     CPPUNIT_TEST(testIndex_char_DontStartFromStart);
     CPPUNIT_TEST(testIndexChar);
     CPPUNIT_TEST(testFirst_char);
-    CPPUNIT_TEST(testFirst_charstar);  
-    CPPUNIT_TEST(testContains_charstar); 
-    CPPUNIT_TEST(testLast_char); 
-    CPPUNIT_TEST(testLength); 
+    CPPUNIT_TEST(testFirst_charstar);
+    CPPUNIT_TEST(testContains_charstar);
+    CPPUNIT_TEST(testLast_char);
+    CPPUNIT_TEST(testLength);
     CPPUNIT_TEST(testLength_NonNullTerminatedData);
-    CPPUNIT_TEST(testIsNull); 
-    CPPUNIT_TEST(testLowerAndUpper); 
-    CPPUNIT_TEST(testPlusOperator); 
-    CPPUNIT_TEST(testIndexOperator); 
-    CPPUNIT_TEST(testCharAtOperator); 
+    CPPUNIT_TEST(testIsNull);
+    CPPUNIT_TEST(testLowerAndUpper);
+    CPPUNIT_TEST(testPlusOperator);
+    CPPUNIT_TEST(testIndexOperator);
+    CPPUNIT_TEST(testCharAtOperator);
     CPPUNIT_TEST_SUITE_END();
-    
+
 private :
     struct TestCompareDataStructure
     {
-        const char* testDescription; 
-        const char* compareData1; 
-        const char* compareData2; 
-        int expectedValue; 
-    }; 
+        const char* testDescription;
+        const char* compareData1;
+        const char* compareData2;
+        int expectedValue;
+    };
 
     struct TestCharstarIndexDataStructure
     {
-        const char* testDescription; 
-        const char* searchString; 
+        const char* testDescription;
+        const char* searchString;
         int startPosition;  // Specify -1 to ignore this parameter
         ssize_t expectedValue;
-    }; 
+    };
 
     struct TestCharIndexDataStructure
     {
-        MEMBER_CONST char* testDescription; 
-        MEMBER_CONST char searchCharacter; 
+        MEMBER_CONST char* testDescription;
+        MEMBER_CONST char searchCharacter;
         int startPosition;  // Specify -1 to ignore this parameter
         ssize_t expectedValue;
-    }; 
+    };
 public:
 
     UtlStringTest_NonMutating()
@@ -102,7 +102,7 @@ public:
     void setUp()
     {
     }
-    
+
     void tearDown()
     {
     }
@@ -112,7 +112,7 @@ public:
     }
 
 
-    /** Sandbox method for experimenting with the API Under Test. 
+    /** Sandbox method for experimenting with the API Under Test.
     *   This method MUST be empty when the test drivers are being
     *   checked in (final checkin) to the repository.
     */
@@ -131,11 +131,11 @@ public:
           const char* string;
           size_t start;
           size_t length;
-          const char* expectedValue; 
+          const char* expectedValue;
        };
-        
-       const char* prefix = "Test the (start, len) operator, with "; 
-       string Message; 
+
+       const char* prefix = "Test the (start, len) operator, with ";
+       string Message;
 
        TestSubstringStructure testData[] =
           {
@@ -378,13 +378,13 @@ public:
                ~(~((size_t) 0) >> 1) + 1,
                ~(~((size_t) 0) >> 1) + 1,
                "" },
-          }; 
+          };
 
        // Go through the table of tests.
        for (unsigned i=0; i < sizeof(testData)/sizeof(testData[0]); i++)
        {
           // Get the test string as a UtlString.
-          UtlString testString(testData[i].string); 
+          UtlString testString(testData[i].string);
           // Get the expected value as a UtlString.
           UtlString expectedValue(testData[i].expectedValue);
           // Assemble the test description.
@@ -394,22 +394,22 @@ public:
 
           // Execute the (start, length) operator.
           UtlString actualValue = testString((size_t) (testData[i].start),
-                                             (size_t) (testData[i].length)); 
+                                             (size_t) (testData[i].length));
 
           TestUtilities::createMessage(2, &Message, prefix,
-                                       description); 
+                                       description);
           CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
                                        expectedValue,
-                                       actualValue); 
+                                       actualValue);
        }
     }//testSubstring
 
-    /** testCase for comparing the compareTo(char* ) / compareTo(UtlString) method 
+    /** testCase for comparing the compareTo(char* ) / compareTo(UtlString) method
     *    This test case checks the compareTo() method for a caseSensitive comparision
     *
     *    The test data for this test case is :-
     *      a)  "lhs is empty. rhs is not",
-    *      b)  "rhs is empty. lhs is not", 
+    *      b)  "rhs is empty. lhs is not",
     *      c)  "lhs = rhs",
     *      d)  "lhs =~ rhs. The first character of lhs is lower case",
     *      e)  "lhs =~ rhs. The first character of lhs is upper case",
@@ -417,29 +417,29 @@ public:
     *      g)  "lhs =~ rhs. The last character of lhs is upper case",
     *      h)  "lhs != rhs. The first character of the lhs is alphabetically first",
     *      i)  "lhs != rhs. The first character of the lhs is alphabetically second",
-    *      j)  "lhs != rhs. After initial similarity in characters, the character(s) 
+    *      j)  "lhs != rhs. After initial similarity in characters, the character(s)
                 in the lhs are before those in the rhs" ,
-    *      k)  "lhs != rhs. After initial similarity in characters, the character(s) 
+    *      k)  "lhs != rhs. After initial similarity in characters, the character(s)
                 in the lhs are after those in the rhs",
-    *      l)  "lhs != rhs. Text is alphanumeric. After initial similarity, 
+    *      l)  "lhs != rhs. Text is alphanumeric. After initial similarity,
                 the digit(s) in the lhs are before that in the rhs",
-    *      m)  "lhs != rhs. Text is alphanumeric. After initial similarity, the digit(s) 
+    *      m)  "lhs != rhs. Text is alphanumeric. After initial similarity, the digit(s)
                 in the lhs are after that in the rhs",
     *      n)  "lhs != rhs. The text has special characters"
     *
-    *      Each of the above cases is verified for 
+    *      Each of the above cases is verified for
     *      1) compareTo(char*)
     *      2) compareTo(char*, caseMatch=exactMatch)
-    *      3) compareTo(UtlString) 
-    *      4) compareTo(UtlString, caseMatch=exactMatch) 
+    *      3) compareTo(UtlString)
+    *      4) compareTo(UtlString, caseMatch=exactMatch)
     */
     void testCompareTo_exactMatch()
     {
-        const char* prefix = "Test the compareTo method when "; 
+        const char* prefix = "Test the compareTo method when ";
         /*
         Composition of TestCompareDataStructure:
-            testDescription, compareData1, compareData2, expectedValue; 
-        */        
+            testDescription, compareData1, compareData2, expectedValue;
+        */
         const TestCompareDataStructure testData[] = { \
           { "lhs is empty. rhs is not", "", "test string", -1 },\
           { "rhs is empty. lhs is not", "test string", "", 1 },\
@@ -475,51 +475,51 @@ public:
                  "TÜter", "TÜter", 0 } \
         };
        const int testCount = sizeof(testData)/sizeof(testData[0]);
-        
+
        // Test the compare to method when the matchCase is not specified
        // and is assumed as default, The parameter passed is a char*
        utlTestCompareTo(prefix, testData, testCount, false, \
-                        TYPE_CHARSTAR, UtlString::matchCase); 
+                        TYPE_CHARSTAR, UtlString::matchCase);
 
        // Test the compare to method when the matchCase is specified explicitly
        // The parameter passed is a char*
        utlTestCompareTo(prefix, testData, testCount, true, \
-                        TYPE_CHARSTAR, UtlString::matchCase); 
+                        TYPE_CHARSTAR, UtlString::matchCase);
 
        // Test the compare to method when the matchCase is specified explicitly
        // The parameter passed is a UtlString
        utlTestCompareTo(prefix, testData, testCount, true, \
-                        TYPE_UTLSTRING, UtlString::matchCase); 
+                        TYPE_UTLSTRING, UtlString::matchCase);
     }
 
 
     /**  TestCase for comparing the compareTo(char*, CompareCase=ignoreCase) / compareTo
-         (UtlString) This test case checks the compareTo() methods for a 
+         (UtlString) This test case checks the compareTo() methods for a
          caseInsensitive comparision
     *
     *    The test data for this test case is :-
-    *        a) "lhs is empty. rhs is not", 
-    *        b) "rhs is empty. lhs is not", 
-    *        c) "lhs == rhs", 
-    *        d) "lhs =~ rhs. All the characters in the two strings have their case flipped", 
-    *        e) "lhs =~ rhs. The characters are such that some have the same case, 
-                 while others have 'em flipped", 
-    *        f) "lhs != rhs. The first non-matching character is alphabetically first in the lhs 
-                 (case doesnt matter)", 
-    *        g) "lhs != rhs. The first non-matching character is alphabetically first in the rhs 
-                (case doesn't matter)", 
-    *        h) "lhs != rhs. The strings are alpha-numeric", 
-    *        i) "lhs != rhs. The strings have special characters", 
+    *        a) "lhs is empty. rhs is not",
+    *        b) "rhs is empty. lhs is not",
+    *        c) "lhs == rhs",
+    *        d) "lhs =~ rhs. All the characters in the two strings have their case flipped",
+    *        e) "lhs =~ rhs. The characters are such that some have the same case,
+                 while others have 'em flipped",
+    *        f) "lhs != rhs. The first non-matching character is alphabetically first in the lhs
+                 (case doesnt matter)",
+    *        g) "lhs != rhs. The first non-matching character is alphabetically first in the rhs
+                (case doesn't matter)",
+    *        h) "lhs != rhs. The strings are alpha-numeric",
+    *        i) "lhs != rhs. The strings have special characters",
     *        j) "lhs == rhs. The strings have special characters"
     *
     */
     void testCompareTo_ignoreCase()
     {
-        const char* prefix = "Test the compareTo method when "; 
+        const char* prefix = "Test the compareTo method when ";
         /*
         Composition of TestCompareDataStructure:
-            testDescription, compareData1, compareData2, expectedValue; 
-        */        
+            testDescription, compareData1, compareData2, expectedValue;
+        */
 
         TestCompareDataStructure testData[] = { \
             { "lhs is empty. rhs is not", "", "test string", -1}, \
@@ -537,56 +537,56 @@ public:
             { "lhs != rhs. The strings have special characters", "Test^#", "test#^", 1}, \
             { "lhs == rhs. The strings have special characters", "Test^#", "test^#", 0} \
         };
-        const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
+        const int testCount = sizeof(testData)/sizeof(testData[0]) ;
         utlTestCompareTo(prefix, testData, testCount, true, TYPE_CHARSTAR, \
                          UtlString::ignoreCase);
 
         utlTestCompareTo(prefix, testData, testCount, true, TYPE_UTLSTRING, \
                          UtlString::ignoreCase);
-    } 
+    }
 
-    /** 
-    *  utility used for testing the compareTo method. The type of test is controlled by the last 
-    *  (optional) parameters. If specifyEnum is set to false, then the compareTo() function is 
-    *  called without the CompareCase parameter (amounts to string.compareTo(char*) or 
-    *  string.compareTo(string)). If set to true, then the method is called with the 
-    *  argument(amoutns to string.compareTo(char*, enum) or string.compareTo(string, enum). 
+    /**
+    *  utility used for testing the compareTo method. The type of test is controlled by the last
+    *  (optional) parameters. If specifyEnum is set to false, then the compareTo() function is
+    *  called without the CompareCase parameter (amounts to string.compareTo(char*) or
+    *  string.compareTo(string)). If set to true, then the method is called with the
+    *  argument(amoutns to string.compareTo(char*, enum) or string.compareTo(string, enum).
 
-    *  If the type parameter is set to 0, then the compareTo(char* ,..) is called. If set to 1, 
+    *  If the type parameter is set to 0, then the compareTo(char* ,..) is called. If set to 1,
     *  then compareTo(UtlString, ..)  is called
      */
     void utlTestCompareTo(const char* prefix, const TestCompareDataStructure testData[], \
                                 const int testCount, bool specifyEnum, StringType type, \
                                 UtlString::CompareCase caseCompare)
-    { 
-        const char* suffix; 
-        string Message; 
+    {
+        const char* suffix;
+        string Message;
         if (type == TYPE_CHARSTAR )
-        { 
+        {
             if (specifyEnum)
             {
-                if (caseCompare == UtlString::ignoreCase) 
+                if (caseCompare == UtlString::ignoreCase)
                 {
-                    suffix = " :- compareTo(char*, CompareCase=ignore) "; 
+                    suffix = " :- compareTo(char*, CompareCase=ignore) ";
                 }
                 else
                 {
-                    suffix = " :- compareTo(char*, CompareCase=exact) "; 
+                    suffix = " :- compareTo(char*, CompareCase=exact) ";
                 }
             }
             else
             {
-                suffix = " :- compareTo(char*)"; 
+                suffix = " :- compareTo(char*)";
             }
         }
         // else type is to compareTo UtlString
         else
         {
-            if (specifyEnum) 
+            if (specifyEnum)
             {
-                if (caseCompare == UtlString::ignoreCase)  
+                if (caseCompare == UtlString::ignoreCase)
                 {
-                    suffix = " :- compareTo(UtlString, CompareCase=ignore) "; 
+                    suffix = " :- compareTo(UtlString, CompareCase=ignore) ";
                 }
                 else
                 {
@@ -595,15 +595,15 @@ public:
             }
             else
             {
-                suffix = " :- compareTo(UtlString) " ; 
+                suffix = " :- compareTo(UtlString) " ;
             }
         }
 
         for ( int i = 0; i < testCount; i++)
         {
             UtlString compareString1(testData[i].compareData1);
-            UtlString compareString2(testData[i].compareData2); 
-            int cmpResult; 
+            UtlString compareString2(testData[i].compareData2);
+            int cmpResult;
             if (type == TYPE_CHARSTAR)
             {
                 if (specifyEnum)
@@ -619,10 +619,10 @@ public:
             {
                 cmpResult = compareString1.compareTo(&compareString2, caseCompare);
             }
-            
-            // When string 'a' comes before string 'b', we are not concerned about 
+
+            // When string 'a' comes before string 'b', we are not concerned about
             // what is the integer returned when you call a.compareTo(b). We only want
-           //  to check if it returns any negative number and so on. 
+           //  to check if it returns any negative number and so on.
             bool testResult = false;
             if (testData[i].expectedValue == 0)
             {
@@ -636,35 +636,35 @@ public:
             {
                 testResult = cmpResult > 0;
             }
-            
+
             TestUtilities::createMessage(3, &Message, prefix, testData[i].testDescription, \
-                                         suffix); 
+                                         suffix);
             CPPUNIT_ASSERT_MESSAGE(Message.data(), testResult);
         }
     } //utlTestCompareTo
-    
 
-    /*! Test the isEquals method. 
-    *   
+
+    /*! Test the isEquals method.
+    *
     *     The test data for this test is :-
-    *      a) Test two strings that*ARE* equal 
-    *      b) Test two strings that would have been equal if the search were case sensitive. 
-    *      c) Test two strings that are not equal. 
-    *      d) Check an empty string with a non empty string 
-    *      e) Check an empty string with an empty String 
+    *      a) Test two strings that*ARE* equal
+    *      b) Test two strings that would have been equal if the search were case sensitive.
+    *      c) Test two strings that are not equal.
+    *      d) Check an empty string with a non empty string
+    *      e) Check an empty string with an empty String
     *      6) Check a String with an Integer
     */
     void testIsEquals()
     {
         const char* prefix = "Test the isEquals method for a string such that ";
-        string Message; 
-        
-        //Since the equals / compareTo methods are almost similar, use 
-        // the same data structure 
+        string Message;
+
+        //Since the equals / compareTo methods are almost similar, use
+        // the same data structure
         /*
         Composition of TestCompareDataStructure:
-            testDescription, compareData1, compareData2, expectedValue; 
-        */        
+            testDescription, compareData1, compareData2, expectedValue;
+        */
         const TestCompareDataStructure testData[] = { \
                { "the two strings *ARE* equal" , \
                       "Hello World", "Hello World", 1}, \
@@ -674,30 +674,30 @@ public:
                       "Hello World", "Different Universe", 0}, \
                { "lhs is an empty string and rhs is not" , \
                       "", "Hello World", 0}, \
-               { "both the strings are empty strings" , 
+               { "both the strings are empty strings" ,
                       "", "", 1 }, \
-        }; 
+        };
 
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         for(int i = 0; i < testCount; i++)
         {
-            UtlString testString(testData[i].compareData1); 
-            UtlString compareString(testData[i].compareData2); 
+            UtlString testString(testData[i].compareData1);
+            UtlString compareString(testData[i].compareData2);
 
-            bool actual = (TRUE == testString.isEqual(&compareString)); 
-            bool expected = (testData[i].expectedValue == 1); 
+            bool actual = (TRUE == testString.isEqual(&compareString));
+            bool expected = (testData[i].expectedValue == 1);
 
-            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), expected, actual); 
+            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), expected, actual);
         }
 
-        // Now check the case where a different type of collectable is compared to 
+        // Now check the case where a different type of collectable is compared to
         // a string
-        UtlString testString("123"); 
-        UtlInt testInt(123); 
-        bool actual = (TRUE == testString.isEqual(&testInt)); 
-        TestUtilities::createMessage(2, &Message, prefix, "the target is not a UtlString"); 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), false, actual); 
+        UtlString testString("123");
+        UtlInt testInt(123);
+        bool actual = (TRUE == testString.isEqual(&testInt));
+        TestUtilities::createMessage(2, &Message, prefix, "the target is not a UtlString");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), false, actual);
 
     } // testIsEqual();
 
@@ -708,7 +708,7 @@ public:
      */
     void testEqualityOperator()
     {
-        struct EqualityOperatorTestData 
+        struct EqualityOperatorTestData
         {
             MEMBER_CONST char rhs[128];
             MEMBER_CONST char lhs[128];
@@ -731,20 +731,20 @@ public:
         {
             utlstr = data[i].rhs;
             sprintf(msg, "(UtlString)\"%s\" == (char *)\"%s\"", data[i].rhs, data[i].lhs);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal, 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal,
                     (int)(utlstr == data[i].lhs));
 
             sprintf(msg, "(UtlString)\"%s\" != (char *)\"%s\"", data[i].rhs, data[i].lhs);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal, 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal,
                     (int)(utlstr != data[i].lhs));
 
             utlstr = data[i].lhs;
             sprintf(msg, "(char *)\"%s\" == (UtlString)\"%s\"", data[i].rhs, data[i].lhs);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal, 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)data[i].isequal,
                     (int)(data[i].rhs == utlstr));
 
             sprintf(msg, "(char *)\"%s\" != (UtlString)\"%s\"", data[i].rhs, data[i].lhs);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal, 
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, (int)!data[i].isequal,
                     (int)(data[i].rhs != utlstr));
         }
     }
@@ -812,36 +812,36 @@ public:
 
 
     /*a! Test case for comparing the index(char*, ...)  methods for an empty string
-    *   
+    *
     *    The test data for this test case is :-
     *        1. When the String is empty
     *            a) Test trying to find another empty string
-    *            b) Test trying to find a non empty string 
-    *            // Verify with bob if we are hanlding the next case. 
-    *            c) Test trying to find, starting off from a non-zero position, for a 
-    *               non empty string 
-    *            For (a) to (b) verify by both specifying position explicitly 
+    *            b) Test trying to find a non empty string
+    *            // Verify with bob if we are hanlding the next case.
+    *            c) Test trying to find, starting off from a non-zero position, for a
+    *               non empty string
+    *            For (a) to (b) verify by both specifying position explicitly
     *            as 0 / not providing at all
     */
     void testIndex_EmptyString()
     {
         const char* prefix = "Test index method for an empty string. Find ";
-        string Message; 
-        
+        string Message;
+
         const TestCharstarIndexDataStructure testData[] = { \
                { "Empty char* string", "", -1, (ssize_t)0 }, \
                { "Non empty char* string", "Some", -1, INDEX_NOT_FOUND} \
-        }; 
+        };
 
-        UtlString testString(""); 
-        const int testCount = sizeof(testData) / sizeof(testData[0]); 
-        for (int i =0; i <testCount; i++) 
+        UtlString testString("");
+        const int testCount = sizeof(testData) / sizeof(testData[0]);
+        for (int i =0; i <testCount; i++)
         {
-            ssize_t result = testString.index(testData[i].searchString); 
+            ssize_t result = testString.index(testData[i].searchString);
 
-            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result); 
-        }        
+            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result);
+        }
     }
 
 
@@ -858,10 +858,10 @@ public:
     *               sent
     *               For (a) to (e) verify by both specifying position explicitly
     *               as 0 / not providing at all
-    */ 
+    */
     void testIndex_SearchFromStart()
     {
-        utlTestIndexFirstOrContains_charstar(TEST_INDEX); 
+        utlTestIndexFirstOrContains_charstar(TEST_INDEX);
     }
 
    /*a! Some simple tests to ensure that UtlString::index(char, size_t)
@@ -905,9 +905,9 @@ public:
     *    Refer to the testIndex_charstar_SearchFromStart() method for details.
     */
     void testFirst_charstar()
-    {        
+    {
         utlTestIndexFirstOrContains_charstar(TEST_FIRST);
-    }   
+    }
 
     /*a! Test case for comparing the contains(char*)  methods
     *
@@ -919,7 +919,7 @@ public:
     *            c) Find the index of "s" -character as a string that matches
     *            d) Find the index of "string" - a string that only matches once
     *            e) Find the index of "bad"  - a string that is not prefixsent
-    *               For (a) to (e) verify by both specifying position explicitly 
+    *               For (a) to (e) verify by both specifying position explicitly
     *               as 0 / not providing at all
     */
     void testContains_charstar()
@@ -929,37 +929,37 @@ public:
 
 
    /** Utility to test the index, first or contains method that accepts a char*
-    *   argument.  
-    */  
+    *   argument.
+    */
     void utlTestIndexFirstOrContains_charstar(IndexFirstOrContainsType type)
     {
-        const char* prefix = ""; 
-        string Message; 
-        if (type == TEST_INDEX) 
+        const char* prefix = "";
+        string Message;
+        if (type == TEST_INDEX)
         {
             prefix = "Test index starting search from the first location. Find the index of" ;
         }
         else if (type == TEST_CONTAINS)
         {
-            prefix = "Test contains(char*) for"; 
+            prefix = "Test contains(char*) for";
         }
         else if (type == TEST_FIRST)
         {
-            prefix = "Test first(char*) for"; 
+            prefix = "Test first(char*) for";
         }
-        
+
         const TestCharstarIndexDataStructure testData[] = { \
            { "a multi-character char* string" , "Test", -1, 0 }, \
            { "a string if the search were case-insensitive", "test", -1, 11 },  \
            { "a single-character char* string", "s", -1, 2 }, \
            { "a string that only matches once", "string", -1, 4 },  \
            { "a string that doesn't match", "bzk", -1, INDEX_NOT_FOUND } \
-        }; 
-        
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        };
+
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         UtlString testString("Teststring test and test");
-        
-        bool specifyPosition = false; 
+
+        bool specifyPosition = false;
 
         int loopCount;
         // if the type is to test index(), then we need to test both the
@@ -978,16 +978,16 @@ public:
             else
             {
                if (type == TEST_INDEX)
-               { 
+               {
                    suffix = ":- index(char*)";
                }
                else if(type == TEST_CONTAINS)
                {
-                   suffix = ":- contains()";  
+                   suffix = ":- contains()";
                }
                else if(type == TEST_FIRST)
                {
-                   suffix = ":- first()"; 
+                   suffix = ":- first()";
                }
             }
 
@@ -995,7 +995,7 @@ public:
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
-                       testData[j].testDescription, suffix); 
+                       testData[j].testDescription, suffix);
                 if (specifyPosition)
                 {
                     result = testString.index(testData[j].searchString, 0);
@@ -1012,11 +1012,11 @@ public:
                     }
                     else if (type == TEST_FIRST)
                     {
-                        result = testString.first(testData[j].searchString); 
+                        result = testString.first(testData[j].searchString);
                         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
-                                    testData[j].expectedValue, result); 
+                                    testData[j].expectedValue, result);
                     }
-                    else if (type == TEST_CONTAINS) 
+                    else if (type == TEST_CONTAINS)
                     {
                         bool isContained = (TRUE == testString.contains(testData[j].searchString));
                         bool wasExpectedToContain = (testData[j].expectedValue \
@@ -1024,10 +1024,10 @@ public:
                         CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                                           wasExpectedToContain, isContained);
                     }
-                } 
+                }
 
-            } //for int j=0 to 
-            // Set the stage ready for the next test where the 
+            } //for int j=0 to
+            // Set the stage ready for the next test where the
             // position is explicitly specified as 0.
             specifyPosition = !specifyPosition;
         }
@@ -1038,7 +1038,7 @@ public:
     *
     *    The test data for this test case is :- ((The main string is "Teststring test and test" )
     *        1. Find the index, starting off from a position other than the start`
-    *            a) Find the index of "test" starting from position greater than the first index  
+    *            a) Find the index of "test" starting from position greater than the first index
     *            b) Find the index of "string" starting from the exact position of match
     *            c) Find the index of "string" starting of from position greater than match index
     *            d) Find the index of "bad"  - a string that is not prefixsent
@@ -1049,8 +1049,8 @@ public:
     {
         const char* prefix = "Test index starting search from a different (not start)location. "\
                        "Find the index of a " ;
-        string Message; 
-                       
+        string Message;
+
         const TestCharstarIndexDataStructure testData[] = { \
            { "string that matches twice, such that the position specified " \
                 "is after the first", "test", 12, 20 }, \
@@ -1061,16 +1061,16 @@ public:
            { "string that doesn't match", "bad", 2, INDEX_NOT_FOUND }, \
            { "string that matches, exactly at the position specified and " \
                 "is the last position", "test", 11, 11 } \
-        };      
+        };
 
         const int testCount = sizeof(testData)  / sizeof(testData[0]);
         UtlString testString("Teststring test and test");
-        // Test both the case where the caseType is specified 
-        // and is not. 
+        // Test both the case where the caseType is specified
+        // and is not.
         bool specifyCase = false;
         for (int i =0;  i < 2; i++)
         {
-            const char* suffix;  
+            const char* suffix;
             if (specifyCase)
             {
                 suffix = ":- index(char*, pos, CaseType)";
@@ -1085,7 +1085,7 @@ public:
                 if (specifyCase)
                 {
                     result = testString.index(testData[j].searchString, \
-                             testData[j].startPosition, UtlString::matchCase); 
+                             testData[j].startPosition, UtlString::matchCase);
                 }
                 else
                 {
@@ -1094,8 +1094,8 @@ public:
                 }
 
                 TestUtilities::createMessage(3, &Message, prefix, \
-                                     testData[j].testDescription, suffix); 
-                CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[j].expectedValue, result);  
+                                     testData[j].testDescription, suffix);
+                CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[j].expectedValue, result);
             }
             specifyCase = !specifyCase;
         }
@@ -1104,20 +1104,20 @@ public:
 
     /**  Test case for comparing the index(char*, ...)  methods using a case-insensitive match
     *
-    *    The test data for this test case is :- ((The main string is "Teststring test and 
+    *    The test data for this test case is :- ((The main string is "Teststring test and
     *    test an#232 end" )
     *        For all the tests, the CompareCase argument must be set to ignoreCase
     *        1. Find the index of an empty string
     *        2. Find the index of a char* string that matches including the case
-    *        3. Find the index of a char* string that matches both 'case insensitive 
-    *           and case sensitive'. 
+    *        3. Find the index of a char* string that matches both 'case insensitive
+    *           and case sensitive'.
     *        4. Find the index of a char* string that matches 'case-insenistive' and once only
     *        5. Find the index of a alpha-numeric char* string that matches in its numeric position
-    */ 
+    */
     void testIndex_CaseInsensitiveMatch()
     {
         const char* prefix = "Test the index(, , CompareCase=ignoreCase) method for";
-        string Message; 
+        string Message;
 
         const TestCharstarIndexDataStructure testData[] = { \
               { "an Empty string", "", 0, 0 }, \
@@ -1130,18 +1130,18 @@ public:
               { "a char* string that matches case-insensitive after position " \
                   "n. Specify position", "and", 4, 16}, \
               { "a char* string that doesn't match", "bad", 0, INDEX_NOT_FOUND } \
-        }; 
-        
-        UtlString testString("Teststring test and test an#232 end"); 
-        ssize_t result; 
+        };
+
+        UtlString testString("Teststring test and test an#232 end");
+        ssize_t result;
         const int testCount = sizeof(testData) / sizeof(testData[0]) ;
         for (int i =0; i < testCount; i++)
         {
             result = testString.index(testData[i].searchString, \
-                     testData[i].startPosition, UtlString::ignoreCase); 
+                     testData[i].startPosition, UtlString::ignoreCase);
 
-            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result); 
+            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, result);
         }
     } //testIndex_CaseInsensitiveMatch
 
@@ -1162,10 +1162,10 @@ public:
         const char* prefix = "Test index starting search from a different " \
                        "(not start)location. Find the index of a " ;
         const char* suffix = ":- index(char, pos)";
-        string Message; 
+        string Message;
 
         UtlString ts("wednesDay");
-        // Structure of TestCharIndexDataStructure = 
+        // Structure of TestCharIndexDataStructure =
         // { testDescription, searchChar, startPosition, expectedValue }
         TestCharIndexDataStructure testData[] = { \
            { "character that matches twice, such that the position specified " \
@@ -1175,15 +1175,15 @@ public:
            { "character's index is before the specified position", \
              'n', 4, INDEX_NOT_FOUND }, \
            { "character is not found in the string", 'z', 0, INDEX_NOT_FOUND } \
-             
-        }; 
+
+        };
 
         const int testCount = sizeof(testData)/sizeof(testData[0]);
         for(int j =0; j < testCount; j++)
         {
             ssize_t result = ts.index(testData[j].searchCharacter, testData[j].startPosition);
             TestUtilities::createMessage(3, &Message, prefix, \
-                testData[j].testDescription, suffix); 
+                testData[j].testDescription, suffix);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                 testData[j].expectedValue, result);
         }
@@ -1199,22 +1199,22 @@ public:
     *            b) Find the index of 'D' - only the index with the correct case is returned
     *            c) Find the index of 'y' - last character
     *            d) Find the index of 'z'  - a character that is not found
-    *               For (a) to (d) verify by both specifying position explicitly 
+    *               For (a) to (d) verify by both specifying position explicitly
     *               as 0 / not providing at all
     */
     void testIndex_char_SearchFromStart()
-    {   
-        utlTestIndexOrFirstMethod_char(TEST_INDEX); 
+    {
+        utlTestIndexOrFirstMethod_char(TEST_INDEX);
     }
 
-    /*a! Test case for the first(char) method.  This method is 
+    /*a! Test case for the first(char) method.  This method is
     *    exactly similar to the index(char) method and so is the test data
-    *    Refer to the testIndex_char_SearchFromStart() method for details. 
-    */ 
+    *    Refer to the testIndex_char_SearchFromStart() method for details.
+    */
     void testFirst_char()
-    {        
-        utlTestIndexOrFirstMethod_char(TEST_FIRST);  
-    } 
+    {
+        utlTestIndexOrFirstMethod_char(TEST_FIRST);
+    }
 
 
     /** common utility method that can be used to drive either the index()
@@ -1223,11 +1223,11 @@ public:
     */
     void utlTestIndexOrFirstMethod_char(IndexFirstOrContainsType type)
     {
-        const char* prefix = ""; 
-        string Message; 
-        if (type == TEST_CONTAINS) 
+        const char* prefix = "";
+        string Message;
+        if (type == TEST_CONTAINS)
         {
-            prefix = "Test the contains() method for"; 
+            prefix = "Test the contains() method for";
         }
         else if (type == TEST_INDEX)
         {
@@ -1238,8 +1238,8 @@ public:
         {
             prefix = "Test the first() method for";
         }
-        UtlString testString("wednesDay"); 
-        // Structure of TestCharIndexDataStructure = 
+        UtlString testString("wednesDay");
+        // Structure of TestCharIndexDataStructure =
         // { testDescription, searchChar, startPosition, expectedValue }
         TestCharIndexDataStructure testData[] = { \
             { "the first characater", 'w', 0, 0 }, \
@@ -1247,17 +1247,17 @@ public:
               "case-insensitive",  'D', 0, 6 }, \
             { "the last character", 'y', 0, 8}, \
             { "a character that is not found in the string", 'z', 0, INDEX_NOT_FOUND } \
-        }; 
-        
-        bool specifyPosition = false; 
+        };
+
+        bool specifyPosition = false;
         const int testCount = sizeof(testData) / sizeof(testData[0]);
-        int loopCount; 
+        int loopCount;
         // if the type is to test index(), then we need to test both the
         // cases :- a) position is explicitly specified as 0
-        // b) position is not specified at all. 
+        // b) position is not specified at all.
         // However the first() method takes only one argument and we dont
         // need to worry about the position.
-        loopCount = type == TEST_INDEX ? 2 : 1; 
+        loopCount = type == TEST_INDEX ? 2 : 1;
         for (int i =0;  i < loopCount; i++)
         {
             const char* suffix = "";
@@ -1267,30 +1267,30 @@ public:
             }
             else
             {
-               if (type == TEST_INDEX) 
+               if (type == TEST_INDEX)
                {
                    suffix = ":- index(char)";
                }
                else if(type == TEST_FIRST)
                {
-                   suffix = ":- first()"; 
+                   suffix = ":- first()";
                }
                else if(type == TEST_CONTAINS)
                {
-                   suffix = ":- contains()"; 
+                   suffix = ":- contains()";
                }
             }
             ssize_t result;
             for(int j =0; j < testCount; j++)
             {
                 TestUtilities::createMessage(3, &Message, prefix, \
-                    testData[j].testDescription, suffix); 
+                    testData[j].testDescription, suffix);
                 if (specifyPosition)
                 {
                     result = testString.index(testData[j].searchCharacter, 0);
                 }
                 else
-                { 
+                {
                     if (type == TEST_INDEX)
                     {
                         result = testString.index(testData[j].searchCharacter);
@@ -1308,26 +1308,26 @@ public:
     } //utlTestIndexOrFirstMethod_char
 
 
-    /** Test case for verifying the last(char) method. 
+    /** Test case for verifying the last(char) method.
     *    The test data for this test case is :- ((The main string is "wednesDay elf")
     *        1. Find the index, starting off from a position other than start`
     *            a) Find the index of 'e' - a character that has multiple matches
     *            b) Find the index of 'n' - a character that matches in the middle and only once
     *            c) Find the index of 'z'  - a character that is not prefixsent
     *            d) Find the index of 'w' - the first character
-    *            e) Find the index of 'f' - the last character 
+    *            e) Find the index of 'f' - the last character
     *            f) Find the index of 'd' - a character that matches multiple times, "
-    *               if case-insensitive. 
+    *               if case-insensitive.
     *            g) Find the index of ' ' - a spl. character
     *            // Verify with bob if we are hanlding the next case.
     *            i) Find the index of 'n' start from aa position greater than the length
     */
     void testLast_char()
     {
-        const char* prefix = "Test the last() method with a character that"; 
-        string Message; 
-        UtlString testString("wednesDay elf"); 
-        // Structure of TestCharIndexDataStructure = 
+        const char* prefix = "Test the last() method with a character that";
+        string Message;
+        UtlString testString("wednesDay elf");
+        // Structure of TestCharIndexDataStructure =
         // { testDescription, searchChar, startPosition, expectedValue }
 
         TestCharIndexDataStructure testData[] = { \
@@ -1341,21 +1341,21 @@ public:
              "the search were case-insensitive", 'd', -1, 2 }, \
            { "a non alpha character", ' ', -1, 9 }, \
            { "a character that is not present", 'z', -1, INDEX_NOT_FOUND } \
-        }; 
-        
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        };
+
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i = 0; i < testCount; i++)
         {
-            ssize_t result = testString.last(testData[i].searchCharacter); 
+            ssize_t result = testString.last(testData[i].searchCharacter);
             TestUtilities::createMessage(2, &Message, prefix, \
-                testData[i].testDescription); 
+                testData[i].testDescription);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
-                testData[i].expectedValue, result); 
+                testData[i].expectedValue, result);
         }
     }//testLast_char()
 
 
-    /**  Test the length() method . 
+    /**  Test the length() method .
     *
     *     The test data for this test are the common set of test data.
     *     Refer to the test_Constructor_1() method (or any other test case
@@ -1363,133 +1363,133 @@ public:
     */
     void testLength()
     {
-        const char* prefix = "Test the length() method for a string that is made up of "; 
-        const char* suffix1 = " :- initial length"; 
-        const char* suffix2 = " :- length after mutating"; 
+        const char* prefix = "Test the length() method for a string that is made up of ";
+        const char* suffix1 = " :- initial length";
+        const char* suffix2 = " :- length after mutating";
 
         for (int i = 0; i < commonTestSetLength; i++)
         {
-            UtlString ts(commonTestSet[i].input); 
-            int originalLength = (int)ts.length(); 
+            UtlString ts(commonTestSet[i].input);
+            int originalLength = (int)ts.length();
             // Do some operations which modifies the string's size
-            ts.prepend("123"); 
-            ts.append("45"); 
-            ts.insert(3, UtlString("687")); 
-            ts.replace(5, 1, "89"); 
+            ts.prepend("123");
+            ts.append("45");
+            ts.insert(3, UtlString("687"));
+            ts.replace(5, 1, "89");
 
-            int expectedMutate = commonTestSet[i].length + 9; 
-            int actualMutate = (int)ts.length(); 
-             
-            string Message;       
+            int expectedMutate = commonTestSet[i].length + 9;
+            int actualMutate = (int)ts.length();
+
+            string Message;
             TestUtilities::createMessage(3, &Message, prefix, \
-                commonTestSet[i].testDescription, suffix1); 
+                commonTestSet[i].testDescription, suffix1);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), commonTestSet[i].length, \
-                originalLength); 
+                originalLength);
 
             TestUtilities::createMessage(3, &Message, prefix, \
-                commonTestSet[i].testDescription, suffix2); 
+                commonTestSet[i].testDescription, suffix2);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
-                expectedMutate, actualMutate); 
+                expectedMutate, actualMutate);
         }
     } //testLength()
 
 
-    /** Test case for testing the length when the capacity of the string is 
+    /** Test case for testing the length when the capacity of the string is
     *   is large and when a non null-terminated string has been appended to the string
     */
     void testLength_NonNullTerminatedData()
     {
-        const char* prefix = "Test the length() method when"; 
+        const char* prefix = "Test the length() method when";
         string Message;
 
         UtlString testString1("Test1234");
-        UtlString testString2("Test"); 
-        testString1.capacity(256);  
+        UtlString testString2("Test");
+        testString1.capacity(256);
         testString2.append("12", 4);
-        
+
         int actualLength;
 
-        actualLength = (int)testString1.length(); 
+        actualLength = (int)testString1.length();
         TestUtilities::createMessage(2, &Message, prefix, \
-            "When the capacity as been explicitly set to a large value"); 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength); 
-    
-        actualLength = testString2.length(); 
+            "When the capacity as been explicitly set to a large value");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength);
+
+        actualLength = testString2.length();
         TestUtilities::createMessage(2, &Message, prefix, \
-            "When a non-null terminated string has been appended"); 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength); 
+            "When a non-null terminated string has been appended");
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), 8, actualLength);
     }
 
 
-    /*!a Test the isNull() method. 
-    *  
+    /*!a Test the isNull() method.
+    *
     *    Test data for this test is :-
     *       a) Empty String
     *       b) String that has only 'space' characters
     *       c) String that has a single 'special' character
-    *       d) String that has only digits. 
+    *       d) String that has only digits.
     */
-    void testIsNull() 
+    void testIsNull()
     {
-        struct TestIsNullStructure 
+        struct TestIsNullStructure
         {
-            const char* testDescription; 
-            const char* input; 
-            UtlBoolean expectedValue; 
+            const char* testDescription;
+            const char* input;
+            UtlBoolean expectedValue;
         };
-        const char* prefix = "Test the isNull() method for"; 
-        string Message; 
-        
+        const char* prefix = "Test the isNull() method for";
+        string Message;
+
         TestIsNullStructure testData[] = { \
             { "an empty string", "", true }, \
             { "a space-only string", "    ", false}, \
             { "a single char string", "þ", false}, \
             { "a digit-only string", "239", false } \
-        }; 
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        };
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i = 0; i < testCount; i++)
         {
-            UtlString testString(testData[i].input); 
-            UtlBoolean isNull = testString.isNull(); 
+            UtlString testString(testData[i].input);
+            UtlBoolean isNull = testString.isNull();
 
             TestUtilities::createMessage(2, &Message, prefix, \
-                testData[i].testDescription); 
+                testData[i].testDescription);
             CPPUNIT_ASSERT_EQUAL_MESSAGE (Message.data(),  \
-                (bool)(TRUE == testData[i].expectedValue), (bool)(TRUE == isNull)); 
+                (bool)(TRUE == testData[i].expectedValue), (bool)(TRUE == isNull));
         }
-    
+
         // Verify the isNull method after 'nulliying' a non-null string
-        UtlString tsNotNull("abc"); 
-        tsNotNull.replace(0, 3,""); 
+        UtlString tsNotNull("abc");
+        tsNotNull.replace(0, 3,"");
         CPPUNIT_ASSERT_MESSAGE(\
             "Test the isNull() method after nullifying a non-null string", \
             tsNotNull.isNull() );
     }
 
 
-    /*!a Test the toLower() and toUpper() method. 
+    /*!a Test the toLower() and toUpper() method.
     *
     *   The test data for this method is:-
     *       a) Empty string
     *       b) String with all UPPER characters
     *       c) String with all LOWER characters
     *       d) String with mixedcase characters
-    *       e) alphanumeric string with mixedcase characters. 
+    *       e) alphanumeric string with mixedcase characters.
     */
-    void testLowerAndUpper() 
+    void testLowerAndUpper()
     {
         struct TestLowerAndUpperStructure
         {
-            const char* testDescription; 
-            const char* input; 
-            const char* expectedValueForLower; 
-            const char* expectedValueForUpper; 
-        }; 
-        
+            const char* testDescription;
+            const char* input;
+            const char* expectedValueForLower;
+            const char* expectedValueForUpper;
+        };
+
         const char* prefix = "For a ";
-        const char* suffix1 = " :- test the toLower() method"; 
-        const char* suffix2 = " :- test the toUpper() method"; 
-        string Message; 
+        const char* suffix1 = " :- test the toLower() method";
+        const char* suffix2 = " :- test the toUpper() method";
+        string Message;
 
         TestLowerAndUpperStructure testData[] = { \
             { "empty string", "", "", "" }, \
@@ -1497,24 +1497,24 @@ public:
             { "all lowercase string", "test", "test", "TEST" }, \
             { "mixed case string", "TeSt", "test", "TEST" }, \
             { "alpha-num mixed case", "Te#2 4st", "te#2 4st", "TE#2 4ST" } \
-        }; 
+        };
 
         const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i = 0; i < testCount; i++)
         {
             UtlString testString1(testData[i].input);
-            UtlString testString2(testData[i].input); 
+            UtlString testString2(testData[i].input);
 
-            testString1.toLower(); 
-            testString2.toUpper(); 
+            testString1.toLower();
+            testString2.toUpper();
 
             TestUtilities::createMessage(3, &Message, prefix, \
-                testData[i].testDescription, suffix1); 
+                testData[i].testDescription, suffix1);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                 string(testData[i].expectedValueForLower), string(testString1.data()));
 
             TestUtilities::createMessage(3, &Message, prefix, \
-                testData[i].testDescription, suffix2); 
+                testData[i].testDescription, suffix2);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
                 string(testData[i].expectedValueForUpper), string(testString2.data()));
         }
@@ -1528,18 +1528,18 @@ public:
     void testPlusOperator()
     {
         const char* suffix1 = " lhs = UtlString, rhs = UtlString " ;
-        const char* suffix2 = " lhs = UtlString, rhs = charstar "; 
-        const char* suffix3 = " lhs = charstar, rhs = UtlString "; 
+        const char* suffix2 = " lhs = UtlString, rhs = charstar ";
+        const char* suffix3 = " lhs = charstar, rhs = UtlString ";
 
         for (int i = 0; i < commonTestSetLength; i++)
-        {   
-            const char* baseString = commonTestSet[i].testDescription; 
+        {
+            const char* baseString = commonTestSet[i].testDescription;
             const char* baseMsg = commonTestSet[i].testDescription;
             UtlString tsBase(baseString);
-            
+
             for (int j = 0; j < commonTestSetLength; j++)
-            {   
-                const char* stringToAppend = commonTestSet[j].input;  
+            {
+                const char* stringToAppend = commonTestSet[j].input;
                 const char* appendMsg = commonTestSet[j].testDescription;
                 UtlString tsAppend(stringToAppend);
 
@@ -1547,36 +1547,36 @@ public:
                 Msg.append(baseMsg);
                 Msg.append(" add a ");
                 Msg.append(appendMsg);
-                
-                string Msg2; 
 
-                string expString(baseString); 
-                expString.append(stringToAppend); 
+                string Msg2;
 
-                UtlString testString; 
+                string expString(baseString);
+                expString.append(stringToAppend);
+
+                UtlString testString;
                 // Test UtlString + UtlString
-                testString = tsBase + tsAppend; 
-                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix1); 
+                testString = tsBase + tsAppend;
+                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix1);
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(Msg2.data(), expString, \
-                    string(testString.data())); 
+                    string(testString.data()));
 
-                // Test UtlString + char* 
+                // Test UtlString + char*
                 testString = tsBase + stringToAppend;
-                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix2); 
+                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix2);
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(Msg2.data(), expString, \
-                    string(testString.data())); 
+                    string(testString.data()));
 
-                // Test char* + UtlString 
-                testString = baseString + tsAppend; 
-                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix3); 
+                // Test char* + UtlString
+                testString = baseString + tsAppend;
+                TestUtilities::createMessage(2, &Msg2, Msg.data(), suffix3);
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(Msg2.data(), expString, \
-                    string(testString.data())); 
+                    string(testString.data()));
             }
-        } 
+        }
     }//testPlusOperator()
 
 
-    /*a! Test the indexing operator (m, n) 
+    /*a! Test the indexing operator (m, n)
     *
     *    The test data for this test is :-
     *        a) Find (0, 0) for an empty string
@@ -1587,17 +1587,17 @@ public:
     */
     void testIndexOperator()
     {
-        struct TestIndexOperatorStructure 
+        struct TestIndexOperatorStructure
         {
-            const char* testDescription; 
-            const char* input; 
-            int startPosition; 
-            int endPosition; 
-            const char* expectedValue; 
+            const char* testDescription;
+            const char* input;
+            int startPosition;
+            int endPosition;
+            const char* expectedValue;
         };
-        
-        const char* suffix1 = " :- verify return string"; 
-        string Message; 
+
+        const char* suffix1 = " :- verify return string";
+        string Message;
 
         TestIndexOperatorStructure testData[] = { \
             { "For an empty string, find string(0,0)", "", \
@@ -1610,25 +1610,25 @@ public:
               2, 4, "s#23" }, \
             { "For a string, find string(0,  len-1)", "TestStr", \
               0, 7, "TestStr" } \
-        }; 
+        };
 
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i = 0; i < testCount; i++)
         {
-            UtlString testString1(testData[i].input); 
+            UtlString testString1(testData[i].input);
             UtlString testString2 = testString1(testData[i].startPosition, \
-                testData[i].endPosition); 
+                testData[i].endPosition);
 
             TestUtilities::createMessage(2, &Message, testData[i].testDescription, \
-                suffix1); 
+                suffix1);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), \
-                string(testData[i].expectedValue), string(testString2.data())); 
+                string(testData[i].expectedValue), string(testString2.data()));
         }
     } //testIndexOperator
 
 
     /*!a Test the (n) operator.
-    *    
+    *
     *    With an alphanumeric , get the character at
     *        a) The 0th position
     *        b) The last position
@@ -1639,35 +1639,34 @@ public:
     {
         struct TestCharAtStructure
         {
-            const char* testDescription; 
-            int index; 
-            char expectedValue; 
+            const char* testDescription;
+            int index;
+            char expectedValue;
         };
-        
-        const char* prefix = "Test the (n) operator, when"; 
-        string Message; 
+
+        const char* prefix = "Test the (n) operator, when";
+        string Message;
 
         TestCharAtStructure testData[] = { \
             { "n = 0", 0, 'S' }, \
             { "n = len(string)", 9, 'x' }, \
             { "character at n is an alpha character", 3, 'e' }, \
             { "character at n is a numeric character", 5, '2' } \
-        }; 
-        
-        const char* baseString = "Some12$Text";
-        UtlString testString(baseString); 
+        };
 
-        const int testCount = sizeof(testData)/sizeof(testData[0]); 
+        const char* baseString = "Some12$Text";
+        UtlString testString(baseString);
+
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i=0; i < testCount; i++)
         {
-            char actualValue = testString(testData[i].index); 
+            char actualValue = testString(testData[i].index);
 
-            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription); 
+            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedValue, \
-                actualValue); 
+                actualValue);
         }
     }//testCharAtOperator
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlStringTest_NonMutating);
-

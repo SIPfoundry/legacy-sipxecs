@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // Written by Soma Easwaramoorthy.  Licensed to Pingtel Corp.
 //
 // $$
@@ -10,22 +10,22 @@
 //////
 
 /* ====================================================================
- * The Vovida Software License, Version 1.0 
- * 
+ * The Vovida Software License, Version 1.0
+ *
  * Copyright (c) 2000 Vovida Networks, Inc.  All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
  * are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 
+ *
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in
  *    the documentation and/or other materials provided with the
  *    distribution.
- * 
+ *
  * 3. The names "VOCAL", "Vovida Open Communication Application Library",
  *    and "Vovida Open Communication Application Library (VOCAL)" must
  *    not be used to endorse or promote products derived from this
@@ -35,7 +35,7 @@
  * 4. Products derived from this software may not be called "VOCAL", nor
  *    may "VOCAL" appear in their name, without prior written
  *    permission of Vovida Networks, Inc.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED "AS IS" AND ANY EXPRESSED OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND
@@ -49,9 +49,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- * 
+ *
  * ====================================================================
- * 
+ *
  * This software consists of voluntary contributions made by Vovida
  * Networks, Inc. and many individuals on behalf of Vovida Networks,
  * Inc.  For more information on Vovida Networks, Inc., please see
@@ -768,11 +768,11 @@ char* StunMessage::encodeAtrString(char* ptr, USHORT type, const StunAtrString& 
 }
 
 
-bool StunMessage::isStunMessage(char* ptr, UINT length) 
+bool StunMessage::isStunMessage(char* ptr, UINT length)
 {
     StunMsgHdr hdr ;
 
-    if (sizeof(StunMsgHdr) > length) 
+    if (sizeof(StunMsgHdr) > length)
     {
         return false;
     }
@@ -785,25 +785,25 @@ bool StunMessage::isStunMessage(char* ptr, UINT length)
     hdr.msgLength = ntohs(hdr.msgLength);
 
     // Validate msgType
-    if (    hdr.msgType != BindRequestMsg && 
+    if (    hdr.msgType != BindRequestMsg &&
             hdr.msgType != BindResponseMsg &&
             hdr.msgType != BindErrorResponseMsg &&
-            hdr.msgType != SharedSecretRequestMsg &&      
-            hdr.msgType != SharedSecretResponseMsg &&   
+            hdr.msgType != SharedSecretRequestMsg &&
+            hdr.msgType != SharedSecretResponseMsg &&
             hdr.msgType != SharedSecretErrorResponseMsg)
     {
-        return false; 
+        return false;
     }
 
     // Validate msgLength
-    if (hdr.msgLength + sizeof(StunMsgHdr) != length) 
-    {        
+    if (hdr.msgLength + sizeof(StunMsgHdr) != length)
+    {
         return false;
     }
 
     return true ;
 }
- 
+
 
 /*-----------------------------------------------------------------------------
  * Function: randomInt
@@ -969,7 +969,7 @@ void OsStunQueryAgent::sendTest(OsDatagramSocket *oDS, StunAddress4& dest, int t
 
     /* Generate a STUN request */
     if (stunOptions & STUN_OPTION_CHANGE_PORT)
-    {                 
+    {
         changePort = TRUE ;
     }
 
@@ -1024,7 +1024,7 @@ OsStunQueryAgent::OsStunQueryAgent () {
  *  The boolean status of the success of the operation
  *-----------------------------------------------------------------------------
  */
-bool OsStunQueryAgent::setServer (const char *host, USHORT port) 
+bool OsStunQueryAgent::setServer (const char *host, USHORT port)
 {
     assert (host!=NULL); /* Should be a valid string */
     UtlBoolean          isIp = FALSE;
@@ -1039,16 +1039,16 @@ bool OsStunQueryAgent::setServer (const char *host, USHORT port)
     {
         /* Check if it is a valid IPv4 address */
         isIp = OsSocket::isIp4Address(serverAddress);
-        if (isIp) 
+        if (isIp)
         {
             stunServer.addr=htonl(inet_addr(serverAddress));
             isValidServer=true;
         }
-        else 
+        else
         {
             /* Not a valid address */
             isValidServer=false;
-        }   
+        }
     }
     return isValidServer;
 }
@@ -1309,7 +1309,7 @@ NatType OsStunQueryAgent::getNatType (OsDatagramSocket *oDS1, OsDatagramSocket *
  *  The boolean status of the success of the operation
  *-----------------------------------------------------------------------------
  */
-bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &addr, int &port, int stunOptions, const OsTime& timeout) 
+bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &addr, int &port, int stunOptions, const OsTime& timeout)
 {
     UINT ma;
     StunMessage resp;
@@ -1327,23 +1327,23 @@ bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &a
         {
             memset(&resp, 0, sizeof(StunMessage));
             if (resp.parseMessage(msg, msgLen))
-            {	
+            {
                 ma=htonl (resp.mappedAddress.ipv4.addr);
                 addr = inet_ntoa (*((in_addr*)&ma));
                 port = resp.mappedAddress.ipv4.port;
             }
-            else 
+            else
             {
                 return false;
             }
         }
-        else 
+        else
         {
             return false;
         }
     }
-    else 
-    {   
+    else
+    {
         return false;
     }
 
@@ -1352,6 +1352,6 @@ bool OsStunQueryAgent::getMappedAddress (OsStunDatagramSocket *oDS, UtlString &a
 
 
 void OsStunQueryAgent::sendStunRequest(OsDatagramSocket *oDS)
-{    
+{
     sendTest(oDS, stunServer, 1);
 }

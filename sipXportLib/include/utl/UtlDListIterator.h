@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -28,12 +28,12 @@
 
 /**
  * UtlDListIterator allows developers to iterate (walks through) a UtlDList.
- * 
+ *
  * @see UtlIterator
  * @see UtlDList
  */
 class UtlDList;
-     
+
 class UtlDListIterator : public UtlSListIterator
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -42,7 +42,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    /**
-    * Constructor accepting a source UtlDList 
+    * Constructor accepting a source UtlDList
     */
    UtlDListIterator(const UtlDList& list) ;
 
@@ -61,7 +61,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlDList;
-    
+
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -72,5 +72,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlDListIterator_h_
-
-

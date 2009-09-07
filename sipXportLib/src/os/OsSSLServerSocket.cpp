@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ OsSSLServerSocket::operator=(const OsSSLServerSocket& rhs)
 OsConnectionSocket* OsSSLServerSocket::accept()
 {
    OsSSLConnectionSocket* newSocket = NULL;
-   
+
    if (socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
       OsSysLog::add(FAC_KERNEL, PRI_ERR
@@ -97,7 +97,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          int error = OsSocketGetERRNO();
          if (0 != error)
          {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
                           "OsSSLServerSocket: accept call failed with error: %d=%x",
                           error, error);
             socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
@@ -105,7 +105,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                        "OsSSLServerSocket::accept socket accepted: %d",
                        clientSocket);
 
@@ -151,7 +151,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
                              "OsSSLServerSocket::accept - new OsSSLConnectionSocket failed"
                              );
-            }            
+            }
          }
          else
          {
@@ -160,7 +160,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          }
       }
    }
-   
+
    return(newSocket);
 }
 

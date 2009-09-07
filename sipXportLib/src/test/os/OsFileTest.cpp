@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -120,7 +120,7 @@ public:
         OsFile rfile(testFile);
         stat = rfile.open();
         CPPUNIT_ASSERT(stat == OS_SUCCESS);
-        
+
         size_t rposition = 0;
         for (i = 0; rposition < wbuffsize; i++)
         {
@@ -156,7 +156,7 @@ public:
 
         OsFile copyFromFile(copyFrom);
         copyFromFile.copy(copyTo);
-        
+
         CPPUNIT_ASSERT_MESSAGE("Copies file exists", OsFileSystem::exists(copyTo));
         UtlBoolean ok = OsTestUtilities::verifyDummyFile(copyTo, 1000);
         CPPUNIT_ASSERT_MESSAGE("Test file verified", ok);
@@ -214,12 +214,12 @@ public:
         CPPUNIT_ASSERT_MESSAGE("Get a read lock on a file", stat == OS_SUCCESS);
 
         stat = testFile2.open(OsFile::READ_ONLY | OsFile::FSLOCK_READ);
-        
+
         // According to OsFile::open, two READs are allowed even though
         // mode bitmask has locks.  This was discovered 07/08/04 by DLH
         // it's conceivable that OsFile is wrong, but it explicitly says
         // it's ok and it's possible changing it may have negative impact
-        CPPUNIT_ASSERT_MESSAGE("Should get a read lock even though a file already locked", 
+        CPPUNIT_ASSERT_MESSAGE("Should get a read lock even though a file already locked",
             stat == OS_SUCCESS);
 
         stat = testFile.fileunlock();
@@ -229,11 +229,10 @@ public:
         CPPUNIT_ASSERT_MESSAGE("Read lock is release", stat == OS_SUCCESS);
         testFile2.close();
 
-        // TODO: Test FSLOCK_WRITE and FSLOCK_WAIT 
+        // TODO: Test FSLOCK_WRITE and FSLOCK_WAIT
     }
-    
+
 };
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileTest);
-

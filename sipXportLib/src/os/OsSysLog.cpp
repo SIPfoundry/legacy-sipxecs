@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ const char* OsSysLog::sPriorityNames[SYSLOG_NUM_PRIORITIES] =
 const char* OsSysLog::priorityName(OsSysLogPriority priority)
 {
    static const char* InvalidName = "InvalidSyslogPriority";
-   
+
    return (  ( priority >= PRI_DEBUG && priority < SYSLOG_NUM_PRIORITIES )
            ? sPriorityNames[priority]
            : InvalidName
@@ -105,14 +105,14 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
    {
       spOsSysLogTask = new OsSysLogTask(maxInMemoryLogEntries, options) ;
       sProcessId = processId ;
-      OsSocket::getHostName(&sHostname) ;  
+      OsSocket::getHostName(&sHostname) ;
    }
    else
-      rc = OS_UNSPECIFIED ;  
+      rc = OS_UNSPECIFIED ;
 
-   return rc ;   
+   return rc ;
 }
-     
+
 
 // Set the output file target
 OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
@@ -138,7 +138,7 @@ OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -161,7 +161,7 @@ OsStatus OsSysLog::setCallbackFunction(OsSysLogCallback pCallback)
 }
 
 
-// Add a target output socket 
+// Add a target output socket
 OsStatus OsSysLog::addOutputSocket(const char* remoteHost)
 {
    OsStatus rc = OS_SUCCESS ;
@@ -173,7 +173,7 @@ OsStatus OsSysLog::addOutputSocket(const char* remoteHost)
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -183,14 +183,14 @@ OsStatus OsSysLog::enableConsoleOutput(const UtlBoolean enable)
    OsStatus rc = OS_SUCCESS ;
 
    if (spOsSysLogTask != NULL)
-   {      
-      OsSysLogMsg msg(enable ? OsSysLogMsg::ENABLE_CONSOLE : 
+   {
+      OsSysLogMsg msg(enable ? OsSysLogMsg::ENABLE_CONSOLE :
             OsSysLogMsg::DISABLE_CONSOLE, NULL) ;
       spOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -211,34 +211,34 @@ OsStatus OsSysLog::setLoggingPriority(const OsSysLogPriority priority)
    {
       spOsSysLogTask->syslog(FAC_LOG, PRI_INFO, "logging priority changed to %s (%d)", OsSysLog::sPriorityNames[priority], priority) ;
    }
-   
+
    return rc ;
 }
 
 // Set the logging priority for a specific facility
-OsStatus OsSysLog::setLoggingPriorityForFacility(const OsSysLogFacility facility, 
+OsStatus OsSysLog::setLoggingPriorityForFacility(const OsSysLogFacility facility,
                                                  const OsSysLogPriority priority)
 {
    OsStatus rc = OS_SUCCESS ;
    int iNumFacilities = getNumFacilities() ;
-   if ((facility >= 0) && (facility < iNumFacilities))      
+   if ((facility >= 0) && (facility < iNumFacilities))
    {
       spPriorities[facility] = priority ;
 
       if (spOsSysLogTask != NULL)
       {
-         spOsSysLogTask->syslog(FAC_LOG, PRI_INFO, 
-               "priority changed to %s for facility %s", 
+         spOsSysLogTask->syslog(FAC_LOG, PRI_INFO,
+               "priority changed to %s for facility %s",
                OsSysLog::sPriorityNames[priority],
                OsSysLog::sFacilityNames[facility]);
 
       }
-   } 
+   }
    else
    {
       rc = OS_INVALID_ARGUMENT ;
    }
-   return rc ;   
+   return rc ;
 }
 
 
@@ -260,7 +260,7 @@ OsStatus OsSysLog::add(const char*            taskName,
       va_start(ap, format);
       rc = vadd(taskName, taskId, facility, priority, format, ap);
       va_end(ap);
-   }  
+   }
 
    return rc;
 }
@@ -293,7 +293,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
          mysprintf(taskName, "pid-%d", OsProcess::getCurrentPID()) ;
          taskId = OsProcess::getCurrentThreadId();
       }
-         
+
       rc = vadd(taskName.data(), taskId, facility, priority, format, ap);
       va_end(ap);
    }
@@ -303,7 +303,7 @@ OsStatus OsSysLog::add(const OsSysLogFacility facility,
 
 // Add a log entry given a variable argument list
 OsStatus OsSysLog::vadd(const char*            taskName,
-                        const pthread_t        taskId,                        
+                        const pthread_t        taskId,
                         const OsSysLogFacility facility,
                         const OsSysLogPriority priority,
                         const char*            format,
@@ -322,10 +322,10 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          // Convert the variable arguments into a single string
 
          // Display all of the data
-         osPrintf("%s %s %s 0x%0lX %s\n", 
-                  OsSysLog::sFacilityNames[facility], 
+         osPrintf("%s %s %s 0x%0lX %s\n",
+                  OsSysLog::sFacilityNames[facility],
                   OsSysLog::sPriorityNames[priority],
-                  (taskName == NULL) ? "" : taskName, 
+                  (taskName == NULL) ? "" : taskName,
                   taskId,
                   logData.data()) ;
       }
@@ -334,9 +334,9 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          // Apply timestamps for messages that go into files.
 
          OsTime timeNow;
-         OsDateTime::getCurTime(timeNow); 
+         OsDateTime::getCurTime(timeNow);
          OsDateTime logTime(timeNow);
-         
+
          UtlString   strTime ;
          logTime.getIsoTimeStringZus(strTime) ;
 
@@ -344,13 +344,13 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          mysprintf(logEntry, "\"%s\":%d:%s:%s:%s:%s:%08X:%s:\"%s\"",
                    strTime.data(),
                    ++sEventCount,
-                   OsSysLog::sFacilityNames[facility], 
+                   OsSysLog::sFacilityNames[facility],
                    OsSysLog::sPriorityNames[priority],
                    sHostname.data(),
                    (taskName == NULL) ? "" : taskName,
                    taskId,
                    sProcessId.data(),
-                   logData.data()) ;         
+                   logData.data()) ;
 
          // If the logger for some reason tries to log a message
          // there is a recursive problem.  Drop the message on the
@@ -368,9 +368,9 @@ OsStatus OsSysLog::vadd(const char*            taskName,
          else
          {
             char* szPtr = strdup(logEntry.data()) ;
-        
+
             OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr) ;
-            spOsSysLogTask->postMessage(msg) ;                 
+            spOsSysLogTask->postMessage(msg) ;
          }
       }
    }
@@ -385,12 +385,12 @@ OsStatus OsSysLog::clearInMemoryLog()
    OsStatus rc = OS_SUCCESS ;
 
    if (spOsSysLogTask != NULL)
-   {      
+   {
       spOsSysLogTask->clear() ;
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -400,23 +400,23 @@ OsStatus OsSysLog::flush(const OsTime& rTimeout)
    OsStatus rc = OS_UNSPECIFIED ;
 
    if (spOsSysLogTask != NULL)
-   {      
+   {
       rc = spOsSysLogTask->flush(rTimeout) ;
    }
-   
+
    return rc ;
 }
 
 // Initialize the OsSysLog priority
 void
 OsSysLog::initSysLog(const OsSysLogFacility facility,
-           const char* processID, 
-           const char* logname, 
+           const char* processID,
+           const char* logname,
            const char* loglevel)
 {
 
-  initialize(0, processID) ;  
-  setOutputFile(0, logname) ;  
+  initialize(0, processID) ;
+  setOutputFile(0, logname) ;
 
    OsSysLogPriority newPriority;
    if ( ! priority(loglevel, newPriority) )
@@ -440,12 +440,12 @@ OsStatus OsSysLog::getMaxInMemoryLogEntries(int& maxEntries)
    OsStatus rc = OS_SUCCESS ;
 
    if (spOsSysLogTask != NULL)
-   {      
+   {
       spOsSysLogTask->getMaxEntries(maxEntries);
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -455,13 +455,13 @@ OsStatus OsSysLog::tailMemoryLog(const int numEntries)
    OsStatus rc = OS_SUCCESS ;
 
    if (spOsSysLogTask != NULL)
-   {      
+   {
       OsSysLogMsg msg(OsSysLogMsg::TAIL, (void*) numEntries) ;
       spOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -471,13 +471,13 @@ OsStatus OsSysLog::headMemoryLog(const int numEntries)
    OsStatus rc = OS_SUCCESS ;
 
    if (spOsSysLogTask != NULL)
-   {      
+   {
       OsSysLogMsg msg(OsSysLogMsg::HEAD, (void*) numEntries) ;
       spOsSysLogTask->postMessage(msg) ;
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -494,7 +494,7 @@ OsStatus OsSysLog::getLogEntries(  const int maxEntries,
    }
    else
       rc = OS_UNSPECIFIED ;
-   
+
    return rc ;
 }
 
@@ -525,7 +525,7 @@ OsStatus OsSysLog::parseLogString(const char *szSource,
    UtlBoolean   bWithinQuote = FALSE;   // Are we within a quoted string?
    UtlBoolean   bEscapeNext = FALSE;    // The next char is an escape char.
    int         iParseState ;           // What are we parsing (PS_*)
-   
+
    // Clean all of the passed objects
    date.remove(0) ;
    eventCount.remove(0) ;
@@ -609,28 +609,28 @@ OsStatus OsSysLog::parseLogString(const char *szSource,
 /* ============================ INQUIRY =================================== */
 
 // Get the present logging priority
-OsSysLogPriority OsSysLog::getLoggingPriority() 
+OsSysLogPriority OsSysLog::getLoggingPriority()
 {
-   return sLoggingPriority ;  
+   return sLoggingPriority ;
 }
 
 
 // Get the logging priority for a specific facility
-OsSysLogPriority OsSysLog::getLoggingPriorityForFacility(const OsSysLogFacility facility) 
+OsSysLogPriority OsSysLog::getLoggingPriorityForFacility(const OsSysLogFacility facility)
 {
    OsSysLogPriority rc = PRI_DEBUG ;
 
-   if ((facility >=0) && (facility < getNumFacilities())) 
+   if ((facility >=0) && (facility < getNumFacilities()))
    {
       rc = spPriorities[facility] ;
-   } 
-   return rc ;     
+   }
+   return rc ;
 }
 
 
 // Determine if a message will be logged given a facility and priority
-UtlBoolean OsSysLog::willLog(OsSysLogFacility facility, 
-                            OsSysLogPriority priority) 
+UtlBoolean OsSysLog::willLog(OsSysLogFacility facility,
+                            OsSysLogPriority priority)
 {
    UtlBoolean bwillLog = false ;
    if ((facility >=0) && (facility < getNumFacilities()))
@@ -660,7 +660,7 @@ int OsSysLog::getNumFacilities()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Assignment operator
-OsSysLog& 
+OsSysLog&
 OsSysLog::operator=(const OsSysLog& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -687,7 +687,7 @@ OsSysLog::~OsSysLog()
 // Returns an escaped version of the specified source string
 UtlString OsSysLog::escape(const UtlString& source)
 {
-   UtlString    results;        
+   UtlString    results;
    const char* pStart = source.data() ;
    const char* pTraverse = pStart ;
    const char* pLast = pStart ;
@@ -701,7 +701,7 @@ UtlString OsSysLog::escape(const UtlString& source)
             // Copy old data
             if (pLast < pTraverse)
             {
-               results.append(pLast, pTraverse-pLast);               
+               results.append(pLast, pTraverse-pLast);
             }
             pLast = pTraverse + 1 ;
 
@@ -712,7 +712,7 @@ UtlString OsSysLog::escape(const UtlString& source)
             // Copy old data
             if (pLast < pTraverse)
             {
-               results.append(pLast, pTraverse-pLast);               
+               results.append(pLast, pTraverse-pLast);
             }
             pLast = pTraverse + 1 ;
 
@@ -723,7 +723,7 @@ UtlString OsSysLog::escape(const UtlString& source)
             // Copy old data
             if (pLast < pTraverse)
             {
-               results.append(pLast, pTraverse-pLast);               
+               results.append(pLast, pTraverse-pLast);
             }
             pLast = pTraverse + 1 ;
 
@@ -740,7 +740,7 @@ UtlString OsSysLog::escape(const UtlString& source)
 
             // Add escaped Text
             results.append("\\\"") ;
-            break ;            
+            break ;
          default:
             break ;
       }
@@ -751,20 +751,20 @@ UtlString OsSysLog::escape(const UtlString& source)
    if (pLast == pStart)
    {
       return source ;
-   } 
+   }
    else if (pLast < pTraverse)
    {
       results.append(pLast, pTraverse-pLast);
    }
-  
+
    return results ;
 }
 
 
-// Unescapes previously escaped Quotes and CrLfs 
+// Unescapes previously escaped Quotes and CrLfs
 UtlString OsSysLog::unescape(const UtlString& source)
 {
-   UtlString    results ;        
+   UtlString    results ;
    const char* pStart = source.data() ;
    const char* pTraverse = pStart ;
    const char* pLast = pStart ;
@@ -780,7 +780,7 @@ UtlString OsSysLog::unescape(const UtlString& source)
             case '"':
                if (pLast < pTraverse)
                {
-                  results.append(pLast, pTraverse-pLast-1);               
+                  results.append(pLast, pTraverse-pLast-1);
                }
                pLast = pTraverse + 1 ;
                results.append(*pTraverse) ;
@@ -788,7 +788,7 @@ UtlString OsSysLog::unescape(const UtlString& source)
             case 'r':
                if (pLast < pTraverse)
                {
-                  results.append(pLast, pTraverse-pLast-1);               
+                  results.append(pLast, pTraverse-pLast-1);
                }
                pLast = pTraverse + 1 ;
                results.append("\r") ;
@@ -796,7 +796,7 @@ UtlString OsSysLog::unescape(const UtlString& source)
             case 'n':
                if (pLast < pTraverse)
                {
-                  results.append(pLast, pTraverse-pLast-1);               
+                  results.append(pLast, pTraverse-pLast-1);
                }
                pLast = pTraverse + 1 ;
                results.append("\n") ;
@@ -822,12 +822,12 @@ UtlString OsSysLog::unescape(const UtlString& source)
    if (pLast == pStart)
    {
       return source ;
-   } 
+   }
    else if (pLast < pTraverse)
    {
       results.append(pLast, (pTraverse-1)-pLast);
-   }  
-  
+   }
+
    return results ;
 }
 
@@ -849,20 +849,20 @@ void mysprintf(UtlString& results, const char* format, ...)
 
 // a version of vsprintf that stores results in a UtlString
 void myvsprintf(UtlString& results, const char* format, va_list& args)
-{    
+{
     /* Start by allocating 900 bytes.  The logs from a production
      * system show that 90% of messages are shorter than 900 bytes.
      */
     int n;
     size_t size = 900;
     size_t formatLength = strlen(format);
-    if ( size < formatLength ) 
+    if ( size < formatLength )
     {
        size = formatLength + 100;
     }
     results.remove(0) ;
     bool messageConstructed=false;
-    while (   ! messageConstructed 
+    while (   ! messageConstructed
            && results.capacity(size) >= size )
     {
         size=results.capacity(); // get the actual space allocated; capacity(n) can round up
@@ -907,4 +907,3 @@ void myvsprintf(UtlString& results, const char* format, va_list& args)
        results.append(overflowMsg);
     }
 }
-

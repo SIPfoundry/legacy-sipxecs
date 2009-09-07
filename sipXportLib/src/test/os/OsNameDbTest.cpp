@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ public:
     void testNameDb()
     {
         OsNameDb* pNameDb;
-        
+
         int storedInt;
 
         pNameDb = OsNameDb::getNameDb();
@@ -35,7 +35,7 @@ public:
          * instantiated it and stored things in it.  So this one can't assume
          * that it was initially empty.
          */
-        int startingEntries;        
+        int startingEntries;
         startingEntries = pNameDb->numEntries();
 
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test1", (void*)1));
@@ -43,7 +43,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(startingEntries+1, pNameDb->numEntries());
 
         CPPUNIT_ASSERT_EQUAL(OS_NAME_IN_USE, pNameDb->insert("test1", (void*)2));
-        
+
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->insert("test2", (void*)2));
         CPPUNIT_ASSERT_EQUAL(startingEntries+2, pNameDb->numEntries());
 
@@ -53,11 +53,10 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pNameDb->lookup("test2", (void**)&storedInt));
         CPPUNIT_ASSERT_EQUAL(2, storedInt);
         CPPUNIT_ASSERT_EQUAL(OS_NOT_FOUND, pNameDb->lookup("test3", NULL));
-        
+
         pNameDb->remove("test1");
         pNameDb->remove("test2");
     }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsNameDbTest);
-

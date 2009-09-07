@@ -57,7 +57,7 @@ void TiXmlBase::PutString( const TIXML_STRING& str, TIXML_STRING* outString )
 	{
 		unsigned char c = (unsigned char) str[i];
 
-		if (    c == '&' 
+		if (    c == '&'
 		     && i < ( (int)str.length() - 2 )
 			 && str[i+1] == '#'
 			 && str[i+2] == 'x' )
@@ -166,14 +166,14 @@ TiXmlNode::~TiXmlNode()
 		temp = node;
 		node = node->next;
 		delete temp;
-	}	
+	}
 }
 
 
 void TiXmlNode::CopyTo( TiXmlNode* target ) const
 {
 	target->SetValue (value.c_str() );
-	target->userData = userData; 
+	target->userData = userData;
 }
 
 
@@ -187,7 +187,7 @@ void TiXmlNode::Clear()
 		temp = node;
 		node = node->next;
 		delete temp;
-	}	
+	}
 
 	firstChild = 0;
 	lastChild = 0;
@@ -222,7 +222,7 @@ TiXmlNode* TiXmlNode::InsertEndChild( const TiXmlNode& addThis )
 
 
 TiXmlNode* TiXmlNode::InsertBeforeChild( TiXmlNode* beforeThis, const TiXmlNode& addThis )
-{	
+{
 	if ( !beforeThis || beforeThis->parent != this )
 		return 0;
 
@@ -304,7 +304,7 @@ TiXmlNode* TiXmlNode::ReplaceChild( TiXmlNode* replaceThis, const TiXmlNode& wit
 bool TiXmlNode::RemoveChild( TiXmlNode* removeThis )
 {
 	if ( removeThis->parent != this )
-	{	
+	{
 		assert( 0 );
 		return false;
 	}
@@ -421,7 +421,7 @@ TiXmlNode* TiXmlNode::IterateChildren( const char * val, TiXmlNode* previous )
 	}
 }
 
-const TiXmlNode* TiXmlNode::NextSibling( const char * _value ) const 
+const TiXmlNode* TiXmlNode::NextSibling( const char * _value ) const
 {
 	const TiXmlNode* node;
 	for ( node = next; node; node = node->next )
@@ -621,7 +621,7 @@ TiXmlElement::TiXmlElement (const char * _value)
 
 
 #ifdef TIXML_USE_STL
-TiXmlElement::TiXmlElement( const std::string& _value ) 
+TiXmlElement::TiXmlElement( const std::string& _value )
 	: TiXmlNode( TiXmlNode::ELEMENT )
 {
 	firstChild = lastChild = 0;
@@ -634,7 +634,7 @@ TiXmlElement::TiXmlElement( const TiXmlElement& copy)
 	: TiXmlNode( TiXmlNode::ELEMENT )
 {
 	firstChild = lastChild = 0;
-	copy.CopyTo( this );	
+	copy.CopyTo( this );
 }
 
 
@@ -723,7 +723,7 @@ int TiXmlElement::QueryDoubleAttribute( const char* name, double* dval ) const
 
 
 void TiXmlElement::SetAttribute( const char * name, int val )
-{	
+{
 	char buf[64];
 	sprintf( buf, "%d", val );
 	SetAttribute( name, buf );
@@ -731,7 +731,7 @@ void TiXmlElement::SetAttribute( const char * name, int val )
 
 
 void TiXmlElement::SetDoubleAttribute( const char * name, double val )
-{	
+{
 	char buf[256];
 	sprintf( buf, "%f", val );
 	SetAttribute( name, buf );
@@ -816,7 +816,7 @@ void TiXmlElement::StreamOut( TIXML_OSTREAM * stream ) const
 
 	const TiXmlAttribute* attrib;
 	for ( attrib = attributeSet.First(); attrib; attrib = attrib->Next() )
-	{	
+	{
 		(*stream) << " ";
 		attrib->StreamOut( stream );
 	}
@@ -825,7 +825,7 @@ void TiXmlElement::StreamOut( TIXML_OSTREAM * stream ) const
 	// make it an empty tag.
 	TiXmlNode* node;
 	if ( firstChild )
-	{ 		
+	{
 		(*stream) << ">";
 
 		for ( node = firstChild; node; node=node->NextSibling() )
@@ -846,7 +846,7 @@ void TiXmlElement::CopyTo( TiXmlElement* target ) const
 	// superclass:
 	TiXmlNode::CopyTo( target );
 
-	// Element class: 
+	// Element class:
 	// Clone the attributes, then clone the children.
 	const TiXmlAttribute* attribute = 0;
 	for(	attribute = attributeSet.First();
@@ -1033,7 +1033,7 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
          result = true;
       }
    }
-   
+
    return result;
 }
 
@@ -1049,7 +1049,7 @@ void TiXmlDocument::CopyTo( TiXmlDocument* target ) const
 	for ( node = firstChild; node; node = node->NextSibling() )
 	{
 		target->LinkEndChild( node->Clone() );
-	}	
+	}
 }
 
 
@@ -1267,7 +1267,7 @@ void TiXmlText::CopyTo( TiXmlText* target ) const
 
 
 TiXmlNode* TiXmlText::Clone() const
-{	
+{
 	TiXmlText* clone = 0;
 	clone = new TiXmlText( "" );
 
@@ -1306,7 +1306,7 @@ TiXmlDeclaration::TiXmlDeclaration(	const std::string& _version,
 TiXmlDeclaration::TiXmlDeclaration( const TiXmlDeclaration& copy )
 	: TiXmlNode( TiXmlNode::DECLARATION )
 {
-	copy.CopyTo( this );	
+	copy.CopyTo( this );
 }
 
 
@@ -1367,7 +1367,7 @@ void TiXmlDeclaration::CopyTo( TiXmlDeclaration* target ) const
 
 
 TiXmlNode* TiXmlDeclaration::Clone() const
-{	
+{
 	TiXmlDeclaration* clone = new TiXmlDeclaration();
 
 	if ( !clone )
@@ -1477,7 +1477,7 @@ TiXmlAttribute*	TiXmlAttributeSet::Find( const char * name )
 	return 0;
 }
 
-#ifdef TIXML_USE_STL	
+#ifdef TIXML_USE_STL
 TIXML_ISTREAM & operator >> (TIXML_ISTREAM & in, TiXmlNode & base)
 {
 	TIXML_STRING tag;
@@ -1497,12 +1497,12 @@ TIXML_OSTREAM & operator<< (TIXML_OSTREAM & out, const TiXmlNode & base)
 }
 
 
-#ifdef TIXML_USE_STL	
+#ifdef TIXML_USE_STL
 std::string & operator<< (std::string& out, const TiXmlNode& base )
 {
    std::ostringstream os_stream( std::ostringstream::out );
    base.StreamOut( &os_stream );
-   
+
    out.append( os_stream.str() );
    return out;
 }

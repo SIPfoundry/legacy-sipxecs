@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -70,15 +70,15 @@ int main()
    int n;
 
    UtlSList dummy;
-   
+
    setupStrings();
-   
+
    for (n = 0; n < NUM_THREADS; n++)
    {
       threads[n]   = new doTestThread;
       threads[n]->setUserData(n);
    }
-   
+
    timer.addEvent("All Start");
 
    for (n = 0; n < NUM_THREADS; n++)
@@ -107,7 +107,7 @@ void doHashMapOperations()
    UtlHashMap testHash;
    UtlInt* intValue;
    size_t item;
-   
+
    // fill the hash table
    for (item = 0; item < NUM_PERFORMANCE_STRINGS; item++)
    {
@@ -116,7 +116,7 @@ void doHashMapOperations()
       intValue = dynamic_cast<UtlInt*>(testHash.findValue(&string[item]));
       externalForSideEffects = (intValue == newValue);
    }
-   
+
    // take the first half out by value
    for (item = 0; item < NUM_PERFORMANCE_STRINGS/2; item++)
    {
@@ -125,7 +125,7 @@ void doHashMapOperations()
       testHash.removeKeyAndValue(&key, foundValue);
       delete foundValue;
    }
-   
+
    // take the rest out by reference
    for (; item < NUM_PERFORMANCE_STRINGS; item++)
    {
@@ -152,5 +152,3 @@ void doHashMapOperations()
 
    testHash.removeAll();
 }
-
-

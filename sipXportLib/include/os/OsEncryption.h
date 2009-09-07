@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ class OsEncryption
 
     //! operate after setting approp. input. NOTE: This will return OS_FAILED on vxworks. */
     OsStatus encrypt(void);
-    
+
     //! free all, called in descructor
     OsStatus release(void);
 
@@ -97,7 +97,7 @@ class OsEncryption
  protected:
 
     //! OpenSSL state differentation direction for API calls
-    enum Direction 
+    enum Direction
     {
         DECRYPT = 0,
         ENCRYPT = 1
@@ -105,7 +105,7 @@ class OsEncryption
 
     //! allocate OpenSSL stuff
     OsStatus init(Direction direction);
-    
+
     //! common handling of OpenSSL's errors
     UtlBoolean openSslError(void);
 
@@ -146,4 +146,3 @@ class OsEncryption
 };
 
 #endif // _OsEncryption_h_
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ void osPrintf(const char* format , ...)
 #     error "Need a definition of __int64 for this platform"
 #  endif
 #endif
-         
+
 // A special value for "port number" which means that no port is specified.
 #define PORT_NONE (-1)
 

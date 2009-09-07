@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public:
 
          size_t hasNoEventsMsg = results.index("No Events Logged");
          CPPUNIT_ASSERT(hasNoEventsMsg != UTL_NOT_FOUND);
-       
+
          SHOWLOG(log);
       }
 
@@ -60,15 +60,15 @@ public:
          log.addEvent("event 3");
          log.addEvent("event 4");
          log.addEvent("event 5");
-         
+
          log.getLogString(results);
 
          size_t hasNoEventsMsg = results.index("No Events Logged");
          CPPUNIT_ASSERT(hasNoEventsMsg == UTL_NOT_FOUND);
-       
+
          size_t hasEventMsg = results.index("event 2");
          CPPUNIT_ASSERT(hasEventMsg != UTL_NOT_FOUND);
-       
+
          SHOWLOG(log);
       }
 
@@ -84,21 +84,20 @@ public:
          log.addEvent("event 3");
          log.addEvent("event 4");
          log.addEvent("event 5");
-         
+
          log.getLogString(results);
 
          size_t hasNoEventsMsg = results.index("No Events Logged");
          CPPUNIT_ASSERT(hasNoEventsMsg == UTL_NOT_FOUND);
-       
+
          size_t hasOverflowMsg = results.index("Overflow");
          CPPUNIT_ASSERT(hasOverflowMsg != UTL_NOT_FOUND);
-       
+
          size_t hasOverflowCount = results.index("2 events lost");
          CPPUNIT_ASSERT(hasOverflowCount != UTL_NOT_FOUND);
-       
+
          SHOWLOG(log);
       }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsTimeLogTest);
-

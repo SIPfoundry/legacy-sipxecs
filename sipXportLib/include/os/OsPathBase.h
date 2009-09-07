@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 // FORWARD DECLARATIONS
 
 //:OS generic path class.  Will massage any input string so separators are correct.
-//:Also provided functions to 
+//:Also provided functions to
 class OsPathBase : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -55,11 +55,11 @@ public:
      //: Copy contructor
 
    OsPathBase(const char* pPath);
-     //: Construct OsPath from char* 
-    
-   OsPathBase(const UtlString& rVolume, const UtlString& rDirName, const UtlString& rFileName, 
+     //: Construct OsPath from char*
+
+   OsPathBase(const UtlString& rVolume, const UtlString& rDirName, const UtlString& rFileName,
            const UtlString& rExtension);
-     //: Forms a OsPath from discrete parts 
+     //: Forms a OsPath from discrete parts
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -72,8 +72,8 @@ public:
 
     static void setSeparator(UtlString &rSeparator);
       //: Returns the path separator for this object
-    
-    void Split(); 
+
+    void Split();
     //: breaks path into it's parts
 
 /* ============================ ACCESSORS ================================= */
@@ -87,7 +87,7 @@ public:
       //: Retrieves just the filename part of this object
 
     UtlString getExt() const;
-      //: Returns just the extension part of this object 
+      //: Returns just the extension part of this object
 
     OsStatus getNativePath(OsPathBase &rFullPath) const;
       //: Returns TRUE if the full path for the specified platform was
@@ -106,9 +106,9 @@ protected:
     UtlString mDirName;
     //: Directory name.  Ends with backslash
     UtlString mVolume;
-    //: Volume (eg. c: d: /sda1) 
+    //: Volume (eg. c: d: /sda1)
     UtlString mFilename;
-    //: Returns the filename (without extension).  
+    //: Returns the filename (without extension).
     //  If the OsPath object contains just a path, then filename and ext will blank.
     UtlString mExtension;
     //: Returns the extension of the file.
@@ -118,7 +118,7 @@ private:
 
     void massage();
       //: Based on the platform in use, this function manipulates the string
-      //  so it reprsents a valid platform path 
+      //  so it reprsents a valid platform path
 
 };
 

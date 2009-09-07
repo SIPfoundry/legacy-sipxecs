@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@
 class OsPathBase;
 
 //:OS generic path class.  Will massage any input string so separators are correct.
-//:Also provided functions to 
+//:Also provided functions to
 class OsPathLinux : public OsPathBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -52,7 +52,7 @@ public:
 
    OsPathLinux(const char* pPath);
      //: Construct OsPathLinux from char*
-    
+
    OsPathLinux(const UtlString& rVolume, const UtlString& rDirName, const UtlString& rFileName,
            const UtlString& rExtension);
      //: Forms a OsPathLinux from discrete parts
@@ -77,5 +77,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsPathLinux_h_
-
-

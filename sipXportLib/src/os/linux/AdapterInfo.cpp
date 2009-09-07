@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -91,7 +91,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
          for (ptr = ifreq_array; (intptr_t)ptr < ((intptr_t)ifreq_array) + ifconf_structure.ifc_len; )
          {
             struct ifreq* ifr = (struct ifreq*) ptr;
-            
+
             int len = sizeof(struct sockaddr);
             if (ifr->ifr_addr.sa_len > sizeof(struct sockaddr))
                len = ifr->ifr_addr.sa_len;
@@ -123,9 +123,9 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
 bool getContactAdapterName(char* szAdapter, const char* szIp)
 {
    bool found = false;
-   
+
    UtlString ipAddress(szIp);
-   
+
    int numAddresses = 0;
    const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
    getAllLocalHostIps(adapterAddresses, numAddresses);
@@ -142,7 +142,7 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
       }
       delete adapterAddresses[i];
    }
-   
+
    if (found)
    {
       return true;
@@ -152,4 +152,3 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
       return false;
    }
 }
-

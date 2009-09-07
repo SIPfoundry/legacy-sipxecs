@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ static char dummy;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-// Timer expiration event notification happens using the 
+// Timer expiration event notification happens using the
 // newly created OsQueuedEvent object
 
 OsTimer::OsTimer(OsMsgQ* pQueue, void* userData) :
@@ -112,10 +112,10 @@ OsTimer::~OsTimer()
       {
          sendMessage = TRUE;
       }
-      
-      // If we have to send a message, make note of it.       
-      if (sendMessage) 
-      {      
+
+      // If we have to send a message, make note of it.
+      if (sendMessage)
+      {
          mOutstandingMessages++;
       }
    }
@@ -175,7 +175,7 @@ OsStatus OsTimer::oneshotAt(const OsDateTime& when)
 {
    return startTimer(cvtToTime(when), FALSE, nullInterval);
 }
-   
+
 // Arm the timer to fire once at the current time + offset
 OsStatus OsTimer::oneshotAfter(const OsTime& offset)
 {
@@ -312,7 +312,7 @@ int OsTimer::compareTo(UtlContainable const * inVal) const
    }
    else
    {
-      result = -1; 
+      result = -1;
    }
 
    return result;

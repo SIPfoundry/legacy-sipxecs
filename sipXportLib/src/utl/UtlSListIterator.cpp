@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,14 +37,14 @@ UtlSListIterator::UtlSListIterator(const UtlSList& list)
 
 
 // Find the next like-instance of the designated object .
-UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMatch) 
+UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMatch)
 {
    UtlContainable* match = NULL;
 
    UtlContainer::acquireIteratorConnectionLock();
    OsLock takeContainer(mContainerRefLock);
    UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
-   
+
    if (myList != NULL) // list still valid?
    {
       OsLock take(myList->mContainerLock);
@@ -74,8 +74,8 @@ UtlContainable* UtlSListIterator::findNext(const UtlContainable* containableToMa
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
-   
+   }
+
    return match;
 }
 
@@ -86,7 +86,7 @@ UtlContainable* UtlSListIterator::peekAtNext(void)
    UtlContainer::acquireIteratorConnectionLock();
    OsLock takeContainer(mContainerRefLock);
    UtlSList* myList = dynamic_cast<UtlSList*>(mpMyContainer);
-   
+
    if (myList != NULL) // list still valid?
    {
       OsLock take(myList->mContainerLock);
@@ -105,12 +105,12 @@ UtlContainable* UtlSListIterator::peekAtNext(void)
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
-   
+   }
+
    return match;
 }
 
-UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObject) 
+UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObject)
 {
    UtlContainable*    result = NULL;
 
@@ -131,14 +131,14 @@ UtlContainable* UtlSListIterator::insertAfterPoint(UtlContainable* insertedObjec
       {
          UtlLink::listAfter(myList, mpCurrentNode, insertedObject);
       }
-      
-      result = insertedObject; 
+
+      result = insertedObject;
    }
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
-   
+   }
+
    return result;
 }
 

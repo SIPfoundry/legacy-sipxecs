@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -39,7 +39,7 @@ public:
      * Constructor
      */
     UtlDateTime(OsDateTime time) ;
-      
+
     /**
      * Destructor
      */
@@ -58,7 +58,7 @@ public:
     /**
      * Get the time wrapped by this object.
      */
-    void getTime(OsDateTime& time) const ;    
+    void getTime(OsDateTime& time) const ;
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -71,25 +71,25 @@ public:
      * Get the ContainableType for a UtlContainable derived class.
      */
     virtual UtlContainableType getContainableType() const;
-         
-    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+
+    static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */
 
 /* ============================ INQUIRY =================================== */
 
     /**
-     * Compare the this object to another like-objects.  Results for 
+     * Compare the this object to another like-objects.  Results for
      * designating a non-like object are undefined.
      *
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
-    virtual int compareTo(UtlContainable const *) const ;    
+    virtual int compareTo(UtlContainable const *) const ;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    OsDateTime mTime ;    /** < The OsDateTime wrapped by this object */ 
+    OsDateTime mTime ;    /** < The OsDateTime wrapped by this object */
 
 } ;
 

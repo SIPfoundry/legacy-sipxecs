@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,16 +37,16 @@
 // may be signaled again. An OsEvent is intended for use in synchronizing
 // one notifier (task or ISR) with one listener task. If an OsEvent object
 // is intended for use with more than one notifier or listener, then an
-// external mutex must be used to serialize access and avoid race 
-// conditions. 
-// 
+// external mutex must be used to serialize access and avoid race
+// conditions.
+//
 // <p><b>Background</b>
 // <p>First, a little bit of terminology.  The task that wishes to be notified
 // when an event occurs is the "Listener" task. The task that signals when
 // a given event occurs is the "Notifier" task.  A Notifier informs the
 // Listener that a given event has occurred by sending an "Event
-// Notification". 
-// 
+// Notification".
+//
 // <p><b>Expected Usage</b>
 // <p>The Listener passes an event object to the Notifier.  When the
 // corresponding event occurs, the Notifier uses the event object
@@ -55,8 +55,8 @@
 // signaled, or blocking until either the event is signaled or a
 // timeout expires.  When the Listener receives the event
 // notification, it can then invoke the appropriate event handler.
-// This handler will run in the Listener's task context. 
-// 
+// This handler will run in the Listener's task context.
+//
 // <p>Note: Using a busy loop to poll for event status is considered
 // anti-social behavior.  However, when using the event object
 // approach, a task can perform a blocking wait for only one event
@@ -142,4 +142,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsEvent_h_
-

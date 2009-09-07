@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
      * Returns a hash of the pointer to the object.
      */
 
-    /// Compare this object to another object. 
+    /// Compare this object to another object.
     virtual int compareTo(UtlContainable const *) const;
     /**<
      * For all members of subclasses of UtlContainableAtomic,
@@ -64,7 +64,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-        
+
 } ;
 
 /* ============================ INLINE METHODS ============================ */

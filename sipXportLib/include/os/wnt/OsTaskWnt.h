@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public:
      // Return TRUE if the spawning of the new task is successful.
      // Return FALSE if the task spawn fails or if the task has already
      // been started.
-     
+
    virtual OsStatus suspend(void);
      //:Suspend the task
      // This routine suspends the task. Suspension is additive: thus, tasks
@@ -281,4 +281,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsTaskWnt_h_
-

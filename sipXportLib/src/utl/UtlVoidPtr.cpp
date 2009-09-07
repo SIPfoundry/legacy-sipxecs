@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,9 +51,9 @@ void* UtlVoidPtr::setValue(void* pValue)
 
 /* ============================ ACCESSORS ================================= */
 
-void* UtlVoidPtr::getValue() const 
+void* UtlVoidPtr::getValue() const
 {
-    return mpValue ; 
+    return mpValue ;
 }
 
 
@@ -70,18 +70,18 @@ UtlContainableType UtlVoidPtr::getContainableType() const
 
 /* ============================ INQUIRY =================================== */
 
-// Compare the this object to another like-object. 
+// Compare the this object to another like-object.
 int UtlVoidPtr::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
+   int result ;
+
    if (inVal->isInstanceOf(UtlVoidPtr::TYPE))
    {
       result = comparePtrs(mpValue, ((UtlVoidPtr*) inVal)->mpValue);
    }
    else
    {
-      result = -1; 
+      result = -1;
    }
 
    return result;

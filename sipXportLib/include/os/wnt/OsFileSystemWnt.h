@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <errno.h>
 
 // APPLICATION INCLUDES
@@ -52,7 +52,7 @@ class OsFileInfoWnt;
 //:for you.  This may be expanded to include enumerating versions
 //:of these functions.
 
-class OsFileSystemWnt 
+class OsFileSystemWnt
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -69,13 +69,13 @@ public:
      //: Returns TRUE if file moved ok
 
    static OsStatus rename(const OsPathWnt& rSourceFile, const OsPathWnt& rDestFile);
-     //: Renames the directory or file specified by path 
-    
+     //: Renames the directory or file specified by path
+
    static OsStatus change(const OsPathWnt& rOsPath);
-     //: Change the current working directory to the specified location 
+     //: Change the current working directory to the specified location
 
    static OsStatus createDir(const OsPathWnt& rOsPath);
-     //: Creates the specified directory 
+     //: Creates the specified directory
      //: Fails if a file by the same name already exists in the directory
 
    static OsStatus setReadOnly(const OsPathWnt& rOsPath, UtlBoolean bState);
@@ -84,14 +84,14 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    static OsStatus getFileInfo(OsPathBase& filespec, OsFileInfoBase& rfileInfo);
-     //: Retrieve system info for specified directory of file 
+     //: Retrieve system info for specified directory of file
 
    static OsStatus OsFileSystemWnt::getWorkingDirectory(OsPathWnt& rPath);
      //: returns the current working directory for the process
 
 /* ============================ ACCESSORS ================================= */
    static OsStatus OsFileSystemWnt::getFileInfo(OsPathWnt& rFilespec, OsFileInfoWnt& rFileInfo);
-     //: Retrieve system info for specified directory of file 
+     //: Retrieve system info for specified directory of file
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -117,5 +117,3 @@ private:
 
 
 #endif  // _OsFileSystemWnt_h_
-
-

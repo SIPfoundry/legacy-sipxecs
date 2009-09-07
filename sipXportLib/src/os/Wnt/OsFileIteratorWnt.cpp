@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ OsFileIteratorBase(pathname)
 // Override this function for releasing mSearchHandle.
 void OsFileIteratorWnt::Release()
 {
-    OsFileIteratorBase::Release(); 
+    OsFileIteratorBase::Release();
 
     if (mSearchHandle != INVALID_HANDLE)
     {
@@ -63,7 +63,7 @@ OsFileIteratorWnt::~OsFileIteratorWnt()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-OsFileIteratorWnt::OsFileIteratorWnt() 
+OsFileIteratorWnt::OsFileIteratorWnt()
 {
 }
 
@@ -72,13 +72,13 @@ OsFileIteratorWnt::OsFileIteratorWnt()
 OsStatus OsFileIteratorWnt::getFirstEntryName(UtlString &name, OsFileType &type)
 {
     OsStatus stat = OS_FILE_NOT_FOUND;
-    
+
     name = "";
-    UtlString fullPath = mFullSearchSpec;    
+    UtlString fullPath = mFullSearchSpec;
     fullPath += "*";
 
     _finddata_t FileInfo;
-        
+
     mSearchHandle = _findfirst(fullPath.data(),&FileInfo);
     if (mSearchHandle != -1)
     {
@@ -87,7 +87,7 @@ OsStatus OsFileIteratorWnt::getFirstEntryName(UtlString &name, OsFileType &type)
     }
     else
         stat = OS_FILE_NOT_FOUND;
-    
+
     if (FileInfo.attrib & _A_SUBDIR)
         type = DIRECTORIES;
     else
@@ -101,7 +101,7 @@ OsStatus OsFileIteratorWnt::getFirstEntryName(UtlString &name, OsFileType &type)
 OsStatus OsFileIteratorWnt::getNextEntryName(UtlString &name, OsFileType &type)
 {
     OsStatus stat = OS_FILE_NOT_FOUND;
-    
+
     name = "";
 
     _finddata_t FileInfo;
@@ -122,6 +122,3 @@ OsStatus OsFileIteratorWnt::getNextEntryName(UtlString &name, OsFileType &type)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

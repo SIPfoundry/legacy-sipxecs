@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ OsBSemLinux::OsBSemLinux(const int queueOptions, const int initState)
    mOptions = queueOptions;
    res = pt_sem_init(&mSemImp, 1, initState);
    assert(res == POSIX_OK);
-   
+
 #  ifdef OS_SYNC_DEBUG
    pthread_t me = pthread_self();
    mSyncCrumbs.dropCrumb(me, crumbCreated);
@@ -110,7 +110,7 @@ OsStatus OsBSemLinux::acquire(const OsTime& rTimeout)
 #endif
    return retVal;
 }
-     
+
 // Conditionally acquire the semaphore (i.e., don't block)
 // Return OS_BUSY if the semaphore is held by some other task
 OsStatus OsBSemLinux::tryAcquire(void)
@@ -126,7 +126,7 @@ OsStatus OsBSemLinux::tryAcquire(void)
 #endif
    return retVal;
 }
-     
+
 // Release the semaphore
 OsStatus OsBSemLinux::release(void)
 {
@@ -156,5 +156,3 @@ void OsBSemLinux::OsBSemShow(void)
 
 
 /* ============================ FUNCTIONS ================================= */
-
-

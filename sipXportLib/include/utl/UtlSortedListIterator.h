@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,9 +29,9 @@ class UtlContainable;
 class UtlSortedList;
 
 /**
- * UtlSortedListIterator allows developers to iterator (walks through) an 
+ * UtlSortedListIterator allows developers to iterator (walks through) an
  * UtlSortedList.
- * 
+ *
  * @see UtlIterator
  * @see UtlSortedList
  */
@@ -43,10 +43,10 @@ public:
 /* ============================ CREATORS ================================== */
 
     /**
-     * Constructor accepting a source UtlSortedList 
+     * Constructor accepting a source UtlSortedList
      */
     UtlSortedListIterator(const UtlSortedList& list);
-   
+
 
 
 /* ============================ MANIPULATORS ============================== */
@@ -54,16 +54,16 @@ public:
 
     /**
      * Find the designated object, and reset the iterator so that it is the current position.
-     * 
+     *
      * @return The  element or NULL if no more elements are available.
      */
     virtual UtlContainable* findNext(const UtlContainable* objectToFind);
 
-    
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlSortedList;
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -73,5 +73,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlSortedListIterator_h_
-
-

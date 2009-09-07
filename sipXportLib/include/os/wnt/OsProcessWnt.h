@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -16,8 +16,8 @@
 #include <windows.h>
 
 // APPLICATION INCLUDES
-#include "utl/UtlDefs.h"  
-#include "os/OsDefs.h"  
+#include "utl/UtlDefs.h"
+#include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsProcess.h"
 
@@ -32,7 +32,7 @@
 // FORWARD DECLARATIONS
 class UtlString;
 
-//: This encapsulates a pid, and allows querying, killing and all the 
+//: This encapsulates a pid, and allows querying, killing and all the
 //: other cool things you want to do to a process.
 
 class OsProcessWnt : public OsProcessBase
@@ -49,7 +49,7 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-    virtual OsStatus launch(UtlString &rAppName, UtlString parameters[], OsPath &startDir, 
+    virtual OsStatus launch(UtlString &rAppName, UtlString parameters[], OsPath &startDir,
                     OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExclusive = FALSE, UtlBoolean bIgnoreChildSignals = TRUE);
     //: Pass the appname and parameters to start the process
     //: Returns TRUE if process started ok.
@@ -62,11 +62,11 @@ public:
 
     virtual OsStatus setPriority(int prio);
     //: Changes the process priority.  Must own the process for this to be legal.
-    
+
     static OsStatus getByPID(PID pid, OsProcessWnt &rProcess);
-    //: Given a PID, this method will fill in the process passed in so the user 
-    //: can then manipulate it 
- 
+    //: Given a PID, this method will fill in the process passed in so the user
+    //: can then manipulate it
+
     virtual OsStatus setIORedirect(OsPath &rStdInputFilename, OsPath &rStdOutputFilename, OsPath &rStdErrorFilename);
     //: Sets the standard input, output and/or stderror
 
@@ -88,19 +88,19 @@ public:
     //: Returns the max priority base on which class is selected
 
     virtual OsStatus getInfo(OsProcessInfo &rProcessInfo);
-    //: Returns full information on process, including priority. 
+    //: Returns full information on process, including priority.
     //: See OsProcessInfo for more information
 
     virtual OsStatus getUpTime(OsTime &rUpTime);
      //: How long has this process been runnign for?
 
 /* ============================ INQUIRY =================================== */
-    
+
     virtual UtlBoolean isRunning () const ;
     //: Returns TRUE if process is still active
-    
+
     virtual int wait(int numSecs = -1);
-    //:waits for a process to complete before returning 
+    //:waits for a process to complete before returning
     //:or exits when WaitInSecs has completed
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -120,5 +120,3 @@ private:
 
 
 #endif  // _OsProcessWnt_h_
-
-

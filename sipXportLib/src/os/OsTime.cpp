@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -95,7 +95,7 @@ OsTime::~OsTime()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsTime& 
+OsTime&
 OsTime::operator=(const OsTime& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -141,7 +141,7 @@ OsTime OsTime::operator+=(const OsTime& rhs)
    *this = *this + rhs;
    return *this;
 }
-     
+
 // Decrement operator
 OsTime OsTime::operator-=(const OsTime& rhs)
 {
@@ -225,5 +225,3 @@ UtlBoolean OsTime::isNoWait(void) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

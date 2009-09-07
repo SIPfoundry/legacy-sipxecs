@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -104,8 +104,8 @@ void OsMsgQBase::setSendHook(OsMsgQSendHookPtr func)
    mSendHookFunc = func;
 }
 
-// Set the function that is invoked whenever a msg is flushed from the 
-// queue.  Messages get flushed when the OsMsgQ is deleted while there 
+// Set the function that is invoked whenever a msg is flushed from the
+// queue.  Messages get flushed when the OsMsgQ is deleted while there
 // are messages still queued.
 // The function takes an OsMsg reference as an argument.
 void OsMsgQBase::setFlushHook(OsMsgQFlushHookPtr func)
@@ -139,12 +139,10 @@ const UtlString* OsMsgQBase::getName()
 UtlBoolean OsMsgQBase::isEmpty(void)
 {
    return (numMsgs() == 0);
-}    
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

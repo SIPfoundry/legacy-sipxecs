@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -63,7 +63,7 @@ void UtlChain::listAfter(UtlChain* list,
                          UtlChain* existing
                          )
 {
-   
+
    if (!existing) // after NULL means at the head
    {
       // insert on the head of the list
@@ -100,7 +100,7 @@ UtlChain* UtlChain::detachFromList(UtlChain* list)
       list->prev = prev;
    }
    unchain();
-   
+
    return this;
 }
 
@@ -122,8 +122,8 @@ public:
 protected:
    friend class UtlLink;
    friend class UtlPair;
-   
-   /// Allocate blocksize instances of the subclass and chain them into the pool. 
+
+   /// Allocate blocksize instances of the subclass and chain them into the pool.
    typedef void allocator(size_t    blocksize, ///< number of instances to allocate
                           UtlChain* blockList, ///< list header for first instance
                           UtlChain* pool       ///< list header for others
@@ -151,13 +151,13 @@ protected:
          UtlChain* newChain;
          {  // critical section for member variables
             OsLock poolLock(mLock);
-   
+
             if (mPool.isUnLinked()) // are there available objects in the pool?
             {
                // no - get the subclass to allocate some more
                mAllocator(mBlockSize, &mBlocks, &mPool);
                mAllocations++;
-            } 
+            }
 
             // pull the first UtlChain off the mPool
             newChain = mPool.listHead();
@@ -259,7 +259,7 @@ UtlLink* UtlLink::listBefore(UtlChain* list,
                              )
 {
    UtlLink* newLink;
-   
+
    newLink       = get();
    newLink->data = newData;
    newLink->hash = newData->hash();
@@ -292,7 +292,7 @@ UtlContainable* UtlLink::detachFrom(UtlChain* list)
    hash = 0;
    detachFromList(list);
    release();
-   
+
    return theData;
 }
 
@@ -330,7 +330,7 @@ void UtlLink::allocate(size_t    blocksize, ///< number of instances to allocate
    // The first UtlChain is consumed to chain the list of blocks
    //     so that the destructor can free them.
    newBlock->UtlChain::listBefore(blockList, NULL);
-               
+
    // chain the rest of the new UtlLinks onto the mLinkPool
    for (size_t i = 1; i < blocksize; i++)
    {
@@ -353,7 +353,7 @@ void UtlPair::allocate(size_t    blocksize, ///< number of instances to allocate
    // The first UtlChain is consumed to chain the list of blocks
    //     so that the destructor can free them.
    newBlock->UtlChain::listBefore(blockList, NULL);
-               
+
    // chain the rest of the new UtlLinks onto the mLinkPool
    for (size_t i = 1; i < blocksize; i++)
    {
@@ -370,4 +370,3 @@ void UtlPair::release()
 {
    spPairPool->release(this);
 }
-

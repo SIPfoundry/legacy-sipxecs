@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ public:
 
    /// Return the current time as an OsTime value
    static void getCurTime(OsTime& rTime);
-   
+
    static void getCurTimeSinceBoot(OsTime& rTime);
      //:Return the current time as an OsTime value
      // The OsTime value is relative to when the system was booted.
@@ -107,4 +107,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsDateTimeLinux_h_
-

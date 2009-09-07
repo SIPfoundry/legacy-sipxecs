@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ OsSysLogMsg::OsSysLogMsg(const unsigned char msgSubType, const void* pData)
 
 // Copy constructor
 OsSysLogMsg::OsSysLogMsg(const OsSysLogMsg& rOsSysLogMsg)
-   : OsMsg(rOsSysLogMsg) 
+   : OsMsg(rOsSysLogMsg)
 {
    mpData = rOsSysLogMsg.mpData ;
 }
@@ -54,7 +54,7 @@ OsSysLogMsg::~OsSysLogMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsSysLogMsg& OsSysLogMsg::operator=(const OsSysLogMsg& rhs)  
+OsSysLogMsg& OsSysLogMsg::operator=(const OsSysLogMsg& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
       return *this;
@@ -69,7 +69,7 @@ OsSysLogMsg& OsSysLogMsg::operator=(const OsSysLogMsg& rhs)
 /* ============================ ACCESSORS ================================= */
 
 // Get the message data
-const void* OsSysLogMsg::getData() const 
+const void* OsSysLogMsg::getData() const
 {
    return mpData;
 }
@@ -81,5 +81,3 @@ const void* OsSysLogMsg::getData() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

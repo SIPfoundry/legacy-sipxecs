@@ -32,7 +32,7 @@ bool textContent(UtlString& string,
                  const TiXmlNode *node)
 {
    bool allTextContent = true;
-   
+
    // save the original length of the string so that we can return to it in case of an error.
    size_t originalLength = string.length();
 
@@ -47,7 +47,7 @@ bool textContent(UtlString& string,
       case TiXmlNode::TEXT:
          string.append(child->Value());
          break;
-         
+
       case TiXmlNode::COMMENT:
          // this is allowed but ignored
          break;

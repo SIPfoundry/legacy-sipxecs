@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,19 +30,19 @@ class UtlContainable;
 
 /**
  * UtlSList is a singularly linked list designed to contain any number
- * of UtlContainable derived object.  The list may contain non-like objects 
+ * of UtlContainable derived object.  The list may contain non-like objects
  * (e.g. UtlInts and UtlVoidPtrs), however, sorting and comparison behavior
  * may be non-obvious.
- * 
- * Most list accessors and inquiry methods are performed by equality as 
- * opposed to by referencing (pointers).  For example, a list.contains(obj) 
+ *
+ * Most list accessors and inquiry methods are performed by equality as
+ * opposed to by referencing (pointers).  For example, a list.contains(obj)
  * call will loop through all of the list objects and test equality by calling
- * the isEquals(...) method.  A  list.containsReference(obj) call will search 
+ * the isEquals(...) method.  A  list.containsReference(obj) call will search
  * for a pointer match.
- * 
+ *
  * @see UtlSListIterator
  * @see UtlList
- * @see UtlContainer 
+ * @see UtlContainer
  * @see UtlContainable
  */
 class UtlSList : public UtlList
@@ -62,7 +62,7 @@ public:
 
     /**
      * Append the designated containable object to the end of this list.
-     * 
+     *
      * @return the object if successful, otherwise null
      */
     virtual UtlContainable* append(UtlContainable* obj) ;
@@ -79,7 +79,7 @@ public:
 
     /**
      * Inserts the designated containable object at the end postion (tailer).
-     * 
+     *
      * @return the object if successful, otherwise null
      */
     virtual UtlContainable* insert(UtlContainable* obj) ;
@@ -87,39 +87,39 @@ public:
     /**
      * Remove the designated object by equality (as opposed to by reference).
      */
-    virtual UtlContainable* remove(const UtlContainable *);  
+    virtual UtlContainable* remove(const UtlContainable *);
 
     /**
-     * Removes the designated objects from the list and frees the object 
+     * Removes the designated objects from the list and frees the object
      * by calling delete.
-     */ 
-    virtual UtlBoolean destroy(const UtlContainable *);    
-    
+     */
+    virtual UtlBoolean destroy(const UtlContainable *);
+
     /**
-     * Creates a copy of all the elements contained in this list and appends them 
+     * Creates a copy of all the elements contained in this list and appends them
      * into the list passed as a parameter.  The templated type supplied when
      * calling the method must match the type of object that is contained
      * in this list.  In order to work, the templated type must provide
      * a copy-constructor otherwise a compile-time error will be generated.
      *
-     * Note: When copying objects from the source list to the destination list, a 
+     * Note: When copying objects from the source list to the destination list, a
      * new object instance is allocated and its value initialized to the object
      * being copied such that the source and destination lists do not share pointers.
-     * 
+     *
      * Example:
      *   UtlSList sourceList; //some list that will contain pointers to NameValuePair objects
      *   fillSListWithNameValuePairs( sourceList );
      *   UtlSList backupOfSourceList; // some list that will become a copy of sourceList
      *   sourceList.copyTo<NameValuePair>( backupOfSourceList );
-     */ 
+     */
     template<typename T> UtlBoolean copyTo( UtlSList& listToCopyInto ) const
     {
        UtlLink* listNode;
        listToCopyInto.destroyAll();
-       
+
        OsLock take1(mContainerLock);
        OsLock take2(listToCopyInto.mContainerLock);
-       
+
        LIST_SANITY_CHECK;
        for (listNode = head(); listNode; listNode = listNode->next())
        {
@@ -140,7 +140,7 @@ public:
 
 
     /**
-     * Find the first occurence of the designated object by equality (as 
+     * Find the first occurence of the designated object by equality (as
      * opposed to by reference).
      */
     virtual UtlContainable* find(const UtlContainable *) const ;
@@ -176,15 +176,13 @@ protected:
      * insertAfter is used by UtlListIterator::insertAfterPoint
      */
     virtual UtlContainable* insertAfter(UtlLink* afterNode, UtlContainable* object);
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-        
+
 } ;
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlSList_h_
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -61,13 +61,13 @@ OsStunAgentTask::~OsStunAgentTask()
 
     // discard any timers from the pool
     mTimerPool.destroyAll();
-    
+
     {
        // this scope ensures that the following iterator is deleted before the mResponseMap
        //   I would have thought that it was without this, but it doesn't seem to work that way.
        UtlHashMapIterator iterator(mResponseMap);
        OsStunDatagramSocket* pKey;
-       
+
        while ((pKey = (OsStunDatagramSocket*)iterator()))
        {
           OsTimer* pTimer = dynamic_cast<OsTimer*>(iterator.value());
@@ -86,7 +86,7 @@ OsStunAgentTask* OsStunAgentTask::getInstance(OsStunDatagramSocket* socket)
    {
       OsLock lock(sLock) ;
 
-      if (spInstance == NULL) 
+      if (spInstance == NULL)
       {
          spInstance = new OsStunAgentTask() ;
          spInstance->start() ;
@@ -98,7 +98,7 @@ OsStunAgentTask* OsStunAgentTask::getInstance(OsStunDatagramSocket* socket)
 }
 
 
-void OsStunAgentTask::releaseInstance() 
+void OsStunAgentTask::releaseInstance()
 {
    OsLock lock(sLock) ;
    if (spInstance)
@@ -129,7 +129,7 @@ void OsStunAgentTask::releaseIfNotReferenced()
 
 /* ============================ MANIPULATORS ============================== */
 
-UtlBoolean OsStunAgentTask::handleMessage(OsMsg& rMsg) 
+UtlBoolean OsStunAgentTask::handleMessage(OsMsg& rMsg)
 {
     UtlBoolean bHandled = false ;
 
@@ -150,14 +150,14 @@ UtlBoolean OsStunAgentTask::handleMessage(OsMsg& rMsg)
 }
 
 
-UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg) 
+UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
 {
     StunMessage msg;
     size_t nBuffer = rMsg.getLength() ;
     char* pBuffer = rMsg.getBuffer() ;
     OsStunDatagramSocket* pSocket = rMsg.getSocket() ;
     unsigned int mappedAddress ;
-    
+
     if ((nBuffer > 0) && pBuffer && pSocket)
     {
         memset(&msg, 0, sizeof(StunMessage)) ;
@@ -175,7 +175,7 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                     for (int i=0; i<16; i++)
                     {
                         respMsg.msgHdr.id.octet[i] = msg.msgHdr.id.octet[i];
-                    }                  
+                    }
 
                     // TODO Send Error if changed port/ip requested
 
@@ -207,17 +207,17 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                         pSocket->write(buf, len, inet_ntoa((*((in_addr*)&addr))), msg.responseAddress.ipv4.port) ;
                     }
                     else
-                    {                        
+                    {
                         pSocket->write(buf, len, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
                     }
                 }
                 break ;
             case BindResponseMsg:
-                {                                        
+                {
                     UtlString address ;
                     int iPort ;
 
-                    if (msg.msgHdr.id.octet[0] == 0x00) 
+                    if (msg.msgHdr.id.octet[0] == 0x00)
                     {
                         // Discovery Response
                         mappedAddress=htonl (msg.mappedAddress.ipv4.addr) ;
@@ -231,7 +231,7 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                     {
                         // Connectivity Response
                         OsLock lock(mMapsLock) ;
-                                        
+
                         UtlString key ;
                         char cTemp[3] ;
                         for (int i=0; i<16; i++)
@@ -252,7 +252,7 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                 }
                 break ;
             case BindErrorResponseMsg:
-                {                    
+                {
                     UtlString empty ;
                     pSocket->setStunAddress(empty, -1) ;
                     signalStunOutcome(pSocket, false) ;
@@ -266,17 +266,17 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                 break ;
         }
     }
-    
+
     if (pBuffer)
     {
        free(pBuffer);
     }
-    
+
     return true ;
 }
 
 
-UtlBoolean OsStunAgentTask::handleSynchronize(OsRpcMsg& rMsg) 
+UtlBoolean OsStunAgentTask::handleSynchronize(OsRpcMsg& rMsg)
 {
     OsEvent* pEvent = rMsg.getEvent() ;
     pEvent->signal(0) ;
@@ -285,7 +285,7 @@ UtlBoolean OsStunAgentTask::handleSynchronize(OsRpcMsg& rMsg)
 }
 
 
-UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg) 
+UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
 {
     OsLock lock(mMapsLock) ;
     OsStunDatagramSocket* pSocket ;
@@ -294,7 +294,7 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
 
     // Pull out socket
     rc = rMsg.getUserData(pSocketVoid) ;
-    assert(rc == OS_SUCCESS) ;    
+    assert(rc == OS_SUCCESS) ;
     pSocket = (OsStunDatagramSocket*) pSocketVoid ;
 
     // Refresh the socket
@@ -310,7 +310,7 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
         {
             // Refresh attempt
             pSocket->refreshStunBinding() ;
-        }        
+        }
     }
 
     return true ;
@@ -319,9 +319,9 @@ UtlBoolean OsStunAgentTask::handleStunTimerEvent(OsEventMsg& rMsg)
 
 UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSocket,
                                                      const UtlString& stunServer,
-                                                     const int stunPort, 
-                                                     const int stunOptions) 
-{    
+                                                     const int stunPort,
+                                                     const int stunOptions)
+{
     OsLock lock(mMapsLock) ;
 
     assert(pSocket) ;
@@ -330,10 +330,10 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
 
     if (pSocket && portIsValid(stunPort) && (stunServer.length() > 0))
     {
-        // Send the STUN request -- the OsStunQueryAgent will handle the 
+        // Send the STUN request -- the OsStunQueryAgent will handle the
         // response
         UtlString serverAddress ;
-        if (OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+        if (OsSocket::getHostIpByName(stunServer, &serverAddress) &&
                 OsSocket::isIp4Address(serverAddress))
         {
             StunMessage reqMsg ;
@@ -343,8 +343,8 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
             reqMsg.msgHdr.msgType = BindRequestMsg;
 
             // Add randomness to transaction id
-            for ( int i=0; i<16; i=i+4 ) 
-            {            
+            for ( int i=0; i<16; i=i+4 )
+            {
                 int r = (rand()<<16) + rand() ;
                 reqMsg.msgHdr.id.octet[i+0]= r>>0;
                 reqMsg.msgHdr.id.octet[i+1]= r>>8;
@@ -353,7 +353,7 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
             }
 
             // The first byte is used to communicate status back to the agent.
-            // A value of zero indicates that this is a normal stun discovery 
+            // A value of zero indicates that this is a normal stun discovery
             // request.
             reqMsg.msgHdr.id.octet[0] = 0x00 ;
 
@@ -362,8 +362,8 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
                 reqMsg.hasChangeRequest = 1 ;
                 reqMsg.changeRequest.value = 0 ;
                 if (stunOptions & STUN_OPTION_CHANGE_PORT)
-                {                 
-                    reqMsg.changeRequest.value |= 2 ;  
+                {
+                    reqMsg.changeRequest.value |= 2 ;
                 }
 
                 if (stunOptions & STUN_OPTION_CHANGE_ADDRESS)
@@ -374,7 +374,7 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
 
             char buf[STUN_MAX_MESSAGE_SIZE];
             int len = STUN_MAX_MESSAGE_SIZE;
-            len = reqMsg.encodeMessage(buf, len);            
+            len = reqMsg.encodeMessage(buf, len);
 
             if (pSocket->write(buf, len, serverAddress, stunPort) <= 0)
             {
@@ -399,17 +399,17 @@ UtlBoolean OsStunAgentTask::sendStunDiscoveryRequest(OsStunDatagramSocket* pSock
                     pQueuedEvent = (OsQueuedEvent*)pTimer->getNotifier();
                 }
 
-                OsTime reportFailureAfter(OsTime(0, 500)) ;                
+                OsTime reportFailureAfter(OsTime(0, 500)) ;
                 pTimer->oneshotAfter(timeout) ;
                 mResponseMap.insertKeyAndValue(pSocket, pTimer) ;
-            }                
+            }
         }
         else
         {
             signalStunOutcome(pSocket, false) ;
         }
     }
-    
+
     return false ;
 }
 
@@ -422,7 +422,7 @@ UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pS
     UtlString serverAddress ;
     int i ;
 
-    if (OsSocket::getHostIpByName(stunServer, &serverAddress) && 
+    if (OsSocket::getHostIpByName(stunServer, &serverAddress) &&
             OsSocket::isIp4Address(serverAddress))
     {
         StunMessage reqMsg ;
@@ -432,8 +432,8 @@ UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pS
         reqMsg.msgHdr.msgType = BindRequestMsg;
 
         // Add randomness to transaction id
-        for (i=0; i<16; i=i+4) 
-        {            
+        for (i=0; i<16; i=i+4)
+        {
             int r = (rand()<<16) + rand() ;
             reqMsg.msgHdr.id.octet[i+0]= r>>0;
             reqMsg.msgHdr.id.octet[i+1]= r>>8;
@@ -442,7 +442,7 @@ UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pS
         }
 
         // The first byte is used to communicate status back to the agent.
-        // A value of zero indicates that this is a normal stun discovery 
+        // A value of zero indicates that this is a normal stun discovery
         // request.  Anything else suggest a connectivity check.
         reqMsg.msgHdr.id.octet[0] = cPriority ;
 
@@ -460,7 +460,7 @@ UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pS
         }
 
         CONNECTIVITY_INFO* pInfo = new CONNECTIVITY_INFO ;
-        pInfo->address = stunServer ;        
+        pInfo->address = stunServer ;
         pInfo->iPort = iStunPort ;
         pInfo->pSocket = pSocket ;
         OsDateTime::getCurTime(pInfo->lastSent) ;
@@ -476,24 +476,24 @@ UtlBoolean OsStunAgentTask::sendStunConnectivityRequest(OsStunDatagramSocket* pS
 }
 
 
-void OsStunAgentTask::synchronize() 
+void OsStunAgentTask::synchronize()
 {
     OsLock lock(sLock) ;
 
     if (isStarted() && (getCurrentTask() != this))
-    {        
+    {
         // Send an event to ourself and wait for that message to be processed.
         OsEvent event ;
         OsRpcMsg msg(SYNC_MSG_TYPE, 0, event) ;
         if (postMessage(msg) == OS_SUCCESS)
         {
-            event.wait() ;    
+            event.wait() ;
         }
     }
 }
 
 
-void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket) 
+void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
 {
    {
       OsLock lock(mMapsLock);
@@ -507,15 +507,15 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
          OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
          if (pEvent)
          {
-            pEvent->setUserData(0) ; 
+            pEvent->setUserData(0) ;
             if (!mTimerPool.find(pTimer))
             {
-               mTimerPool.insert(pTimer);    
+               mTimerPool.insert(pTimer);
             }
          }
          mResponseMap.removeReference(pSocket) ;
       }
-    
+
       // Remove contents from Connectivity Map
       UtlHashMapIterator itor(mConnectivityMap) ;
       UtlString* pKey ;
@@ -544,9 +544,9 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket, 
-                                        UtlBoolean bSuccess) 
-{    
+void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
+                                        UtlBoolean bSuccess)
+{
     OsLock lock(mMapsLock) ;
 
     // Remove from waiting response map
@@ -557,7 +557,7 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
        OsQueuedEvent* pEvent = (OsQueuedEvent*) pTimer->getNotifier() ;
        if (pEvent)
        {
-          pEvent->setUserData(0) ;        
+          pEvent->setUserData(0) ;
           if (!mTimerPool.contains(pTimer))
           {
              mTimerPool.insert(pTimer) ;
@@ -565,7 +565,7 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
        }
     }
     mResponseMap.remove(pSocket) ;
-   
+
     // Signal Socket
     if (bSuccess)
     {
@@ -580,4 +580,3 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

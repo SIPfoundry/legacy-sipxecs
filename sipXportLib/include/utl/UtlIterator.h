@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class UtlContainer;
 /**
  * UltIterator defines an abstract Iterator for walking through the elements
  * of UtlContainer derived class.
- * 
+ *
  * <p>
  * Example Code:
  * <pre>
@@ -62,7 +62,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    UtlIterator(const UtlContainer& container);
-   
+
     /**
      * Destructor
      */
@@ -70,12 +70,12 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-    
+
     /// Return the next element.
     virtual UtlContainable* operator()() = 0 ;
 
     /// Reset the iterator cursor so that it will again return all elements in the container.
-    virtual void reset() = 0 ; 
+    virtual void reset() = 0 ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -104,7 +104,7 @@ protected:
 
 
     void addToContainer(const UtlContainer* container);
-    
+
     /**
      * invalidate is called by the UtlContainer from its destructor.
      * It disconnects the iterator from its container object (sets
@@ -115,7 +115,7 @@ protected:
      * :NOTE: Both the sIiteratorListLock and the container lock must be held by the caller.
      */
     virtual void invalidate();
-    
+
     /**
      * The mContainerRefLock must be held whenever the mpMyContainer value
      * is being used or modified.  If the mpIteratorListLock in the container
@@ -127,7 +127,7 @@ protected:
      *  The container which this iterator indexes into.
      */
     UtlContainer* mpMyContainer;
-    
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     /**
@@ -145,4 +145,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _UtlIterator_h_
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ UtlHashMapIterator::~UtlHashMapIterator()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -115,7 +115,7 @@ UtlContainable* UtlHashMapIterator::operator()()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return foundKey;
 }
@@ -136,7 +136,7 @@ void UtlHashMapIterator::reset()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
 }
 
@@ -147,7 +147,7 @@ void UtlHashMapIterator::reset()
 UtlContainable* UtlHashMapIterator::key() const
 {
    UtlContainable* currentKey = NULL;
-   
+
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
    UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
@@ -167,7 +167,7 @@ UtlContainable* UtlHashMapIterator::key() const
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return currentKey;
 }
@@ -176,7 +176,7 @@ UtlContainable* UtlHashMapIterator::key() const
 UtlContainable* UtlHashMapIterator::value() const
 {
    UtlContainable* currentValue = NULL;
-   
+
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
    UtlHashMap* myHashMap = dynamic_cast<UtlHashMap*>(mpMyContainer);
@@ -199,7 +199,7 @@ UtlContainable* UtlHashMapIterator::value() const
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return currentValue;
 }
@@ -222,7 +222,7 @@ void UtlHashMapIterator::removing(const UtlPair* key)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-void UtlHashMapIterator::init()   
+void UtlHashMapIterator::init()
 {
    mPosition = 0;
    mpCurrentPair = NULL;

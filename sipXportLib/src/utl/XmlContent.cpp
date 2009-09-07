@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ bool XmlEscapeInternal(UtlString& destination,
       if (destination.capacity(minDstLen) >= minDstLen)
       {
          RegEx copyChars(CopyChars);
-      
+
          UtlString escapeChar;
          bool matched;
          // each iteration picks up leading n valid chars (n may be zero) and one that needs to be escaped.
@@ -182,7 +182,7 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
       if (destination.capacity(minDstLen) >= minDstLen)
       {
          RegEx entity(Entity);
-      
+
          UtlString number;
          bool matched;
          bool matchedOnce;
@@ -200,31 +200,31 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
                firstMatch = false;
             }
 
-            if      (entity.MatchString(NULL,1)) 
+            if      (entity.MatchString(NULL,1))
             {
                destination.append('"');
             }
-            else if (entity.MatchString(NULL,2)) 
+            else if (entity.MatchString(NULL,2))
             {
                destination.append('&');
             }
-            else if (entity.MatchString(NULL,3)) 
+            else if (entity.MatchString(NULL,3))
             {
                destination.append("'");
             }
-            else if (entity.MatchString(NULL,4)) 
+            else if (entity.MatchString(NULL,4))
             {
                destination.append('<');
             }
-            else if (entity.MatchString(NULL,5)) 
+            else if (entity.MatchString(NULL,5))
             {
                destination.append('>');
             }
-            else if (entity.MatchString(&number,6)) 
+            else if (entity.MatchString(&number,6))
             {
                char* unconverted;
                int decimalNum = strtol(number.data(), &unconverted, /* base */ 10);
-               
+
                if ('\000'==*unconverted && decimalNum >= 0 && decimalNum < 256)
                {
                   destination.append(decimalNum);
@@ -236,11 +236,11 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
                }
                number.remove(0); // clear for next iteration
             }
-            else if (entity.MatchString(&number,7)) 
+            else if (entity.MatchString(&number,7))
             {
                char* unconverted;
                int decimalNum = strtol(number.data(), &unconverted, /* base */ 16);
-               
+
                if ('\000'==*unconverted && decimalNum >= 0 && decimalNum < 256)
                {
                   destination.append(decimalNum);
@@ -266,7 +266,7 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
             // there were no entities, so just copy the content.
             destination.append(source);
          }
-         
+
          resultOk = true;
       }
       else
@@ -282,5 +282,3 @@ bool XmlUnEscape(UtlString& destination, const UtlString& source)
 
    return resultOk;
 }
-
-

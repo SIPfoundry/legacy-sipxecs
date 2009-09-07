@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -66,7 +66,7 @@ OsStatus OsDirLinux::create(int permissions) const
     OsStatus ret = OS_INVALID;
 
     OsPathBase path;
-    
+
     if (mDirName.getNativePath(path) == OS_SUCCESS)
     {
         int err = mkdir((const char *)path.data(),permissions);
@@ -85,7 +85,7 @@ OsStatus OsDirLinux::rename(const char* name)
     OsStatus ret = OS_INVALID;
 
     OsPathBase path;
-    
+
     if (mDirName.getNativePath(path) == OS_SUCCESS)
     {
         int err = ::rename(path.data(),name);
@@ -126,6 +126,3 @@ UtlBoolean OsDirLinux::exists()
 
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ UtlHashMap::~UtlHashMap()
 {
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerLock);
-      
+
    invalidateIterators();
 
    UtlContainer::releaseIteratorConnectionLock();
@@ -74,7 +74,7 @@ UtlHashMap::~UtlHashMap()
 /*
  * Allocate additional buckets and redistribute existing contents.
  * This should only be called through resizeIfNeededAndSafe.
- */          
+ */
 void UtlHashMap::resize()
 {
    // already holding the mContainerLock
@@ -92,7 +92,7 @@ void UtlHashMap::resize()
 
    // allocate the new buckets
    newBucket = new UtlChain[NUM_HASHMAP_BUCKETS(newBucketBits)];
-   
+
    if (newBucket)
    {
       // save the old buckets until we move the entries out of them
@@ -130,18 +130,18 @@ void UtlHashMap::resize()
 
 /* ============================ MANIPULATORS ============================== */
 
-UtlContainable* UtlHashMap::remove(const UtlContainable* key) 
+UtlContainable* UtlHashMap::remove(const UtlContainable* key)
 {
    UtlContainable* unusedValue;
-   
+
    return removeKeyAndValue(key, unusedValue);
 }
 
 
-UtlContainable* UtlHashMap::removeReference(const UtlContainable* key) 
+UtlContainable* UtlHashMap::removeReference(const UtlContainable* key)
 {
    UtlContainable* unusedValue;
-   
+
    // Locking is done by removeKeyAndValue().
 
    return removeKeyAndValue(key, unusedValue);
@@ -149,7 +149,7 @@ UtlContainable* UtlHashMap::removeReference(const UtlContainable* key)
 
 
 
-UtlBoolean UtlHashMap::destroy(const UtlContainable* key) 
+UtlBoolean UtlHashMap::destroy(const UtlContainable* key)
 {
    UtlBoolean wasRemoved = FALSE;
    UtlContainable* value;
@@ -157,7 +157,7 @@ UtlBoolean UtlHashMap::destroy(const UtlContainable* key)
    // Locking is done by removeKeyAndValue().
 
    UtlContainable* removedKey = removeKeyAndValue(key, value);
-   
+
    if(removedKey)
    {
       wasRemoved = TRUE;
@@ -172,7 +172,7 @@ UtlBoolean UtlHashMap::destroy(const UtlContainable* key)
 }
 
 
-void UtlHashMap::removeAll() 
+void UtlHashMap::removeAll()
 {
    OsLock take(mContainerLock);
 
@@ -196,7 +196,7 @@ void UtlHashMap::removeAll()
 }
 
 
-void UtlHashMap::destroyAll() 
+void UtlHashMap::destroyAll()
 {
    OsLock take(mContainerLock);
 
@@ -224,7 +224,7 @@ void UtlHashMap::destroyAll()
    mElements = 0;
 }
 
-   
+
 // insert a key with a NULL value
 UtlContainable* UtlHashMap::insert(UtlContainable* obj)
 {
@@ -233,7 +233,7 @@ UtlContainable* UtlHashMap::insert(UtlContainable* obj)
    return insertKeyAndValue(obj, NULL);
 }
 
-UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainable* value) 
+UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainable* value)
 {
    UtlContainable* insertedKey = NULL;
 
@@ -243,14 +243,14 @@ UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainabl
       // a non-const pointer to INTERNAL_NULL via UtlHashMap::find.
       value = const_cast<UtlContainable*>(INTERNAL_NULL);
    }
-   
+
    if (key && value) // NULL keys and values are not allowed
    {
-      OsLock take(mContainerLock);   
+      OsLock take(mContainerLock);
 
       UtlPair*  pair;
       UtlChain* bucket;
-      
+
       if(!lookup(key, bucket, pair))
       {
          pair = UtlPair::get();
@@ -269,25 +269,25 @@ UtlContainable* UtlHashMap::insertKeyAndValue(UtlContainable* key, UtlContainabl
    return insertedKey;
 }
 
-UtlContainable* UtlHashMap::removeKeyAndValue(const UtlContainable* key, UtlContainable*& value)    
+UtlContainable* UtlHashMap::removeKeyAndValue(const UtlContainable* key, UtlContainable*& value)
 {
    UtlContainable* removed = NULL;
    value = NULL;
-   
+
    if (key)
    {
       OsLock take(mContainerLock);
 
       UtlPair*  pair;
       UtlChain* bucket;
-      
+
       if ( lookup(key, bucket, pair) )
       {
          removed = pair->data;
          value = (pair->value != INTERNAL_NULL) ? pair->value : NULL;
-         
+
          notifyIteratorsOfRemove(pair);
-         
+
          pair->detachFromList(bucket);
          removed = pair->data;
          value   = pair->value;
@@ -296,7 +296,7 @@ UtlContainable* UtlHashMap::removeKeyAndValue(const UtlContainable* key, UtlCont
          mElements--;
       }
    }
-   
+
    return removed;
 }
 
@@ -313,18 +313,18 @@ void UtlHashMap::copyInto(UtlHashMap& into) const
 
 /* ============================ ACCESSORS ================================= */
 
-UtlContainable* UtlHashMap::findValue(const UtlContainable* key) const 
+UtlContainable* UtlHashMap::findValue(const UtlContainable* key) const
 {
    UtlContainable* foundValue = NULL;
-   
+
    UtlPair* foundPair;
    UtlChain* unusedBucket;
-   
-   OsLock take(mContainerLock);   
+
+   OsLock take(mContainerLock);
 
    if (lookup(key, unusedBucket, foundPair))
    {
-      foundValue = foundPair->value != INTERNAL_NULL ? foundPair->value : NULL; 
+      foundValue = foundPair->value != INTERNAL_NULL ? foundPair->value : NULL;
    }
 
    return foundValue;
@@ -332,17 +332,17 @@ UtlContainable* UtlHashMap::findValue(const UtlContainable* key) const
 
 
 UtlContainable* UtlHashMap::find(const UtlContainable* key) const
-{   
+{
    UtlContainable* foundKey = NULL;
-   
+
    UtlPair* foundPair;
    UtlChain* unusedBucket;
-   
-   OsLock take(mContainerLock);   
+
+   OsLock take(mContainerLock);
 
    if (lookup(key, unusedBucket, foundPair))
    {
-      foundKey = foundPair->data; 
+      foundKey = foundPair->data;
    }
 
    return foundKey;
@@ -351,21 +351,21 @@ UtlContainable* UtlHashMap::find(const UtlContainable* key) const
 
 /* ============================ INQUIRY =================================== */
 
-size_t UtlHashMap::entries() const 
+size_t UtlHashMap::entries() const
 {
    OsLock take(mContainerLock);
-   
-   return mElements; 
+
+   return mElements;
 }
 
 
-UtlBoolean UtlHashMap::isEmpty() const 
+UtlBoolean UtlHashMap::isEmpty() const
 {
-   return entries() == 0; 
+   return entries() == 0;
 }
 
 
-UtlBoolean UtlHashMap::contains(const UtlContainable* key)  const 
+UtlBoolean UtlHashMap::contains(const UtlContainable* key)  const
 {
    return find(key) != NULL;
 }
@@ -384,7 +384,7 @@ void UtlHashMap::notifyIteratorsOfRemove(const UtlPair* pair)
 {
    UtlLink* listNode;
    UtlHashMapIterator* foundIterator;
-   
+
    for (listNode = mIteratorList.head(); listNode; listNode = listNode->next())
    {
       foundIterator = (UtlHashMapIterator*)listNode->data;
@@ -407,10 +407,10 @@ bool UtlHashMap::lookup(const UtlContainable* key, ///< The key to locate.
 {
    UtlPair* check;
    size_t   keyHash = key->hash();
-   
+
    bucket = &mpBucket[bucketNumber(keyHash)];
    for (pair = NULL, check = static_cast<UtlPair*>(bucket->listHead());
-        (   !pair                  // not found 
+        (   !pair                  // not found
          && check                  // not end of list
          && keyHash <= check->hash // hash list is ordered, so if > then it's not in the list
          );
@@ -433,7 +433,7 @@ void UtlHashMap::insert(UtlPair*       pair,  ///< The UtlPair for the entry if 
                         )
 {
    UtlPair* position;
-   
+
    for (position = static_cast<UtlPair*>(bucket->listHead());
         (   position                     // not end of list
          && pair->hash <= position->hash // hash list is ordered, so if > then we're done.
@@ -460,7 +460,7 @@ size_t UtlHashMap::bucketNumber(unsigned hash) const
 {
    /*
     * We only use mBucketBits of the hash to index mpBucket, but we don't want to
-    * loose the information in the higher bits of the hash code.  So we 'fold' the 
+    * loose the information in the higher bits of the hash code.  So we 'fold' the
     * high order bits by XORing them mBucketBits at a time into the bits we'll
     * use until there are no non-zero high order bits left.
     */
@@ -471,7 +471,7 @@ size_t UtlHashMap::bucketNumber(unsigned hash) const
    for ( (foldedHash = hash & lowBitsMask, // get the low bits we want into the folded value
           highBits   = hash                // don't bother masking off the low bits
           );
-         (highBits = highBits >> mBucketBits);  // shift out bits already used until zero 
+         (highBits = highBits >> mBucketBits);  // shift out bits already used until zero
          foldedHash ^= highBits & lowBitsMask // incorporate non-zero
         )
    {

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ public:
    /// Constructor to set up TCP socket server
    OsSSLServerSocket(int connectionQueueSize, /**< The maximum number of outstanding connection
                                                *   requests which are allowed before subsequent
-                                               *   requests are turned away.*/ 
+                                               *   requests are turned away.*/
                      int serverPort=PORT_DEFAULT, /**< The port on which the server will listen to
                                                    *   accept connection requests.
                                                    *   PORT_DEFAULT means let OS pick port. */
@@ -96,11 +96,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   
+
    static int pemPasswdCallbackFunc(char *buf, int size, int rwflag, void *userdata);
     //:Callback used to set the private key password for decrypting the key
     //:buf is the buffer to fill with a password
-    //:size is the maximum size of the buffer 
+    //:size is the maximum size of the buffer
 
    OsSSLServerSocket(const OsSSLServerSocket& rOsSSLServerSocket);
      //:Disable copy constructor
@@ -113,4 +113,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsSSLServerSocket_h_
-

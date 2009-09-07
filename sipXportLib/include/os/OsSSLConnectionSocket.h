@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 //#include <...>
 
-// APPLICATION INCLUDES                      
+// APPLICATION INCLUDES
 #include <utl/UtlSList.h>
 #include <utl/UtlString.h>
 #include <os/OsConnectionSocket.h>
@@ -28,7 +28,7 @@
 
 // DEFINES
 // MACROS
-// EXTERNAL FUNCTIONS                                       
+// EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
@@ -48,7 +48,7 @@ public:
                          long        timeoutInSecs = 0
                          );
 
-   OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs = 0); 
+   OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs = 0);
 
    OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor);
 
@@ -57,7 +57,7 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
- 
+
    virtual UtlBoolean reconnect();
    //: Sets up the connection again, assuming the connection failed
 
@@ -68,7 +68,7 @@ public:
    //!param: buffer - The bytes to be written to the socket.
    //!param: bufferLength - The number of bytes contained in buffer.
    //!returns: The number of bytes actually written to the socket.
-   //!returns: <br>Note: This does not necessarily mean that the bytes were 
+   //!returns: <br>Note: This does not necessarily mean that the bytes were
    //!returns: actually received on the other end.
 
    virtual int write(const char* buffer, int bufferLength, long waitMilliseconds);
@@ -79,17 +79,17 @@ public:
 
    virtual int read(char* buffer, int bufferLength);
    //:Blocking read from the socket
-   // Read bytes into the buffer from the socket up to a maximum of 
+   // Read bytes into the buffer from the socket up to a maximum of
    // bufferLength bytes.  This method will block until there is
    // something to read from the socket.
    //!param: buffer - Place to put bytes read from the socket.
    //!param: bufferLength - The maximum number of bytes buffer will hold.
    //!returns: The number of bytes actually read.
 
-   virtual int read(char* buffer, int bufferLength, 
+   virtual int read(char* buffer, int bufferLength,
                     UtlString* ipAddress, int* port);
    //:Blocking read from the socket
-   // Read bytes into the buffer from the socket up to a maximum of 
+   // Read bytes into the buffer from the socket up to a maximum of
    // bufferLength bytes.  This method will block until there is
    // something to read from the socket.
    //!param: buffer - Place to put bytes read from the socket.
@@ -116,7 +116,7 @@ public:
 
    /// Is this connection encrypted using TLS/SSL?
    virtual bool isEncrypted() const;
-   
+
    /// Get any authenticated peer host names.
    virtual bool peerIdentity( UtlSList* altNames /**< UtlStrings for verfied subjectAltNames
                                                   *   are added to this - caller must free them.
@@ -141,7 +141,7 @@ private:
    SSL*     mSSL;
 
    // cached copies of peer information - parsing the cert is expensive
-   mutable enum 
+   mutable enum
    {
       NOT_IDENTIFIED,
       TRUSTED,
@@ -168,4 +168,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsSSLConnectionSocket_h_
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 
 #ifdef __cplusplus
 
-extern "C" 
+extern "C"
 bool getAllLocalHostIps(const class HostAdapterAddress* localHostAddresses[],
                         int &numAddresses);
 //: Return this host's ip addresses, as an array of UtlString references

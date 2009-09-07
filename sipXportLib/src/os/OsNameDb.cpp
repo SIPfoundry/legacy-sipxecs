@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ OsNameDb* OsNameDb::getNameDb(void)
       spInstance = new OsNameDb();
    }
    spLock->release();
-   
+
    return spInstance;
 }
 
@@ -130,7 +130,7 @@ OsStatus OsNameDb::remove(const UtlString& rKey,
    //  Return success or failure as appropriate.
    return result;
 }
-   
+
 /* ============================ ACCESSORS ================================= */
 
 // Retrieve the value associated with the specified key.
@@ -186,7 +186,7 @@ OsNameDb::OsNameDb() :
 {
    // since we plan to store object pointers as well as integer values in the
    //  database, we make sure the sizes are compatible
-   //TODO: is this test still required now that UtlVoidPtr is used instead of UtlInt 
+   //TODO: is this test still required now that UtlVoidPtr is used instead of UtlInt
    //for this data?
    assert(sizeof(void*) <= sizeof(intptr_t));
 
@@ -194,5 +194,3 @@ OsNameDb::OsNameDb() :
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

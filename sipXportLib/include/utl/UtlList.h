@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -38,25 +38,25 @@ class UtlContainable ;
  * UtlList may contain objects of different UtlContainableType
  * (e.g. UtlInts and UtlVoidPtrs), however, sorting and comparison behavior
  * may be non-obvious or undefined, so this is not recommended.
- * 
- * Most list accessors and inquiry methods are performed by equality as 
+ *
+ * Most list accessors and inquiry methods are performed by equality as
  * opposed to by reference.  That is, the comparisons between UtlContainable
  * objects are made using the UtlContainable::isEqual or UtlContainable::compareTo
  * methods, so for example, two different UtlInt* values (having different pointer
  * values) would compare as equal if they both contained the same integer value.
  *
  * Some methods are concerned with references; these compare the actual UtlContainable*
- * pointer values, so for example list.containsReference(obj) call will search 
+ * pointer values, so for example list.containsReference(obj) call will search
  * for a pointer match with each UtlContainable* on the list, matching only when
  * the value of the 'obj' pointer is found.
- * 
+ *
  * @see UtlContainable for the methods that must be implemented by a class for its
  * objects to be stored in any UtlContainer.
  *
  * Like other UtlContainer classes, UtlList is itself a UtlContainable, so one can have
- * lists of lists and other complex structures.  
+ * lists of lists and other complex structures.
  */
-class UtlList : public UtlContainer, public UtlChain                                               
+class UtlList : public UtlContainer, public UtlChain
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -69,21 +69,21 @@ public:
     virtual ~UtlList();
 
 /* ============================ MANIPULATORS ============================== */
-   
+
     /**
      * Removes and returns the first item in the list (pop).
-     * 
+     *
      * @return the first object if successful, otherwise null
      */
-    UtlContainable* get() ;  
+    UtlContainable* get() ;
 
     /**
      * Remove the designated object by reference
-     * (as opposed to searching for an equality match).  
+     * (as opposed to searching for an equality match).
      *
      * @return the object if successful, otherwise null
      */
-    UtlContainable* removeReference(const UtlContainable* obj);    
+    UtlContainable* removeReference(const UtlContainable* obj);
 
     /**
      * Remove the designated object by equality (as opposed to by reference).
@@ -98,9 +98,9 @@ public:
     UtlContainable* removeAt(const size_t N);
 
     /**
-     * Removes the designated objects from the list and frees the object 
+     * Removes the designated objects from the list and frees the object
      * by calling delete.
-     */ 
+     */
     virtual UtlBoolean destroy(const UtlContainable*);
 
     /**
@@ -116,7 +116,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
     /**
-     * Find the first occurence of the designated object by equality (as 
+     * Find the first occurence of the designated object by equality (as
      * opposed to by reference).
      */
     virtual UtlContainable* find(const UtlContainable*) const = 0;
@@ -149,9 +149,9 @@ public:
     virtual UtlBoolean isEmpty() const;
 
     /**
-     * Return true if the container includes the designated object.  Each 
-     * element within the list is tested for equality against the designated 
-     * object using the equals() method. 
+     * Return true if the container includes the designated object.  Each
+     * element within the list is tested for equality against the designated
+     * object using the equals() method.
      */
     virtual UtlBoolean contains(const UtlContainable* object) const;
 
@@ -177,7 +177,7 @@ public:
     */
    virtual UtlContainableType getContainableType() const;
 
-   static UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+   static UtlContainableType TYPE ;    /**< Class type used for runtime checking */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -187,7 +187,7 @@ protected:
      * The UtlList constructor is protected - only subclasses may be instantiated
      */
     UtlList();
-    
+
     friend class UtlListIterator;
 
     /**
@@ -222,5 +222,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlList_h_
-
-

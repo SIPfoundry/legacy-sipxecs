@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 ////////////////////////////////////////////////////////////////////////
 //////
 
@@ -76,7 +76,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
 
     int                error = 0;
 #ifdef IP_MTU_DISCOVER
-    int                pmtuDiscover; 
+    int                pmtuDiscover;
 #endif
     struct sockaddr_in localAddr;
 
@@ -94,8 +94,8 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
     mpToSockaddr = (struct sockaddr_in*) malloc(sizeof(struct sockaddr_in));
     assert(NULL != mpToSockaddr);
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
-    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;    
-    localHostPort = localHostPortNum;    
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+    localHostPort = localHostPortNum;
     if(localHost)
     {
         localHostName = localHost ;
@@ -156,7 +156,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
         mLocalIp = localHost;
     }
 
-    
+
 #   if defined(_WIN32)
     error = bind( socketDescriptor, (const struct sockaddr*) &localAddr,
             sizeof(localAddr));
@@ -233,7 +233,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
                                  const char* remoteHost,
                                  UtlBoolean simulateConnect)
 {
-    struct hostent* server;    
+    struct hostent* server;
 
     mToSockaddrValid = FALSE;
     memset(mpToSockaddr, 0, sizeof(struct sockaddr_in));
@@ -263,7 +263,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
             serverSockAddr.sin_addr.s_addr = (serverAddr->s_addr);
 
             // Set the default destination address for the socket
-            if(connect(socketDescriptor, (const struct sockaddr*) 
+            if(connect(socketDescriptor, (const struct sockaddr*)
                     &serverSockAddr, sizeof(serverSockAddr)))
             {
                 int error = OsSocketGetERRNO();
@@ -290,7 +290,7 @@ void OsDatagramSocket::doConnect(int remoteHostPortNum,
             close();
             OsSysLog::add(FAC_KERNEL, PRI_WARNING,
                     "OsDatagramSocket::doConnect( %s:%d ) failed host lookup)",
-                    remoteHost, remoteHostPortNum);           
+                    remoteHost, remoteHostPortNum);
 
             goto EXIT;
         }
@@ -392,7 +392,7 @@ UtlBoolean OsDatagramSocket::getToSockaddr()
 {
     const char* ipAddress = mRemoteIpAddress.data();
 
-    if (!mToSockaddrValid) 
+    if (!mToSockaddrValid)
     {
         mpToSockaddr->sin_family = AF_INET;
         mpToSockaddr->sin_port = htons(remoteHostPort);
@@ -546,11 +546,11 @@ void OsDatagramSocket::getRemoteHostIp(struct in_addr* remoteHostAddress,
 }
 
 // Return the external IP address for this socket.
-UtlBoolean OsDatagramSocket::getExternalIp(UtlString* ip, int* port) 
+UtlBoolean OsDatagramSocket::getExternalIp(UtlString* ip, int* port)
 {
     return FALSE ;
 }
-    
+
 
 /* ============================ INQUIRY =================================== */
 

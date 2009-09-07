@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ public:
      //:        OS_FAILED if unsuccessful
      //: Notes: Use FSLOCK_READ only on read or read/write files
      //:        Use FSLOCK_WRITE only only files you can write to.
-   
+
 
    OsStatus setLength(unsigned long newLength);
      //: Sets the length of the file specified by the object to the new size
@@ -100,5 +100,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsFileWnt_h_
-
-

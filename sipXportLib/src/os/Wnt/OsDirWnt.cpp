@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ OsDirWnt::~OsDirWnt()
 
 /* ============================ MANIPULATORS ============================== */
 // Assignment operator
-OsDirWnt& 
+OsDirWnt&
 OsDirWnt::operator=(const OsDirWnt& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -65,7 +65,7 @@ OsStatus OsDirWnt::create() const
 {
     OsStatus ret = OS_INVALID;
     OsPathBase path;
-    
+
     if (mDirName.getNativePath(path) == OS_SUCCESS)
     {
         int err = _mkdir((const char *)path.data());
@@ -89,10 +89,10 @@ OsStatus OsDirWnt::rename(const char* name)
         if (err != -1)
         {
             ret = OS_SUCCESS;
-    
+
             //make this object point to new path
             mDirName = name;
-    
+
         }
     }
 
@@ -110,7 +110,7 @@ OsStatus OsDirWnt::rename(const char* name)
 UtlBoolean OsDirWnt::exists()
 {
     UtlBoolean stat = FALSE;
-    
+
     OsFileInfoWnt info;
     OsStatus retval = getFileInfo(info);
     if (retval == OS_SUCCESS)
@@ -124,6 +124,3 @@ UtlBoolean OsDirWnt::exists()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

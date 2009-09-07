@@ -54,7 +54,7 @@ public:
             // check if the ConfiguredHook constructor actually managed to create a plug-in
             if( !theNewHook->plugin() )
             {
-               // an error happened while trying to create the plug-in - 
+               // an error happened while trying to create the plug-in -
                // de-allocate the ConfiguredHook and return NULL to convey
                // the failure to the caller.
                delete theNewHook;

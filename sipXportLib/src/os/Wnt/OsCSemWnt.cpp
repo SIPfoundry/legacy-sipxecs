@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ OsStatus OsCSemWnt::acquire(const OsTime& rTimeout)
 
    return res;
 }
-     
+
 // Conditionally acquire the semaphore (i.e., don't block)
 // Return OS_BUSY if the semaphore is held by some other task
 OsStatus OsCSemWnt::tryAcquire(void)
@@ -96,7 +96,7 @@ OsStatus OsCSemWnt::tryAcquire(void)
 
    return res;
 }
-     
+
 // Release the semaphore
 OsStatus OsCSemWnt::release(void)
 {
@@ -118,7 +118,7 @@ OsStatus OsCSemWnt::release(void)
 #endif //OS_CSEM_DEBUG
 
    return res;
-}    
+}
 
 
 
@@ -134,5 +134,3 @@ void OsCSemWnt::init(void)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

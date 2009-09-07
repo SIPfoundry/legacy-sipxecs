@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -39,15 +39,15 @@
 
 // Constructor
 OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
-                                           const char* remoteHost, 
-                                           int localHostPortNum, 
+                                           const char* remoteHost,
+                                           int localHostPortNum,
                                            const char* localHost,
-                                           bool bEnableStun, 
+                                           bool bEnableStun,
                                            const char* szStunServer,
                                            int iRefreshPeriodInSec,
                                            int iStunOptions,
-                                           OsNotification *pNotification) 
-        : OsDatagramSocket(remoteHostPortNum, remoteHost, 
+                                           OsNotification *pNotification)
+        : OsDatagramSocket(remoteHostPortNum, remoteHost,
                            localHostPortNum, localHost)
         , mKeepAlivePeriod(0)
         , mCurrentKeepAlivePeriod(0)
@@ -63,7 +63,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
         , miDestPort(remoteHostPort)
         , mcDestPriority(0)
         , mpNotification(pNotification)
-{    
+{
 
     // If enabled, kick off first stun request
     if (mbEnabled)
@@ -83,7 +83,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
 // Destructor
 OsStunDatagramSocket::~OsStunDatagramSocket()
 {
-    enableStun(FALSE) ;    
+    enableStun(FALSE) ;
 
     mpTimer->stop();
     // Invoking synchronize will wait until any active timer/refresh activies
@@ -105,16 +105,16 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength)
     int iReceivedPort ;
 
     do
-    {        
+    {
         iRC = OsSocket::read(buffer, bufferLength, &receivedIp, &iReceivedPort) ;
 
         // Look for stun packet
         bStunPacket = FALSE ;
         if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {            
+        {
             bStunPacket = TRUE ;
 
-            // Make copy and queue it. 
+            // Make copy and queue it.
             char* szCopy = (char*) malloc(iRC) ;
             if (szCopy)
             {
@@ -151,17 +151,17 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength,
         // Look for stun packet
         bStunPacket = FALSE ;
         if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {            
+        {
             bStunPacket = TRUE ;
 
-            // Make copy and queue it. 
+            // Make copy and queue it.
             char* szCopy = (char*) malloc(iRC) ;
             if (szCopy)
             {
                 memcpy(szCopy, buffer, iRC) ;
                 StunMsg msg(szCopy, iRC, this, receivedIp, iReceivedPort);
                 pStunAgent->postMessage(msg) ;
-            }           
+            }
 
             // If not configured for transparent reads, exit with
             // zero bytes read
@@ -191,10 +191,10 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength,
        struct in_addr* ipAddress, int* port)
 {
     bool bStunPacket ;
-    int iRC ;    
+    int iRC ;
     struct in_addr fromSockAddress;
     int iReceivedPort ;
-   
+
     do
     {
         iRC = OsSocket::read(buffer, bufferLength, &fromSockAddress, &iReceivedPort) ;
@@ -202,10 +202,10 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength,
         // Look for stun packet
         bStunPacket = FALSE ;
         if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {            
+        {
             bStunPacket = TRUE ;
 
-            // Make copy and queue it. 
+            // Make copy and queue it.
             char* szCopy = (char*) malloc(iRC) ;
             if (szCopy)
             {
@@ -221,7 +221,7 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength,
             // zero bytes read
             if (!mbTransparentStunRead)
             {
-                iRC = 0 ; 
+                iRC = 0 ;
                 bStunPacket = FALSE ;
             }
         }
@@ -242,7 +242,7 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength,
 }
 
 int OsStunDatagramSocket::read(char* buffer, int bufferLength, long waitMilliseconds)
-{    
+{
     assert(FALSE) ;
     return -1 ;
 /*
@@ -258,10 +258,10 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength, long waitMillisec
         // Look for stun packet
         bStunPacket = FALSE ;
         if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-        {            
+        {
             bStunPacket = TRUE ;
 
-            // Make copy and queue it. 
+            // Make copy and queue it.
             char* szCopy = (char*) malloc(iRC) ;
             if (szCopy)
             {
@@ -287,7 +287,7 @@ int OsStunDatagramSocket::read(char* buffer, int bufferLength, long waitMillisec
 }
 
 
-void OsStunDatagramSocket::setKeepAlivePeriod(int secs) 
+void OsStunDatagramSocket::setKeepAlivePeriod(int secs)
 {
     mCurrentKeepAlivePeriod = secs ;
     mpTimer->stop() ;
@@ -304,18 +304,18 @@ void OsStunDatagramSocket::setKeepAlivePeriod(int secs)
 }
 
 
-void OsStunDatagramSocket::setStunServer(const char* szHostname) 
+void OsStunDatagramSocket::setStunServer(const char* szHostname)
 {
     mStunServer = szHostname ;
 }
 
-void OsStunDatagramSocket::setStunOptions(int stunOptions) 
+void OsStunDatagramSocket::setStunOptions(int stunOptions)
 {
     mStunOptions = stunOptions ;
 }
 
 
-void OsStunDatagramSocket::enableStun(bool bEnable) 
+void OsStunDatagramSocket::enableStun(bool bEnable)
 {
     if (mbEnabled != bEnable)
     {
@@ -330,13 +330,13 @@ void OsStunDatagramSocket::enableStun(bool bEnable)
         }
         else
         {
-            // Calling setKeepAlivePeriod will disable the timer when mbEnabled 
+            // Calling setKeepAlivePeriod will disable the timer when mbEnabled
             // is false
             setKeepAlivePeriod(mKeepAlivePeriod) ;
 
             // Verify that all timer activity is stopped
-            pStunAgent->synchronize() ;        
-        
+            pStunAgent->synchronize() ;
+
             // Clear the STUN values
             mStunAddress.remove(0) ;
             mStunPort = PORT_NONE ;
@@ -352,7 +352,7 @@ void OsStunDatagramSocket::enableTransparentStunReads(bool bEnable)
 
 
 void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
-{    
+{
     OsTime timeout(0, STUN_TIMEOUT_RESPONSE_MS * OsTime::USECS_PER_MSEC) ;
     bool bSuccess = FALSE ;
 
@@ -360,15 +360,15 @@ void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
     {
         OsStunQueryAgent agent;
         if (agent.setServer(mStunServer))
-        {                  
+        {
             // We must touch the socket and look for the next stun packet.
             bSuccess = agent.getMappedAddress(this, mStunAddress, mStunPort, mStunOptions, timeout) ;
         }
 
         // Report status
         if (bSuccess)
-        {   
-            markStunSuccess() ;            
+        {
+            markStunSuccess() ;
         }
         else
         {
@@ -377,7 +377,7 @@ void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
     }
     else
     {
-        pStunAgent->sendStunDiscoveryRequest(this, mStunServer, STUN_PORT, mStunOptions) ;        
+        pStunAgent->sendStunDiscoveryRequest(this, mStunServer, STUN_PORT, mStunOptions) ;
     }
 }
 
@@ -385,11 +385,11 @@ void OsStunDatagramSocket::refreshStunBinding(UtlBoolean bFromReadSocket)
 /* ============================ ACCESSORS ================================= */
 
 // Return the external IP address for this socket.
-UtlBoolean OsStunDatagramSocket::getExternalIp(UtlString* ip, int* port) 
+UtlBoolean OsStunDatagramSocket::getExternalIp(UtlString* ip, int* port)
 {
     UtlBoolean bSuccess = false ;
 
-    if (mStunAddress.length() && mbEnabled) 
+    if (mStunAddress.length() && mbEnabled)
     {
         if (ip)
         {
@@ -412,8 +412,8 @@ UtlBoolean OsStunDatagramSocket::getExternalIp(UtlString* ip, int* port)
 }
 
 /*
-int OsStunDatagramSocket::getStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout) 
-{        
+int OsStunDatagramSocket::getStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout)
+{
     int iRead = 0 ;
     OsMsg* msg;
 
@@ -454,8 +454,8 @@ int OsStunDatagramSocket::getStunPacket(char* buffer, int bufferLength, const Os
 }
 */
 
-int OsStunDatagramSocket::readStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout) 
-{        
+int OsStunDatagramSocket::readStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout)
+{
     bool bStunPacket = FALSE;
     int iRC = 0 ;
 
@@ -477,7 +477,7 @@ int OsStunDatagramSocket::readStunPacket(char* buffer, int bufferLength, const O
                 // Look for stun packet
                 bStunPacket = FALSE ;
                 if ((iRC > 0) && StunMessage::isStunMessage(buffer, iRC))
-                {            
+                {
                     bStunPacket = TRUE ;
                 }
                 else if (!rTimeout.isInfinite())
@@ -504,7 +504,7 @@ int OsStunDatagramSocket::readStunPacket(char* buffer, int bufferLength, const O
 }
 
 
-void OsStunDatagramSocket::addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority) 
+void OsStunDatagramSocket::addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority)
 {
     if (pStunAgent)
     {
@@ -513,7 +513,7 @@ void OsStunDatagramSocket::addAlternateDestination(const char* szAddress, int iP
 }
 
 
-void OsStunDatagramSocket::setNotifier(OsNotification* pNotification) 
+void OsStunDatagramSocket::setNotifier(OsNotification* pNotification)
 {
     mpNotification = pNotification ;
 }
@@ -523,18 +523,18 @@ void OsStunDatagramSocket::setNotifier(OsNotification* pNotification)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-void OsStunDatagramSocket::setStunAddress(const UtlString& address, 
-                                          const int iPort) 
+void OsStunDatagramSocket::setStunAddress(const UtlString& address,
+                                          const int iPort)
 {
     mStunAddress = address ;
     mStunPort = iPort ;
 }
 
 
-void OsStunDatagramSocket::markStunFailure() 
+void OsStunDatagramSocket::markStunFailure()
 {
     // Speed up refreshes on first error case
-    if ((mCurrentKeepAlivePeriod != STUN_FAILURE_REFRESH_PERIOD_SECS) && 
+    if ((mCurrentKeepAlivePeriod != STUN_FAILURE_REFRESH_PERIOD_SECS) &&
             mStunRefreshErrors == 0)
     {
         setKeepAlivePeriod(STUN_FAILURE_REFRESH_PERIOD_SECS) ;
@@ -542,10 +542,10 @@ void OsStunDatagramSocket::markStunFailure()
 
     mStunRefreshErrors++ ;
 
-    if ((mStunRefreshErrors == STUN_INITIAL_REFRESH_REPORT_THRESHOLD) || 
+    if ((mStunRefreshErrors == STUN_INITIAL_REFRESH_REPORT_THRESHOLD) ||
             (mStunRefreshErrors % STUN_REFRESH_REPORT_THRESHOLD) == 0)
     {
-        OsSysLog::add(FAC_NET, PRI_WARNING, 
+        OsSysLog::add(FAC_NET, PRI_WARNING,
                 "STUN failed to obtain binding from %s (attempt=%d)\n",
                 mStunServer.data(), mStunRefreshErrors) ;
 
@@ -564,16 +564,16 @@ void OsStunDatagramSocket::markStunFailure()
         }
 
     }
-    
+
     if (mStunRefreshErrors >= STUN_ABORT_THRESHOLD)
     {
         // Shutdown if we never received a valid address
         if (mStunServer.length() > 0)
         {
-            OsSysLog::add(FAC_NET, PRI_ERR, 
+            OsSysLog::add(FAC_NET, PRI_ERR,
                 "STUN Aborted; Failed to obtain stun binding from %s (attempt=%d)\n",
                 mStunServer.data(), mStunRefreshErrors) ;
-            enableStun(FALSE) ;                               
+            enableStun(FALSE) ;
         }
     }
 }
@@ -594,48 +594,48 @@ void OsStunDatagramSocket::markStunSuccess()
     {
         char szAdapterName[256];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName));
-        
+
         getContactAdapterName(szAdapterName, mLocalIp.data());
 
         CONTACT_ADDRESS* pContact = new CONTACT_ADDRESS();
-        
+
         strcpy(pContact->cIpAddress, mStunAddress);
         strcpy(pContact->cInterface, szAdapterName);
         pContact->eContactType = NAT_MAPPED;
         pContact->iPort = mStunPort;
-        
+
         mpNotification->signal((intptr_t)pContact) ;
         mpNotification = NULL ;
     }
 }
 
 
-void OsStunDatagramSocket::setDestinationAddress(const UtlString& address, 
-                                                 int iPort, 
-                                                 unsigned char cPriority) 
+void OsStunDatagramSocket::setDestinationAddress(const UtlString& address,
+                                                 int iPort,
+                                                 unsigned char cPriority)
 {
-    if ((address.compareTo(mDestAddress, UtlString::ignoreCase) != 0) && 
+    if ((address.compareTo(mDestAddress, UtlString::ignoreCase) != 0) &&
             (iPort != cPriority))
     {
-        if (cPriority > mcDestPriority) 
+        if (cPriority > mcDestPriority)
         {
             mcDestPriority = cPriority ;
             mDestAddress = address ;
             miDestPort = iPort ;
-            
+
             // Change the destination address
             doConnect(miDestPort, mDestAddress, FALSE) ;
 
-            // ::TODO:: bob: I suspect that we need to lock reads/writes/close 
+            // ::TODO:: bob: I suspect that we need to lock reads/writes/close
             // during an unlock.
 
             // ::TODO:: Socket may have changed -- need to reset with NetInTask?
         }
-    } 
-    else if (cPriority > mcDestPriority) 
+    }
+    else if (cPriority > mcDestPriority)
     {
         // No change in host/port, just store updated priority.
-        mcDestPriority = cPriority ;   
+        mcDestPriority = cPriority ;
     }
 }
 
@@ -645,8 +645,8 @@ void OsStunDatagramSocket::setDestinationAddress(const UtlString& address,
 
 /* ///////////////////////// HELPER CLASSES /////////////////////////////// */
 
-StunMsg::StunMsg(char*                 szBuffer, 
-                 int                   nLength, 
+StunMsg::StunMsg(char*                 szBuffer,
+                 int                   nLength,
                  OsStunDatagramSocket* pSocket,
                  UtlString             receivedIp,
                  int                   iReceivedPort)
@@ -703,25 +703,25 @@ char* StunMsg::getBuffer() const
     return mBuffer ;
 }
 
-   
+
 int StunMsg::getLength() const
 {
     return mLength ;
 }
 
 
-OsStunDatagramSocket* StunMsg::getSocket() const 
+OsStunDatagramSocket* StunMsg::getSocket() const
 {
     return mpSocket ;
 }
 
 
-UtlString StunMsg::getReceivedIp() const 
+UtlString StunMsg::getReceivedIp() const
 {
     return mReceivedIp ;
 }
 
-int StunMsg::getReceivedPort() const 
+int StunMsg::getReceivedPort() const
 {
     return miReceivedPort ;
 }

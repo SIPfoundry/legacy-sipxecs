@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -554,7 +554,7 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
 
     //before we go ahead and kill the thread, lets make sure it's still running
     DWORD ExitCode;
-    
+
     // KLUDGE ALERT- we need to avoid calling
     // TerminateThread at all costs.
     // TerminateThread is VERY VERY dangerous.
@@ -569,7 +569,7 @@ void OsTaskWnt::doWntTerminateTask(UtlBoolean force)
             break;
         }
         Sleep(100);
-    }    
+    }
 
     if (ExitCode == STILL_ACTIVE)
           TerminateThread(mThreadH, 0);          // first get rid of the thread

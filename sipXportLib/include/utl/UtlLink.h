@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -68,14 +68,14 @@ class UtlChain
    friend class UtlHashBagIterator;
    friend class UtlChainTest;
    friend class UtlLinkTest;
-   
+
    UtlChain* prev; ///< backward chain pointer
    UtlChain* next; ///< forward chain pointer
 
    // ================================================================
    /** @name                  Chain Operations
     *
-    * These methods manipulate the forward and backward links within a 
+    * These methods manipulate the forward and backward links within a
     * chain.  They do no do anything with respect to any header, so they
     * can be used to implement chains that are linear (NULL terminated)
     * or circular.
@@ -110,7 +110,7 @@ class UtlChain
    void chainBefore(UtlChain* existing)
       {
          assert(isUnLinked()); // not valid on a link that's in a chain
-         
+
          next = existing;
          if (existing->prev)
          {
@@ -122,7 +122,7 @@ class UtlChain
          }
          existing->prev = this;
       }
-   
+
 
    /// Insert a new UtlChain after existing..
    /**
@@ -150,7 +150,7 @@ class UtlChain
     * header.  The UtlChain.next points to the head (first) UtlLink on the
     * list.  The UtlChain.prev points to the tail (last) UtlLink.
     *
-    * The UtlLink objects on the list form a NULL-terminated chain - 
+    * The UtlLink objects on the list form a NULL-terminated chain -
     * they do not point to the UtlChain that serves as the header.
     */
    ///@{
@@ -161,7 +161,7 @@ class UtlChain
          return next;
       }
 
-   /// Returns the tail (last) UtlLink on the list (or NULL if the list is empty).   
+   /// Returns the tail (last) UtlLink on the list (or NULL if the list is empty).
    UtlChain* listTail() const
       {
          return prev;
@@ -173,7 +173,7 @@ class UtlChain
          return (UtlLink*)next;
       }
 
-   /// Returns the tail (last) UtlLink on the list (or NULL if the list is empty).   
+   /// Returns the tail (last) UtlLink on the list (or NULL if the list is empty).
    UtlLink* tail() const
       {
          return (UtlLink*)prev;
@@ -213,8 +213,8 @@ class UtlChain
     * so is the responsibility of the caller.
     */
 
-///@}   
-   
+///@}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 };
@@ -226,7 +226,7 @@ class UtlChain
  *
  * In addition to the links forward (next) and backward (prev) provided by the
  * parent UtlChain, a UtlLink also points to an item whose place it implements
- * in the list (data). 
+ * in the list (data).
  *
  * @nosubgrouping
  */
@@ -247,7 +247,7 @@ class UtlLink : public UtlChain
       {
          return static_cast<UtlLink*>(UtlChain::next);
       }
-   
+
    /// Returns the next UtlLink backward in a chain (or NULL for the end).
    UtlLink* prev() const
       {
@@ -277,7 +277,7 @@ class UtlLink : public UtlChain
          }
          return theLink;
       }
-   
+
    /// The containable object whose place in the list this UtlLink is tracking.
    UtlContainable*    data;
    /// The hash code for the containable object whose place in the list this UtlLink is tracking.
@@ -286,7 +286,7 @@ class UtlLink : public UtlChain
    ///@}
 
    // ================================================================
-   ///@name                  Memory Management                      
+   ///@name                  Memory Management
    ///@{
 
    /// Get the total number of UtlLink blocks allocated.
@@ -298,7 +298,7 @@ class UtlLink : public UtlChain
    static size_t totalAllocated();
 
    ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
    friend class UtlChainPool;
@@ -320,7 +320,7 @@ class UtlLink : public UtlChain
     * in either NULL-terminated or circular chains.
     */
    ///@{
-   
+
    /// Take the link block out of its list, and return the data pointer
    UtlContainable* unlink();
    /**<
@@ -344,7 +344,7 @@ class UtlLink : public UtlChain
     * header.  The UtlChain.next points to the head (first) UtlLink on the
     * list.  The UtlChain.prev points to the tail (last) UtlLink.
     *
-    * The UtlLink objects on the list form a NULL-terminated chain - 
+    * The UtlLink objects on the list form a NULL-terminated chain -
     * they do not point to the UtlChain that serves as the header.
     */
    ///@{
@@ -387,11 +387,11 @@ class UtlLink : public UtlChain
     */
 
    /// Find the first matching target in the list by reference.
-   static UtlLink* findData(UtlChain* list, UtlContainable* target) 
+   static UtlLink* findData(UtlChain* list, UtlContainable* target)
       {
          return list->next ? static_cast<UtlLink*>(list->next)->findDataRef(target) : NULL;
       }
-   
+
    ///@}
 
    // ================================================================
@@ -435,10 +435,10 @@ class UtlLink : public UtlChain
                         UtlChain* blockList, ///< list header for first instance
                         UtlChain* pool       ///< list header for others
                         );
-   
+
 
    /// The pool of available UltLink instances.
-   static UtlChainPool* spLinkPool;  
+   static UtlChainPool* spLinkPool;
 };
 
 /// Associate a key object (the parent UtlLink data) with its value object.
@@ -459,7 +459,7 @@ class UtlPair : public UtlLink
    ~UtlPair()
       {
       }
-   
+
    static UtlChainPool* spPairPool;
 
    /// Get a UtlPair from the pool.

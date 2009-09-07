@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       serverName = "127.0.0.1";
 #     elif defined(__pingtel_on_posix__)
       unsigned long address_val = OsSocket::getDefaultBindAddress();
-      
+
       if (!localIp)
       {
          if (address_val == htonl(INADDR_ANY))
@@ -135,7 +135,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
 
 #     elif defined(WIN32)
       unsigned long address_val = OsSocket::getDefaultBindAddress();
-      
+
       if (!localIp)
       {
          if (address_val == htonl(INADDR_ANY))
@@ -153,7 +153,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
          mLocalIp = localIp;
          serverName = localIp;
       }
-      
+
 #     else
 #        error Unsupported target platform.
 #     endif
@@ -197,7 +197,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    // But for a connect that is to block forever, we leave the socket
    // in blocking mode.
    if(   !blockingConnect
-      || (blockingConnect && timeoutInMilliseconds > 0) 
+      || (blockingConnect && timeoutInMilliseconds > 0)
       )
    {
       makeNonblocking();
@@ -248,7 +248,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    // Ask the TCP layer to connect
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ connect %d",
                  socketDescriptor);
-      
+
    int connectReturn;
 #  if defined(_WIN32) || defined(__pingtel_on_posix__)
    // If we should block forever, this connect() will do so.  For all
@@ -274,7 +274,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
          {
             OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsConnectionSocket::_ poll %d timeout %d msec",
                           socketDescriptor, timeoutInMilliseconds);
-      
+
             struct pollfd pset[1];
             pset[0].fd      = socketDescriptor;
             pset[0].events  = POLLOUT;
@@ -331,7 +331,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
    {
       error = 0;
    }
-   
+
 #  elif defined(_VXWORKS)
    // This code probably doesn't handle timeouts correctly.
    connectReturn = connect(socketDescriptor,
@@ -367,7 +367,7 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
                     );
       mIsConnected = TRUE;
    }
-        
+
   EXIT:
    // mIsConnected signals success/failure to our caller.
    return;
@@ -379,7 +379,7 @@ bool OsConnectionSocket::isEncrypted() const
    return false;
 }
 
-   
+
 /// Get any authenticated peer host names.
 bool OsConnectionSocket::peerIdentity( UtlSList* altNames
                                       ,UtlString* commonName
@@ -452,7 +452,7 @@ int OsConnectionSocket::read(char* buffer, int bufferLength)
           close();
        }
     }
-    
+
     return(bytesRead);
 }
 
@@ -470,7 +470,7 @@ int OsConnectionSocket::read(char* buffer,
        // Explicitly get the remote host info.
        getRemoteHostIp(ipAddress, port);
     }
-    else 
+    else
     {
        int error = OsSocketGetERRNO();
        if (error != EINTR && error != EAGAIN)
@@ -486,7 +486,7 @@ int OsConnectionSocket::read(char* buffer,
           close();
        }
     }
-    
+
     return(bytesRead);
 }
 
@@ -515,7 +515,7 @@ int OsConnectionSocket::read(char* buffer,
           close();
        }
     }
-    
+
     return(bytesRead);
 }
 

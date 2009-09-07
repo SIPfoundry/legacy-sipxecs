@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ OsSysLogTask::OsSysLogTask(const int maxInMemoryLogEntries /* = 0 */,
    , mpCallback(NULL)
    , mRWMutex(OsRWMutex::Q_PRIORITY)
    , mpLastReopen()
-{    
+{
    // Init Ring Buffer
    mRingBufferLength = maxInMemoryLogEntries;
    if (mRingBufferLength > 0)
@@ -138,7 +138,7 @@ OsStatus OsSysLogTask::clear()
 // Flushes the log
 OsStatus OsSysLogTask::flush(const OsTime& rTimeout)
 {
-   OsStatus rc = OS_UNSPECIFIED ; 
+   OsStatus rc = OS_UNSPECIFIED ;
    OsEvent flushSync ;
 
    OsSysLogMsg msg(OsSysLogMsg::FLUSH_LOG, (void*) &flushSync) ;
@@ -288,7 +288,7 @@ UtlBoolean OsSysLogTask::handleMessage(OsMsg& eventMessage)
                data = (char*) pSysLogMsg->getData();
                processSetFile(data) ;
                if (data != NULL)
-               {                  
+               {
                   free(data) ;
                }
                break ;
@@ -350,11 +350,11 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
 {
    OsStatus status = OS_SUCCESS ;
 
-   mRWMutex.acquireWrite() ;   
+   mRWMutex.acquireWrite() ;
 
    /*
     * Display to the console if enabled
-    */   
+    */
    if (mConsoleEnabled)
    {
       osPrintf("%s\n", pEntry) ;
@@ -392,7 +392,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
          // Keep track of the last reopen
          OsDateTime::getCurTimeSinceBoot(mpLastReopen) ;
       }
-      
+
       if (mpUnboundedLog)
       {
          fprintf(mpUnboundedLog, "%s\n", pEntry) ;
@@ -406,7 +406,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
        * If an unbounded log is initialized, add to it
        */
       if (mpUnboundedLog)
-      {      
+      {
          // Decide if we should close/reopen the log
          OsTime now ;
          OsTime reopenAfter ;
@@ -435,7 +435,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
              // Keep track of the last reopen
              OsDateTime::getCurTimeSinceBoot(mpLastReopen) ;
           }
-      
+
           if (mpUnboundedLog)
           {
              fprintf(mpUnboundedLog, "%s\n", pEntry) ;
@@ -446,9 +446,9 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
 
 
    /*
-    * If we have been initialized with target sockets- fire off events to 
+    * If we have been initialized with target sockets- fire off events to
     * interested parties.
-    */     
+    */
    for (int i=0; i<MAX_SOCKET_TARGETS; i++)
    {
       if (mpSockets[i] != NULL)
@@ -467,7 +467,7 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
       }
    }
 
-   /* 
+   /*
     * If a callback funtion was registered, call and hand over the log entry
     */
    if ( mpCallback != NULL )
@@ -482,11 +482,11 @@ OsStatus OsSysLogTask::processAdd(char* pEntry)
       UtlString processId;
       UtlString content;
 
-      // Parse the log entry to extract the priority 
+      // Parse the log entry to extract the priority
       OsSysLog::parseLogString(pEntry, date, eventCount, facility, priority,
                                hostname, taskname, taskId, processId,
                                content);
-  
+
       mpCallback(priority, "SIPxua", pEntry);
    }
 
@@ -631,7 +631,7 @@ OsStatus OsSysLogTask::processSetFile(const char* szFile)
          {
              // Open a unbounded Log
              if ((mpUnboundedLog = fopen(szFile, "a+")) == NULL)
-             {         
+             {
                 syslog(FAC_LOG, PRI_ERR, "Error opening logfile %s", szFile);
              }
              else
@@ -643,7 +643,7 @@ OsStatus OsSysLogTask::processSetFile(const char* szFile)
              }
          }
          mUnboundedLogFile = szFile ;
-   
+
          OsDateTime::getCurTimeSinceBoot(mpLastReopen) ;
          mRWMutex.releaseWrite() ;
       }
@@ -770,9 +770,9 @@ OsStatus OsSysLogTask::processAddSocket(const char* remoteHost)
 
 // Process a log flush request.
 OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
-{  
+{
    OsStatus status = OS_SUCCESS ;
-   
+
    mRWMutex.acquireWrite() ;
    if (!mUnboundedLogFile.isNull())
    {
@@ -780,7 +780,7 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
       {
          fflush(mpUnboundedLog) ;
       }
-   }   
+   }
    else
    {
       if (mLogChanged)
@@ -788,7 +788,7 @@ OsStatus OsSysLogTask::processFlushLog(OsEvent* pEvent)
          if (!mBoundedLogFile.isNull())
          {
             OsFile file(mBoundedLogFile.data()) ;
-   
+
             // Open the new log
             if (file.open(OsFile::WRITE_ONLY | OsFile::TRUNCATE | OsFile::CREATE) == OS_SUCCESS)
             {
@@ -863,4 +863,3 @@ OsStatus OsSysLogTask::processSetCallback(OsSysLogCallback fn)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

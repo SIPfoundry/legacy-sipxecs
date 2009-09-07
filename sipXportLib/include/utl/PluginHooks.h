@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ class OsConfigDb;
  *
  * The libraries are loaded and configured by the readConfig method:
  * @code
- * ActionEventHooks.readConfig(configDb); 
+ * ActionEventHooks.readConfig(configDb);
  * @endcode
  *
  * To invoke the plugins, see PluginIterator.
@@ -54,7 +54,7 @@ class PluginHooks
    /// Construct a manager for a set of hooks.
    PluginHooks(const char* hookFactoryName, ///< the prefix name for the OsConfigDb values
                const char* hookPrefix       ///< the prefix name for the OsConfigDb values
-               
+
                );
 
    ~PluginHooks();
@@ -73,7 +73,7 @@ class PluginHooks
     * ACTION_EVENT_HOOK_LIBRARY.CopyAction   : /usr/local/lib/sipxpbx/libcopyaction.so
     * @endcode
     * The readConfig method:
-    * - dynamically loads each library 
+    * - dynamically loads each library
     * - for each value of [instance]
     *   - calls the factory method provided by the hook to instantiate a hook object,
     *     passing its instance name to it (so that it can be used in logging).
@@ -137,7 +137,7 @@ class PluginHooks
  * order by the instance name; this allows the configuration to control the
  * order in which they are invoked.
  *
- * Plugin libraries can implement any calling interface that's needed (a 
+ * Plugin libraries can implement any calling interface that's needed (a
  * program that uses the Plugin mechanism should create a base class that extends
  * Plugin to specify the interface).
  *
@@ -158,7 +158,7 @@ class PluginIterator
    PluginIterator( const PluginHooks& pluginHooks );
 
    ~PluginIterator();
-   
+
    /// Advance to and return the next plugin.
    Plugin* next(UtlString* name = NULL /**< the instance name string for the returned
                                             *   Plugin (for logging purposes)
@@ -172,7 +172,7 @@ class PluginIterator
 
   private:
    UtlSortedListIterator mConfiguredHooksIterator;
-   
+
 };
 
 #endif // _PLUGINHOOKS_H_

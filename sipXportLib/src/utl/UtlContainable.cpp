@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,8 @@ UtlBoolean UtlContainable::isInstanceOf(const UtlContainableType type) const
             );
 }
 
-// Test this object to another like-object for equality. 
-UtlBoolean UtlContainable::isEqual(UtlContainable const * compareContainable) const 
+// Test this object to another like-object for equality.
+UtlBoolean UtlContainable::isEqual(UtlContainable const * compareContainable) const
 {
    return ( compareTo(compareContainable) == 0 );
 }

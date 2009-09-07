@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -64,9 +64,9 @@ OsStatus OsMutexLinux::acquire(const OsTime& rTimeout)
 {
    struct timespec timeout;
    OsStatus status;
-   
+
    if(rTimeout.isInfinite())
-   {      
+   {
       status = (pt_mutex_lock(&mMutexImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
    }
    else if(rTimeout.isNoWait())
@@ -131,5 +131,3 @@ void OsMutexLinux::OsMutexShow(void)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

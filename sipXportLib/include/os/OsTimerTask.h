@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    static const int TIMER_MAX_REQUEST_MSGS;   // Maximum number of request messages
- 
+
    /// The entry point for the task
    virtual int run(void* pArg);
    /**< We replace OsServerTask::run() so that it will simultaneously wait

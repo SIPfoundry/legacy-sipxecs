@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public:
    //: Loads the given shared library
    //!param: libName - name of library, may include absolute or relative path
 
-   virtual OsStatus getSharedLibSymbol(const char* libName, 
+   virtual OsStatus getSharedLibSymbol(const char* libName,
                               const char* symbolName,
                               void*& symbolAddress);
    //: Gets the address of a symbol in the shared lib
@@ -82,4 +82,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsSharedLibMgrWnt_h_
-

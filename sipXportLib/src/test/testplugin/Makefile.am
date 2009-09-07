@@ -4,11 +4,11 @@ include $(top_srcdir)/config/subdir.am
 ## HACK
 ##    We don't need these libraries installed, so we declare them noinst_
 ##    but that has the unfortunate side effect that automake then assumes
-##    (reasonably) that there is no point in making them shared, which 
+##    (reasonably) that there is no point in making them shared, which
 ##    is wrong because the PluginTest needs to dlopen them...
 noinst_LTLIBRARIES = libtestpluginA.la libtestpluginB.la
 ##    So... we explicitly add the -rpath that automake would normally provide
-##    when building a shared library.  
+##    when building a shared library.
 libtestpluginA_la_LDFLAGS = \
 	-rpath @abs_builddir@ \
 	-version-info ${version_Current}:${version_Revision}:${version_Age}

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 class OsTimerTaskTest : public CppUnit::TestCase, public OsNotification
 {
     CPPUNIT_TEST_SUITE(OsTimerTaskTest);
-    CPPUNIT_TEST(testTimerTask);    
+    CPPUNIT_TEST(testTimerTask);
     CPPUNIT_TEST(testStopAndDeleteRaceCondition);
     CPPUNIT_TEST_SUITE_END();
 
@@ -30,7 +30,7 @@ public:
        printf("%p signaled\r\n", (void *)eventData );
        return OS_SUCCESS;
     }
-   
+
     void testTimerTask()
     {
         OsTimerTask* pTimerTask;
@@ -48,7 +48,7 @@ public:
 
         pTimerTask->destroyTimerTask();
     }
-    
+
     void testStopAndDeleteRaceCondition()
     {
        // no explicit check is done.  If the race condition

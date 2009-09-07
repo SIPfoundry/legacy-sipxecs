@@ -24,7 +24,7 @@ assertTrue() {
   eval $@
   if [ 0 -ne $? ] ; then
     echo >&2 "FAILED: Assertion failed"
-    echo >&2 "$@" 
+    echo >&2 "$@"
     exit 1
   fi
 }

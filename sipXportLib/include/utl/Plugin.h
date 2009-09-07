@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _PLUGIN_H_
@@ -53,7 +53,7 @@ class Plugin
 {
   public:
 
-   typedef Plugin* (*Factory)(const UtlString& pluginName ///< the name for this instance 
+   typedef Plugin* (*Factory)(const UtlString& pluginName ///< the name for this instance
                               );
    /**<
     * The Factory uses external C linkage to support dynamic loading of Plugin objects.
@@ -110,7 +110,7 @@ class Plugin
 
    /// The instance name from the configuration directive - for logging and other identification.
    UtlString   mInstanceName;
-    
+
   private:
 
    /// There is no copy constructor.
@@ -118,7 +118,7 @@ class Plugin
 
    /// There is no assignment operator.
    Plugin& operator=(const Plugin&);
-    
+
 };
 
 #endif // _PLUGIN_H_

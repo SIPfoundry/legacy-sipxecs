@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -204,7 +204,7 @@ OsPathBase::OsPathBase()
 }
 
 // Make one from a char string
-OsPathBase::OsPathBase(const char *pathname) 
+OsPathBase::OsPathBase(const char *pathname)
 : UtlString(pathname)
 {
     massage();
@@ -299,7 +299,7 @@ OsStatus OsPathBase::getNativePath(OsPathBase &rFullPath) const
     OsStatus retval = OS_FAILED;
     OsPath origdir;
     OsFileSystem::getWorkingDirectory(origdir);
-    
+
     OsPath path = *this;
 
     //just return
@@ -317,7 +317,7 @@ OsStatus OsPathBase::getNativePath(OsPathBase &rFullPath) const
     OsFileSystem::getFileInfo(path,fileInfo);
     if (!fileInfo.isDir())
     {
-        
+
         if (*vol.data() == '\0')
              vol = origdir.getVolume();
         temp = vol+mDirName;
@@ -368,7 +368,7 @@ void OsPathBase::Split()
             fname,            /* File name + extension      */
             name,             /* File name                  */
             ext);              /* File extension             */
-     
+
      mVolume = drive;
      mFilename = name;
      mDirName = path;
@@ -401,11 +401,8 @@ void OsPathBase::massage()
         replace(pos,1,separator);
         pos = index(char_to_replace,pos+1);
     }
-    
+
     Split();
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

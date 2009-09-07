@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 
 /**
  * Simple class definition for an object that contains
- */ 
+ */
 class HostAdapterAddress
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -38,11 +38,11 @@ public:
      * Constructor accepting an optional default value.
      */
     HostAdapterAddress(char* szAdapter, char* szAddress) :
-        mAdapter(szAdapter), 
+        mAdapter(szAdapter),
         mAddress(szAddress)
         {
         }
-      
+
     /**
      * Destructor
      */
@@ -52,7 +52,7 @@ public:
 
     UtlString mAdapter;
     UtlString mAddress;
-    
+
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
@@ -64,7 +64,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    
+
 };
 
 #endif

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 // that have been started by the low level OsSysRsc class).  Since the
 // OsRscTask is the only task that should be accessing the Rsc database
 // there is no need to serialize access (and no locking).
-// 
+//
 // Each entry in the database is a key/value pair where the key corresponds
 // to a Rsc ID and the value is the pointer to the corresponding OsRsc
 // object.  Duplicate keys are not allowed.
@@ -95,7 +95,7 @@ OsStatus UtlRscStore::insert(int RscId, char* pRsc)
             delete pRemValue;        //  objects that were used to maintain the
             removed = 1;
          }
-   
+
          delete pDictKey;            // clean up the key and value objects
          delete pDictValue;
       }
@@ -226,4 +226,3 @@ UtlBoolean UtlRscStore::isEmpty(void) const
 /* ============================ FUNCTIONS ================================= */
 
 #endif // RSC_TEST
-

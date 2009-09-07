@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ private:
      //:Copy constructor (not implemented for this class)
 
    OsCSemBase& operator=(const OsCSemBase& rhs);
-     //:Assignment operator (not implemented for this class) 
+     //:Assignment operator (not implemented for this class)
 
 };
 
@@ -138,4 +138,3 @@ private:
 #endif
 
 #endif  // _OsCSem_h_
-

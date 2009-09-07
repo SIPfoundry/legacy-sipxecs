@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->acquire());  // take it twice
         CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->tryAcquire());  // try thrice
                                                              // try once more
-        CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pCSem->acquire(100));  
+        CPPUNIT_ASSERT_EQUAL(OS_WAIT_TIMEOUT, pCSem->acquire(100));
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release once
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pCSem->release());  // release twice
         CPPUNIT_ASSERT_EQUAL(OS_BUSY, pCSem->release());     // release thrice
@@ -58,4 +58,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsSemTest);
-

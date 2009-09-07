@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define UTLSTRING_MIN_INCREMENT 100 ///< smallest additional memory to be allocated 
+#define UTLSTRING_MIN_INCREMENT 100 ///< smallest additional memory to be allocated
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType UtlString::TYPE = "UtlString";
@@ -265,7 +265,7 @@ UtlString& UtlString::append(const UtlString& str, size_t position, size_t lengt
 
       append(str.mpData+position, length);
    }
-   
+
    return *this;
 }
 

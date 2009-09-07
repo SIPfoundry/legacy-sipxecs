@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ public:
          if (sharedLibMgr)
          {
             Plugin::Factory factory;
-            
+
             if (OS_SUCCESS == sharedLibMgr->getSharedLibSymbol(libName.data(),
                                                                hookFactoryName,
                                                                (void*&)factory
@@ -62,7 +62,7 @@ public:
             {
                // Use the factory to get an instance of the hook
                // and tell the new instance its own name.
-               hook = factory(hookPrefix); 
+               hook = factory(hookPrefix);
 
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                              "Plugin created '%s' from '%s'",
@@ -93,7 +93,7 @@ public:
          // the same library could be configured more than once with
          // different hook names and parameters.
       }
-   
+
    /// Get the name of this hook.
    void name(UtlString* hookName) const
       {
@@ -123,7 +123,7 @@ public:
             myConfigName.append('.');
             myConfigName.append(*this);
             myConfigName.append('.');
-            
+
             if (OS_SUCCESS == configDb.getSubHash(myConfigName, myConfig))
             {
                OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
@@ -169,23 +169,23 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
    // a temporary holding list.
    UtlSList existingHooks;
    UtlContainable* existingHook;
-   
+
    UtlSortedListIterator nextHook(mConfiguredHooks);
    while (existingHook = nextHook())
    {
       existingHooks.append(mConfiguredHooks.removeReference(existingHook));
    }
    // the mConfiguredHooks list is now empty
-   
+
    // Walk the current configuration,
    //   any existing hook is moved back to the mConfiguredHooks list,
    //   newly configured hooks are added,
    //   each configured hook is called to read its own configuration.
    UtlString  hookPrefix(mPrefix);
    hookPrefix.append(HOOK_LIB_PREFIX);
-   
+
    OsConfigDb allHooks;
-   
+
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "PluginHooks::readConfig looking up hooks '%s'",
                  hookPrefix.data()
@@ -196,14 +196,14 @@ void PluginHooks::readConfig(OsConfigDb& configDb)
       UtlString hookName;
       UtlString hookLibrary;
 
-      // walk each hook and attempt to load and configure it 
+      // walk each hook and attempt to load and configure it
       for ( lastHook = "";
             OS_SUCCESS == allHooks.getNext(lastHook, hookName, hookLibrary);
             lastHook = hookName
            )
       {
          ConfiguredHook* thisHook;
-         
+
          if (NULL == (thisHook = dynamic_cast<ConfiguredHook*>(existingHooks.remove(&hookName))))
          {
             // not an existing hook, so create a new one
@@ -239,13 +239,13 @@ PluginIterator::PluginIterator( const PluginHooks& pluginHooks ) :
 Plugin* PluginIterator::next(UtlString* name)
 {
    Plugin* nextPlugin = NULL;
-   
+
    // make sure that name is cleared if passed in case this is the last hook
    if (name)
    {
       name->remove(0);
    }
-   
+
    // step the parent iterator on the mConfiguredHooks list
    ConfiguredHook* nextHook = static_cast<ConfiguredHook*>(mConfiguredHooksIterator());
    if (nextHook)

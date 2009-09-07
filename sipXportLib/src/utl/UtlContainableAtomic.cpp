@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ unsigned UtlContainableAtomic::hash() const
    return UtlContainable::directHash();
 }
 
-/// Compare this object to another object. 
+/// Compare this object to another object.
 int UtlContainableAtomic::compareTo(UtlContainable const* other) const
 {
    // C++ permits the consistent comparison of all pointers.

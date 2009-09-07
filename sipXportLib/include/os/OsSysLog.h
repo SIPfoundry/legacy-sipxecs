@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ typedef enum tagOsSysLogPriority
    PRI_ERR,       /**< An unexpected condition likely to cause an end-user visibile failure.
                    *   This level should be used whenever an error response is being sent
                    *   outside the system to provide a record of the internal data that
-                   *   are important to understanding it.  
+                   *   are important to understanding it.
                    */
    PRI_CRIT,      /**< Endangers service operation beyond the current operation.
                    *   MUST be logged prior to any 'assert', or when exiting for any abnormal
@@ -75,7 +75,7 @@ typedef enum tagOsSysLogPriority
    // NOTE: If adding/removing priorities, you MUST also adjust static name
    // initializer in OsSysLog.cpp
 
-   SYSLOG_NUM_PRIORITIES ///< MUST BE LAST 
+   SYSLOG_NUM_PRIORITIES ///< MUST BE LAST
 
 } OsSysLogPriority;
 
@@ -167,7 +167,7 @@ public:
 
    /// translate an OsSysLogPriority enum to a string constant
    static const char* priorityName(OsSysLogPriority priority);
-   
+
    /// translate a string constant to an OsSysLogPriority enum
    static bool priority(const char* priorityName, OsSysLogPriority& priority);
    ///< @returns true iff the priorityName is a valid value (case insensitive)

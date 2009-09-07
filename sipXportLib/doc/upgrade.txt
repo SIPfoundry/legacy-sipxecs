@@ -1,15 +1,15 @@
 General upgrade procedure
 
 If you have configuration files that need to be upgraded or modified
-in any way to move gracefully from 2.6 to 2.8 there is a general 
+in any way to move gracefully from 2.6 to 2.8 there is a general
 mechanism in place now that you can use.
 
-sipx-upgrade is an upgrade script that gets installed during the 
-commserver installation and is available in all other following 
+sipx-upgrade is an upgrade script that gets installed during the
+commserver installation and is available in all other following
 installs. I'm just going to go over the process for RPMs, install
 from source will follow later.
 
-For upgrades during the RPM install you have to modify the spec 
+For upgrades during the RPM install you have to modify the spec
 files in the following way - add the lines
 
 %pre
@@ -27,7 +27,7 @@ where it determines the upgrade path if any (was another package
 already installed). It records the version number for the second
 step.
 
-The second step runs sipx-upgrade during post-installation and 
+The second step runs sipx-upgrade during post-installation and
 passes in the _localstatedir (/var for RPMs) and _sysconfdir (/etc
 for RPMs) which can be used to locate configuration files.
 
@@ -92,13 +92,13 @@ Add a function call 'UpgradeVxml' in the appropriate place:
             UpgradeVxml
             ;;
 
-Now add that function in the section that begins with 
+Now add that function in the section that begins with
 
 ## Add your upgrade functions in here
 ##
 ##    The following variables are available:
 ##
-##          $Version   a version string of a previously installed project 
+##          $Version   a version string of a previously installed project
 ##                     RPM in the format x.y.z
 ##          $Major     Major version number x of installed RPM
 ##          $Minor     Minor version number y of installed RPM

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ static int getWindowsVersion()
 
    if (GetVersionEx(&osInfo))
     {
-    
+
        //check if it's the right version of windows
        if (osInfo.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS)
        {
@@ -97,10 +97,10 @@ static HMODULE loadIPHelperAPI()
     hRetModule = LoadLibrary("iphlpapi.dll");
    if (hRetModule == NULL)
    {
-        //if that fails, (it shouldn't), try using the GetSystemPath func 
+        //if that fails, (it shouldn't), try using the GetSystemPath func
         GetSystemDirectory(caFullDLLPath,sizeof(caFullDLLPath));
         strcat(caFullDLLPath,"\\iphlpapi.dll");
-        
+
         //try again
         hRetModule = LoadLibrary(caFullDLLPath);
 
@@ -120,16 +120,16 @@ static HMODULE loadIPHelperAPI()
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
          FreeLibrary(hRetModule);
          hRetModule = NULL;
-       }   
-       
+       }
+
        *(FARPROC*)&sipxGetAdaptersInfo = GetProcAddress(hRetModule,"GetAdaptersInfo");
        if (sipxGetAdaptersInfo == NULL)
        {
          OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to sipxGetAdaptersInfo!\n");
          FreeLibrary(hRetModule);
          hRetModule = NULL;
-       }   
-       
+       }
+
    }
 
    return hRetModule;
@@ -143,13 +143,13 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max)
     PIP_ADDR_STRING pAddrStr;
     DWORD dwNetworkInfoSize;
     DWORD retErr;
-   int windowsVersion; 
+   int windowsVersion;
    HMODULE hModule = NULL;
 
    windowsVersion = getWindowsVersion();
 
-   
-    if (windowsVersion == WINDOWS_VERSION_98   || 
+
+    if (windowsVersion == WINDOWS_VERSION_98   ||
        windowsVersion >= WINDOWS_VERSION_2000)
     {
       GetNetworkParams = NULL;
@@ -171,7 +171,7 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max)
                 if( ( retErr = GetNetworkParams( pNetworkInfo, &dwNetworkInfoSize ) ) == 0 )
                {
 
-                   //point to the server list 
+                   //point to the server list
                    pAddrStr = &(pNetworkInfo->DnsServerList);
 
                    //walk the list of IP addresses
@@ -222,7 +222,7 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
     DWORD    dataType;
     char *ptr = NULL;   //pointer to ip addresses when parsing
    DWORD err;
-   
+
    err = RegOpenKeyEx(
               HKEY_LOCAL_MACHINE,         // handle to open key
               strParametersKey,  // subkey name
@@ -234,7 +234,7 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
    if (err == ERROR_SUCCESS)
    {
        cbData = sizeof(data);
-      
+
       err = RegQueryValueEx(
                   hKey,                      // handle to key
                   strDhcpNameServerValue,    // value name
@@ -256,7 +256,7 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
 
        }
    }
-    
+
    if (err == ERROR_SUCCESS)
    {
        //we need to break it up on NT.  It puts all the IP's on one line.
@@ -271,16 +271,16 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
        while (ptr != NULL && retRegDNSServerCount < max)
        {
            strncpy(regDNSServers[retRegDNSServerCount++],ptr,MAXIPLEN);
-                    
+
            //search for the next one
            ptr = strtok(NULL,token);
        }
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n"); 
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n");
    }
-   
+
    return retRegDNSServerCount;
 }
 
@@ -289,7 +289,7 @@ extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max)
     int     finalDNSServerCount = 0; //number of dns entries returned to user
     int     ipHelperDNSServerCount = 0; //number of dns entries found through ipHelperAPI
     int     regDNSServerCount = 0; //num entries found in registry
-   char regDNSServers[MAXNUM_DNS_ENTRIES][MAXIPLEN]; //used to store registry DNS entries 
+   char regDNSServers[MAXNUM_DNS_ENTRIES][MAXIPLEN]; //used to store registry DNS entries
    int i,j;  //general purpose looping variables
    int swapPos = 0; //location to move the DNS entries that match the registry
 
@@ -297,13 +297,13 @@ extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max)
    //This func will also load the dll if on win98 or NT 2000
    ipHelperDNSServerCount = getIPHelperDNSEntries(DNSServers,max);
    finalDNSServerCount = ipHelperDNSServerCount;
-   
-   //We always search the registry now... 
-   //Before we only did it for NT, but because 
-   //we want the most recently used entries at the top, we will consult 
+
+   //We always search the registry now...
+   //Before we only did it for NT, but because
+   //we want the most recently used entries at the top, we will consult
    //the registry and use the list retrieved and sort it.
     regDNSServerCount = getDNSEntriesFromRegistry(regDNSServers,max);
-   
+
 
    //now walk through the entries found through the registry
    //and make sure the registry entries are at the top
@@ -331,8 +331,8 @@ extern "C" int getWindowsDNSServers(char DNSServers[][MAXIPLEN], int max)
          }
       }
    }
-   
-   //if we only found reg entries and no ipHelper entries , then we need to return those 
+
+   //if we only found reg entries and no ipHelper entries , then we need to return those
    //to the user (The ones from the registry)
    if (regDNSServerCount && !ipHelperDNSServerCount)
    {
@@ -362,13 +362,13 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
     {
         PIP_ADAPTER_INFO pIpAdapterInfo = (PIP_ADAPTER_INFO)malloc(sizeof(IP_ADAPTER_INFO) * MAX_IP_ADDRESSES);
         unsigned long outBufLen = sizeof(IP_ADAPTER_INFO) * MAX_IP_ADDRESSES;
-        
+
         DWORD dwResult = sipxGetAdaptersInfo(pIpAdapterInfo, &outBufLen);
-                                
+
         if (ERROR_SUCCESS == dwResult)
         {
             char szAddr[16];
-            
+
             memset((void*)szAddr, 0, sizeof(szAddr));
             rc = true;
             PIP_ADAPTER_INFO pNextInfoRecord = pIpAdapterInfo;
@@ -390,7 +390,7 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
                         strcpy(szAdapter, szAdapterId);
                         bFound = true;
                         break;
-                    }                                            
+                    }
                     if (pNextInfoRecord->IpAddressList.Next)
                     {
                         pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
@@ -405,11 +405,11 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
             }
         }
         free((void*)pIpAdapterInfo);
-    }                
+    }
 #else
         rc = false;
 #endif
-    
+
     return rc;
 }
 
@@ -425,11 +425,11 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
         unsigned long outBufLen = sizeof(IP_ADAPTER_INFO) * MAX_IP_ADDRESSES;
 
         DWORD dwResult = sipxGetAdaptersInfo(pIpAdapterInfo, &outBufLen);
-                                
+
         if (ERROR_SUCCESS == dwResult)
         {
             char szAddr[16];
-            
+
             memset((void*)szAddr, 0, sizeof(szAddr));
             rc = true;
             numAddresses = 0;
@@ -457,8 +457,8 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
                             pNextAddress = NULL;
                         }
                         continue;
-                    }                                            
-                                    
+                    }
+
                     localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
                     numAddresses++;
                     if (pNextInfoRecord->IpAddressList.Next)
@@ -475,13 +475,11 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             }
         }
         free((void*)pIpAdapterInfo);
-    }                
+    }
  #else
     rc = false;
- #endif    
+ #endif
     return rc;
 }
 
 #endif
-
-

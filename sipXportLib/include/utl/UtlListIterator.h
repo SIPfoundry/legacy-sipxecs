@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ class UtlList ;
 
 /**
  * UtlListIterator allows developers to iterator (walks through) an UtlList.
- * 
+ *
  * @see UtlIterator
  * @see UtlList
  */
@@ -42,7 +42,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     /**
-     * Constructor accepting a source UtlList 
+     * Constructor accepting a source UtlList
      */
     UtlListIterator(const UtlList& list) ;
 
@@ -55,20 +55,20 @@ public:
 
     /**
      * Return the next element.
-     * 
+     *
      * @return The next element or NULL if no more elements are available.
      */
     virtual UtlContainable* operator()() ;
 
     /**
      * Reset the list by moving the iterator cursor to the location before the
-     * first element. 
+     * first element.
      */
-    virtual void reset() ; 
+    virtual void reset() ;
 
     /**
      * Find the designated object, and reset the iterator so that it is the current position.
-     * 
+     *
      * @return The  element or NULL if no more elements are available.
      */
     virtual UtlContainable* findNext(const UtlContainable* objectToFind) = 0;
@@ -81,14 +81,14 @@ public:
 /* ============================ ACCESSORS ================================= */
 
     /**
-     * return the current value . 
-     */     
+     * return the current value .
+     */
     UtlContainable* item() const;
 
 /* ============================ INQUIRY =================================== */
 
     /**
-     * Is the iterator positioned at the last element? 
+     * Is the iterator positioned at the last element?
      */
     UtlBoolean atLast() const ;
 
@@ -108,10 +108,10 @@ protected:
 
     static const UtlLink*  NOWHERE;
     static UtlLink const* OFF_LIST_END;
-    
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    
+
     static OsBSem sIteratorListLock;
 } ;
 

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -42,9 +42,9 @@ UtlSortedList::UtlSortedList()
 UtlContainable* UtlSortedList::insert(UtlContainable* obj)
 {
    OsLock take(mContainerLock);
-   
+
    UtlLink::listBefore(this, findNode(head(), POSITION, obj), obj);
-   return obj; 
+   return obj;
 }
 
 // Remove the designated object by equality
@@ -52,9 +52,9 @@ UtlContainable* UtlSortedList::remove(const UtlContainable* obj)
 {
    UtlLink*      listNode;
    UtlContainable*  removed = NULL;
-    
+
    OsLock take(mContainerLock);
-   
+
    listNode = findNode(head(), EXACTLY, obj);
    if (listNode)
    {
@@ -68,13 +68,13 @@ UtlContainable* UtlSortedList::remove(const UtlContainable* obj)
 /* ============================ ACCESSORS ================================= */
 
 // Find the first occurence of the designated object by equality.
-UtlContainable* UtlSortedList::find(const UtlContainable* obj) const 
+UtlContainable* UtlSortedList::find(const UtlContainable* obj) const
 {
    UtlLink*          listNode;
    UtlContainable* matchNode = NULL;
-    
+
    OsLock take(mContainerLock);
-   
+
    listNode = findNode(head(), EXACTLY, obj);
    if (listNode != NULL)
    {
@@ -88,15 +88,15 @@ UtlContainable* UtlSortedList::find(const UtlContainable* obj) const
 /* ============================ INQUIRY =================================== */
 
 // Return the list position of the designated object.
-ssize_t UtlSortedList::index(const UtlContainable* obj) const 
+ssize_t UtlSortedList::index(const UtlContainable* obj) const
 {
    ssize_t         index = UTL_NOT_FOUND;
    ssize_t         thisIndex;
    UtlLink*        listNode;
    unsigned        keyHash = obj->hash();
-   
+
    OsLock take(mContainerLock);
-   
+
    for (listNode = head(), thisIndex = 0;
         listNode && index == UTL_NOT_FOUND;
         listNode = listNode->next(), thisIndex++)
@@ -109,12 +109,12 @@ ssize_t UtlSortedList::index(const UtlContainable* obj) const
          index = thisIndex;
       }
    }
-    
+
    return index;
 }
 
 // Return the number of occurrences of the designated object.
-size_t UtlSortedList::occurrencesOf(const UtlContainable* containableToMatch) const 
+size_t UtlSortedList::occurrencesOf(const UtlContainable* containableToMatch) const
 {
    int count = 0;
    UtlLink* listNode;
@@ -122,7 +122,7 @@ size_t UtlSortedList::occurrencesOf(const UtlContainable* containableToMatch) co
    int             comparison;
 
    OsLock take(mContainerLock);
-   
+
    for (listNode = head(), comparison = 0;
         comparison <= 0 && listNode;
         listNode = listNode->next()
@@ -155,7 +155,7 @@ UtlLink* UtlSortedList::findNode(UtlLink* start, MatchType match, const UtlConta
    UtlLink*        foundNode;
    UtlContainable* listElement;
    int             comparison = 0;
-   
+
    // the caller already holds the mContainerLock
 
    for (listNode = start, foundNode = NULL;
@@ -177,7 +177,7 @@ UtlLink* UtlSortedList::findNode(UtlLink* start, MatchType match, const UtlConta
 
    if (foundNode && match == EXACTLY && comparison != 0) // match not exact
    {
-      foundNode = NULL; 
+      foundNode = NULL;
    }
    return foundNode;
 }

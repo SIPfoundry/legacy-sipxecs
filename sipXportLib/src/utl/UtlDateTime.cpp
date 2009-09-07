@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -27,7 +27,7 @@ UtlContainableType UtlDateTime::TYPE = "UtlDateTime" ;
 UtlDateTime::UtlDateTime(OsDateTime value)
 {
     mTime = value ;
-} 
+}
 
 
 // Copy constructor
@@ -48,15 +48,15 @@ void UtlDateTime::setTime(const OsDateTime& value)
 
 /* ============================ ACCESSORS ================================= */
 
-void UtlDateTime::getTime(OsDateTime& value) const 
+void UtlDateTime::getTime(OsDateTime& value) const
 {
-    value = mTime ; 
+    value = mTime ;
 }
 
 
 unsigned int UtlDateTime::hash() const
 {
-   return (unsigned int)mTime.getSecsSinceEpoch() ; 
+   return (unsigned int)mTime.getSecsSinceEpoch() ;
 }
 
 
@@ -69,8 +69,8 @@ UtlContainableType UtlDateTime::getContainableType() const
 
 int UtlDateTime::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
+   int result ;
+
    if (inVal->isInstanceOf(UtlDateTime::TYPE))
     {
         UtlDateTime* temp = (UtlDateTime*)inVal ;
@@ -81,7 +81,7 @@ int UtlDateTime::compareTo(UtlContainable const * inVal) const
     }
     else
     {
-        result = 1 ; 
+        result = 1 ;
     }
 
     return result ;

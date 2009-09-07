@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ OsConnectionSocket* OsServerSocket::accept()
    {
       connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
    }
-   
+
    return(connectSock);
 }
 
@@ -226,7 +226,7 @@ OsConnectionSocket* OsServerSocket::accept(long waitMilliseconds)
     OsConnectionSocket* pRC = NULL ;
     int error=0;
     struct pollfd pset[1];
-    
+
     // Wait for some data to be available
     pset[0].fd      = socketDescriptor;
     pset[0].events  = POLLIN;
@@ -257,8 +257,8 @@ OsConnectionSocket* OsServerSocket::accept(long waitMilliseconds)
     {
         // Some other error -- socket dead?
         error = OsSocketGetERRNO();
-    }    
-    
+    }
+
     if (pRC == NULL)
     {
         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsServerSocket: accept(%d, %ld ms) error: %d=%s",

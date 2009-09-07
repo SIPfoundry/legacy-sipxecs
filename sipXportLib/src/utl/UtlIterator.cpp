@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -42,13 +42,13 @@ UtlIterator::UtlIterator(const UtlContainer& container)
      mpMyContainer(const_cast<UtlContainer*>(&container))
 {
 }
-  
+
 
 // Copy constructor
 
 
 // Destructor
-UtlIterator::~UtlIterator() 
+UtlIterator::~UtlIterator()
 {
 }
 
@@ -73,7 +73,7 @@ UtlIterator::~UtlIterator()
  * from ~UtlContainer, then a subclass's data structure would be
  * released before the iterators were invalidated.)
  *****************************************************************/
-  
+
 void UtlIterator::addToContainer(const UtlContainer* container)
 {
    // caller is already holding the mContainerLock

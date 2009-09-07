@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -76,7 +76,7 @@ bool TestPlugin::getConfiguredValueFor(const UtlString& key, UtlString& value) c
    {
       value = *found;
    }
-   
+
    return found != NULL;
 }
 
@@ -109,4 +109,3 @@ extern "C" TestPlugin* getTestPlugin(const UtlString& name)
 {
    return new TestPlugin(name);
 }
-

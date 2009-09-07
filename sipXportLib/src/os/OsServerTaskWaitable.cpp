@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -164,7 +164,7 @@ int OsServerTaskWaitable::run(void* pArg)
          int numberMsgs = (getMessageQueue())->numMsgs();
          int i;
          char buffer[1];
-      
+
          for (i=0;i<numberMsgs;i++)
          {
             res = receiveMessage((OsMsg*&) pMsg, OsTime::NO_WAIT); // receive the message

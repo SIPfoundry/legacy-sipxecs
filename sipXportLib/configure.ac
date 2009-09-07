@@ -48,16 +48,16 @@ SFAC_INIT_FLAGS
 SFAC_FEATURE_SIP_TLS
 
 AC_MSG_CHECKING(for system type for process iterator ($host))
-case $host in 
+case $host in
     *-*-freebsd*)
     PROCESS_ITERATOR=src/os/freebsd/OsProcessIteratorFreeBSD.cpp
     LIBS="$(LIBS) -lkvm"
     ;;
     *-*-hpux*)
-    PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp 
+    PROCESS_ITERATOR=src/os/hpux/OsProcessIteratorHpux.cpp
     ;;
     *-*-linux*)
-    PROCESS_ITERATOR=src/os/linux/OsProcessIteratorLinux.cpp 
+    PROCESS_ITERATOR=src/os/linux/OsProcessIteratorLinux.cpp
     ;;
 esac
 AC_MSG_RESULT($PROCESS_ITERATOR)
@@ -71,10 +71,10 @@ AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
 AC_CONFIG_FILES([
-  Makefile 
-  include/Makefile 
+  Makefile
+  include/Makefile
   bin/Makefile
-  src/Makefile 
+  src/Makefile
   src/test/Makefile
   src/test/sipxunit/Makefile
   src/test/testplugin/Makefile

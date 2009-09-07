@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -24,9 +24,9 @@
 // DEFINES
 #define MAX_SOCKET_TARGETS          4       // Max number of output sockets
 #define MAX_REOPEN_LOG_DELAY_SEC    15      // Close/Reopen log after 15
-                                            // seconds.  This is actually 
-                                            // performed on the next message, 
-                                            // so it will likely be larger- 
+                                            // seconds.  This is actually
+                                            // performed on the next message,
+                                            // so it will likely be larger-
                                             // perhaps much.
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -58,7 +58,7 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-     
+
    virtual UtlBoolean handleMessage(OsMsg& eventMessage);
      //:Handles all incoming requests
 
@@ -71,7 +71,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    OsStatus getMaxEntries(int& maxEntries);
-     //:Obtains the maximum number of in-memory log entries.  
+     //:Obtains the maximum number of in-memory log entries.
      //!param maxEntries - The maximum number of in-memory log entries
 
    OsStatus getLogEntries(  const int maxEntries,
@@ -102,11 +102,11 @@ protected:
    UtlString  mUnboundedLogFile;  // File/Path of Unbounded log file
 
    UtlString  mBoundedLogFile;    // Name/Path of bounded log file
-   int       mFlushPeriod;       // How often the log file should be flushed     
+   int       mFlushPeriod;       // How often the log file should be flushed
    UtlBoolean mLogChanged;        // Has the log changed/need flushing?
    OsTimer*  mpTimer;            // Timer responsible for flushing log
    OsSocket* mpSockets[MAX_SOCKET_TARGETS] ; // Output sockets
-   OsSysLogCallback mpCallback;  // Callback function 
+   OsSysLogCallback mpCallback;  // Callback function
    OsRWMutex mRWMutex;           // Guards log data
    OsTime    mpLastReopen ;      // Time of last reopen (unbounded only)
    int       mOptions ;          // Instance-specific options
@@ -128,7 +128,7 @@ protected:
      //:Process adding a target output socket
    OsStatus processSetFlushPeriod(const int iPeriod);
      //:Process setting the flush period
-   OsStatus processFlushLog(OsEvent* pEvent); 
+   OsStatus processFlushLog(OsEvent* pEvent);
      //:Process flushing the actual log.
    OsStatus processSetCallback(OsSysLogCallback pCallback);
      //:Process setting a callback function
@@ -139,11 +139,10 @@ private:
      //:Copy constructor
 
    OsSysLogTask& operator=(const OsSysLogTask& rhs);
-     //:Assignment operator   
+     //:Assignment operator
 
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  /* _OsSysLogTask_h_ */
-

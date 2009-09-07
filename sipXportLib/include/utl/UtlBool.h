@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -38,7 +38,7 @@ public:
      * Constructor
      */
     UtlBool(bool bValue) ;
-      
+
     /**
      * Destructor
      */
@@ -57,7 +57,7 @@ public:
     /**
      * Get the bool wrapped by this object.
      */
-    bool getValue() const ;    
+    bool getValue() const ;
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -71,17 +71,17 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
 
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
-         
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
+
 /* ============================ INQUIRY =================================== */
 
     /**
-     * Compare the this object to another like-objects.  Results for 
+     * Compare the this object to another like-objects.  Results for
      * designating a non-like object are undefined.
      *
      * @returns 0 if equal, < 0 if less then and >0 if greater.
      */
-    virtual int compareTo(UtlContainable const *) const ;    
+    virtual int compareTo(UtlContainable const *) const ;
 
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -89,7 +89,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    bool mValue ;    /** < The bool wrapped by this object */ 
+    bool mValue ;    /** < The bool wrapped by this object */
 
 } ;
 

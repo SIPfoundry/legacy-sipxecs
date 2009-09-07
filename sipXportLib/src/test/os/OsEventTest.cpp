@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
 class RightEventThread : public OsServerTask
 {
     public:
-   
+
     int mNumEvents;
     int mMaxEvents;
     int* mpDeletedEvent;
@@ -38,7 +38,7 @@ class RightEventThread : public OsServerTask
 
         OsEvent* event = ((OsRpcMsg&)rMsg).getEvent();
         CPPUNIT_ASSERT(event);
-   
+
         mNumEvents++;
         void* eventIndex = NULL;
         event->getUserData(eventIndex);
@@ -86,10 +86,10 @@ public:
         pEvent->reset();
         CPPUNIT_ASSERT(pEvent->wait(eventTimeout) != OS_SUCCESS);
         epochTime = time(NULL) - epochTime;
-   
+
         // Make sure we waited (approximately) 2 seconds each time.
         CPPUNIT_ASSERT(epochTime > 2 && epochTime < 6);
-   
+
         delete pEvent;
     }
 
@@ -158,7 +158,7 @@ public:
             {
                //osPrintf("Left deleted: %d Right deleted: %d\n",
                //           leftDeletes, rightDeletes);
-               //osPrintf("[%d]: Both sides %s\n", index, 
+               //osPrintf("[%d]: Both sides %s\n", index,
                //        rightResults[index] ? "Deleted" : "Did not delete");
             }
             CPPUNIT_ASSERT(rightResults[index] != leftResults[index]);
@@ -172,4 +172,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsEventTest);
-

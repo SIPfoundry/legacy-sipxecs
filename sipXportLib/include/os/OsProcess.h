@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"  
+#include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
 #include "os/OsConfigDb.h"
@@ -35,7 +35,7 @@ typedef struct OS_PROCESS_STRUCT
 {
     PID processID;
     //: Process Id of process specified by object
-    
+
     PID parentProcessID;
     //: Parent Process Id of process specified by object
 
@@ -54,7 +54,7 @@ typedef struct OS_PROCESS_STRUCT
 
 // FORWARD DECLARATIONS
 
-//: This encapsulates a pid, and allows querying, killing and all the 
+//: This encapsulates a pid, and allows querying, killing and all the
 //: other cool things you want to do to a process.
 
 class OsProcessBase
@@ -70,8 +70,8 @@ public:
     friend class OsProcessIteratorFreeBSD;
 
     enum OsProcessPriorityClass {
-        IdlePriorityClass = 0,   
-        NormalPriorityClass = 1, 
+        IdlePriorityClass = 0,
+        NormalPriorityClass = 1,
         HighPriorityClass = 2,
         RealtimePriorityClass = 3
         };
@@ -79,7 +79,7 @@ public:
 
       //!enumcode: IdlePriorityClass       - Lowest priority
       //!enumcode: NormalPriorityClass     - Default priority
-      //!enumcode: HighPriorityClass       - High 
+      //!enumcode: HighPriorityClass       - High
       //!enumcode: RealtimePriorityClass   - Very High
 
 /* ============================ CREATORS ================================== */
@@ -89,7 +89,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
     virtual OsStatus launch(UtlString &rAppName, UtlString rParameters[],OsPath &startDir,
                     OsProcessPriorityClass prio = NormalPriorityClass, UtlBoolean bExclusive = FALSE, UtlBoolean bIgnoreChildSignals = TRUE) = 0;
-     //: Pass the appname and parameters to start the process. 
+     //: Pass the appname and parameters to start the process.
      //:  the Appname could just be the exe name, in which case it is search using your PATH.
      //: startDir is the default directory the app will start from.
      //: Returns OS_SUCCESS if process started ok.
@@ -97,7 +97,7 @@ public:
      //: the values yourself though setPriority
      //: If bExclusive is TRUE and another process by the same name already
      //: is running the return is OS_FAILED
-     //: If bIgnoreChildSignals is FALSE, the parent process or the default handler will 
+     //: If bIgnoreChildSignals is FALSE, the parent process or the default handler will
      //: need to handle the signal SIGCHLD.
 
 
@@ -111,7 +111,7 @@ public:
      //: Must be in the range specified by the getMin and Max Priorities.
 
     virtual OsStatus setEnv(UtlString &rKey, UtlString &rValue);
-    //: The presets an environment variable. This does NOT set the OS env variable. 
+    //: The presets an environment variable. This does NOT set the OS env variable.
     //: It will set the OS variable just before launch.  Then clears it after the launch.
     //: The process object will continue to contain the env setting, the current OS, however does not.
 
@@ -121,8 +121,8 @@ public:
 
 /* ============================ ACCESSORS ================================= */
     static OsStatus getByPID(PID pid, OsProcessBase &rProcess);
-    //: Given a PID, this method will fill in the process passed in so the user 
-    //: can then manipulate it 
+    //: Given a PID, this method will fill in the process passed in so the user
+    //: can then manipulate it
 
     static PID getCurrentPID();
      //: returns the current process ID.
@@ -147,7 +147,7 @@ public:
     virtual OsStatus getPriority(int &rPrio) = 0;
      //: Returns the process priority. (1-255)
      //: Adjusted based on Priority Class
-    
+
     virtual OsStatus getMinPriority(int &rMinPrio) = 0;
     //:returns the value repesenting the minimum priority
 
@@ -161,19 +161,19 @@ public:
     //: Returns the os environment variable
 
     virtual OsStatus getInfo(OsProcessInfo& rProcessInfo) = 0;
-     //: Returns full information on process, including priority. 
+     //: Returns full information on process, including priority.
      //: See OsProcessInfo for more information
-    
+
     virtual OsStatus getUpTime(OsTime &rUpTime) = 0;
      //: How long has this process been running for?
 
 /* ============================ INQUIRY =================================== */
-    
+
     virtual UtlBoolean isRunning () const = 0;
      //: Returns TRUE if process is still active
 
     virtual int wait(int WaitInSecs = -1);
-    //: waits for a process to complete before returning 
+    //: waits for a process to complete before returning
     //: or exits when WaitInSecs has completed
 
     /// Read messages from the child process on stdout or stderr.
@@ -205,7 +205,7 @@ protected:
 
     OsProcessPriorityClass mPrioClass;
     //: Priority Class specified on process startup
-    
+
     UtlBoolean mExeclusive;
     //: Startup flag which specified whether multiple instances of process
     //: can exist.
@@ -261,5 +261,3 @@ private:
 #include "os/OsProcessIterator.h"
 
 #endif  // _OsProcess_h_
-
-

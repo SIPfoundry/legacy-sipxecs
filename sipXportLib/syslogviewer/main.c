@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -124,7 +124,7 @@ static void process_char(char ch, int fd)
          position++;
       }
       break;
-      
+
    case InTime:
       if (ch == '"')
       {
@@ -133,7 +133,7 @@ static void process_char(char ch, int fd)
       buffer[buffer_full++] = ch;
       position++;
       break;
-      
+
    case InFields:
       if (ch == '"')
       {
@@ -150,7 +150,7 @@ static void process_char(char ch, int fd)
          position++;
       }
       break;
-      
+
    case InMessage:
       if (ch == '\\')
       {
@@ -250,7 +250,7 @@ int main(int argc, char * argv[])
           || (!strcmp(argv[i], "--help"))
           )
       {
-         const char* usage = 
+         const char* usage =
             "Usage:\n"
             "\t%s [-h | --help] [-i | --indent] [-f[nn]]\n"
             "\t\t[of=output]\n"
@@ -362,7 +362,7 @@ int main(int argc, char * argv[])
 
             dup2(pagerPipe[0], STDIN_FILENO);  // the child reads from the read end of the pipe
             dup2(ofd,          STDOUT_FILENO); // the child writes to the original output
-            
+
             const char* pager;
             if (!(pager = getenv("PAGER")))
             {
@@ -384,7 +384,7 @@ int main(int argc, char * argv[])
    line_tabbed = 0;
    i = read(ifd, input_buffer, BUFFER_SIZE);
    state = indent ? StartLine : InMessage;
-   
+
    while(i && i != -1)
    {
       int j;
@@ -398,6 +398,6 @@ int main(int argc, char * argv[])
    flush_buffer(ofd);
    close(ofd);
    close(ifd);
-   
+
    return 0;
 }

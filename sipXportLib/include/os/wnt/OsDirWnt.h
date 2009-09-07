@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ class OsPathWnt;
 class OsFileInfoWnt;
 
 //:Abstraction class to hande directory manipulations
-class OsDirWnt : public OsDirBase 
+class OsDirWnt : public OsDirBase
 {
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -59,10 +59,10 @@ public:
    OsStatus create() const;
      //: Create the path specified by this object
      //  Returns OS_SUCCESS if successful, or OS_INVALID
-    
+
    OsStatus rename(const char* name);
      //: Renames the current directory to the name specified
-     //  Returns: 
+     //  Returns:
      //         OS_SUCCESS if successful
      //         OS_INVALID if failed
 
@@ -91,5 +91,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsDir_h_
-
-

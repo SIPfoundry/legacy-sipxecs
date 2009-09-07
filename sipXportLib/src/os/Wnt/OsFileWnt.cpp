@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ OsFileWnt::~OsFileWnt()
 OsStatus OsFileWnt::setLength(unsigned long newLength)
 {
     OsStatus stat = OS_SUCCESS;
-    
+
     return stat;
 }
 
@@ -99,7 +99,7 @@ OsStatus OsFileWnt::getFileInfo(OsFileInfoBase& fileinfo) const
 
         OsTime modifiedTime(stats.st_ctime,0);
         fileinfo.mCreateTime = modifiedTime;
-        
+
         fileinfo.mSize = stats.st_size;
     }
 
@@ -135,10 +135,10 @@ OsStatus OsFileWnt::touch()
 UtlBoolean OsFileWnt::isReadonly() const
 {
     UtlBoolean retval = FALSE;
-    
+
     OsFileInfoWnt info;
     getFileInfo(info);
-    
+
     return info.mbIsReadOnly;
 }
 
@@ -148,7 +148,7 @@ UtlBoolean OsFileWnt::isReadonly() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 // Assignment operator
-OsFileWnt& 
+OsFileWnt&
 OsFileWnt::operator=(const OsFileWnt& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -160,6 +160,3 @@ OsFileWnt::operator=(const OsFileWnt& rhs)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

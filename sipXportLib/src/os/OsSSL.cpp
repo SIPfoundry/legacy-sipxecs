@@ -74,7 +74,7 @@ OsSSL::OsSSL(const char* authorityPath,
       SSL_load_error_strings();
 
       OpenSSL_thread_setup();
-      
+
       sInitialized = true;
    }
 
@@ -202,12 +202,12 @@ void OsSSL::OpenSSL_thread_setup()
    {
       return;
    }
-   
+
    for (int i=0 ; i<CRYPTO_NUM_LOCKS ; i++)
    {
       spOpenSSL_locks[i] = new OsMutex(OsMutex::Q_FIFO);
    }
-   
+
    // set locking callback to make SSL thread-safe
    CRYPTO_set_locking_callback((void (*)(int,int,const char*, int))OpenSSL_locking_function);
 

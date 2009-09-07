@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ void TestMonitor::addFailure(const CppUnit::TestFailure &failure)
 
     CppUnit::Message msg;
     msg = failure.thrownException()->message();
-    
+
     // Add bug details to final message
     if (strlen(TestUtilities::getKnownBugMessage()) != 0)
     {
@@ -72,4 +72,3 @@ bool TestMonitor::wasSuccessful() const
 {
     return m_wasSuccessful;
 }
-

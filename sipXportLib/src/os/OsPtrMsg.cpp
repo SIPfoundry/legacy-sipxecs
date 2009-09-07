@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ OsMsg* OsPtrMsg::createCopy(void) const
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsPtrMsg& 
+OsPtrMsg&
 OsPtrMsg::operator=(const OsPtrMsg& rhs)
 {
    if (this != &rhs)            // handle the assignment to self case
@@ -77,5 +77,3 @@ void* OsPtrMsg::getPtr()
 
 
 /* ============================ FUNCTIONS ================================= */
-
-

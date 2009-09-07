@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -127,7 +127,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
     if(!collectableLibHandle)
     {
 
-        OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+        OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
              "OsSharedLibMgrLinux::getSharedLibSymbol library: \"%s\" not loaded yet, attempting to load",
                      collectableName.data());
         sLock.release();
@@ -145,7 +145,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
 
         if (!symbolAddress)
         {
-            OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+            OsSysLog::add(FAC_KERNEL, PRI_ERR,
                 "Failed to find symbol: %s in shared lib: %s error: %s",
                 symbolName, libName ? libName : "(null)", dlerror());
 
@@ -153,7 +153,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
         }
         else
         {
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                 "Found symbol: %s in shared lib: %s",
                 symbolName, libName ? libName : "(null)");
             status = OS_SUCCESS;
@@ -165,7 +165,7 @@ OsStatus OsSharedLibMgrLinux::getSharedLibSymbol(const char* libName,
         OsSysLog::add(FAC_KERNEL, PRI_ERR,
                 "Could not find or create handle for shared library: \'%s\'",
                 libName ? libName : "(null)");
-    } 
+    }
 
     sLock.release();
 
@@ -200,5 +200,3 @@ OsSharedLibMgrLinux::operator=(const OsSharedLibMgrLinux& rhs)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

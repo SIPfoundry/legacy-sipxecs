@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 #include "xmlparser/TiXmlUtlStringWriter.h"
 #include <sipxunit/TestUtilities.h>
 
-using namespace std ; 
+using namespace std ;
 
 class XmlContentTest : public CppUnit::TestCase
 {
@@ -67,7 +67,7 @@ public:
          }
          return result;
       }
-      
+
    bool unescape(const char* input, const char* correct)
       {
          UtlString in(input);
@@ -86,7 +86,7 @@ public:
          }
          return result;
       }
-      
+
    void testNamedEnt()
       {
          ESCAPE("zigzag","zigzag");

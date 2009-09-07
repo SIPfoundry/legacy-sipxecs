@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsDefs.h"  
+#include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsProcess.h"
 
@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 /**
- * Encapsulates a pid, and allows launching, querying, killing along with 
+ * Encapsulates a pid, and allows launching, querying, killing along with
  * other things that you can normally do with a process.
 */
 class OsProcessLinux : public OsProcessBase
@@ -46,7 +46,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 ///   Launches, as a separate (child) process, an application as specified with the requested
-///   priority.  
+///   priority.
     virtual OsStatus launch(
                             UtlString &rAppName, ///< Full application name to launch.
                             UtlString parameters[], /**< Parameters to be passed into the
@@ -67,15 +67,15 @@ public:
     \par
      <b>Note:</b> When the new child process exits, a signal SIGCHLD occurs
      (unless bIgnoreChildSignals is TRUE).  If
-     the parent process is handling signals (not using the default signal handling), 
+     the parent process is handling signals (not using the default signal handling),
      it must also handle the SIGCHLD signal (typically ignoring it).  The parent process
-     <b>must</b> use the "wait" method to obtain the return code from the child process 
+     <b>must</b> use the "wait" method to obtain the return code from the child process
      and to properly clean up the "zombie" (also known as defunct) process.  If the parent
      process fails to do a "wait", all child "zombie" processes will be cleaned up by the
      system when the parent exits.
      If bIgnoreChildSignals is TRUE (default), no SIGCHLD signal will occur,
      the child process will be completely cleaned up, and
-     a return from "wait" will always be zero (i.e. success).  
+     a return from "wait" will always be zero (i.e. success).
     \par
      Pipes are set up between the parent and the child to capture stdout and
      stderr.  The calling application should call captureOutput() in a loop
@@ -85,7 +85,7 @@ public:
        - TRUE if the child process was started okay.
        - FALSE otherwise.
 */
-    
+
 
 
     /// Kills the process that was launched.
@@ -94,9 +94,9 @@ public:
     /// Changes the process priority.  Must own the process for this to be legal.
     virtual OsStatus setPriority(int prio ///< Priority to try and set for the process.
                                 );
-    
-    /// Given a PID, this method will fill in the process passed in so the user 
-    /// can then manipulate it 
+
+    /// Given a PID, this method will fill in the process passed in so the user
+    /// can then manipulate it
     static OsStatus getByPID(PID pid, ///< Process Id to match against.
                              OsProcessLinux &rProcess /**< Process object returned that matches
                                                        *   the PID. */
@@ -138,7 +138,7 @@ public:
                                     ///< Maximum priority base for the running process.
                                    );
 
-    /// Returns full information on process, including priority. 
+    /// Returns full information on process, including priority.
     /// See OsProcessInfo for more information
     virtual OsStatus getInfo(OsProcessInfo &rProcessInfo
                              ///< Process information for the running process.
@@ -150,7 +150,7 @@ public:
                               );
 
 /* ============================ INQUIRY =================================== */
-    
+
     /// Returns TRUE if child process is still active.  FALSE if not.
     virtual UtlBoolean isRunning () const ;
 
@@ -183,5 +183,3 @@ private:
 
 
 #endif  // _OsProcessLinux_h_
-
-

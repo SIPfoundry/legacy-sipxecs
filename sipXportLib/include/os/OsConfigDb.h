@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ public:
      * return OS_NOT_FOUND otherwise
      */
     OsStatus removeByPrefix(const UtlString& rPrefix);
- 
+
     /**
      * Insert the key/value pair into the config database If the
      * database already contains an entry for this key, then set the
@@ -228,12 +228,12 @@ public:
                              UtlString& rNextKey, UtlString& rNextValue) const;
 
     /**
-     * Stores a list of strings to the configuration datadase using the 
+     * Stores a list of strings to the configuration datadase using the
      * designated prefix as the base for the list items.  The prefix is used
      * to build unique configuration keys.  For example, if you use specify
-     * a prefix of "MYLIST" and supply a list containing ("item 1", "item 2", 
+     * a prefix of "MYLIST" and supply a list containing ("item 1", "item 2",
      * and "item 3"), you will end up with the following:
-     * 
+     *
      * MYLIST.COUNT : 3
      * MYLIST.1 : item 1
      * MYLIST.2 : item 2
@@ -248,8 +248,8 @@ public:
                          UtlSList& rList);
 
     /**
-     * Loads a list of strings from the configuration datadase using the 
-     * designated prefix as the base for the list items.  The number of 
+     * Loads a list of strings from the configuration datadase using the
+     * designated prefix as the base for the list items.  The number of
      * list items is returned.
      *
      * @param rPrefix Configuration name prefix

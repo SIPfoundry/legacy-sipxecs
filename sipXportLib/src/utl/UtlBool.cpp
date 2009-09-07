@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -27,7 +27,7 @@ UtlContainableType UtlBool::TYPE = "UtlBool" ;
 UtlBool::UtlBool(bool value)
 {
     mValue = value ;
-} 
+}
 
 
 // Copy constructor
@@ -48,15 +48,15 @@ void UtlBool::setValue(bool value)
 
 /* ============================ ACCESSORS ================================= */
 
-bool UtlBool::getValue() const 
+bool UtlBool::getValue() const
 {
-    return mValue ; 
+    return mValue ;
 }
 
 
 unsigned UtlBool::hash() const
 {
-   return mValue ; 
+   return mValue ;
 }
 
 
@@ -69,12 +69,12 @@ UtlContainableType UtlBool::getContainableType() const
 
 int UtlBool::compareTo(UtlContainable const * inVal) const
 {
-   int result ; 
-   
+   int result ;
+
    if (inVal->isInstanceOf(UtlBool::TYPE))
     {
-        UtlBool* temp = (UtlBool*)inVal ; 
-        bool inBool = temp -> getValue() ; 
+        UtlBool* temp = (UtlBool*)inVal ;
+        bool inBool = temp -> getValue() ;
         if (inBool == mValue)
         {
             result = 0 ;
@@ -86,7 +86,7 @@ int UtlBool::compareTo(UtlContainable const * inVal) const
     }
     else
     {
-        result = 1 ; 
+        result = 1 ;
     }
 
     return result ;

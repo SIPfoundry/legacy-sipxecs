@@ -1,6 +1,6 @@
 //
-// Copyright (C) 2007 Hewlett-Packard Development Company, L.P. 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Hewlett-Packard Development Company, L.P.
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -47,7 +47,7 @@ OsProcessIteratorHpux::~OsProcessIteratorHpux()
 OsStatus OsProcessIteratorHpux::findFirst(OsProcess &rProcess)
 {
     OsStatus retval = OS_FAILED;
-    struct pst_status pststatus;	
+    struct pst_status pststatus;
 
     idx = 0;
 
@@ -69,7 +69,7 @@ OsStatus OsProcessIteratorHpux::findNext(OsProcess &rProcess)
 {
     OsStatus retval = OS_FAILED;
 
-    struct pst_status pststatus;	
+    struct pst_status pststatus;
 
     if( pstat_getproc(&pststatus, sizeof(struct pst_status), 1, idx) == 1 )
     {

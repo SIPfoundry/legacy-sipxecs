@@ -298,13 +298,13 @@ UtlBoolean sendMessage = false
 
     // Check if the timer needs to be stopped.
     if (isStarted(mApplicationState)) {
-        sendMessage = true        
+        sendMessage = true
         mApplicationState++
     }
     // Check if there are outstanding messages that have to be waited
     // for, or if the timer is currently firing.
     if (mOutstandingMessages > 0 || mFiring) {
-        sendMessage = true        
+        sendMessage = true
     }
     // If we have to send a message, make note of it.
     if (sendMessage) {
@@ -373,7 +373,7 @@ loop(determine difference between current time and firing time of next timer;
 	    expiresAt = message.timer->mExpiresAt
 	    periodic = message.timer->mPeriodic
 	    period = message.timer->mPeriod
-	}	    
+	}
 
 	// Determine whether the timer needs to be stopped.
 	// (The comparison between applicationState and mTaskState is really
@@ -395,7 +395,7 @@ loop(determine difference between current time and firing time of next timer;
 	    message.timer->mQueuedPeriod = period
 	    Insert the timer into the active timer queue.
 	}
-	    
+
         // Update the task state.
 	message.timer->mTaskState = applicationState
 

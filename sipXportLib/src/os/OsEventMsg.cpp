@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ OsEventMsg::~OsEventMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsEventMsg& 
+OsEventMsg&
 OsEventMsg::operator=(const OsEventMsg& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -130,5 +130,3 @@ OsStatus OsEventMsg::getUserData(void*& rUserData) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-

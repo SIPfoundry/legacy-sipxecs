@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pMutex->release());
 
         // TBD: test mutex locked by another thread!
-        delete pMutex;    
+        delete pMutex;
     }
 
     void testRWMutex()
@@ -49,9 +49,8 @@ public:
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pRWMutex->tryAcquireWrite());
         CPPUNIT_ASSERT_EQUAL(OS_BUSY, pRWMutex->tryAcquireRead());
         CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, pRWMutex->releaseWrite());
-        delete pRWMutex;    
+        delete pRWMutex;
     }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsMutexTest);
-

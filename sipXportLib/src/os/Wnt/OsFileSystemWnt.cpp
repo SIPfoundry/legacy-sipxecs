@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ OsFileSystemWnt::~OsFileSystemWnt()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsFileSystemWnt& 
+OsFileSystemWnt&
 OsFileSystemWnt::operator=(const OsFileSystemWnt& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -59,7 +59,7 @@ OsStatus OsFileSystemWnt::copy(const OsPathWnt& source, const OsPathWnt& dest)
 }
 
 
-//: Renames the directory or file specified by path 
+//: Renames the directory or file specified by path
 //  (no path may be specifed on 2nd parameter)
 OsStatus OsFileSystemWnt::rename(const OsPathWnt& source, const OsPathWnt& dest)
 {
@@ -70,18 +70,18 @@ OsStatus OsFileSystemWnt::rename(const OsPathWnt& source, const OsPathWnt& dest)
 }
 
 
-//: Change the current working directory to the specified location 
+//: Change the current working directory to the specified location
 OsStatus OsFileSystemWnt::change(const OsPathWnt& path)
 {
     OsStatus stat = OS_INVALID;
-    
+
     if (chdir(path) != -1)
         stat = OS_SUCCESS;
 
     return stat;
 }
 
-//: Creates the specified directory 
+//: Creates the specified directory
 //  Fails if a file by the same name exist in the parent directory
 OsStatus OsFileSystemWnt::createDir(const OsPathWnt& path)
 {
@@ -90,12 +90,12 @@ OsStatus OsFileSystemWnt::createDir(const OsPathWnt& path)
 }
 
 //: returns the current working directory for the process
-//  
+//
 OsStatus OsFileSystemWnt::getWorkingDirectory(OsPathWnt& path)
 {
     char buf[256];
     OsStatus stat = OS_INVALID;
-    
+
     if (getcwd(buf,256))
     {
         stat = OS_SUCCESS;
@@ -124,6 +124,3 @@ OsStatus OsFileSystemWnt::getFileInfo(OsPathWnt& filespec, OsFileInfoWnt& fileIn
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

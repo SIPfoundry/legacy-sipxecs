@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 #include <utl/UtlTokenizer.h>
 #include <sipxunit/TestUtilities.h>
 
-using namespace std ; 
+using namespace std ;
 
 class UtlTokenizerTest : public CppUnit::TestCase
 {
@@ -31,15 +31,15 @@ public:
     {
         struct TestBasicStructure
         {
-            const char* testDescription ; 
-            const char* expectedString ; 
-            bool expectedReturnValue ; 
-        } ; 
-      
-        const char* prefix = "Test the next() method for " ; 
-        const char* suffix1 = " :-Verify token" ; 
-        const char* suffix2 = " :-Verify return value" ; 
-        string Message ; 
+            const char* testDescription ;
+            const char* expectedString ;
+            bool expectedReturnValue ;
+        } ;
+
+        const char* prefix = "Test the next() method for " ;
+        const char* suffix1 = " :-Verify token" ;
+        const char* suffix2 = " :-Verify return value" ;
+        string Message ;
 
         UtlTokenizer tokens("one two three");
         const char* delim = " ";
@@ -49,8 +49,8 @@ public:
              { "2nd token inaccurate", "two", true }, \
              { "3rd token inaccurate", "three", true }, \
              { "Unexpected ending tokens", "", false } \
-        } ; 
-        int testCount = sizeof(testData) / sizeof(testData[0]) ; 
+        } ;
+        int testCount = sizeof(testData) / sizeof(testData[0]) ;
         for (int i = 0 ; i < testCount ; i++ )
         {
             UtlString token;
@@ -62,16 +62,16 @@ public:
             TestUtilities::createMessage(3, &Message, prefix, testData[i].testDescription, \
                 suffix2) ;
             CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedReturnValue, \
-               (TRUE == returnValue)) ; 
+               (TRUE == returnValue)) ;
 
-        } ; 
+        } ;
     }
 
     void testDelimsAtVariousPositions()
     {
-        struct TokenizerTestData 
+        struct TokenizerTestData
         {
-            const char* testDescription ; 
+            const char* testDescription ;
             const char* tokenizedString;
             int expectedCount;
         };
@@ -106,22 +106,22 @@ public:
                 if (!done)
                 {
                     memset(msg, 0, sizeof(msg));
-                    sprintf(msg, "For %s, verify token number %d", 
+                    sprintf(msg, "For %s, verify token number %d",
                         testSet[i].testDescription, actualCount);
                     ASSERT_STR_EQUAL_MESSAGE(msg, "---", tok.data());
                     actualCount++;
-                   
+
                     memset(msg, 0, sizeof(msg));
-                    sprintf (msg, "For %s, verify return value for token number %d", 
-                        testSet[i].testDescription, actualCount); 
-                    CPPUNIT_ASSERT_MESSAGE(msg, (TRUE == bSuccess)) ; 
+                    sprintf (msg, "For %s, verify return value for token number %d",
+                        testSet[i].testDescription, actualCount);
+                    CPPUNIT_ASSERT_MESSAGE(msg, (TRUE == bSuccess)) ;
                 }
-                else 
+                else
                 {
                     memset(msg, 0, sizeof(msg));
-                    sprintf (msg, "For %s, verify return value after all tokens", 
-                        testSet[i].testDescription); 
-                    CPPUNIT_ASSERT_MESSAGE(msg, !((TRUE == bSuccess))) ; 
+                    sprintf (msg, "For %s, verify return value after all tokens",
+                        testSet[i].testDescription);
+                    CPPUNIT_ASSERT_MESSAGE(msg, !((TRUE == bSuccess))) ;
                 }
             }
             memset(msg, 0, sizeof(msg));
@@ -133,4 +133,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlTokenizerTest);
-

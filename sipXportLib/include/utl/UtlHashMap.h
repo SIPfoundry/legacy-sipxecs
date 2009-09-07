@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ class UtlContainable;
 class UtlPair;
 
 /**
- * UtlHashMap is a container object that allows you to store keys and 
+ * UtlHashMap is a container object that allows you to store keys and
  * values.  Key must be unique (testing for equality using the
  * UtlContainer::isEquals(...) method).
  */
@@ -57,7 +57,7 @@ public:
     /**
      * Inserts a key and value pair into the hash map.
      *
-     * If the inserted key is already in the table, this method 
+     * If the inserted key is already in the table, this method
      * fails (returns NULL - note that this means if value is NULL,
      * then you can't tell whether there was an error or not).
      * To replace the value for a given key, the old value must
@@ -74,7 +74,7 @@ public:
      * in insertKeyAndValue).
      * If there is an equal key in the UtlHashMap already,
      * the insert will fail.
-     * 
+     *
      * @return the object if successful, otherwise NULL
      */
     UtlContainable* insert(UtlContainable* obj);
@@ -90,14 +90,14 @@ public:
 
     /**
      * Remove the designated object by reference
-     * (as opposed to searching for an equality match).  
+     * (as opposed to searching for an equality match).
      * Note that *object must be an allocated UtlContainable, as removeReference
      * evaluates its hash.
      *
      * @return the key or NULL if not found
      */
     UtlContainable* removeReference(const UtlContainable* key);
-    
+
 
     /**
      * Remove the designated key and its associated value.
@@ -113,7 +113,7 @@ public:
     /**
      * Removes the designated key and its associated value from the map
      * and frees the key and the value (if not NULL) by calling delete.
-     */ 
+     */
     virtual UtlBoolean destroy(const UtlContainable* key);
 
 
@@ -163,7 +163,7 @@ public:
      * Return true if the hash map includes an entry with the specified key.
      */
     UtlBoolean contains(const UtlContainable* key) const;
-  
+
 
     /**
      * Get the ContainableType for the hash bag as a contained object.
@@ -184,7 +184,7 @@ public:
        {
           return NUM_HASHMAP_BUCKETS(mBucketBits);
        }
-    
+
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -211,13 +211,13 @@ protected:
              resize();
           }
        }
-    
+
     size_t    mElements;   ///< number of UtlContainable objects in this UtlHashMap
     size_t    mBucketBits; ///< number of bits used to index the buckets
     UtlChain* mpBucket;    ///< an array of 2**n UtlChain elements, each used as a list header.
 
     static    UtlChainPool* spPairPool; ///< pool of available UtlPair objects.
-    
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
@@ -225,7 +225,7 @@ private:
     void resize();
     /**
      * This should only be called through resizeIfNeededAndSafe.
-     */          
+     */
 
     /// Search for a given key value and return the the UtlPair and bucket for it.
     bool lookup(const UtlContainable* key, ///< The key to locate.
@@ -238,7 +238,7 @@ private:
     /**<
      * @return true if the key was found, and false if not.
      */
-    
+
     /// Insert a pair into a bucket.
     void insert(UtlPair*        pair,   /**< The UtlPair for the entry - data, value, and hash
                                          *   are already set. */
@@ -247,13 +247,13 @@ private:
 
     /// Calculate the bucket number for a given hash.
     size_t bucketNumber(unsigned hash) const;
-    
+
     // no copy constructor is provided
     UtlHashMap(UtlHashMap&);
 
     /** Use copyInto instead */
     UtlHashMap& operator=(const UtlHashMap&);
-    
+
     /**
      * notifyIteratorsOfRemove - called before removing any entry from the UtlHashMap
      */
@@ -261,5 +261,3 @@ private:
 };
 
 #endif    // _UtlHashMap_h_
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ public:
          static const RegEx ConstRegEx("^[a-z]+([0-9]+)$");
          RegEx TheCopiedRegEx(ConstRegEx);
          RegEx* TheRegEx = &TheCopiedRegEx;
-         
+
          SHOULD_MATCH(2,"foo35");
          MATCH(0,"foo35");
          MATCH(1,"35");
@@ -117,12 +117,12 @@ public:
          RegEx matchABCs("A+(B+)(C+)");
 
          CPPUNIT_ASSERT(matchABCs.Search("xxxAABBBBC"));
-          
+
          CPPUNIT_ASSERT( matchABCs.Matches() == 3 );
 
          int start;
          int length;
-         
+
          CPPUNIT_ASSERT( matchABCs.Match(0, start, length));
          CPPUNIT_ASSERT( start == 3 );
          CPPUNIT_ASSERT( length == 7 );
@@ -141,12 +141,12 @@ public:
          RegEx matchABCs("(A+|(B+))(C+)");
 
          CPPUNIT_ASSERT(matchABCs.Search("xxxAACC"));
-          
+
          CPPUNIT_ASSERT( matchABCs.Matches() == 4 );
 
          int start;
          int length;
-         
+
          CPPUNIT_ASSERT( matchABCs.Match(0, start, length));
          CPPUNIT_ASSERT( start == 3 );
          CPPUNIT_ASSERT( length == 4 );
@@ -170,7 +170,7 @@ public:
          RegEx matchABCs("A+(B+)(C+)");
 
          CPPUNIT_ASSERT(matchABCs.Search("xxxAABBBBC"));
-          
+
          CPPUNIT_ASSERT( matchABCs.Matches() == 3 );
 
          CPPUNIT_ASSERT( matchABCs.MatchStart(0) == 3 );
@@ -183,9 +183,9 @@ public:
       {
          RegEx matchABCs("A+(B+)(C+)");
          const char* subject = "xxxAABBBBC";
-         
+
          CPPUNIT_ASSERT(matchABCs.Search(subject));
-          
+
          CPPUNIT_ASSERT( matchABCs.Matches() == 3 );
 
          int start;
@@ -204,7 +204,7 @@ public:
          CPPUNIT_ASSERT( length == 1 );
 
          CPPUNIT_ASSERT( matchABCs.SearchAt(subject, 2));
-          
+
          CPPUNIT_ASSERT( matchABCs.Match(0, start, length));
          CPPUNIT_ASSERT( start == 3 );
          CPPUNIT_ASSERT( length == 7 );
@@ -222,12 +222,12 @@ public:
       {
          RegEx matchAs("A+(?=:)");
          const char* subject = "xxxAA:x";
-         
+
          int start;
          int length;
 
          CPPUNIT_ASSERT(matchAs.Search(subject));
-          
+
          CPPUNIT_ASSERT( matchAs.Matches() == 1 );
 
          CPPUNIT_ASSERT( matchAs.Match(0, start, length));
@@ -253,9 +253,9 @@ public:
       {
          RegEx matchAs("(?<=:)A+");
          const char* subject = "xxx:AAyyyyy";
-         
+
          CPPUNIT_ASSERT(matchAs.Search(subject));
-          
+
          CPPUNIT_ASSERT( matchAs.Matches() == 1 );
 
          int start;
@@ -271,7 +271,7 @@ public:
          CPPUNIT_ASSERT( before.compareTo("xxx:") == 0 );
 
          CPPUNIT_ASSERT(matchAs.SearchAt(subject, 4));
-          
+
          CPPUNIT_ASSERT( matchAs.Matches() == 1 );
 
          CPPUNIT_ASSERT( matchAs.Match(0, start, length));
@@ -282,7 +282,7 @@ public:
 
    void testRecursionLimit()
       {
-         // this pattern recurses for every character 
+         // this pattern recurses for every character
          RegEx matchAs("([^<]|<(?!inet))+", 0, 100 );
 
          /*
@@ -297,7 +297,7 @@ public:
             "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa<foo"
                               );
          CPPUNIT_ASSERT(matchAs.Search(okSubject));
-         
+
 //         CPPUNIT_ASSERT(matchAs.Matches() == 3);
 
 //         int start;
@@ -310,7 +310,7 @@ public:
          CPPUNIT_ASSERT(!matchAs.Search(bigSubject));
       }
 
-      
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlRegExTest);

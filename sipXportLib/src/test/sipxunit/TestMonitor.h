@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -23,13 +23,13 @@ class TestMonitor : public CppUnit::TestResultCollector
     TestMonitor();
 
     virtual ~TestMonitor();
-  
+
     /** Overridden */
     virtual void startTest(CppUnit::Test *test);
 
     /** Overridden */
     virtual void addFailure(const CppUnit::TestFailure &failure);
-    
+
     /** Overriden */
     virtual bool wasSuccessful() const;
 

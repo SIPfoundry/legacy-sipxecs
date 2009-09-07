@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -21,10 +21,10 @@
 #include <utl/UtlContainableTestStub.h>
 #include <sipxunit/TestUtilities.h>
 
-using namespace std ; 
+using namespace std ;
 
 
-/**  This class is used to test the UtlInt utility class. 
+/**  This class is used to test the UtlInt utility class.
 *
 *    PLEASE READ THE README FILE THAT CAN FOUND IN THE PARENT OF THE DIRECTORY
 *    OF THIS FILE. The Readme describes the organization / flow of tests and
@@ -33,168 +33,168 @@ using namespace std ;
 class UtlSortedListIteratorTest : public  CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(UtlSortedListIteratorTest);
-    CPPUNIT_TEST(check_Advancing_Operator_StringList) ; 
-    CPPUNIT_TEST(check_Advancing_Operator_IntList) ; 
-    CPPUNIT_TEST(check_Reset) ; 
-    CPPUNIT_TEST(check_FindNext) ;  
+    CPPUNIT_TEST(check_Advancing_Operator_StringList) ;
+    CPPUNIT_TEST(check_Advancing_Operator_IntList) ;
+    CPPUNIT_TEST(check_Reset) ;
+    CPPUNIT_TEST(check_FindNext) ;
     CPPUNIT_TEST(removeItem) ;
-    CPPUNIT_TEST_SUITE_END() ; 
+    CPPUNIT_TEST_SUITE_END() ;
 
 private:
     struct TestSortedListStruct
     {
-        const char* testDescription ; 
-        UtlContainable* item ; 
-        size_t expectedIndex ; 
+        const char* testDescription ;
+        UtlContainable* item ;
+        size_t expectedIndex ;
     };
-    
-    static const int stringListCount ; 
-    static const int intListCount ; 
 
-    UtlSortedList emptyList ; 
-    UtlSortedList stringList ; 
-    UtlSortedList intList ; 
-    TestSortedListStruct* testDataForStringList ; 
-    TestSortedListStruct* testDataForIntList ; 
-    
+    static const int stringListCount ;
+    static const int intListCount ;
+
+    UtlSortedList emptyList ;
+    UtlSortedList stringList ;
+    UtlSortedList intList ;
+    TestSortedListStruct* testDataForStringList ;
+    TestSortedListStruct* testDataForIntList ;
+
 public:
 
     UtlSortedListIteratorTest()
     {
-        testDataForStringList = new TestSortedListStruct[stringListCount] ; 
-        testDataForIntList = new TestSortedListStruct[intListCount] ; 
+        testDataForStringList = new TestSortedListStruct[stringListCount] ;
+        testDataForIntList = new TestSortedListStruct[intListCount] ;
     }
-    
-    
+
+
     ~UtlSortedListIteratorTest()
     {
         for (int i = 0 ; i < stringListCount; i++)
         {
-            delete testDataForStringList[i].item ; 
+            delete testDataForStringList[i].item ;
         }
         for (int j = 0 ; j < stringListCount; j++)
         {
-            delete testDataForIntList[j].item ; 
+            delete testDataForIntList[j].item ;
         }
-        delete[] testDataForStringList ; 
-        delete[] testDataForIntList ; 
+        delete[] testDataForStringList ;
+        delete[] testDataForIntList ;
     }
 
     void setUp()
     {
-        testDataForStringList[0].testDescription = "A numeric string(alphabetically first!)" ; 
-        testDataForStringList[0].item = new UtlString("123") ; 
-        testDataForStringList[0].expectedIndex = 0 ; 
+        testDataForStringList[0].testDescription = "A numeric string(alphabetically first!)" ;
+        testDataForStringList[0].item = new UtlString("123") ;
+        testDataForStringList[0].expectedIndex = 0 ;
 
-        testDataForStringList[1].testDescription = "An alphabetic string(alphatically second!)" ; 
-        testDataForStringList[1].item = new UtlString("Abcd") ; 
-        testDataForStringList[1].expectedIndex = 1 ; 
+        testDataForStringList[1].testDescription = "An alphabetic string(alphatically second!)" ;
+        testDataForStringList[1].item = new UtlString("Abcd") ;
+        testDataForStringList[1].expectedIndex = 1 ;
 
-        testDataForStringList[2].testDescription = "An alphabetic string(alphabetically third!)" ; 
-        testDataForStringList[2].item = new UtlString("Zyxw") ; 
-        testDataForStringList[2].expectedIndex = 2 ; 
+        testDataForStringList[2].testDescription = "An alphabetic string(alphabetically third!)" ;
+        testDataForStringList[2].item = new UtlString("Zyxw") ;
+        testDataForStringList[2].expectedIndex = 2 ;
 
         testDataForStringList[3].testDescription = \
-                             "An alpha numeric string(alphabetically fourth!)" ; 
-        testDataForStringList[3].item = new UtlString("ab#34cd") ; 
-        testDataForStringList[3].expectedIndex = 3 ; 
+                             "An alpha numeric string(alphabetically fourth!)" ;
+        testDataForStringList[3].item = new UtlString("ab#34cd") ;
+        testDataForStringList[3].expectedIndex = 3 ;
 
-        // Add the strings in a random (non alphabetical order) 
-        stringList.insert(testDataForStringList[2].item) ; 
-        stringList.insert(testDataForStringList[0].item) ; 
-        stringList.insert(testDataForStringList[3].item) ; 
-        stringList.insert(testDataForStringList[1].item) ; 
+        // Add the strings in a random (non alphabetical order)
+        stringList.insert(testDataForStringList[2].item) ;
+        stringList.insert(testDataForStringList[0].item) ;
+        stringList.insert(testDataForStringList[3].item) ;
+        stringList.insert(testDataForStringList[1].item) ;
 
-        testDataForIntList[0].testDescription = "A negative integer(first item)" ; 
-        testDataForIntList[0].item = new UtlInt(-25023) ; 
-        testDataForIntList[0].expectedIndex = 0 ; 
-        
-        testDataForIntList[1].testDescription = "Integer whose value = 0(second item)" ;  
-        testDataForIntList[1].item = new UtlInt(0) ; 
+        testDataForIntList[0].testDescription = "A negative integer(first item)" ;
+        testDataForIntList[0].item = new UtlInt(-25023) ;
+        testDataForIntList[0].expectedIndex = 0 ;
+
+        testDataForIntList[1].testDescription = "Integer whose value = 0(second item)" ;
+        testDataForIntList[1].item = new UtlInt(0) ;
         testDataForIntList[1].expectedIndex = 1 ;
 
-        testDataForIntList[2].testDescription = "Positive integer(third item)" ; 
-        testDataForIntList[2].item = new UtlInt(35) ; 
+        testDataForIntList[2].testDescription = "Positive integer(third item)" ;
+        testDataForIntList[2].item = new UtlInt(35) ;
         testDataForIntList[2].expectedIndex = 2 ;
 
-        testDataForIntList[3].testDescription = "A positive integer(fourth item)" ; 
-        testDataForIntList[3].item = new UtlInt(25023) ; 
-        testDataForIntList[3].expectedIndex = 3 ; 
-        
-        // Add the ints in a random (non alphabetical order) 
-        intList.insert(testDataForIntList[2].item) ; 
-        intList.insert(testDataForIntList[0].item) ; 
-        intList.insert(testDataForIntList[3].item) ; 
-        intList.insert(testDataForIntList[1].item) ; 
+        testDataForIntList[3].testDescription = "A positive integer(fourth item)" ;
+        testDataForIntList[3].item = new UtlInt(25023) ;
+        testDataForIntList[3].expectedIndex = 3 ;
+
+        // Add the ints in a random (non alphabetical order)
+        intList.insert(testDataForIntList[2].item) ;
+        intList.insert(testDataForIntList[0].item) ;
+        intList.insert(testDataForIntList[3].item) ;
+        intList.insert(testDataForIntList[1].item) ;
     }
-    
+
     void tearDown()
     {
     }
 
 
-    /** Sandbox method for experimenting with the API Under Test. 
+    /** Sandbox method for experimenting with the API Under Test.
     *   This method MUST be empty when the test drivers are being
     *   checked in (final checkin) to the repository.
     */
     void DynaTest()
     {
     }
-    
+
     void check_Advancing_Operator_StringList()
     {
-        UtlSortedListIterator slIter(stringList) ; 
+        UtlSortedListIterator slIter(stringList) ;
 
         for (int i = 0 ; i < stringListCount ; i++)
         {
-            UtlContainable* uNext = slIter() ; 
+            UtlContainable* uNext = slIter() ;
             CPPUNIT_ASSERT_EQUAL_MESSAGE(testDataForStringList[i].testDescription, \
-               testDataForStringList[i].item, uNext) ; 
+               testDataForStringList[i].item, uNext) ;
         }
         // Verify that the iterator returns null after the last advancing has been called
-        UtlContainable* uNext = slIter() ; 
-       
+        UtlContainable* uNext = slIter() ;
+
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Null is returned after all items have been " \
-            "advanced ", (void*)NULL, (void*)uNext) ; 
-    } 
+            "advanced ", (void*)NULL, (void*)uNext) ;
+    }
 
     void check_Advancing_Operator_IntList()
     {
-        UtlSortedListIterator slIter(intList) ; 
+        UtlSortedListIterator slIter(intList) ;
 
         for (int i = 0 ; i < intListCount ; i++)
         {
-            UtlContainable* uNext = slIter() ; 
+            UtlContainable* uNext = slIter() ;
             CPPUNIT_ASSERT_EQUAL_MESSAGE(testDataForIntList[i].testDescription, \
-               testDataForIntList[i].item, uNext) ; 
+               testDataForIntList[i].item, uNext) ;
         }
         // Verify that the iterator returns null after the last advancing has been called
-        UtlContainable* uNext = slIter() ; 
-       
+        UtlContainable* uNext = slIter() ;
+
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Null is returned after all items have been " \
-            "advanced ", (void*)NULL, (void*)uNext) ; 
-    } 
+            "advanced ", (void*)NULL, (void*)uNext) ;
+    }
 
     /** Verify that calling reset() pushes the iterator to
     *   the begining.
     */
     void check_Reset()
     {
-        UtlSortedListIterator slIter(stringList) ; 
-        slIter() ; 
-        slIter() ;   
-        slIter.reset() ; 
+        UtlSortedListIterator slIter(stringList) ;
+        slIter() ;
+        slIter() ;
+        slIter.reset() ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE("Verify that calling reset on the iterator " \
             "positions it to the begining", (void*)testDataForStringList[0].item, \
-            (void*)slIter()) ; 
-    } 
+            (void*)slIter()) ;
+    }
 
 
 
     /** Test the findNext method. The various test case
-    *   for this are :- 
+    *   for this are :-
     *     a) Verify that all the elements can be found
-             when the iterator has been reset. 
+             when the iterator has been reset.
     *     b) Verify that any element after the current iterator position can be searched.
     &     c)  Verify that any element before the current position is not returned in a search.
     *  Verify htat when there are two similar matches than
@@ -207,9 +207,9 @@ public:
         // Search for the first item
         message = "Search for the first item" ;
         UtlContainable* found = iter.findNext(testDataForStringList[0].item) ;
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(message, testDataForStringList[0].item, found) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(message, testDataForStringList[0].item, found) ;
 
-         message = "Search for the last item" ; 
+         message = "Search for the last item" ;
          iter.reset() ;
          found = iter.findNext(testDataForStringList[stringListCount-1].item) ;
          CPPUNIT_ASSERT_EQUAL_MESSAGE(message, testDataForStringList[stringListCount-1].item,  found) ;
@@ -223,8 +223,8 @@ public:
                    "is not yet been read" ;
          iter.reset() ;
          iter() ;
-         found = iter.findNext(testDataForStringList[2].item) ; 
-         CPPUNIT_ASSERT_EQUAL_MESSAGE(message, testDataForStringList[2].item, found)  ; 
+         found = iter.findNext(testDataForStringList[2].item) ;
+         CPPUNIT_ASSERT_EQUAL_MESSAGE(message, testDataForStringList[2].item, found)  ;
 
          UtlString dupString1("Mnop") ;
          UtlString dupString2("Mnop");
@@ -234,7 +234,7 @@ public:
          iter.reset();
          found = iter.findNext(&dupString2) ;
          bool isSuccess = (found == &dupString1 || found == &dupString2) ;
-         CPPUNIT_ASSERT_MESSAGE(message, isSuccess) ; 
+         CPPUNIT_ASSERT_MESSAGE(message, isSuccess) ;
     }
 
 
@@ -254,7 +254,7 @@ public:
        h.insert(&v3);
        h.insert(&v4);
 
-       UtlSortedListIterator iter(h); 
+       UtlSortedListIterator iter(h);
 
        // Check that item() returns NULL in the initial state.
        CPPUNIT_ASSERT(iter.item() == NULL);
@@ -298,9 +298,7 @@ public:
     } //removeItem()
 };
 
-const int UtlSortedListIteratorTest::stringListCount = 4 ; 
-const int UtlSortedListIteratorTest::intListCount = 4 ; 
+const int UtlSortedListIteratorTest::stringListCount = 4 ;
+const int UtlSortedListIteratorTest::intListCount = 4 ;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlSortedListIteratorTest);
-
-

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -38,7 +38,7 @@ class OsTime
 public:
    static const OsTime OS_INFINITY;
    static const OsTime NO_WAIT;
-   static const int MSECS_PER_SEC ; 
+   static const int MSECS_PER_SEC ;
    static const int USECS_PER_MSEC ;
    static const int USECS_PER_SEC ;
 
@@ -146,4 +146,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsTime_h_
-

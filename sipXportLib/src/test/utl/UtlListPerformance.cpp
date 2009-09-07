@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////////////////
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -73,13 +73,13 @@ int main()
    int n;
 
    UtlSList dummy;
-   
+
    for (n = 0; n < NUM_THREADS; n++)
    {
       threads[n]   = new doTestThread;
       threads[n]->setUserData(n);
    }
-   
+
    timer.addEvent("All Start");
 
    for (n = 0; n < NUM_THREADS; n++)
@@ -109,7 +109,7 @@ void doListOperations()
 
    // fill the list
    appendCountItems(testList, NUM_PERFORMANCE_STRINGS);
-   
+
    // take the first half off the front
    if (!testList.isEmpty())
    {
@@ -138,7 +138,7 @@ void doListOperations()
          externalForSideEffects = found->length();
       }
    }
-   
+
    // get the object in the middle of the list by index, and remove it by value
    while(!testList.isEmpty())
    {
@@ -165,7 +165,7 @@ void appendCountItems(UtlSList& list, size_t itemsToAdd)
 {
    assert(itemsToAdd);
    size_t item;
-   
+
    for (item = 0; item < itemsToAdd; item++)
    {
       list.append(new UtlString(string[item]));
@@ -176,10 +176,9 @@ void appendCountItems(UtlSList& list, size_t itemsToAdd)
 void getCountItems(UtlSList& list, size_t itemsToPop)
 {
    assert(itemsToPop);
-   
+
    for (; !list.isEmpty() && itemsToPop; itemsToPop--)
    {
       delete dynamic_cast<UtlString*>(list.get());
    }
 }
-

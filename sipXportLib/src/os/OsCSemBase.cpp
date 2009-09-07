@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ void OsCSemBase::updateAcquireStats(void)
 
    if ((mCurCount < -1) || (mCurCount > mMaxCount))
    {
-  
+
        osPrintf("OsCSem::updateAcquireStats: OsCSem=0x%08x, mCurCount=%d, mMaxCount=%d\n",
                     (void *) this, mCurCount, mMaxCount);
        osPrintf("OsCSem: OsCSem=0x%08x, options=%d, initCnt=%d, maxCnt=%d\n",
@@ -112,7 +112,7 @@ void OsCSemBase::updateAcquireStats(void)
                     (void *) this, mCurCount, mMaxCount);
 #endif
    }
-   
+
 }
 
 // Update the statistics associated with releasing a counting semaphore
@@ -128,7 +128,7 @@ void OsCSemBase::updateReleaseStats(void)
 
    if ((mCurCount < 0) || (mCurCount > mMaxCount))
    {
-   
+
        osPrintf("OsCSem::updateReleaseStats: OsCSem=0x%08x, mCurCount=%d, mMaxCount=%d\n",
                     (void *) this, mCurCount, mMaxCount);
        osPrintf("OsCSem: OsCSem=0x%08x, options=%d, initCnt=%d, maxCnt=%d\n",
@@ -145,4 +145,3 @@ void OsCSemBase::updateReleaseStats(void)
    }
 }
 #endif
-

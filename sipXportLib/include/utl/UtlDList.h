@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,14 +30,14 @@
  * UtlDList is a doubly linked list designed to contain any number of
  * UtlContainable derived object.  For more information on lists, please
  * look at UtlSList.
- * 
+ *
  * @see UtlSList
  */
 class UtlDList : public UtlSList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   
+
    /**
     * Constructor
     */
@@ -64,8 +64,8 @@ public:
     */
    virtual UtlContainableType getContainableType() const;
 
-   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
-   
+   static UtlContainableType TYPE ;    /** < Class type used for runtime checking */
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -78,4 +78,3 @@ private:
 /* ============================ INLINE METHODS ============================ */\
 
 #endif    // _UtlDList_h_
-

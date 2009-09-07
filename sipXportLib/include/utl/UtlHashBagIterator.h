@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,9 +29,9 @@
 class UtlContainable ;
 
 /**
- * UtlHashBagIterator allows developers to iterator (walks through) an 
+ * UtlHashBagIterator allows developers to iterator (walks through) an
  * UtlHashBag.
- * 
+ *
  * @see UtlIterator
  * @see UtlSList
  */
@@ -58,16 +58,16 @@ public:
 
     /**
      * Return the next element.
-     * 
+     *
      * @return The next element or NULL if no more elements are available.
      */
     virtual UtlContainable*    operator()() ;
 
     /**
      * Reset the list by moving the iterator cursor to the location before the
-     * first element. 
+     * first element.
      */
-    virtual void reset() ; 
+    virtual void reset() ;
 
 /* ============================ ACCESSORS ================================= */
 
@@ -81,7 +81,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlHashBag;
-    
+
     /**
      * removing is called by the UtlHashMap when an element is about to be
      * removed from the container.  The iterator must ensure that the element
@@ -94,10 +94,10 @@ protected:
 private:
 
     void init(UtlHashBag& hashBag);
-   
+
     UtlContainable* mpSubsetMatch; ///< if non-NULL, points to the key that defines the subset
     unsigned        mSubsetHash;   ///< if mpSubsetMatch != NULL, this is its hash code
-    
+
     size_t   mPosition;      ///< current bucket number [0..numberOfBuckets-1]
     UtlLink* mpCurrentLink;  ///< current UtlLink within the bucket, or BEFORE_FIRST
     bool     mLinkIsValid;   /**< true if mpCurrentLink is the valid current position
@@ -111,4 +111,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlHashBagIterator_h_
-

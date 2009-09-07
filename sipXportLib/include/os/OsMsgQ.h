@@ -1,10 +1,10 @@
 //
-// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   
+
    virtual OsStatus send(const OsMsg& rMsg,
                          const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
      //:Insert a message at the tail of the queue and wait for a response
@@ -116,8 +116,8 @@ public:
      // inserted into the queue.
 
    virtual void setFlushHook(OsMsgQFlushHookPtr func);
-     //:Set the function that is invoked whenever a msg is flushed from the 
-     //:queue.  Messages get flushed when the OsMsgQ is deleted while there 
+     //:Set the function that is invoked whenever a msg is flushed from the
+     //:queue.  Messages get flushed when the OsMsgQ is deleted while there
      //:are messages still queued.
      // The function takes an OsMsg reference as an argument.
 
@@ -180,7 +180,7 @@ private:
 
    OsMsgQBase& operator=(const OsMsgQBase& rhs);
      //:Assignment operator (not implemented for this class)
- 
+
 };
 
 /* ============================ INLINE METHODS ============================ */

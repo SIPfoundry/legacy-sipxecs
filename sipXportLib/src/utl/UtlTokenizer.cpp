@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ UtlTokenizer::~UtlTokenizer()
  * can vary with each call to this method.
  *
  * Sample token strings and token counts where delimiters = "X"
- * 
+ *
  * |    string   | count |
  * +-------------+-------+
  *   ---X---X---    3
@@ -86,7 +86,7 @@ int UtlTokenizer::nextDelim(const char *tokens, const int start, const int len, 
 {
     int end = start;
     for (; end < len && !isDelim(tokens[end], delim); end++);
-    
+
     return end;
 }
 
@@ -123,5 +123,3 @@ UtlTokenizer::operator=(const UtlTokenizer& rhs)
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-

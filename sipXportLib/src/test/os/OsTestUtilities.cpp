@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -40,10 +40,10 @@ void OsTestUtilities::removeTestDir(OsPath &root)
     if (OsFileSystem::exists(root))
     {
         stat = OsFileSystem::remove(root, TRUE, TRUE);
- 
-         KNOWN_BUG("Fails randomly on build server and fails everytime, the first time its run on a new machine", 
+
+         KNOWN_BUG("Fails randomly on build server and fails everytime, the first time its run on a new machine",
            "XPL-191");
-        
+
         CPPUNIT_ASSERT_MESSAGE("teardown root test dir", stat == OS_SUCCESS);
     }
 }
@@ -133,4 +133,3 @@ UtlBoolean OsTestUtilities::verifyDummyFile(OsPath testFile, unsigned long size)
 
     return ok;
 }
-

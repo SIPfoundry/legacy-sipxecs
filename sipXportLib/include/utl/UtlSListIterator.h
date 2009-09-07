@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ class UtlSList ;
 
 /**
  * UtlSListIterator allows developers to iterator (walks through) an UtlSList.
- * 
+ *
  * @see UtlIterator
  * @see UtlSList
  */
@@ -42,14 +42,14 @@ public:
 /* ============================ CREATORS ================================== */
 
     /**
-     * Constructor accepting a source UtlSList 
+     * Constructor accepting a source UtlSList
      */
     UtlSListIterator(const UtlSList& list);
 
 
     /**
      * Find the designated object, and reset the iterator so that it is the current position.
-     * 
+     *
      * @return The  element or NULL if no more elements are available.
      */
     virtual UtlContainable* findNext(const UtlContainable* objectToFind);
@@ -57,7 +57,7 @@ public:
     /**
      * Take a look at the next element in the list without moving the position
      * of the iterator.
-     * 
+     *
      * @return The next element or NULL if already at the end.
      */
     virtual UtlContainable* peekAtNext(void);
@@ -74,7 +74,7 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     friend class UtlSList;
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
@@ -84,5 +84,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _UtlSListIterator_h_
-
-

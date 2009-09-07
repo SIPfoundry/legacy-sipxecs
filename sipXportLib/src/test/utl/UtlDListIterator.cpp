@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -22,89 +22,89 @@
 #include <utl/UtlDListIterator.h>
 #include <sipxunit/TestUtilities.h>
 
-using namespace std ; 
+using namespace std ;
 
 class UtlDListIteratorTests : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(UtlDListIteratorTests);
-    CPPUNIT_TEST(testAdvancingOperator) ; 
+    CPPUNIT_TEST(testAdvancingOperator) ;
     CPPUNIT_TEST(testFindNext) ;
-    CPPUNIT_TEST(testLast) ; 
-    CPPUNIT_TEST(testInsertAfterPoint_EmptyList) ; 
-    CPPUNIT_TEST(testInsertAfterPoint) ; 
+    CPPUNIT_TEST(testLast) ;
+    CPPUNIT_TEST(testInsertAfterPoint_EmptyList) ;
+    CPPUNIT_TEST(testInsertAfterPoint) ;
     CPPUNIT_TEST(removeItem) ;
     CPPUNIT_TEST_SUITE_END();
 
 private:
 
-    static const int INDEX_NOT_EXIST ; 
-    static const int commonEntriesCount ; 
+    static const int INDEX_NOT_EXIST ;
+    static const int commonEntriesCount ;
 
-    UtlDList commonList ; 
-    UtlDList emptyList ; 
+    UtlDList commonList ;
+    UtlDList emptyList ;
 
-    UtlString commonString1 ; 
-    UtlString commonString2 ; 
-    UtlString commonString3 ; 
-    UtlInt commonInt1 ; 
-    UtlInt commonInt2 ; 
-    UtlInt commonInt3 ; 
+    UtlString commonString1 ;
+    UtlString commonString2 ;
+    UtlString commonString3 ;
+    UtlInt commonInt1 ;
+    UtlInt commonInt2 ;
+    UtlInt commonInt3 ;
 
-    UtlString commonString1_clone; 
-    UtlString commonString2_clone ; 
-    UtlString commonString3_clone ; 
-    UtlInt commonInt1_clone ; 
-    UtlInt commonInt2_clone ; 
-    UtlInt commonInt3_clone ; 
+    UtlString commonString1_clone;
+    UtlString commonString2_clone ;
+    UtlString commonString3_clone ;
+    UtlInt commonInt1_clone ;
+    UtlInt commonInt2_clone ;
+    UtlInt commonInt3_clone ;
 
-    static const char* longAlphaNumString ; 
-    static const char* regularString ; 
+    static const char* longAlphaNumString ;
+    static const char* regularString ;
 
-    UtlContainable** commonContainables; 
-    UtlContainable** commonContainables_Clone; 
+    UtlContainable** commonContainables;
+    UtlContainable** commonContainables_Clone;
 
-    enum IndexOrContains { TEST_INDEX, TEST_FIND, TEST_CONTAINS, TEST_CONTAINS_REF } ; 
-    enum TestInsertOrAppend {TEST_APPEND, TEST_INSERT} ; 
+    enum IndexOrContains { TEST_INDEX, TEST_FIND, TEST_CONTAINS, TEST_CONTAINS_REF } ;
+    enum TestInsertOrAppend {TEST_APPEND, TEST_INSERT} ;
     enum RemoveType {TEST_REMOVE, TEST_REMOVE_REF } ;
-    
+
 public:
 
     void setUp()
     {
-        commonString1 = UtlString(regularString) ; 
-        commonString1_clone = UtlString(regularString) ; 
-        commonString2 = UtlString("") ; 
-        commonString2_clone = UtlString("") ; 
-        commonString3 = UtlString(longAlphaNumString) ; 
-        commonString3_clone = UtlString(longAlphaNumString) ; 
+        commonString1 = UtlString(regularString) ;
+        commonString1_clone = UtlString(regularString) ;
+        commonString2 = UtlString("") ;
+        commonString2_clone = UtlString("") ;
+        commonString3 = UtlString(longAlphaNumString) ;
+        commonString3_clone = UtlString(longAlphaNumString) ;
 
-        commonInt1 = UtlInt(0) ; 
-        commonInt1_clone = UtlInt(0) ; 
-        commonInt2 = UtlInt(INT_MAX) ; 
-        commonInt2_clone = UtlInt(INT_MAX) ; 
-        commonInt3 = UtlInt(INT_MIN) ; 
+        commonInt1 = UtlInt(0) ;
+        commonInt1_clone = UtlInt(0) ;
+        commonInt2 = UtlInt(INT_MAX) ;
+        commonInt2_clone = UtlInt(INT_MAX) ;
+        commonInt3 = UtlInt(INT_MIN) ;
         commonInt3_clone = UtlInt(INT_MIN) ;
-        
-        commonList.append(&commonString1) ; 
+
+        commonList.append(&commonString1) ;
         commonContainables[0] = &commonString1 ;
-        commonContainables_Clone[0] = &commonString1_clone ; 
-        commonList.append(&commonInt1) ; 
+        commonContainables_Clone[0] = &commonString1_clone ;
+        commonList.append(&commonInt1) ;
         commonContainables[1] = &commonInt1 ;
-        commonContainables_Clone[1] = &commonInt1_clone ; 
-        commonList.append(&commonInt2) ; 
-        commonContainables[2] = &commonInt2 ; 
-        commonContainables_Clone[2] = &commonInt2_clone; 
-        commonList.append(&commonString2) ; 
-        commonContainables[3] = &commonString2 ; 
-        commonContainables_Clone[3] = &commonString2_clone ; 
-        commonList.append(&commonInt3) ; 
-        commonContainables[4] = &commonInt3 ; 
-        commonContainables_Clone[4] = &commonInt3_clone ; 
-        commonList.append(&commonString3) ; 
-        commonContainables[5] = &commonString3 ; 
-        commonContainables_Clone[5] = &commonString3_clone ; 
+        commonContainables_Clone[1] = &commonInt1_clone ;
+        commonList.append(&commonInt2) ;
+        commonContainables[2] = &commonInt2 ;
+        commonContainables_Clone[2] = &commonInt2_clone;
+        commonList.append(&commonString2) ;
+        commonContainables[3] = &commonString2 ;
+        commonContainables_Clone[3] = &commonString2_clone ;
+        commonList.append(&commonInt3) ;
+        commonContainables[4] = &commonInt3 ;
+        commonContainables_Clone[4] = &commonInt3_clone ;
+        commonList.append(&commonString3) ;
+        commonContainables[5] = &commonString3 ;
+        commonContainables_Clone[5] = &commonString3_clone ;
     }
-    
+
     void tearDown()
     {
     }
@@ -112,19 +112,19 @@ public:
     /* Sandbox - please ignore
      */
     void DynaTest()
-    { 
+    {
     }
 
     UtlDListIteratorTests()
     {
         commonContainables = new UtlContainable*[commonEntriesCount] ;
-        commonContainables_Clone = new UtlContainable*[commonEntriesCount] ;  
+        commonContainables_Clone = new UtlContainable*[commonEntriesCount] ;
     }
 
     ~UtlDListIteratorTests()
     {
-        delete[] commonContainables ; 
-        delete[] commonContainables_Clone ; 
+        delete[] commonContainables ;
+        delete[] commonContainables_Clone ;
     }
 
     /*!a Test case for the () operator.
@@ -153,27 +153,27 @@ public:
         testList.append(&commonString1) ;
         testList.append(&commonInt1) ;
         testList.append(&commonString2) ;
-        UtlDListIterator iter(testList) ; 
+        UtlDListIterator iter(testList) ;
 
         UtlContainable* exp[] = { \
                           &commonString1 , &commonInt1, &commonString2, NULL \
         } ;
-        int expEntries = 3 ; 
+        int expEntries = 3 ;
 
         for (int i = 0 ; i < testCount ; i++)
         {
              UtlContainable* act = iter() ;
              string msg ;
-             TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix1) ; 
+             TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix1) ;
              CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), exp[i], act) ;
-             TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix2); 
+             TestUtilities::createMessage(3, &msg, prefix, Msgs[i], suffix2);
              CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expEntries, (int)testList.entries()) ;
         }
 
         // Test the () operator for an empty list
         UtlDListIterator emptyIter(emptyList) ;
-        UtlContainable* act = emptyIter() ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test the () operator for an empty list iterator" , (void*)NULL, (void*)act) ; 
+        UtlContainable* act = emptyIter() ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE("Test the () operator for an empty list iterator" , (void*)NULL, (void*)act) ;
 
     } //testAdvancingOperator()
 
@@ -187,9 +187,9 @@ public:
     *      d) When the match has two value matches (but a single ref match)
     *      e) When the match has two ref matches.
     *      f) When there is no match at all!
-    *      g) When the match is after the current find. 
+    *      g) When the match is after the current find.
     */
-    void testFindNext() 
+    void testFindNext()
     {
         const int testCount = 7 ;
         const char* prefixFind = "Test the find() method when the match " ;
@@ -223,45 +223,45 @@ public:
                  commonContainables[1], NULL \
        } ;
 
-       UtlDListIterator iter(commonList) ; 
+       UtlDListIterator iter(commonList) ;
        for (int i = 0 ; i < testCount ; i++)
        {
            string msg ;
-           
+
            const UtlContainable* act = iter.findNext(searchValuesForFind[i]) ;
            const UtlContainable* exp = expValuesForFind[i] ;
            TestUtilities::createMessage(2, &msg, prefixFind, Msgs[i]) ;
            CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), exp, act) ;
-           iter.reset() ; 
+           iter.reset() ;
        }
 
        // Now test the case where the iterator is 'past' the index
-       iter.reset() ; 
-       iter() ; 
-       iter() ; 
-       iter() ; 
-       iter() ; 
+       iter.reset() ;
        iter() ;
-       UtlContainable* act = iter.findNext(commonContainables[1]) ; 
-       CPPUNIT_ASSERT_EQUAL_MESSAGE("test findNext() when the iterator has moved past the search index", (void*)NULL, (void*)act) ; 
+       iter() ;
+       iter() ;
+       iter() ;
+       iter() ;
+       UtlContainable* act = iter.findNext(commonContainables[1]) ;
+       CPPUNIT_ASSERT_EQUAL_MESSAGE("test findNext() when the iterator has moved past the search index", (void*)NULL, (void*)act) ;
     }//testFindNext
 
     /*!a  Test case to test the toLast() and atLast() methods.
     *
     *     The test data for this test case is :-
-    *     a) An empty list 
-    *     b) A non-empty list iterator that is in its initial position 
-    *     c) A non-empty list iterator that is in its last position. 
+    *     a) An empty list
+    *     b) A non-empty list iterator that is in its initial position
+    *     c) A non-empty list iterator that is in its last position.
     *     d) A non-empty list that is in its mid position
     */
     void testLast()
     {
         UtlDList testList ;
         const char* prefix1 = "Test the toLast() method for " ;
-        const char* prefix2 = "Test the atLast() method(after calling toLast()) for " ; 
+        const char* prefix2 = "Test the atLast() method(after calling toLast()) for " ;
         string msg ;
         UtlContainable* uAct ;
-        bool isAtLast = false ; 
+        bool isAtLast = false ;
 
         const char* Msgs[] = { \
                "an empty list iterator ", \
@@ -270,57 +270,57 @@ public:
                "a non empty list that is in its mid position " \
         } ;
 
-        UtlDListIterator iter(emptyList)  ; 
-        UtlDListIterator iter2(commonList) ; 
+        UtlDListIterator iter(emptyList)  ;
+        UtlDListIterator iter2(commonList) ;
 
         // since this test requires adifferent test setup for each
         // of the test data, tests are done individually rather than using
         // the test array style of testing.
 
-        // Test#1 - Test the methods for an empty list. 
-        int ti = 0 ; 
-        iter.toLast() ; 
-        isAtLast = (TRUE == iter.atLast()) ; 
-        uAct = iter() ; 
-        TestUtilities::createMessage(2, &msg, prefix1, Msgs[ti]) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ; 
-        TestUtilities::createMessage(2, &msg, prefix2, Msgs[ti]) ; 
+        // Test#1 - Test the methods for an empty list.
+        int ti = 0 ;
+        iter.toLast() ;
+        isAtLast = (TRUE == iter.atLast()) ;
+        uAct = iter() ;
+        TestUtilities::createMessage(2, &msg, prefix1, Msgs[ti]) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ;
+        TestUtilities::createMessage(2, &msg, prefix2, Msgs[ti]) ;
         // since the list is empty, any position is __PAST__ the last position
         CPPUNIT_ASSERT_MESSAGE(msg.data(), !isAtLast) ;
 
-        // Test#2 - Test the methods for a list that is not empty. 
+        // Test#2 - Test the methods for a list that is not empty.
         ti++ ;
-        iter2.reset() ; 
+        iter2.reset() ;
         iter2.toLast() ;
-        isAtLast = (TRUE == iter2.atLast()) ; 
-        uAct = iter2() ; 
+        isAtLast = (TRUE == iter2.atLast()) ;
+        uAct = iter2() ;
         TestUtilities::createMessage(2, &msg, prefix1, Msgs[ti]) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ;
         TestUtilities::createMessage(2, &msg, prefix2, Msgs[ti]) ;
         CPPUNIT_ASSERT_MESSAGE(msg.data(), isAtLast) ;
 
-        // Test#3 - Test the methods for a list that is not empty when 
-        // the list is already in its last position.  
-        ti++ ; 
-        iter2.reset() ; 
-        iter2.toLast() ; 
-        iter2.toLast() ; 
-        isAtLast = (TRUE == iter2.atLast()) ; 
+        // Test#3 - Test the methods for a list that is not empty when
+        // the list is already in its last position.
+        ti++ ;
+        iter2.reset() ;
+        iter2.toLast() ;
+        iter2.toLast() ;
+        isAtLast = (TRUE == iter2.atLast()) ;
         uAct = iter2() ;
         TestUtilities::createMessage(2, &msg, prefix1, Msgs[ti]) ;
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ;
         TestUtilities::createMessage(2, &msg, prefix2, Msgs[ti]) ;
         CPPUNIT_ASSERT_MESSAGE(msg.data(), isAtLast) ;
 
         // Test#4 - Test the methods for a list that is not empty when the
-        // list has been iterated to somewhere in its middle position. 
-        ti++ ; 
-        iter2.reset() ; 
-        iter2() ; 
-        iter2() ; 
-        iter2.toLast() ; 
-        isAtLast = (TRUE == iter2.atLast()) ; 
-        uAct = iter2() ; 
+        // list has been iterated to somewhere in its middle position.
+        ti++ ;
+        iter2.reset() ;
+        iter2() ;
+        iter2() ;
+        iter2.toLast() ;
+        isAtLast = (TRUE == iter2.atLast()) ;
+        uAct = iter2() ;
         TestUtilities::createMessage(2, &msg, prefix1, Msgs[ti]) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)NULL, (void*)uAct) ;
         TestUtilities::createMessage(2, &msg, prefix2, Msgs[ti]) ;
@@ -335,18 +335,18 @@ public:
     */
     void testInsertAfterPoint_EmptyList()
     {
-        const char* prefix = "Test the insertAfterPoint() method for an empty list " ; 
-        const char* suffix1 = ":- Verify return value" ; 
-        const char* suffix2 = ":- Verify that the entry has been  added" ; 
-        string msg ; 
+        const char* prefix = "Test the insertAfterPoint() method for an empty list " ;
+        const char* suffix1 = ":- Verify return value" ;
+        const char* suffix2 = ":- Verify that the entry has been  added" ;
+        string msg ;
         UtlDListIterator iter(emptyList) ;
-        const UtlContainable* uReturn = iter.insertAfterPoint((UtlContainable*)commonContainables[0]) ; 
-        TestUtilities::createMessage(2, &msg, prefix, suffix1) ;  
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)commonContainables[0], (void*)uReturn) ; 
-        iter.reset() ; 
-        UtlContainable* uAppended = iter() ; 
+        const UtlContainable* uReturn = iter.insertAfterPoint((UtlContainable*)commonContainables[0]) ;
+        TestUtilities::createMessage(2, &msg, prefix, suffix1) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)commonContainables[0], (void*)uReturn) ;
+        iter.reset() ;
+        UtlContainable* uAppended = iter() ;
         TestUtilities::createMessage(2, &msg, prefix, suffix2) ;
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)commonContainables[0], (void*)uAppended) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)commonContainables[0], (void*)uAppended) ;
 
     }
 
@@ -356,70 +356,70 @@ public:
     *      a) Insert when the iterator is the starting position
     *      b) Insert when the iterator is at mid position
     *      c) Insert when the iterator is at the last position
-    *      d) Insert to an empty Iterator. 
+    *      d) Insert to an empty Iterator.
     */
     void testInsertAfterPoint()
     {
-        const char* prefix = "Test the insertAfterPoint() method when " ; 
+        const char* prefix = "Test the insertAfterPoint() method when " ;
         const char* Msgs[] = {\
                "the iterator is the starting position " , \
                "the iterator is at mid-position ", \
                "the iterator is at the last position " \
-        } ; 
-        const char* suffix1 = ":- Verify return value" ; 
-        const char* suffix2 = ":- Verify value is inserted" ;  
-        const char* suffix3 = ":- Verify that previous value is not lost" ; 
-        UtlDListIterator iter(commonList) ; 
-        const UtlContainable* uReturn ; 
-        UtlContainable* uAppended ; 
-        UtlContainable* uOrig ; 
-        string msg ; 
-    
-        UtlString newColString1("Insert at starting position") ; 
-        UtlInt newColInt2(101) ; 
-        UtlString newColString3 ("Insert at last position") ; 
- 
+        } ;
+        const char* suffix1 = ":- Verify return value" ;
+        const char* suffix2 = ":- Verify value is inserted" ;
+        const char* suffix3 = ":- Verify that previous value is not lost" ;
+        UtlDListIterator iter(commonList) ;
+        const UtlContainable* uReturn ;
+        UtlContainable* uAppended ;
+        UtlContainable* uOrig ;
+        string msg ;
+
+        UtlString newColString1("Insert at starting position") ;
+        UtlInt newColInt2(101) ;
+        UtlString newColString3 ("Insert at last position") ;
+
         UtlContainable* insertValues[] = { \
                  &newColString1, &newColInt2, &newColString3 \
         };
         const UtlContainable* oldValues[] = { \
                  commonContainables[0], commonContainables[1], commonContainables[5] \
-        } ; 
+        } ;
 
-        // Since this test requires different steps for the different test data, 
-        // steps are executed individually rather than the regular technique of 
-        // iterating through the test-array loop 
+        // Since this test requires different steps for the different test data,
+        // steps are executed individually rather than the regular technique of
+        // iterating through the test-array loop
 
         //Test#1 - Verify the case when the iterator has been reset
-        int ti = 0 ; 
-        iter.reset() ; 
-        uReturn = iter.insertAfterPoint(insertValues[ti]) ; 
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix1) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE (msg.data(), (void*)insertValues[ti], (void*)uReturn) ; 
+        int ti = 0 ;
+        iter.reset() ;
+        uReturn = iter.insertAfterPoint(insertValues[ti]) ;
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix1) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE (msg.data(), (void*)insertValues[ti], (void*)uReturn) ;
         // The item is inserted at first position
         // old[0] is now @ pos1. old[1] is now @ pos2
-        iter.reset() ; 
-        uAppended = iter() ; 
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)insertValues[ti], (void*)uAppended) ; 
-        // Verify that the original item is still retained. 
-        uOrig = iter() ; 
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)oldValues[ti], (void*)uOrig) ; 
-        
+        iter.reset() ;
+        uAppended = iter() ;
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)insertValues[ti], (void*)uAppended) ;
+        // Verify that the original item is still retained.
+        uOrig = iter() ;
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)oldValues[ti], (void*)uOrig) ;
+
         //Test#2 - inserting at mid position
-        ti = 1; 
-        iter.reset() ; 
-        iter() ; //moves cursor to 0 
-        iter() ; //moves cursor to 1 
-        iter() ; //moves cursor to 2   
+        ti = 1;
+        iter.reset() ;
+        iter() ; //moves cursor to 0
+        iter() ; //moves cursor to 1
+        iter() ; //moves cursor to 2
         // old[1] stays at pos2
         // Value is now inserted at pos3
-        uReturn = iter.insertAfterPoint(insertValues[ti]) ; 
+        uReturn = iter.insertAfterPoint(insertValues[ti]) ;
         TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix1) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE (msg.data(), (void*)insertValues[ti], (void*)uReturn) ;
         iter.reset() ;
-        iter() ;  // moves cursor to 0 
+        iter() ;  // moves cursor to 0
         iter() ; // moves cursor to 1
         // Verify that the original item is still retained.
         uOrig = iter() ;
@@ -429,26 +429,26 @@ public:
         uAppended = iter() ; //moves cursor to pos3 and returns item at pos2
         TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ;
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)insertValues[ti], (void*)uAppended) ;
-        
-        // Test#3 - Now verify when the cursor is at the last position. 
-        ti = 2 ; 
-        iter.reset() ; 
-        iter.toLast() ; 
-        uReturn = iter.insertAfterPoint(insertValues[ti]) ; 
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix1) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)insertValues[ti], (void*)uReturn) ; 
-        iter.reset() ; 
+
+        // Test#3 - Now verify when the cursor is at the last position.
+        ti = 2 ;
+        iter.reset() ;
+        iter.toLast() ;
+        uReturn = iter.insertAfterPoint(insertValues[ti]) ;
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix1) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)insertValues[ti], (void*)uReturn) ;
+        iter.reset() ;
         // now move the cursor all the way to the penultimate position
         for (size_t i = 0 ; i < commonList.entries() - 1; i++)
         {
-           uOrig = iter() ; 
+           uOrig = iter() ;
         }
-        // verify original is still retained. 
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix3) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)oldValues[ti], (void*)uOrig) ; 
+        // verify original is still retained.
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix3) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (void*)oldValues[ti], (void*)uOrig) ;
         uAppended = iter() ;
-        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE( msg.data(), (void*)insertValues[ti], (void*)uAppended) ; 
+        TestUtilities::createMessage(3, &msg, prefix, Msgs[ti], suffix2) ;
+        CPPUNIT_ASSERT_EQUAL_MESSAGE( msg.data(), (void*)insertValues[ti], (void*)uAppended) ;
 
     } //testInsertAfterPoint
 
@@ -469,7 +469,7 @@ public:
        h.insert(&v3);
        h.insert(&v4);
 
-       UtlDListIterator iter(h); 
+       UtlDListIterator iter(h);
 
        // Check that item() returns NULL in the initial state.
        CPPUNIT_ASSERT(iter.item() == NULL);
@@ -513,8 +513,8 @@ public:
     } //removeItem()
 };
 
-const int UtlDListIteratorTests::INDEX_NOT_EXIST = -1; 
-const int UtlDListIteratorTests::commonEntriesCount = 6; 
+const int UtlDListIteratorTests::INDEX_NOT_EXIST = -1;
+const int UtlDListIteratorTests::commonEntriesCount = 6;
 
 const char* UtlDListIteratorTests::longAlphaNumString = \
                    "abcdefghijklmnopqrstuvwzyz"
@@ -528,7 +528,6 @@ const char* UtlDListIteratorTests::longAlphaNumString = \
                    "abcdefghijklmnopqrstuvwzyz"
                    "abcdefghijklmnopqrstuvw" ;
 
-const char* UtlDListIteratorTests::regularString = "This makes sense" ; 
+const char* UtlDListIteratorTests::regularString = "This makes sense" ;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlDListIteratorTests);
-

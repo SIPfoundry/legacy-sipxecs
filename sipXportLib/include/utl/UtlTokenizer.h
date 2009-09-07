@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ class UtlTokenizer
     * Default constructor
     */
    UtlTokenizer(const UtlString &tokens);
-     
+
    /**
     * Destructor
     */
@@ -69,14 +69,14 @@ class UtlTokenizer
    /**
     * Copy constructor
     */
-   UtlTokenizer(const UtlTokenizer& rUtlTokenizer);     
+   UtlTokenizer(const UtlTokenizer& rUtlTokenizer);
 
    /**
     * Assignment operator
     *
     * @param rhs right hand side of the equals operator
     */
-   UtlTokenizer& operator=(const UtlTokenizer& rhs);  
+   UtlTokenizer& operator=(const UtlTokenizer& rhs);
 
    int nextDelim(const char *tokens, const int start, const int len, const char *delim);
 

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ class OsFileIteratorTest : public CppUnit::TestCase
     CPPUNIT_TEST(testCreation);
     CPPUNIT_TEST(testIterate);
     CPPUNIT_TEST_SUITE_END();
-    
+
     /** where all tests should r/w data */
     OsPath mRootPath;
 
@@ -179,4 +179,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsFileIteratorTest);
-

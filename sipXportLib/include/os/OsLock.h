@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//:Lock class for mutual exclusion in a critical section 
+//:Lock class for mutual exclusion in a critical section
 // This class uses OsBSem (binary semaphore) objects for synchronization.
 // The constructor for the class automatically blocks until the designated
 // semaphore is acquired. Similarly, the destructor automatically releases
@@ -86,4 +86,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsLock_h_
-

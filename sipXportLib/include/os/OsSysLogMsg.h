@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ class OsSysLogMsg : public OsMsg
 public:
 
    enum SubMsgTypes
-   {      
+   {
       LOG = 0,          // Log Message
       ENABLE_CONSOLE,   // Enable console output
       DISABLE_CONSOLE,  // Disable console output
@@ -101,4 +101,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  /* _OsSysLogMsg_h_ */
-

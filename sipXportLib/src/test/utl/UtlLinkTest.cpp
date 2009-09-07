@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -18,7 +18,7 @@
 static UtlInt data1(1);
 static UtlInt data2(2);
 static UtlInt data3(3);
-   
+
 
 /// Unit test of the UtlLink, UtlLinkPool, and UtlChain classes.
 class UtlLinkTest :
@@ -37,7 +37,7 @@ class UtlLinkTest :
    CPPUNIT_TEST(testListBefore);
    CPPUNIT_TEST(testLinkAfter);
    CPPUNIT_TEST(testListAfter);
-   CPPUNIT_TEST(testLinkReuse); 
+   CPPUNIT_TEST(testLinkReuse);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -48,15 +48,15 @@ public:
       {
          CPPUNIT_ASSERT(totalAllocated() == 0);
       }
-   
+
    void testLinkBefore()
       {
          UtlChain start;
-         
+
          UtlLink* link3 = UtlLink::before(&start, &data3);
 
          CPPUNIT_ASSERT(link3->data   == &data3 && data3.getValue() == 3);
-         
+
          CPPUNIT_ASSERT(link3->prev() == NULL);
          CPPUNIT_ASSERT(link3->next() == &start);
          CPPUNIT_ASSERT(start.prev == link3);
@@ -93,7 +93,7 @@ public:
 
          returnedData = link2->unlink();
          CPPUNIT_ASSERT(returnedData == &data2 && data2.getValue() == 2);
-         
+
          CPPUNIT_ASSERT(link3->data   == &data3 && data3.getValue() == 3);
          CPPUNIT_ASSERT(link1->data   == &data1 && data1.getValue() == 1);
 
@@ -124,11 +124,11 @@ public:
    void testListBefore()
       {
          UtlChain list;
-         
+
          UtlLink* link1 = UtlLink::listBefore(&list, NULL, &data1);
 
          CPPUNIT_ASSERT(link1->data   == &data1 && data1.getValue() == 1);
-         
+
          CPPUNIT_ASSERT(link1->prev() == NULL);
          CPPUNIT_ASSERT(link1->next() == NULL);
          CPPUNIT_ASSERT(list.prev == link1);
@@ -165,7 +165,7 @@ public:
 
          returnedData = link2->detachFrom(&list);
          CPPUNIT_ASSERT(returnedData == &data2 && data2.getValue() == 2);
-         
+
          CPPUNIT_ASSERT(link3->data   == &data3 && data3.getValue() == 3);
          CPPUNIT_ASSERT(link1->data   == &data1 && data1.getValue() == 1);
 
@@ -201,7 +201,7 @@ public:
          UtlLink* link1 = UtlLink::after(&start, &data1);
 
          CPPUNIT_ASSERT(link1->data   == &data1 && data1.getValue() == 1);
-         
+
          CPPUNIT_ASSERT(start.prev == NULL);
          CPPUNIT_ASSERT(start.next == link1);
          CPPUNIT_ASSERT(link1->prev() == &start);
@@ -274,7 +274,7 @@ public:
          UtlLink* link3 = UtlLink::listAfter(&list, NULL, &data3);
 
          CPPUNIT_ASSERT(link3->data   == &data3 && data3.getValue() == 3);
-         
+
          CPPUNIT_ASSERT(list.next == link3);
          CPPUNIT_ASSERT(link3->prev() == NULL);
          CPPUNIT_ASSERT(link3->next() == NULL);
@@ -344,7 +344,7 @@ public:
       {
          UtlChain start;
          size_t startingPoolSize = totalAllocated();
-         
+
          // chain on links until a new block is allocated
          int i;
          for (i = 0;
@@ -356,16 +356,16 @@ public:
          }
 
          size_t peakPoolSize = totalAllocated(); // how many we had after that allocation
-         
+
          // release all those links
          while (!start.isUnLinked())
          {
             start.head()->unlink();
          }
-         
+
          // verify that the number of allocated links didn't change
          CPPUNIT_ASSERT(peakPoolSize == totalAllocated());
-         
+
          // now repeatedly use more links, but no more than the peak usage, and free them again
          for (int iteration = 0; iteration < 1000; iteration++)
          {
@@ -400,9 +400,8 @@ public:
             CPPUNIT_ASSERT_MESSAGE(msg, peakPoolSize == totalAllocated());
          }
       }
-   
+
 
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlLinkTest);
-

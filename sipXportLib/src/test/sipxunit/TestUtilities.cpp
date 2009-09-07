@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ std::string TestUtilities::printString(const char* sz)
     return std::string(str);
 }
 
-void TestUtilities::assertEquals(const char* expected, const char* actual, 
+void TestUtilities::assertEquals(const char* expected, const char* actual,
         CppUnit::SourceLine sourceLine, const std::string &message)
 {
     if (strcmp(expected, actual) != 0)
@@ -66,7 +66,7 @@ void TestUtilities::assertEquals(const char* expected, const char* actual,
     }
 }
 
-void TestUtilities::knownBug(const char* message, const char* bugNo, 
+void TestUtilities::knownBug(const char* message, const char* bugNo,
          CppUnit::SourceLine sourceLine)
 {
     m_testingKnownBug = true;
@@ -77,7 +77,7 @@ void TestUtilities::knownBug(const char* message, const char* bugNo,
     // return after and allow non-fatal error to occur
 }
 
-void TestUtilities::knownFatalBug(const char* message, const char* bugNo, 
+void TestUtilities::knownFatalBug(const char* message, const char* bugNo,
          CppUnit::SourceLine sourceLine)
 {
     m_testingKnownBug = true;
@@ -88,14 +88,14 @@ void TestUtilities::knownFatalBug(const char* message, const char* bugNo,
     CppUnit::Asserter::fail(bugMsg, sourceLine);
 }
 
-void TestUtilities::knownEfenceBug(const char* message, const char* bugNo, 
+void TestUtilities::knownEfenceBug(const char* message, const char* bugNo,
          CppUnit::SourceLine sourceLine)
 {
     // Electric fence causes segfaults at location of error so all tests die
     // so effectively efence on will avoid error.
 #ifdef HAVE_EFENCE
     knownFatalBug(message, bugNo, sourceLine);
-#endif    
+#endif
 }
 
 std::string TestUtilities::printBug(const char* message, const char *bugNo)

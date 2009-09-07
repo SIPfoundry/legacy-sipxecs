@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ UtlContainer::UtlContainer()
 
 
 // Destructor
-UtlContainer::~UtlContainer() 
+UtlContainer::~UtlContainer()
 {
 }
 
@@ -57,7 +57,7 @@ void UtlContainer::invalidateIterators()
    UtlIterator*    foundIterator;
 
    // The caller is holding the sIteratorConnectionLock and mContainerLock.
-       
+
    // Walk the list to notify the iterators.
    for (listNode = mIteratorList.head();
         listNode != NULL;
@@ -104,7 +104,7 @@ UtlContainableType UtlContainer::getContainableType() const
 
 
 /**
- * Compare the this object to another like object.  Results for 
+ * Compare the this object to another like object.  Results for
  * comparing with a non-like object are undefined.
  *
  * @returns 0 if equal, <0 if less than and >0 if greater.
@@ -155,7 +155,7 @@ void UtlContainer::removeIterator(UtlIterator *existingIterator) const
    // This method is declared const because it makes no change that
    // any other method can detect in the container, but it actually
    // does make a change, so we have to cast away the const.
-   
+
    if (existingIterator)
    {
       UtlLink* iteratorLink;

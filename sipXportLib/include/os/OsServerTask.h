@@ -1,10 +1,10 @@
 //
-// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ public:
     * which will cause the default OsServerTask handler method to be
     * invoked on the message.
     */
-   
+
    /// Posts a message to this task.
    virtual OsStatus postMessage(const OsMsg& rMsg,
                                 ///< rMsg is usually copied before being used.
@@ -100,10 +100,10 @@ public:
                                  const OsTime& rTimeout=OsTime::OS_INFINITY);
    ///< Return the result of the message send operation.
 
-   ///< Send a message to the task requesting that it shut down. 
+   ///< Send a message to the task requesting that it shut down.
    virtual void requestShutdown(void);
    /**<
-    * Calls OsTask::requestShutdown() and then posts an OS_SHUTDOWN message 
+    * Calls OsTask::requestShutdown() and then posts an OS_SHUTDOWN message
     * to the incoming message queue to unblock the task.  This is called
     * automatically from the destructor when another task is attempting to
     * delete the task - it need not be called explicitly before invoking
@@ -132,7 +132,7 @@ protected:
    /// The entry point for the task.
    virtual int run(void* pArg);
    /**<
-    * This method executes a message processing loop until either 
+    * This method executes a message processing loop until either
     * requestShutdown(), deleteForce(), or the destructor for this object
     * is called.
     */

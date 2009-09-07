@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
  */
 const UtlLink*  UtlListIterator::NOWHERE = new UtlLink;
 UtlLink const* UtlListIterator::OFF_LIST_END = NOWHERE;
-                                              
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
@@ -41,7 +41,7 @@ UtlListIterator::UtlListIterator(const UtlList& list)
      mpCurrentNode(NULL)
 {
    OsLock container(list.mContainerLock);
-   
+
    addToContainer(&list);
 }
 
@@ -106,7 +106,7 @@ UtlContainable* UtlListIterator::operator()()
    {
       UtlContainer::releaseIteratorConnectionLock();
    }
-    
+
    return(nextVal);
 }
 
@@ -127,14 +127,14 @@ void UtlListIterator::reset()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 }
 
 
-UtlContainable* UtlListIterator::toLast() 
+UtlContainable* UtlListIterator::toLast()
 {
    UtlContainable* last = NULL;
-   
+
    UtlContainer::acquireIteratorConnectionLock();
    OsLock take(mContainerRefLock);
    UtlList* myList = static_cast<UtlList*>(mpMyContainer);
@@ -149,7 +149,7 @@ UtlContainable* UtlListIterator::toLast()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return last;
 }
@@ -179,18 +179,18 @@ UtlContainable* UtlListIterator::item() const
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
     return currentItem;
 }
 
 /* ============================ INQUIRY =================================== */
 
-// Is the iterator positioned at the last element? 
-UtlBoolean UtlListIterator::atLast() const 
+// Is the iterator positioned at the last element?
+UtlBoolean UtlListIterator::atLast() const
 {
    UtlBoolean isAtLast = false;
-   
+
    UtlContainer::acquireIteratorConnectionLock();
 
    OsLock take(mContainerRefLock);
@@ -199,16 +199,16 @@ UtlBoolean UtlListIterator::atLast() const
    {
       OsLock container(myList->mContainerLock);
       UtlContainer::releaseIteratorConnectionLock();
-      
+
       isAtLast = (mpCurrentNode && mpCurrentNode == myList->tail());
    }
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return isAtLast;
-}       
+}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

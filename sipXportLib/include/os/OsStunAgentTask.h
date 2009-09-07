@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@
 
 /**
  * The OsStunAgentTask is responsible for servicing all stun requests and
- * and responses on behalf of the OsStunDatagramSocket.  This handles the 
+ * and responses on behalf of the OsStunDatagramSocket.  This handles the
  * stun requests/responses however relies on someone else to pump sockets.
  *
  * Use cases:
@@ -53,7 +53,7 @@ class OsStunAgentTask : public OsServerTask
 private:
 
     /**
-     * Private constructor, use getInstance() 
+     * Private constructor, use getInstance()
      */
     OsStunAgentTask();
 
@@ -82,7 +82,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     /**
-     * Standard OsServerTask message handler -- used to process timer 
+     * Standard OsServerTask message handler -- used to process timer
      * messages for stun refreshes, reads, etc.
      */
     virtual UtlBoolean handleMessage(OsMsg& rMsg) ;
@@ -111,9 +111,9 @@ public:
      */
     void synchronize() ;
 
-    
+
     /**
-     * Remove any references for the given socket.  This is a cleanup method 
+     * Remove any references for the given socket.  This is a cleanup method
      * needed to referencing stale pointers.
      */
     void removeSocket(OsStunDatagramSocket* pSocket) ;
@@ -128,7 +128,7 @@ protected:
     /**
      * Signal either a positive or negative response (true or false) to the
      * for the specified socket.  This method is effectively a NOP if a NULL
-     * event object was passed to sendStunRequest or someone invoked 
+     * event object was passed to sendStunRequest or someone invoked
      * removeNotify().
      */
     void signalStunOutcome(OsStunDatagramSocket* pSocket, UtlBoolean bSuccess) ;
@@ -141,7 +141,7 @@ protected:
 
     /**
      * Handle an inbound stun message.  The messages are handled to this thread
-     * by the OsStunDatagramSocket whenever someone calls one of the read 
+     * by the OsStunDatagramSocket whenever someone calls one of the read
      * methods.
      */
     virtual UtlBoolean handleStunMessage(StunMsg& rMsg) ;
@@ -163,11 +163,11 @@ private:
     UtlHashMap mResponseMap;                /**< Map of outstanding refresh requests
                                              *   key is the pSocket: this memory is not owned
                                              *   by this class, so it is not deleted.
-                                             */  
+                                             */
     UtlHashMap mConnectivityMap ;           /**< Map of outstanding connectivity probes */
     UtlSList mTimerPool;                    /**< List of free timers available for use */
     UtlSList mSocketReferences;             /**< sockets that called getInstance */
-    
+
     /** Keep track of sockets that reference this task */
     void addSocket(OsStunDatagramSocket* socket);
 
@@ -175,11 +175,11 @@ private:
     void releaseIfNotReferenced();
 
     /** Disabled copy constructor (not supported) */
-    OsStunAgentTask(const OsStunAgentTask& rOsStunAgentTask);     
+    OsStunAgentTask(const OsStunAgentTask& rOsStunAgentTask);
 
     /** Disabled equal operators (not supported) */
-    OsStunAgentTask& operator=(const OsStunAgentTask& rhs);  
-   
+    OsStunAgentTask& operator=(const OsStunAgentTask& rhs);
+
 };
 
 /* ============================ INLINE METHODS ============================ */

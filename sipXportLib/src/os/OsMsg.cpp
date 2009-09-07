@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ OsMsg::~OsMsg()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-OsMsg& 
+OsMsg&
 OsMsg::operator=(const OsMsg& rhs)
 {
    if (this != &rhs)            // handle the assignment to self case
@@ -121,7 +121,7 @@ unsigned char OsMsg::getMsgSubType(void) const
 {
    return mMsgSubType;
 }
-     
+
 // Return the size of the message in bytes.
 // This is a virtual method so that it will return the accurate size for
 // the message object even if that object has been upcast to the type of
@@ -174,5 +174,3 @@ int OsMsg::compareTo(UtlContainable const* other) const
 
 
 /* ============================ FUNCTIONS ================================= */
-
-

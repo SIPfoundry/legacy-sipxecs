@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -239,7 +239,7 @@ public:
 
           KNOWN_BUG("Fails on ecs-fc8. Timing issue.", "XECS-1975");
           CPPUNIT_ASSERT_MESSAGE(failureMessage.data(), gCallBackCount == 1);
- 
+
           failureMessage.remove(0);
           failureMessage.append("oneshotAfter returned failure on iteration ");
           failureMessage.appendNumber(i);
@@ -673,7 +673,7 @@ public:
           OsStatus result;
           {
              UtlBoolean sendMessage = FALSE;
-             
+
              // Update members.
              {
                 OsLock lock(timer.mBSem);

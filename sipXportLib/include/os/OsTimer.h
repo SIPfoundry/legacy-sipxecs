@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -42,12 +42,12 @@
 
 /**
  * This class implements one-shot and periodic timers.
- * 
+ *
  * Once a timer is created, it must be started.  After the specified time,
  * the timer expires or "fires", at which point (depending on how the
  * timer was created) an OsNotification object is used to signal an
  * event, or a message is posted to a specified queue.
- * 
+ *
  * A timer may be stopped at any time (except when the timer is being
  * destroyed).  The destructor calls stop() before freeing the timer.
  *
@@ -57,42 +57,42 @@
  * execution that has been previously committed may execute after stop()
  * returns.  (For one-shot timers, this can be detected by examining the
  * return value of stop().)
- * 
+ *
  * Once a timer is stopped with stop() or by firing (if it is a one-shot
  * timer), it can be started again.  The time interval of a timer can be
  * changed every time it is started, but its notification information is
  * fixed when it is created.
- * 
+ *
  * All methods can be used concurrently, except that no other method may be
  * called concurrently with the destructor (which cannot be made to work,
  * as the destructor deletes the timer's memory).  Note that a timer may
  * fire while it is being deleted; the destructor handles this situation
  * correctly, the timer is guaranteed to exist until after the event
  * routine returns.
- * 
+ *
  * An event routine should be non-blocking, because it is called on
  * the timer task thread.  Within an event routine, all non-blocking
  * methods may be executed on the timer.  When the event routine of a
  * one-shot timer is entered, the timer is in the stopped state.  When
  * the event routine of a periodic timer is entered, the timer is
  * still in the running state.
- * 
+ *
  * (If mbManagedNotifier is set, the timer may not be destroyed (using
  * deleteAsync, which is non-blocking), as that destroys the
  * OsNotifier object whose method is the event notifier that is
  * currently running.  But there is no current interface for creating
  * that situation.)
- * 
+ *
  * Most methods are non-blocking, except to seize the timer's mutex
  * and to post messages to the timer task's message queue.  The
  * exceptions are the destructor and synchronous stops, which must
  * block until they get a response from the timer task.
- * 
+ *
  * If VALGRIND_TIMER_ERROR is defined, additional code is created to
  * detect and backtrace errors in timer usage.  This code causes run-time
  * errors that Valgrind can detect to produce backtraces of where the
  * invalid method invocations were made.
- * 
+ *
  * If NDEBUG is defined, some checking code that is used only to trigger
  * asserts is omitted.  (To prevent chaos when different libraries are
  * compiled with different options, defining NDEBUG does *not* change
@@ -278,7 +278,7 @@ class OsTimer : public UtlContainableAtomic
    Time            mQueuedExpiresAt; //< expire time of timer
    UtlBoolean      mQueuedPeriodic;  //< TRUE if timer fires repetitively
    Interval        mQueuedPeriod;    //< repetition time
-    
+
    int             mOutstandingMessages;
    /**< number of messages for this timer in
     *   the timer task's queue

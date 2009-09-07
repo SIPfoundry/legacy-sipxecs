@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -31,8 +31,8 @@
 class UtlContainable;
 
 /**
- * A UtlHashBag is an orderless container that efficiently allows for both 
- * random access and iteration. 
+ * A UtlHashBag is an orderless container that efficiently allows for both
+ * random access and iteration.
  */
 class UtlHashBag : public UtlContainer
 {
@@ -49,26 +49,26 @@ class UtlHashBag : public UtlContainer
    /**
     * Destructor
     */
-   virtual ~UtlHashBag(); 
+   virtual ~UtlHashBag();
 /* ============================ MANIPULATORS ============================== */
 
    /**
-    * Insert the designated object into this container.  
-    * 
+    * Insert the designated object into this container.
+    *
     * @return the given object on success otherwise null.
     */
    virtual UtlContainable* insert(UtlContainable* object);
 
    /**
-    * Remove one matching object from this container.  
-    * 
+    * Remove one matching object from this container.
+    *
     * @return the removed object if a match was found, otherwise NULL.
     */
    virtual UtlContainable* remove(const UtlContainable* object);
-    
+
    /**
     * Remove the designated object by reference
-    * (as opposed to searching for an equality match).  
+    * (as opposed to searching for an equality match).
     * Note that *object must be an allocated UtlContainable, as removeReference
     * evaluates its hash.
     *
@@ -77,11 +77,11 @@ class UtlHashBag : public UtlContainer
    virtual UtlContainable* removeReference(const UtlContainable* object);
 
    /**
-    * Removes one matching object from the bag and deletes the object 
+    * Removes one matching object from the bag and deletes the object
     *
     * @return true if a match was found, false if not
-    */ 
-   virtual UtlBoolean destroy(const UtlContainable* object);    
+    */
+   virtual UtlBoolean destroy(const UtlContainable* object);
 
    /**
     * Removes all elements from the container and deletes each one.
@@ -126,9 +126,9 @@ class UtlHashBag : public UtlContainer
    UtlBoolean isEmpty() const;
 
    /**
-    * Return true if the container includes the designated object.  Each 
-    * element within the list is tested for equality against the designated 
-    * object using the equals() method. 
+    * Return true if the container includes the designated object.  Each
+    * element within the list is tested for equality against the designated
+    * object using the equals() method.
     */
    UtlBoolean contains(const UtlContainable* object) const;
 
@@ -171,7 +171,7 @@ class UtlHashBag : public UtlContainer
             resize();
          }
       }
-    
+
    size_t    mElements;   ///< number of UtlContainable objects in this UtlHashMap
    size_t    mBucketBits; ///< number of bits used to index the buckets
    UtlChain* mpBucket;    ///< an array of 2**n UtlChain elements, each used as a list header.
@@ -189,7 +189,7 @@ class UtlHashBag : public UtlContainer
    void resize();
    /**
     * This should only be called through resizeIfNeededAndSafe.
-    */          
+    */
 
    /// Search for a given key value and return the the UtlPair and bucket for it.
    bool lookup(const UtlContainable* key, ///< The key to locate.
@@ -202,7 +202,7 @@ class UtlHashBag : public UtlContainer
    /**<
     * @return true if the key was found, and false if not.
     */
-    
+
    /// Insert a pair into a bucket.
    void insert(UtlPair*        pair,   /**< The UtlPair for the entry - data, value, and hash
                                         *   are already set. */
@@ -217,7 +217,7 @@ class UtlHashBag : public UtlContainer
    UtlHashBag(UtlHashBag&);
 
    UtlHashBag& operator=(UtlHashBag&);
-   
+
 };
 
 /* ============================ INLINE METHODS ============================ */

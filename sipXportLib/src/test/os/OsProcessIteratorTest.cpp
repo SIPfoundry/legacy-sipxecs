@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -48,11 +48,10 @@ public:
             #endif
             CPPUNIT_ASSERT_MESSAGE("Valid Parent PID", process.getParentPID() >= 0);
             CPPUNIT_ASSERT_MESSAGE("Valid process name", name.data() != NULL);
-            
+
             stat = pi.findNext(process);
         }
     }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OsProcessIteratorTest);
-

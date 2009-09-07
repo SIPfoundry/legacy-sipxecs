@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -159,7 +159,7 @@ OsStatus OsFileSystem::change(const OsPath& path)
 OsStatus OsFileSystem::createDir(const OsPath& path, const UtlBoolean createParent)
 {
     OsStatus stat = OS_SUCCESS;
-    
+
     if (createParent)
     {
         stat = createDirRecursive(path);
@@ -289,17 +289,17 @@ OsStatus OsFileSystem::removeTree(const OsPath& path,UtlBoolean bForce)
 OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
 {
     OsStatus retval = OS_FAILED;
-    
+
     UtlString parentDir;
-    
+
     if (!exists(rOsPath))
     {
         // Find last separator and chop last name off path
         UtlString sep = OsPath::separator;
-        
+
         ssize_t lastSep = UtlString::UTLSTRING_NOT_FOUND;
         ssize_t nextSep = rOsPath.index(sep);
-        
+
         while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
         {
             lastSep = nextSep;
@@ -328,11 +328,8 @@ OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
     {
         retval = OS_SUCCESS;
     }
-    
+
     return retval;
 }
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

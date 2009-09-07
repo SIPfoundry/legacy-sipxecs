@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -93,10 +93,10 @@ public:
    };
 
    static const char* TaskStateName(enum TaskState state);
-   
+
    /// Spawn a new task and invoke its run() method..
    virtual UtlBoolean start(void) = 0;
-   /**<         
+   /**<
     * @Return TRUE if the spawning of the new task is successful,
     *         FALSE if the task spawn fails or if the task has already been started.
     */
@@ -119,37 +119,37 @@ public:
 
    /// Suspend the task.
    virtual OsStatus suspend(void) = 0;
-   /**<         
+   /**<
     * This routine suspends the task. Suspension is additive: thus, tasks
     * can be delayed and suspended, or pended and suspended. Suspended,
     * delayed tasks whose delays expire remain suspended. Likewise,
     * suspended, pended tasks that unblock remain suspended only.
     */
-   
+
    /// Resume the task.
    virtual OsStatus resume(void) = 0;
-   /**<         
+   /**<
     * This routine resumes the task. The task suspension is cleared, and
     * the task operates in the remaining state.
     */
 
    /// Set the errno status for the task.
    virtual OsStatus setErrno(int errno) = 0;
-   /**<         
+   /**<
     * The only option that can be changed after a task has been created
     * is whether to allow breakpoint debugging.
     */
 
    /// Set the priority of the task.
    virtual OsStatus setPriority(int priority) = 0;
-   /**<         
+   /**<
     * Priorities range from 0, the highest priority, to 255, the lowest
     * priority.
     */
 
    /// Set the userData for the task..
    virtual void setUserData(int data);
-   /**<         
+   /**<
     * The class does not use this information itself, but merely stores
     * it on behalf of the caller.
     */
@@ -171,14 +171,14 @@ public:
    /// Block all signals from the calling thread
    static OsStatus blockSignals(void);
    /**<
-    * Block all signals from this thread.  Static so "main()" 
+    * Block all signals from this thread.  Static so "main()"
     * can call it to isolate it and all subsequent threads from signals.
     */
 
    /// Unblock all signals from the calling thread
    static OsStatus unBlockSignals(void);
    /**<
-    * Unblock all signals from this thread.  Static so "main()" 
+    * Unblock all signals from this thread.  Static so "main()"
     * can call it to unisolate it and all subsequent threads from signals.
     */
 
@@ -191,7 +191,7 @@ public:
 
    /// Delay a task from executing for the specified number of milliseconds.
    static OsStatus delay(const int milliSecs);
-   /**<         
+   /**<
     * This routine causes the calling task to relinquish the CPU for the
     * duration specified. This is commonly referred to as manual
     * rescheduling, but it is also useful when waiting for some external
@@ -205,13 +205,13 @@ public:
 
    /// Return a pointer to the OsTask object for the currently executing task.
    static OsTaskBase* getCurrentTask(void);
-   /**<         
+   /**<
     * Return NULL if none exists.
     */
 
    /// Return an Id of the currently executing task.
    static OsStatus getCurrentTaskId(pthread_t &rid);
-   /**<         
+   /**<
     * This Id is unique within the current process, but not necessarily
     * over the entire host.
     * Any two simultaneous executions that share their memory space
@@ -220,13 +220,13 @@ public:
 
    /// Return a pointer to the OsTask object corresponding to the named task.
    static OsTaskBase* getTaskByName(const UtlString& taskName);
-   /**<         
+   /**<
     * Return NULL if there is no task object with that name.
     */
 
    /// Return a pointer to the OsTask object corresponding to taskId.
    static OsTaskBase* getTaskById(const pthread_t taskId);
-   /**<         
+   /**<
     * Return NULL is there is no task object with that id.
     */
 
@@ -255,7 +255,7 @@ public:
 
    /// Check if the task is ready to run.
    virtual UtlBoolean isReady(void) = 0;
-   /**<         
+   /**<
     * Return TRUE is the task is ready, otherwise FALSE.
     */
 
@@ -275,7 +275,7 @@ public:
 
    /// Check if the task is suspended.
    virtual UtlBoolean isSuspended(void) = 0;
-   /**<         
+   /**<
     * Return TRUE is the task is suspended, otherwise FALSE.
     */
 
@@ -297,7 +297,7 @@ protected:
 
    /// The entry point for the task.
    virtual int run(void* pArg) = 0;
-   /**<         
+   /**<
     * This method is called in the underlying thread context when
     * the thread begins execution (triggered by a call to the start method).
     * When this routine exits, the underlying thread is destroyed.
@@ -329,7 +329,7 @@ protected:
 
    /// Acknowledge a shutdown request.
    virtual void ackShutdown(void);
-   /**<         
+   /**<
     * The OsTask object calls this method just after the run() method exits to indidate that
     * the thread has stopped execution.
     */

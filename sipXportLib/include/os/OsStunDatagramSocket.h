@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@
 #define STUN_TIMEOUT_RESPONSE_MS                500  /**< Wait at most 500ms for a stun response    */
 #define STUN_INITIAL_REFRESH_REPORT_THRESHOLD   5    /**< First complain after failing N times */
 #define STUN_REFRESH_REPORT_THRESHOLD           120  /**< After success, complain after N times */
-#define STUN_ABORT_THRESHOLD                    60   /**< Abort after failing to keep-alive N times 
+#define STUN_ABORT_THRESHOLD                    60   /**< Abort after failing to keep-alive N times
                                                           if we never succeeded. */
 #define STUN_FAILURE_REFRESH_PERIOD_SECS        1    /**< How often to retry under error */
 
@@ -46,17 +46,17 @@ class OsStunAgentTask;
 
 /**
  * OsStunDatagramSocket extends an OsDatagramSocket by adding an integrated
- * STUN client.  If STUN is enabled, STUN request will be send to the 
+ * STUN client.  If STUN is enabled, STUN request will be send to the
  * designated server every refresh period.  The external address obtained by
  * stun is retrieved by invoking getExternalIp.
  *
- * For this mechanism to work, someone must pump inbound socket data by 
+ * For this mechanism to work, someone must pump inbound socket data by
  * calling one of the ::read() methods.  Otherwise, the stun packets will
- * not be received/processed.  Internally, the implemenation peeks at the 
- * read data and passes the stun message to the OsStunQueryAgent for 
+ * not be received/processed.  Internally, the implemenation peeks at the
+ * read data and passes the stun message to the OsStunQueryAgent for
  * processing.
  *
- * 
+ *
  */
 class OsStunDatagramSocket : public OsDatagramSocket
 {
@@ -66,7 +66,7 @@ public:
 
 /* ============================ CREATORS ================================== */
     /**
-     * Constructor accepting the remote host port, name, localhost port, 
+     * Constructor accepting the remote host port, name, localhost port,
      * name, and stun attributes.
      *
      * @param remoteHostPort Port of the remote host for connection-like use of
@@ -80,16 +80,16 @@ public:
      *        to bind on.
      * @param bEnableStun Enable stun for this socket instance.
      * @param szStunServer Default stun server
-     * @param iRefreshPeriodInSec How often to refresh the stun binding 
+     * @param iRefreshPeriodInSec How often to refresh the stun binding
      *        (keep alive).
      * @param iStunOptions Optional bitwise-or of STUN_CHANGE_* symbols.
      * @param pNotification Optional notification event that is signaled upon
-     *        the initial successful stun response or on failure (did not 
-     *        receive a stun response within (STUN_ABORT_THRESHOLD * 
+     *        the initial successful stun response or on failure (did not
+     *        receive a stun response within (STUN_ABORT_THRESHOLD *
      *        STUN_TIMEOUT_RESPONSE_MS).
      */
-    OsStunDatagramSocket(int remoteHostPort, 
-                         const char* remoteHostName, 
+    OsStunDatagramSocket(int remoteHostPort,
+                         const char* remoteHostName,
                          int localHostPort = PORT_DEFAULT,
                          const char* localHostName = NULL,
                          bool bEnableStun = FALSE,
@@ -129,8 +129,8 @@ public:
 
     /**
      * Set the STUN keep alive period in seconds.  If a keep alive period was
-     * already set and STUN was enabled this method will abort the current 
-     * timer and set a new timer from now.  If is safest to manually call 
+     * already set and STUN was enabled this method will abort the current
+     * timer and set a new timer from now.  If is safest to manually call
      * refreshStunBinding(FALSE) immediate after resetting the keep alive
      * period.
      *
@@ -153,9 +153,9 @@ public:
      *
      * @param stunOptions See the STUN_ defines for possible options.
      */
-    virtual void setStunOptions(int stunOptions) ;      
+    virtual void setStunOptions(int stunOptions) ;
 
-    /** 
+    /**
      * Enable or disable STUN.  Disabling STUN will stop all keep alives
      * and cause getExternalIp to fail.  Enabling STUN will reset the the
      * keep alive timer and will force a binding refresh.
@@ -168,13 +168,13 @@ public:
      * When a stun packet is received this socket can either call read again
      * to obtain the next packet or return with zero bytes read.  By default
      * the socket will transparently call Read again and will block until a
-     * non-stun packet is read. Calling this method will effect the next 
+     * non-stun packet is read. Calling this method will effect the next
      * read -- in other words it will not unblock an active read.
      *
      * @param bEnable True to enable transparent stun reads and block until
-     *        a non-stun packet is received (default) or False to return 
+     *        a non-stun packet is received (default) or False to return
      *        with zero bytes read if a stun packet is received.
-     */ 
+     */
     virtual void enableTransparentStunReads(bool bEnable) ;
 
     /**
@@ -183,7 +183,7 @@ public:
      * milliseconds for a response.
      *
      * @param bFromReadSocket True to read immediately from the socket or False
-     *        to assume that someone is already reading from the socket.  
+     *        to assume that someone is already reading from the socket.
      *        In most cases someone else is reading from the socket, and you
      *        should specify false.
      */
@@ -200,28 +200,28 @@ public:
     virtual int readStunPacket(char* buffer, int bufferLength, const OsTime& rTimeout) ;
 
     /**
-     * Add an alternate destination to this OsStunDatagramSocket.  Alternate 
+     * Add an alternate destination to this OsStunDatagramSocket.  Alternate
      * destinations are tested by sending stun packets.  If a stun response is
      * received and the priority is greater than what has already been selected
      * then that address is used.
-     * 
+     *
      * @param szAddress IP address of the alternate destination
      * @param iPort port number of the alternate destination
-     * @param cPriority priority of the alternate where a higher number 
+     * @param cPriority priority of the alternate where a higher number
      *        indicates a higher priority.
      */
     virtual void addAlternateDestination(const char* szAddress, int iPort, unsigned char cPriority) ;
 
     /**
-     * Sets as notification event that is signaled upon the next successful 
-     * stun response or on failure (did not receive a stun response within 
+     * Sets as notification event that is signaled upon the next successful
+     * stun response or on failure (did not receive a stun response within
      * (STUN_ABORT_THRESHOLD * STUN_TIMEOUT_RESPONSE_MS).  If a notification
-     * event was previous set either by calling this method or via the 
+     * event was previous set either by calling this method or via the
      * constructor, it will be overridden.  If the initial STUN success/failure
      * state has already been determined, this method is undefined.
-     * 
+     *
      * @param pNotification Notification event signaled on success or failure.
-     */ 
+     */
     virtual void setNotifier(OsNotification* pNotification) ;
 
 /* ============================ ACCESSORS ================================= */
@@ -246,7 +246,7 @@ protected:
      *
      * @param address STUN-derived hostname/IP address
      * @param iPort STUN-derived port address
-     */ 
+     */
     void setStunAddress(const UtlString& address, const int iPort) ;
 
     /**
@@ -263,19 +263,19 @@ protected:
 
     /**
      * Reset the destination address for this OsStunDatagramSocket.  This
-     * method is called by the OsStunAgentTask when a better address is 
+     * method is called by the OsStunAgentTask when a better address is
      * found via STUN/ICE.
      *
      * @param address The new destination address
      * @param iPort The new destination port
      * @param cPriority Priority of the destination address
      */
-    void setDestinationAddress(const UtlString& address, int iPort, unsigned char cPriority) ;    
+    void setDestinationAddress(const UtlString& address, int iPort, unsigned char cPriority) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     int mKeepAlivePeriod ;      /**< Keep alive/refresh period */
-    int mCurrentKeepAlivePeriod;/**< Current keep alive period -- may be 
+    int mCurrentKeepAlivePeriod;/**< Current keep alive period -- may be
                                      accelerated under error conditions */
     UtlString mStunServer ;     /**< stun server name */
     int mStunOptions ;          /**< STUN client options */
@@ -291,7 +291,7 @@ private:
     int miDestPort ;            /**< Destination port */
     unsigned char mcDestPriority ; /**< Priority of destination address / port. */
     OsNotification* mpNotification ; /** Notify on initial success or failure */
-    
+
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -304,10 +304,10 @@ class StunMsg : public OsMsg
 {
 public:
 /* ============================ CREATORS ================================== */
-   StunMsg(char*                 szBuffer, 
-           int                   nLength, 
-           OsStunDatagramSocket* pSocket, 
-           UtlString             receivedIp, 
+   StunMsg(char*                 szBuffer,
+           int                   nLength,
+           OsStunDatagramSocket* pSocket,
+           UtlString             receivedIp,
            int                   iReceivedPort);
      //:Constructor
 

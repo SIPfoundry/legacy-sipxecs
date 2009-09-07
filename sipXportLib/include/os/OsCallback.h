@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,8 +29,8 @@ typedef void (*OsCallbackFunc) (void* userData, intptr_t eventData);
 
 // FORWARD DECLARATIONS
 
-//:Callback function that is executed when the event is signaled. 
-//:Event notification method where a callback function is executed in the 
+//:Callback function that is executed when the event is signaled.
+//:Event notification method where a callback function is executed in the
 //:Notifier's context when the corresponding event occurs.
 
 // <p><b>Background</b>
@@ -92,4 +92,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsCallback_h_
-

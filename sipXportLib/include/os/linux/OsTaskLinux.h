@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ public:
    * FALSE if the task spawn fails or if the task has already
    * been started.
    */
-     
+
    /// Suspend the task.
    virtual OsStatus suspend(void);
    /**<
@@ -116,14 +116,14 @@ public:
    /// Block all signals from the calling thread
    static OsStatus blockSignals(void);
    /**<
-    * Block all signals from this thread.  Static so "main()" 
+    * Block all signals from this thread.  Static so "main()"
     * can call it to isolate it and all subsequent threads from signals.
     */
 
    /// Unblock all signals from the calling thread
    static OsStatus unBlockSignals(void);
    /**<
-    * Unblock all signals from this thread.  Static so "main()" 
+    * Unblock all signals from this thread.  Static so "main()"
     * can call it to unisolate it and all subsequent threads from signals.
     */
 
@@ -209,11 +209,11 @@ private:
 
    /// Function that serves as the starting address for a Linux task.
    static void * taskEntry(void* arg);
-   
+
    /// Acknowledge a shutdown request.
    virtual void ackShutdown(void);
-   /**<         
-    * This method is called at the end of taskEntry, after the 
+   /**<
+    * This method is called at the end of taskEntry, after the
     * run() method has returned, so the thread is no longer running.
     */
 
@@ -228,4 +228,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsTaskLinux_h_
-

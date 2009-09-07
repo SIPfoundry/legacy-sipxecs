@@ -51,7 +51,7 @@ Requires: openssl-devel >= 0.9.7a
 Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
-Summary: Header files for %name 
+Summary: Header files for %name
 
 %description devel
 This library provides a set of classes that provide an operating
@@ -86,7 +86,7 @@ make all
 
 # makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
 # libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use 
+# our makefiles are built, they'd rather preserve libdir, and use
 # DESTDIR when copying/moving/creating files.  The approach we're taking
 # is quite standard, so it's surprising RPM's makeinstall macro is
 # the way it is.
@@ -94,7 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 %clean
-# Do Not Clean - when we are building a set of sipX RPMs, we need the 
+# Do Not Clean - when we are building a set of sipX RPMs, we need the
 #                dependencies to be here.
 rm -rf $RPM_BUILD_ROOT
 
@@ -137,7 +137,7 @@ rm -rf $RPM_BUILD_ROOT
 	%{_localstatedir}/log/sipxpbx \
 	%{_localstatedir}/sipxdata/mediaserver/data \
 	%{_datadir}/www/cgi-bin/replication \
-     -nogroup | 
+     -nogroup |
          xargs chgrp @SIPXPBXGROUP@
   # Ensure a success exit value, as the preceding 'find' may have found
   # no files.

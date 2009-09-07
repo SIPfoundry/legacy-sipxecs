@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -40,15 +40,15 @@ public:
    static unsigned long sFreeCnt;  // Track the number of memory frees
    static int           sTraceFlag;// If non-zero, print a line of info
                                    //  for every call to new()/delete()
-   static unsigned long sStartTime;  // 
+   static unsigned long sStartTime;  //
    static UtlRscStore mResourceStore;
 
    enum RscType
    {
           NONE          = 0,
-      MEMORY    = 1,   
-      OSSOCKET  = 2,       
-      OSMSGQ    = 3,  
+      MEMORY    = 1,
+      OSSOCKET  = 2,
+      OSMSGQ    = 3,
       OSBSEM    = 4,
           OSCSEM        = 5,
           OSMUTEX       = 6,
@@ -122,28 +122,28 @@ public:
 
         static void addAllocCnt(int size,
                                 intptr_t addr,
-                                const char* name, 
-                                int pArg, 
-                                int priority, 
+                                const char* name,
+                                int pArg,
+                                int priority,
                                 int options,
                                 pthread_t taskId);
     //: Add allocCnt for the task, used for OsTask tracking
 
         static void addAllocCnt(int state,
                                 intptr_t addr,
-                                int timerId, 
-                                int type, 
+                                int timerId,
+                                int type,
                                 pthread_t taskId);
     //: Add allocCnt for the task, used for OsTimer/OsCSem tracking
 
         static void addAllocCnt(int options,
                                 intptr_t addr,
-                                int state, 
+                                int state,
                                 pthread_t taskId);
     //: Add allocCnt for the task, used for OsBSem tracking
 
         static void addAllocCnt(intptr_t addr,
-                               const char* name, 
+                               const char* name,
                                 pthread_t taskId);
     //: Add allocCnt for the task, used for OsMsgQ tracking
 
@@ -184,7 +184,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-        static long mCheckpoint; // Used to remember the net number of 
+        static long mCheckpoint; // Used to remember the net number of
                      // allocations at time of checkpoint
         static OsMutex    *mpResourceStoreLock;
 
@@ -198,4 +198,3 @@ private:
 #endif // RSC_TEST
 
 #endif  // _UtlRscTrace_h_
-

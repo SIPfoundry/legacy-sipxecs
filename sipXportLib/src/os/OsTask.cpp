@@ -1,6 +1,6 @@
 //
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -61,11 +61,11 @@ void OsTaskBase::requestShutdown(void)
       switch (mState)
       {
       case UNINITIALIZED:
-         mState = TERMINATED;      
+         mState = TERMINATED;
          break;
 
       case RUNNING:
-         mState = SHUTTING_DOWN;      
+         mState = SHUTTING_DOWN;
          break;
 
       case SHUTTING_DOWN:
@@ -81,7 +81,7 @@ void OsTaskBase::requestShutdown(void)
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
                  "OsTaskBase::requestShutdown "
                  "on task '%s', transition %s -> %s",
-                 mName.data(), 
+                 mName.data(),
                  TaskStateName(before), TaskStateName(after));
 }
 

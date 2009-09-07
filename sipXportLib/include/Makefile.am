@@ -157,6 +157,6 @@ EXTRA_DIST= \
     os/wnt/OsSharedLibMgrWnt.h \
     os/wnt/OsTaskWnt.h \
     os/wnt/OsUtilWnt.h \
-    os/wnt/WIndowsAdapterInfo.h 
+    os/wnt/WIndowsAdapterInfo.h
 
 DISTCLEANFILES = Makefile.in

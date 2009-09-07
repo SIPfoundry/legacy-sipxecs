@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@
 // FORWARD DECLARATIONS
 
 //: A list with an attached lock that can be taken and held.
-// 
+//
 class OsLockingList
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -57,7 +57,7 @@ public:
 
    void* remove(int iteratorHandle);
    //: Get and remove the pointer at the current element
-   
+
    void releaseIteratorHandle(int iteratorHandle);
    //: Release the iterator lock so that other methods may be used
 
@@ -90,7 +90,7 @@ private:
    UtlDList list;
    UtlDListIterator* listIterator;
    UtlVoidPtr* currentElement;
-   
+
    void assertIterator(int iteratorHandle);
 
    OsLockingList& operator=(const OsLockingList& rhs);
@@ -104,4 +104,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _OsLockingList_h_
-

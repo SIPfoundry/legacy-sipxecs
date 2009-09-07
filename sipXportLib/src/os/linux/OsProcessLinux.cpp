@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -56,18 +56,18 @@ OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename,
         mStdInputFilename = rStdInputFilename;
     else
         mStdInputFilename = "";
-        
-    
+
+
     if (rStdOutputFilename.length())
         mStdOutputFilename = rStdOutputFilename;
     else
         mStdInputFilename = "";
-    
+
     if (rStdErrorFilename.length())
         mStdErrorFilename = rStdErrorFilename;
     else
         mStdInputFilename = "";
-    
+
     return retval;
 }
 
@@ -75,7 +75,7 @@ OsStatus OsProcessLinux::setIORedirect(OsPath &rStdInputFilename,
 OsStatus OsProcessLinux::setPriority(int prio)
 {
     OsStatus retval = OS_FAILED;
-    
+
     if (setpriority(PRIO_PROCESS,mPID,prio) == 0)
     {
         retval = OS_SUCCESS;
@@ -92,7 +92,7 @@ int readAll(int fd, UtlString* message)
    {
       return -1;
    }
-   
+
    char buf[1024]="";
    int rc;
 
@@ -105,7 +105,7 @@ int readAll(int fd, UtlString* message)
          message->append(buf, rc);
       }
    } while (rc == sizeof(buf));
-   
+
    // If output was obtained, return its length.
    // But if no output was obtained, return the 0 or -1 that
    // read() returned.
@@ -123,7 +123,7 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
       // if pipes have not been created, we can't get any output
       return -1;
    }
-   
+
    int bytesRead = 0;
    int fds = 0;
    struct pollfd outputFds[2] = { {-1, 0, 0}, {-1, 0, 0} };
@@ -159,7 +159,7 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
       // For stderr, we need to check both elements of the outputFds array because
       // its position depends on whether or not we've been asked for stdout.
       if (((outputFds[1].fd == m_fderr[0]) && (outputFds[1].revents & POLLIN)) ||
-          ((outputFds[0].fd == m_fderr[0]) && (outputFds[0].revents & POLLIN))) 
+          ((outputFds[0].fd == m_fderr[0]) && (outputFds[0].revents & POLLIN)))
       {
          if ( (rc=readAll( m_fderr[0], stderrMsg )) > 0)
          {
@@ -167,11 +167,11 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
          }
       }
    }
-   
+
    return bytesRead;
 }
 
-//waits for a process to complete before returning 
+//waits for a process to complete before returning
 //or exits when WaitInSecs has completed
 int OsProcessLinux::wait(int WaitInSecs)
 {
@@ -217,7 +217,7 @@ int OsProcessLinux::wait(int WaitInSecs)
                   // and a signal SIGCHLD was generated.
                   // Obtain the exit code and return it.
                   bStillRunning = FALSE;
-                  if (WIFEXITED(status)) 
+                  if (WIFEXITED(status))
                   {
                      ExitCode = WEXITSTATUS(status);
                   }
@@ -244,7 +244,7 @@ int OsProcessLinux::wait(int WaitInSecs)
 OsStatus OsProcessLinux::kill()
 {
     OsStatus retval = OS_FAILED;
-    
+
     if (::kill(mPID, SIGTERM) == 0)
     {
         int trycount = 0;
@@ -253,16 +253,16 @@ OsStatus OsProcessLinux::kill()
 
         while (isRunning() && trycount++ < 3)
         {
-            OsTask::delay(1000);    
+            OsTask::delay(1000);
             ::kill(mPID, SIGTERM);
         }
-        
+
         //bust a cap in it's....
         trycount = 0;
         while (isRunning() && trycount++ < 30)
         {
             ::kill(mPID, SIGKILL);
-            OsTask::delay(1000);    
+            OsTask::delay(1000);
         }
 
         if (isRunning())
@@ -319,26 +319,26 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
     // create pipes between the parent and child for stdout and stderr
     if ( pipe(m_fdout) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d", 
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fdout[0] = -1;
        m_fdout[1] = -1;
     }
     if ( pipe(m_fderr) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d", 
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fderr[0] = -1;
        m_fderr[1] = -1;
     }
-    
+
     //now fork into two processes
     PID forkReturnVal = fork();
-    switch (forkReturnVal) 
+    switch (forkReturnVal)
     {
         case -1 :   retval = OS_FAILED;
                     break;
-        
+
         case 0 :
         {
                     // this is the child process so we need to exec the new
@@ -350,7 +350,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     // This has to do with the interactions between C++, the OS
                     // abstraction layer, and the way threads are implemented on
                     // Linux.
-                    
+
                     // child closes the reading end of the pipes
                     close(m_fdout[0]);
                     close(m_fderr[0]);
@@ -358,17 +358,17 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     if (mStdOutputFilename.length())
                     {
                         // Standard output file was set.
-                        if (!freopen(mStdOutputFilename.data(),"w",stdout)) 
+                        if (!freopen(mStdOutputFilename.data(),"w",stdout))
                         {
                             osPrintf("Could not redirect stdOutput in OsProcess!");
                             _exit(1);
                         }
-                    } 
+                    }
                     else
                        // replace stdout with write part of the pipes
                        if ( dup2(m_fdout[1], STDOUT_FILENO) < 0 )
                        {
-                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n",
                                         rAppName.data(), errno);
                        }
 
@@ -376,7 +376,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     if (mStdErrorFilename.length())
                     {
                         // Standard error file was set.
-                        if (!freopen(mStdErrorFilename.data(),"w",stderr)) 
+                        if (!freopen(mStdErrorFilename.data(),"w",stderr))
                         {
                             osPrintf("Could not redirect stdError in OsProcess!");
                             _exit(1);
@@ -385,10 +385,10 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     else
                        // replace stderr with write part of the pipes
                        if ( dup2(m_fderr[1], STDERR_FILENO) < 0 )
-                       {  
-                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n", 
+                       {
+                          osPrintf("Failed to dup2 pipe for '%s', errno %d!\n",
                                         rAppName.data(), errno);
-                       }  
+                       }
 
                     // close all other file descriptors that may be open
                     int max_fd=1023;
@@ -411,12 +411,12 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsP
                     ApplyEnv();
 
                     //osPrintf("About to launch: %s %s\n", rAppName.data(), cmdLine.data());
-                    
+
                     //set the current dir for this process
                     OsFileSystem::change(startupDir);
                     //3...2...1...  Blastoff!
                     execvp(rAppName.data(), (char **) parms);
-                    
+
                     //and it never reaches here hopefully
                     osPrintf("Failed to execute '%s'!\n", rAppName.data());
                     _exit(1);
@@ -443,12 +443,12 @@ OsStatus OsProcessLinux::getByPID(PID pid, OsProcess &rProcess)
     OsStatus retval = OS_FAILED;
     OsProcess process;
     OsProcessIterator pi;
-    
+
     char buf[PID_STR_LEN];
     sprintf(buf,"%ld",(long)pid);
     OsPath pidStr = buf;
     OsStatus findRetVal = pi.readProcFile(pidStr,process);
-    
+
     if (findRetVal == OS_SUCCESS)
     {
             rProcess.mParentPID      = process.mParentPID;
@@ -466,18 +466,18 @@ OsStatus OsProcessLinux::getByPID(PID pid, OsProcess &rProcess)
 OsStatus OsProcessLinux::getInfo(OsProcessInfo &rProcessInfo)
 {
     OsStatus retval = OS_FAILED;
-    
+
     OsProcess process;
-    
+
     OsStatus findRetVal = getByPID(mPID,process);
-    
+
     if(findRetVal == OS_SUCCESS)
     {
         rProcessInfo.parentProcessID = process.mParentPID;
         rProcessInfo.name = process.mProcessName;
         rProcessInfo.commandline = process.mProcessCmdLine;
         rProcessInfo.prioClass = 0; //TODO
-            
+
         retval = OS_SUCCESS;
     }
 
@@ -503,7 +503,7 @@ OsStatus OsProcessLinux::getPriorityClass(OsProcessPriorityClass &rPrioClass)
 OsStatus OsProcessLinux::getMinPriority(int &rMinPrio)
 {
     OsStatus retval = OS_FAILED;
-    
+
     return retval;
 }
 
@@ -519,7 +519,7 @@ OsStatus OsProcessLinux::getPriority(int &rPrio)
     OsStatus retval = OS_FAILED;
     errno = 0;
     rPrio = getpriority(PRIO_PROCESS,mPID);
-    if (errno == 0) 
+    if (errno == 0)
     {
         retval = OS_SUCCESS;
     }
@@ -541,11 +541,11 @@ UtlBoolean OsProcessLinux::isRunning() const
 {
     UtlBoolean retval = FALSE;
 
-    OsProcess rProcess;        
+    OsProcess rProcess;
     if ( getByPID(mPID,rProcess) == OS_SUCCESS)
         retval = TRUE;
 
-    return retval;   
+    return retval;
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -553,6 +553,3 @@ UtlBoolean OsProcessLinux::isRunning() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-

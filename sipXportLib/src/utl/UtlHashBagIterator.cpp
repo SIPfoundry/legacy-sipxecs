@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -74,13 +74,13 @@ UtlHashBagIterator::~UtlHashBagIterator()
 
       // in case the existence of this iterator has been preventing a resize
       myHashBag->resizeIfNeededAndSafe();
-      
+
       mpMyContainer = NULL;
    }
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -144,11 +144,11 @@ UtlContainable* UtlHashBagIterator::operator()()
                                       myHashBag->mpBucket[mPosition].listHead())
                                    );
                   (   !mpCurrentLink // there was a next - this bucket has another item in it
-                   && (  ++mPosition // if not, bump the bucket 
+                   && (  ++mPosition // if not, bump the bucket
                        < myHashBag->numberOfBuckets() // have we looked at the last bucket?
                        )
                    );
-                  mpCurrentLink = static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead()) 
+                  mpCurrentLink = static_cast<UtlLink*>(myHashBag->mpBucket[mPosition].listHead())
                  )
             {
             }
@@ -176,7 +176,7 @@ UtlContainable* UtlHashBagIterator::operator()()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return foundObject;
 }
@@ -196,7 +196,7 @@ void UtlHashBagIterator::reset()
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -222,7 +222,7 @@ UtlContainable* UtlHashBagIterator::key() const
    else
    {
       UtlContainer::releaseIteratorConnectionLock();
-   }   
+   }
 
    return current;
 }

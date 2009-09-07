@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ static unsigned int get_address(char * if_name)
    if_list.ifc_req = interfaces;
    ioctl(s, SIOCGIFCONF, &if_list);
    close(s);
-   
+
    for(i = 0; i != if_list.ifc_len / sizeof(struct ifreq); i++)
    {
       char * name = interfaces[i].ifr_ifrn.ifrn_name;
@@ -97,7 +97,7 @@ static void get_hwaddr(char * if_name, char * address, int length)
    strcpy(interface.ifr_name, if_name);
    ioctl(s, SIOCGIFHWADDR, &interface);
    close(s);
-   
+
    hwaddr = interface.ifr_hwaddr.sa_data;
    snprintf(address, length, "%02X:%02X:%02X:%02X:%02X:%02X", hwaddr[0], hwaddr[1], hwaddr[2], hwaddr[3], hwaddr[4], hwaddr[5]);
 }

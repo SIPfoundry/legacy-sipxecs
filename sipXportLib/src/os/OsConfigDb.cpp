@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -294,7 +294,7 @@ OsStatus OsConfigDb::remove(const UtlString& rKey)
 }
 
 // Remove all the key/value pairs starting with the designated prefix
-OsStatus OsConfigDb::removeByPrefix(const UtlString& rPrefix) 
+OsStatus OsConfigDb::removeByPrefix(const UtlString& rPrefix)
 {
    OsWriteLock lock(mRWMutex);
    DbEntry* pEntry ;
@@ -310,7 +310,7 @@ OsStatus OsConfigDb::removeByPrefix(const UtlString& rPrefix)
            {
                remove(pEntry->key) ;
            }
-       }      
+       }
    }
 
    return OS_SUCCESS ;
@@ -331,7 +331,7 @@ void OsConfigDb::set(const UtlString& rKey, const UtlString& rNewValue)
 // Insert the key/value pair into the config database If the
 // database already contains an entry for this key, then set the
 // value for the existing entry to iNewValue.
-void OsConfigDb::set(const UtlString& rKey, const int iNewValue) 
+void OsConfigDb::set(const UtlString& rKey, const int iNewValue)
 {
     UtlString newValue ;
 
@@ -340,7 +340,7 @@ void OsConfigDb::set(const UtlString& rKey, const int iNewValue)
     sprintf(cTemp, "%d", iNewValue);
 
     // Set
-    newValue = cTemp ;    
+    newValue = cTemp ;
     set(rKey, newValue) ;
 }
 
@@ -501,7 +501,7 @@ UtlBoolean OsConfigDb::getBoolean(const UtlString& rKey,
                        "Invalid config line boolean value '%s' for key '%s' in file '%s'",
                        temp.data(), rKey.data(), mIdentityLabel.data());
          break;
-      } 
+      }
    }
    return value;
 }
@@ -561,10 +561,10 @@ OsStatus OsConfigDb::getNext(const UtlString& rKey,
 }
 
 
-// Stores a list of strings to the configuration datadase using the 
-// designated prefix as the base for the list items. 
+// Stores a list of strings to the configuration datadase using the
+// designated prefix as the base for the list items.
 void OsConfigDb::addList(const UtlString& rPrefix,
-                         UtlSList& rList) 
+                         UtlSList& rList)
 {
     OsWriteLock lock(mRWMutex);
     int iNumEntries ;
@@ -582,41 +582,41 @@ void OsConfigDb::addList(const UtlString& rPrefix,
         key.append(".COUNT") ;
         set(key, iNumEntries) ;
 
-        UtlSListIterator itor(rList) ;        
+        UtlSListIterator itor(rList) ;
         int iCount = 1 ;
         char cTemp[64] ;
         while ((pValue = (UtlString*) itor()))
         {
-            sprintf(cTemp, "%d", iCount++);   
+            sprintf(cTemp, "%d", iCount++);
             key = rPrefix ;
             key.append(".") ;
             key.append(cTemp) ;
 
-            set(key, *pValue) ;            
+            set(key, *pValue) ;
         }
     }
 }
 
 
-// Loads a list of strings from the configuration datadase using the 
+// Loads a list of strings from the configuration datadase using the
 // designated prefix as the base for the list items.
 int OsConfigDb::loadList(const UtlString& rPrefix,
                          UtlSList& rList) const
 {
     OsReadLock lock(mRWMutex);
     int iNumEntries ;
-    int rc = 0 ; 
+    int rc = 0 ;
     UtlString key ;
     UtlString value ;
     char cTemp[64] ;
 
     // Get number of items
     key = rPrefix ;
-    key.append(".COUNT") ;    
+    key.append(".COUNT") ;
     if (get(key, iNumEntries) == OS_SUCCESS)
     {
         for (int i = 0; i < iNumEntries; i++)
-        {            
+        {
             sprintf(cTemp, "%d", i+1);
             key = rPrefix ;
             key.append(".") ;
@@ -627,7 +627,7 @@ int OsConfigDb::loadList(const UtlString& rPrefix,
                 rList.append(new UtlString(value)) ;
                 rc++ ;
             }
-        }        
+        }
     }
 
     return rc ;

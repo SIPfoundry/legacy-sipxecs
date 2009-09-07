@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -46,12 +46,12 @@ OsProcessIteratorWnt::~OsProcessIteratorWnt()
 OsStatus OsProcessIteratorWnt::findFirst(OsProcess &rProcess)
 {
     OsStatus retval = OS_FAILED;
-    
+
     if (hProcessSnapshot != INVALID_HANDLE_VALUE)
     {
         CloseHandle(hProcessSnapshot);
     }
-    
+
     hProcessSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS,0);
     if (hProcessSnapshot != INVALID_HANDLE_VALUE)
     {
@@ -85,7 +85,7 @@ OsStatus OsProcessIteratorWnt::findNext(OsProcess &rProcess)
     {
         PROCESSENTRY32 lppe;
         lppe.dwSize = sizeof(PROCESSENTRY32);
-        
+
         //now actuall go find the process
         if (Process32Next(hProcessSnapshot,&lppe))
         {
@@ -101,7 +101,7 @@ OsStatus OsProcessIteratorWnt::findNext(OsProcess &rProcess)
                 retval = OS_FAILED;
         }
     }
-    
+
     return retval;
 }
 
@@ -113,6 +113,3 @@ OsStatus OsProcessIteratorWnt::findNext(OsProcess &rProcess)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-
-
-
