@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class XmppAccountInfo extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00";
+    private static final String USER = "user";
+    private static final String USER_NAME = "user-name";
     private CoreContext m_coreContext;
 
     @Required
@@ -60,8 +62,8 @@ public class XmppAccountInfo extends XmlFile {
             onPhoneMessage = "";
         }
 
-        Element userAccounts = accountInfos.addElement("user");
-        userAccounts.addElement("user-name").setText(user.getImId());
+        Element userAccounts = accountInfos.addElement(USER);
+        userAccounts.addElement(USER_NAME).setText(user.getImId());
         userAccounts.addElement("sip-user-name").setText(user.getName());
         userAccounts.addElement("display-name").setText(displayName);
         userAccounts.addElement("password").setText(user.getImId());
@@ -82,8 +84,8 @@ public class XmppAccountInfo extends XmlFile {
         Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
         if (groupMembers != null && groupMembers.size() > 0) {
             for (User user : groupMembers) {
-                Element userElement = xmmpGroup.addElement("user");
-                userElement.addElement("user-name").setText(user.getName());
+                Element userElement = xmmpGroup.addElement(USER);
+                userElement.addElement(USER_NAME).setText(user.getName());
             }
         }
     }
