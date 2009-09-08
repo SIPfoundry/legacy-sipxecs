@@ -182,7 +182,7 @@ function sudo_gem_install_and_check {
 }
 
 function return_sipxecs_installed_rpms {
-   echo `rpm -qa | grep sipx | grep -v freeswitch | grep -v jasperreports`
+   echo `rpm -qa | grep sipx | grep -v freeswitch | grep -v jasperreports | grep -v openfire`
 }
 
 function uninstall_sipxecs_rpms {
@@ -232,7 +232,7 @@ uninstall_sipxecs_rpms
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)
-SIPFOUNDRY_BASE_DEPS="cgicc cgicc-devel cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps"
+SIPFOUNDRY_BASE_DEPS="cgicc cgicc-devel cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.
@@ -254,16 +254,18 @@ if [ $yum_remove_result != 0 ]; then
    exit 9
 fi
 
+# This file can be source'd by a shell (using '.' or 'source'.)
+echo INSTALL=\"`pwd`/$INSTALL\" > env
+echo BUILD=\"`pwd`/$BUILD\" >> env
+echo CODE=\"`pwd`/$CODE\" >> env
+echo LINKS=\"`pwd`/$LINKS\" >> env
+echo DIST=\"`pwd`/$DIST\" >> env
+
 # Start removing the old and creating the new.
-echo INSTALL=`pwd`/$INSTALL > env
-echo BUILD=`pwd`/$BUILD >> env
-echo CODE=`pwd`/$CODE >> env
-echo LINKS=`pwd`/$LINKS >> env
-echo DIST=`pwd`/$DIST >> env
 sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR
 for lib_comp in $(ls $CODE/lib);
 do
-   sudo rm -rf $CODE/lib/$lib_comp/build
+   sudo rm -rf $CODE/lib/$lib_comp/build 2> /dev/null
 done
 sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
 sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
@@ -285,7 +287,9 @@ if [ $BUILD_ALL_DEPENDENCIES ]; then
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       DISTRO=f10
    fi
-   DEPENDENCY_TARGET="$DISTRO"
+   # Manually add sipx-openfire, since it isn't listed in the CUSTOM_PACKAGES of the lib/Makefile.
+   DEPENDENCY_TARGET="$DISTRO sipx-openfire"
+   BUILD_DEPENDENCY_TARGET="yup"
 else
    if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install 
@@ -293,7 +297,7 @@ else
       DEPENDENCY_TARGET=freeswitch
    fi
 fi
-if [ $DEPENDENCY_TARGET ]; then
+if [ $BUILD_DEPENDENCY_TARGET ]; then
    echo "Building dependency RPMs covered under target: $DEPENDENCY_TARGET..."
    mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
    echo "%_topdir      $FULL_PATH_DEP_RPM_TOPDIR" > ~/.rpmmacros
@@ -388,7 +392,7 @@ popd
 
 
 # How are we building sipXecs?
-CONFIGURE_FLAGS="--disable-openfire --enable-reports --enable-agent --enable-cdr --enable-mrtg --enable-conference"
+CONFIGURE_FLAGS="--enable-reports --enable-agent --enable-cdr --enable-mrtg --enable-conference"
 if [ $BUILD_RPMS ]; then
    # RPM build/install  - http://sipx-wiki.calivia.com/index.php/Building_RPMs
    mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
@@ -520,7 +524,7 @@ else
    $FULL_INSTALL_PATH/bin/sipxecs-setup
 fi
 
-$FULL_INSTALL_PATH/etc/init.d/sipxecs status
+$ETC_AND_VAR_PATH/etc/init.d/sipxecs status
 
 echo ""
 echo "DONE!"
