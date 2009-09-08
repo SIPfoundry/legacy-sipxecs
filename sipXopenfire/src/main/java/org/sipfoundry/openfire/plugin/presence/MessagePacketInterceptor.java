@@ -168,16 +168,16 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     }
 
     String buildRestCallCommand(String callerNumber, String calledNumber) {
-        String restCallCommand =  "https://"+ plugin.getCallControllerConfig().getIpAddress()
-                + ":" + plugin.getCallControllerConfig().getHttpPort() + "/callcontroller/"
+        String restCallCommand =  "https://"+ plugin.getRestServerConfig().getIpAddress()
+                + ":" + plugin.getRestServerConfig().getHttpPort() + "/callcontroller/"
                 + callerNumber + "/" + calledNumber;
         log.debug("rest call command is: " + restCallCommand);
         return restCallCommand;
     }
 
     String buildRestCallCommand(String agentId, String caller, String calledNumber) {
-        String restCallCommand =  "https://" + plugin.getCallControllerConfig().getIpAddress()
-                + ":" + plugin.getCallControllerConfig().getHttpPort() + "/callcontroller/"
+        String restCallCommand =  "https://" + plugin.getRestServerConfig().getIpAddress()
+                + ":" + plugin.getRestServerConfig().getHttpPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
                 + "?agent=" + agentId;
         return restCallCommand;

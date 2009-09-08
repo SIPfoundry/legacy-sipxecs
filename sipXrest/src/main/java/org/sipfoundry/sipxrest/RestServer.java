@@ -13,20 +13,17 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
-import org.mortbay.http.HttpListener;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
-import org.sipfoundry.commons.jainsip.AccountManagerImpl;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.ConfigFileParser;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 
 public class RestServer {
     
@@ -46,16 +43,8 @@ public class RestServer {
     
     public static final Timer timer = new Timer();
     
-    private static MessageFactory messageFactory;
-    
-    private static AddressFactory addressFactory;
-    
-    private static HeaderFactory headerFactory;
-
     private static RestServiceFinder restServiceFinder;
     
-    private static SipStackBean sipStack;
-
     private static AccountManagerImpl accountManager;
 
     private static SipStackBean sipStackBean;
@@ -151,7 +140,7 @@ public class RestServer {
                 RestServerApplication.class.getName());
         ServletHandler servletHandler = new ServletHandler();
         Class<?> servletClass = com.noelios.restlet.ext.servlet.ServerServlet.class;
-        servletHandler.addServlet("restServer", "/*",
+        servletHandler.addServlet("rest", "/*",
                 servletClass.getName());
         
              
@@ -217,7 +206,7 @@ public class RestServer {
             System.exit(-1);
         }
 
-        restServerConfig = new ConfigFileParser().parse("file://"
+        restServerConfig = new RestServerConfigFileParser().parse("file://"
                 + configFileName);
         Logger.getLogger(PACKAGE).setLevel(Level.toLevel(restServerConfig.getLogLevel()));
         setAppender(new SipFoundryAppender(new SipFoundryLayout(),
@@ -229,16 +218,10 @@ public class RestServer {
         accountManager = new AccountManagerImpl();
         sipStackBean = new SipStackBean();
         
-        
-        SipFactory factory = SipFactory.getInstance();
-        factory.setPathName("gov.nist");
-        addressFactory = factory.createAddressFactory();
-        headerFactory = factory.createHeaderFactory();
-        messageFactory = factory.createMessageFactory();
-    
-    
         restServiceFinder = new RestServiceFinder();
-     
+        
+        restServiceFinder.search(System.getProperty("plugin.dir"));
+         
         initWebServer();
        
         logger.debug("Web server started.");
@@ -247,18 +230,10 @@ public class RestServer {
 
 
     /**
-     * @param sipStack the sipStack to set
-     */
-    public static void setSipStack(SipStackBean sipStack) {
-        RestServer.sipStack = sipStack;
-    }
-
-
-    /**
      * @return the sipStack
      */
     public static SipStackBean getSipStack() {
-        return sipStack;
+        return sipStackBean;
     }
 
 

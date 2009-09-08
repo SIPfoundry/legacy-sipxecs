@@ -1,12 +1,11 @@
 package org.sipfoundry.sipxrest;
 
-import java.util.HashSet;
-import java.util.Random;
-import java.util.TimerTask;
-
 import gov.nist.javax.sip.ClientTransactionExt;
-import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.ServerTransactionExt;
+import gov.nist.javax.sip.message.MessageExt;
+
+import java.util.HashSet;
+import java.util.TimerTask;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -23,8 +22,7 @@ import javax.sip.TransactionTerminatedEvent;
 import javax.sip.TransactionUnavailableException;
 import javax.sip.address.SipURI;
 import javax.sip.header.CallIdHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.ToHeader;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -32,9 +30,9 @@ import org.apache.log4j.Logger;
 
 public abstract class AbstractSipListener implements SipListener {
     private static final Logger logger = Logger.getLogger(AbstractSipListener.class);
-    private SipProvider sipProvider;
     private HashSet<String> callIds = new HashSet<String>();
     private MetaInf metaInf;
+    private SipHelper helper;
     private static String COLON = ":";
 
     class CallIdCollectorTask extends TimerTask {
@@ -52,9 +50,16 @@ public abstract class AbstractSipListener implements SipListener {
     }
 
     public AbstractSipListener() {
-        
+        this.helper = new SipHelper(this);
     }
-    public void setMetaInf(MetaInf metaInf) {
+    
+    
+    
+    public SipHelper getHelper() {
+        return this.helper;
+    }
+
+    final void setMetaInf(MetaInf metaInf) {
         this.metaInf = metaInf;
     }
 
@@ -62,44 +67,64 @@ public abstract class AbstractSipListener implements SipListener {
         return metaInf;
     }
 
-    void setSipProvider(SipProvider sipProvider) {
-        this.sipProvider = sipProvider;
+
+    protected SipStackBean getSipStackBean() {
+        return RestServer.getSipStack();
     }
 
-    protected SipProvider getSipProvider() {
-        return this.sipProvider;
+    public void addCallId(String callId) {
+        this.callIds.add(callId);
     }
 
-    protected ServerTransactionExt getNewServerTransaction(Request request)
+    public ServerTransactionExt getNewServerTransaction(Request request)
             throws TransactionAlreadyExistsException, TransactionUnavailableException {
-        ServerTransactionExt serverTransaction = (ServerTransactionExt) this.sipProvider
+        String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getTransport();
+        SipProvider sipProvider = getSipStackBean().getSipProvider(transport);
+        if (sipProvider == null) {
+            logger.debug("Cound not find provider for transport " + transport);
+            throw new TransactionUnavailableException("Cound not find provider for transport "
+                    + transport);
+        }
+        ServerTransactionExt serverTransaction = (ServerTransactionExt) sipProvider
                 .getNewServerTransaction(request);
         if (serverTransaction.getDialog() != null) {
             String callId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
             String toTag = serverTransaction.getDialog().getLocalTag();
-            this.callIds.add(callId + COLON + toTag);
+            this.addCallId(callId + COLON + toTag);
         } else {
             String callId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
-            String toTag = Util.getToTag(request);
-            this.callIds.add(callId + COLON + toTag);
+            String toTag = SipHelper.getToTag(request);
+            this.addCallId(callId + COLON + toTag);
 
         }
         return serverTransaction;
     }
 
-    protected ClientTransactionExt getNewClientTransaction(Request request)
+    public ClientTransactionExt getNewClientTransaction(Request request)
             throws TransactionUnavailableException {
-        ClientTransactionExt clientTransaction = (ClientTransactionExt) this.sipProvider
+        String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getTransport();
+        SipProvider sipProvider = getSipStackBean().getSipProvider(transport);
+        if (sipProvider == null) {
+            logger.debug("Cound not find provider for transport " + transport);
+            throw new TransactionUnavailableException("Cound not find provider for transport "
+                    + transport);
+        }
+        String id;
+        ClientTransactionExt clientTransaction = (ClientTransactionExt) sipProvider
                 .getNewClientTransaction(request);
         if (clientTransaction.getDialog() != null) {
             String callId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
             String fromTag = clientTransaction.getDialog().getLocalTag();
-            this.callIds.add(callId + COLON + fromTag);
+  
+            id = callId + COLON + fromTag;
         } else {
             String callId = ((CallIdHeader) request.getHeader(CallIdHeader.NAME)).getCallId();
-            String fromTag = Util.getFromTag(request);
-            this.callIds.add(callId + COLON + fromTag);
+            String fromTag = SipHelper.getFromTag(request);
+           
+            id = callId + COLON + fromTag;
         }
+        logger.debug("Adding id " + id);
+        this.callIds.add(id);
         return clientTransaction;
     }
 
@@ -112,10 +137,11 @@ public abstract class AbstractSipListener implements SipListener {
             Request request = requestEvent.getRequest();
             SipURI sipUri = ((SipURI) request.getRequestURI());
             String user = sipUri.getUser();
-            if ( user == null ) {
+            if (user == null) {
                 return false;
             }
             if (this.metaInf.getSipUserName().equals(user)) {
+                ((MessageExt) request).setApplicationData(this);
                 return true;
             } else
                 return false;
@@ -126,22 +152,24 @@ public abstract class AbstractSipListener implements SipListener {
 
         ClientTransaction ct = responseEvent.getClientTransaction();
         Response response = responseEvent.getResponse();
+        String id = null;
         if (ct != null) {
             if (ct.getDialog() != null) {
-                String id = ct.getDialog().getDialogId() + COLON + ct.getDialog().getLocalTag();
-                return this.callIds.contains(id);
+                id = ct.getDialog().getCallId().getCallId() + COLON + ct.getDialog().getLocalTag();
+                
             } else {
-                String callId = Util.getCallId(ct.getRequest());
-                String fromTag = Util.getFromTag(ct.getRequest());
-                String id = callId + COLON + fromTag;
-                return callIds.contains(id);
+                String callId = SipHelper.getCallId(ct.getRequest());
+                String fromTag = SipHelper.getFromTag(ct.getRequest());
+                id = callId + COLON + fromTag;
+               
             }
         } else {
-            String callId = Util.getCallId(response);
-            String fromTag = Util.getFromTag(response);
-            String id = callId + COLON + fromTag;
-            return callIds.contains(id);
+            String callId = SipHelper.getCallId(response);
+            String fromTag = SipHelper.getFromTag(response);
+            id = callId + COLON + fromTag;
         }
+        logger.debug("checking for id " + id);
+        return callIds.contains(id);
     }
 
     public boolean isHandled(DialogTerminatedEvent dialogTerminatedEvent) {
@@ -162,11 +190,11 @@ public abstract class AbstractSipListener implements SipListener {
             ServerTransaction st = transactionTerminatedEvent.getServerTransaction();
 
             if (st.getDialog() != null) {
-                String id = st.getDialog().getDialogId() + COLON + st.getDialog().getLocalTag();
+                String id = st.getDialog().getCallId().getCallId() + COLON + st.getDialog().getLocalTag();
                 return this.callIds.contains(id);
             } else {
-                String callId = Util.getCallId(st.getRequest());
-                String toTag = Util.getToTag(st.getRequest());
+                String callId = SipHelper.getCallId(st.getRequest());
+                String toTag = SipHelper.getToTag(st.getRequest());
                 String id = callId + COLON + toTag;
                 if (this.callIds.contains(id)) {
                     RestServer.timer.schedule(new CallIdCollectorTask(id), 8000);
@@ -181,8 +209,8 @@ public abstract class AbstractSipListener implements SipListener {
                 String id = ct.getDialog().getDialogId() + COLON + ct.getDialog().getLocalTag();
                 return this.callIds.contains(id);
             } else {
-                String callId = Util.getCallId(ct.getRequest());
-                String fromTag = Util.getFromTag(ct.getRequest());
+                String callId = SipHelper.getCallId(ct.getRequest());
+                String fromTag = SipHelper.getFromTag(ct.getRequest());
                 String id = callId + COLON + fromTag;
                 if (this.callIds.contains(id)) {
                     RestServer.timer.schedule(new CallIdCollectorTask(id), 8000);
@@ -201,8 +229,8 @@ public abstract class AbstractSipListener implements SipListener {
                 String id = st.getDialog().getDialogId() + COLON + st.getDialog().getLocalTag();
                 return this.callIds.contains(id);
             } else {
-                String callId = Util.getCallId(st.getRequest());
-                String toTag = Util.getToTag(st.getRequest());
+                String callId = SipHelper.getCallId(st.getRequest());
+                String toTag = SipHelper.getToTag(st.getRequest());
                 String id = callId + COLON + toTag;
                 return callIds.contains(id);
             }
@@ -214,8 +242,8 @@ public abstract class AbstractSipListener implements SipListener {
                 String id = ct.getDialog().getDialogId() + COLON + ct.getDialog().getLocalTag();
                 return this.callIds.contains(id);
             } else {
-                String callId = Util.getCallId(ct.getRequest());
-                String toTag = Util.getFromTag(ct.getRequest());
+                String callId = SipHelper.getCallId(ct.getRequest());
+                String toTag = SipHelper.getFromTag(ct.getRequest());
                 String id = callId + COLON + toTag;
                 return callIds.contains(id);
             }
@@ -230,7 +258,7 @@ public abstract class AbstractSipListener implements SipListener {
                 + exceptionEvent.getPort());
 
     }
-    
+
     public abstract void init();
 
     @Override
@@ -248,5 +276,6 @@ public abstract class AbstractSipListener implements SipListener {
     @Override
     public abstract void processTransactionTerminated(
             TransactionTerminatedEvent transactionTerminatedEvent);
+
 
 }

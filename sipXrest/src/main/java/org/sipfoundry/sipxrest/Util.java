@@ -51,17 +51,7 @@ public class Util {
         }
     }
 
-    public static String getToTag(Message message) {
-       return ((ToHeader)message.getHeader(ToHeader.NAME)).getTag();
-    }
-
-    public static String getCallId(Message message) {
-       return ((CallIdHeader) message.getHeader(CallIdHeader.NAME)).getCallId();
-    }
-
-    public static String getFromTag(Message message) {
-       return((FromHeader)message.getHeader(FromHeader.NAME)).getTag();
-    }
+ 
 
     
 

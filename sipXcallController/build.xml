@@ -35,6 +35,7 @@
 	<path id="test.path">
 		<pathelement location="${classes}" />
 		<pathelement location="${sipxcommons}" />
+		<pathelement location="${sipxrest}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${junit}" />
@@ -55,6 +56,7 @@
 	<path id="base.path">
 		<pathelement location="${classes}" />
 		<pathelement location="${sipxcommons}" />
+		<pathelement location="${sipxrest}" />
 		<pathelement location="${log4j}" />
 		<pathelement location="${jainsip}" />
 		<pathelement location="${servlet-jar}" />
@@ -144,12 +146,15 @@
 				<include name="**/*.class" />
 				<include name="config.properties" />
 			</fileset>
+			<fileset dir="${src.dir}" >
+				<include name="plugin.xml" />
+			</fileset>
 		</jar>
 	</target>
 
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxcallcontroller.dir}"/>
-    	<copy file="${build.dir}/dist/sipXcallController.jar" todir="${dest.dir}${sipxcallcontroller.dir}"/>
+    	<copy file="${build.dir}/dist/sipXcallController.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
     </target>
 
 

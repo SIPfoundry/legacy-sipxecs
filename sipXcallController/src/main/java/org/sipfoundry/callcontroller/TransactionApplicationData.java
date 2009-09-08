@@ -32,6 +32,7 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxrest.SipHelper;
 
 /**
  * Transaction context data. Register one of these per transaction to track data that is specific
@@ -48,16 +49,16 @@ class TransactionApplicationData {
 
     private final JainSipMessage m_message;
 
-    private final SipStackBean m_helper;
+    private final SipHelper m_helper;
 
     private int m_counter;
 
     private UserCredentialHash m_userCredentials;
 
-    public TransactionApplicationData(Operator operator, SipStackBean stackBean, JainSipMessage message) {
+    public TransactionApplicationData(Operator operator,  JainSipMessage message) {
         m_operator = operator;
         m_message = message;
-        m_helper = stackBean;
+        m_helper = SipListenerImpl.getInstance().getHelper();
     }
 
     /**
@@ -120,7 +121,7 @@ class TransactionApplicationData {
                         ClientTransaction ctx = m_helper.getSipProvider().getNewClientTransaction(referRequest);
 
                         // And send it to the other side.
-                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER, m_helper,
+                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER,
                                 null);
                         tad.setUserCredentials(m_userCredentials);
                         ctx.setApplicationData(tad);
@@ -131,7 +132,7 @@ class TransactionApplicationData {
                 LOG.debug("Got REFER Response " + response.getStatusCode());
                 // We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in
                 // the transfer.
-                m_helper.scheduleTerminate(dialog);
+                SipUtils.getInstance().scheduleTerminate(dialog);
             }
         } catch (InvalidArgumentException e) {
             LOG.error("Invalid argument", e);

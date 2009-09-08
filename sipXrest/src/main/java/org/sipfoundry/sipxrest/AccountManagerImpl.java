@@ -2,7 +2,6 @@ package org.sipfoundry.sipxrest;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
-import java.security.MessageDigest;
 import java.util.HashMap;
 
 import javax.sip.ClientTransaction;
@@ -10,9 +9,11 @@ import javax.sip.address.SipURI;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
+import org.apache.log4j.Logger;
 import org.sipfoundry.commons.jainsip.AbstractAccountManager;
 
 public class AccountManagerImpl extends AbstractAccountManager {
+    private static final Logger logger = Logger.getLogger(AccountManagerImpl.class);
     HashMap<String, UserCredentialHash> plainTextCredentials = new HashMap<String, UserCredentialHash>();
 
     private static String computePasswordHash(String userName, String passwd) {
@@ -45,14 +46,19 @@ public class AccountManagerImpl extends AbstractAccountManager {
 
     @Override
     public UserCredentialHash getCredentialHash(ClientTransaction clientTransaction, String realm) {
-        UserCredentialHash credHash = super.getCredentialHash(clientTransaction, realm);
-        if (credHash == null) {
-            Request request = clientTransaction.getRequest();
-            FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
-            String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
-            return this.plainTextCredentials.get(fromUser);
-        } else {
+        UserCredentialHash credHash = null;
+        try {
+            credHash = super.getCredentialHash(clientTransaction, realm);
+            if (credHash == null) {
+                Request request = clientTransaction.getRequest();
+                FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);
+                String fromUser = ((SipURI) from.getAddress().getURI()).getUser();
+                credHash = this.plainTextCredentials.get(fromUser);
+            }
             return credHash;
+        } finally {
+            logger.debug("getCredentialHash returning " + credHash);
+            
         }
 
     }

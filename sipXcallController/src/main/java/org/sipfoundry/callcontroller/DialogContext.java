@@ -13,6 +13,7 @@ package org.sipfoundry.callcontroller;
 import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxrest.RestServer;
 
 /**
  * One of these associated with a dialog. Stores the current call status.
@@ -36,16 +37,16 @@ public class DialogContext {
     
 
     public void remove() {
-        CallController.timer.schedule(new TimerTask() {
+        RestServer.timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    SipStackBean.getInstance().removeDialogContext(key);
+                    SipUtils.getInstance().removeDialogContext(key);
                 } catch (Exception ex) {
                     logger.error("Exception caught creating instance", ex);
                 }
             }
-        }, CallController.getCallControllerConfig().getCacheTimeout()*1000);  
+        }, 30*1000);  
     
     }
     

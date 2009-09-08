@@ -116,7 +116,7 @@ public abstract class AbstractSipStackBean {
             m_messageFactory = factory.createMessageFactory();
             RouteList.setPrettyEncode(true);
             ViaList.setPrettyEncode(true);
-            
+            SipListener listener = getSipListener(this);
             for ( ListeningPointAddress hpt : this.getListeningPointAddresses()) {
               ListeningPoint listeningPoint = stack.createListeningPoint(hpt.getHost(), hpt.getPort(), hpt.getTransport());
               hpt.listeningPoint = listeningPoint;
@@ -124,7 +124,7 @@ public abstract class AbstractSipStackBean {
               hpt.sipProvider = sipProvider;
               if (!this.sipProviders.contains(sipProvider)) {
                   this.sipProviders.add(sipProvider); 
-                  sipProvider.addSipListener(getSipListener(this));
+                  sipProvider.addSipListener(listener);
               }
             
             }

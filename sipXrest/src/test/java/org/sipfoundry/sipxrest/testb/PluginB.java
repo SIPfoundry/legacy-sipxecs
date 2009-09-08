@@ -15,7 +15,7 @@ public class PluginB extends Plugin {
     @Override
     public void attachContext(Filter filter, Context context, Router router) {
        filter.setNext(new RestletB());
-       Route route = router.attach(getMetaInf().getUrlPrefix() + "/{param}",filter);
+       Route route = router.attach(getMetaInf().getUriPrefix() + "/{param}",filter);
        route.extractQuery("agent", "agent", true);
     }
 

@@ -16,7 +16,7 @@ import javax.sip.message.Request;
 import org.apache.log4j.Logger;
 
 public final class SipListenerImpl implements SipListener {
-    private HashMap<String,AbstractSipListener> sipListeners;
+    private HashMap<String,AbstractSipListener> sipListeners = new HashMap<String,AbstractSipListener>();
     private static Logger logger = Logger.getLogger(SipListenerImpl.class);
     
     

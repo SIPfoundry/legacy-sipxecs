@@ -22,11 +22,11 @@ public class SipServiceImpl  implements SipService {
 
     static final Logger LOG = Logger.getLogger(SipServiceImpl.class);
 
-    private SipStackBean sipStackBean;
+  
     
   
-    public SipServiceImpl(SipStackBean stackBean) {
-    	this.sipStackBean = stackBean;
+    public SipServiceImpl() {
+    	
     }
    
 
@@ -35,7 +35,7 @@ public class SipServiceImpl  implements SipService {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
                 + " allowForwarding = " + allowForwarding );
-        InviteMessage message = new InviteMessage(sipStackBean, agentCredentials, displayName, callingPartyAddrSpec,
+        InviteMessage message = new InviteMessage( agentCredentials, displayName, callingPartyAddrSpec,
                 agentAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);

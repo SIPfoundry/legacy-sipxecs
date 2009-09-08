@@ -16,9 +16,10 @@ conf.dir=@SIPX_CONFDIR@
 # when debug is on. 
 
 # U T I L
-sipxcallcontroller.dir=@SIPX_JAVADIR@/sipXcallController
+sipxrest.dir=@SIPX_JAVADIR@/sipXrest
 sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
 sipxcommons=${sipxcommons.dir}/sipxcommons.jar
+sipxrest=${sipxrest.dir}/sipxrest.jar
 jainsip=${sipxcommons.dir}/jain-sip-sdp.jar
 junit=${sipxcommons.dir}/junit.jar
 log4j=${sipxcommons.dir}/log4j.jar

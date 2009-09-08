@@ -3,16 +3,20 @@ package org.sipfoundry.sipxrest;
 public class MetaInf {
     private String pluginClass;
     private String security = LOCAL_AND_REMOTE;
-    private String urlPrefix;
+    private String uriPrefix;
     private String serviceDescription;
     private String sipUserName;
     private String sipPassword;
     private String sipListenerClassName;
+    private String remoteAuthenticationMethod = HTTP_DIGEST;
+    
     /*
      * Standard access control models.
      */
     public static String LOCAL_AND_REMOTE  = "LOCAL-AND-REMOTE";
     public static String LOCAL_ONLY = "LOCAL-ONLY";
+    public static String HTTP_DIGEST = "HTTP-DIGEST";
+    public static String HTTPS_BASIC = "HTTPS-BASIC";
     /**
      * @param pluginClass the fully qualified class path of the Plugin class.
      * @throws ClassNotFoundException 
@@ -51,14 +55,14 @@ public class MetaInf {
     /**
      * @param urlPrefix the urlPrefix to set
      */
-    public void setUrlPrefix(String urlPrefix) {
-        this.urlPrefix = urlPrefix;
+    public void setUriPrefix(String urlPrefix) {
+        this.uriPrefix = urlPrefix;
     }
     /**
      * @return the urlPrefix
      */
-    public String getUrlPrefix() {
-        return urlPrefix;
+    public String getUriPrefix() {
+        return uriPrefix;
     }
     /**
      * @param serviceDescription the serviceDescription to set
@@ -114,6 +118,20 @@ public class MetaInf {
      */
     public void setSipListenerClassName(String sipListenerClassName) {
         this.sipListenerClassName = sipListenerClassName;
+    }
+
+    /**
+     * @param remoteAuthenticationMethod the remoteAuthenticationMethod to set
+     */
+    public void setRemoteAuthenticationMethod(String remoteAuthenticationMethod) {
+        this.remoteAuthenticationMethod = remoteAuthenticationMethod;
+    }
+
+    /**
+     * @return the remoteAuthenticationMethod
+     */
+    public String getRemoteAuthenticationMethod() {
+        return remoteAuthenticationMethod;
     }
 
 }

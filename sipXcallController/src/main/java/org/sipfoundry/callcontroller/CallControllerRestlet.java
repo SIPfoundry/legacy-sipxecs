@@ -13,6 +13,8 @@ import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.sipxrest.RestServer;
+import org.sipfoundry.sipxrest.SipHelper;
 
 public class CallControllerRestlet extends Restlet {
 
@@ -22,7 +24,7 @@ public class CallControllerRestlet extends Restlet {
         if (name.indexOf("@") != -1) {
             return name;
         } else {
-            return name + "@" + CallController.getCallControllerConfig().getSipxProxyDomain();
+            return name + "@" + RestServer.getRestServerConfig().getSipxProxyDomain();
         }
     }
 
@@ -61,7 +63,7 @@ public class CallControllerRestlet extends Restlet {
                 method = CallControllerParams.REFER;
             }
 
-            UserCredentialHash credentials = CallController.getAccountManager()
+            UserCredentialHash credentials = RestServer.getAccountManager()
                     .getCredentialHash(agentName);
             if (credentials == null) {
                 logger.error("could not find credentials for agent " + agentName);
@@ -69,14 +71,14 @@ public class CallControllerRestlet extends Restlet {
                 return;
             }
 
-            User agentUserRecord = CallController.getAccountManager().getUser(agentName);
+            User agentUserRecord = RestServer.getAccountManager().getUser(agentName);
             String agentAddr = agentUserRecord.getIdentity();
             /*
              * If the caller is somebody in our domain then we need to find a record for him in
              * our databse.
              */
             if (callingParty == null || callingParty.indexOf("@") == -1) {
-                callingParty = CallController.getAccountManager().getIdentity(callingParty);
+                callingParty = RestServer.getAccountManager().getIdentity(callingParty);
                 if (callingParty == null) {
                     logger.error("Cannot find calling party " + callingParty);
                     response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
@@ -89,7 +91,7 @@ public class CallControllerRestlet extends Restlet {
             }
             String key = agentAddr + ":" + callingParty + ":" + calledParty;
 
-            SipStackBean stackBean = SipStackBean.getInstance();
+            SipHelper helper = SipListenerImpl.getInstance().getHelper();
 
             if (httpMethod.equals(Method.POST)) {
                 String fwdAllowed = (String) request.getAttributes().get(
@@ -102,19 +104,17 @@ public class CallControllerRestlet extends Restlet {
                 String subject = (String) request.getAttributes().get(
                         CallControllerParams.SUBJECT);
                 if (method.equals(CallControllerParams.REFER)) {
-                    DialogContext dialogContext = stackBean.createDialogContext(key);
-                    Dialog dialog = new SipServiceImpl(stackBean).sendRefer(credentials,
+                    DialogContext dialogContext = SipUtils.getInstance().createDialogContext(key);
+                    Dialog dialog = new SipServiceImpl().sendRefer(credentials,
                             agentAddr, agentUserRecord.getDisplayName(), callingParty,
                             calledParty, subject, isForwardingAllowed);
                     dialog.setApplicationData(dialogContext);
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
 
                 }
-                response.setEntity("http://callcontroller/"+callingParty+"/" + calledParty, MediaType.TEXT_URI_LIST);
-                
              
             } else {
-                DialogContext dialogContext = SipStackBean.getInstance().getDialogContext(key);
+                DialogContext dialogContext = SipUtils.getInstance().getDialogContext(key);
                 if (dialogContext == null) {
                     response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
                     response.setEntity("Could not find call setup record for " + key,

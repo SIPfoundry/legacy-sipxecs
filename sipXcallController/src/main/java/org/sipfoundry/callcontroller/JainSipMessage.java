@@ -16,29 +16,31 @@ import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.message.Request;
 
+import org.sipfoundry.sipxrest.SipHelper;
+
 public abstract class JainSipMessage extends AbstractMessage {
     private ClientTransaction m_clientTransaction;
-    private SipStackBean m_helper;
+   
     private byte[] m_payload;
     private String m_contentType;
    
 
-    public JainSipMessage(SipStackBean helper, String contentType, byte[] payload) {
-        m_helper = helper;
+    public JainSipMessage(String contentType, byte[] payload) {
+       
         m_payload = payload;
         m_contentType = contentType;
     }
 
-    public JainSipMessage(SipStackBean helper) {
-        this(helper, null, null);
+    public JainSipMessage() {
+        
     }
 
     protected Request createRequest(String requestType, String userName, String fromDisplayName,
             String fromAddrSpec, String toAddrSpec, boolean forwardingAllowed) {
         try {
-            Request request = m_helper.createRequest(requestType, userName, fromDisplayName, 
+            Request request = getHelper().createRequest(requestType, userName, fromDisplayName, 
                     fromAddrSpec, toAddrSpec, forwardingAllowed);
-            m_helper.addContent(request, m_contentType, m_payload);
+            getHelper().addContent(request, m_contentType, m_payload);
             return request;
 
         } catch (ParseException e) {
@@ -47,11 +49,11 @@ public abstract class JainSipMessage extends AbstractMessage {
     }
     
     protected SipProvider getSipProvider() {
-        return m_helper.getSipProvider();
+        return getHelper().getSipProvider();
     }
 
-    protected SipStackBean getHelper() {
-        return m_helper;
+    protected SipHelper getHelper() {
+        return SipListenerImpl.getInstance().getHelper();
     }
     
     protected void setClientTransaction(ClientTransaction clientTransaction) {
@@ -65,4 +67,5 @@ public abstract class JainSipMessage extends AbstractMessage {
             throw new SipxSipException(e);
         }
     }
+
 }

@@ -16,9 +16,13 @@ import java.util.List;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.SipException;
+import javax.sip.address.SipURI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.message.Request;
+
+import org.sipfoundry.sipxrest.RestServer;
+import org.sipfoundry.sipxrest.SipHelper;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
@@ -53,16 +57,17 @@ public class InviteMessage extends JainSipMessage {
 
     
 
-    public InviteMessage(SipStackBean helper, UserCredentialHash userCredentials, String fromDisplayName, 
+    public InviteMessage(UserCredentialHash userCredentials, String fromDisplayName, 
             String fromAddressSpec, String toAddressSpec, String referTarget, 
             Operator operator) {
-        super(helper);
+        super();
         m_toAddrSpec = toAddressSpec;
         m_fromDisplayName = fromDisplayName;
         m_fromAddrSpec = fromAddressSpec;
         m_referTarget = referTarget;
         m_operator = operator;
         m_userCredentials = userCredentials;
+        
     }
     
     @Override
@@ -73,14 +78,18 @@ public class InviteMessage extends JainSipMessage {
                     m_fromAddrSpec, m_toAddrSpec, m_forwardingAllowed);
             if ( subject != null ) {
                 SubjectHeader subjectHeader = 
-                    super.getHelper().getHeaderFactory().createSubjectHeader(subject);
+                    RestServer.getSipStack().getHeaderFactory().createSubjectHeader(subject);
                 request.addHeader(subjectHeader);
             }
-            getHelper().attachAllowHeader(request,METHODS);
-            String sdpBody = getHelper().formatWithIpAddress(SDP_BODY_FORMAT);
-            request.setContent(sdpBody, getHelper().createContentTypeHeader());
-            ClientTransaction ctx = getSipProvider().getNewClientTransaction(request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator, getHelper(), this);
+            SipURI requestURI = (SipURI) request.getRequestURI();
+            requestURI.setParameter("sipxbridge-moh", "false");
+            
+            SipHelper helper = SipListenerImpl.getInstance().getHelper();
+            SipListenerImpl.getInstance().getHelper().attachAllowHeader(request,METHODS);
+            String sdpBody = SipUtils.formatWithIpAddress(SDP_BODY_FORMAT);
+            request.setContent(sdpBody, helper.createContentTypeHeader());
+            ClientTransaction ctx = helper.getNewClientTransaction(request);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator,  this);
             tad.setUserCredentials(m_userCredentials);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {

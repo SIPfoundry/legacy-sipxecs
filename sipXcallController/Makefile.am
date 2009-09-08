@@ -2,7 +2,7 @@
 include $(top_srcdir)/config/project.am
 include ant-targets.am
 
-bin_SCRIPTS = sipxcallcontroller.sh 
+bin_SCRIPTS = 
 
 RPMS=$(RPM)
 
@@ -17,8 +17,6 @@ EXTRA_DIST = \
   config.properties.in \
   sipxcallcontroller.spec.in \
   sipxcallcontroller.spec \
-  sipxcallcontroller-process.xml.in \
-  sipxcallcontroller.sh.in \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
@@ -28,16 +26,10 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = config.properties
 
-SIPX_PROCESS_DEFS = \
-	sipxcallcontroller 
-
 config.properties : config.properties.in 
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 
-sipxcallcontroller.sh : sipxcallcontroller.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
 
 sipxcallcontroller.spec : sipxcallcontroller.spec.in
 	@echo "Localize $< -> $@"

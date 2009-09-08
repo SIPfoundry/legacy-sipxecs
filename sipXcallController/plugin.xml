@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<rest-service xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxrest-service-00-00">
+<plugin-class>org.sipfoundry.callcontroller.CallControllerPlugin</plugin-class>
+<security-level>LOCAL-AND-REMOTE</security-level>
+<uri-prefix>/callcontroller</uri-prefix>
+<sip-listener-class>org.sipfoundry.callcontroller.SipListenerImpl</sip-listener-class>
+<service-description>
+<![CDATA[ The call controller plugin ]]>
+</service-description>
+</rest-service>

@@ -7,15 +7,12 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.jivesoftware.openfire.PacketRouter;
@@ -28,27 +25,22 @@ import org.jivesoftware.openfire.group.GroupAlreadyExistsException;
 import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
-import org.jivesoftware.openfire.muc.CannotBeInvitedException;
-import org.jivesoftware.openfire.muc.ForbiddenException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.MultiUserChatManager;
 import org.jivesoftware.openfire.muc.MultiUserChatService;
 import org.jivesoftware.openfire.muc.NotAllowedException;
 import org.jivesoftware.openfire.muc.MUCRole.Affiliation;
-import org.jivesoftware.openfire.muc.MUCRole.Role;
 import org.jivesoftware.openfire.spi.PresenceManagerImpl;
 import org.jivesoftware.openfire.user.User;
 import org.jivesoftware.openfire.user.UserAlreadyExistsException;
 import org.jivesoftware.openfire.user.UserManager;
 import org.jivesoftware.openfire.user.UserNotFoundException;
-import org.jivesoftware.util.AlreadyExistsException;
-import org.jivesoftware.util.JiveGlobals;
 import org.jivesoftware.util.NotFoundException;
-import org.sipfoundry.commons.callcontrollerconfig.CallControllerConfig;
-import org.sipfoundry.commons.callcontrollerconfig.CallControllerConfigFileParser;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.restconfig.RestServerConfig;
+import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
@@ -75,7 +67,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private Map<String, Presence> probedPresence;
     private JID componentJID;
     private XMPPServer server;
-    private static CallControllerConfig callControllerConfig;
+    private static RestServerConfig restServerConfig;
 
     private static String configurationPath = "/etc/sipxpbx";
 
@@ -115,9 +107,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         ConfigurationParser parser = new ConfigurationParser();
         watcherConfig = parser.parse("file://" + configurationFile);
         logFile = watcherConfig.getLogDirectory() + "/sipxopenfire.log";
-        CallControllerConfigFileParser callControllerConfigFileParser = new CallControllerConfigFileParser();
-        String url = configurationPath + "/sipxcallcontroller.xml";
-        callControllerConfig = callControllerConfigFileParser.createCallControllerConfig(url);
+        RestServerConfigFileParser callControllerConfigFileParser = new RestServerConfigFileParser();
+        String url = configurationPath + "/sipxrest.xml";
+        restServerConfig = callControllerConfigFileParser.parse(url);
 
     }
 
@@ -863,8 +855,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         return this.getServer().getPacketRouter();
     }
 
-    public CallControllerConfig getCallControllerConfig() {
-        return callControllerConfig;
+    public RestServerConfig getRestServerConfig() {
+        return restServerConfig;
     }
 
     /**

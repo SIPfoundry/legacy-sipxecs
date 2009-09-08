@@ -24,16 +24,28 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxrest.AbstractSipListener;
+import org.sipfoundry.sipxrest.SipHelper;
 
-class SipListenerImpl implements SipListener {
+public class SipListenerImpl extends AbstractSipListener {
 
     private static final Logger LOG = Logger.getLogger(SipListenerImpl.class);
+    
+    private static SipListenerImpl instance;
 
-    private SipStackBean m_stackBean;
-
-    public SipListenerImpl(SipStackBean stackBean) {
-        m_stackBean = stackBean;
+  
+    public SipListenerImpl() {
+        if ( instance != null ) {
+            throw new UnsupportedOperationException("Only singleton allowed");
+        }
+        instance = this;
     }
+    
+    public static SipListenerImpl getInstance() {
+        return instance;
+    }
+    
+   
 
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
 
@@ -44,9 +56,6 @@ class SipListenerImpl implements SipListener {
         }
     }
 
-    public void processIOException(IOExceptionEvent exceptionEvent) {
-
-    }
 
     public void processRequest(RequestEvent requestEvent) {
         try {
@@ -59,11 +68,11 @@ class SipListenerImpl implements SipListener {
                     + serverTransaction.getRequest().getMethod());
             Request request = requestEvent.getRequest();
             if (request.getMethod().equals(Request.BYE)) {
-                Response response = m_stackBean.createResponse(request, Response.OK);
+                Response response = getHelper().createResponse(request, Response.OK);
                 serverTransaction.sendResponse(response);
             } else if (request.getMethod().equals(Request.NOTIFY)) {
                 LOG.debug("got a NOTIFY");
-                Response response = m_stackBean.createResponse(request, Response.OK);
+                Response response = SipListenerImpl.getInstance().getHelper().createResponse(request, Response.OK);
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) request
                         .getHeader(SubscriptionStateHeader.NAME);
@@ -81,13 +90,13 @@ class SipListenerImpl implements SipListener {
 
                 if (subscriptionState.getState().equalsIgnoreCase(
                         SubscriptionStateHeader.TERMINATED)) {
-                    m_stackBean.tearDownDialog(dialog);
+                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
                 }
             }
         } catch (Exception ex) {
             LOG.error("Exception  " + requestEvent.getRequest(), ex);
             Dialog dialog = requestEvent.getDialog();
-            m_stackBean.tearDownDialog(dialog);
+            SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
         }
     }
 
@@ -109,7 +118,7 @@ class SipListenerImpl implements SipListener {
             LOG.error("Error occured processing response", ex);
             Dialog dialog = responseEvent.getDialog();
             if (dialog != null) {
-                m_stackBean.tearDownDialog(dialog);
+               SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
             }
         }
     }
@@ -134,5 +143,11 @@ class SipListenerImpl implements SipListener {
     }
 
     public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
+    }
+
+    @Override
+    public void init() {
+        // TODO Auto-generated method stub
+        
     }
 }

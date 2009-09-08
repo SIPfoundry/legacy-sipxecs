@@ -43,7 +43,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXcallController
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/callcontroller-process.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/callcontroller.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXrest/plugins
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXrest/plugins/sipXcallController.jar
 

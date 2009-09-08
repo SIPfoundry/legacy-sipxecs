@@ -71,10 +71,10 @@ public class RestServiceFinder {
 
                                 MetaInf metaInf = metaInfParser.parse(metaInfFile);
                                 for (MetaInf mi : this.plugins) {
-                                    if (mi.getUrlPrefix().equals(metaInf.getUrlPrefix())) {
+                                    if (mi.getUriPrefix().equals(metaInf.getUriPrefix())) {
                                         logger
                                                 .error("Cannot load plugin - url prefix not unqiue "
-                                                        + mi.getUrlPrefix());
+                                                        + mi.getUriPrefix());
                                         conflict = true;
                                         break;
                                     }
@@ -106,22 +106,28 @@ public class RestServiceFinder {
                     plugin.setMetaInf(mi);
                     pluginCollection.add(plugin);
                 }
+                /*
+                 * A plugin should not initialize its own logging. This will be done by the container.
+                 */
+                Logger.getLogger(clazz.getPackage().getName()).addAppender(RestServer.getAppender());
             } catch (Exception ex) {
                 logger.error("Error loading class", ex);
             }
             String sipListenerClassName = mi.getSipListenerClassName();
-            try {
-                Class< ? > clazz = Class.forName(sipListenerClassName);
-                if (AbstractSipListener.class.isAssignableFrom(clazz)) {
-                    logger.debug("SipListener support found in  = " + sipListenerClassName);
-                    AbstractSipListener sipListener = (AbstractSipListener) clazz.newInstance();
-                    sipListener.setMetaInf(mi);
-                    SipStackBean stackBean = RestServer.getSipStack();
-                    ((SipListenerImpl) stackBean.getSipListener(stackBean)).addServiceListener(
-                            mi, sipListener);
+            if (sipListenerClassName != null) {
+                try {
+                    Class< ? > clazz = Class.forName(sipListenerClassName);
+                    if (AbstractSipListener.class.isAssignableFrom(clazz)) {
+                        logger.debug("SipListener support found in  = " + sipListenerClassName);
+                        AbstractSipListener sipListener = (AbstractSipListener) clazz
+                                .newInstance();
+                        sipListener.setMetaInf(mi);
+                        SipStackBean stackBean = RestServer.getSipStack();
+                        stackBean.sipListener.addServiceListener(mi, sipListener);
+                    }
+                } catch (Exception ex) {
+                    logger.error("error loading class", ex);
                 }
-            } catch (Exception ex) {
-                logger.error("error loading class", ex);
             }
         }
 
@@ -134,7 +140,7 @@ public class RestServiceFinder {
         descriptionPage.append("<ul>\n");
         for (MetaInf mi : this.plugins) {
             descriptionPage.append("<li>\n");
-            descriptionPage.append("<b> URI Prefix : " + mi.getUrlPrefix() + "</b>\n");
+            descriptionPage.append("<b> URI Prefix : " + mi.getUriPrefix() + "</b>\n");
             descriptionPage.append("</li>\n");
             descriptionPage.append("<li><b>Security :</b>" + mi.getSecurity() + "</li>");
             if (mi.getSipUserName() != null) {

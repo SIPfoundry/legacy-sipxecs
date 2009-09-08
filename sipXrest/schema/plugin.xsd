@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:annotation>
+	<xs:documentation xml:lang="en">
+           Each plugin has a XML file "service.xml" that conforms to this schema.
+	</xs:documentation>
+    </xs:annotation>
+    <xs:element rest-service type="MetaInf"/>
+    <xs:complexType name="MetaInf">
+    <xs:sequence>
+    <xs:element name="plugin-class" type="xs:string" maxOccurs="1"
+    	minOccurs="1">
+    	<xs:annotation>
+    		<xs:documentation>
+    			The fully qualified class path of the main plugin class.
+    			This clast must implement the Plugin interface.
+    		</xs:documentation>
+    	</xs:annotation>
+    </xs:element>
+
+    <xs:element name="security-level" type="xs:string" maxOccurs="1" minOccurs="1" >
+    	<xs:annotation>
+    		<xs:documentation>
+    			The security level. Can be LOCAL-AND-REMOTE or
+    			LOCAL-ONLY
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="sip-listener-class" type="xs:string" maxOccurs="1" minOccurs="0" >
+    	<xs:annotation>
+    		<xs:documentation>
+    			Fully qualified class path of the SipListener (if any)
+    			for this service. If the service does not include a SIP 
+    			stack you can leave out this field.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="sip-user-name" type="xs:string" maxOccurs="1" minOccurs="0" >
+    	<xs:annotation>
+    		<xs:documentation>
+			The sip user name associated with this service
+			(if any).  It is the "convergence name"
+			of the service.  This field is relevant if
+			the service will be instantiated by an out of
+			Dialog INVITE (i.e. runs as a UAS) or will be
+			running with the credentials of as a special
+			user that is not stored in the validusers.xml
+			database. For example, the callwatcher runs
+			under the identity of such a user. Such users
+			have user names that begin with ~~id~ and sipx
+			does not store the credentials of such users
+			in validusers.xml and neither their passtoken
+			nor their pintoken is available from that file.
+			If the service does not run under such a SIP id
+			or will not be running as a UAS, you can leave
+			out this field. In such cases, the service
+			runs a SIP user name provided by the service
+			itself via the Plugin.getAgent() callback and
+			its passtoken is available in validusers.xml.
+			For example the third party call controller runs
+			under the identity that is implied by the request
+			URI of the rest call that kicks of the third
+			party call.  It is not triggered by an incoming
+			SIP request. Thus you can leave this field blank
+			for the third party call controller plugin.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="sip-password" type="xs:string" maxOccurs="1" minOccurs="0" >
+    	<xs:annotation>
+    		<xs:documentation>
+    			The SIP password associated with this service (this is
+    			only relevant for special users -- i.e. those that begin
+    			with ~~id~ ). If the service does not run under such a
+    			SIP ID you can leave out this field (leave it
+    			unspecified). The credentials of such users must be present
+    			in the validusers.xml file as a passtoken.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="uri-prefix" type="xs:string" maxOccurs="1" minOccurs="1">
+    	<xs:annotation>
+    		<xs:documentation>
+    			The URI prefix. This is the hierarchical URI part that
+    			uniquely identifies this REST service.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="service-description" type="xs:string" maxOccurs="1" minOccurs="1"></xs:element>
+
+    <xs:element name="remote-authentication-method" type="xs:string">
+    	<xs:annotation>
+    		<xs:documentation>
+    			This determines how remote callers ( i.e. those outside
+    			the sipx domain) are authenticated. The available
+    			choices are HTTP-DIGEST or HTTPS-BASIC. If the service has a security
+    			of LOCAL-ONLY then this field is ignored.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+     </xs:sequence>
+     </xs:complex-type>
+</xs:schema>

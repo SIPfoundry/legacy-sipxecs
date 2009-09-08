@@ -3,7 +3,7 @@ package org.sipfoundry.commons.restconfig;
 import org.apache.commons.digester.Digester;
 import org.xml.sax.InputSource;
 
-public class ConfigFileParser {
+public class RestServerConfigFileParser {
 	
 	public static final String REST_CONFIG = "rest-config";
 	

@@ -9,14 +9,13 @@ import java.util.HashSet;
 
 import javax.sip.ClientTransaction;
 import javax.sip.SipListener;
-import javax.sip.SipProvider;
 
 import org.apache.log4j.Appender;
-import org.sipfoundry.commons.jainsip.AbstactSipStackBean;
+import org.sipfoundry.commons.jainsip.AbstractSipStackBean;
 import org.sipfoundry.commons.jainsip.ListeningPointAddress;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 
-public class SipStackBean extends AbstactSipStackBean implements AccountManager {
+public class SipStackBean extends AbstractSipStackBean implements AccountManager {
     
     Collection<ListeningPointAddress> lpaSet = new HashSet<ListeningPointAddress>();
     private Subscriber subscriber;
@@ -50,7 +49,7 @@ public class SipStackBean extends AbstactSipStackBean implements AccountManager 
     }
 
     @Override
-    public SipListener getSipListener(AbstactSipStackBean abstactSipStackBean) {
+    public SipListener getSipListener(AbstractSipStackBean abstactSipStackBean) {
          if ( this.subscriber != null ) return this.subscriber ;
          else {
              this.subscriber = new Subscriber(this);

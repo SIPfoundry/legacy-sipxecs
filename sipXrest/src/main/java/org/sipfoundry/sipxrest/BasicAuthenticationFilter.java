@@ -1,4 +1,4 @@
-package org.sipfoundry.callcontroller;
+package org.sipfoundry.sipxrest;
 
 import java.net.InetAddress;
 import java.security.MessageDigest;
@@ -23,15 +23,20 @@ import org.restlet.data.Status;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
 
-public class CallControllerFilter extends Filter {
+public class BasicAuthenticationFilter extends Filter {
     
-    private static Logger logger = Logger.getLogger(CallControllerFilter.class);
+    private static Logger logger = Logger.getLogger(BasicAuthenticationFilter.class);
     
-   
-    private CallControllerRestlet callController;
+    private SipURI sipUri;
+
+
+    private Plugin plugin;
 
   
-    public CallControllerFilter() {
+    public BasicAuthenticationFilter(Plugin plugin) throws Exception {
+        String proxyDomain = RestServer.getRestServerConfig().getSipxProxyDomain();
+         this.sipUri = RestServer.getAddressFactory().createSipURI(null, proxyDomain);
+         this.plugin = plugin;
     }
   
   
@@ -39,15 +44,11 @@ public class CallControllerFilter extends Filter {
     @Override
     protected int beforeHandle(Request request, Response response) {
       String remoteAddr = request.getClientInfo().getAddress();  
-      try {
-
-      
-          SipURI sipUri = SipStackBean.getInstance().getProxySipURI();
+      try {     
           
           logger.debug("Authentication request " + remoteAddr );
-
          
-          if ( ! request.getProtocol().equals(Protocol.HTTPS) && CallController.isSecure ) {
+          if ( ! request.getProtocol().equals(Protocol.HTTPS)  ) {
               logger.debug("Request was not recieved over HTTPS protocol");
               return Filter.STOP;
           }
@@ -60,19 +61,10 @@ public class CallControllerFilter extends Filter {
                   return Filter.CONTINUE;
               }
           }
-          
-          
         
+          String agentName = plugin.getAgent(request);
        
-          String agentName = ((String) request.getAttributes().get(CallControllerParams.AGENT));
-       
-          
-          logger.debug("AgentName = " + agentName);
-          if ( agentName == null ) {
-              agentName = (String)request.getAttributes().get(CallControllerParams.CALLING_PARTY);
-          }
-
-          User user = CallController.getAccountManager().getUser(agentName);
+          User user = RestServer.getAccountManager().getUser(agentName);
           
          
           if (user == null) {
@@ -87,7 +79,7 @@ public class CallControllerFilter extends Filter {
           if ( secret == null ) {
               logger.debug("Requesting BASIC credentials");
               ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
-                      CallController.getCallControllerConfig().getSipxProxyDomain());
+                      RestServer.getRestServerConfig().getSipxProxyDomain());
               response.setChallengeRequest(challengeRequest);
               response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
               return Filter.STOP;
@@ -98,7 +90,7 @@ public class CallControllerFilter extends Filter {
           logger.debug("userName = " + userName);
 
           String userDomainPassword =  userName +":" + 
-          CallController.getCallControllerConfig().getSipxProxyDomain() + ":" +
+          RestServer.getRestServerConfig().getSipxProxyDomain() + ":" +
           passWord;
 
           String hashVal = DigestUtils.md5Hex(userDomainPassword);
@@ -118,16 +110,6 @@ public class CallControllerFilter extends Filter {
           response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
           return Filter.STOP;
       } 
-    }
-    
-    
-    public void setNext(CallControllerRestlet callControllerRestlet) {
-        this.callController = callControllerRestlet;
-    }
-    @Override 
-    public Restlet getNext() {
-        return this.callController;
-        
     }
     
     
