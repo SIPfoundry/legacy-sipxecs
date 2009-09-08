@@ -226,7 +226,9 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public void onSpeedDialApply() {
         setValidationEnabled(true);
-        getSpeedDialManager().saveSpeedDialGroup(getSpeedDialGroup());
+        if (TapestryUtils.isValid(this)) {
+            getSpeedDialManager().saveSpeedDialGroup(getSpeedDialGroup());
+        }
     }
 
     public void onSpeedDialUpdatePhones() {
