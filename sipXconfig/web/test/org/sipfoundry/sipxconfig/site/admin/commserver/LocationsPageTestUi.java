@@ -49,7 +49,7 @@ public class LocationsPageTestUi extends WebTestCase {
         boolean uninitialized2 = StringUtils.equals("Uninitialized", SiteTestHelper.getCellAsText(getTable("locations:list"), 2, 4));
         assertTrue(uninitialized1 || uninitialized2);
         if (uninitialized1) {
-            clickLink("editLocationLink_0");
+            clickLink("editLocationLink");
         } else if (uninitialized2) {
             clickLink("editLocationLink_0");
         }
