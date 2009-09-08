@@ -18,7 +18,7 @@
 	    To connect to a Nortel CS1000 the following template should be used. For the latest
 		interopability information &lt;a href="http://www.sipsw.com/cs1000/" target="_blank"&gt;CLICK HERE&lt;/a&gt;.
 	  </description>
-    <setting name="itsp-proxy-domain">
+    <setting name="itsp-proxy-domain" hidden="yes">
       <label>ITSP server domain name</label>
       <description>
         The CS1000 service domain.

@@ -15,7 +15,7 @@
   <group name="itsp-account">
     <label>ITSP Account</label>
     <description>The information that is specific to a given ITSP account.</description>
-    <setting name="itsp-proxy-domain">
+    <setting name="itsp-proxy-domain" hidden="yes">
       <label>ITSP server domain name</label>
       <value>vitelity.net</value>
       <description>
