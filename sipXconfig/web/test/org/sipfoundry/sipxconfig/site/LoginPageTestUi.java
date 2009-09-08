@@ -50,8 +50,7 @@ public class LoginPageTestUi extends WebTestCase {
     }
 
     // successful login is tested by "home" function
-    // FIXME: temporarily disabled: needed to display error pages after bad login
-    public void _testLoginFailed() throws Exception {
+    public void testLoginFailed() throws Exception {
         SiteTestHelper.assertNoUserError(getTester());
 
         setTextField("j_username", "xyz");
@@ -63,8 +62,7 @@ public class LoginPageTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(getTester());
     }
 
-    // FIXME: temporarily disabled: needed to display error pages after bad login
-    public void _testLoginBlankPassword() throws Exception {
+    public void testLoginBlankPassword() throws Exception {
         setTextField("j_username", TestPage.TEST_USER_USERNAME);
         clickButton("login:submit");
         SiteTestHelper.assertUserError(getTester());

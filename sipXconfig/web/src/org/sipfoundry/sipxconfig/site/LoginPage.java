@@ -9,12 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.ValidatorException;
+import org.apache.tapestry.web.WebRequest;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
@@ -28,6 +33,12 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
     @InjectObject("spring:tapestry")
     public abstract TapestryContext getTapestry();
 
+    @InjectObject(value = "service:tapestry.globals.WebRequest")
+    public abstract WebRequest getRequest();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
     public void pageBeginRender(PageEvent event) {
         // If there are no users in the DB, then redirect to the FirstUser page to make one.
         // For most pages, Border takes care of this check, but LoginPage doesn't have a Border.
@@ -35,5 +46,10 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
         if (userCount == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
         }
+
+        if (StringUtils.isNotEmpty(getRequest().getParameterValue("error"))) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("message.loginError")));
+        }
+
     }
 }

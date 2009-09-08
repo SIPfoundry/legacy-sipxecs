@@ -374,6 +374,7 @@ public abstract class TestPage extends BasePage {
         resetSbcDevices();
         deleteLocations();
     }
+
     /**
      * Clear all locations. Primary location is not allowed to be deleted
      */
@@ -443,6 +444,7 @@ public abstract class TestPage extends BasePage {
 
     public void seedTestUser() {
         createUserIfMissing(TEST_USER_USERNAME + System.currentTimeMillis(), VOICEMAIL, true);
+        createTestUserIfMissing();
     }
 
     private User createTestUserIfMissing() {

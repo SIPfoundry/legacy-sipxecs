@@ -119,7 +119,7 @@
 
   <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
     <property name="authenticationManager" ref="authenticationManager" />
-    <property name="authenticationFailureUrl" value="/LoginPage.html" />
+    <property name="authenticationFailureUrl" value="/LoginPage.html?error=badCredentials" />
     <property name="defaultTargetUrl" value="/Home.html" />
   </bean>
 
