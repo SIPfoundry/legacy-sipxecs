@@ -15,7 +15,7 @@
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>
     <call-limit>-1</call-limit>
-    <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
     <music-on-hold-address>~~mh~</music-on-hold-address>
     <music-on-hold-delay-miliseconds>500</music-on-hold-delay-miliseconds>
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>

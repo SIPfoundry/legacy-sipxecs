@@ -16,7 +16,7 @@
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>
     <call-limit>-1</call-limit>
-    <music-on-hold-support-enabled>false</music-on-hold-support-enabled>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
     <music-on-hold-address>~~mh~</music-on-hold-address>
     <music-on-hold-delay-miliseconds>500</music-on-hold-delay-miliseconds>
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
@@ -29,13 +29,13 @@
     <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
     <user-name>juser</user-name>
     <password>1234</password>
+    <register-on-initialization>true</register-on-initialization>
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
     <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>
     <itsp-transport>UDP</itsp-transport>
     <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
-    <register-on-initialization>true</register-on-initialization>
     <is-user-phone>true</is-user-phone>
     <loose-route-invite>true</loose-route-invite>
     <itsp-registrar-address>10.1.1.1</itsp-registrar-address>

@@ -131,7 +131,7 @@
           </false>
         </boolean>
       </type>
-      <value>false</value>
+      <value>true</value>
       <description>
         If checked sipXbridge Music On Hold support (MoH) is enabled. Phones should disable their MoH support if
         sipXbridge support for MOH is enabled.

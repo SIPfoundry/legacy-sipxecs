@@ -37,6 +37,12 @@
       </type>
       <description>The password for the account.</description>
     </setting>
+    <setting name="register-on-initialization" advanced="yes">
+      <label>Register on initialization</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>Defines whether or not to register with the given ITSP on initialization.</description>
+    </setting>
     <setting name="itsp-proxy-address" advanced="yes">
       <label>ITSP server address</label>
       <value>voip.eutelia.it</value>
@@ -86,12 +92,6 @@
       <description>
         Override the default asserted identity.
       </description>
-    </setting>
-    <setting name="register-on-initialization" advanced="yes">
-      <label>Register on initialization</label>
-      <type refid="switch"></type>
-      <value>true</value>
-      <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="is-user-phone" advanced="yes">
       <label>User part of INVITE SIP URI is a phone#</label>
