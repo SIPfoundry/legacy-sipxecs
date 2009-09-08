@@ -5,6 +5,9 @@ public class MetaInf {
     private String security = LOCAL_AND_REMOTE;
     private String urlPrefix;
     private String serviceDescription;
+    private String sipUserName;
+    private String sipPassword;
+    private String sipListenerClassName;
     /*
      * Standard access control models.
      */
@@ -68,6 +71,49 @@ public class MetaInf {
      */
     public String getServiceDescription() {
         return serviceDescription;
+    }
+
+    /**
+     * @param sipUserName the sipUserName to set
+     */
+    public void setSipUserName(String sipUserName) {
+        this.sipUserName = sipUserName;
+    }
+
+    /**
+     * @return the sipUserName
+     */
+    public String getSipUserName() {
+        return sipUserName;
+    }
+
+    /**
+     * @param sipPassword the sipPassword to set
+     */
+    public void setSipPassword(String sipPassword) {
+        this.sipPassword = sipPassword;
+    }
+
+    /**
+     * @return the sipPassword
+     */
+    public String getSipPassword() {
+        return sipPassword;
+    }
+    
+    
+    /**
+     * Get the Sip Listener class
+     */
+    public String getSipListenerClassName() {
+        return this.sipListenerClassName;
+    }
+
+    /**
+     * @param sipListenerClassName the sipListenerClassName to set
+     */
+    public void setSipListenerClassName(String sipListenerClassName) {
+        this.sipListenerClassName = sipListenerClassName;
     }
 
 }

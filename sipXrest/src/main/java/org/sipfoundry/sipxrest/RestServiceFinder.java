@@ -52,7 +52,7 @@ public class RestServiceFinder {
          * interface.
          */
         File[] files = dir.listFiles(new JarFilter());
-         for (File f : files) {
+        for (File f : files) {
             logger.debug("Checking " + f.getName());
             if (f.isFile()) {
                 JarFile jarFile = new JarFile(f);
@@ -68,7 +68,7 @@ public class RestServiceFinder {
                             try {
                                 boolean conflict = false;
                                 MetaInfParser metaInfParser = new MetaInfParser();
-                                
+
                                 MetaInf metaInf = metaInfParser.parse(metaInfFile);
                                 for (MetaInf mi : this.plugins) {
                                     if (mi.getUrlPrefix().equals(metaInf.getUrlPrefix())) {
@@ -78,9 +78,9 @@ public class RestServiceFinder {
                                         conflict = true;
                                         break;
                                     }
-                                
+
                                 }
-                                if (! conflict ) {
+                                if (!conflict) {
                                     this.plugins.add(metaInf);
                                 }
                             } catch (Exception ex) {
@@ -96,8 +96,9 @@ public class RestServiceFinder {
         }
 
         for (MetaInf mi : this.plugins) {
-            String className = mi.getPluginClass();
             try {
+                String className = mi.getPluginClass();
+
                 Class< ? > clazz = Class.forName(className);
                 if (Plugin.class.isAssignableFrom(clazz)) {
                     logger.debug("Plugin support found in  = " + className);
@@ -106,11 +107,24 @@ public class RestServiceFinder {
                     pluginCollection.add(plugin);
                 }
             } catch (Exception ex) {
-                logger.error("Error loading class");
+                logger.error("Error loading class", ex);
+            }
+            String sipListenerClassName = mi.getSipListenerClassName();
+            try {
+                Class< ? > clazz = Class.forName(sipListenerClassName);
+                if (AbstractSipListener.class.isAssignableFrom(clazz)) {
+                    logger.debug("SipListener support found in  = " + sipListenerClassName);
+                    AbstractSipListener sipListener = (AbstractSipListener) clazz.newInstance();
+                    sipListener.setMetaInf(mi);
+                    SipStackBean stackBean = RestServer.getSipStack();
+                    ((SipListenerImpl) stackBean.getSipListener(stackBean)).addServiceListener(
+                            mi, sipListener);
+                }
+            } catch (Exception ex) {
+                logger.error("error loading class", ex);
             }
         }
-        
-       
+
     }
 
     public String getDescriptions() {
@@ -119,18 +133,22 @@ public class RestServiceFinder {
         descriptionPage.append("<h1>Available plugins</h1>\n");
         descriptionPage.append("<ul>\n");
         for (MetaInf mi : this.plugins) {
-           descriptionPage.append("<li>\n");
-           descriptionPage.append("<b> URI Prefix : "+mi.getUrlPrefix() + "</b>\n");
-           descriptionPage.append("</li>\n");
-           descriptionPage.append("<li><b>Security :</b>" + mi.getSecurity()  + "</li>");
-           descriptionPage.append("<li><b>Description : </b> \n");
-           descriptionPage.append(mi.getServiceDescription());
-           descriptionPage.append("</li>\n");
+            descriptionPage.append("<li>\n");
+            descriptionPage.append("<b> URI Prefix : " + mi.getUrlPrefix() + "</b>\n");
+            descriptionPage.append("</li>\n");
+            descriptionPage.append("<li><b>Security :</b>" + mi.getSecurity() + "</li>");
+            if (mi.getSipUserName() != null) {
+                descriptionPage.append("<li> SIP UserName :</b>" + mi.getSipUserName() + "</li>");
+            }
+            descriptionPage.append("<li><b>Description : </b> \n");
+            descriptionPage.append(mi.getServiceDescription());
+            descriptionPage.append("</li>\n");
         }
         descriptionPage.append("</ul>\n");
         descriptionPage.append("</body></html>");
         return descriptionPage.toString();
     }
+
     public Collection<Plugin> getPluginCollection() {
         return pluginCollection;
     }

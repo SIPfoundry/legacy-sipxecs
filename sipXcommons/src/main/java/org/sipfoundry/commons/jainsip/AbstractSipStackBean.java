@@ -46,9 +46,9 @@ import org.sipfoundry.commons.log4j.StackLoggerImpl;
  * need. 
  */
 
-public abstract class AbstactSipStackBean {
+public abstract class AbstractSipStackBean {
 
-    private static final Logger logger = Logger.getLogger(AbstactSipStackBean.class);
+    private static final Logger logger = Logger.getLogger(AbstractSipStackBean.class);
 
     private Properties m_properties;
 
@@ -190,7 +190,7 @@ public abstract class AbstactSipStackBean {
      * not supported. Note that only one type of account is supported.
      */
     public abstract AccountManager getPlainTextPasswordAccountManager();
-    public abstract SipListener getSipListener(AbstactSipStackBean abstactSipStackBean);
+    public abstract SipListener getSipListener(AbstractSipStackBean abstactSipStackBean);
     public abstract String getStackName() ;    
     public abstract Appender getStackAppender() ;
     public abstract Collection<ListeningPointAddress> getListeningPointAddresses();

@@ -20,11 +20,11 @@ import javax.sip.message.Request;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 
-public class AccountManagerImpl implements SecureAccountManager {
+public abstract class AbstractAccountManager implements SecureAccountManager {
 
     ValidUsersXML validUsers;
  
-    public AccountManagerImpl() throws Exception {
+    public AbstractAccountManager() throws Exception {
         validUsers = ValidUsersXML.update(true);
       
     }
@@ -52,6 +52,7 @@ public class AccountManagerImpl implements SecureAccountManager {
         }
     }
 
+   
     public String getIdentity(String userName) {
         User user = validUsers.getUser(userName);
         if (user == null) {
@@ -61,6 +62,7 @@ public class AccountManagerImpl implements SecureAccountManager {
         }
     }
 
+    @Override
     public UserCredentialHash getCredentialHash(ClientTransaction clientTransaction, String realm) {
         Request request = clientTransaction.getRequest();
         FromHeader from = (FromHeader) request.getHeader(FromHeader.NAME);

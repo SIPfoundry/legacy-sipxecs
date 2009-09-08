@@ -60,11 +60,11 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.jainsip.AbstactSipStackBean;
+import org.sipfoundry.commons.jainsip.AbstractSipStackBean;
 import org.sipfoundry.commons.jainsip.ListeningPointAddress;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 
-public class SipStackBean extends AbstactSipStackBean {
+public class SipStackBean extends AbstractSipStackBean {
 
     private static final Logger logger = Logger.getLogger(SipStackBean.class);
 
@@ -342,7 +342,7 @@ public class SipStackBean extends AbstactSipStackBean {
     }
 
     @Override
-    public SipListener getSipListener(AbstactSipStackBean abstactSipStackBean) {
+    public SipListener getSipListener(AbstractSipStackBean abstactSipStackBean) {
         if ( m_sipListener == null ) {
             m_sipListener = new SipListenerImpl(this);
         }

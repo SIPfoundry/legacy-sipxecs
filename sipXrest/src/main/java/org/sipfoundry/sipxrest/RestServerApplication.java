@@ -39,6 +39,7 @@ public class RestServerApplication extends Application {
             for (Plugin restService : plugins) {
                 DigestAuthenticationFilter filter = new DigestAuthenticationFilter(restService);
                 restService.attachContext(filter, context, router);
+                
             }
         } catch (Exception e) {
             logger.debug("Exception thrown in search: " + e);

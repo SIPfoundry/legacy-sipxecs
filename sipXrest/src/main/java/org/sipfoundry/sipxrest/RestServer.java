@@ -54,6 +54,12 @@ public class RestServer {
 
     private static RestServiceFinder restServiceFinder;
     
+    private static SipStackBean sipStack;
+
+    private static AccountManagerImpl accountManager;
+
+    private static SipStackBean sipStackBean;
+    
   
     public static RestServerConfig getRestServerConfig() {
         return restServerConfig;
@@ -162,7 +168,7 @@ public class RestServer {
      * @return the messageFactory
      */
     public static MessageFactory getMessageFactory() {
-        return messageFactory;
+        return sipStackBean.getMessageFactory();
     }
 
    
@@ -170,7 +176,7 @@ public class RestServer {
      * @return the addressFactory
      */
     public static AddressFactory getAddressFactory() {
-        return addressFactory;
+        return sipStackBean.getAddressFactory();
     }
 
    
@@ -178,7 +184,7 @@ public class RestServer {
      * @return the headerFactory
      */
     public static HeaderFactory getHeaderFactory() {
-        return headerFactory;
+        return sipStackBean.getHeaderFactory();
     }
     
   
@@ -186,6 +192,10 @@ public class RestServer {
     public static RestServiceFinder getServiceFinder() {
         return restServiceFinder;
     }
+    
+    public static AccountManagerImpl getAccountManager() {
+        return accountManager;
+     }
     /**
      * @param args
      */
@@ -206,13 +216,7 @@ public class RestServer {
             System.err.println("Cannot find the config file");
             System.exit(-1);
         }
-        SipFactory factory = SipFactory.getInstance();
-        factory.setPathName("gov.nist");
-        addressFactory = factory.createAddressFactory();
-        headerFactory = factory.createHeaderFactory();
-        messageFactory = factory.createMessageFactory();
-    
-    
+
         restServerConfig = new ConfigFileParser().parse("file://"
                 + configFileName);
         Logger.getLogger(PACKAGE).setLevel(Level.toLevel(restServerConfig.getLogLevel()));
@@ -220,6 +224,19 @@ public class RestServer {
                 RestServer.getRestServerConfig().getLogDirectory()
                 +"/sipxrest.log"));
         Logger.getLogger(PACKAGE).addAppender(getAppender());
+        
+        
+        accountManager = new AccountManagerImpl();
+        sipStackBean = new SipStackBean();
+        
+        
+        SipFactory factory = SipFactory.getInstance();
+        factory.setPathName("gov.nist");
+        addressFactory = factory.createAddressFactory();
+        headerFactory = factory.createHeaderFactory();
+        messageFactory = factory.createMessageFactory();
+    
+    
         restServiceFinder = new RestServiceFinder();
      
         initWebServer();
@@ -227,6 +244,25 @@ public class RestServer {
         logger.debug("Web server started.");
 
     }
+
+
+    /**
+     * @param sipStack the sipStack to set
+     */
+    public static void setSipStack(SipStackBean sipStack) {
+        RestServer.sipStack = sipStack;
+    }
+
+
+    /**
+     * @return the sipStack
+     */
+    public static SipStackBean getSipStack() {
+        return sipStack;
+    }
+
+
+  
 
    
 

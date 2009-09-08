@@ -6,4 +6,5 @@
 <sipx-proxy-domain>sipxtest.sipxtest.net</sipx-proxy-domain>
 <log-directory>/usr/local/sipx/var/log/sipxpbx</log-directory>
 <log-level>DEBUG</log-level>
+<sip-port>6050</sip-port>
 </rest-config>

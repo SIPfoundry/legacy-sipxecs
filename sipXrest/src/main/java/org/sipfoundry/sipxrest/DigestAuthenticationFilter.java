@@ -44,52 +44,15 @@ public class DigestAuthenticationFilter extends Filter {
      * @return H(concat(secret, ":", data));
      */
     private static String KD(String secret, String data) {
-        return H(secret + ":" + data);
+        return Util.H(secret + ":" + data);
     }
 
-    /**
-     * to hex converter
-     */
-    private static final char[] toHex = {
-        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
-    };
-
-    /**
-     * Converts b[] to hex string.
-     * 
-     * @param b the bte array to convert
-     * @return a Hex representation of b.
-     */
-    private static String toHexString(byte b[]) {
-        int pos = 0;
-        char[] c = new char[b.length * 2];
-        for (int i = 0; i < b.length; i++) {
-            c[pos++] = toHex[(b[i] >> 4) & 0x0F];
-            c[pos++] = toHex[b[i] & 0x0f];
-        }
-        return new String(c);
-    }
-
+  
     public DigestAuthenticationFilter(Plugin plugin) {
         this.plugin = plugin;
     }
 
-    /**
-     * Defined in rfc 2617 as H(data) = MD5(data);
-     * 
-     * @param data data
-     * @return MD5(data)
-     */
-    private static String H(String data) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-
-            return toHexString(digest.digest(data.getBytes()));
-        } catch (NoSuchAlgorithmException ex) {
-            // shouldn't happen
-            throw new RuntimeException("Failed to instantiate an MD5 algorithm", ex);
-        }
-    }
+   
 
     @Override
     protected int beforeHandle(Request request, Response response) {
@@ -155,7 +118,7 @@ public class DigestAuthenticationFilter extends Filter {
                 }
                 Series<Parameter> parameters = challengeResponse.getParameters();
                 if (parameters.isEmpty()) {
-                    String nonce = H(Long.toString(Math.abs(random.nextLong())));
+                    String nonce = Util.H(Long.toString(Math.abs(random.nextLong())));
                     ChallengeRequest challengeRequest = new ChallengeRequest(
                             ChallengeScheme.HTTP_DIGEST, RestServer.getRestServerConfig()
                                     .getSipxProxyDomain());
@@ -213,10 +176,10 @@ public class DigestAuthenticationFilter extends Filter {
 
                 {
                     expectedValue = KD(pintoken, nonce + ":" + nc + ":" + cnonce + ":" + qop
-                            + ":" + H(A2));
+                            + ":" + Util.H(A2));
 
                 } else {
-                    expectedValue = KD(pintoken, nonce + ":" + H(A2));
+                    expectedValue = KD(pintoken, nonce + ":" + Util.H(A2));
                 }
 
                 if (expectedValue.equals(response_param)) {
