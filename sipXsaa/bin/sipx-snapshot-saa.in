@@ -13,7 +13,7 @@ SaaPort=`sipx_config_value @SIPX_CONFDIR@/sipxsaa-config SIP_SAA_UDP_PORT`
 
 # Send a MESSAGE request to ~~sa~D~dumpstate, which causes the SAA to
 # write its state.
-if @SIPX_BINDIR@/sipsend.pl \
+if @SIPX_BINDIR@/sipsend \
         `hostname -f` \
         MESSAGE \
         "sip:~~sa~D~dumpstate@${Domain}:${SaaPort}" >$Work &&

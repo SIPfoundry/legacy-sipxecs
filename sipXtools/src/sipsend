@@ -4,7 +4,7 @@
 ###   Tool to probe SIP servers.
 ###
 ### Written by: Scott Lawrence <slawrence@pingtel.com>
-### Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+### Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 ### Contributors retain copyright to elements licensed under a Contributor Agreement.
 ### Licensed to the User under the LGPL license.
 ###
@@ -74,7 +74,7 @@ $HELP = <<HELP;
         --use-via-name
            Use the name of this host in the via, not its IP address
         --transport
-           Use specified transport, (valid: tcp, udp; default: tcp) 
+           Use specified transport, (valid: tcp, udp; default: tcp)
 
     (Options with one dash set the SIP short-form header with the same name.
     Options with two dashes set the SIP long-form header with the same name,
@@ -471,7 +471,7 @@ sub RandHash
     return &md5_hex("$in");
 }
 
-
+
 __END__
 ### Local Variables: ***
 ### mode: perl ***

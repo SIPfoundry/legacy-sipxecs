@@ -9,7 +9,7 @@ DOMAIN=dale.pi.sipit.net
 CONTACT=sip:222@212.247.207.174
 CALL_ID="$( date -u +%Y-%m-%dT%H:%M:%SZ )@$CONTACT"
 
-sipsend.pl \
+sipsend \
 	---verbose \
 	---credentials 222 1234 \
 	--to 222@$DOMAIN \

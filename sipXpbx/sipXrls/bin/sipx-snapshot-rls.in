@@ -12,7 +12,7 @@ Domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 
 # Send a MESSAGE request to ~~rl~D~dumpstate, which cause the RLS to
 # write its state.
-if @SIPX_BINDIR@/sipsend.pl \
+if @SIPX_BINDIR@/sipsend \
         `hostname -f` \
         MESSAGE \
         "sip:~~rl~D~dumpstate@${Domain}" >$Work &&

@@ -33,6 +33,7 @@ dist_bin_SCRIPTS = \
 	sipx-log-cut \
 	sipxcar \
 	sipdb-dump \
+	sipsend \
 	polycom-config
 
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in

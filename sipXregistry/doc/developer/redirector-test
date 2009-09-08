@@ -2,8 +2,7 @@
 
 # Test the redirector modules.
 
-# To be run from the sipXregistry/doc/developer directory, as it needs
-# sipsend.pl (which needs getargs.pl) to run.  Looks for
+# To be run from the sipXregistry/doc/developer directory.  Looks for
 # ../../config.log or ../../build/config.log to find the values of the
 # SIPX_* configuration variables.  From $SIPX_CONFDIR/config.defs, it
 # determines the SIP configuration, including the domain name and the
@@ -323,7 +322,7 @@ do
     echo Test: $METHOD "$EXTENSION@$SIPXCHANGE_DOMAIN_NAME"
     echo
     # Execute the test.
-    sipsend.pl >$TMPDIR/output \
+    sipsend >$TMPDIR/output \
 	$SIPXCHANGE_DOMAIN_NAME:$REGISTRAR_SERVER_SIP_PORT $METHOD \
 	"$EXTENSION@$SIPXCHANGE_DOMAIN_NAME"
     # Show the interesting parts of the response: the reply line and the
