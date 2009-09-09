@@ -15,8 +15,7 @@ public class MetaInfParser {
         digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"uri-prefix"), "setUriPrefix",0);
         digester.addCallMethod(String.format("%s/%s",REST_SERVICE, "service-description"),
                 "setServiceDescription",0);
-        digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"sip-user-name"), "setSipUserName",0);
-        digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"sip-password"), "setSipPassword",0);
+        digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"sip-convergence-name"), "setSipConvergenceName",0);
         digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"sip-listener-class"), "setSipListenerClassName",0);
         digester.addCallMethod(String.format("%s/%s",REST_SERVICE,"remote-authentication-method"), 
                     "setRemoteAuthenticationMethod",0);

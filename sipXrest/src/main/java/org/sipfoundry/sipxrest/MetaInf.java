@@ -80,14 +80,14 @@ public class MetaInf {
     /**
      * @param sipUserName the sipUserName to set
      */
-    public void setSipUserName(String sipUserName) {
+    public void setSipConvergenceName(String sipUserName) {
         this.sipUserName = sipUserName;
     }
 
     /**
      * @return the sipUserName
      */
-    public String getSipUserName() {
+    public String getSipConvergenceName() {
         return sipUserName;
     }
 

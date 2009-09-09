@@ -78,7 +78,7 @@ public class SipHelper {
         ContactHeader contactHeader = getStackBean().getListeningPoint("udp").createContactHeader();
         Address address = contactHeader.getAddress();
         SipURI sipUri = (SipURI) address.getURI();
-        sipUri.setUser(abstractListener.getMetaInf().getSipUserName());
+        sipUri.setUser(abstractListener.getMetaInf().getSipConvergenceName());
         return contactHeader;
     }
 

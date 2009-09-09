@@ -31,7 +31,10 @@ public class AccountManagerImpl extends AbstractAccountManager {
     }
 
     /**
-     * Add a plain text password account to this account amanger.
+     * Add a plain text password account to this account manager. Clear text sip passwords
+     * are made available for users with special IDs such as ~~id~callWatcher. These
+     * are not part of the validuser.xml database and must be provided to the service
+     * by other means ( configuration files ).
      * 
      * @param userName
      * @param realm

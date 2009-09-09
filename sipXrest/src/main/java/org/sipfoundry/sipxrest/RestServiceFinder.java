@@ -105,6 +105,10 @@ public class RestServiceFinder {
                     Plugin plugin = (Plugin) clazz.newInstance();
                     plugin.setMetaInf(mi);
                     pluginCollection.add(plugin);
+                    if ( plugin.getSpecialUserName() != null && plugin.getSpecialUsersClearTextSipPassword() != null ) {
+                        RestServer.getAccountManager().addAccount(plugin.getSpecialUserName(), 
+                                plugin.getSpecialUsersClearTextSipPassword());
+                    }
                 }
                 /*
                  * A plugin should not initialize its own logging. This will be done by the container.
@@ -143,8 +147,8 @@ public class RestServiceFinder {
             descriptionPage.append("<b> URI Prefix : " + mi.getUriPrefix() + "</b>\n");
             descriptionPage.append("</li>\n");
             descriptionPage.append("<li><b>Security :</b>" + mi.getSecurity() + "</li>");
-            if (mi.getSipUserName() != null) {
-                descriptionPage.append("<li> SIP UserName :</b>" + mi.getSipUserName() + "</li>");
+            if (mi.getSipConvergenceName() != null) {
+                descriptionPage.append("<li> SIP Service Name :</b>" + mi.getSipConvergenceName() + "</li>");
             }
             descriptionPage.append("<li><b>Description : </b> \n");
             descriptionPage.append(mi.getServiceDescription());

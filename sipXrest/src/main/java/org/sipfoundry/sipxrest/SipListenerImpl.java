@@ -21,7 +21,7 @@ public final class SipListenerImpl implements SipListener {
     
     
     final  void addServiceListener(MetaInf metaInf, AbstractSipListener sipListener) {
-        this.sipListeners.put(metaInf.getSipUserName(), sipListener);
+        this.sipListeners.put(metaInf.getSipConvergenceName(), sipListener);
     }
 
     @Override

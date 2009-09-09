@@ -140,7 +140,7 @@ public abstract class AbstractSipListener implements SipListener {
             if (user == null) {
                 return false;
             }
-            if (this.metaInf.getSipUserName().equals(user)) {
+            if (this.metaInf.getSipConvergenceName().equals(user)) {
                 ((MessageExt) request).setApplicationData(this);
                 return true;
             } else
