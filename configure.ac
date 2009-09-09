@@ -49,6 +49,7 @@ then
   AC_CONFIG_SUBDIRS(sipXcallController)
   AC_CONFIG_SUBDIRS(sipXecs)
   AC_CONFIG_SUBDIRS(sipXrest)
+  AC_CONFIG_SUBDIRS(sipXcdrLog)
 fi
 
 AC_ARG_ENABLE(tools,

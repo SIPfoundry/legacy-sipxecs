@@ -1,0 +1,20 @@
+CDR Log Restlet plugin
+===========================
+
+This is a RESTLET plugin which provides a resource whereby one can obtain the
+Call Logs for a particular user.  Records are sorted by start date in descending
+order.
+
+
+The CDR Log consults etc/sipxpbx/validusers.xml to authenticate users and map user aliases to user names.
+
+The general form of the URL is
+
+https://host:6666/cdr/user?fromdate=yyyymmdd&limit=<max # of records to return>
+
+Optional URL parameters:
+=======================
+
+fromdate - start date from which call records will be retrieved.
+limit    - maximum number of call log records to return.
+

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipxcdrlog" default="jar" basedir="." >
+
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${sipxrest.jar}"/>
+    <pathelement location="${sipxrest}"/>
+    <pathelement location="${JainSip.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dnsjava.jar}"/>
+    <pathelement location="${noelios-restlet-ext-servlet}" />
+    <pathelement location="${noelios-restlet}" />
+    <pathelement location="${restlet}" />
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipxcdrLog.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.dir}/src/main/java/org/sipfoundry/sipxrest/sipxcdrlog" >
+        <include name="plugin.xml" />
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+  -->
+  <target name="install">
+
+  <!-- BINARIES/LIB/SCRIPTS -->
+  <mkdir dir="${dest.dir}${sipxrest.dir}/plugins"/>
+  <copy file="${build.dir}/dist/sipxcdrLog.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
+
+  </target>
+
+  <target name="uninstall">
+    <delete dir="${dest.dir}${sipxrest.dir}/plugins"/>
+  </target>
+
+</project>
