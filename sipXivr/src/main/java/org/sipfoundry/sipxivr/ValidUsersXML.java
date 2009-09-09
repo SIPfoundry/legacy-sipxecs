@@ -130,6 +130,8 @@ public class ValidUsersXML {
                             u.setHasVoicemail(Boolean.parseBoolean(text));
                         } else if (name.contentEquals("canRecordPrompts")) {
                             u.setCanRecordPrompts(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("canTuiChangePin")) {
+                            u.setCanTuiChangePin(Boolean.parseBoolean(text));
                         } else if (name.contentEquals("aliases")) {
                         	Node alias = next.getFirstChild() ;
                         	while (alias != null) {

@@ -23,6 +23,7 @@ public class User {
     private boolean m_inDirectory;
     private boolean m_hasVoicemail;
     private boolean m_canRecordPrompts;
+    private boolean m_canTuiChangePin;
     private Vector<String> m_dialPatterns;
     private Vector<String> m_aliases;
     private HashMap<String, DistributionList> m_distributionLists;
@@ -97,6 +98,14 @@ public class User {
 
     public void setCanRecordPrompts(boolean canRecordPrompts) {
         m_canRecordPrompts = canRecordPrompts;
+    }
+
+    public boolean canTuiChangePin() {
+        return m_canTuiChangePin;
+    }
+
+    public void setCanTuiChangePin(boolean canTuiChangePin) {
+        m_canTuiChangePin = canTuiChangePin;
     }
 
     public Vector<String> getDialPatterns() {

@@ -37,6 +37,7 @@ public class ValidUsersConfig extends XmlFile {
     private static final String ELEMENT_NAME_USERNAME = "userName";
     private static final String ELEMENT_NAME_HASVOICEMAIL = "hasVoicemail";
     private static final String ELEMENT_NAME_CANRECORDPROMPTS = "canRecordPrompts";
+    private static final String ELEMENT_NAME_CANTUICHANGEPIN = "canTuiChangePin";
     private CoreContext m_coreContext;
 
     private DomainManager m_domainManager;
@@ -95,6 +96,8 @@ public class ValidUsersConfig extends XmlFile {
         userEl.addElement(ELEMENT_NAME_HASVOICEMAIL).setText(Boolean.toString(hasVoiceMail));
         boolean canRecordPrompts = user.hasPermission(PermissionName.RECORD_SYSTEM_PROMPTS);
         userEl.addElement(ELEMENT_NAME_CANRECORDPROMPTS).setText(Boolean.toString(canRecordPrompts));
+        boolean canTuiChangePin = user.hasPermission(PermissionName.TUI_CHANGE_PIN);
+        userEl.addElement(ELEMENT_NAME_CANTUICHANGEPIN).setText(Boolean.toString(canTuiChangePin));
     }
 
     private void generateAlias(Element usersEl, AliasMapping am) {

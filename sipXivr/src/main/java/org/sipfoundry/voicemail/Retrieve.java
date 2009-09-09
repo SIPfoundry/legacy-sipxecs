@@ -820,19 +820,35 @@ public class Retrieve {
     }
     
     void voicemailOptions() {
+        User user = m_mailbox.getUser();
+        
         voicemailOptions:
         for(;;) {
             LOG.info("Retrieve::voicemailOptions "+m_ident);
-
-            // "Voicemail Options."
-            // "To record a personal greeting, press 1."
-            // "To record your name, press 2."
-            // "To select the greeting to play, press 3."
-            // "To clear your deleted messages folder, press 4."
-            // "To change your personal identification number, press 5."
-            // "To return to the main menu, press *."            
-            VmDialog vmd = new VmDialog(m_vm, "vm_options");
-            String digit = vmd.collectDigit("12345");
+            VmDialog vmd;
+            String validDigits;
+            
+            if (user.canTuiChangePin()) {
+                // "Voicemail Options."
+                // "To record a personal greeting, press 1."
+                // "To record your name, press 2."
+                // "To select the greeting to play, press 3."
+                // "To clear your deleted messages folder, press 4."
+                // "To change your personal identification number, press 5."
+                // "To return to the main menu, press *."            
+                vmd = new VmDialog(m_vm, "vm_options");
+                validDigits = "12345";
+            } else {
+                // "Voicemail Options."
+                // "To record a personal greeting, press 1."
+                // "To record your name, press 2."
+                // "To select the greeting to play, press 3."
+                // "To clear your deleted messages folder, press 4."
+                // "To return to the main menu, press *."            
+                vmd = new VmDialog(m_vm, "vm_options_nopin");
+                validDigits = "1234";
+            }
+            String digit = vmd.collectDigit(validDigits);
             if (digit == null) {
                 // bad entry, timeout, canceled
                 return ;
@@ -975,7 +991,7 @@ public class Retrieve {
                 continue voicemailOptions;
             }
             
-            if (digit.equals("5")) {
+            if (user.canTuiChangePin() && digit.equals("5")) {
                 int errorCount = 0;
                 for(;;) {
                     LOG.info("Retrieve::voicemailOptions:changePin "+m_ident);
@@ -1033,7 +1049,6 @@ public class Retrieve {
                         m_loc.play("pin_mismatch", "");
                     }
                     
-                    User user = m_mailbox.getUser();
                     String realm = m_loc.getIvrConfig().getRealm();
                     if (!user.isPinCorrect(originalPin, realm)) {
                         errorCount++;

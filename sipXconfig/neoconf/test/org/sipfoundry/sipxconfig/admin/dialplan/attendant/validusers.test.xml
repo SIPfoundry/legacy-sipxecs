@@ -15,6 +15,7 @@
     <inDirectory>true</inDirectory>
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>false</canRecordPrompts>
+    <canTuiChangePin>true</canTuiChangePin>
   </user>
   <user>
     <identity>302@example.com</identity>
@@ -27,6 +28,7 @@
     <inDirectory>false</inDirectory>
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>true</canRecordPrompts>
+    <canTuiChangePin>true</canTuiChangePin>
   </user>
   <user>
     <identity>500@example.com</identity>
