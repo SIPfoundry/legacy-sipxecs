@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.site.branch;
 
+import java.util.Arrays;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTester;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
@@ -31,14 +33,16 @@ public class BranchesPageTestUi extends ListWebTestCase {
     @Override
     protected String[] getParamNames() {
         return new String[] {
-            "item:name", "item:description"
+            "item:name", "item:description", "street", "city", "state", "country", "zip",
+            "item:phoneNumber", "item:faxNumber"
         };
-    }
+     }
 
     @Override
     protected String[] getParamValues(int i) {
         return new String[] {
-            "branch" + i, "branch description" + i
+            "branch" + i, "branch description" + i, "street" + i, "city" + i, "state" + i,
+             "country" + i, "zip" + i, "number" + i, "number" + i
         };
     }
 

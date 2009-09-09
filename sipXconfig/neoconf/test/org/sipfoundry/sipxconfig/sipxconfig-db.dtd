@@ -870,4 +870,11 @@
     branch_id CDATA #REQUIRED
     name CDATA #IMPLIED
     description CDATA #IMPLIED
+    address_street CDATA #IMPLIED
+    address_city CDATA #IMPLIED
+    address_state CDATA #IMPLIED
+    address_country CDATA #IMPLIED
+    address_zip CDATA #IMPLIED
+    phone_number CDATA #IMPLIED
+    fax_number CDATA #IMPLIED
 >

@@ -12,11 +12,15 @@ package org.sipfoundry.sipxconfig.branch;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.phonebook.Address;
 
 
 public class Branch extends BeanWithId implements NamedObject {
     private String m_name;
     private String m_description;
+    private Address m_address = new Address();
+    private String m_phoneNumber;
+    private String m_faxNumber;
 
     public String getName() {
         return m_name;
@@ -33,4 +37,33 @@ public class Branch extends BeanWithId implements NamedObject {
     public void setDescription(String description) {
         m_description = description;
     }
+
+    public Address getAddress() {
+        return m_address;
+    }
+
+    /**
+     * (hibernate injects null value here when all homeAddress fields are empty) see:
+     * http://opensource.atlassian.com/projects/hibernate/browse/HB-31
+     */
+    public void setAddress(Address address) {
+        m_address = address == null ? new Address() : address;
+    }
+
+    public String getPhoneNumber() {
+        return m_phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        m_phoneNumber = phoneNumber;
+    }
+
+    public String getFaxNumber() {
+        return m_phoneNumber;
+    }
+
+    public void setFaxNumber(String faxNumber) {
+        m_faxNumber = faxNumber;
+    }
+
 }

@@ -11,13 +11,6 @@
     type="text"
     autocomplete="off"/>
 </tr>
-<tr jwcid="@common/FieldPanel" for="zip"
-  field="component:zip"
-  label="message:label.zip">
-  <span jwcid="zip@TextField" id="zip" maxlength="255"
-    value="ognl:addr.zip"
-    type="text" autocomplete="off"/>
-</tr>
 <tr jwcid="@common/FieldPanel" for="city"
   field="component:city"
   label="message:label.city">
@@ -41,6 +34,13 @@
     value="ognl:addr.country"
     type="text"
     autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="zip"
+  field="component:zip"
+  label="message:label.zip">
+  <span jwcid="zip@TextField" id="zip" maxlength="255"
+    value="ognl:addr.zip"
+    type="text" autocomplete="off"/>
 </tr>
 <div jwcid="@If" condition="ognl:office" renderTag="false">
   <tr jwcid="@common/FieldPanel" for="designation"
