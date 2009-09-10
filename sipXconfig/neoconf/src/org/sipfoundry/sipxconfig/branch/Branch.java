@@ -59,7 +59,7 @@ public class Branch extends BeanWithId implements NamedObject {
     }
 
     public String getFaxNumber() {
-        return m_phoneNumber;
+        return m_faxNumber;
     }
 
     public void setFaxNumber(String faxNumber) {

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.branch;
 
-import java.util.Arrays;
-
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTester;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;

@@ -22,12 +22,10 @@ public class InternalRule extends DialingRule {
     public static final String DEFAULT_VOICEMAIL = "101";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
-    private static final String DEFAULT_VMAIL_CALLTAG = "VM";
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private String m_voiceMail = DEFAULT_VOICEMAIL;
-    private String m_voiceMailCallTag = DEFAULT_VMAIL_CALLTAG;
 
     private String m_mediaServerType;
     private MediaServerFactory m_mediaServerFactory;

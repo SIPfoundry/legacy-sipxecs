@@ -345,9 +345,6 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     // Get data for CDR table report
     private List<CdrDecorator> getTableReportData(List<Cdr> cdrs, Locale locale) {
-        String cdrref;
-        Cdr.Termination status;
-
         List<CdrDecorator> cdrsData = new ArrayList<CdrDecorator>();
         for (Cdr cdr : cdrs) {
             CdrDecorator cdrDecorator = new CdrDecorator(cdr, locale, getMessages());
@@ -568,7 +565,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         PiePlot chartplot = (PiePlot) chart.getPlot();
         chartplot.setCircular(true);
         chartplot.setLabelGenerator(new StandardPieSectionLabelGenerator(PIECHART_SECTIONLABEL_FORMAT));
-  
+
         // Create and return the image
         return chart.createBufferedImage(500, 220, BufferedImage.TYPE_INT_RGB, null);
     }

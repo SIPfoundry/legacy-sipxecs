@@ -14,7 +14,6 @@ import java.util.Hashtable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -29,15 +28,10 @@ public class PresenceServerImpl implements PresenceServer {
     public static final String OBJECT_CLASS_KEY = "object-class";
     private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class);
     private CoreContext m_coreContext;
-    private AcdContext m_acdContext;
     private boolean m_enabled;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setAcdContext(AcdContext acdContext) {
-        m_acdContext = acdContext;
     }
 
     public boolean isEnabled() {
