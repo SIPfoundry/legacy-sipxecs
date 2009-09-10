@@ -295,6 +295,7 @@ else
       # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install 
       # on Fedora 10/11, so we need to build them locally.
       DEPENDENCY_TARGET=freeswitch
+      BUILD_DEPENDENCY_TARGET="yup"
    fi
 fi
 if [ $BUILD_DEPENDENCY_TARGET ]; then
