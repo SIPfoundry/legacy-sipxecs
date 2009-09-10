@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 
 import junit.framework.TestCase;
 
@@ -35,7 +37,7 @@ public class CredentialsTest extends TestCase {
         expectLastCall().andReturn("host.company.com");
         coreContext.getAuthorizationRealm();
         expectLastCall().andReturn("company.com");
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
 
         User user = new User();

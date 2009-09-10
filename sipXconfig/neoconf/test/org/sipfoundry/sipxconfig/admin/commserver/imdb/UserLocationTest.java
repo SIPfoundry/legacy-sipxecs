@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -90,7 +91,7 @@ public class UserLocationTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.emptyList());
 
         ul.setCoreContext(coreContext);
@@ -112,7 +113,7 @@ public class UserLocationTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(m_users);
 
         ul.setCoreContext(coreContext);

@@ -20,7 +20,6 @@ import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public abstract class DataSetGenerator {
-
     private CoreContext m_coreContext;
 
     public void setCoreContext(CoreContext coreContext) {

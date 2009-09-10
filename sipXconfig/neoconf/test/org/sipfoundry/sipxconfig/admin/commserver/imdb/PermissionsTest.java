@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 
 import junit.framework.TestCase;
@@ -48,7 +50,7 @@ public class PermissionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("host.company.com");
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();
@@ -87,7 +89,7 @@ public class PermissionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("host.company.com");
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();

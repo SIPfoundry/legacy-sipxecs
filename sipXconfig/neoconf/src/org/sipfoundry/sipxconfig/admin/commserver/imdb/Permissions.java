@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,6 +22,8 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class Permissions extends DataSetGenerator {
     private CallGroupContext m_callGroupContext;
@@ -32,11 +35,12 @@ public class Permissions extends DataSetGenerator {
      *   <permission>permission_name</permission>
      * </item>
      * </code>
-     * 
+     *
      * to the list of items.
      */
-    protected void addItems(List<Map<String, String>> items) {
-        String domain = getSipDomain();
+    @Override
+    protected void addItems(final List<Map<String, String>> items) {
+        final String domain = getSipDomain();
         for (SpecialUserType sut : SpecialUserType.values()) {
             addSpecialUser(sut.getUserName(), items, domain);
         }
@@ -48,10 +52,13 @@ public class Permissions extends DataSetGenerator {
             }
         }
 
-        List<User> users = getCoreContext().loadUsers();
-        for (User user : users) {
-            addUser(items, user, domain);
-        }
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                addUser(items, user, domain);
+            }
+        };
+        forAllUsersDo(getCoreContext(), closure);
     }
 
     void addUser(List<Map<String, String>> item, User user, String domain) {
@@ -73,11 +80,11 @@ public class Permissions extends DataSetGenerator {
     }
 
     class PermissionWriter extends AbstractSettingVisitor {
-        private User m_user;
+        private final User m_user;
 
-        private List<Map<String, String>> m_items;
+        private final List<Map<String, String>> m_items;
 
-        private String m_domain;
+        private final String m_domain;
 
         PermissionWriter(User user, String domain, List<Map<String, String>> items) {
             m_user = user;
@@ -85,6 +92,7 @@ public class Permissions extends DataSetGenerator {
             m_domain = domain;
         }
 
+        @Override
         public void visitSetting(Setting setting) {
             if (!Permission.isEnabled(setting.getValue())) {
                 return;
@@ -109,6 +117,7 @@ public class Permissions extends DataSetGenerator {
         }
     }
 
+    @Override
     protected DataSet getType() {
         return DataSet.PERMISSION;
     }

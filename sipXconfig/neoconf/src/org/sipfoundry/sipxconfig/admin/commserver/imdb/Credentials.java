@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -14,26 +14,35 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
+
 public class Credentials extends DataSetGenerator {
     private CallGroupContext m_callGroupContext;
 
+    @Override
     protected DataSet getType() {
         return DataSet.CREDENTIAL;
     }
 
-    protected void addItems(List<Map<String, String>> items) {
-        String domainName = getSipDomain();
+    @Override
+    protected void addItems(final List<Map<String, String>> items) {
+        final String domainName = getSipDomain();
         CoreContext coreContext = getCoreContext();
-        String realm = coreContext.getAuthorizationRealm();
-        List<User> list = coreContext.loadUsers();
-        for (User user : list) {
-            addUser(items, user, domainName, realm);
-        }
+        final String realm = coreContext.getAuthorizationRealm();
+
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                addUser(items, user, domainName, realm);
+            }
+        };
+        forAllUsersDo(getCoreContext(), closure);
 
         for (SpecialUserType specialUserType : SpecialUserType.values()) {
             addSpecialUser(items, specialUserType, domainName, realm);
@@ -67,8 +76,8 @@ public class Credentials extends DataSetGenerator {
         addCredentialsItem(items, uri, user.getUserName(), sipPasswordHash, user.getPintoken(), realm);
     }
 
-    private void addCredentialsItem(List<Map<String, String>> items, String uri, String name, String sipPasswordHash,
-            String pintoken, String realm) {
+    private void addCredentialsItem(List<Map<String, String>> items, String uri, String name,
+            String sipPasswordHash, String pintoken, String realm) {
         Map<String, String> item = addItem(items);
         item.put("uri", uri);
         item.put("realm", realm);

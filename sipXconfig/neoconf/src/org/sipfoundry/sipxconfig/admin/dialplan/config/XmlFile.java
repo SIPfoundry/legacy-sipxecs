@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public abstract class XmlFile extends AbstractConfigurationFile {
+    public static final int DEFAULT_PAGE_SIZE = 250;
+
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();

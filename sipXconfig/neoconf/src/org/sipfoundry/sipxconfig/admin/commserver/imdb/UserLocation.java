@@ -13,7 +13,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.User;
+
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserLocation extends DataSetGenerator {
 
@@ -23,12 +26,15 @@ public class UserLocation extends DataSetGenerator {
     }
 
     @Override
-    protected void addItems(List<Map<String, String>> items) {
-        String domainName = getSipDomain();
-        List<User> list = getCoreContext().loadUsers();
-        for (User user : list) {
-            addUser(items, user, domainName);
-        }
+    protected void addItems(final List<Map<String, String>> items) {
+        final String domainName = getSipDomain();
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                addUser(items, user, domainName);
+            }
+        };
+        forAllUsersDo(getCoreContext(), closure);
     }
 
     protected void addUser(List<Map<String, String>> items, User user, String domainName) {

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
@@ -21,21 +22,23 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
+
 public class CallerAliases extends DataSetGenerator {
     private GatewayContext m_gatewayContext;
 
     private String m_anonymousAlias;
 
-    protected void addItems(List<Map<String, String>> items) {
+    @Override
+    protected void addItems(final List<Map<String, String>> items) {
         // FIXME: use only gateways that are used in dialplan...
         List<Gateway> gateways = m_gatewayContext.getGateways();
-        List<User> users = getCoreContext().loadUsers();
-        String sipDomain = getSipDomain();
+        final String sipDomain = getSipDomain();
 
         for (Gateway gateway : gateways) {
-            String gatewayAddr = gateway.getGatewayAddress();
+            final String gatewayAddr = gateway.getGatewayAddress();
             // add default entry for the gateway
-            GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
+            final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
             String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
             addItem(items, gatewayAddr, callerAliasUri);
 
@@ -43,12 +46,17 @@ public class CallerAliases extends DataSetGenerator {
             if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
                 continue;
             }
-            // add per-user entries
-            for (User user : users) {
-                String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
-                String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                addItem(items, gatewayAddr, userCallerAliasUri, identity);
-            }
+
+            Closure<User> closure = new Closure<User>() {
+                @Override
+                public void execute(User user) {
+                    String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
+                    String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
+                    addItem(items, gatewayAddr, userCallerAliasUri, identity);
+                }
+
+            };
+            forAllUsersDo(getCoreContext(), closure);
         }
     }
 
@@ -58,8 +66,8 @@ public class CallerAliases extends DataSetGenerator {
         }
         String callerId = gatewayInfo.getCallerId();
         if (gatewayInfo.isEnableCallerId() && callerId != null) {
-            return SipUri.fixWithDisplayName(callerId, gatewayInfo.getDisplayName(), gatewayInfo
-                    .getUrlParameters(), sipDomain);
+            return SipUri.fixWithDisplayName(callerId, gatewayInfo.getDisplayName(), gatewayInfo.getUrlParameters(),
+                    sipDomain);
         }
         String defaultExternalNumber = gatewayInfo.getDefaultCallerAlias();
         if (defaultExternalNumber != null) {
@@ -105,6 +113,7 @@ public class CallerAliases extends DataSetGenerator {
         return addItem(items, domain, alias, null);
     }
 
+    @Override
     protected DataSet getType() {
         return DataSet.CALLER_ALIAS;
     }

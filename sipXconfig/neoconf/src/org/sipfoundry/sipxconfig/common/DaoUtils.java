@@ -35,6 +35,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Utilities for Hibernate DAOs
  */
 public final class DaoUtils {
+    public static final int PAGE_SIZE = 250;
     private static final String ID_PROPERTY_NAME = "id";
 
     private DaoUtils() {
@@ -219,5 +220,27 @@ public final class DaoUtils {
         Group group = (Group) hibernate.load(Group.class, groupId);
         Transformer addTag = new BeanWithGroups.RemoveTag(group);
         doForAllBeanIds(hibernate, eventPublisher, addTag, klass, ids);
+    }
+
+    /**
+     * Executes the given closure for all users.
+     *
+     * Whenever something needs to be done for all users this method (rather than loadUsers should
+     * be used) since it does not load all users in the memory.
+     *
+     * @param closure the closure to perform
+     */
+    public static void forAllUsersDo(CoreContext coreContext, Closure<User> closure) {
+        int userIndex = 0;
+        int size = 0;
+        do {
+            List<User> users = coreContext.loadUsersByPage(null, null, null, userIndex, PAGE_SIZE, ID_PROPERTY_NAME,
+                    true);
+            for (User user : users) {
+                closure.execute(user);
+            }
+            userIndex += size;
+            size = users.size();
+        } while (size == PAGE_SIZE);
     }
 }

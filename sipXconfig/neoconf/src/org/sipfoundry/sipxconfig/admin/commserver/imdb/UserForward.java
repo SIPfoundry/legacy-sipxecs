@@ -14,8 +14,11 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
+
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserForward extends DataSetGenerator {
     private ForwardingContext m_forwardingContext;
@@ -26,12 +29,15 @@ public class UserForward extends DataSetGenerator {
     }
 
     @Override
-    protected void addItems(List<Map<String, String>> items) {
-        String domainName = getSipDomain();
-        List<User> list = getCoreContext().loadUsers();
-        for (User user : list) {
-            addUser(items, user, domainName);
-        }
+    protected void addItems(final List<Map<String, String>> items) {
+        final String domainName = getSipDomain();
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                addUser(items, user, domainName);
+            }
+        };
+        forAllUsersDo(getCoreContext(), closure);
     }
 
     protected void addUser(List<Map<String, String>> items, User user, String domainName) {

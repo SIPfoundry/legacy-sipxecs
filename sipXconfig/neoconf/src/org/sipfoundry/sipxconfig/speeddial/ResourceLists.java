@@ -15,11 +15,13 @@ import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.XMPP_SERVER;
 import static org.sipfoundry.sipxconfig.speeddial.SpeedDial.getResourceListId;
 
@@ -33,33 +35,7 @@ public class ResourceLists extends XmlFile {
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         Element lists = document.addElement("lists", NAMESPACE);
-        List<User> users = m_coreContext.loadUsers();
-        Element imList = null;
-        String domainName = m_coreContext.getDomainName();
-        for (User user : users) {
-            if (user.hasImAccount()) {
-                if (imList == null) {
-                    imList = createResourceList(lists, XMPP_SERVER.getUserName());
-                }
-                createResource(imList, user.getAddrSpec(domainName), user.getName());
-            }
-            SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
-            // ignore disabled orbits
-            if (speedDial == null) {
-                continue;
-            }
-            List<Button> buttons = speedDial.getButtons();
-            Element list = null;
-            for (Button button : buttons) {
-                if (!button.isBlf()) {
-                    continue;
-                }
-                if (list == null) {
-                    list = createResourceList(lists, speedDial);
-                }
-                createResourceForUser(list, button);
-            }
-        }
+        forAllUsersDo(m_coreContext, new UserClosure(lists));
         return document;
     }
 
@@ -124,5 +100,41 @@ public class ResourceLists extends XmlFile {
     @Required
     public void setSpeedDialManager(SpeedDialManager speedDialManager) {
         m_speedDialManager = speedDialManager;
+    }
+
+    private class UserClosure implements Closure<User> {
+        private final String m_domainName = m_coreContext.getDomainName();
+        private Element m_imList;
+        private final Element m_lists;
+
+        public UserClosure(Element lists) {
+            m_lists = lists;
+        }
+
+        @Override
+        public void execute(User user) {
+            if (user.hasImAccount()) {
+                if (m_imList == null) {
+                    m_imList = createResourceList(m_lists, XMPP_SERVER.getUserName());
+                }
+                createResource(m_imList, user.getAddrSpec(m_domainName), user.getName());
+            }
+            SpeedDial speedDial = m_speedDialManager.getSpeedDialForUserId(user.getId(), false);
+            // ignore disabled orbits
+            if (speedDial == null) {
+                return;
+            }
+            List<Button> buttons = speedDial.getButtons();
+            Element list = null;
+            for (Button button : buttons) {
+                if (!button.isBlf()) {
+                    continue;
+                }
+                if (list == null) {
+                    list = createResourceList(m_lists, speedDial);
+                }
+                createResourceForUser(list, button);
+            }
+        }
     }
 }

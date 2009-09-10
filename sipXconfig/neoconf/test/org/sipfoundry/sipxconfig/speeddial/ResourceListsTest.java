@@ -20,6 +20,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -100,7 +101,7 @@ public class ResourceListsTest extends XMLTestCase {
     public void testGenerate() throws Exception {
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, XmlFile.DEFAULT_PAGE_SIZE, "id", true);
         coreContextControl.andReturn(m_users);
         coreContext.getDomainName();
         coreContextControl.andReturn("example.org").anyTimes();
@@ -141,7 +142,7 @@ public class ResourceListsTest extends XMLTestCase {
     public void testGenerateEmpty() throws Exception {
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, XmlFile.DEFAULT_PAGE_SIZE, "id", true);
         coreContextControl.andReturn(Collections.emptyList());
         coreContext.getDomainName();
         coreContextControl.andReturn("example.org");

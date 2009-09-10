@@ -24,6 +24,7 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -55,7 +56,7 @@ public class CallerAliasesTest extends XMLTestCase {
             "bongo.com", 5060, null, false, false, "", -1, false, false
         }, {
             "kuku.net", 1025, "233", false, true, "+", 2, true, false
-        },  {
+        }, {
             "1.2.3.4", 0, "1234", false, false, "", -1, false, true
         }
     };
@@ -109,8 +110,8 @@ public class CallerAliasesTest extends XMLTestCase {
         };
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
-        coreContext.loadUsers();
-        EasyMock.expectLastCall().andReturn(Collections.emptyList());
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        EasyMock.expectLastCall().andReturn(Collections.emptyList()).anyTimes();
 
         GatewayContext gatewayContext = EasyMock.createMock(GatewayContext.class);
         gatewayContext.getGateways();
@@ -138,8 +139,8 @@ public class CallerAliasesTest extends XMLTestCase {
         cas.setAnonymousAlias("sip:anonymous@anonymous.invalid");
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
-        coreContext.loadUsers();
-        EasyMock.expectLastCall().andReturn(m_users);
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        EasyMock.expectLastCall().andReturn(m_users).anyTimes();
 
         GatewayContext gatewayContext = EasyMock.createMock(GatewayContext.class);
         gatewayContext.getGateways();

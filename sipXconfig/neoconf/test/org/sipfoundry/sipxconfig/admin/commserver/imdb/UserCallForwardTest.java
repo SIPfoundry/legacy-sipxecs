@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
@@ -75,7 +77,7 @@ public class UserCallForwardTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.emptyList());
 
         uf.setCoreContext(coreContext);
@@ -97,7 +99,7 @@ public class UserCallForwardTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(m_users);
         ForwardingContext forwardingContext = createMock(ForwardingContext.class);
         for (int i = 0; i < m_users.size(); i++) {

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 
 import junit.framework.TestCase;
 
@@ -26,7 +28,7 @@ import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
 public class ExtensionsTest extends TestCase {
-    private String[][] DATA = {
+    private final String[][] DATA = {
         {
             "first", "last", "userName", "1234"
         }, {
@@ -65,7 +67,7 @@ public class ExtensionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("company.com");
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         replay(coreContext);
 
@@ -82,7 +84,7 @@ public class ExtensionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("company.com");
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(m_users);
         replay(coreContext);
 

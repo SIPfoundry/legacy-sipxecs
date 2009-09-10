@@ -15,14 +15,16 @@ import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.annotation.Required;
 
-public class ValidUsersConfig extends XmlFile {
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
+public class ValidUsersConfig extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00";
 
     private static final String ELEMENT_NAME_ALIAS = "alias";
@@ -50,14 +52,15 @@ public class ValidUsersConfig extends XmlFile {
     public Document getDocument() {
         Document document = FACTORY.createDocument();
         QName validUsersName = FACTORY.createQName("validusers", NAMESPACE);
-        Element usersEl = document.addElement(validUsersName);
-        // FIXME: should be paging here...
-        List<User> users = m_coreContext.loadUsers();
+        final Element usersEl = document.addElement(validUsersName);
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                generateUser(usersEl, user);
+            }
+        };
+        forAllUsersDo(m_coreContext, closure);
 
-        // generate the users
-        for (User user : users) {
-            generateUser(usersEl, user);
-        }
 
         // Load up the specified aliases
         List<AliasMapping> aliasMappings = (List<AliasMapping>) m_aliasProvider
