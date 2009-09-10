@@ -118,6 +118,7 @@ public class RestServer {
               
                 ((SSLServerSocket) sslListener.getServerSocket())
                         .setEnabledProtocols(protocols);
+                sslListener.setMaxIdleTimeMs(60000);
              
                 webServer.addListener(sslListener);
                 sslListener.start(); 
@@ -130,6 +131,7 @@ public class RestServer {
         socketListener.setMaxThreads(32);
         socketListener.setMinThreads(4);
         socketListener.setLingerTimeSecs(30000);
+        socketListener.setMaxIdleTimeMs(60000);
         webServer.addListener(socketListener);
         socketListener.start();
 
