@@ -14,11 +14,11 @@
     <property name="filterInvocationDefinitionSource">
       <value>
         CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
-        /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-        /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
-        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,exceptionTranslationFilter,filterInvocationInterceptor
+        /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,basicExceptionTranslationFilter,filterInvocationInterceptor
+        /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
+        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
         /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
-        /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,exceptionTranslationFilter
+        /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
       </value>
     </property>
   </bean>
@@ -92,8 +92,12 @@
 
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
 
-  <bean id="exceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+  <bean id="digestExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
     <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+  </bean>
+
+  <bean id="basicExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
   </bean>
 
   <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
