@@ -3580,14 +3580,16 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             }
 
 #ifdef TEST_PRINT
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipTransaction::handleIncoming duplicate REQUEST response");
-
-            if(response)
+            if (response)
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "response protocol: %d",
-                             response->getSendProtocol());
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleIncoming duplicate request, no response");
+            }
+            else
+            {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleIncoming duplicate request, response protocol: %d",
+                          response->getSendProtocol());
             }
 #endif
             if(response)
