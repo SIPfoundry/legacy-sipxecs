@@ -153,7 +153,7 @@
 	</target>
 
      <target name="install">
-    	<mkdir dir="${dest.dir}${sipxcallcontroller.dir}"/>
+    	<mkdir dir="${dest.dir}${sipxrest.dir}/plugins"/>
     	<copy file="${build.dir}/dist/sipXcallController.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
     </target>
 

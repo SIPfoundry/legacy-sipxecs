@@ -73,25 +73,16 @@ public class CallControllerRestlet extends Restlet {
 
             User agentUserRecord = RestServer.getAccountManager().getUser(agentName);
             String agentAddr = agentUserRecord.getIdentity();
-            /*
-             * If the caller is somebody in our domain then we need to find a record for him in
-             * our databse.
-             */
-            if (callingParty == null || callingParty.indexOf("@") == -1) {
-                callingParty = RestServer.getAccountManager().getIdentity(callingParty);
-                if (callingParty == null) {
-                    logger.error("Cannot find calling party " + callingParty);
-                    response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-                    return;
-                }
+           
+            
+            if ( callingParty.indexOf("@") == -1 ) {
+                callingParty = getAddrSpec(callingParty);
             }
 
             if (calledParty.indexOf("@") == -1) {
                 calledParty = getAddrSpec(calledParty);
             }
             String key = agentAddr + ":" + callingParty + ":" + calledParty;
-
-            SipHelper helper = SipListenerImpl.getInstance().getHelper();
 
             if (httpMethod.equals(Method.POST)) {
                 String fwdAllowed = (String) request.getAttributes().get(

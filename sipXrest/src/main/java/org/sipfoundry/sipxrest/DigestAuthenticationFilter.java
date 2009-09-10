@@ -116,6 +116,12 @@ public class DigestAuthenticationFilter extends Filter {
 
                     return Filter.STOP;
                 }
+                String principal = challengeResponse.getPrincipal().getName();
+                if ( !principal.equals(agentName)) {
+                    response.setEntity("Agent does not match principal ",MediaType.TEXT_PLAIN);
+                    response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                    return Filter.STOP;
+                }
                 Series<Parameter> parameters = challengeResponse.getParameters();
                 if (parameters.isEmpty()) {
                     String nonce = Util.H(Long.toString(Math.abs(random.nextLong())));

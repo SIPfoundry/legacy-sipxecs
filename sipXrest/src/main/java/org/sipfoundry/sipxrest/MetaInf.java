@@ -6,9 +6,8 @@ public class MetaInf {
     private String uriPrefix;
     private String serviceDescription;
     private String sipUserName;
-    private String sipPassword;
     private String sipListenerClassName;
-    private String remoteAuthenticationMethod = HTTP_DIGEST;
+    private String remoteAuthenticationMethod = BASIC_AND_DIGEST;
     
     /*
      * Standard access control models.
@@ -17,6 +16,7 @@ public class MetaInf {
     public static String LOCAL_ONLY = "LOCAL-ONLY";
     public static String HTTP_DIGEST = "HTTP-DIGEST";
     public static String HTTPS_BASIC = "HTTPS-BASIC";
+    public static String BASIC_AND_DIGEST = "BASIC-AND-DIGEST";
     /**
      * @param pluginClass the fully qualified class path of the Plugin class.
      * @throws ClassNotFoundException 
@@ -91,20 +91,6 @@ public class MetaInf {
         return sipUserName;
     }
 
-    /**
-     * @param sipPassword the sipPassword to set
-     */
-    public void setSipPassword(String sipPassword) {
-        this.sipPassword = sipPassword;
-    }
-
-    /**
-     * @return the sipPassword
-     */
-    public String getSipPassword() {
-        return sipPassword;
-    }
-    
     
     /**
      * Get the Sip Listener class
@@ -124,7 +110,11 @@ public class MetaInf {
      * @param remoteAuthenticationMethod the remoteAuthenticationMethod to set
      */
     public void setRemoteAuthenticationMethod(String remoteAuthenticationMethod) {
-        this.remoteAuthenticationMethod = remoteAuthenticationMethod;
+        if ( remoteAuthenticationMethod.equals(HTTPS_BASIC) || remoteAuthenticationMethod.equals(HTTP_DIGEST) ||
+                remoteAuthenticationMethod.equals(BASIC_AND_DIGEST) )  {
+            this.remoteAuthenticationMethod = remoteAuthenticationMethod;
+        }  else throw new IllegalArgumentException("Illegal authentication method " + remoteAuthenticationMethod);
+            
     }
 
     /**

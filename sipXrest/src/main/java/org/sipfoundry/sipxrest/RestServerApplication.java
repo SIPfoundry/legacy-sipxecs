@@ -37,6 +37,8 @@ public class RestServerApplication extends Application {
                     filter = new DigestAuthenticationFilter(restService);        
                 } else if ( restService.getMetaInf().getRemoteAuthenticationMethod().equals(MetaInf.HTTPS_BASIC)) {
                    filter = new BasicAuthenticationFilter(restService);          
+                } else if ( restService.getMetaInf().getRemoteAuthenticationMethod().equals(MetaInf.BASIC_AND_DIGEST)) {
+                    filter = new BasicOrDigestAuthenticationFilter(restService);
                 } else {
                     logger.error("Unknown remote authentication type -- rejecting the plugin");
                 }

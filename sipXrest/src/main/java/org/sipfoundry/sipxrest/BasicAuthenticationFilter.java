@@ -75,7 +75,16 @@ public class BasicAuthenticationFilter extends Filter {
           }
           
           ChallengeResponse challengeResponse = request.getChallengeResponse();
+          if (challengeResponse == null ) {
+              logger.debug("Cannot find challenge response");
+              ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
+                      RestServer.getRestServerConfig().getSipxProxyDomain());
+              response.setChallengeRequest(challengeRequest);
+              response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
+              return Filter.STOP;
+          }
           char[] secret = challengeResponse.getSecret();
+          
           if ( secret == null ) {
               logger.debug("Requesting BASIC credentials");
               ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
@@ -85,9 +94,16 @@ public class BasicAuthenticationFilter extends Filter {
               return Filter.STOP;
           }
           String passWord = new String(challengeResponse.getSecret());
-          
-          String userName = user.getUserName();
+          String userName = challengeResponse.getPrincipal().getName();
+          if ( ! userName.equals(agentName)) {
+              logger.debug(String.format("Cannot authenticate remote " +
+              		"request because agent does not match principal %s %s",userName, agentName));
+              response.setEntity("Agent does not match principal ", MediaType.TEXT_PLAIN);
+              return Filter.STOP;
+          }
+        
           logger.debug("userName = " + userName);
+          logger.debug("secret = " + passWord);
 
           String userDomainPassword =  userName +":" + 
           RestServer.getRestServerConfig().getSipxProxyDomain() + ":" +

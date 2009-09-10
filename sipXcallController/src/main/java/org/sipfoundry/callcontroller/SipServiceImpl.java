@@ -35,8 +35,8 @@ public class SipServiceImpl  implements SipService {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
                 + " allowForwarding = " + allowForwarding );
-        InviteMessage message = new InviteMessage( agentCredentials, displayName, callingPartyAddrSpec,
-                agentAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
+        InviteMessage message = new InviteMessage( agentCredentials, displayName, agentAddrSpec, callingPartyAddrSpec,
+                referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);
         ClientTransaction clientTransaction = message.createAndSend();
