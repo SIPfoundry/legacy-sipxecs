@@ -21,7 +21,6 @@ import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.restconfig.ConfigFileParser;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 
