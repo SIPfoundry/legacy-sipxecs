@@ -27,6 +27,7 @@ import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass
 public abstract class AutoRefreshForm extends BaseComponent implements PageBeginRenderListener {
@@ -75,6 +76,8 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
         if (0 == getCurrentInterval()) {
             setCurrentInterval(getInterval());
         }
+        //Send the error to the page that displays the component (and error if necessary).
+        TapestryUtils.sendValidatorError(getPage(), getValidator());
     }
     
     public Collection<String> getComponentsToUpdate() {

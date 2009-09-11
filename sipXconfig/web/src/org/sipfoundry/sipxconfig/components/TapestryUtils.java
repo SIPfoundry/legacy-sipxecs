@@ -37,6 +37,7 @@ import org.apache.tapestry.form.validator.Validator;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.util.ContentType;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -179,6 +180,19 @@ public final class TapestryUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * send the error recorded in a validator to the affected page
+     * (the page must contain a validator bean)
+     * @param page - affected page
+     * @param validator - validator with error recorded
+     */
+    public static void sendValidatorError(IComponent page, ValidationDelegate validator) {
+        IValidationDelegate pageValidator = TapestryUtils.getValidator(page);
+        if (pageValidator != null && validator.getHasErrors() && !pageValidator.getHasErrors()) {
+            pageValidator.record(new ValidatorException(validator.getFirstError().toString()));
+        }
     }
 
     public static void recordSuccess(IComponent page, String msg) {
