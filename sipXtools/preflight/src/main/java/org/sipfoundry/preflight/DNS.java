@@ -31,7 +31,7 @@ public class DNS {
         LinkedList<String> targets;
 
         journalService.println("Starting DNS servers test.");
-        
+
         try {
             resolver = new SimpleResolver();
             resolver.setLocalAddress(bindAddress);
@@ -47,13 +47,13 @@ public class DNS {
         } else {
             domainName = networkResources.domainName;
         }
-        
+
         for (InetAddress dnsServer : networkResources.domainNameServers) {
             targets = null;
             resolver.setAddress(dnsServer);
 
             journalService.println("DNS testing of name server: " + dnsServer.getCanonicalHostName());
-            
+
             // NAPTR Lookup.
             journalService.println("  NAPTR Lookup for " + domainName + " domain:");
             naptrRecords = new LinkedList<NAPTRRecord>();
@@ -233,7 +233,7 @@ public class DNS {
             }
             journalService.println("");
         }
-        
+
         return results;
     }
 

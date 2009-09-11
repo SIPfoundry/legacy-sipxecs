@@ -121,7 +121,7 @@ do
             Action=USAGE
             break
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -131,11 +131,11 @@ then
     cat <<USAGE
 
 Usage:
-    
+
    monitor-spread [-u | --unconditional]
                   [-a | --alarm    <alarm-address>]
                   [-f | --from     <from-address>]
-                  [-s | --site     <site-label>] 
+                  [-s | --site     <site-label>]
                   [-i | --interval <sample-interval>]
                   [-e | --expect   <expected-registrations>]
                   [-r | --regtime  <registration-time>]
@@ -192,7 +192,7 @@ X-sipX-Monitor-Host: ${Host}
 EOF
     results=""
     for r in 1 2 3
-    do 
+    do
       if [ -r result.$r ]
       then
           results="$results result.$r"
@@ -260,17 +260,15 @@ fi
 
 if [ -s alarms ]
 then
-    sendit "Alarm" 
+    sendit "Alarm"
 elif [ "${Last}" = "HAD_ALARM" ]
 then
     echo "Alarm Cleared - Last 3 samples:" > alarms
-    sendit "Alarm Cleared" 
+    sendit "Alarm Cleared"
     cat /dev/null > alarms
 elif [ "${Send}" = "UNCONDITIONAL" ]
 then
     echo "Routine Check - Last 3 samples:" > alarms
-    sendit "Checkpoint" 
+    sendit "Checkpoint"
     cat /dev/null > alarms
 fi
-
-

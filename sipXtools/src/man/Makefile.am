@@ -23,7 +23,7 @@ EXTRA_DIST = \
 	$(subst .1,.txt2man,$(MAN_PAGES))
 
 %.xml : %.txt2man
-	$(ASCIIDOC) -d manpage -b docbook -o $@ $< 
+	$(ASCIIDOC) -d manpage -b docbook -o $@ $<
 
 %.1 : %.xml
 	$(XSLTPROC) $(DOCBOOK_2_MAN_XSL) $<

@@ -19,7 +19,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ConsoleTestRunner {
@@ -341,7 +341,7 @@ public class ConsoleTestRunner {
                     System.exit(results.toInt());
                 }
             }
-            
+
             if (line.hasOption("120-test")) {
                 SIPServerTest sipServerTest = new SIPServerTest();
                 results = sipServerTest.validate(10, networkResources, journalService, bindAddress);

@@ -13,7 +13,7 @@ import org.sipfoundry.commons.util.JournalService;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 class ShellJournalService extends Thread implements JournalService {
@@ -31,15 +31,15 @@ class ShellJournalService extends Thread implements JournalService {
         super.setDaemon(true);
         start();
     }
-    
+
     public void enable() {
         isEnabled = true;
     }
-    
+
     public void disable() {
         isEnabled = false;
     }
-    
+
     public void print(String message) {
         if (isEnabled) {
             try {

@@ -8,7 +8,7 @@ package org.sipfoundry.preflight;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum ResultClass {

@@ -20,7 +20,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class TFTP {

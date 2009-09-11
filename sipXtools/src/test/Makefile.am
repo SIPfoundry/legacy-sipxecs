@@ -15,4 +15,3 @@ TESTDATA = \
 	same1.txt \
 	same2.txt \
 	polycom-config.cfg
-

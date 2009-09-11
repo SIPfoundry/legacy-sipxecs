@@ -10,7 +10,7 @@ import static org.sipfoundry.preflight.ResultClass.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public enum ResultCode {
@@ -75,7 +75,7 @@ public enum ResultCode {
 
     /**
      * Default constructor.
-     * 
+     *
      * @param integerValue
      *            Integer representation of enumeration.
      * @param stringValue
@@ -91,7 +91,7 @@ public enum ResultCode {
 
     /**
      * Retrieve the integer representation of this enumeration.
-     * 
+     *
      * @return Integer representation of this enumeration.
      */
     public int toInt() {
@@ -100,7 +100,7 @@ public enum ResultCode {
 
     /**
      * Retrieve the string representation of this enumeration.
-     * 
+     *
      * @return String representation of this enumeration.
      */
     public String toString() {
@@ -109,7 +109,7 @@ public enum ResultCode {
 
     /**
      * Retrieve the class representation of this enumeration.
-     * 
+     *
      * @return ResultClass representation of this enumeration.
      */
     public ResultClass toResultClass() {
@@ -118,7 +118,7 @@ public enum ResultCode {
 
     /**
      * Map the given integer to a corresponding ENUM value.
-     * 
+     *
      * @param integerValue
      *            to convert.
      * @return Corresponding ENUM value. If no match, returns INVALID.

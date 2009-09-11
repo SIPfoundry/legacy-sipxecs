@@ -18,7 +18,7 @@ import org.sipfoundry.commons.util.JournalService;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class PreflightShell {
@@ -34,7 +34,7 @@ public class PreflightShell {
 
     public void go(String[] args) {
         FormData formData;
-        
+
         display = new Display();
         final Shell shell = new Shell(display);
         shell.setText("Preflight");
@@ -57,7 +57,7 @@ public class PreflightShell {
         configurationItem.setMenu(configurationMenu);
         MenuItem netSettingsItem = new MenuItem(configurationMenu,SWT.PUSH);
         netSettingsItem.setText("Network Test Settings");
-        
+
         // Set up the buttons.
         final Button runButton = new Button(shell, SWT.PUSH);
         formData = new FormData();
@@ -106,16 +106,16 @@ public class PreflightShell {
         journalTab.setText("Test Journal");
         discoveryTab = new TabItem(folder,SWT.NONE);
         discoveryTab.setText("Device Discovery");
-        
+
         // Set up the Test Journal list view and journal service.
         List list = new List(folder, SWT.BORDER | SWT.V_SCROLL);
         list.setLayoutData(new GridData(GridData.FILL_VERTICAL | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
         shellJournalService = new ShellJournalService(display, list);
         journalTab.setControl(list);
-        
+
         // Set up the Test Summary test runner.
         shellTestRunner = new ShellTestRunner(display, folder, testTab, shellJournalService);
-        
+
         Composite discoveryComposite = new Composite(folder, SWT.NONE);
         discoveryComposite.setLayout(new GridLayout());
 
@@ -123,7 +123,7 @@ public class PreflightShell {
         list.setLayoutData(new GridData(GridData.FILL_BOTH | GridData.GRAB_HORIZONTAL | GridData.GRAB_VERTICAL));
         discoveryJournalService = new ShellJournalService(display, list);
         discoveryTab.setControl(discoveryComposite);
-        
+
         // Set up the Device Discovery runner.
         shellDiscoveryRunner = new ShellDiscoveryRunner(display, discoveryJournalService);
 
@@ -145,7 +145,7 @@ public class PreflightShell {
                 }
             }
         });
-        
+
         discoveryButton.addSelectionListener(new SelectionAdapter() {
             public void widgetSelected(SelectionEvent e) {
                 if (!shellDiscoveryRunner.isActive()) {
@@ -154,7 +154,7 @@ public class PreflightShell {
                         folder.setSelection(discoveryTab);
                     }
                     shell.setDefaultButton(discoveryButton);
-                    
+
                     new Thread() {
                         public void run() {
                             shellDiscoveryRunner.discover();
@@ -170,7 +170,7 @@ public class PreflightShell {
                 System.exit(0);
             }
         });
-        
+
         shell.open();
 
         while (!shell.isDisposed()) {
@@ -184,21 +184,21 @@ public class PreflightShell {
     public static void main(String[] args) {
         class ConsoleJournalService implements JournalService {
             private boolean isEnabled = true;
-            
+
             public void enable() {
                 isEnabled = true;
             }
-            
+
             public void disable() {
                 isEnabled = false;
             }
-            
+
             public void print(String message) {
                 if (isEnabled) {
                     System.out.print(message);
                 }
             }
-            
+
             public void println(String message) {
                 if (isEnabled) {
                     System.out.println(message);

@@ -21,7 +21,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class ShellTestRunner {
@@ -270,15 +270,15 @@ public class ShellTestRunner {
                 testTable[TFTP_TEST].update(Test.RUNNING);
                 results = tftp.validate(10, networkResources, journalService, bindAddress);
                 testTable[TFTP_TEST].update(results);
-                
+
                 testTable[FTP_TEST].update(Test.RUNNING);
                 results = ftp.validate(10, networkResources, journalService, bindAddress);
                 testTable[FTP_TEST].update(results);
-                
+
                 testTable[HTTP_TEST].update(Test.RUNNING);
                 results = http.validate(10, networkResources, journalService, bindAddress);
                 testTable[HTTP_TEST].update(results);
-                
+
                 testTable[SIP_TEST].update(Test.RUNNING);
                 results = sipServerTest.validate(10, networkResources, journalService, bindAddress);
                 testTable[SIP_TEST].update(results);

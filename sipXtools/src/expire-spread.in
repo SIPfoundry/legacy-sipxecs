@@ -6,8 +6,8 @@ $sampleSize = 60;
 $Usage = <<HELP;
 
 expire-spread  [ --db <database.xml> ]
-                 [ { --real | -r } ] 
-                 [ { --summary | -s } ] 
+                 [ { --real | -r } ]
+                 [ { --summary | -s } ]
                  [ --sample <seconds> ]
 
    Show how subscriptions and/or registrations are distributed over time.
@@ -17,7 +17,7 @@ expire-spread  [ --db <database.xml> ]
    If a specific database is given, only that database is displayed.
 
    --real      use the actual current time to determine whether or not
-               a registration or subscription has expired.  If this is 
+               a registration or subscription has expired.  If this is
                not specified, the timestamp in the database is used.
 
    --summary   limit the report to the number active and the peak rate
@@ -60,7 +60,7 @@ format SUMMARY =
 
 Database:  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 $DbName
-Timestamp: @<<<<<<<<<<<<<<<<<< 
+Timestamp: @<<<<<<<<<<<<<<<<<<
 &asDate($BaseTime)
 Earliest:  @<<<<<<<<<<<<<<<<<<
 &asTime($Earliest)
@@ -74,9 +74,9 @@ Total:     @#####
 $Total
 FirstPeak: @<<<<<<<<<<<<<<<<<<
 &asTime($PeakTime)
-PeakCount: @#####  
+PeakCount: @#####
 $InSample{$PeakTime}
-PeakRate:  @###.#  
+PeakRate:  @###.#
 $PerSecond{$PeakTime}
 
 .
@@ -103,7 +103,7 @@ $= = 100000;
 
 foreach $Db (@Db)
 {
-    
+
     ( $DbName = $Db ) =~ s|(.*/)?([^/]+)\.xml|$2|;
     if ( open( DB, "<$Db" ) )
     {
@@ -243,7 +243,7 @@ sub asTime
     my $Epoch = shift;
     my $Time;
     ( $Time = asDate $Epoch ) =~ s/\d{4}-\d{2}-\d{2}T//;
-    
+
     return $Time;
 }
 

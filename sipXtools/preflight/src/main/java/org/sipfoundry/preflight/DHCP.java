@@ -21,7 +21,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class DHCP {
@@ -116,7 +116,7 @@ public class DHCP {
             serverSocket.close();
             return results;
         }
-        
+
         journalService.println("Sending DHCPRELEASE for: " + assignedAddress[0].getHostAddress());
         xid = xidFactory.nextInt();
         results = sendRelease(xid, assignedAddress[0], serverAddress[0], journalService);
@@ -129,7 +129,7 @@ public class DHCP {
 
     private ResultCode sendDiscover(int xid, InetAddress[] assignedAddress, InetAddress[] serverAddress, JournalService journalService) {
         ResultCode results;
-        
+
         try {
             ciaddr = InetAddress.getByName("0.0.0.0");
             yiaddr = InetAddress.getByName("0.0.0.0");
@@ -261,7 +261,7 @@ public class DHCP {
 
     private ResultCode sendRequest(int xid, InetAddress assignedAddress, InetAddress serverAddress, NetworkResources networkResources, JournalService journalService) {
         ResultCode results;
-        
+
         try {
             ciaddr = InetAddress.getByName("0.0.0.0");
             yiaddr = assignedAddress;
@@ -334,7 +334,7 @@ public class DHCP {
 
             tmpMessage = new DHCPMessage();
             tmpMessage.unmarshal(incoming.getData());
-            
+
             if ((tmpMessage.getOp() == BOOTREQUEST) && (tmpMessage.getXid() == xid)) {
                 continue;  // Ignore.
             }
@@ -342,7 +342,7 @@ public class DHCP {
             if (tmpMessage.getXid() != xid) {
                 continue;  // Ignore.
             }
-            
+
             if (responseReceived) {
             	// Ignore response if from the same server that initially responded.
             	if (firstResponseAddress.getHostAddress().compareTo(incoming.getAddress().getHostAddress()) != 0) {
@@ -497,7 +497,7 @@ public class DHCP {
 
             tmpMessage = new DHCPMessage();
             tmpMessage.unmarshal(incoming.getData());
-            
+
             if ((tmpMessage.getOp() == BOOTREQUEST) && (tmpMessage.getXid() == xid)) {
                 continue;  // Ignore.
             }
@@ -505,7 +505,7 @@ public class DHCP {
             if (tmpMessage.getXid() != xid) {
                 continue;  // Ignore.
             }
-            
+
             if (responseReceived) {
             	// Ignore response if from the same server that initially responded.
             	if (firstResponseAddress.getHostAddress().compareTo(incoming.getAddress().getHostAddress()) != 0) {

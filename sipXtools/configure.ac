@@ -34,12 +34,12 @@ CHECK_JDK
 CHECK_ANT
 
 AC_CONFIG_FILES([
-  Makefile 
-  src/Makefile 
-  src/test/Makefile 
-  src/man/Makefile 
-  src/sipviewer/Makefile 
-  src/syslog2siptrace/Makefile 
+  Makefile
+  src/Makefile
+  src/test/Makefile
+  src/man/Makefile
+  src/sipviewer/Makefile
+  src/syslog2siptrace/Makefile
   preflight/Makefile
 ])
 

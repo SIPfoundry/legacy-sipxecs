@@ -21,7 +21,7 @@ import static org.sipfoundry.preflight.ResultCode.*;
 /**
  * [Enter descriptive text here]
  * <p>
- * 
+ *
  * @author Mardy Marshall
  */
 public class NTP {
@@ -69,7 +69,7 @@ public class NTP {
 
     /**
      * Process <code>TimeInfo</code> object and return details.
-     * 
+     *
      * @param info
      *            <code>TimeInfo</code> object.
      */
@@ -173,5 +173,5 @@ public class NTP {
 
         return response;
     }
-    
+
 }

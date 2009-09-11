@@ -20,6 +20,6 @@ w32api
     of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 MinGW profiling code
-    MinGW profiling code is distributed under the GNU General Public License. 
+    MinGW profiling code is distributed under the GNU General Public License.
 
 The development tools such as GCC, GDB, GNU Make, etc all covered by GNU General Public License.

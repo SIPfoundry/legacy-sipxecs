@@ -11,11 +11,11 @@ require 'xmlrpc/client'
 require 'openssl/x509'
 require 'base64'
 
-port = "8092" 
+port = "8092"
 
 # Allow the required SSL certificate information to be set.
-module XMLRPC   
-   class Client 
+module XMLRPC
+   class Client
       def key=(x)
          @http.key = x
       end
@@ -48,7 +48,7 @@ def usage_exit(error_code=1)
   -h|--help           This help text
   -n|--host hostname  Remote server, e.g. HA slave (default is localhost)
   -p|--port portnum   Server port (default is 8092)
-  -s|--start          Start the specified monitored process 
+  -s|--start          Start the specified monitored process
   -k|--stop           Stop the specified monitored process
   -r|--restart        Restart the specified monitored process
   -l|--state          Current state of all monitored processes
@@ -59,8 +59,8 @@ def usage_exit(error_code=1)
   -f|--file           Get the named file
   -t|--runConfigtest          Run the configtest for the specified service
   --getConfigtestMessages     Return messages from the configtest for the specified service
-  -S|--snapshot         Execute snapshot on a local/remote system. Snapshot arguments may 
-                        be specified after an empty option -- (two minus symbols) 
+  -S|--snapshot         Execute snapshot on a local/remote system. Snapshot arguments may
+                        be specified after an empty option -- (two minus symbols)
                         e.g. sipxproc --snapshot -- --snapshot_arg_1 x --snapshot_arg_2 y
   -E|--execStatus       Returns the execution status of any of the following commands :
                            snapshot, checkUpdate, checkSwVersion, updateSwVersion
@@ -209,7 +209,7 @@ begin
 
 if 0 != ARGV.length
    usage_exit
-end   
+end
 
 params = [ client_host ]
 case action
@@ -234,14 +234,14 @@ exitStatus = 0
 case action
 when 'file'
   client = Net::HTTP.new(server_host, port)
-  
+
   # SSL certificate information
   client.use_ssl = true
   client.verify_mode = OpenSSL::SSL::VERIFY_PEER
   client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
   client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
   client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
-  client.open_timeout = 10 
+  client.open_timeout = 10
   client.read_timeout = 60
 
   request  = Net::HTTP::Get.new(filepath)
@@ -261,7 +261,7 @@ else
   client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
   client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
   client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
-  client.open_timeout = 10 
+  client.open_timeout = 10
   client.read_timeout = 60
 
   result = client.call(rpcname << action, *params)
@@ -270,4 +270,3 @@ else
 end
 
 exit(exitStatus)
-

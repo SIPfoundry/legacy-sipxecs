@@ -1,7 +1,7 @@
 ## Process this file with automake to produce Makefile.in
 include $(top_srcdir)/config/subdir.am
 
-INCLUDES = -I$(top_srcdir)/include 
+INCLUDES = -I$(top_srcdir)/include
 
 bin_PROGRAMS = syslog2siptrace
 
