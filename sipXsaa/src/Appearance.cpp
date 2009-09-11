@@ -30,7 +30,7 @@ const UtlContainableType Appearance::TYPE = "Appearance";
 // Constructor
 Appearance::Appearance( AppearanceAgent* appAgent,
                         AppearanceGroup* appGroup,
-                                 UtlString& uri) :
+                        UtlString& uri) :
    mAppearanceAgent(appAgent),
    mAppearanceGroup(appGroup),
    mUri(uri),
@@ -63,6 +63,7 @@ Appearance::Appearance( AppearanceAgent* appAgent,
       // Add this Appearance to mSubscribeMap.
       getAppearanceGroupSet().addSubscribeMapping(&mSubscriptionEarlyDialogHandle,
                                                 this);
+      mDialogHandle = mSubscriptionEarlyDialogHandle;
    }
    else
    {
@@ -81,6 +82,7 @@ Appearance::~Appearance()
 
    // Delete this Appearance from mSubscribeMap.
    getAppearanceGroupSet().deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
+   getAppearanceGroupSet().deleteNotifyMapping(&mDialogHandle);
 
    // Terminate the master subscription.
    UtlBoolean ret;
@@ -123,10 +125,17 @@ void Appearance::subscriptionEventCallback(
                     "Appearance::subscriptionEventCallback "
                     "subscription setup for uri = '%s', dialogHandle = '%s'",
                     mUri.data(), dialogHandle->data());
+      mDialogHandle = *dialogHandle;
+      // Add this Appearance to mNotifyMap for the subscription.
+      UtlString* d = new UtlString(*dialogHandle);
+      getAppearanceGroupSet().addNotifyMapping(d, this);
    }
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
    {
+      mDialogHandle.remove(0);
+      // Remove this dialogHandle from mNotifyMap for the subscription.
+      getAppearanceGroupSet().deleteNotifyMapping(dialogHandle);
       bool bContentChanged = terminateDialogs(false); // terminate only non-held dialogs
       if ( bContentChanged)
       {
@@ -142,6 +151,13 @@ void Appearance::subscriptionEventCallback(
    }
    break;
    }
+}
+
+// This callback does nothing: the NOTIFY is handled through the MessageObserver interface,
+// so that appropriate responses can be sent
+void Appearance::notifyEventCallback(const UtlString* dialogHandle,
+                                     const UtlString* content)
+{
 }
 
 

@@ -627,6 +627,26 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
 }
 void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
 {
+   UtlString contactUri;
+   msg.getContactUri(0, &contactUri);
+   UtlString dialogHandle;
+   msg.getDialogHandleReverse(dialogHandle);
+   Appearance* pThisAppearance = findAppearance(dialogHandle);
+   if ( !pThisAppearance )
+   {
+      UtlString swappedDialogHandle;
+      mAppearanceGroupSet->swapTags(dialogHandle, swappedDialogHandle);
+      pThisAppearance = findAppearance(swappedDialogHandle);
+      if ( !pThisAppearance )
+      {
+         OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                       "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY from unknown subscription to "
+                       "'%s', dialogHandle %s (normal on shutdown)",
+                       contactUri.data(), dialogHandle.data());
+         return;
+      }
+   }
+
    const char* b;
    ssize_t l;
    const HttpBody* requestBody = msg.getBody();
@@ -652,9 +672,7 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
    UtlString event;
    UtlString code;
    UtlString appearanceId;
-   UtlString contactUri;
-   msg.getContactUri(0, &contactUri);
-   Appearance* pThisAppearance = findAppearance(contactUri);
+
    if (state == STATE_TERMINATED)
    {
       // our subscription to this Appearance has terminated.
@@ -966,10 +984,16 @@ Appearance* AppearanceGroup::findAppearance(UtlString app)
    while ( !pApp && (handle = dynamic_cast <UtlString*> (itor())))
    {
       Appearance* ss = dynamic_cast <Appearance*> (itor.value());
-      if ( app == ss->getUri()->data() )
+      if ( app == ss->getDialogHandle()->data() )
       {
          pApp = ss;
       }
+   }
+   if (pApp == NULL)
+   {
+      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                    "AppearanceGroup::findAppearance mSharedUser = '%s', looking for '%s': not found",
+                    mSharedUser.data(), app.data());
    }
    return pApp;
 }

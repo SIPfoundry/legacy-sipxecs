@@ -196,6 +196,7 @@ public:
 
       UtlString sharedUri = "sip:321@177.0.0.1:54140";
       UtlString app1uri = "sip:127.0.0.1:45141";
+      UtlString dialogHandle;
 
       // receive the reg-info subscribe
       SipMessage request;
@@ -268,15 +269,24 @@ public:
             else if (0 == eventField.compareTo(SLA_EVENT_TYPE))
              {
                 // should send empty NOTIFY, but no one will care
+                // save dialogHandle for this subscription/Appearance (ignore retransmissions)
+                if (dialogHandle.isNull())
+                {
+                   SipMessage fake(b);
+                   fake.getDialogHandle(dialogHandle);
+                   OsSysLog::add(FAC_RLS, PRI_DEBUG, "got SUBSCRIBE(sla) request: dialogHandle %s", dialogHandle.data());
+                }
              }
          }
       }
+
+      CPPUNIT_ASSERT( !dialogHandle.isNull() );
       OsSysLog::add(FAC_RLS, PRI_DEBUG, "we now have an Appearance - test it");
       AppearanceGroup* pAppGroup = pAppearanceAgentUnderTest->getAppearanceGroupSet().
          findAppearanceGroup(sharedUri);
       CPPUNIT_ASSERT( pAppGroup );
 
-      Appearance* pApp = pAppGroup->findAppearance(app1uri);
+      Appearance* pApp = pAppGroup->findAppearance(dialogHandle);
       CPPUNIT_ASSERT( pApp );
       ASSERT_STR_EQUAL( app1uri.data(), pApp->getUri()->data() );
 

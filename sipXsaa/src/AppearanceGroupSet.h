@@ -162,6 +162,10 @@ class AppearanceGroupSet : public UtlContainableAtomic
    //! Search for a resource list with a given name (user-part).
    AppearanceGroup* findAppearanceGroup(const char* user);
 
+   //! Swap the tags in a dialog handle.
+   static void swapTags(const UtlString& dialogHandle,
+                        UtlString& swappedDialogHandle);
+
    //! Dump the object's internal state.
    void dumpState();
 
@@ -176,10 +180,6 @@ class AppearanceGroupSet : public UtlContainableAtomic
   protected:
 
 
-   //! Swap the tags in a dialog handle.
-   //  Part of the work-around for XSL-146.
-   static void swapTags(const UtlString& dialogHandle,
-                        UtlString& swappedDialogHandle);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

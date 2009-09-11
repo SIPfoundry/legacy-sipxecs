@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 
 #include "ResourceSubscriptionReceiver.h"
+#include "ResourceNotifyReceiver.h"
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -44,7 +45,8 @@ class AppearanceGroup;
  *  so this Appearance can always be found by its early dialog handle.
  */
 class Appearance : public UtlContainableAtomic,
-                        public ResourceSubscriptionReceiver
+                   public ResourceSubscriptionReceiver,
+                   public ResourceNotifyReceiver
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -52,7 +54,7 @@ class Appearance : public UtlContainableAtomic,
    //! Construct an Appearance (subscription to a shared line from a UA).
    Appearance(AppearanceAgent* appAgent,
               AppearanceGroup* appGroup,        ///< ancestor AppearanceGroup object
-                   UtlString& uri               ///< the URI to subscribe to
+              UtlString& uri                    ///< the URI to subscribe to
       );
 
    //! Destructor
@@ -68,6 +70,9 @@ class Appearance : public UtlContainableAtomic,
    //! Get the subscribed URI.
    const UtlString* getUri() const;
 
+   //! Get the subscribed dialog handle.
+   const UtlString* getDialogHandle() const;
+
    /** Handle a subscription state callback for the subscription
     *  handled by this Appearance.
     *  Overrides ResourceSubscriptionReceiver::subscriptionEventCallback.
@@ -78,6 +83,10 @@ class Appearance : public UtlContainableAtomic,
       SipSubscribeClient::SubscriptionState newState,
       const UtlString* subscriptionState
       );
+
+   /// Process a notify event callback.
+   virtual void notifyEventCallback(const UtlString* dialogHandle,
+                                    const UtlString* content);
 
    /** Mark dialogs at this appearance as terminated.
     *  Held dialogs are only terminated based on provided flag.
@@ -134,6 +143,9 @@ class Appearance : public UtlContainableAtomic,
    //! The early dialog handle for the subscription.
    UtlString mSubscriptionEarlyDialogHandle;
 
+   /// The established dialog handle for the subscription.
+   UtlString mDialogHandle;
+
    // List of dialogs currently being managed by this instance.
    UtlHashMap mDialogs;
 
@@ -171,5 +183,12 @@ inline const UtlString* Appearance::getUri() const
 {
    return &mUri;
 }
+
+// Get the subscribed dialog handle.
+inline const UtlString* Appearance::getDialogHandle() const
+{
+   return &mDialogHandle;
+}
+
 
 #endif  // _Appearance_h_
