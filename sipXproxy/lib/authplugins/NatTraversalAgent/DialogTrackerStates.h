@@ -114,19 +114,19 @@ public:
    virtual bool AckRequest( DialogTracker& impl, SipMessage& request, TransactionDirectionality dir, const char* address, int port ) const;
 };
 
-// The ProcessingPrack state is a super-state that serves as a parent to all the 
+// The ProcessingPrack state is a super-state that serves as a parent to all the
 // states that are used to handle the PRACK-related events that can happen during
 // 'fast start' media negotitation.  This super-state is used to help process
 // the provisional and 200 OK responses to INVITEs that can be received while waiting
-// for the PRACK responses.  The state applies the necessary NAT compensation 
-// transformations on the SDP bodies they may carry. This state was created in 
+// for the PRACK responses.  The state applies the necessary NAT compensation
+// transformations on the SDP bodies they may carry. This state was created in
 // response to XX-5665 which showed that 200 OK for INVITE can be received
 // before or after 200 OK for PRACK.  As well, other SDP-carying provisional responses can
 // be received while waiting for PRACK responses.  This state will catch all responses
 // that carry SDPs and manipulate them for NAT traversal irrespective of the order
 // that they are received in.
 //
-// Prior to the introduction of this state, the FSM imposed that 200 OK for PRACK be 
+// Prior to the introduction of this state, the FSM imposed that 200 OK for PRACK be
 // received *before* 200 OK for INVITE and did not handle extra provisional responses
 // carrying SDPs while waiting for the PRACK responses.
 class ProcessingPrack : public Negotiating
@@ -138,7 +138,7 @@ public:
 
    // State machine events relevant for this state
    virtual void ProvisionalResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
-   virtual void SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;   
+   virtual void SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const;
 };
 
 class Moribund : public DialogTrackerState

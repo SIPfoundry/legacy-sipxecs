@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -24,7 +24,7 @@ class OsTime;
 // FORWARD DECLARATIONS
 
 /**
- * The base class for any means of building a record of a call state event.  
+ * The base class for any means of building a record of a call state event.
  * Classes derived from this one may build events in different representations for
  * different purposes.
  *
@@ -36,9 +36,9 @@ class OsTime;
  * methods and ending with callEventComplete.  The specific calls required for each
  * event type are documented with the method that begins the sequence.
  *
- * This base class provides the 
+ * This base class provides the
  */
-class CallStateEventBuilder 
+class CallStateEventBuilder
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -81,7 +81,7 @@ class CallStateEventBuilder
                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                  const UtlString& contact,
                                  const UtlString& references,
-                                 const bool callerInternal 
+                                 const bool callerInternal
                                  );
 
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed
@@ -123,7 +123,7 @@ class CallStateEventBuilder
    virtual void callEndEvent(const int sequenceNumber,
                              const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                              );
-                             
+
    /// Begin a Call Transfer Event - a REFER request has been observed
    /**
     * Requires:
@@ -147,10 +147,10 @@ class CallStateEventBuilder
                             const UtlString& fromField,
                             const UtlString& toField
                             );
-   
+
    /// Add a via element for the event
    /**
-    * Record a Via from the message for this event 
+    * Record a Via from the message for this event
     * Calls to this routine are in reverse cronological order - the last
     * call for an event should be the via added by the message originator
     */
@@ -159,7 +159,7 @@ class CallStateEventBuilder
 
    /// Indicates that all information for the current call event has been added.
    virtual void completeCallEvent();
-   
+
    virtual bool finishElement(UtlString& event) = 0;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -202,7 +202,7 @@ class CallStateEventBuilder
 
    /// Reset the validity checking finite state machine to the initial state.
    bool builderStateReset();
-   
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
    int  buildState; // used by builderStateIsOk
@@ -212,10 +212,9 @@ class CallStateEventBuilder
 
    /// no assignment operator
    CallStateEventBuilder& operator=(const CallStateEventBuilder&);
-   
+
 } ;
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _CallStateEventBuilder_h_
-

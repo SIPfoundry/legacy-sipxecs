@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ RegistrarInitialSync::RegistrarInitialSync(SipRegistrar& registrar)
 int RegistrarInitialSync::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync started");
-   
+
    // This function performs steps (1) through (4) in section 5.7.1 of
    // sipXregistry/doc/SyncDesign.*.
 
@@ -54,7 +54,7 @@ int RegistrarInitialSync::run(void* pArg)
    // Get from peers any of our own updates that we have lost
    // Step (3)(1).
    pullLocalUpdatesFromPeers();
-   
+
    // Get from peers any peer updates that we missed or lost while down
    // Step (3)(2).
    pullPeerUpdatesFromPeers();
@@ -64,9 +64,9 @@ int RegistrarInitialSync::run(void* pArg)
    recoverUnReachablePeers();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync complete");
-   
+
    // allow SipRegistrar to proceed to operational phase
-   mFinished.release(); 
+   mFinished.release();
    return 0; // exit thread
 }
 
@@ -79,7 +79,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
    {
       const char* name = peer->name();
       assert(name);
-      
+
       // Set the last received update number for the peer to the max update number
       // for the peer that we see in the registration DB
       Int64 maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
@@ -91,7 +91,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
    }
 }
 
-   
+
 /// Get from peers any of our own updates that we have lost
 void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 {
@@ -251,7 +251,7 @@ void RegistrarInitialSync::recoverUnReachablePeers()
                }
             }
          }
-      }   
+      }
    }
 }
 
@@ -264,7 +264,7 @@ void RegistrarInitialSync::waitForCompletion()
 
 const char* RegistrarInitialSync::getPrimaryName()
 {
-   const char* primaryName = mRegistrar.primaryName();   
+   const char* primaryName = mRegistrar.primaryName();
    assert(primaryName);
    return primaryName;
 }

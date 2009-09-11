@@ -65,7 +65,7 @@
     </t>
 
     <t>
-      The process of combining the information in a set of Call State Events 
+      The process of combining the information in a set of Call State Events
       to determine what happened with the call as whole is called Call
       Resolution; this step uses the events as input and produces a more
       traditional Call Detail Record - a single record per call.  This
@@ -271,7 +271,7 @@
         </t>
 
         <t hangText="Description">
-        Indicates that at least one leg of a Call Request 
+        Indicates that at least one leg of a Call Request
         was rejected.
         </t>
 
@@ -329,11 +329,11 @@
 
     <section title='Call State Event Logs'>
       <t>
-        In the present implementation, Call Request, Call Setup, 
+        In the present implementation, Call Request, Call Setup,
         Call Failure, and Call End events are logged by
         the sipX proxy in the file configured by the directive
         SIPX_PROXY_CALL_STATE_LOG (by default "sipxproxy_callstate.log" in
-        the log directory).  
+        the log directory).
       </t>
 
     </section>
@@ -391,16 +391,16 @@
             values must match exactly.  If present, the &lt;cse:from&gt; and
             &lt;cse:to&gt; values must not be different, but some events in the
             call may not have one or both of these, and should be considered
-            to be a match so long as the &lt;cse:call_id&gt; value matches. 
+            to be a match so long as the &lt;cse:call_id&gt; value matches.
           </t>
           <t>
             Order the events within a call by the value of the
-            &lt;obs_time&gt; element.  
+            &lt;obs_time&gt; element.
           </t>
           <t>
             Find the first &lt;cse:call_request&gt; event (if none is
             found, then some data is not available, and the data for this
-            call is discarded). 
+            call is discarded).
             <figure>
               <artwork>
 /cdr:call/caller/uri &lt;- /cse:call_event/call_request/call/from
@@ -413,7 +413,7 @@
           </t>
           <t>
             If there is at least one &lt;cse:call_setup&gt; event, find the first
-            &lt;cse:call_setup&gt; event 
+            &lt;cse:call_setup&gt; event
             <figure>
               <artwork>
 /cdr:call/called/endpoint &lt;- /cse:call_event/call_setup/via
@@ -443,7 +443,7 @@
               </artwork>
             </figure>
             If there was no &lt;cse:call_setup&gt; event, find the last
-            &lt;cse:call_failed&gt; event and set: 
+            &lt;cse:call_failed&gt; event and set:
             <figure>
               <artwork>
 /cdr:call/caller/endpoint &lt;- /cse:call_event/call_failed/via

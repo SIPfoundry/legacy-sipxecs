@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ StatusPluginReference::StatusPluginReference(SubscribeServerPluginBase& plugin,
             UtlString tagValue = nextNode->Value();
             if(tagValue.compareTo( XML_TAG_PERMISSIONMATCH, UtlString::ignoreCase ) == 0 )
             {
-                // practically there should always be only one permission match tag but there 
+                // practically there should always be only one permission match tag but there
                 // could be more than one permission associated with a plugin
                 TiXmlElement* permissionMatchElement  = nextNode->ToElement();
                 UtlBoolean permNodePresent = false;
@@ -56,7 +56,7 @@ StatusPluginReference::StatusPluginReference(SubscribeServerPluginBase& plugin,
                 {
                     permNodePresent = true;
                     TiXmlElement* permissionElement = permissionNode->ToElement();
-     
+
                     //get permission Name
                     TiXmlNode* permissionText = permissionElement->FirstChild();
                     if(permissionText)
@@ -83,7 +83,7 @@ StatusPluginReference::~StatusPluginReference()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-StatusPluginReference& 
+StatusPluginReference&
 StatusPluginReference::operator=(const StatusPluginReference& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -99,7 +99,7 @@ bool StatusPluginReference::hasPermissions() const
    return mPermissions.entries() > 0;
 }
 
-UtlSListIterator* StatusPluginReference::permissionsIterator() 
+UtlSListIterator* StatusPluginReference::permissionsIterator()
 {
    UtlSListIterator* iterator = new UtlSListIterator(mPermissions);
    return iterator;
@@ -122,4 +122,3 @@ SubscribeServerPluginBase* StatusPluginReference::getPlugin() const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

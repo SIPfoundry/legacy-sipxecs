@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -71,25 +71,25 @@
 // FORWARD DECLARATIONS
 
 /**
- * Class that knows how to parse the NatTraversalRules.xml file and 
+ * Class that knows how to parse the NatTraversalRules.xml file and
  * extract its information.  The class offers an API to allow apps
  * to retrieve the information elements of that file.  Note that
  * there are two ways to specifiy the public IP address of a system
  * through the web GUI.  One is to manually enter an IP address
- * and the other is automatically discover it through STUN.  The 
+ * and the other is automatically discover it through STUN.  The
  * NatTraversalRule class hides that detail from its owner
  * by implementing a STUN client that is used to automatically
  * discover the public IP address when a STUN server is provided.
  * The owner can find out the public IP addresses of the system
  * via getPublicTransportInfo() and getMediaRelayPublicAddress()
  * without really knowing if that data was explicitly configured
- * or discovered through STUN. 
+ * or discovered through STUN.
  */
-class NatTraversalRules 
+class NatTraversalRules
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-	
+
 /* ============================ CREATORS ================================== */
 
    NatTraversalRules();
@@ -104,59 +104,59 @@ public:
    bool isEnabled( void ) const;
 
    bool isBehindNat( void ) const;
-   
+
    TransportData getPublicTransportInfo( void ) const;
 
    TransportData getProxyTransportInfo( void ) const;
-   
+
    UtlString     getMediaRelayPublicAddress( void ) const;
 
    UtlString     getMediaRelayNativeAddress( void ) const;
 
    int           getMediaRelayXmlRpcPort( void ) const;
-   
+
    int           getMaxMediaRelaySessions( void ) const;
 
    bool          isAggressiveModeSet( void ) const;
 
    bool          isConservativeModeSet( void ) const;
-   
+
    bool          isXmlRpcSecured( void ) const;
-   
-   bool isPartOfLocalTopology(const UtlString& host, 
+
+   bool isPartOfLocalTopology(const UtlString& host,
                               bool checkIpSubnets = true,
                               bool checkDnsWidlcards = true ) const;
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   /** 
+   /**
     * Class that gets used by NatTraversalRules class to resolve the public IP
     * address through STUN whenever the nattraversalrules.xml config file calls
-    * for it. 
+    * for it.
     * */
    class StunClient : public OsTask
    {
       public:
          StunClient( const UtlString& stunServer );
          virtual ~StunClient();
-         
+
          bool getPublicIpAddress( UtlString& discoveredPublicIpAddress );
-         void maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent, 
-                                              int refreshIntervalInSecs, 
+         void maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent,
+                                              int refreshIntervalInSecs,
                                               const UtlString& publicIpAddressHint );
          virtual void requestShutdown( void );
-    
+
       protected:
          virtual int run( void* runArg );
 
       private:
-         OsMutex mTimerMutex;               // mutex used to generate heartbeat;   
+         OsMutex mTimerMutex;               // mutex used to generate heartbeat;
          OsStunQueryAgent stunQueryAgent;
          OsStunDatagramSocket mSocket;
-         NatTraversalRules* mpNatTraversalRules;      
+         NatTraversalRules* mpNatTraversalRules;
          NatTraversalRules* mpNatTraversalRulesToKeepCurrent;
          UtlString mPublicIpAddressObtainedFromLastPoll;
          UtlString mStunServerName;
@@ -182,12 +182,12 @@ private:
    int            mStunRefreshIntervalInSecs;
    StunClient*    mpStunClient;
    bool           mbXmlRpcOverSecureTransport;
-   
+
    void initializeNatTraversalInfo( void );
 
-   // Private methods to be called by StunClient   
+   // Private methods to be called by StunClient
    UtlString     getStunServer( void ) const;
-   
+
    int           getStunRefreshIntervalInSecs( void ) const;
 
    void announceStunResolvedPublicIpAddress( const UtlString& discoveredPublicIpAddress );

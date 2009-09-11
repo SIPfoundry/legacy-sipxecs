@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +167,7 @@ SipRedirectorRegDB::lookUp(
          {
             // :TODO: (XPL-3) need a RegEx copy constructor here
             // Check if q value is numeric and between the range 0.0 and 1.0.
-            static RegEx qValueValid("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); 
+            static RegEx qValueValid("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$");
             if (qValueValid.Search(qvalue.data()))
             {
                contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
@@ -190,14 +190,14 @@ SipRedirectorRegDB::lookUp(
             UtlString existingRouteValue;
             if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, existingRouteValue))
             {
-               // there is already a Route header parameter in the contact; append it to the 
+               // there is already a Route header parameter in the contact; append it to the
                // Route derived from the Path vector.
                pathVector.append(SIP_MULTIFIELD_SEPARATOR);
                pathVector.append(existingRouteValue);
             }
             contactUri.setHeaderParameter(SIP_ROUTE_FIELD, pathVector);
          }
-         
+
          // Add the contact.
          contactList.add( contactUri, *this );
       }

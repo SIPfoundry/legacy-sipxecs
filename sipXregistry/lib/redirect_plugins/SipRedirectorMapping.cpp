@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -125,8 +125,8 @@ SipRedirectorMapping::lookUp(
       UtlString ignorePermissionStr;
       // :KLUDGE: remove const_cast and uri declaration after XSL-88 gets fixed
       Url& uri = const_cast<Url&>(requestUri);
-      uri.getUrlParameter("sipx-noroute", ignorePermissionStr);  
-      
+      uri.getUrlParameter("sipx-noroute", ignorePermissionStr);
+
       for (int i = 0; i<numUrlMappingPermissions; i++)
       {
          UtlHashMap record;
@@ -144,11 +144,11 @@ SipRedirectorMapping::lookUp(
          // so assume it cannot be found unless we
          // see a match in the IMDB
          permissionFound = FALSE;
-         
+
          // if the permission we are looking for is the one the we are supposed to ignore,
          // than assume that permission is not found
-         if (urlMappingPermissionStr.compareTo(ignorePermissionStr, UtlString::ignoreCase) == 0) 
-         {            
+         if (urlMappingPermissionStr.compareTo(ignorePermissionStr, UtlString::ignoreCase) == 0)
+         {
              OsSysLog::add(FAC_SIP, PRI_DEBUG,
                            "%s::lookUp ignoring permission '%s'",
                            mLogName.data(),
@@ -200,7 +200,7 @@ SipRedirectorMapping::lookUp(
 
          if (permissionFound)
          {
-            break;               
+            break;
          }
          urlMappingPermissionStr.remove(0);
       }
@@ -225,7 +225,7 @@ SipRedirectorMapping::lookUp(
             urlMappingRegistrations.getIndex(i, record);
             UtlString contactKey("contact");
             UtlString contact= *(dynamic_cast <UtlString*> (record.findValue(&contactKey)));
-            
+
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact = '%s'",
                           mLogName.data(), contact.data());

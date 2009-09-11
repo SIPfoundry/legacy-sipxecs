@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ public:
             = (SipImpliedSubscriptions*)getPlugin.next();
 
          CPPUNIT_ASSERT(plugin);
-         
+
          const char DumbMessage[] =
             "REGISTER sip:sipx.local SIP/2.0\r\n"
             "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
@@ -69,7 +69,7 @@ public:
          SipMessage testDumbReg( DumbMessage, strlen( DumbMessage ) );
 
          CPPUNIT_ASSERT(plugin->needsImpliedSubscription(testDumbReg));
-         
+
          {
             SipMessage subscribeRequest;
             UtlString  callId;
@@ -85,7 +85,7 @@ public:
                UtlString msg;
                int       len;
                subscribeRequest.getBytes(&msg, &len);
-            
+
                printf( "Dumb Request:\n%s", msg.data());
             }
 #           endif
@@ -114,7 +114,7 @@ public:
             ASSERT_STR_EQUAL("1d46019b940a0bfacc0ad3d138039b90",fromTag.data());
             ASSERT_STR_EQUAL("sip:sipsend@pingtel.org", fromUri.data());
          }
-         
+
          const char NotDumbMessage[] =
             "REGISTER sip:sipx.local SIP/2.0\r\n"
             "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
@@ -132,7 +132,7 @@ public:
          SipMessage testNotDumbReg( NotDumbMessage, strlen( NotDumbMessage ) );
 
          CPPUNIT_ASSERT(!plugin->needsImpliedSubscription(testNotDumbReg));
-         
+
          const char DV1Message[] =
             "REGISTER sip:sipx.local SIP/2.0\r\n"
             "Via: SIP/2.0/TCP sipx.local:33855;branch=z9hG4bK-10cb6f9378a12d4218e10ef4dc78ea3d\r\n"
@@ -150,7 +150,7 @@ public:
          SipMessage testDV1Reg( DV1Message, strlen( DV1Message ) );
 
          CPPUNIT_ASSERT(plugin->needsImpliedSubscription(testDV1Reg));
-         
+
       };
 
 };

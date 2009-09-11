@@ -40,7 +40,7 @@ version_Age=0
 ## The objects in the sipXproxy are built as a libtool convenience library
 ## so that they can be more easily used in the unit tests in the ./test and
 ## ../lib/authplugins/test directories.
-## The convenience library is static, and is never installed - it is statically 
+## The convenience library is static, and is never installed - it is statically
 ## linked to create the executable above.
 noinst_LTLIBRARIES = libsipXproxy.la
 
@@ -70,6 +70,3 @@ libsipXproxy_la_SOURCES = \
 
 libsipXproxy_la_CXXFLAGS = \
 	$(SIPXPROXY_COMMON_CXX_FLAGS)
-
-
-

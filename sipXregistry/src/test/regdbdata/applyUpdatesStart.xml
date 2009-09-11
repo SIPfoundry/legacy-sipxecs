@@ -4,7 +4,7 @@
   -
   - Expiration time values in this template file are offsets rather than absolute times.
   - The unit test time-shifts the time values by adding the current time, to yield a
-  - valid registration.xml file. 
+  - valid registration.xml file.
   -->
 <items type="registration">
   <item>
@@ -15,7 +15,7 @@
     <qvalue></qvalue>                  <!-- q value used as priority -->
     <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
     <primary>r1</primary>              <!-- primary registrar for this registration -->
-                                       <!-- note registrar names have 
+                                       <!-- note registrar names have
                                             to be lower case, as that is how
                                             they are represented internally -->
     <update_number>1</update_number>   <!-- database update number -->

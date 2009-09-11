@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -103,22 +103,22 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
     *   - addCallData
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
-    */                     
+    */
 
    /// Begin a Call transfer event - a REFER event has been observed
-   void callTransferEvent(int sequenceNumber, 
-                          const OsTime& timeStamp, 
+   void callTransferEvent(int sequenceNumber,
+                          const OsTime& timeStamp,
                           const UtlString& contact,
                           const UtlString& refer_to,
                           const UtlString& referred_by,
-                          const UtlString& request_uri); 
+                          const UtlString& request_uri);
    /**<
     * Requires:
     *   - callTransferEvent
     *   - addCallData
     *   - completeCallEvent
-    */                     
-                                              
+    */
+
 
    /// Add the dialog and call information for the event being built.
    void addCallData(const int cseqNumber,
@@ -128,12 +128,12 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
                     const UtlString& fromField,
                     const UtlString& toField
                     );
-   
+
    /// Add a via element for the event
    void addEventVia(const UtlString& via
                     );
    /**<
-    * Record a Via from the message for this event 
+    * Record a Via from the message for this event
     * Calls to this routine are in reverse cronological order - the last
     * call for an event should be the via added by the message originator
     */
@@ -148,10 +148,10 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
     * - true if the returned element is validly constructed
     * - false if not (a caller error)
     */
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-    
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
@@ -161,7 +161,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
    UtlString mLaterElement;
    UtlString mEndElement;
    bool      mEventComplete;
-   
+
    void newEvent(int sequenceNumber,
                  const OsTime& timestamp,
                  const char* elementStart
@@ -173,4 +173,3 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 /* ============================ INLINE METHODS ============================ */
 
 #endif    // _CallStateEventBuilder_XML_h_
-

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _REGISTRARTEST_H_
@@ -33,7 +33,7 @@ class RegistrarTest : public OsServerTask
 
    /// destructor
    virtual ~RegistrarTest();
-   
+
    /// Call from another task to stop the RegistrarTest task.
    virtual void requestShutdown(void);
 
@@ -43,7 +43,7 @@ class RegistrarTest : public OsServerTask
    /// handle the expiration of the check timer
    UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg
                             );
-   
+
    /// Initiate checking of any unreachable peers.
    void check();
    /**<
@@ -54,7 +54,7 @@ class RegistrarTest : public OsServerTask
   protected:
    /// do the exponential.backoff and start timer
    void restartTimer();
-   
+
    /// Check each unreachable peer.
    void checkPeers();
    /**<
@@ -63,7 +63,7 @@ class RegistrarTest : public OsServerTask
     * the timer is scheduled to retry, using a standard limited
     * exponential backoff.
     */
-   
+
   private:
 
    /// mutex must be locked with OsLock to access any other member variable.
@@ -80,9 +80,9 @@ class RegistrarTest : public OsServerTask
 
    /// The retry timer.
    OsTimer mRetryTimer;
-   
+
    /// Current value of the retry timer.
-   size_t mRetryTime; 
+   size_t mRetryTime;
    /**
     * Initialized to REGISTER_TEST_INITIAL_WAIT.
     *
@@ -96,13 +96,13 @@ class RegistrarTest : public OsServerTask
 
    /// The top level task - do not delete;
    SipRegistrar& mSipRegistrar;
-   
+
    /// There is no copy constructor.
    RegistrarTest(const RegistrarTest&);
 
    /// There is no assignment operator.
    RegistrarTest& operator=(const RegistrarTest&);
-    
+
 };
 
 #endif // _REGISTRARTEST_H_

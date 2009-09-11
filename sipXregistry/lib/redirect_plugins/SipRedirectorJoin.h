@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ class SipRedirectorJoin : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
    // Enum for values that describe the states of dialogs, and also
@@ -144,7 +144,7 @@ class SipRedirectorJoin : public RedirectPlugin
       SipRedirectorPrivateStorage*& privateStorage,
       const char* subscribeUser,
       State stateFilter);
-   
+
    SipLineMgr* addCredentials(UtlString domain, UtlString realm);
 };
 
@@ -203,7 +203,7 @@ class SipRedirectorPrivateStorageJoin : public SipRedirectorPrivateStorage
    friend class SipRedirectorJoinTask;
 
   public:
-   
+
    SipRedirectorPrivateStorageJoin(RedirectPlugin::RequestSeqNo requestSeqNo,
                                      int redirectorNo);
 
@@ -211,7 +211,7 @@ class SipRedirectorPrivateStorageJoin : public SipRedirectorPrivateStorage
 
    virtual UtlContainableType getContainableType() const;
 
-   static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+   static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */
 
   protected:
 

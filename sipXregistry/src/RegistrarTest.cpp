@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ void RegistrarTest::checkPeers()
             }
          }
       }
-         
+
       if ( !isShuttingDown() )
       {
          /*
@@ -119,7 +119,7 @@ void RegistrarTest::checkPeers()
           * the timer is scheduled to retry, using a standard limited
           * exponential backoff.
           */
-         bool somePeerIsUnreachable = false;  // be optimistic 
+         bool somePeerIsUnreachable = false;  // be optimistic
          peers->reset();
          OsLock mutex(mLock); // do not do any asynchronous operations holding the lock
 
@@ -171,7 +171,7 @@ void RegistrarTest::requestShutdown(void)
     */
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest::requestShutdown" );
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
-   
+
    postMessage(msg); // wake up the task by sending a message to it.
    yield(); // make the caller wait so that RegistrarTest can run.
 }
@@ -181,7 +181,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
                                         )
 {
    UtlBoolean handled = FALSE;
-   
+
    int msgType    = eventMessage.getMsgType();
    int msgSubType = eventMessage.getMsgSubType();
 
@@ -215,7 +215,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
                     msgType, msgSubType
                     );
    }
-   
+
    return handled;
 }
 
@@ -245,7 +245,7 @@ void RegistrarTest::restartTimer()
    }
 }
 
-   
+
 
 /// destructor
 RegistrarTest::~RegistrarTest()

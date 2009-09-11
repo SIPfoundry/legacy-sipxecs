@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ class SipRedirectorISN : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
   protected:
@@ -70,7 +70,7 @@ class SipRedirectorISN : public RedirectPlugin
    // String to use in place of class name in log messages:
    // "[instance] class".
    UtlString mLogName;
-   
+
    UtlString mPrefix;
    UtlString mBaseDomain;
 };

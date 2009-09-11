@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef SIPREDIRECTORTIMEOFDAY_H
@@ -32,12 +32,12 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& name);
  * TimeOfDay parameter is a proprietary field parameter appearing in a contact header.
  * It has the format:
  * sipx-ValidTime="start1:end1:start2:end2:start3:end3:...:startn:endn"
- * where start-i and end-i are string representations of 16-bit hexadecimal numbers 
+ * where start-i and end-i are string representations of 16-bit hexadecimal numbers
  * without leading prefix "0x"
  * Each hexadecimal number is a number of minutes from midnight 00:00 Sunday UTC.
  * start-i:end-i represents a single period of time (in munites) during the week,
  * where the contact is valid end-i inclusive.
- * SipRedirectorTimeOfDay redirector inspects each contact header and determines 
+ * SipRedirectorTimeOfDay redirector inspects each contact header and determines
  * whether the current day/time falls into one of the intervals.
  * If it does, the sipx-ValidTie parameter is removed, otherwise the contact
  * header is eliminated from the response.
@@ -72,7 +72,7 @@ class SipRedirectorTimeOfDay : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
   private:
@@ -90,7 +90,7 @@ class SipRedirectorTimeOfDay : public RedirectPlugin
                     const UtlString& s ///< string encoding of hex value
                     );
    ///< @return true iff s was successfully decoded as a hexidecimal integer
-  
+
    /// This method does the actual filtering.
    virtual RedirectPlugin::LookUpStatus processContactList(ContactList& contactList);
 

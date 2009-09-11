@@ -7,7 +7,7 @@ SIP_CALLRESOLVER_DAILY_START_TIME : 3:00
 
 # comment line followed by empty line
 
-EMPTY_PARAM : 
+EMPTY_PARAM :
 
 ABC: ENABLE
 DEF: disable

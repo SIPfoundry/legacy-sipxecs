@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ class TiXmlDocument;
 class Notifier;
 class StatusPluginReference;
 
-class PluginXmlParser  
+class PluginXmlParser
 {
 public:
     PluginXmlParser();
@@ -48,21 +48,21 @@ public:
 private:
 	UtlHashBag mPluginTable;
     Notifier* mNotifier;
-   
+
     TiXmlDocument* mDoc;
 	OsRWMutex mListMutexR;
 	OsRWMutex mListMutexW;
 
     void addPluginToList(StatusPluginReference* plugin);
 
-    OsStatus loadPlugin( TiXmlElement& pluginElement, 
-		                 Notifier* notifier, 
+    OsStatus loadPlugin( TiXmlElement& pluginElement,
+		                 Notifier* notifier,
 						 SubscribeServerPluginBase** plugin );
 
-    TiXmlElement* requireElement( const TiXmlElement& parent, 
-	                              const UtlString& tagName, 
+    TiXmlElement* requireElement( const TiXmlElement& parent,
+	                              const UtlString& tagName,
 	                              OsStatus* err );
-	
+
 	TiXmlText* requireText( const TiXmlElement& elem, OsStatus* err );
 
 

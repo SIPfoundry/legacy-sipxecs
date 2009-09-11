@@ -1,8 +1,8 @@
-//    
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -139,22 +139,22 @@ void DialogTrackerState::SuccessfulResponse( DialogTracker& impl, SipMessage& re
 void DialogTrackerState::RedirectionResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
    OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event RedirectionResponse while in state '%s'",
-         impl.name(), impl.GetCurrentState()->name() );   
+         impl.name(), impl.GetCurrentState()->name() );
 }
 
 void DialogTrackerState::FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
    OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event FailureResponse while in state '%s'",
-         impl.name(), impl.GetCurrentState()->name() );   
+         impl.name(), impl.GetCurrentState()->name() );
 }
 
 void DialogTrackerState::CleanUpTimerTick( DialogTracker& impl ) const
 {
    OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Received unexpected event CleanUpTimerTick while in state '%s'",
-         impl.name(), impl.GetCurrentState()->name() );   
+         impl.name(), impl.GetCurrentState()->name() );
 }
 
-void DialogTrackerState::ChangeState( DialogTracker& impl, 
+void DialogTrackerState::ChangeState( DialogTracker& impl,
                                        const DialogTrackerState* targetState ) const
 {
     StateAlg::ChangeState( impl, this, targetState );
@@ -176,7 +176,7 @@ bool WaitingForInvite::InviteRequest( DialogTracker& impl, SipMessage& request, 
    bool bTrackRequestResponse = false;
    impl.setTransactionDirectionality( direction );
 
-   // check is another sipX is already taking care of NAT traversing this session. 
+   // check is another sipX is already taking care of NAT traversing this session.
    if( !impl.isRequestAlreadyHandledByOther( request ) )
    {
       bTrackRequestResponse = true;
@@ -185,20 +185,20 @@ bool WaitingForInvite::InviteRequest( DialogTracker& impl, SipMessage& request, 
       if( request.hasSdpBody() )
       {
          // request contains an SDP offer.  Check if the SDP or the or the actual
-         // location of the two endpoints impose the use of a media relay. 
+         // location of the two endpoints impose the use of a media relay.
          if( impl.doesEndpointsLocationImposeMediaRelay() )
          {
             OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay required",
-                  impl.name(), impl.GetCurrentState()->name() );   
+                  impl.name(), impl.GetCurrentState()->name() );
             impl.setMediaRelayRequiredFlag();
          }
          else
          {
             OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Media relay not required",
-                  impl.name(), impl.GetCurrentState()->name() );    
+                  impl.name(), impl.GetCurrentState()->name() );
             impl.clearMediaRelayRequiredFlag();
          }
-         impl.ProcessMediaOffer( request, INITIAL_OFFER_ANSWER );         
+         impl.ProcessMediaOffer( request, INITIAL_OFFER_ANSWER );
          ChangeState( impl, impl.pWaitingForMediaAnswer );
       }
       else
@@ -228,8 +228,8 @@ void WaitingForInvite::CleanUpTimerTick( DialogTracker& impl ) const
       if( !impl.wasMediaTrafficSeenInLastNSeconds( IDLE_MEDIA_MAXIMUM_IN_SECONDS ) )
       {
          OsSysLog::add(FAC_NAT,PRI_WARNING,"'%s': Terminating dialog tracker due to excessive media inactivity period",
-               impl.name() );   
-         ChangeState( impl, impl.pMoribund );         
+               impl.name() );
+         ChangeState( impl, impl.pMoribund );
       }
    }
 }
@@ -249,8 +249,8 @@ void TimeBoundState::CleanUpTimerTick( DialogTracker& impl ) const
    if( impl.incrementTimerTickCounter() >= MAX_TIMER_TICK_COUNTS_BEFORE_DIALOG_TRACKER_CLEAN_UP )
    {
       OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - cleaning up stale dialog tracker",
-             impl.name(), impl.GetCurrentState()->name() );         
-      ChangeState( impl, impl.pMoribund );      
+             impl.name(), impl.GetCurrentState()->name() );
+      ChangeState( impl, impl.pMoribund );
    }
 }
 
@@ -261,14 +261,14 @@ const char* Negotiating::name( void ) const
 
 const DialogTrackerState* Negotiating::GetParent( DialogTracker& impl ) const
 {
-   return impl.pTimeBoundState;   
+   return impl.pTimeBoundState;
 }
 
 void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
@@ -276,11 +276,11 @@ void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, co
          // session negotiation failed.  Deallocate all the tentative
          // media relays tentatively allocated to handle the media
          // sessions that just failed.
-         impl.deallocateAndClearAllMediaRelaySessions( true, true, false );         
+         impl.deallocateAndClearAllMediaRelaySessions( true, true, false );
 
          if( !impl.getDialogEstablishedFlag() )
          {
-            // this is a final failure response to a dialog-forming INVITE.  That 
+            // this is a final failure response to a dialog-forming INVITE.  That
             // event marks the end of the dialog hence, we do not need to continue
             // to track it.
             ChangeState( impl, impl.pMoribund );
@@ -295,9 +295,9 @@ void Negotiating::FailureResponse( DialogTracker& impl, SipMessage& response, co
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
-   }   
+   }
 }
 
 const char* ProcessingPrack::name( void ) const
@@ -314,7 +314,7 @@ void ProcessingPrack::ProvisionalResponse( DialogTracker& impl, SipMessage& resp
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
@@ -334,20 +334,20 @@ void ProcessingPrack::ProvisionalResponse( DialogTracker& impl, SipMessage& resp
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Provisional Response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
-   }  
+   }
    // We have received a response - although that does
    // not cause a state machine state change, we need to reset the tick counter
    // to show that there is still activity in this dialog.
-   impl.resetTimerTickCounter();              
+   impl.resetTimerTickCounter();
 }
 
 void ProcessingPrack::SuccessfulResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
@@ -367,13 +367,13 @@ void ProcessingPrack::SuccessfulResponse( DialogTracker& impl, SipMessage& respo
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected Successful Response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
       // We have received a response - although that does
       // not cause a state machine state change, we need to reset the tick counter
       // to show that there is still activity in this dialog.
-      impl.resetTimerTickCounter();              
-   }   
+      impl.resetTimerTickCounter();
+   }
 }
 
 const char* WaitingForAckForInvite::name( void ) const
@@ -383,7 +383,7 @@ const char* WaitingForAckForInvite::name( void ) const
 
 const DialogTrackerState* WaitingForAckForInvite::GetParent( DialogTracker& impl ) const
 {
-   return impl.pTimeBoundState;   
+   return impl.pTimeBoundState;
 }
 
 
@@ -397,7 +397,7 @@ bool WaitingForAckForInvite::AckRequest( DialogTracker& impl, SipMessage& reques
 
 void Moribund::DoEntryAction( DialogTracker& impl ) const
 {
-   impl.reportDialogCompleted();   
+   impl.reportDialogCompleted();
 }
 
 const char* Moribund::name( void ) const
@@ -419,7 +419,7 @@ void WaitingForMediaOffer::ProvisionalResponse( DialogTracker& impl, SipMessage&
 {
    if( response.getResponseStatusCode() != SIP_TRYING_CODE )
    {
-      // Both reliable and unreliable provisional responses can carry SDP bodies.  According to 
+      // Both reliable and unreliable provisional responses can carry SDP bodies.  According to
       // draft-ietf-sipping-sip-offeranswer-04.txt section 3.1, unreliable provisional responses
       // carrying an offer is a mere preview of what the 'real' SDP offfer will be and that it
       // must be identical to it.  Since we may be changing the SDP of the 'real' offer to compensate
@@ -435,7 +435,7 @@ void WaitingForMediaOffer::ProvisionalResponse( DialogTracker& impl, SipMessage&
       }
       else
       {
-         // We have received an unreliable provisional response - take a copy of the 
+         // We have received an unreliable provisional response - take a copy of the
          // patched SDP so that it can be re-applied to subsequent responses carrying
          // the same SDP body.
          impl.savePatchedSdpPreview( response );
@@ -483,7 +483,7 @@ void WaitingFor200OkWithMediaOffer::ProvisionalResponse( DialogTracker& impl, Si
          // We have received an unreliable provisional response - although that does
          // not cause a state machine state change, we need to reset the tick counter
          // to show that there is still activity in this dialog.
-         impl.resetTimerTickCounter();            
+         impl.resetTimerTickCounter();
       }
    }
 }
@@ -498,7 +498,7 @@ void WaitingFor200OkWithMediaOffer::SuccessfulResponse( DialogTracker& impl, Sip
       impl.applyPatchedSdpPreview( response );
    }
    ChangeState( impl, impl.pWaitingForAckWithAnswerForInvite );
-}   
+}
 
 const DialogTrackerState* WaitingForMediaAnswer::GetParent( DialogTracker& impl ) const
 {
@@ -516,13 +516,13 @@ void WaitingForMediaAnswer::ProvisionalResponse( DialogTracker& impl, SipMessage
    {
       if( response.hasSdpBody() )
       {
-         // Both reliable and unreliable provisional responses can carry SDP bodies.  According to 
+         // Both reliable and unreliable provisional responses can carry SDP bodies.  According to
          // draft-ietf-sipping-sip-offeranswer-04.txt section 3.1, unreliable provisional responses
          // carrying an answer is a mere previes of what the 'real' SDP answer will be and that it
          // must be identical to it.  Since we may be changing the SDP of the 'real' answer to compensate
          // for NATs we need to also manipulate the 'preview' answer to make match the requirement that
          // the preview and 'real' answers be identical.
-   
+
          // we are receiving a provisional response - check if it is sent reliably...
          impl.ProcessMediaAnswer( response, INITIAL_OFFER_ANSWER );
          if( response.getHeaderValue( 0, SIP_RSEQ_FIELD ) )
@@ -535,7 +535,7 @@ void WaitingForMediaAnswer::ProvisionalResponse( DialogTracker& impl, SipMessage
             // We have received an unreliable provisional response - although that does
             // not cause a state machine state change, we need to reset the tick counter
             // to show that there is still activity in this dialog.
-            impl.resetTimerTickCounter();            
+            impl.resetTimerTickCounter();
          }
       }
    }
@@ -545,7 +545,7 @@ void WaitingForMediaAnswer::SuccessfulResponse( DialogTracker& impl, SipMessage&
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_INVITE_METHOD ) == 0 )
@@ -555,7 +555,7 @@ void WaitingForMediaAnswer::SuccessfulResponse( DialogTracker& impl, SipMessage&
       }
    }
 }
-   
+
 const DialogTrackerState* WaitingForPrack::GetParent( DialogTracker& impl ) const
 {
    return impl.pProcessingPrack;
@@ -630,7 +630,7 @@ void WaitingFor200OkForSlowStartPrack::SuccessfulResponse( DialogTracker& impl, 
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
@@ -640,16 +640,16 @@ void WaitingFor200OkForSlowStartPrack::SuccessfulResponse( DialogTracker& impl, 
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
-   } 
+   }
 }
 
 void WaitingFor200OkForSlowStartPrack::FailureResponse( DialogTracker& impl, SipMessage& response, const char* address, int port ) const
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
@@ -661,7 +661,7 @@ void WaitingFor200OkForSlowStartPrack::FailureResponse( DialogTracker& impl, Sip
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
 }
@@ -680,7 +680,7 @@ void WaitingFor200OkForPrack::SuccessfulResponse( DialogTracker& impl, SipMessag
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
@@ -700,7 +700,7 @@ void WaitingFor200OkForPrack::FailureResponse( DialogTracker& impl, SipMessage& 
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
@@ -710,7 +710,7 @@ void WaitingFor200OkForPrack::FailureResponse( DialogTracker& impl, SipMessage& 
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected successful response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
 }
@@ -729,7 +729,7 @@ void WaitingFor200OkWithAnswerForPrack::SuccessfulResponse( DialogTracker& impl,
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
@@ -751,20 +751,20 @@ void WaitingFor200OkWithAnswerForPrack::FailureResponse( DialogTracker& impl, Si
 {
    int seqNum;
    UtlString seqMethod;
-   
+
    if( response.getCSeqField( &seqNum, &seqMethod ) )
    {
       if( seqMethod.compareTo( SIP_PRACK_METHOD ) == 0 )
       {
          // PRACK offer/answer failed.  Deallocate any tentative media relays allocation
          // in preparation for that failed PRACK offer/answer negotiation.
-         impl.deallocateAndClearAllMediaRelaySessions( false, true, false );         
+         impl.deallocateAndClearAllMediaRelaySessions( false, true, false );
          ChangeState( impl, impl.pWaitingForPrack );
       }
       else
       {
          OsSysLog::add(FAC_NAT,PRI_DEBUG,"'%s:%s' - Received unexpected failure response for %s request",
-               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );    
+               impl.name(), impl.GetCurrentState()->name(), seqMethod.data() );
       }
    }
 }
@@ -786,10 +786,3 @@ bool ProcessingPrackWaitingForAckforInvite::AckRequest( DialogTracker& impl, Sip
       ChangeState( impl, impl.pWaitingForInvite );
       return false;
 }
-
-
-
-
-
-
-

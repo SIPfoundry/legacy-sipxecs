@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _MEDIARELAY_H_
@@ -46,13 +46,13 @@ class Sym : public UtlContainable
       UtlString getId( void ) const;
       UtlString getLocalAddress( void ) const;
       int       getPort( void ) const;
-      
+
       //UtlContainable methods
       virtual UtlContainableType getContainableType() const;
       virtual unsigned hash() const;
-      virtual int compareTo(UtlContainable const *) const;    
+      virtual int compareTo(UtlContainable const *) const;
       static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-      
+
    private:
       UtlString mId;
       UtlString mLocalAddress;
@@ -76,9 +76,9 @@ class Bridge : public UtlContainable
       //UtlContainable methods
       virtual UtlContainableType getContainableType() const;
       virtual unsigned hash() const;
-      virtual int compareTo(UtlContainable const *) const;    
+      virtual int compareTo(UtlContainable const *) const;
       static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-      
+
    private:
       UtlString mId;
       Sym* mpEndpoint1Sym;
@@ -89,7 +89,7 @@ class Bridge : public UtlContainable
  * A Symmitron Bridge effectively relays a UDP data stream
  * between two endpoints.  The NAT Traversal feature uses
  * such bridges to relay audio media streams between endpoints
- * that could otherwise not stream to eachother due to the 
+ * that could otherwise not stream to eachother due to the
  * presence of NATs interference.  An media stream sent
  * using RTP consists in two streams; an RTP stream that
  * carries the voice and an RTCP stream that carries quality
@@ -107,9 +107,9 @@ class MediaBridgePair : public UtlContainable
       //UtlContainable methods
       virtual UtlContainableType getContainableType() const;
       virtual unsigned hash() const;
-      virtual int compareTo(UtlContainable const *) const;    
+      virtual int compareTo(UtlContainable const *) const;
       static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-      
+
    private:
       Bridge* mpRtpBridge;
       Bridge* mpRtcpBridge;
@@ -128,7 +128,7 @@ public:
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
    void setSymmitronInstanceHandle( const UtlString& symmitronHandle );
- 
+
    //Asynch requests to Symmitron
    void pauseBridge( const UtlString& controllerHandle, const UtlString& bridgeId );
    void resumeBridge( const UtlString& controllerHandle, const UtlString& bridgeId );
@@ -136,12 +136,12 @@ public:
    void pauseSym( const UtlString& controllerHandle, const UtlString& symId );
    void resumeSym( const UtlString& controllerHandle, const UtlString& symId );
    void setSymTimeout( const UtlString& controllerHandle, const UtlString& symId, int timeout );
-   void ping( const UtlString& controllerHandle );   
+   void ping( const UtlString& controllerHandle );
    void queryBridgeStatistics( const UtlString& controllerHandle, const UtlString& bridgeId, void* opaqueData );
    OsStatus postMessageIfStarted( const OsMsg& rMsg,
                                   const OsTime& rTimeout=OsTime::OS_INFINITY,
                                   UtlBoolean sentFromISR=FALSE );
-   
+
 private:
    MediaRelay* mpOwningMediaRelay;
    UtlString   mReferenceSymmitronInstanceHandle;
@@ -154,7 +154,7 @@ private:
 class AsynchMediaRelayMsg : public OsMsg
 {
 public:
-   
+
    enum EventSubType
    {
       SYMMITRON_PAUSE_BRIDGE    = 1,
@@ -165,36 +165,36 @@ public:
       SYMMITRON_SET_SYM_TIMEOUT = 6,
       SYMMITRON_PING            = 7,
       SYMMITRON_GET_BRIDGE_STATS= 8
-   };   
+   };
 
-   //TODO: all these constructors that are specialized for EventSubType is 
+   //TODO: all these constructors that are specialized for EventSubType is
    //      really bad OO.  Replace with proper message ebstractions.
    // constructor to use for SYMMITRON_PAUSE_BRIDGE, SYMMITRON_RESUME_BRIDGE,
    // SYMMITRON_PAUSE_SYM and SYMMITRON_RESUME_SYM
-   AsynchMediaRelayMsg( EventSubType eventSubType, 
-                        const UtlString& controllerHandle, 
+   AsynchMediaRelayMsg( EventSubType eventSubType,
+                        const UtlString& controllerHandle,
                         const UtlString& subId /*symId or bridgeId depending on eventSubType */ );
-         
+
    // constructor to use for SYMMITRON_SET_DESTINATION
-   AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                        const UtlString& symId, 
-                        const UtlString& ipAddress, 
+   AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                        const UtlString& symId,
+                        const UtlString& ipAddress,
                         int port,
                         int keepAliveTime );
 
    // constructor to use for SYMMITRON_SET_SYM_TIMEOUT
-   AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                        const UtlString& symId, 
+   AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                        const UtlString& symId,
                         int timeout );
- 
+
    // constructor to use for SYMMITRON_GET_BRIDGE_STATS
-   AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                        const UtlString& bridgeId, 
+   AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                        const UtlString& bridgeId,
                         void* opaqueData );
- 
+
    // constructor to use for SYMMITRON_PING
    AsynchMediaRelayMsg( const UtlString& controllerHandle );
- 
+
    AsynchMediaRelayMsg(const AsynchMediaRelayMsg& rOsMsg);
      //:Copy constructor
 
@@ -212,7 +212,7 @@ public:
    int getTimeout( void ) const;
    int getKeepAliveTime( void ) const;
    void* getOpaqueData( void ) const;
- 
+
 protected:
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
@@ -229,9 +229,9 @@ private:
 
 /**
  * The class is used to abstract the Symmitron which is the external process
- * that actually performs the media relaying.  Applicatiosn needing to use the 
+ * that actually performs the media relaying.  Applicatiosn needing to use the
  * services of the Symmitron need to isntantiate and initialize() a MediaRelay
- * object which will take care of all the communication with the Symmitron.  The 
+ * object which will take care of all the communication with the Symmitron.  The
  * API it exposes lets the application perform all the necessary operations
  * to utilize the services of the Symmitron.
  */
@@ -241,19 +241,19 @@ class MediaRelay : public OsNotification
      MediaRelay();
 
      ~MediaRelay();
-      
+
      /**
       * Method used to notify the MediaRelay class that a Symmitron reset
       * was detected.
       */
      void notifySymmitronResetDetected( const UtlString& newSymmitronInstanceHandle );
-      
+
      /**
       * Method used to notify the MediaRelay class that the bridge stats
       * it has queried have been received
       */
-     void notifyBridgeStatistics( const UtlString& bridgeId, intptr_t numberOfPacketsProcessed, void* opaqueData );  
-   
+     void notifyBridgeStatistics( const UtlString& bridgeId, intptr_t numberOfPacketsProcessed, void* opaqueData );
+
      /**
       * Method to call to initialize the MediaRelay object.
       *  - publicAddress: [input] public IP address of Symmitron.
@@ -270,7 +270,7 @@ class MediaRelay : public OsNotification
       *
       * Returns: true for success and false for failure.
       */
-      bool initialize( const  UtlString& publicAddress, 
+      bool initialize( const  UtlString& publicAddress,
                        const  UtlString& nativeAddress,
                        bool   bXmlRpcSecured,
                        bool   isPartOfsipXLocalPrivateNetwork,
@@ -293,7 +293,7 @@ class MediaRelay : public OsNotification
       const UtlString& getNativeAddress( void ) const{ return mNativeAddress; }
 
       /**
-       * Method used to obtain a media relay session capable of relaying RTP and 
+       * Method used to obtain a media relay session capable of relaying RTP and
        * RTCP streams.
        *
        * - relayHandle: [output] handle to allocated session
@@ -304,36 +304,36 @@ class MediaRelay : public OsNotification
        */
       bool allocateSession( tMediaRelayHandle& relayHandle, int& enpoint1RelayRtpPort, int& enpoint2RelayRtpPort );
       tMediaRelayHandle cloneSession( const tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee );
-      bool deallocateSession( const tMediaRelayHandle& relayHandle );  
+      bool deallocateSession( const tMediaRelayHandle& relayHandle );
       bool setDirectionMode( const tMediaRelayHandle& relayHandle, MediaDirectionality mediaRelayDirectionMode ); // Directionality referenced from the caller
-      bool linkSymToEndpoint( const tMediaRelayHandle& relayHandle, 
+      bool linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
                               const UtlString& endpointIpAddress, // empty string means that IP needs to be autolearned
                               int endpointRtpPort,                // port value of 0 means that port needs to be autolearned
                               int endpointRtcpPort,
-                              EndpointRole ownerOfSymToLink ); 
+                              EndpointRole ownerOfSymToLink );
       ssize_t incrementLinkCountOfMediaRelaySession( const tMediaRelayHandle& handle );
       int getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& handle, EndpointRole endpointRole );
       void deallocateAllSymmitronResourcesAndSignOut( void );
       const Url& getXmlRpcServerUrl( void ) const;
       static UtlHashMap* executeAndValudateSymmitronRequest( XmlRpcRequest& requestToSend, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription, XmlRpcResponse& xmlRpcResponse, bool bRetryFailedConnection = true );
       bool getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle, PacketProcessingStatistics& stats );
-      
+
       // OsNotification virtual method implementation
       virtual OsStatus signal(intptr_t eventData);
-      
+
    private:
-      // misc 
+      // misc
       MediaRelaySession* getSessionByHandle( const tMediaRelayHandle& handle );
 
       // Symmitron operations
       bool preAllocateSymmitronResources( void );
-      UtlHashMap* getAndValidateStandardMap( XmlRpcResponse& responseToValidate, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription );        
+      UtlHashMap* getAndValidateStandardMap( XmlRpcResponse& responseToValidate, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription );
       bool createPausedBridgeOnSymmitron( Sym* pEndpoint1Sym, Sym* pEndpoint2Sym, UtlString& returnedBridgeId, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription );
       bool addSymToBridge( UtlString& symId, UtlString& bridgeId, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription );
 
       // clean up
       void cleanUpEverything( void );
-      
+
       UtlString                      mPublicAddress;            // public IP address of the media relay
       UtlString                      mNativeAddress;            // native address of the media relay
       bool                           mbIsPartOfsipXLocalPrivateNetwork;  // indicates whether the media relay is inside the same local private network as sipXecs
@@ -349,8 +349,8 @@ class MediaRelay : public OsNotification
       std::vector<MediaBridgePair*>  mAvailableMediaBridgePairsList;  // Tracks list of available MediaBridgePairs
       std::vector<MediaBridgePair*>  mBusyMediaBridgePairsList;       // Tracks list of the MediaBridgePairs currently being used to relay media
       AsynchMediaRelayRequestSender  mAsynchMediaRelayRequestSender;  // Instance of class used to send requests to the symmitron without blocking the fasts path
-      OsMutex                        mMutex;  
-      OsTimer                        mGenericTimer;                 // Timer used to trigger pings to the symmitron and to query bridge stats 
+      OsMutex                        mMutex;
+      OsTimer                        mGenericTimer;                 // Timer used to trigger pings to the symmitron and to query bridge stats
       ssize_t                        mGenericTimerTickCounter;      // Counts the number of generic timer ticks since the beginning
       bool                           mbPollForSymmitronRecovery;    // Flag set to true when the connection to Symmitron is lost and needs to be recovered.
 };

@@ -1,6 +1,6 @@
 #!@BASH@
 #
-# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
@@ -100,7 +100,7 @@ EOF
 # Be sure to add the file to the sql_schemas list in Makefile.am and to the %files
 # section in sipxproxy.spec.in
 #
-# Define an upgrade path - put the file name (without extension .sql) in one or 
+# Define an upgrade path - put the file name (without extension .sql) in one or
 # more of the upgrade lists below.
 
 # special patch that upgrades DB version to the latest version - only use once
@@ -122,17 +122,17 @@ databasePatch() {
         for patch in $UpgradePatches; do
             if [ ${patch} = ${VersionPatch} ]; then
                 echo "Upgrading DB schema version to ${DbVersion}" >> ${DbPatchLog}
-            	${PsqlCmd} -c "insert into version_history values ('${DbVersion}', '${Today}')" >>${DbPatchLog} 2>&1            	
+            	${PsqlCmd} -c "insert into version_history values ('${DbVersion}', '${Today}')" >>${DbPatchLog} 2>&1
             elif [ -f ${DbPatchDir}/${patch}.sql ]; then
                 # Apply patch only if not found in the patch list
                 if ! ${PsqlCmd} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
                    echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
                    ${PsqlCmd} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
                    ${PsqlCmd} -c "insert into patch values ('${patch}')" >>${DbPatchLog} 2>&1
-                fi            
+                fi
             else
                 echo "Error: Database patch file ${patch}.sql not found." >> ${DbPatchLog}
-            fi            
+            fi
         done
    fi
 }
@@ -140,27 +140,27 @@ databasePatch() {
 # Setup database
 databaseCommand() {
     databaseCheck Silent
-    
+
     case ${1} in
        create)
          createdb --quiet -U ${PgUser} --encoding=UNICODE ${Database}
          ${PsqlCmd} -f ${PgSchema}
        ;;
-       
+
        drop)
          dropdb --quiet -U ${PgUser} ${Database}
        ;;
    esac
 }
 
-# Return false if postgres is 
-#  1. not running 
+# Return false if postgres is
+#  1. not running
 #  2. running but not setup to communicate w/java or ${Psql} command
 #  3. Database is not created
 databaseCheck() {
    if ${Psql} -l -U ${PgUser} | grep "${Database}" >/dev/null 2>&1; then
       return 0
-   fi	
+   fi
    #  Check if psql command works at all
    if ${Psql} -l -U ${PgUser} >/dev/null 2>&1; then
       if [ "$1" != "Silent" ]; then
@@ -173,7 +173,7 @@ Login as root and run the sipxcallresolver.sh script with the --setup parameter.
 ERROR
       fi
       return 1
-   fi   
+   fi
    # FreeBSD does not support 'ps -C cmd'
    procs=`ps -U @POSTGRESQL_USER@`
    if ! expr match "$procs" '.*postmaster.*' >/dev/null; then
@@ -206,19 +206,19 @@ ERROR
           PGDATA=`ls -d /etc/postgresql/*.*/main`
       fi
    fi
-       
+
    # Check for conf file
    if [ -f $PGDATA/pg_hba.conf ]; then
       if ! grep '^local *all *all *trust.*' $PGDATA/pg_hba.conf >/dev/null; then
-         if [ "$1" != "Silent" ]; then            
+         if [ "$1" != "Silent" ]; then
          cat <<ERROR
 
 Error: $PGDATA/pg_hba.conf is not set up for local connections.
 Login as root and run the sipxcallresolver.sh script with the --setup parameter.
    $0 --setup
-            
+
 ERROR
-         fi  
+         fi
       else
          echo "Error:  Unknown database error."
       fi
@@ -238,7 +238,7 @@ proxyCheck() {
       if expr match "$procs" '.*sipXproxy[^.].*sipXproxy[^.].*' >/dev/null; then
          cat <<ERROR
 Multiple proxy check failed:
-  Found at least two running sipXproxy processes. 
+  Found at least two running sipXproxy processes.
   This is a potential cause of CSE logging failures!
 
 ERROR
@@ -254,15 +254,15 @@ ERROR
 
 configCheck() {
    Status=0
-   
+
    if ! proxyCheck; then
      Status=1
    fi
- 
+
    if ! databaseCheck; then
       Status=1
    fi
- 
+
    if ! cat @SIPX_CONFDIR@/sipXproxy-config | grep SIPX_PROXY_CALL_STATE_DB | grep ENABLE >/dev/null ; then
       cat <<ERROR
 
@@ -272,12 +272,12 @@ configCheck() {
 ERROR
       Status=1
    fi
-   
+
    # Don't check configuration of call resolver for distributed machines
    if [ ${Action} = CONFIGTEST ]; then
-       
+
       if ! sipx_config_exists @SIPX_CONFDIR@/callresolver-config ; then
-          resolveOk=0          
+          resolveOk=0
           Status=1
       else
           resolveOk=1
@@ -287,8 +287,8 @@ ERROR
               cat <<ERROR
 
   Warning: callresolver is not configured for purging old records.
-  This will prevent the call resolver from automatically purging old database 
-  records on a regular basis. 
+  This will prevent the call resolver from automatically purging old database
+  records on a regular basis.
   Add the line:
 
      SIP_CALLRESOLVER_PURGE  : ENABLE
@@ -300,7 +300,7 @@ ERROR
               Status=1
           fi
       fi
-      
+
       if [ ! -f ${CallResolverMain} ]; then
          cat <<ERROR
 
@@ -308,7 +308,7 @@ ERROR
 
 ERROR
          Status=1
-      fi   
+      fi
    fi
 
 }
@@ -329,7 +329,7 @@ databaseVersionCheck() {
        then
           cat <<ERROR
 
-Error: bad ${Database} database version. 
+Error: bad ${Database} database version.
 You should drop and recreate the database:
   $0 --database drop create
 
@@ -337,8 +337,8 @@ ERROR
        else
          cat <<ERROR
 
-Error: bad ${Database} database version.  
-Expected version $DbVersion, got version $dbver. 
+Error: bad ${Database} database version.
+Expected version $DbVersion, got version $dbver.
 This database was created or modified by a different version of sipxcallresolver.
 
 ERROR
@@ -352,11 +352,11 @@ removeOldCronEntry()
 {
     # Remove crontab entry for sipxcallresolver if there is one
     if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-       if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
+       if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then
           sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
           mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
        fi
-    fi   
+    fi
 }
 
 # In version 3.6 sipxcallresover was run as root.
@@ -364,7 +364,7 @@ removeOldCronEntry()
 fixFileAccess()
 {
     if [ -f $1 ]; then
-        chmod a+w $1   
+        chmod a+w $1
     fi
 }
 
@@ -386,15 +386,15 @@ onSetup() {
 }
 
 # Start CDR call resolver
-onStartup() { 
+onStartup() {
     # Check database version - don't run if it's wrong
     databasePatch
     if ! databaseVersionCheck; then
        exit 1
     fi
-    
+
     echo $$ > ${PidFile}
-    
+
     exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
 }
 
@@ -404,22 +404,22 @@ do
         -c|--configtest)
             Action=CONFIGTEST
             ;;
-            
+
         -s|--setup)
             Action=SETUP
             ;;
-            
+
         -d|--database)
             Action=DATABASE
             shift
             Args="${@}"
             break 2
-            ;;    
+            ;;
 
         --patch)
             Action=PATCH
             ;;
-            
+
         --distrib-configtest)
             Action=DISTRIBTEST
             ;;
@@ -437,11 +437,11 @@ do
             ;;
 		--start|--end|--daemon)
 			resolverArgs="${resolverArgs} ${1} "
-			;;			            
+			;;
         *)
             resolverArgs="${resolverArgs} \"${1}\" "
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -469,17 +469,17 @@ Usage: $0 [-d|--database commands ...]
                   [-c|--configtest]
                   [-s|--setup]
                   [-h|--help]
-                     
+
 Set up CDR database and processing for sipXpbx.
 
 Options include:
 
   none                 Process a single batch of call events and exit.
-  
+
   --daemon			   Daemonize call resolver - it remains running and keeps processing incoming call events.
 
-  --database commands  Runs an operation on the database. Database commands 
-                       are detailed below 
+  --database commands  Runs an operation on the database. Database commands
+                       are detailed below
 
   --configtest         Run diagnostics
 

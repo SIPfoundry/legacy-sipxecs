@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& name)
    OsLock lock(*SipImpliedSubscriptions::mpSingletonLock);
 
    RegisterPlugin* thePlugin;
-   
+
    if (!SipImpliedSubscriptions::mpSingleton)
    {
       SipImpliedSubscriptions::mpSingleton = new SipImpliedSubscriptions(name);
@@ -69,7 +69,7 @@ extern "C" RegisterPlugin* getRegisterPlugin(const UtlString& name)
 
       thePlugin = NULL;
    }
-                    
+
    return thePlugin;
 }
 
@@ -131,12 +131,12 @@ public:
 #      endif
        matched = mUserAgentRegEx->Search(rcvdUA);
     }
-    
+
     return matched;
   }
 
 private:
-  
+
   RegEx*   mUserAgentRegEx;
 };
 
@@ -176,7 +176,7 @@ public:
      ImpliedSubscriptionUserAgent* foundAgent = NULL;
      ImpliedSubscriptionUserAgent* agent;
 
-     UtlSListIterator nextAgent(mConfiguredUserAgents) ;    
+     UtlSListIterator nextAgent(mConfiguredUserAgents) ;
      for (agent = dynamic_cast<ImpliedSubscriptionUserAgent*>(nextAgent());
           !foundAgent && agent;
           agent = dynamic_cast<ImpliedSubscriptionUserAgent*>(nextAgent())
@@ -185,7 +185,7 @@ public:
         if (agent->matchesRecognizer(name, logName))
         {
            foundAgent = agent;
-        }       
+        }
      }
 
      return foundAgent ;
@@ -293,7 +293,7 @@ void SipImpliedSubscriptions::takeAction(
 bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& registerMessage )
 {
    bool configuredForSubscription = false;
-         
+
    UtlString userAgent;
    ImpliedSubscriptionUserAgent* configured;
 
@@ -303,7 +303,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
                  ,"%s checking User-Agent \"%s\""
                  ,mLogName.data(), userAgent.data()
                  );
-         
+
    configured = configuredUserAgents.configurationName( userAgent, mLogName );
 
    if ( configured ) // ? did we find a configuration name whose recognizer matched ?
@@ -320,7 +320,7 @@ bool SipImpliedSubscriptions::needsImpliedSubscription( const SipMessage& regist
 
    return configuredForSubscription;
 }
-   
+
 void SipImpliedSubscriptions::buildSubscribeRequest( const SipMessage& registerMessage
                            ,int duration
                            ,SipMessage& subscribeRequest
@@ -345,7 +345,7 @@ void SipImpliedSubscriptions::buildSubscribeRequest( const SipMessage& registerM
    Url toUrl;
    registerMessage.getToUrl( toUrl );
    toUrl.removeFieldParameter("tag");
-   
+
    UtlString toUri;
    registerMessage.getToUri( &toUri );
 
@@ -478,7 +478,3 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
                     );
    }
 }
-
-
-
-

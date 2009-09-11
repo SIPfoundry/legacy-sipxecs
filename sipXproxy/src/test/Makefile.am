@@ -7,7 +7,7 @@ TESTS = proxytest $(TEST_CSE_OPT)
 
 noinst_LTLIBRARIES = \
     libDummyAuthPlugin.la
-    
+
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
 version_Current=1
@@ -34,12 +34,12 @@ libDummyAuthPlugin_la_LIBADD = \
 
 libDummyAuthPlugin_la_CXXFLAGS = \
     -I$(top_builddir)/config \
-    -I$(top_srcdir)/include    
+    -I$(top_srcdir)/include
 
 libDummyAuthPlugin_la_SOURCES =  \
     DummyAuthPlugIn.h \
-    DummyAuthPlugIn.cpp 
-    
+    DummyAuthPlugIn.cpp
+
 check_PROGRAMS = \
 	proxytest
 
@@ -54,7 +54,7 @@ COMMON_LIBS = \
    @SIPXUNIT_LIBS@ \
    @SIPXCOMMSERVERTEST_LIBS@ \
    @SIPXCOMMSERVER_LIBS@ \
-	../libsipXproxy.la 
+	../libsipXproxy.la
 
 proxytest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)
@@ -64,7 +64,7 @@ proxytest_SOURCES = \
    CallStateEventBuilder_XMLTest.cpp \
    CallStateEventBuilder_DBTest.cpp \
    RouteStateTest.cpp \
-   SipRouterTest.cpp 
+   SipRouterTest.cpp
 
 proxytest_LDFLAGS = \
     -rdynamic
@@ -117,8 +117,8 @@ CSE_TEST_FILES = \
   $(srcdir)/environment.rb \
   $(srcdir)/sipsupport.rb
 
-# Let make check create a small shell script to start the real Ruby 
-# file. This satisfies the automake requirement that a testsuite must 
+# Let make check create a small shell script to start the real Ruby
+# file. This satisfies the automake requirement that a testsuite must
 # be an executable file that is created during make check.
 # check_PROGRAMS = $(testsuite)
 
@@ -134,7 +134,7 @@ cse_test.sh: $(db_deps) $(CSE_TEST_FILES)
 
 # Set up PostgreSQL database for local unit test
 .PHONY: db_setup
-db_setup:	
+db_setup:
 	@echo "Setting up database"
 	-dropdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null
 	createdb -U $(PG_USER) $(SIPXTEST_DATABASE) &>/dev/null

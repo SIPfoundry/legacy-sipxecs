@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 ////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -29,38 +29,38 @@ public:
    {
       mName = instanceName;
    }
-    
+
    virtual OsStatus initialize(OsConfigDb& configDb,
                                int redirectorNo,
                                const UtlString& localDomainHost)
    {
       return OS_SUCCESS;
    }
-   
+
    virtual void finalize()
    {
-      
+
    }
-   
+
    virtual LookUpStatus lookUp(
-      const SipMessage& message,      
-      const UtlString& requestString, 
-      const Url& requestUri,          
+      const SipMessage& message,
+      const UtlString& requestString,
+      const Url& requestUri,
       const UtlString& method,
-      ContactList& contactList,         
-      RequestSeqNo requestSeqNo,      
-      int redirectorNo,               
-      class SipRedirectorPrivateStorage*& privateStorage, 
+      ContactList& contactList,
+      RequestSeqNo requestSeqNo,
+      int redirectorNo,
+      class SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor )
    {
       return RedirectPlugin::SUCCESS;
    }
-   
+
    virtual const UtlString& name( void ) const
    {
       return mName;
    }
-   
+
    UtlString mName;
 };
 
@@ -107,7 +107,7 @@ public:
          CPPUNIT_ASSERT(plugin->isCurrentTimeValid(timeString1));
          CPPUNIT_ASSERT(!plugin->isCurrentTimeValid(timeString2));
 
-         // Calculate minutes since midnight today 
+         // Calculate minutes since midnight today
          unsigned long osCurTimeSinceEpoch = OsDateTime::getSecsSinceEpoch();
          int minFromSunday = (osCurTimeSinceEpoch/60 - 4320)%10080;
          int minFromMorning = minFromSunday%1440;
@@ -158,13 +158,13 @@ public:
          CPPUNIT_ASSERT(!contact.compareTo("<sip:me@127.0.0.2>;q=0.8;sipx-noroute=voicemail"));
          CPPUNIT_ASSERT(contactList1.get(2, contact));
          CPPUNIT_ASSERT(!contact.compareTo("sip:me@127.0.0.5"));
-    
+
 
          ContactList contactList2("dummy");;
          contactList2.add( UtlString("me@127.0.0.1"), dummyPlugin );
          contactList2.add( UtlString("<me@127.0.0.1>;sip-validTime=\"DoNotRemoveTheHeader\""), dummyPlugin );
          contactList2.add( UtlString("<me@127.0.0.1;sipx-alidTime=\"0:1:2:3:4:5:6:7:8\">"), dummyPlugin );
-         
+
          CPPUNIT_ASSERT(plugin->processContactList(contactList2) == RedirectPlugin::SUCCESS );
          CPPUNIT_ASSERT(contactList2.get(0, contact));
          CPPUNIT_ASSERT(!contact.compareTo("me@127.0.0.1"));

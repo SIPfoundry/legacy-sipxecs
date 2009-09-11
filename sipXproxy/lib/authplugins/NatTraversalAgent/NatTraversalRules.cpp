@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -85,13 +85,13 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
 {
    mbNatTraveralEnabled    = false;
    mbSystemBehindNat       = false;
-   
+
    TiXmlNode* pTopNode;
    TiXmlNode* pNode;
 
    // If we already have a StunClient object allocated, chances are that
-   // it is doing STUN polling based on the old configuration data.  
-   // Since we are reading in new configuration data here, stop that 
+   // it is doing STUN polling based on the old configuration data.
+   // Since we are reading in new configuration data here, stop that
    // StunClient.  Another instance will get created if required.
    if( mpStunClient )
    {
@@ -106,19 +106,19 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
       {
          TiXmlNode* pChildNode;
          // get the 'state' node
-         
+
          if( ( pChildNode = pNode->FirstChild( XML_TAG_STATE ) ) && pChildNode->FirstChild() )
          {
             UtlString status = pChildNode->FirstChild()->Value();
-            
+
             if( status.compareTo(XML_VALUE_ENABLED, UtlString::ignoreCase) == 0 )
-            {  
+            {
                mbNatTraveralEnabled = true;
             }
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STATE );          
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STATE );
          }
 
          // get the 'behindnat' node
@@ -126,21 +126,21 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             UtlString status = pChildNode->FirstChild()->Value();
             if( status.compareTo(XML_VALUE_TRUE, UtlString::ignoreCase) == 0 || status.compareTo(XML_VALUE_YES, UtlString::ignoreCase) == 0  )
-            {  
+            {
                mbSystemBehindNat = true;
             }
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_BEHIND_NAT );          
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_BEHIND_NAT );
          }
-   
+
          // get the 'relayaggressiveness' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_AGGRESSIVENESS ) ) && pChildNode->FirstChild() )
          {
             UtlString status = pChildNode->FirstChild()->Value();
             if( status.compareTo( XML_VALUE_AGGRESSIVE, UtlString::ignoreCase ) == 0 )
-            {  
+            {
                mbAggressiveModeSet = true;
             }
             else
@@ -150,9 +150,9 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_AGGRESSIVENESS );          
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_AGGRESSIVENESS );
          }
-         
+
          // get the 'publicaddress' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_PUBLIC_ADDRESS ) ) && pChildNode->FirstChild() )
          {
@@ -169,11 +169,11 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mPublicTransport.setAddress( hostIpAddress );
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using host IP: '%s'", XML_TAG_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
-         
+
          // get the 'publicport' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_PUBLIC_PORT ) ) && pChildNode->FirstChild() )
          {
-            UtlString tempPublicPortString; 
+            UtlString tempPublicPortString;
             tempPublicPortString = pChildNode->FirstChild()->Value();
             mPublicTransport.setPort( atoi( tempPublicPortString.data() ) );
          }
@@ -183,7 +183,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mPublicTransport.setPort( DEFAULT_PUBLIC_PORT );
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using default port %d", XML_TAG_PUBLIC_PORT, mPublicTransport.getPort() );
          }
-         
+
          // get the 'proxyhostport' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_PROXY_HOST_PORT ) ) && pChildNode->FirstChild() )
          {
@@ -195,7 +195,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_PUBLIC_ADDRESS );
          }
-         
+
          // get the 'mediarelaypublicaddress' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_PUBLIC_ADDRESS ) ) && pChildNode->FirstChild() )
          {
@@ -208,7 +208,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mMediaRelayPublicAddress = mPublicTransport.getAddress();
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using public IP address of '%s'", XML_TAG_MR_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
-         
+
          // get the 'mediarelaynativeaddress' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_NATIVE_ADDRESS ) ) && pChildNode->FirstChild() )
          {
@@ -216,15 +216,15 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            // No native address provided for the Media Relay - assume that it is co-located with the proxy 
+            // No native address provided for the Media Relay - assume that it is co-located with the proxy
             mMediaRelayNativeAddress = mProxyTransport.getAddress();
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_NATIVE_ADDRESS );
          }
-         
+
          // get the 'mediarelayxml-rpc-port' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_XMLRPC_PORT ) ) && pChildNode->FirstChild() )
          {
-            UtlString tempMediaRelayXmlRpcPortString; 
+            UtlString tempMediaRelayXmlRpcPortString;
             tempMediaRelayXmlRpcPortString = pChildNode->FirstChild()->Value();
             mMediaRelayXmlRpcPort = atoi( tempMediaRelayXmlRpcPortString.data() );
          }
@@ -233,7 +233,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mMediaRelayXmlRpcPort = DEFAULT_MR_XMLRPC_PORT;
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_XMLRPC_PORT );
          }
-         
+
          // Derive the max media relay sessions from the media relay port range.
          // Basically, each media relay session takes up 4 ports and 50% of the
          // range is allocated to NAT traversal.  So, the max media relay sessions
@@ -266,25 +266,25 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             mMaxMediaRelaySessions = DEFAULT_MAX_MEDIA_RELAY_SESSIONS;
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_MR_PORT_RANGE );
          }
-         
+
          // get the 'useSTUN' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_USE_STUN ) ) && pChildNode->FirstChild() )
          {
             UtlString status = pChildNode->FirstChild()->Value();
             if( status.compareTo(XML_VALUE_TRUE, UtlString::ignoreCase) == 0 || status.compareTo(XML_VALUE_YES, UtlString::ignoreCase) == 0  )
-            {  
+            {
                mbDiscoverPublicIpAddressViaStun = true;
             }
          }
          else
          {
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_USE_STUN );
-         }         
-         
+         }
+
          // get the 'STUNRefreshInterval' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_STUN_REFRESH_INTERVAL ) ) && pChildNode->FirstChild() )
          {
-            UtlString tempIntervalString; 
+            UtlString tempIntervalString;
             tempIntervalString = pChildNode->FirstChild()->Value();
             mStunRefreshIntervalInSecs = atoi( tempIntervalString.data() );
          }
@@ -302,13 +302,13 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_SERVER );
          }
-         
+
          // get the 'secureXMLRPC' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_SECURE_XMLRPC ) ) && pChildNode->FirstChild() )
          {
             UtlString status = pChildNode->FirstChild()->Value();
             if( status.compareTo(XML_VALUE_TRUE, UtlString::ignoreCase) == 0 || status.compareTo(XML_VALUE_YES, UtlString::ignoreCase) == 0  )
-            {  
+            {
                mbXmlRpcOverSecureTransport = true;
             }
             else
@@ -318,12 +318,12 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );          
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );
          }
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_INFO );          
+         OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_INFO );
       }
 
       // get the 'localtopology' node
@@ -353,33 +353,33 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
                      }
                      else
                      {
-                        OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - Unknown pattern type found: '%s'", matchPatternType.data() );          
-                     }         
+                        OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - Unknown pattern type found: '%s'", matchPatternType.data() );
+                     }
                   }
                }
             } while( ( pNode = pNode->NextSibling() ) );
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node for '%s'", XML_TAG_LOCAL_TOPOLOGY );          
-         }         
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node for '%s'", XML_TAG_LOCAL_TOPOLOGY );
+         }
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_LOCAL_TOPOLOGY );          
+         OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_LOCAL_TOPOLOGY );
       }
-      
-      // Now that we have extracted the configuration information, let's check if we 
-      // need to discover our public IP address using STUN.  If so and the NAT traversal 
+
+      // Now that we have extracted the configuration information, let's check if we
+      // need to discover our public IP address using STUN.  If so and the NAT traversal
       // feature is enabled, launch a task that will do so.
       if( mbNatTraveralEnabled && mbDiscoverPublicIpAddressViaStun && !mStunServer.isNull() )
       {
          // we need to discover our public IP address using STUN.
          // Instantiate a new StunClient and ask for the public IP address.
-         // If the request is successful, initialize the public transport with 
+         // If the request is successful, initialize the public transport with
          // the response and start the polling mechanism to maintain it current.
          mpStunClient = new StunClient( mStunServer );
-         
+
          UtlString publicIpAddress;
          if( mpStunClient->getPublicIpAddress( publicIpAddress ) )
          {
@@ -391,7 +391,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             OsSocket::getHostIp( &hostIpAddress );
             mPublicTransport.setAddress( hostIpAddress );
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - failed to contact STUN server %s - using host IP %s as public", mStunServer.data(), mPublicTransport.getAddress().data() );
-            
+
             if( !mbMediaRelayPublicAddressProvidedInConfig )
             {
                // the admin did not explictly configure a public IP address for the media relay, assume
@@ -400,7 +400,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             }
             publicIpAddress = hostIpAddress;
          }
-         mpStunClient->maintainPublicIpAddressCurrent( this, mStunRefreshIntervalInSecs, publicIpAddress ); 
+         mpStunClient->maintainPublicIpAddressCurrent( this, mStunRefreshIntervalInSecs, publicIpAddress );
       }
    }
    else
@@ -415,7 +415,7 @@ void NatTraversalRules::announceStunResolvedPublicIpAddress( const UtlString& di
    if( mbDiscoverPublicIpAddressViaStun )
    {
       mPublicTransport.setAddress( discoveredPublicIpAddress );
-      
+
       if( !mbMediaRelayPublicAddressProvidedInConfig )
       {
          // the admin did not explictly configure a public IP address for the media relay, assume
@@ -456,7 +456,7 @@ UtlString NatTraversalRules::getMediaRelayNativeAddress( void ) const
    return mMediaRelayNativeAddress;
 }
 
-int NatTraversalRules::getMediaRelayXmlRpcPort( void ) const 
+int NatTraversalRules::getMediaRelayXmlRpcPort( void ) const
 {
    return mMediaRelayXmlRpcPort;
 }
@@ -484,7 +484,7 @@ bool NatTraversalRules::isXmlRpcSecured( void ) const
 bool NatTraversalRules::isPartOfLocalTopology( const UtlString& host, bool bCheckIpSubnets, bool bCheckDnsWidlcards ) const
 {
    bool bHostIsPartOfLocalTopology = false;
-   
+
    if( bCheckIpSubnets )
    {
       UtlSListIterator mlocalIpV4SubnetsIter( mlocalIpV4Subnets );
@@ -497,7 +497,7 @@ bool NatTraversalRules::isPartOfLocalTopology( const UtlString& host, bool bChec
          }
       }
    }
-   
+
    if( bCheckDnsWidlcards )
    {
       UtlSListIterator mlocalDnsWildcardsIter( mlocalDnsWildcards );
@@ -541,20 +541,20 @@ NatTraversalRules::StunClient::~StunClient()
 bool NatTraversalRules::StunClient::getPublicIpAddress( UtlString& discoveredPublicIpAddress )
 {
    bool rc = false;
-   
-   // Not yet resolved the STUN server to a valid IP address, try again in case 
+
+   // Not yet resolved the STUN server to a valid IP address, try again in case
    // network conditions have cleared.
    if( !mbStunServerIsValid )
    {
       mbStunServerIsValid = stunQueryAgent.setServer( mStunServerName );
    }
-   
+
    if( mbStunServerIsValid )
    {
       UtlString mappedAddress;
       int  mappedPort;
       OsTime timeout( STUN_QUERY_TIMEOUT_IN_MILLISECS );
-   
+
       rc = stunQueryAgent.getMappedAddress( &mSocket, mappedAddress, mappedPort, 0, timeout );
       if( rc )
       {
@@ -567,11 +567,11 @@ bool NatTraversalRules::StunClient::getPublicIpAddress( UtlString& discoveredPub
          OsSysLog::add(FAC_NAT,PRI_ERR,"StunClient::getPublicIpAddress failed to obtain mapping from server %s", mStunServerName.data() );
       }
    }
-   return rc;   
+   return rc;
 }
 
-void NatTraversalRules::StunClient::maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent, 
-                                     int refreshIntervalInSecs, 
+void NatTraversalRules::StunClient::maintainPublicIpAddressCurrent( NatTraversalRules* pNatTraversalRulesToKeepCurrent,
+                                     int refreshIntervalInSecs,
                                      const UtlString& publicIpAddressHint )
 {
    mpNatTraversalRulesToKeepCurrent = pNatTraversalRulesToKeepCurrent;
@@ -584,7 +584,7 @@ void NatTraversalRules::StunClient::maintainPublicIpAddressCurrent( NatTraversal
 
 int NatTraversalRules::StunClient::run( void* runArg )
 {
-   UtlString discoveredPublicIpAddress; 
+   UtlString discoveredPublicIpAddress;
    OsStatus rc;
    while( !isShuttingDown() )
    {
@@ -596,16 +596,15 @@ int NatTraversalRules::StunClient::run( void* runArg )
             if( discoveredPublicIpAddress.compareTo( mPublicIpAddressObtainedFromLastPoll ) != 0 )
             {
                mPublicIpAddressObtainedFromLastPoll = discoveredPublicIpAddress;
-               mpNatTraversalRulesToKeepCurrent->announceStunResolvedPublicIpAddress( discoveredPublicIpAddress );            
+               mpNatTraversalRulesToKeepCurrent->announceStunResolvedPublicIpAddress( discoveredPublicIpAddress );
             }
          }
       }
-   }   
-   return 0;   
+   }
+   return 0;
 }
 void NatTraversalRules::StunClient::requestShutdown( void )
 {
    mTimerMutex.release();
    OsTask::requestShutdown();
 }
-

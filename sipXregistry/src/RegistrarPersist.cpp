@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -133,7 +133,7 @@ UtlBoolean RegistrarPersist::handleMessage(OsMsg& eventMessage)    ///< Timer ex
          cleanAndPersist();
       }
       OsTask::requestShutdown(); // tell OsServerTask::run to exit
-      handled = TRUE;      
+      handled = TRUE;
    }
    else
    {
@@ -141,7 +141,7 @@ UtlBoolean RegistrarPersist::handleMessage(OsMsg& eventMessage)    ///< Timer ex
                     "RegistrarPersist::handleMessage unhandled message %d/%d",
                     msgType, msgSubType);
    }
-   
+
    return handled;
 }
 

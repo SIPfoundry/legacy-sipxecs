@@ -1,7 +1,7 @@
 #define GRUU_WORKAROUND
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -118,7 +118,7 @@ SipRegistrarServer::initialize(
            mNormalExpiryIntervals.mMinExpiresTime = HARD_MINIMUM_EXPIRATION;
         }
     }
-    
+
     tempExpiresString.remove(0);
     pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES_NORMAL", tempExpiresString);
     if ( tempExpiresString.isNull() )
@@ -137,7 +137,7 @@ SipRegistrarServer::initialize(
                         );
           mNormalExpiryIntervals.mMaxExpiresTime = mNormalExpiryIntervals.mMinExpiresTime;
        }
-    }    
+    }
 
     // Initialize the NATed minimum and maximum expiry values
     tempExpiresString.remove(0);
@@ -158,7 +158,7 @@ SipRegistrarServer::initialize(
            mNatedExpiryIntervals.mMinExpiresTime = HARD_MINIMUM_EXPIRATION;
         }
     }
-    
+
     tempExpiresString.remove(0);
     pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES_NATED", tempExpiresString);
     if ( tempExpiresString.isNull() )
@@ -177,8 +177,8 @@ SipRegistrarServer::initialize(
                         );
           mNatedExpiryIntervals.mMaxExpiresTime = mNatedExpiryIntervals.mMinExpiresTime;
        }
-    }    
-    
+    }
+
     // Authentication Realm Name
     pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
@@ -199,7 +199,7 @@ SipRegistrarServer::initialize(
     {
         OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_DOMAIN_ALIASES : %s",
                       hostAliases.data());
-        mSipUserAgent->setHostAliases(hostAliases);    
+        mSipUserAgent->setHostAliases(hostAliases);
     }
 
     // Get the additional contact setting.
@@ -244,7 +244,7 @@ SipRegistrarServer::initialize(
      *
      * These directives are in the configuration files but are not used:
      *
-     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm); 
+     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm);
      *     there may someday be a reason to use that one, since MD5 is aging.
      *
      *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
@@ -301,9 +301,9 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     int commonExpires = -1;
     UtlString registerToStr;
     toUrl.getIdentity(registerToStr);
-    
+
     // check if we are dealing with a registering UA that is located
-    // behind a remote NAT.  If that is the case then we want to 
+    // behind a remote NAT.  If that is the case then we want to
     // use shorter registration expiry values to ensure that pinholes
     // get quickly re-established after network outages or system/component
     // reboots (XX-5986).
@@ -315,7 +315,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     {
        pExpiryIntervals = &mNormalExpiryIntervals;
     }
-    
+
     // get the expires header from the register message
     // this may be overridden by the expires parameter on each contact
     if ( registerMessage.getExpiresField( &commonExpires ) )
@@ -349,7 +349,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
         // We act on the stored registrations only if all checks pass, in
         // a second iteration over the ResultSet below.
         // ****************************************************************
-       
+
        ResultSet registrations; // built up during validation, acted on if all is well
 
         int contactIndexCount;
@@ -455,7 +455,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            }
                            pathStr.append( tempPathUriStr );
                         }
-                        
+
                         // Build the row for the validated contacts hash
                         UtlHashMap registrationRow;
 
@@ -697,7 +697,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
-                        imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt, 
+                        imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt,
                                                  timeNow, primaryName(),
                                                  mDbUpdateNumber );
                     }
@@ -711,7 +711,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         returnStatus = REGISTER_QUERY;
                     }
                 }
-                
+
                 // Only if this was a good registration:
                 // update reg event content, persist the xml, and do registration hooks
                 if ( REGISTER_SUCCESS == returnStatus )
@@ -765,7 +765,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
     return returnStatus;
 }
-    
+
 
 Int64
 SipRegistrarServer::applyUpdatesToDirectory(
@@ -902,7 +902,7 @@ Int64 SipRegistrarServer::updateOneBinding(
    assert(reg);
    assert(imdb);
 
-   // Don't require updateNumbers to be in order because when pulling updates, 
+   // Don't require updateNumbers to be in order because when pulling updates,
    // updateNumber order is not guaranteed.
 
    // Update the registrar state and the binding
@@ -982,7 +982,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     int msgSubType = eventMessage.getMsgSubType();
 
     UtlBoolean handled = FALSE;
-    
+
     // Timer event
     if(   msgType    == OsMsg::OS_EVENT
        && msgSubType == OsEventMsg::NOTIFY
@@ -1051,9 +1051,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                "Allowing use of domain alias; To domain '%s' -> '%s'",
                                alias.data(), mRegistrar.defaultDomain());
               }
-              toUri.setHostAddress(mRegistrar.defaultDomain() ); 
+              toUri.setHostAddress(mRegistrar.defaultDomain() );
            }
-           
+
            // check in credential database if authentication needed
            if ( isAuthorized( toUri, message, finalResponse ) )
             {
@@ -1142,7 +1142,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                             OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage - "
-                                          "processing contact '%s'", contact.data());                        
+                                          "processing contact '%s'", contact.data());
                             Url contactUri( contact );
 
                             UtlString expiresStr;
@@ -1167,7 +1167,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                              "adding q '%s'", qvalue.data());
 
                                //check if q value is numeric and between the range 0.0 and 1.0
-                               RegEx qValueValid(RegQValue); 
+                               RegEx qValueValid(RegQValue);
                                if (qValueValid.Search(qvalue.data()))
                                {
                                   contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
@@ -1181,7 +1181,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
                             OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                           "SipRegistrarServer::handleMessage"
-                                          " - value %p, instance_id %p, instanceIdKey = '%s'", 
+                                          " - value %p, instance_id %p, instanceIdKey = '%s'",
                                            record.findValue(&instanceIdKey),
                                            instance_id, instanceIdKey.data());
                             if (instance_id && !instance_id->isNull() &&
@@ -1215,21 +1215,21 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                }
                             }
 
-                            // Undo the transformations made to the Contact by the 
+                            // Undo the transformations made to the Contact by the
                             // sipXproxy for NAT traversal.  These transformations
-                            // effectively create a Contact that will cause a UAC compliant 
-                            // with section 19.1.4 of RFC 3261 to fail to match the 
+                            // effectively create a Contact that will cause a UAC compliant
+                            // with section 19.1.4 of RFC 3261 to fail to match the
                             // Contact returned in the 200 OK with the one it sent.
                             // We have seen that this causes interop problems
                             // with some phones.  As a results, steps are taken here
-                            // to undo the transformations that sipXproxy applied to the 
+                            // to undo the transformations that sipXproxy applied to the
                             // Contact.  See XX-5926 for details.
                             UtlString privateContact;
                             if( contactUri.getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, privateContact, 0 ) )
                             {
                                Url privateContactAsUrl;
                                UtlString hostAddressString;
-                               
+
                                privateContactAsUrl.fromString( privateContact );
                                privateContactAsUrl.getHostAddress( hostAddressString );
                                contactUri.setHostAddress( hostAddressString );
@@ -1311,7 +1311,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         break;
 
                     default:
-                       OsSysLog::add( FAC_SIP, PRI_ERR, 
+                       OsSysLog::add( FAC_SIP, PRI_ERR,
                                      "Invalid result %d from applyRegisterToDirectory",
                                      applyStatus
                                      );
@@ -1358,13 +1358,13 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
                          "Sending final response\n%s", finalMessageStr.data());
         }
-        
+
         mSipUserAgent->send(finalResponse);
 
         handled = TRUE;
     }
     else if ( msgType == OsMsg::OS_SHUTDOWN )
-    {      
+    {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRegistrarServer::handleMessage received shutdown request"
                      );
@@ -1396,7 +1396,7 @@ SipRegistrarServer::isAuthorized(
 
     UtlString identity;
     toUri.getIdentity(identity);
-    
+
     if ( !mUseCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized "
@@ -1509,7 +1509,7 @@ SipRegistrarServer::isAuthorized(
             responseMessage.setRequestUnauthorized ( &message, HTTP_DIGEST_AUTHENTICATION, mRealm,
                                                     newNonce, NULL // opaque
                                                     );
-            
+
         }
     }
     return isAuthorized;
@@ -1575,7 +1575,7 @@ void SipRegistrarServer::scheduleCleanAndPersist()
    assert(persistThread);
    persistThread->scheduleCleanAndPersist();
 }
-  
+
 /// Garbage-collect and persist the registration database
 void SipRegistrarServer::cleanAndPersist()
 {
@@ -1637,10 +1637,10 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    {
       { // lock before changing the epoch update number
          OsLock lock(sLockMutex);
-            
+
          setDbUpdateNumber(newEpoch);
       } // release lock before logging
-   
+
       OsSysLog::add(FAC_SIP, PRI_INFO,
                     "SipRegistrarServer::resetDbUpdateNumberEpoch to %" FORMAT_INTLL "x",
                     newEpoch
@@ -1649,7 +1649,7 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    else if (newEpoch + (((Int64) (15 * 60)) << 32) /* 15 minutes */ < current)
    {
       // If the new epoch number is more than 15 minutes less than the
-      // highest update number that has already been used, 
+      // highest update number that has already been used,
       // warn the user that there may be problems -- the update mechanism will
       // work OK, but it's likely that there are future-dated registrations
       // in the database, and they will take a long time to time out.
@@ -1674,10 +1674,10 @@ void SipRegistrarServer::restoreDbUpdateNumber()
 
 // inspect the first contact of the request and look for the presence of
 // a x-sipX-privcontact URL parameter which indicates that the request comes
-// from a UA that is located behind a NAT.  Note that this routine only 
-// tests for the first of possibly many contacts - this is good enough 
+// from a UA that is located behind a NAT.  Note that this routine only
+// tests for the first of possibly many contacts - this is good enough
 // given that every contact will carry the x-sipX-privcontact parameter
-// when the UA is behind a NAT. 
+// when the UA is behind a NAT.
 bool SipRegistrarServer::isRegistrantBehindNat( const SipMessage& registerRequest ) const
 {
    bool bIsBehindNat = false;
@@ -1693,18 +1693,18 @@ bool SipRegistrarServer::isRegistrantBehindNat( const SipMessage& registerReques
    }
    return bIsBehindNat;
 }
-      
+
 SipRegistrarServer::~SipRegistrarServer()
 {
 }
 
-void RegisterPlugin::takeAction( const SipMessage&   registerMessage  
-                                ,const unsigned int  registrationDuration 
+void RegisterPlugin::takeAction( const SipMessage&   registerMessage
+                                ,const unsigned int  registrationDuration
                                 ,SipUserAgent*       sipUserAgent
                                 )
 {
    assert(false);
-   
+
    OsSysLog::add(FAC_SIP, PRI_ERR,
                  "RegisterPlugin::takeAction not resolved by configured hook"
                  );

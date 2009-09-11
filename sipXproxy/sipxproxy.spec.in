@@ -22,8 +22,8 @@ BuildRoot: %{_tmppath}/%name-%version-root
 %description
 RFC 3261 compliant SIP proxy called sipXproxy:
 The sipXproxy is used in the sipXpbx project. However it may be used
-independently from the PBX as a stand-alone SIP proxy. The sipXregistry 
-may also be used with the sipXproxy though it is not necessary. The 
+independently from the PBX as a stand-alone SIP proxy. The sipXregistry
+may also be used with the sipXproxy though it is not necessary. The
 sipXproxy provides service level routing, parallel and serial forking
 and AAA services.
 
@@ -56,7 +56,7 @@ postgres database records from data.
 Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
-Summary: Internal documentation for %name 
+Summary: Internal documentation for %name
 Requires: sipxcommserverlib-devel >= %version
 
 %description devel
@@ -74,7 +74,7 @@ make
 
 # makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
 # libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use 
+# our makefiles are built, they'd rather preserve libdir, and use
 # DESTDIR when copying/moving/creating files.  The approach we're taking
 # is quite standard, so it's surprising RPM's makeinstall macro is
 # the way it is.

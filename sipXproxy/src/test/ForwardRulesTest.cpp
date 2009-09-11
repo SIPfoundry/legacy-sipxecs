@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -43,7 +43,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
-            
+
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -62,7 +62,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("CONFIG_SERVER", theRoute.data());
          ASSERT_STR_EQUAL("config", mappingType.data());
       }
-   
+
 
       void testSimpleMapDefault()
       {
@@ -71,7 +71,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
-            
+
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -99,7 +99,7 @@ class ForwardRulesTest : public CppUnit::TestCase
          UtlString     mappingType;
          bool          authRequired;
          UtlString     rulesFile(TEST_DATA_DIR "/rulesdata/simple.xml");
-            
+
          CPPUNIT_ASSERT( theRules.loadMappings(rulesFile, MS, VM, LH )
                         == OS_SUCCESS
                         );
@@ -333,4 +333,3 @@ class ForwardRulesTest : public CppUnit::TestCase
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ForwardRulesTest);
-

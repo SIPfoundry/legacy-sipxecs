@@ -17,5 +17,4 @@ EXTRA_DIST = \
 install-exec-hook : $(foreach file,$(sql_files),$(DESTDIR)/$(sysconfdir)/sipxpbx/cdr/$(file))
 
 $(foreach file,$(sql_files),$(DESTDIR)/$(sysconfdir)/sipxpbx/cdr/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/cdr/% : %
-	$(INSTALL) -D -m 644 $< $@; 
-
+	$(INSTALL) -D -m 644 $< $@;

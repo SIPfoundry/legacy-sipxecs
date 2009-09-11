@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -72,10 +72,10 @@ public:
 
     /// top level task
     virtual int run(void* pArg);
-    
+
     /// Signal the task that it is time to shut down.
     virtual void requestShutdown();
-    
+
     /// Receive SIP or other OS messages.
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */
@@ -86,13 +86,13 @@ public:
      * Begins operation of the HTTP/RPC service
      * sets mHttpServer and mXmlRpcDispatch
      */
-    
+
     /// Launch all Startup Phase threads and wait until synchronization state is known
     void startupPhase();
     /**<
      * Begin the RegistrarInitialSync thread and wait for it to finish
      */
-    
+
     /// Launch all Operational Phase threads.
     UtlBoolean operationalPhase();
     /**<
@@ -114,7 +114,7 @@ public:
     /**<
      * Sets mReplicationConfigured=true if replication is configured.
      */
-    
+
     /// If replication is configured, then name of this registrar as primary
     const UtlString& primaryName() const;
 
@@ -141,7 +141,7 @@ public:
 
     /// Get the RegistrarTest thread object
     RegistrarTest* getRegistrarTest();
-    
+
     /// Get the RegistrarSync thread object
     RegistrarSync* getRegistrarSync();
 
@@ -151,13 +151,13 @@ public:
 
     /// Return true if replication is configured, false otherwise
     bool isReplicationConfigured();
-    
+
     /// Get the RegistrationDB object
     RegistrationDB* getRegistrationDB();
 
     /// Get the config DB
     OsConfigDb* getConfigDB();
-    
+
     // Is this registrar authoritative for the domain in this URL?
     bool isValidDomain(const Url& uri) const;
     /**<
@@ -166,7 +166,7 @@ public:
      * - false if not
      */
 
-    /// Get the default domain name for this registrar 
+    /// Get the default domain name for this registrar
     const char* defaultDomain() const;
 
     /// Get the proxy port for the domain
@@ -199,12 +199,12 @@ private:
    HttpServer*     mHttpServer;
    XmlRpcDispatch* mXmlRpcDispatch;
 
-   bool      mReplicationConfigured; /// master switch for replication 
-   UtlString mPrimaryName;           ///< full name of this host as primary 
+   bool      mReplicationConfigured; /// master switch for replication
+   UtlString mPrimaryName;           ///< full name of this host as primary
    UtlSList  mPeers;                 ///< list of RegisterPeer objects.
-   
+
    SipUserAgent* mSipUserAgent;
-   
+
    SipRedirectServer* mRedirectServer;
    OsMsgQ* mRedirectMsgQ;
 
@@ -225,7 +225,7 @@ private:
    // will be removed, or PORT_NONE
    int mProxyNormalPort;
    UtlString mBindIp;    /// Local Ip address to bind on
-    
+
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);

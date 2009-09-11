@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////// SubscribeServerThread.h: interface for the SubscribeServerThread class.
 //
@@ -28,7 +28,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipMessage;
-class SipUserAgent;  
+class SipUserAgent;
 class StatusServer;
 class Notifier;
 class PluginXmlParser;
@@ -37,7 +37,7 @@ class SubscribeServerPluginBase;
 class UtlHashMap;
 
 
-class SubscribeServerThread : public OsServerTask  
+class SubscribeServerThread : public OsServerTask
 {
 public:
     UtlBoolean initialize (
@@ -118,26 +118,26 @@ protected:
     UtlString mDefaultDomainHostIP;
     SipNonceDb mNonceDb;
     PluginXmlParser* mPluginTable;
-    
+
     /// This semaphore mediates access to the subscription DB
     OsBSem mLock;
 
     //int addUserToDirectory(const int timeNow, const SipMessage* registerMessage);
     UtlBoolean handleMessage( OsMsg& eventMessage );
 
-    UtlBoolean isAuthenticated( 
-        const SipMessage* message, 
-        SipMessage *responseMessage, 
-        UtlString& authenticatedUser, 
+    UtlBoolean isAuthenticated(
+        const SipMessage* message,
+        SipMessage *responseMessage,
+        UtlString& authenticatedUser,
         UtlString& authenticatedRealm  );
 
     UtlBoolean isAuthorized(
-        const SipMessage* message, 
-        SipMessage *responseMessage, 
+        const SipMessage* message,
+        SipMessage *responseMessage,
         StatusPluginReference* plugin = NULL );
 
     UtlBoolean isValidDomain(
-        const SipMessage* message, 
+        const SipMessage* message,
         SipMessage * responseMessage );
 
     // Process the message as a prospective database change.
@@ -152,9 +152,9 @@ protected:
        );
 
     /**
-     * 
+     *
      * @param sipMessage
-     * 
+     *
      * @return
      */
     int removeErrorSubscription(const SipMessage& sipMessage);

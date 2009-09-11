@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -58,7 +58,7 @@ void RegistrarPeer::rpcURL(Url& url)
 RegistrarPeer::SynchronizationState RegistrarPeer::synchronizationState()
 {
    OsLock mutex(mLock);
-   
+
    return mSyncState;
 }
 
@@ -66,10 +66,10 @@ RegistrarPeer::SynchronizationState RegistrarPeer::synchronizationState()
 void RegistrarPeer::markUnReachable()
 {
    bool notifyTestThread = false;
-   
+
    { // lock scope
       OsLock mutex(mLock);
-   
+
       // If the peer was previously UnReachable, then marking it UnReachable again
       // is a noop.  If the peer was Reachable or Uninitialized,
       // then notify the test thread so that we can try to reach the peer
@@ -88,7 +88,7 @@ void RegistrarPeer::markUnReachable()
       case UnReachable:
          // we already know this... no-op
          break;
-         
+
       case Incompatible:
          // You can never go from Incompatible to any other state.
          break;
@@ -97,7 +97,7 @@ void RegistrarPeer::markUnReachable()
          assert(false); // invalid mSyncState value
       }
    }  // release lock before signalling RegistrarTest thread
-   
+
    if (notifyTestThread)
    {
       RegistrarTest* registrarTestThread = mRegistrar->getRegistrarTest();
@@ -113,18 +113,18 @@ void RegistrarPeer::markUnReachable()
 void RegistrarPeer::markReachable()
 {
    RegistrarSync* notifySyncThread = NULL;
-   
+
    { // lock scope
       OsLock mutex(mLock);
-   
+
       if ( Incompatible != mSyncState ) // there is no escape from Incompatible
       {
          notifySyncThread = (  mSyncState != Reachable
                              ? mRegistrar->getRegistrarSync() // not reachable, so get the thread
                              : NULL // reachable, so no need to notify the thread again
-                             );   
+                             );
          mSyncState = Reachable;
-      
+
          OsSysLog::add(FAC_SIP, PRI_INFO,
                        "RegistrarPeer peer '%s' is Reachable", name());
       }
@@ -136,7 +136,7 @@ void RegistrarPeer::markReachable()
                        );
       }
    }  // release lock before signalling RegistrarSync thread
-   
+
    if (notifySyncThread)
    {
       // Tell the RegistrarSync thread to start updating
@@ -167,7 +167,7 @@ void RegistrarPeer::setState(SynchronizationState state)
    case Reachable:
       markReachable();
       break;
-   
+
    case UnReachable:
       markUnReachable();
       break;
@@ -192,7 +192,7 @@ const char* RegistrarPeer::getStateName()
 Int64 RegistrarPeer::sentTo()
 {
    OsLock mutex(mLock);
-   
+
    return mSentTo;
 }
 
@@ -200,21 +200,20 @@ Int64 RegistrarPeer::sentTo()
 Int64 RegistrarPeer::receivedFrom()
 {
    OsLock mutex(mLock);
-   
+
    return mReceivedFrom;
 }
 
 void RegistrarPeer::setSentTo(Int64 updateNumber)
 {
    OsLock mutex(mLock);
-   
+
    mSentTo = updateNumber;
 }
 
 void RegistrarPeer::setReceivedFrom(Int64 updateNumber)
 {
    OsLock mutex(mLock);
-   
+
    mReceivedFrom = updateNumber;
 }
-

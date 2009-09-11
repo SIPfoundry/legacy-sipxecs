@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -120,11 +120,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
@@ -143,7 +143,7 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
-         
+
          // now simulate a spiral with the same message
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(identity,
@@ -196,7 +196,7 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
@@ -219,7 +219,7 @@ public:
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
 
          RouteState spiraledRouteState(testMsg, noRemovedRoutes, routeName);
-         
+
          // Insert invalid AuthIdentity
          testMsg.addHeaderField("X-Sipx-Authidentity", "<sip:invalid@anonymous;signature=46A66059%3Ab1b86dffc2e38191cdfad0500bf9a209>");
 
@@ -271,7 +271,7 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("ACK");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW;
@@ -310,7 +310,7 @@ public:
 
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(0, &recordRoute));
       }
-   
+
 
    // Test that a response message is allowed and is not modified
    void testNoPermResponse()
@@ -343,7 +343,7 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::ALLOW; // SipRouter passes this for responses
@@ -392,11 +392,11 @@ public:
          RouteState routeState( testMsg, noRemovedRoutes, routeName );
 
          UtlString rejectReason;
-         
+
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
@@ -412,7 +412,7 @@ public:
          // now try the same request, but with an authenticated identity
          // so this time it should provide a reject reason
          identity = "user@example.com";
-         
+
          CPPUNIT_ASSERT(AuthPlugin::DENY
                         == enforcer->authorizeAndModify(identity,
                                                         requestUri,
@@ -435,7 +435,7 @@ public:
          UtlSList noRemovedRoutes;
 
          UtlString rejectReason;
-         
+
          const char* okMessage =
             "INVITE sip:user@boat SIP/2.0\r\n" // 'lodge' requires 'hunting' permission
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -563,7 +563,7 @@ public:
 
          rejectReason.remove(0);
          authIdentity.insert(allowedMsg, SipXauthIdentity::AuthIdentityHeaderName);
-         
+
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(identity,
                                                         noprivRequestUri,
@@ -617,7 +617,7 @@ public:
          UtlSList noRemovedRoutes;
 
          UtlString rejectReason;
-         
+
          const char* okMessage =
             "INVITE sip:user@boat SIP/2.0\r\n" // 'lodge' requires 'hunting' permission
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -636,7 +636,7 @@ public:
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          // confirm that supercaster can call boat
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(identity,
@@ -667,9 +667,9 @@ public:
          UtlSList noRemovedRoutes;
 
          UtlString rejectReason;
-         
+
          const char* okMessage =
-            "INVITE sip:user@boat SIP/2.0\r\n" 
+            "INVITE sip:user@boat SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
             "To: sip:user@boat\r\n"
             "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
@@ -686,7 +686,7 @@ public:
          UtlString method("INVITE");
          const bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          // confirm that supercaster can call boat
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == enforcer->authorizeAndModify(identity,
@@ -731,7 +731,7 @@ public:
 
          // verify that it is still mutable (has no To tag or signed Route header)
          CPPUNIT_ASSERT(newdialogRouteState.isMutable());
-         
+
          // confirm that the spiraled new dialog message with that route is
          // not allowed even though it is not authenticated.
          UtlString noIdentity;

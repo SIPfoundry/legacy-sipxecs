@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +166,7 @@ SipRedirectorGateway::initialize(OsConfigDb& configDb,
       // Start the writer task.
       mWriterTask.start();
    }
-   
+
    return mReturn;
 }
 
@@ -220,7 +220,7 @@ SipRedirectorGateway::lookUp(
          mMapLock.release();
 
          if (!hostpart.isNull())
-         {            
+         {
             // Add the contact.
             UtlString s("sip:");
             s.append(hostpart);
@@ -629,7 +629,7 @@ SipRedirectorGateway::processForm(const HttpRequestContext& requestContext,
       HttpBody* response_body = new HttpBody(form, -1, CONTENT_TYPE_TEXT_HTML);
       response->setBody(response_body);
    }
-   
+
 #if 0
 
 #if 0

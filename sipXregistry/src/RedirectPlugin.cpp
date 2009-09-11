@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,12 +39,12 @@ RedirectPlugin::~RedirectPlugin()
 }
 
 void RedirectPlugin::observe(
-   const SipMessage& message,      
-   const UtlString& requestString, 
-   const Url& requestUri,          
-   const UtlString& method,        
-   const ContactList& contactList,   
-   RequestSeqNo requestSeqNo,      
+   const SipMessage& message,
+   const UtlString& requestString,
+   const Url& requestUri,
+   const UtlString& method,
+   const ContactList& contactList,
+   RequestSeqNo requestSeqNo,
    int redirectorNo )
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RedirectPlugin::observe() [%s] called for %s",
@@ -58,7 +58,7 @@ void RedirectPlugin::cancel(RequestSeqNo request)
 }
 
 // Null default readConfig() implementation
-void 
+void
 RedirectPlugin::readConfig(OsConfigDb& configDb)
 {
 }
@@ -78,14 +78,14 @@ ErrorDescriptor::ErrorDescriptor() :
    mReasonPhrase           ( SIP_FORBIDDEN_TEXT ),
    mWarningCode            ( UNINITIALIZED_WARNING_CODE ),
    mAppendRequestToResponse( false )
-{   
+{
 }
 
 ErrorDescriptor::~ErrorDescriptor()
 {
    mOptionalFieldsValues.destroyAll();
 }
-   
+
 bool ErrorDescriptor::setStatusLineData( const int statusCode, const UtlString& reasonPhrase )
 {
    bool result = false;
@@ -177,7 +177,7 @@ void ErrorDescriptor::getStatusLineData( int& statusCode, UtlString& reasonPhras
 
 bool ErrorDescriptor::getWarningData( int& warningCode, UtlString& warningText ) const
 {
-   bool result = isWarningDataSet();  
+   bool result = isWarningDataSet();
    if( result )
    {
       warningCode = mWarningCode;
@@ -225,7 +225,7 @@ bool ErrorDescriptor::getOptinalFieldValue( const UtlString& fieldName, UtlStrin
 {
    bool result = false;
    UtlString* pReturnedValue;
-   
+
    pReturnedValue = dynamic_cast<UtlString*>(mOptionalFieldsValues.findValue( &fieldName ) );
    if( pReturnedValue )
    {
@@ -263,7 +263,7 @@ bool ContactList::add( const UtlString& contact, const RedirectPlugin& plugin )
    OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::add(): %s added contact for '%s':\n"
                              "   '%s' (contact index %d)",
                              plugin.name().data(),
-                             mRequestString.data(), 
+                             mRequestString.data(),
                              contact.data(),
                              mContactList.size() - 1 );
    return true;
@@ -287,8 +287,8 @@ bool ContactList::set( size_t index, const UtlString& contact, const RedirectPlu
                                 "   now is: '%s'",
                                 plugin.name().data(),
                                 index,
-                                mRequestString.data(),                                 
-                                mContactList[ index ].data(), 
+                                mRequestString.data(),
+                                mContactList[ index ].data(),
                                 contact.data() );
       mContactList[ index ] = contact;
    }
@@ -297,7 +297,7 @@ bool ContactList::set( size_t index, const UtlString& contact, const RedirectPlu
       OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::set(): %s failed to set contact index %d - list only has %d elements",
                                 plugin.name().data(),
                                 index,
-                                mContactList.size() ); 
+                                mContactList.size() );
    }
    return success;
 }
@@ -314,9 +314,9 @@ bool ContactList::get( size_t index, UtlString& contact ) const
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "ContactList::get(): plugin failed to get contact index %d - list only has %d elements",
                                 index,
-                                mContactList.size() ); 
+                                mContactList.size() );
    }
-   return success;   
+   return success;
 }
 
 bool ContactList::get( size_t index, Url& contactUrl ) const
@@ -336,14 +336,14 @@ bool ContactList::remove( size_t index, const RedirectPlugin& plugin )
    if( index < mContactList.size() )
    {
       success = true;
-      mbListWasModified = true;   
+      mbListWasModified = true;
 
       OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::remove(): %s removed contact index %d  for '%s':\n"
                                         "   was:    '%s'",
                                 plugin.name().data(),
                                 index,
-                                mRequestString.data(),                                 
-                                mContactList[ index ].data() ); 
+                                mRequestString.data(),
+                                mContactList[ index ].data() );
 
       mContactList.erase( mContactList.begin() + index );
    }
@@ -352,9 +352,9 @@ bool ContactList::remove( size_t index, const RedirectPlugin& plugin )
       OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::remove(): %s failed to remove contact index %d - list only has %d elements",
                                 plugin.name().data(),
                                 index,
-                                mContactList.size() ); 
+                                mContactList.size() );
    }
-   return success;   
+   return success;
 }
 
 bool ContactList::removeAll( const RedirectPlugin& plugin )
@@ -364,7 +364,7 @@ bool ContactList::removeAll( const RedirectPlugin& plugin )
                              mContactList.size(),
                              mRequestString.data() );
 
-   mbListWasModified = true;   
+   mbListWasModified = true;
    mContactList.clear();
    return true;
 }

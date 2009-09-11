@@ -1,10 +1,10 @@
 INCLUDES = \
 	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/include 
+	-I$(top_srcdir)/include
 
 noinst_LTLIBRARIES = \
     libDummyRedirectPlugin.la
-    
+
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
 version_Current=1
@@ -33,9 +33,9 @@ libDummyRedirectPlugin_la_CXXFLAGS = \
     -I$(top_builddir)/config
 
 libDummyRedirectPlugin_la_SOURCES =  \
-    DummyRedirectPlugin.cpp 
+    DummyRedirectPlugin.cpp
 
-     
+
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 # These tests are split into multiple executables because the machinery
@@ -48,7 +48,7 @@ check_PROGRAMS = testsuite1 testsuite2 testsuite3 testsuite4 sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
-    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\" 
+    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\"
 
 testsuite_LDADD = \
    @SIPXCOMMSERVERTEST_LIBS@ \

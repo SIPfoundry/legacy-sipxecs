@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,24 +36,24 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          UtlString     rulesFile1(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isEnabled() == true );
-         
+
          UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules2.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isEnabled() == false );
       }
-   
+
       void testBehindNat()
       {
          NatTraversalRules theRules;
          UtlString     rulesFile1(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isBehindNat() == true );
-         
+
          UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules2.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isBehindNat() == false );
       }
-      
+
       void testGetPublicIpAddress()
       {
          NatTraversalRules theRules;
@@ -61,7 +61,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile ) == OS_SUCCESS );
          ASSERT_STR_EQUAL( "200.200.200.1", theRules.getPublicTransportInfo().getAddress().data() );
       }
-   
+
       void testGetPublicPort()
       {
          NatTraversalRules theRules;
@@ -69,7 +69,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.getPublicTransportInfo().getPort() == 6666 );
       }
-   
+
       void testGetProxyHostPort()
       {
          NatTraversalRules theRules1;
@@ -113,13 +113,13 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          UtlString     rulesFile1(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules1.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isXmlRpcSecured() == true );
-         
+
          // test secure set to false
          UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules2.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.isXmlRpcSecured() == false );
       }
-      
+
       void testIsPartOfLocalTopology()
       {
          NatTraversalRules theRules;
@@ -130,12 +130,12 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "9.0.0.1" ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "10.0.0.1" ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "11.0.0.1" ) == 0 );
-         
+
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.15.0.1" ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.32.0.1" ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.16.0.1" ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.31.0.1" ) == 1 );
-                
+
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "192.167.0.1" ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "192.168.0.1" ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "192.169.0.1" ) == 0 );
@@ -144,18 +144,18 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.16.0.1" , false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "172.31.0.1" , false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "192.168.0.1", false ) == 0 );
-         
+
          // check DNS wildcards
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.aaa.com"  ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "host.aaaa.com"      ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.aaaa.com" ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "aaaa.com"           ) == 1 );
-          
+
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.bbb.bbbb.com"  ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "host.bbbb.bbbb.com"      ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.bbbb.bbbb.com" ) == 1 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "bbbb.bbbb.com"           ) == 1 );
-          
+
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "host.aaaa.com"          , true, false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.aaaa.com"     , true, false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "aaaa.com"               , true, false ) == 0 );
@@ -163,7 +163,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "some.host.bbbb.bbbb.com", true, false ) == 0 );
          CPPUNIT_ASSERT( theRules.isPartOfLocalTopology( "bbbb.bbbb.com"          , true, false ) == 0 );
       }
-      
+
       void testGetMaxMediaRelaySessions()
       {
          NatTraversalRules theRules;
@@ -172,7 +172,7 @@ class NatTraversalRulesTest : public CppUnit::TestCase
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile1 ) == OS_SUCCESS );
          CPPUNIT_ASSERT( theRules.getMaxMediaRelaySessions() == 125 );
          CPPUNIT_ASSERT( theRules.isEnabled() == true );
-         
+
          // port range = 30000-30016
          UtlString     rulesFile2(TEST_DATA_DIR "/NatTraversalAgent/maxrelaysessiontest2.xml");
          CPPUNIT_ASSERT( theRules.loadRules( rulesFile2 ) == OS_SUCCESS );
@@ -192,4 +192,3 @@ class NatTraversalRulesTest : public CppUnit::TestCase
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(NatTraversalRulesTest);
-

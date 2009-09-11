@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ class TransferControlTest : public CppUnit::TestCase
    CPPUNIT_TEST(UnAuthenticatedReferWithoutReplaces);
    CPPUNIT_TEST(AuthenticatedRefer);
    CPPUNIT_TEST(UnAuthenticatedForiegnRefer);
-   
+
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -45,7 +45,7 @@ public:
    static TransferControl* xferctl;
    static SipUserAgent     testUserAgent;
    static SipRouter*       testSipRouter;
-   
+
    void setUp()
       {
          TransferTestContext = new FileTestContext(TEST_DATA_DIR "/transfer-control",
@@ -75,7 +75,7 @@ public:
          testUserAgent.setForking(FALSE);  // Disable forking
 
          UtlString hostAliases("sipx.example.edu example.edu");
-         
+
          testUserAgent.setHostAliases(hostAliases);
 
          OsConfigDb configDb;
@@ -113,11 +113,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INFO");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -163,11 +163,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("REFER");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -218,11 +218,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -268,11 +268,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -318,11 +318,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("REFER");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::DENY
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -382,11 +382,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("REFER");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::DENY
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -400,7 +400,7 @@ public:
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
       }
 
-   
+
    // Test that an authenticated REFER without Replaces is allowed and annotated
    void AuthenticatedRefer()
       {
@@ -427,11 +427,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("REFER");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -487,11 +487,11 @@ public:
 
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("REFER");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::ALLOW
                         == xferctl->authorizeAndModify(identity,
                                                        requestUri,
@@ -504,7 +504,7 @@ public:
                                                        ));
          ASSERT_STR_EQUAL(unmodifiedRejectReason, rejectReason.data());
       }
-   
+
 private:
    ForwardRules  mForwardingRules;
 };

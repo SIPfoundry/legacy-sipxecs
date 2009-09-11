@@ -23,7 +23,7 @@
             - Transform URI to Deposit to Users Voice Mail
             - {digits} substitutes the user part of the target URI
             - {mediaserver} and {voicemail} substitute values from
-            - the registrar-config file (SIP_REGISTRAR_MEDIA_SERVER and 
+            - the registrar-config file (SIP_REGISTRAR_MEDIA_SERVER and
             - SIP_REGISTRAR_VOICEMAIL_SERVER respectively).
             -
             - {digits-escaped} is the same substitution as above but HTTP

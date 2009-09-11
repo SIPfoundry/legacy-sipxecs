@@ -1,6 +1,6 @@
 #!@BASH@
 #
-# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
@@ -22,7 +22,7 @@ do
         *)
             Args="$Args $1"
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -76,11 +76,11 @@ EOF
              fi
              for h in ${SyncWith}
              do
-               if ! sip_resolves_to $myRegDomain $h 
+               if ! sip_resolves_to $myRegDomain $h
                then
                    cat <<EOF
     Warning: SIP Domain '$myRegDomain' does not resolve to registrar host '$h'
-             This is ok only if the proxy on $h is configured to forward to the 
+             This is ok only if the proxy on $h is configured to forward to the
              correct set of registrars.  The recommended configuration is to always
              run a registrar on each host that runs a proxy.
 EOF
@@ -89,7 +89,7 @@ EOF
              done
          fi
      fi
-     
+
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipregistrar.log"
      if [ -e $logfile -a ! -w $logfile ]
@@ -102,4 +102,3 @@ EOF
 esac
 
 exit $Status
-

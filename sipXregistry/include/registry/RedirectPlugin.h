@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,45 +39,45 @@ class ErrorDescriptor;
 
 /**
  * <b>SIP Redirect Plug-in overview</b>
- * 
+ *
  *  A redirect plug-in is a logical entity that is, in its general form,
  *  responsible for mapping a Request URI to a set of one or more
- *  alternative locations at which the target of that URI can be found.  
- *  A redirect plug-in is at liberty of choosing the redirection policies by 
+ *  alternative locations at which the target of that URI can be found.
+ *  A redirect plug-in is at liberty of choosing the redirection policies by
  *  which it establishes that mapping but it will generally be dictated
  *  by the nature of the specialized redirection function that it
- *  provides. For example, a redirector plug-in whose function it is to map an AOR to 
+ *  provides. For example, a redirector plug-in whose function it is to map an AOR to
  *  its registered Contacts will do so by consulting the location database.
- *  
+ *
  * <b>Relationship with the SIP Redirect Server</b>
- * 
+ *
  *  Each Redirect Plug-in is created by the SIP Redirect Server (see SipRedirectServer).
- *  For every request that the SIP Redirect Server processes it will 
+ *  For every request that the SIP Redirect Server processes it will
  *  call the plug-in's lookUp() or observe() method based on whether or not
- *  it wants the plug-in to provide Contacts for the request or merely observe it. 
- * 
+ *  it wants the plug-in to provide Contacts for the request or merely observe it.
+ *
  * <b>paragraph Redirect Plug-in requirements</b>
- *  
- *  In order to create a redirect plug-in that will be called upon by the 
+ *
+ *  In order to create a redirect plug-in that will be called upon by the
  *  SipRedirectServer to play a part in the redirection effort, a certain
- *  set of requirements must be met.  
- *   - Firstly, the redirect plug-in must be derived from the RedirectPlugin 
- *     class and provide an implementation for its pure virtual methods and 
+ *  set of requirements must be met.
+ *   - Firstly, the redirect plug-in must be derived from the RedirectPlugin
+ *     class and provide an implementation for its pure virtual methods and
  *     optionally its virtual methods.
- *  
- *   - Secondly, to configure the redirect plug-in into the SipRedirectServer, 
- *     the registrar-config file must have a directive configuring the plugin 
+ *
+ *   - Secondly, to configure the redirect plug-in into the SipRedirectServer,
+ *     the registrar-config file must have a directive configuring the plugin
  *     library:
  *     @code
  *         SIP_REDIRECT_HOOK_LIBRARY.[###-UNIQUE_NAME] : [path to libexampleregplugin.so]
  *     @endcode
  *     Where: ### is a three-digit value representing the ordinal number for the plug-in.
- *            UNIQUE_NAME is a unique name representing the plugin. 
+ *            UNIQUE_NAME is a unique name representing the plugin.
  *            path points to the library that provides the plugin code.
- *     
- *   - Thirdly, the redirect plug-in must provide a factory routine named 
- *     getRedirectPlugin with extern "C" linkage so that the OsSharedLib mechanism 
- *     can look it up in the dynamically loaded library (looking up C++ symbols is 
+ *
+ *   - Thirdly, the redirect plug-in must provide a factory routine named
+ *     getRedirectPlugin with extern "C" linkage so that the OsSharedLib mechanism
+ *     can look it up in the dynamically loaded library (looking up C++ symbols is
  *     problematic because of name mangling).
  *     The factory routine looks like:
  *     @code
@@ -87,7 +87,7 @@ class ErrorDescriptor;
  *             friend RedirectPlugin* getRedirectPlugin(const UtlString& instanceName);
  *             ...
  *         };
- * 
+ *
  *         extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
  *         {
  *            return new ExampleRegisterPlugin(instanceName);
@@ -95,9 +95,9 @@ class ErrorDescriptor;
  *     @endcode
  *
  * @see Plugin
- * @see SipRedirectServer for more details on how and when the methods of RedirectPlugin are being called 
+ * @see SipRedirectServer for more details on how and when the methods of RedirectPlugin are being called
  *      and to get additional information about the redirection process in general.
- * 
+ *
  */
 
 class RedirectPlugin : public Plugin
@@ -136,8 +136,8 @@ class RedirectPlugin : public Plugin
     * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
     * in the registrar-config configuration file.
     * configDb is a UtlHashMap that gives the complete
-    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the 
-    * plug-in. 
+    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the
+    * plug-in.
     *
     * pSipUserAgent is a pointer to the SipUserAgent to use for
     * communication.
@@ -167,8 +167,8 @@ class RedirectPlugin : public Plugin
     * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
     * in the registrar-config configuration file.
     * configDb is a UtlHashMap that gives the complete
-    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the 
-    * plug-in. 
+    * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the
+    * plug-in.
     */
    virtual void readConfig(OsConfigDb& configDb);
 
@@ -182,9 +182,9 @@ class RedirectPlugin : public Plugin
    typedef enum LookUpStatus
    {
       // Start numbering status values from 1 so 0 is invalid.
-      ERROR = 1,          ///< The redirector reported an error.  The passed 
+      ERROR = 1,          ///< The redirector reported an error.  The passed
                           ///< ErrorDescriptor may be used to customize how that
-                          ///< error will be communicated back to the originator 
+                          ///< error will be communicated back to the originator
                           ///< via a SIP response.
       SEARCH_PENDING,     ///< The redirector needs the request to be suspended for
                           ///< asynchronous processing.
@@ -193,43 +193,43 @@ class RedirectPlugin : public Plugin
 
    /**
     * The SipRedirectServer calls this method to give a redirect plug-in a chance to
-    * process the request and adjust the supplied Contact list to satisfy the 
-    * redirection policy it implements.  
-    * 
-    * After considering the request, if a redirect plug-in establishes that 
+    * process the request and adjust the supplied Contact list to satisfy the
+    * redirection policy it implements.
+    *
+    * After considering the request, if a redirect plug-in establishes that
     * the request is not interesting given the redirection policy it implements,
-    * it must return SUCCESS and MUST NOT modify the supplied ContactList in ANY way.  
-    * 
-    * On the other hand, if the plug-in establishes that the request is one that 
+    * it must return SUCCESS and MUST NOT modify the supplied ContactList in ANY way.
+    *
+    * On the other hand, if the plug-in establishes that the request is one that
     * it should handle to affect its redirection, the plug-in must perform
     * all the necessary modifications tn the supplied ContactList to satisfy
     * the redirection policy it implements. These trasnformations include:
     *  - Addition of new contact(s);
     *  - Removal of one, many or all contacts;
-    *  - Modification of contact(s) already contributed by plug-ins that were 
+    *  - Modification of contact(s) already contributed by plug-ins that were
     *    called before it;
     *  - Touching the ContactList.
-    * 
-    * Once the ContactList modifications are completed, it must return SUCCES. 
-    * 
-    * When a redirect plug-in is asked to look-up a request, that plug-in, upon inspection
-    * of the request, may determine that the request is interesting but contains errors 
-    * that prevent it from processing it.  Examples of such error conditions may 
-    * include missing vital headers, invalid user or domain, unsupported extension, ... 
-    * In such cases, the plug-in must return the ERROR status code to force
-    * SipRedirectServer to return a final failure response to the requester.  The redirect 
-    * plug-in should also configure the supplied ErrorDescriptor to accurately represent  
-    * the error condition detected.     
     *
-    * If the redirect plug-in cannot complete the processing of the 
-    * request quickly, it must arrange for asynchronous processing that 
-    * will bring the redirector into a state where it can complete its processing 
-    * quickly and return SEARCH_PENDING.  Asynchronous processing then calls 
-    * RedirectPlugin::resumeRedirection() to indicate to the SipRedirectServer that 
+    * Once the ContactList modifications are completed, it must return SUCCES.
+    *
+    * When a redirect plug-in is asked to look-up a request, that plug-in, upon inspection
+    * of the request, may determine that the request is interesting but contains errors
+    * that prevent it from processing it.  Examples of such error conditions may
+    * include missing vital headers, invalid user or domain, unsupported extension, ...
+    * In such cases, the plug-in must return the ERROR status code to force
+    * SipRedirectServer to return a final failure response to the requester.  The redirect
+    * plug-in should also configure the supplied ErrorDescriptor to accurately represent
+    * the error condition detected.
+    *
+    * If the redirect plug-in cannot complete the processing of the
+    * request quickly, it must arrange for asynchronous processing that
+    * will bring the redirector into a state where it can complete its processing
+    * quickly and return SEARCH_PENDING.  Asynchronous processing then calls
+    * RedirectPlugin::resumeRedirection() to indicate to the SipRedirectServer that
     * the request should be reprocessed.
-    *  
+    *
     * @see SiPRedirectServer for more details on how lookUp is called and redirection in general.
-    * 
+    *
     */
    virtual LookUpStatus lookUp(
       const SipMessage& message,      ///< the incoming SIP message
@@ -239,7 +239,7 @@ class RedirectPlugin : public Plugin
       const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
       const UtlString& method,        ///< Method of the request to redirect
       ContactList& contactList,       ///< Modifiable list containing the contact(s) that the request
-                                      ///< should be redirected to.  
+                                      ///< should be redirected to.
       RequestSeqNo requestSeqNo,      ///< the request sequence number
       int redirectorNo,               ///< the identifier for this redirector
       class SipRedirectorPrivateStorage*& privateStorage, /**< the cell containing the pointer
@@ -255,7 +255,7 @@ class RedirectPlugin : public Plugin
     * a sufficiently high authority level to affect the redirection of the request
     * being presented.  This allows a plug-in to observe the request being redirected
     * and consult the ContactList in a read-only fashion.
-    */ 
+    */
    virtual void observe(
       const SipMessage& message,      ///< the incoming SIP message
       const UtlString& requestString, /**< the request URI from the SIP message as a UtlString
@@ -263,17 +263,17 @@ class RedirectPlugin : public Plugin
                                        *   should be with requestUri */
       const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
       const UtlString& method,        ///< Method of the request to observe
-      const ContactList& contactList, ///< Read-only list of contacts to use for redirection  
+      const ContactList& contactList, ///< Read-only list of contacts to use for redirection
       RequestSeqNo requestSeqNo,      ///< the request sequence number
       int redirectorNo                ///< the identifier for this redirector
                                );
-   
+
     /**
-     *  Every redirector plug-in must implement this method and return 
-     *  a string representing its name. 
+     *  Every redirector plug-in must implement this method and return
+     *  a string representing its name.
      */
    virtual const UtlString& name( void ) const = 0;
-      
+
 
    /**
     * Cancel processing of a request.
@@ -300,7 +300,7 @@ class RedirectPlugin : public Plugin
       Plugin(instanceName)
       {
       };
-    
+
    /**
     * Declare that a redirector is ready to reprocess a request.
     *
@@ -323,28 +323,28 @@ class RedirectPlugin : public Plugin
 
    /// There is no assignment operator.
    RedirectPlugin& operator=(const RedirectPlugin&);
-   
+
    friend class ContactListTest;
-    
+
 };
 
 /**
- *  The ContactList is a class that is intented to be used by redirector plugins 
+ *  The ContactList is a class that is intented to be used by redirector plugins
  *  to manipulate the set of Contacts found for a given Request-URI look-up.
  *  The ContactList interface is very simple and offers 6 kinds of operations:
- * 
+ *
  *  - add() operations    - allows a plug-in to add a new Contact entry to the list.
  *  - set() operations    - allows a plug-in to replace a Contact entry that is already
  *                          in the list.
  *  - get() operations    - allows a plug-in to get a Contact entry that is in the list.
- *  - remove() opetations - allows a plug-in to remove a specific Contact entry from the 
+ *  - remove() opetations - allows a plug-in to remove a specific Contact entry from the
  *                          list or all Contacts.
  *  - touch() opetation   - allows a plug-in to mark the list as having been modified
  *                          without altering any of its content.
- *  - entries() operation - allows a plug-in to get the number of Contacts contained in 
+ *  - entries() operation - allows a plug-in to get the number of Contacts contained in
  *                          the list.
  */
-class ContactList 
+class ContactList
 {
 public:
    // ================================================================
@@ -357,7 +357,7 @@ public:
    /**
     * method used to add a new Contact to the ContactList with the Contact being
     * specified as a Url object.
-    * 
+    *
     * @param contactUrl - Url containing the Contact to add to the list.
     * @param plugin     - Reference to the requesting plug-in - that information
     *                     is strictly used for logging purposes.
@@ -367,7 +367,7 @@ public:
    /**
     * method used to add a new Contact to the ContactList with the Contact being
     * specified as a string.
-    * 
+    *
     * @param contact    - String containing the Contact to add to the list.
     * @param plugin     - Reference to the requesting plug-in - that information
     *                     is strictly used for logging purposes.
@@ -375,7 +375,7 @@ public:
     */
    bool add( const UtlString& contact, const RedirectPlugin& plugin );
    ///@}
-   
+
    // ================================================================
    /** @name set methods
     *
@@ -383,12 +383,12 @@ public:
     *  in the list.
     */
    ///@{
-   
+
    /**
-    * method used to replace the content of an existing Contact in the list with the 
+    * method used to replace the content of an existing Contact in the list with the
     * replacing Contact specified as a Url object.
     *
-    * @param index      - 0-based index of the Contact to replace in the list 
+    * @param index      - 0-based index of the Contact to replace in the list
     * @param contactUrl - Url containing the Contact to use for replacement
     * @param plugin     - Reference to the requesting plug-in - that information
     *                     is strictly used for logging purposes.
@@ -396,25 +396,25 @@ public:
     */
    bool set( size_t index, const Url& contactUrl, const RedirectPlugin& plugin );
    /**
-    * method used to replace the content of an existing Contact in the list with the 
+    * method used to replace the content of an existing Contact in the list with the
     * replacing Contact specified as a string.
     *
-    * @param index      - 0-based index of the Contact to replace in the list 
+    * @param index      - 0-based index of the Contact to replace in the list
     * @param contact    - string  containing the Contact to use for replacement
     * @param plugin     - Reference to the requesting plug-in - that information
     *                     is strictly used for logging purposes.
     * @return true if set succeeded; otherwise false.
     */
-   bool set( size_t index, const UtlString& contact, const RedirectPlugin& plugin );  
+   bool set( size_t index, const UtlString& contact, const RedirectPlugin& plugin );
    ///@}
-   
+
    // ================================================================
    /** @name get methods
     *
     * allows a plug-in to get a Contact entry that is in the list.
     */
    ///@{
-   
+
    /**
     * method used to retrieve a specific Contact entry from the Contact list.
     *
@@ -435,13 +435,13 @@ public:
     * @return true if get succeeded; otherwise false.
     */
    bool get( size_t index, UtlString& contact ) const;
-   
+
    ///@}
-   
+
    // ================================================================
    /** @name remove methods
     *
-    * allows a plug-in to remove a specific Contact entry from the 
+    * allows a plug-in to remove a specific Contact entry from the
     * list or all Contacts.
     */
    ///@{
@@ -461,15 +461,15 @@ public:
     *                     is strictly used for logging purposes.
     * @return true if removal succeeded; otherwise false.
     */
-   bool removeAll( const RedirectPlugin& plugin );  
+   bool removeAll( const RedirectPlugin& plugin );
    ///@}
-   
+
    // ================================================================
    /** @name utility methods
     */
    ///@{
    /**
-    * method used to mark the list as having been modified without actually 
+    * method used to mark the list as having been modified without actually
     * altering its content.
     *
     * @param plugin     - Reference to the requesting plug-in - that information
@@ -480,24 +480,24 @@ public:
 
    /**
     * method used to get the number of Contacts contained in Contact list
-    *  
+    *
     * @return the list size.
     */
    size_t entries( void ) const;
    ///@}
-   
+
 private:
    ContactList( const UtlString& requestString /* for logging purposes */ );
 
    void resetWasModifiedFlag( void );
    bool wasListModified( void ) const;
-   
-   UtlString               mRequestString;   
+
+   UtlString               mRequestString;
    bool                    mbListWasModified;
    std::vector<UtlString>  mContactList;
-   
+
    friend class SipRedirectServer;
-   friend class ContactListTest;  
+   friend class ContactListTest;
    friend class SipRedirectorTimeOfDayTest;
    friend class SipRedirectorPresenceRoutingTest;
 };
@@ -513,7 +513,7 @@ private:
 class SipRedirectorPrivateStorage : public UtlContainableAtomic
 {
   public:
-   
+
    virtual ~SipRedirectorPrivateStorage();
 
    virtual const char* const getContainableType() const = 0;
@@ -521,7 +521,7 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
    // TYPE is not defined because this class is abstract.
 };
 
-/** 
+/**
  *  ErrorDescriptor is a simple class that offers methods that let
  *  a redirector reporting an error customize the error reporting facilities
  *  to be used by the RedirectServer when constructing a failure SIP response.
@@ -535,9 +535,9 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
                           ^^^ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
            status code ____|                 |__________ reason phrase
        @endverbatim
- * 
- *  -# Optionally specify the warning code and warning text to use in the Warning header of 
- *     the response.  If no warning code and warning text are provided, no Warning header 
+ *
+ *  -# Optionally specify the warning code and warning text to use in the Warning header of
+ *     the response.  If no warning code and warning text are provided, no Warning header
  *     is included in the response.
  *     Example:
  *     @verbatim
@@ -559,7 +559,7 @@ class SipRedirectorPrivateStorage : public UtlContainableAtomic
  *
  * @nosubgrouping
  */
-class ErrorDescriptor      
+class ErrorDescriptor
 {
 public:
    ErrorDescriptor();
@@ -579,7 +579,7 @@ public:
     *  If SetStatusLineData is not called by the redirector that reports the
     *  error, a status code of 403 and a reason phrase of "Forbidden" will
     *  be used.
-    *   
+    *
     *  @param statusCode: status code of the error response to send. See
     *                     .../sipXtackLib/include/net/SipMessage.h for
     *                     status code definitions.
@@ -588,45 +588,45 @@ public:
     *                       see .../sipXtackLib/include/net/SipMessage.h for
     *                       default reason phrases definitions.
     *  @return true if operation succeeded, otherwise false.
-    */   
+    */
    bool setStatusLineData( const int statusCode, const UtlString& reasonPhrase );
 
    /**
     *  Used to specify that a Warning header should be added to the failure response
-    *  generated by the Redirect Server.  If setWarningData is not called by the 
-    *  redirector that reports the error, the failure response generated by the 
+    *  generated by the Redirect Server.  If setWarningData is not called by the
+    *  redirector that reports the error, the failure response generated by the
     *  Redirect Server will not contain a Warning header.
     *
     *  @param warningCode: Warning code to use in Warning header
     *                      Only 3xx warning codes are accepted.
-    *                      Warning code selection should follow the 
+    *                      Warning code selection should follow the
     *                      guidelines provided in section 20.43 of RFC 3261.
     *                      see .../sipXtackLib/include/net/SipMessage.h for
     *                      warning code definitions.
     *  @param warningText: Warning text to use in Warning header
     *                      see .../sipXtackLib/include/net/SipMessage.h for
     *                      default warning text definitions.
-    * 
+    *
     *  @return true if operation succeeded, otherwise false.
-    */   
+    */
    bool setWarningData( const int warningCode, const UtlString& warningText );
-   
+
    /**
-    *  Requests that the SIP request for which the redirector is returning 
+    *  Requests that the SIP request for which the redirector is returning
     *  a faan eror be included in the response as a sipfrag body.
-    *  
+    *
     *  By default, the failure response does not include the request.
-    */ 
+    */
    void appendRequestToResponse( void );
 
    /**
-    *  Requests that the SIP request for which the redirector is returning 
+    *  Requests that the SIP request for which the redirector is returning
     *  an error not be included in the response as a sipfrag body.
-    * 
+    *
     *  By default, the failure response does not include the request so this
-    *  method has a net effect only if appendRequestToResponse() was previously 
+    *  method has a net effect only if appendRequestToResponse() was previously
     *  called.
-    */ 
+    */
    void dontAppendRequestToResponse( void );
 
    /**
@@ -641,9 +641,9 @@ public:
    void setRequireFieldValue       ( const UtlString& fieldValue );
    void setRetryAfterFieldValue    ( const UtlString& fieldValue );
    void setUnsupportedFieldValue   ( const UtlString& fieldValue );
-   
+
    ///@}
-   
+
 
    // ================================================================
    /** @name Getters
@@ -654,26 +654,26 @@ public:
 
    /**
     *  Used to obtain the status line data information set in the ErrorDescriptor
-    *  
+    *
     *  @param statusCode: variable that will receive status code
     *  @param reasonPhrase: variable that will receive reason phrase
     */
    void getStatusLineData( int& statusCode, UtlString& reasonPhrase ) const;
-   
+
    /**
     *  Used to obtain the warning information set in the ErrorDescriptor
-    *  
+    *
     *  @param warningCode: variable that will receive warning code if set
     *  @param warningText: variable that will receive warning text if set
-    *  
+    *
     *  @return: true if warning data was set, otherwise false
     */
    bool getWarningData( int& warningCode, UtlString& warningText ) const;
-   
+
    /**
     *  Mehtod used to find out if any warning data has been supplied
     *  via a call to setWarningData()
-    * 
+    *
     *  @return: true if warning data was set, otherwise false
     */
     bool isWarningDataSet( void ) const;
@@ -689,7 +689,7 @@ public:
     *  @param fieldValue: string that will receive field value
     *
     *  @return: true if a value was set for the field; otherwise false
-    *   
+    *
     */
    bool getAcceptFieldValue        ( UtlString& fieldValue ) const;
    bool getAcceptEncodingFieldValue( UtlString& fieldValue ) const;
@@ -704,17 +704,17 @@ public:
 private:
    void setOptionalFieldValue( const UtlString& fieldName, const UtlString& fieldValue );
    bool getOptinalFieldValue ( const UtlString& fieldName,       UtlString& fieldValue ) const;
-   
+
    int        mStatusCode;   ///< status code of the error response to send
    UtlString  mReasonPhrase; ///< phrase that will appear in response's status line
-   
+
    int        mWarningCode;  ///< Warning code to use in Warning header
    UtlString  mWarningText;  ///< Warning text to use in Warning header
-   
+
    bool       mAppendRequestToResponse; /**< flag that indicates whether the request
                                          *   that forced the error is to be copied
                                          *   in the response as a SIPFRAG body. */
-   
+
    UtlHashMap mOptionalFieldsValues; /**< holds values for optional Retry-After,
                                       *   Require, Unsupported, Allow, Accept
                                       *   Accept-Encoding and Accept-Language fields */

@@ -12,7 +12,7 @@
       <!-- Emergency dialing.  Allow both "911" and "9911". -->
       <userPattern>sos</userPattern>
       <userPattern>911</userPattern>
-      <userPattern>9911</userPattern> 
+      <userPattern>9911</userPattern>
       <!-- Calls known to be coming from the boston site use only the boston gateway -->
       <callerLocationMatch>
         <callerLocation>boston</callerLocation>

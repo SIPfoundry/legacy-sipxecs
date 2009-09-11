@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -41,7 +41,7 @@ public:
    static SipDbTestContext TestDbContext;
    static SipUserAgent     testUserAgent;
    static SipRouter*       testSipRouter;
-   
+
    void setUp()
       {
          TestDbContext.inputFile("caller-alias.xml");
@@ -73,7 +73,7 @@ public:
          testUserAgent.setForking(FALSE);  // Disable forking
 
          UtlString hostAliases("sipx.example.edu sipx.example.edu:5080");
-         
+
          testUserAgent.setHostAliases(hostAliases);
 
          OsConfigDb configDb;
@@ -86,11 +86,11 @@ public:
          converter->announceAssociatedSipRouter( testSipRouter );
       }
 
-   // 
+   //
    void testNoAlias()
       {
          OsConfigDb configDb;
-         
+
          UtlString identity; // no authenticated identity
          Url requestUri("sip:911@emergency-gw");
 
@@ -110,14 +110,14 @@ public:
          UtlSList noRemovedRoutes;
          UtlString routeName("example.com");
          RouteState routeState( testMsg, noRemovedRoutes, routeName );
- 
+
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
          bool bSpiralingRequest = false;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(identity,
                                                          requestUri,
@@ -187,14 +187,14 @@ public:
                        "testUserAlias: testMsg\n%s",
                        message
                        );
-         
+
          UtlSList noRemovedRoutes;
          UtlString routeName("sipx.example.edu");
          RouteState routeState( testMsg, noRemovedRoutes, routeName );
- 
+
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
          bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
@@ -214,11 +214,11 @@ public:
          UtlString modifiedFrom;
          testMsg.getFromField(&modifiedFrom);
          ASSERT_STR_EQUAL("\"John Doe\"<sip:john.doe@example.edu>;tag=30543f3483e1cb11ecb40866edd3295b", modifiedFrom);
-         
+
          UtlString unmodifiedTo;
          testMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.org", unmodifiedTo);
-         
+
          routeState.update(&testMsg);
 
          UtlString recordRoute;
@@ -253,7 +253,7 @@ public:
          RouteState ackRouteState( ackMsg, removedRoutes, routeName );
 
          method = "ACK";
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(identity,
                                                          requestUri,
@@ -268,7 +268,7 @@ public:
 
          ackMsg.getFromField(&modifiedFrom);
          ASSERT_STR_EQUAL("\"John Doe\"<sip:john.doe@example.edu>;tag=30543f3483e1cb11ecb40866edd3295b", modifiedFrom);
-         
+
          ackMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.org;tag=4711018y5y1-1-1", unmodifiedTo);
 
@@ -312,14 +312,14 @@ public:
          UtlString unmodifiedFrom;
          reverseMsg.getFromField(&unmodifiedFrom);
          ASSERT_STR_EQUAL("sip:target@example.org;tag=4711018y5y1-1-1", unmodifiedFrom);
-         
+
          UtlString modifiedTo;
          reverseMsg.getToField(&modifiedTo);
          ASSERT_STR_EQUAL("sip:301@example.edu;tag=30543f3483e1cb11ecb40866edd3295b", modifiedTo);
 
       }
 
-   
+
    void testDomainAlias()
       {
          /*
@@ -345,18 +345,18 @@ public:
                        "testDomainAlias: testMsg\n%s",
                        message
                        );
-         
+
          UtlSList noRemovedRoutes;
          UtlString routeName("sipx.example.edu");
          RouteState routeState( testMsg, noRemovedRoutes, routeName );
- 
+
          const char unmodifiedRejectReason[] = "unmodified";
          UtlString rejectReason(unmodifiedRejectReason);
-         
+
          UtlString method("INVITE");
-         bool bSpiralingRequest = false;         
+         bool bSpiralingRequest = false;
          AuthPlugin::AuthResult priorResult = AuthPlugin::CONTINUE;
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(identity,
                                                          requestUri,
@@ -372,11 +372,11 @@ public:
          UtlString modifiedFrom;
          testMsg.getFromField(&modifiedFrom);
          ASSERT_STR_EQUAL("\"Example University\"<sip:9785551200@example.edu>;tag=30543f3483e1cb11ecb40866edd3295b", modifiedFrom);
-         
+
          UtlString unmodifiedTo;
          testMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.edu", unmodifiedTo);
-         
+
          routeState.update(&testMsg);
 
          UtlString recordRoute;
@@ -426,7 +426,7 @@ public:
 
          ackMsg.getFromField(&modifiedFrom);
          ASSERT_STR_EQUAL("\"Example University\"<sip:9785551200@example.edu>;tag=30543f3483e1cb11ecb40866edd3295b", modifiedFrom);
-         
+
          ackMsg.getToField(&unmodifiedTo);
          ASSERT_STR_EQUAL("sip:target@example.org;tag=4711018y5y1-1-1", unmodifiedTo);
 
@@ -454,7 +454,7 @@ public:
          RouteState reverseRouteState( reverseMsg, removedRoutes, routeName );
 
          method = "INFO";
-         
+
          CPPUNIT_ASSERT(AuthPlugin::CONTINUE
                         == converter->authorizeAndModify(identity,
                                                          requestUri,
@@ -470,12 +470,12 @@ public:
          UtlString unmodifiedFrom;
          reverseMsg.getFromField(&unmodifiedFrom);
          ASSERT_STR_EQUAL("sip:target@example.org;tag=4711018y5y1-1-1", unmodifiedFrom);
-         
+
          UtlString modifiedTo;
          reverseMsg.getToField(&modifiedTo);
          ASSERT_STR_EQUAL("sip:505@example.edu;tag=30543f3483e1cb11ecb40866edd3295b", modifiedTo);
       }
-   
+
 private:
    ForwardRules  mForwardingRules;
 

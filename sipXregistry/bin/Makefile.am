@@ -30,4 +30,3 @@ editscripts :
 	done
 
 install-exec-hook : editscripts
-

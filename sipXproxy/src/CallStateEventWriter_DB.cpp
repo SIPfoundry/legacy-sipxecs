@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -16,7 +16,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-static const char* ModuleName = 
+static const char* ModuleName =
    "CallStateEventWriter_DB";
 
 // STRUCTS
@@ -28,7 +28,7 @@ static const char* ModuleName =
 /* ============================ CREATORS ================================== */
 
 /// Instantiate an event builder and set the observer name for its events
-CallStateEventWriter_DB::CallStateEventWriter_DB(const char* logName, 
+CallStateEventWriter_DB::CallStateEventWriter_DB(const char* logName,
                                                  const char* logLocation,
                                                  const char* logUserName,
                                                  const char* logDriver,
@@ -41,7 +41,7 @@ CallStateEventWriter_DB::CallStateEventWriter_DB(const char* logName,
                     mHandle(NULL)
 {
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::constructor Log type database", ModuleName);      
+                 "%s::constructor Log type database", ModuleName);
 }
 
 /// Destructor
@@ -53,21 +53,21 @@ CallStateEventWriter_DB::~CallStateEventWriter_DB()
 bool CallStateEventWriter_DB::openLog()
 {
    bool bRet = false;
-   
+
    if (!mbWriteable)
    {
       if ((mHandle=odbcConnect(mLogName, mLogLocation, mLogUserName, mLogDriver, mLogPassword)) != NULL)
       {
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog connected to database %s", ModuleName, mLogName.data()); 
+                       "%s::openLog connected to database %s", ModuleName, mLogName.data());
          mbWriteable = true;
          bRet = true;
       }
       else
       {
          OsSysLog::add(FAC_CDR, PRI_ERR,
-                       "%s::openLog connection to database %s failed", 
-                       ModuleName, mLogName.data());             
+                       "%s::openLog connection to database %s failed",
+                       ModuleName, mLogName.data());
       }
    }
    else
@@ -81,7 +81,7 @@ bool CallStateEventWriter_DB::openLog()
 bool CallStateEventWriter_DB::closeLog()
 {
    bool bRet = false;
-   
+
    if (mHandle)
    {
       odbcDisconnect(mHandle);
@@ -89,9 +89,9 @@ bool CallStateEventWriter_DB::closeLog()
    }
    mbWriteable = false;
    bRet = true;
-      
+
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                 "%s::closeLog", ModuleName);      
+                 "%s::closeLog", ModuleName);
    return bRet;
 }
 
@@ -100,19 +100,19 @@ bool CallStateEventWriter_DB::writeLog(const char* event)
    bool bRet = false;
 
    if (mbWriteable)
-   {   
+   {
       if (mHandle)
       {
          odbcExecute(mHandle, event);
          bRet = true;
       }
       OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                    "%s::writeLog", ModuleName);      
+                    "%s::writeLog", ModuleName);
    }
    else
    {
       OsSysLog::add(FAC_CDR, PRI_ERR,
-                    "%s::writeLog log %s not writeable", ModuleName, mLogName.data());            
+                    "%s::writeLog log %s not writeable", ModuleName, mLogName.data());
    }
    return bRet;
 }

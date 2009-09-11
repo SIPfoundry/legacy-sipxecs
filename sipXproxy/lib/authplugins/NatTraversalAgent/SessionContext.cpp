@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -21,12 +21,12 @@
 
 const UtlContainableType SessionContext::TYPE = "SessionContext";
 
-SessionContext::SessionContext( const SipMessage& sipRequest, 
-                                const NatTraversalRules* pNatRules, 
+SessionContext::SessionContext( const SipMessage& sipRequest,
+                                const NatTraversalRules* pNatRules,
                                 const UtlString& handle,
                                 MediaRelay* pMediaRelayToUse,
                                 const RegistrationDB* pRegistrationDB,
-                                CallTrackerInterfaceForSessionContext* pOwningCallTracker ) : 
+                                CallTrackerInterfaceForSessionContext* pOwningCallTracker ) :
    mpReferenceDialogTracker( 0 ),
    mpCaller( 0 ),
    mpCallee( 0 ),
@@ -37,13 +37,13 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 {
    UtlString tmpString;
 
-   // initialize the members of session context based on the content of the 
+   // initialize the members of session context based on the content of the
    // SIP request passed to this c'tor
-   
+
    // First, initialize the caller descriptor
    {
       mpCaller = createCallerEndpointDescriptor( sipRequest, *mpNatTraversalRules );
-      mpCaller->toString( tmpString ); 
+      mpCaller->toString( tmpString );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Caller transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
    }
@@ -51,7 +51,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    // Second, initialize the callee descriptor based on the Request URI header
    {
       mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegistrationDB );
-      mpCallee->toString( tmpString ); 
+      mpCallee->toString( tmpString );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
    }
@@ -71,7 +71,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 EndpointDescriptor*
 SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules )
 {
-   // The Caller endpoint descriptor is initialized based on the information contained in the 
+   // The Caller endpoint descriptor is initialized based on the information contained in the
    // contact URI.  This is where the NAT traversal feature encodes location information about
    // the caller for dialog-forming requests.
    UtlString tmpString;
@@ -83,8 +83,8 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
 EndpointDescriptor*
 SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const RegistrationDB* pRegistrationDB )
 {
-   // The Callee endpoint descriptor is initialized based on the information contained in the 
-   // Route if present or the Request URI.  The R-URI is where the NAT traversal feature encodes location 
+   // The Callee endpoint descriptor is initialized based on the information contained in the
+   // Route if present or the Request URI.  The R-URI is where the NAT traversal feature encodes location
    // information about the callee for dialog-forming requests.
    UtlString tmpString;
    UtlBoolean bIsAddrSpec = FALSE;
@@ -111,12 +111,12 @@ SessionContext::~SessionContext()
 
 bool SessionContext::handleRequest( SipMessage& message, const char* address, int port, bool bFromCallerToCallee )
 {
-   // This routine steers incoming requests to the DialogTracker instance that is 
+   // This routine steers incoming requests to the DialogTracker instance that is
    // responsible for handling them based on the request's to- or from-tags depending
    // on the directionality of the request.
    ssize_t numberOfDialogTrackersEnteringRoutine = getNumberOfTrackedDialogs();
    bool bTrackRequestResponse = false;
-   
+
    UtlString discriminatingTag = getDiscriminatingTagValue( message, bFromCallerToCallee );
 
    // if a discriminating tag was found, try to find a DialogTracker for it.
@@ -125,7 +125,7 @@ bool SessionContext::handleRequest( SipMessage& message, const char* address, in
       DialogTracker* pDialogTracker = 0;
       if( ( pDialogTracker = getDialogTrackerForTag( discriminatingTag ) ) != 0 )
       {
-         bTrackRequestResponse = pDialogTracker->handleRequest( message, address, port, bFromCallerToCallee );            
+         bTrackRequestResponse = pDialogTracker->handleRequest( message, address, port, bFromCallerToCallee );
       }
       else
       {
@@ -135,20 +135,20 @@ bool SessionContext::handleRequest( SipMessage& message, const char* address, in
    }
    else
    {
-      // The request does not yet have a discriminating tag.  This is likely indicating a 
-      // dialog-forming INVITE but to be sure, check that the request is indeed an 
+      // The request does not yet have a discriminating tag.  This is likely indicating a
+      // dialog-forming INVITE but to be sure, check that the request is indeed an
       // INVITE in the caller->callee direction.
       UtlString method;
       message.getRequestMethod(&method);
       if( bFromCallerToCallee && method.compareTo( SIP_INVITE_METHOD ) == 0 )
       {
-         // The INVITE is dialog-forming.  Check whether or not already have 
+         // The INVITE is dialog-forming.  Check whether or not already have
          // the reference dialog tracker for it.
          if( !mpReferenceDialogTracker )
          {
             // This is the first time we see that dialog-forming request - create
             // a reference dialog tracker that will serve as a template to create
-            // new DialogTracker objects for the dialogs that responses to the 
+            // new DialogTracker objects for the dialogs that responses to the
             // request will establish.
             Url tempUrl;
             char tempBuffer[50];
@@ -167,18 +167,18 @@ bool SessionContext::handleRequest( SipMessage& message, const char* address, in
          }
          else
          {
-            // This dialog-forming request has already been seen - this is likely a 
+            // This dialog-forming request has already been seen - this is likely a
             // retransmission.  Present it to the reference dialog tracker so that
             // it can handle the retransmission properly.
             bTrackRequestResponse = mpReferenceDialogTracker->handleRequest( message, address, port, bFromCallerToCallee );
          }
       }
    }
-   
+
    // Check if the processing of the request caused the last DialogTracker to be deleted.
    // If so, the SessionContext is not required anymore therefore tell the CallTracker that
    // we are ready for deletion
-   if( numberOfDialogTrackersEnteringRoutine && 
+   if( numberOfDialogTrackersEnteringRoutine &&
        deleteDialogTrackersReadyForDeletion() == numberOfDialogTrackersEnteringRoutine )
    {
       mpOwningCallTracker->reportSessionContextReadyForDeletion( mHandle );
@@ -190,21 +190,21 @@ void SessionContext::handleResponse( SipMessage& message, const char* address, i
 {
    ssize_t numberOfDialogTrackersEnteringRoutine = getNumberOfTrackedDialogs();
    UtlString discriminatingTag = getDiscriminatingTagValue( message );
-   
+
    // Retrieve DialogTracker object that handles this dialog.
    DialogTracker* pDialogTracker = 0;
-   if( !discriminatingTag.isNull() && 
+   if( !discriminatingTag.isNull() &&
        ( pDialogTracker = getDialogTrackerForTag( discriminatingTag ) ) != 0 )
    {
       // present the response to the DialogTracker
       pDialogTracker->handleResponse( message, address, port );
    }
-   else 
+   else
    {
       if( message.getResponseStatusCode() < SIP_3XX_CLASS_CODE )
       {
          // we do not have a DialogTracker for this response.  If this is as
-         // 1xx or 2xx response to the dialog-forming INVITE, this response is creating a 
+         // 1xx or 2xx response to the dialog-forming INVITE, this response is creating a
          // new dialog.  Create a new DialogTracker based on the reference DialogTracker
          if( !discriminatingTag.isNull() && mDialogFormingInviteCseq == CseqData( message ) )
          {
@@ -217,11 +217,11 @@ void SessionContext::handleResponse( SipMessage& message, const char* address, i
       }
       else if( message.getResponseStatusCode() >= SIP_4XX_CLASS_CODE )
       {
-         // This session context has received a final failure response.  The 
-         // INVITE has been rejected.  Present that response to all the 
+         // This session context has received a final failure response.  The
+         // INVITE has been rejected.  Present that response to all the
          // DialogTrackers so that they can terminate.
          UtlHashMapIterator dialogTrackerIterator( mDialogTrackersMap );
-         
+
          while( dialogTrackerIterator() )
          {
             DialogTracker *pDialogTracker;
@@ -230,11 +230,11 @@ void SessionContext::handleResponse( SipMessage& message, const char* address, i
          }
       }
    }
-   
+
    // Check if the processing of the request caused the last DialogTracker to be deleted.
    // If so, the SessionContext is not required anymore therefore tell the CallTracker that
    // we are ready for deletion
-   if( numberOfDialogTrackersEnteringRoutine && 
+   if( numberOfDialogTrackersEnteringRoutine &&
        deleteDialogTrackersReadyForDeletion() == numberOfDialogTrackersEnteringRoutine )
    {
       mpOwningCallTracker->reportSessionContextReadyForDeletion( mHandle );
@@ -245,19 +245,19 @@ void SessionContext::handleCleanUpTimerTick( void )
 {
    ssize_t numberOfDialogTrackersEnteringRoutine = getNumberOfTrackedDialogs();
    UtlHashMapIterator dialogTrackerIterator( mDialogTrackersMap );
-   
+
    while( dialogTrackerIterator() )
    {
       DialogTracker *pDialogTracker;
       pDialogTracker = dynamic_cast<DialogTracker*>( dialogTrackerIterator.value() );
-      
+
       pDialogTracker->handleCleanUpTimerTick();
    }
 
    // Check if the processing of the request caused the last DialogTracker to be deleted.
    // If so, the SessionContext is not required anymore therefore tell the CallTracker that
    // we are ready for deletion
-   if( numberOfDialogTrackersEnteringRoutine && 
+   if( numberOfDialogTrackersEnteringRoutine &&
        deleteDialogTrackersReadyForDeletion() == numberOfDialogTrackersEnteringRoutine )
    {
       mpOwningCallTracker->reportSessionContextReadyForDeletion( mHandle );
@@ -271,11 +271,11 @@ ssize_t SessionContext::deleteDialogTrackersReadyForDeletion( void )
    {
       ssize_t index;
       UtlString handleForDialogTrackerToDelete;
-      
+
       for( index = 0; index < numberOfDialogTrackersToDelete; index++ )
       {
          handleForDialogTrackerToDelete = mListOfDialogTrackersReadyForDeletion[ index ];
-         mDialogTrackersMap.destroy( &handleForDialogTrackerToDelete );        
+         mDialogTrackersMap.destroy( &handleForDialogTrackerToDelete );
       }
       mListOfDialogTrackersReadyForDeletion.clear();
    }
@@ -290,11 +290,11 @@ DialogTracker* SessionContext::allocateNewDialogTrackerBasedOnReference( const U
    {
       addDialogTrackerToList( discriminatingTag, pNewDialogTracker );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateNewDialogTrackerBasedOnReference: allocated DialogTracker #%zd for tag %s",
-                                         mHandle.data(), getNumberOfTrackedDialogs(), discriminatingTag.data() );      
-      
-      // We have a new tracker that is utilizing the same Media RelaySessions as the 
+                                         mHandle.data(), getNumberOfTrackedDialogs(), discriminatingTag.data() );
+
+      // We have a new tracker that is utilizing the same Media RelaySessions as the
       // reference.  Increment their link count to track the number of DialogTrackers using
-      // them and avoid premature de-allocations.   
+      // them and avoid premature de-allocations.
       size_t index;
       size_t numSavedMediaDescriptors = pNewDialogTracker->getNumberOfMediaDescriptors();
       for( index = 0; index < numSavedMediaDescriptors; index++ )
@@ -302,7 +302,7 @@ DialogTracker* SessionContext::allocateNewDialogTrackerBasedOnReference( const U
          const MediaDescriptor* pMediaDescriptor;
          pMediaDescriptor = pNewDialogTracker->getReadOnlyMediaDescriptor( index );
          tMediaRelayHandle tempMediaRelayHandle;
-         
+
          if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
          {
             mpMediaRelay->incrementLinkCountOfMediaRelaySession( tempMediaRelayHandle );
@@ -326,7 +326,7 @@ UtlString SessionContext::getDiscriminatingTagValue( const SipMessage& message, 
 {
    UtlString discriminatingTag;
    Url tempUrl;
-   
+
    if( bFromCallerToCallee )
    {
       // caller-to-callee uses To-tag to distinguish between dialogs
@@ -361,7 +361,7 @@ UtlString SessionContext::getDiscriminatingTagValue( const SipMessage& message )
    }
    return discriminatingTag;
 }
-   
+
 
 DialogTracker* SessionContext::getDialogTrackerForTag( const UtlString& tag ) const
 {
@@ -378,13 +378,13 @@ DialogTracker* SessionContext::getDialogTrackerForMessage( const SipMessage& mes
 }
 
 
-void SessionContext::addDialogTrackerToList( const UtlString& tag,  DialogTracker* pNewDialogTracker ) 
+void SessionContext::addDialogTrackerToList( const UtlString& tag,  DialogTracker* pNewDialogTracker )
 {
    UtlString* pMapKey = new UtlString( tag );
    if( !mDialogTrackersMap.insertKeyAndValue( pMapKey, pNewDialogTracker ) )
    {
       OsSysLog::add(FAC_NAT, PRI_CRIT, "SessionContext[%s]::addDialogTrackerToList failed to insert value for key %s",
-                                         mHandle.data(), tag.data() );      
+                                         mHandle.data(), tag.data() );
    }
 }
 
@@ -394,14 +394,14 @@ ssize_t SessionContext::getNumberOfTrackedDialogs( void ) const
 }
 
 
-bool SessionContext::removeDialogTrackerFromListAndDelete( const UtlString& tag ) 
+bool SessionContext::removeDialogTrackerFromListAndDelete( const UtlString& tag )
 {
   return ( mDialogTrackersMap.destroy( &tag ) == TRUE );
 }
 
 bool SessionContext::doesEndpointsLocationImposeMediaRelay( void ) const
 {
-   // The need to use a media relay for the session will be 
+   // The need to use a media relay for the session will be
    // determined by the location of the caller and callee.
    //  IF both the caller and callee are 'PUBLIC' then no media relay is used
    //  IF both the caller and callee are 'LOCAL_NATED' then no media relay is used
@@ -410,19 +410,19 @@ bool SessionContext::doesEndpointsLocationImposeMediaRelay( void ) const
    //     then no media relay is used.
    //  ALL other scenarios require a media relay.
    bool bMediaRelayNeeded = true;
-   
-   LocationCode callerLocation; 
+
+   LocationCode callerLocation;
    LocationCode calleeLocation;
-   
+
    callerLocation = mpCaller->getLocationCode();
    calleeLocation = mpCallee->getLocationCode();
 
    if( ( callerLocation == PUBLIC &&
          calleeLocation == PUBLIC
-       ) ||        
+       ) ||
        ( callerLocation == LOCAL_NATED &&
          calleeLocation == LOCAL_NATED
-       ) 
+       )
      )
    {
       bMediaRelayNeeded = false;
@@ -433,12 +433,12 @@ bool SessionContext::doesEndpointsLocationImposeMediaRelay( void ) const
       // on the configured media relay mode.  When the media relay mode is 'aggressive'
       // a media relay is always employed for remote NATed endpoints.  However, when
       // the mode is 'conservative', the logic will refrain from utilizing a media relay
-      // if the two endpoints share the same public IP address.  In this case, it is 
-      // assumed that both endpoints are behind the same NAT and that we can conserve a 
+      // if the two endpoints share the same public IP address.  In this case, it is
+      // assumed that both endpoints are behind the same NAT and that we can conserve a
       // a Media relay as the endpoints can reach each other directly.
       if( mpNatTraversalRules->isConservativeModeSet() )
       {
-         if( mpCaller->getPublicTransportAddress().getAddress() == 
+         if( mpCaller->getPublicTransportAddress().getAddress() ==
              mpCallee->getPublicTransportAddress().getAddress() )
          {
             bMediaRelayNeeded = false;
@@ -453,23 +453,23 @@ bool SessionContext::allocateMediaRelaySession( const UtlString& handleOfRequest
 {
    bool bAllocationSucceeded = false;
    relayHandle = INVALID_MEDIA_RELAY_HANDLE;
-   
+
    if( mpMediaRelay->allocateSession( relayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
    {
       bAllocationSucceeded = true;
    }
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::allocateMediaRelaySession for dialog tracker %s: handle %d: caller %d; callee %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle, callerRelayRtpPort, calleeRelayRtpPort );   
+                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle, callerRelayRtpPort, calleeRelayRtpPort );
    return bAllocationSucceeded;
 }
 
 tMediaRelayHandle SessionContext::cloneMediaRelaySession( const UtlString& handleOfRequestingDialogContext,
                          tMediaRelayHandle& relayHandleToClone, bool doSwapCallerAndCallee )
 {
-   tMediaRelayHandle clonedRelayHandle;  
+   tMediaRelayHandle clonedRelayHandle;
    clonedRelayHandle = mpMediaRelay->cloneSession( relayHandleToClone, doSwapCallerAndCallee );
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContextcloneMediaRelaySession for dialog tracker %s: src handle %d, dest handle %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandleToClone, (int)clonedRelayHandle );   
+                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandleToClone, (int)clonedRelayHandle );
    return clonedRelayHandle;
 }
 
@@ -477,13 +477,13 @@ bool SessionContext::deallocateMediaRelaySession( const UtlString& handleOfReque
                          const tMediaRelayHandle& relayHandle )
 {
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::deallocateMediaRelaySession for dialog tracker %s: handle %d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle ); 
-   return mpMediaRelay->deallocateSession( relayHandle );  
+                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)relayHandle );
+   return mpMediaRelay->deallocateSession( relayHandle );
 }
 
 bool SessionContext::setMediaRelayDirectionMode(  const UtlString& handleOfRequestingDialogContext,
-                                                  const tMediaRelayHandle& relayHandle, 
-                                                  MediaDirectionality mediaRelayDirectionMode, 
+                                                  const tMediaRelayHandle& relayHandle,
+                                                  MediaDirectionality mediaRelayDirectionMode,
                                                   EndpointRole endpointRole )
 {
    // Media Relay API is referenced from the caller. If the requesting enpoint is the callee, we
@@ -503,8 +503,8 @@ bool SessionContext::setMediaRelayDirectionMode(  const UtlString& handleOfReque
 }
 
 bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& handleOfRequestingDialogContext,
-                                                           const tMediaRelayHandle& relayHandle, 
-                                                           const MediaDescriptor* pMediaDescriptor, 
+                                                           const tMediaRelayHandle& relayHandle,
+                                                           const MediaDescriptor* pMediaDescriptor,
                                                            EndpointRole endpointRoleOfRequester )
 {
    EndpointRole farEndRole;
@@ -523,7 +523,7 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
 
    bool bLinkPerformed = false;
 
-   LocationCode requestingEndpointLocation; 
+   LocationCode requestingEndpointLocation;
    UtlString    requestingEndpointIpAddress;
    int          requestingEndpointRtpPort;
    int          requestingEndpointRtcpPort;
@@ -544,11 +544,11 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
          // the endpoint is at a predictable IP address and port, no need to autolearn anything
          requestingEndpointIpAddress = pMediaDescriptor->getEndpoint( endpointRoleOfRequester ).getAddress();
          requestingEndpointRtpPort =   pMediaDescriptor->getEndpoint( endpointRoleOfRequester ).getRtpPort();
-         requestingEndpointRtcpPort =  pMediaDescriptor->getEndpoint( endpointRoleOfRequester ).getRtcpPort();      
+         requestingEndpointRtcpPort =  pMediaDescriptor->getEndpoint( endpointRoleOfRequester ).getRtcpPort();
       }
-      else 
+      else
       {
-         // the endpoint is behind a NAT relative to the media relay server.  This means that its 
+         // the endpoint is behind a NAT relative to the media relay server.  This means that its
          // media IP address is going to be its public IP address but the port is non-deterministic
          requestingEndpointIpAddress = pRequestingEndpointDescriptor->getPublicTransportAddress().getAddress();
          requestingEndpointRtpPort   = 0;
@@ -557,30 +557,30 @@ bool SessionContext::linkFarEndMediaRelayPortToRequester(  const UtlString& hand
    }
    else
    {
-      // The location of the endpoint is UNKNOWN or the IP address in the SDP does not 
-      // belong to the sender of the SDP in which case we may be in the presence or a 3PCC.  
-      // In either case, since we cannot establish the position of the endpoint relative 
-      // to the media relay, let's assume the worst case and autolearn both the IP address 
+      // The location of the endpoint is UNKNOWN or the IP address in the SDP does not
+      // belong to the sender of the SDP in which case we may be in the presence or a 3PCC.
+      // In either case, since we cannot establish the position of the endpoint relative
+      // to the media relay, let's assume the worst case and autolearn both the IP address
       // and port number.
       requestingEndpointIpAddress =  "";
       requestingEndpointRtpPort   =  0;
       requestingEndpointRtcpPort  =  0;
    }
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::linkMediaRelayPortToFarEnd for dialog tracker %s: relay handle %d - linking far-end relay port to '%s':%d,%d",
-                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)(relayHandle.getValue()), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort ); 
+                                     mHandle.data(), handleOfRequestingDialogContext.data(), (int)(relayHandle.getValue()), requestingEndpointIpAddress.data(), requestingEndpointRtpPort, requestingEndpointRtcpPort );
 
-   bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole ); 
+   bLinkPerformed = mpMediaRelay->linkSymToEndpoint( relayHandle, requestingEndpointIpAddress, requestingEndpointRtpPort, requestingEndpointRtcpPort, farEndRole );
    return bLinkPerformed;
 }
 
 bool SessionContext::getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddressToUse, EndpointRole endpointRole ) const
 {
    bool bUseNativeMediaRelayIpAddress = false;
-   
+
    mediaRelayAddressToUse.remove( 0 );
    if( mpMediaRelay->isPartOfsipXLocalPrivateNetwork() )
    {
-      // if both the receiver of the SDP and the media relay are located with the 
+      // if both the receiver of the SDP and the media relay are located with the
       // same network, use the media relay's native IP address in the SDP, otherwise
       // use its public.
       EndpointDescriptor* pSdpRecipient = ( endpointRole == CALLER ? mpCallee : mpCaller );
@@ -591,13 +591,13 @@ bool SessionContext::getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddres
       }
       else
       {
-         mediaRelayAddressToUse = mpMediaRelay->getPublicAddress();            
+         mediaRelayAddressToUse = mpMediaRelay->getPublicAddress();
       }
    }
    else
    {
-      mediaRelayAddressToUse = mpMediaRelay->getPublicAddress();            
-   }   
+      mediaRelayAddressToUse = mpMediaRelay->getPublicAddress();
+   }
    return bUseNativeMediaRelayIpAddress;
 }
 
@@ -609,7 +609,7 @@ int SessionContext::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle
 void SessionContext::reportDialogTrackerReadyForDeletion( const UtlString& handleOfRequestingDialogContext )
 {
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::reportDialogTrackerReadyForDeletion for dialog tracker %s",
-                                     mHandle.data(), handleOfRequestingDialogContext.data() ); 
+                                     mHandle.data(), handleOfRequestingDialogContext.data() );
    mListOfDialogTrackersReadyForDeletion.push_back( handleOfRequestingDialogContext );
 }
 
@@ -621,7 +621,7 @@ bool SessionContext::getPacketProcessingStatsForMediaRelaySession( const tMediaR
 
 const EndpointDescriptor& SessionContext::getEndpointDescriptor( EndpointRole endpointRole ) const
 {
-   return ( endpointRole == CALLER ? *mpCaller : *mpCallee );   
+   return ( endpointRole == CALLER ? *mpCaller : *mpCallee );
 }
 
 UtlContainableType SessionContext::getContainableType( void ) const
@@ -630,8 +630,8 @@ UtlContainableType SessionContext::getContainableType( void ) const
 }
 
 unsigned SessionContext::hash() const
-{ 
-   return directHash(); 
+{
+   return directHash();
 }
 
 int SessionContext::compareTo(UtlContainable const *rhsContainable ) const
@@ -646,7 +646,7 @@ int SessionContext::compareTo(UtlContainable const *rhsContainable ) const
 SessionContext::CseqData::CseqData() :
    mSeqNum( 0 )
 {
-   
+
 }
 
 SessionContext::CseqData::CseqData( const SipMessage& message )
@@ -656,12 +656,11 @@ SessionContext::CseqData::CseqData( const SipMessage& message )
 
 bool SessionContext::CseqData::operator==( const CseqData& rhs )
 {
-   return ( mSeqNum == rhs.mSeqNum ) && 
+   return ( mSeqNum == rhs.mSeqNum ) &&
           ( mMethod == rhs.mMethod );
 }
 
 void SessionContext::CseqData::setValue( const SipMessage& message )
 {
    message.getCSeqField( &mSeqNum, &mMethod );
-}   
-
+}

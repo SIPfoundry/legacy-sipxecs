@@ -18,7 +18,7 @@
         font-weight: bold; text-align: right;
         font-family: helvetica, arial, sans-serif;
         background-color: transparent; }
-    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ; 
+    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ;
         text-align: justify; vertical-align: middle ; padding-top: 2px ; }
     td.rfcbug span.RFC { color: #666666; font-weight: bold; text-decoration: none;
         background-color: #000000 ;
@@ -124,7 +124,7 @@
     Specifies the Call State Events detected by the sipXproxy;
     these can be used to construct Call Detail Records (CDRs) or other
     indications or records of call state.
-    
+
 </p><a name="toc"></a><br /><hr />
 <h3>Table of Contents</h3>
 <p class="toc">
@@ -172,7 +172,7 @@ Call Detail Record XML Schema<br />
     events that occur at different times and in different sipXpbx
     components.  This document specifies the events recorded and which component is responsible for producing a record
     of each.
-    
+
 </p>
 <p>
     The record of each observed event is called a Call State Event.  <a class="info" href="#CSE_DESCR">Section&nbsp;3<span>Call State Events</span></a>
@@ -180,7 +180,7 @@ Call Detail Record XML Schema<br />
     responsible for it (called the "Observer"), the SIP request or
     response from which its information is derived, and the
     information it contains.
-    
+
 </p>
 <p>
     The UTC time of events as recorded by each Observer is used to
@@ -188,20 +188,20 @@ Call Detail Record XML Schema<br />
     the semantics of the event.  As a result, it is important that all
     Observer clocks are as closely syncronized with each other as
     possible.
-    
+
 </p>
 <p>
-      The process of combining the information in a set of Call State Events 
+      The process of combining the information in a set of Call State Events
       to determine what happened with the call as whole is called Call
       Resolution; this step uses the events as input and produces a more
       traditional Call Detail Record - a single record per call.  This
       process is described in <a class="info" href="#RESOLUTION">Section&nbsp;5<span>Call Resolution</span></a>.
-    
+
 </p>
 <p>
     Call State Events are encoded as XML according to the the schema
     in <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span>Call State Event XML Schema</span></a>.
-    
+
 </p>
 <a name="rfc.section.1.1"></a><h4><a name="anchor2">1.1</a>&nbsp;Common Elements</h4>
 
@@ -214,21 +214,21 @@ Call Detail Record XML Schema<br />
 <dt>&lt;observer&gt;</dt>
 <dd>
           The DNS name of the system that observed the event.
-          
+
 </dd>
 <dt>&lt;obs_seq&gt;</dt>
 <dd>
           The sequence number of this event at the observer.  This is used
           by a collector to detect that events from an observer are missing;
           in a complete record, there are no gaps in the sequence numbers.
-          
+
 </dd>
 <dt>&lt;obs_time&gt;</dt>
 <dd>
           The (UTC) time at the observer when this event occured; this
           should be expressed to the millisecond, or as near to that
           as the Observer can measure.
-          
+
 </dd>
 <dt>&lt;call&gt;</dt>
 <dd>
@@ -237,19 +237,19 @@ Call Detail Record XML Schema<br />
           used to determine which events are in the same call, and the
           full To and From header field values for display purposes.
 
-          
+
 <blockquote class="text"><dl>
 <dt>&lt;dialog&gt;</dt>
 <dd>
             This value is used to correlate the separate events (which may
             even come from different observers) for the same call.  A dialog
             value has three components:
-            
+
 <blockquote class="text"><dl>
 <dt>&lt;call_id&gt;</dt>
 <dd>
               The value from the SIP Call-Id header.
-              
+
 </dd>
 <dt>&lt;from_tag&gt;</dt>
 <dd>
@@ -257,26 +257,26 @@ Call Detail Record XML Schema<br />
               header.  In dialogs begun by a UA that only comforms to
               RFC 2543 this will be absent, so it may not appear in all
               events.
-              
+
 </dd>
 <dt>&lt;to_tag&gt;</dt>
 <dd>
               The value from the tag attribute of the SIP To header.  This
               element of a dialog is optional, and will not appear in all
               events.
-              
+
 </dd>
 </dl></blockquote>
 </dd>
 <dt>&lt;from&gt;</dt>
 <dd>
             The full From header field value.
-            
+
 </dd>
 <dt>&lt;to&gt;</dt>
 <dd>
             The full From header field value.
-            
+
 </dd>
 <dt>&lt;via&gt;</dt>
 <dd>
@@ -284,7 +284,7 @@ Call Detail Record XML Schema<br />
             more than once - the order is significant.  The Via
             elements in a CSE are ordered such that the first element
             is the Via value added by the message originator.
-            
+
 </dd>
 </dl></blockquote>
 </dd>
@@ -299,18 +299,18 @@ Call Detail Record XML Schema<br />
 <dt>XML element name</dt>
 <dd>
         obs_msg
-        
+
 </dd>
 <dt>Triggered by</dt>
 <dd>
         Any change in Observer status.
-        
+
 </dd>
 <dt>Description</dt>
 <dd>
         Carries a status code for the new status and an optional
         arbitrary text message for display purposes.
-        
+
 </dd>
 </dl></blockquote>
 
@@ -320,7 +320,7 @@ Call Detail Record XML Schema<br />
       State Events.  At this writing, only one event is defined: the
       Restart (obs_status = 0) event is sent when the Observer starts
       up.  It is always sent with observer sequence number 0 (zero).
-      
+
 </p>
 <p>
         An Observer Message may contain an  is the schema URI that the observer is using in generating
@@ -328,7 +328,7 @@ Call Detail Record XML Schema<br />
         call_event_sequence container (which would be the natural place for this
         URI).  This allows a post-processor to correctly construct an XML document
         without having the observer having to put the namespace on every element.
-      
+
 </p>
 <a name="CSE_DESCR"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
@@ -341,21 +341,21 @@ Call Detail Record XML Schema<br />
 <dt>XML element name</dt>
 <dd>
         call_request
-        
+
 </dd>
 <dt>Triggered by</dt>
 <dd>
         A Call Request Event is generated by the sipXproxy server when an INVITE
         request is received that does not have a tag parameter on the To
         field value.
-        
+
 </dd>
 <dt>Description</dt>
 <dd>
         Represents an attempt to create a new call.  The
         &lt;contact&gt; element in this event is the calling party
         Contact header field value.
-        
+
 </dd>
 </dl></blockquote>
 
@@ -367,7 +367,7 @@ Call Detail Record XML Schema<br />
       different events to be recorded by different observers, the
       observer timestamp (not the observer sequence number) is used to
       determine the original event.
-      
+
 </p>
 <a name="rfc.section.3.2"></a><h4><a name="anchor4">3.2</a>&nbsp;Call Setup</h4>
 
@@ -376,19 +376,19 @@ Call Detail Record XML Schema<br />
 <dt>XML element name</dt>
 <dd>
         call_setup
-        
+
 </dd>
 <dt>Description</dt>
 <dd> Indicates acceptance of a call, or
         acceptance of a request to reconfigure a call.  The
         &lt;contact&gt; element in this event is the called party
         Contact header field value.
-        
+
 </dd>
 <dt>Triggered by</dt>
 <dd>
         Any 2xx response to any INVITE request.
-        
+
 </dd>
 </dl></blockquote>
 
@@ -396,7 +396,7 @@ Call Detail Record XML Schema<br />
       This event is correlated with a Call Request event by comparing
       the call_id and from_tag values; the to_tag value will not
       appear in the original call_request event, so it is not used.
-      
+
 </p>
 <p>
       Re-invites will appear as cse_setup events, so putting a call on
@@ -406,7 +406,7 @@ Call Detail Record XML Schema<br />
       duplicate dialog ids and using only the one with the lowest
       observer timestamp (obs_time) value; this is the one that actually
       indicates that the call has been set up.
-      
+
 </p>
 <a name="rfc.section.3.3"></a><h4><a name="anchor5">3.3</a>&nbsp;Call Failure</h4>
 
@@ -415,13 +415,13 @@ Call Detail Record XML Schema<br />
 <dt>XML element name</dt>
 <dd>
         cse_failure
-        
+
 </dd>
 <dt>Description</dt>
 <dd>
-        Indicates that at least one leg of a Call Request 
+        Indicates that at least one leg of a Call Request
         was rejected.
-        
+
 </dd>
 <dt>Triggered by</dt>
 <dd>
@@ -452,7 +452,7 @@ Call Detail Record XML Schema<br />
         ids.  A call state processor can only conclude that all given
         Call Request event ended in failure if there are no Call Setup
         events for it and there are no missing events.
-      
+
 </p>
 <a name="rfc.section.3.4"></a><h4><a name="anchor6">3.4</a>&nbsp;Call End</h4>
 
@@ -461,36 +461,36 @@ Call Detail Record XML Schema<br />
 <dt>XML element name</dt>
 <dd>
         cse_end
-        
+
 </dd>
 <dt>Description</dt>
 <dd>
         Termination of a successful call.
-        
+
 </dd>
 <dt>Triggered by</dt>
 <dd>
         Any BYE request.
-        
+
 </dd>
 </dl></blockquote>
 
 <p>
       The Call End event is correlated with a Call Setup event using the
       dialog id.
-      
+
 </p>
 <a name="anchor7"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.4"></a><h3>4.&nbsp;Call State Event Logs</h3>
 
 <p>
-        In the present implementation, Call Request, Call Setup, 
+        In the present implementation, Call Request, Call Setup,
         Call Failure, and Call End events are logged by
         the sipX proxy in the file configured by the directive
         SIPX_PROXY_CALL_STATE_LOG (by default "sipxproxy_callstate.log" in
-        the log directory).  
-      
+        the log directory).
+
 </p>
 <a name="RESOLUTION"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
@@ -504,7 +504,7 @@ Call Detail Record XML Schema<br />
         duration.  This form is usually called a Call Detail Record (CDR).
         This section describes the algorithm for constructing CDRs from a
         set of Call State Events.
-      
+
 </p>
 <p><span class="strong">
           At this writing, we do not have an implementation of a resolver;
@@ -524,7 +524,7 @@ Call Detail Record XML Schema<br />
         is used to indicate that the contents of element path
         /dest-element/dest-sub in the namespace dest-ns should be set from
         the contents of the element /src-element/src-sub from namespace src-ns.
-      
+
 </p>
 <p>
         The namespaces used are:
@@ -534,12 +534,12 @@ Call Detail Record XML Schema<br />
 <dd>
             The Call Detail Records namespace:
             http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see <a class="info" href="#CDR_SCHEMA">Appendix&nbsp;C<span>Call Detail Record XML Schema</span></a>).
-          
+
 </dd>
 <dt>cse</dt>
 <dd>
             The Call State Event namespace: http://www.sipfoundry.org/sipX/schema/xml/cse-01-00 (see <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span>Call State Event XML Schema</span></a>).
-          
+
 </dd>
 </dl></blockquote>
 
@@ -554,18 +554,18 @@ Call Detail Record XML Schema<br />
             values must match exactly.  If present, the &lt;cse:from&gt; and
             &lt;cse:to&gt; values must not be different, but some events in the
             call may not have one or both of these, and should be considered
-            to be a match so long as the &lt;cse:call_id&gt; value matches. 
-          
+            to be a match so long as the &lt;cse:call_id&gt; value matches.
+
 </li>
 <li>
             Order the events within a call by the value of the
-            &lt;obs_time&gt; element.  
-          
+            &lt;obs_time&gt; element.
+
 </li>
 <li>
             Find the first &lt;cse:call_request&gt; event (if none is
             found, then some data is not available, and the data for this
-            call is discarded). 
+            call is discarded).
             <pre>
 /cdr:call/caller/uri &lt;- /cse:call_event/call_request/call/from
 /cdr:call/called/uri &lt;- /cse:call_event/call_request/call/to
@@ -577,7 +577,7 @@ Call Detail Record XML Schema<br />
 </li>
 <li>
             If there is at least one &lt;cse:call_setup&gt; event, find the first
-            &lt;cse:call_setup&gt; event 
+            &lt;cse:call_setup&gt; event
             <pre>
 /cdr:call/called/endpoint &lt;- /cse:call_event/call_setup/via
 /cdr:call/called/contact &lt;- /cse:call_event/call_setup/contact
@@ -604,7 +604,7 @@ Call Detail Record XML Schema<br />
 </pre>
 
             If there was no &lt;cse:call_setup&gt; event, find the last
-            &lt;cse:call_failed&gt; event and set: 
+            &lt;cse:call_failed&gt; event and set:
             <pre>
 /cdr:call/caller/endpoint &lt;- /cse:call_event/call_failed/via
 /cdr:call/end &lt;- /cse:call_event/obs_time

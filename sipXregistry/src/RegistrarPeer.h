@@ -1,7 +1,7 @@
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _REGISTRARPEER_H_
@@ -28,10 +28,10 @@ class SipRegistrar;
  * are constructed by SipRegistrar based on the configuration, and may not
  * be destroyed other than by SipRegistrar.
  *
- * The RegistrarPeer object for a given peer may be obtained using SipRegistrar::getPeer. 
+ * The RegistrarPeer object for a given peer may be obtained using SipRegistrar::getPeer.
  *
  * A UtlSListIterator over a list of all RegistrarPeer objects may be obtained
- * using SipRegistrar::getPeerList.  
+ * using SipRegistrar::getPeerList.
  *
  * There is not a RegistrarPeer object for the local registrar
  * (we do not treat ourselves as a peer).
@@ -41,7 +41,7 @@ class SipRegistrar;
 class RegistrarPeer : public UtlString
 {
 public:
-         
+
 // ================================================================
 /** @name                  Addressing
  */
@@ -52,7 +52,7 @@ public:
       {
          return UtlString::data();
       }
-   
+
    /// The full URL to be used to make an XML RPC request of this peer.
    void rpcURL(Url& url);
 
@@ -78,7 +78,7 @@ public:
     * that is not Reachable; the RegisterTest thread is responsible for attempting
     * to re-establish contact.
     */
-   
+
    inline bool isReachable() { return synchronizationState() == Reachable; }
 
    /// Indicate that a request to this peer failed.
@@ -128,19 +128,19 @@ public:
    void setSentTo(Int64 updateNumber);
 
    void setReceivedFrom(Int64 updateNumber);
-   
+
 
 ///@}
-   
+
 protected:
    /// only SipRegistrar may construct and destroy RegistrarPeer objects
-   friend class SipRegistrar; 
+   friend class SipRegistrar;
 
    // State names are used for debugging
    static const char* STATE_NAMES[];
 
    OsBSem               mLock;       ///< must be held to access to other member variables.
-   SynchronizationState mSyncState; 
+   SynchronizationState mSyncState;
    Int64                mSentTo;
    Int64                mReceivedFrom;
    Url                  mUrl;        ///< XML RPC URL
@@ -164,4 +164,3 @@ private:
 };
 
 #endif // _REGISTRARPEER_H_
-

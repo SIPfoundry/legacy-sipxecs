@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +91,7 @@ class SipRedirectorGateway : public RedirectPlugin
    // String to use in place of class name in log messages:
    // "[instance] class".
    UtlString mLogName;
-   
+
    // Dialing prefix - fixed portion of routing prefix.
    UtlString mPrefix;
 
@@ -121,7 +121,7 @@ class SipRedirectorGateway : public RedirectPlugin
 
    // Socket for the HTTP server
    OsServerSocket* mpSocket;
-   
+
    // HTTP server for creating further mappings.
    HttpServer* mpServer;
 

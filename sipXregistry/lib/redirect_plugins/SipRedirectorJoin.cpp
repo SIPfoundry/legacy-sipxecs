@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
 
    // Fetch the configuration parameters for the workaround features.
    // Defaults are set to match the previous behavior of the code.
-   
+
    // One-second subscriptions.
    mOneSecondSubscription = configDb.getBoolean(CONFIG_SETTING_1_SEC, TRUE);
    OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -151,7 +151,7 @@ void SipRedirectorJoin::readConfig(OsConfigDb& configDb)
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s::readConfig Invalid format for "
-                       CONFIG_SETTING_WAIT " '%s'", 
+                       CONFIG_SETTING_WAIT " '%s'",
                        mLogName.data(), waitUS.data());
       }
       else if (
@@ -285,7 +285,7 @@ SipRedirectorJoin::lookUp(
 {
    UtlString userId;
    UtlString incomingCallId;
-       
+
    requestUri.getUserId(userId);
    message.getCallIdField(&incomingCallId);
 
@@ -391,7 +391,7 @@ SipRedirectorJoin::lookUpDialog(
    {
       UtlString userId;
       Url requestUri(requestString);
-      requestUri.getUserId(userId);      
+      requestUri.getUserId(userId);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "%s::lookUpDialog userId '%s'",
                     mLogName.data(), userId.data());
@@ -429,7 +429,7 @@ SipRedirectorJoin::lookUpDialog(
                                  NULL, // userLabel,
                                  tag.data());
       }
-          
+
       // Set the standard request headers.
       // Allow the SipUserAgent to fill in Contact:.
       subscribe.setRequestData(
@@ -461,32 +461,32 @@ SipRedirectorJoin::lookUpDialog(
          subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
                                   referencesValue);
       }
-   
+
       // Send the SUBSCRIBE.
       mpSipUserAgent->send(subscribe);
-   
+
       // Allocate private storage.
       SipRedirectorPrivateStorageJoin *storage =
          new SipRedirectorPrivateStorageJoin(requestSeqNo,
                                              redirectorNo);
       privateStorage = storage;
-   
+
       // Record the Call-Id of the SUBSCRIBE, so we can correlated the
       // NOTIFYs with it.
       storage->mSubscribeCallId = callId;
       // Record the state filtering criterion.
       storage->mStateFilter = stateFilter;
-   
+
       // If we are printing debug messages, record when the SUBSCRIBE
       // was sent, so we can report how long it took to get the NOTIFYs.
       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
       {
          OsDateTime::getCurTime(storage->mSubscribeSendTime);
       }
-   
+
       // Set the timer to resume.
       storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
-   
+
       // Suspend processing the request.
       return RedirectPlugin::SEARCH_PENDING;
    }
@@ -541,7 +541,7 @@ void SipRedirectorPrivateStorageJoin::processNotify(const char* body)
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SipRedirectorPrivateStorageJoin::processNotify "
                     "NOTIFY body invalid: '%s'", body);
-   } 
+   }
 }
 
 void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
@@ -639,7 +639,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
       else
       {
          /* Ignore unknown elements. */ ;
-      } 
+      }
    }
    // Report all the information we have on the dialog.
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -712,7 +712,7 @@ void SipRedirectorPrivateStorageJoin::processNotifyDialogElement(
       !remote_target.isNull() ? remote_target : remote_identity;
    mTargetDialogLocalURI =
       !local_target.isNull() ? local_target : local_identity;
-   mTargetDialogLocalIdentity = local_identity;   
+   mTargetDialogLocalIdentity = local_identity;
 }
 
 void SipRedirectorPrivateStorageJoin::processNotifyLocalRemoteElement(
@@ -790,7 +790,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
    switch (msgType)
    {
    case OsMsg::PHONE_APP:
-   {      
+   {
       // Get a pointer to the message.
       const SipMessage* message =
          ((SipMessageEvent&)eventMessage).getMessage();
@@ -843,7 +843,7 @@ SipRedirectorJoinTask::handleMessage(OsMsg& eventMessage)
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorJoinTask::handleMessage "
                                    "getBytes returns no body, ignoring");
-                  }                     
+                  }
                   else
                   {
                      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
@@ -947,7 +947,7 @@ const UtlString& SipRedirectorJoin::name( void ) const
 
 
 // Get and add the credentials for sipXregistrar
-SipLineMgr* 
+SipLineMgr*
 SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
 {
    SipLine* line = NULL;
@@ -964,7 +964,7 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
       UtlString ha1_authenticator;
       UtlString authtype;
       bool bSuccess = false;
-      
+
       if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
@@ -1027,14 +1027,14 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
                        ,identity.toString().data(), realm.data()
                        );
       }
-      
+
       if( !bSuccess )
       {
          delete line;
          line = NULL;
-         
+
          delete lineMgr;
-         lineMgr = NULL;         
+         lineMgr = NULL;
       }
    }
 

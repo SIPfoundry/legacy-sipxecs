@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,10 +27,10 @@
 // EXTERNAL FUNCTIONS
 
     // MWI is build in so we do not load a library for now
-    // Eventually this should look for a built in named 
+    // Eventually this should look for a built in named
     // entry point
     SubscribeServerPluginBase*
-    MwiPluginFactory(const TiXmlNode& pluginConfigDataNode, 
+    MwiPluginFactory(const TiXmlNode& pluginConfigDataNode,
                      Notifier* notifier );
 
 // FUNCTION POINTERS
@@ -60,9 +60,9 @@ PluginXmlParser::~PluginXmlParser()
 
 ///////////////////////////PUBLIC///////////////////////////////////
 
-OsStatus 
+OsStatus
 PluginXmlParser::loadPlugins (
-    const UtlString configFileName, 
+    const UtlString configFileName,
     Notifier* notifier )
 {
     OsStatus currentStatus = OS_SUCCESS;
@@ -86,14 +86,14 @@ PluginXmlParser::loadPlugins (
     // start loading plugins from the configuration file
     // Get the "subscribe-server-plugins" element.
     // It is a child of the document, and can be selected by name.
-    TiXmlNode* mMainPluginsNode = 
+    TiXmlNode* mMainPluginsNode =
         mDoc->FirstChild( XML_TAG_SUBSCRIBE_SERVER_PLUGINS );
 
     if ( !mMainPluginsNode )
     {
         OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
             "- No child Node for subscribe-server-plugins");
-        
+
         return OS_FILE_READ_FAILED;
     }
 
@@ -120,7 +120,7 @@ PluginXmlParser::loadPlugins (
                 TiXmlNode* attibuteNode = NULL;
                 SubscribeServerPluginBase* newPlugin = NULL;
 
-                // get event type associated with this plug in 
+                // get event type associated with this plug in
                 // create a new plugin for this event type
                 attibuteNode = pluginElement->FirstChild(XML_TAG_EVENT_TYPE);
                 if(attibuteNode)
@@ -136,11 +136,11 @@ PluginXmlParser::loadPlugins (
                             // MWI is built in so we do not load a library for now.
                             // Eventually we should remove this if block so it looks
                             // for DLL and entry point
-                            if(eventType.compareTo(SIP_EVENT_MESSAGE_SUMMARY, 
+                            if(eventType.compareTo(SIP_EVENT_MESSAGE_SUMMARY,
                                 UtlString::ignoreCase ) == 0)
                             {
                                 // create new plugin with the specific attributes defined in the node
-                                newPlugin = MwiPluginFactory( *pluginNode, 
+                                newPlugin = MwiPluginFactory( *pluginNode,
                                                              notifier );
                             }
 
@@ -158,21 +158,21 @@ PluginXmlParser::loadPlugins (
 
                 if( newPlugin)
                 {
-                    StatusPluginReference* pluginContainer = 
-                        new StatusPluginReference(*newPlugin, 
+                    StatusPluginReference* pluginContainer =
+                        new StatusPluginReference(*newPlugin,
                                                   eventType,
                                                   *pluginNode);
 
                     addPluginToList( pluginContainer );
-                } 
+                }
 		else
                 {
                     OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadMappings "
-                        "- No Plugin for Node number %d event type: %s", 
+                        "- No Plugin for Node number %d event type: %s",
                         index, eventType.data());
                 }
             }
-        }      
+        }
     }
     return currentStatus;
 }
@@ -193,7 +193,7 @@ PluginXmlParser::loadPlugin (
 	if (status != OS_SUCCESS)
 		return status;
 
-	// Dynamically load a library								
+	// Dynamically load a library
 	//OsSharedLibMgr* mgr = OsSharedLibMgr::getOsSharedLibMgr();
 	OsSharedLibMgrBase* mgr = OsSharedLibMgr::getOsSharedLibMgr();
 	if (!mgr)
@@ -201,7 +201,7 @@ PluginXmlParser::loadPlugin (
 	OsStatus dllStatus = mgr->loadSharedLib(dllTxt->Value());
 	if (dllStatus != OS_SUCCESS)
 		return dllStatus;
-	
+
 
 	// Find the entry point in the library for the factory
 	UtlString entryTagName = "plugin-factory";
@@ -212,7 +212,7 @@ PluginXmlParser::loadPlugin (
 	if (status != OS_SUCCESS)
 		return status;
 
-	OsStatus entryStatus = mgr->getSharedLibSymbol(dllTxt->Value(), entryTxt->Value(), 
+	OsStatus entryStatus = mgr->getSharedLibSymbol(dllTxt->Value(), entryTxt->Value(),
 		    (void*&)PluginFactoryProc);
 
 	if (entryStatus != OS_SUCCESS)
@@ -222,7 +222,7 @@ PluginXmlParser::loadPlugin (
 	*plugin = PluginFactoryProc(pluginElement, notifier);
 	if (*plugin == NULL)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadPlugin return null " 
+		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::loadPlugin return null "
 	        "SubscribeServerPluginBasemissing %s ", entryTxt->Value());
 		return OS_FAILED;
 	}
@@ -233,14 +233,14 @@ PluginXmlParser::loadPlugin (
 
 TiXmlElement*
 PluginXmlParser::requireElement (
-    const TiXmlElement& parent, 
-	const UtlString& tagName, 
+    const TiXmlElement& parent,
+	const UtlString& tagName,
 	OsStatus* err)
 {
 	TiXmlNode* n = (TiXmlNode*)parent.FirstChild(tagName.data());
 	if (!n)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ", 
+		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode missing %s ",
                         tagName.data());
 		*err = OS_FAILED;
 	}
@@ -248,7 +248,7 @@ PluginXmlParser::requireElement (
 	TiXmlElement* e = n->ToElement();
 	if (!e)
 	{
-		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode is not an element %s ", 
+		OsSysLog::add(FAC_SIP, PRI_ERR, "PluginXmlParser::requiredNode is not an element %s ",
                         tagName.data());
 		*err = OS_FAILED;
 	}
@@ -258,11 +258,11 @@ PluginXmlParser::requireElement (
 
 TiXmlText*
 PluginXmlParser::requireText (
-    const TiXmlElement& elem, 
+    const TiXmlElement& elem,
 	OsStatus* err)
 {
 	TiXmlNode* tn = (TiXmlNode*)elem.FirstChild();
-	if (tn != NULL && tn->Type() == TiXmlNode::TEXT) 
+	if (tn != NULL && tn->Type() == TiXmlNode::TEXT)
 	{
 		TiXmlText* t = tn->ToText();
 		if (t->Value() != NULL)
@@ -285,7 +285,7 @@ int PluginXmlParser::getListSize()
     return mPluginTable.entries();
 }
 
-StatusPluginReference* 
+StatusPluginReference*
 PluginXmlParser::getPlugin( const UtlString& eventType )
 {
     UtlString matchEventType(eventType);
@@ -294,13 +294,13 @@ PluginXmlParser::getPlugin( const UtlString& eventType )
       OsWriteLock writeLock(mListMutexW);
       pluginContainer = (StatusPluginReference*) mPluginTable.find(&matchEventType);
     }
-    
+
     if (!pluginContainer)
     {
         OsSysLog::add(FAC_SIP, PRI_WARNING, "PluginXmlParser::getPlugin "
             "eventType '%s' not found", eventType.data() );
     }
-      
+
     return pluginContainer;
 }
 ///////////////////////////PRIVATE///////////////////////////////////

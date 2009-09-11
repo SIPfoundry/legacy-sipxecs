@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -74,13 +74,13 @@ protected:
      */
     friend class SipImpliedSubscriptionsTest;
 
-    /// Is the UserAgent for this registration configured for implied subscriptions?  
+    /// Is the UserAgent for this registration configured for implied subscriptions?
     virtual
     bool needsImpliedSubscription( const SipMessage& registerMessage );
 
     /// Create a subscription request based on this registration.
     virtual
-    void buildSubscribeRequest( const SipMessage& registerMessage ///< the registration 
+    void buildSubscribeRequest( const SipMessage& registerMessage ///< the registration
                                ,int duration                      ///< seconds for the subscription
                                ,SipMessage& subscribeRequest      ///< returned request
                                ,UtlString&  callId   ///< callid from the request
@@ -102,14 +102,14 @@ protected:
 
 private:
     friend class ImpliedSubscriptionUserAgent;
-    
+
     static OsBSem*                  mpSingletonLock;
     static SipImpliedSubscriptions* mpSingleton;
 
     // String to use in place of class name in log messages:
     // "[instance] class".
     UtlString mLogName;
-    
+
     /**
      * Constructor is hidden so that only the factory can instantiate it.
      */
@@ -127,4 +127,3 @@ private:
 };
 
 #endif // SIPIMPLSUB_H
-

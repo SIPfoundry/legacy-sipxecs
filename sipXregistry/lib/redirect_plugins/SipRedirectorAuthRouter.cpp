@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ void SipRedirectorAuthRouter::readConfig(OsConfigDb& configDb)
          authUrl.setUrlParameter("lr",NULL);
 
          authUrl.toString(mAuthUrl);
-         
+
          OsSysLog::add(FAC_SIP,
                        (authProxyConfig.compareTo(mAuthUrl, UtlString::ignoreCase)
                         ? PRI_INFO : PRI_NOTICE),
@@ -94,7 +94,7 @@ SipRedirectorAuthRouter::initialize(OsConfigDb& configDb,
    // Get the secret to be used by signed Url
    OsConfigDb domainConfiguration;
    domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
-   UtlString* sharedSecret = new SharedSecret(domainConfiguration);   
+   UtlString* sharedSecret = new SharedSecret(domainConfiguration);
    SignedUrl::setSecret(sharedSecret->data());
    delete sharedSecret;
    return OS_SUCCESS;
@@ -118,7 +118,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    ErrorDescriptor& errorDescriptor)
 {
    RedirectPlugin::LookUpStatus lookupStatus = RedirectPlugin::SUCCESS; // always, so far
-   
+
    // Do the cheap global tests first
    //   Is there an authorization proxy route?
    //   Is the request method INVITE or SUBSCRIBE? (This operates only on INVITEs and
@@ -129,7 +129,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
    {
       int contacts = contactList.entries();
       if (   ((method.compareTo(SIP_INVITE_METHOD,    UtlString::ignoreCase) == 0) ||
-              (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0) ) 
+              (method.compareTo(SIP_SUBSCRIBE_METHOD, UtlString::ignoreCase) == 0) )
           && (contacts)
          )
       {
@@ -144,48 +144,48 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
               )
          {
             Url contactUri(contact);
-            
+
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "%s::lookUp contact %d '%s'",
                           mLogName.data(), contactNumber, contact.data()
                           );
 
-            // Prepend sipXproxy route to Route header parameter 
-            // to ensure that sipXproxy sees the request resulting 
-            // from 302 Moved Temporarily recursion unless a 
-            // signed route header already exists. Please refer to 
+            // Prepend sipXproxy route to Route header parameter
+            // to ensure that sipXproxy sees the request resulting
+            // from 302 Moved Temporarily recursion unless a
+            // signed route header already exists. Please refer to
             // SipRedirectorAuthRouter.h for more details.
             UtlString checkedRoute(mAuthUrl);
             bool bAddRouteToSipXProxy;
             UtlString routeValue;
-            
+
             if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, routeValue) )
             {
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "%s::lookUp contact %d Route value is '%s'",
                              mLogName.data(), contactNumber, routeValue.data() );
-               
+
                // Check if the first entry of the Route header parameter carries a valid
                // signature.URL parameter.  If it does, this indicates that the Route
                // was added by a trusted sipXproxy component, as such there is no need
-               // to add a Route to the sipXproxy.  
+               // to add a Route to the sipXproxy.
                Url routeUrl( routeValue );
                if( SignedUrl::isUrlSigned(  routeUrl ) )
                {
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "%s::lookUp contact %d Route not properly signed - no new route added",
-                                mLogName.data(), contactNumber );               
+                                mLogName.data(), contactNumber );
                   bAddRouteToSipXProxy = false;
                }
                else
                {
                   // there is already a Route header parameter in the contact but it is not signed
-                  // append it to the sipXproxy route to make sure it sees the request resulting from 
+                  // append it to the sipXproxy route to make sure it sees the request resulting from
                   // 302 recursion.
                   checkedRoute.append(SIP_MULTIFIELD_SEPARATOR);
                   checkedRoute.append(routeValue);
                   contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
-                  bAddRouteToSipXProxy = true;                  
+                  bAddRouteToSipXProxy = true;
                }
             }
             else
@@ -193,7 +193,7 @@ RedirectPlugin::LookUpStatus SipRedirectorAuthRouter::lookUp(
                contactUri.setHeaderParameter(SIP_ROUTE_FIELD, checkedRoute);
                bAddRouteToSipXProxy = true;
             }
-            
+
             if( bAddRouteToSipXProxy )
             {
                // and put the modified contact back into the message

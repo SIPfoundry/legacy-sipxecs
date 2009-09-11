@@ -17,5 +17,3 @@ call_event_examples.esc: call_event_examples.xml
 
 call_detail_record_schema.esc: ../../meta/call_detail_record.xsd
 	$(xml_entity_escape) < ../../meta/call_detail_record.xsd > call_detail_record_schema.esc
-
-

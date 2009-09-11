@@ -1,6 +1,6 @@
-// TODO: handle SDPs within multipart and or S/MIME bodies   
+// TODO: handle SDPs within multipart and or S/MIME bodies
 // TODO handle UPDATE
-// TODO: Ensure that LG-Nortel config plugin sets Line-based Proxy Address to 
+// TODO: Ensure that LG-Nortel config plugin sets Line-based Proxy Address to
 //       SIP domain, Outbound proxy address to SIP domain and domain to <blank>.
 //       This is required to allow call-park scenarios when park server sends
 //       REFERs with Refer-Tos containing the contact as opposed to the AOR.
@@ -10,11 +10,11 @@
 //        - SIP->Outbound Proxy->Address = SIP domain
 //        - SIP->Server[12] = <blank>
 //        - Lines->Server1->Address = SIP domain
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -84,7 +84,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
    OsWriteLock lock( mMessageProcessingMutex ); // ensures that we are not processing calls while we are setting the config
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig",
                  mInstanceName.data() );
- 
+
    UtlString fileName;
    if ( configDb.get( NAT_RULES_FILENAME_CONFIG_PARAM, fileName ) != OS_SUCCESS )
    {
@@ -92,7 +92,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          SipXecsService::Path(SipXecsService::ConfigurationDirType, NAT_TRAVERSAL_RULES_FILENAME );
 
       fileName = defaultPath;
-      
+
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalAgent[%s]::readConfig "
                     " no rules file configured; trying '%s'",
                     mInstanceName.data(), fileName.data()
@@ -106,21 +106,21 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
                     );
    }
    mNatTraversalRules.loadRules( fileName );
-   
+
    if( mNatTraversalRules.isEnabled() )
    {
       OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig: "
                     " NAT Traversal feature is ENABLED", mInstanceName.data() );
-      
+
       if( !mpMediaRelay )
       {
          mpMediaRelay = new MediaRelay();
       }
-      
+
       size_t attemptCounter;
       for( attemptCounter = 0; attemptCounter < MAX_MEDIA_RELAY_INIT_ATTEMPTS; attemptCounter++ )
       {
-         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() ); 
+         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig trying to initialize media relay with %d sessions", mInstanceName.data(), mNatTraversalRules.getMaxMediaRelaySessions() );
          if( mpMediaRelay->initialize( mNatTraversalRules.getMediaRelayPublicAddress(),
                                        mNatTraversalRules.getMediaRelayNativeAddress(),
                                        mNatTraversalRules.isXmlRpcSecured(),
@@ -135,7 +135,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
             sleep( 5 );
          }
       }
-      
+
       if( attemptCounter >= MAX_MEDIA_RELAY_INIT_ATTEMPTS )
       {
          mbNatTraversalFeatureEnabled = false;
@@ -149,7 +149,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          // enabling the NAT traversal feature.  Set the mbNatTraversalFeatureEnabled
          // complete the initialization required by the feature
          mbNatTraversalFeatureEnabled = true;
-         
+
          // connect to regDB as we may need to consult it from time to time.
          mpRegistrationDB = RegistrationDB::getInstance();
          mbConnectedToRegistrationDB = true;
@@ -178,18 +178,18 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                                                             *   without the scheme or any parameters.
                                                             */
                                       const Url&  requestUri, ///< parsed target Uri
-                                      RouteState& routeState, ///< the state for this request.  
+                                      RouteState& routeState, ///< the state for this request.
                                       const UtlString& method,///< the request method
                                       AuthResult  priorResult,///< results from earlier plugins.
                                       SipMessage& request,    ///< see AuthPlugin wrt modifying
-                                      bool bSpiralingRequest, ///< request spiraling indication 
+                                      bool bSpiralingRequest, ///< request spiraling indication
                                       UtlString&  reason      ///< rejection reason
                                       )
 {
    OsWriteLock lock( mMessageProcessingMutex );
-   
+
    AuthResult result = CONTINUE;
-   
+
    // do not look at request if we are still spiraling.  We are only interested in requests
    // that are about to be sent to the request target.
    if( priorResult != DENY && bSpiralingRequest == false )
@@ -198,12 +198,12 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
       {
          // clean up any of the proprietary headers we may have added
          request.removeHeader( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, 0 );
-         request.removeHeader( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );  
-         
+         request.removeHeader( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, 0 );
+
          UtlString msgBytes;
          ssize_t msgLen;
          request.getBytes(&msgBytes, &msgLen);
-         OsSysLog::add(FAC_NAT, PRI_DEBUG, "NTAP considering %s", msgBytes.data() );         
+         OsSysLog::add(FAC_NAT, PRI_DEBUG, "NTAP considering %s", msgBytes.data() );
 
          UtlString callId;
          UtlString method;
@@ -211,11 +211,11 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          const EndpointDescriptor* pCallee = 0;
          bool bDeleteEndpointDescriptors = false;
          CallTracker* pCallTracker = 0;
-         
+
          request.getCallIdField( &callId );
          request.getRequestMethod(&method);
          pCallTracker = getCallTrackerFromCallId( callId );
-         
+
          // Determine if the request is dialog-forming or not based on mutability of route state
          if( routeState.isMutable() )
          {
@@ -227,7 +227,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             {
                if( pCallTracker == 0 )
                {
-                  // We are not tracking this call, this means that it is 
+                  // We are not tracking this call, this means that it is
                   // a new call that we haven't seen yet.  Instantiate
                   // a new tracker to follow its media session negotiations
                   // and intervene as necessary to facilitate NAT traversal.
@@ -250,7 +250,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             else // non-INVITE dialog-forming request
             {
                // create endpoint descriptors for the caller and callee.  The location information
-               // they contain will be needed to encode the endpoints' public transport in the 
+               // they contain will be needed to encode the endpoints' public transport in the
                // route state later
                pCaller = SessionContext::createCallerEndpointDescriptor( request, mNatTraversalRules );
                pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, mpRegistrationDB );
@@ -259,8 +259,8 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                // needed for the dialog-forming requests and never after.
                bDeleteEndpointDescriptors = true;
             }
-            
-            // Look at the locations of the 
+
+            // Look at the locations of the
             // the returned caller and callee EndpointDescriptors to learn more about
             // the location of the caller and callee endpoints. If either of these endpoints
             // are located behind a remote NAT then special processing is required to ensure
@@ -274,7 +274,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // Every time requests are processed by this routine, if the request travels in the
             // caller->callee direction and no top route exists, a special X-SipX-Nat-Route:
             // header containing the callee's public IP address is added.  A symmetric operation
-            // is performed when requests travel in the callee->caller direction. The sipXtackLib is built  
+            // is performed when requests travel in the callee->caller direction. The sipXtackLib is built
             // to understand that header, strip it and route the request to the hostport it contains,
             // The net result of that operation is that the request will be sent to the endpoint's public
             // IP address and the request as seen on the wire will not contain X-SipX-Nat-Route: as it is
@@ -286,7 +286,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                {
                   pCaller->getPublicTransportAddress().toUrlString( urlString );
                   routeState.setParameter( mInstanceName.data(), CALLER_PUBLIC_TRANSPORT_PARAM, urlString );
-               }         
+               }
                if( pCallee->getLocationCode() == REMOTE_NATED )
                {
                   pCallee->getPublicTransportAddress().toUrlString( urlString );
@@ -300,25 +300,25 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          {
             directionIsCallerToCalled = routeState.directionIsCallerToCalled( mInstanceName.data() );
          }
-         
+
          UtlString topRoute;
          if( !request.getRouteUri( 0, &topRoute ) )
          {
-            // If the request target is behind a NAT and the request has an empty Route set (i.e. no 
+            // If the request target is behind a NAT and the request has an empty Route set (i.e. no
             // Route: headers), unless we intervene here, the request will simply be sent to the endpoint's
-            // private address which will fail to reach the endpoint.  To prevent that, when we are in the 
+            // private address which will fail to reach the endpoint.  To prevent that, when we are in the
             // presence of a request that has a routeState, we extract the public IP address transport
-            // in CrT (for caller) or CeT (for callee) from the RouteState and use that information in a 
+            // in CrT (for caller) or CeT (for callee) from the RouteState and use that information in a
             // SipxNatRoute that will cause the sipXtack to route the message to the proper routable address.
             //
-            // If no route state is present and the request is not an INVITE, then send the request to 
+            // If no route state is present and the request is not an INVITE, then send the request to
             // the IP address contained in the Request-URI if a x-sipX-privcontact URL parameter is present.
             //
             // If x-sipX-privcontact is present, the a SipxNatRoute will be added to the address in the request-URI.
             // Without this step, a request would get routed to the endpoint's private IP address:port as
             // captured in x-sipX-privcontact due to the call made to UndoChangesToRequestUri() later on
             // which restores the request-URI to contain the endpoint's private IP address.
-            UtlString sipxNatRouteString;         
+            UtlString sipxNatRouteString;
 
             const char* pParameterName = ( directionIsCallerToCalled ? CALLEE_PUBLIC_TRANSPORT_PARAM : CALLER_PUBLIC_TRANSPORT_PARAM );
             routeState.getParameter( mInstanceName.data(), pParameterName, sipxNatRouteString );
@@ -335,22 +335,22 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   requestUriAsTransport.toUrlString( sipxNatRouteString );
                }
             }
-            
+
             // If we managed to collect a sipXNatRoute value then set it in the message
             if( !sipxNatRouteString.isNull() )
             {
                request.setSipXNatRoute( sipxNatRouteString );
             }
          }
-         
+
          // OPTIMIZATION CODE
-         // The following lines of code implement an optimization that relieves the 
+         // The following lines of code implement an optimization that relieves the
          // NatTraversalAgent::handleOutputMessage() method of this class from having
          // to decode a request's routeState in order to implement its logic.  The
-         // logic in question requires two pieces of information that are encoded 
-         // in the RouteState, namely, the Session-Id ("id") and directioanlity of 
-         // the request. Given that the operation of decoding the RouteState 
-         // from a message is somewhat expensive and given that we already have it 
+         // logic in question requires two pieces of information that are encoded
+         // in the RouteState, namely, the Session-Id ("id") and directioanlity of
+         // the request. Given that the operation of decoding the RouteState
+         // from a message is somewhat expensive and given that we already have it
          // here in decoded form, we simply  write these two information elements
          // in plain-text in proprietary headers that we add to the message so that
          // NatTraversalAgent::handleOutputMessage() can simply  extract the
@@ -359,9 +359,9 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
          // decided that the benefits outweigthed the negatives.
          if( pCallTracker )
          {
-            // add proprietaty param to convey session context for the benefit of 
+            // add proprietaty param to convey session context for the benefit of
             // NatTraversalAgent::handleOutputMessage().
-            UtlString sessionId;            
+            UtlString sessionId;
             pCallTracker->getSessionContextHandle( routeState, sessionId );
 
             request.setHeaderValue( SIP_SIPX_SESSION_CONTEXT_ID_HEADER, sessionId.data(), 0 );
@@ -369,10 +369,10 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // add proprietary param that will tell our output processor the direction of the message
             if( directionIsCallerToCalled == true )
             {
-               request.setHeaderValue( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, "true", 0 );  
-            }      
+               request.setHeaderValue( SIP_SIPX_FROM_CALLER_DIRECTION_HEADER, "true", 0 );
+            }
          }
-         
+
          if( bDeleteEndpointDescriptors == true )
          {
             delete pCaller;
@@ -381,19 +381,19 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
       }
       // before to send out the message, undo any changes we may have performed on the Request-URI. Note that these
       // changes are performed even when the NAT traversal feature is disabled, that is why this operation is
-      // performed whether or not the NAT traversal feature is disabled. 
+      // performed whether or not the NAT traversal feature is disabled.
       UndoChangesToRequestUri( request );
       // Also, when are dealing with a non-INVITE requests,w e have seen cases where
       // our modified Contacts cause mis-routed re-SUBSCRIBEs (XX-6244 for example).
       // Given that our modified contacts do not play an active role in message routing
       // for non-INVITE transactions, we will undo our modifications here.
-      // NOTE: for INVITE transactions, the modified Contact is required for 
+      // NOTE: for INVITE transactions, the modified Contact is required for
       // proper NAT traversal of call park and call pickup involving remote workers,
       // that is why we only undo our contacts for non-INVITE transactions.
       if( method.compareTo( SIP_INVITE_METHOD ) != 0 )
       {
          restoreOriginalContact( request );
-      }      
+      }
    }
    return result;
 }
@@ -404,20 +404,20 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
 {
    OsWriteLock lock( mMessageProcessingMutex );
    CallTracker* pCallTracker = 0;
-   
+
    if( mbNatTraversalFeatureEnabled )
    {
       UtlString msgBytes;
       ssize_t msgLen;
       message.getBytes(&msgBytes, &msgLen);
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s", msgBytes.data() );         
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s", msgBytes.data() );
 
-      // Check if the sipXecs is located behind a NAT.  If it is and the message 
+      // Check if the sipXecs is located behind a NAT.  If it is and the message
       // is going to a destination that is not on our local private subnet then
       // we need to alter the our via: to advertize our public IP address.  A similar
       // alteration must be done to requests carrying our Record-Route.
       adjustViaForNatTraversal( message, address, port );
-      adjustRecordRouteForNatTraversal( message, address, port );      
+      adjustRecordRouteForNatTraversal( message, address, port );
 
       pCallTracker = getCallTrackerForMessage( message );
       if( pCallTracker )
@@ -429,7 +429,7 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
          else // handling a response
          {
             pCallTracker->handleResponse( message, address, port );
-         }   
+         }
       }
       else
       {
@@ -441,7 +441,7 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
 
 void NatTraversalAgent::UndoChangesToRequestUri( SipMessage& message )
 {
-   // If the Request-URI has a x-sipX-privcontact, that IP and port that it contains are going to be used  
+   // If the Request-URI has a x-sipX-privcontact, that IP and port that it contains are going to be used
    // to set the Request-URI's IP and port to ensure that the endpoint gets the Request-URI it is expecting.
    // Once this is done, the x-sipX-privcontact is removed.
    if( !message.isResponse() )
@@ -456,13 +456,13 @@ void NatTraversalAgent::UndoChangesToRequestUri( SipMessage& message )
          Url tempUrl;
          tempUrl.fromString( tempUrlString, TRUE );
          UtlString hostAddressString;
-         
+
          tempUrl.getHostAddress( hostAddressString );
          requestUri.setHostAddress( hostAddressString );
          requestUri.setHostPort( tempUrl.getHostPort() );
          requestUri.removeUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM );
          requestUri.getUri( tempUrlString );
-         message.changeRequestUri( tempUrlString );       
+         message.changeRequestUri( tempUrlString );
       }
    }
 }
@@ -472,17 +472,17 @@ OsStatus NatTraversalAgent::signal( intptr_t eventData )
    OsWriteLock lock( mMessageProcessingMutex );
    // send a timer event to all instantiated CallTracker objects
    UtlHashMapIterator CallTrackerIterator( mCallTrackersMap );
-   
+
    while( CallTrackerIterator() )
    {
       CallTracker *pCallTracker;
       pCallTracker = dynamic_cast<CallTracker*>( CallTrackerIterator.value() );
-      
+
       if( pCallTracker->handleCleanUpTimerTick() )
       {
          mCallTrackersMap.destroy( CallTrackerIterator.key() );
       }
-   }      
+   }
    return OS_SUCCESS;
 }
 
@@ -508,7 +508,7 @@ void NatTraversalAgent::announceAssociatedSipRouter( SipRouter* sipRouter )
          publicTransportAlias += portNumericForm;
          mpSipRouter->addHostAlias( publicTransportAlias );
       }
-      
+
       // launch thread that will maintain NAT keep alives
       mpNatMaintainer = new NatMaintainer( sipRouter );
       mpNatMaintainer->start();
@@ -536,9 +536,9 @@ void NatTraversalAgent::adjustViaForNatTraversal( SipMessage& message, const cha
             NameValueTokenizer::getSubField( topmostVia, 1, SIP_SUBFIELD_SEPARATORS, &sentByAndViaParams );
             UtlString viaParams;
             NameValueTokenizer::getSubField( sentByAndViaParams, 1, ";", &viaParams );
-            
-            message.removeTopVia();  
-            
+
+            message.removeTopVia();
+
             UtlString newVia;
             char portNumericForm[24];
             sprintf( portNumericForm, "%d", mNatTraversalRules.getPublicTransportInfo().getPort() );
@@ -549,7 +549,7 @@ void NatTraversalAgent::adjustViaForNatTraversal( SipMessage& message, const cha
             newVia += portNumericForm;
             newVia += ";";
             newVia += viaParams;
-            
+
             message.addViaField( newVia, TRUE );
          }
       }
@@ -565,17 +565,17 @@ void NatTraversalAgent::adjustViaForNatTraversal( SipMessage& message, const cha
 // * If the message is a response, the behavior depends on the location of the destination:
 //   * If the destination is part of our local private network then scan the Record-Route set
 //     in search of the first unhandled entry matching or public or private IP address.  If one is found, change its
-//     hostport to be our private IP address to ensure that subsequent in-dialog requests sent by that 
+//     hostport to be our private IP address to ensure that subsequent in-dialog requests sent by that
 //     endpoint do get routed back to us and mark the entry as handled..
 //   * If the destination is outside of our local private network then scan the Record-Route set
 //     in search of the first unhandled entry matching our private or public IP address.  If one is found, change its
-//     hostport to be our public IP address to ensure that subsequent in-dialog requests sent by that 
+//     hostport to be our public IP address to ensure that subsequent in-dialog requests sent by that
 //     endpoint do get routed back to us and mark the entry as handled.
 void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, const char* address, int port )
 {
    bool bDestInsideLocalPrivateNetwork = mNatTraversalRules.isPartOfLocalTopology( address, true, true );
    UtlString tmpRecordRoute;
-   
+
    UtlString replacementAddress;
    int       replacementPort = 0;
 
@@ -589,21 +589,21 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
       replacementAddress = mNatTraversalRules.getPublicTransportInfo().getAddress();
       replacementPort    = mNatTraversalRules.getPublicTransportInfo().getPort();
    }
-   
+
    if( !message.isResponse() )
    {
       if( message.getRecordRouteUri( 0, &tmpRecordRoute ) )
       {
          Url tmpRecordRouteUrl( tmpRecordRoute );
          UtlString tmpRecordRouteHost;
-         
-         tmpRecordRouteUrl.getHostAddress( tmpRecordRouteHost );
-         int tmpRecordRoutePort = tmpRecordRouteUrl.getHostPort();            
 
-         if( ( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress()  && 
-             tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() ) 
+         tmpRecordRouteUrl.getHostAddress( tmpRecordRouteHost );
+         int tmpRecordRoutePort = tmpRecordRouteUrl.getHostPort();
+
+         if( ( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress()  &&
+             tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() )
            ||
-           ( tmpRecordRouteHost == mNatTraversalRules.getPublicTransportInfo().getAddress() && 
+           ( tmpRecordRouteHost == mNatTraversalRules.getPublicTransportInfo().getAddress() &&
              tmpRecordRoutePort == mNatTraversalRules.getPublicTransportInfo().getPort() )  )
          {
                // the top route points to us, change it for the replacment IP:Port
@@ -611,7 +611,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                tmpRecordRouteUrl.setHostPort( replacementPort );
 
                UtlString newtmpRecordRouteValue;
-               tmpRecordRouteUrl.toString( newtmpRecordRouteValue );                        
+               tmpRecordRouteUrl.toString( newtmpRecordRouteValue );
                message.setRecordRouteField(newtmpRecordRouteValue.data(), 0 );
          }
       }
@@ -620,9 +620,9 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
    {
       // Check if we are the intended destination of the response.  This can happen when
       // a request has spiraled through the system before being sent to the request target.
-      // There is no point in analyzing the RecordRoute on every pass inside the spiral - 
+      // There is no point in analyzing the RecordRoute on every pass inside the spiral -
       // only do it if the destination is not us.
-      
+
       if( address != mNatTraversalRules.getProxyTransportInfo().getAddress() ||
           port    != mNatTraversalRules.getProxyTransportInfo().getPort() )
       {
@@ -644,11 +644,11 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
          // RecordRoute: <sip:ModifiedIP:ModifiedPort>
          // RecordRoute: <sip:IP4:port4>
          // RecordRoute: <sip:IP5:port5>
-      
+
          int readRecordRouteIndex = 0;
          int writeRecordRouteIndex = 0;
          bool bRecordRouteAdjusted = false;
-         
+
          while( message.getRecordRouteUri( readRecordRouteIndex, &tmpRecordRoute ) )
          {
             Url tmpRecordRouteUrl( tmpRecordRoute );
@@ -657,12 +657,12 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
             int tmpRecordRoutePort = tmpRecordRouteUrl.getHostPort();
 
             if( !bRecordRouteAdjusted &&
-                ( ( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress() && 
-                    tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() ) 
+                ( ( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress() &&
+                    tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() )
                   ||
-                  ( tmpRecordRouteHost == mNatTraversalRules.getPublicTransportInfo().getAddress() && 
-                    tmpRecordRoutePort == mNatTraversalRules.getPublicTransportInfo().getPort() ) 
-                ) 
+                  ( tmpRecordRouteHost == mNatTraversalRules.getPublicTransportInfo().getAddress() &&
+                    tmpRecordRoutePort == mNatTraversalRules.getPublicTransportInfo().getPort() )
+                )
               )
             {
                // we found a Record-Route to us - check if it has already been adjusted and if not,
@@ -673,8 +673,8 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                   tmpRecordRouteUrl.setHostAddress( replacementAddress );
                   tmpRecordRouteUrl.setHostPort( replacementPort );
                   tmpRecordRouteUrl.setUrlParameter( SIPX_DONE_URI_PARAM, NULL );
-   
-                  tmpRecordRouteUrl.toString( tmpRecordRoute );                        
+
+                  tmpRecordRouteUrl.toString( tmpRecordRoute );
                   bRecordRouteAdjusted = true;
                }
             }
@@ -696,17 +696,17 @@ void NatTraversalAgent::adjustReferToHeaderForNatTraversal( SipMessage& message,
 {
    return;
    UtlString method;
-   message.getRequestMethod(&method);      
-   
+   message.getRequestMethod(&method);
+
    if( method.compareTo( SIP_REFER_METHOD ) == 0 )
    {
       UtlString referToStr;
       if (message.getReferToField( referToStr ) )
       {
-         
+
          // Check if we are the intended destination of the REFER.  This can happen when
          // a request is spiraling through the system before being sent to the request target.
-         // There is no point in analyzing the REFER on every pass inside the spiral - 
+         // There is no point in analyzing the REFER on every pass inside the spiral -
          // only do it if the destination is not us.
          if( address != mNatTraversalRules.getProxyTransportInfo().getAddress() ||
              port    != mNatTraversalRules.getProxyTransportInfo().getPort() )
@@ -714,41 +714,41 @@ void NatTraversalAgent::adjustReferToHeaderForNatTraversal( SipMessage& message,
             Url referToUrl( referToStr );
             UtlString dummyValue;
 
-            // if the Refer-To already has a Route: header parameter, do not 
+            // if the Refer-To already has a Route: header parameter, do not
             // interfere and leave things the way they are.  The assumption here
-            // is that whoever added that Route header parameter will take care 
+            // is that whoever added that Route header parameter will take care
             // NAT traversal.
             if( !referToUrl.getHeaderParameter( SIP_ROUTE_FIELD, dummyValue ) )
             {
                // check if the host address of the Refer-To url is in IP address format
                // and it is, check to see it is ours.
                UtlString referToHost;
-               
+
                referToUrl.getHostAddress( referToHost );
                RegEx ipV4("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$");
                if( ipV4.Search( referToHost.data() ) )
                {
                   // endpoint processing the REFER will try to send the INVITE resulting
-                  // from the REFER processing directly to the IP address specified in the 
+                  // from the REFER processing directly to the IP address specified in the
                   // Refer-To: header which can cause 2 problems:
                   // #1- IP address may not be routable
-                  // #2- even if #1 is not a problem, this will break the symmetric 
+                  // #2- even if #1 is not a problem, this will break the symmetric
                   //     signaling which can lead to some NATs dropping the resulting INVITE
                   // To remedy to that, add ourself in the signaling loop so that we
                   // become the recipient of the INVITE by adding a ROUTE header parameter
                   // pointing to us in the Refer-To header.  That INVITE will be processed
-                  // by the NAT traversal feature which will likely compensate for any 
+                  // by the NAT traversal feature which will likely compensate for any
                   // NAT in the path.
                   Url routeHeaderParamUrl;
                   if( mNatTraversalRules.isPartOfLocalTopology( address, true, true ) )
                   {
-                     routeHeaderParamUrl.setHostAddress( mNatTraversalRules.getProxyTransportInfo().getAddress().data() );                     
-                     routeHeaderParamUrl.setHostPort( mNatTraversalRules.getProxyTransportInfo().getPort() );                     
+                     routeHeaderParamUrl.setHostAddress( mNatTraversalRules.getProxyTransportInfo().getAddress().data() );
+                     routeHeaderParamUrl.setHostPort( mNatTraversalRules.getProxyTransportInfo().getPort() );
                   }
                   else
                   {
-                     routeHeaderParamUrl.setHostAddress( mNatTraversalRules.getPublicTransportInfo().getAddress().data() );                     
-                     routeHeaderParamUrl.setHostPort( mNatTraversalRules.getPublicTransportInfo().getPort() );                     
+                     routeHeaderParamUrl.setHostAddress( mNatTraversalRules.getPublicTransportInfo().getAddress().data() );
+                     routeHeaderParamUrl.setHostPort( mNatTraversalRules.getPublicTransportInfo().getPort() );
                   }
                   routeHeaderParamUrl.setUrlParameter("lr", NULL );
                   UtlString routeHeaderString;
@@ -757,7 +757,7 @@ void NatTraversalAgent::adjustReferToHeaderForNatTraversal( SipMessage& message,
                   referToUrl.setHeaderParameter(SIP_ROUTE_FIELD, routeHeaderString );
                   UtlString newReferToField;
                   referToUrl.toString( newReferToField );
-                  
+
                   UtlString toMatch("%3A");
                   ssize_t matchIndex;
                   char replacementString[] = ":";
@@ -773,8 +773,8 @@ void NatTraversalAgent::adjustReferToHeaderForNatTraversal( SipMessage& message,
    }
 }
 
-CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& callId, ssize_t trackerHandle )        
-{         
+CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& callId, ssize_t trackerHandle )
+{
    // Allocate new CallTracker object and its key and insert it into our mCallTrackersMap.
    UtlString*   pMapKey      = new UtlString( callId );
    CallTracker* pCallTracker = new CallTracker( trackerHandle, &mNatTraversalRules, mpMediaRelay, mpRegistrationDB, mpNatMaintainer, mInstanceName );
@@ -788,7 +788,7 @@ CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& c
                                         mInstanceName.data(), callId.data() );
    }
    return pCallTracker;
-}         
+}
 
 CallTracker* NatTraversalAgent::getCallTrackerForMessage( const SipMessage& message )
 {
@@ -834,8 +834,8 @@ bool NatTraversalAgent::restoreOriginalContact( SipMessage& request )
 /// destructor
 NatTraversalAgent::~NatTraversalAgent()
 {
-   OsWriteLock lock( mMessageProcessingMutex );   
-   
+   OsWriteLock lock( mMessageProcessingMutex );
+
    mCleanupTimer.stop();
    delete mpNatMaintainer;
    if( mpSipRouter && mbOutputProcessorRegistrrationDone == true )
@@ -843,8 +843,8 @@ NatTraversalAgent::~NatTraversalAgent()
       mpSipRouter->removeSipOutputProcessor( this );
       mbOutputProcessorRegistrrationDone = false;
    }
-   mCallTrackersMap.destroyAll();   
-   
+   mCallTrackersMap.destroyAll();
+
    if( mbConnectedToRegistrationDB )
    {
       mpRegistrationDB->releaseInstance();

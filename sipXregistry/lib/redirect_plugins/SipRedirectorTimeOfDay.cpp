@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -108,7 +108,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
    UtlString contact;
 
    // Iterate over the existing contact headers in a last-to-first order
-   // It is important that the iteration is in this order 
+   // It is important that the iteration is in this order
    // to allow some contact headers to be removed in the process
    // without impacting the operation of the loop
    for ( int contactIndex = numContactsInList - 1;
@@ -125,7 +125,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
       else
       {
          Url contactUri(contact);
-      
+
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "%s::processContactList contact %d '%s'",
                        mLogName.data(), contactIndex, contact.data());
@@ -171,7 +171,7 @@ RedirectPlugin::LookUpStatus SipRedirectorTimeOfDay::processContactList(ContactL
 
 /**
  * TimeString format: start1:end1:start2:date2:...startn:endn
- * start and end are minutes from Sunday 00:00 UTC expressed as hex numbers 
+ * start and end are minutes from Sunday 00:00 UTC expressed as hex numbers
  * "0000:01E4:0200:024F"
  */
 UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validityString)
@@ -179,7 +179,7 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
    bool inContactInterval = false;
 
    unsigned long osCurTimeSinceEpoch = OsDateTime::getSecsSinceEpoch();
-   // 
+   //
    // (SecondsSinceEpoch/60)%10080 = minutes from 00:00 Sunday UTC
    // 10080=24*60*7 - minutes in one week; 4320=3*24*60 - minutes between Sunday and Thursday
    // Jan 1 1970 was a Thursday.  Adjust to obtain minutes from Sunday
@@ -211,7 +211,7 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
       }
       else
       {
-         int endMinutes; 
+         int endMinutes;
          if (!from_string(endMinutes, endMinString))
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -224,7 +224,7 @@ UtlBoolean SipRedirectorTimeOfDay::isCurrentTimeValid(UtlString const & validity
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipRedirectorTimeOfDay::isCurrentTimeValid interval: start: '%s' end: '%s'",
                           startMinString.data(), endMinString.data());
-      
+
             if ( startMinutes <= minFromSunday && minFromSunday <= endMinutes )
             {
                inContactInterval = true;
@@ -239,4 +239,3 @@ const UtlString& SipRedirectorTimeOfDay::name( void ) const
 {
    return mLogName;
 }
-

@@ -20,8 +20,8 @@
     <annotation>
       <documentation>
         Contains one or more route elements.
-        Each route element is evaluated until a route is found. 
-        If no route is found and a final routeTo element is present, then 
+        Each route element is evaluated until a route is found.
+        If no route is found and a final routeTo element is present, then
         that route is used.
       </documentation>
     </annotation>
@@ -31,7 +31,7 @@
         <element ref='dmp:routeTo' minOccurs='0' maxOccurs='1'/>
       </sequence>
     </complexType>
-    
+
     <key name="routeTypeName"> <!-- each route element must have an unique mappingType value -->
       <selector xpath=".//route"/>
       <field xpath="@mappingType"/>
@@ -44,7 +44,7 @@
       A route may contain:
         multiple routeFrom elements, followed by a single methodMatch element.
         optionally followed by a single routeTo element.
-     
+
       The host part of the target URI is compared with each routeFrom element until one matches.
         if none match, the routeTo element is used.
       </documentation>
@@ -71,31 +71,31 @@
   <element name='routeFrom'>
     <annotation>
       <documentation>
-        The host part of the target URI is compared with each routeFrom 
-        until one matches.  
+        The host part of the target URI is compared with each routeFrom
+        until one matches.
         The host part must match exactly.
         The port must match exactly, except that the value 5060 matches
         an unspecified value.
       </documentation>
     </annotation>
-    <simpleType> 
+    <simpleType>
       <restriction base="normalizedString">
         <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?" />
       </restriction>
     </simpleType>
   </element>
-  
+
   <element name='routeIPv4subnet'>
     <annotation>
       <documentation>
-        A series of IPv4 address decimal octet values separated by dots (.), 
-        followed by a forward slash (/) and a decimal number of bits to 
-        be used as a subnet mask value.  
+        A series of IPv4 address decimal octet values separated by dots (.),
+        followed by a forward slash (/) and a decimal number of bits to
+        be used as a subnet mask value.
         In order to match an IPv4subnet value, the request uri domain must
         be a valid IPv4 dotted quad address whose value is within the subnet
-        specified.  
+        specified.
         No port number may be specified, and port is not considered in the match.
-        
+
       </documentation>
     </annotation>
     <simpleType>
@@ -155,7 +155,7 @@
     <annotation>
       <documentation>
         A string value used to match the method of a SIP request;
-        note that despite the name, it must match the entire pattern - it 
+        note that despite the name, it must match the entire pattern - it
         is not a regular expression or other pattern match.
         Matching is (as defined by SIP for all tokens) case independent.
       </documentation>
@@ -172,7 +172,7 @@
       <enumeration value='Event'/>
     </restriction>
   </simpleType>
-  
+
   <element name='fieldMatch'>
     <annotation>
       <documentation>
@@ -214,7 +214,7 @@
        </simpleContent>
     </complexType>
   </element>
-  
+
   <element name='description' type='string'>
     <annotation>
       <documentation>
@@ -224,4 +224,3 @@
   </element>
 
 </schema>
-

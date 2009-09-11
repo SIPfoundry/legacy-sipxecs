@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -21,7 +21,7 @@
 
 enum BuildStates // used in builderStateOk
 {
-   Initial          = 0x0000, 
+   Initial          = 0x0000,
    BetweenEvents    = 0x0001,
    CallEventStarted = 0x0002, /* --\                                                 */
    CallDataAdded    = 0x0004, /*  these three are ORed together to form combinations */
@@ -68,7 +68,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
    bool isValid = false; // pessimism is safe
 #  define VALID(newState) { isValid = true; buildState = (newState); }
 #  define INVALID /* no-op, because isValid is already false, but useful as documentation */
-   
+
    if (BuilderReset == method)
    {
       // always valid - equivalent to a builderReset call
@@ -96,7 +96,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
          default:
             INVALID;
          }
-      
+
       case CallEventStarted:
       case CallEventStarted|ViaAdded:
          switch (method)
@@ -110,7 +110,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
          default:
             INVALID;
          }
-      
+
       case CallEventStarted|CallDataAdded:
          switch (method)
          {
@@ -133,7 +133,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
          default:
             INVALID;
          }
-         
+
       default:
       {
          INVALID;
@@ -251,15 +251,15 @@ void CallStateEventBuilder::callEndEvent(const int sequenceNumber,
  *   - addEventVia (at least for via index zero)
  *   - completeCallEvent
  */
-void CallStateEventBuilder::callTransferEvent(int sequenceNumber, 
-                                              const OsTime& timeStamp, 
+void CallStateEventBuilder::callTransferEvent(int sequenceNumber,
+                                              const OsTime& timeStamp,
                                               const UtlString& contact,
                                               const UtlString& refer_to,
                                               const UtlString& referred_by,
                                               const UtlString& request_uri)
 {
    bool CalledBaseClassMethod_callTransferEvent = false;
-   assert(CalledBaseClassMethod_callTransferEvent);    
+   assert(CalledBaseClassMethod_callTransferEvent);
 }
 
 
@@ -276,10 +276,10 @@ void CallStateEventBuilder::addCallData(const int cseqNumber,
    assert(CalledBaseClassMethod_addCallData);
 }
 
-   
+
 /// Add a via element for the event
 /**
- * Record a Via from the message for this event 
+ * Record a Via from the message for this event
  * Calls to this routine are in reverse cronological order - the last
  * call for an event should be the via added by the message originator
  */
@@ -297,4 +297,3 @@ void CallStateEventBuilder::completeCallEvent()
    bool CalledBaseClassMethod_completeCallEvent = false;
    assert(CalledBaseClassMethod_completeCallEvent);
 }
-

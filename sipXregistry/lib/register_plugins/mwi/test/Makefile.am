@@ -22,4 +22,3 @@ testsuite_CXXFLAGS = \
 #             any test that uses any UtlContainer.
 testsuite_SOURCES = \
 	SipImpliedSubscriptionsTest.cpp
-

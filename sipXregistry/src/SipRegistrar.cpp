@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -110,7 +110,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    {
       mProxyNormalPort = SIP_PORT;
    }
-    
+
    // Domain Name
    mConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
    if ( mDefaultDomain.isNull() )
@@ -162,19 +162,19 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
       addValidDomain(hostAlias,port);
       aliasIndex++;
    }
-   
+
    mConfigDb->get("SIP_REGISTRAR_BIND_IP", mBindIp);
    if ((mBindIp.isNull()) || !OsSocket::isIp4Address(mBindIp))
    {
 	  mBindIp = "0.0.0.0";
-   }   
+   }
 }
 
 int SipRegistrar::run(void* pArg)
 {
    UtlBoolean bFatalError = false;
    int taskResult = 0;
-   
+
    startRpcServer(bFatalError);
    if (!bFatalError)
    {
@@ -182,8 +182,8 @@ int SipRegistrar::run(void* pArg)
        * If replication is configured,
        *   the following blocks until the state of each peer is known
        */
-      startupPhase(); 
-       
+      startupPhase();
+
       if (!isShuttingDown())
       {
          // Exit if the operational phase fails (e.g. SipUserAgent reports
@@ -272,7 +272,7 @@ UtlBoolean SipRegistrar::operationalPhase()
    {
       udpPort = REGISTRAR_DEFAULT_SIP_PORT;
    }
-  
+
    tcpPort = mConfigDb->getPort("SIP_REGISTRAR_TCP_PORT");
    if (tcpPort == PORT_DEFAULT)
    {
@@ -284,7 +284,7 @@ UtlBoolean SipRegistrar::operationalPhase()
    {
       tlsPort = REGISTRAR_DEFAULT_SIPS_PORT;
    }
-   
+
    mSipUserAgent = new SipUserAgent(tcpPort,
                                     udpPort,
                                     tlsPort,
@@ -322,7 +322,7 @@ UtlBoolean SipRegistrar::operationalPhase()
       mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
 
       mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
-      mSipUserAgent->allowExtension("path"); 
+      mSipUserAgent->allowExtension("path");
 
       mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
    }
@@ -396,7 +396,7 @@ bool SipRegistrar::isReplicationConfigured()
 RegistrationDB* SipRegistrar::getRegistrationDB()
 {
    return mRegistrationDB;
-}    
+}
 
 /// Get the config DB
 OsConfigDb* SipRegistrar::getConfigDB()
@@ -427,7 +427,7 @@ SipRegistrar::~SipRegistrar()
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ waiting for task exit");
 
    waitUntilShutDown(); // wait for the thread to exit
-   
+
    // all other threads have been shut down
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
 
@@ -443,7 +443,7 @@ SipRegistrar::~SipRegistrar()
    }
 }
 
-/// Get the default domain name for this registrar 
+/// Get the default domain name for this registrar
 const char* SipRegistrar::defaultDomain() const
 {
    return mDefaultDomain.data();
@@ -460,7 +460,7 @@ int SipRegistrar::domainProxyPort() const
 UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 {
     UtlBoolean handled = FALSE;
-    
+
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
 
@@ -489,18 +489,18 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                 }
                 else if ( method.compareTo(SIP_OPTIONS_METHOD) == 0 )
                 {
-                    UtlString requestUri;                    
+                    UtlString requestUri;
                     message->getRequestUri(&requestUri);
 
-                    // Check if the OPTIONS request URI is addressed to a user or 
+                    // Check if the OPTIONS request URI is addressed to a user or
                     // to the domain.
                     if (!requestUri.contains("@"))
                     {
                         UtlString contentEncoding;
                         message->getContentEncodingField(&contentEncoding);
-                        
+
                         UtlString disallowedExtensions;
-                        
+
                         int extensionIndex = 0;
                         UtlString extension;
 
@@ -521,9 +521,9 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
                         //delete leading and trailing white spaces
                         disallowedExtensions = disallowedExtensions.strip(UtlString::both);
-                        
+
                         SipMessage response;
-                        
+
                         // Check if the extensions are supported
                         if(!disallowedExtensions.isNull() )
                         {
@@ -546,7 +546,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                                                      SIP_OK_CODE,
                                                      SIP_OK_TEXT);
                         }
-                        
+
                         mSipUserAgent->send(response);
                     }
                     else
@@ -576,7 +576,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
         handled = TRUE;
     }
     else if ( OsMsg::OS_SHUTDOWN == msgType )
-    {      
+    {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipRegistrar::handleMessage shutting down all tasks");
 
@@ -675,7 +675,7 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                      msgType, msgSubType
                      ) ;
     }
-    
+
     return handled;
 }
 
@@ -688,7 +688,7 @@ SipRegistrar::getInstance(OsConfigDb* configDb)
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p)",
                      configDb);
-       
+
        spInstance = new SipRegistrar(configDb);
     }
 
@@ -714,7 +714,7 @@ void SipRegistrar::configurePeers()
    mPrimaryName.remove(0);
 
    UtlString peersMsg;
-   
+
    mConfigDb->get("SIP_REGISTRAR_NAME", mPrimaryName);
 
    if (! mPrimaryName.isNull())
@@ -730,7 +730,7 @@ void SipRegistrar::configurePeers()
       if (!peerNames.isNull())
       {
          UtlString peerName;
-         
+
          for (int peerIndex = 0;
               NameValueTokenizer::getSubField(peerNames.data(), peerIndex, ", \t", &peerName);
               peerIndex++
@@ -779,7 +779,7 @@ void SipRegistrar::configurePeers()
    }
 }
 
-    
+
 /// If replication is configured, then name of this registrar as primary
 const UtlString& SipRegistrar::primaryName() const
 {
@@ -791,7 +791,7 @@ const UtlString& SipRegistrar::primaryName() const
 void SipRegistrar::startRpcServer(UtlBoolean& bFatalError)
 {
     bFatalError = false; // disable is not a fatal error
-   
+
    // Begins operation of the HTTP/RPC service
    // sets mHttpServer and mXmlRpcDispatcher
    if (mReplicationConfigured)
@@ -850,7 +850,7 @@ SipRegistrar::startEventServer()
    {
       port = REGISTRAR_DEFAULT_REG_EVENT_PORT;
    }
-      
+
    mRegisterEventServer = new RegisterEventServer(defaultDomain(),
                                                   port,
                                                   port,
@@ -931,9 +931,8 @@ SipRegistrar::addValidDomain(const UtlString& host, int port)
    char explicitPort[20];
    sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
    valid->append(explicitPort);
-   
+
    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::addValidDomain(%s)",valid->data()) ;
 
    mValidDomains.insert(valid);
 }
-

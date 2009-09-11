@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +86,7 @@ class SipRedirectorPickUp : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
    // Enum for values that describe the states of dialogs, and also
@@ -176,7 +176,7 @@ class SipRedirectorPickUp : public RedirectPlugin
       SipRedirectorPrivateStorage*& privateStorage,
       const char* subscribeUser,
       State stateFilter);
-   
+
    SipLineMgr* addCredentials(UtlString domain, UtlString realm);
 };
 
@@ -235,7 +235,7 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
    friend class SipRedirectorPickUpTask;
 
   public:
-   
+
    SipRedirectorPrivateStoragePickUp(RedirectPlugin::RequestSeqNo requestSeqNo,
                                      int redirectorNo);
 

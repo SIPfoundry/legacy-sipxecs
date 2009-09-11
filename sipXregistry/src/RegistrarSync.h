@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _REGISTRARSYNC_H_
@@ -33,13 +33,13 @@ public:
 
    /// destructor
    virtual ~RegistrarSync();
-  
+
    /// Signal that there may be updates ready to send.
    void sendUpdates();
 
    /// Send any updates that we can.
    UtlBoolean handleMessage(OsMsg& eventMessage);
-   
+
 protected:
    SipRegistrarServer& getRegistrarServer();
 

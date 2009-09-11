@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@
 // empty field means to not request suspension (for this processing),
 // a non-empty field means to request suspension and then request
 // resume after that number of seconds.  A field of '*' means to return
-// ERROR on that cycle.  The redirector will never add a contact 
+// ERROR on that cycle.  The redirector will never add a contact
 // to the call.
 //
 // E.g., "t1=10" means to suspend for 10 seconds.

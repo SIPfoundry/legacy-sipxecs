@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@
 #       include <resparse/wnt/resolv/resolv.h>
 #       include <winsock.h>
 extern "C" {
-#       include "resparse/wnt/inet_aton.h"       
+#       include "resparse/wnt/inet_aton.h"
 }
 #elif defined(_VXWORKS)
 #       include <stdio.h>
@@ -214,7 +214,7 @@ SipRedirectorISN::lookUp(
       // To hold the return of res_query_and_parse.
       res_response* dns_response;
       const char* canonical_name;
-      
+
       // Make the query and parse the response.
       SipSrvLookup::res_query_and_parse(domain, T_NAPTR, NULL, canonical_name, dns_response);
 
@@ -362,7 +362,7 @@ SipRedirectorISN::lookUp(
                           "%s::LookUp No usable NAPTR found for '%s'"
                           "for ISN translation of '%s'",
                           mLogName.data(), domain, requestString.data());
-         }            
+         }
       }
       else
       {
@@ -371,7 +371,7 @@ SipRedirectorISN::lookUp(
                        "for ISN translation of '%s'",
                        mLogName.data(), domain, requestString.data());
       }
-   
+
       // Free the result of res_parse if necessary.
       if (dns_response != NULL)
       {

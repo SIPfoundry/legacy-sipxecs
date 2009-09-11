@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -250,7 +250,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 {
 
     // Only handle SIP messages
-    if (eventMessage.getMsgType() != OsMsg::PHONE_APP || 
+    if (eventMessage.getMsgType() != OsMsg::PHONE_APP ||
         eventMessage.getMsgSubType() != SipMessage::NET_SIP_MESSAGE)
     {
        return FALSE ;
@@ -272,9 +272,9 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             UtlString eventPackage;
             UtlString id;
             UtlHashMap otherParams;
-            
+
             message->getEventField(&eventPackage, &id, &otherParams);
-            
+
             StatusPluginReference* pluginContainer =
                 mPluginTable->getPlugin( eventPackage );
 
@@ -308,7 +308,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                                              grantedExpiration);
 
                         otherParams.destroyAll();
-                        
+
                         switch ( isSubscriptionAdded )
                         {
                         case STATUS_SUCCESS:
@@ -333,7 +333,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                               finalResponse.setContactField(requestUri);
                            }
                            break;
-                           
+
                         case STATUS_LESS_THAN_MINEXPIRES:
                            // (already logged in addSubscription)
 
@@ -350,7 +350,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_INVALID_REQUEST:
-                           OsSysLog::add(FAC_SIP, PRI_ERR, 
+                           OsSysLog::add(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_BAD_REQUEST_TEXT
@@ -363,7 +363,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_FORBIDDEN:
-                           OsSysLog::add(FAC_SIP, PRI_ERR, 
+                           OsSysLog::add(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_FORBIDDEN_TEXT
@@ -376,7 +376,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            break;
 
                         case STATUS_NOT_FOUND:
-                           OsSysLog::add(FAC_SIP, PRI_ERR, 
+                           OsSysLog::add(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          SIP_NOT_FOUND_TEXT
@@ -389,7 +389,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
                         case STATUS_BAD_SUBSCRIPTION:
                            // send 481 Subscription Does Not Exist response
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription to be renewed does not exist "
                                          SIP_BAD_SUBSCRIPTION_TEXT
@@ -402,7 +402,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
 
                         case STATUS_INTERNAL_ERROR:
                         default:
-                           OsSysLog::add(FAC_SIP, PRI_ERR, 
+                           OsSysLog::add(FAC_SIP, PRI_ERR,
                                          "SubscribeServerThread::handleMessage()"
                                          "Subscription Could Not Be Added "
                                          "Status %d from addSubscription",
@@ -422,7 +422,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                      }
                      else
                      {
-                        OsSysLog::add(FAC_SIP, PRI_CRIT, 
+                        OsSysLog::add(FAC_SIP, PRI_CRIT,
                                       "SubscribeServerThread::handleMessage()"
                                       " container->getPlugin failed for '%s'",
                                       eventPackage.data()
@@ -445,7 +445,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             }
             else // no plugin found for this event type
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, 
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
                              "SubscribeServerThread::handleMessage()"
                              " Request denied - "
                              SIP_BAD_EVENT_TEXT
@@ -463,7 +463,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                 "Sending final response\n%s",finalMessageStr.data());
             mpSipUserAgent->setUserAgentHeader( finalResponse );
             mpSipUserAgent->send( finalResponse );
-        } 
+        }
         else // Invalid domain
         {
            const char* notFoundMsg = SIP_NOT_FOUND_TEXT " Invalid Domain";
@@ -474,7 +474,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
            mpSipUserAgent->setUserAgentHeader( finalResponse );
            mpSipUserAgent->send( finalResponse );
         }
-    } 
+    }
     else // response
     {
        // The server may send us back a "481" response, if it does we need
@@ -810,7 +810,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     {
        if( commonExpires > 0 ) // came from request
        {
-          if (commonExpires < mMinExpiresTimeint) 
+          if (commonExpires < mMinExpiresTimeint)
           {
              returnStatus = STATUS_LESS_THAN_MINEXPIRES;
              OsSysLog::add( FAC_SIP, PRI_ERR, "addSubscription: "
@@ -856,7 +856,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
 
     UtlString sipxImpliedParameter(SIPX_IMPLIED_SUB);
     UtlString* sipxImpliedDuration = NULL;
-    
+
     int grantedExpirationTime;
     if ((  sipxImpliedDuration
          = dynamic_cast<UtlString*>(eventParams.findValue(&sipxImpliedParameter))))
@@ -901,7 +901,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
           grantedExpirationTime = mMinExpiresTimeint;
        }
     }
-    
+
     // Handle the to-tag:
     // If no to-tag, this is a new subscription, for which we must create
     // a to-tag.
@@ -930,7 +930,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        bool exists = SubscriptionDB::getInstance()->subscriptionExists(
           SUBSCRIPTION_COMPONENT_STATUS,
           to, from, callId, OsDateTime::getSecsSinceEpoch());
-          
+
        OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription subscriptionExists(..., '%s', '%s', '%s', %d) = %d",
                      to.data(), from.data(),
                      callId.data(), (int) OsDateTime::getSecsSinceEpoch(),
@@ -990,7 +990,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        OsSysLog::add(FAC_SIP, PRI_ERR,
                      "SubscribeServerThread::addSubscription -"
                      " Could not insert record in Database");
-       
+
        returnStatus = STATUS_INTERNAL_ERROR;
     }
 

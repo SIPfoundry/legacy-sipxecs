@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -187,7 +187,7 @@ public:
 
        // Wait for a signal.  This will unblock signals
        // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process 
+       // to catch an async signal directed to the process
        // from the outside.
        res = awaitSignal(sig_num);
        if (res == OS_SUCCESS)
@@ -300,7 +300,7 @@ main(int argc, char* argv[] )
                        fileName.data());
       }
    }
-      
+
    // Fetch Pointer to the OsServer task object, note that
    // object uses the IMDB so it is important to shut this thread
    // cleanly before the signal handler exits

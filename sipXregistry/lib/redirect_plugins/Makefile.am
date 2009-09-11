@@ -270,35 +270,35 @@ libRedirectorTest_la_SOURCES =  \
 
 # # SipRedirectorGateway
 # # Experimental redirector to allow configuring gateway routing prefixes.
-# 
+#
 # libRedirectorGateway_la_LDFLAGS = \
 # 	-module \
 # 	-version-info ${version_Current}:${version_Revision}:${version_Age}
-# 
+#
 # libRedirectorGateway_la_LIBADD = \
 # 	@SIPXCOMMSERVER_LIBS@
-# 
+#
 # libRedirectorGateway_la_CXXFLAGS = \
 # 	-I$(top_builddir)/config \
 # 	-DRES_PARSE_NAPTR
-# 
+#
 # libRedirectorGateway_la_SOURCES =  \
 # 	SipRedirectorGateway.cpp \
 # 	SipRedirectorGateway.h
-# 
+#
 # # SipRedirectorMPT
 # # Experimental redirector for multi-party testing.
-# 
+#
 # libRedirectorMPT_la_LDFLAGS = \
 # 	-module \
 # 	-version-info ${version_Current}:${version_Revision}:${version_Age}
-# 
+#
 # libRedirectorMPT_la_LIBADD = \
 # 	@SIPXCOMMSERVER_LIBS@
-# 
+#
 # libRedirectorMPT_la_CXXFLAGS = \
 # 	-I$(top_builddir)/config
-# 
+#
 # libRedirectorMPT_la_SOURCES =  \
 # 	SipRedirectorMPT.cpp \
 # 	SipRedirectorMPT.h

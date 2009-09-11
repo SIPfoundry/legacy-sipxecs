@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -266,7 +266,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
 
    HttpBody* body;
    int version;
-   
+
    generateContent(aorString, aorUri, body, version);
    mEventPublisher.publish(aorString, mEventType.data(), mEventType.data(),
                            1, &body, &version, FALSE);
@@ -385,7 +385,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
       content.append("      <uri>");
       XmlEscape(content, contact_addrspec);
       content.append("</uri>\r\n");
-      
+
       UtlString display_name;
       contact_nameaddr.getDisplayName(display_name);
       if (!display_name.isNull())
@@ -394,10 +394,10 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          XmlEscape(content, display_name);
          content.append("</display-name>\r\n");
       }
-      
+
       // Add the path header, gruu and sip instance id info
 
-      if(NULL != pathVector && 
+      if(NULL != pathVector &&
          !pathVector->isNull() &&
          0 != pathVector->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
@@ -405,7 +405,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          XmlEscape(content, *pathVector);
          content.append("</unknown-param>\r\n");
       }
-      if(NULL != instanceId && 
+      if(NULL != instanceId &&
          !instanceId->isNull() &&
          0 != instanceId->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
@@ -413,7 +413,7 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          XmlEscape(content, *instanceId);
          content.append("</unknown-param>\r\n");
       }
-      if(NULL != gruu && 
+      if(NULL != gruu &&
          !gruu->isNull() &&
          0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {

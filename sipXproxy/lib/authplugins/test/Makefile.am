@@ -133,7 +133,7 @@ nattraversalagenttests_SOURCES = \
     $(top_srcdir)/lib/authplugins/NatTraversalAgent/DialogTrackerStates.cpp \
     $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalAgentDataTypes.cpp \
     $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatTraversalAgent.cpp \
-    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatMaintainer.cpp 
+    $(top_srcdir)/lib/authplugins/NatTraversalAgent/NatMaintainer.cpp
 
 nattraversalagenttests_LDADD = \
     $(COMMON_LIBS)
@@ -182,4 +182,3 @@ EXTRA_DIST = $(EXTRA_DATA)
 #sandbox_CXXFLAGS = $(proxytest_CXXFLAGS)
 #sandbox_SOURCES = \
 #   SipRouterTest.cpp
-

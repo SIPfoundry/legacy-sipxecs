@@ -75,4 +75,3 @@ AC_CONFIG_FILES([etc/database/Makefile])
 AC_CONFIG_FILES([src/cdr/Makefile])
 
 AC_OUTPUT
-

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _REGISTRARPERSIST_H_
@@ -34,7 +34,7 @@ public:
 
    /// Destructor
    virtual ~RegistrarPersist();
-   
+
    /// Catch the shutdown request so that we can flush the database.
    virtual void requestShutdown(void);
 
@@ -51,10 +51,10 @@ protected:
    bool mIsTimerRunning;
 
    OsTimer mPersistTimer;
- 
+
    /// The top level task - do not delete
    SipRegistrar& mRegistrar;
-   
+
    /// Time interval for garbage collection and persistence
    int mPersistInterval;
 

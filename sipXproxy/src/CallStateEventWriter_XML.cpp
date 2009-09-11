@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -16,7 +16,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-static const char* ModuleName = 
+static const char* ModuleName =
    "CallStateEventWriter_XML";
 
 // STRUCTS
@@ -45,7 +45,7 @@ CallStateEventWriter_XML::~CallStateEventWriter_XML()
 bool CallStateEventWriter_XML::openLog()
 {
    bool bRet = false;
-   
+
    if (!mbWriteable)
    {
       OsPath callStateLogPath(mLogName);
@@ -55,7 +55,7 @@ bool CallStateEventWriter_XML::openLog()
       if (OS_SUCCESS == callStateLogStatus)
       {
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog opened %s", ModuleName, mLogName.data());       
+                       "%s::openLog opened %s", ModuleName, mLogName.data());
          mbWriteable = true;
          bRet = true;
       }
@@ -63,11 +63,11 @@ bool CallStateEventWriter_XML::openLog()
       {
          OsSysLog::add(FAC_CDR, PRI_ERR,
                        "%s::openLog failed (%d) to open Call State Event Log '%s'",
-                       ModuleName, callStateLogStatus, mLogName.data());         
+                       ModuleName, callStateLogStatus, mLogName.data());
          if (mEventFile)
          {
             delete mEventFile;
-         }              
+         }
          mEventFile = NULL;
       }
    }
@@ -82,7 +82,7 @@ bool CallStateEventWriter_XML::openLog()
 bool CallStateEventWriter_XML::closeLog()
 {
    bool bRet = false;
-   
+
    if (mEventFile)
    {
       mEventFile->flush(); // try to get buffered records to the file...
@@ -92,7 +92,7 @@ bool CallStateEventWriter_XML::closeLog()
    }
    mbWriteable = false;
    bRet = true;
-      
+
    OsSysLog::add(FAC_CDR, PRI_DEBUG,
                  "%s::closeLog", ModuleName);
    return bRet;
@@ -103,12 +103,12 @@ bool CallStateEventWriter_XML::writeLog(const char* event)
    bool bRet = false;
 
    if (mbWriteable)
-   {   
+   {
       if (mEventFile)
       {
          // write it to the log file
          size_t written;
-         mEventFile->write(event, strlen(event), written);         
+         mEventFile->write(event, strlen(event), written);
          OsSysLog::add(FAC_CDR, PRI_DEBUG,
                        "%s::writeLog", ModuleName);
          bRet = true;
@@ -117,7 +117,7 @@ bool CallStateEventWriter_XML::writeLog(const char* event)
    else
    {
       OsSysLog::add(FAC_CDR, PRI_ERR,
-                    "%s::writeLog log %s not writeable", ModuleName, mLogName.data());            
+                    "%s::writeLog log %s not writeable", ModuleName, mLogName.data());
    }
    return bRet;
 }

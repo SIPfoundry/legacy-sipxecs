@@ -43,10 +43,10 @@
       <documentation>
         Final result of an attempted call.
         These values are adapted from those specified by:
-           Network Data Management Usage (NDM-U) 
-           For IP-Based Services Service Specification   
-           Voice over IP (VoIP) 
-           Version 3.1-A.0.2 
+           Network Data Management Usage (NDM-U)
+           For IP-Based Services Service Specification
+           Voice over IP (VoIP)
+           Version 3.1-A.0.2
            August 21, 2002
            © 1999-2002 IPDR, Inc.
       </documentation>
@@ -115,5 +115,5 @@
       </sequence>
     </complexType>
   </element>
-  
+
 </schema>

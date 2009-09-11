@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ UtlString httpCreateRow(const char* row, const char* value);
 void processGetConfig(const HttpRequestContext& requestContext,
                       const HttpMessage& request,
                       HttpMessage*& response);
-                      
+
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
@@ -81,7 +81,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-  
+
 
    //HttpServer*       mpHttpServer;       // Http Server
 
@@ -89,7 +89,7 @@ private:
    static WebServer*    spInstance;    // pointer to the single instance of
                                     //  the WebServer class
    static OsBSem     sLock;         // semaphore used to ensure that there
-                                    //  is only one instance of this class   
+                                    //  is only one instance of this class
 
    // device profile (pinger-config) parameters
    static const char* deviceConfig[] ;
@@ -104,5 +104,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _WebServer_h_
-
-

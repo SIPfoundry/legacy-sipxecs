@@ -48,4 +48,3 @@ $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 $(setupbin_SCRIPTS) : $(setupbin_IN)
 	@echo "Localizing $@ -> $<"
 	@${LocalizeSipXconfig} $(srcdir)/$(notdir $@).in > $@
-

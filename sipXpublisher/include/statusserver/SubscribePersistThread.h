@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SUBSCRIBEPERSISTTHREAD_H_
@@ -33,7 +33,7 @@ public:
 
    /// Destructor
    virtual ~SubscribePersistThread();
-   
+
    /// Start the timer that triggers DB persistence, if it's not running
    void schedulePersist();
 
@@ -47,10 +47,10 @@ protected:
    bool mIsTimerRunning;
 
    OsTimer mPersistTimer;
- 
+
    /// The top level task - do not delete
    StatusServer& mStatusServer;
-   
+
    /// Time interval for garbage collection and persistence
    int mPersistInterval;
 

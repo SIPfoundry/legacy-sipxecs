@@ -14,14 +14,14 @@ else
 INSTALL_GEM = install-gem
 endif
 
-install : $(INSTALL_GEM) 
+install : $(INSTALL_GEM)
 
 .PHONY: package-gem
 package-gem :
 	builddir=`pwd`; \
-	cd $(srcdir) && $(rake) callresolver_version=2.0.0 package 
+	cd $(srcdir) && $(rake) callresolver_version=2.0.0 package
 
-.PHONY: install-gem 
+.PHONY: install-gem
 install-gem : package-gem
 	$(mkdir_p) $(GEM_LIB_DIR)
 	$(GEM) install \

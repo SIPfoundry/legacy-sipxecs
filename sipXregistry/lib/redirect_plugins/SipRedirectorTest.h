@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ public:
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
 protected:
@@ -86,7 +86,7 @@ class SipRedirectorTestNotification : public OsNotification
 class SipRedirectorPrivateStorageTest : public SipRedirectorPrivateStorage
 {
   public:
-   
+
    SipRedirectorPrivateStorageTest(const char *string,
                                    RedirectPlugin::RequestSeqNo requestSeqNo,
                                    int redirectorNo);
@@ -97,7 +97,7 @@ class SipRedirectorPrivateStorageTest : public SipRedirectorPrivateStorage
 
    virtual UtlContainableType getContainableType() const;
 
-   static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+   static const UtlContainableType TYPE ;    /**< Class type used for runtime checking */
 
   private:
 

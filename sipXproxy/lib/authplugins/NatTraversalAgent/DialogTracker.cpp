@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -26,7 +26,7 @@ struct DialogTrackerStateStruct
 {
    WaitingForInvite                           waitingForInvite;
    WaitingForAckForInvite                     waitingForAckForInvite;
-   TimeBoundState                             timeBoundState;   
+   TimeBoundState                             timeBoundState;
    Negotiating                                negotiating;
    WaitingForMediaOffer                       waitingForMediaOffer;
    WaitingFor200OkWithMediaOffer              waitingFor200OkWithMediaOffer;
@@ -61,11 +61,11 @@ Moribund*                                   DialogTracker::pMoribund = 0;
 
 DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
                               const UtlString& newHandle ) :
-  mpCopyOfPatchedSdpBody( 0 )                                 
+  mpCopyOfPatchedSdpBody( 0 )
 {
    // Init state machine pointers
    initializeStatePointers();
-   
+
    // Make copy of copyable members
    mHandle                                = newHandle;
    mSystemIdentificationString            = referenceDialogTracker.mSystemIdentificationString;
@@ -81,8 +81,8 @@ DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
 
    //Make deep copy of members that require it
    vector<MediaDescriptor*>::const_iterator pos;
-   for( pos = referenceDialogTracker.mMediaDescriptors.begin(); 
-        pos != referenceDialogTracker.mMediaDescriptors.end(); 
+   for( pos = referenceDialogTracker.mMediaDescriptors.begin();
+        pos != referenceDialogTracker.mMediaDescriptors.end();
         ++pos )
    {
       MediaDescriptor* pMediaDescriptor = new MediaDescriptor( *(*pos) );
@@ -95,7 +95,7 @@ DialogTracker::DialogTracker( const DialogTracker& referenceDialogTracker,
 
 DialogTracker::DialogTracker( const UtlString& handle,
                               const UtlString& systemIdentificationString,
-                              SessionContextInterfaceForDialogTracker* pOwningSessionContext ) : 
+                              SessionContextInterfaceForDialogTracker* pOwningSessionContext ) :
    mHandle( handle ),
    mSystemIdentificationString( systemIdentificationString ),
    mbMediaRelayRequired( false ),
@@ -111,7 +111,7 @@ DialogTracker::DialogTracker( const UtlString& handle,
    // kickstart the state mahine
    const DialogTrackerState* pState = pWaitingForInvite;
    StateAlg::StartStateMachine( *this, pState );
- 
+
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "+DialogTracker tracker %p created; Handle=%s+",
                                        this,
                                        mHandle.data() );
@@ -119,7 +119,7 @@ DialogTracker::DialogTracker( const UtlString& handle,
 
 DialogTracker::~DialogTracker()
 {
-   deallocateAndClearAllMediaRelaySessions();   
+   deallocateAndClearAllMediaRelaySessions();
    vector<MediaDescriptor*>::iterator pos;
    for( pos = mMediaDescriptors.begin(); pos != mMediaDescriptors.end(); ++pos )
    {
@@ -143,30 +143,30 @@ bool DialogTracker::handleRequest( SipMessage& message, const char* address, int
 
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleRequest: received request: %s; Caller->Callee?: %d",
                                      mHandle.data(), method.data(), bFromCallerToCallee );
-   
+
    if( method.compareTo(SIP_INVITE_METHOD) == 0 )
    {
-      bTrackRequestResponse = 
+      bTrackRequestResponse =
          mpCurrentState->InviteRequest( *this, message, directionality, address, port );
    }
    else if( method.compareTo(SIP_ACK_METHOD) == 0 )
    {
-      bTrackRequestResponse = 
+      bTrackRequestResponse =
          mpCurrentState->AckRequest( *this, message, directionality, address, port );
    }
    else if( method.compareTo(SIP_BYE_METHOD) == 0 )
    {
-      bTrackRequestResponse = 
+      bTrackRequestResponse =
          mpCurrentState->ByeRequest( *this, message, directionality, address, port );
    }
    else if( method.compareTo(SIP_PRACK_METHOD) == 0 )
    {
-      bTrackRequestResponse = 
+      bTrackRequestResponse =
          mpCurrentState->PrackRequest( *this, message, directionality, address, port );
    }
    else if( method.compareTo(SIP_UPDATE_METHOD) == 0 )
    {
-      bTrackRequestResponse = 
+      bTrackRequestResponse =
          mpCurrentState->UpdateRequest( *this, message, directionality, address, port );
    }
    else
@@ -186,7 +186,7 @@ void DialogTracker::handleResponse( SipMessage& message, const char* address, in
 
    OsSysLog::add(FAC_NAT, PRI_DEBUG, "DialogTracker[%s]::handleResponse: received response: %d",
                                      mHandle.data(), responseCode );
-   
+
    if ( responseCode < SIP_2XX_CLASS_CODE )
    {
       mpCurrentState->ProvisionalResponse( *this, message, address, port );
@@ -199,7 +199,7 @@ void DialogTracker::handleResponse( SipMessage& message, const char* address, in
    {
       mpCurrentState->RedirectionResponse( *this, message, address, port );
    }
-   else 
+   else
    {
       mpCurrentState->FailureResponse( *this, message, address, port );
    }
@@ -227,7 +227,7 @@ const char* DialogTracker::name( void ) const
 
 bool DialogTracker::getDialogEstablishedFlag( void ) const
 {
-  return mbDialogEstablished; 
+  return mbDialogEstablished;
 }
 
 void DialogTracker::setDialogEstablishedFlag( void )
@@ -267,7 +267,7 @@ MediaDescriptor* DialogTracker::getModifiableMediaDescriptor( size_t descriptorI
    {
       pMediaDescriptor = mMediaDescriptors[ descriptorIndex ];
    }
-   return pMediaDescriptor; 
+   return pMediaDescriptor;
 }
 
 const MediaDescriptor* DialogTracker::getReadOnlyMediaDescriptor( size_t descriptorIndex )
@@ -287,7 +287,7 @@ void DialogTracker::resetTimerTickCounter( void )
 {
    mTimerTickCounter = 0;
 }
-ssize_t DialogTracker::incrementTimerTickCounter( void )  
+ssize_t DialogTracker::incrementTimerTickCounter( void )
 {
    mTimerTickCounter++;
    return mTimerTickCounter;
@@ -337,7 +337,7 @@ void DialogTracker::promoteTentativeMediaRelaySessionsToCurrent( void )
       if( getNonIntialOfferAnswerExchangeDoneFlag() == true )
       {
          // a non-initial media negotiation took place.  Use non-initial tentative MediaRelaySession
-         // as the new 'current' and deallocate the MediaRelaySession that got allocated during the 
+         // as the new 'current' and deallocate the MediaRelaySession that got allocated during the
          // processing of the initial media negotiation.
          if( ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
          {
@@ -352,12 +352,12 @@ void DialogTracker::promoteTentativeMediaRelaySessionsToCurrent( void )
          // No non-initial media negotiation took place.  Use initial tentative MediaRelaySession
          // as the new 'current'.
          pMediaDescriptor->setCurrentMediaRelayHandle( pMediaDescriptor->getTentativeInitialMediaRelayHandle() );
-         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();         
+         pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
       }
    }
 }
 
-void DialogTracker::deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays, 
+void DialogTracker::deallocateAndClearAllMediaRelaySessions( bool bDeallocateTentativeInitialRelays,
                                                              bool bDeallocateTentativeNonInitialRelays,
                                                              bool bDeallocateCurrentRelays )
 {
@@ -368,14 +368,14 @@ void DialogTracker::deallocateAndClearAllMediaRelaySessions( bool bDeallocateTen
       MediaDescriptor* pMediaDescriptor;
       pMediaDescriptor = getModifiableMediaDescriptor( index );
       tMediaRelayHandle tempMediaRelayHandle;
-      
+
       if( bDeallocateTentativeInitialRelays &&
           ( tempMediaRelayHandle = pMediaDescriptor->getTentativeInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
       {
          deallocateMediaRelaySession( tempMediaRelayHandle );
          pMediaDescriptor->clearTentativeInitialMediaRelayHandle();
       }
-      
+
       if( bDeallocateTentativeNonInitialRelays && ( tempMediaRelayHandle = pMediaDescriptor->getTentativeNonInitialMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
       {
          deallocateMediaRelaySession( tempMediaRelayHandle );
@@ -395,14 +395,14 @@ bool DialogTracker::wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSec
    bool bTrafficSeen = false;
    unsigned long currentEpochTime = OsDateTime::getSecsSinceEpoch();
    unsigned long lastPacketsProcessedThreshold;
-   
-   lastPacketsProcessedThreshold = ( currentEpochTime > numberOfSeconds ? 
+
+   lastPacketsProcessedThreshold = ( currentEpochTime > numberOfSeconds ?
                                        currentEpochTime - numberOfSeconds : 0 );
 
    ssize_t index;
    ssize_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
    ssize_t numOfActiveSession = 0;
-   
+
    if( numSavedMediaDescriptors > 0 )
    {
       PacketProcessingStatistics stats;
@@ -416,14 +416,14 @@ bool DialogTracker::wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSec
          if( pMediaDescriptor->getDirectionality() != INACTIVE )
          {
             if( ( tempMediaRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle() ) != INVALID_MEDIA_RELAY_HANDLE )
-            {    
+            {
                numOfActiveSession++;
                if( pOwningSessionContext->getPacketProcessingStatsForMediaRelaySession( tempMediaRelayHandle, stats ) )
                {
                   if( stats.mEpochTimeOfLastPacketsProcessed &&
                       stats.mEpochTimeOfLastPacketsProcessed > lastPacketsProcessedThreshold )
                   {
-                                     
+
                      // we found one media relay session that processed packets after our thresholds.
                      // This indicates that traffic has been seen recently enough to return success
                      // and stop looking.
@@ -435,14 +435,14 @@ bool DialogTracker::wasMediaTrafficSeenInLastNSeconds( unsigned long numberOfSec
          }
       }
    }
-   
+
    if( numOfActiveSession == 0 )
    {
-      // this is a special case where no media sessions are active so the fact that 
-      // no media is seen is actually normal.  Since the point of this method is 
+      // this is a special case where no media sessions are active so the fact that
+      // no media is seen is actually normal.  Since the point of this method is
       // to detect condition where media traffic isn't flowing when it should be,
       // we return a success code in this condition.
-      bTrafficSeen = true;    
+      bTrafficSeen = true;
    }
    return bTrafficSeen;
 }
@@ -466,7 +466,7 @@ bool DialogTracker::getMediaRelayAddressToUseInSdp( UtlString& mediaRelayAddress
 bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tMediaRelayHandle relayHandle, const UtlString& mediaRelayAddressToUse )
 {
    bool bPatchedSuccessfully = false;
-   
+
    if( pSdpBody && mediaIndex < pSdpBody->getMediaSetCount() )
    {
       // patch connection address
@@ -474,14 +474,14 @@ bool DialogTracker::patchSdp( SdpBody* pSdpBody, int mediaIndex, int rtpPort, tM
 
       // patch RTP Port
       pSdpBody->modifyMediaPort( mediaIndex, rtpPort );
-      
+
       // Remove RTCP attribute in case it was there.  Media Relay RTCP port is guaranteed
       // to be RTP+1
       pSdpBody->removeMediaAttribute( mediaIndex, "rtcp" );
-      
-      // add our custom attribute to link SDP to media relay session and remove all previous ones 
+
+      // add our custom attribute to link SDP to media relay session and remove all previous ones
       pSdpBody->removeMediaAttribute( mediaIndex, NTAP_PROPRIETARY_SDP_ATTRIB );
-      char ntapAttribValue[100];      
+      char ntapAttribValue[100];
       sprintf( ntapAttribValue, "%s;%d", mSystemIdentificationString.data(), (int)relayHandle );
       pSdpBody->insertMediaAttribute( mediaIndex, NTAP_PROPRIETARY_SDP_ATTRIB,  ntapAttribValue );
 
@@ -510,9 +510,9 @@ void DialogTracker::applyPatchedSdpPreview( SipMessage& sipMessage )
 
 void DialogTracker::removeUnwantedElements( SipMessage& request )
 {
-   // if the Contact header contains a +sip.rendering field parameter with a 
-   // "no" or "unknown" value then this routine will take it out as it can 
-   // lead to unidirectional media streams being setup and those cause 
+   // if the Contact header contains a +sip.rendering field parameter with a
+   // "no" or "unknown" value then this routine will take it out as it can
+   // lead to unidirectional media streams being setup and those cause
    // speech path issues with NATs - see XECS-2090 for details.
    UtlString contact;
    for (int contactNumber = 0;
@@ -531,7 +531,7 @@ void DialogTracker::removeUnwantedElements( SipMessage& request )
             UtlString modifiedContact;
             contactUri.removeFieldParameter( "+sip.rendering" );
             contactUri.toString( modifiedContact );
-            request.setContactField( modifiedContact, contactNumber );      
+            request.setContactField( modifiedContact, contactNumber );
          }
       }
    }
@@ -542,7 +542,7 @@ tMediaRelayHandle DialogTracker::getOurMediaRelayHandleEncodedInSdp( const SdpBo
 {
    tMediaRelayHandle mediaRelayHandle = INVALID_MEDIA_RELAY_HANDLE;
    UtlString ntapProprietaryAttribValue;
-   
+
    if( pSdpBody->getMediaAttribute( mediaIndex, NTAP_PROPRIETARY_SDP_ATTRIB, &ntapProprietaryAttribValue ) )
    {
       UtlString ipAddressToken;
@@ -552,7 +552,7 @@ tMediaRelayHandle DialogTracker::getOurMediaRelayHandleEncodedInSdp( const SdpBo
       if( tokenizer.next( ipAddressToken, ";" ) && tokenizer.next( mediaRelayToken, ";" ) )
       {
          // we found a proprietary attribute.  Did we put it there?
-         if( ipAddressToken == mSystemIdentificationString ) 
+         if( ipAddressToken == mSystemIdentificationString )
          {
             mediaRelayHandle = atoi( mediaRelayToken.data() );
          }
@@ -565,7 +565,7 @@ bool DialogTracker::hasSdpAlreadyBeenPatchedByUs( SipMessage& message, int media
 {
    bool bResult = false;
    const SdpBody* pSdpBody;
-   
+
    pSdpBody = message.getSdpBody();
    if( pSdpBody )
    {
@@ -599,7 +599,7 @@ void DialogTracker::reportDialogCompleted( void )
 }
 
 void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern offerAnswerPattern )
-{   
+{
    // check if the INVITE contains an SDP offer
    bool bSdpBodyHasChanged = false;
    SdpBody* pSdpBody = const_cast<SdpBody*>(message.getSdpBody());
@@ -607,11 +607,11 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
    {
       size_t numSavedMediaDescriptors     = getNumberOfMediaDescriptors();
       size_t numMediaDescriptorsInSdp     = pSdpBody->getMediaSetCount();
-      
+
       // establish role of the endpoint that generated the offer we are currently processing.
       EndpointRole thisEndpointRole = EstablishEndpointRole( getTransactionDirectionality(),
                                                              message.isResponse() );
-      
+
       size_t index;
       for( index = 0; index < numMediaDescriptorsInSdp; index++ )
       {
@@ -634,15 +634,15 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
             // media stream is not disabled
             tMediaRelayHandle tentativeRelayHandle;
             int ourRelayRtpPort = 0;
-            
+
             bool bDoPatchSdp = false;
-            bool bSdpHasAlreadyBeenPatchedByUs = false;            
-            
-            // Check if the SDP we are receiving has already been patched with pre-existing 
+            bool bSdpHasAlreadyBeenPatchedByUs = false;
+
+            // Check if the SDP we are receiving has already been patched with pre-existing
             // media relay session from this system
             tMediaRelayHandle preExistingMediaRelayHandle = getOurMediaRelayHandleEncodedInSdp( pSdpBody, index );
-            
-            
+
+
             // Recall the parameters of the media relay session we are re-using here and create a clone
             // for it.  This is done because the ownership of the original relay session remains with
             // the dialog that started the 3PCC call.
@@ -652,29 +652,29 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
             if( preExistingMediaRelayHandle != INVALID_MEDIA_RELAY_HANDLE &&
                 preExistingMediaRelayHandle != pMediaDescriptor->getCurrentMediaRelayHandle() &&
                 ( originalCallerPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLER ) ) != PORT_NONE &&
-                ( originalCalleePort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLEE ) ) != PORT_NONE                 
+                ( originalCalleePort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( preExistingMediaRelayHandle, CALLEE ) ) != PORT_NONE
               )
             {
-               setMediaRelayRequiredFlag(); // a media relay is going to be needed after all, not because of the 
+               setMediaRelayRequiredFlag(); // a media relay is going to be needed after all, not because of the
                                             // location of the endpoints but rather because we are potentially
                                             // dealing with a 3PCC call.
-               
-               bSdpHasAlreadyBeenPatchedByUs = true;               
+
+               bSdpHasAlreadyBeenPatchedByUs = true;
                bDoPatchSdp = true;
                // the media description we are analyzing has already been patched by us in the context of another
-               // session.  This sort of scenario can happen in 3PCC call scenarios such as the one used to provide 
-               // music-on-hold.  In such a case, do not allocate a new media relay session and reuse the one we 
-               // just learned about.  
+               // session.  This sort of scenario can happen in 3PCC call scenarios such as the one used to provide
+               // music-on-hold.  In such a case, do not allocate a new media relay session and reuse the one we
+               // just learned about.
                OsSysLog::add(FAC_NAT,PRI_INFO,"DialogTracker[%s]::ProcessMediaOffer:  Possible 3PCC scenario detected in offer while in state '%s'; media relay handle=%d",
                      name(), GetCurrentState()->name(), (int)preExistingMediaRelayHandle );
 
                // verify which port this SDP is using
                bool bDoSwapCallerAndCallee;
-               pSdpBody->getMediaPort( index, &ourRelayRtpPort );   
+               pSdpBody->getMediaPort( index, &ourRelayRtpPort );
                if( ourRelayRtpPort == originalCallerPort )
                {
                   bDoSwapCallerAndCallee = ( thisEndpointRole == CALLER ? false : true );
-                  tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );                  
+                  tentativeRelayHandle = cloneMediaRelaySession( preExistingMediaRelayHandle, bDoSwapCallerAndCallee );
                }
                else if( ourRelayRtpPort == originalCalleePort )
                {
@@ -684,7 +684,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                else
                {
                   tentativeRelayHandle = pMediaDescriptor->getCurrentMediaRelayHandle();
-                  
+
                   OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  3PCC is not using any of the media relay ports.  Handle=%d; port=%d",
                         name(), (int)preExistingMediaRelayHandle, ourRelayRtpPort );
                }
@@ -695,7 +695,7 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                {
                   int callerRelayRtpPort;
                   int calleeRelayRtpPort;
-                  
+
                   if( allocateMediaRelaySession( tentativeRelayHandle, callerRelayRtpPort, calleeRelayRtpPort ) )
                   {
                      ourRelayRtpPort = ( thisEndpointRole == CALLER ? callerRelayRtpPort : calleeRelayRtpPort );
@@ -704,12 +704,12 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                   else
                   {
                      OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to allocateMediaRelaySession while in state '%s'",
-                           name(), GetCurrentState()->name() );                   
+                           name(), GetCurrentState()->name() );
                      bDoPatchSdp = false;
                   }
                }
             }
-            
+
             if( bDoPatchSdp )
             {
                MediaDirectionality mediaRelayDirectionMode = SEND_RECV;
@@ -717,55 +717,55 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                if( pMediaDescriptor->getDirectionality() == SEND_ONLY )
                {
                   // Offer is trying to establish a 'sendonly' stream which means that the media will
-                  // only flow from the offerer to the answerer.  If the media packets from the media  
+                  // only flow from the offerer to the answerer.  If the media packets from the media
                   // relay to the SDP answerer happen to ingress a NAT, the packets will likely be dropped
-                  // by it due to lack of data egressing the NAT.  Make the following assumption: if the 
+                  // by it due to lack of data egressing the NAT.  Make the following assumption: if the
                   // SDP receiver and the media relay are not in the same subnet then a NAT may be in the way.
                   // In such cases, the SDP is converted to a 'sendrecv' to cause the SDP receiver to emit packets.
-                  // When the SDP answer counterpart is processed, the directionality will be returned to 
+                  // When the SDP answer counterpart is processed, the directionality will be returned to
                   // 'recvonly' (unless the stream is inactive) to keep the offerer happy.  Furthermore, instruct
                   // the media relay to shunt the packets from the answerer-to-offerer direction so not to subject
                   // the offerer to an unexpected incoming media packet flow.
                   pSdpBody->removeMediaAttribute( index, "sendonly" );
                   pSdpBody->insertMediaAttribute( index, "sendrecv" );
-                  mediaRelayDirectionMode = SEND_ONLY; 
+                  mediaRelayDirectionMode = SEND_ONLY;
                   pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
                }
                else if( pMediaDescriptor->getDirectionality() == RECV_ONLY )
                {
                   // Offer is trying to establish a 'recvonly' stream which means that the media will
-                  // only flow from the answerer to the offerer.  The mirror image of the logic used 
+                  // only flow from the answerer to the offerer.  The mirror image of the logic used
                   // to handle pMediaDescriptor->getDirectionality() == SEND_ONLY is applied here.
                   // Refer to comment block above for more information.
                   pSdpBody->removeMediaAttribute( index, "recvonly" );
                   pSdpBody->insertMediaAttribute( index, "sendrecv" );
-                  mediaRelayDirectionMode = RECV_ONLY; 
+                  mediaRelayDirectionMode = RECV_ONLY;
                   pMediaDescriptor->setDirectionalityOverride( SEND_RECV );
                }
 
                if( bSdpHasAlreadyBeenPatchedByUs == false )
                {
-                  // In 3PCC call scenarios notably, it is possible for an SDP offer to  
+                  // In 3PCC call scenarios notably, it is possible for an SDP offer to
                   // be seen and processed by two different DialogTracker instances.
-                  // We should not attempt to link the far-end media port to the 
+                  // We should not attempt to link the far-end media port to the
                   // media endpoint that sent that offer if we see that the SDP has
                   // already been patched by us.  The rationale behind that logic
                   // is that in the case of 3PCC, the actual location of the media
-                  // endpoint to link the far-end media port to is only known with 
+                  // endpoint to link the far-end media port to is only known with
                   // accuracy when the SDP is seen the first time as it comes from
-                  // the actual entity that produced it.  So, the net out is that 
+                  // the actual entity that produced it.  So, the net out is that
                   // we only link the far-end media endpoint to the media endpoint
-                  // associated with the SDP sender when it is seen for the first 
+                  // associated with the SDP sender when it is seen for the first
                   // time and is ommited every subsequent time that it is seen.
                   linkFarEndMediaRelayPortToRequester( tentativeRelayHandle, pMediaDescriptor, thisEndpointRole );
                }
 
                UtlString mediaRelayAddressToUse;
-               getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, thisEndpointRole );               
-               
+               getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, thisEndpointRole );
+
                setMediaRelayDirectionMode( tentativeRelayHandle, mediaRelayDirectionMode, thisEndpointRole );
                patchSdp( pSdpBody, index, ourRelayRtpPort, tentativeRelayHandle, mediaRelayAddressToUse );
-   
+
                if( offerAnswerPattern == INITIAL_OFFER_ANSWER )
                {
                   pMediaDescriptor->setTentativeInitialMediaRelayHandle( tentativeRelayHandle );
@@ -778,13 +778,13 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
                {
                   OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaOffer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
                         name(), offerAnswerPattern, GetCurrentState()->name() );
-          
+
                }
                bSdpBodyHasChanged = true;
             }
          }
       }
-        
+
       if( bSdpBodyHasChanged == true )
       {
          // Save the SDP modifications and identification information of the message so that we can
@@ -798,19 +798,19 @@ void DialogTracker::ProcessMediaOffer( SipMessage& message, OfferAnswerPattern o
             mRequestRetransmissionDescriptor.setMessageToTrackRetransmissionsOf( message, *pSdpBody );
          }
 
-         // SDP body got changed - apply the new SDP body to the message. 
+         // SDP body got changed - apply the new SDP body to the message.
          message.setBody( pSdpBody );
       }
       else
       {
          // we did not end up the SDP body that got allocated to us for processing - throw it away
-         delete pSdpBody;         
+         delete pSdpBody;
       }
    }
    else
    {
       OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaOffer:  Failed to obtain SDP body while in state '%s'",
-            name(), GetCurrentState()->name() );                   
+            name(), GetCurrentState()->name() );
    }
 }
 
@@ -825,21 +825,21 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
          // establish role of the endpoint that generated the offer we are currently processing.
          EndpointRole endpointRole = EstablishEndpointRole( getTransactionDirectionality(),
                                                             message.isResponse() );
-   
+
          size_t numSavedMediaDescriptors = getNumberOfMediaDescriptors();
          size_t numMediaDescriptorsInSdp = pSdpBody->getMediaSetCount();
          size_t index;
-   
-         // go through the saved media descriptors accumulated during the 
+
+         // go through the saved media descriptors accumulated during the
          // offer processing and see what the SDP answer was for each one.
          for( index = 0; index < numSavedMediaDescriptors; index++ )
          {
             int mediaPort;
-            
+
             MediaDescriptor* pMediaDescriptor;
             pMediaDescriptor = getModifiableMediaDescriptor( index );
             pMediaDescriptor->setEndpointData( *pSdpBody, index, endpointRole );
-   
+
             tMediaRelayHandle tentativeMediaRelayHandle = INVALID_MEDIA_RELAY_HANDLE;
             if( offerAnswerPattern == INITIAL_OFFER_ANSWER )
             {
@@ -853,15 +853,15 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
             {
                OsSysLog::add(FAC_NAT,PRI_WARNING,"DialogTracker[%s]::ProcessMediaAnswer:  Received unknown Offer/Answer pattern type:%d while in state '%s'",
                      name(), offerAnswerPattern, GetCurrentState()->name() );
-            }  
-   
-            if( index < numMediaDescriptorsInSdp ) 
+            }
+
+            if( index < numMediaDescriptorsInSdp )
             {
                pSdpBody->getMediaPort( index, &mediaPort );
                if( mediaPort != 0 )
                {
                   // the answerer has accepted the media session.  Adjust the SDP accordingly
-                  // If we do not have a valid tentative media relay handle, it means that this 
+                  // If we do not have a valid tentative media relay handle, it means that this
                   // media session does not need a media relay, there is therefore no need
                   // to go any further in our processing of this answer media description.
                   if( tentativeMediaRelayHandle != INVALID_MEDIA_RELAY_HANDLE )
@@ -872,20 +872,20 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                      MediaDirectionality directionalityFromOfferSdp;
                      MediaDirectionality directionalityFromAnswerSdp;
                      directionalityFromOfferSdp = pMediaDescriptor->getDirectionality();
-                     directionalityFromAnswerSdp = 
+                     directionalityFromAnswerSdp =
                               MediaDescriptor::sdpDirectionalityAttributeToMediaDirectionalityValue( *pSdpBody, index );
 
                      // check if we have tempered with the directionality of the call...
                      if( pMediaDescriptor->getDirectionalityOverride() != NOT_A_DIRECTION )
                      {
-                        pMediaDescriptor->setDirectionalityOverride( NOT_A_DIRECTION ); 
+                        pMediaDescriptor->setDirectionalityOverride( NOT_A_DIRECTION );
                         // the offer processing changed the directionality of the call
                         // to make is suitable for NAT traversal.  Restore the original
                         // directionality before passing on the SDP answer to the offerer
-                        
+
                         // establish the directionality that should be present in the offer based
                         // on the answer and offer values.
-                        
+
                         switch( directionalityFromAnswerSdp )
                         {
                         case SEND_RECV:
@@ -929,7 +929,7 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                         // do some directionality adjustments to handle cases where the SDP offer had 'sendrecv'
                         // but the SDP answer has either 'sendonly' or 'recvonly'.  Such scenarios generate
                         // unidirectional media streams which are not good for NAT traversal - instead we need
-                        // both ends to send media traffic so that firewall holes get punched.  To work around 
+                        // both ends to send media traffic so that firewall holes get punched.  To work around
                         // such cases, change the directionality of the SDP answer to 'sendrecv' and instruct
                         // the media relay to shunt the unwanted direction.
                         if( directionalityFromOfferSdp == SEND_RECV )
@@ -957,42 +957,42 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                         pSdpBody->removeMediaAttribute( index, currentDirectionalityString );
                         pSdpBody->insertMediaAttribute( index, directionalityToUseInThisSdpString );
                      }
-                     
-                     int rtpPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( tentativeMediaRelayHandle, endpointRole ); 
+
+                     int rtpPort = pOwningSessionContext->getRtpRelayPortForMediaRelaySession( tentativeMediaRelayHandle, endpointRole );
                      if( rtpPort != PORT_NONE )
                      {
                         if( hasSdpAlreadyBeenPatchedByUs( pSdpBody, index ) == false )
                         {
-                           // In 3PCC call scenarios notably, it is possible for an SDP answer to  
+                           // In 3PCC call scenarios notably, it is possible for an SDP answer to
                            // be seen and processed by two different DialogTracker instances.
-                           // We should not attempt to link the far-end media port to the 
+                           // We should not attempt to link the far-end media port to the
                            // media endpoint that sent that answer if we see that the SDP has
                            // already been patched by us.  The rationale behind that logic
                            // is that in the case of 3PCC, the actual location of the media
-                           // endpoint to link the far-end media port to is only known with 
+                           // endpoint to link the far-end media port to is only known with
                            // accuracy when the SDP is seen the first time as it comes from
-                           // the actual entity that produced it.  So, the net out is that 
+                           // the actual entity that produced it.  So, the net out is that
                            // we only link the far-end media endpoint to the media endpoint
-                           // associated with the SDP sender when it is seen for the first 
+                           // associated with the SDP sender when it is seen for the first
                            // time and is ommited every subsequent time that it is seen.
                            linkFarEndMediaRelayPortToRequester( tentativeMediaRelayHandle, pMediaDescriptor, endpointRole );
                         }
-   
+
                         UtlString mediaRelayAddressToUse;
-                        getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, endpointRole );                                    
+                        getMediaRelayAddressToUseInSdp( mediaRelayAddressToUse, endpointRole );
                         patchSdp( pSdpBody, index, rtpPort, tentativeMediaRelayHandle, mediaRelayAddressToUse );
                      }
                      else
                      {
                         OsSysLog::add(FAC_NAT,PRI_ERR, "DialogTracker[%s]::ProcessMediaAnswer:  Failed to getRtpRelayPortForMediaRelaySession for "
-                                                      "Media Relay Handle %d", name(), (int)tentativeMediaRelayHandle );                   
+                                                      "Media Relay Handle %d", name(), (int)tentativeMediaRelayHandle );
                      }
                   }
                }
                else
                {
-                  // the answerer has refused the media session - de-allocate the media relay session 
-                  // we had tentatively allocated to relay its media. 
+                  // the answerer has refused the media session - de-allocate the media relay session
+                  // we had tentatively allocated to relay its media.
                   deallocateMediaRelaySession( tentativeMediaRelayHandle );
                   if( offerAnswerPattern == INITIAL_OFFER_ANSWER )
                   {
@@ -1002,9 +1002,9 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
                   {
                      pMediaDescriptor->clearTentativeNonInitialMediaRelayHandle();
                   }
-               }  
-            }     
-         }  
+               }
+            }
+         }
          // Save the SDP modifications and identification information of the message so that we can
          // re-apply the SDP modifications if the message gets retransmitted
          if( message.isResponse() )
@@ -1017,17 +1017,17 @@ void DialogTracker::ProcessMediaAnswer( SipMessage& message, OfferAnswerPattern 
          }
 
          // apply the new SDP body to the message.
-         message.setBody( pSdpBody );  
+         message.setBody( pSdpBody );
       }
    }
    else
    {
       // response does not contain an SDP answer as we expected...  Error!
       OsSysLog::add(FAC_NAT,PRI_ERR,"DialogTracker[%s]::ProcessMediaAnswer:  Failed to obtain SDP body while in state '%s'",
-                                   name(), GetCurrentState()->name() );                   
+                                   name(), GetCurrentState()->name() );
    }
 }
- 
+
 EndpointRole DialogTracker::EstablishEndpointRole( TransactionDirectionality directionality, bool bMessageIsResponse ) const
 {
    if( directionality == DIR_CALLER_TO_CALLEE )
@@ -1052,31 +1052,31 @@ bool DialogTracker::isRequestAlreadyHandledByUs( const SipMessage& request ) con
 {
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
-   
+
    if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = ( mSystemIdentificationString.compareTo( pSystemIdentificationStringInMessage ) == 0 );
    }
    return rc;
-} 
+}
 
 bool DialogTracker::isRequestAlreadyHandledByOther( const SipMessage& request ) const
 {
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
-   
+
    if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = ( mSystemIdentificationString.compareTo( pSystemIdentificationStringInMessage ) != 0 );
    }
    return rc;
-} 
+}
 
 bool DialogTracker::isRequestAlreadyHandledByAnyone( const SipMessage& request ) const
 {
    bool rc = false;
    const char *pSystemIdentificationStringInMessage = 0;
-   
+
    if( ( pSystemIdentificationStringInMessage = request.getHeaderValue( 0, SIP_SIPX_NAT_HANDLED ) ) )
    {
       rc = true;
@@ -1107,7 +1107,7 @@ bool DialogTracker::isARetransmittedResponse( const SipMessage& response )
 void DialogTracker::restoreSdpBodyOfRetransmittedRequest( SipMessage& request )
 {
    SdpBody* pRecalledSdp;
-   
+
    pRecalledSdp = mRequestRetransmissionDescriptor.getCopyOfSdpBody();
    if( pRecalledSdp )
    {
@@ -1118,7 +1118,7 @@ void DialogTracker::restoreSdpBodyOfRetransmittedRequest( SipMessage& request )
 void DialogTracker::restoreSdpBodyOfRetransmittedResponse( SipMessage& response )
 {
    SdpBody* pRecalledSdp;
-   
+
    pRecalledSdp = mResponseRetransmissionDescriptor.getCopyOfSdpBody();
    if( pRecalledSdp )
    {
@@ -1132,8 +1132,8 @@ UtlContainableType DialogTracker::getContainableType( void ) const
 }
 
 unsigned DialogTracker::hash() const
-{ 
-   return directHash(); 
+{
+   return directHash();
 }
 
 int DialogTracker::compareTo(UtlContainable const *rhsContainable ) const
@@ -1149,7 +1149,7 @@ int DialogTracker::compareTo(UtlContainable const *rhsContainable ) const
 void DialogTracker::initializeStatePointers( void )
 {
    static DialogTrackerStateStruct states;
-   
+
    pWaitingForInvite                           = &states.waitingForInvite;
    pWaitingForAckForInvite                     = &states.waitingForAckForInvite;
    pTimeBoundState                             = &states.timeBoundState;
@@ -1166,13 +1166,13 @@ void DialogTracker::initializeStatePointers( void )
    pWaitingFor200OkWithAnswerForPrack          = &states.waitingFor200OkWithAnswerForPrack;
    pProcessingPrackWaitingForAckforInvite      = &states.processingPrackWaitingForAckforInvite;
    pMoribund                                   = &states.moribund;
-}   
+}
 
 DialogTracker::RetransmissionDescriptor::RetransmissionDescriptor() :
    mpSavedPatchedSdp( 0 )
 {}
 
-void DialogTracker::RetransmissionDescriptor::setMessageToTrackRetransmissionsOf( const SipMessage& messageToTrackRetransmissionsOf, 
+void DialogTracker::RetransmissionDescriptor::setMessageToTrackRetransmissionsOf( const SipMessage& messageToTrackRetransmissionsOf,
                                                                                    const SdpBody& patchedSdpBodyToCopy )
 {
    delete mpSavedPatchedSdp;
@@ -1200,7 +1200,7 @@ bool DialogTracker::RequestRetransmissionDescriptor::operator==( const SipMessag
    bool bAreEqual = false;
    int       rhsSeqNum;
    UtlString rhsMethod;
-   
+
    if( request.getCSeqField( &rhsSeqNum, &rhsMethod ) )
    {
       if( mMethod == rhsMethod && mSequenceNumber == rhsSeqNum )
@@ -1216,19 +1216,19 @@ bool DialogTracker::RequestRetransmissionDescriptor::operator!=( const SipMessag
    return !( *this == request );
 }
 
-DialogTracker::RequestRetransmissionDescriptor&  
+DialogTracker::RequestRetransmissionDescriptor&
 DialogTracker::RequestRetransmissionDescriptor::operator= ( const RequestRetransmissionDescriptor& rhs )
 {
-   if( this != &rhs ) 
+   if( this != &rhs )
    {
       mpSavedPatchedSdp = ( rhs.mpSavedPatchedSdp ? rhs.mpSavedPatchedSdp->copy() : 0 );
       mMethod           = rhs.mMethod;
-      mSequenceNumber   = rhs.mSequenceNumber;      
+      mSequenceNumber   = rhs.mSequenceNumber;
    }
    return *this;
 }
 
-void DialogTracker::ResponseRetransmissionDescriptor::setMessageToTrackRetransmissionsOf( const SipMessage& messageToTrackRetransmissionsOf, 
+void DialogTracker::ResponseRetransmissionDescriptor::setMessageToTrackRetransmissionsOf( const SipMessage& messageToTrackRetransmissionsOf,
                                                                                       const SdpBody& patchedSdpBodyToCopy )
 {
    mResponseCode = messageToTrackRetransmissionsOf.getResponseStatusCode();
@@ -1241,7 +1241,7 @@ bool DialogTracker::ResponseRetransmissionDescriptor::operator==( const SipMessa
    int       rhsSeqNum;
    UtlString rhsMethod;
    int       responseCode;
-   
+
    if( response.isResponse() )
    {
       responseCode = response.getResponseStatusCode();
@@ -1261,18 +1261,15 @@ bool DialogTracker::ResponseRetransmissionDescriptor::operator!=( const SipMessa
    return !( *this == request );
 }
 
-DialogTracker::ResponseRetransmissionDescriptor& 
+DialogTracker::ResponseRetransmissionDescriptor&
 DialogTracker::ResponseRetransmissionDescriptor::operator= ( const ResponseRetransmissionDescriptor& rhs )
 {
-   if( this != &rhs ) 
+   if( this != &rhs )
    {
       mpSavedPatchedSdp = ( rhs.mpSavedPatchedSdp ? rhs.mpSavedPatchedSdp->copy() : 0 );
       mMethod           = rhs.mMethod;
       mSequenceNumber   = rhs.mSequenceNumber;
-      mResponseCode     = rhs.mResponseCode;  
+      mResponseCode     = rhs.mResponseCode;
    }
    return *this;
 }
-
-
-

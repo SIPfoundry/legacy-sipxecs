@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ class SipRedirectorMPT : public RedirectPlugin
       int redirectorNo,
       SipRedirectorPrivateStorage*& privateStorage,
       ErrorDescriptor& errorDescriptor);
-   
+
    virtual const UtlString& name( void ) const;
 
    // File to read/write mappings to.
@@ -93,7 +93,7 @@ class SipRedirectorMPT : public RedirectPlugin
 
    // Socket for HTTP server
    OsServerSocket* mpSocket;
-   
+
    // HTTP server for creating further mappings.
    HttpServer* mpServer;
 

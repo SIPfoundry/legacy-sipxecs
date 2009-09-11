@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,14 +64,14 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxyChallengeLocalWithBadlySignedPAI);
    CPPUNIT_TEST(testProxyDontChallengeLocalWithSignedAuthIdentity);
    CPPUNIT_TEST(testProxyChallengeLocalWithBadlySignedAuthIdentity);
-   CPPUNIT_TEST(testProxyChallengeDialogForming_Invite);   
-   CPPUNIT_TEST(testProxyChallengeDialogForming_Notify);   
-   CPPUNIT_TEST(testProxyChallengeDialogForming_Options);   
-   CPPUNIT_TEST(testProxyChallengeDialogForming_Register);   
-   CPPUNIT_TEST(testProxyDontChallengeInDialog_Invite);   
-   CPPUNIT_TEST(testProxyDontChallengeInDialog_Notify);   
-   CPPUNIT_TEST(testProxyDontChallengeInDialog_Options);   
-   CPPUNIT_TEST(testProxyDontChallengeInDialog_Register);  
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Invite);
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Notify);
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Options);
+   CPPUNIT_TEST(testProxyChallengeDialogForming_Register);
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Invite);
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Notify);
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Options);
+   CPPUNIT_TEST(testProxyDontChallengeInDialog_Register);
    CPPUNIT_TEST(testAdditionOfRouteState_NoAuthenticatedIdentity);
    CPPUNIT_TEST(testAdditionOfRouteState_AuthenticatedIdentity);
    CPPUNIT_TEST(testProxyMessageWithRouteStateWithAuthentication_DialogForming);
@@ -90,7 +90,7 @@ private:
    static const char* MediaServer;
    static const char* LocalHost;
    static const char* SipRouterConfiguration;
-   
+
 public:
    static SipDbTestContext TestDbContext;
 
@@ -107,7 +107,7 @@ public:
                                        -1,       // tls port
                                        "127.0.0.2" // public address
                                        );
-         
+
          UtlString internalDomainAlias("example.com:5060");
          mUserAgent->setHostAliases(internalDomainAlias);
 
@@ -126,13 +126,13 @@ public:
 
          OsConfigDb testConfigDb;
          CPPUNIT_ASSERT( testConfigDb.loadFromBuffer( SipRouterConfiguration ) == OS_SUCCESS );
-         
+
          CallerAlias::spInstance = 0;
-         
+
          mSipRouter = new SipRouter(*mUserAgent,
                                      mForwardingRules,
                                      testConfigDb );
-         
+
          PluginIterator authPlugins(mSipRouter->mAuthPlugins);
          UtlString authPluginName;
          mpDummyAuthPlugin = (DummyAuthPlugin*)(authPlugins.next(&authPluginName));
@@ -263,7 +263,7 @@ public:
          ASSERT_STR_EQUAL("DavesInsanitySauce",testRsp.getHeaderValue(0, SIP_UNSUPPORTED_FIELD));
          CPPUNIT_ASSERT(!testRsp.getHeaderValue(1, SIP_UNSUPPORTED_FIELD));
       }
-   
+
    void testGenericProxy()
       {
          const char* message =
@@ -279,7 +279,7 @@ public:
             "\r\n";
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
@@ -287,18 +287,18 @@ public:
          testMsg.getBytes(&proxiedMsg, &msgLen);
 
          OsSysLog::add(FAC_SIP, PRI_INFO, "Proxied Message:\n%s", proxiedMsg.data());
-         
+
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@somewhere.com", requestUri.data());
-         
+
          UtlString noRoute;
          CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &noRoute) );
-         
+
          // SipRouter always Record-Route requests
          UtlString recordRoute;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
-         
+
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
       }
@@ -318,7 +318,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
@@ -328,19 +328,19 @@ public:
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@somewhere.com", requestUri.data());
-         
+
          UtlString noRoute;
          CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &noRoute) );
-         
+
          UtlString recordRoute;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
-         
+
          int maxForwards;
          CPPUNIT_ASSERT(   testMsg.getMaxForwards(maxForwards)
                         && maxForwards == SIP_DEFAULT_MAX_FORWARDS);
-      }   
+      }
 
-   
+
    void testRecordRouteNoForwardingRuleMatch()
       {
          const char* message =
@@ -357,7 +357,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
@@ -367,7 +367,7 @@ public:
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@somewhere.com", requestUri.data());
-         
+
          UtlString topRoute, recordRoute, tempString, urlParmName;
          CPPUNIT_ASSERT( ! testMsg.getRouteUri(0, &topRoute) );
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
@@ -385,7 +385,7 @@ public:
 
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
-      }   
+      }
 
    void testRecordRouteForwardingRuleMatch()
       {
@@ -403,7 +403,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
@@ -413,17 +413,17 @@ public:
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@internal.example.com", requestUri.data());
-         
+
          UtlString topRoute, recordRoute, tempString, urlParmName;
          CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
          ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
          ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", recordRoute.data());
          CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
-        
+
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
-      }   
+      }
 
    void testRecordRouteOrder()
       {
@@ -442,7 +442,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          UtlString proxiedMsg;
@@ -452,29 +452,29 @@ public:
          UtlString requestUri;
          testMsg.getRequestUri(&requestUri);
          ASSERT_STR_EQUAL("sip:user@internal.example.com", requestUri.data());
-         
+
          UtlString topRoute;
          CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
          ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
-         
+
          // Record-Route: <sip:10.10.10.1:5060;lr>, <sip:first.example.net;lr>
 
          UtlString myRecordRoute;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &myRecordRoute) );
          ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", myRecordRoute.data());
-         
+
          UtlString existingRecordRoute;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(1, &existingRecordRoute) );
          ASSERT_STR_EQUAL("<sip:first.example.net;lr>", existingRecordRoute.data());
-         
+
          UtlString nomoreRecordRoute;
          CPPUNIT_ASSERT( ! testMsg.getRecordRouteUri(2, &nomoreRecordRoute) );
-        
+
          CPPUNIT_ASSERT( testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
-      }   
+      }
 
    void testAliasRoute()
       {
@@ -492,7 +492,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          // UtlString proxiedMsg;
@@ -507,14 +507,14 @@ public:
          UtlString topRoute;
          CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
          ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
-         
+
          UtlString noRoute;
          CPPUNIT_ASSERT( !testMsg.getRouteUri(1, &noRoute) );
-         
+
          UtlString recordRoute;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
          ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", recordRoute.data());
-         
+
          // Check that X-SipX-Spiral is not leaking.
          CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
@@ -539,7 +539,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
          // UtlString proxiedMsg;
@@ -554,11 +554,11 @@ public:
          UtlString topRoute;
          CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
          ASSERT_STR_EQUAL("<sip:somewhere.net;lr>", topRoute.data());
-         
+
          UtlString noRoute;
          CPPUNIT_ASSERT( !testMsg.getRouteUri(1, &noRoute) );
-         
-         // Presence of Route header causes forwarding rules to be skipped 
+
+         // Presence of Route header causes forwarding rules to be skipped
          // and to be authorized right away
          UtlString recordRoute, tempString, urlParmName;
          CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
@@ -571,7 +571,7 @@ public:
          ASSERT_STR_EQUAL("lr", urlParmName.data());
          CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
          ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
-         
+
          CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
          int maxForwards;
@@ -595,7 +595,7 @@ public:
 
        SipMessage testMsg(message, strlen(message));
        SipMessage testRsp;
-       
+
        CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
        // UtlString proxiedMsg;
@@ -610,10 +610,10 @@ public:
        UtlString topRoute;
        CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
        ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
-       
+
        UtlString noRoute;
        CPPUNIT_ASSERT( !testMsg.getRouteUri(1, &noRoute) );
-       
+
        // verify the presence of a Record-Route to us containing a Route State
        UtlString recordRoute, tempString, urlParmName;
        CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
@@ -626,7 +626,7 @@ public:
        ASSERT_STR_EQUAL("lr", urlParmName.data());
        CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
        ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
-       
+
        // Check that X-SipX-Spiral is not leaking.
        CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
@@ -651,7 +651,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       // UtlString proxiedMsg;
@@ -665,7 +665,7 @@ public:
 
       UtlString noRoute;
       CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &noRoute) );
-      
+
       // verify the presence of a Record-Route to us containing a Route State
       UtlString recordRoute, tempString, urlParmName;
       CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
@@ -678,13 +678,13 @@ public:
       ASSERT_STR_EQUAL("lr", urlParmName.data());
       CPPUNIT_ASSERT( recordRouteUrl.getUrlParameter( 1, urlParmName, tempString ) );
       ASSERT_STR_EQUAL("sipXecs-rs", urlParmName.data());
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
     }
-   
+
    void testInDialogRequestSelf()
     {
       RouteState::setSecret("GuessThat!");
@@ -704,7 +704,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       UtlString requestUri;
@@ -719,7 +719,7 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
@@ -745,7 +745,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       UtlString requestUri;
@@ -760,13 +760,13 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
-    }   
-   
+    }
+
    void testInDialogRequestSelfByAlias()
     {
       RouteState::setSecret("GuessThat!");
@@ -786,7 +786,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       UtlString requestUri;
@@ -801,7 +801,7 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
@@ -827,7 +827,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
       UtlString requestUri;
@@ -842,13 +842,13 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
       CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
     }
-   
+
    void testInDialogRequestOther()
     {
       RouteState::setSecret("GuessThat!");
@@ -868,7 +868,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       // UtlString proxiedMsg;
       // ssize_t msgLen;
@@ -886,7 +886,7 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
@@ -912,7 +912,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       // UtlString proxiedMsg;
       // ssize_t msgLen;
@@ -930,7 +930,7 @@ public:
       // verify that no new Record-Route was added
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
-      
+
       CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
 
       int maxForwards;
@@ -953,7 +953,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-       
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
 
          ssize_t msgSize;
@@ -963,7 +963,7 @@ public:
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }
-   
+
    void testProxyDontChallengeLocalWithReplaces()
       {
          const char* message =
@@ -981,10 +981,10 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       }
-   
+
    void testProxyDontChallengeLocalWithSignedPAI()
       {
          const char* message =
@@ -1001,10 +1001,10 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          // add P-Asserted-Iendtity to message
          Url fromUrl;
-         testMsg.getFromUrl(fromUrl); 
+         testMsg.getFromUrl(fromUrl);
          SipXauthIdentity pAuthIdentity;
          UtlString fromIdentity;
          fromUrl.getIdentity(fromIdentity);
@@ -1012,7 +1012,7 @@ public:
          pAuthIdentity.insert(testMsg, SipXauthIdentity::PAssertedIdentityHeaderName);
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       }
-   
+
    void testProxyChallengeLocalWithBadlySignedPAI()
       {
          const char* message =
@@ -1030,7 +1030,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
 
          ssize_t msgSize;
@@ -1057,10 +1057,10 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          // add sipX-auth-identity to message
          Url fromUrl;
-         testMsg.getFromUrl(fromUrl); 
+         testMsg.getFromUrl(fromUrl);
          SipXauthIdentity pAuthIdentity;
          UtlString fromIdentity;
          fromUrl.getIdentity(fromIdentity);
@@ -1068,7 +1068,7 @@ public:
          pAuthIdentity.insert(testMsg, SipXauthIdentity::AuthIdentityHeaderName);
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       }
-   
+
    void testProxyChallengeLocalWithBadlySignedAuthIdentity()
       {
          const char* message =
@@ -1086,7 +1086,7 @@ public:
 
          SipMessage testMsg(message, strlen(message));
          SipMessage testRsp;
-         
+
          CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
 
          ssize_t msgSize;
@@ -1096,7 +1096,7 @@ public:
 
          CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
       }
-   
+
    void testProxyChallengeDialogForming_Invite()
    {
       const char* message =
@@ -1113,7 +1113,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL(HTTP_PROXY_UNAUTHORIZED_CODE, testRsp.getResponseStatusCode());
 
@@ -1180,7 +1180,7 @@ public:
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
 
    }
-   
+
    void testProxyDontChallengeInDialog_Invite()
    {
       const char* message =
@@ -1258,11 +1258,11 @@ public:
       SipMessage testRsp;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
    }
-   
+
    void testAdditionOfRouteState_NoAuthenticatedIdentity()
    {
       RouteState::setSecret("GuessThat!");
-      
+
       const char* message =
          "INVITE sip:user@somewhere.com SIP/2.0\r\n"
          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -1278,12 +1278,12 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       mpDummyAuthPlugin->mbDenyNextRequest = false;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
       ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
-      
+
       UtlString recordRoute, urlParmName, tempString;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(1, &recordRoute) );
       CPPUNIT_ASSERT(  testMsg.getRecordRouteUri(0, &recordRoute) );
@@ -1299,15 +1299,15 @@ public:
       UtlSList noRemovedRoutes;
       UtlString routeName("example.com"), rsParam;
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
-      CPPUNIT_ASSERT( rsParam.isNull() );    
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() );
+      CPPUNIT_ASSERT( rsParam.isNull() );
    }
-   
+
    void testAdditionOfRouteState_AuthenticatedIdentity()
    {
       RouteState::setSecret("GuessThat!");
       SipXauthIdentity::setSecret("GuessThat!");
-      
+
       const char* message =
          "INVITE sip:user@somewhere.com SIP/2.0\r\n"
          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -1326,13 +1326,13 @@ public:
 
       // add SipxAuthIdentity to message
       Url fromUrl;
-      testMsg.getFromUrl(fromUrl); 
+      testMsg.getFromUrl(fromUrl);
       SipXauthIdentity pAuthIdentity;
       UtlString fromIdentity;
       fromUrl.getIdentity(fromIdentity);
       pAuthIdentity.setIdentity(fromIdentity);
       pAuthIdentity.insert(testMsg, SipXauthIdentity::AuthIdentityHeaderName);
-      
+
       mpDummyAuthPlugin->mbDenyNextRequest = false;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
@@ -1353,14 +1353,14 @@ public:
       UtlSList noRemovedRoutes;
       UtlString routeName("example.com");
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() );
    }
-   
+
    void testProxyMessageWithRouteStateWithAuthentication_DialogForming()
    {
       RouteState::setSecret("GuessThat!");
       SipXauthIdentity::setSecret("GuessThat!");
-      
+
       const char* message =
          "INVITE sip:user@somewhere.com SIP/2.0\r\n"
          "Record-Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.srtr%2Aauth%7EY2FsbGVyQGV4YW1wbGUub3Jn%21c3a8fd2840a2f0a10a3a7cf49a752a78>\r\n"
@@ -1377,7 +1377,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       mpDummyAuthPlugin->mbDenyNextRequest = false;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::CONTINUE, mpDummyAuthPlugin->mLastAuthResult );
@@ -1398,15 +1398,15 @@ public:
       UtlSList noRemovedRoutes;
       UtlString routeName("example.com"), rsParam;
       RouteState routeState( testMsg, noRemovedRoutes, routeName );
-      CPPUNIT_ASSERT( routeState.isDialogAuthorized() ); 
-      ASSERT_STR_EQUAL( "", rsParam.data() );  
+      CPPUNIT_ASSERT( routeState.isDialogAuthorized() );
+      ASSERT_STR_EQUAL( "", rsParam.data() );
    }
-   
+
    void testProxyMessageWithRouteStateWithAuthentication_InDialog()
    {
       RouteState::setSecret("GuessThat!");
       SipXauthIdentity::setSecret("GuessThat!");
-      
+
       const char* message =
          "INVITE sip:user@somewhere.com SIP/2.0\r\n"
          "Route: <sip:10.10.10.1:5060;lr;sipXecs-rs=%2Aauth%7EY2FsbGVyQGV4YW1wbGUub3Jn.%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21dd68e849b4c9054d40b9eebfc52129a5>\r\n"
@@ -1426,17 +1426,17 @@ public:
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::ALLOW, mpDummyAuthPlugin->mLastAuthResult );
       ASSERT_STR_EQUAL( "", mpDummyAuthPlugin->mLastAuthenticatedId.data() );
-      
+
       // check that route has been popped.
       UtlString route;
       CPPUNIT_ASSERT( !testMsg.getRouteUri(0, &route) );
    }
-   
+
    void testProxyMessageRouteState_DeniedByPlugin()
    {
       RouteState::setSecret("GuessThat!");
       SipXauthIdentity::setSecret("GuessThat!");
-      
+
       const char* message =
          "INVITE sip:user@somewhere.com SIP/2.0\r\n"
          "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -1452,7 +1452,7 @@ public:
 
       SipMessage testMsg(message, strlen(message));
       SipMessage testRsp;
-      
+
       mpDummyAuthPlugin->mbDenyNextRequest = true;
       CPPUNIT_ASSERT_EQUAL(SipRouter::SendResponse,mSipRouter->proxyMessage(testMsg, testRsp));
       CPPUNIT_ASSERT_EQUAL( AuthPlugin::DENY, mpDummyAuthPlugin->mLastAuthResult );
@@ -1462,7 +1462,7 @@ public:
       UtlString recordRoute;
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
    }
-   
+
 };
 
 const char* SipRouterTest::VoiceMail   = "Voicemail";
@@ -1481,4 +1481,3 @@ const char* SipRouterTest::SipRouterConfiguration =
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);
 
 SipDbTestContext  SipRouterTest::TestDbContext(TEST_DATA_DIR "/siproutertestdata", TEST_WORK_DIR "/siproutertestdata");
-

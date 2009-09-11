@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -34,7 +34,7 @@ const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 // common name part of our handle
 #define COMMON_HANDLE_NAME "ntap-mediarelay"
 
-// sipXBridge XML-RPC methods 
+// sipXBridge XML-RPC methods
 #define SIGN_IN_METHOD             "sipXrelay.signIn"
 #define SIGN_OUT_METHOD            "sipXrelay.signOut"
 #define CREATE_SYMS_METHOD         "sipXrelay.createSyms"
@@ -74,11 +74,11 @@ const UtlContainableType AsynchMediaRelayMsg::TYPE = "AsynchMediaRelayMsg";
 #define PACKETS_SENT          "packets-sent"
 #define PACKETS_PROCESSED     "packets-processed"
 
-// Status codes 
+// Status codes
 #define OK                    "ok"
 #define ERROR                 "error"
 
-// Error codes 
+// Error codes
 #define CONNECTION_FAILED    -6
 #define SUCCESS              -1
 #define ILLEGAL_ARGUMENT      0
@@ -117,14 +117,14 @@ MediaRelay::MediaRelay() :
    char ourHandle[200];
    sprintf( ourHandle, "%s:%u", COMMON_HANDLE_NAME, pid );
    mOurInstanceHandle = ourHandle;
-   
+
    // start the timer that will periodically ping the symmitron and query bridge stats
    OsTime genericTimerPeriod( GENERIC_TIMER_IN_SECS, 0 );
    mGenericTimer.periodicEvery( genericTimerPeriod, genericTimerPeriod );
-   
+
 }
 
-bool MediaRelay::initialize( const  UtlString& publicAddress, 
+bool MediaRelay::initialize( const  UtlString& publicAddress,
                              const  UtlString& nativeAddress,
                              bool   bXmlRpcSecured,
                              bool   isPartOfsipXLocalPrivateNetwork,
@@ -159,26 +159,26 @@ bool MediaRelay::preAllocateSymmitronResources( void )
 {
    OsLock lock( mMutex );
    bool bInitializationSucceeded = false;
-   UtlString tempSymmitronInstanceHandle;      
+   UtlString tempSymmitronInstanceHandle;
    UtlString errorDescription;
    int errorCode;
-   
+
    // Create the SignIn request for the symmitron
    XmlRpcRequest signInRequest( mSymmitronUrl, SIGN_IN_METHOD );
    signInRequest.addParam( &mOurInstanceHandle );
-   
-   XmlRpcResponse signInResponse; 
+
+   XmlRpcResponse signInResponse;
    if( executeAndValudateSymmitronRequest( signInRequest,
-                                           tempSymmitronInstanceHandle, 
-                                           errorCode, 
+                                           tempSymmitronInstanceHandle,
+                                           errorCode,
                                            errorDescription,
                                            signInResponse ) )
    {
-      mSymmitronInstanceHandle = tempSymmitronInstanceHandle; 
+      mSymmitronInstanceHandle = tempSymmitronInstanceHandle;
       mbSignedInWithSymmitron = true;
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "MediaRelay::initialize() signed in successful.  Symmitron instance handle = '%s'",
                      mSymmitronInstanceHandle.data() );
-      
+
       // Pre-allocate syms for our media relay sessions up to mMaxMediaRelaySessions.
       // Each media relay session requires 4 syms; 2 for RTP and 2 for RTCP.
       XmlRpcRequest createSymsRequest( mSymmitronUrl, CREATE_SYMS_METHOD );
@@ -187,13 +187,13 @@ bool MediaRelay::preAllocateSymmitronResources( void )
       createSymsRequest.addParam( &mOurInstanceHandle );
       createSymsRequest.addParam( &requestedSymCount );
       createSymsRequest.addParam( &parityCode );
-      UtlHashMap* pValuesMap;   
-      
+      UtlHashMap* pValuesMap;
+
       // Send the request and block waiting for the response
-      XmlRpcResponse createSymsResponse; 
-      if( ( pValuesMap = executeAndValudateSymmitronRequest( createSymsRequest, 
-                                                             tempSymmitronInstanceHandle, 
-                                                             errorCode, 
+      XmlRpcResponse createSymsResponse;
+      if( ( pValuesMap = executeAndValudateSymmitronRequest( createSymsRequest,
+                                                             tempSymmitronInstanceHandle,
+                                                             errorCode,
                                                              errorDescription,
                                                              createSymsResponse ) ) != 0 )
       {
@@ -203,21 +203,21 @@ bool MediaRelay::preAllocateSymmitronResources( void )
          //
          // Once this is done, syms of same parity are paired into bridges.  Bridges
          // containing even syms will eventually be used to realy RTP traffic and odd
-         // ones will be used to relay RTCP traffic.  As an example, if mMaxMediaRelaySessions 
+         // ones will be used to relay RTCP traffic.  As an example, if mMaxMediaRelaySessions
          // was set to 2, we would have allocated 8 syms starting at an even port.  For example,
          // lets say that the following syms got create (number in () shows UDP port allocated):
          // Sym0(5000), Sym1(5001), Sym2(5002), Sym3(5003), Sym4(5004), Sym5(5005), Sym6(5006), Sym7(5007)
          // The logic implemented in this method will pair the syms into 4 bridges as follows:
-         // Bridge0(Sym0<=>Sym4), Bridge1(Sym1<=>Sym5), Bridge2(Sym2<=>Sym6), Bridge3(Sym3<=>Sym7) 
+         // Bridge0(Sym0<=>Sym4), Bridge1(Sym1<=>Sym5), Bridge2(Sym2<=>Sym6), Bridge3(Sym3<=>Sym7)
          //
          // Given that our end goal is to create entities that can relay media session and that
          // media sessions are composed of both an RTP and RTCP flow, we we need to pair
          // an even bridge with the adjacent odd bridge into a MediaBridgePair which
          // contains the necessary elements to relay a complete media session:
-         // MediaBridgePair0(Bridge0+Bridge1), MediaBridgePair1(Bridge2+Bridge3) 
+         // MediaBridgePair0(Bridge0+Bridge1), MediaBridgePair1(Bridge2+Bridge3)
          UtlString key1Name;
          UtlString key2Name;
-         
+
          key1Name = SYM_SESSION;
          UtlSList* pSymArray = dynamic_cast<UtlSList*>( pValuesMap->findValue( &key1Name ) );
 
@@ -242,9 +242,9 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                      UtlString key2Name( SYM_RECEIVER_DATA );
                      UtlString*  pSymId;
                      UtlHashMap* pSymReceiver;
-                     
+
                      if( ( pSymId       = dynamic_cast<UtlString* >( pSymDataMap->findValue( &key1Name ) ) ) &&
-                         ( pSymReceiver = dynamic_cast<UtlHashMap*>( pSymDataMap->findValue( &key2Name ) ) ) )  
+                         ( pSymReceiver = dynamic_cast<UtlHashMap*>( pSymDataMap->findValue( &key2Name ) ) ) )
                      {
                         // extract IP address and port from receiver structure
                         UtlString* pSymIpAddress = 0;
@@ -252,58 +252,58 @@ bool MediaRelay::preAllocateSymmitronResources( void )
 
                         key1Name = SYM_RECEIVER_IP;
                         key2Name = SYM_RECEIVER_PORT;
-                        
+
                         if( ( pSymIpAddress = dynamic_cast<UtlString* >( pSymReceiver->findValue( &key1Name ) ) ) &&
-                            ( pSymPort      = dynamic_cast<UtlInt*>( pSymReceiver->findValue( &key2Name ) ) ) )  
+                            ( pSymPort      = dynamic_cast<UtlInt*>( pSymReceiver->findValue( &key2Name ) ) ) )
                         {
                            Sym* pSym = new Sym( *pSymId, *pSymIpAddress, *pSymPort );
-                           OsSysLog::add(FAC_NAT, PRI_DEBUG, 
-                                         "MediaRelay::initialize() createSyms id:'%s' IP:Port=%s:%d", 
+                           OsSysLog::add(FAC_NAT, PRI_DEBUG,
+                                         "MediaRelay::initialize() createSyms id:'%s' IP:Port=%s:%d",
                                          pSymId->data(), pSymIpAddress->data(), (int)(pSymPort->getValue() ) );
                            mSymList.insert( pSym );
                         }
                         else
                         {
-                           OsSysLog::add(FAC_NAT, PRI_CRIT, 
-                                         "MediaRelay::initialize() createSyms response did not find ip address or port in receiver" ); 
+                           OsSysLog::add(FAC_NAT, PRI_CRIT,
+                                         "MediaRelay::initialize() createSyms response did not find ip address or port in receiver" );
                            bSymCreationSucceeded = false;
                            break;
                         }
                      }
                      else
                      {
-                        OsSysLog::add(FAC_NAT, PRI_CRIT, 
-                                      "MediaRelay::initialize() createSyms response did not find id and receiver info" ); 
+                        OsSysLog::add(FAC_NAT, PRI_CRIT,
+                                      "MediaRelay::initialize() createSyms response did not find id and receiver info" );
                         bSymCreationSucceeded = false;
                         break;
                      }
                   }
                   else
                   {
-                     OsSysLog::add(FAC_NAT, PRI_CRIT, 
+                     OsSysLog::add(FAC_NAT, PRI_CRIT,
                                    "MediaRelay::initialize() createSyms response result had unexpected type: %s",
-                                   pEntry->getContainableType() ); 
+                                   pEntry->getContainableType() );
                      bSymCreationSucceeded = false;
                      break;
                   }
                }
-               
+
                // If we successfully created all the syms then proceed to allocate the bridges
                if( bSymCreationSucceeded )
                {
                   key1Name = BRIDGE_ID;
                   Bridge* pPreviouslyCreatedBridge = 0;
-                  
+
                   for( index = 0; index < mMaxMediaRelaySessions * 2; index++ )
                   {
                      Sym* pEndpoint1Sym = static_cast<Sym*>( mSymList.at( index ) );
                      Sym* pEndpoint2Sym = static_cast<Sym*>( mSymList.at( mMaxMediaRelaySessions * 2 + index ) );
                      UtlString bridgeId;
-                     
+
                      if( createPausedBridgeOnSymmitron( pEndpoint1Sym, pEndpoint2Sym, bridgeId, tempSymmitronInstanceHandle, errorCode, errorDescription ) )
                      {
                         Bridge* pBridge = new Bridge( bridgeId, pEndpoint1Sym, pEndpoint2Sym );
-                        // We need to create MediaBridgePairs that consist of bridge pairs, 
+                        // We need to create MediaBridgePairs that consist of bridge pairs,
                         // one used to relay RTP and the other to relay RTCP.  Every second
                         // bridge create will result in the creatio nof one such MediaDridgePair
                         MediaBridgePair* pMBP;
@@ -315,10 +315,10 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                         {
                            pMBP = new MediaBridgePair( pPreviouslyCreatedBridge, pBridge );
                            mAvailableMediaBridgePairsList.push_back( pMBP );
-                           OsSysLog::add(FAC_NAT, PRI_DEBUG, 
+                           OsSysLog::add(FAC_NAT, PRI_DEBUG,
                                           "MediaRelay::initialize() created media bridge pair @ 0x%p linking bridge '%s' with bridge '%s'",
-                                          pMBP, pPreviouslyCreatedBridge->getId().data(), pBridge->getId().data() );  
-                                   
+                                          pMBP, pPreviouslyCreatedBridge->getId().data(), pBridge->getId().data() );
+
                         }
                      }
                      else
@@ -328,14 +328,14 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                         break;
                      }
                   }
-                  
+
                   // check if we managed to reach the end of the loop and create all the required bridges
                   if( index >= mMaxMediaRelaySessions )
                   {
                      // this completes the initialization sequence - set flag to indicate success.
                      bInitializationSucceeded = true;
                   }
-                     
+
                }
             }
             else
@@ -343,7 +343,7 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::initialize() createSyms requested %d syms"
                                                  "but only obtained %zu - init failed", (int)(requestedSymCount.getValue()), pSymArray->entries() );
             }
-         
+
          }
          else
          {
@@ -353,28 +353,28 @@ bool MediaRelay::preAllocateSymmitronResources( void )
       else
       {
          OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::createSyms request failed: %d:'%s'",
-                        errorCode, errorDescription.data() );                     
+                        errorCode, errorDescription.data() );
       }
    }
    else
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::initialize() sign in failed: %d:'%s'",
-                     errorCode, errorDescription.data() );         
+                     errorCode, errorDescription.data() );
    }
    if( bInitializationSucceeded )
    {
       // all the request we have made to the symmitron we successful but there is one
-      // more check that needs to be performed.  Every request that is made to the 
-      // symmitron returns an instance handle.  We need to make sure that the 
+      // more check that needs to be performed.  Every request that is made to the
+      // symmitron returns an instance handle.  We need to make sure that the
       // symmitron did not restart in the middle of our initialization process.
-      // Thi is determined by comparing the last instance handle we got from the 
+      // Thi is determined by comparing the last instance handle we got from the
       // symmitron with the first.  If they are not the same, the initialization
       // process fails.
       if( tempSymmitronInstanceHandle.compareTo( mSymmitronInstanceHandle ) != 0 )
       {
          OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::initialize() failed: symmitron reset detected, "
                                            "expected handle '%s' and received '%s' in last response",
-                                           mSymmitronInstanceHandle.data(), tempSymmitronInstanceHandle.data() );  
+                                           mSymmitronInstanceHandle.data(), tempSymmitronInstanceHandle.data() );
          bInitializationSucceeded = false;
          deallocateAllSymmitronResourcesAndSignOut();
       }
@@ -385,7 +385,7 @@ bool MediaRelay::preAllocateSymmitronResources( void )
    {
       deallocateAllSymmitronResourcesAndSignOut();
    }
-   
+
    return bInitializationSucceeded;
 }
 
@@ -402,12 +402,12 @@ bool MediaRelay::createPausedBridgeOnSymmitron( Sym* pEndpoint1Sym, Sym* pEndpoi
 
    XmlRpcRequest createBridge( mSymmitronUrl, CREATE_BRIDGE_METHOD );
    createBridge.addParam( &mOurInstanceHandle );
-   
+
    UtlHashMap* pValuesMap;
-   XmlRpcResponse createBridgeResponse; 
-   if( ( pValuesMap = executeAndValudateSymmitronRequest( createBridge, 
-                                                          symmitronInstanceHandle, 
-                                                          errorCode, 
+   XmlRpcResponse createBridgeResponse;
+   if( ( pValuesMap = executeAndValudateSymmitronRequest( createBridge,
+                                                          symmitronInstanceHandle,
+                                                          errorCode,
                                                           errorDescription,
                                                           createBridgeResponse ) ) != 0 )
    {
@@ -431,69 +431,69 @@ bool MediaRelay::createPausedBridgeOnSymmitron( Sym* pEndpoint1Sym, Sym* pEndpoi
                XmlRpcRequest startBridge( mSymmitronUrl, START_BRIDGE_METHOD );
                startBridge.addParam( &mOurInstanceHandle );
                startBridge.addParam( &returnedBridgeId );
-               XmlRpcResponse startBridgeResponse; 
-               if( executeAndValudateSymmitronRequest( startBridge, 
-                                                       symmitronInstanceHandle, 
-                                                       errorCode, 
+               XmlRpcResponse startBridgeResponse;
+               if( executeAndValudateSymmitronRequest( startBridge,
+                                                       symmitronInstanceHandle,
+                                                       errorCode,
                                                        errorDescription,
-                                                       startBridgeResponse ) != 0 )              
-               {      
+                                                       startBridgeResponse ) != 0 )
+               {
                   XmlRpcRequest pauseBridge( mSymmitronUrl, PAUSE_BRIDGE_METHOD );
                   pauseBridge.addParam( &mOurInstanceHandle );
                   pauseBridge.addParam( &returnedBridgeId );
-                  XmlRpcResponse pauseBridgeResponse; 
-                  if( executeAndValudateSymmitronRequest( pauseBridge, 
-                                                          symmitronInstanceHandle, 
-                                                          errorCode, 
+                  XmlRpcResponse pauseBridgeResponse;
+                  if( executeAndValudateSymmitronRequest( pauseBridge,
+                                                          symmitronInstanceHandle,
+                                                          errorCode,
                                                           errorDescription,
                                                           pauseBridgeResponse ) != 0 )
                   {
                      result = true;
-                     OsSysLog::add(FAC_NAT, PRI_DEBUG, 
+                     OsSysLog::add(FAC_NAT, PRI_DEBUG,
                                    "MediaRelay::createPausedBridgeOnSymmitron() createBridge id:'%s' linking Sym '%s' with Sym '%s'",
-                                   returnedBridgeId.data(), pEndpoint1Sym->getId().data(), pEndpoint2Sym->getId().data() );  
+                                   returnedBridgeId.data(), pEndpoint1Sym->getId().data(), pEndpoint2Sym->getId().data() );
                   }
                   else
                   {
                      OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::createPausedBridgeOnSymmitron() pauseBridge request failed: %d:'%s'",
-                                    errorCode, errorDescription.data() );                     
+                                    errorCode, errorDescription.data() );
                   }
                }
                else
                {
                   OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::createPausedBridgeOnSymmitron() startBridge request failed: %d:'%s'",
-                                 errorCode, errorDescription.data() );                     
+                                 errorCode, errorDescription.data() );
                }
             }
             else
             {
-               OsSysLog::add(FAC_NAT, PRI_CRIT, 
+               OsSysLog::add(FAC_NAT, PRI_CRIT,
                              "MediaRelay::createPausedBridgeOnSymmitron() failed to add second sym %s to bridge %s",
                              symId.data(), returnedBridgeId.data() );
             }
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_CRIT, 
+            OsSysLog::add(FAC_NAT, PRI_CRIT,
                           "MediaRelay::createPausedBridgeOnSymmitron() failed to add first sym %s to bridge %s",
                           symId.data(), returnedBridgeId.data() );
          }
       }
       else
       {
-         OsSysLog::add(FAC_NAT, PRI_CRIT, 
-                       "MediaRelay::createPausedBridgeOnSymmitron() createBridge response did not find bridge id" ); 
+         OsSysLog::add(FAC_NAT, PRI_CRIT,
+                       "MediaRelay::createPausedBridgeOnSymmitron() createBridge response did not find bridge id" );
       }
    }
    else
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::createPausedBridgeOnSymmitron() createBridge request failed: %d:'%s'",
-                     errorCode, errorDescription.data() );                     
+                     errorCode, errorDescription.data() );
    }
    return result;
 }
 
-bool MediaRelay::addSymToBridge( UtlString& symId, UtlString& bridgeId, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription )             
+bool MediaRelay::addSymToBridge( UtlString& symId, UtlString& bridgeId, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription )
 {
    OsLock lock( mMutex );
    bool result = false;
@@ -502,11 +502,11 @@ bool MediaRelay::addSymToBridge( UtlString& symId, UtlString& bridgeId, UtlStrin
    addSym.addParam( &mOurInstanceHandle );
    addSym.addParam( &bridgeId );
    addSym.addParam( &symId );
-   
-   XmlRpcResponse addSymResponse;    
-   if( executeAndValudateSymmitronRequest( addSym, 
-                                           symmitronInstanceHandle, 
-                                           errorCode, 
+
+   XmlRpcResponse addSymResponse;
+   if( executeAndValudateSymmitronRequest( addSym,
+                                           symmitronInstanceHandle,
+                                           errorCode,
                                            errorDescription,
                                            addSymResponse ) != 0 )
    {
@@ -515,7 +515,7 @@ bool MediaRelay::addSymToBridge( UtlString& symId, UtlString& bridgeId, UtlStrin
    else
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::addSymToBridge() addSym request failed: %d:%s",
-                                         errorCode, errorDescription.data() );      
+                                         errorCode, errorDescription.data() );
    }
    return result;
 }
@@ -539,11 +539,11 @@ void MediaRelay::notifySymmitronResetDetected( const UtlString& newSymmitronInst
    OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::notifySymmitronResetDetected(): Symmitron reset detected.  New handle is '%s'", newSymmitronInstanceHandle.data() );
    // release everything we had...
    cleanUpEverything();
-   
+
    if( !newSymmitronInstanceHandle.isNull() )
    {
       // A new Symmitron instance is up already, preallocate resources on that new symmitron
-      
+
       if( preAllocateSymmitronResources() == false )
       {
          Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING" );
@@ -570,7 +570,7 @@ void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t num
 
    OsSysLog::add( FAC_NAT, PRI_DEBUG, "MediaRelay::notifyBridgeStatistics() received stats for bridge %s belonging to MRS %u: "
                                       " packets processed = %d", bridgeId.data(), (int)mediaRelaySessionHandle, (int)numberOfPacketsProcessed );
-   
+
    if( pMediaRelaySession )
    {
       PacketProcessingStatistics newStats = pMediaRelaySession->getPacketProcessingStats();
@@ -580,14 +580,14 @@ void MediaRelay::notifyBridgeStatistics( const UtlString& bridgeId, intptr_t num
          // it is because the number of packets processed has grown since the
          // last time so the stats are updated to reflect the increment.  In
          // special cases, it could also be that the number of packets processed
-         // has decreased - this could happen in cases where the stats are 
+         // has decreased - this could happen in cases where the stats are
          // reset in error at the symmitron or have wrapped around.  We also
          // update the stats in this case to resynch with the backward jump.
          newStats.mNumberOfPacketsProcessed         = numberOfPacketsProcessed;
          newStats.mEpochTimeOfLastPacketsProcessed  = OsDateTime::getSecsSinceEpoch();
          pMediaRelaySession->setPacketProcessingStats( newStats );
       }
-      // else{ processed packet count did not change so do not update anything. } 
+      // else{ processed packet count did not change so do not update anything. }
    }
 }
 
@@ -601,7 +601,7 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
       MediaBridgePair* pMediaBridgePairToUse = mAvailableMediaBridgePairsList.back();
       mAvailableMediaBridgePairsList.pop_back();
       mBusyMediaBridgePairsList.push_back( pMediaBridgePairToUse );
-      
+
       endpoint1RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort();
       endpoint2RelayRtpPort = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort();
       relayHandle = mRelaySessionHandle++;
@@ -611,27 +611,27 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
       // set all four syms in auto-learning mode and resume them
          // Sym1 of Rtp Bridge
       idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId();
-      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );            
+      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
       mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
       // Sym2 of Rtp Bridge
       idString = pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId();
-      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );            
+      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
       mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
          // Sym1 of Rtcp Bridge
       idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint1Sym()->getId();
-      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );            
+      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
       mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
          // Sym2 of Rtcp Bridge
       idString = pMediaBridgePairToUse->getRtcpBridge()->getEndpoint2Sym()->getId();
-      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );            
+      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, idString, "", 0 );
       mAsynchMediaRelayRequestSender.resumeSym( mOurInstanceHandle, idString );
-   
-      // unpause both bridges of the pair 
+
+      // unpause both bridges of the pair
       idString = pMediaBridgePairToUse->getRtpBridge()->getId();
       mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
        idString = pMediaBridgePairToUse->getRtcpBridge()->getId();
       mAsynchMediaRelayRequestSender.resumeBridge( mOurInstanceHandle, idString );
-      
+
       MediaRelaySession* pMediaRelaySession = new MediaRelaySession( relayHandle, endpoint1RelayRtpPort, endpoint2RelayRtpPort, pMediaBridgePairToUse );
       tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandle );
       mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pMediaRelaySession );
@@ -639,10 +639,10 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
 
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Allocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                      "MBP:%p (RtpBridge=%s)",
-                     (int)relayHandle, 
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort(),     
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
-                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort(),     
+                     (int)relayHandle,
+                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getPort(),
+                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+                     pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getPort(),
                      pMediaBridgePairToUse->getRtpBridge()->getEndpoint2Sym()->getId().data(),
                      pMediaBridgePairToUse,
                      pMediaBridgePairToUse->getRtpBridge()->getId().data() );
@@ -651,7 +651,7 @@ bool MediaRelay::allocateSession( tMediaRelayHandle& relayHandle, int& endpoint1
    {
       OsSysLog::add( FAC_NAT, PRI_CRIT, "MediaRelay::allocateSession() failed to allocate a new session - "
                                         "ran out of bridges (max = %zu)", mMaxMediaRelaySessions );
-      Alarm::raiseAlarm("NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS");   
+      Alarm::raiseAlarm("NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS");
    }
    return result;
 }
@@ -661,7 +661,7 @@ tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandle
    OsLock lock( mMutex );
    const MediaRelaySession* pMediaRelaySessionToClone;
    tMediaRelayHandle relayHandleOfClone = INVALID_MEDIA_RELAY_HANDLE;
-   
+
    if( ( pMediaRelaySessionToClone = getSessionByHandle( relayHandleToClone ) ) )
    {
       int callerRtpPort = pMediaRelaySessionToClone->getRtpRelayPort( CALLER );
@@ -671,11 +671,11 @@ tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandle
       {
          int tempPort  = callerRtpPort;
          callerRtpPort = calleeRtpPort;
-         calleeRtpPort = tempPort; 
+         calleeRtpPort = tempPort;
       }
-      
+
       relayHandleOfClone = mRelaySessionHandle++;
-      MediaRelaySession* pClonedMediaRelaySession = new MediaRelaySession( relayHandleOfClone, callerRtpPort, calleeRtpPort, 
+      MediaRelaySession* pClonedMediaRelaySession = new MediaRelaySession( relayHandleOfClone, callerRtpPort, calleeRtpPort,
                                                                            pMediaRelaySessionToClone->getAssociatedMediaBridgePair(), true );
       tMediaRelayHandle* pHandle = new tMediaRelayHandle( relayHandleOfClone );
       mActiveMediaRelaySessions.insertKeyAndValue( pHandle, pClonedMediaRelaySession );
@@ -686,7 +686,7 @@ tMediaRelayHandle MediaRelay::cloneSession( const tMediaRelayHandle& relayHandle
                      doSwapCallerAndCallee,
                      callerRtpPort,
                      calleeRtpPort );
-   } 
+   }
    return relayHandleOfClone;
 }
 
@@ -694,11 +694,11 @@ bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
 {
    OsLock lock( mMutex );
    bool bDeallocSucceeded = false;
-   
+
    if( handle != INVALID_MEDIA_RELAY_HANDLE )
    {
       MediaRelaySession* pMediaRelaySession;
-      
+
       if( ( pMediaRelaySession = const_cast< MediaRelaySession* >( getSessionByHandle( handle ) ) ) )
       {
          bDeallocSucceeded = true;
@@ -708,7 +708,7 @@ bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
             {
                // remove the MediaBridgePair associated with the deallocated session
                // from the mBusyMediaBridgePairsList and return it to the mAvailableMediaBridgePairsList.
-               // NOTE: This class adds and removes elements at the end of lists so start looking for the 
+               // NOTE: This class adds and removes elements at the end of lists so start looking for the
                // MediaBridgePair to remove starting at the end.
                MediaBridgePair* pMediaBridgePairBeingFreed = pMediaRelaySession->getAssociatedMediaBridgePair();
                std::vector<MediaBridgePair*>::iterator pos;
@@ -722,36 +722,36 @@ bool MediaRelay::deallocateSession( const tMediaRelayHandle& handle )
                      break;
                   }
                }
-   
+
                OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle=%u: Deallocated session.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                               "MBP:%p (RtpBridge=%s)",
-                              (int)handle, 
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getPort(),     
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
-                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getPort(),     
+                              (int)handle,
+                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getPort(),
+                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+                              pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getPort(),
                               pMediaBridgePairBeingFreed->getRtpBridge()->getEndpoint2Sym()->getId().data(),
                               pMediaBridgePairBeingFreed,
                               pMediaBridgePairBeingFreed->getRtpBridge()->getId().data() );
-               
+
                if( !itemToEraseFound )
                {
                   OsSysLog::add(FAC_NAT, PRI_CRIT, "MediaRelay::deallocateSession couldn't find pMediaBridgePair being freed in mBusyMediaBridgePairsList.");
                }
                mAvailableMediaBridgePairsList.push_back( pMediaBridgePairBeingFreed );
-   
+
                // return the bridges in a paused state.
                UtlString rtpBridgeId  = pMediaBridgePairBeingFreed->getRtpBridge()->getId();
                UtlString rtcpBridgeId = pMediaBridgePairBeingFreed->getRtcpBridge()->getId();
                mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtpBridgeId );
                mAsynchMediaRelayRequestSender.pauseBridge( mOurInstanceHandle, rtcpBridgeId );
-   
+
                // remove media relay session just deallocated from our active list.
                mActiveMediaRelaySessions.destroy( &handle );
             }
             else
             {
-               // we are deallocating a clone.   Remove it from our active list but 
-               // do not actiually de-allocate anything on the Symmitron as the 
+               // we are deallocating a clone.   Remove it from our active list but
+               // do not actiually de-allocate anything on the Symmitron as the
                // original copy may still be around.
                mActiveMediaRelaySessions.destroy( &handle );
             }
@@ -772,23 +772,23 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
 {
    OsLock lock( mMutex );
    bool success = false;
-   
+
    if( handle != INVALID_MEDIA_RELAY_HANDLE )
    {
-      const MediaRelaySession* pMediaRelaySession;    
+      const MediaRelaySession* pMediaRelaySession;
       if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
       {
          // figure out which syms to pause to achieve prescribed directionality.
-         // The directionality setting is referenced from the point of view of 
+         // The directionality setting is referenced from the point of view of
          // the caller.  The Bridge abstraction contains two syms (1 and 2)
          // but does not know the concept of caller or callee.  As a convention,
          // the Media Relay uses sym1 for the caller and sym2 for the callee.
-        
+
          UtlString rtpSymId;
          MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
 
          success = true;
-         if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() && 
+         if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
              pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
          {
             if( mediaRelayDirectionMode == SEND_ONLY )
@@ -800,12 +800,12 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
                mediaRelayDirectionMode = SEND_ONLY;
             }
          }
-         
+
          if( mediaRelayDirectionMode == RECV_ONLY )
          {
             // RECV_ONLY means that the caller receives but does not send therefore
-            // the Sym1 from the RTP bridge need to be paused while the 
-            // RTCP one needs to remain open to ensure that bi-directional exchnage 
+            // the Sym1 from the RTP bridge need to be paused while the
+            // RTCP one needs to remain open to ensure that bi-directional exchnage
             // of RTCP metrics continue to happen.
             rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId();
             mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
@@ -816,8 +816,8 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
          else if( mediaRelayDirectionMode == SEND_ONLY )
          {
             // SEND_ONLY means that the caller sends but does not receive therefore
-            // the Sym2 from the RTP bridge needs to be paused while the 
-            // RTCP one needs to remain open to ensure that bi-directional exchnage 
+            // the Sym2 from the RTP bridge needs to be paused while the
+            // RTCP one needs to remain open to ensure that bi-directional exchnage
             // of RTCP metrics continue to happen.
             rtpSymId = pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId();
             mAsynchMediaRelayRequestSender.pauseSym( mOurInstanceHandle, rtpSymId );
@@ -837,11 +837,11 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
          MediaDescriptor::mediaDirectionalityValueToSdpDirectionalityAttribute( mediaRelayDirectionMode, directionalityString );
          OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: set directionality to %s.  Caller(Port=%d, sym=%s); Callee(Port=%d, sym=%s)"
                         "MBP:%p (RtpBridge=%s)",
-                        (int)handle, 
+                        (int)handle,
                         directionalityString.data(),
-                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort(),     
-                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId().data(),     
-                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort(),     
+                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort(),
+                        pMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getId().data(),
+                        pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getPort(),
                         pMediaBridgePair->getRtpBridge()->getEndpoint2Sym()->getId().data(),
                         pMediaBridgePair,
                         pMediaBridgePair->getRtpBridge()->getId().data() );
@@ -850,8 +850,8 @@ bool MediaRelay::setDirectionMode( const tMediaRelayHandle& handle, MediaDirecti
    return success;
 }
 
-bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle, 
-                                    const UtlString& endpointIpAddress, 
+bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
+                                    const UtlString& endpointIpAddress,
                                     int endpointRtpPort,
                                     int endpointRtcpPort,
                                     EndpointRole ownerOfSymToLink )
@@ -861,11 +861,11 @@ bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
 
    UtlString rtpSymId;
    UtlString rtcpSymId;
-   const MediaRelaySession* pMediaRelaySession;    
+   const MediaRelaySession* pMediaRelaySession;
 
    if( ( pMediaRelaySession = getSessionByHandle( relayHandle ) ) )
    {
-      if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() && 
+      if( pMediaRelaySession->isaCloneOfAnotherMediaRelaySession() &&
           pMediaRelaySession->areCallerAndCalleeRtpPortsSwapped() )
       {
          if( ownerOfSymToLink == CALLER )
@@ -877,9 +877,9 @@ bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
             ownerOfSymToLink = CALLER;
          }
       }
-      
+
       MediaBridgePair* pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair();
-      
+
       UtlString rtpSymId;
       UtlString rtcpSymId;
       int rtpPort;
@@ -897,22 +897,22 @@ bool MediaRelay::linkSymToEndpoint( const tMediaRelayHandle& relayHandle,
          rtcpSymId = pMediaBridgePair->getRtcpBridge()->getEndpoint2Sym()->getId();
       }
 
-      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtpSymId,  endpointIpAddress, endpointRtpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );            
+      mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtpSymId,  endpointIpAddress, endpointRtpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
       mAsynchMediaRelayRequestSender.setDestination( mOurInstanceHandle, rtcpSymId, endpointIpAddress, endpointRtcpPort, DEFAULT_RTP_KEEP_ALIVE_IN_MILLISECS );
       bLinkSucceeded = true;
 
       OsSysLog::add( FAC_NAT, PRI_DEBUG, "__NAT_DEBUG__ MRS handle %u: linking %u to dest %s:%u (symId=%s)",
-                     (int)relayHandle, 
-                     rtpPort,     
-                     endpointIpAddress.data(),     
-                     endpointRtpPort,     
+                     (int)relayHandle,
+                     rtpPort,
+                     endpointIpAddress.data(),
+                     endpointRtpPort,
                      rtpSymId.data() );
    }
    else
    {
-      OsSysLog::add(FAC_NAT, PRI_CRIT, 
+      OsSysLog::add(FAC_NAT, PRI_CRIT,
                     "MediaRelay::linkSymToEndpoint failed to getSessionByHandle: %d",
-                    (int)relayHandle ); 
+                    (int)relayHandle );
 
    }
    return bLinkSucceeded;
@@ -923,7 +923,7 @@ ssize_t MediaRelay::incrementLinkCountOfMediaRelaySession( const tMediaRelayHand
    OsLock lock( mMutex );
    ssize_t result = 0;
    MediaRelaySession* pMediaRelaySession = 0;
-   
+
    if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
    {
       result = pMediaRelaySession->incrementLinkCount();
@@ -936,7 +936,7 @@ int MediaRelay::getRtpRelayPortForMediaRelaySession( const tMediaRelayHandle& ha
    OsLock lock( mMutex );
    int rtpPort = PORT_NONE;
    MediaRelaySession* pMediaRelaySession = 0;
-   
+
    if( ( pMediaRelaySession = getSessionByHandle( handle ) ) )
    {
       rtpPort = pMediaRelaySession->getRtpRelayPort( endpointRole );
@@ -953,7 +953,7 @@ MediaRelaySession* MediaRelay::getSessionByHandle( const tMediaRelayHandle& hand
 UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& requestToSend, UtlString& symmitronInstanceHandle, int& errorCode, UtlString& errorDescription, XmlRpcResponse& xmlRpcResponse, bool bRetryFailedConnection )
 {
    bool responseIsValid = false;
-   UtlHashMap* pStandardMap = NULL;   
+   UtlHashMap* pStandardMap = NULL;
    errorCode = SUCCESS;
    errorDescription.remove( 0 );
    symmitronInstanceHandle.remove( 0 );
@@ -971,9 +971,9 @@ UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& reque
          pStandardMap = dynamic_cast<UtlHashMap*>( pValue );
          if ( !pStandardMap )
          {
-            OsSysLog::add(FAC_NAT, PRI_CRIT, 
+            OsSysLog::add(FAC_NAT, PRI_CRIT,
                           "MediaRelay::executeAndValudateSymmitronRequest response result had unexpected type: %s",
-                          pValue->getContainableType() ); 
+                          pValue->getContainableType() );
          }
          else
          {
@@ -986,7 +986,7 @@ UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& reque
             }
             else
             {
-               OsSysLog::add(FAC_NAT, PRI_CRIT, 
+               OsSysLog::add(FAC_NAT, PRI_CRIT,
                              "MediaRelay::executeAndValudateSymmitronRequest response does not contain instance-handle" );
             }
 
@@ -997,7 +997,7 @@ UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& reque
             {
                // status-code is not "ok", some error happened - extract error information.
                keyName = ERROR_CODE;
-               UtlInt* pErrorCode = dynamic_cast<UtlInt*>( pStandardMap->findValue( &keyName ) );         
+               UtlInt* pErrorCode = dynamic_cast<UtlInt*>( pStandardMap->findValue( &keyName ) );
                if( pErrorCode )
                {
                   errorCode = *pErrorCode;
@@ -1022,7 +1022,7 @@ UtlHashMap* MediaRelay::executeAndValudateSymmitronRequest( XmlRpcRequest& reque
       // Check if the request failed because of a failed connection.
       // That error can sometimes happen when the server closed the TCP
       // connection we were using to communicate to it and can usually
-      // be recovered by sending the request again.  Try to send the 
+      // be recovered by sending the request again.  Try to send the
       // request once more to see if it will fly this time.
       xmlRpcResponse.getFault( &errorCode, errorDescription );
       OsSysLog::add( FAC_NAT, PRI_CRIT,
@@ -1045,7 +1045,7 @@ void MediaRelay::deallocateAllSymmitronResourcesAndSignOut( void )
 
       mbSignedInWithSymmitron = false;
    }
-  
+
    // de-allocate memory for Syms and Bridges and clear lists that hold their pointers.
    // NOTE: the process of signing out causes the symmitron to de-allocate all the resources
    // we had created so there is no need to explicitly request the de-allocation of the syms
@@ -1072,7 +1072,7 @@ void MediaRelay::deallocateAllSymmitronResourcesAndSignOut( void )
 bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelayHandle& handle,
                                                                PacketProcessingStatistics& stats )
 {
-   OsLock lock( mMutex );   
+   OsLock lock( mMutex );
    bool result = false;
    MediaRelaySession* pMediaRelaySession = getSessionByHandle( handle );
    if( pMediaRelaySession )
@@ -1085,7 +1085,7 @@ bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelay
 
 OsStatus MediaRelay::signal( intptr_t eventData )
 {
-   OsLock lock( mMutex );   
+   OsLock lock( mMutex );
    if( mGenericTimerTickCounter % GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY == 0 )
    {
       UtlHashMapIterator mediaRelaySessionsIterator( mActiveMediaRelaySessions );
@@ -1098,18 +1098,18 @@ OsStatus MediaRelay::signal( intptr_t eventData )
          {
             void* opaqueData;
            opaqueData = (void *)( (intptr_t)pMediaRelaySession->getUniqueHandle() );
-           mAsynchMediaRelayRequestSender.queryBridgeStatistics( mOurInstanceHandle, 
+           mAsynchMediaRelayRequestSender.queryBridgeStatistics( mOurInstanceHandle,
                                                                  pMediaBridgePair->getRtpBridge()->getId(),
                                                                  opaqueData );
          }
-      }      
+      }
    }
 
    if( mGenericTimerTickCounter % GENERIC_TIMER_TICKS_BEFORE_PING == 0 )
    {
       mAsynchMediaRelayRequestSender.ping( mOurInstanceHandle );
    }
-   
+
    if( mbPollForSymmitronRecovery && ( mGenericTimerTickCounter % GENERIC_TIMER_TICKS_BEFORE_SYMMITRON_RECONNECT_ATTEMPT == 0 ) )
    {
       if( preAllocateSymmitronResources() )
@@ -1119,16 +1119,16 @@ OsStatus MediaRelay::signal( intptr_t eventData )
          Alarm::raiseAlarm( "NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED" );
       }
    }
-   
+
    mGenericTimerTickCounter++;
-   return OS_SUCCESS;   
+   return OS_SUCCESS;
 }
 
 Sym::Sym( UtlString& id, UtlString& localAddress, int port ) :
    mId( id ),
    mLocalAddress( localAddress ),
    mPort( port )
-{   
+{
 }
 
 UtlString Sym::getId( void ) const
@@ -1171,9 +1171,9 @@ int Sym::compareTo(UtlContainable const *rhs ) const
       {
          rc = mId.compareTo( rhsSym->getId() );
       }
-         
+
    }
-   return rc; 
+   return rc;
 }
 
 Bridge::Bridge( UtlString& id, Sym* pEndpoint1Sym, Sym* pEndpoint2Sym ) :
@@ -1210,7 +1210,7 @@ unsigned Bridge::hash() const
 
 int Bridge::compareTo(UtlContainable const *rhs ) const
 {
-   return mId.compareTo( ((Bridge*)rhs)->mId ); 
+   return mId.compareTo( ((Bridge*)rhs)->mId );
 }
 
 MediaBridgePair::MediaBridgePair( Bridge* pRtpBridge, Bridge* pRtcpBridge ) :
@@ -1218,14 +1218,14 @@ MediaBridgePair::MediaBridgePair( Bridge* pRtpBridge, Bridge* pRtcpBridge ) :
    mpRtcpBridge( pRtcpBridge )
 {
 }
-   
+
 const Bridge* MediaBridgePair::getRtpBridge( void ) const
-{ 
-   return mpRtpBridge; 
+{
+   return mpRtpBridge;
 }
 
 const Bridge* MediaBridgePair::getRtcpBridge( void ) const
-{ 
+{
    return mpRtcpBridge;
 }
 
@@ -1241,7 +1241,7 @@ unsigned MediaBridgePair::hash() const
 
 int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
 {
-   int result; 
+   int result;
    if( getRtpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() )
    {
       if( getRtcpBridge() == static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() )
@@ -1250,12 +1250,12 @@ int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
       }
       else
       {
-         result = ( getRtcpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() ? 1 : -1 );  
+         result = ( getRtcpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtcpBridge() ? 1 : -1 );
       }
    }
    else
    {
-      result = ( getRtpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() ? 1 : -1 );  
+      result = ( getRtpBridge() > static_cast<const MediaBridgePair*>(rhs)->getRtpBridge() ? 1 : -1 );
    }
    return result;
 }
@@ -1281,7 +1281,7 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
    XmlRpcRequest* pXmlRpcRequestToSend = 0;
    Url xmlRpcServerUrl = mpOwningMediaRelay->getXmlRpcServerUrl();
    AsynchMediaRelayMsg* pSymmitronMsg = dynamic_cast <AsynchMediaRelayMsg*> ( &rMsg );
-   
+
    UtlString controllerHandle    = pSymmitronMsg->getControllerHandle();
    UtlString bridgeId            = pSymmitronMsg->getBridgeId();
    UtlString symId               = pSymmitronMsg->getSymId();
@@ -1291,14 +1291,14 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
    UtlInt    keepAliveTime       = pSymmitronMsg->getKeepAliveTime();
    UtlString keepAliveMethod     = "NONE";
    void*     pOpaqueData         = pSymmitronMsg->getOpaqueData();
-   
+
    switch ( rMsg.getMsgType() )
    {
    case OsMsg::OS_SHUTDOWN:
       OsTask::requestShutdown();
       handled = TRUE;
       break;
-      
+
    case OsMsg::OS_EVENT:
       switch( rMsg.getMsgSubType() )
       {
@@ -1312,13 +1312,13 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
          pXmlRpcRequestToSend->addParam( &controllerHandle );
          pXmlRpcRequestToSend->addParam( &bridgeId );
          break;
-         
+
       case AsynchMediaRelayMsg::SYMMITRON_RESUME_BRIDGE:
          pXmlRpcRequestToSend = new XmlRpcRequest( xmlRpcServerUrl, RESUME_BRIDGE_METHOD );
          pXmlRpcRequestToSend->addParam( &controllerHandle );
          pXmlRpcRequestToSend->addParam( &bridgeId );
          break;
-         
+
       case AsynchMediaRelayMsg::SYMMITRON_SET_DESTINATION:
          pXmlRpcRequestToSend = new XmlRpcRequest( xmlRpcServerUrl, SET_DESTINATION_SYM_METHOD );
          pXmlRpcRequestToSend->addParam( &controllerHandle );
@@ -1332,13 +1332,13 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
          }
          pXmlRpcRequestToSend->addParam( &keepAliveMethod );
          break;
-         
+
       case AsynchMediaRelayMsg::SYMMITRON_PAUSE_SYM:
          pXmlRpcRequestToSend = new XmlRpcRequest( xmlRpcServerUrl, PAUSE_SYM_METHOD );
          pXmlRpcRequestToSend->addParam( &controllerHandle );
          pXmlRpcRequestToSend->addParam( &symId );
          break;
-         
+
       case AsynchMediaRelayMsg::SYMMITRON_RESUME_SYM:
          pXmlRpcRequestToSend = new XmlRpcRequest( xmlRpcServerUrl, RESUME_SYM_METHOD );
          pXmlRpcRequestToSend->addParam( &controllerHandle );
@@ -1356,8 +1356,8 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
          pXmlRpcRequestToSend = new XmlRpcRequest( xmlRpcServerUrl, GET_BRIDGE_STATS_METHOD );
          pXmlRpcRequestToSend->addParam( &controllerHandle );
          pXmlRpcRequestToSend->addParam( &bridgeId );
-         break;       
-         
+         break;
+
       default:
          OsSysLog::add(FAC_NAT, PRI_CRIT,
                        "AsynchMediaRelayRequestSender::handleMessage: received unknown sub-type: %d",
@@ -1366,7 +1366,7 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
       }
       handled = TRUE;
       break;
-      
+
    default:
       OsSysLog::add(FAC_NAT, PRI_CRIT,
                     "AsynchMediaRelayRequestSender::handleMessage: '%s' unhandled message type %d.%d",
@@ -1379,21 +1379,21 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
       UtlString symmitronInstanceHandle;
       int errorCode;
       UtlString errorDescription;
-      XmlRpcResponse xmlRpcResponse; 
+      XmlRpcResponse xmlRpcResponse;
       UtlHashMap* pValuesMap;
-      
-      if( ( pValuesMap = MediaRelay::executeAndValudateSymmitronRequest( *pXmlRpcRequestToSend, 
-                                                                         symmitronInstanceHandle, 
-                                                                         errorCode, 
+
+      if( ( pValuesMap = MediaRelay::executeAndValudateSymmitronRequest( *pXmlRpcRequestToSend,
+                                                                         symmitronInstanceHandle,
+                                                                         errorCode,
                                                                          errorDescription,
                                                                          xmlRpcResponse ) ) != 0 )
       {
-         
+
          // we got a valid response.  Look to see if this is a response we need to process
          if( rMsg.getMsgSubType() == AsynchMediaRelayMsg::SYMMITRON_GET_BRIDGE_STATS )
          {
             // This response contains the stats of a bridge.  Extract the relevant
-            // stat information and notify the MediaRelay that the stats it 
+            // stat information and notify the MediaRelay that the stats it
             // queried have been received.
             UtlString* pTmpString;
             UtlString keyName;
@@ -1407,7 +1407,7 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
             }
             else
             {
-               OsSysLog::add(FAC_NAT, PRI_ERR, 
+               OsSysLog::add(FAC_NAT, PRI_ERR,
                              "AsynchMediaRelayRequestSender::handleMessage failed to get %s member", keyName.data() );
             }
         }
@@ -1415,7 +1415,7 @@ UtlBoolean AsynchMediaRelayRequestSender::handleMessage( OsMsg& rMsg )
       else
       {
          OsSysLog::add( FAC_NAT, PRI_CRIT, "AsynchMediaRelayRequestSender::handleMessage() failed to execute request for event %d: Error=%d:'%s'",
-                        rMsg.getMsgSubType(), errorCode, errorDescription.data() );                     
+                        rMsg.getMsgSubType(), errorCode, errorDescription.data() );
       }
 
       // check if the symmitron instance we received in the response matches the reference one
@@ -1507,8 +1507,8 @@ OsStatus AsynchMediaRelayRequestSender::postMessageIfStarted( const OsMsg& rMsg,
    return result;
 }
 
-AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType, 
-                                          const UtlString& controllerHandle, 
+AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType,
+                                          const UtlString& controllerHandle,
                                           const UtlString& subId ) :
    OsMsg( OS_EVENT, eventSubType ),
    mControllerHandle( controllerHandle ),
@@ -1516,10 +1516,10 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( EventSubType eventSubType,
 {
 
 }
-         
-AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                                          const UtlString& symId, 
-                                          const UtlString& ipAddress, 
+
+AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                                          const UtlString& symId,
+                                          const UtlString& ipAddress,
                                           int port,
                                           int keepAliveTime ) :
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_SET_DESTINATION ),
@@ -1528,11 +1528,11 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
    mIpAddress( ipAddress ),
    mPort( port ),
    mKeepAliveTime( keepAliveTime )
-{   
+{
 }
 
-AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                                          const UtlString& symId, 
+AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                                          const UtlString& symId,
                                           int timeout ) :
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_SET_SYM_TIMEOUT ),
    mControllerHandle( controllerHandle ),
@@ -1541,14 +1541,14 @@ AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
 {
 }
 
-AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle, 
-                                          const UtlString& bridgeId, 
+AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle,
+                                          const UtlString& bridgeId,
                                           void* opaqueData ) :
    OsMsg( OS_EVENT,  AsynchMediaRelayMsg::SYMMITRON_GET_BRIDGE_STATS ),
    mControllerHandle( controllerHandle ),
    mSubId( bridgeId ),
    mpOpaqueData( opaqueData )
-{   
+{
 }
 
 AsynchMediaRelayMsg::AsynchMediaRelayMsg( const UtlString& controllerHandle ) :
@@ -1599,7 +1599,7 @@ int AsynchMediaRelayMsg::getPort( void ) const
    return mPort;
 }
 
-int AsynchMediaRelayMsg::getTimeout( void ) const 
+int AsynchMediaRelayMsg::getTimeout( void ) const
 {
    return mTimeout;
 }

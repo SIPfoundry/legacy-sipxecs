@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -25,12 +25,12 @@ static const char CallEndType = 'E';
 static const char CallFailureType = 'F';
 static const char CallTransferType = 'T';
 
-static const char* ModuleName = 
+static const char* ModuleName =
   "CallStateEventBuilder_DB";
 
-static const char* ObserverEventTable = 
+static const char* ObserverEventTable =
   "observer_state_events";
-  
+
 static const char* CallEventTable =
   "call_state_events";
 
@@ -40,18 +40,18 @@ static const char* CallEvent_Start =
 
 static const char* CallEvent_NoFailure =
   "0,\'\',";
-  
+
 static const char* CallEvent_DefaultElement =
   "\'\',";
-  
+
 static const char* CallEvent_DefaultBoolElement =
   "null,";
-  
+
 static const char* CallEvent_DefaultEndElement =
   "\'\'";
-  
+
 static const char* CallEvent_DefaultReferElement =
-  "\'\',\'\',";  
+  "\'\',\'\',";
 
 // STRUCTS
 // TYPEDEFS
@@ -86,7 +86,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
                                              )
 {
    BuilderMethod eventMethod;
- 
+
    switch (eventCode)
    {
    case ObserverReset:
@@ -103,14 +103,14 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
    if (builderStateIsOk(eventMethod))
    {
       newEvent(sequenceNumber, timestamp, ObserverEventTable);
-   
+
       char buffer[256];
-      snprintf(buffer, 256, "%d,\'%s\'", 
+      snprintf(buffer, 256, "%d,\'%s\'",
                eventCode, eventMsg);
       mCurrentEvent.append(buffer);
 
       mCallInfo.remove(0);
-      mReferElement.remove(0);      
+      mReferElement.remove(0);
       mContactElement.remove(0);
       mReferElement.remove(0);
       mFailureElement.remove(0);
@@ -150,10 +150,10 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       // Translate single quotes
       UtlString nfield;
       replaceSingleQuotes(contact, nfield);
-      mContactElement = "\'" + nfield + "\',";         
+      mContactElement = "\'" + nfield + "\',";
 
       replaceSingleQuotes(references, nfield);
-      mReferences = "\'" + nfield + "\',";         
+      mReferences = "\'" + nfield + "\',";
 
       if (callerInternal==true) {
          mCallerInternal = "\'t\',";
@@ -165,7 +165,7 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callRequestEvent not allowed.",
                     ModuleName);
    }
@@ -191,17 +191,17 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
       newEvent(sequenceNumber, timestamp, CallEventTable, CallSetupType);
 
       UtlString ncontact;
-      replaceSingleQuotes(contact, ncontact); 
+      replaceSingleQuotes(contact, ncontact);
       mContactElement = "\'" + ncontact + "\',";
 
       UtlString ncalleeRoute;
-      replaceSingleQuotes(calleeRoute, ncalleeRoute); 
+      replaceSingleQuotes(calleeRoute, ncalleeRoute);
       mCalleeRoute = "\'" + ncalleeRoute + "\'";
    }
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callSetupEvent not allowed.", ModuleName);
    }
 }
@@ -232,7 +232,7 @@ void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callFailureEvent not allowed.", ModuleName);
    }
 }
@@ -258,7 +258,7 @@ void CallStateEventBuilder_DB::callEndEvent(const int sequenceNumber,
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -271,36 +271,36 @@ void CallStateEventBuilder_DB::callEndEvent(const int sequenceNumber,
  *   - addCallData
  *   - completeCallEvent
  */
-void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber, 
-                                                  const OsTime& timeStamp, 
+void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
+                                                  const OsTime& timeStamp,
                                                   const UtlString& contact,
                                                   const UtlString& refer_to,
                                                   const UtlString& referred_by,
-                                                  const UtlString& request_uri) 
+                                                  const UtlString& request_uri)
 {
    if (builderStateIsOk(CallTransferEvent))
    {
       newEvent(sequenceNumber, timeStamp, CallEventTable, CallTransferType);
-      
+
       UtlString nvalue;
       replaceSingleQuotes(contact, nvalue);
-      mContactElement = "\'" + nvalue + "\',";         
+      mContactElement = "\'" + nvalue + "\',";
 
       replaceSingleQuotes(refer_to, nvalue);
-      mReferElement = "\'" + nvalue + "\',";         
+      mReferElement = "\'" + nvalue + "\',";
 
       replaceSingleQuotes(referred_by, nvalue);
-      mReferElement += "\'" + nvalue + "\',";    
+      mReferElement += "\'" + nvalue + "\',";
 
       replaceSingleQuotes(request_uri, nvalue);
-      mRequestUri = "\'" + nvalue + "\',";         
+      mRequestUri = "\'" + nvalue + "\',";
    }
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
-   }   
+   }
 }
 
 
@@ -319,35 +319,35 @@ void CallStateEventBuilder_DB::addCallData(const int cseqNumber,
       char buffer[32];
       snprintf(buffer, 31, "%d,", cseqNumber);
       mCallInfo = buffer;
-      
+
       UtlString nvalue;
       replaceSingleQuotes(callId, nvalue);
-      mCallInfo += "\'" + nvalue + "\',";        
+      mCallInfo += "\'" + nvalue + "\',";
 
-      replaceSingleQuotes(fromTag, nvalue); 
-      mCallInfo += "\'" + nvalue + "\',";         
+      replaceSingleQuotes(fromTag, nvalue);
+      mCallInfo += "\'" + nvalue + "\',";
 
       replaceSingleQuotes(toTag, nvalue);
-      mCallInfo += "\'" + nvalue + "\',";         
+      mCallInfo += "\'" + nvalue + "\',";
 
       replaceSingleQuotes(fromField, nvalue);
-      mCallInfo += "\'" + nvalue + "\',";       
+      mCallInfo += "\'" + nvalue + "\',";
 
       replaceSingleQuotes(toField, nvalue);
-      mCallInfo += "\'" + nvalue + "\',";        
+      mCallInfo += "\'" + nvalue + "\',";
    }
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
 
-   
+
 /// Add a via element for the event
 /**
- * Record a Via from the message for this event 
+ * Record a Via from the message for this event
  * Calls to this routine are in reverse cronological order - the last
  * call for an event should be the via added by the message originator
  */
@@ -357,7 +357,7 @@ void CallStateEventBuilder_DB::addEventVia(const UtlString& via
    if (!builderStateIsOk(AddVia))
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::callEndEvent not allowed.", ModuleName);
    }
 }
@@ -373,7 +373,7 @@ void CallStateEventBuilder_DB::completeCallEvent()
    else
    {
       assert(false);
-      OsSysLog::add(FAC_SIP, PRI_ERR, 
+      OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s::completeCallEvent not allowed.", ModuleName);
    }
 }
@@ -403,19 +403,19 @@ void CallStateEventBuilder_DB::newEvent(int sequenceNumber,
                                         )
 {
    char buffer[256];  // size as const int
-   
-   snprintf(buffer, 256, CallEvent_Start, eventTable, 
+
+   snprintf(buffer, 256, CallEvent_Start, eventTable,
             observerName, sequenceNumber);
 
    mCurrentEvent = buffer;
-   
+
    OsDateTime timeValue(timestamp);
    UtlString timeString;
    timeValue.getSqlTimeStringZ(timeString);
-   mCurrentEvent.append(timeString.data()); 
+   mCurrentEvent.append(timeString.data());
    mCurrentEvent.append("\',");
    if (eventType != '-')
-   {   
+   {
       mCurrentEvent.append("\'");
       mCurrentEvent.append(eventType);
       mCurrentEvent.append("\',");
@@ -456,9 +456,9 @@ void CallStateEventBuilder_DB::replaceSingleQuotes(const UtlString& value, UtlSt
 {
    size_t startIndex = 0;
    ssize_t newIndex = 0;
-   
+
    newValue = value;
-   
+
    newIndex = newValue.index('\'', startIndex);
    while ((newIndex = newValue.index('\'', startIndex)) != UTL_NOT_FOUND)
    {
@@ -466,4 +466,3 @@ void CallStateEventBuilder_DB::replaceSingleQuotes(const UtlString& value, UtlSt
       newValue = newValue.replace(newIndex, 1, "\\'");
    }
 }
-

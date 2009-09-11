@@ -1,7 +1,7 @@
 INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/lib/redirect_plugins \
-	-I$(top_srcdir)/include 
+	-I$(top_srcdir)/include
 
 
 ## All tests under this GNU variable should run relatively quickly
@@ -30,7 +30,7 @@ testsuite1_SOURCES = \
     ../../../src/RedirectResumeMsg.cpp \
     ../../../src/SipRedirectServer.cpp \
     SipRedirectorTimeOfDayTest.cpp
-    
+
 testsuite2_LDADD = \
     @SIPXUNIT_LIBS@ \
     @SIPXCOMMSERVERTEST_LIBS@ \
@@ -49,7 +49,7 @@ testsuite2_SOURCES = \
     ../../../src/SipRedirectServer.cpp \
     ../SipRedirectorFallback.cpp \
     SipRedirectorFallbackTest.cpp
-    
+
 testsuite3_LDADD = \
     @SIPXUNIT_LIBS@ \
     @SIPXCOMMSERVERTEST_LIBS@ \
@@ -68,5 +68,3 @@ testsuite3_SOURCES = \
     ../../../src/SipRedirectServer.cpp \
     ../SipRedirectorPresenceRouting.cpp \
     SipRedirectorPresenceRoutingTest.cpp
-    
-    

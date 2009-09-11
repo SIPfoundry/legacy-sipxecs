@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,52 +40,52 @@ class HttpRequestContext;
 class TiXmlNode;
 class Notifier;
 
-class SubscribeServerPluginBase 
+class SubscribeServerPluginBase
 {
 public:
 
 
     /**
-     * 
+     *
      * @param request
      * @param response
      * @param authenticatedUser
      * @param authenticatedRealm
      * @param domain
-     * 
-     * @return 
+     *
+     * @return
      */
     virtual OsStatus handleSubscribeRequest (
-        const SipMessage& request, 
+        const SipMessage& request,
         SipMessage& response,
-        const char* authenticatedUser, 
+        const char* authenticatedUser,
         const char* authenticatedRealm,
         const char* domain) = 0;
 
     /**
-     * 
+     *
      * @param requestContext
      * @param request
      * @param response
      *
-     * @return 
+     * @return
      */
     virtual OsStatus handleEvent (
         const HttpRequestContext& requestContext,
         const HttpMessage& request,
         HttpMessage& response ) = 0;
-   
+
     /**
-     * 
+     *
      * @param request
      * @param response
      *
-     * @return 
+     * @return
      */
     virtual OsStatus handleNotifyResponse (
         const SipMessage& request,
         const SipMessage& response) = 0;
-   
+
     /**
      */
     virtual void terminatePlugin() = 0;
@@ -93,8 +93,8 @@ public:
     virtual ~SubscribeServerPluginBase()
     {
     }
-    
-    
+
+
 protected:
 
 

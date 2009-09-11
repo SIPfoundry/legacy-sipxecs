@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -52,22 +52,22 @@ PublicTransportData::PublicTransportData( const Url& url )
    mTransportType.remove( 0 );
    mTransportType.append( "Public" );
    fromUrl( url );
-} 
+}
 
 void PublicTransportData::fromUrl( const Url& url )
 {
    UtlString dummy;
    if( (const_cast<Url&>(url)).getUrlParameter( SIPX_PRIVATE_CONTACT_URI_PARAM, dummy, 0 ) ||
-       (const_cast<Url&>(url)).getUrlParameter( SIPX_NO_NAT_URI_PARAM, dummy, 0 ) )         
+       (const_cast<Url&>(url)).getUrlParameter( SIPX_NO_NAT_URI_PARAM, dummy, 0 ) )
    {
-      // The contact header has one of our proprietary URL parameters therefore indicating that the 
-      // IP, port & transport in the contact represent the UA's public IP address.  Use it to set the 
+      // The contact header has one of our proprietary URL parameters therefore indicating that the
+      // IP, port & transport in the contact represent the UA's public IP address.  Use it to set the
       // public transport data values encapsulated by this class.
       TransportData::fromUrl( url );
    }
    else
    {
-      // No custom headers are available to help us guess the public IP address of the device. 
+      // No custom headers are available to help us guess the public IP address of the device.
       // Set public IP address as unknown.
       mAddress.remove( 0 );
       mAddress.append( UNKNOWN_IP_ADDRESS_STRING );
@@ -86,15 +86,15 @@ TransportData::TransportData( const Url& url ) :
    mTransportType( UNKNOWN_TRANSPORT_STRING )
 {
    fromUrl( url );
-} 
+}
 
-TransportData::TransportData( const UtlString& ipAddress, 
-                              uint16_t portNumber, 
+TransportData::TransportData( const UtlString& ipAddress,
+                              uint16_t portNumber,
                               const UtlString& transportProtocol ) :
    mTransportType( UNKNOWN_TRANSPORT_STRING ),
    mAddress( ipAddress ),
    mPort( portNumber ),
-   mTransportProtocol( transportProtocol )                           
+   mTransportProtocol( transportProtocol )
 {
 }
 
@@ -102,7 +102,7 @@ const UtlContainableType TransportData::TYPE = "TransportData";
 
 UtlContainableType TransportData::getContainableType() const
 {
-   return TransportData::TYPE;  
+   return TransportData::TYPE;
 }
 
 unsigned TransportData::hash() const
@@ -114,16 +114,16 @@ unsigned TransportData::hash() const
       hash *= mAddress( ipAddressLength - 1 );
       hash *= mAddress( ipAddressLength - 2 );
    }
-   return hash;   
+   return hash;
 }
 
-int TransportData::compareTo(UtlContainable const *rhs) const  
+int TransportData::compareTo(UtlContainable const *rhs) const
 {
    int result = -1;
    if ( rhs->isInstanceOf( TransportData::TYPE ) )
    {
       TransportData* pRhsTransportData = (TransportData*)rhs;
-      
+
       if( mPort == pRhsTransportData->mPort )
       {
          if( ( result = mAddress.compareTo( pRhsTransportData->getAddress() ) ) == 0 )
@@ -158,7 +158,7 @@ void TransportData::fromUrl( const Url& url )
 void TransportData::toUrlString( UtlString& outputString ) const
 {
    char portString[21];
-   sprintf( portString, "%d", mPort );               
+   sprintf( portString, "%d", mPort );
 
    outputString.remove(0);
    outputString.append( mAddress );
@@ -212,7 +212,7 @@ bool TransportData::isEqual( const TransportData& rhs ) const
           ( mPort == rhs.getPort() );
 }
 
-bool TransportData::isInitialized( void ) const 
+bool TransportData::isInitialized( void ) const
 {
    return mAddress.compareTo( UNKNOWN_IP_ADDRESS_STRING );
 }
@@ -232,17 +232,17 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
    if( mLocation == UNKNOWN && pRegistrationDB )
    {
       // we could not establish the location of the user however we got supplied with
-      // a pointer to the registration DB.  Search the Registration DB looking for a 
-      // Contact entry matching the supplied URI's user@hostport hoping to find 
+      // a pointer to the registration DB.  Search the Registration DB looking for a
+      // Contact entry matching the supplied URI's user@hostport hoping to find
       // the location markers that are needed to establish the location of the endpoint.
-      
+
       // extract user@hostport information from Request-URI
       UtlString stringToMatch;
       url.getIdentity( stringToMatch );
-         
+
       int timeNow = OsDateTime::getSecsSinceEpoch();
       UtlSList resultList;
-      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList ); 
+      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
       UtlString* pMatchingContact;
       if( !resultList.isEmpty() )
       {
@@ -250,10 +250,10 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
          Url urlWithLocationInformation( *pMatchingContact );
          mPublicTransport.fromUrl( urlWithLocationInformation );
          mNativeTransport.fromUrl( urlWithLocationInformation );
-         
+
          OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::EndpointDescriptor: Retrieved location info for UNKNOWN user from regDB:'%s'",
                pMatchingContact->data() );
-         
+
          //update location information based on new information
          mLocation = computeLocation( natRules );
       }
@@ -269,7 +269,7 @@ const TransportData& EndpointDescriptor::getNativeTransportAddress( void ) const
 
 const TransportData& EndpointDescriptor::getPublicTransportAddress( void ) const
 {
-   return mPublicTransport;   
+   return mPublicTransport;
 }
 
 LocationCode EndpointDescriptor::getLocationCode( void ) const
@@ -284,11 +284,11 @@ LocationCode EndpointDescriptor::computeLocation( const NatTraversalRules& natRu
    // Check is the Public IP address in known...
    if( mPublicTransport.isInitialized() )
    {
-      // the Public IP address can be determined.  Figure out the location of the 
+      // the Public IP address can be determined.  Figure out the location of the
       // endpoint based on it.
       if( mPublicTransport.getAddress() == mNativeTransport.getAddress() )
       {
-         // public IP address matches the endpoint's native IP address.  This means that 
+         // public IP address matches the endpoint's native IP address.  This means that
          // there are no NATs between the endpoint and the sipXecs.  Three possibilities exist:
          //  o Endpoint is in same subnet as sipXecs and sipXecs is behind NAT => location is LOCAL_NATED
          //  o Endpoint is in same subnet as sipXecs and sipXecs is NOT behind a NAT => location is PUBLIC
@@ -318,12 +318,12 @@ LocationCode EndpointDescriptor::computeLocation( const NatTraversalRules& natRu
    }
    else
    {
-      
+
       // the public IP address is not known.  Examine the endpoint's native IP address to find out if
-      // it resides within our local private network       
+      // it resides within our local private network
       if( natRules.isPartOfLocalTopology( mNativeTransport.getAddress(), true, true ) )
       {
-         // the endpoint is actually on this machine.  It could be for VM, AA, ACD or some 
+         // the endpoint is actually on this machine.  It could be for VM, AA, ACD or some
          // other media server endpoint.  Check it the sipXecs is behind a NAT...
          if( natRules.isBehindNat() )
          {
@@ -338,7 +338,7 @@ LocationCode EndpointDescriptor::computeLocation( const NatTraversalRules& natRu
       }
       else
       {
-         // we have not information about the location of the public address, Location is therefore UNKNOWN 
+         // we have not information about the location of the public address, Location is therefore UNKNOWN
          computedLocation = UNKNOWN;
       }
    }
@@ -350,12 +350,12 @@ void EndpointDescriptor::toString( UtlString& outputString ) const
    UtlString tmpString;
    outputString.remove(0);
    outputString.append( "Native Transport: ");
-   mNativeTransport.toUrlString( tmpString );   
+   mNativeTransport.toUrlString( tmpString );
    outputString.append( tmpString );
    outputString.append( "; Public Transport: " );
-   mPublicTransport.toUrlString( tmpString );   
+   mPublicTransport.toUrlString( tmpString );
    outputString.append( tmpString );
-   
+
    switch( mLocation )
    {
    case PUBLIC:
@@ -371,7 +371,7 @@ void EndpointDescriptor::toString( UtlString& outputString ) const
    default:
       outputString.append( "; Location = UNKNOWN" );
       break;
-   }   
+   }
 }
 
 MediaEndpoint::MediaEndpoint( const MediaEndpoint& referenceMediaEndpoint )
@@ -379,7 +379,7 @@ MediaEndpoint::MediaEndpoint( const MediaEndpoint& referenceMediaEndpoint )
    *this = referenceMediaEndpoint;
 }
 
-MediaEndpoint::MediaEndpoint( const SdpBody& sdpBody, size_t mediaDescriptionIndex ) 
+MediaEndpoint::MediaEndpoint( const SdpBody& sdpBody, size_t mediaDescriptionIndex )
 {
    setData( sdpBody, mediaDescriptionIndex );
 }
@@ -397,11 +397,11 @@ bool MediaEndpoint::setData( const SdpBody& sdpBody, size_t mediaDescriptionInde
    int newRtpPort;
    int newRtcpPort;
    bool bNewDataDiffersFromOld;
-   
+
    sdpBody.getMediaAddress(  mediaDescriptionIndex, &newAddress ) ;
    sdpBody.getMediaPort(     mediaDescriptionIndex, &newRtpPort);
    sdpBody.getMediaRtcpPort( mediaDescriptionIndex, &newRtcpPort );
-   
+
    if( mRtpPort  == newRtpPort  &&
        mRtcpPort == newRtcpPort &&
        mAddress  == newAddress )
@@ -453,7 +453,7 @@ MediaDescriptor::MediaDescriptor( const SdpBody& sdpBody, size_t index, Endpoint
    mMediaDescriptionIndex               ( index ),
    mCurrentMediaRelayHandle             ( INVALID_MEDIA_RELAY_HANDLE ),
    mTentativeInitialMediaRelayHandle    ( INVALID_MEDIA_RELAY_HANDLE ),
-   mTentativeNonInitialMediaRelayHandle ( INVALID_MEDIA_RELAY_HANDLE )   
+   mTentativeNonInitialMediaRelayHandle ( INVALID_MEDIA_RELAY_HANDLE )
 {
    setMediaTypeAndDirectionalityData( sdpBody, index );
    setEndpointData( sdpBody, index, endpointRole );
@@ -533,7 +533,7 @@ void MediaDescriptor::mediaDirectionalityValueToSdpDirectionalityAttribute( cons
          break;
    }
 }
-   
+
 const MediaEndpoint& MediaDescriptor::getEndpoint( EndpointRole endpointRole ) const
 {
    if( endpointRole == CALLER )
@@ -546,8 +546,8 @@ const MediaEndpoint& MediaDescriptor::getEndpoint( EndpointRole endpointRole ) c
    }
 }
 
-bool MediaDescriptor::setEndpointData( const SdpBody& sdpBody, 
-                                       size_t index, 
+bool MediaDescriptor::setEndpointData( const SdpBody& sdpBody,
+                                       size_t index,
                                        EndpointRole endpointRole )
 {
    if( endpointRole == CALLER )
@@ -557,7 +557,7 @@ bool MediaDescriptor::setEndpointData( const SdpBody& sdpBody,
    else
    {
       return setCalleeEndpointData( sdpBody, index );
-   }   
+   }
 }
 
 const MediaEndpoint& MediaDescriptor::getCallerEndpoint( void ) const
@@ -643,9 +643,9 @@ MediaDescriptor& MediaDescriptor::operator=( const MediaDescriptor& rhs )
    return *this;
 }
 
-MediaRelaySession::MediaRelaySession( const tMediaRelayHandle& uniqueHandle, 
+MediaRelaySession::MediaRelaySession( const tMediaRelayHandle& uniqueHandle,
                                       int callerPort,
-                                      int calleePort, 
+                                      int calleePort,
                                       MediaBridgePair *pAssociatedMediaBridgePair,
                                       bool isaCloneOfAnotherMediaRelaySession ) :
    mUniqueHandle( uniqueHandle ),
@@ -660,9 +660,9 @@ MediaRelaySession::MediaRelaySession( const tMediaRelayHandle& uniqueHandle,
    if( mbIsaCloneOfAnotherMediaRelaySession )
    {
       // By convention Sym1 is used to track the caller's information.  Check to see
-      // if the port of Sym1 of the RTP bridge matches the caller port passed as a 
+      // if the port of Sym1 of the RTP bridge matches the caller port passed as a
       // parameter.  If so, no swapped has happened.
-      mbCallerAndCalleeRtpPortsSwapped = 
+      mbCallerAndCalleeRtpPortsSwapped =
          ( callerPort == pAssociatedMediaBridgePair->getRtpBridge()->getEndpoint1Sym()->getPort() ) ? false : true;
    }
 }

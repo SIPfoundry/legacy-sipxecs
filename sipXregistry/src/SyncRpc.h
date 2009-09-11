@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SYNCRPC_H_
@@ -32,10 +32,10 @@ public:
    static XmlRpcMethod* get();
 
    /// destructor
-   virtual ~SyncRpcMethod() 
+   virtual ~SyncRpcMethod()
       {
       }
-   
+
    /// Get the name of the XML-RPC method.
    virtual const char* name() = 0;
 
@@ -53,12 +53,12 @@ public:
       MixedUpdateNumbers,     ///< received a pushed update with multiple update numbers
       IncompatiblePeer        ///< peer previously marked Incompatible - must restart to clear
    } FaultCode;
-      
+
 protected:
    // Method name
    static const char* METHOD_NAME;
-   
-   /// constructor 
+
+   /// constructor
    SyncRpcMethod();
 
    /// Common method for registration with the XML-RPC dispatcher
@@ -99,7 +99,7 @@ protected:
                                   ExecutionStatus& status, ///< set to FAILED
                                   RegistrarPeer* peer = NULL ///< if passed, is set to Incompatible
                                   );
-   
+
 private:
    /// no copy constructor
    SyncRpcMethod(const SyncRpcMethod& nocopy);
@@ -114,12 +114,12 @@ private:
  * This method conveys the PeerReceivedDbUpdateNumber in both directions
  * between the client and the server, and indicates that the client is
  * ready to receive registrarSync.pushUpdates calls.
- * 
+ *
  * Inputs:
- * 
+ *
  * string  callingRegistrar          Calling registrar name
  * i8      updateNumber
- * 
+ *
  * The updateNumber input is the client's PeerReceivedDbUpdateNumber for
  * that server.  PeerReceivedDbUpdateNumber is the highest update number
  * in the client's database owned by the server, or zero if there are no
@@ -127,17 +127,17 @@ private:
  * server for the callingRegistrar client.  Note that this value may be
  * less than the current value for PeerSentDbUpdateNumber, indicating
  * that some previously sent updates were lost.
- * 
+ *
  * Outputs:
- * 
+ *
  * i8   updateNumber
- * 
+ *
  * The returned updateNumber is the highest update number in the
  * server's database owned by the client: the PeerReceivedDbUpdateNumber
  * in the server for the client.  The client sets PeerSentDbUpdateNumber
  * for the server to this value.  A successful return indicates that the
  * server is prepared to receive registrarSync.pushUpdates calls.
- * 
+ *
  * If no fault is returned, the client and server each mark the other as
  * Reachable, and call the RegistrarSync::sendUpdates C++ method to
  * begin pushing updates to the peer.  It is possible that there are no
@@ -173,7 +173,7 @@ class SyncRpcReset : public SyncRpcMethod
     */
 
   protected:
-   /// constructor 
+   /// constructor
    SyncRpcReset();
 
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context
@@ -182,7 +182,7 @@ class SyncRpcReset : public SyncRpcMethod
                         XmlRpcResponse& response,                 ///< request response
                         ExecutionStatus& status
                         );
-   
+
    static const char* METHOD_NAME;
 
   private:
@@ -199,7 +199,7 @@ class SyncRpcReset : public SyncRpcMethod
 /// the registerSync.pullUpdates XML-RPC method.
 /**
  * Retrieve all updates for primaryRegistrar whose update number is greater than updateNumber.
- * 
+ *
  * Parameters  Type          Name                    Description
  *  Inputs:
  *             string        callingRegistrar        Calling registrar name
@@ -243,20 +243,20 @@ public:
              const char*    myName,       ///< name of this registrar
              const char*    primaryName,  ///< name of registrar whose updates we want
              Int64          updateNumber, ///< pull updates starting after this number
-             UtlSList*      bindings      ///< list of RegistrationBinding 
+             UtlSList*      bindings      ///< list of RegistrationBinding
              );
    /**<
     * On success, the bindings are returned.
-    * 
+    *
     * On any failure, the source is marked UnReachable.
     */
-   
-protected:   
+
+protected:
    static const char* METHOD_NAME;
    static const UtlString NUM_UPDATES;
    static const UtlString UPDATES;
 
-   /// constructor 
+   /// constructor
    SyncRpcPullUpdates();
 
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context
@@ -280,7 +280,7 @@ private:
 /// the registerSync.pushUpdates XML-RPC method.
 /**
  * Send registry updates to a peer registrar
- * 
+ *
  * Parameters  Type        Name                    Description
  *  Inputs:
  *             string      callingRegistrar        Calling registrar name
@@ -319,7 +319,7 @@ public:
    static RegistrarPeer::SynchronizationState
       invoke(RegistrarPeer* replicated, ///< peer to push to
              const char*    myName,     ///< primary name of this registrar
-             UtlSList*      bindings    ///< list of RegistrationBinding 
+             UtlSList*      bindings    ///< list of RegistrationBinding
              );
    /**<
     * On success, this updates the sent update number for the peer.
@@ -328,7 +328,7 @@ public:
     */
 
 protected:
-   /// constructor 
+   /// constructor
    SyncRpcPushUpdates();
 
    virtual bool execute(const HttpRequestContext& requestContext, ///< request context

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ class SyncMsg : public OsMsg
 {
 public:
 
-   typedef enum 
+   typedef enum
    {
       RegistrationChange = OsMsg::USER_START
    } RegistrarMsgType;
@@ -99,7 +99,7 @@ int RegistrarSync::handleMessage(OsMsg& eventMessage)
        * Failure to push to a peer marks that peer as UnReachable, which prevents this
        * loop from further attempts to that peer, and also triggers the RegistrarTest
        * task to begin polling for when it comes back.
-       */ 
+       */
       bool pushedUpdate = true;
       while (pushedUpdate && !isShuttingDown())
       {
@@ -143,7 +143,7 @@ int RegistrarSync::handleMessage(OsMsg& eventMessage)
    }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync::handleMessage finished");
-   
+
    return handled;
 }
 

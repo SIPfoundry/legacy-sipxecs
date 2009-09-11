@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -122,17 +122,17 @@ StatusServer::StatusServer(
         mRealm.remove(0);
         mRealm.append(defaultRealm);
     }
-    
+
     Url domain(mDefaultDomain);
     domain.getHostAddress(mlocalDomainHost);
 
     mIsCredentialDB = useCredentialDB;
-    
-    UtlString fileName = mConfigDirectory + 
+
+    UtlString fileName = mConfigDirectory +
         OsPathBase::separator + "status-plugin.xml";
 
     mPluginTable.loadPlugins(fileName, mNotifier);
-    
+
     // Start Webserver and initialize the CGIs
     WebServer::getWebServerTask(&mPluginTable)->initWebServer(mHttpServer) ;
 
@@ -150,7 +150,7 @@ StatusServer::~StatusServer()
    // Wait for the owned servers to shutdown first
    if ( mSubscribeServerThread )
    {
-      // Deleting a server task is the only way of 
+      // Deleting a server task is the only way of
       // waiting for shutdown to complete cleanly
       delete mSubscribeServerThread;
       mSubscribeServerThread = NULL;
@@ -175,7 +175,7 @@ StatusServer::~StatusServer()
       delete mpServerSocket;
       mpServerSocket = NULL;
    }
-   
+
    if( mNotifier)
    {
       delete mNotifier;
@@ -196,7 +196,7 @@ StatusServer::operator=(const StatusServer& rhs)
 }*/
 
 /* ============================ MANIPULATORS ============================== */
-UtlBoolean 
+UtlBoolean
 StatusServer::handleMessage( OsMsg& eventMessage )
 {
     syslog(FAC_SIP, PRI_DEBUG, "StatusServer::handleMessage() :: Start processing SIP message") ;
@@ -221,7 +221,7 @@ StatusServer::handleMessage( OsMsg& eventMessage )
                {
                    //send to SubscribeThread
                    sendToSubscribeServerThread(eventMessage);
-               } 
+               }
                else
                {
                    //send to redirect thread
@@ -231,8 +231,8 @@ StatusServer::handleMessage( OsMsg& eventMessage )
             {
                 // get the method as we are only interested in 481 NOTIFY responses
                 int cSequenceNum;
-                if ( message->getCSeqField(&cSequenceNum, &method) && 
-                     method.compareTo(SIP_NOTIFY_METHOD) == 0 ) 
+                if ( message->getCSeqField(&cSequenceNum, &method) &&
+                     method.compareTo(SIP_NOTIFY_METHOD) == 0 )
                 {   //send to SubscribeThread
                     sendToSubscribeServerThread(eventMessage);
                 }
@@ -243,9 +243,9 @@ StatusServer::handleMessage( OsMsg& eventMessage )
     return(FALSE);
 }
 
-StatusServer* 
-StatusServer::startStatusServer ( 
-    const UtlString workingDir, 
+StatusServer*
+StatusServer::startStatusServer (
+    const UtlString workingDir,
     const char* configFileName )
 {
     int httpPort  = PORT_NONE;
@@ -313,7 +313,7 @@ StatusServer::startStatusServer (
        tlsPort = 5111;
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
-    
+
     // SIP_STATUS_BIND_IP
     sConfigDb.get("SIP_STATUS_BIND_IP", bindIp) ;
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
@@ -321,7 +321,7 @@ StatusServer::startStatusServer (
        bindIp = "0.0.0.0";
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_BIND_IP : %s", bindIp.data());
-        
+
     UtlString separatedList;
     // Get the HTTP server Valid IP address database
     OsConfigDb* pValidIpAddressDB = new OsConfigDb();
@@ -339,21 +339,21 @@ StatusServer::startStatusServer (
     // SIP_STATUS_AUTHENTICATE_ALGORITHM
     if ( authAlgorithm.isNull() ) /* MD5/MD5SESS */
     {
-        authAlgorithm.append("MD5"); 
+        authAlgorithm.append("MD5");
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_AUTHENTICATE_ALGORITHM : %s", 
+                  "SIP_STATUS_AUTHENTICATE_ALGORITHM : %s",
                   authAlgorithm.data());
 
     // SIP_STATUS_AUTHENTICATE_QOP
     if ( authQop.isNull() ) /* AUTH/AUTH-INT/NONE */
     {
-        authQop.append("NONE"); 
+        authQop.append("NONE");
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_AUTHENTICATE_QOP : %s", 
+                  "SIP_STATUS_AUTHENTICATE_QOP : %s",
                   authQop.data());
-    
+
     // SIP_STATUS_DOMAIN_NAME - need this before the SIP_STATUS_AUTHENTICATE_REALM
     // below since we get the domain name from the socket
     if ( domainName.isNull() )
@@ -361,20 +361,20 @@ StatusServer::startStatusServer (
         OsSocket::getHostIp(&domainName);
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_DOMAIN_NAME : %s", 
+                  "SIP_STATUS_DOMAIN_NAME : %s",
                   domainName.data());
-    
+
     // SIP_STATUS_AUTHENTICATE_REALM
     if(authRealm.isNull())
     {
        authRealm.append(domainName);
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_AUTHENTICATE_REALM : %s", 
+                  "SIP_STATUS_AUTHENTICATE_REALM : %s",
                   authRealm.data());
 
     // SIP_STATUS_AUTHENTICATE_SCHEME (Hidden) NONE/DIGEST
-    if ( authScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) 
+    if ( authScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 )
     {
        isCredentialDB = FALSE;
     }
@@ -384,30 +384,30 @@ StatusServer::startStatusServer (
     UtlString portStr;
     result = sConfigDb.get("SIP_STATUS_HTTPS_PORT", portStr);
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "startStatusServer : HTTPS port %s result %d", 
+                  "startStatusServer : HTTPS port %s result %d",
                   portStr.data(), result);
     // If the key is missing or not set, set it to the default HTTPS port
     if ( result == OS_NOT_FOUND || portStr.isNull() )
-    {   
+    {
         httpsPort = HTTPS_SERVER_PORT;
     }
 
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_HTTPS_PORT : %d", httpsPort );
 
-    // Only search for the non secure SIP_STATUS_HTTP_PORT 
+    // Only search for the non secure SIP_STATUS_HTTP_PORT
     // if the secure one is disabled
     if ( httpsPort == PORT_NONE )
     {
         // SIP_STATUS_HTTP_PORT
         result = sConfigDb.get("SIP_STATUS_HTTP_PORT", portStr);
         OsSysLog::add(FAC_SIP, PRI_INFO,
-                      "startStatusServer : HTTP port %s result %d", 
+                      "startStatusServer : HTTP port %s result %d",
                       portStr.data(), result);
         // If the key is missing or not set, set it to the default HTTP port
         if ( result == OS_NOT_FOUND || portStr.isNull() )
         {
             httpPort = HTTP_SERVER_PORT;
-        } 
+        }
         OsSysLog::add( FAC_SIP, PRI_INFO, "SIP_STATUS_HTTP_PORT : %d", httpPort );
     }
 
@@ -445,7 +445,7 @@ StatusServer::startStatusServer (
         defaultMaxExpiresTime.append("604800"); // default to 1 week
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_MAX_EXPIRES : %s", 
+                  "SIP_STATUS_MAX_EXPIRES : %s",
                   defaultMaxExpiresTime.data());
 
     int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
@@ -456,7 +456,7 @@ StatusServer::startStatusServer (
         defaultMinExpiresTime.append("300");  // default to 300 seconds
     }
     OsSysLog::add(FAC_SIP, PRI_INFO,
-                  "SIP_STATUS_MIN_EXPIRES : %s", 
+                  "SIP_STATUS_MIN_EXPIRES : %s",
                   defaultMinExpiresTime.data());
 
 
@@ -464,7 +464,7 @@ StatusServer::startStatusServer (
     UtlBoolean isSecureServer = portIsValid(httpsPort);
 
     // Determine whether we should start the web server or not.  Use the port
-    // value as the decision point.  A valid port means enable. 
+    // value as the decision point.  A valid port means enable.
     // If isSecureServer then start the port as a secure web server.
     OsServerSocket* serverSocket = NULL;
     HttpServer*     httpServer = NULL;
@@ -474,7 +474,7 @@ StatusServer::startStatusServer (
        {
 #         ifdef HAVE_SSL
           serverSocket = new OsSSLServerSocket(50, webServerPort, bindIp);
-          httpServer = new HttpServer(serverSocket, 
+          httpServer = new HttpServer(serverSocket,
                                       pValidIpAddressDB,
                                       false /* no persistent tcp connection */);
 #         else /* ! HAVE_SSL */
@@ -489,15 +489,15 @@ StatusServer::startStatusServer (
        else
        {
           serverSocket = new OsServerSocket(50, webServerPort, bindIp);
-          httpServer = new HttpServer(serverSocket, 
+          httpServer = new HttpServer(serverSocket,
                                       pValidIpAddressDB );
        }
     }
-    
+
     // Start the SIP stack
-    SipUserAgent* sipUserAgent = 
-        new SipUserAgent( 
-            tcpPort, 
+    SipUserAgent* sipUserAgent =
+        new SipUserAgent(
+            tcpPort,
             udpPort,
             tlsPort,
             NULL,   // public IP address (nopt used in proxy)
@@ -523,7 +523,7 @@ StatusServer::startStatusServer (
     sipUserAgent->setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent->setMaxSrvRecords(maxNumSrvRecords);
     sipUserAgent->setUserAgentHeaderProperty("sipXecs/publisher");
-    
+
     sipUserAgent->start();
 
     Notifier* notifier = new Notifier(sipUserAgent);
@@ -546,7 +546,7 @@ StatusServer::startStatusServer (
 }
 
 
-StatusServer* 
+StatusServer*
 StatusServer::getInstance()
 {
     // crit sec, ensure only one instance starts the status server
@@ -560,7 +560,7 @@ StatusServer::getInstance()
             workingDirectory = CONFIG_ETC_DIR;
             OsPath path(workingDirectory);
             path.getNativePath(workingDirectory);
-        } 
+        }
         else
         {
             OsPath path;
@@ -568,12 +568,12 @@ StatusServer::getInstance()
             path.getNativePath(workingDirectory);
         }
 
-        UtlString fileName =  workingDirectory + 
+        UtlString fileName =  workingDirectory +
             OsPathBase::separator +
             "status-config";
 
-        spInstance = startStatusServer( 
-            workingDirectory, 
+        spInstance = startStatusServer(
+            workingDirectory,
             fileName );
     }
 
@@ -622,7 +622,7 @@ StatusServer::startSubscribePersistThread()
 }
 
 
-void 
+void
 StatusServer::startSubscribeServerThread()
 {
     UtlString localdomain;
@@ -643,7 +643,7 @@ StatusServer::startSubscribeServerThread()
     }
 }
 
-void 
+void
 StatusServer::sendToSubscribeServerThread(OsMsg& eventMessage)
 {
     if ( mSubscribeThreadInitialized )
@@ -652,10 +652,10 @@ StatusServer::sendToSubscribeServerThread(OsMsg& eventMessage)
     }
 }
 
-void 
+void
 StatusServer::parseList (
-    const UtlString& keyPrefix, 
-    const UtlString& separatedList, 
+    const UtlString& keyPrefix,
+    const UtlString& separatedList,
     OsConfigDb& list )
 {
     if (!separatedList.isNull())

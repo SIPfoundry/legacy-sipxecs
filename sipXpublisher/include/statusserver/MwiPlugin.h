@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // MwiPlugin.h: interface for the MwiPlugin class.
@@ -31,25 +31,25 @@ class Notifier;
 
 /**
  */
-class MwiPlugin : public SubscribeServerPluginBase 
+class MwiPlugin : public SubscribeServerPluginBase
 {
 public:
     /**
-     * 
+     *
      * @param eventType
      * @param pluginElement
      * @param notifier
      */
-    MwiPlugin( const UtlString& eventType, 
-               const TiXmlElement& pluginElement, 
+    MwiPlugin( const UtlString& eventType,
+               const TiXmlElement& pluginElement,
                Notifier* notifier );
-    
+
     /**
      */
     virtual ~MwiPlugin();
 
     /**
-     * 
+     *
      * @param request
      * @param response
      * @param authenticatedUser
@@ -58,40 +58,40 @@ public:
      *                 be sent int.  This is a temporary bogus work around
      *                 for stuff that should be done in the SubscribeServer NOT
      *                 in the plugin.
-     * 
-     * @return 
+     *
+     * @return
      */
-    OsStatus handleSubscribeRequest( 
-        const SipMessage& request, 
+    OsStatus handleSubscribeRequest(
+        const SipMessage& request,
         SipMessage& response,
-        const char* authenticatedUser, 
+        const char* authenticatedUser,
         const char* authenticatedRealm,
-        const char* domain); 
+        const char* domain);
 
     /**
-     * 
+     *
      * @param requestContext
      * @param request
      * @param response
      *
-     * @return 
+     * @return
      */
     OsStatus handleEvent(
         const HttpRequestContext& requestContext,
         const HttpMessage& request,
         HttpMessage& response );
-   
+
     /**
-     * 
+     *
      * @param request
      * @param response
      *
-     * @return 
+     * @return
      */
     OsStatus handleNotifyResponse (
         const SipMessage& request,
         const SipMessage& response);
-   
+
     /** */
     void terminatePlugin();
 

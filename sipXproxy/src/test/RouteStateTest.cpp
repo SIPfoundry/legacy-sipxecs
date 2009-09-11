@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ class RouteStateTest : public CppUnit::TestCase
    CPPUNIT_TEST(testAuthorizedDialog);
    CPPUNIT_TEST(testOriginalFromTagValue);
    CPPUNIT_TEST(testDirectionIsCallerToCalled);
-   
+
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -60,7 +60,7 @@ public:
    void tearDown()
       {
       }
-   
+
    void testIsMutable()
       {
          UtlSList removedHeaders;
@@ -144,7 +144,7 @@ public:
       {
          UtlSList removedHeaders;
 
-         // 
+         //
          const char* mutableMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -172,7 +172,7 @@ public:
          // Now try to set that value
          UtlString inputValue("good value");
          mutableRouteState.setParameter(instanceName,paramName,inputValue);
-         
+
          // ... and check that we can read it back
          value.append("bad value"); // should be replaced with "good value"
          CPPUNIT_ASSERT(mutableRouteState.getParameter(instanceName,paramName,value));
@@ -238,7 +238,7 @@ public:
       {
          UtlSList removedHeaders;
 
-         // 
+         //
          const char* unMutableMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -266,7 +266,7 @@ public:
          // Now try to set that value
          UtlString inputValue("good value");
          unMutableRouteState.setParameter(instanceName,paramName,inputValue);
-         
+
          // ... and check that we can NOT read it back
          value.append("bad value"); // should be replaced with "good value"
          CPPUNIT_ASSERT(!unMutableRouteState.getParameter(instanceName,paramName,value));
@@ -327,7 +327,7 @@ public:
       {
          UtlSList removedHeaders;
 
-         // 
+         //
          const char* mutableMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -351,7 +351,7 @@ public:
          // Now try to set that value
          UtlString inputValue("good value");
          mutableRouteState.setParameter(instanceName,invalidParamName,inputValue);
-         
+
          // ... and check that we cannot read it back
          value.append("bad value");
          CPPUNIT_ASSERT(!mutableRouteState.getParameter(instanceName,invalidParamName,value));
@@ -362,7 +362,7 @@ public:
       {
          UtlSList removedHeaders;
 
-         // 
+         //
          const char* mutableMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -391,19 +391,19 @@ public:
             "\r\n";
          SipMessage indialogSipMessage(indialogMessage, strlen(indialogMessage));
          RouteState indialogRouteState(indialogSipMessage, removedHeaders, myRouteName);
-         
+
          UtlString signedToken;
          UtlString writeValue;
 
          writeValue = Value1;
          mutableRouteState.setParameter("plugin","param1",writeValue);
-         
+
          writeValue = Value2;
          mutableRouteState.setParameter("plugin2","",writeValue);
-         
+
          mutableRouteState.encode(signedToken);
          //printf("\n   signedToken: %s\n", signedToken.data());
-         
+
          CPPUNIT_ASSERT(indialogRouteState.decode(signedToken));
 
          UtlString readValue;
@@ -468,7 +468,7 @@ public:
 
          CPPUNIT_ASSERT(routedState.getParameter("plugin2","",readValue));
          ASSERT_STR_EQUAL(Value2, readValue.data());
-         
+
          // since the state was in a Route, not a Record-Route, this should be
          CPPUNIT_ASSERT( routedState.mRecordRouteIndices.empty() );
 
@@ -498,12 +498,12 @@ public:
 
          CPPUNIT_ASSERT(routeState.isMutable());
          CPPUNIT_ASSERT(!routeState.isFound());
-         
+
          CPPUNIT_ASSERT( routeState.mRecordRouteIndices.size() == 1 );
          CPPUNIT_ASSERT( routeState.mRecordRouteIndices[0] == 0 );
-         
+
          routeState.setParameter("plugin","param1","dummyvalue");
-         
+
          SipMessage outputSipMessage(sipMessage);
 
          routeState.update(&outputSipMessage);
@@ -529,7 +529,7 @@ public:
          UtlSList removedRoutes;
 
          removedRoutes.insert(new UtlString("<sip:myhost.example.com;lr>"));
-         
+
          const char* spiraledMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -558,7 +558,7 @@ public:
 
          CPPUNIT_ASSERT(spiraledState.getParameter("plugin2","",readValue));
          ASSERT_STR_EQUAL(Value2, readValue.data());
-         
+
          // since the state was in a Route, not a Record-Route, this should be
          CPPUNIT_ASSERT( spiraledState.mRecordRouteIndices.size() == 1 );
          CPPUNIT_ASSERT( spiraledState.mRecordRouteIndices[0] == 1 );
@@ -571,7 +571,7 @@ public:
       {
          UtlSList removedRoutes;
          removedRoutes.insert(new UtlString("<sip:myhost.example.com;lr>"));
-         
+
          // test that no state is found when none exists
          const char* inputMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
@@ -599,7 +599,7 @@ public:
 
          routeState.setParameter("plugin", "param1", Value1);
          routeState.setParameter("plugin2", "", Value2);
-         
+
          SipMessage outputSipMessage(inputMessage);
 
          routeState.update(&outputSipMessage);
@@ -623,7 +623,7 @@ public:
 
          ASSERT_STR_EQUAL(expectedOutput, outputMessage.data());
       }
-   
+
    void testAppendedState()
       {
          UtlSList removedRoutes;
@@ -670,14 +670,14 @@ public:
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         
+
          ASSERT_STR_EQUAL(appendedRoutedMessage, outputMessage.data());
       }
 
    void testAddCopy()
       {
          UtlSList removedRoutes;
-         
+
          const char* spiraledMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -695,7 +695,7 @@ public:
 
          UtlString myRouteName("myhost.example.com");
          RouteState routeState(spiraledSipMessage, removedRoutes, myRouteName);
-         
+
          // request the addition of a copy and then update the route state
          routeState.addCopy();
          routeState.update( &spiraledSipMessage );
@@ -704,7 +704,7 @@ public:
          UtlString msgBytes;
          ssize_t msgLen;
          spiraledSipMessage.getBytes(&msgBytes, &msgLen);
-         
+
          UtlString expectedMessage =
             "INVITE sip:user@somewhere.com SIP/2.0\r\n"
             "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
@@ -719,10 +719,10 @@ public:
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         
+
          CPPUNIT_ASSERT(expectedMessage.compareTo( msgBytes ) == 0 );
       }
-   
+
    void testAuthorizedDialog()
       {
          UtlSList removedHeaders;
@@ -739,12 +739,12 @@ public:
             "\r\n";
          SipMessage mutableSipMessage(mutableMessage, strlen(mutableMessage));
          UtlString myRouteName("myhost.example.com");
-         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName); 
-         
+         RouteState mutableRouteState(mutableSipMessage, removedHeaders, myRouteName);
+
          CPPUNIT_ASSERT( !mutableRouteState.isDialogAuthorized() );
          mutableRouteState.markDialogAsAuthorized();
          CPPUNIT_ASSERT( mutableRouteState.isDialogAuthorized() );
-      }   
+      }
 
    void testOriginalFromTagValue()
       {
@@ -764,12 +764,12 @@ public:
             "\r\n";
          SipMessage firstSipMessage(firstMessage, strlen(firstMessage));
          UtlString myRouteName("myhost.example.com");
-         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName); 
-         
+         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName);
+
          UtlString returnedTag;
          CPPUNIT_ASSERT( firstRouteState.originalCallerFromTagValue(instanceName, returnedTag));
          ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
-         
+
          firstRouteState.update(&firstSipMessage);
 
          UtlString outputMessage;
@@ -788,7 +788,7 @@ public:
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         
+
          ASSERT_STR_EQUAL(routedMessage, outputMessage.data());
 
          const char* returnedMessage =
@@ -803,9 +803,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage returnedSipMessage(returnedMessage, strlen(returnedMessage));
-         
-         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( returnedRouteState.originalCallerFromTagValue(instanceName, returnedTag));
          ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
 
@@ -823,9 +823,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage reverseSipMessage(reverseMessage, strlen(reverseMessage));
-         
-         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( reverseRouteState.originalCallerFromTagValue(instanceName, returnedTag));
          ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
 
@@ -840,9 +840,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage forwardSipMessage(forwardMessage, strlen(forwardMessage));
-         
-         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( forwardRouteState.originalCallerFromTagValue(instanceName, returnedTag));
          ASSERT_STR_EQUAL("30543f3483e1cb11ecb40866edd3295b", returnedTag.data());
 
@@ -866,10 +866,10 @@ public:
             "\r\n";
          SipMessage firstSipMessage(firstMessage, strlen(firstMessage));
          UtlString myRouteName("myhost.example.com");
-         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName); 
-         
+         RouteState firstRouteState(firstSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( firstRouteState.directionIsCallerToCalled(instanceName));
-         
+
          firstRouteState.update(&firstSipMessage);
 
          UtlString outputMessage;
@@ -888,7 +888,7 @@ public:
             "Contact: caller@127.0.0.1\r\n"
             "Content-Length: 0\r\n"
             "\r\n";
-         
+
          ASSERT_STR_EQUAL(routedMessage, outputMessage.data());
 
          const char* returnedMessage =
@@ -903,9 +903,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage returnedSipMessage(returnedMessage, strlen(returnedMessage));
-         
-         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState returnedRouteState(returnedSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( ! returnedRouteState.directionIsCallerToCalled(instanceName));
 
          UtlString inDialogRoute("<sip:myhost.example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21210fe51fb5e55efdd09f617f9b1c07f4>");
@@ -922,9 +922,9 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage reverseSipMessage(reverseMessage, strlen(reverseMessage));
-         
-         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState reverseRouteState(reverseSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( ! reverseRouteState.directionIsCallerToCalled(instanceName));
 
          const char* forwardMessage =
@@ -938,12 +938,12 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage forwardSipMessage(forwardMessage, strlen(forwardMessage));
-         
-         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName); 
-         
+
+         RouteState forwardRouteState(forwardSipMessage, removedRoutes, myRouteName);
+
          CPPUNIT_ASSERT( forwardRouteState.directionIsCallerToCalled(instanceName));
       }
 
 };
-   
+
 CPPUNIT_TEST_SUITE_REGISTRATION(RouteStateTest);

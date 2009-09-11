@@ -107,15 +107,15 @@
       <maxExclusive value='700' />
     </restriction>
   </simpleType>
- 
+
   <simpleType name="obs_status_code">
     <annotation>
       <documentation>
-        CSE Observer status 
+        CSE Observer status
       </documentation>
     </annotation>
     <restriction base="positiveInteger">
-      <enumeration value='101'> 
+      <enumeration value='101'>
         <annotation>
           <documentation>Observer Reset</documentation>
         </annotation>
@@ -178,7 +178,7 @@
           <element name='schema' type='anyURI' minOccurs='0'>
             <annotation>
               <documentation>
-                If present, this is the schema URI that the observer is using in generating 
+                If present, this is the schema URI that the observer is using in generating
                 events.  Observers will typically log call events individually, without the
                 call_event_sequence container (which would be the natural place for this
                 URI).  This allows a post-processor to correctly construct an XML document
@@ -189,7 +189,7 @@
       </sequence>
     </complexType>
   </element>
-   
+
   <element name='obs_status' type='cse:obs_status_code'/>
 
   <element name='obs_text' type='normalizedString'/>
@@ -197,7 +197,7 @@
   <element name='call_request'>
     <annotation>
       <documentation>
-      This identifies a call attempt.  
+      This identifies a call attempt.
       The contact in this event is the calling party.
       </documentation>
     </annotation>
@@ -213,7 +213,7 @@
   <element name='call_setup'>
     <annotation>
       <documentation>
-      This identifies a successful call completion.  
+      This identifies a successful call completion.
       The contact in this event is the called party.
       </documentation>
     </annotation>

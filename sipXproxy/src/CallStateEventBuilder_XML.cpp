@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -23,7 +23,7 @@
 // CONSTANTS
 
 // Note: the unit test will fail if this is defined, since it compares against expected results without it.
-#undef PRETTYPRINT_EVENTS 
+#undef PRETTYPRINT_EVENTS
 #ifdef PRETTYPRINT_EVENTS
 #  define PP_LF "\n"
 #  define PP_IN "  "
@@ -156,7 +156,7 @@ const char* ViaEnd =
 "</via>" PP_LF
 ;
 
-#define CONTENT_BUF_MAX 2048 
+#define CONTENT_BUF_MAX 2048
 
 const char* EventText[] =
 {
@@ -359,12 +359,12 @@ void CallStateEventBuilder_XML::callEndEvent(const int sequenceNumber,
 }
 
 
-void CallStateEventBuilder_XML::callTransferEvent(int mSequenceNumber, 
-                                                  const OsTime& timeStamp, 
+void CallStateEventBuilder_XML::callTransferEvent(int mSequenceNumber,
+                                                  const OsTime& timeStamp,
                                                   const UtlString& contact,
                                                   const UtlString& refer_to,
                                                   const UtlString& referred_by,
-                                                  const UtlString& request_uri) 
+                                                  const UtlString& request_uri)
 {
    // Not logging transfer events in XML
 }
@@ -409,10 +409,10 @@ void CallStateEventBuilder_XML::addCallData(const int cseqNumber,
    }
 }
 
-   
+
 /// Add a via element for the event
 /**
- * Record a Via from the message for this event 
+ * Record a Via from the message for this event
  * Calls to this routine are in reverse cronological order - the last
  * call for an event should be the via added by the message originator
  */
@@ -512,4 +512,3 @@ bool  CallStateEventBuilder_XML::finishElement(UtlString& event)
 
    return isComplete;
 }
-

@@ -1,6 +1,6 @@
-// 
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -52,7 +52,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       SessionContext* mpSessionContext;
       NatTraversalRules mRules;
       MediaRelay mMediaRelay;
-    
+
       SessionContextTest()
       {
          UtlString rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules3.xml");
@@ -61,7 +61,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
       virtual void reportSessionContextReadyForDeletion( const UtlString& handle )
       {
-         
+
       }
 
 
@@ -88,7 +88,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
       {
          delete mpSessionContext;
       }
-      
+
       void LocationImposesMediaRelayTest_LocalNATed2LocalNATed()
       {
          const char* message =
@@ -108,7 +108,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == false );
       }
-      
+
       void LocationImposesMediaRelayTest_LocalNATed2Public()
       {
          const char* message =
@@ -128,7 +128,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_LocalNATed2RemoteNATed()
       {
          const char* message =
@@ -148,7 +148,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_Public2Public()
       {
          const char* message =
@@ -168,7 +168,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
           SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
           CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == false );
       }
-      
+
       void LocationImposesMediaRelayTest_Public2RemoteNATed()
       {
          const char* message =
@@ -188,7 +188,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_RemoteNATed2RemoteNATed()
       {
          const char* message =
@@ -208,7 +208,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_LocalNATed2OutsideUnknown()
       {
          const char* message =
@@ -228,7 +228,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_LocalNATed2LocalUnknown()
       {
          const char* message =
@@ -248,7 +248,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == false );
       }
-      
+
       void LocationImposesMediaRelayTest_Public2OutsideUnknown()
       {
          const char* message =
@@ -268,7 +268,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_Public2LocalUnknown()
       {
          const char* message =
@@ -288,7 +288,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_RemoteNATed2OutsideUnknown()
       {
          const char* message =
@@ -308,7 +308,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_RemoteNATed2LocalUnknown()
       {
          const char* message =
@@ -327,7 +327,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
-      }      
+      }
 
       void LocationImposesMediaRelayTest_Public2LocalNATed()
       {
@@ -348,7 +348,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_RemoteNATed2LocalNATed()
       {
          const char* message =
@@ -368,7 +368,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_RemoteNATed2Public()
       {
          const char* message =
@@ -388,7 +388,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_OutsideUnknown2LocalNATed()
       {
          const char* message =
@@ -428,7 +428,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == false );
       }
-      
+
       void LocationImposesMediaRelayTest_OutsideUnknown2Public()
       {
          const char* message =
@@ -447,7 +447,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
-      }      
+      }
 
       void LocationImposesMediaRelayTest_LocalUnknown2Public()
       {
@@ -467,8 +467,8 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
-      }      
-      
+      }
+
       void LocationImposesMediaRelayTest_OutsideUnknown2RemoteNATed()
       {
          const char* message =
@@ -488,7 +488,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
       }
-      
+
       void LocationImposesMediaRelayTest_LocalUnknown2RemoteNATed()
       {
          const char* message =
@@ -511,7 +511,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
       void LocationImposesMediaRelayTest_RemoteNATed2RemoteNATedConservative_SameIp()
       {
-         NatTraversalRules tempRules;         
+         NatTraversalRules tempRules;
          UtlString rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules4.xml");
          CPPUNIT_ASSERT( tempRules.loadRules( rulesFile ) == OS_SUCCESS );
 
@@ -532,10 +532,10 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SessionContext* pSessionContext = new SessionContext(testMsg, &tempRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == false );
       }
- 
+
       void LocationImposesMediaRelayTest_RemoteNATed2RemoteNATedConservative_DifferentIp()
       {
-         NatTraversalRules tempRules;         
+         NatTraversalRules tempRules;
          UtlString rulesFile(TEST_DATA_DIR "/NatTraversalAgent/nattraversalrules4.xml");
          CPPUNIT_ASSERT( tempRules.loadRules( rulesFile ) == OS_SUCCESS );
 
@@ -555,7 +555,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          SessionContext* pSessionContext = new SessionContext(testMsg, &tempRules, "handle-1", &mMediaRelay, 0, this );
          CPPUNIT_ASSERT( pSessionContext->doesEndpointsLocationImposeMediaRelay() == true );
-      }    
+      }
 
       void getDiscriminatingTagValueWithDirectionTest()
       {
@@ -577,7 +577,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( pSessionContext->getDiscriminatingTagValue( testMsg, DIR_CALLER_TO_CALLEE ) == "131313213131-13135363563" );
          CPPUNIT_ASSERT( pSessionContext->getDiscriminatingTagValue( testMsg, DIR_CALLEE_TO_CALLER ) == "94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635" );
       }
-      
+
       void getDiscriminatingTagValueWithoutDirectionTest_CallerToCallee()
       {
          const char* message =
@@ -616,7 +616,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
 
          SessionContext* pSessionContext = new SessionContext( dialogFormingMsg, &mRules, "handle-1", &mMediaRelay, 0, this );
          pSessionContext->handleRequest( dialogFormingMsg, "192.168.0.2", 5060, DIR_CALLER_TO_CALLEE ); // inject dialog-forming INVITE into SessioNContext to set reference
-         
+
          const char* message2 =
             "INVITE sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060 SIP/2.0\r\n"
             "From: <sip:601@rjolyscs2.ca.nortel.com>;tag=131313213131-13135363563\r\n"
@@ -629,7 +629,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Content-Length: 0\r\n"
             "Via: SIP/2.0/UDP 192.168.0.2;branch=z9hG4bK-sipXecs-01a17f9662b96b1d454a71775bbda1ec6bf6~9d6590763d78764b93a42e94dbd6b75a\r\n"
             "\r\n";
-         SipMessage calleeToCallertestMsg(message2, strlen(message2) );   // To and From reversed.   
+         SipMessage calleeToCallertestMsg(message2, strlen(message2) );   // To and From reversed.
          CPPUNIT_ASSERT( pSessionContext->getDiscriminatingTagValue( calleeToCallertestMsg ) == "131313213131-13135363563" );
       }
 
@@ -654,7 +654,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          pSessionContext->handleRequest( dialogFormingMsg, "192.168.0.2", 5060, DIR_CALLER_TO_CALLEE ); // inject dialog-forming INVITE into SessioNContext to set reference
          CPPUNIT_ASSERT( pSessionContext->mpReferenceDialogTracker != 0 );
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 0 );
-         
+
          const char* provisionalResponse1 =
             "SIP/2.0 183 Session Progress\r\n"
             "From: caller <sip:602@rjolyscs2.ca.nortel.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
@@ -696,11 +696,11 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
             "Content-Length: 0\r\n"
             "\r\n";
          SipMessage provisionalResponse3Msg( provisionalResponse3, strlen( provisionalResponse3 ) );
-         
+
          // inject a response that will create a new dialog
-         pSessionContext->handleResponse( provisionalResponse1Msg, "192.168.0.2", 5060 ); 
+         pSessionContext->handleResponse( provisionalResponse1Msg, "192.168.0.2", 5060 );
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 1 );
-         pSessionContext->handleResponse( provisionalResponse1Msg, "192.168.0.2", 5060 ); 
+         pSessionContext->handleResponse( provisionalResponse1Msg, "192.168.0.2", 5060 );
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 1 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) == 0 );
@@ -708,23 +708,23 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) == 0 );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) == 
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) ==
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) );
-         
+
          // inject a response that will create another dialog
-         pSessionContext->handleResponse( provisionalResponse2Msg, "192.168.0.2", 5060 ); 
+         pSessionContext->handleResponse( provisionalResponse2Msg, "192.168.0.2", 5060 );
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 2 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-3" ) == 0 );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) !=     
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) !=
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) == 0 );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) == 
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) ==
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) == 
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) ==
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) );
 
          const char* failingResponse1 =
@@ -742,8 +742,8 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SipMessage failingResponse1Msg( failingResponse1, strlen( failingResponse1 ) );
 
          // inject a response that will terminate a dialog
-         pSessionContext->handleResponse( failingResponse1Msg, "192.168.0.2", 5060 ); 
-         
+         pSessionContext->handleResponse( failingResponse1Msg, "192.168.0.2", 5060 );
+
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 1 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) != 0 );
@@ -751,7 +751,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) != 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) == 0 );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) == 
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) ==
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) );
 
          const char* failingResponse2 =
@@ -769,8 +769,8 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          SipMessage failingResponse2Msg( failingResponse2, strlen( failingResponse2 ) );
 
          // inject a response that will terminate a dialog
-         pSessionContext->handleResponse( failingResponse1Msg, "192.168.0.2", 5060 ); 
-         
+         pSessionContext->handleResponse( failingResponse1Msg, "192.168.0.2", 5060 );
+
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) == 0 );
@@ -780,7 +780,7 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) == 0 );
 
          // inject a response that will create a dialog
-         pSessionContext->handleResponse( provisionalResponse3Msg, "192.168.0.2", 5060 ); 
+         pSessionContext->handleResponse( provisionalResponse3Msg, "192.168.0.2", 5060 );
          CPPUNIT_ASSERT( pSessionContext->getNumberOfTrackedDialogs() == 1 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-1" ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForTag( "discriminating-tag-2" ) == 0 );
@@ -788,10 +788,9 @@ class SessionContextTest : public CppUnit::TestCase, public CallTrackerInterface
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse1Msg ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse2Msg ) == 0 );
          CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) != 0 );
-         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) == 
+         CPPUNIT_ASSERT( pSessionContext->getDialogTrackerForMessage( provisionalResponse3Msg ) ==
                          pSessionContext->getDialogTrackerForTag( "discriminating-tag-3" ) );
       }
    };
-   
-CPPUNIT_TEST_SUITE_REGISTRATION(SessionContextTest);
 
+CPPUNIT_TEST_SUITE_REGISTRATION(SessionContextTest);

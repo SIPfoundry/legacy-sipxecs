@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -48,7 +48,7 @@ public:
          OsTime timeStep(0,1000*milliseconds);
          testTime += timeStep;
       }
-   
+
    bool expect(const UtlString& actual, const char* expected)
       {
          bool matches = 0==actual.compareTo(expected);
@@ -63,14 +63,14 @@ public:
          }
          return matches;
       }
-   
+
    void testInitial()
       {
          UtlString event;
 
          CallStateEventBuilder_XML builder("observer.example.com");
          builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testInitial");
-         
+
          CPPUNIT_ASSERT(builder.finishElement(event));
          CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.010Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testInitial</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
@@ -83,15 +83,15 @@ public:
          UtlString event;
 
          incrementTime(1);
-         
+
          CallStateEventBuilder_XML builder("observer.example.com");
          builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testRequest");
-         
+
          CPPUNIT_ASSERT(builder.finishElement(event));
          CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.011Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testRequest</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
          incrementTime(1);
-         
+
          builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcd-efgh-hijkl@sip.net;rel=refer");
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
@@ -102,7 +102,7 @@ public:
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>");
          builder.addCallData(1,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
-         
+
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7003");
          builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
@@ -118,12 +118,12 @@ public:
    void testSetup()
       {
          UtlString event;
-         
+
          incrementTime(3);
 
          CallStateEventBuilder_XML builder("observer.example.com");
          builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testSetup");
-         
+
          CPPUNIT_ASSERT(builder.finishElement(event));
          CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.013Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testSetup</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
@@ -139,7 +139,7 @@ public:
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a");
          builder.addCallData(2,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
-         
+
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7004");
          builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
@@ -155,17 +155,17 @@ public:
    void testFailure()
       {
          UtlString event;
-         
+
          incrementTime(5);
-         
+
          CallStateEventBuilder_XML builder("observer.example.com");
          builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testFailure");
-         
+
          CPPUNIT_ASSERT(builder.finishElement(event));
          CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.015Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testFailure</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
          incrementTime(1);
-         
+
          builder.callFailureEvent(1, testTime, 403, "Forbidden <dummy>");
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
@@ -176,7 +176,7 @@ public:
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
          builder.addCallData(3,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
-         
+
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
          builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
@@ -192,12 +192,12 @@ public:
    void testEnd()
       {
          UtlString event;
-         
+
          incrementTime(7);
-         
+
          CallStateEventBuilder_XML builder("observer.example.com");
          builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testEnd");
-         
+
          CPPUNIT_ASSERT(builder.finishElement(event));
          CPPUNIT_ASSERT(expect(event,"<call_event><observer>observer.example.com</observer><obs_seq>0</obs_seq><obs_time>2004-12-15T11:42:41.017Z</obs_time><obs_msg><obs_status>101</obs_status><obs_text>testEnd</obs_text><uri>http://www.sipfoundry.org/sipX/schema/xml/cse-01-00</uri></obs_msg></call_event>\n"));
 
@@ -213,7 +213,7 @@ public:
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3");
          builder.addCallData(4,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
-         
+
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7006");
          builder.addEventVia(viaField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
@@ -228,4 +228,3 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(CallStateEventBuilder_XMLTest);
-

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _REGISTERINITIALSYNC_H_
@@ -40,7 +40,7 @@ public:
 
    /// Wait until the startup phase has completed
    void waitForCompletion();
-   
+
    /// destructor
    virtual ~RegistrarInitialSync();
 
@@ -49,10 +49,10 @@ protected:
 
    /// Recover the latest received update number for each peer from the local database
    void restorePeerUpdateNumbers();
-   
+
    /// Get from peers any of our own updates that we have lost
    void pullLocalUpdatesFromPeers();
-   
+
    /// Get from peers any peer updates that we missed or lost while down
    void pullPeerUpdatesFromPeers();
 
@@ -70,7 +70,7 @@ protected:
 private:
    SipRegistrar&   mRegistrar;
    OsBSem          mFinished;
-   
+
    /// There is no copy constructor.
    RegistrarInitialSync(const RegistrarInitialSync&);
 

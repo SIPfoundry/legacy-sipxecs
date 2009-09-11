@@ -39,7 +39,7 @@ authplugins_libNatTraversalAgent_la_SOURCES = \
     DialogTracker.h \
     DialogTracker.cpp \
     DialogTrackerStates.h \
-    DialogTrackerStates.cpp 
+    DialogTrackerStates.cpp
 
 authplugins_libNatTraversalAgent_la_CXXFLAGS = \
     $(NTAP_COMMON_CXX_FLAGS)

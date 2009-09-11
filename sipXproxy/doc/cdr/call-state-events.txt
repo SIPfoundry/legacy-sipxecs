@@ -238,11 +238,11 @@ Lawrence                                                        [Page 4]
 
 4.  Call State Event Logs
 
-    In the present implementation, Call Request, Call Setup, 
+    In the present implementation, Call Request, Call Setup,
     Call Failure, and Call End events are logged by
     the sipX proxy in the file configured by the directive
     SIPX_PROXY_CALL_STATE_LOG (by default "sipxproxy_callstate.log" in
-    the log directory).  
+    the log directory).
 
 5.  Call Resolution
 

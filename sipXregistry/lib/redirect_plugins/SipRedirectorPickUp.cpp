@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
 
    // Fetch the configuration parameters for the workaround features.
    // Defaults are set to match the previous behavior of the code.
-   
+
    // No early-only.
    mNoEarlyOnly = configDb.getBoolean(CONFIG_SETTING_NEO, TRUE);
    OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -258,7 +258,7 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
       {
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s::readConfig Invalid format for "
-                       CONFIG_SETTING_WAIT " '%s'", 
+                       CONFIG_SETTING_WAIT " '%s'",
                        mLogName.data(), waitUS.data());
       }
       else if (
@@ -393,7 +393,7 @@ SipRedirectorPickUp::lookUp(
    UtlString userId;
    bool bSupportsReplaces;
    UtlString incomingCallId;
-       
+
    requestUri.getUserId(userId);
    message.getCallIdField(&incomingCallId);
 
@@ -521,26 +521,26 @@ SipRedirectorPickUp::lookUp(
    {
       // Check if call retrieve is active, and this is a request for
       // call retrieve.
-      // Test for supports: replaces 
+      // Test for supports: replaces
       // sipXtapi now sends "Supported: replaces", so we can test for its
       // presence and act on it, without causing a calling sipXtapi to fail.
       bSupportsReplaces = message.isInSupportedField("replaces");
 
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
-      
+
       if (bSupportsReplaces)
-      {      
+      {
          // Look it up in the orbit list.
          if (mOrbitFileReader.findInOrbitList(orbit) != NULL)
          {
-           
+
            UtlString  retrieveRequestString(requestString);
            ssize_t    pickupCodeIndex;
-   
+
            // If the requestString contains the call pickup code, replace it with call retrieve code.  Used for one button
            // parked call pickup.
-           pickupCodeIndex = retrieveRequestString.index(mCallPickUpCode.data());   
+           pickupCodeIndex = retrieveRequestString.index(mCallPickUpCode.data());
            if ( pickupCodeIndex != UTL_NOT_FOUND )
            {
              retrieveRequestString.replace( pickupCodeIndex, mCallPickUpCode.length(), mCallRetrieveCode);
@@ -577,11 +577,11 @@ SipRedirectorPickUp::lookUp(
          reasonPhrase = "Replaces Extension Required";
          errorDescriptor.setStatusLineData( SIP_EXTENSION_REQUIRED_CODE, reasonPhrase );
          errorDescriptor.setRequireFieldValue( SIP_REPLACES_EXTENSION );
-         
+
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s::lookUp Executor does not support INVITE/Replaces",
                        mLogName.data());
-         return RedirectPlugin::ERROR;                       
+         return RedirectPlugin::ERROR;
       }
    }
    else
@@ -625,7 +625,7 @@ SipRedirectorPickUp::lookUpDialog(
       {
          // For call pickup execute the original 302 with a Replaces parameter
          if (dialog_info->mStateFilter == stateEarly)
-         {         
+         {
             // A dialog has been recorded.  Construct a contact for it.
             // Beware that as recorded in the dialog event notice, the
             // target URI is in addr-spec format; any parameters are URI
@@ -675,7 +675,7 @@ SipRedirectorPickUp::lookUpDialog(
             if (mReversedReplaces)
             {
                Url c(dialog_info->mTargetDialogRemoteURI);
-   
+
                UtlString header_value(dialog_info->mTargetDialogCallId);
                header_value.append(";to-tag=");
                header_value.append(dialog_info->mTargetDialogLocalTag);
@@ -686,14 +686,14 @@ SipRedirectorPickUp::lookUpDialog(
                {
                   header_value.append(";early-only");
                }
-   
+
                c.setHeaderParameter("Replaces", header_value.data());
                c.setHeaderParameter(SIP_REQUIRE_FIELD,
                                     SIP_REPLACES_EXTENSION);
                // Put this contact at a lower priority than the one in
                // the correct order.
                c.setFieldParameter("q", "0.9");
-   
+
                contactList.add( c,  *this );
             }
          }
@@ -706,7 +706,7 @@ SipRedirectorPickUp::lookUpDialog(
    {
       UtlString userId;
       Url requestUri(requestString);
-      requestUri.getUserId(userId);      
+      requestUri.getUserId(userId);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "%s::lookUpDialog userId '%s'",
                     mLogName.data(), userId.data());
@@ -725,14 +725,14 @@ SipRedirectorPickUp::lookUpDialog(
          contactString.append(subscribeUser);
          contactString.append("@");
          contactString.append(mParkServerDomain);
-         
+
          Url contact_URI(contactString, Url::AddrSpec);
-         
-         contact_URI.setUrlParameter("operation", "retrieve");               
- 
+
+         contact_URI.setUrlParameter("operation", "retrieve");
+
          contactList.add( contact_URI, *this );
          // We do not need to suspend this time.*/
-         return RedirectPlugin::SUCCESS;         
+         return RedirectPlugin::SUCCESS;
       }
       else
       {
@@ -769,7 +769,7 @@ SipRedirectorPickUp::lookUpDialog(
                                     NULL, // userLabel,
                                     tag.data());
          }
-          
+
          // Set the standard request headers.
          // Allow the SipUserAgent to fill in Contact:.
          subscribe.setRequestData(
@@ -801,32 +801,32 @@ SipRedirectorPickUp::lookUpDialog(
             subscribe.setHeaderValue(SIP_REFERENCES_FIELD,
                                      referencesValue);
          }
-   
+
          // Send the SUBSCRIBE.
          mpSipUserAgent->send(subscribe);
-   
+
          // Allocate private storage.
          SipRedirectorPrivateStoragePickUp *storage =
             new SipRedirectorPrivateStoragePickUp(requestSeqNo,
                                                   redirectorNo);
          privateStorage = storage;
-   
+
          // Record the Call-Id of the SUBSCRIBE, so we can correlated the
          // NOTIFYs with it.
          storage->mSubscribeCallId = callId;
          // Record the state filtering criterion.
          storage->mStateFilter = stateFilter;
-   
+
          // If we are printing debug messages, record when the SUBSCRIBE
          // was sent, so we can report how long it took to get the NOTIFYs.
          if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
          {
             OsDateTime::getCurTime(storage->mSubscribeSendTime);
          }
-   
+
          // Set the timer to resume.
          storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
-   
+
          // Suspend processing the request.
          return RedirectPlugin::SEARCH_PENDING;
       }
@@ -883,7 +883,7 @@ void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "SipRedirectorPrivateStoragePickUp::processNotify "
                     "NOTIFY body invalid: '%s'", body);
-   } 
+   }
 }
 
 void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
@@ -981,7 +981,7 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
       else
       {
          /* Ignore unknown elements. */ ;
-      } 
+      }
    }
    // Report all the information we have on the dialog.
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1055,8 +1055,8 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
       !remote_target.isNull() ? remote_target : remote_identity;
    mTargetDialogLocalURI =
       !local_target.isNull() ? local_target : local_identity;
-   mTargetDialogLocalIdentity = local_identity;   
-   mTargetDialogRemoteIdentity = remote_identity;   
+   mTargetDialogLocalIdentity = local_identity;
+   mTargetDialogRemoteIdentity = remote_identity;
 }
 
 void SipRedirectorPrivateStoragePickUp::processNotifyLocalRemoteElement(
@@ -1140,7 +1140,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
    switch (msgType)
    {
    case OsMsg::PHONE_APP:
-   {      
+   {
       // Get a pointer to the message.
       const SipMessage* message =
          ((SipMessageEvent&)eventMessage).getMessage();
@@ -1196,7 +1196,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                       "SipRedirectorPickUpTask::handleMessage "
                                       "getBytes returns no body, ignoring");
-                     }                     
+                     }
                      else
                      {
                         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
@@ -1253,7 +1253,7 @@ const UtlString& SipRedirectorPickUp::name( void ) const
 
 
 // Get and add the credentials for sipXregistrar
-SipLineMgr* 
+SipLineMgr*
 SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
 {
    SipLine* line = NULL;
@@ -1270,7 +1270,7 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
       UtlString ha1_authenticator;
       UtlString authtype;
       bool bSuccess = false;
-      
+
       if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
@@ -1333,14 +1333,14 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
                        ,identity.toString().data(), realm.data()
                        );
       }
-      
+
       if( !bSuccess )
       {
          delete line;
          line = NULL;
-         
+
          delete lineMgr;
-         lineMgr = NULL;         
+         lineMgr = NULL;
       }
    }
 

@@ -2,7 +2,7 @@
 
 INCLUDES = \
 	-I$(top_builddir)/config \
-	-I$(top_srcdir)/include 
+	-I$(top_srcdir)/include
 
 bin_PROGRAMS = sipstatus
 

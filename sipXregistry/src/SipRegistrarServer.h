@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -118,14 +118,14 @@ public:
     /// Return true if there is a new update to send to the peer registrar and fill in bindings
     bool getNextUpdateToSend(RegistrarPeer *peer,       ///< peer to send the update to
                              UtlSList&   bindings);     ///< fill in bindings of the update
-    
+
 protected:
     struct RegistrationExpiryIntervals
     {
        int mMinExpiresTime;   // Minimum registration expiry value in seconds
        int mMaxExpiresTime;   // Maximum registration expiry value in seconds
     };
-    
+
     SipRegistrar& mRegistrar;
     UtlBoolean mIsStarted;
     SipUserAgent* mSipUserAgent;
@@ -134,7 +134,7 @@ protected:
     bool mUseCredentialDB;
     UtlString mRealm;
     UtlBoolean mSendExpiresInResponse;
-    
+
     SipNonceDb mNonceDb;
     long mNonceExpiration;
 
@@ -158,8 +158,8 @@ protected:
                             *   which contains the AOR to register to. */
         const int timeNow, ///< base time for all expiration calculations
         const SipMessage& registerMessage, ///< message containing bindings
-        RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration  
-    
+        RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration
+
     /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
     Int64 updateOneBinding(RegistrationBinding* update,
                            RegistrarPeer* peer,
@@ -189,10 +189,10 @@ protected:
 
     /// If replication is configured, then name of this registrar as primary
     const UtlString& primaryName() const;
-    
+
     /// determine whether or not the registant is located behind a remote NAT.
     bool isRegistrantBehindNat( const SipMessage& registerRequest ) const;
-    
+
 };
 
 #endif // SIPREGISTRARSERVER_H

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -52,8 +52,8 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
        "Contact: sip:anonymous@anonymous.invalid\r\n"
        "Content-Length: 0\r\n"
        "Server: sipXecs/NatMaintainer\r\n"
-       "\r\n";  
-   
+       "\r\n";
+
    mpKeepAliveMessage = new SipMessage( optionsMessageString, optionsMessageString.length() );
 
 }
@@ -66,7 +66,7 @@ NatMaintainer::~NatMaintainer()
       mpRegistrationDB->releaseInstance();
       mpRegistrationDB = 0;
    }
-   
+
    if( mpSubscriptionDB )
    {
       mpSubscriptionDB->releaseInstance();
@@ -78,14 +78,14 @@ NatMaintainer::~NatMaintainer()
 }
 
 int NatMaintainer::run( void* runArg )
-{  
+{
    OsStatus rc;
    while( !isShuttingDown() )
    {
-//TODO: Optimization.  Do not maintain db entries for which we are not the primary since 
+//TODO: Optimization.  Do not maintain db entries for which we are not the primary since
 // no pinhole is open for us at the remote NAT if we are the secondary.  Note:  once this
 // optimization gets implemented, we will need to start refreshing callers of every active
-// CallTracker if not registered with the system handling the call to ensure that its 
+// CallTracker if not registered with the system handling the call to ensure that its
 // pinhole remains open throughout the call.
       rc = mTimerMutex.acquire( NAT_REFRESH_INTERVAL_IN_MILLISECS );
       if( rc == OS_WAIT_TIMEOUT )
@@ -94,26 +94,26 @@ int NatMaintainer::run( void* runArg )
          {
             mRefreshRoundNumber++;
             int timeNow = OsDateTime::getSecsSinceEpoch();
-   
-            // timer has expired - refresh timeout 
+
+            // timer has expired - refresh timeout
             UtlSList resultList;
             UtlString stringToMatch( SIPX_PRIVATE_CONTACT_URI_PARAM );
-          
-            // start by sending keep-alives to non-expired contacts for far-end NATed phones 
+
+            // start by sending keep-alives to non-expired contacts for far-end NATed phones
             // found in the subscription database
-            mpSubscriptionDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );             
+            mpSubscriptionDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
             sendKeepAliveToContactList( resultList );
             resultList.destroyAll();
 
-            // next, send keep-alives to non-expired contacts for far-end NATed phones 
+            // next, send keep-alives to non-expired contacts for far-end NATed phones
             // found in the registration database
-            mpRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList ); 
+            mpRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
             sendKeepAliveToContactList( resultList );
             resultList.destroyAll();
 
             // finally, send keep-alives to the endpoints that were inserted into our
             // external keep alive list by other components of the NAT traversal feature.
-            sendKeepAliveToExternalKeepAliveList();        
+            sendKeepAliveToExternalKeepAliveList();
          }
       }
    }
@@ -130,7 +130,7 @@ void NatMaintainer::addEndpointToKeepAlive( const TransportData& endpointToKeepA
 void NatMaintainer::removeEndpointToKeepAlive( const TransportData& endpointKeptAlive )
 {
    OsLock lock( mExternalKeepAliveListMutex );
-   mExternalKeepAliveList.destroy( &endpointKeptAlive ); 
+   mExternalKeepAliveList.destroy( &endpointKeptAlive );
 }
 
 void NatMaintainer::sendKeepAliveToContactList( UtlSList& contactList )
@@ -141,7 +141,7 @@ void NatMaintainer::sendKeepAliveToContactList( UtlSList& contactList )
    while( ( pString = (UtlString*)iter() ) )
    {
       Url url( *pString );
-      PublicTransportData publicTransport( url ); 
+      PublicTransportData publicTransport( url );
 
       if( publicTransport.isInitialized() && publicTransport.getTransportProtocol() == "udp" )
       {
@@ -152,7 +152,7 @@ void NatMaintainer::sendKeepAliveToContactList( UtlSList& contactList )
 void NatMaintainer::sendKeepAliveToExternalKeepAliveList( void )
 {
    OsLock lock( mExternalKeepAliveListMutex );
-   
+
    UtlSListIterator iter( mExternalKeepAliveList );
    TransportData* pTransportToKeepAlive;
 
@@ -166,9 +166,9 @@ void NatMaintainer::sendKeepAliveToEndpoint( const char* pIpAddress, uint16_t po
 {
    bool bDoSendKeepAlive = true;
    KeepAliveEndpointDescriptor* pKeepAliveEndpointDescriptor;
-   
-   pKeepAliveEndpointDescriptor = &( mpEndpointsKeptAliveList[ portNumber ] ); 
-   
+
+   pKeepAliveEndpointDescriptor = &( mpEndpointsKeptAliveList[ portNumber ] );
+
    if( pKeepAliveEndpointDescriptor->mLastRefreshRoundNumber == mRefreshRoundNumber )
    {
       // We have already sent a keep-alive to an endpoint utilizing this port in this refresh
@@ -200,6 +200,3 @@ void NatMaintainer::requestShutdown( void )
    mTimerMutex.release();
    OsTask::requestShutdown();
 }
-
-
-

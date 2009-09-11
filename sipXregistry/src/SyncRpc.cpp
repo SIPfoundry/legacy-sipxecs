@@ -1,6 +1,6 @@
 // $Id$
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -98,7 +98,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
     * - the peer state is not Incompatible
     */
    RegistrarPeer* peer = NULL;
-   
+
    if (   ! peerName.isNull()
        && requestContext.isTrustedPeer(peerName)
        )
@@ -142,7 +142,7 @@ RegistrarPeer* SyncRpcMethod::validCaller(
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(SyncRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -155,13 +155,13 @@ RegistrarPeer* SyncRpcMethod::validCaller(
       UtlString faultMsg;
       faultMsg.append("TLS Peer Authentication Failure");
       response.setFault(XmlRpcResponse::AuthenticationRequired, faultMsg.data());
-            
+
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
                     );
    }
-   
+
    return peer;
 }
 
@@ -262,7 +262,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
                      RegistrarPeer& peer    ///< the peer to be reset
                      )
 {
-   RegistrarPeer::SynchronizationState resultState; 
+   RegistrarPeer::SynchronizationState resultState;
 
    // check inputs
    assert(myName && *myName != '\000');
@@ -281,7 +281,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
    // second parameter is our PeerReceivedDbUpdateNumber for the peer
    UtlLongLongInt receivedUpdate(peer.receivedFrom());
    request.addParam(&receivedUpdate);
-   
+
    // make the request
    XmlRpcResponse response;
    if (request.execute(response)) // blocks; returns false for any fault
@@ -336,7 +336,7 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
 const char*     SyncRpcPullUpdates::METHOD_NAME = "registerSync.pullUpdates";
 const UtlString SyncRpcPullUpdates::NUM_UPDATES("num_updates");
 const UtlString SyncRpcPullUpdates::UPDATES("updates");
-   
+
 
 XmlRpcMethod* SyncRpcPullUpdates::get()
 {
@@ -369,10 +369,10 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    const char*    myName,       ///< primary name of this registrar
    const char*    primaryName,  ///< name of registrar whose updates we want
    Int64          updateNumber, ///< pull updates starting after this number
-   UtlSList*      bindings      ///< list of RegistrationBinding 
+   UtlSList*      bindings      ///< list of RegistrationBinding
                                                                )
 {
-   RegistrarPeer::SynchronizationState resultState = RegistrarPeer::Uninitialized; 
+   RegistrarPeer::SynchronizationState resultState = RegistrarPeer::Uninitialized;
 
    // check inputs
    assert(source);
@@ -398,7 +398,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    // third parameter is the update number after which we want all updates
    UtlLongLongInt updateNumberBoxed(updateNumber);
    request.addParam(&updateNumberBoxed);
-   
+
    // make the request
    XmlRpcResponse response;
    if (request.execute(response)) // blocks; returns false for any fault
@@ -505,7 +505,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       source->markUnReachable();
       resultState = RegistrarPeer::UnReachable;
    }
-   
+
    return resultState;
 }
 
@@ -528,7 +528,7 @@ bool SyncRpcPullUpdates::execute(
          = validCaller(requestContext, *callingRegistrar, response, *registrar, METHOD_NAME);
       if (peer)
       {
-         // Retrieve all updates for the primaryRegistrar whose update number is greater 
+         // Retrieve all updates for the primaryRegistrar whose update number is greater
          // than updateNumber
          UtlString* primaryRegistrar = dynamic_cast<UtlString*>(params.at(1));
          if (primaryRegistrar && !primaryRegistrar->isNull())
@@ -717,7 +717,7 @@ bool SyncRpcPushUpdates::execute(
          // authentication, which won't help.
          status = XmlRpcMethod::FAILED;
       }
-   }     
+   }
    else
    {
       handleMissingExecuteParam(METHOD_NAME, "callingRegistrar", response, status);
@@ -790,7 +790,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
       else
       {
          status = XmlRpcMethod::FAILED;
-         errorMsg.insert(0, 
+         errorMsg.insert(0,
                          "SyncRpcPushUpdates::applyPushedUpdates error applying updates ");
          OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg.data());
          peer.markUnReachable();
@@ -822,7 +822,7 @@ void SyncRpcPushUpdates::checkLastSentUpdateNumber(Int64 lastSentUpdateNumber,
       // will get us back in sync.
       status = XmlRpcMethod::FAILED;
       char buf[1024];
-      sprintf(buf, 
+      sprintf(buf,
               "SyncRpcPushUpdates::checkLastSentUpdateNumber "
               "lastSentUpdateNumber = %0#16" FORMAT_INTLL "x"
               " but peerReceivedDbUpdateNumber = %0#16" FORMAT_INTLL "x",
@@ -846,7 +846,7 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
 {
    if (updateNumber != reg.getUpdateNumber())
    {
-      const char* msg = 
+      const char* msg =
          "SyncRpcPushUpdates::execute: "
          "a registry update contains multiple update numbers: %0#16" FORMAT_INTLL "x"
          " and %0#16" FORMAT_INTLL "x";
@@ -870,10 +870,10 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
 RegistrarPeer::SynchronizationState
 SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
                            const char*    myName,     ///< primary name of this registrar
-                           UtlSList*      bindings    ///< list of RegistrationBinding 
+                           UtlSList*      bindings    ///< list of RegistrationBinding
                            )
 {
-   RegistrarPeer::SynchronizationState resultState; 
+   RegistrarPeer::SynchronizationState resultState;
 
    // check inputs
    assert(peer);
@@ -916,7 +916,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
       toMap->destroyAll();
       delete toMap;
    }
-   
+
    // make the request
    XmlRpcResponse response;
    if (request.execute(response))    // blocks; returns false for any fault

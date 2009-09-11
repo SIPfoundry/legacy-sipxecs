@@ -5,4 +5,3 @@ EXTRA_DIST = \
   sipXregistry-process.xml.in
 
 SIPX_PROCESS_DEFS=sipXregistry
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ void SipRedirectServer::requestShutdown(void)
     * starting the shutdown of the task
     */
    OsMsg msg(OsMsg::OS_SHUTDOWN, 0);
-    
+
    postMessage(msg);
    yield(); // make the caller wait so that the task can run.
 }
@@ -73,7 +73,7 @@ void SipRedirectServer::requestShutdown(void)
 // Destructor
 SipRedirectServer::~SipRedirectServer()
 {
-   waitUntilShutDown();   
+   waitUntilShutDown();
 }
 
 // Get the unique instance, if it exists.  Will not create it, though.
@@ -98,7 +98,7 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    mAckRouteToProxy.insert(0, "<");
    mAckRouteToProxy.append(mDefaultDomain);
    mAckRouteToProxy.append(";lr>");
-   
+
    // Load the list of redirect processors.
    mRedirectPlugins.readConfig(configDb);
    mRedirectorCount = mRedirectPlugins.entries();
@@ -109,23 +109,23 @@ SipRedirectServer::initialize(OsConfigDb& configDb
    RedirectPlugin* redirector;
    UtlString redirectorName;
    bool bAuthorityLevelDbAvailable;
-   UtlString authorityLevelDbPrefix = RedirectPlugin::Prefix; 
+   UtlString authorityLevelDbPrefix = RedirectPlugin::Prefix;
    authorityLevelDbPrefix.append( AuthorityLevelPrefix );
    authorityLevelDbPrefix.append( '.' );
    OsConfigDb authorityLevelDb;
-   
-   bAuthorityLevelDbAvailable = ( configDb.getSubHash( authorityLevelDbPrefix, authorityLevelDb ) == OS_SUCCESS ); 
+
+   bAuthorityLevelDbAvailable = ( configDb.getSubHash( authorityLevelDbPrefix, authorityLevelDb ) == OS_SUCCESS );
    int i;       // Iterator sequence number.
-   
+
    for (i = 0; (redirector = static_cast <RedirectPlugin*> (iterator.next( &redirectorName )));
         i++)
    {
       mpConfiguredRedirectors[i].name = redirectorName;
-      if( ( mpConfiguredRedirectors[i].bActive = 
+      if( ( mpConfiguredRedirectors[i].bActive =
              ( redirector->initialize(configDb, i, mDefaultDomain) == OS_SUCCESS ) ) )
       {
          int authorityLevel;
-         if( bAuthorityLevelDbAvailable         && 
+         if( bAuthorityLevelDbAvailable         &&
              authorityLevelDb.get( redirectorName, authorityLevel ) == OS_SUCCESS )
          {
             mpConfiguredRedirectors[i].authorityLevel = authorityLevel;
@@ -157,7 +157,7 @@ static void logResponse(UtlString& messageStr)
                  "----------------------------------"
                  "Sending final response\n%s", messageStr.data());
 }
- 
+
 
 /**
  * Cancel a suspended redirection.
@@ -257,7 +257,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
    {
       requestUri.setHostPort(PORT_NONE);
    }
-    
+
    // Seize the lock that protects the list of suspend objects.
    OsLock lock(mRedirectorMutex);
 
@@ -271,7 +271,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
    // Authority level of the last redirector to have modified the contact list.
    ssize_t contactListAuthorityLevel = LOWEST_AUTHORITY_LEVEL;
    ContactList contactList( stringUri );
-   
+
    int i;                       // Iterator sequence number.
    for (i = 0; (redirector = static_cast <RedirectPlugin*> (iterator.next())) && !willError;
         i++)
@@ -287,13 +287,13 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
             privateStorageP = (suspendObject ?
                                suspendObject->mRedirectors[i].privateStorage :
                                NULL);
-   
+
             // Call the redirector to process the request.
             contactList.resetWasModifiedFlag();
             RedirectPlugin::LookUpStatus status =
                redirector->lookUp(*pMessage, stringUri, requestUri, method,
                                   contactList, seqNo, i, privateStorageP, errorDescriptor);
-   
+
             // Create the suspend object if it does not already exist and we need it.
             if (!suspendObject &&
                 (status == RedirectPlugin::SEARCH_PENDING || privateStorageP))
@@ -318,36 +318,36 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
             {
                suspendObject->mRedirectors[i].privateStorage = privateStorageP;
             }
-   
+
             int statusCode;
             UtlString reasonPhrase;
-   
+
             // Dispatch on status.
             switch (status)
             {
             case RedirectPlugin::SUCCESS:
                // Processing was successful. If the plug-in modified the Contact list then
-               // raise the authority level required to modify the contact list to the 
+               // raise the authority level required to modify the contact list to the
                // authority level of this plug-in.
                if( contactList.wasListModified() )
                {
                   contactListAuthorityLevel = mpConfiguredRedirectors[i].authorityLevel;
                }
                break;
-   
+
             case RedirectPlugin::ERROR:
                // Processing detected an error.  Log it and set the 'error' flag.
                errorDescriptor.getStatusLineData( statusCode, reasonPhrase );
-               
+
                OsSysLog::add(FAC_SIP, PRI_ERR,
                              "SipRedirectServer::processRedirect "
                              "ERROR returned by redirector "
                              "'%s' while processing method '%s' URI '%s': "
-                             "Status code = %d (%s)", 
+                             "Status code = %d (%s)",
                              redirector->name().data(), method.data(), stringUri.data(), statusCode, reasonPhrase.data() );
                willError = TRUE;
                break;
-   
+
             case RedirectPlugin::SEARCH_PENDING:
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SipRedirectServer::processRedirect "
@@ -360,7 +360,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                suspendObject->mRedirectors[i].needsCancel = TRUE;
                suspendObject->mSuspendCount++;
                break;
-   
+
             default:
                OsSysLog::add(FAC_SIP, PRI_ERR,
                              "SipRedirectServer::processRedirect "
@@ -399,8 +399,8 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                int maxForwards;
 
                contactList.get(0, contactUri);
- 
-               // create the message to forward - 
+
+               // create the message to forward -
                // change reqUri to located value, add route for debugging info, decrement max-forwards
                // leave last via since we are circling back, not responding
                SipMessage ackCopy(*pMessage);    // "clone" original ACK
@@ -429,7 +429,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                              "sending ACK to '%s':%d using '%s'"
                              "location service returned '%s'",
                              lastViaAddress.data(),
-                             lastViaPort,  
+                             lastViaPort,
                              lastViaProtocol.data(),
                              contactUri.data());
 
@@ -472,11 +472,11 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                 response.setResponseData(pMessage,
                                          SIP_TEMPORARY_MOVE_CODE,
                                          SIP_TEMPORARY_MOVE_TEXT);
-                
+
                 // add contacts collected in the contactList to the response
                 size_t index;
                 size_t numEntries = contactList.entries();
-                
+
                 for( index = 0; index < numEntries; index++ )
                 {
                    UtlString contactString;
@@ -503,15 +503,15 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                                          SIP_NOT_FOUND_TEXT);
              }
           }
-    
+
           // Identify ourselves in the response
           mpSipUserAgent->setUserAgentHeader(response);
-    
+
           // Now that we've set the right code into the response, send the
           // response.
           mpSipUserAgent->send(response);
        }    // end sending response to Invite
-    
+
        // If the suspend object exists, remove it from mSuspendList
        // and delete it.
        if (suspendObject)
@@ -541,7 +541,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    switch (msgType)
    {
    case OsMsg::PHONE_APP:
-   {      
+   {
       // An incoming request to be redirected.
 
       // Get a pointer to the SIP message.
@@ -609,15 +609,15 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
       else
       {
          // For all methods other than CANCEL:
-         // Note: any ACK that gets passed up to the redirector 
-         // needs to be processed and forwarded if possible.  
-         // ACKs for the error responses sent from the redirector 
+         // Note: any ACK that gets passed up to the redirector
+         // needs to be processed and forwarded if possible.
+         // ACKs for the error responses sent from the redirector
          // are recognized by the stack and not passed to this application
-         // 
+         //
          // Call processRedirect to call the redirectors, and handle
          // their results, send a response or suspend processing of
-         // the request.  
-         // For ACKs, no response is sent(or allowed).  Instead, the ACK is routed 
+         // the request.
+         // For ACKs, no response is sent(or allowed).  Instead, the ACK is routed
          // back to the proxy with information that allows it to be sent
          // to the correct next hop (ReqUri is replaced).
 
@@ -668,7 +668,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
                        "Invalid redirector %d",
                        redirectorNo);
          break;
-      }         
+      }
       if (!suspendObject->mRedirectors[redirectorNo].suspended)
       {
          OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -701,7 +701,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    break;
 
    case OsMsg::OS_SHUTDOWN:
-   {      
+   {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRedirectServer::handleMessage received shutdown request"
                     );
@@ -733,7 +733,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
    break;
 
    default:
-   {      
+   {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
                     "SipRedirectServer::handleMessage unhandled msg type %d",
                     msgType
@@ -775,15 +775,15 @@ SipRedirectServer::getPrivateStorage(
    return suspendObject->mRedirectors[redirectorNo].privateStorage;
 }
 
-void SipRedirectServer::buildResponseFromRequestAndErrorDescriptor( SipMessage& response, 
-                                                                    const SipMessage& request, 
+void SipRedirectServer::buildResponseFromRequestAndErrorDescriptor( SipMessage& response,
+                                                                    const SipMessage& request,
                                                                     const ErrorDescriptor& errorDescriptor )
 {
     int code;
     UtlString textValue;
     errorDescriptor.getStatusLineData( code, textValue );
-             
-    // set status line and basic fields from request 
+
+    // set status line and basic fields from request
     response.setResponseData( &request,
                               code,
                               textValue );
@@ -793,7 +793,7 @@ void SipRedirectServer::buildResponseFromRequestAndErrorDescriptor( SipMessage& 
     {
        response.setWarningField( code, mDefaultDomain, textValue );
     }
-    
+
     // add copy of offending request as sipfrag body is requested
     if( errorDescriptor.shouldRequestBeAppendedToResponse() )
     {
@@ -804,32 +804,32 @@ void SipRedirectServer::buildResponseFromRequestAndErrorDescriptor( SipMessage& 
     {
        response.setAcceptField( textValue );
     }
-       
+
     if( errorDescriptor.getAcceptEncodingFieldValue( textValue ) )
     {
        response.setAcceptEncodingField( textValue );
     }
-    
+
     if( errorDescriptor.getAcceptLanguageFieldValue( textValue ) )
     {
        response.setAcceptLanguageField( textValue );
     }
-    
+
     if( errorDescriptor.getAllowFieldValue( textValue ) )
     {
        response.setAllowField( textValue );
     }
-    
+
     if( errorDescriptor.getRequireFieldValue( textValue ) )
     {
        response.setRequireField( textValue );
     }
-    
+
     if( errorDescriptor.getRetryAfterFieldValue( textValue ) )
     {
        response.setRetryAfterField( textValue );
     }
-    
+
     if( errorDescriptor.getUnsupportedFieldValue( textValue ) )
     {
        response.setUnsupportedField( textValue );
@@ -881,4 +881,3 @@ RedirectPlugin::RequestSeqNo SipRedirectServerPrivateStorageIterator::requestSeq
    // The key is a UtlInt which is the request sequence number.
    return (dynamic_cast<UtlInt*> (this->key()))->getValue();
 }
-
