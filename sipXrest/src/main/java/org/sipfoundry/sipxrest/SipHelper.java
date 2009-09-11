@@ -78,11 +78,15 @@ public class SipHelper {
         ContactHeader contactHeader = getStackBean().getListeningPoint("udp").createContactHeader();
         Address address = contactHeader.getAddress();
         SipURI sipUri = (SipURI) address.getURI();
-        sipUri.setUser(abstractListener.getMetaInf().getSipConvergenceName());
+        if ( abstractListener.getMetaInf().getSipConvergenceName() != null ) {
+            sipUri.setUser(abstractListener.getMetaInf().getSipConvergenceName());
+        } else {
+            sipUri.setUser("~~id~sipXrest");         
+        }
         return contactHeader;
     }
 
-    final public long getSequenceNumber(Message sipMessage) {
+    static final public long getSequenceNumber(Message sipMessage) {
         CSeqHeader cseqHeader = (CSeqHeader) sipMessage.getHeader(CSeqHeader.NAME);
         return cseqHeader.getSeqNumber();
     }

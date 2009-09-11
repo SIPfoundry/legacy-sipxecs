@@ -23,7 +23,7 @@
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />
   	<property name="test.classes.dir" value="${build.dir}/tests"/>
-	<property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />
+	<property name="src" location="${src.dir}/src/main/java" />
 	<property name="classes" location="${classes.dir}" />
 	<property name="doc" location="${src.dir}/doc" />
 	<property name="lib" location="${src.dir}/lib" />
@@ -110,7 +110,8 @@
 
 	<target name="compile.test"  description="compile the source and tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
-		<echo>test path ${test.path}</echo>
+		<echo>Nothing to do yet!</echo>
+		<!--
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src}"
 			destdir="${classes}"
@@ -121,6 +122,7 @@
 			<assertions>
 				<enable />
 			</assertions>
+		-->
 	</target>
 
 	<target name="compile-exclude-tests"  description="compile the source no tests">
