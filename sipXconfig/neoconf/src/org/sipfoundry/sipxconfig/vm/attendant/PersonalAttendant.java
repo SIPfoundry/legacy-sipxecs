@@ -76,33 +76,16 @@ public class PersonalAttendant extends BeanWithId {
     }
 
     /**
-     * Generate personal AA VXML file (from the template)
-     *
-     * @param location profile destination
-     * @param domain SIP domain for which we are generating VXML
-     * @param generator Velocity based VXML generator
-     */
-    public void generateVxmlProfile(ProfileLocation location, String domain,
-            ProfileGenerator generator) {
-        // Generate the voicexml for the old vm
-        AttendantProfileContext vxmlContext = new AttendantProfileContext(
-                this, domain, "sipxvxml/savemessage.vxml.vm");
-        generator.generate(location, vxmlContext, null, "savemessage.vxml");
-
-    }
-
-    /**
      * Generate personal AA Properties file (from the template)
      *
      * @param location profile destination
      * @param domain SIP domain for which we are generating this file
      * @param generator Velocity based generator
      */
-    public void generatePropertiesProfile(ProfileLocation location, String domain,
-            ProfileGenerator generator) {
+    public void generatePropertiesProfile(ProfileLocation location, String domain, ProfileGenerator generator) {
         // Generate the properties for the new vm
-        AttendantProfileContext propertiesContext = new AttendantProfileContext(
-                this, domain, "sipxivr/PersonalAttendant.properties.vm");
+        AttendantProfileContext propertiesContext = new AttendantProfileContext(this, domain,
+                "sipxivr/PersonalAttendant.properties.vm");
         generator.generate(location, propertiesContext, null, "PersonalAttendant.properties");
     }
 
@@ -147,8 +130,7 @@ public class PersonalAttendant extends BeanWithId {
 
         private List<MenuItem> createMenu() {
             List<MenuItem> menu = new ArrayList<MenuItem>();
-            for (Entry<DialPad, AttendantMenuItem> entry : m_aa.getMenu().getMenuItems()
-                    .entrySet()) {
+            for (Entry<DialPad, AttendantMenuItem> entry : m_aa.getMenu().getMenuItems().entrySet()) {
                 String key = entry.getKey().getName();
                 String uri = entry.getValue().getParameter();
                 uri = SipUri.fix(uri, m_domain);

@@ -9,11 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +19,11 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
@@ -58,8 +58,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
             "WARNING"
         });
         setSettingValuesForGroup(registrarService, "call-pick-up", new String[] {
-            "SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE",
-            "SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE",
+            "SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE", "SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE",
             "SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT"
         }, new String[] {
             "*42", "*43", "15.0"
@@ -93,12 +92,12 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         parkService.setBeanName(SipxParkService.BEAN_ID);
         parkService.setParkServerSipPort("9909");
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false,
-                registrarService, proxyService, parkService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, registrarService,
+                proxyService, parkService);
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();
-        
+
         Location primaryLocation = TestUtil.createDefaultLocation();
         Location otherRegistrarLocation = new Location();
         otherRegistrarLocation.setName("Other registrar");
@@ -107,7 +106,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         Location otherMediaServerLocation = new Location();
         otherMediaServerLocation.setName("Other media server");
         otherMediaServerLocation.setFqdn("other-media-server.example.org");
-        otherMediaServerLocation.addService(new LocationSpecificService(new SipxMediaService()));
+        otherMediaServerLocation.addService(new LocationSpecificService(new SipxIvrService()));
 
         locationsManager.getPrimaryLocation();
         EasyMock.expectLastCall().andReturn(primaryLocation).anyTimes();
@@ -117,7 +116,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         }).anyTimes();
         EasyMock.replay(locationsManager);
         out.setLocationsManager(locationsManager);
-        
+
         out.setSipxServiceManager(sipxServiceManager);
         out.setTemplate("sipxregistrar/registrar-config.vm");
 
@@ -129,8 +128,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
     private void setSettingValuesForGroup(SipxRegistrarService registrarService, String group,
             String[] settingNames, String[] values) {
         for (int i = 0; i < settingNames.length; i++) {
-            registrarService.getSettings().getSetting(group).getSetting(settingNames[i])
-                    .setValue(values[i]);
+            registrarService.getSettings().getSetting(group).getSetting(settingNames[i]).setValue(values[i]);
         }
     }
 }

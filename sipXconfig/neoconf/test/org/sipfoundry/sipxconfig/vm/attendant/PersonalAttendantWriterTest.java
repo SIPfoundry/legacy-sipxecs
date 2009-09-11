@@ -1,13 +1,22 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
+
+import java.io.File;
+
+import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
+import org.sipfoundry.sipxconfig.device.ProfileGenerator;
+import org.sipfoundry.sipxconfig.vm.Mailbox;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.eq;
@@ -17,16 +26,6 @@ import static org.easymock.EasyMock.isNull;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
-import java.io.File;
-
-import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
-import org.sipfoundry.sipxconfig.device.ProfileFilter;
-import org.sipfoundry.sipxconfig.device.ProfileGenerator;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
-
 public class PersonalAttendantWriterTest extends TestCase {
 
     public void testWrite() {
@@ -34,9 +33,6 @@ public class PersonalAttendantWriterTest extends TestCase {
         Mailbox mailbox = new Mailbox(new File("/tmp/voicemail"), "200");
 
         ProfileGenerator profileGenerator = createMock(ProfileGenerator.class);
-        profileGenerator.generate(isA(FileSystemProfileLocation.class),
-                isA(PersonalAttendant.AttendantProfileContext.class), (ProfileFilter) isNull(),
-                eq("savemessage.vxml"));
         profileGenerator.generate(isA(FileSystemProfileLocation.class),
                 isA(PersonalAttendant.AttendantProfileContext.class), (ProfileFilter) isNull(),
                 eq("PersonalAttendant.properties"));

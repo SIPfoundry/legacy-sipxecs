@@ -6,13 +6,6 @@
     - D I A L   P L A N S
   -->
 
-  <bean id="sipXMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer" scope="prototype">
-    <property name="label" value="Legacy Voicemail Server" />
-    <property name="serverExtension" value="101" />
-    <property name="localizationContext" ref="localizationContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-  </bean>
-
   <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer" scope="prototype">
     <property name="label" value="Exchange Voicemail Server" />
     <property name="localizationContext" ref="localizationContext" />
@@ -29,7 +22,6 @@
   <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">
     <property name="beanIds">
       <list>
-        <value>sipXMediaServer</value>
         <value>exchangeUmMediaServer</value>
         <value>freeswitchMediaServer</value>
       </list>

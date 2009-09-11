@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -14,13 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-
-import static org.easymock.EasyMock.expectLastCall;
-
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
@@ -38,22 +34,17 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
 public class AttendantRuleTest extends TestCase {
-    private static final String VOICEMAIL_SERVER = "https%3A%2F%2F192.168.1.1%3A443";
-    private static final String URL_PARAMS = ";voicexml=" + VOICEMAIL_SERVER
-            + "%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String OPERATOR_URL = "<sip:{digits}@192.168.1.1;transport=tcp" + URL_PARAMS
-            + "autoattendant%26name%3Daa_-1>";
-
     private DomainManager m_domainManager;
 
     @Override
     public void setUp() {
         m_domainManager = TestUtil.getMockDomainManager();
-        EasyMock.replay(m_domainManager);
+        replay(m_domainManager);
     }
 
     public void testNotImplemented() {
@@ -75,8 +66,8 @@ public class AttendantRuleTest extends TestCase {
         replay(lc);
 
         AttendantRule rule = new AttendantRule();
-        SipXMediaServer mediaServer = new SipXMediaServer();
-        SipXMediaServerTest.configureMediaServer(mediaServer);
+        FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
+        FreeswitchMediaServerTest.configureMediaServer(mediaServer);
         mediaServer.setLocalizationContext(lc);
 
         rule.setMediaServer(mediaServer);
@@ -105,39 +96,7 @@ public class AttendantRuleTest extends TestCase {
         assertTrue(transforms[0] instanceof UrlTransform);
         UrlTransform urlTransform = (UrlTransform) transforms[0];
 
-        assertEquals(OPERATOR_URL, urlTransform.getUrl());
-    }
-
-    public void testMappingRulesVxml() throws Exception {
-        LocalizationContext lc = createNiceMock(LocalizationContext.class);
-        replay(lc);
-
-        AttendantRule rule = new AttendantRule();
-        SipXMediaServer mediaServer = new SipXMediaServer();
-        SipXMediaServerTest.configureMediaServer(mediaServer);
-        mediaServer.setLocalizationContext(lc);
-
-        rule.setMediaServer(mediaServer);
-        rule.setName("abc");
-        rule.setExtension("100");
-        rule.setAttendantAliases("0 operator");
-        rule.setEnabled(true);
-        rule.setCalltag("UNK");
-
-        RulesXmlFile mappingRules = new MappingRules();
-        mappingRules.setDomainManager(m_domainManager);
-        List<DialingRule> rules = new ArrayList<DialingRule>();
-        rule.appendToGenerationRules(rules);
-        mappingRules.begin();
-        for (DialingRule r : rules) {
-            mappingRules.generate(r);
-        }
-        mappingRules.end();
-
-        String generatedXml = getFileContent(mappingRules, null);
-        InputStream referenceXmlStream = getClass().getResourceAsStream("sipxvxml-aa-rules.test.xml");
-
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        assertEquals("<sip:IVR@192.168.1.1:0;action=autoattendant;schedule_id=aa_-1>", urlTransform.getUrl());
     }
 
     public void testMappingRulesIvr() throws Exception {

@@ -5,19 +5,18 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
@@ -33,11 +32,11 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer;
+import org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
-import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServer;
-import org.sipfoundry.sipxconfig.admin.dialplan.SipXMediaServerTest;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
@@ -106,7 +105,8 @@ public class MappingRulesTest extends XMLTestCase {
 
         EasyMock.replay(locationsManager);
 
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService, pageService);
+        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, parkService, rlsService,
+                pageService);
         m_out.setSipxServiceManager(sipxServiceManager);
     }
 
@@ -155,8 +155,7 @@ public class MappingRulesTest extends XMLTestCase {
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("example.org",
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
+        assertXpathEvaluatesTo("example.org", "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
@@ -176,8 +175,7 @@ public class MappingRulesTest extends XMLTestCase {
                 "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
 
         assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
-        assertXpathEvaluatesTo("example.org",
-                "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
+        assertXpathEvaluatesTo("example.org", "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
@@ -211,12 +209,12 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGenerate() throws Exception {
         UrlTransform voicemail = new UrlTransform();
-        voicemail.setUrl("<sip:{digits}@localhost;transport=tcp;"
-                + "play=" + VOICEMAIL_SERVER + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
+        voicemail.setUrl("<sip:{digits}@localhost;transport=tcp;" + "play=" + VOICEMAIL_SERVER
+                + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.1");
 
         UrlTransform voicemail2 = new UrlTransform();
-        voicemail2.setUrl("<sip:{digits}@testserver;"
-                + "play=" + VOICEMAIL_SERVER + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
+        voicemail2.setUrl("<sip:{digits}@testserver;" + "play=" + VOICEMAIL_SERVER
+                + "/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
 
         IMocksControl control = EasyMock.createNiceControl();
         IDialingRule rule = control.createMock(IDialingRule.class);
@@ -257,8 +255,8 @@ public class MappingRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("Voicemail", "/mappings/hostMatch/userMatch/permissionMatch/permission", domDoc);
         assertXpathEvaluatesTo(voicemail.getUrl(), "/mappings/hostMatch/userMatch/permissionMatch/transform/url",
                 domDoc);
-        assertXpathEvaluatesTo(voicemail2.getUrl(), "/mappings/hostMatch/userMatch/permissionMatch/transform[2]/url",
-                domDoc);
+        assertXpathEvaluatesTo(voicemail2.getUrl(),
+                "/mappings/hostMatch/userMatch/permissionMatch/transform[2]/url", domDoc);
 
         control.verify();
     }
@@ -299,8 +297,8 @@ public class MappingRulesTest extends XMLTestCase {
 
         LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);
 
-        SipXMediaServer mediaServer = new SipXMediaServer();
-        SipXMediaServerTest.configureMediaServer(mediaServer);
+        FreeswitchMediaServer mediaServer = new FreeswitchMediaServer();
+        FreeswitchMediaServerTest.configureMediaServer(mediaServer);
 
         mediaServer.setLocalizationContext(lc);
         MediaServer exchangeMediaServer = new ExchangeMediaServer("exchange.example.com", "102");
@@ -319,7 +317,6 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.VoicemailFallback(exchangeMediaServer));
         rules.add(new VoicemailRedirectRule());
 
-
         m_out.begin();
         for (DialingRule rule : rules) {
             m_out.generate(rule);
@@ -331,7 +328,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         InputStream referenceXmlStream = getClass().getResourceAsStream("mappingrules-multiple-servers.test.xml");
 
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        assertEquals(IOUtils.toString(referenceXmlStream, "UTF-8"), generatedXml);
         EasyMock.verify(lc);
     }
 

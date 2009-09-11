@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
@@ -48,7 +48,6 @@ import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
@@ -75,7 +74,6 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditSipxService.PAGE);
-        SERVICE_MAP.put(SipxMediaService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxRelayService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxPresenceService.BEAN_ID, EditPresenceService.PAGE);
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);

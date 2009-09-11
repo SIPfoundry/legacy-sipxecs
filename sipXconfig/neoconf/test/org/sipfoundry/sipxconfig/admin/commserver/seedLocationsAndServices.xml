@@ -65,50 +65,46 @@
     </row>         
     <row>
       <value>8</value>
-      <value>sipxMediaService</value>
-    </row>            
-    <row>
-      <value>9</value>
       <value>sipxStatusService</value>
     </row>         
     <row>
-      <value>10</value>
+      <value>9</value>
       <value>sipxCallResolverService</value>
     </row>
     <row>
-      <value>11</value>
+      <value>10</value>
       <value>sipxPageService</value>
     </row>         
     <row>
-      <value>12</value>
+      <value>11</value>
       <value>sipxConfigService</value>
     </row> 
     <row>
-      <value>13</value>
+      <value>12</value>
       <value>sipxConfigAgentService</value>
     </row>        
     <row>
-      <value>14</value>
+      <value>13</value>
       <value>sipxAcdService</value>
     </row>    
     <row>
-      <value>15</value>
+      <value>14</value>
       <value>sipxBridgeService</value>
     </row>    
     <row>
-      <value>16</value>
+      <value>15</value>
       <value>sipxFreeswitchService</value>
     </row> 
     <row>
-      <value>17</value>
+      <value>16</value>
       <value>sipxRelayService</value>
     </row>
     <row>
-      <value>18</value>
+      <value>17</value>
       <value>sipxMrtgService</value>
     </row> 
     <row>
-      <value>19</value>
+      <value>18</value>
       <value>sipxCallResolverAgentService</value>
     </row>                                                                          
   </table>

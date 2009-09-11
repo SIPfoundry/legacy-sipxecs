@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -18,8 +18,8 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
 public class MediaServerFactory implements BeanFactoryAware {
-    /** Spring bean name that defines default (sipX) media server */
-    private static final String DEFAULT_MEDIA_SERVER = "sipXMediaServer";
+    /** Spring bean name that defines default media server */
+    private static final String DEFAULT_MEDIA_SERVER = "freeswitchMediaServer";
 
     private BeanFactory m_beanFactory;
     private Collection<String> m_beanIds;

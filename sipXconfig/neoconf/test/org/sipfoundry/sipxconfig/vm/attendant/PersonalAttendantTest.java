@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.vm.attendant;
@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
@@ -30,6 +29,7 @@ public class PersonalAttendantTest extends TestCase {
 
     private VelocityProfileGenerator m_profileGenerator;
 
+    @Override
     protected void setUp() throws Exception {
         m_profileGenerator = TestHelper.getProfileGenerator();
     }
@@ -45,17 +45,9 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setMenu(menu);
 
         MemoryProfileLocation location = new MemoryProfileLocation();
-        personalAttendant.generateVxmlProfile(location, "example.org", m_profileGenerator);
-
-        InputStream expected = getClass().getResourceAsStream("savemessage.user.vxml");
-
-        assertEquals(IOUtils.toString(expected), location.toString());
-        expected.close();
-        
-        location = new MemoryProfileLocation();
         personalAttendant.generatePropertiesProfile(location, "example.org", m_profileGenerator);
 
-        expected = getClass().getResourceAsStream("PersonalAttendant.user.properties");
+        InputStream expected = getClass().getResourceAsStream("PersonalAttendant.user.properties");
 
         assertEquals(IOUtils.toString(expected), location.toString());
         expected.close();
@@ -72,22 +64,14 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setMenu(menu);
 
         MemoryProfileLocation location = new MemoryProfileLocation();
-        personalAttendant.generateVxmlProfile(location, "example.org", m_profileGenerator);
-
-        InputStream expected = getClass().getResourceAsStream("savemessage.user-no-operator.vxml");
-
-        assertEquals(IOUtils.toString(expected), location.toString());
-        expected.close();
-        
-        location = new MemoryProfileLocation();
         personalAttendant.generatePropertiesProfile(location, "example.org", m_profileGenerator);
 
-        expected = getClass().getResourceAsStream("PersonalAttendant.user-no-operator.properties");
+        InputStream expected = getClass().getResourceAsStream("PersonalAttendant.user-no-operator.properties");
 
         assertEquals(IOUtils.toString(expected), location.toString());
         expected.close();
     }
-    
+
     public void testGenerateUserProfileWithOverrideLanguage() throws Exception {
         PersonalAttendant personalAttendant = new PersonalAttendant();
         personalAttendant.setUser(new User());
@@ -101,30 +85,9 @@ public class PersonalAttendantTest extends TestCase {
         personalAttendant.setMenu(menu);
 
         MemoryProfileLocation location = new MemoryProfileLocation();
-        personalAttendant.generateVxmlProfile(location, "example.org", m_profileGenerator);
-
-        InputStream expected = getClass().getResourceAsStream("savemessage.user.overridelanguage.vxml");
-
-        assertEquals(IOUtils.toString(expected), location.toString());
-        expected.close();
-        
-        location = new MemoryProfileLocation();
         personalAttendant.generatePropertiesProfile(location, "example.org", m_profileGenerator);
 
-        expected = getClass().getResourceAsStream("PersonalAttendant.user.overridelanguage.properties");
-
-        assertEquals(IOUtils.toString(expected), location.toString());
-        expected.close();
-
-    }
-
-    public void testGenerateGenericProfile() throws Exception {
-        PersonalAttendant personalAttendant = new PersonalAttendant();
-
-        MemoryProfileLocation location = new MemoryProfileLocation();
-        personalAttendant.generateVxmlProfile(location, "example.org", m_profileGenerator);
-
-        InputStream expected = getClass().getResourceAsStream("savemessage.generic.vxml");
+        InputStream expected = getClass().getResourceAsStream("PersonalAttendant.user.overridelanguage.properties");
 
         assertEquals(IOUtils.toString(expected), location.toString());
         expected.close();
@@ -137,13 +100,11 @@ public class PersonalAttendantTest extends TestCase {
 
         AttendantMenu menu = new AttendantMenu();
         menu.addMenuItem(DialPad.NUM_1, AttendantMenuAction.TRANSFER_OUT, "201");
-        menu
-                .addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT,
-                        "sip:202@example.com");
+        menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, "sip:202@example.com");
         pa.setMenu(menu);
 
-        AttendantProfileContext ctx = new PersonalAttendant.AttendantProfileContext(pa,
-                "example.org", "sipxvxml/savemessage.vxml.vm");
+        AttendantProfileContext ctx = new PersonalAttendant.AttendantProfileContext(pa, "example.org",
+                "sipxvxml/savemessage.vxml.vm");
         Map<String, Object> map = ctx.getContext();
 
         List<PersonalAttendant.MenuItem> items = (List<MenuItem>) map.get("menu");

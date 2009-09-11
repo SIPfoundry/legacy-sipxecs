@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
@@ -72,7 +72,6 @@ public class Permissions extends DataSetGenerator {
     private void addSpecialUser(String userId, List<Map<String, String>> items, String domain) {
         User user = getCoreContext().newUser();
         user.setPermission(PermissionName.VOICEMAIL, false);
-        user.setPermission(PermissionName.SIPX_VOICEMAIL, false);
         user.setPermission(PermissionName.FREESWITH_VOICEMAIL, false);
         user.setPermission(PermissionName.EXCHANGE_VOICEMAIL, false);
         user.setUserName(userId);
@@ -103,7 +102,6 @@ public class Permissions extends DataSetGenerator {
 
             // add special permission for voicemail redirect rule for xcf-1875
             if (name.equals(PermissionName.EXCHANGE_VOICEMAIL.getName())
-                    || name.equals(PermissionName.SIPX_VOICEMAIL.getName())
                     || name.equals(PermissionName.FREESWITH_VOICEMAIL.getName())) {
                 String vmUri = SipUri.format(null, "~~vm~" + m_user.getName(), m_domain);
                 addPermission(vmUri, name);

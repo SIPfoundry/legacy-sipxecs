@@ -18,12 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
-import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
@@ -54,13 +55,13 @@ public class SipxProcessContextImplTest extends TestCase {
     private LocationsManager m_locationsManager;
     private Set<SipxServiceBundle> m_bundleSet = new HashSet<SipxServiceBundle>();
     SipxRegistrarService m_registrarService;
-    SipxMediaService m_mediaService;
+    SipxParkService m_parkService;
     SipxService m_proxyService;
     SipxPresenceService m_presenceService;
     SipxAcdService m_acdService;
 
     private final static SipxService[] PROCESSES = new SipxService[] {
-        new SipxRegistrarService(), new SipxMediaService()
+        new SipxRegistrarService(), new SipxParkService()
     };
 
     private final static SipxService[] START_PROCESSLIST = new SipxService[] {
@@ -85,10 +86,10 @@ public class SipxProcessContextImplTest extends TestCase {
         m_proxyService.setBeanName(SipxProxyService.BEAN_ID);
         m_proxyService.setBundles(m_bundleSet);
 
-        m_mediaService = new SipxMediaService();
-        m_mediaService.setBeanName(SipxMediaService.BEAN_ID);
-        m_mediaService.setProcessName("MediaServer");
-        m_mediaService.setBundles(m_bundleSet);
+        m_parkService = new SipxParkService();
+        m_parkService.setBeanName(SipxParkService.BEAN_ID);
+        m_parkService.setProcessName("MediaServer");
+        m_parkService.setBundles(m_bundleSet);
 
         m_presenceService = new SipxPresenceService();
         m_presenceService.setBeanName(SipxPresenceService.BEAN_ID);
@@ -99,7 +100,7 @@ public class SipxProcessContextImplTest extends TestCase {
         m_acdService.setBeanName(SipxAcdService.BEAN_ID);
         m_acdService.setProcessName("ACDServer");
 
-        location.setServiceDefinitions(Arrays.asList(m_registrarService, m_proxyService, m_mediaService));
+        location.setServiceDefinitions(Arrays.asList(m_registrarService, m_proxyService, m_parkService));
         ArrayList<String> installedBundles = new ArrayList<String>();
         installedBundles.add("primarySipRouter");
         location.setInstalledBundles(installedBundles);
@@ -136,7 +137,7 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("SIPXProxy", "Failed");
         result.put("ACDServer", "Undefined");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_parkService,
                 m_presenceService, m_proxyService, m_acdService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -150,7 +151,7 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         m_processContextImpl.setSipxServiceManager(serviceManager);
         // mark services for restart
-        m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_mediaService,
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_parkService,
                 m_presenceService));
         replay(provider, api, serviceManager);
 
@@ -162,7 +163,7 @@ public class SipxProcessContextImplTest extends TestCase {
         assertTrue(resultServiceStatus[0].isNeedsRestart());
 
         assertEquals(Running, resultServiceStatus[1].getStatus());
-        assertEquals(SipxMediaService.BEAN_ID, resultServiceStatus[1].getServiceBeanId());
+        assertEquals(SipxParkService.BEAN_ID, resultServiceStatus[1].getServiceBeanId());
         assertTrue(resultServiceStatus[1].isNeedsRestart());
 
         assertEquals(Disabled, resultServiceStatus[2].getStatus());
@@ -187,7 +188,7 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("SIPRegistrar", "Starting");
         result.put("MediaServer", "Running");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_parkService,
                 m_proxyService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -201,11 +202,11 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.setProcessManagerApiProvider(provider);
         m_processContextImpl.setSipxServiceManager(serviceManager);
         // mark services for restart
-        m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_mediaService,
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_parkService,
                 m_presenceService));
         replay(provider, api, serviceManager);
 
-        assertEquals(ServiceStatus.Status.Running, m_processContextImpl.getStatus(location, m_mediaService));
+        assertEquals(ServiceStatus.Status.Running, m_processContextImpl.getStatus(location, m_parkService));
         assertEquals(ServiceStatus.Status.Starting, m_processContextImpl.getStatus(location, m_registrarService));
         assertEquals(ServiceStatus.Status.Undefined, m_processContextImpl.getStatus(location, m_proxyService));
 
@@ -222,7 +223,7 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("SIPXProxy", "Failed");
         result.put("ACDServer", "Unknown");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(false, m_registrarService, m_parkService,
                 m_presenceService, m_proxyService, m_acdService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -243,7 +244,7 @@ public class SipxProcessContextImplTest extends TestCase {
         assertEquals(3, resultServiceStatus.length);
         assertEquals(SipxRegistrarService.BEAN_ID, resultServiceStatus[0].getServiceBeanId());
         assertEquals(Starting, resultServiceStatus[0].getStatus());
-        assertEquals(SipxMediaService.BEAN_ID, resultServiceStatus[1].getServiceBeanId());
+        assertEquals(SipxParkService.BEAN_ID, resultServiceStatus[1].getServiceBeanId());
         assertEquals(Starting, resultServiceStatus[1].getStatus());
         assertEquals(SipxProxyService.BEAN_ID, resultServiceStatus[2].getServiceBeanId());
         assertEquals(Failed, resultServiceStatus[2].getStatus());
@@ -299,7 +300,7 @@ public class SipxProcessContextImplTest extends TestCase {
         result.put("PresenceServer", "Disabled");
         result.put("ACDServer", "Undefined");
 
-        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_parkService,
                 m_presenceService, m_proxyService, m_acdService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -332,7 +333,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testRestartMarked() {
         Location location = m_locationsManager.getLocations()[0];
-        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_parkService,
                 m_presenceService, m_proxyService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -350,7 +351,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
         // no service marked
         m_processContextImpl.restartMarkedServices(location);
-        m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_mediaService));
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_parkService));
         // different location
         m_processContextImpl.restartMarkedServices(m_locationsManager.getLocations()[1]);
         // this is is only call that should result in restarting services
@@ -361,7 +362,7 @@ public class SipxProcessContextImplTest extends TestCase {
 
     public void testIgnore() {
         Location location = m_locationsManager.getLocations()[0];
-        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_mediaService,
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_parkService,
                 m_presenceService, m_proxyService);
 
         ProcessManagerApi api = createMock(ProcessManagerApi.class);
@@ -380,7 +381,7 @@ public class SipxProcessContextImplTest extends TestCase {
         // no service marked
         m_processContextImpl.restartMarkedServices(location);
         // mark two services for restart
-        m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_mediaService));
+        m_processContextImpl.markServicesForRestart(Arrays.asList(m_proxyService, m_parkService));
         // unmark one service
         Collection<RestartNeededService> restartNeededServices = m_processContextImpl.getRestartNeededServices();
         assertEquals(2, restartNeededServices.size());

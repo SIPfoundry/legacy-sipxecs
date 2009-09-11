@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
@@ -15,17 +15,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.common.DaoUtils;
-
-import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
-
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -141,7 +138,6 @@ public class PermissionsTest extends TestCase {
         PermissionName.LONG_DISTANCE_DIALING.setEnabled(g, false);
         PermissionName.TOLL_FREE_DIALING.setEnabled(g, false);
         PermissionName.LOCAL_DIALING.setEnabled(g, true);
-        PermissionName.SIPX_VOICEMAIL.setEnabled(g, false);
         PermissionName.FREESWITH_VOICEMAIL.setEnabled(g, false);
         PermissionName.EXCHANGE_VOICEMAIL.setEnabled(g, true);
 

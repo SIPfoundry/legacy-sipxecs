@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.permission;
 
@@ -24,6 +24,11 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
 
+import static org.sipfoundry.sipxconfig.permission.PermissionName.EXCHANGE_VOICEMAIL;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.FREESWITH_VOICEMAIL;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.SUPERADMIN;
+import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
+
 public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     private PermissionManager m_manager;
@@ -40,9 +45,9 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetCallPermission() throws Exception {
-        Permission permission = m_manager.getCallPermission(PermissionName.VOICEMAIL.getName());
-        assertEquals(PermissionName.VOICEMAIL.getName(), permission.getName());
-        assertEquals(PermissionName.VOICEMAIL.getName(), permission.getLabel());
+        Permission permission = m_manager.getCallPermission(VOICEMAIL.getName());
+        assertEquals(VOICEMAIL.getName(), permission.getName());
+        assertEquals(VOICEMAIL.getName(), permission.getLabel());
         assertEquals(permission.isBuiltIn(), true);
         assertEquals("permission/call-handling/Voicemail", permission.getSettingPath());
         assertEquals("ENABLE", permission.getSetting().getDefaultValue());
@@ -105,8 +110,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             for (Permission p : permissions) {
                 // There should only be builtIn call permissions at this point
                 assertEquals(p.isBuiltIn(), true);
-                if (p.getName().equals(PermissionName.VOICEMAIL.getName())) {
-                    assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+                if (p.getName().equals(VOICEMAIL.getName())) {
+                    assertEquals(VOICEMAIL.getName(), p.getLabel());
                     assertEquals("ENABLE", p.getSetting().getDefaultValue());
                     assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
                     throw new Exception();
@@ -140,13 +145,11 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testPermisionModel() throws Exception {
         Setting setting = m_manager.getPermissionModel();
-        Collection<Setting> settingsBefore = setting.getSetting(Permission.CALL_PERMISSION_PATH)
-                .getValues();
+        Collection<Setting> settingsBefore = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
 
         TestHelper.insertFlat("permission/permission.db.xml");
         setting = m_manager.getPermissionModel();
-        Collection<Setting> settingsAfter = setting.getSetting(Permission.CALL_PERMISSION_PATH)
-                .getValues();
+        Collection<Setting> settingsAfter = setting.getSetting(Permission.CALL_PERMISSION_PATH).getValues();
         assertEquals(settingsBefore.size() + 2, settingsAfter.size());
     }
 
@@ -175,8 +178,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
         m_context.storeRule(rule);
 
-        CustomDialingRule loaded = (CustomDialingRule) m_context.load(DialingRule.class, rule
-                .getId());
+        CustomDialingRule loaded = (CustomDialingRule) m_context.load(DialingRule.class, rule.getId());
         assertEquals(1, rule.getPermissionNames().size());
         List<Permission> loadedPermissions = loaded.getPermissions();
         assertEquals(1, loadedPermissions.size());
@@ -185,8 +187,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetApplicationPermissions() throws Exception {
 
-        Collection<Permission> permissions = m_manager
-                .getPermissions(Permission.Type.APPLICATION);
+        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.APPLICATION);
         int size = permissions.size();
         assertEquals(permissions.isEmpty(), false);
 
@@ -194,8 +195,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             for (Permission p : permissions) {
                 // Application permissions are all BuiltIn
                 assertEquals(p.isBuiltIn(), true);
-                if (p.getName().equals(PermissionName.SUPERADMIN.getName())) {
-                    assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+                if (p.getName().equals(SUPERADMIN.getName())) {
+                    assertEquals(SUPERADMIN.getName(), p.getLabel());
                     assertEquals("DISABLE", p.getSetting().getDefaultValue());
                     assertEquals("permission/application/superadmin", p.getSettingPath());
                     throw new Exception();
@@ -214,8 +215,7 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetVMServerPermissions() throws Exception {
 
-        Collection<Permission> permissions = m_manager
-                .getPermissions(Permission.Type.VOICEMAIL_SERVER);
+        Collection<Permission> permissions = m_manager.getPermissions(Permission.Type.VOICEMAIL_SERVER);
         int size = permissions.size();
         assertEquals(permissions.isEmpty(), false);
 
@@ -223,11 +223,10 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             for (Permission p : permissions) {
                 // Application permissions are all BuiltIn
                 assertEquals(p.isBuiltIn(), true);
-                if (p.getName().equals(PermissionName.EXCHANGE_VOICEMAIL.getName())) {
-                    assertEquals(PermissionName.EXCHANGE_VOICEMAIL.getName(), p.getLabel());
+                if (p.getName().equals(EXCHANGE_VOICEMAIL.getName())) {
+                    assertEquals(EXCHANGE_VOICEMAIL.getName(), p.getLabel());
                     assertEquals("DISABLE", p.getSetting().getDefaultValue());
-                    assertEquals("permission/voicemail-server/ExchangeUMVoicemailServer", p
-                            .getSettingPath());
+                    assertEquals("permission/voicemail-server/ExchangeUMVoicemailServer", p.getSettingPath());
                     throw new Exception();
                 }
             }
@@ -252,8 +251,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             for (Permission p : permissions) {
                 // Application permissions are all BuiltIn
                 assertEquals(p.isBuiltIn(), true);
-                if (p.getName().equals(PermissionName.SUPERADMIN.getName())) {
-                    assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+                if (p.getName().equals(SUPERADMIN.getName())) {
+                    assertEquals(SUPERADMIN.getName(), p.getLabel());
                     assertEquals("DISABLE", p.getSetting().getDefaultValue());
                     assertEquals("permission/application/superadmin", p.getSettingPath());
                     throw new Exception();
@@ -273,8 +272,8 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
             for (Permission p : permissions) {
                 // There should only be builtIn call permissions at this point
                 assertEquals(p.isBuiltIn(), true);
-                if (p.getName().equals(PermissionName.VOICEMAIL.getName())) {
-                    assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+                if (p.getName().equals(VOICEMAIL.getName())) {
+                    assertEquals(VOICEMAIL.getName(), p.getLabel());
                     assertEquals("ENABLE", p.getSetting().getDefaultValue());
                     assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
                     throw new Exception();
@@ -304,32 +303,29 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetApplicationPermissionByName() throws Exception {
 
-        Permission p = m_manager.getPermissionByName(Permission.Type.APPLICATION,
-                PermissionName.SUPERADMIN.getName());
+        Permission p = m_manager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+        assertEquals(SUPERADMIN.getName(), p.getLabel());
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
 
         TestHelper.insertFlat("permission/permission.db.xml");
 
-        p = m_manager.getPermissionByName(Permission.Type.APPLICATION, PermissionName.SUPERADMIN
-                .getName());
+        p = m_manager.getPermissionByName(Permission.Type.APPLICATION, SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(PermissionName.SUPERADMIN.getName(), p.getLabel());
+        assertEquals(SUPERADMIN.getName(), p.getLabel());
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
     }
 
     public void testGetCallPermissionByName() throws Exception {
 
-        Permission p = m_manager.getPermissionByName(Permission.Type.CALL,
-                PermissionName.VOICEMAIL.getName());
+        Permission p = m_manager.getPermissionByName(Permission.Type.CALL, VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(PermissionName.VOICEMAIL.getName(), p.getLabel());
+        assertEquals(VOICEMAIL.getName(), p.getLabel());
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
 
@@ -346,39 +342,37 @@ public class PermissionManagerImplTestDb extends SipxDatabaseTestCase {
 
     public void testGetVMServerPermissionByName() throws Exception {
 
-        Permission p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER,
-                PermissionName.SIPX_VOICEMAIL.getName());
+        Permission p = m_manager
+                .getPermissionByName(Permission.Type.VOICEMAIL_SERVER, FREESWITH_VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
-        assertEquals("DISABLE", p.getSetting().getDefaultValue());
-        assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
+        assertEquals(FREESWITH_VOICEMAIL.getName(), p.getLabel());
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/voicemail-server/FreeswitchVoicemailServer", p.getSettingPath());
 
         TestHelper.insertFlat("permission/permission.db.xml");
 
-        p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER,
-                PermissionName.SIPX_VOICEMAIL.getName());
+        p = m_manager.getPermissionByName(Permission.Type.VOICEMAIL_SERVER, FREESWITH_VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(PermissionName.SIPX_VOICEMAIL.getName(), p.getLabel());
-        assertEquals("DISABLE", p.getSetting().getDefaultValue());
-        assertEquals("permission/voicemail-server/SipXVoicemailServer", p.getSettingPath());
-
+        assertEquals(FREESWITH_VOICEMAIL.getName(), p.getLabel());
+        assertEquals("ENABLE", p.getSetting().getDefaultValue());
+        assertEquals("permission/voicemail-server/FreeswitchVoicemailServer", p.getSettingPath());
     }
 
     public void testGetAnyPermissionByName() throws Exception {
 
-        Permission p = m_manager.getPermissionByName(PermissionName.SUPERADMIN.getName());
+        Permission p = m_manager.getPermissionByName(SUPERADMIN.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(true, p.getLabel().equals(PermissionName.SUPERADMIN.getName()));
+        assertEquals(true, p.getLabel().equals(SUPERADMIN.getName()));
         assertEquals("DISABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/application/superadmin", p.getSettingPath());
 
-        p = m_manager.getPermissionByName(PermissionName.VOICEMAIL.getName());
+        p = m_manager.getPermissionByName(VOICEMAIL.getName());
         assertNotNull(p);
         assertEquals(p.isBuiltIn(), true);
-        assertEquals(true, p.getLabel().equals(PermissionName.VOICEMAIL.getName()));
+        assertEquals(true, p.getLabel().equals(VOICEMAIL.getName()));
         assertEquals("ENABLE", p.getSetting().getDefaultValue());
         assertEquals("permission/call-handling/Voicemail", p.getSettingPath());
 

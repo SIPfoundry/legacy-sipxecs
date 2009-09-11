@@ -331,6 +331,7 @@
     <antcall target="private-user-key" />
     <antcall target="add_addressbook_imDisplayName" />
     <antcall target="branch-address" />
+    <antcall target="remove-legacy-media-server" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -998,6 +999,9 @@
   </target>
   <target name="branch-address" unless="branch-address">
     <db-patch patch="branch-address"/>
+  </target>
+  <target name="remove-legacy-media-server" unless="remove-legacy-media-server">
+    <db-patch patch="remove-legacy-media-server"/>
   </target>
 
   <!--

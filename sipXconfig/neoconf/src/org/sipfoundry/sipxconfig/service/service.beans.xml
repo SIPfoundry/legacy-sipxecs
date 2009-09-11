@@ -355,43 +355,6 @@
     <property name="name" value="sipxrls-config" />
   </bean>
 
-  <bean id="sipxMediaService" class="org.sipfoundry.sipxconfig.service.SipxMediaService" scope="prototype"
-    parent="sipxService">
-    <property name="processName" value="MediaServer" />
-    <property name="modelName" value="mediaserver.xml" />
-    <property name="modelDir" value="sipxvxml" />
-    <property name="configurations">
-      <list>
-        <ref bean="sipxMediaConfiguration" />
-        <ref bean="voicemailXml" />
-        <ref bean="voicemailConfiguration" />
-      </list>
-    </property>
-    <property name="bundles">
-      <set>
-        <ref bean="voicemailBundle" />
-      </set>
-    </property>
-  </bean>
-
-  <bean id="sipxMediaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxMediaConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
-    <property name="template" value="sipxvxml/mediaserver-config.vm" />
-    <property name="name" value="mediaserver-config" />
-  </bean>
-
-  <bean id="voicemailXml" class="org.sipfoundry.sipxconfig.service.VoicemailXml" scope="prototype"
-    parent="serviceConfigurationFile">
-    <property name="template" value="sipxvxml/voicemail.xml.vm" />
-    <property name="name" value="voicemail.xml" />
-  </bean>
-
-  <bean id="voicemailConfiguration" class="org.sipfoundry.sipxconfig.service.VoicemailConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
-    <property name="template" value="sipxvxml/voicemail-config.vm" />
-    <property name="name" value="voicemail-config" />
-  </bean>
-
   <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService" scope="prototype" parent="sipxService">
     <property name="processName" value="PageServer" />
     <property name="modelName" value="sipxpage.xml" />

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.SipxMediaService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -49,9 +48,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     @InjectObject("spring:localizedLanguageMessages")
     public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
-
-    @InjectObject("spring:sipxMediaService")
-    public abstract SipxMediaService getSipxMediaService();
 
     @InjectObject("spring:sipxRegistrarService")
     public abstract SipxRegistrarService getSipxRegistrarService();
@@ -130,9 +126,9 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
-            List< ? extends SipxService > processList = Arrays.asList(getSipxMediaService(), getSipxProxyService(),
+            List< ? extends SipxService> processList = Arrays.asList(getSipxProxyService(),
                     getSipxRegistrarService());
-            //mark services for restart - a reminder will be shown to the user
+            // mark services for restart - a reminder will be shown to the user
             getProcessContext().markServicesForRestart(processList);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {

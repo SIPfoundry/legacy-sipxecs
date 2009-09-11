@@ -51,16 +51,16 @@ public class FreeswitchMediaServer extends MediaServer {
     @Override
     protected String getUriParameterStringForOperation(Operation operation, CallDigits userDigits,
             Map<String, String> additionalParams) {
-        String action;
-        String mailbox;
+        StringBuilder params = new StringBuilder();
+        Formatter f = new Formatter(params);
+
         if (operation == Operation.VoicemailDeposit) {
-            action = "deposit";
-            mailbox = String.format("mailbox={%s};", userDigits.getName());
+            f.format("mailbox={%s};action=deposit", userDigits.getName());
         } else {
-            action = "retrieve";
-            mailbox = "";
+            params.append("action=retrieve");
         }
-        return String.format("%saction=%s;locale=%s", mailbox, action, getLanguage());
+        appendLocale(f);
+        return params.toString();
     }
 
     @Override
@@ -83,10 +83,7 @@ public class FreeswitchMediaServer extends MediaServer {
         StringBuilder params = new StringBuilder("action=autoattendant");
         Formatter f = new Formatter(params);
         f.format(";schedule_id=%s", attendantName);
-        String language = getLanguage();
-        if (language != null) {
-            f.format(";locale=%s", language);
-        }
+        appendLocale(f);
         return MappingRule.buildUrl(USER_PART, getHostname(), params.toString(), null, null);
     }
 
@@ -95,5 +92,12 @@ public class FreeswitchMediaServer extends MediaServer {
         SipxService service = m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
         String hostAddress = service.getAddress();
         return String.format("%s:%d", hostAddress, m_port);
+    }
+
+    private void appendLocale(Formatter f) {
+        String language = getLanguage();
+        if (language != null) {
+            f.format(";locale=%s", language);
+        }
     }
 }

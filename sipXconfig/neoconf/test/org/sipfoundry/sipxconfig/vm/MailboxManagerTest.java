@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.vm;
 
@@ -14,21 +14,15 @@ import java.io.IOException;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.FileUtils;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.service.SipxMediaService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
 
-    public static final File READONLY_MAILSTORE = new File(TestUtil
-            .getTestSourceDirectory(MailboxManagerTest.class));
+    public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
 
     @Override
     protected void setUp() {
@@ -38,11 +32,9 @@ public class MailboxManagerTest extends TestCase {
     }
 
     public static File createTestMailStore() throws IOException {
-        File testMailstore = new File(TestHelper.getTestDirectory() + '/'
-                + System.currentTimeMillis());
+        File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
         testMailstore.mkdirs();
-        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore,
-                "200"));
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));
         return testMailstore;
     }
 
@@ -145,23 +137,5 @@ public class MailboxManagerTest extends TestCase {
         m_mgr.setMailboxPreferencesWriter(writer);
         Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
         m_mgr.saveMailboxPreferences(mailbox, null);
-    }
-
-    public void testGetMediaServerCgiUrl() {
-        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
-        locationsManager.getPrimaryLocation();
-        EasyMock.expectLastCall().andReturn(TestUtil.createDefaultLocation());
-        EasyMock.replay(locationsManager);
-
-        SipxMediaService mediaService = new SipxMediaService();
-        mediaService.setBeanName(SipxMediaService.BEAN_ID);
-        mediaService.setVoicemailHttpsPort(9905);
-        SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(true, mediaService);
-
-        MailboxManagerImpl out = new MailboxManagerImpl();
-        out.setLocationsManager(locationsManager);
-        out.setSipxServiceManager(sipxServiceManager);
-        String expectedCgiUrl = "https://sipx.example.org:9905/cgi-bin/voicemail/mediaserver.cgi";
-        assertEquals(expectedCgiUrl, out.getMediaServerCgiUrl());
     }
 }

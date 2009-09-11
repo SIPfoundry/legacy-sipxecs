@@ -42,8 +42,6 @@ public enum PermissionName {
     NO_ACCESS(Type.CALL, "NoAccess"),
 
     /** Voicemail */
-    SIPX_VOICEMAIL(Type.VOICEMAIL_SERVER, "SipXVoicemailServer"),
-
     EXCHANGE_VOICEMAIL(Type.VOICEMAIL_SERVER, "ExchangeUMVoicemailServer"),
 
     FREESWITH_VOICEMAIL(Type.VOICEMAIL_SERVER, "FreeswitchVoicemailServer");

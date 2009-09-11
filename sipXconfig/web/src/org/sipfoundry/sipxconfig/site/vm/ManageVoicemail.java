@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
@@ -178,7 +178,6 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
             Voicemail vm = getVoicemailSource().getVoicemail(id);
             getMailboxManager().delete(mbox, vm);
         }
-        getMailboxManager().triggerSipNotify(mbox);
     }
 
     public String getFolderLabel() {

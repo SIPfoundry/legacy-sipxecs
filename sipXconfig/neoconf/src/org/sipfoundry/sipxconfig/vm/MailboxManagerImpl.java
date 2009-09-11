@@ -1,40 +1,29 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.vm;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
-import org.sipfoundry.sipxconfig.service.SipxMediaService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 import org.springframework.dao.support.DataAccessUtils;
@@ -43,7 +32,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
-    private static final Log LOG = LogFactory.getLog(MailboxManagerImpl.class);
     private File m_mailstoreDirectory;
     private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
@@ -51,11 +39,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
     private CoreContext m_coreContext;
-    private SipxServiceManager m_sipxServiceManager;
-    private LocationsManager m_locationsManager;
-
-    // should only be accessed via accessor method
-    private String m_mediaServerCgiUrl;
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
@@ -94,15 +77,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     /**
-     * tell mediaserver cgi to mark voicemail as heard by using these parameters action =
-     * updatestatus mailbox = userid category = inbox messageidlist = space delimited message ids
+     * Mark voicemail as read
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        String request = String.format(
-                "action=updatestatus&mailbox=%s&category=%s&messageidlist=%s", mailbox
-                        .getUserId(), voicemail.getFolderId(), voicemail.getMessageId());
-        // triggers NOTIFY (iff folder is inbox, bug in mediaserver?)
-        mediaserverCgiRequest(request);
+        // FIXME: need to have a way of marking voicemail as read
     }
 
     public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
@@ -110,42 +88,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         for (File f : voicemail.getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
         }
-        triggerSipNotify(mailbox);
     }
 
     public void delete(Mailbox mailbox, Voicemail voicemail) {
         for (File f : voicemail.getAllFiles()) {
             f.delete();
-        }
-        // NOTE: triggerSipNotify is done externally, so bulk delete's only send one notify
-    }
-
-    public void triggerSipNotify(Mailbox mailbox) {
-        // reversed engineered this string from using sipx 3.6 system.
-        String request = String.format("action=updatestatus&from=gateway&category=inbox&"
-                + "mailbox=%s&messageidlist=-2", mailbox.getUserId());
-        mediaserverCgiRequest(request);
-    }
-
-    public void mediaserverCgiRequest(String cgiRequest) {
-        String errMsg = "Cannot contact media server to update voicemail status";
-        if (StringUtils.isBlank(getMediaServerCgiUrl())) {
-            return;
-        }
-        String sUpdate = getMediaServerCgiUrl() + '?' + cgiRequest;
-        InputStream updateResponse = null;
-        try {
-            LOG.info(sUpdate);
-            updateResponse = new URL(sUpdate).openStream();
-            IOUtils.readLines(updateResponse);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(errMsg, e);
-        } catch (IOException e) {
-            // not a fatal exception either. (unfort,. likely if mediaserver cert. isn't valid
-            // for multitude of reasons including reverse DNS not resolving)
-            LOG.warn(errMsg, e);
-        } finally {
-            IOUtils.closeQuietly(updateResponse);
         }
     }
 
@@ -220,34 +167,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         }
     }
 
-    /**
-     * Returns the media server cgi url string for the primary server using the port
-     * defined in the sipx media service.
-     * @return
-     */
-    protected String getMediaServerCgiUrl() {
-        if (m_mediaServerCgiUrl == null) {
-            SipxMediaService mediaService = (SipxMediaService) m_sipxServiceManager
-                    .getServiceByBeanId(SipxMediaService.BEAN_ID);
-            Location primaryLocation = m_locationsManager.getPrimaryLocation();
-
-            StringBuffer mediaServerCgiUrlBuffer = new StringBuffer();
-            mediaServerCgiUrlBuffer.append("https://");
-            mediaServerCgiUrlBuffer.append(primaryLocation.getFqdn());
-
-            int httpsPort = mediaService.getVoicemailHttpsPort();
-            if (httpsPort != 0) {
-                mediaServerCgiUrlBuffer.append(':');
-                mediaServerCgiUrlBuffer.append(httpsPort);
-            }
-
-            mediaServerCgiUrlBuffer.append("/cgi-bin/voicemail/mediaserver.cgi");
-            m_mediaServerCgiUrl = mediaServerCgiUrlBuffer.toString();
-        }
-
-        return m_mediaServerCgiUrl;
-    }
-
     public void setMailboxPreferencesReader(MailboxPreferencesReader mailboxReader) {
         m_mailboxPreferencesReader = mailboxReader;
     }
@@ -266,14 +185,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
-    }
-
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     public void setPersonalAttendantWriter(PersonalAttendantWriter personalAttendantWriter) {
@@ -331,6 +242,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     private class OnUserDelete extends UserDeleteListener {
+        @Override
         protected void onUserDelete(User user) {
             removePersonalAttendantForUser(user);
         }
