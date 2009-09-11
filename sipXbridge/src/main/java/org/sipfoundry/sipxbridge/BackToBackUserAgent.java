@@ -114,11 +114,13 @@ public class BackToBackUserAgent {
     Dialog referingDialog;
 
     private Dialog referingDialogPeer;
+    
+    private int baseCounter;
 
     /*
      * For generation of call ids ( so we can filter logs easily)
      */
-    private int counter;
+    private int counter ;
 
     /*
      * Any call Id associated with this b2bua will be derived from this base
@@ -1069,7 +1071,7 @@ public class BackToBackUserAgent {
             uri.setPort(proxyAddress.getPort());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + counter++);
+                    .createCallIdHeader(this.creatingCallId + "." +baseCounter + "." + counter++);
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory
                     .createCSeqHeader(1L, Request.INVITE);
@@ -1256,7 +1258,7 @@ public class BackToBackUserAgent {
             uri.setPort(this.proxyAddress.getPort());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "."
+                    .createCallIdHeader(this.creatingCallId + "." + baseCounter + "."
                             + this.counter++);
 
 
@@ -1446,11 +1448,16 @@ public class BackToBackUserAgent {
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
             Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
-
-            
+            /*
+             * If there is an AUTH header there, it could be that the client is sending
+             * us credentials. In that case, do not change the call ID.
+             */
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) == null ) {
+                baseCounter ++;
+            }
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
-                    itspAccountInfo, fromHeader, this.creatingCallId, addresses);
+                    itspAccountInfo, fromHeader, this.creatingCallId + "." + baseCounter  , addresses);
             /*
              * If we have no authorization information, we can attach it to the outbound request.
              */
@@ -1459,7 +1466,6 @@ public class BackToBackUserAgent {
                 AuthorizationHeader authorization = (AuthorizationHeader)
                     incomingRequest.getHeader(AuthorizationHeader.NAME);
                 outgoingRequest.setHeader(authorization);
-              
                 
             }
 
