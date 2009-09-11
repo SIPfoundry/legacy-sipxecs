@@ -5,7 +5,7 @@ DB_TAR=db.tar
 SIPX_CERTDB_DIR=@SIPX_VARDIR@/certdb
 
 operation_stamp() {
-   echo $OPERATION" script invoked at "`date`", INTERACTIVE="$INTERACTIVE"."
+   echo $OPERATION" script invoked at "`date -u`", INTERACTIVE="$INTERACTIVE"."
 }
 
 confirm_action() {
