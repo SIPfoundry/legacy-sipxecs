@@ -11,7 +11,7 @@ Url: http://www.sipfoundry.org/sipXcallController
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= %version
+Requires: sipxrest >= %version
 Requires: sipxcommons >= %version
 
 %if %{use_ibm_jvm}
@@ -23,7 +23,8 @@ Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
-SIPX third party call controller service
+SIPX third party call controller service. Runs in the REST server
+as a plugin.
 
 %prep
 %setup -q

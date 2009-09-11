@@ -97,6 +97,14 @@ sipXsaa : sipXcommserverLib
 sipXopenfire : sipXcommons
 	@echo sipXopenfire
 
+.PHONY: sipXrest
+sipXrest : sipXcommons 
+	@echo sipXrest
+
+.PHONY: sipXcallController
+sipXcallController : sipXrest 
+	@echo sipXcallController
+
 .PHONY: sipXecs
 sipXecs : \
 	sipXproxy \
@@ -110,5 +118,7 @@ sipXecs : \
 	sipXsupervisor \
 	sipXtools \
 	sipXopenfire \
+	sipXrest \
+	sipXcallController \
 	doc
 	@echo sipXecs
