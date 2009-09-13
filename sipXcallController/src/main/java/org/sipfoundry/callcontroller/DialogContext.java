@@ -37,7 +37,7 @@ public class DialogContext {
     public DialogContext(String key, int timeout) {
         this.key = key;
         logger.debug("DialogContext : " + timeout);
-        status.append("ReceivedResponses={");
+        status.append("<status-lines>");
 
         RestServer.timer.schedule(new TimerTask() {
 
@@ -80,14 +80,14 @@ public class DialogContext {
     }
 
     public void setStatus(String status) {
-        this.status.append("["+status+"]");
+        this.status.append("\n<status-line>"+status+"</status-line>");
     }
 
     /**
      * @return the status
      */
     public String getStatus() {
-        return status.toString()+"}";
+        return status.toString() + "\n</status-lines>";
     }
 
     public void addDialog(Dialog dialog) {
