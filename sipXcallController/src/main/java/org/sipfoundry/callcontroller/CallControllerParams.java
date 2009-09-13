@@ -15,9 +15,9 @@ public interface CallControllerParams {
 	public static final String REFER = "refer";
 	
 	public static final String INVITE = "invite";
-
-    public static final String PIN = "pin";
-    
+  
     public static final String SUBJECT = "subject";
+    
+    public static final String TIMEOUT = "timeout";
 
 }
