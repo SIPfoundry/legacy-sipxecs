@@ -5,7 +5,7 @@
 	<remote-authentication-method>BASIC-AND-DIGEST</remote-authentication-method>
 	<uri-prefix>/callcontroller</uri-prefix>
 	<sip-listener-class>org.sipfoundry.callcontroller.SipListenerImpl</sip-listener-class>
-	<convergence-name>callcontroller</convergence-name>
+	<sip-convergence-name>callcontroller</sip-convergence-name>
 	<service-description>
 	<![CDATA[ The call controller plugin. 
 	Invoke this using the URI /callcontroller/{callingParty}/{calledParty}?agentId ]]>

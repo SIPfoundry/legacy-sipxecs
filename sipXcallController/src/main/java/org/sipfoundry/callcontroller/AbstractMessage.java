@@ -12,5 +12,5 @@ package org.sipfoundry.callcontroller;
 import javax.sip.ClientTransaction;
 
 public abstract class AbstractMessage {
-    public abstract ClientTransaction createAndSend();
+    public abstract ClientTransaction createAndSend(DialogContext dialogContext);
 }

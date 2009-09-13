@@ -21,40 +21,45 @@ The call controller consults etc/sipxpbx/validusers.xml to authenticate users an
 
 The general form of the URL is
 
-https://host:6666/rest/callcontroller/callingParty/calledParty?agent=agentName&calledParty=calledPartyName&pin=pin
+https://host:6666/callcontroller/callingParty/calledParty?agent=agentName&calledParty=calledPartyName&isForwardingAllowed=boolean&subject=subject-text&timeout=integer
 
-You dont need a pin to invoke it from within the sipx domain. You can specify user name or user alias for agentName, 
-callingParty or calledParty.
+You dont need a pin to invoke it from within the sipx domain. You
+can specify user name or user alias for agentName, callingParty or
+calledParty. You can specify a phone number in place of callingParty or
+calledParty. You will need to use an appropriate prefix to match a dial
+plan in this case.  callingParty and calledParty  can be aliases.
 
-You dont need to specify the pin when calling this service from within the sipx domain. When the callingParty is 
-not specified, it is assumed to be the same as the agent. The calledParty parameter is mandatory.
-
-callingParty and calledParty can be a foreign domain ( for example you would want to do that for calls directed to an ITSP ).
-If you do not specify a full address (i.e. name@domain), the domain is assumed to be the sipx domain.
-agentName must have a PBX account (for authentication purposes ). 
-If you do not specify a callingParty this is assumed to be the same as the agent.
 
 For example within the sipx domain, the URL can look like this:
-https://sipxpbx.sipxtest.net:6666/rest/callcontroller/201/202
+https://sipxpbx.sipxtest.net:6666/callcontroller/201/202
 
 Here 201 can be either the user name or the alias of a user.
 It is is both the agent placing the call as well as the calling party.
 
-To invoke this from outside the sipx domain :
-http://sipxpbx.sipxtest.net:6666/rest/callcontroller/201/202
+To invoke this from outside the sipx domain with digest authentication:
+http://sipxpbx.sipxtest.net:6667/callcontroller/201/202
 
-It will use HTTP digest authentication for call setup.
+It will use HTTP digest authentication for call setup if you invoke this
+from outside the domain and direct your POST request to port 6667.
+
+If you invoke this from outside the Domain using HTTPS, you must provide
+credentials using HTTPS basic authenitcation and direct your POST request
+to port 6666.
+
+
+To test the status of the ongoing call setup after the calling party has
+picked up, you can invoke HTTP GET on the same URL that you did a POST to.
+
 
 Optional URL parameters:
 =======================
 
 agent - the name of the agent that is placing the third party call.
 subject  - this URL parameter determines what goes into the SIP subject header of the initial call setup INVITE.
-method - defaults to REFER
-   REFER based third party call control is "Fire and Forget"
-   The call is placed and subsequently, the third party call controller is not in the call path.
-   INVITE based TPCC keeps the controller in the call path ( not yet implemented ).
 isForwardingAllowed - whether or not forwarding is allowed for the initial invite
-pin - authentication pin. 
+timeout - the timeout after which the INVITE to the calling party is terminated.
+
+
+Several curl examples are provided in the test directory.
 
 

@@ -30,7 +30,7 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 public class InviteMessage extends JainSipMessage {
 
     // Dummy sdp body for initial INVITE
-    private static final String SDP_BODY_FORMAT = "v=0\r\n" + "o=- 978416123 978416123 IN IP4 %1$s\r\n"
+    private static final String SDP_BODY_FORMAT = "v=0\r\n" + "o=- %2$s 1 IN IP4 %1$s\r\n"
             + "s=SipXconfig\r\n" + "c=IN IP4 %1$s\r\n" + "t=0 0\r\n" + "m=audio 2222 RTP/AVP 0 101\r\n"
             + "a=sendrecv\r\n" + "a=rtpmap:0 PCMU/8000\r\n" + "a=rtpmap:101 telephone-event/8000\r\n";
 
@@ -71,7 +71,7 @@ public class InviteMessage extends JainSipMessage {
     }
     
     @Override
-    public ClientTransaction createAndSend() {
+    public ClientTransaction createAndSend(DialogContext dialogContext) {
         try {
            
             Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName, 
@@ -89,7 +89,10 @@ public class InviteMessage extends JainSipMessage {
             String sdpBody = SipUtils.formatWithIpAddress(SDP_BODY_FORMAT);
             request.setContent(sdpBody, helper.createContentTypeHeader());
             ClientTransaction ctx = helper.getNewClientTransaction(request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator,  this);
+            Dialog dialog = ctx.getDialog();
+            dialog.setApplicationData(dialogContext);
+            dialogContext.addDialog(dialog);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator,this);
             tad.setUserCredentials(m_userCredentials);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {

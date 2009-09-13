@@ -75,7 +75,7 @@ class TransactionApplicationData {
         try {
             Response response = responseEvent.getResponse();
             ClientTransaction clientTransaction = responseEvent.getClientTransaction();
-            Dialog dialog = clientTransaction.getDialog();
+            Dialog dialog = responseEvent.getDialog();
             String method = m_helper.getCSeqMethod(response);
             LOG.debug("method = " + method);
             LOG.debug("Operator = " + m_operator);
@@ -85,12 +85,14 @@ class TransactionApplicationData {
                     return;
                 }
                 ClientTransaction ctx = m_helper.handleChallenge(response, clientTransaction);
-                ctx.getDialog().setApplicationData(dialog.getApplicationData());
+                DialogContext dialogContext = (DialogContext) clientTransaction.getDialog().getApplicationData();
+                dialogContext.addDialog(ctx.getDialog());
+                ctx.getDialog().setApplicationData(dialogContext);
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);
-                    if (dialog.getState() == DialogState.CONFIRMED) {
-                        dialog.sendRequest(ctx);
+                    if (ctx.getDialog().getState() == DialogState.CONFIRMED) {
+                        ctx.getDialog().sendRequest(ctx);
                     } else  {
                         ctx.sendRequest();
                     }
@@ -103,7 +105,7 @@ class TransactionApplicationData {
             } else if (method.equals(Request.INVITE)) {
                 if (response.getStatusCode() / 100 == 2) {
                     if (m_operator == Operator.SEND_3PCC_REFER_CALL_SETUP) {
-                        long seqno = m_helper.getSequenceNumber(response);
+                        long seqno = SipHelper.getSequenceNumber(response);
                         Request ack = dialog.createAck(seqno);
                         dialog.sendAck(ack);
                         InviteMessage inviteMessage = (InviteMessage) m_message;
@@ -132,7 +134,7 @@ class TransactionApplicationData {
                 LOG.debug("Got REFER Response " + response.getStatusCode());
                 // We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in
                 // the transfer.
-                SipUtils.getInstance().scheduleTerminate(dialog);
+                SipUtils.scheduleTerminate(dialog,32);
             }
         } catch (InvalidArgumentException e) {
             LOG.error("Invalid argument", e);

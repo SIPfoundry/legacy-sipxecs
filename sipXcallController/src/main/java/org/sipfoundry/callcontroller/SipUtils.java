@@ -73,68 +73,49 @@ public class SipUtils  {
 
     private static final Logger logger = Logger.getLogger(SipUtils.class);
 
- 	
-    private static SipUtils instance;
+    private static Random rand = new Random();
     
     
     
-    private HashMap<String,DialogContext> dialogContextTable = 
+    private static HashMap<String,DialogContext> dialogContextTable = 
         new HashMap<String,DialogContext>();
     
-    
-    private SipUtils () {
-       
-    }
-  
-    public static SipUtils getInstance() {
-        if (instance == null ) {
-            instance = new SipUtils();
-           
-        }
-        return instance;
-    }
-    
 
+
+    public synchronized static DialogContext createDialogContext(String key, int timeout) {
+        logger.debug("createDialogCOntext " + key);
+       
+        DialogContext dialogContext = new DialogContext(key, timeout);
+        dialogContextTable.put(key, dialogContext);
+       
+        return dialogContext;
+    }
+    
+    public synchronized static void removeDialogContext(String key ) {
+        logger.debug("removeDialogContext " + key);
+        dialogContextTable.remove(key);
+    }
+    
+    public synchronized static DialogContext getDialogContext(String key ) {
+        logger.debug("getDialogContext " + key);
+        return dialogContextTable.get(key);
+    }
+    
+    
+    public static String formatWithIpAddress(String format) {
+        String ipAddress = RestServer.getRestServerConfig().getIpAddress();
+        String sessionId = Long.toString(Math.abs(rand.nextLong()));
+        return String.format(format, ipAddress,sessionId);
+    }
 
     /**
      * We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in the transfer.
      *
      * @param dialog dialog to terminate
      */
-    public void scheduleTerminate(Dialog dialog) {
+    public static void scheduleTerminate(Dialog dialog, int timeout) {
         ReferTimerTask referTimerTask = new ReferTimerTask(dialog);
-        RestServer.timer.schedule(referTimerTask, 180000);
+        RestServer.timer.schedule(referTimerTask, timeout*1000);
     }
 
-
-   
-  
-   
- 
-    public synchronized DialogContext createDialogContext(String key) {
-        logger.debug("createDialogCOntext " + key);
-        if (dialogContextTable.get(key) == null) {
-            DialogContext dialogContext = new DialogContext();
-            dialogContext.setKey(key);
-            this.dialogContextTable.put(key, dialogContext);
-        }
-        return dialogContextTable.get(key);
-    }
-    
-    public synchronized void removeDialogContext(String key ) {
-        this.dialogContextTable.remove(key);
-    }
-    
-    public synchronized DialogContext getDialogContext(String key ) {
-        return this.dialogContextTable.get(key);
-    }
-    public static String formatWithIpAddress(String format) {
-        String ipAddress = RestServer.getRestServerConfig().getIpAddress();
-        return String.format(format, ipAddress);
-    }
-
-
-
-  
-   
 }

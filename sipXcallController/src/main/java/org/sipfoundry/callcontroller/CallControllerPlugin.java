@@ -7,7 +7,7 @@ import org.restlet.Route;
 import org.restlet.Router;
 import org.restlet.data.Request;
 import org.sipfoundry.sipxrest.Plugin;
-import org.sipfoundry.sipxrest.RestServer;
+
 
 
 
@@ -18,10 +18,10 @@ public class CallControllerPlugin extends Plugin {
         filter.setNext(new CallControllerRestlet(context));
         String suffix = String.format("/{%s}/{%s}", CallControllerParams.CALLING_PARTY, CallControllerParams.CALLED_PARTY);
         Route route = router.attach(this.getMetaInf().getUriPrefix() + suffix,filter);
-        route.extractQuery(CallControllerParams.METHOD, CallControllerParams.METHOD, true);
         route.extractQuery(CallControllerParams.AGENT,CallControllerParams.AGENT,true);
         route.extractQuery(CallControllerParams.FORWARDING_ALLOWED, CallControllerParams.FORWARDING_ALLOWED, true);
         route.extractQuery(CallControllerParams.SUBJECT, CallControllerParams.SUBJECT, true);
+        route.extractQuery(CallControllerParams.TIMEOUT, CallControllerParams.TIMEOUT, true);
        
 
     }

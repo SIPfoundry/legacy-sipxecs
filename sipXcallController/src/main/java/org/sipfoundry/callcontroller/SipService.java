@@ -28,7 +28,8 @@ public interface SipService {
      * @param destinationAddSpec - third party call controller destAddr
      * @param subject - subject.
      * @param inviteForwardingAllowed - whether or not INVITE forwarding is allowd.
+     * @param dialogContext - the dialog context to attach to the newly created dialog.
      */
     public Dialog sendRefer(UserCredentialHash credentials, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
-            String referTarget, String subject, boolean inviteForwardingAllowed);
+            String referTarget, String subject, boolean inviteForwardingAllowed, DialogContext dialogContext);
 }

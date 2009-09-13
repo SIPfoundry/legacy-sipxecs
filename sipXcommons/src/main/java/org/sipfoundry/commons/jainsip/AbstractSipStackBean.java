@@ -1,7 +1,5 @@
 package org.sipfoundry.commons.jainsip;
 
-import gov.nist.javax.sip.ClientTransactionExt;
-import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
@@ -10,13 +8,10 @@ import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.ViaList;
-import gov.nist.javax.sip.message.MessageFactoryExt;
-import gov.nist.javax.sip.message.SIPRequest;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Properties;
-import java.util.Timer;
 
 import javax.sip.ClientTransaction;
 import javax.sip.ListeningPoint;
@@ -27,9 +22,7 @@ import javax.sip.SipProvider;
 import javax.sip.SipStack;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
-import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Appender;

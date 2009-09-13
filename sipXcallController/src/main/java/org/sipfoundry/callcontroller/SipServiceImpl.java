@@ -31,7 +31,7 @@ public class SipServiceImpl  implements SipService {
    
 
     public Dialog sendRefer(UserCredentialHash agentCredentials, String agentAddrSpec, String displayName, String callingPartyAddrSpec,
-            String referTarget, String subject, boolean allowForwarding) {
+            String referTarget, String subject, boolean allowForwarding, DialogContext dialogContext) {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
                 + " allowForwarding = " + allowForwarding );
@@ -39,7 +39,8 @@ public class SipServiceImpl  implements SipService {
                 referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);
-        ClientTransaction clientTransaction = message.createAndSend();
+     
+        ClientTransaction clientTransaction = message.createAndSend(dialogContext);
         return clientTransaction.getDialog();
         
     }
