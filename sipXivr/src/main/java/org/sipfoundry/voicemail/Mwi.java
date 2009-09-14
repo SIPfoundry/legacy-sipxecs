@@ -9,6 +9,7 @@
 package org.sipfoundry.voicemail;
 
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -87,7 +88,8 @@ public class Mwi {
         URL mwiUrl;
         try {
             mwiUrl = new URL(mwiUrlString);
-            String content = "eventType=message-summary&" + "identity=" + idUri + "\r\n" + 
+            String content = "eventType=message-summary&" + "identity=" + 
+                URLEncoder.encode(idUri, "UTF-8") + "\r\n" + 
             formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
             RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
             if (!rr.http()) {
