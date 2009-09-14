@@ -103,8 +103,7 @@ public class PersonalAttendantTest extends TestCase {
         menu.addMenuItem(DialPad.NUM_2, AttendantMenuAction.TRANSFER_OUT, "sip:202@example.com");
         pa.setMenu(menu);
 
-        AttendantProfileContext ctx = new PersonalAttendant.AttendantProfileContext(pa, "example.org",
-                "sipxvxml/savemessage.vxml.vm");
+        AttendantProfileContext ctx = new PersonalAttendant.AttendantProfileContext(pa, "example.org", null);
         Map<String, Object> map = ctx.getContext();
 
         List<PersonalAttendant.MenuItem> items = (List<MenuItem>) map.get("menu");
