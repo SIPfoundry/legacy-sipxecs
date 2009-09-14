@@ -215,16 +215,19 @@ public class ValidUsersXML {
      * Given a bunch of DTMF digits, return the list of users that matches
      * 
      * @param digits DTMF digits to match against user directory
+     * @param onlyVoicemailUsers limit match to users in directory who have voicemail
      * @return a Vector of users that match
      */
-    public Vector<User> lookupDTMF(String digits) {
+    public Vector<User> lookupDTMF(String digits, boolean onlyVoicemailUsers) {
         Vector<User> matches = new Vector<User>();
         for (User u : m_users) {
             if (u.isInDirectory() && u.getDialPatterns() != null) {
                 for (String dialPattern : u.getDialPatterns()) {
                     if (dialPattern.startsWith(digits)) {
-                        matches.add(u);
-                        break;
+                        if (!onlyVoicemailUsers || u.hasVoicemail()) {
+                            matches.add(u);
+                            break;
+                        }
                     }
                 }
             }

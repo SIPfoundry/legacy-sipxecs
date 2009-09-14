@@ -28,6 +28,7 @@ public class DialByName {
     private Localization m_loc;
     private ApplicationConfiguraton m_config;
     private ValidUsersXML m_validUsers;
+    private boolean m_OnlyVoicemailUsers;   // Limit users to those who have voicemail permssions
 
     public DialByName(Localization localization, ApplicationConfiguraton config, ValidUsersXML validUsers) {
         // Load the DialByNameProperties bundle
@@ -45,7 +46,7 @@ public class DialByName {
      */
     DialByNameChoice selectChoice(String digits){
         // Lookup the list of validUsers that match the DTMF digits
-        Vector<User> matches = m_validUsers.lookupDTMF(digits);
+        Vector<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
 
         if (matches.size() == 0) {
             // Indicate no match
@@ -85,6 +86,7 @@ public class DialByName {
                 ext.addFragment("extension", u.getUserName());
                 namePrompts = ext.toString();
             }
+            LOG.debug(String.format("DialByName::selectChoice menu %s for %s", digit, u.getUserName()));
             // "Press {number} for {name}"
             pl.addFragment("press_n_for", digit, namePrompts);
             digitMask.append(digit);
@@ -194,7 +196,7 @@ public class DialByName {
                     break ; // "enter" key
                 }
                 digits += digit;
-                Vector<User> matches = m_validUsers.lookupDTMF(digits);
+                Vector<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
                 LOG.info(String.format("DialByName::dialByName %s matchs %d users", digits, matches.size()));
                 if (matches.size() < 3) {
                     break ; // Less than 3 (including none!) time to leave
@@ -244,5 +246,18 @@ public class DialByName {
             }
             return choice;
         }
+    }
+
+    public boolean getOnlyVoicemailUsers() {
+        return m_OnlyVoicemailUsers;
+    }
+    
+    /**
+     * If true, allow only users who have voicemail permission and are in the directory.
+     * If false, allow only users who are in the directory.
+     * @param onlyVoicemailUsers
+     */
+    public void setOnlyVoicemailUsers(boolean onlyVoicemailUsers) {
+        m_OnlyVoicemailUsers = true;
     }
 }

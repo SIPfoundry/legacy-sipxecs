@@ -24,7 +24,8 @@ public class EnterExtension {
     
     /**
      * The Enter Extension dialog
-     * Lets the user enter an extension which is validated against the ValidUsers list.
+     * Lets the user enter an extension which is validated against the ValidUsers list,
+     * and also must have voicemail permissions.
      * Or they can enter a 9 and use dial by name spelling to find the extension.
      * Or they can enter an 8 and select a distribution list to select several extensions.
      * 
@@ -59,6 +60,7 @@ public class EnterExtension {
             } else if (digits.equals("9")) {
                 // Do the DialByName dialog
                 DialByName dbn = new DialByName(loc, vm.getConfig(), vm.getValidUsers());
+                dbn.setOnlyVoicemailUsers(true);
                 DialByNameChoice dbnChoice = dbn.dialByName();
                 
                 // If they canceled DialByName, backup
@@ -77,7 +79,7 @@ public class EnterExtension {
                 break ;
             } else {
                 User user = vm.getValidUsers().isValidUser(digits);
-                if (user == null) {
+                if (user == null || !user.hasVoicemail()) {
                     // "that extension is not valid"
                     loc.play("invalid_extension", "");
                     continue ;
