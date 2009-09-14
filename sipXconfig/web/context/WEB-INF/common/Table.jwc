@@ -7,6 +7,9 @@
     sipXconfig version of a standard table - has sipXconfig styles for rows - provides checkboxes
     for selecting rows
   </description>
+
+  <asset name="tableScript" path="context:/WEB-INF/common/Table.script" />
+
   <parameter name="source" required="yes" />
   <parameter name="columns" required="yes" />
   <parameter name="converter" required="no" />
