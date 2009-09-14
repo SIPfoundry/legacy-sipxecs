@@ -96,11 +96,11 @@ class SipUtilities {
     static UserAgentHeader userAgent;
     static ServerHeader serverHeader;
     private static final String CONFIG_PROPERTIES = "config.properties";
-    
+
     private static final String APPLICATION = "application";
-    
+
     private static final String SDP = "sdp";
-  
+
     /**
      * Create the UA header.
      *
@@ -435,11 +435,11 @@ class SipUtilities {
             throw new SipException("No route to Registrar found for "
                     + itspAccount.getProxyDomain());
         }
-        
+
         Hop hop = null;
-        
+
         hop = itspAccount.getHopToRegistrar();
-        
+
         if (hop == null ) {
 
             SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
@@ -456,9 +456,9 @@ class SipUtilities {
             }
 
             hop = hops.iterator().next();
-        
-        } 
-        
+
+        }
+
         RouteHeader routeHeader  = SipUtilities.createRouteHeader(hop);
         request.setHeader(routeHeader);
         return request;
@@ -829,7 +829,7 @@ class SipUtilities {
             while ( contentIterator.hasNext() ) {
                 Content content = contentIterator.next();
                 ContentTypeHeader ccth = content.getContentTypeHeader();
-                if ( ccth.getContentType().equalsIgnoreCase(APPLICATION) && 
+                if ( ccth.getContentType().equalsIgnoreCase(APPLICATION) &&
                         ccth.getContentSubType().equalsIgnoreCase(SDP)) {
                     String messageString = new String(content.getContent().toString());
                     SessionDescription sd = SdpFactory.getInstance()
@@ -874,12 +874,12 @@ class SipUtilities {
                     "Unexpected exception getting media formats", ex);
         }
     }
-    
+
     /**
      * Remove the Crypto parameters from the request.
-     * 
+     *
      * @param sessionDescription - the session description to clean.
-     * 
+     *
      */
     static void removeCrypto(SessionDescription sessionDescription) {
         try {
@@ -891,10 +891,10 @@ class SipUtilities {
                 for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
                     Attribute attr = (Attribute) it1.next();
                     if (attr.getName().equalsIgnoreCase("crypto")) {
-                        it1.remove(); 
-                        logger.debug("remove crypto"); 
+                        it1.remove();
+                        logger.debug("remove crypto");
                     } else if (attr.getName().equalsIgnoreCase("encryption")) {
-                        it1.remove(); 
+                        it1.remove();
                         logger.debug("remove encryption");
                     }
                 }
@@ -973,13 +973,13 @@ class SipUtilities {
                             }
                         }
                     } else if (attr.getName().equalsIgnoreCase("crypto")) {
-                        it1.remove(); 
-                        logger.debug("Not adding crypto"); 
+                        it1.remove();
+                        logger.debug("Not adding crypto");
                     } else if (attr.getName().equalsIgnoreCase("encryption")) {
-                        it1.remove(); 
+                        it1.remove();
                         logger.debug("Not adding encryption");
                     }
-                     
+
                 }
 
             }
@@ -1068,7 +1068,7 @@ class SipUtilities {
                 for ( Object attr : attributes ) {
                     if ( attr instanceof Attribute ){
                         Attribute attribute = (Attribute) attr ;
-                        if ( attribute.getName().equals("sendrecv") || 
+                        if ( attribute.getName().equals("sendrecv") ||
                                 attribute.getName().equals("recvonly") ||
                                 attribute.getName().equals("sendonly")) {
                             attribute.setName(attributeValue);
@@ -1789,6 +1789,6 @@ class SipUtilities {
         return cseqHeader.getMethod();
     }
 
-  
+
 
 }

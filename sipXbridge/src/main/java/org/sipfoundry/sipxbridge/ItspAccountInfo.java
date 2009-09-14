@@ -671,14 +671,14 @@ public class ItspAccountInfo implements
 
     /**
      * Set the SIP session timer interval.
-     * 
+     *
      * @param sessionTimerInterval
      */
     public void setSipSessionTimerIntervalSeconds(int sessionTimerInterval) {
         this.sessionTimerInterval = sessionTimerInterval;
     }
 
-    
+
     /**
      * @return the sessionTimerInterval
      */

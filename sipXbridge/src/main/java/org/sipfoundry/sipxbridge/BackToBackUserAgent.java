@@ -114,7 +114,7 @@ public class BackToBackUserAgent {
     Dialog referingDialog;
 
     private Dialog referingDialogPeer;
-    
+
     private int baseCounter;
 
     /*
@@ -1461,12 +1461,12 @@ public class BackToBackUserAgent {
             /*
              * If we have no authorization information, we can attach it to the outbound request.
              */
-            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) != null && 
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) != null &&
                     itspAccountInfo.getPassword() == null ) {
                 AuthorizationHeader authorization = (AuthorizationHeader)
                     incomingRequest.getHeader(AuthorizationHeader.NAME);
                 outgoingRequest.setHeader(authorization);
-                
+
             }
 
             String callId = SipUtilities.getCallId(incomingRequest);

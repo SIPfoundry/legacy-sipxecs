@@ -40,7 +40,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
     private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
- 
+
     private BridgeConfiguration bridgeConfiguration;
 
 
@@ -131,9 +131,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     }
                 }
             }
-            
+
             String userName = ((SipURI)((FromHeader)request.getHeader(FromHeader.NAME)).getAddress().getURI()).getUser();
-          
+
             /*
              * If an account is not found return an account record with the
              * domain set to the outbound request domain. The INVITE will be

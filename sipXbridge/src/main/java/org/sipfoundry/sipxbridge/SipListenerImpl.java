@@ -125,9 +125,9 @@ public class SipListenerImpl implements SipListener {
          * we are done with this request.
          */
         ServerTransaction stx = TransactionContext.get(ctx).getServerTransaction();
-        
+
         if (accountInfo != null && stx == null &&
-                 ( accountInfo.incrementFailureCount(callId) > 1 || 
+                 ( accountInfo.incrementFailureCount(callId) > 1 ||
                          accountInfo.getPassword() == null ) ) {
 
             /*
@@ -181,7 +181,7 @@ public class SipListenerImpl implements SipListener {
                 		"Discarding the response.");
                 return;
             }
-        } 
+        }
 
         ClientTransaction newClientTransaction = Gateway
                 .getAuthenticationHelper().handleChallenge(response,
@@ -350,12 +350,12 @@ public class SipListenerImpl implements SipListener {
 
             }
 
-            if (method.equals(Request.INVITE) 
+            if (method.equals(Request.INVITE)
                     || method.equals(Request.ACK)
-                    || method.equals(Request.CANCEL) 
+                    || method.equals(Request.CANCEL)
                     || method.equals(Request.BYE)
                     || method.equals(Request.OPTIONS)
-                    || method.equals(Request.REFER) 
+                    || method.equals(Request.REFER)
                     || method.equals(Request.PRACK)) {
                 Gateway.getCallControlManager().processRequest(requestEvent);
             } else if ( method.equals(Request.REGISTER) && provider == Gateway.getLanProvider() ) {

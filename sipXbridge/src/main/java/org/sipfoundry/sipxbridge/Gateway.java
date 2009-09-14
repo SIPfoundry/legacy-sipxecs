@@ -193,9 +193,9 @@ public class Gateway {
     static final String SIPX_BRIDGE_ITSP_SERVER_FAILURE = "SIPX_BRIDGE_ITSP_SERVER_FAILURE";
 
     static final String SIPX_BRIDGE_AUTHENTICATION_FAILED = "SIPX_BRIDGE_AUTHENTICATION_FAILED";
-    
+
     static final String SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR = "SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR";
-   
+
     static final int REGISTER_DELTA = 5;
 
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
@@ -778,7 +778,7 @@ public class Gateway {
             if (accountInfo.isRegisterOnInitialization() && accountInfo.getUserName() == null) {
                 System.err
                         .println("User Name is mandatory for ITSP accounts requiring Registration. Check ITSP account "
-                                + accountInfo.getProxyDomain());    
+                                + accountInfo.getProxyDomain());
                 invalidAccountDetected = true;
                 invalidItspAccounts.add(accountInfo);
             }
@@ -790,15 +790,15 @@ public class Gateway {
         } catch ( XmlRpcException ex) {
             logger.error("Problem sending alarm",ex);
         }
-        
+
         /*
          * Remove all the bad accounts from the collection of accounts.
          */
         for (ItspAccountInfo badAccount : invalidItspAccounts) {
             Gateway.accountManager.getItspAccounts().remove(badAccount);
         }
-       
-        
+
+
         try {
             Gateway.accountManager.startAuthenticationFailureTimers();
 
@@ -967,7 +967,7 @@ public class Gateway {
             System.exit(-1);
         }
 
-        
+
 
         if (Gateway.accountManager.getBridgeConfiguration()
                 .getStunServerAddress() != null

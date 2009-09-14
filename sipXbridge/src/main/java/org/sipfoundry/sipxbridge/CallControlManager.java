@@ -209,7 +209,7 @@ class CallControlManager implements SymmitronResetHandler {
         SipProvider provider = (SipProvider) requestEvent.getSource();
 
         DialogContext dat = (DialogContext) dialog.getApplicationData();
-        
+
         if ( dat == null ) {
             logger.error("Null Dialog Context detected on dialog " + dialog);
             return;
@@ -246,8 +246,8 @@ class CallControlManager implements SymmitronResetHandler {
              * In this case the phone will solicit the ITSP for an offer See Issue 1739
              */
             Request newRequest = peerDialog.createRequest(Request.INVITE);
-            
-            
+
+
 
             /*
              * Contact header for the re-INVITE we are about to send.
@@ -295,18 +295,18 @@ class CallControlManager implements SymmitronResetHandler {
              * the Ack along with the SDP that is offered.
              */
             peerDat.setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
-            if ( (peerDat.getItspInfo() == null || 
+            if ( (peerDat.getItspInfo() == null ||
                     peerDat.getItspInfo().getPassword() == null ) &&
                    request.getHeader(AuthorizationHeader.NAME) != null ) {
                 /*
                  * We have no password information for the peer so just
-                 * accept any incoming authorization information from the 
+                 * accept any incoming authorization information from the
                  * caller.
                  */
-                AuthorizationHeader authHeader = (AuthorizationHeader) 
+                AuthorizationHeader authHeader = (AuthorizationHeader)
                         request.getHeader(AuthorizationHeader.NAME);
                 newRequest.setHeader(authHeader);
-            } 
+            }
             peerDat.sendReInvite(ctx);
             // peerDialog.sendRequest(ctx);
 
@@ -2278,12 +2278,12 @@ class CallControlManager implements SymmitronResetHandler {
             if ( SipUtilities.getFromTag(response) != null
                     && SipUtilities.getToTag(response) != null ) {
                 try {
-                    if ( response.getStatusCode()/ 100 == 2 && 
+                    if ( response.getStatusCode()/ 100 == 2 &&
                             SipUtilities.getCSeqMethod(response).equals(Request.INVITE) && dialog != null &&
                             dialog.getState() != DialogState.TERMINATED ) {
                         logger.debug("Sending ACK to 200 OK");
                         Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(response));
-                        dialog.sendAck(ackRequest);                    
+                        dialog.sendAck(ackRequest);
                     }
                 } catch (Exception ex) {
                     logger.error("Error Sending ACK to 200 OK response",ex);

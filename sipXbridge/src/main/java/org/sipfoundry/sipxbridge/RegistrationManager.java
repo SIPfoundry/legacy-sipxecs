@@ -116,8 +116,8 @@ public class RegistrationManager {
      * re-register after the current registration expires.
      *
      * @param responseEvent
-     * @throws InvalidArgumentException 
-     * 
+     * @throws InvalidArgumentException
+     *
      */
     @SuppressWarnings("unchecked")
     public void processResponse(ResponseEvent responseEvent)
@@ -138,10 +138,10 @@ public class RegistrationManager {
                 .getURI();
         TransactionContext transactionContext = TransactionContext.get(ct);
         ItspAccountInfo itspAccount = transactionContext.getItspAccountInfo();
-        
+
         if (!itspAccount.isRegisterOnInitialization() ) {
             /*
-             * Somebody sent a request to the ITSP from within the PBX and we are not handling the 
+             * Somebody sent a request to the ITSP from within the PBX and we are not handling the
              * REGISTER for this account. In that case we simply proxy  the response.
              */
             ServerTransaction serverTransaction = transactionContext.getServerTransaction();
@@ -151,7 +151,7 @@ public class RegistrationManager {
                 serverTransaction.sendResponse(newResponse);
             }
         } else if (response.getStatusCode() == Response.OK) {
-                    
+
             ListIterator contactHeaders = (ListIterator) response.getHeaders(ContactHeader.NAME);
             int time = 0;
 
@@ -231,7 +231,7 @@ public class RegistrationManager {
             }
       } else {
             if (response.getStatusCode() == Response.FORBIDDEN) {
-               
+
                 itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
@@ -332,15 +332,15 @@ public class RegistrationManager {
 
     }
 
-    public void proxyRegisterRequest(RequestEvent requestEvent, ItspAccountInfo itspAccount) throws 
+    public void proxyRegisterRequest(RequestEvent requestEvent, ItspAccountInfo itspAccount) throws
         SipException, ParseException, InvalidArgumentException  {
 
         ServerTransaction st = requestEvent.getServerTransaction();
-      
+
         if (st == null) {
             st = provider.getNewServerTransaction(requestEvent.getRequest());
         }
-        
+
         Request request = requestEvent.getRequest();
 
         if (itspAccount.isRegisterOnInitialization()) {
@@ -353,7 +353,7 @@ public class RegistrationManager {
         }
         TransactionContext tad = TransactionContext.attach(st,Operation.PROXY_REGISTER_REQUEST);
         String callId = SipUtilities.getCallId(request);
-        Request newRequest = SipUtilities.createRegistrationRequest(Gateway.getWanProvider(itspAccount.getOutboundTransport()), itspAccount, 
+        Request newRequest = SipUtilities.createRegistrationRequest(Gateway.getWanProvider(itspAccount.getOutboundTransport()), itspAccount,
                 callId, SipUtilities.getSeqNumber(request));
         SipUtilities.setGlobalAddresses(newRequest);
         if ( request.getHeader(AuthorizationHeader.NAME) != null ) {
