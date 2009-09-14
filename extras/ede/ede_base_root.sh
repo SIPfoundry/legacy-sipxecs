@@ -13,7 +13,7 @@
 START_DATE=`date`
 
 if [ "`whoami`" != root ]; then
-  echo "You must be root in order to run this script."
+  echo "You must be root in order to run this script." >&2
   exit 1
 fi
 
@@ -21,14 +21,31 @@ DEVEL_USER=sipxchange
 DEFAULT_PASSWORD=PingMe
 
 if [ $# -gt 1 ]; then
-  echo "Usage: ${0} [Username]"
-  exit 2
+  echo "Usage: ${0} [Username]" >&2
+  exit 2 
 fi
 if [ $# -gt 0 ]; then
   DEVEL_USER=$1
 fi
 
-DISTRO_EXIT_ERROR=3
+echo ""
+echo "Using development username: $DEVEL_USER."
+echo "" 
+
+# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup#f._Confirm_the_FQDN_.28Fully_Qualified_Domain_Name.29
+HOSTNAME_F=`hostname -f`
+host $HOSTNAME_F
+if [ $? != 0 ]; then
+  echo "ERROR: The domain name returned by 'hostname -f' does not resolve to an IP address." >&2
+  exit 3
+fi
+echo $HOSTNAME_F | grep -e "\." &> /dev/null
+if [ $? != 0 ]; then
+  echo "ERROR: The domain name returned by 'hostname -f' is not fully qualified." >&2
+  exit 4
+fi
+
+DISTRO_EXIT_ERROR=5 # exit
 ### START - This section is duplicated in both ede_base_root.sh and ede_build_devuser.sh ###
 
    DISTRO_ID_CentOS5=el5
@@ -57,11 +74,11 @@ DISTRO_EXIT_ERROR=3
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
       echo "Fedora 8 is no longer supported by EDE."
-      exit $DISTRO_EXIT_ERROR 
+      exit $DISTRO_EXIT_ERROR >&2 
    else
       echo -n "Unsupported Linux distribution: "
       uname -a | cut -d" " -f3
-      exit $DISTRO_EXIT_ERROR
+      exit $DISTRO_EXIT_ERROR >&2
    fi
    echo ""
    sleep 3
@@ -79,6 +96,11 @@ DISTRO_EXIT_ERROR=3
    fi
 
 ### END - This section is duplicated in both ede_base_root.sh and ede_build_devuser.sh ###
+
+echo Start: `date` > ede_base_root.log
+echo Development User: $DEVEL_USER >> ede_base_root.log
+echo "\$#:" $# >> ede_base_root.log
+echo "\$1:" $1 >> ede_base_root.log
 
 # Get ready for some big yum work.
 yum -y update yum
@@ -99,8 +121,8 @@ function wget_retry {
       if [ $? != 0 ]; then
          wget $P_OPT$1
          if [ $? != 0 ]; then
-            echo "    FAILED!" 
-            exit 4
+            echo "    FAILED!" >&2
+            exit 6
          fi               
       fi      
    fi
@@ -128,13 +150,13 @@ function rpm_file_install_and_check {
       wget_retry $1
       rpm -i $FILENAME
       if [ $? != 0 ]; then
-         echo "    FAILED to install - $BASENAME!" 
-         exit 5
+         echo "    FAILED to install - $BASENAME!" >&2 
+         exit 7
       fi
       rpm -q $BASENAME > /dev/null
       if [ $? = 1 ]; then
-         echo "    no error, but then FAILED to find installed - $BASENAME!" 
-         exit 5
+         echo "    no error, but then FAILED to find installed - $BASENAME!" >&2
+         exit 8
       fi
    fi
 }
@@ -155,8 +177,8 @@ function yum_install_and_check {
             yum -y install $1 
             rpm -q $1 > /dev/null
             if [ $? != 0 ]; then
-               echo "    FAILED to install - $1!" 
-               exit 6
+               echo "    FAILED to install - $1!" >&2 
+               exit 9
             fi
          fi         
       fi
@@ -171,7 +193,7 @@ function SWITCH_install_latest_version_rpm {
    grep -e i386/$1-[0-9] index.html > /dev/null
    if [ $? != 0 ]; then
       echo "ERROR: $1 not found at switch.ch." >&2
-      exit 7
+      exit 10
    fi
    url=`grep -e i386/$1-[0-9] index.html | cut -d"\"" -f2 | sort | tail -1`
    rpm_file_install_and_check $url
@@ -203,18 +225,18 @@ function centos_manual_install_packages {
       make prefix=/usr install
       if [ $? != 0 ]; then
          echo "ERROR: Failed to install git." >&2
-         exit 8
+         exit 11
       fi
       popd
       yum -y install subversion-perl
       if [ $? != 0 ]; then
          echo "ERROR: Failed to yum install subversion-perl." >&2
-         exit 8
+         exit 12
       fi
       (echo "no") |  perl -MCPAN -e 'install "Term::ReadKey"'
       if [ $? != 0 ]; then
          echo "ERROR: Failed to perl CPAN install Term::ReadKey" >&2
-         exit 8
+         exit 13 
       fi
    fi
 
@@ -268,12 +290,12 @@ if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
       yumdownloader jakarta-commons-net
       if [ $? != 0 ]; then
          echo "ERROR: Failed to download jakarta-commons-net on CentOS 5." >&2
-         exit 9
+         exit 14
       fi
       rpm -ihv jakarta-commons-net*.rpm --nodeps
       if [ $? != 0 ]; then
          echo "ERROR: Failed to install jakarta-commons-net on CentOS 5." >&2
-         exit 10
+         exit 15
       fi
       popd
       rm -rf /etc/yum.repos.d/jpackage.repo
@@ -351,6 +373,8 @@ add_ftp_user lvp2890 28904all
 /sbin/chkconfig postgresql on
 /sbin/service postgresql stop > /dev/null
 /sbin/service postgresql start
+
+echo Complete: `date` >> ede_base_root.log
 
 echo ""
 echo "Start   : $START_DATE"
