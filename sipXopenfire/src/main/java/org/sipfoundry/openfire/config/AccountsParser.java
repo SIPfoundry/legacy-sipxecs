@@ -62,6 +62,7 @@ public class AccountsParser {
         public void run() {
             try {
                 if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
+                    AccountsParser.this.lastModified = accountDbFile.lastModified(); 
                     String fileUrl = "file://" + accountDbFileName;
                     XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
                     SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
@@ -189,6 +190,7 @@ public class AccountsParser {
         currentTag = chatRoomTag;
         addCallMethod("subdomain", "setSubdomain");
         addCallMethod("conference-extension", "setConferenceExtension");
+        addCallMethod("conference-pin", "setConferencePin");
         addCallMethod("room-name", "setRoomName");
         addCallMethod("description", "setDescription");
         addCallMethod("password", "setPassword");
@@ -196,7 +198,7 @@ public class AccountsParser {
         addCallMethod("log-room-conversations","setLogRoomConversations");
         addCallMethod("is-public-room","setIsPublicRoom");
         addCallMethod("is-members-only", "setMembersOnly");
-        addCallMethod("is-persistant","setPersistant");
+        addCallMethod("is-persistent","setPersistent");
         addCallMethod("is-room-listed","setRoomListed");
 
     }

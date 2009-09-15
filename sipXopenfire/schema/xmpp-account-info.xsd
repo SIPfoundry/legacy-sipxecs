@@ -134,10 +134,10 @@
     				</documentation>
     			</annotation>
     		</element>
-    		<element name="is-persistant" type="boolean" maxOccurs="1" minOccurs="0" default="false">
+    		<element name="is-persistent" type="boolean" maxOccurs="1" minOccurs="0" default="false">
     			<annotation>
     				<documentation>
-    					Is chat room persistant.
+    					Is chat room persistent.
     				</documentation>
     			</annotation>
     		</element>
@@ -160,6 +160,13 @@
     				<documentation>
     					SipX conference extension. Should be assigned to the
     					administrator.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="conference-pin" type="string" maxOccurs="1" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					PIN required to enter conference.
     				</documentation>
     			</annotation>
     		</element>

@@ -76,10 +76,11 @@ public class XmppAccountInfo {
                 allowInvite,
                 xmppChatRoom.isPublicRoom(), 
                 xmppChatRoom.isLogRoomConversations(), 
-                xmppChatRoom.isPersistant(),
+                xmppChatRoom.isPersistent(),
                 xmppChatRoom.getPassword(), 
                 xmppChatRoom.getDescription(),
-                xmppChatRoom.getConferenceExtension());
+                xmppChatRoom.getConferenceExtension(),
+                xmppChatRoom.getConferencePin());
         this.chatRooms.put(xmppChatRoom.getSubdomain() + ":" + 
                 xmppChatRoom.getRoomName(), xmppChatRoom);
       

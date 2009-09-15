@@ -91,10 +91,11 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
      *    "status-code"  // value == "OK
      *    "sip-resource-id" // queried SIP identity
      *    "jabber-id"       // associated jabber id
-     *    "telephony-presence" // string representing telephony presence.  Can be "idle", "busy" or "undetermied"
-     *    "xmpp-presence" // string representing XMPP presence.  Can be "available", "away", "xa", "dnd", "chat" or "offline"
-     *    "unified-presence" // string representing unified XMPP presence which is a merge of the telephony and XMPP presences
-     *     "custom-presence-message" // string representing user-supplied cusomt message linked to presence state.  Can be an empty string
+     *    "telephony-presence" // string representing telephony presence.  Can be "IDLE", "BUSY" or "UNDERMINED"
+     *    "xmpp-presence" // string representing XMPP presence.  Can be "AVAILABLE", "OFFLINE", "EXTENDED_AWAY", "AWAY", "BUSY" and "CHAT"
+     *    "unified-presence" // string representing unified XMPP presence which is a merge of the telephony and XMPP presences. Can be:
+     *                       // "not-available", "available-for-phone", "available-for-chat" and "available-for-both"
+     *    "custom-presence-message" // string representing user-supplied cusomt message linked to presence state.  Can be an empty string
      *
      */
     public Map getUnifiedPresenceInfo( String sipId ) {

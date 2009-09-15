@@ -6,11 +6,12 @@ public class XmppChatRoom {
     private String description; 
     private String password;
     private String conferenceExtension;
+    private String conferencePin;
     private String owner;
     private boolean logRoomConversations;
     private boolean isPublicRoom = true;
     private boolean membersOnly;
-    private boolean isPersistant;
+    private boolean isPersistent;
     private boolean isRoomListed = true;
     
     public XmppChatRoom() {
@@ -33,7 +34,7 @@ public class XmppChatRoom {
      * @param roomName the roomName to set
      */
     public void setRoomName(String roomName) {
-        this.roomName = roomName;
+        this.roomName = roomName.toLowerCase();
     }
     /**
      * @return the roomName
@@ -80,6 +81,20 @@ public class XmppChatRoom {
         return conferenceExtension;
     }
 
+    /**
+     * @param sets the PIN required to enter the conference
+     */
+    public void setConferencePin(String conferencePin) {
+        this.conferencePin = conferencePin;
+    }
+
+    /**
+     * @return the conferenceExtension
+     */
+    public String getConferencePin() {
+        return conferencePin;
+    }
+
     public String getOwner() {
       return owner;
     }
@@ -116,12 +131,12 @@ public class XmppChatRoom {
        return this.membersOnly;
    }
    
-   public void setPersistant(String flag) {
-       this.isPersistant = Boolean.parseBoolean(flag);
+   public void setPersistent(String flag) {
+       this.isPersistent = Boolean.parseBoolean(flag);
    }
    
-   public boolean isPersistant() {
-       return this.isPersistant;
+   public boolean isPersistent() {
+       return this.isPersistent;
    }
    
    public void setRoomListed(String flag) {
