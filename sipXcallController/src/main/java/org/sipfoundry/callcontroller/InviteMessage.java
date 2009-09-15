@@ -55,11 +55,12 @@ public class InviteMessage extends JainSipMessage {
 
     private String subject;
 
+    private int m_timeout;
     
 
     public InviteMessage(UserCredentialHash userCredentials, String fromDisplayName, 
             String fromAddressSpec, String toAddressSpec, String referTarget, 
-            Operator operator) {
+            Operator operator, int timeout ) {
         super();
         m_toAddrSpec = toAddressSpec;
         m_fromDisplayName = fromDisplayName;
@@ -67,6 +68,7 @@ public class InviteMessage extends JainSipMessage {
         m_referTarget = referTarget;
         m_operator = operator;
         m_userCredentials = userCredentials;
+        m_timeout = timeout;
         
     }
     
@@ -92,7 +94,7 @@ public class InviteMessage extends JainSipMessage {
             Dialog dialog = ctx.getDialog();
             dialog.setApplicationData(dialogContext);
             dialogContext.addDialog(dialog);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator,this);
+            TransactionApplicationData tad = new TransactionApplicationData(m_operator,this, m_timeout,ctx);
             tad.setUserCredentials(m_userCredentials);
             ctx.setApplicationData(tad);
             if (m_dialog == null) {

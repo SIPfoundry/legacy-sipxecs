@@ -33,11 +33,14 @@ public class DialogContext {
     private String key;
     private StringBuffer status = new StringBuffer();
     private HashSet<Dialog> dialogs = new HashSet<Dialog>();
+    public static String HEADER = "<?xml version=\"1.0\" ?>" + "\n<status-lines "
+            + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">";
+    public static String FOOTER = "\n</status-lines>\n";
 
     public DialogContext(String key, int timeout) {
         this.key = key;
         logger.debug("DialogContext : " + timeout);
-        status.append("<status-lines>");
+        status.append(HEADER);
 
         RestServer.timer.schedule(new TimerTask() {
 
@@ -60,30 +63,34 @@ public class DialogContext {
                 }
             }
 
-        }, timeout * 1000);
+        }, (timeout + 1) * 1000);
     }
 
     public void remove() {
-        RestServer.timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    if ( dialogs.isEmpty () ) {
-                        SipUtils.removeDialogContext(key);
-                    }
-                } catch (Exception ex) {
-                    logger.error("Exception caught creating instance", ex);
-                }
-            }
-        }, 30 * 1000);
+        try {
+            for (Dialog dialog : dialogs) {
+                if (dialog.getState() != DialogState.TERMINATED) {
 
+                    Request byeRequest = dialog.createRequest(Request.BYE);
+                    SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                    ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
+                    dialog.sendRequest(ctx);
+                } else {
+                    this.removeMe(dialog);
+                }
+
+            }
+        } catch (Exception ex) {
+            logger.error("Exception caught", ex);
+        }
     }
 
-    public void setStatus(String callId, String method , String status) {
+    public void setStatus(String callId, String method, String status) {
         this.status.append("\n<status>");
+        this.status.append("\n\t<timestamp>" + System.currentTimeMillis() + "</timestamp>");
         this.status.append("\n\t<call-id>" + callId + "</call-id>");
         this.status.append("\n\t<method>" + method + "</method>");
-        this.status.append("\n\t<status-line>"+status+"</status-line>");
+        this.status.append("\n\t<status-line>" + status.trim() + "</status-line>");
         this.status.append("\n</status>");
     }
 
@@ -91,13 +98,20 @@ public class DialogContext {
      * @return the status
      */
     public String getStatus() {
-        return status.toString() + "\n</status-lines>";
+        return status.toString() + FOOTER;
     }
 
     public void addDialog(Dialog dialog) {
         logger.debug("addDialog " + this.dialogs);
         this.dialogs.add(dialog);
 
+    }
+
+    public void removeMe(Dialog dialog) {
+        logger.debug("removeMe " + dialog);
+        this.dialogs.remove(dialog);
+        if (dialogs.isEmpty())
+            SipUtils.removeDialogContext(key);
     }
 
 }

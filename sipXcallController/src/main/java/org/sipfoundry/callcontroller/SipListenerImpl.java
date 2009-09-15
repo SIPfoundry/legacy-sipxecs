@@ -32,32 +32,28 @@ import org.sipfoundry.sipxrest.SipHelper;
 public class SipListenerImpl extends AbstractSipListener {
 
     private static final Logger LOG = Logger.getLogger(SipListenerImpl.class);
-    
+
     private static SipListenerImpl instance;
 
-  
     public SipListenerImpl() {
-        if ( instance != null ) {
+        if (instance != null) {
             throw new UnsupportedOperationException("Only singleton allowed");
         }
         instance = this;
     }
-    
+
     public static SipListenerImpl getInstance() {
         return instance;
     }
-    
-   
 
     public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
 
         Dialog dialog = dialogTerminatedEvent.getDialog();
         DialogContext context = (DialogContext) dialog.getApplicationData();
         if (context != null) {
-            context.remove();
+            context.removeMe(dialog);
         }
     }
-
 
     public void processRequest(RequestEvent requestEvent) {
         try {
@@ -74,7 +70,8 @@ public class SipListenerImpl extends AbstractSipListener {
                 serverTransaction.sendResponse(response);
             } else if (request.getMethod().equals(Request.NOTIFY)) {
                 LOG.debug("got a NOTIFY");
-                Response response = SipListenerImpl.getInstance().getHelper().createResponse(request, Response.OK);
+                Response response = SipListenerImpl.getInstance().getHelper().createResponse(
+                        request, Response.OK);
                 serverTransaction.sendResponse(response);
                 SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) request
                         .getHeader(SubscriptionStateHeader.NAME);
@@ -85,8 +82,10 @@ public class SipListenerImpl extends AbstractSipListener {
                     String statusLine = new String(request.getRawContent());
                     LOG.debug("dialog = " + dialog);
                     LOG.debug("status line = " + statusLine);
+                    
                     if (!statusLine.equals("") && dialogContext != null) {
-                        dialogContext.setStatus(SipHelper.getCallId(request),request.getMethod(),statusLine);
+                        dialogContext.setStatus(SipHelper.getCallId(request),
+                                request.getMethod(), statusLine);
                     }
                 }
 
@@ -114,11 +113,16 @@ public class SipListenerImpl extends AbstractSipListener {
             Dialog dialog = responseEvent.getDialog();
 
             DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
-      
+
             if (tad != null) {
-                String callId = SipHelper.getCallId(responseEvent.getResponse());
-                String statusLine = ((SIPResponse)responseEvent.getResponse()).getStatusLine().toString();
+
                 String method = SipHelper.getCSeqMethod(responseEvent.getResponse());
+                if (method.equals(Request.INVITE)) {
+                    String callId = SipHelper.getCallId(responseEvent.getResponse());
+                    String statusLine = ((SIPResponse) responseEvent.getResponse())
+                            .getStatusLine().toString();
+                    dialogContext.setStatus(callId, method, statusLine);
+                }
                 tad.response(responseEvent);
             } else {
                 LOG.debug("transaction application data is null!");
@@ -127,7 +131,7 @@ public class SipListenerImpl extends AbstractSipListener {
             LOG.error("Error occured processing response", ex);
             Dialog dialog = responseEvent.getDialog();
             if (dialog != null) {
-               SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
+                SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
             }
         }
     }
@@ -157,6 +161,6 @@ public class SipListenerImpl extends AbstractSipListener {
     @Override
     public void init() {
         // TODO Auto-generated method stub
-        
+
     }
 }

@@ -84,8 +84,11 @@ public class SipUtils  {
 
     public synchronized static DialogContext createDialogContext(String key, int timeout) {
         logger.debug("createDialogCOntext " + key);
-       
-        DialogContext dialogContext = new DialogContext(key, timeout);
+        DialogContext dialogContext = getDialogContext(key);
+        if ( dialogContext != null ) {
+            dialogContext.remove();
+        }
+        dialogContext = new DialogContext(key, timeout);
         dialogContextTable.put(key, dialogContext);
        
         return dialogContext;

@@ -11,6 +11,7 @@ package org.sipfoundry.callcontroller;
 
 import java.text.ParseException;
 import java.util.EventObject;
+import java.util.TimerTask;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -20,24 +21,28 @@ import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ResponseEvent;
 import javax.sip.SipException;
+import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.TransactionState;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxrest.RestServer;
 import org.sipfoundry.sipxrest.SipHelper;
 
 /**
  * Transaction context data. Register one of these per transaction to track data that is specific
  * to a transaction.
- *
+ * 
  */
 class TransactionApplicationData {
 
@@ -55,15 +60,48 @@ class TransactionApplicationData {
 
     private UserCredentialHash m_userCredentials;
 
-    public TransactionApplicationData(Operator operator,  JainSipMessage message) {
+    private int m_timeout;
+
+    private ClientTransaction m_clientTransaction;
+
+    public TransactionApplicationData(Operator operator, JainSipMessage message, int timeout,
+            ClientTransaction clientTransaction) {
         m_operator = operator;
         m_message = message;
+        m_timeout = timeout;
+        m_clientTransaction = clientTransaction;
         m_helper = SipListenerImpl.getInstance().getHelper();
+
+        Request request = clientTransaction.getRequest();
+
+        if (request.getMethod().equals(Request.INVITE)) {
+
+            RestServer.timer.schedule(new TimerTask() {
+
+                @Override
+                public void run() {
+                    try {
+                        if (m_clientTransaction.getState() != TransactionState.TERMINATED) {
+                            Request cancelRequest = m_clientTransaction.createCancel();
+                            SipProvider provider = ((TransactionExt) m_clientTransaction)
+                                    .getSipProvider();
+                            ClientTransaction ctx = provider
+                                    .getNewClientTransaction(cancelRequest);
+                            ctx.sendRequest();
+                        }
+                    } catch (Exception ex) {
+                        LOG.debug("Exception in canceling request", ex);
+                    }
+
+                }
+
+            }, m_timeout * 1000);
+        }
     }
 
     /**
      * Blocks until transaction completes or timeout elapses
-     *
+     * 
      * @return false if timeout, true if response received
      * @throws InterruptedException
      */
@@ -85,7 +123,8 @@ class TransactionApplicationData {
                     return;
                 }
                 ClientTransaction ctx = m_helper.handleChallenge(response, clientTransaction);
-                DialogContext dialogContext = (DialogContext) clientTransaction.getDialog().getApplicationData();
+                DialogContext dialogContext = (DialogContext) clientTransaction.getDialog()
+                        .getApplicationData();
                 dialogContext.addDialog(ctx.getDialog());
                 ctx.getDialog().setApplicationData(dialogContext);
                 m_counter++;
@@ -93,7 +132,7 @@ class TransactionApplicationData {
                     ctx.setApplicationData(this);
                     if (ctx.getDialog().getState() == DialogState.CONFIRMED) {
                         ctx.getDialog().sendRequest(ctx);
-                    } else  {
+                    } else {
                         ctx.sendRequest();
                     }
                 }
@@ -116,15 +155,17 @@ class TransactionApplicationData {
                         String referTarget = inviteMessage.getReferTarget();
                         ReferToHeader referTo = m_helper.createReferToHeader(referTarget);
                         referRequest.setHeader(referTo);
-                        ReferredByHeader referredBy = m_helper.createReferredByHeader(inviteMessage.getToAddrSpec());
+                        ReferredByHeader referredBy = m_helper
+                                .createReferredByHeader(inviteMessage.getToAddrSpec());
                         referRequest.setHeader(referredBy);
                         ContactHeader contactHeader = m_helper.createContactHeader();
                         referRequest.setHeader(contactHeader);
-                        ClientTransaction ctx = m_helper.getSipProvider().getNewClientTransaction(referRequest);
+                        ClientTransaction ctx = m_helper.getSipProvider()
+                                .getNewClientTransaction(referRequest);
 
                         // And send it to the other side.
-                        TransactionApplicationData tad = new TransactionApplicationData(Operator.SEND_REFER,
-                                null);
+                        TransactionApplicationData tad = new TransactionApplicationData(
+                                Operator.SEND_REFER, null, m_timeout, ctx);
                         tad.setUserCredentials(m_userCredentials);
                         ctx.setApplicationData(tad);
                         dialog.sendRequest(ctx);
@@ -134,7 +175,7 @@ class TransactionApplicationData {
                 LOG.debug("Got REFER Response " + response.getStatusCode());
                 // We set up a timer to terminate the INVITE dialog if we do not see a 200 OK in
                 // the transfer.
-                SipUtils.scheduleTerminate(dialog,32);
+                SipUtils.scheduleTerminate(dialog, 32);
             }
         } catch (InvalidArgumentException e) {
             LOG.error("Invalid argument", e);

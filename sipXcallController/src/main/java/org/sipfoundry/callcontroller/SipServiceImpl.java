@@ -31,12 +31,12 @@ public class SipServiceImpl  implements SipService {
    
 
     public Dialog sendRefer(UserCredentialHash agentCredentials, String agentAddrSpec, String displayName, String callingPartyAddrSpec,
-            String referTarget, String subject, boolean allowForwarding, DialogContext dialogContext) {
+            String referTarget, String subject, boolean allowForwarding, DialogContext dialogContext, int timeout) {
         LOG.debug("sendRefer: source = " + agentAddrSpec + " dest = " 
                 + callingPartyAddrSpec + " referTarget = " + referTarget
                 + " allowForwarding = " + allowForwarding );
         InviteMessage message = new InviteMessage( agentCredentials, displayName, agentAddrSpec, callingPartyAddrSpec,
-                referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
+                referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP, timeout);
         message.setSubject(subject);
         message.setforwardingAllowed(allowForwarding);
      

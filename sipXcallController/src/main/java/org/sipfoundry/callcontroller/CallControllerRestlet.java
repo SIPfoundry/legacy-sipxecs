@@ -51,20 +51,20 @@ public class CallControllerRestlet extends Restlet {
                     CallControllerParams.CALLING_PARTY);
             String calledParty = (String) request.getAttributes().get(
                     CallControllerParams.CALLED_PARTY);
-            
-            if ( callingParty == null || calledParty == null ) {
+
+            if (callingParty == null || calledParty == null) {
                 response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                 return;
             }
-            if(agentName == null ) {
+            if (agentName == null) {
                 agentName = callingParty;
             }
-            if ( method == null ) {
+            if (method == null) {
                 method = CallControllerParams.REFER;
             }
 
-            UserCredentialHash credentials = RestServer.getAccountManager()
-                    .getCredentialHash(agentName);
+            UserCredentialHash credentials = RestServer.getAccountManager().getCredentialHash(
+                    agentName);
             if (credentials == null) {
                 logger.error("could not find credentials for agent " + agentName);
                 response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
@@ -73,9 +73,8 @@ public class CallControllerRestlet extends Restlet {
 
             User agentUserRecord = RestServer.getAccountManager().getUser(agentName);
             String agentAddr = agentUserRecord.getIdentity();
-           
-            
-            if ( callingParty.indexOf("@") == -1 ) {
+
+            if (callingParty.indexOf("@") == -1) {
                 callingParty = getAddrSpec(callingParty);
             }
 
@@ -83,8 +82,8 @@ public class CallControllerRestlet extends Restlet {
                 calledParty = getAddrSpec(calledParty);
             }
             String key = agentAddr + ":" + callingParty + ":" + calledParty;
-            
-            logger.debug(String.format("method = %s key %s", httpMethod.toString(),key));
+
+            logger.debug(String.format("method = %s key %s", httpMethod.toString(), key));
 
             if (httpMethod.equals(Method.POST)) {
                 String fwdAllowed = (String) request.getAttributes().get(
@@ -96,43 +95,47 @@ public class CallControllerRestlet extends Restlet {
 
                 String subject = (String) request.getAttributes().get(
                         CallControllerParams.SUBJECT);
-                
+
                 int timeout = 180;
-                if ((String)request.getAttributes().get(CallControllerParams.TIMEOUT) != null ) {
-                     timeout = Integer.parseInt((String)request.getAttributes().get(CallControllerParams.TIMEOUT));
+                if ((String) request.getAttributes().get(CallControllerParams.TIMEOUT) != null) {
+                    timeout = Integer.parseInt((String) request.getAttributes().get(
+                            CallControllerParams.TIMEOUT));
                 }
-                
+
                 if (method.equals(CallControllerParams.REFER)) {
                     DialogContext dialogContext = SipUtils.createDialogContext(key, timeout);
-                    Dialog dialog = new SipServiceImpl().sendRefer(credentials,
-                            agentAddr, agentUserRecord.getDisplayName(), callingParty,
-                            calledParty, subject, isForwardingAllowed,dialogContext);
-                    
+                    Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
+                            agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
+                            isForwardingAllowed, dialogContext, timeout);
+
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
 
                 } else {
-                     response.setEntity("Method not supported " + key,
-                            MediaType.TEXT_PLAIN); 
-                     response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
-                     
+                    response.setEntity("Method not supported " + key, MediaType.TEXT_PLAIN);
+                    response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
+
                     return;
                 }
-             
+
             } else {
                 DialogContext dialogContext = SipUtils.getDialogContext(key);
                 if (dialogContext == null) {
-                    response.setStatus(Status.CLIENT_ERROR_NOT_FOUND);              
+                    String emptyResponse = DialogContext.HEADER + DialogContext.FOOTER;
+                    response.setEntity(emptyResponse, MediaType.TEXT_XML);
+                    response.setStatus(Status.SUCCESS_OK);
+                    return;
+                } else {
+                    logger.debug("status = " + dialogContext.getStatus());
+
+                    response.setEntity(dialogContext.getStatus(), MediaType.TEXT_XML);
+                    response.setStatus(Status.SUCCESS_OK);
                     return;
                 }
-                logger.debug("status = " + dialogContext.getStatus());
-              
-                response.setEntity(dialogContext.getStatus(), MediaType.TEXT_PLAIN);
-                response.setStatus(Status.SUCCESS_OK);
             }
-            
+
         } catch (Exception ex) {
             logger.error("An exception occured while processing the request. : ", ex);
-            response.setEntity(ex.toString(),MediaType.TEXT_PLAIN);
+            response.setEntity(ex.toString(), MediaType.TEXT_PLAIN);
             response.setStatus(Status.SERVER_ERROR_INTERNAL);
             return;
 

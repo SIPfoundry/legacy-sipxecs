@@ -31,5 +31,6 @@ public interface SipService {
      * @param dialogContext - the dialog context to attach to the newly created dialog.
      */
     public Dialog sendRefer(UserCredentialHash credentials, String sourceAddrSpec, String displayName, String destinationAddrSpec, 
-            String referTarget, String subject, boolean inviteForwardingAllowed, DialogContext dialogContext);
+            String referTarget, String subject, boolean inviteForwardingAllowed,
+            DialogContext dialogContext, int timeout);
 }

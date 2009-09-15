@@ -66,11 +66,6 @@ public class SipHelper {
         return this.abstractListener.getNewServerTransaction(request);
     }
     
-    public static String getCSeqMethod(Message message) {
-        CSeqHeader cseqHeader = (CSeqHeader) message.getHeader(CSeqHeader.NAME);
-        return cseqHeader.getMethod();
-    }
-  
 
     public final FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {
         Address fromNameAddress = RestServer.getSipStack().getAddressFactory().createAddress(fromDisplayName, fromAddress);
@@ -151,7 +146,7 @@ public class SipHelper {
         return getStackBean().getMessageFactory().createResponse(responseCode, request);
     }
 
-    final public String getCSeqMethod(Response response) {
+    final public static String getCSeqMethod(Message response) {
         return ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
     }
 
