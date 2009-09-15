@@ -36,12 +36,16 @@ public class DialogContext {
     public static String HEADER = "<?xml version=\"1.0\" ?>" + "\n<status-lines "
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">";
     public static String FOOTER = "\n</status-lines>\n";
+    
+    private int timeout;
+    private long creationTime = System.currentTimeMillis();
 
     public DialogContext(String key, int timeout) {
         this.key = key;
         logger.debug("DialogContext : " + timeout);
         status.append(HEADER);
-
+        this.timeout = timeout;
+       
         RestServer.timer.schedule(new TimerTask() {
 
             @Override
@@ -50,10 +54,7 @@ public class DialogContext {
                     try {
                         if (dialog.getState() != DialogState.CONFIRMED
                                 && dialog.getState() != DialogState.TERMINATED) {
-                            Request byeRequest = dialog.createRequest(Request.BYE);
-                            SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                            ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                            dialog.sendRequest(ctx);
+                            SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
                         } else {
                             logger.debug("Not firing BYE message " + dialog.getState());
                         }
@@ -70,11 +71,7 @@ public class DialogContext {
         try {
             for (Dialog dialog : dialogs) {
                 if (dialog.getState() != DialogState.TERMINATED) {
-
-                    Request byeRequest = dialog.createRequest(Request.BYE);
-                    SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                    ClientTransaction ctx = provider.getNewClientTransaction(byeRequest);
-                    dialog.sendRequest(ctx);
+                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
                 } else {
                     this.removeMe(dialog);
                 }
@@ -110,8 +107,21 @@ public class DialogContext {
     public void removeMe(Dialog dialog) {
         logger.debug("removeMe " + dialog);
         this.dialogs.remove(dialog);
-        if (dialogs.isEmpty())
-            SipUtils.removeDialogContext(key);
+        if (dialogs.isEmpty()) {
+            if (  System.currentTimeMillis() - this.creationTime >= timeout*1000 ) {
+                SipUtils.removeDialogContext(key, this);
+            } else {
+                long delta = timeout*1000 - (System.currentTimeMillis() - this.creationTime) ;
+                RestServer.timer.schedule( new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        SipUtils.removeDialogContext(key, DialogContext.this);
+                    }
+                    
+                }, delta );
+            }
+        }
     }
 
 }
