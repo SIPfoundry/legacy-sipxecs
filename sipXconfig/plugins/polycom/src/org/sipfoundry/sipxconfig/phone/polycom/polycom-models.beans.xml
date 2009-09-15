@@ -7,6 +7,10 @@
 	<property name="vendor" value="Polycom"/>
     <property name="staticProfileFilenames">
       <list>
+        <value>polycom_phone1_2.1.X.cfg</value>
+        <value>polycom_sip_2.1.X.cfg</value>
+        <value>polycom_phone1_3.1.X.cfg</value>
+        <value>polycom_sip_3.1.X.cfg</value>
         <value>polycom_phone1.cfg</value>
         <value>polycom_sip.cfg</value>
       </list>
