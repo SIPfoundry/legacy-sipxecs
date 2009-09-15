@@ -207,15 +207,6 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         return info;
     }
 
-    public String getVoicemailLink() {
-        Voicemail voicemail = getVoicemail();
-        PlayVoicemailService.Info info = new PlayVoicemailService.Info(voicemail.getFolderId(), voicemail
-                .getMessageId());
-        PlayVoicemailService.Info[] infos = new PlayVoicemailService.Info[1];
-        infos[0] = info;
-        return getPlayVoicemailService().getLink(false, infos).getURL();
-    }
-
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
@@ -315,5 +306,24 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public String getFeedLink() {
         String key = getPrivateUserKeyManager().getPrivateKeyForUser(getUser());
         return String.format("/sipxconfig/rest/private/%s/feed/voicemail/inbox", key);
+    }
+
+    public String getVoicemailLink() {
+        Voicemail voicemail = getVoicemail();
+        String voicemailLink = String.format("/sipxconfig/rest/my/voicemail/%s/%s", voicemail.getFolderId(),
+                voicemail.getMessageId());
+        /*
+         * <HACK> -----------
+         * A .wav suffix is added at the end of the url to correctly associate the file
+         * as a .wav file, when downloading it through the <audio/> controller in FF 3.5
+         *
+         */
+
+        voicemailLink = voicemailLink.concat(".wav");
+
+        /*
+         * </HACK>
+         */
+        return voicemailLink;
     }
 }
