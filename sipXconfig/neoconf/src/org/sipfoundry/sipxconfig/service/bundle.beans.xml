@@ -30,7 +30,7 @@
     <constructor-arg value="redundantSipRouter" />
     <property name="autoEnable" value="true" />
     <property name="onlyRemote" value="true" />
-    <property name="max" value="1" />
+    <property name="max" value="2" />
   </bean>
 
   <bean id="voicemailBundle" parent="abstractBundle">
