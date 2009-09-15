@@ -14,7 +14,8 @@
   </type>
   <group name="itsp-account">
     <label>ITSP Account</label>
-    <description>The information that is specific to a given ITSP account.</description>
+    <description>Skype requires that one CLID be set for all calls that are processed on an account. Set that
+	in the Caller ID menu to the left.</description>
     <setting name="itsp-proxy-domain" hidden="yes">
       <label>ITSP server domain name</label>
       <description>
@@ -49,7 +50,7 @@
         If the ITSP specifies a server address or name or an outbound proxy, enter it here. If nothing is specified, the
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
-      <value>155.212.214.197</value>
+      <value></value>
     </setting>
     <setting name="itsp-proxy-listening-port" hidden="yes">
       <!--  set automatically from SipTrunk.getAddressPort -->
