@@ -130,6 +130,7 @@ class TransactionApplicationData {
                 m_counter++;
                 if (ctx != null) {
                     ctx.setApplicationData(this);
+                    this.m_clientTransaction = ctx;
                     if (ctx.getDialog().getState() == DialogState.CONFIRMED) {
                         ctx.getDialog().sendRequest(ctx);
                     } else {
