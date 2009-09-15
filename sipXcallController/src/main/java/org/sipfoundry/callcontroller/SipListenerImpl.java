@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.callcontroller;
 
+import gov.nist.javax.sip.message.SIPResponse;
+
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
@@ -84,7 +86,7 @@ public class SipListenerImpl extends AbstractSipListener {
                     LOG.debug("dialog = " + dialog);
                     LOG.debug("status line = " + statusLine);
                     if (!statusLine.equals("") && dialogContext != null) {
-                        dialogContext.setStatus(statusLine);
+                        dialogContext.setStatus(SipHelper.getCallId(request),request.getMethod(),statusLine);
                     }
                 }
 
@@ -109,7 +111,14 @@ public class SipListenerImpl extends AbstractSipListener {
             }
             TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
                     .getApplicationData();
+            Dialog dialog = responseEvent.getDialog();
+
+            DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+      
             if (tad != null) {
+                String callId = SipHelper.getCallId(responseEvent.getResponse());
+                String statusLine = ((SIPResponse)responseEvent.getResponse()).getStatusLine().toString();
+                String method = SipHelper.getCSeqMethod(responseEvent.getResponse());
                 tad.response(responseEvent);
             } else {
                 LOG.debug("transaction application data is null!");

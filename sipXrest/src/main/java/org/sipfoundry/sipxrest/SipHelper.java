@@ -66,7 +66,10 @@ public class SipHelper {
         return this.abstractListener.getNewServerTransaction(request);
     }
     
-    
+    public static String getCSeqMethod(Message message) {
+        CSeqHeader cseqHeader = (CSeqHeader) message.getHeader(CSeqHeader.NAME);
+        return cseqHeader.getMethod();
+    }
   
 
     public final FromHeader createFromHeader(String fromDisplayName, SipURI fromAddress) throws ParseException {

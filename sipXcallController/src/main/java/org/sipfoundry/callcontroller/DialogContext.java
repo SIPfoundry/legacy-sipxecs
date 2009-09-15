@@ -79,8 +79,12 @@ public class DialogContext {
 
     }
 
-    public void setStatus(String status) {
-        this.status.append("\n<status-line>"+status+"</status-line>");
+    public void setStatus(String callId, String method , String status) {
+        this.status.append("\n<status>");
+        this.status.append("\n\t<call-id>" + callId + "</call-id>");
+        this.status.append("\n\t<method>" + method + "</method>");
+        this.status.append("\n\t<status-line>"+status+"</status-line>");
+        this.status.append("\n</status>");
     }
 
     /**
