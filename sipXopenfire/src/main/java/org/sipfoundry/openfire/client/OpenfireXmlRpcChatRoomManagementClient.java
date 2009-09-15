@@ -3,9 +3,7 @@ package org.sipfoundry.openfire.client;
 import java.util.Map;
 
 import org.apache.xmlrpc.XmlRpcException;
-import org.apache.xmlrpc.client.XmlRpcClient;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcChatRoomManagementProvider;
-import org.sipfoundry.openfire.plugin.presence.XmlRpcProvider;
 
 public class OpenfireXmlRpcChatRoomManagementClient extends OpenfireXmlRpcClient {
     

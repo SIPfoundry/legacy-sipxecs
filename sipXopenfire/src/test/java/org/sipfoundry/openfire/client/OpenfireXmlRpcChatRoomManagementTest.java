@@ -34,9 +34,7 @@ public class OpenfireXmlRpcChatRoomManagementTest extends TestCase {
       
         String[] members = client.getMembers("subdomain", "mychat");
         assertTrue("Must be zero members ", members.length == 0 );
-        client.inviteOccupant("subdomain", "mychat", "user2"+"@" + domain, "password", 
-                "Lets talk ");
-      
+       
      
         
     }

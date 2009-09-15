@@ -55,8 +55,6 @@ import org.xmpp.packet.Presence;
 
 public class SipXOpenfirePlugin implements Plugin, Component {
 
-    private static final String subdomain = "presence";
-
     private MultiUserChatManager multiUserChatManager;
     private GroupManager groupManager;
     private UserManager userManager;
@@ -213,24 +211,22 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("HostName = " + hostname);
 
         probedPresence = new ConcurrentHashMap<String, Presence>();
-        componentJID = new JID(subdomain + "." + hostname);
-
+       
         groupManager = GroupManager.getInstance();
 
         multiUserChatManager = server.getMultiUserChatManager();
+        
         /*
          * Load up the database.
          */
-        multiUserChatManager.start();
         log.info("hostname " + hostname);
-        try {
-            componentManager.addComponent(subdomain, this);
-        } catch (Exception e) {
-            componentManager.getLog().error(e);
-            log.error(e);
-            throw new SipXOpenfirePluginException("Init error", e);
-        }
-
+        
+        //  try { componentManager.addComponent(subdomain, this); } catch (Exception e) {
+        //  componentManager.getLog().error(e); log.error(e); throw new
+        //  SipXOpenfirePluginException("Init error", e); }
+         
+         // multiUserChatManager.start();
+          
         String accountConfigurationFile = configurationPath + "/xmpp-account-info.xml";
         if (!new File(accountConfigurationFile).exists()) {
             System.err.println("User account file not found");
@@ -240,7 +236,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             this.accountsParser.startScanner();
         }
         // config and instantiate and the presence unifier used to gather all presence info
-       
+
         PresenceUnifier.setPlugin(this);
         PresenceUnifier.getInstance();
         // add packet interceptor
@@ -618,7 +614,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
             String description, String conferenceExtension) throws Exception {
-       
+
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(domain);
         if (mucService == null) {
@@ -629,79 +625,77 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucService.addUserAllowedToCreate(admin.toBareJID());
 
         }
-        
+
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
-        if ( ! mucRoom.getOwners().contains(ownerJid)) {
+        if (!mucRoom.getOwners().contains(ownerJid)) {
             mucRoom.addFirstOwner(ownerJid);
-           
+
         }
-        for ( JID admins : XMPPServer.getInstance().getAdmins()) {
-            if ( !mucRoom.getOwners().contains(admins.toBareJID())) {
+        for (JID admins : XMPPServer.getInstance().getAdmins()) {
+            if (!mucRoom.getOwners().contains(admins.toBareJID())) {
                 mucRoom.addFirstOwner(admins.toBareJID());
             }
         }
-        
-        if ( mucRoom.isPersistent() != isPersistent) {
+
+        if (mucRoom.isPersistent() != isPersistent) {
             mucRoom.setPersistent(isPersistent);
         }
-        if ( !mucRoom.canAnyoneDiscoverJID()) {
+        if (!mucRoom.canAnyoneDiscoverJID()) {
             mucRoom.setCanAnyoneDiscoverJID(true);
         }
-        
-        if (! mucRoom.canChangeNickname()) {
+
+        if (!mucRoom.canChangeNickname()) {
             mucRoom.setChangeNickname(true);
         }
-        
-        if ( mucRoom.isModerated() != makeRoomModerated ) {
+
+        if (mucRoom.isModerated() != makeRoomModerated) {
             mucRoom.setModerated(makeRoomModerated);
         }
-        if ( mucRoom.isMembersOnly() != makeRoomMembersOnly ) {
+        if (mucRoom.isMembersOnly() != makeRoomMembersOnly) {
             mucRoom.setMembersOnly(makeRoomMembersOnly);
         }
-        
-        if (!mucRoom.isRegistrationEnabled() ) {
+
+        if (!mucRoom.isRegistrationEnabled()) {
             mucRoom.setRegistrationEnabled(true);
-         }
- 
-        if ( mucRoom.isPublicRoom() != isPublicRoom ) {
-            mucRoom.setPublicRoom(isPublicRoom);   
         }
-      
-        if (mucRoom.canOccupantsInvite() != allowOccupantsToInviteOthers ) {
+
+        if (mucRoom.isPublicRoom() != isPublicRoom) {
+            mucRoom.setPublicRoom(isPublicRoom);
+        }
+
+        if (mucRoom.canOccupantsInvite() != allowOccupantsToInviteOthers) {
             mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
-          
+
         }
-        
-        if ( mucRoom.getDescription() != null && description == null ||
-                mucRoom.getDescription() == null && description != null ||
-                mucRoom.getDescription() != description  ||
-                ! mucRoom.getDescription().equals(description) ) {
+
+        if (mucRoom.getDescription() != null && description == null
+                || mucRoom.getDescription() == null && description != null
+                || mucRoom.getDescription() != description
+                || !mucRoom.getDescription().equals(description)) {
             mucRoom.setDescription(description);
-           
+
         }
-        
-        if ( mucRoom.getPassword() != null && password == null ||
-                mucRoom.getPassword() == null && password != null ||
-                mucRoom.getPassword() != password  ||
-                ! mucRoom.getPassword().equals(password) ) {
+
+        if (mucRoom.getPassword() != null && password == null || mucRoom.getPassword() == null
+                && password != null || mucRoom.getPassword() != password
+                || !mucRoom.getPassword().equals(password)) {
             mucRoom.setPassword(password);
-           
+
         }
-     
-        if ( ! mucRoom.canOccupantsChangeSubject() ) {
-            
+
+        if (!mucRoom.canOccupantsChangeSubject()) {
+
             mucRoom.setCanOccupantsChangeSubject(true);
         }
-        
-        if ( ! mucRoom.canChangeNickname()) {
+
+        if (!mucRoom.canChangeNickname()) {
             mucRoom.setChangeNickname(true);
         }
-     
-        if ( mucRoom.isLogEnabled() != logRoomConversations ) {
-            mucRoom.setLogEnabled(logRoomConversations); 
+
+        if (mucRoom.isLogEnabled() != logRoomConversations) {
+            mucRoom.setLogEnabled(logRoomConversations);
         }
-      
-        
+
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceExtensionMap.put(domain + "." + roomName, conferenceExtension);
 
@@ -926,7 +920,5 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public static SipFoundryAppender getLogAppender() {
         return logAppender;
     }
-
-   
 
 }
