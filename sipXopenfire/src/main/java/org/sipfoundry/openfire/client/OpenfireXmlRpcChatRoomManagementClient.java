@@ -37,22 +37,5 @@ public class OpenfireXmlRpcChatRoomManagementClient extends OpenfireXmlRpcClient
     }
     
     
-   public void inviteOccupant(String subdomain, String roomName,
-           String member, String password, String reason) throws OpenfireClientException {
-       Object[] args = new Object[5];
-       args[0] = subdomain;
-       args[1] = roomName;
-       args[2] = member;
-       args[3] = password == null ? "":password;
-       args[4] = reason;
-       try {
-           Map retval = execute("inviteOccupant",args);
-       } catch ( XmlRpcException ex) {
-           ex.printStackTrace();
-           throw new OpenfireClientException(ex);
-       }
-   }
-  
-
     
 }

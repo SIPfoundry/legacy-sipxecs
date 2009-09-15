@@ -160,7 +160,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         }
                     }
                 }
-            }
+            } 
         } catch (Exception e) {
             log.debug("Caughtx: '" + e.getMessage());
             e.printStackTrace(System.err);

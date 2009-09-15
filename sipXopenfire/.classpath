@@ -33,5 +33,7 @@
 	<classpathentry kind="var" path="OPENFIRE-ROOT/lib/servlet.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/com.noelios.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX-PROJECT-ROOT/sipXcommons/lib/org.restlet.jar"/>
+	<classpathentry kind="lib" path="lib/smackx.jar"/>
+	<classpathentry kind="lib" path="lib/smack.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -618,6 +618,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
             String description, String conferenceExtension) throws Exception {
+       
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(domain);
         if (mucService == null) {
@@ -628,26 +629,79 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucService.addUserAllowedToCreate(admin.toBareJID());
 
         }
+        
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
-
-        mucRoom.setPersistent(isPersistent);
-        mucRoom.setCanAnyoneDiscoverJID(true);
-        mucRoom.setChangeNickname(true);
-        mucRoom.setModerated(makeRoomModerated);
-        mucRoom.setMembersOnly(makeRoomMembersOnly);
-        mucRoom.setRegistrationEnabled(true);
-        mucRoom.setPublicRoom(isPublicRoom);
-        mucRoom.setCanAnyoneDiscoverJID(true);
-        mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
-        mucRoom.setDescription(description);
-        mucRoom.setPassword(password);
-        mucRoom.setCanOccupantsChangeSubject(true);
-        mucRoom.setChangeNickname(true);
-        mucRoom.setLogEnabled(logRoomConversations);
-
-        mucRoom.setDescription(description);
-
-        mucRoom.setPassword(password);
+        if ( ! mucRoom.getOwners().contains(ownerJid)) {
+            mucRoom.addFirstOwner(ownerJid);
+           
+        }
+        for ( JID admins : XMPPServer.getInstance().getAdmins()) {
+            if ( !mucRoom.getOwners().contains(admins.toBareJID())) {
+                mucRoom.addFirstOwner(admins.toBareJID());
+            }
+        }
+        
+        if ( mucRoom.isPersistent() != isPersistent) {
+            mucRoom.setPersistent(isPersistent);
+        }
+        if ( !mucRoom.canAnyoneDiscoverJID()) {
+            mucRoom.setCanAnyoneDiscoverJID(true);
+        }
+        
+        if (! mucRoom.canChangeNickname()) {
+            mucRoom.setChangeNickname(true);
+        }
+        
+        if ( mucRoom.isModerated() != makeRoomModerated ) {
+            mucRoom.setModerated(makeRoomModerated);
+        }
+        if ( mucRoom.isMembersOnly() != makeRoomMembersOnly ) {
+            mucRoom.setMembersOnly(makeRoomMembersOnly);
+        }
+        
+        if (!mucRoom.isRegistrationEnabled() ) {
+            mucRoom.setRegistrationEnabled(true);
+         }
+ 
+        if ( mucRoom.isPublicRoom() != isPublicRoom ) {
+            mucRoom.setPublicRoom(isPublicRoom);   
+        }
+      
+        if (mucRoom.canOccupantsInvite() != allowOccupantsToInviteOthers ) {
+            mucRoom.setCanOccupantsInvite(allowOccupantsToInviteOthers);
+          
+        }
+        
+        if ( mucRoom.getDescription() != null && description == null ||
+                mucRoom.getDescription() == null && description != null ||
+                mucRoom.getDescription() != description  ||
+                ! mucRoom.getDescription().equals(description) ) {
+            mucRoom.setDescription(description);
+           
+        }
+        
+        if ( mucRoom.getPassword() != null && password == null ||
+                mucRoom.getPassword() == null && password != null ||
+                mucRoom.getPassword() != password  ||
+                ! mucRoom.getPassword().equals(password) ) {
+            mucRoom.setPassword(password);
+           
+        }
+     
+        if ( ! mucRoom.canOccupantsChangeSubject() ) {
+            
+            mucRoom.setCanOccupantsChangeSubject(true);
+        }
+        
+        if ( ! mucRoom.canChangeNickname()) {
+            mucRoom.setChangeNickname(true);
+        }
+     
+        if ( mucRoom.isLogEnabled() != logRoomConversations ) {
+            mucRoom.setLogEnabled(logRoomConversations); 
+        }
+      
+        
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceExtensionMap.put(domain + "." + roomName, conferenceExtension);
 

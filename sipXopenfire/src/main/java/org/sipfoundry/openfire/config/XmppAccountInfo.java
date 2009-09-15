@@ -82,7 +82,7 @@ public class XmppAccountInfo {
                 xmppChatRoom.getConferenceExtension());
         this.chatRooms.put(xmppChatRoom.getSubdomain() + ":" + 
                 xmppChatRoom.getRoomName(), xmppChatRoom);
-    
+      
     }
     
     public XmppUserAccount getXmppUserAccount(String name) {

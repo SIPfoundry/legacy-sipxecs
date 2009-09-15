@@ -1,17 +1,8 @@
 package org.sipfoundry.sipcallwatcher;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.util.Properties;
 
-import javax.sip.ListeningPoint;
-import javax.sip.SipProvider;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
 
