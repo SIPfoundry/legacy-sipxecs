@@ -134,7 +134,11 @@ public class Retrieve {
                     extMenu.setPrePromptPl(welcomePl);
                     playWelcome = false;
                 }
-                IvrChoice extChoice = extMenu.collectDtmf(extPl, 10);
+
+                IvrChoice extChoice = extMenu.collectDigits(extPl, 10);
+                if (extMenu.isCanceled()) {
+                    continue;
+                }
                 if (!extMenu.isOkay()) {
                     return null ;
                 }
@@ -152,8 +156,11 @@ public class Retrieve {
                 menu.setPrePromptPl(welcomePl);
                 playWelcome = false;
             }
+            
+            // Note:  Not using collectDigits() here, as it doesn't allow initial "#" to barge,
+            // and "*" to cancel doesn't really make sense.  Just treat as invalid.
             IvrChoice choice = menu.collectDtmf(menuPl, 10);
-
+            
             if (!menu.isOkay()) {
                 return null;
             }
@@ -1005,6 +1012,7 @@ public class Retrieve {
                     // (Oh I was born an original pinner, I was born from original pin...)
                     PromptList pl1 = m_loc.getPromptList("original_pin");
                     VmMenu menu1 = new VmMenu(m_vm);
+                    menu1.setOperatorOn0(false);
                     m_fses.setRedactDTMF(true);
                     IvrChoice choice1 = menu1.collectDigits(pl1, 10);
                     m_fses.setRedactDTMF(false);
@@ -1019,6 +1027,7 @@ public class Retrieve {
                         // "Enter your new personal identification number, and then press #."
                         pl1 = m_loc.getPromptList("new_pin");
                         menu1 = new VmMenu(m_vm);
+                        menu1.setOperatorOn0(false);
                         m_fses.setRedactDTMF(true);
                         choice1 = menu1.collectDigits(pl1, 10);
                         m_fses.setRedactDTMF(false);
@@ -1031,6 +1040,7 @@ public class Retrieve {
                         // "Enter your new personal identification number again, and then press #."
                         pl1 = m_loc.getPromptList("new_pin2");
                         menu1 = new VmMenu(m_vm);
+                        menu1.setOperatorOn0(false);
                         m_fses.setRedactDTMF(true);
                         choice1 = menu1.collectDigits(pl1, 10);
                         m_fses.setRedactDTMF(false);

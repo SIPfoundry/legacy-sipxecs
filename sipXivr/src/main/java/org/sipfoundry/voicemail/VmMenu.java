@@ -9,11 +9,13 @@ import org.sipfoundry.sipxivr.PromptList;
 public class VmMenu extends org.sipfoundry.sipxivr.Menu {
     private VoiceMail m_vm;
     private boolean m_speakCanceled;
+    private boolean m_operatorOn0;
     
     public VmMenu(VoiceMail vm) {
         super(vm.getLoc());
         m_vm = vm ;
         m_speakCanceled = true;
+        m_operatorOn0 = true;
         setInvalidMax(vm.getConfig().getInvalidResponseCount());
         setTimeoutMax(vm.getConfig().getNoInputCount());
         setInitialTimeout(vm.getConfig().getInitialTimeout());
@@ -54,10 +56,12 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
             }
             break;
         case SUCCESS:
-            // "0" means transfer to operator
-            if (choice.getDigits().equals("0")) {
-                m_vm.operator();
-                return null;
+            if (m_operatorOn0) {
+                // "0" means transfer to operator
+                if (choice.getDigits().equals("0")) {
+                    m_vm.operator();
+                    return null;
+                }
             }
         }
         return choice;
@@ -67,5 +71,8 @@ public class VmMenu extends org.sipfoundry.sipxivr.Menu {
         m_speakCanceled = speakCanceled;
     }
     
+    public void setOperatorOn0(boolean operatorOn0) {
+        m_operatorOn0 = operatorOn0;
+    }
 
 }

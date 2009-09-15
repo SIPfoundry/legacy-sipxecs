@@ -132,7 +132,7 @@ public class Menu {
             }
     
             // See if they canceled with "*"
-            if (m_isStarCancel && digits.equals("*")) {
+            if (m_isStarCancel && digits.contains("*")) {
                 LOG.info("Menu::menu canceled");
                 return m_choice = new IvrChoice(null, IvrChoiceReason.CANCELED);
             }
@@ -246,14 +246,26 @@ public class Menu {
         return m_choice;
     }
     
+    /**
+     * true if TIMEOUT
+     * @return
+     */
     public boolean isTimeout() {
         return m_choice.getIvrChoiceReason().equals(IvrChoiceReason.TIMEOUT);
     }
 
+    /**
+     * true if CANCELED
+     * @return
+     */
     public boolean isCanceled() {
         return m_choice.getIvrChoiceReason().equals(IvrChoiceReason.CANCELED);
     }
 
+    /**
+     * true if SUCCESS (not TIMEOUT, not CANCELED)
+     * @return
+     */
     public boolean isOkay() {
         return m_choice.getIvrChoiceReason().equals(IvrChoiceReason.SUCCESS);
     }
