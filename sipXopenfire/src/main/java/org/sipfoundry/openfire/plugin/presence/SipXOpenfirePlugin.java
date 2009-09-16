@@ -177,6 +177,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException(ex);
         }
     }
+    
+   
 
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
@@ -243,11 +245,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
          */
         log.info("hostname " + hostname);
         
-        //  try { componentManager.addComponent(subdomain, this); } catch (Exception e) {
-        //  componentManager.getLog().error(e); log.error(e); throw new
-        //  SipXOpenfirePluginException("Init error", e); }
-         
-         // multiUserChatManager.start();
           
         String accountConfigurationFile = configurationPath + "/xmpp-account-info.xml";
         if (!new File(accountConfigurationFile).exists()) {
@@ -644,17 +641,21 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             Collection<JID> admins = XMPPServer.getInstance().getAdmins();
             JID admin = admins.iterator().next();
             mucService.addUserAllowedToCreate(admin.toBareJID());
-
+            mucService.addUserAllowedToCreate(ownerJid);
+            mucService.addSysadmin(admin.toBareJID());
+            mucService.setLogConversationsTimeout(60); 
+            mucService.setLogConversationBatchSize(100);
+            mucService.setRoomCreationRestricted(true);
         }
         
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
         if (!mucRoom.getOwners().contains(ownerJid)) {
-            mucRoom.addFirstOwner(ownerJid);
+            mucRoom.addOwner(ownerJid, mucRoom.getRole());
 
         }
         for (JID admins : XMPPServer.getInstance().getAdmins()) {
             if (!mucRoom.getOwners().contains(admins.toBareJID())) {
-                mucRoom.addFirstOwner(admins.toBareJID());
+                mucRoom.addOwner(ownerJid, mucRoom.getRole());
             }
         }
 
@@ -979,6 +980,12 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      */
     public static SipFoundryAppender getLogAppender() {
         return logAppender;
+    }
+    
+    public MUCRoom getChatRoom(String subdomain, String roomName ) {
+        String bareJid = subdomain + "." + this.getXmppDomain();
+        JID jid = new JID(bareJid);
+        return this.multiUserChatManager.getMultiUserChatService(jid).getChatRoom(roomName);
     }
 
 }

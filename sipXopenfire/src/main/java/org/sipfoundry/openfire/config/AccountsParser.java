@@ -106,9 +106,11 @@ public class AccountsParser {
                         logger.debug("Checking MUCRoom" + domain);
                         XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom.getName());
                         if (xmppChatRoom == null) {
-                            logger.debug("Remove MUCRoom " + mucRoom.getName());
-                            plugin.removeChatRoom(domain,mucRoom.getName());
-                           
+                            logger.debug("Adhoc chat room detected - enable logging");
+                            mucRoom.setLogEnabled(true);
+                            logger.debug("AdHoc chat room has owners : " + mucRoom.getOwners());
+                            
+                            mucRoom.getOwners();
                         } 
                     }
                     
