@@ -105,6 +105,10 @@ sipXrest : sipXcommons
 sipXcallController : sipXrest 
 	@echo sipXcallController
 
+.PHONY: sipXcdrLog
+sipXcdrLog : sipXrest 
+	@echo sipXcdrLog
+
 .PHONY: sipXecs
 sipXecs : \
 	sipXproxy \
@@ -120,5 +124,6 @@ sipXecs : \
 	sipXopenfire \
 	sipXrest \
 	sipXcallController \
+	sipXcdrLog \
 	doc
 	@echo sipXecs
