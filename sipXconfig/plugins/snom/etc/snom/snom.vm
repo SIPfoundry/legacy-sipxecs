@@ -30,7 +30,7 @@
 #if ($profileName.toString().endsWith('!'))
 #set ($permission = '!')
 #end
-		<speed idx="${i}" perm="$permission">$number<speed>
+		<speed idx="${i}" perm="$permission">$number</speed>
 #end
 		<!-- identities -->
 #foreach ($line in $phone.ProfileLines)
