@@ -40,11 +40,11 @@ public class DialogContext {
     private int timeout;
     private long creationTime = System.currentTimeMillis();
 
-    public DialogContext(String key, int timeout) {
+    public DialogContext(String key, int timeout, int cachetimeout) {
         this.key = key;
         logger.debug("DialogContext : " + timeout);
         status.append(HEADER);
-        this.timeout = timeout;
+        this.timeout = cachetimeout;
        
         RestServer.timer.schedule(new TimerTask() {
 

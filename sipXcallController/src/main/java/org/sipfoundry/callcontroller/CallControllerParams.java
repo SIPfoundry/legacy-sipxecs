@@ -20,4 +20,6 @@ public interface CallControllerParams {
     
     public static final String TIMEOUT = "timeout";
 
+    public static final String RESULTCACHETIME = "resultCachetime";
+
 }

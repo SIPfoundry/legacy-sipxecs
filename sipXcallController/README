@@ -58,8 +58,9 @@ agent - the name of the agent that is placing the third party call.
 subject  - this URL parameter determines what goes into the SIP subject header of the initial call setup INVITE.
 isForwardingAllowed - whether or not forwarding is allowed for the initial invite
 timeout - the timeout after which the INVITE to the calling party is terminated.
+resultCacheTime - The amount of time for which to keep the call progress cache record in memory.
 
 
-Several curl examples are provided in the test directory.
+Several curl examples are provided in the test directory. Please consult these.
 
 

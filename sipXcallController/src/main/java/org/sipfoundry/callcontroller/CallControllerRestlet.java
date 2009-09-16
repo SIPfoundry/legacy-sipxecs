@@ -101,9 +101,16 @@ public class CallControllerRestlet extends Restlet {
                     timeout = Integer.parseInt((String) request.getAttributes().get(
                             CallControllerParams.TIMEOUT));
                 }
+                
+                int cachetimeout = 180;
+                
+                if ((String) request.getAttributes().get(CallControllerParams.RESULTCACHETIME) != null) {
+                    timeout = Integer.parseInt((String) request.getAttributes().get(
+                            CallControllerParams.RESULTCACHETIME));
+                }
 
                 if (method.equals(CallControllerParams.REFER)) {
-                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout);
+                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout, cachetimeout);
                     Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
                             agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
                             isForwardingAllowed, dialogContext, timeout);

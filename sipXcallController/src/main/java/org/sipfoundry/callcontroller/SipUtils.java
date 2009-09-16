@@ -76,13 +76,13 @@ public class SipUtils {
 
     private static HashMap<String, DialogContext> dialogContextTable = new HashMap<String, DialogContext>();
 
-    public synchronized static DialogContext createDialogContext(String key, int timeout) {
+    public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout) {
         logger.debug("createDialogCOntext " + key);
         DialogContext dialogContext = getDialogContext(key);
         if (dialogContext != null) {
             dialogContext.remove();
         }
-        dialogContext = new DialogContext(key, timeout);
+        dialogContext = new DialogContext(key, timeout, cachetimeout);
         dialogContextTable.put(key, dialogContext);
 
         return dialogContext;
