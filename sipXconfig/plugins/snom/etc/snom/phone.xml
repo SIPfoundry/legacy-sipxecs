@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
   <!ENTITY types SYSTEM "types.xml">
@@ -98,6 +99,7 @@
       <value>English</value>
     </setting>
     <setting name="active_line">
+      <profileName>active_line$</profileName>
       <type>
         <integer min="1" max="12" />
       </type>
@@ -182,7 +184,7 @@
     </setting>
     <setting name="conf_hangup" advanced="yes">
       <type refid="on-off" />
-      <value>off</value>
+      <value>on</value>
     </setting>
     <setting name="transfer_on_hangup" advanced="yes">
       <type refid="on-off" />
@@ -1048,12 +1050,12 @@
     </setting>
     <setting name="ldap_password">
       <type>
-        <string password="yes"/>
+        <string password="yes" />
       </type>
     </setting>
     <setting name="ldap_max_hits" advanced="yes">
       <type>
-        <integer min="1"/>
+        <integer min="1" />
       </type>
       <value>50</value>
     </setting>
