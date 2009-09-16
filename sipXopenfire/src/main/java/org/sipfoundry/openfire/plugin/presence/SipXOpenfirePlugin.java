@@ -93,23 +93,27 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     private AccountsParser accountsParser;
 
-    public class ConferenceInformation{
+    public class ConferenceInformation {
         private String extension;
         private String pin;
 
         public String getExtension() {
             return extension;
         }
-        public void setExtension( String extension ) {
+
+        public void setExtension(String extension) {
             this.extension = extension;
         }
+
         public String getPin() {
             return pin;
         }
-        public void setPin( String pin ) {
+
+        public void setPin(String pin) {
             this.pin = pin;
         }
-        public ConferenceInformation(String extension, String pin){
+
+        public ConferenceInformation(String extension, String pin) {
             this.extension = extension;
             this.pin = pin;
         }
@@ -177,8 +181,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException(ex);
         }
     }
-    
-   
 
     public void initializePlugin(PluginManager manager, File pluginDirectory) {
         SipXOpenfirePlugin.instance = this;
@@ -235,17 +237,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         log.info("HostName = " + hostname);
 
         probedPresence = new ConcurrentHashMap<String, Presence>();
-       
+
         groupManager = GroupManager.getInstance();
 
         multiUserChatManager = server.getMultiUserChatManager();
-        
+
         /*
          * Load up the database.
          */
         log.info("hostname " + hostname);
-        
-          
+
         String accountConfigurationFile = configurationPath + "/xmpp-account-info.xml";
         if (!new File(accountConfigurationFile).exists()) {
             System.err.println("User account file not found");
@@ -632,7 +633,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean listRoomInDirectory, boolean makeRoomModerated, boolean makeRoomMembersOnly,
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
-            String description, String conferenceExtension, String conferencePin) throws Exception {
+            String description, String conferenceExtension, String conferencePin)
+            throws Exception {
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(subdomain);
         if (mucService == null) {
@@ -643,29 +645,34 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucService.addUserAllowedToCreate(admin.toBareJID());
             mucService.addUserAllowedToCreate(ownerJid);
             mucService.addSysadmin(admin.toBareJID());
-            mucService.setLogConversationsTimeout(60); 
+            mucService.setLogConversationsTimeout(60);
             mucService.setLogConversationBatchSize(100);
             mucService.setRoomCreationRestricted(true);
         }
-        
+
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
+
+        mucRoom.unlock(mucRoom.getRole());
+
+        if (!mucRoom.wasSavedToDB()) {
+            mucRoom.saveToDB();
+        }
+
+        if (mucRoom.isPersistent() != isPersistent) {
+            mucRoom.setPersistent(isPersistent);
+        }
+
         if (!mucRoom.getOwners().contains(ownerJid)) {
             mucRoom.addOwner(ownerJid, mucRoom.getRole());
 
         }
+
         for (JID admins : XMPPServer.getInstance().getAdmins()) {
             if (!mucRoom.getOwners().contains(admins.toBareJID())) {
                 mucRoom.addOwner(ownerJid, mucRoom.getRole());
             }
         }
 
-        if (mucRoom.isPersistent() != isPersistent) {
-            mucRoom.setPersistent(isPersistent);
-            if (isPersistent == true){
-                mucRoom.unlock(mucRoom.getRole());
-                mucRoom.saveToDB();
-            }
-        }
         if (!mucRoom.canAnyoneDiscoverJID()) {
             mucRoom.setCanAnyoneDiscoverJID(true);
         }
@@ -701,10 +708,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucRoom.setDescription(description);
 
         }
+        
+        
+        /*
+         * Check if password changed and set password if changed.
+         */
 
-        if (mucRoom.getPassword() != null && password == null || mucRoom.getPassword() == null
-                && password != null || mucRoom.getPassword() != password
-                || !mucRoom.getPassword().equals(password)) {
+        if (mucRoom.getPassword() != null && password == null 
+           || mucRoom.getPassword() == null && password != null 
+           || mucRoom.getPassword() != password
+           || !mucRoom.getPassword().equals(password)) {
             mucRoom.setPassword(password);
 
         }
@@ -723,7 +736,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
 
         /* The conference extension is the voice conf bridge extension */
-        this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName, new ConferenceInformation(conferenceExtension, conferencePin));
+        this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName,
+                new ConferenceInformation(conferenceExtension, conferencePin));
 
     }
 
@@ -843,7 +857,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if (mucRoom == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
-        ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "." + roomName);;
+        ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
+                + roomName);
+        ;
         if (confInfo == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
@@ -857,7 +873,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if (mucRoom == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
-        ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "." + roomName);;
+        ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
+                + roomName);
+        ;
         if (confInfo == null) {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
@@ -980,12 +998,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      */
     public static SipFoundryAppender getLogAppender() {
         return logAppender;
-    }
-    
-    public MUCRoom getChatRoom(String subdomain, String roomName ) {
-        String bareJid = subdomain + "." + this.getXmppDomain();
-        JID jid = new JID(bareJid);
-        return this.multiUserChatManager.getMultiUserChatService(jid).getChatRoom(roomName);
     }
 
 }

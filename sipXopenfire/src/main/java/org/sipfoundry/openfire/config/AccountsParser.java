@@ -2,6 +2,7 @@ package org.sipfoundry.openfire.config;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Timer;
@@ -42,9 +43,8 @@ public class AccountsParser {
     private static Digester digester;
     private String accountDbFileName;
     private File accountDbFile;
-    private long lastModified;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
-
+  
     private static Timer timer = new Timer();
 
     static {
@@ -61,69 +61,78 @@ public class AccountsParser {
         @Override
         public void run() {
             try {
-                if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
-                    AccountsParser.this.lastModified = accountDbFile.lastModified(); 
-                    String fileUrl = "file://" + accountDbFileName;
-                    XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
-                    SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
-                    Collection<UserAccount> userAccounts = new HashSet<UserAccount>();
-                    userAccounts.addAll(plugin.getUserAccounts());
-                    
-                    for (UserAccount userAccount : userAccounts) {
-                        if (accountInfo.getXmppUserAccount(userAccount.getXmppUserName()) == null) {
-                            if ( ! userAccount.getXmppUserName().equals("admin")) {
-                                plugin.destroyUser(XmppAccountInfo.appendDomain(userAccount.getXmppUserName()));
-                            }
+                String fileUrl = "file://" + accountDbFileName;
+                XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
+                SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+                Collection<UserAccount> userAccounts = new HashSet<UserAccount>();
+                userAccounts.addAll(plugin.getUserAccounts());
+
+                for (UserAccount userAccount : userAccounts) {
+                    if (accountInfo.getXmppUserAccount(userAccount.getXmppUserName()) == null) {
+                        if (!userAccount.getXmppUserName().equals("admin")) {
+                            plugin.destroyUser(XmppAccountInfo.appendDomain(userAccount
+                                    .getXmppUserName()));
                         }
                     }
-                    HashSet<Group> groups = new HashSet<Group>();
-                    groups.addAll(plugin.getGroups());
-                    for (Group group : groups) {
-                        if ( accountInfo.getXmppGroup(group.getName()) == null ) {
-                            logger.debug("Cannot find group in config directory " + group.getName());
-                            plugin.deleteGroup(group.getName());
-                            continue;
+                }
+                HashSet<Group> groups = new HashSet<Group>();
+                groups.addAll(plugin.getGroups());
+                for (Group group : groups) {
+                    if (accountInfo.getXmppGroup(group.getName()) == null) {
+                        logger.debug("Cannot find group in config directory " + group.getName());
+                        plugin.deleteGroup(group.getName());
+                        continue;
+                    }
+                    XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
+                    Collection<JID> members = group.getMembers();
+                    for (JID member : members) {
+                        /*
+                         * Make sure we have a record for this member in our sipxconfig generated
+                         * group.
+                         */
+                        if (!xmppGroup.hasMember(member.toBareJID())) {
+                            group.getMembers().remove(member);
                         }
-                        XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
-                        Collection<JID> members = group.getMembers();
-                        for (JID member : members) {
-                            /* Make sure we have a record for this member 
-                             * in our sipxconfig generated group.
+
+                    }
+                }
+                Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
+                /*
+                 * Remove any chat rooms that do not appear in the xml file.
+                 */
+                for (MUCRoom mucRoom : chatRooms) {
+                    String domain = mucRoom.getMUCService().getServiceDomain().split("\\.")[0];
+                    logger.debug("Checking MUCRoom" + domain + " name " + mucRoom.getName());
+                    XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom
+                            .getName());
+                    // Found a chat room that is not in our list of chat rooms.
+
+                    if (xmppChatRoom == null) {
+                        if (!mucRoom.wasSavedToDB()) {
+                            /*
+                             * Anything not in our database is deemed adhoc.
                              */
-                            if ( !xmppGroup.hasMember(member.toBareJID())) {
-                                group.getMembers().remove(member);
-                            }
-                            
-                        }
-                    }
-                    Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
-                    /*
-                     * Remove any chat rooms that do not appear in the xml file.
-                     */
-                    for (MUCRoom mucRoom : chatRooms) {
-                        String domain = mucRoom.getMUCService()
-                        .getServiceDomain().split("\\.")[0];
-                        logger.debug("Checking MUCRoom" + domain);
-                        XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom.getName());
-                        if (xmppChatRoom == null) {
                             logger.debug("Adhoc chat room detected - enable logging");
                             mucRoom.setLogEnabled(true);
                             logger.debug("AdHoc chat room has owners : " + mucRoom.getOwners());
-                            
-                            mucRoom.getOwners();
-                        } 
+                            mucRoom.setLogEnabled(true);
+                        } else {
+                            logger.debug("Destroy chat room " + mucRoom.getName());
+                            mucRoom.destroyRoom(null, "not a managed chat");
+
+                        }
                     }
-                    
-                    /*
-                     * Restrict the chat services to those that are in xmpp-account-info.xml
-                     */
-                    HashSet<String>allowedDomains = new HashSet<String>();
-                    for ( XmppChatRoom chatRoom: accountInfo.getXmppChatRooms()) {
-                        allowedDomains.add(chatRoom.getSubdomain());
-                    }
-                    plugin.pruneChatServices(allowedDomains);
-                    
                 }
+
+                /*
+                 * Restrict the chat services to those that are in xmpp-account-info.xml
+                 */
+                HashSet<String> allowedDomains = new HashSet<String>();
+                for (XmppChatRoom chatRoom : accountInfo.getXmppChatRooms()) {
+                    allowedDomains.add(chatRoom.getSubdomain());
+                }
+                plugin.pruneChatServices(allowedDomains);
+
             } catch (Exception ex) {
                 logger.error("Exception caught while parsing accountsdb ", ex);
             }
@@ -146,14 +155,14 @@ public class AccountsParser {
             throw new SipXOpenfirePluginException("Account db file not found : "
                     + accountDbFileName);
         }
-      
+
     }
 
     public void startScanner() {
         Scanner scanner = new Scanner();
         timer.schedule(scanner, 0, 10000);
     }
-    
+
     private static void addCallMethod(String elementName, String methodName) {
         digester.addCallMethod(String.format("%s/%s", currentTag, elementName), methodName, 0);
     }
@@ -197,11 +206,11 @@ public class AccountsParser {
         addCallMethod("description", "setDescription");
         addCallMethod("password", "setPassword");
         addCallMethod("room-owner", "setOwner");
-        addCallMethod("log-room-conversations","setLogRoomConversations");
-        addCallMethod("is-public-room","setIsPublicRoom");
+        addCallMethod("log-room-conversations", "setLogRoomConversations");
+        addCallMethod("is-public-room", "setIsPublicRoom");
         addCallMethod("is-members-only", "setMembersOnly");
-        addCallMethod("is-persistent","setPersistent");
-        addCallMethod("is-room-listed","setRoomListed");
+        addCallMethod("is-persistent", "setPersistent");
+        addCallMethod("is-room-listed", "setRoomListed");
 
     }
 
