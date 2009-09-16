@@ -43,17 +43,19 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public String getExternalUsersDirectory();
 
-    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook);
+    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook, User user);
 
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook);
 
-    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm);
+    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm, User user);
 
     public void reset();
 
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
 
     public void addEntriesFromFile(Integer phonebookId, InputStream in);
+
+    public Phonebook getPrivatePhonebook(User user);
 
     // --> this methods will be removed after version update
     public void removeTableColumns();

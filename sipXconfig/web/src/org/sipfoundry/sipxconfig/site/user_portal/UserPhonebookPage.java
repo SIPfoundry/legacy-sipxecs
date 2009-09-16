@@ -75,13 +75,14 @@ public abstract class UserPhonebookPage extends UserBasePage {
     }
 
     private void initializeEntries() {
+        User user = getUser();
         String query = getQuery();
         Collection<Phonebook> phonebooks = getPhonebooks();
         Collection<PhonebookEntry> entries = null;
         if (StringUtils.isEmpty(query)) {
-            entries = getPhonebookManager().getEntries(phonebooks);
+            entries = getPhonebookManager().getEntries(phonebooks, user);
         } else {
-            entries = getPhonebookManager().search(phonebooks, query);
+            entries = getPhonebookManager().search(phonebooks, query, user);
         }
         setPhonebookEntries(entries);
     }

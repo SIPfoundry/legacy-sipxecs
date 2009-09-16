@@ -31,7 +31,7 @@ public class UserPhonebookResourceTest extends UserPhonebookSearchResourceTest {
 
         m_phonebookManager.getPhonebooksByUser(null);
         expectLastCall().andReturn(phonebooks);
-        m_phonebookManager.getEntries(phonebooks);
+        m_phonebookManager.getEntries(phonebooks, m_user);
         expectLastCall().andReturn(getMockPhonebookEntries());
 
         replay(m_phonebookManager);

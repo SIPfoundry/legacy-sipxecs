@@ -52,7 +52,7 @@ public class UserPhonebookPageTest extends TestCase {
         m_phonebookManager = createMock(PhonebookManager.class);
         m_phonebookManager.getPhonebooksByUser(m_portalUser);
         expectLastCall().andReturn(phonebooks).anyTimes();
-        m_phonebookManager.getEntries(phonebooks);
+        m_phonebookManager.getEntries(phonebooks, m_portalUser);
         expectLastCall().andReturn(m_allEntries).anyTimes();
 
         m_pageCreator = new Creator();

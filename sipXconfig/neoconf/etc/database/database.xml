@@ -332,6 +332,7 @@
     <antcall target="add_addressbook_imDisplayName" />
     <antcall target="branch-address" />
     <antcall target="remove-legacy-media-server" />
+	<antcall target="phonebook-add-user" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -1002,6 +1003,9 @@
   </target>
   <target name="remove-legacy-media-server" unless="remove-legacy-media-server">
     <db-patch patch="remove-legacy-media-server"/>
+  </target>
+  <target name="phonebook-add-user" unless="phonebook-add-user">
+	<db-patch patch="phonebook-add-user"/>
   </target>
 
   <!--

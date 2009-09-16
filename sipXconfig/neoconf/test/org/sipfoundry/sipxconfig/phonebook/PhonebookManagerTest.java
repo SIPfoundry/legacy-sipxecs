@@ -204,15 +204,6 @@ public class PhonebookManagerTest extends TestCase {
         testHelper.configureCoreContextMock(coreContextMock);
         EasyMock.replay(coreContextMock);
 
-        // need to override the getEntries method to control what entries we use
-        PhonebookManagerImpl out = new PhonebookManagerImpl() {
-            @Override
-            public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks) {
-                return testHelper.getPhonebookEntries();
-            }
-        };
-        out.setCoreContext(coreContextMock);
-
         List<PhonebookEntry> allEntries = new ArrayList(testHelper.getPhonebookEntries());
         // require there is at least one test user defined
         if (allEntries.size() < 1) {
@@ -220,25 +211,35 @@ public class PhonebookManagerTest extends TestCase {
         }
 
         PhonebookEntry testEntry = allEntries.get(0);
-        String username = testHelper.getUserByUsername(testEntry.getNumber()).getUserName();
+        User userPortal = testHelper.getUserByUsername(testEntry.getNumber());
+        String username = userPortal.getUserName();
+
+        // need to override the getEntries method to control what entries we use
+        PhonebookManagerImpl out = new PhonebookManagerImpl() {
+            @Override
+            public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {
+                return testHelper.getPhonebookEntries();
+            }
+        };
+        out.setCoreContext(coreContextMock);
 
         // test searching by username in all lowercase
         Collection<PhonebookEntry> entriesThatMatchUsername = out.search(Collections.singletonList(new Phonebook()),
-                username.toLowerCase());
+                username.toLowerCase(), userPortal);
 
         assertEquals(1, entriesThatMatchUsername.size());
         assertTrue(entriesThatMatchUsername.contains(testEntry));
 
         // test searching by username in all caps
         Collection<PhonebookEntry> entriesThatMatchUsernameCaps = out.search(Collections
-                .singletonList(new Phonebook()), username.toUpperCase());
+                .singletonList(new Phonebook()), username.toUpperCase(), userPortal);
 
         assertEquals(1, entriesThatMatchUsernameCaps.size());
         assertTrue(entriesThatMatchUsernameCaps.contains(testEntry));
 
         // test searching by first name
         Collection<PhonebookEntry> entriesThatMatchFirstName = out.search(
-                Collections.singletonList(new Phonebook()), testEntry.getFirstName());
+                Collections.singletonList(new Phonebook()), testEntry.getFirstName(), userPortal);
 
         assertEquals(1, entriesThatMatchFirstName.size());
         assertTrue(entriesThatMatchFirstName.contains(testEntry));
@@ -252,14 +253,14 @@ public class PhonebookManagerTest extends TestCase {
             }
         }
         Collection<PhonebookEntry> entriesThatMatchLastName = out.search(Collections.singletonList(new Phonebook()),
-                testEntry.getLastName());
+                testEntry.getLastName(), userPortal);
 
         assertEquals(lastNameCount, entriesThatMatchLastName.size());
         assertTrue(entriesThatMatchLastName.contains(testEntry));
 
         // test searching by partial first name
         Collection<PhonebookEntry> entriesThatMatchPartialFirstName = out.search(Collections
-                .singletonList(new Phonebook()), testEntry.getFirstName().substring(0, 3));
+                .singletonList(new Phonebook()), testEntry.getFirstName().substring(0, 3), userPortal);
 
         assertEquals(1, entriesThatMatchPartialFirstName.size());
         assertTrue(entriesThatMatchPartialFirstName.contains(testEntry));
@@ -274,13 +275,13 @@ public class PhonebookManagerTest extends TestCase {
         }
 
         Collection<PhonebookEntry> entriesThatMatchAlias = out.search(Collections.singletonList(new Phonebook()),
-                userWithAlias.getAliases().iterator().next());
+                userWithAlias.getAliases().iterator().next(), userPortal);
 
         assertEquals(1, entriesThatMatchAlias.size());
         assertTrue(entriesThatMatchAlias.contains(testHelper.getEntryByNumber(userWithAlias.getUserName())));
 
-        out.search(Collections.singletonList(new Phonebook()), "300");
-        out.search(Collections.singletonList(new Phonebook()), "nulluser");
+        out.search(Collections.singletonList(new Phonebook()), "300", userPortal);
+        out.search(Collections.singletonList(new Phonebook()), "nulluser", userPortal);
     }
 
     public void testUserPhoneBookEntry() throws Exception {

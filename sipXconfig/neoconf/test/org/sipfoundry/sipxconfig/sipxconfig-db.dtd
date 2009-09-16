@@ -622,6 +622,7 @@
     description CDATA #IMPLIED
     members_csv_filename CDATA #IMPLIED
     members_vcard_filename CDATA #IMPLIED
+	user_id CDATA #IMPLIED
 >
 
 <!ELEMENT phonebook_consumer EMPTY>

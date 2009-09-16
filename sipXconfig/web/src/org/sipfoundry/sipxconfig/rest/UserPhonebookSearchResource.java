@@ -48,7 +48,8 @@ public class UserPhonebookSearchResource extends UserResource {
         Form form = getRequest().getResourceRef().getQueryAsForm();
         m_searchTerm = form.getFirstValue("query");
         Collection<Phonebook> phonebooks = getPhonebooks();
-        Collection<PhonebookEntry> entries = m_phonebookManager.search(phonebooks, m_searchTerm);
+        // TODO
+        Collection<PhonebookEntry> entries = m_phonebookManager.search(phonebooks, m_searchTerm, getUser());
 
         return new PhonebookEntryRepresentation(variant.getMediaType(), convertPhonebookEntries(entries));
     }

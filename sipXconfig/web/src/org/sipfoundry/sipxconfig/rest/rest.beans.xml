@@ -30,6 +30,7 @@
 
   <bean id="userPhonebookResourceAll" class="org.sipfoundry.sipxconfig.rest.UserPhonebookResource" parent="userPhonebookResource">
     <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
   </bean>
   <alias name="userPhonebookResourceAll" alias="/my/phonebook" />
 

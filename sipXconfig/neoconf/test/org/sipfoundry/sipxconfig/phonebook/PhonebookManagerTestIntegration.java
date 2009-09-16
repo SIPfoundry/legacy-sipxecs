@@ -71,7 +71,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User yellowthroat = m_coreContext.loadUser(1001);
         Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(yellowthroat);
-        Iterator<PhonebookEntry> entries = m_phonebookManager.getEntries(books).iterator();
+        Iterator<PhonebookEntry> entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
         assertEquals("canadian", entries.next().getNumber());
         assertEquals("mallard", entries.next().getNumber());
         assertEquals("pintail", entries.next().getNumber());
@@ -138,5 +138,14 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         m_phonebookManager.deletePhonebooks(Arrays.asList(2001));
         Collection<Phonebook> books = m_phonebookManager.getPhonebooks();
         assertEquals(1, books.size());
+    }
+
+    public void testGetPrivatePhonebook() throws Exception {
+        loadDataSet("phonebook/PhonebookSeed.db.xml");
+        User portaluser = m_coreContext.loadUser(1002);
+
+        Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
+        assertNotNull(privatePhonebook);
+        assertEquals("privatePhonebook_1002", privatePhonebook.getName());
     }
 }

@@ -16,6 +16,7 @@ import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class Phonebook extends BeanWithId implements NamedObject {
@@ -24,6 +25,7 @@ public class Phonebook extends BeanWithId implements NamedObject {
     private Set<Group> m_members = new TreeSet<Group>();
     private Set<Group> m_consumers = new TreeSet<Group>();
     private Collection<PhonebookFileEntry> m_entries = new ArrayList<PhonebookFileEntry>();
+    private User m_user;
 
     public Set<Group> getMembers() {
         return m_members;
@@ -84,5 +86,13 @@ public class Phonebook extends BeanWithId implements NamedObject {
     public void addEntry(PhonebookFileEntry entry) {
         entry.setPhonebook(this);
         m_entries.add(entry);
+    }
+
+    public User getUser() {
+        return m_user;
+    }
+
+    public void setUser(User user) {
+        m_user = user;
     }
 }

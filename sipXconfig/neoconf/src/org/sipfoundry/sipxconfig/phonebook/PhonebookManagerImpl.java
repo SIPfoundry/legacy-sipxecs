@@ -70,6 +70,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String NAME = "name";
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
+    private static final String PARAM_USER_ID = "userId";
 
     private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
@@ -159,11 +160,18 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public Collection<Phonebook> getPhonebooksByUser(User consumer) {
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
-                "userId", consumer.getId());
+                PARAM_USER_ID, consumer.getId());
         return books;
     }
 
-    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks) {
+    public Phonebook getPrivatePhonebook(User user) {
+        String query = "privatePhoneBookByUser";
+        List<Phonebook> privateBooks = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                query, PARAM_USER_ID, user.getId());
+        return (Phonebook) requireOneOrZero(privateBooks, query);
+    }
+
+    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {
         if (phonebooks.isEmpty()) {
             return Collections.emptyList();
         }
@@ -173,6 +181,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                 entries.put(entry.getNumber(), entry);
             }
         }
+
+        // Add private phonebook
+        Phonebook privatePhonebook = getPrivatePhonebook(user);
+        if (privatePhonebook != null) {
+            for (PhonebookFileEntry privateEntry : privatePhonebook.getEntries()) {
+                entries.put(privateEntry.getNumber(), privateEntry);
+            }
+        }
+
         return entries.values();
     }
 
@@ -211,10 +228,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      *
      * @param queryString The string to search for. Can not be null
      */
-    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String queryString) {
+    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String queryString, User portalUser) {
         RAMDirectory index = new RAMDirectory();
-
-        Collection<PhonebookEntry> phonebookEntries = getEntries(phonebooks);
+        Collection<PhonebookEntry> phonebookEntries = getEntries(phonebooks, portalUser);
 
         Map<String, PhonebookEntry> usersToEntries = new HashMap<String, PhonebookEntry>();
         try {
