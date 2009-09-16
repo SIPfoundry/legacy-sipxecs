@@ -14,7 +14,7 @@ Source: %name-%version.tar.gz
 Requires: sipxcommserverlib >= 4.1
 Requires: sipxcommons >= 4.1
 
-Requires: openfire >= 3.6.4
+Requires: sipx-openfire >= 3.6.4
 
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6
