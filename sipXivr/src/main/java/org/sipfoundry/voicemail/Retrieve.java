@@ -603,8 +603,10 @@ public class Retrieve {
             Mailbox userMbox = new Mailbox(user);
             File nameFile = userMbox.getRecordedNameFile();
             if (nameFile.exists()) {
-                fromPrompts = nameFile.getPath();
-            } else {
+                // "{name} at Extension {extension}"
+                PromptList ext = m_loc.getPromptList("atextension", nameFile.getPath(), user.getUserName());
+                fromPrompts = ext.toString();
+            } else { 
                 PromptList ext = m_loc.getPromptList("extension", user.getUserName());
                 // "Extension {extension}"
                 fromPrompts = ext.toString();
