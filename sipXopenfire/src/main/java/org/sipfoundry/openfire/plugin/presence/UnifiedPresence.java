@@ -2,6 +2,7 @@ package org.sipfoundry.openfire.plugin.presence;
 
 import org.sipfoundry.sipcallwatcher.SipResourceState;
 import org.xmpp.packet.Presence;
+import org.jivesoftware.openfire.XMPPServer;
 
 public class UnifiedPresence {
     
@@ -37,12 +38,15 @@ public class UnifiedPresence {
     private SipResourceState sipState = SipResourceState.UNDETERMINED;
     private XmppPresence xmppPresence = XmppPresence.OFFLINE;
     private String xmppStatusMessage = ""; 
+    private String xmppStatusMessageWithSipState = ""; 
     private String xmppUsername; // XMPP username that presence info relates to
+    private String jidAsString;   
     
     UnifiedPresence( String xmppUsername )
     {
         xmppPresence = XmppPresence.OFFLINE;
         this.xmppUsername = xmppUsername;
+        this.jidAsString = xmppUsername + "@" + XMPPServer.getInstance().getServerInfo().getXMPPDomain();
     }
     
     public SipResourceState getSipState()
@@ -74,6 +78,16 @@ public class UnifiedPresence {
     public void setXmppStatusMessage( String newXmppStatusMessage )
     {
         this.xmppStatusMessage = newXmppStatusMessage;
+    }
+    
+    public String getXmppStatusMessageWithSipState()
+    {
+        return this.xmppStatusMessageWithSipState;
+    }
+
+    public void setXmppStatusMessageWithSipState( String newXmppStatusMessageWithSipState )
+    {
+        this.xmppStatusMessageWithSipState = newXmppStatusMessageWithSipState;
     }
     
     public void setXmppPresence( Presence presence )
@@ -162,5 +176,10 @@ public class UnifiedPresence {
     public String getXmppUsername()
     {
         return xmppUsername;
+    }
+
+    public String getJidAsString()
+    {
+        return jidAsString;
     }
 }

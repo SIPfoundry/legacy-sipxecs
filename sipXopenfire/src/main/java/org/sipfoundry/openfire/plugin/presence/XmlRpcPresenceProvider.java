@@ -89,7 +89,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
 
      * If response reports a success, a map with the following seven elements is returned:
      *    "status-code"  // value == "OK
-     *    "sip-resource-id" // queried SIP identity
+     *    "sip-resource-id" // queried SIP identity (user part only)
      *    "jabber-id"       // associated jabber id
      *    "telephony-presence" // string representing telephony presence.  Can be "IDLE", "BUSY" or "UNDERMINED"
      *    "xmpp-presence" // string representing XMPP presence.  Can be "AVAILABLE", "OFFLINE", "EXTENDED_AWAY", "AWAY", "BUSY" and "CHAT"
@@ -118,7 +118,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
            retval.put(SIP_ID, sipId);
            retval.put(SIP_PRESENCE, unifiedPresence.getSipState().toString());
            retval.put(UNIFIED_PRESENCE, unifiedPresence.getUnifiedPresence());
-           retval.put(CUSTOM_PRESENCE_MESSAGE, unifiedPresence.getXmppStatusMessage());
+           retval.put(CUSTOM_PRESENCE_MESSAGE, unifiedPresence.getXmppStatusMessageWithSipState());
            return retval;
         } catch (Exception ex) {
             log.error("Processing error",ex);

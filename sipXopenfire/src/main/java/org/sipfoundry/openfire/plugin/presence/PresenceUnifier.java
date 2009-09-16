@@ -23,7 +23,7 @@ import org.xmpp.packet.Presence;
  * XMPP clients.  
  * 
  * This object also collects the SIP state information related to the 
- * SIP user linked to openfire users.  Any sub=component of this plug-in
+ * SIP user linked to openfire users.  Any sub-component of this plug-in
  * that wants to change the SIP state of a user must inform this object
  * via its sipStateChanged() method.
  * 
@@ -68,14 +68,39 @@ public class PresenceUnifier implements PresenceEventListener
     {
         UnifiedPresence unifiedPresence;
         unifiedPresence = unifiedPresenceMap.get( xmppUsername );
-        if( unifiedPresence == null )
-        {
+        if (unifiedPresence == null){
             unifiedPresence = new UnifiedPresence( xmppUsername );
             unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
         }
         unifiedPresence.setSipState( newState );
-        notifyListenersOfChange( unifiedPresence );
         log.debug("SipStateChanged for " + xmppUsername + " new state: " + newState + " new unified presence: " + unifiedPresence.getUnifiedPresence() );
+        // generate new status message that contains SIP state information
+        if (newState == SipResourceState.BUSY){
+            // on the phone - craft new XMPP status message that represents that.
+            String newXmppStatusMessageWithSipState = 
+                generateXmppStatusMessageWithSipState( unifiedPresence.getJidAsString(), unifiedPresence );
+            if( newXmppStatusMessageWithSipState != null ){
+                unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessageWithSipState);
+                // make plug-in aware of change so that it gets broadcasted to all watchers.
+            }
+            else{
+                // no stauts message embedding 'on the phone' info generated, just default to the
+                // plain XMPP status message then.
+                unifiedPresence.setXmppStatusMessageWithSipState(unifiedPresence.getXmppStatusMessage());       
+            }
+        }
+        else{
+            // not on the phone. Set XMPP status message to reflect that.
+            unifiedPresence.setXmppStatusMessageWithSipState(unifiedPresence.getXmppStatusMessage());
+        }
+        // make plug-in aware of change so that it gets broadcasted to all watchers.
+        try{
+            sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(), unifiedPresence.getXmppStatusMessageWithSipState());
+        }
+        catch( Exception e ){
+            log.error("PresenceUnifier::sipStateChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+        }
+        notifyListenersOfChange( unifiedPresence );
     }
 
     public void xmppStatusMessageChanged( String xmppUsername, String newXmppStatusMessage )
@@ -87,9 +112,35 @@ public class PresenceUnifier implements PresenceEventListener
             unifiedPresence = new UnifiedPresence( xmppUsername );
             unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
         }
-        unifiedPresence.setXmppStatusMessage( newXmppStatusMessage );
-        notifyListenersOfChange( unifiedPresence );
         log.debug("XmppStatusMessageChanged for " + xmppUsername + " new XMPP status message: " + newXmppStatusMessage );
+        // check to see if this message is the echo of us adding the SIP state to the XMPP status message.
+        // If it is, just skip it as the notification does not contain any info we don't already know.
+        if( !unifiedPresence.getXmppStatusMessageWithSipState().equals(newXmppStatusMessage) ){
+            // this is a genuine XMPP status message change from the user - add the SIP State 
+            // information if we are on a call.
+            unifiedPresence.setXmppStatusMessage( newXmppStatusMessage );
+            if ( unifiedPresence.getSipState() == SipResourceState.BUSY ){
+                String newXmppStatusMessageWithSipState = 
+                    generateXmppStatusMessageWithSipState( unifiedPresence.getJidAsString(), unifiedPresence );
+                if( newXmppStatusMessageWithSipState != null ){
+                    unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessageWithSipState);
+                }
+                else{
+                    unifiedPresence.setXmppStatusMessageWithSipState(unifiedPresence.getXmppStatusMessage());
+                }
+            }
+            else{
+                // not on the phone. Set XMPP status message to reflect that.
+                unifiedPresence.setXmppStatusMessageWithSipState(unifiedPresence.getXmppStatusMessage());
+            }
+            try{
+                sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(), unifiedPresence.getXmppStatusMessageWithSipState());                
+            }
+            catch( Exception e ){
+                log.error("PresenceUnifier::xmppStatusMessageChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+            }
+            notifyListenersOfChange( unifiedPresence );
+        }
     }
     
     // Notification that XMPP presence changed
@@ -251,4 +302,22 @@ public class PresenceUnifier implements PresenceEventListener
         }
     }
 
+  //@returns: null if the user does not have an 'on the phone' message
+    private String generateXmppStatusMessageWithSipState( String jid, UnifiedPresence unifiedPresence ){
+        String xmppStatusMessageWithSipState = null;
+        try{
+            xmppStatusMessageWithSipState = sipXopenfirePlugin.getOnThePhoneMessage(unifiedPresence.getJidAsString());
+            if (xmppStatusMessageWithSipState != null){
+                if (unifiedPresence.getXmppStatusMessage().length() != 0 ){
+                    xmppStatusMessageWithSipState = xmppStatusMessageWithSipState + " - " + unifiedPresence.getXmppStatusMessage();
+                }
+            }
+        }
+        catch( Exception e ){
+            log.error("PresenceUnifier::generateXmppStatusMessageWithSipState() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+        }            
+        return xmppStatusMessageWithSipState;
+    }
 }
+
+

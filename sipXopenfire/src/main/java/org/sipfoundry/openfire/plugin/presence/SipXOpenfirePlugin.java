@@ -465,6 +465,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         return user.getProperties().get(SIP_UID);
     }
 
+    // associates a jid with a sip username (without the SIP domain part) 
     public void setSipId(String userName, String sipUserName) throws UserNotFoundException {
         User user = userManager.getUser(userName);
         user.getProperties().put(SIP_UID, sipUserName);
@@ -548,13 +549,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public String getOnThePhoneMessage(String sipUserName) throws UserNotFoundException {
+    public String getOnThePhoneMessage(String jid) throws UserNotFoundException {
 
-        String userName = this.sipIdToXmppIdMap.get(sipUserName);
-        if (userName == null) {
-            throw new UserNotFoundException("User not found - no xmpp ID exists " + sipUserName);
-        }
-        User user = userManager.getUser(userName);
+        User user = userManager.getUser(jid);
         return user.getProperties().get(ON_THE_PHONE_MESSAGE);
 
     }
@@ -600,6 +597,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         server.start();
     }
 
+    // returns the JID given a sip user part.
     public String getXmppId(String sipId) {
         return this.sipIdToXmppIdMap.get(sipId);
     }
