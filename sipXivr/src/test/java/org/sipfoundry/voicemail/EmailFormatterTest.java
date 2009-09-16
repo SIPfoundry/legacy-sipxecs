@@ -10,7 +10,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxivr.Configuration;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
@@ -22,7 +22,7 @@ public class EmailFormatterTest extends TestCase {
     File m_testdir;
     File m_mailstore;
     Mailbox m_mailbox;
-    Configuration m_ivrConfig;
+    IvrConfiguration m_ivrConfig;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -40,7 +40,7 @@ public class EmailFormatterTest extends TestCase {
         m_mailbox = new Mailbox(m_user, m_mailstore.getPath());
         Mailbox.createDirsIfNeeded(m_mailbox);
         Mwi.setJustTesting(true);
-        m_ivrConfig = Configuration.getTest();
+        m_ivrConfig = IvrConfiguration.getTest();
         m_ivrConfig.setConfigUrl("https://configserver/");
         Emailer.setJustTesting(true);
         if (false) {

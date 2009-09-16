@@ -8,9 +8,9 @@
  */
 package org.sipfoundry.sipxivr;
 
-import org.sipfoundry.sipxivr.TextToPrompts;
-import org.sipfoundry.sipxivr.TextToPrompts_en;
-import org.sipfoundry.sipxivr.TextToPrompts.Types;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.freeswitch.TextToPrompts_en;
+import org.sipfoundry.commons.freeswitch.TextToPrompts.Types;
 
 import junit.framework.TestCase;
 

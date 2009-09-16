@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -29,17 +29,17 @@ public class PromptList {
     }
 
     public PromptList(Localization localization) {
-        setResourceBundle(localization.getBundle(), localization.getIvrConfig());
+        setResourceBundle(localization.getBundle(), localization.getConfig());
         setTtp(localization.getTtp());
         setPrefix(localization.getPrefix());
     }
     
-    public PromptList(ResourceBundle resourceBundle, Configuration config, TextToPrompts ttp) {
+    public PromptList(ResourceBundle resourceBundle, FreeSwitchConfigurationInterface config, TextToPrompts ttp) {
         setResourceBundle(resourceBundle, config);
         setTtp(ttp);
     }
 
-    public void setResourceBundle(ResourceBundle resourceBundle, Configuration config) {
+    public void setResourceBundle(ResourceBundle resourceBundle, FreeSwitchConfigurationInterface config) {
         this.m_resourceBundle = resourceBundle;
         // Try setting the global prefix
         try {
@@ -70,7 +70,7 @@ public class PromptList {
         this.m_globalPrefix = prefix;
     }
 
-    String appendPrefix(String localPrefix, String prompt) {
+    public String appendPrefix(String localPrefix, String prompt) {
         String usePrefix = localPrefix != null ? localPrefix : m_globalPrefix;
         
         // If no prefix, or if rooted, don't prepend prefix

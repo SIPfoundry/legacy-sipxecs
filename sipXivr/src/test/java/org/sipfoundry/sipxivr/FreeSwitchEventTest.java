@@ -10,7 +10,7 @@ package org.sipfoundry.sipxivr;
 
 import java.util.Vector;
 
-import org.sipfoundry.sipxivr.FreeSwitchEvent;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 
 import junit.framework.TestCase;
 

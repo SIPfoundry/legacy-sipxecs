@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 public abstract class FreeSwitchEventHandler {
     protected boolean m_finished = false;

@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Vector;
+
 
 /**
  * The nitty-gritty handling of data to and from the socket that came from a FreeSwitch "outbound"
@@ -28,8 +29,8 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     private PrintWriter m_out;
     private BufferedReader m_in;
 
-    public FreeSwitchEventSocket(Configuration config) {
-        super();
+    public FreeSwitchEventSocket(FreeSwitchConfigurationInterface config) {
+        super(config);
         this.setConfig(config);
     }
 

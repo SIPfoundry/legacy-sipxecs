@@ -11,9 +11,9 @@ package org.sipfoundry.sipxivr;
 import java.util.ListResourceBundle;
 import java.util.ResourceBundle;
 
-import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.TextToPrompts;
-import org.sipfoundry.sipxivr.TextToPrompts_en;
+import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.freeswitch.TextToPrompts_en;
 
 import junit.framework.TestCase;
 

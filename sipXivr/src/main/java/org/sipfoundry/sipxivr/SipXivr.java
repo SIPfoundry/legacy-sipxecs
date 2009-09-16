@@ -17,6 +17,11 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
+import org.sipfoundry.commons.freeswitch.Answer;
+import org.sipfoundry.commons.freeswitch.DisconnectException;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.Emailer;
@@ -27,7 +32,7 @@ import org.sipfoundry.voicemail.VoiceMail;
 
 public class SipXivr implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
-    private static Configuration s_config;
+    private static IvrConfiguration s_config;
 
     private Socket m_clientSocket;
     private FreeSwitchEventSocketInterface m_fses;
@@ -124,7 +129,7 @@ public class SipXivr implements Runnable {
         int eventSocketPort;
         
         // Load the configuration
-        s_config = Configuration.get();
+        s_config = IvrConfiguration.get();
 
         // Configure log4j
         Properties props = new Properties();

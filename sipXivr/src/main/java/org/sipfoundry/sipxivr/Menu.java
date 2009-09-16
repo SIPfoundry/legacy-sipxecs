@@ -9,6 +9,11 @@
 package org.sipfoundry.sipxivr;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.Collect;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.Play;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class Menu {

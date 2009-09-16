@@ -17,15 +17,16 @@ import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Collect;
+import org.sipfoundry.commons.freeswitch.Collect;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.sipxivr.DialByNameChoice;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.RestfulRequest;
-import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
@@ -177,7 +178,7 @@ public class Retrieve {
                 user = null ;
             }
             
-            if (user == null || !user.isPinCorrect(choice.getDigits(), m_loc.getIvrConfig().getRealm())) {
+            if (user == null || !user.isPinCorrect(choice.getDigits(), m_loc.getConfig().getRealm())) {
                 // WRONG, do it again!
                 
                 // "That personal identification number is not valid
@@ -1061,7 +1062,7 @@ public class Retrieve {
                         m_loc.play("pin_mismatch", "");
                     }
                     
-                    String realm = m_loc.getIvrConfig().getRealm();
+                    String realm = m_loc.getConfig().getRealm();
                     if (!user.isPinCorrect(originalPin, realm)) {
                         errorCount++;
                         LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
@@ -1073,7 +1074,7 @@ public class Retrieve {
                     try {
                         // Use sipXconfig's RESTful interface to change the PIN
                         RestfulRequest rr = new RestfulRequest(
-                                m_loc.getIvrConfig().getConfigUrl()+"/sipxconfig/rest/my/voicemail/pin/", 
+                                ((IvrConfiguration)m_loc.getConfig()).getConfigUrl()+"/sipxconfig/rest/my/voicemail/pin/", 
                                 user.getUserName(), originalPin);
                         if (rr.put(newPin)) {
                             LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin changed.");
@@ -1138,7 +1139,7 @@ public class Retrieve {
                 }
 
                 String aaName = String.format("customautoattendant-%d.wav", System.currentTimeMillis()/1000);
-                File aaFile = new File(m_loc.getIvrConfig().getPromptsDirectory(), aaName);
+                File aaFile = new File(((IvrConfiguration)m_loc.getConfig()).getPromptsDirectory(), aaName);
                 
                 // Save the recording as the aaFile
                 if (aaFile.exists()) {

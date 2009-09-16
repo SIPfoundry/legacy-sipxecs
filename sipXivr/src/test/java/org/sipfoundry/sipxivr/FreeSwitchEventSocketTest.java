@@ -11,8 +11,8 @@ package org.sipfoundry.sipxivr;
 import java.io.BufferedReader;
 import java.io.StringReader;
 
-import org.sipfoundry.sipxivr.FreeSwitchEvent;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocket;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 
 import junit.framework.TestCase;
 

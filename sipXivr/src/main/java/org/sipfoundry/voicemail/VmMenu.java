@@ -1,7 +1,7 @@
 package org.sipfoundry.voicemail;
 
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.PromptList;
 
 /**
  * Customize sipxivr.Menu with VoiceMail specific options

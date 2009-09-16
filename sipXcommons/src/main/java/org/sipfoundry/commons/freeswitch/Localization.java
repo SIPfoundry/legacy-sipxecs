@@ -7,7 +7,7 @@
  *
  */
 
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.io.File;
 import java.util.HashMap;
@@ -24,27 +24,28 @@ public class Localization {
      * class. 
      * 
      */
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    private final Logger LOG;
     
     private String m_bundleName;
     private HashMap<Locale, ResourceBundle> m_resourcesByLocale;
     private ResourceBundle m_bundle;
     private Locale m_locale;
     private TextToPrompts m_ttp;
-    private Configuration m_ivrConfig;
+    private FreeSwitchConfigurationInterface m_config;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_prefix;
 
     public Localization(String bundleName, String localeString, HashMap<Locale, ResourceBundle> resourcesByLocale,
-            Configuration ivrConfig, FreeSwitchEventSocketInterface fses) {
+            FreeSwitchConfigurationInterface config, FreeSwitchEventSocketInterface fses) {
         
         // Load the resources for the given locale.
 
         m_bundleName = bundleName;
         m_resourcesByLocale = resourcesByLocale;
         m_locale = Locale.US; // Default to good ol' US of A
-        m_ivrConfig = ivrConfig;
+        m_config = config;
         m_fses = fses;
+        LOG = config.getLogger();
         changeLocale(localeString);
     }
     
@@ -59,8 +60,9 @@ public class Localization {
         m_bundleName = bundleName;
         m_resourcesByLocale = resourcesByLocale;
         m_locale = origLoc.m_locale;
-        m_ivrConfig = origLoc.m_ivrConfig;
+        m_config = origLoc.m_config;
         m_fses = origLoc.m_fses;
+        LOG = origLoc.LOG;
         changeLocale(null);
     }
     
@@ -116,7 +118,7 @@ public class Localization {
             globalPrefix = globalPrefix.substring(0, globalPrefix.length()-1);
         }
         if (!globalPrefix.startsWith("/")) {
-            String docDir = m_ivrConfig.getDocDirectory();
+            String docDir = m_config.getDocDirectory();
             if (!docDir.endsWith("/")) {
                 docDir += "/";
             }
@@ -162,8 +164,8 @@ public class Localization {
         return m_ttp;
     }
 
-    public Configuration getIvrConfig() {
-        return m_ivrConfig;
+    public FreeSwitchConfigurationInterface getConfig() {
+        return m_config;
     }
     
     public FreeSwitchEventSocketInterface getFreeSwitchEventSocketInterface() {

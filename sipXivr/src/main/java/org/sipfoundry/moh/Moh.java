@@ -17,12 +17,13 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
-import org.sipfoundry.sipxivr.Localization;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.freeswitch.Sleep;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.Sleep;
-import org.sipfoundry.sipxivr.TextToPrompts;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 
@@ -34,7 +35,7 @@ public class Moh {
     private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
-    private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
+    private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_mohParam;
     private ValidUsersXML m_validUsers;
@@ -55,7 +56,7 @@ public class Moh {
      * @param parameters The parameters from the sip URI (to determine locale and which Moh
      *        id to use)
      */
-    public Moh(org.sipfoundry.sipxivr.Configuration ivrConfig, FreeSwitchEventSocketInterface fses,
+    public Moh(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;

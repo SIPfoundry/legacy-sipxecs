@@ -14,12 +14,16 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
+
 /**
  * Holds the configuration data needed for sipXivr.
  * 
  */
-public class Configuration {
+public class IvrConfiguration implements FreeSwitchConfigurationInterface {
 
+	private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
     private int m_eventSocketPort; // The Event Socket Listen port
@@ -36,18 +40,18 @@ public class Configuration {
     private String m_configUrl; // The url of the Config Server for PIN change requests
     private int m_httpsPort; // The port on which we listen for HTTPS services
 
-    private static Configuration s_current;
+    private static IvrConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
     
-    private Configuration() {
+    private IvrConfiguration() {
     }
     
-    public static Configuration get() {
+    public static IvrConfiguration get() {
         return update(true);
     }
     
-    public static Configuration getTest() {
+    public static IvrConfiguration getTest() {
         return update(false);
     }
     
@@ -57,9 +61,9 @@ public class Configuration {
      * 
      * @return
      */
-    private static Configuration update(boolean load) {
+    private static IvrConfiguration update(boolean load) {
         if (s_current == null || s_propertiesFile != null && s_propertiesFile.lastModified() != s_lastModified) {
-            s_current = new Configuration();
+            s_current = new IvrConfiguration();
             if (load) {
                 s_current.properties();
             }
@@ -211,4 +215,9 @@ public class Configuration {
     public void setHttpsPort(int httpsPort) {
         m_httpsPort = httpsPort;
     }
+
+	@Override
+	public Logger getLogger() {
+		return LOG;
+	}
 }

@@ -20,17 +20,18 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.attendant.Configuration.AttendantConfig;
-import org.sipfoundry.sipxivr.Collect;
+import org.sipfoundry.commons.freeswitch.Collect;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Hangup;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.Play;
+import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.freeswitch.Sleep;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
-import org.sipfoundry.sipxivr.Hangup;
-import org.sipfoundry.sipxivr.Localization;
-import org.sipfoundry.sipxivr.Play;
-import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.Sleep;
-import org.sipfoundry.sipxivr.TextToPrompts;
-import org.sipfoundry.sipxivr.Transfer;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
@@ -43,7 +44,7 @@ public class Attendant {
     private static final String RESOURCE_NAME="org.sipfoundry.attendant.AutoAttendant";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
-    private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
+    private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_aaId;
     private String m_scheduleId;
@@ -67,7 +68,7 @@ public class Attendant {
      * @param parameters The parameters from the sip URI (to determine locale and which attendant
      *        to run)
      */
-    public Attendant(org.sipfoundry.sipxivr.Configuration ivrConfig, FreeSwitchEventSocketInterface fses,
+    public Attendant(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;

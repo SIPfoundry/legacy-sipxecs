@@ -9,9 +9,9 @@
 package org.sipfoundry.voicemail;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
-import org.sipfoundry.sipxivr.PromptList;
 
 public class VmDialog {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");

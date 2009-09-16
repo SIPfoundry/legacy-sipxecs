@@ -12,12 +12,12 @@ package org.sipfoundry.voicemail;
 import java.text.MessageFormat;
 import java.util.Date;
 
-import org.sipfoundry.sipxivr.Configuration;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 
 public class EmailFormatter {
-    Configuration m_ivrConfig;
+    IvrConfiguration m_ivrConfig;
     VmMessage m_vmMessage;
     Mailbox m_mailbox;
     Object[] m_args;
@@ -33,7 +33,7 @@ public class EmailFormatter {
      * @param mailbox
      * @param vmessage
      */
-    public EmailFormatter(Configuration ivrConfig, Mailbox mailbox, VmMessage vmessage) {
+    public EmailFormatter(IvrConfiguration ivrConfig, Mailbox mailbox, VmMessage vmessage) {
         m_ivrConfig = ivrConfig;
         m_mailbox = mailbox;
         m_vmMessage =vmessage;

@@ -31,7 +31,7 @@ public class Mailbox {
 
     
     public Mailbox(User user) {
-        init(user, Configuration.get().getMailstoreDirectory());
+        init(user, IvrConfiguration.get().getMailstoreDirectory());
     }
 
     /**

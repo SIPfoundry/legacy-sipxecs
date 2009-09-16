@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,13 +25,17 @@ import org.apache.log4j.Logger;
  */
 public abstract class FreeSwitchEventSocketInterface {
 
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    protected final Logger LOG;
     private HashMap<String, String> m_variables;
     private LinkedBlockingQueue<FreeSwitchEvent> m_eventQueue = new LinkedBlockingQueue<FreeSwitchEvent>();
     private LinkedBlockingQueue<String> m_dtmfQueue = new LinkedBlockingQueue<String>();
-    private Configuration m_config;
+    private FreeSwitchConfigurationInterface m_config;
     private boolean m_disconnected;
     private boolean m_redactDtmf; // True if DTMF logs should be redacted (for "security")
+
+    public FreeSwitchEventSocketInterface(FreeSwitchConfigurationInterface config) {
+        this.LOG = config.getLogger();
+    }
 
     public abstract boolean connect(Socket socket) throws IOException;
 
@@ -191,11 +195,11 @@ public abstract class FreeSwitchEventSocketInterface {
         return m_eventQueue;
     }
 
-    public void setConfig(Configuration config) {
+    public void setConfig(FreeSwitchConfigurationInterface config) {
         m_config = config;
     }
 
-    public Configuration getConfig() {
+    public FreeSwitchConfigurationInterface getConfig() {
         return m_config;
     }
 

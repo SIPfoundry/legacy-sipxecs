@@ -19,7 +19,7 @@ import org.apache.log4j.Logger;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.sipfoundry.sipxivr.Configuration;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
@@ -81,7 +81,7 @@ public class Mwistatus extends HttpServlet {
      * Start the servlet that handles MWI requests
      * @param s_config 
      */
-    public static void StartMWIServlet(Configuration s_config, String path) {
+    public static void StartMWIServlet(IvrConfiguration s_config, String path) {
         try {
             // TODO change status-plugin.xml to point to https://{machine}:port/mwi
             
@@ -90,7 +90,7 @@ public class Mwistatus extends HttpServlet {
 
             // Bind the port on all interfaces
             // TODO HTTPS support
-            int httpsPort = org.sipfoundry.sipxivr.Configuration.get().getHttpsPort();
+            int httpsPort = IvrConfiguration.get().getHttpsPort();
             server.addListener(":" + httpsPort);
 
             HttpContext httpContext = new HttpContext();

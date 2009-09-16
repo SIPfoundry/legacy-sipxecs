@@ -16,6 +16,9 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.Collect;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class DialByName {

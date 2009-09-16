@@ -17,20 +17,21 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.DisconnectException;
+import org.sipfoundry.commons.freeswitch.DisconnectException;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Hangup;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.Play;
+import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.freeswitch.Record;
+import org.sipfoundry.commons.freeswitch.Sleep;
+import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.sipxivr.DistributionList;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
-import org.sipfoundry.sipxivr.Hangup;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
-import org.sipfoundry.sipxivr.Play;
-import org.sipfoundry.sipxivr.PromptList;
-import org.sipfoundry.sipxivr.Record;
-import org.sipfoundry.sipxivr.Sleep;
-import org.sipfoundry.sipxivr.Transfer;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 
@@ -42,7 +43,7 @@ public class VoiceMail {
     private static final String RESOURCE_NAME = "org.sipfoundry.voicemail.VoiceMail";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
-    private org.sipfoundry.sipxivr.Configuration m_ivrConfig;
+    private org.sipfoundry.sipxivr.IvrConfiguration m_ivrConfig;
     private Localization m_loc;
     private FreeSwitchEventSocketInterface m_fses;
     private ResourceBundle m_vmBundle;
@@ -70,7 +71,7 @@ public class VoiceMail {
      * @param parameters The parameters from the sip URI (to determine locale and which action
      *        to run)
      */
-    public VoiceMail(org.sipfoundry.sipxivr.Configuration ivrConfig, FreeSwitchEventSocketInterface fses,
+    public VoiceMail(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;

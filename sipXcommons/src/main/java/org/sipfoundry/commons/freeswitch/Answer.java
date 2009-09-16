@@ -6,12 +6,12 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
-public class Hangup extends CallCommand {
+public class Answer extends CallCommand {
 
-    public Hangup(FreeSwitchEventSocketInterface fses) {
+    public Answer(FreeSwitchEventSocketInterface fses) {
         super(fses);
-        m_command = "hangup";
+        m_command = "answer";
     }
 }

@@ -11,11 +11,11 @@ package org.sipfoundry.voicemail;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
-import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 

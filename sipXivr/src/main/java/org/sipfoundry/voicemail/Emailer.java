@@ -29,7 +29,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Configuration;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 
@@ -39,7 +39,7 @@ public class Emailer {
     boolean m_justTesting;
     ExecutorService m_es;
     Session m_session;
-    Configuration m_ivrConfig;
+    IvrConfiguration m_ivrConfig;
 
     private Emailer() {}
     
@@ -203,7 +203,7 @@ public class Emailer {
         return s_me;
     }
     
-    static public void init(Configuration ivrConfig) {
+    static public void init(IvrConfiguration ivrConfig) {
         Emailer me = getEmailer();
         me.m_ivrConfig = ivrConfig;
         me.m_es = Executors.newCachedThreadPool();

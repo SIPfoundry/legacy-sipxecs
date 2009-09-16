@@ -7,7 +7,7 @@
  *
  */
 
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 public class Break extends CallCommand {
 

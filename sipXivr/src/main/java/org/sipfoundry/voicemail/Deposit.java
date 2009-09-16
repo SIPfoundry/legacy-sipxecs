@@ -12,14 +12,14 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxivr.Collect;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Collect;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.Localization;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
-import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 

@@ -12,6 +12,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.RemoteRequest;
 
@@ -84,7 +85,7 @@ public class Mwi {
 
         LOG.info(String.format("Mwi::SendMWI %s %d/%d", idUri, unheard, heard));
         // URL of Status Server
-        String mwiUrlString = org.sipfoundry.sipxivr.Configuration.get().getMwiUrl();
+        String mwiUrlString = IvrConfiguration.get().getMwiUrl();
         URL mwiUrl;
         try {
             mwiUrl = new URL(mwiUrlString);

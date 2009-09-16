@@ -6,18 +6,19 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import org.apache.log4j.Logger;
 
 public class CallCommand extends FreeSwitchEventHandler {
 
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    protected final Logger LOG;
     protected FreeSwitchEventSocketInterface m_fses;
     protected String m_command = "CallCommand";
 
     public CallCommand(FreeSwitchEventSocketInterface fses) {
         this.m_fses = fses;
+        this.LOG = fses.getConfig().getLogger();
     }
 
     public boolean start() {

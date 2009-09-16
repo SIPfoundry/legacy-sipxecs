@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -31,7 +31,6 @@ import org.apache.log4j.Logger;
  * 
  */
 public abstract class TextToPrompts {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     
     public enum Types {
         cardinal, ordinal, digits, letters, prompts, date
@@ -68,8 +67,8 @@ public abstract class TextToPrompts {
             foundClass = (TextToPrompts) c.newInstance();
         } catch (Throwable t) {
             if (foundClass == null) {
-                LOG.error("Cannot find TextToPrompt subclass for locale " + l.toString()
-                        + ".  Using locale en as backup.");
+            	// TODO: Add logging support.
+                // LOG.error("Cannot find TextToPrompt subclass for locale " + l.toString() + ".  Using locale en as backup.");
                 foundClass = new TextToPrompts_en();
             }
         }
@@ -311,7 +310,8 @@ public abstract class TextToPrompts {
                 }
             }
         } catch (ParseException e) {
-            LOG.error("Value of for date() is not in yyyy-MM-dd HH:mm:ss format!.  Value="+getValue());
+        	// TODO: Add logging support
+            // LOG.error("Value of for date() is not in yyyy-MM-dd HH:mm:ss format!.  Value="+getValue());
         }
         return appendPrefix(result);
     }

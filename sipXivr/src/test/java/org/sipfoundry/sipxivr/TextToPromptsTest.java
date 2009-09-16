@@ -12,7 +12,7 @@ import java.util.Locale;
 import java.util.Properties;
 
 import org.apache.log4j.PropertyConfigurator;
-import org.sipfoundry.sipxivr.TextToPrompts;
+import org.sipfoundry.commons.freeswitch.TextToPrompts;
 
 import junit.framework.TestCase;
 

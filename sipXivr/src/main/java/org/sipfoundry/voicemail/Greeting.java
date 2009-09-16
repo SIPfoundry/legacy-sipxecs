@@ -12,9 +12,9 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
-import org.sipfoundry.sipxivr.PromptList;
 import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 
 
