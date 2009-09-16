@@ -525,9 +525,6 @@
 
   <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
     <sipx-task beanId="resetAdministrator" />
-    <sipx-sql>
-      update users set pintoken = '' where user_name = 'superadmin';
-    </sipx-sql>
   </target>
 
   <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">

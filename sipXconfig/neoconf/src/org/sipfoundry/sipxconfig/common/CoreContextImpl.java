@@ -384,17 +384,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
 
             // currently superadmin cannot invite to a conference without a valid sip password
             admin.setSipPassword(RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN));
-
-            if (StringUtils.isEmpty(pin)) {
-                admin.setPintoken("");
-            } else {
-                admin.setPin(pin, getAuthorizationRealm());
-            }
         } else {
             // if superadmin user already exists make sure it has superadmin permission
             admin.setPermission(PermissionName.SUPERADMIN, true);
         }
 
+        admin.setPin(StringUtils.defaultString(pin), getAuthorizationRealm());
         admin.addGroup(adminGroup);
         saveUser(admin);
     }
