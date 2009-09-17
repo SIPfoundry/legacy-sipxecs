@@ -5,24 +5,21 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.FullTransform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
- * LongDistanceRule
+ * EmergencyRule
  */
-public class EmergencyRule extends DialingRule {
+public class EmergencyRule extends LocationBasedDialingRule {
     private static final String SOS = "sos";
-    private static final String ROUTE_PATTERN = "route=%s";
 
     private String m_emergencyNumber;
     private String m_optionalPrefix;
@@ -46,25 +43,7 @@ public class EmergencyRule extends DialingRule {
         List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Gateway gateway : gateways) {
-            FullTransform transform = new FullTransform();
-            transform.setUser(gateway.getCallPattern(m_emergencyNumber));
-            transform.setHost(gateway.getGatewayAddress());
-            String transport = gateway.getGatewayTransportUrlParam();
-            if (transport != null) {
-                transform.setUrlParams(transport);
-            }
-            transform.addFieldParams(q.getSerial());
-            if (getSchedule() != null) {
-                String validTime = getSchedule().calculateValidTime();
-                String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
-                transform.addFieldParams(scheduleParam);
-            }
-            String route = gateway.getRoute();
-            if (StringUtils.isNotBlank(route)) {
-                transform.setHeaderParams(String.format(ROUTE_PATTERN, route));
-            }
-            transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
-            transforms.add(transform);
+            transforms.add(getGatewayTransform(gateway, getOutPattern(), q));
         }
         return transforms.toArray(new Transform[transforms.size()]);
     }
@@ -109,5 +88,10 @@ public class EmergencyRule extends DialingRule {
 
     public void setOptionalPrefix(String optionalPrefix) {
         m_optionalPrefix = optionalPrefix;
+    }
+
+    @Override
+    public String getOutPattern() {
+        return m_emergencyNumber;
     }
 }
