@@ -61,7 +61,6 @@ public class CallWatcher
         CallWatcher.parseConfigurationFile();   
          //Create Listening Point
         initializeJainSip();
-        Thread.sleep(100);
         sipStackBean.getSubscriber().start();
     }
 
@@ -75,7 +74,6 @@ public class CallWatcher
     public static void pluginInit() throws Exception  {
         //Create Listening Point
         initializeJainSip();
-        Thread.sleep(100);
         sipStackBean.getSubscriber().start();
        
     }

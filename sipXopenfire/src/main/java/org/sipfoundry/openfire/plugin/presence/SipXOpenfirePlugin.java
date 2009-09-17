@@ -483,39 +483,50 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         user.getProperties().put(SIP_PWD, sipPassword);
     }
 
-    public void createGroup(String groupName, String adminJid, String description)
+    public void createGroup(String groupName, JID adminJID, String description)
             throws IllegalArgumentException {
         log.debug("createGroup groupName = " + groupName);
         Group group = null;
-        JID jid = new JID(adminJid);
-        if (!jid.getDomain().equals(this.getXmppDomain())) {
-            throw new IllegalArgumentException("Domain must be local domain");
-        }
-
+        
         try {
             group = groupManager.getGroup(groupName);
+            groupManager.deleteGroup(group);
+
         } catch (GroupNotFoundException ex) {
-            try {
-                group = groupManager.createGroup(groupName);
 
-            } catch (GroupAlreadyExistsException ex1) {
-                log.debug("Group already exists - not creating group");
-
-            }
         }
-        group.setDescription(description);
-        group.getAdmins().remove(jid);
-        group.getAdmins().add(jid);
+        try {
+            group = groupManager.createGroup(groupName);
+
+        } catch (GroupAlreadyExistsException ex1) {
+            log.debug("Group already exists - not creating group");
+
+        }
+        if (description != null) {
+            group.setDescription(description);
+        }
+
+        if (adminJID != null && adminJID.getDomain().equals(this.getXmppDomain())
+                && this.isValidUser(adminJID)) {
+            group.getAdmins().add(adminJID);
+        }
 
     }
 
-    public void addUserToGroup(String userJid, String groupName) throws GroupNotFoundException {
-        log.debug("addUserToGroup " + userJid + " GroupName " + groupName);
-        JID jid = new JID(userJid);
+    public void addUserToGroup(JID jid, String groupName, boolean isAdmin)
+            throws GroupNotFoundException {
+        log.debug("addUserToGroup " + jid + " GroupName " + groupName);
+
         Group group = groupManager.getGroup(groupName, true);
         if (group.getAdmins().contains(jid)) {
             log.debug("Admins already has " + jid);
+            group.getMembers().add(jid);
         } else {
+            if (isAdmin) {
+                if (jid.getDomain().equals(this.getXmppDomain())) {
+                    group.getAdmins().add(jid);
+                }
+            }
             group.getMembers().add(jid);
         }
 
@@ -706,16 +717,14 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucRoom.setDescription(description);
 
         }
-        
-        
+
         /*
          * Check if password changed and set password if changed.
          */
 
-        if (mucRoom.getPassword() != null && password == null 
-           || mucRoom.getPassword() == null && password != null 
-           || mucRoom.getPassword() != password
-           || !mucRoom.getPassword().equals(password)) {
+        if (mucRoom.getPassword() != null && password == null || mucRoom.getPassword() == null
+                && password != null || mucRoom.getPassword() != password
+                || !mucRoom.getPassword().equals(password)) {
             mucRoom.setPassword(password);
 
         }
@@ -996,6 +1005,22 @@ public class SipXOpenfirePlugin implements Plugin, Component {
      */
     public static SipFoundryAppender getLogAppender() {
         return logAppender;
+    }
+
+    public boolean isValidUser(JID userJid) {
+
+        /*
+         * A valid user in another domain - return OK for this.
+         */
+        if (!userJid.getDomain().equals(this.getXmppDomain()))
+            return true;
+        try {
+            String username = userJid.getNode();
+            this.userManager.getUser(username);
+        } catch (UserNotFoundException e) {
+            return false;
+        }
+        return true;
     }
 
 }

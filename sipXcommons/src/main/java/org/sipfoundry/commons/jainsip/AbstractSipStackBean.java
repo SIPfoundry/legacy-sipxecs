@@ -121,6 +121,7 @@ public abstract class AbstractSipStackBean {
               }
             
             }
+            Thread.sleep(500);
           
             SipStackExt impl = (SipStackExt) stack;
             if ( getHashedPasswordAccountManager() != null ) {
