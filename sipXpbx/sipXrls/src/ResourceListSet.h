@@ -201,7 +201,7 @@ class ResourceListSet : public UtlContainableAtomic
    //! Split a userData value into the seqNo and "enum notifyCodes".
    static void splitUserData(int userData, int& seqNo, enum notifyCodes& type);
 
-   //! Queue a request to call SipSubscribeClient::endSubscription.
+   //! Queue a request to call SipSubscribeClient::endSubscriptionGroup.
    void queueEndSubscription(/// the handle of the subscription
                              //  '*handle' is copied and caller does not need
                              //  to save it.

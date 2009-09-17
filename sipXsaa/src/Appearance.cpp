@@ -87,15 +87,15 @@ Appearance::~Appearance()
    // Terminate the master subscription.
    UtlBoolean ret;
    ret = getAppearanceAgent()->getSubscribeClient().
-      endSubscription(mSubscriptionEarlyDialogHandle.data());
-   // endSubscription will cause a new SUBSCRIBE to be sent with Expires=0,
+      endSubscriptionGroup(mSubscriptionEarlyDialogHandle.data());
+   // endSubscriptionGroup will cause a new SUBSCRIBE to be sent with Expires=0,
    // which will in turn cause an OK and an incoming NOTIFY.
    // Stick around a bit to allow these messages to be handled somewhat gracefully
    // (i.e. acknowledged).
    OsTask::delay(100);
    OsSysLog::add(FAC_SAA,
                  ret ? PRI_DEBUG : PRI_WARNING,
-                 "Appearance::~ endSubscription %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 "Appearance::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
                  mUri.data(),
                  mSubscriptionEarlyDialogHandle.data());

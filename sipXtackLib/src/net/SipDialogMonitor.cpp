@@ -235,7 +235,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
                           "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
                           earlyDialogHandle->data());
             // Terminate the subscription.
-            UtlBoolean status = mpSipSubscribeClient->endSubscription(earlyDialogHandle->data());
+            UtlBoolean status = mpSipSubscribeClient->endSubscriptionGroup(earlyDialogHandle->data());
                      
             if (!status)
             {

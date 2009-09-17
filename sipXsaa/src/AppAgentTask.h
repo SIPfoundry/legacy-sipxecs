@@ -38,11 +38,11 @@ class AppearanceAgent;
  * timer events in the face of the possibility that any pointed-to object
  * may have already been deleted.
  * Requests to end subscriptions are handled this way because
- * SipSubscribeClient::endSubscription can itself call the
+ * SipSubscribeClient::endSubscriptionGroup can itself call the
  * subscription event callback, and the callback routine seizes
  * AppearanceGroupSet::mSemaphore.  So, to avoid deadlock, a method that
  * holds AppearanceGroupSet::mSemaphore queues a request to the
- * AppAgentTask to call endSubscription "from the outside",
+ * AppAgentTask to call endSubscriptionGroup "from the outside",
  * without holding AppearanceGroupSet::mSemaphore.
  */
 class AppearanceAgentTask : public OsServerTask

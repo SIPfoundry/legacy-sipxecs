@@ -124,10 +124,10 @@ AppearanceGroup::~AppearanceGroup()
    // End the "reg" subscription.
    UtlBoolean ret;
    ret = getAppearanceAgent()->getSubscribeClient().
-      endSubscription(mSubscriptionEarlyDialogHandle);
+      endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
    OsSysLog::add(FAC_SAA,
                  ret ? PRI_INFO : PRI_WARNING,
-                 "AppearanceGroup::~ endSubscription %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 "AppearanceGroup::~ endSubscriptionGroup %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
                  mSharedUser.data(),
                  mSubscriptionEarlyDialogHandle.data());
@@ -264,11 +264,12 @@ void AppearanceGroup::subscriptionEventCallback(
 
       // End the terminated "reg" subscription.
       UtlBoolean ret;
-      ret = getAppearanceAgent()->getSubscribeClient().endSubscription(mSubscriptionEarlyDialogHandle);
+      ret = getAppearanceAgent()->getSubscribeClient().
+         endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
       OsSysLog::add(FAC_SAA,
                     ret ? PRI_INFO : PRI_WARNING,
                     "AppearanceGroup::subscriptionEventCallback "
-                    "endSubscription %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                    "endSubscriptionGroup %s mSharedUser = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                     ret ? "succeeded" : "failed",
                     mSharedUser.data(),
                     mSubscriptionEarlyDialogHandle.data());

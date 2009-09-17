@@ -103,10 +103,10 @@ ContactSet::~ContactSet()
    // End the "reg" subscription.
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
-      endSubscription(mSubscriptionEarlyDialogHandle);
+      endSubscriptionGroup(mSubscriptionEarlyDialogHandle);
    OsSysLog::add(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
-                 "ContactSet::~ endSubscription %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 "ContactSet::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
                  mUri.data(),
                  mSubscriptionEarlyDialogHandle.data());

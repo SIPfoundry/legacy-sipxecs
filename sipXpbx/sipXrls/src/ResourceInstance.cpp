@@ -67,10 +67,10 @@ ResourceInstance::~ResourceInstance()
    // Terminate the subscription for this resource instance.
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
-      endSubscription(mInstanceName.data());
+      endSubscriptionGroup(mInstanceName.data());
    OsSysLog::add(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
-                 "ResourceInstance::~ endSubscription %s mInstanceName = '%s'",
+                 "ResourceInstance::~ endSubscriptionGroup %s mInstanceName = '%s'",
                  ret ? "succeeded" : "failed",
                  mInstanceName.data());
 

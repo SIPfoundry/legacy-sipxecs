@@ -941,6 +941,7 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
+         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -964,6 +965,7 @@ public:
                                       5000, // milliseconds
                                       serverSideNotResponse));
          CPPUNIT_ASSERT(serverSideNotResponse);
+         CPPUNIT_ASSERT(serverSideNotResponse->getResponseStatusCode() == SIP_OK_CODE);
 
          // Check the Contact in the NOTIFY response.
          ASSERT_STR_EQUAL(notifier_contact_name_addr,
@@ -1185,10 +1187,11 @@ public:
 
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
          OsTime timeoutRefreshTime(refreshTime, 0);
+         OsTime timeoutZero(0, 0);
          runListener(incomingServerMsgQueue,
                      *userAgentp,
                      timeoutRefreshTime,
-                     timeout1sec,
+                     timeoutZero,
                      subscribeRequest,
                      notifyResponse,
                      SIP_BAD_TRANSACTION_CODE,
@@ -1214,7 +1217,8 @@ public:
                      FALSE,
                      0,
                      NULL);
-         CPPUNIT_ASSERT(!subscribeRequest);
+         // Now that Subscribe Client reestablishes subscriptions, runListener
+         // will likely see a new SUBSCRIBE request.
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() ==
                         SIP_BAD_TRANSACTION_CODE);
@@ -1926,6 +1930,7 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
+         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -2014,6 +2019,7 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse); // Sub response got to client
+         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
 
          CPPUNIT_ASSERT(secondNotifyRequest);
          CPPUNIT_ASSERT(secondSubResponse);
@@ -2063,6 +2069,7 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
+         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -2086,6 +2093,7 @@ public:
                                       5000, // milliseconds
                                       serverSideNotResponse));
          CPPUNIT_ASSERT(serverSideNotResponse);
+         CPPUNIT_ASSERT(serverSideNotResponse->getResponseStatusCode() == SIP_OK_CODE);
 
          // Check the Contact in the NOTIFY response.
          CPPUNIT_ASSERT(serverSideNotResponse->
@@ -2094,7 +2102,6 @@ public:
                           serverSideNotResponse->
                               getHeaderValue(0, SIP_CONTACT_FIELD));
       }
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeClientTest5);

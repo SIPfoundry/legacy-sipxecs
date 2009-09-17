@@ -1766,7 +1766,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallUnsubscribe(const SIPX_SUB hSub)
 
     if(subscriptionData && subscriptionData->pInst)
     {
-        if(subscriptionData->pInst->pSubscribeClient->endSubscription(*(subscriptionData->pDialogHandle)))
+        if(subscriptionData->pInst->pSubscribeClient->
+           endSubscriptionGroup(*(subscriptionData->pDialogHandle)))
         {
             sipXresult = SIPX_RESULT_SUCCESS;
         }

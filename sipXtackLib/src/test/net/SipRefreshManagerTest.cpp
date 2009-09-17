@@ -1,10 +1,15 @@
 // 
 // 
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+// 
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
 //////////////////////////////////////////////////////////////////////////////
+
+// Get value of EXECUTE_SLOW_TESTS.
+#include "config.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -28,7 +33,11 @@
 class SipRefreshManagerTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(SipRefreshManagerTest);
-    CPPUNIT_TEST(refreshTest);
+#ifdef EXECUTE_SLOW_TESTS
+    CPPUNIT_TEST(refreshTestBasic);
+    CPPUNIT_TEST(refreshTestTransientRetry);
+    CPPUNIT_TEST(refreshTestTransientRetryAndFail);
+#endif // EXECUTE_SLOW_TESTS
     CPPUNIT_TEST_SUITE_END();
 
     public:
@@ -55,7 +64,8 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         {
             int msgType = osMessage->getMsgType();
             int msgSubType = osMessage->getMsgSubType();
-            int messageType = ((SipMessageEvent*)osMessage)->getMessageStatus();
+            int messageType =
+               (dynamic_cast <SipMessageEvent*> (osMessage))->getMessageStatus();
             if(msgType == OsMsg::PHONE_APP &&
                msgSubType == SipMessage::NET_SIP_MESSAGE &&
                messageType == SipMessageEvent::APPLICATION)
@@ -105,6 +115,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
              gotRequest = TRUE;
              SipMessage response;
              response.setResponseData(request, responseCode, responseText);
+             int expires;
+             request->getExpiresField(&expires);
+             response.setExpiresField(expires);
              userAgent.send(response);
 
 #ifdef TEST_PRINT
@@ -113,7 +126,6 @@ class SipRefreshManagerTest : public CppUnit::TestCase
              response.getBytes(&responseBytes, &len);
              printf("%s", responseBytes.data());
 #endif
-
           }
        }
 #ifdef TEST_PRINT
@@ -162,6 +174,13 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
     void setUp()
     {
+       // Initialize the variables that hold the values from the last
+       // callback.
+       smLatestSubState = SipRefreshManager::REFRESH_REQUEST_UNKNOWN;
+       smCallbackCount = 0;
+       smLastResponseCode = -2;
+       smExpiration = -2;
+
        eventTypeKey = "message-summary";
        eventType = eventTypeKey;
 
@@ -193,10 +212,17 @@ class SipRefreshManagerTest : public CppUnit::TestCase
     void tearDown()
     {
        userAgentp->removeMessageObserver(incomingServerMsgQueue);
+
+       refreshManagerp->stopAllRefreshes();
+       delete refreshManagerp;
+       
+       userAgentp->shutdown(TRUE);
+       delete userAgentp;
     }
 
-    void refreshTest()
+    void refreshTestBasic()
     {
+        // Construct the SUBSCRIBE request.
         UtlString aor("sip:111@127.0.0.1:");
         UtlString from("Frida<sip:111@localhost:");
         UtlString to("Tia<sip:222@localhost:");
@@ -210,110 +236,545 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         to.append('>');
         contact.append(portString);
         int expPeriod = 10;
-        SipMessage mwiSubscribeRequest;
-        mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                         aor, 
-                                                         SIP_PROTOCOL_VERSION);
-        mwiSubscribeRequest.setContactField(aor);
-        mwiSubscribeRequest.setRawFromField(from);
-        mwiSubscribeRequest.setRawToField(to);
-        mwiSubscribeRequest.setEventField(eventType);
-        mwiSubscribeRequest.setCallIdField("123456");
-        mwiSubscribeRequest.setCSeqField(1, SIP_SUBSCRIBE_METHOD);
-        mwiSubscribeRequest.setExpiresField(expPeriod);
+        SipMessage* mwiSubscribeRequest = new SipMessage;
+        mwiSubscribeRequest->setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
+                                                          aor, 
+                                                          SIP_PROTOCOL_VERSION);
+        mwiSubscribeRequest->setContactField(aor);
+        mwiSubscribeRequest->setRawFromField(from);
+        mwiSubscribeRequest->setRawToField(to);
+        mwiSubscribeRequest->setEventField(eventType);
+        mwiSubscribeRequest->setCallIdField("123456");
+        mwiSubscribeRequest->setCSeqField(1, SIP_SUBSCRIBE_METHOD);
+        mwiSubscribeRequest->setExpiresField(expPeriod);
 
         ssize_t len;
         UtlString requestDump;
-        mwiSubscribeRequest.getBytes(&requestDump, &len);
+        mwiSubscribeRequest->getBytes(&requestDump, &len);
+#ifdef TEST_PRINT
+        printf("%s", requestDump.data());
+#endif
 
+        // Calculate the expected refresh period.
         int transactionTimeoutPeriod = 
             userAgentp->getSipStateTransactionTimeout() / 1000;
-        int errorRefreshPeriod = (int) (expPeriod * 0.1);
         int normalRefreshPeriod = (int) (expPeriod * 0.65);
-        if (errorRefreshPeriod < transactionTimeoutPeriod)
-        {
-            errorRefreshPeriod = transactionTimeoutPeriod;
-        }
         if (normalRefreshPeriod < transactionTimeoutPeriod)
         {
             normalRefreshPeriod = transactionTimeoutPeriod;
         }
 
-        // Send a request
+        // Call initiateRefresh to send the SUBSCRIBE.
         UtlString earlyDialogHandle;
         long start = OsDateTime::getSecsSinceEpoch();
-
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
         CPPUNIT_ASSERT(refreshManagerp->initiateRefresh(mwiSubscribeRequest,
                                                         this,
                                                         subStateCallback,
                                                         earlyDialogHandle));
 
         // Wait for the request and send a response
+        // Use response codes starting with 250, so that we can verify that
+        // the callback receives the information from the SUBSCRIBE response.
+        // Receive SUBSCRIBE, send 252 response.
+        // Since the test framework doesn't send NOTIFY, we don't need machinery
+        // to receive NOTIFY.
         const SipMessage* initialRequest = NULL;
         CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
-                               202, // response code
+                               252, // response code
                                "Got request and accepted",
                                *userAgentp,
-                               5000, // milliseconds to wait for request
+                               1000, // milliseconds to wait for request
                                initialRequest));
 
-        // Wait a little to let the response get through the works
-        for (int waitIterations = 0;
-             smCallbackCount < 2 && waitIterations < 50;
-             waitIterations++)
-        {
-            OsTask::delay(100);
-        }
+        // Wait for the callback when SipRefreshManager receives the 252.
+        OsTask::delay(200);     // 200 msec
 
 #ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
         printf("expiration: %ld from now: %ld lag: %ld\n", 
                smExpiration, 
                smExpiration - OsDateTime::getSecsSinceEpoch(),
-               smExpiration - start - expPeriod);
+               (smExpiration - start) - expPeriod);
 #endif
         CPPUNIT_ASSERT(initialRequest);
-        CPPUNIT_ASSERT(smLastResponseCode == 202);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
         CPPUNIT_ASSERT(smCallbackCount == 2);
-        CPPUNIT_ASSERT(smExpiration >= start + expPeriod);
-        CPPUNIT_ASSERT(smExpiration < start + expPeriod + 5); // allow 5 sec. variance
-        long firstExpiration = smExpiration;
+        CPPUNIT_ASSERT(smLastResponseCode == 252);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
 
-        // Wait for the refresh
+        // Wait for SipRefreshManager to send the refresh SUBSCRIBE.
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
         const SipMessage* firstRefresh;
         CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
-                               203, // response code
+                               253, // response code
                                "Got request and accepted",
                                *userAgentp,
-                               expPeriod * 1000, // milliseconds to wait for request
+                               (normalRefreshPeriod + 1) * 1000, // msec
                                firstRefresh));
         long firstRefreshAt = OsDateTime::getSecsSinceEpoch();
-        CPPUNIT_ASSERT(firstRefresh);
-        CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 5); // min transaction period
-        CPPUNIT_ASSERT(firstRefreshAt <= start + expPeriod + 5);
-
-        // Wait for the response and callback
-        for (int waitIterations = 0;
-             smCallbackCount < 3 && waitIterations < 50;
-             waitIterations++)
-        {
-            OsTask::delay(100);
-        }
+        // Wait for the callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
 
 #ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(firstRefresh);
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1); 
+        CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= firstRefreshAt + expPeriod + 1);
+   }
+
+    void refreshTestTransientRetry()
+    {
+        // Construct the SUBSCRIBE request.
+        UtlString aor("sip:111@127.0.0.1:");
+        UtlString from("Frida<sip:111@localhost:");
+        UtlString to("Tia<sip:222@localhost:");
+        UtlString contact("sip:111@127.0.0.1:");
+        char portString[20];
+        sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
+        aor.append(portString);
+        from.append(portString);
+        from.append(">;tag=kadhsflasjkdfh");
+        to.append(portString);
+        to.append('>');
+        contact.append(portString);
+        int expPeriod = 10;
+        SipMessage* mwiSubscribeRequest = new SipMessage;
+        mwiSubscribeRequest->setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
+                                                          aor, 
+                                                          SIP_PROTOCOL_VERSION);
+        mwiSubscribeRequest->setContactField(aor);
+        mwiSubscribeRequest->setRawFromField(from);
+        mwiSubscribeRequest->setRawToField(to);
+        mwiSubscribeRequest->setEventField(eventType);
+        mwiSubscribeRequest->setCallIdField("123456");
+        mwiSubscribeRequest->setCSeqField(1, SIP_SUBSCRIBE_METHOD);
+        mwiSubscribeRequest->setExpiresField(expPeriod);
+
+        ssize_t len;
+        UtlString requestDump;
+        mwiSubscribeRequest->getBytes(&requestDump, &len);
+#ifdef TEST_PRINT
+        printf("%s", requestDump.data());
+#endif
+
+        // Calculate the expected refresh period.
+        int transactionTimeoutPeriod = 
+            userAgentp->getSipStateTransactionTimeout() / 1000;
+        int normalRefreshPeriod = (int) (expPeriod * 0.65);
+        if (normalRefreshPeriod < transactionTimeoutPeriod)
+        {
+            normalRefreshPeriod = transactionTimeoutPeriod;
+        }
+
+        // Call initiateRefresh to send the SUBSCRIBE.
+        UtlString earlyDialogHandle;
+        long start = OsDateTime::getSecsSinceEpoch();
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(refreshManagerp->initiateRefresh(mwiSubscribeRequest,
+                                                        this,
+                                                        subStateCallback,
+                                                        earlyDialogHandle));
+
+        // Wait for the request and send a response
+        // Use response codes starting with 250, so that we can verify that
+        // the callback receives the information from the SUBSCRIBE response.
+        // Receive SUBSCRIBE, send 252 response.
+        // Since the test framework doesn't send NOTIFY, we don't need machinery
+        // to receive NOTIFY.
+        const SipMessage* initialRequest = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               252, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               1000, // milliseconds to wait for request
+                               initialRequest));
+
+        // Wait for the callback when SipRefreshManager receives the 252.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld lag: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch(),
+               (smExpiration - start) - expPeriod);
+#endif
+        CPPUNIT_ASSERT(initialRequest);
+        CPPUNIT_ASSERT(smCallbackCount == 2);
+        CPPUNIT_ASSERT(smLastResponseCode == 252);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
+        long initialExpiration = smExpiration;
+
+        // Wait for SipRefreshManager to send the refresh SUBSCRIBE.
+        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
+        const SipMessage* firstRefresh;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               253, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               (normalRefreshPeriod + 1) * 1000, // msec
+                               firstRefresh));
+        long firstRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for the callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(firstRefresh);
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1); 
+        CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= firstRefreshAt + expPeriod + 1);
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
         printf("real refresh period: %ld expires at: %ld from now: %ld\n",
                firstRefreshAt - start,
                smExpiration,
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
+        long firstRefreshExpiration = smExpiration;
         CPPUNIT_ASSERT(smCallbackCount == 3);
         CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
-        CPPUNIT_ASSERT(smExpiration + 5 >= firstExpiration + firstRefreshAt - start);
-        CPPUNIT_ASSERT(smLastResponseCode == 203);
+        CPPUNIT_ASSERT(smExpiration + 5 >= initialExpiration + firstRefreshAt - start);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+
+        // This time respond with 408 and confirm that the expiration
+        // has not changed.
+        const SipMessage* secondRefresh = NULL;
+        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               408, // response code
+                               "Timeout",
+                               *userAgentp,
+                               (normalRefreshPeriod + 1) * 1000, // msec
+                               secondRefresh));
+        long secondRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for any callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(secondRefresh);
+
+        // There should be no callback, and the last seen expiration time
+        // should not change.
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt >= normalRefreshPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt <= normalRefreshPeriod + 1); 
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
+        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+
+        // The next refresh is an attempt to resend after a transient
+        // error, which should happen in 1 second.
+        printf("waiting for refresh in %d seconds\n", 1);
+        const SipMessage* thirdRefresh = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               254, // response code
+                               "Accepted",
+                               *userAgentp,
+                               1000, // milliseconds to wait for request
+                               thirdRefresh));
+        long thirdRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for the callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(thirdRefresh);
+        CPPUNIT_ASSERT(smCallbackCount == 4);
+        CPPUNIT_ASSERT(smLastResponseCode == 254);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt >= 1 - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= 1 + 1); 
+        CPPUNIT_ASSERT(smExpiration >= thirdRefreshAt + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= thirdRefreshAt + expPeriod + 1);
+    }
+
+    void refreshTestTransientRetryAndFail()
+    {
+        // Construct the SUBSCRIBE request.
+        UtlString aor("sip:111@127.0.0.1:");
+        UtlString from("Frida<sip:111@localhost:");
+        UtlString to("Tia<sip:222@localhost:");
+        UtlString contact("sip:111@127.0.0.1:");
+        char portString[20];
+        sprintf(portString, "%d", UNIT_TEST_SIP_PORT);
+        aor.append(portString);
+        from.append(portString);
+        from.append(">;tag=kadhsflasjkdfh");
+        to.append(portString);
+        to.append('>');
+        contact.append(portString);
+        int expPeriod = 10;
+        SipMessage* mwiSubscribeRequest = new SipMessage;
+        mwiSubscribeRequest->setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
+                                                          aor, 
+                                                          SIP_PROTOCOL_VERSION);
+        mwiSubscribeRequest->setContactField(aor);
+        mwiSubscribeRequest->setRawFromField(from);
+        mwiSubscribeRequest->setRawToField(to);
+        mwiSubscribeRequest->setEventField(eventType);
+        mwiSubscribeRequest->setCallIdField("123456");
+        mwiSubscribeRequest->setCSeqField(1, SIP_SUBSCRIBE_METHOD);
+        mwiSubscribeRequest->setExpiresField(expPeriod);
+
+        ssize_t len;
+        UtlString requestDump;
+        mwiSubscribeRequest->getBytes(&requestDump, &len);
+#ifdef TEST_PRINT
+        printf("%s", requestDump.data());
+#endif
+
+        // Calculate the expected refresh period.
+        int transactionTimeoutPeriod = 
+            userAgentp->getSipStateTransactionTimeout() / 1000;
+        int normalRefreshPeriod = (int) (expPeriod * 0.65);
+        if (normalRefreshPeriod < transactionTimeoutPeriod)
+        {
+            normalRefreshPeriod = transactionTimeoutPeriod;
+        }
+
+        // Call initiateRefresh to send the SUBSCRIBE.
+        UtlString earlyDialogHandle;
+        long start = OsDateTime::getSecsSinceEpoch();
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(refreshManagerp->initiateRefresh(mwiSubscribeRequest,
+                                                        this,
+                                                        subStateCallback,
+                                                        earlyDialogHandle));
+
+        // Wait for the request and send a response
+        // Use response codes starting with 250, so that we can verify that
+        // the callback receives the information from the SUBSCRIBE response.
+        // Receive SUBSCRIBE, send 252 response.
+        // Since the test framework doesn't send NOTIFY, we don't need machinery
+        // to receive NOTIFY.
+        const SipMessage* initialRequest = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               252, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               1000, // milliseconds to wait for request
+                               initialRequest));
+
+        // Wait for the callback when SipRefreshManager receives the 252.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld lag: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch(),
+               (smExpiration - start) - expPeriod);
+#endif
+        CPPUNIT_ASSERT(initialRequest);
+        CPPUNIT_ASSERT(smCallbackCount == 2);
+        CPPUNIT_ASSERT(smLastResponseCode == 252);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
+        long initialExpiration = smExpiration;
+
+        // Wait for SipRefreshManager to send the refresh SUBSCRIBE.
+        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
+        const SipMessage* firstRefresh;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               253, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               (normalRefreshPeriod + 1) * 1000, // msec
+                               firstRefresh));
+        long firstRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for the callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("expiration: %ld from now: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(firstRefresh);
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1); 
+        CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(smExpiration <= firstRefreshAt + expPeriod + 1);
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+        printf("real refresh period: %ld expires at: %ld from now: %ld\n",
+               firstRefreshAt - start,
+               smExpiration,
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        long firstRefreshExpiration = smExpiration;
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT(smExpiration + 5 >= initialExpiration + firstRefreshAt - start);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+
+        // This time respond with 408 and confirm that the expiration
+        // has not changed.
+        const SipMessage* secondRefresh = NULL;
+        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               408, // response code
+                               "Timeout",
+                               *userAgentp,
+                               (normalRefreshPeriod + 1) * 1000, // msec
+                               secondRefresh));
+        long secondRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for any callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(secondRefresh);
+
+        // There should be no callback, and the last seen expiration time
+        // should not change.
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt >= normalRefreshPeriod - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt <= normalRefreshPeriod + 1); 
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
+        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+
+        // The next refresh is an attempt to resend after a transient
+        // error, which should happen in 1 second.
+        int resendTime = 1;
+        printf("waiting for refresh in %d seconds\n", resendTime);
+        const SipMessage* thirdRefresh = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               408, // response code
+                               "Timeout",
+                               *userAgentp,
+                               (resendTime + 1) * 1000, // msec
+                               thirdRefresh));
+        long thirdRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for any callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(thirdRefresh);
+
+        // There should be no callback, and the last seen expiration time
+        // should not change.
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt >= resendTime - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= resendTime + 1); 
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
+        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+
+        // The next refresh is the second attempt to resend after a
+        // transient error, which should happen in 2 seconds.
+        resendTime = 2;
+        printf("waiting for refresh in %d seconds\n", resendTime);
+        const SipMessage* fourthRefresh = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               408, // response code
+                               "Timeout",
+                               *userAgentp,
+                               (resendTime + 1) * 1000, // msec
+                               fourthRefresh));
+        long fourthRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for any callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(fourthRefresh);
+
+        // There should be no callback, and the last seen expiration time
+        // should not change.
+        CPPUNIT_ASSERT(smCallbackCount == 3);
+        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT(fourthRefreshAt - thirdRefreshAt >= resendTime - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(fourthRefreshAt - thirdRefreshAt <= resendTime + 1); 
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
+        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+
+        // The next refresh is the third attempt to resend after a
+        // transient error, which should happen in 4 seconds.
+        // We give a 481 response, which should termiante the refresh.
+        resendTime = 4;
+        printf("waiting for refresh in %d seconds\n", resendTime);
+        const SipMessage* fifthRefresh = NULL;
+        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
+                               481, // response code
+                               "Permanent Error",
+                               *userAgentp,
+                               (resendTime + 1) * 1000, // msec
+                               fifthRefresh));
+        long fifthRefreshAt = OsDateTime::getSecsSinceEpoch();
+        // Wait for any callback generated by the refresh SUBSCRIBE.
+        OsTask::delay(200);     // 200 msec
+
+#ifdef TEST_PRINT
+        printf("now: %ld\n", OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(fifthRefresh);
+
+        // There should be a callback, showing that the refresh failed.
+        CPPUNIT_ASSERT(smCallbackCount == 4);
+        CPPUNIT_ASSERT(smLastResponseCode == 481);
+        CPPUNIT_ASSERT(fifthRefreshAt - fourthRefreshAt >= resendTime - 1); // allow 1 sec. variance
+        CPPUNIT_ASSERT(fifthRefreshAt - fourthRefreshAt <= resendTime + 1); 
+        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_FAILED);
+        CPPUNIT_ASSERT(smExpiration == 0);
+
+        // Wait to make sure that no further refresh is sent.
+        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
+        const SipMessage* sixthRefresh = NULL;
+        CPPUNIT_ASSERT(!removeMessage(incomingServerMsgQueue, 
+                                      (resendTime + 1) * 1000, // msec
+                                      sixthRefresh));
     }
 };
 
+// The initial values here are for documentation.
+// The real initial values are set before each test by setUp().
 SipRefreshManager::RefreshRequestState SipRefreshManagerTest::smLatestSubState = SipRefreshManager::REFRESH_REQUEST_UNKNOWN;
 int SipRefreshManagerTest::smCallbackCount = 0;
 int SipRefreshManagerTest::smLastResponseCode = -2;

@@ -74,7 +74,9 @@ public:
      *         Note that a callback with requestState == REFRESH_REQUEST_FAILED
      *         requires a call of stopRefresh to purge the state information
      *         from the SipRefreshManager.
-     *  \param earlyDialogHandle - provided if still an early dialog or if
+     *  \param earlyDialogHandle - always provided (which is changed
+     *         from previous versions of this method, which only provided
+     *         earlyDialogHandle while the refresh was being established)
      *         the dialog just changed to an established dialog otherwise NULL
      *  \param dialogHandle - provided if dialog is established otherwise NULL
      *  \param applicationData - pass back of application data provided upon
@@ -160,7 +162,8 @@ public:
      *  the transition to REFRESH_REQUEST_FAILED caused by calling stopRefresh
      *  on a refresh that has not terminated.
      */
-    UtlBoolean initiateRefresh(SipMessage& subscribeOrRegisterRequest,
+    UtlBoolean initiateRefresh(SipMessage* subscribeOrRegisterRequest,
+                               ///< becomes owned by SipRefreshManager
                                void* applicationData,
                                const RefreshStateCallback refreshStateCallback,
                                UtlString& earlyDialogHandle,
@@ -196,6 +199,10 @@ public:
      */
     UtlBoolean changeRefreshTime(const char* earlyDialogHandle,
                                  int expirationPeriodSeconds);
+
+    //! Change the refresh period for this refresh only.
+    UtlBoolean changeCurrentRefreshTime(const char* earlyDialogHandle,
+                                        int expirationPeriodSeconds);
 
     //! Handler for SUBSCRIBE and REGISTER responses
     UtlBoolean handleMessage(OsMsg &eventMessage);

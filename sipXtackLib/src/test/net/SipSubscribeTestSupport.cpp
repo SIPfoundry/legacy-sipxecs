@@ -14,6 +14,8 @@
 
 /* Support routines for the SipSubscribeServer and SipSubscribeClient tests. */
 
+OsTime timeZero(0, 0);
+
 // Create a SipUserAgent.
 void createTestSipUserAgent(UtlString& hostIp,
                             const char* user,
@@ -85,9 +87,13 @@ void runListener(OsMsgQ& msgQueue,
    // Because the SUBSCRIBE response and NOTIFY request can come in either order,
    // we have to read messages until no more arrive.
    OsMsg* message;
-   while (msgQueue.receive(message,
-                           request || response ? timeout_next : timeout_first
-             ) == OS_SUCCESS)
+   OsTime timeout;
+   // Read messages until timeout.
+   // For the first read, use timeout_first; for successive reads, use
+   // timeout_next.
+   // If timeout is zero, exit the loop immediately.
+   while (timeout = request || response ? timeout_next : timeout_first,
+          timeout > timeZero && msgQueue.receive(message, timeout) == OS_SUCCESS)
    {
       int msgType = message->getMsgType();
       int msgSubType = message->getMsgSubType();

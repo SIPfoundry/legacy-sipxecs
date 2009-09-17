@@ -83,10 +83,10 @@ SubscriptionSet::~SubscriptionSet()
    // Terminate the master subscription.
    UtlBoolean ret;
    ret = getResourceListServer()->getSubscribeClient().
-      endSubscription(mSubscriptionEarlyDialogHandle.data());
+      endSubscriptionGroup(mSubscriptionEarlyDialogHandle.data());
    OsSysLog::add(FAC_RLS,
                  ret ? PRI_DEBUG : PRI_WARNING,
-                 "SubscriptionSet::~ endSubscription %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 "SubscriptionSet::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
                  mUri.data(),
                  mSubscriptionEarlyDialogHandle.data());

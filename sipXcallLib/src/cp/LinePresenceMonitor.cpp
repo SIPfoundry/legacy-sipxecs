@@ -622,7 +622,8 @@ OsStatus LinePresenceMonitor::unsubscribePresenceMessage(LinePresenceBase* line)
          "LinePresenceMonitor::unsubscribePresenceMessage unsubscribing contact %s dialogHandle %s",
             contact.data(), dialogHandle->data());
 
-      UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
+      UtlBoolean status =
+         mpSipSubscribeClient->endSubscriptionGroup(dialogHandle->data());
 
       if (!status)
       {

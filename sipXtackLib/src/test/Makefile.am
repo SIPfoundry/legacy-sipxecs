@@ -75,4 +75,4 @@ EXTRA_DIST = \
 
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = net/SipSubscribeClientTest.cpp net/SipSubscribeTestSupport.cpp
+sandbox_SOURCES = 

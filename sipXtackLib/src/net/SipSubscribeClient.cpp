@@ -8,9 +8,14 @@
 
 // SYSTEM INCLUDES
 
+#include <ctype.h>
+#include <stdlib.h>
+#include <string.h>
+
 // APPLICATION INCLUDES
 
 #include <os/OsDateTime.h>
+#include <os/OsTimer.h>
 #include <net/SipSubscribeClient.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialog.h>
@@ -22,117 +27,407 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// msgSubType for an OsMsg that requests reestablishing a subscription
+#define SIP_REESTABLISH (OsEventMsg::USER_START)
+
+// We initially allow SUBSCRIPTION_STARTUP_INITIAL secs. for a subscription
+// to start up.  If that fials, we successively double the time until either
+// success, or the startup time would exceed SUBSCRIPTION_STARTUP_MAX.
+#define SUBSCRIPTION_STARTUP_INITIAL 15
+#define SUBSCRIPTION_STARTUP_MAX (5 * 60)
+
 // STATIC VARIABLE INITIALIZATIONS
 
-// Private class to contain subscription client states
-class SubscribeClientState : public UtlString
+
+// Private OsMsg type to carry requests to reestablish a subscription.
+class ReestablishRequestMsg : public OsMsg
 {
 public:
-    // The parent UtlString contains the dialogHandle as a key
-    // It is the early dialog handle until the dialog is established,
-    // after which it is changed to the established dialog handle.
 
-    SubscribeClientState();
+   ReestablishRequestMsg(const UtlString& handle
+                         ///< the original handle of the subscription group to reestablish
+      );
 
-    virtual ~SubscribeClientState();
+   // Destructor
+   virtual ~ReestablishRequestMsg();
 
-    void toString(UtlString& dumpString);
+   /** Initiate the reestablishment of the subscription group with
+    *  handle mEarlyDialogHandle.
+    */
+   void reestablish(SipSubscribeClient& client) const;
 
-    //! Copying operators.
-    SubscribeClientState(const SubscribeClientState& rSubscribeClientState);
-    SubscribeClientState& operator=(const SubscribeClientState& rhs);
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+   virtual UtlContainableType getContainableType() const;
 
-    // UtlString::data contains the Dialog Handle.
-    SipSubscribeClient::SubscriptionState mState;
-    void* mpApplicationData;
-    // Callback function for state changes, or NULL.
-    SipSubscribeClient::SubscriptionStateCallback mpStateCallback;
-    SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
+private:
+   //! DISALLOWED accidental copying
+   ReestablishRequestMsg(const ReestablishRequestMsg& rReestablishRequestMsg);
+   ReestablishRequestMsg& operator=(const ReestablishRequestMsg& rhs);
+
+   //! DISALLOWED intentional copying
+   //  (Will abort at run-time.)
+   virtual OsMsg* createCopy(void) const;
+
+   /// The original early dialog handle of the SubscriptionGroupState to be restarted.
+   UtlString mEarlyDialogHandle;
+};
+
+// Constructor
+ReestablishRequestMsg::ReestablishRequestMsg(const UtlString& handle) :
+   OsMsg(OsMsg::OS_EVENT, SIP_REESTABLISH),
+   mEarlyDialogHandle(handle)
+{
+}
+
+ReestablishRequestMsg::~ReestablishRequestMsg()
+{
+}
+
+// Dynamic copy routine (unused)
+OsMsg* ReestablishRequestMsg::createCopy(void) const
+{
+   assert(FALSE);
+   return NULL;
+}
+
+const UtlContainableType ReestablishRequestMsg::TYPE = "ReestablishRequestMsg";
+
+UtlContainableType ReestablishRequestMsg::getContainableType() const
+{
+   return ReestablishRequestMsg::TYPE;
+}
+
+// Definition of ReestablishRequestMsg::reestablish is at the bottom,
+// with the other methods that implement subscription reestablishment.
+
+
+// Notifier class for SipSubscribeClient::mStartingTimer.
+class SubscriptionStartingNotification : public OsNotification
+{
+public:
+
+   /// Constructor.
+   SubscriptionStartingNotification(SipSubscribeClient* pSubscribeClient,
+                                    ///< the owning SipSubscribeClient
+                                    SubscriptionGroupState* pGroupState
+                                    ///< the relevant SubscriptionGroupState
+      );
+
+   /// Signal the occurrence of the event
+   virtual OsStatus signal(intptr_t timer_i);
+
+   /// The owning SipSubscribeClient.
+   SipSubscribeClient* mpSubscribeClient;
+
+   /// The relevant SubscriptionGroupState.
+   SubscriptionGroupState* mpGroupState;
+};
+
+// Method definitions for SubscriptionStartingNotification are below the
+// declaration of SubscriptionGroupState.
+
+
+// Private class to contain information about subscription groups
+class SubscriptionGroupState : public UtlString
+{
+public:
+   // The parent UtlString contains the original earlyDialogHandle as a key.
+   // This key never changes, and is the earlyDialogHandle returned by
+   // ::addSubscription().
+   // The early dialog handle of transmitted SUBSCRIBE requests will change
+   // when we reestablish failed subscriptions.
+
+   SubscriptionGroupState(SipSubscribeClient* pClient,
+                          ///< the owning SipSubscribeClient
+                          const UtlString& handle,
+                          ///< early dialog handle for key
+                          SipMessage* subscriptionRequest,
+                          /**< SUBSCRIBE request to create subscriptions
+                           *   *subscriptionRequest becomes owned by the
+                           *   SubscriptionGroupState.
+                           */
+                          void* pApplicationData,
+                          ///< application data for callback functions
+                          SipSubscribeClient::SubscriptionStateCallback pStateCallback,
+                          ///< callback function for state changes
+                          SipSubscribeClient::NotifyEventCallback pNotifyCallback,
+                          ///< callback function for NOTIFYs
+                          bool reestablish,
+                          ///< set to reestablish failed subscriptions
+                          bool restart
+                          ///< set to periodically restart subscriptions
+      );
+
+   virtual ~SubscriptionGroupState();
+
+   void toString(UtlString& dumpString);
+
+   //! Copying operators.
+   SubscriptionGroupState(const SubscriptionGroupState& rSubscriptionGroupState);
+   SubscriptionGroupState& operator=(const SubscriptionGroupState& rhs);
+
+   /** Test whether the state of this group indicates that the subscription
+    *  has been successfully started.
+    */
+   // The test is:
+   //        at least one success response to the SUBSCRIBE
+   //        no failure response to the SUBSCRIBE
+   //        at least one NOTIFY arrived (that does not have
+   //           "Subscription-State: terminated")
+   bool successfulStart();
+
+   /// Set the timer for subscription starting.
+   //  initial == true means to use the first-attempt time,
+   //  initial == false means to use the time for the next attempt, based
+   //  on the time for the previous attempt
+   void setStartingTimer(bool initial);
+
+   /** Set the subscription group state variables to indicate a
+    *  successfully established subscription.
+    */
+   void transitionToEstablished();
+
+   /// Set the subscription group to prepare to attempt another start.
+   //  In particular, revise the stored SUBSCRIBE message with another
+   //  Call-Id and from-tag.
+   void resetStarting();
+
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+   virtual UtlContainableType getContainableType() const;
+
+   // Prototype SUBSCRIBE request for the subscriptions.
+   SipMessage* mpSubscriptionRequest;
+   // UtlString::data contains the initial early dialog handle.
+   // Current early dialog handle (derived from *mpSubscriptionRequest).
+   UtlString mCurrentEarlyDialogHandle;
+
+   // Application data provided for callbacks.
+   void* mpApplicationData;
+   // Callback function for state changes, or NULL.
+   SipSubscribeClient::SubscriptionStateCallback mpStateCallback;
+   SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
+   // Whether to reestablish subscriptions that fail.
+   bool mReestablish;
+   // Whether to restart subscriptions on a long cycle.
+   bool mRestart;
+
+   // true if we are starting the subscription group, false if it is established.
+   bool mStarting;
+   // If mStarting, the time-out time of this starting attempt (secs).
+   int mStartingTimeout;
+   // Number of success responses to SUBSCRIBE seen since reestablishement.
+   int mSuccessResponses;
+   // Number of failure responses to SUBSCRIBE seen since reestablishement.
+   int mFailureResponses;
+   // Number of dialog-establishing (not terminating) NOTIFYs seen since
+   // reestablishment.
+   int mEstablishingNotifys;
+
+   /// Notifier for mStartingTimer.
+   //  Stores pointer to this SubscriptionGroupState and the SipSubscribeClient.
+   SubscriptionStartingNotification mStartingNotification;
+   /// Timer for subscription establishement.
+   OsTimer mStartingTimer;
 
 private:
 };
-
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
 // Constructor for private class
-SubscribeClientState::SubscribeClientState()
+SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
+                                               const UtlString& handle,
+                                               SipMessage* pSubscriptionRequest,
+                                               void* pApplicationData,
+                                               SipSubscribeClient::SubscriptionStateCallback pStateCallback,
+                                               SipSubscribeClient::NotifyEventCallback pNotifyCallback,
+                                               bool reestablish,
+                                               bool restart) :
+   UtlString(handle),
+   mpSubscriptionRequest(pSubscriptionRequest),
+   mCurrentEarlyDialogHandle(handle),
+   mpApplicationData(pApplicationData),
+   mpStateCallback(pStateCallback),
+   mpNotifyCallback(pNotifyCallback),
+   mReestablish(reestablish),
+   mRestart(restart),
+   mStartingNotification(pClient, this),
+   mStartingTimer(mStartingNotification)
 {
-    mpApplicationData = NULL;
-    mpStateCallback = NULL;
-    mpNotifyCallback = NULL;
 }
 
 // Destructor for private class
-SubscribeClientState::~SubscribeClientState()
+SubscriptionGroupState::~SubscriptionGroupState()
+{
+   // Free the saved SUBSCRIBE request.
+   delete mpSubscriptionRequest;
+}
+
+// Debug dump of SubscriptionGroupState.
+void SubscriptionGroupState::toString(UtlString& dumpString)
+{
+   dumpString = "SubscriptionGroupState:\n";
+   dumpString.append("\nOriginal handle: ");
+   dumpString.append(*this);
+   dumpString.append("\nCurrent handle: ");
+   dumpString.append(mCurrentEarlyDialogHandle);
+   dumpString.append("\nmpApplicationData: ");
+   char string[20];
+   sprintf(string, "%p", mpApplicationData);
+   dumpString.append(string);
+   dumpString.append("\nmpStateCallback: ");
+   sprintf(string, "%p", mpStateCallback);
+   dumpString.append(string);
+   dumpString.append("\nmpNotifyCallback: ");
+   sprintf(string, "%p", mpNotifyCallback);
+   dumpString.append(string);
+   dumpString.append('\n');
+   dumpString.append("\nmReestablish: ");
+   sprintf(string, "%d", mReestablish);
+   dumpString.append(string);
+   dumpString.append('\n');
+   dumpString.append("\nmRestart: ");
+   sprintf(string, "%d", mRestart);
+   dumpString.append(string);
+   dumpString.append('\n');
+}
+
+//! Copying operators.
+//SubscriptionGroupState::SubscriptionGroupState(const SubscriptionGroupState& rSubscriptionGroupState)
+
+//SubscriptionGroupState& SubscriptionGroupState::operator=(const SubscriptionGroupState& rhs)
+
+const UtlContainableType SubscriptionGroupState::TYPE = "SubscriptionGroupState";
+
+UtlContainableType SubscriptionGroupState::getContainableType() const
+{
+   return SubscriptionGroupState::TYPE;
+}
+
+
+// Constructor.
+SubscriptionStartingNotification::SubscriptionStartingNotification(
+   SipSubscribeClient* pSubscribeClient,
+   SubscriptionGroupState* pGroupState
+   ) :
+   mpSubscribeClient(pSubscribeClient),
+   mpGroupState(pGroupState)
 {
 }
 
-// Debug dump of SubscribeClientState.
-void SubscribeClientState::toString(UtlString& dumpString)
+// The definition of SubscriptionStartingNotification::signal is at
+// the bottom, with the other methods that implement subscription
+// reestablishment.
+
+
+// Private class to contain information about subscription dialogs within
+// subscription groups
+class SubscriptionDialogState : public UtlString
 {
-    dumpString = "SubscribeClientState:\n";
-    dumpString.append("\nmpData: ");
+public:
+   // The parent UtlString contains the dialogHandle as a key
+   // When an initial SUBSCRIBE is sent, a SubscriptionDialogState is
+   // created for the early dialog.  When the first NOTIFY is
+   // received, the SubscriptionDialogState is changed to use the
+   // established dialog handle as key.  Later NOTIFYs cause further
+   // SubscriptionDialogState's to be created, with their established
+   // dialog handles as keys.
+
+   SubscriptionDialogState(const UtlString& handle,
+                           ///< dialog handle for key
+                           SubscriptionGroupState* pGroupState,
+                           ///< pointer to owning SubscriptionGroupState
+                           SipSubscribeClient::SubscriptionState state
+                           ///< state of the subscription
+      );
+
+   virtual ~SubscriptionDialogState();
+
+   void toString(UtlString& dumpString);
+
+   //! Copying operators.
+   SubscriptionDialogState(const SubscriptionDialogState& rSubscriptionDialogState);
+   SubscriptionDialogState& operator=(const SubscriptionDialogState& rhs);
+
+   // The SubscriptionGroupState object for the ::addSubscription() that
+   // created this subscription.
+   SubscriptionGroupState* mpGroupState;
+   // UtlString::data contains the established dialog handle.
+   SipSubscribeClient::SubscriptionState mState;
+
+   // true if a NOTIFY has been received for this dialog.
+   // (May be false because a dialog state can be established by a success
+   // response from SUBSCRIBE as well as by a NOTIFY.)
+   bool mNotifyReceived;
+
+   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
+   virtual UtlContainableType getContainableType() const;
+
+private:
+};
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+/* ============================ CREATORS ================================== */
+
+// Constructor for private class
+SubscriptionDialogState::SubscriptionDialogState(const UtlString& handle,
+                                                 SubscriptionGroupState* pGroupState,
+                                                 SipSubscribeClient::SubscriptionState state) :
+   UtlString(handle),
+   mpGroupState(pGroupState),
+   mState(state),
+   mNotifyReceived(false)
+{
+}
+
+// Destructor for private class
+SubscriptionDialogState::~SubscriptionDialogState()
+{
+}
+
+// Debug dump of SubscriptionDialogState.
+void SubscriptionDialogState::toString(UtlString& dumpString)
+{
+    dumpString = "SubscriptionDialogState:\n";
+    dumpString.append("\nmpHandle: ");
     dumpString.append(*this);
     dumpString.append("\nmState: ");
     UtlString subStateString;
     SipSubscribeClient::getSubscriptionStateEnumString(mState, subStateString);
     dumpString.append(subStateString);
-    dumpString.append("\nmpApplicationData: ");
-    char pointerString[20];
-    sprintf(pointerString, "%p", mpApplicationData);
-    dumpString.append(pointerString);
-    dumpString.append("\nmpStateCallback: ");
-    sprintf(pointerString, "%p", mpStateCallback);
-    dumpString.append(pointerString);
-    dumpString.append("\nmpNotifyCallback: ");
-    sprintf(pointerString, "%p", mpNotifyCallback);
-    dumpString.append(pointerString);
-    dumpString.append('\n');
 }
 
 //! Copying operators.
-SubscribeClientState::SubscribeClientState(const SubscribeClientState& rSubscribeClientState)
+//SubscriptionDialogState::SubscriptionDialogState(const SubscriptionDialogState& rSubscriptionDialogState)
+
+//SubscriptionDialogState& SubscriptionDialogState::operator=(const SubscriptionDialogState& rhs)
+
+const UtlContainableType SubscriptionDialogState::TYPE = "SubscriptionDialogState";
+
+UtlContainableType SubscriptionDialogState::getContainableType() const
 {
-   static_cast <UtlString&> (*this) =
-      static_cast <const UtlString&> (rSubscribeClientState);
-   mState = rSubscribeClientState.mState;
-   mpApplicationData = rSubscribeClientState.mpApplicationData;
-   mpStateCallback = rSubscribeClientState.mpStateCallback;
-   mpNotifyCallback = rSubscribeClientState.mpNotifyCallback;
+   return SubscriptionDialogState::TYPE;
 }
 
-SubscribeClientState& SubscribeClientState::operator=(const SubscribeClientState& rhs)
-{
-   static_cast <UtlString&> (*this) = static_cast <const UtlString&> (rhs);
-   mState = rhs.mState;
-   mpApplicationData = rhs.mpApplicationData;
-   mpStateCallback = rhs.mpStateCallback;
-   mpNotifyCallback = rhs.mpNotifyCallback;
-
-   return *this;
-}
 
 // Constructor
 SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent, 
                                        SipDialogMgr& dialogMgr,
                                        SipRefreshManager& refreshManager)
     : OsServerTask("SipSubscribeClient-%d")
+    , mpUserAgent(&userAgent)
+    , mpDialogMgr(&dialogMgr)
+    , mpRefreshManager(&refreshManager)
     , mSubscribeClientMutex(OsMutex::Q_FIFO, OsBSem::FULL)
 {
-    mpUserAgent = &userAgent;
-    mpDialogMgr = &dialogMgr;
-    mpRefreshManager = &refreshManager;
 }
 
 // Copy constructor
-SipSubscribeClient::SipSubscribeClient(const SipSubscribeClient& rSipSubscribeClient)
-  : mSubscribeClientMutex(OsMutex::Q_FIFO, OsBSem::FULL)
-{
-   assert(FALSE);
-}
+//SipSubscribeClient::SipSubscribeClient(const SipSubscribeClient& rSipSubscribeClient)
 
 // Destructor
 SipSubscribeClient::~SipSubscribeClient()
@@ -141,7 +436,7 @@ SipSubscribeClient::~SipSubscribeClient()
     // may be used elsewhere and need to be deleted outside the
     // SipSubscribeClient.
 
-    // Stop receiving NOTIFY requests
+    // Stop receiving NOTIFY requests.
     mpUserAgent->removeMessageObserver(*(getMessageQueue()));
 
     // Wait until this OsServerTask has stopped or handleMethod
@@ -159,16 +454,8 @@ SipSubscribeClient::~SipSubscribeClient()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipSubscribeClient& 
-SipSubscribeClient::operator=(const SipSubscribeClient& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   // unimplemented
-   assert(FALSE);
-   return *this;
-}
+//SipSubscribeClient& 
+//SipSubscribeClient::operator=(const SipSubscribeClient& rhs)
 
 UtlBoolean SipSubscribeClient::addSubscription(
    const char* resourceId,
@@ -181,44 +468,49 @@ UtlBoolean SipSubscribeClient::addSubscription(
    void* applicationData,
    const SubscriptionStateCallback subscriptionStateCallback,
    const NotifyEventCallback notifyEventsCallback,
-   UtlString& earlyDialogHandle)
+   UtlString& earlyDialogHandle,
+   bool reestablish,
+   bool restart)
 {
     UtlString callId;
     CallId::getNewCallId(callId);
 
     // Construct a SUBSCRIBE request
-    SipMessage subscribeRequest;
-    subscribeRequest.setSubscribeData(resourceId,
-                                      fromFieldValue,
-                                      toFieldValue,
-                                      callId,
-                                      1, // cseq
-                                      eventHeaderValue,
-                                      acceptHeaderValue,
-                                      NULL, // Event header id parameter
-                                      contactFieldValue,
-                                      NULL, // initial request no routeField
-                                      subscriptionPeriodSeconds);
+    SipMessage* subscribeRequest = new SipMessage;
+    subscribeRequest->setSubscribeData(resourceId,
+                                       fromFieldValue,
+                                       toFieldValue,
+                                       callId,
+                                       1, // cseq
+                                       eventHeaderValue,
+                                       acceptHeaderValue,
+                                       NULL, // Event header id parameter
+                                       contactFieldValue,
+                                       NULL, // initial request no routeField
+                                       subscriptionPeriodSeconds);
 
-    // Create a subscription (i.e. send the request and keep the
-    // subscription refreshed).
-    return (addSubscription(subscribeRequest, 
-                            applicationData,
-                            subscriptionStateCallback,
-                            notifyEventsCallback,
-                            earlyDialogHandle));
+    // Create a subscription from the request.
+    return addSubscription(subscribeRequest, 
+                           applicationData,
+                           subscriptionStateCallback,
+                           notifyEventsCallback,
+                           earlyDialogHandle,
+                           reestablish,
+                           restart);
 }
 
 UtlBoolean SipSubscribeClient::addSubscription(
-   SipMessage& subscriptionRequest,
+   SipMessage* subscriptionRequest,
    void* applicationData,
    const SubscriptionStateCallback subscriptionStateCallback,
    const NotifyEventCallback notifyEventsCallback,
-   UtlString& earlyDialogHandle)
+   UtlString& earlyDialogHandle,
+   bool reestablish,
+   bool restart)
 {
     // Set the from tag if it is not already set.
     Url fromUrl;
-    subscriptionRequest.getFromUrl(fromUrl);
+    subscriptionRequest->getFromUrl(fromUrl);
     UtlString fromTag;
     fromUrl.getFieldParameter("tag", fromTag);
     if (fromTag.isNull())
@@ -228,13 +520,13 @@ UtlBoolean SipSubscribeClient::addSubscription(
         CallId::getNewTag(fromTag);
         fromUrl.setFieldParameter("tag", fromTag);
         fromUrl.toString(fromFieldValue);
-        subscriptionRequest.setRawFromField(fromFieldValue);
+        subscriptionRequest->setRawFromField(fromFieldValue);
     }
 
     // Get the event type and make sure we are registered to
     // receive NOTIFY requests for this event type.
     UtlString eventType;
-    subscriptionRequest.getEventField(&eventType, NULL, NULL);
+    subscriptionRequest->getEventField(&eventType, NULL, NULL);
     // If this event type is not in the list, we need to register
     // to receive NOTIFY requests for this event type.
     {
@@ -261,137 +553,181 @@ UtlBoolean SipSubscribeClient::addSubscription(
        }
     }
 
-    // Create a SubscribeState and set the members
-    SubscribeClientState* clientState = new SubscribeClientState;
-    subscriptionRequest.getDialogHandle(*clientState);
-    clientState->mState = SUBSCRIPTION_INITIATED;
-    clientState->mpApplicationData = applicationData;
-    clientState->mpStateCallback = subscriptionStateCallback;
-    clientState->mpNotifyCallback = notifyEventsCallback;
-    earlyDialogHandle = *clientState;
+    // Create a SubscriptionGroupState and set the members.
+
+    UtlString handle;
+    subscriptionRequest->getDialogHandle(handle);
+    SubscriptionGroupState* groupState =
+       new SubscriptionGroupState(this,
+                                  handle,
+                                  new SipMessage(*subscriptionRequest),
+                                  applicationData,
+                                  subscriptionStateCallback,
+                                  notifyEventsCallback,
+                                  reestablish,
+                                  restart);
+
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::addSubscription adding subscription with handle '%s'",
+                  handle.data());
+
+    // Start the timer that checks for successful creation of
+    // subscription dialog(s).
+    groupState->setStartingTimer(true);
 
     // Put the state in the list
     {
        OsLock lock(mSubscribeClientMutex);
        
-       addState(*clientState);
+       addGroupState(groupState);
     }
 
-    // Give the request to the refresh manager to send the
-    // SUBSCRIBE and keep the subscription alive
+    // Give a copy of the request to the refresh manager to send the
+    // SUBSCRIBE and keep the subscription alive.
     UtlBoolean initialSendOk = 
-        mpRefreshManager->initiateRefresh(subscriptionRequest,
-                                          this,
-                                          // refreshCallback receives 'this' as app. data
-                                          SipSubscribeClient::refreshCallback,
-                                          earlyDialogHandle);
+       mpRefreshManager->initiateRefresh(subscriptionRequest,
+                                         //< give ownership to mpRefreshManager
+                                         this,
+                                         // refreshCallback receives 'this' as app. data
+                                         SipSubscribeClient::refreshCallback,
+                                         earlyDialogHandle);
 
-    return (initialSendOk);
+    // The handle returned by initiateRefresh should be the same as the one
+    // we computed above.
+    if (handle.compareTo(earlyDialogHandle) != 0)
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR, 
+                     "SipSubscribeClient::addSubscription handle problem: handle = '%s', earlyDialogHandle = '%s'",
+                     handle.data(), earlyDialogHandle.data());
+    }
+    assert(handle.compareTo(earlyDialogHandle) == 0);
+
+    return initialSendOk;
 }
 
-UtlBoolean SipSubscribeClient::endSubscription(const char* dialogHandle)
+UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialogHandle)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                  "SipSubscribeClient::endSubscription dialogHandle = '%s'",
-                  dialogHandle);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::endSubscriptionGroup earlyDialogHandle = '%s'",
+                 earlyDialogHandle.data());
 
-    UtlBoolean foundSubscription = FALSE;
-    UtlString matchDialog(dialogHandle);
-    SubscribeClientState* clientState;
-    {
-       OsLock lock(mSubscribeClientMutex);
+   SubscriptionGroupState* groupState;
+   {
+      OsLock lock(mSubscribeClientMutex);
 
-       clientState = removeState(matchDialog);
-    }
+      groupState = removeGroupStateByOriginalHandle(earlyDialogHandle);
 
-    if (clientState)
-    {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                      "SipSubscribeClient::endSubscription clientState = %p",
-                      clientState);
+      // Ensure that terminated subscriptions do not cause restart of the
+      // subscription.
+      if (groupState)
+      {
+         groupState->mReestablish = false;
+         groupState->mRestart = false;
+      }
 
-        foundSubscription = TRUE;
-        // If there is a state change and there is a callback function
-        if (clientState->mState != SUBSCRIPTION_TERMINATED &&
-            clientState->mpStateCallback)
-        {
-            UtlBoolean isEarlyDialog = mpDialogMgr->earlyDialogExists(matchDialog);
+      // Update the SipRefreshManager while we are locking the SipSubscribeClient
+      // to ensure that the two are synchronized.
+      // Stop the refresh of all dialogs and unsubscribe
+      mpRefreshManager->stopRefresh(earlyDialogHandle);
+   }
 
-            // Indicate that the subscription was terminated
-            (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
-                                           isEarlyDialog ? dialogHandle : NULL,
-                                           isEarlyDialog ? NULL : dialogHandle,
-                                           clientState->mpApplicationData,
-                                           -1, // no response code
-                                           NULL, // no response text
-                                           0, // expires now
-                                           NULL); // no response
-        }
-        delete clientState;
+   if (groupState)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                    "SipSubscribeClient::endSubscriptionGroup groupState = %p",
+                    groupState);
 
-        // Stop the refresh and unsubscribe
-        mpRefreshManager->stopRefresh(dialogHandle);
-    }
+      UtlHashBagIterator iterator(mSubscriptionDialogs);
+      UtlBoolean found;
+      UtlString key;
+      int count = 0;
 
-    // Did not find a matching dialog.
-    else
-    {
-        // dialogHandle (= matchDialog) may be a handle to an early dialog.
-        // See if we can find a confirmed dialog matching the early dialog handle.
-        // It is possible that there is more than one dialog that matches
-        // this early dialog handle; if so, end all of them.
-        UtlString establishedDialogHandle;
-        while (mpDialogMgr->getEstablishedDialogHandleFor(matchDialog, establishedDialogHandle))
-        {
+      // Repeatedly get the key of the first subscription in mSubscriptionDialogs
+      // that is within the group and terminate that subscription.
+      do {
+         {
+            OsLock lock(mSubscribeClientMutex);
+
+            iterator.reset();
+
+            SubscriptionDialogState* dialog;
+            found = FALSE;
+            while (!found &&
+                   (dialog = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
             {
-               OsLock lock(mSubscribeClientMutex);
-
-               clientState = removeState(establishedDialogHandle);
+               found = dialog->mpGroupState == groupState;
+               if (found)
+               {
+                  // Save the key of the dialog.
+                  key = *static_cast <UtlString*> (dialog);
+               }
             }
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                          "SipSubscribeClient::endSubscription establishedDialogHandle = '%s', clientState = %p",
-                          establishedDialogHandle.data(), clientState);
+         }
 
-            if (clientState)
-            {
-                foundSubscription = TRUE;
-                // If there is a state change of interest and
-                // there is a callback function
-                if (clientState->mState != SUBSCRIPTION_TERMINATED &&
-                    clientState->mpStateCallback)
-                {
-                    // Indicate that the subscription was terminated
-                    (clientState->mpStateCallback)(SUBSCRIPTION_TERMINATED,
-                                                   establishedDialogHandle,
-                                                   dialogHandle,
-                                                   clientState->mpApplicationData,
-                                                   -1, // no response code
-                                                   NULL, // no response text
-                                                   0, // expires now
-                                                   NULL); // no response
-                }
-                delete clientState;
+         if (found)
+         {
+            endSubscriptionDialog(key);
+            count++;
+         }
+      } while (found);
 
-                // Stop the refresh and unsubscribe
-                mpRefreshManager->stopRefresh(dialogHandle);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::endSubscriptionGroup exited %d dialogs",
+                    count);
 
+      delete groupState;
+   }
 
-                // mpRefreshManager->stopRefresh has deleted the dialog
-                // from mpDialogMgr, so the enclosing while loop will
-                // eventually terminate.
-            }
-            else
-            {
-               OsSysLog::add(FAC_SIP, PRI_CRIT, 
-                             "SipSubscribeClient::endSubscription client state not found matchDialog = '%s', establishedDialogHandle = '%s', clientState = %p",
-                             matchDialog.data(), establishedDialogHandle.data(), clientState);
-               OsSysLog::flush();
-               assert(clientState);
-            }
-        }
-    }
+   return groupState != NULL;
+}
 
-    return foundSubscription;
+UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHandle)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::endSubscriptionDialog dialogHandle = '%s'",
+                 dialogHandle.data());
+
+   SubscriptionDialogState* dialogState;
+   {
+      OsLock lock(mSubscribeClientMutex);
+
+      // Delete the dialogState so that when the termination NOTIFY arrives
+      // it does not match an existing dialog and so does not cause the
+      // subscription to be reestablished.
+      dialogState = removeDialogState(dialogHandle);
+
+      // Update the SipRefreshManager while we are locking the SipSubscribeClient
+      // to ensure that the two are synchronized.
+      // Stop the refresh and unsubscribe
+      mpRefreshManager->stopRefresh(dialogHandle.data());
+   }
+
+   if (dialogState)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                    "SipSubscribeClient::endSubscriptionDialog dialogState = %p",
+                    dialogState);
+
+      // If there is a state change and there is a callback function
+      if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
+          dialogState->mpGroupState->mpStateCallback)
+      {
+         // Indicate that the subscription was terminated
+         dialogState->mpGroupState->
+            mpStateCallback(SUBSCRIPTION_TERMINATED,
+                            dialogState->mpGroupState->data(),
+                            dialogHandle.data(),
+                            dialogState->mpGroupState->mpApplicationData,
+                            -1, // no response code
+                            NULL, // no response text
+                            0, // expires now
+                            NULL); // no response
+      }
+
+      delete dialogState;
+   }
+
+   return dialogState != NULL;
 }
 
 void SipSubscribeClient::endAllSubscriptions()
@@ -399,32 +735,32 @@ void SipSubscribeClient::endAllSubscriptions()
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::endAllSubscriptions entered");
 
-   UtlHashBagIterator iterator(mSubscriptions);
+   UtlHashBagIterator iterator(mSubscriptionGroups);
    UtlString key;
    UtlBoolean found;
    int count = 0;
 
-   // Repeatedly get the key of the first subscription in mSubscriptions
+   // Repeatedly get the key of the first subscription in mSubscriptionGroups
    // and terminate that subscription.
    do {
       {
          OsLock lock(mSubscribeClientMutex);
 
-         found = !mSubscriptions.isEmpty();
+         found = !mSubscriptionGroups.isEmpty();
          if (found)
          {
             iterator.reset();
             // Copy the key of the subscription into a local variable so that we
             // can release the lock.
             key = *static_cast <UtlString*>
-               (dynamic_cast <SubscribeClientState*>
+               (dynamic_cast <SubscriptionGroupState*>
                 (iterator()));
          }
       }
 
       if (found)
       {
-         endSubscription(key);
+         endSubscriptionGroup(key);
          count++;
       }
    } while (found);
@@ -480,41 +816,37 @@ UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
                 "SipSubscribeClient::handleMessage  SipMessageEvent with NULL SipMessage");
         }
     }
+    // Request to reestablish a subscription.
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == SIP_REESTABLISH)
+    {
+       (dynamic_cast <ReestablishRequestMsg&> (eventMessage)).reestablish(*this);
+    }
 
     return (TRUE);
 }
 
 /* ============================ ACCESSORS ================================= */
 
-int SipSubscribeClient::countSubscriptions()
+int SipSubscribeClient::countSubscriptionGroups()
 {
     int count = 0;
     {
        OsLock lock(mSubscribeClientMutex);
 
-       count = mSubscriptions.entries();
+       count = mSubscriptionGroups.entries();
     }
     return count;
 }
 
-int SipSubscribeClient::dumpStates(UtlString& dumpString)
+int SipSubscribeClient::countSubscriptionDialogs()
 {
     int count = 0;
-    dumpString.remove(0);
-    UtlString oneClientDump;
-    SubscribeClientState* clientState = NULL;
-
-    OsLock lock(mSubscribeClientMutex);
-
-    UtlHashBagIterator iterator(mSubscriptions);
-    while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
     {
-       clientState->toString(oneClientDump);
-       dumpString.append(oneClientDump);
+       OsLock lock(mSubscribeClientMutex);
 
-       count++;
+       count = mSubscriptionDialogs.entries();
     }
-
     return count;
 }
 
@@ -559,15 +891,27 @@ void SipSubscribeClient::dumpState()
                  "\t  SipSubscribeClient %p",
                  this);
 
-   UtlString oneClientDump;
-   SubscribeClientState* clientState;
-   UtlHashBagIterator iterator(mSubscriptions);
-   while ((clientState = dynamic_cast <SubscribeClientState*> (iterator())))
+   UtlString s;
+   SubscriptionGroupState* groupState;
+   UtlHashBagIterator groupIterator(mSubscriptionGroups);
+   UtlHashBagIterator dialogIterator(mSubscriptionDialogs);
+   while ((groupState = dynamic_cast <SubscriptionGroupState*> (groupIterator())))
    {
-      clientState->toString(oneClientDump);
+      groupState->toString(s);
       OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t    SubscribeClientState %p %s",
-                    clientState, oneClientDump.data());
+                    "\t    SubscribeGroupState %p %s",
+                    groupState, s.data());
+
+      dialogIterator.reset();
+      SubscriptionDialogState* dialogState;
+      while ((dialogState =
+              dynamic_cast <SubscriptionDialogState*> (dialogIterator())))
+      {
+         dialogState->toString(s);
+         OsSysLog::add(FAC_RLS, PRI_INFO,
+                       "\t      SubscribeDialogState %p %s",
+                       dialogState, s.data());
+      }
    }
    mpRefreshManager->dumpState();
 }
@@ -603,13 +947,13 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
                  "SipSubscribeClient::refreshCallback "
-                 "newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', "
+                 "newState = %d (%s), earlyDialogHandle = '%s', dialogHandle = '%s', "
                  "responseCode = %d, responseText = '%s', expirationDate = %ld",
-                 newState, earlyDialogHandle, dialogHandle, responseCode,
+                 newState, SipRefreshManager::refreshRequestStateText(newState),
+                 earlyDialogHandle, dialogHandle, responseCode,
                  responseText, expirationDate);
 
-   long now = OsDateTime::getSecsSinceEpoch();
-   switch(newState)
+   switch (newState)
    {
       // Do nothing for early dialog for subscribes
    case SipRefreshManager::REFRESH_REQUEST_PENDING:
@@ -617,116 +961,59 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
    case SipRefreshManager::REFRESH_REQUEST_SUCCEEDED:
    { // Variable scope
-      // Either the subscription dialog went from early to established,
-      // or a second dialog was created from the early dialog.  Hence
-      // there may be more than one established dialog.
-      // Determine which case we have:
-      //   1) transition of early dialog to established
-      //   2) second or subsequent dialog established
-      //   3) refresh failed, but subscription not expired yet
+      // A subscription received a successful response.
+      // We may already have dialog state for it, or we may not.
 
       OsLock lock(mSubscribeClientMutex);
 
-      SubscribeClientState* clientState = NULL;
-
-      // See if we can find any state for the early dialog.
-      if (earlyDialogHandle && *earlyDialogHandle)
+      // Find the subscription group.
+      SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+      if (groupState)
       {
-         UtlString dialogString(earlyDialogHandle);
-         clientState = removeState(dialogString);
+         // Increment the count of success responses.
+         groupState->mSuccessResponses++;
 
-         // If we could not find the state for the early dialog
-         // this must callback must be for a second dialog created from the
-         // same early dialog (as evidenced by a second response to
-         // the SUBSCRIBE).
-         if (clientState == NULL)
+         // It would be convenient to not have to create the
+         // SubscriptionDialogState here (as RFC 3265bis does not
+         // recognize a dialog to have been created until a NOTIFY
+         // arrives), but we need to keep the set of
+         // SubscriptionDialogState's aligned with the state of the
+         // SipDialogMgr and SipRefreshManager.
+
+         // Find the subscription dialog.
+         SubscriptionDialogState* dialogState = getDialogState(dialogHandle);
+
+         if (!dialogState)
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                          "SipSubscribeClient::refreshCallback second established dialog for early dialog: %s",
-                          earlyDialogHandle);
-            UtlString establishedDialogHandle;
-            if (mpDialogMgr->getEstablishedDialogHandleFor(earlyDialogHandle,
-                                                           establishedDialogHandle))
-            {
-               SubscribeClientState* establishedState = getState(establishedDialogHandle);
-               if (establishedState)
-               {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                                "SipSubscribeClient::refreshCallback state duplicated from dialog: %s",
-                                establishedDialogHandle.data());
-                  clientState = new SubscribeClientState(*establishedState);
-                  static_cast <UtlString&> (*clientState) = dialogHandle;
-                  clientState->mState = SUBSCRIPTION_SETUP;
-                  addState(*clientState);
-               }
-               else
-               {
-                  OsSysLog::add(FAC_SIP, PRI_ERR, 
-                                "SipSubscribeClient::refreshCallback Unable to get state for handle '%s'",
-                                establishedDialogHandle.data());
-               }
-            }
-            else
-            {
-               OsSysLog::add(FAC_SIP, PRI_ERR, 
-                             "SipSubscribeClient::refreshCallback "
-                             "Unable to get established dialog handle for early handle '%s'",
-                             earlyDialogHandle);
-            }
+            // Subscription dialog state does not exist -- create and insert it.
+
+            UtlString d(dialogHandle);
+            dialogState =
+               new SubscriptionDialogState(d, groupState, SUBSCRIPTION_SETUP);
+            addDialogState(dialogState);
+
+            // Increment the count of success responses.
+            groupState->mSuccessResponses++;
          }
-         else
+
+         if (groupState->mpStateCallback)
          {
-            // Change the dialogHandle as we switched from an
-            // early to an established dialog
-            // The SubscribeClientState was removed from the hashbag
-            // above; change the key and put it back in.
-            static_cast <UtlString&> (*clientState) = dialogHandle;
-            clientState->mState = SUBSCRIPTION_SETUP;
-            addState(*clientState);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                          "SipSubscribeClient::refreshCallback dialog handle of clientState %p changed to '%s'",
-                          clientState, dialogHandle);
+            // Do the callback with the new expiration time.
+            groupState->mpStateCallback(dialogState->mState,
+                                        groupState->data(),
+                                        dialogHandle,
+                                        groupState->mpApplicationData,
+                                        responseCode, 
+                                        responseText,
+                                        expirationDate,
+                                        subscribeResponse);
          }
       }
       else
       {
-         UtlString dialogString(dialogHandle);
-         clientState = getState(dialogString);
-      }
-      // clientState is the subscription state in question,
-      // or NULL if none was found.
-
-      // If the response code is > 299, the reSUBSCRIBE failed,
-      // but a prior SUBSCRIBE has not expired yet.
-
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                    "SipSubscribeClient::refreshCallback clientState = %p",
-                    clientState);
-      if (clientState)
-      {
-         if (expirationDate < now)
-         {
-            clientState->mState = SUBSCRIPTION_TERMINATED;
-         }
-         else
-         {
-            clientState->mState = SUBSCRIPTION_SETUP;
-         }
-
-         if (clientState->mpStateCallback)
-         {
-            (clientState->mpStateCallback)(clientState->mState,
-                                           earlyDialogHandle,
-                                           dialogHandle,
-                                           clientState->mpApplicationData,
-                                           responseCode, 
-                                           responseText,
-                                           expirationDate,
-                                           subscribeResponse);
-         }
-
-         // We do not remove the subscription state.  It is the
-         // application's job to explicitly call endSubscription.
+         OsSysLog::add(FAC_SIP, PRI_ERR, 
+                       "SipSubscribeClient::refreshCallback No subscription group state could be found for early dialog handle '%s'",
+                       earlyDialogHandle);
       }
    }
    break;
@@ -743,40 +1030,67 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // there is no matching credentials or the credentials did
       // not work.
 
-      // Find the subscription state.  The dialog should not
-      // have changed for this case so we use the established dialog
-      // if it is provided, otherwise we use the early dialog
-      UtlString dialogString(dialogHandle ? dialogHandle : earlyDialogHandle);
-
       OsLock lock(mSubscribeClientMutex);
 
-      SubscribeClientState* clientState = getState(dialogString);
-      if ( !clientState && earlyDialogHandle)
+      // Find the subscription group.
+      SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+      if (groupState)
       {
-         clientState = getState(earlyDialogHandle);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipSubscribeClient::refreshCallback could not getState(dialog=%s). getState(earlyDialog=%s) returns %p",
-                       dialogString.data(), earlyDialogHandle, clientState);
-      }
+         // Increment the count of failure responses.
+         groupState->mFailureResponses++;
 
-      if (clientState)
-      {
-         clientState->mState = SUBSCRIPTION_TERMINATED;
+         // Find the subscription dialog.
+         SubscriptionDialogState* dialogState = getDialogState(dialogHandle);
 
-         if (clientState->mpStateCallback)
+         // If an initial SUBSCRIBE fails, we can get a FAILED callback
+         // for a dialog we do not yet have state for.  In that case,
+         // we have not notified our application to say that the dialog exists,
+         // so we need not notify out application that the dialog has failed.
+         if (dialogState)
          {
-            (clientState->mpStateCallback)(clientState->mState,
-                                           earlyDialogHandle,
-                                           dialogHandle,
-                                           clientState->mpApplicationData,
-                                           responseCode, 
-                                           responseText,
-                                           expirationDate,
-                                           subscribeResponse);
+            if (dialogState->mState != SUBSCRIPTION_TERMINATED)
+            {
+               // Mark the subscription as failed.
+               dialogState->mState = SUBSCRIPTION_TERMINATED;
+
+               if (groupState->mpStateCallback)
+               {
+                  // Do the callback with the new state.
+                  groupState->mpStateCallback(dialogState->mState,
+                                              groupState->data(),
+                                              dialogHandle,
+                                              groupState->mpApplicationData,
+                                              responseCode, 
+                                              responseText,
+                                              expirationDate,
+                                              subscribeResponse);
+               }
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "SipSubscribeClient::refreshCallback No subscription dialog state could be found for dialog handle '%s'",
+                          earlyDialogHandle);
          }
 
-         // We do not remove the subscription state, that is the
-         // application's job to explicitly call endSubscription.
+         // If the subscription is established, and mReestablish is
+         // set, reestablish the subscription.
+         if (!groupState->mStarting && groupState->mReestablish)
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR, 
+                          "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
+                          earlyDialogHandle);
+
+            postMessageP(
+               new ReestablishRequestMsg(static_cast <UtlString&> (*groupState)));
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, 
+                       "SipSubscribeClient::refreshCallback No subscription group state could be found for early dialog handle '%s'",
+                       earlyDialogHandle);
       }
    }
    break;
@@ -795,6 +1109,9 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
 void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 {
+    // Hold the lock for the entire function body.
+    OsLock lock(mSubscribeClientMutex);
+
     UtlString eventField;
     notifyRequest.getEventField(&eventField, NULL);
     // We could validate that the event field is
@@ -805,11 +1122,80 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     // NOTIFY request.  However this does not support
     // multiple event types in the same dialog
 
+    // Determine if the NOTIFY contains "Subscription-State: terminated".
+    UtlBoolean terminated = FALSE;
+    // Determine if the NOTIFY contains an "expires" parameter in
+    // the Subscription-State header.
+    int expires = -1;           // -1 means no value found
+
+    const char* subscription_state =
+       notifyRequest.getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
+    if (subscription_state)
+    {
+       // Examine the state value.
+       #define TERMINATED "terminated"
+       terminated = strncasecmp(subscription_state, TERMINATED,
+                                sizeof (TERMINATED) - 1) == 0;
+
+       // Parse the 'expires' parameter.
+       const char* p = strcasestr(subscription_state, "expires");
+       if (p)
+       {
+          // If so, extract the expriation interval.
+          while (isspace(*p))
+          {
+             p++;
+          }
+          if (*p == '=')
+          {
+             p++;
+             while (isspace(*p))
+             {
+                p++;
+             }
+             expires = atoi(p);
+             if (expires <= 0)
+             {
+                // Negative values are invalid.
+                // Zero value is probably due to an error and cannot be
+                // obeyed, anyway.
+                expires = -1;
+             }
+          }
+       }
+    }
+    if (!terminated && expires == -1)
+    {
+       UtlString s;
+       ssize_t l;
+       notifyRequest.getBytes(&s, &l);
+
+       OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                     "Received NOTIFY with ongoing state ('%s') but no/invalid expires value (%d): %s",
+                     subscription_state, expires, s.data());
+    }
+
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+		  "SipSubscribeClient::handleNotifyRequest "
+		  "subscription_state = '%s', terminated = %d, expires = %d",
+		  subscription_state, terminated, expires);
+
+    // Determine and update the state of the subscription dialog.
+    // This is complicated by the fact that the state is represented in
+    // two places (*mpDialogMgr/*mpRefreshManager and
+    // mSubscriptionGroups/mSubscriptionDialogs), and they may not agree.
+    UtlBoolean foundDialog = false;
+    UtlBoolean foundEarlyDialog = false;
+    enum SipDialogMgr::transactionSequence sequence = SipDialogMgr::NO_DIALOG;
+    SubscriptionDialogState* dialogState = NULL;
+    SubscriptionGroupState* groupState = NULL;
+
     UtlString notifyDialogHandle;
     notifyRequest.getDialogHandle(notifyDialogHandle);
 
     // Is there an established dialog?
-    UtlBoolean foundDialog = mpDialogMgr->dialogExists(notifyDialogHandle);
+    foundDialog = mpDialogMgr->dialogExists(notifyDialogHandle);
+
     // Is there an early dialog?
     // Even if there is an established dialog, we still need
     // the early dialog handle to pass to the callback
@@ -817,6 +1203,9 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     // Construct the early dialog handle, keeping in mind that the
     // tags on the NOTIFY are the opposite of what they are on
     // the SUBSCRIBE
+    // (Can't use SipDialogMgr methods here because we may be looking for
+    // an established dialog that is sibling to this NOTIFY, and there is
+    // no method for that.)
     UtlString earlyDialogHandle(notifyDialogHandle);
     ssize_t comma1 = earlyDialogHandle.index(',');
     ssize_t comma2 = earlyDialogHandle.index(',', comma1+1);
@@ -826,107 +1215,171 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                   "SipSubscribeClient::handleNotifyRequest notifyDialogHandle = '%s', earlyDialogHandle = '%s'",
                   notifyDialogHandle.data(), earlyDialogHandle.data());
     
-    UtlBoolean foundEarlyDialog =
-       mpDialogMgr->earlyDialogExists(earlyDialogHandle);
-
-    enum SipDialogMgr::transactionSequence sequence = SipDialogMgr::NO_DIALOG;
-
-#ifdef TEST_PRINT
-    osPrintf("SipSubscribeClient::handleNotifyRequest looking for NOTIFY dialog: %s\n",
-        notifyDialogHandle.data());
-#endif
+    foundEarlyDialog = mpDialogMgr->earlyDialogExists(earlyDialogHandle);
 
     if (foundDialog) 
     {
-       sequence = 
-          mpDialogMgr->isNewRemoteTransaction(notifyRequest);
+       groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+       if (groupState)
+       {
+          // Set the sequence status from SipDialogMgr.
+          sequence = 
+             mpDialogMgr->isNewRemoteTransaction(notifyRequest);
+
+          // Get or create the dialog state.
+	  // (If this fails to find a dialog state, one will be created below.)
+          dialogState = getDialogState(notifyDialogHandle);
+       }
+       else
+       {
+          sequence = SipDialogMgr::NO_DIALOG;
+          OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                        "SipSubscribeClient::handleNotifyRequest No subscription group state found for handle '%s'",
+                        earlyDialogHandle.data());
+       }
     }
 
     // No established dialog
+    else if (foundEarlyDialog)
+    {
+       groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
+       if (groupState)
+       {
+          // Transition the dialog to established in *mpDialogMgr.
+          sequence = 
+             mpDialogMgr->isNewRemoteTransaction(notifyRequest);
+
+	  // Set dialogState to NULL so that a new SubscriptionDialogState
+	  // state will be created below.
+	  dialogState = NULL;
+
+          OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                        "SipSubscribeClient::handleNotifyRequest Transition '%s' to '%s'",
+                        earlyDialogHandle.data(), notifyDialogHandle.data());
+       }
+       else
+       {
+          sequence = SipDialogMgr::NO_DIALOG;
+          OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                        "SipSubscribeClient::handleNotifyRequest No subscription group state found for handle '%s'",
+                        earlyDialogHandle.data());
+       }
+    }
     else
     {
-        // We can get a NOTIFY for an early dialog as there is a
-        // race condition where the NOTIFY can pass the final 
-        // response to the initial SUBSCRIBE
-        // Is there an early dialog for this NOTIFY which should
-        // be an established dialog (i.e. From and To tags)?
+       // Neither an established nor an early dialog.
+       // Check to see if this is from another fork of a subscription
+       // that has already been established.
+       UtlString establishedDialogHandle;
+       if (mpDialogMgr->getEstablishedDialogHandleFor(earlyDialogHandle,
+                                                      establishedDialogHandle))
+       {
+          // establishedDialogHandle is the existing subscription that
+          // is a sibling fork of the current NOTIFY.
+          SubscriptionDialogState* establishedState =
+             getDialogState(establishedDialogHandle);
+          if (establishedState)
+          {
+	     // Set dialogState to NULL so that a new SubscriptionDialogState
+	     // state will be created below.
+	     groupState = establishedState->mpGroupState;
+	     dialogState = NULL;
 
-        if (foundEarlyDialog)
-        {
-            sequence = 
-                mpDialogMgr->isNewRemoteTransaction(notifyRequest);
-        }
-        else
-        {
-           // Neither an established nor an early dialog.
-           // Check to see if this is from another fork of a subscription
-           // that has already been established.
-           UtlString establishedDialogHandle;
-           if (mpDialogMgr->getEstablishedDialogHandleFor(earlyDialogHandle,
-                                                          establishedDialogHandle))
-           {
-              // establishedDialogHandle is the existing subscription that
-              // is a sibling fork of the current NOTIFY.
-              // Clone its state.
-              SubscribeClientState* establishedState = getState(establishedDialogHandle);
-              if (establishedState)
-              {
-                 OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                               "SipSubscribeClient::handleNotifyRequest state duplicated from dialog: %s",
-                               establishedDialogHandle.data());
-                 SubscribeClientState* newState = new SubscribeClientState(*establishedState);
-                 static_cast <UtlString&> (*newState) = notifyDialogHandle;
-                 newState->mState = SUBSCRIPTION_SETUP;
-                 addState(*newState);
+             // Insert the subscription state into the Refresh Manager
+             // (which will insert the dialog state into the Dialog
+             // Manager).
+             // Construct a SUBSCRIBE message for refreshing this
+             // subscription by copying the SUBSCRIBE from the group state.
+             // Note that the Contact from the NOTIFY will be edited
+             // into the Dialog Manager's information when
+             // SipDialogMgr::updateDialog() is called below.
+             SipMessage* subscribeRequest =
+                new SipMessage(*groupState->mpSubscriptionRequest);
 
-                 // Insert the subscription state into the Refresh Manager
-                 // (which will insert the dialog state into the Dialog
-                 // Manager).
-                 // Construct a SUBSCRIBE message for refreshing this
-                 // subscription by copying the SUBSCRIBE from the other
-                 // fork.
-                 // Note that the Contact from the NOTIFY will be edited
-                 // into the Dialog Manager's information when
-                 // SipDialogMgr::updateDialog() is called below.
-                 SipMessage subscribeRequest;
-                 // This lookup should always succeed.
-                 if (mpRefreshManager->getRequest(establishedDialogHandle,
-                                                  subscribeRequest))
-                 {
-                    // Set the to-tag to match this NOTIFY's from-tag.
-                    Url fromUrl;
-                    notifyRequest.getFromUrl(fromUrl);
-                    UtlString fromTag;
-                    fromUrl.getFieldParameter("tag", fromTag);
-                    subscribeRequest.setToFieldTag(fromTag);
-                    UtlString dummy;
-                    mpRefreshManager->initiateRefresh(subscribeRequest,
-                                                      this,
-                                                      SipSubscribeClient::refreshCallback,
-                                                      dummy,
-                                                      // Do not send a SUBSCRIBE now.
-                                                      TRUE);
-                    sequence = SipDialogMgr::IN_ORDER;
-                    // Adjust the flag variables to match what is now true.
-                    foundDialog = TRUE;
-                 }
-                 else
-                 {
-                    // If the lookup fails, give up on the subscription
-                    // this NOTIFY is trying to establish.
-                    sequence = SipDialogMgr::NO_DIALOG;
-                    OsSysLog::add(FAC_SIP, PRI_WARNING, 
-                                  "SipSubscribeClient::handleNotifyRequest mpRefreshManager does not know of dialog '%s'",
-                                  establishedDialogHandle.data());
-                 }
-              }
-           }
-        }
+             // Set the to-tag to match this NOTIFY's from-tag.
+             Url fromUrl;
+             notifyRequest.getFromUrl(fromUrl);
+             UtlString fromTag;
+             fromUrl.getFieldParameter("tag", fromTag);
+             subscribeRequest->setToFieldTag(fromTag);
+             UtlString handle;
+             mpRefreshManager->initiateRefresh(subscribeRequest,
+                                               this,
+                                               SipSubscribeClient::refreshCallback,
+                                               handle,
+                                               // Do not send a SUBSCRIBE now.
+                                               TRUE);
+             // Set the expiration based on the expires value in the
+             // NOTIFY, not the requested expiration in the SUBSCRIBE.
+             if (expires != -1)
+             {
+                mpRefreshManager->changeCurrentRefreshTime(handle,
+                                                           expires);
+             }
+
+             sequence = SipDialogMgr::IN_ORDER;
+
+             // Adjust the flag variables to match what is now true.
+             foundDialog = TRUE;
+
+             OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                           "SipSubscribeClient::handleNotifyRequest Create dialog '%s', which is sibling to '%s'",
+                           notifyDialogHandle.data(),
+                           establishedDialogHandle.data());
+          }
+          else
+          {
+             sequence = SipDialogMgr::NO_DIALOG;
+             OsSysLog::add(FAC_SIP, PRI_ERR, 
+                           "SipSubscribeClient::handleNotifyRequest No subscription dialog state found for handle '%s' which is sibling to NOTIFY '%s'",
+                           establishedDialogHandle.data(),
+                           notifyDialogHandle.data());
+          }
+       }
+       else
+       {
+          sequence = SipDialogMgr::NO_DIALOG;
+          OsSysLog::add(FAC_SIP, PRI_ERR, 
+                        "SipSubscribeClient::handleNotifyRequest No subscription group state found for handle '%s'",
+                        notifyDialogHandle.data());
+       }
     }
     OsSysLog::add(FAC_SIP, PRI_DEBUG, 
                   "SipSubscribeClient::handleNotifyRequest "
-                  "foundDialog = %d, foundEarlyDialog = %d, sequence = %d",
-                  foundDialog, foundEarlyDialog, sequence);
+                  "foundDialog = %d, foundEarlyDialog = %d, sequence = %d, "
+                  "dialogState = %p",
+                  foundDialog, foundEarlyDialog, sequence,
+                  dialogState);
+
+    // If the request is OK but no dialog state has been created for it yet,
+    // create it.
+    if (!dialogState && sequence == SipDialogMgr::IN_ORDER)
+    {
+       // group State should have been set above.
+       assert(groupState);
+
+       // Create a subscription dialog based on this NOTIFY.
+       dialogState = new SubscriptionDialogState(notifyDialogHandle,
+						 groupState,
+						 SUBSCRIPTION_SETUP);
+       addDialogState(dialogState);
+
+       if (groupState->mpStateCallback)
+       {
+	  // Indicate that the subscription was established
+	  dialogState->mpGroupState->mpStateCallback(SUBSCRIPTION_SETUP,
+						     groupState->data(),
+						     dialogState->data(),
+						     groupState->mpApplicationData,
+						     -1, // no response code
+						     NULL, // no response text
+						     -1, // do not know expiration
+						     NULL); // no response
+       }
+       OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+		     "SipSubscribeClient::handleNotifyRequest Create dialog state for '%s'",
+		     notifyDialogHandle.data());
+    }
 
     // Construct the response based on the request's status.
     SipMessage subscriptionResponse;
@@ -934,7 +1387,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     switch (sequence)
     {
     case SipDialogMgr::NO_DIALOG:
-       // NOTIFY does not match a dialog
+       // NOTIFY does not match any dialog.
        // If this NOTIFY is for termination, give a 200 response, to avoid
        // giving 481 responses to a NOTIFY confirming that we have just
        // terminated a subscription.
@@ -943,15 +1396,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        // claims the subscription is terminated, this won't prevent clearing
        // of dangling subscriptions.
     {
-       const char *subscription_state =
-          notifyRequest.getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                     "SipSubscribeClient::handleNotifyRequest "
-                     "subscription_state = '%s'",
-                     subscription_state);
-       #define TERMINATED "terminated"
-       if (strncasecmp(subscription_state, TERMINATED,
-                       sizeof (TERMINATED) - 1) == 0)
+       if (terminated)
        {
           // Send special 200 response.
           subscriptionResponse.setOkResponseData(&notifyRequest);
@@ -966,99 +1411,89 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
     case SipDialogMgr::IN_ORDER:
     {
+       assert(dialogState);
+
        // Request is a new transaction (i.e. cseq greater than
        // last remote transaction)
        // Update the dialog
        mpDialogMgr->updateDialog(notifyRequest, notifyDialogHandle);
 
-       // Get the SubscriptionClientState.
-       SubscribeClientState* clientState = NULL;
+       // Note the creation of a dialog, if appropriate.
+       if (!dialogState->mNotifyReceived)
        {
-          OsLock lock(mSubscribeClientMutex);
-
-          if (!foundDialog && foundEarlyDialog)
-          {
-             // Found an early dialog.
-             OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                           "SipSubscribeClient::handleNotifyRequest "
-                           "make dialog established");
-
-             // Change the dialogHandle because we switched from an
-             // early to an established dialog
-             clientState = removeState(earlyDialogHandle);
-            
-             // Update the subscription state
-             // Take the state out of the hashbag, change the key
-             // and put it back in.
-             if (clientState)
-             {
-                dynamic_cast <UtlString&> (*clientState) = notifyDialogHandle;
-                clientState->mState = SUBSCRIPTION_SETUP;
-                addState(*clientState);
-
-                // invoke the subsription state call back to let
-                // the application know the subscription is established
-                if (clientState->mpStateCallback)
-                {
-                   // Indicate that the subscription was established
-                   (clientState->mpStateCallback)(SUBSCRIPTION_SETUP,
-                                                  earlyDialogHandle,
-                                                  notifyDialogHandle,
-                                                  clientState->mpApplicationData,
-                                                  -1, // no response code
-                                                  NULL, // no response text
-                                                  -1, // do not know expiration
-                                                  NULL); // no response
-                }
-             }
-             else
-             {
-                // There is a race condition which may cause the early dialog
-                // to be promoted to established by the RefreshManager thread
-                // after this thread has determined that the NOTIFY corresponds to
-                // an early dialog.
-                clientState = getState(notifyDialogHandle);
-             }
-          }
-          else
-          {
-             // Found an established dialog
-             // Use the notify dialogHandle to get the subscription state
-             clientState =  getState(notifyDialogHandle);
-          }
+          dialogState->mpGroupState->mEstablishingNotifys++;
+          dialogState->mNotifyReceived = true;
        }
 
-       // invoke the Notify callback if a dialog exists
-       if (clientState && clientState->mState != SUBSCRIPTION_TERMINATED)
+       // Invoke the Notify callback.
+       if (dialogState->mState != SUBSCRIPTION_TERMINATED)
        {
-          if (clientState->mpNotifyCallback)
+          if (dialogState->mpGroupState->mpNotifyCallback)
           {
-             (clientState->mpNotifyCallback)(earlyDialogHandle,
-                                             notifyDialogHandle,
-                                             clientState->mpApplicationData,
-                                             &notifyRequest);
+             dialogState->mpGroupState->mpNotifyCallback(dialogState->mpGroupState->data(),
+                                                         dialogState->data(),
+                                                         dialogState->mpGroupState->mpApplicationData,
+                                                         &notifyRequest);
           }
           // Send an OK response; this NOTIFY matched a subscription state.
           subscriptionResponse.setOkResponseData(&notifyRequest);
+
+          // If the NOTIFY says the state is terminated, end the subscription.
+          if (terminated)
+          {
+	     OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+			   "SipSubscribeClient::handleMessage "
+			   "ending subscription '%s' due to NOTIFY with "
+			   "Subscription-State:terminated",
+			   notifyDialogHandle.data());
+
+             // Delete the dialogState so that when the termination NOTIFY arrives
+             // it does not match an existing dialog and so does not cause the
+             // subscription to be reestablished.
+             removeDialogState(notifyDialogHandle);
+
+	     mpRefreshManager->stopRefresh(notifyDialogHandle.data());
+
+	     // If there is a state change and there is a callback function
+	     if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
+		 dialogState->mpGroupState->mpStateCallback)
+	     {
+		// Indicate that the subscription was terminated
+		dialogState->mpGroupState->
+		   mpStateCallback(SUBSCRIPTION_TERMINATED,
+				   dialogState->mpGroupState->data(),
+				   dialogState->data(),
+				   dialogState->mpGroupState->mpApplicationData,
+				   -1, // no response code
+				   NULL, // no response text
+				   0, // expires now
+				   NULL); // no response
+	     }
+
+	     delete dialogState;
+          }
        }
        else
        {
-          // Subscription does not exist or has been terminated.
-          if (clientState)
+          // Subscription has been terminated.
+          OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                        "SipSubscribeClient::handleNotifyRequest "
+                        "subscription for '%s' has been terminated",
+                        notifyDialogHandle.data());
+
+          // If this NOTIFY is for termination, give a 200 response, to avoid
+          // giving 481 responses to a NOTIFY confirming that we have just
+          // terminated a subscription.
+          if (terminated)
           {
-             OsSysLog::add(FAC_SIP, PRI_WARNING, 
-                           "SipSubscribeClient::handleNotifyRequest "
-                           "subscription for '%s' has been terminated",
-                           notifyDialogHandle.data());
+             // Send special 200 response.
+             subscriptionResponse.setOkResponseData(&notifyRequest);
           }
           else
           {
-             OsSysLog::add(FAC_SIP, PRI_WARNING, 
-                           "SipSubscribeClient::handleNotifyRequest "
-                           "could not find subscription information for '%s'",
-                           notifyDialogHandle.data());
+             // Send ordinary 481 response.
+             subscriptionResponse.setBadSubscriptionData(&notifyRequest);
           }
-          subscriptionResponse.setBadSubscriptionData(&notifyRequest);
        }
     }
     break;
@@ -1099,50 +1534,341 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     mpUserAgent->send(subscriptionResponse);
 }
 
-void SipSubscribeClient::addState(SubscribeClientState& clientState)
+void SipSubscribeClient::addGroupState(SubscriptionGroupState* groupState)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                  "SipSubscribeClient::addState clientState = %p '%s'",
-                  &clientState,
-                  clientState.data());
-    mSubscriptions.insert(&clientState);
+                  "SipSubscribeClient::addGroupState groupState = %p '%s'",
+                  groupState,
+                  groupState->data());
+    mSubscriptionGroups.insert(groupState);
+    mSubscriptionGroupsByCurrentHandle.insertKeyAndValue(&groupState->mCurrentEarlyDialogHandle,
+                                                         groupState);
 }
 
-SubscribeClientState* SipSubscribeClient::getState(const UtlString& dialogHandle)
+void SipSubscribeClient::addDialogState(SubscriptionDialogState* dialogState)
 {
-    SubscribeClientState* foundState =
-       dynamic_cast <SubscribeClientState*> (mSubscriptions.find(&dialogHandle));
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                  "SipSubscribeClient::addDialogState dialogState = %p '%s'",
+                  dialogState,
+                  dialogState->data());
+    mSubscriptionDialogs.insert(dialogState);
+}
+
+SubscriptionGroupState* SipSubscribeClient::getGroupStateByOriginalHandle(const UtlString& dialogHandle)
+{
+    SubscriptionGroupState* foundState =
+       dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroups.find(&dialogHandle));
+    assert(foundState ?
+           mSubscriptionGroupsByCurrentHandle.find(&foundState->mCurrentEarlyDialogHandle) != NULL :
+           true);
+    return foundState;
+}
+
+SubscriptionGroupState* SipSubscribeClient::getGroupStateByCurrentHandle(const UtlString& dialogHandle)
+{
+    SubscriptionGroupState* foundState =
+       dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroupsByCurrentHandle.findValue(&dialogHandle));
+    UtlString originalDialogHandle;
+    assert(foundState ?
+           // Need to turn foundState to UtlString* or something goes wrong with
+           // the find().
+           ( originalDialogHandle = *(static_cast <UtlString*> (foundState)),
+             mSubscriptionGroups.find(&originalDialogHandle) != NULL) :
+           true);
+    return foundState;
+}
+
+SubscriptionDialogState* SipSubscribeClient::getDialogState(const UtlString& dialogHandle)
+{
+    SubscriptionDialogState* foundState =
+       dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.find(&dialogHandle));
     if (foundState == NULL)
     {
         // Swap the tags around to see if it is keyed the other way
         UtlString reversedHandle;
         SipDialog::reverseTags(dialogHandle, reversedHandle);
         foundState =
-           dynamic_cast <SubscribeClientState*> (mSubscriptions.find(&reversedHandle));
+           dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.find(&reversedHandle));
     }
 
     return (foundState);
 }
 
-SubscribeClientState* SipSubscribeClient::removeState(const UtlString& dialogHandle)
+void SipSubscribeClient::reindexGroupState(SubscriptionGroupState* groupState)
 {
-    SubscribeClientState* foundState =
-       dynamic_cast <SubscribeClientState*> (mSubscriptions.remove(&dialogHandle));
-    if (foundState == NULL)
-    {
-        // Swap the tags around to see if it is keyed the other way
-        UtlString reversedHandle;
-        SipDialog::reverseTags(dialogHandle, reversedHandle);
-        foundState =
-           dynamic_cast <SubscribeClientState*> (mSubscriptions.remove(&reversedHandle));
-    }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::reindexGroupState original handle = '%s', previous handle = '%s'",
+                 groupState->data(),
+                 groupState->mCurrentEarlyDialogHandle.data());
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                  "SipSubscribeClient::removeState dialogHandle = '%s', foundState = %p '%s'",
-                  dialogHandle.data(),
-                  foundState,
-                  foundState ? foundState->data() : "(null)");
-    return foundState;
+   // Remove the entry in mSubscriptionGroupsByCurrentHandle.
+   UtlContainable* r =
+      mSubscriptionGroupsByCurrentHandle.remove(&groupState->mCurrentEarlyDialogHandle);
+   assert(r);
+
+   // Calculate the new early dialog handle and record it in mCurrentEarlyDialogHandle.
+   groupState->mpSubscriptionRequest->getDialogHandle(groupState->mCurrentEarlyDialogHandle);
+
+   // Correct the entry in mSubscriptionGroupsByCurrentHandle.
+   mSubscriptionGroupsByCurrentHandle.
+      insertKeyAndValue(&groupState->mCurrentEarlyDialogHandle,
+                        groupState);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::reindexGroupState new handle = '%s'",
+                 groupState->mCurrentEarlyDialogHandle.data());
+}
+
+SubscriptionGroupState* SipSubscribeClient::removeGroupStateByCurrentHandle(const UtlString& dialogHandle)
+{
+   UtlContainable* value;
+   mSubscriptionGroupsByCurrentHandle.removeKeyAndValue(&dialogHandle, value);
+   SubscriptionGroupState* foundState =
+      dynamic_cast <SubscriptionGroupState*> (value);
+   if (foundState)
+   {
+      UtlContainable* r = mSubscriptionGroups.remove(foundState);
+      assert(r);
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::removeGroupStateByCurrentHandle dialogHandle = '%s', foundState = %p '%s'",
+                 dialogHandle.data(),
+                 foundState,
+                 foundState ? foundState->data() : "(null)");
+   return foundState;
+}
+
+SubscriptionGroupState* SipSubscribeClient::removeGroupStateByOriginalHandle(const UtlString& dialogHandle)
+{
+   SubscriptionGroupState* foundState =
+      dynamic_cast <SubscriptionGroupState*> (mSubscriptionGroups.remove(&dialogHandle));
+   if (foundState)
+   {
+      UtlContainable* r =
+         mSubscriptionGroupsByCurrentHandle.remove(&foundState->mCurrentEarlyDialogHandle);
+      assert(r);
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::removeGroupStateByOriginalHandle dialogHandle = '%s', foundState = %p '%s'",
+                 dialogHandle.data(),
+                 foundState,
+                 foundState ? foundState->data() : "(null)");
+   return foundState;
+}
+
+SubscriptionDialogState* SipSubscribeClient::removeDialogState(const UtlString& dialogHandle)
+{
+   SubscriptionDialogState* foundState =
+      dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.remove(&dialogHandle));
+   if (foundState == NULL)
+   {
+      // Swap the tags around to see if it is keyed the other way
+      UtlString reversedHandle;
+      SipDialog::reverseTags(dialogHandle, reversedHandle);
+      foundState =
+         dynamic_cast <SubscriptionDialogState*> (mSubscriptionDialogs.remove(&reversedHandle));
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::removeDialogState dialogHandle = '%s', foundState = %p '%s'",
+                 dialogHandle.data(),
+                 foundState,
+                 foundState ? foundState->data() : "(null)");
+   return foundState;
 }
 
 /* ============================ FUNCTIONS ================================= */
+
+// The following functions implement the strategy for restarting subscriptions
+// that fail while attempting to start them, or fail after they are established.
+// At subscription starting, or after a subscription dialog fails,
+// a new SUBSCRIBE (with a new Call-Id) is sent.
+// We wait for 15 seconds.  After 15 seconds, we check to see if the starting
+// attempt was successful:
+//        at least one success response to the SUBSCRIBE
+//        no failure response to the SUBSCRIBE
+//        at least one NOTIFY arrived (that does not have
+//           "Subscription-State: terminated")
+// If that attempt fails, we cancel the dialogs created by that SUBSCRIBE,
+// and try again with a doubled waiting time.
+// Attempts are repeated, doubling the waiting time each time, until
+// the waiting time exceeds 5 minutes, at which time cycles continue
+// indefinitely without increasing the waiting time.
+
+// Has the subscription start succeeded?
+bool SubscriptionGroupState::successfulStart()
+{
+   return
+      mSuccessResponses > 0 &&
+      mFailureResponses == 0 &&
+      mEstablishingNotifys > 0;
+}
+
+// Set up the starting timer.
+void SubscriptionGroupState::setStartingTimer(bool initial)
+{
+   mStarting = true;
+   // Select the timeout based on whether this is an initial start,
+   // and if the current timeout exceeds SUBSCRIPTION_STARTUP_MAX.
+   mStartingTimeout = 
+      initial ? SUBSCRIPTION_STARTUP_INITIAL :
+      mStartingTimeout <= SUBSCRIPTION_STARTUP_MAX ? mStartingTimeout * 2 :
+      mStartingTimeout;
+   mSuccessResponses = 0;
+   mFailureResponses = 0;
+   mEstablishingNotifys = 0;
+
+   // We stop mStartingTimer asynchronously here because if it has a queued
+   // firing, that will do no harm:  This starting will fail prematurely
+   // and another start will be done.
+   mStartingTimer.stop(FALSE); // async
+   mStartingTimer.oneshotAfter(OsTime(mStartingTimeout, 0));
+}
+
+// Set the subscription group to established state.
+void SubscriptionGroupState::transitionToEstablished()
+{
+   mStarting = false;
+}
+
+// Prepare for the next starting attempt.
+void SubscriptionGroupState::resetStarting()
+{
+   // Set a new Call-Id into the SUBSCRIBE request.
+   UtlString callId;
+   CallId::getNewCallId(callId);
+   mpSubscriptionRequest->setCallIdField(callId);
+   
+   // Set a new from tag.
+   Url fromUrl;
+   mpSubscriptionRequest->getFromUrl(fromUrl);
+   UtlString fromFieldValue;
+   fromUrl.toString(fromFieldValue);
+   UtlString fromTag;
+   CallId::getNewTag(fromTag);
+   fromUrl.setFieldParameter("tag", fromTag);
+   fromUrl.toString(fromFieldValue);
+   mpSubscriptionRequest->setRawFromField(fromFieldValue);
+}
+
+void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::reestablish mEarlyDialogHandle = '%s'",
+                 mEarlyDialogHandle.data());
+
+   // Terminate all current subscriptions for this group.
+   // (This should be factored with ::endSubscriptionGroup.)
+
+   // Repeatedly look up the group and terminate one subscription.
+   {
+      UtlHashBagIterator iterator(client.mSubscriptionDialogs);
+      int count = 0;
+      UtlBoolean found;
+      UtlString key;
+
+      do {
+         {
+            OsLock lock(client.mSubscribeClientMutex);
+
+            found = FALSE;
+            // Look up the group state.
+            SubscriptionGroupState* groupState =
+               client.getGroupStateByOriginalHandle(mEarlyDialogHandle);
+            // Check that reestablishment is set for this group.
+            if (groupState && groupState->mReestablish)
+            {
+               iterator.reset();
+
+               SubscriptionDialogState* dialog;
+               found = FALSE;
+               while (!found &&
+                      (dialog = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
+               {
+                  found = dialog->mpGroupState == groupState;
+                  if (found)
+                  {
+                     // Save the key of the dialog.
+                     key = *static_cast <UtlString*> (dialog);
+                  }
+               }
+            }
+         }
+
+         if (found)
+         {
+            client.endSubscriptionDialog(key);
+            count++;
+         }
+      } while (found);
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::reestablish exited %d dialogs",
+                       count);
+
+      {
+         OsLock lock(client.mSubscribeClientMutex);
+
+         // Look up the group state.
+         SubscriptionGroupState* groupState =
+            client.getGroupStateByOriginalHandle(mEarlyDialogHandle);
+
+         // Test whether reestablish is set.
+         // It may be false because the subscription group is being ended.
+         if (groupState->mReestablish)
+         {
+            // Prepare for the next starting attempt.
+            groupState->resetStarting();
+            // Reindex the group under the new early dialog handle.
+            client.reindexGroupState(groupState);
+
+            // Try establishing the subscription again.
+            groupState->setStartingTimer(false);
+      
+            // Give a copy of the request to the refresh manager to send the
+            // SUBSCRIBE and keep the subscription alive.
+            UtlString earlyDialogHandle;
+            client.mpRefreshManager->
+               initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
+                               //< give ownership to mpRefreshManager
+                               &client,
+                               // refreshCallback receives the SipSubscribeClient as app. data
+                               SipSubscribeClient::refreshCallback,
+                               earlyDialogHandle);
+         }
+      }
+   }
+}
+
+// The timer event routine for SipSubscribeClient::mStartingTimer.
+OsStatus SubscriptionStartingNotification::signal(intptr_t timer_i)
+{
+   OsLock lock(mpSubscribeClient->mSubscribeClientMutex);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SubscriptionStartingNotification::signal Timer fired, mpGroupState = %p '%s'",
+                 mpGroupState, mpGroupState->data());
+
+   // Check to see if we set up the subscription(s) successfully.
+   if (mpGroupState->successfulStart())
+   {
+      // If so, update the state variables.
+      mpGroupState->transitionToEstablished();
+   }
+   else
+   {
+      // Test whether reestablish is set.
+      // It may be false because the subscription is not supposed to restart,
+      // or because the subscription group is being ended.
+      if (mpGroupState->mReestablish)
+      {
+         // Queue a request to reestablish the subscription.
+         mpSubscribeClient->postMessageP(
+            new ReestablishRequestMsg(static_cast <UtlString&> (*mpGroupState)));
+      }
+   }
+
+   return OS_SUCCESS;
+}
