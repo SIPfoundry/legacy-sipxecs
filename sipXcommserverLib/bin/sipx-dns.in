@@ -5,6 +5,8 @@ SipDomain=""
 HostMax=0
 ExitStatus=0
 SerialNumber=00
+PortTCP=5060
+PortUDP=5060
 ProvideDNS=EXTERNAL
 Feedback=QUIET
 
@@ -22,6 +24,8 @@ Usage:
     sipx-dns <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
              [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
+             [ { -T | --port-TCP } ]
+             [ { -U | --port-UDP } ]
              [ { -p | --provide-dns } ]
 
       Output DNS records in BIND format for @SIPXECS_NAME@ services.  
@@ -35,6 +39,8 @@ Usage:
     sipx-dns { -t | --test }
              <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -T | --port-TCP } ]
+             [ { -U | --port-UDP } ]
              [ { -p | --provide-dns } ]
              [ { -v | --verbose } ]
 
@@ -70,6 +76,14 @@ Usage:
 
         Indicates that the DNS service is to be hosted on the callserver
         systems. 
+
+    --port-TCP | -T
+
+        Specifies a value for the TCP SIP listening port.
+
+    --port-UDP | -U
+
+        Specifies a value for the UDP SIP listening port.
 
     --version | -V
 
@@ -204,6 +218,30 @@ do
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
+
+	-T|--port-TCP)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <sipx-listening-TCP-port> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                PortTCP=$2
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+	    ;;
+
+	 -U|--port-UDP)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <Must specify <sipx-listening-UDP-port> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                PortUDP=$2
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+	    ;;
 
         ##
         ## handle an unknown switch
@@ -357,14 +395,14 @@ generate_domain_srv_records () {
             cat <<EOF
 
 ; SRV record for domain SIP TCP ${SipDomain} 
-;     priority: 1  weight: 0  port: 5060  server: ${server}
+;     priority: 1  weight: 0  port: ${PortTCP}  server: ${server}
 ;
-_sip._tcp.${SipDomain}.	IN	SRV	1 0 5060 ${server}.
+_sip._tcp.${SipDomain}.	IN	SRV	1 0 ${PortTCP} ${server}.
 
 ; SRV record for domain SIP UDP ${SipDomain} 
-;     priority: 1  weight: 0  port: 5060  server: ${server}
+;     priority: 1  weight: 0  port: ${PortUDP}  server: ${server}
 ;
-_sip._udp.${SipDomain}.	IN	SRV	1 0 5060 ${server}.
+_sip._udp.${SipDomain}.	IN	SRV	1 0 ${PortUDP} ${server}.
 EOF
         fi
     done
