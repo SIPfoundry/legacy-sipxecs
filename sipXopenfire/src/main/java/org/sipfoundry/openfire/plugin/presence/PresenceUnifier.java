@@ -84,7 +84,7 @@ public class PresenceUnifier implements PresenceEventListener
                 // make plug-in aware of change so that it gets broadcasted to all watchers.
             }
             else{
-                // no stauts message embedding 'on the phone' info generated, just default to the
+                // no status message embedding 'on the phone' info generated, just default to the
                 // plain XMPP status message then.
                 unifiedPresence.setXmppStatusMessageWithSipState(unifiedPresence.getXmppStatusMessage());       
             }
@@ -148,19 +148,11 @@ public class PresenceUnifier implements PresenceEventListener
     {
         try
         {
-            UnifiedPresence unifiedPresence = 
-                handleXmppPresenceChange( session.getUsername(), presence );
-
-            notifyListenersOfChange( unifiedPresence );
-            log.debug("presenceChanged[1] for " + session.getUsername() 
-                    + " new presence show: " + presence.getShow()
-                    + " new presence type: " + presence.getType()
-                    + " new presence status: " + presence.getStatus()
-                    + " new unified presence: " + unifiedPresence.getUnifiedPresence() );        
+            presenceChanged( session.getUsername(), presence );
         }
         catch( UserNotFoundException ex )
         {
-            log.debug( "unavailableSession caught " + ex.getMessage() );
+            log.debug( "presenceChanged caught " + ex.getMessage() );
         }
     }
     
@@ -238,7 +230,46 @@ public class PresenceUnifier implements PresenceEventListener
             unifiedPresence = new UnifiedPresence( xmppUsername );
             unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
         }
-        unifiedPresence.setXmppPresence( presence );
+
+        // check to see if this XMPP presence change notification is the result of us adding the 
+        // SIP state to the XMPP status message.  If it is, then we can simply
+        // skip it as the notification does not contain any info we don't already know.
+        String newXmppStatusMessage = presence.getStatus();
+        if( !unifiedPresence.getXmppStatusMessageWithSipState().equals(newXmppStatusMessage) ){
+            // this is a genuine XMPP status message change from the user - add the SIP State 
+            // information if we are on a call.
+            unifiedPresence.setXmppPresence( presence );
+            unifiedPresence.setXmppStatusMessage( newXmppStatusMessage );
+            if ( unifiedPresence.getSipState() == SipResourceState.BUSY ){
+                String newXmppStatusMessageWithSipState = 
+                    generateXmppStatusMessageWithSipState( unifiedPresence.getJidAsString(), unifiedPresence );
+                if( newXmppStatusMessageWithSipState != null ){
+                    unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessageWithSipState);
+                }
+                else{
+                    unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessage);
+                }
+            }
+            else{
+                // not on the phone. Set XMPP status message to reflect that.
+                unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessage);
+            }
+            try{
+                sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(), unifiedPresence.getXmppStatusMessageWithSipState());                
+            }
+            catch( Exception e ){
+                log.error("PresenceUnifier::xmppStatusMessageChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+            }
+            notifyListenersOfChange( unifiedPresence );
+        }
+        
+        
+        
+        
+        
+        
+        
+        
         return unifiedPresence; 
     }
     

@@ -42,6 +42,7 @@ public class AccountsParser {
     private static String currentTag = null;
     private static Digester digester;
     private String accountDbFileName;
+    private long lastModified;
     private File accountDbFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
   
@@ -61,78 +62,80 @@ public class AccountsParser {
         @Override
         public void run() {
             try {
-                String fileUrl = "file://" + accountDbFileName;
-                XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
-                SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
-                Collection<UserAccount> userAccounts = new HashSet<UserAccount>();
-                userAccounts.addAll(plugin.getUserAccounts());
-
-                for (UserAccount userAccount : userAccounts) {
-                    if (accountInfo.getXmppUserAccount(userAccount.getXmppUserName()) == null) {
-                        if (!userAccount.getXmppUserName().equals("admin")) {
-                            plugin.destroyUser(XmppAccountInfo.appendDomain(userAccount
-                                    .getXmppUserName()));
+                if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
+                    AccountsParser.this.lastModified = accountDbFile.lastModified(); 
+                    String fileUrl = "file://" + accountDbFileName;
+                    XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
+                    SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+                    Collection<UserAccount> userAccounts = new HashSet<UserAccount>();
+                    userAccounts.addAll(plugin.getUserAccounts());
+    
+                    for (UserAccount userAccount : userAccounts) {
+                        if (accountInfo.getXmppUserAccount(userAccount.getXmppUserName()) == null) {
+                            if (!userAccount.getXmppUserName().equals("admin")) {
+                                plugin.destroyUser(XmppAccountInfo.appendDomain(userAccount
+                                        .getXmppUserName()));
+                            }
                         }
                     }
-                }
-                HashSet<Group> groups = new HashSet<Group>();
-                groups.addAll(plugin.getGroups());
-                for (Group group : groups) {
-                    if (accountInfo.getXmppGroup(group.getName()) == null) {
-                        logger.debug("Cannot find group in config directory " + group.getName());
-                        plugin.deleteGroup(group.getName());
-                        continue;
-                    }
-                    XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
-                    Collection<JID> members = group.getMembers();
-                    for (JID member : members) {
-                        /*
-                         * Make sure we have a record for this member in our sipxconfig generated
-                         * group.
-                         */
-                        if (!xmppGroup.hasMember(member.toBareJID())) {
-                            group.getMembers().remove(member);
+                    HashSet<Group> groups = new HashSet<Group>();
+                    groups.addAll(plugin.getGroups());
+                    for (Group group : groups) {
+                        if (accountInfo.getXmppGroup(group.getName()) == null) {
+                            logger.debug("Cannot find group in config directory " + group.getName());
+                            plugin.deleteGroup(group.getName());
+                            continue;
                         }
-
-                    }
-                }
-                Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
-                /*
-                 * Remove any chat rooms that do not appear in the xml file.
-                 */
-                for (MUCRoom mucRoom : chatRooms) {
-                    String domain = mucRoom.getMUCService().getServiceDomain().split("\\.")[0];
-                    logger.debug("Checking MUCRoom" + domain + " name " + mucRoom.getName());
-                    XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom
-                            .getName());
-                    // Found a chat room that is not in our list of chat rooms.
-
-                    if (xmppChatRoom == null) {
-                        if (!mucRoom.wasSavedToDB()) {
+                        XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
+                        Collection<JID> members = group.getMembers();
+                        for (JID member : members) {
                             /*
-                             * Anything not in our database is deemed adhoc.
+                             * Make sure we have a record for this member in our sipxconfig generated
+                             * group.
                              */
-                            logger.debug("Adhoc chat room detected - enable logging");
-                            mucRoom.setLogEnabled(true);
-                            logger.debug("AdHoc chat room has owners : " + mucRoom.getOwners());
-                            mucRoom.setLogEnabled(true);
-                        } else {
-                            logger.debug("Destroy chat room " + mucRoom.getName());
-                            mucRoom.destroyRoom(null, "not a managed chat");
-
+                            if (!xmppGroup.hasMember(member.toBareJID())) {
+                                group.getMembers().remove(member);
+                            }
+    
                         }
                     }
+                    Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
+                    /*
+                     * Remove any chat rooms that do not appear in the xml file.
+                     */
+                    for (MUCRoom mucRoom : chatRooms) {
+                        String domain = mucRoom.getMUCService().getServiceDomain().split("\\.")[0];
+                        logger.debug("Checking MUCRoom" + domain + " name " + mucRoom.getName());
+                        XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom
+                                .getName());
+                        // Found a chat room that is not in our list of chat rooms.
+    
+                        if (xmppChatRoom == null) {
+                            if (!mucRoom.wasSavedToDB()) {
+                                /*
+                                 * Anything not in our database is deemed adhoc.
+                                 */
+                                logger.debug("Adhoc chat room detected - enable logging");
+                                mucRoom.setLogEnabled(true);
+                                logger.debug("AdHoc chat room has owners : " + mucRoom.getOwners());
+                                mucRoom.setLogEnabled(true);
+                            } else {
+                                logger.debug("Destroy chat room " + mucRoom.getName());
+                                mucRoom.destroyRoom(null, "not a managed chat");
+    
+                            }
+                        }
+                    }
+    
+                    /*
+                     * Restrict the chat services to those that are in xmpp-account-info.xml
+                     */
+                    HashSet<String> allowedDomains = new HashSet<String>();
+                    for (XmppChatRoom chatRoom : accountInfo.getXmppChatRooms()) {
+                        allowedDomains.add(chatRoom.getSubdomain());
+                    }
+                    plugin.pruneChatServices(allowedDomains);
                 }
-
-                /*
-                 * Restrict the chat services to those that are in xmpp-account-info.xml
-                 */
-                HashSet<String> allowedDomains = new HashSet<String>();
-                for (XmppChatRoom chatRoom : accountInfo.getXmppChatRooms()) {
-                    allowedDomains.add(chatRoom.getSubdomain());
-                }
-                plugin.pruneChatServices(allowedDomains);
-
             } catch (Exception ex) {
                 logger.error("Exception caught while parsing accountsdb ", ex);
             }
