@@ -176,7 +176,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 applicationLogger.addAppender(new ConsoleAppender(new PatternLayout()));
             }
 
-            CallWatcher.setLogAppender(getLogAppender());
+            
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         }

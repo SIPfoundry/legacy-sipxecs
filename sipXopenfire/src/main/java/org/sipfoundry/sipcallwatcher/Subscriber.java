@@ -615,9 +615,8 @@ public class Subscriber implements SipListener {
             // Create ViaHeaders
             // TODO: do this right
             ArrayList viaHeaders = new ArrayList();
-            int port = CallWatcher.getConfig().getWatcherPort();
             ViaHeader viaHeader = headerFactory.createViaHeader(
-                    watcherConfig.getWatcherAddress(), watcherConfig.getProxyPort(), transport,
+                    watcherConfig.getWatcherAddress(), watcherConfig.getWatcherPort(), transport,
                     null);
 
             // add via headers

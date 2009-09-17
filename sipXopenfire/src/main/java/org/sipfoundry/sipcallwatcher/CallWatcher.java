@@ -12,7 +12,6 @@ public class CallWatcher
     // //////////////// //
     // static variables //
     // //////////////// //	
-	private static SipFoundryAppender logAppender;
 	private static WatcherConfig watcherConfig;
 	private static String configurationPath = "/etc/sipxpbx/";
     private static String configurationFile;
@@ -84,13 +83,6 @@ public class CallWatcher
     }  
     
  
-    
-    
-
-    public static void setLogAppender(SipFoundryAppender logAppender) {
-       CallWatcher.logAppender = logAppender;
-        
-    }
 
     public static void setWatcherConfig(WatcherConfig watcherConfig) {
        
