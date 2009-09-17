@@ -34,6 +34,7 @@ public abstract class FreeSwitchEventSocketInterface {
     private boolean m_redactDtmf; // True if DTMF logs should be redacted (for "security")
 
     public FreeSwitchEventSocketInterface(FreeSwitchConfigurationInterface config) {
+        this.m_config = config;
         this.LOG = config.getLogger();
     }
 

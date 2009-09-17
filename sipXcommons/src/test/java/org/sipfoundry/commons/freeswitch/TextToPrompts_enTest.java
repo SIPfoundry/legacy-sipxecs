@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.freeswitch.TextToPrompts_en;

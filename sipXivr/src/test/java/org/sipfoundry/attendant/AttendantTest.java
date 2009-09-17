@@ -17,10 +17,10 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketEmulator;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.TextToPrompts_en;
 import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.FreeSwitchEventSocketEmulator;
 import org.sipfoundry.sipxivr.ValidUsersXML;
 
 import junit.framework.TestCase;
@@ -64,9 +64,9 @@ public class AttendantTest extends TestCase {
      */
 
     public void testGoodbye() {
-        FreeSwitchEventSocketEmulator fses = new FreeSwitchEventSocketEmulator();
         Hashtable<String, String> params = new Hashtable<String, String>();
         IvrConfiguration ivrConfig = IvrConfiguration.getTest();
+        FreeSwitchEventSocketEmulator fses = new FreeSwitchEventSocketEmulator(ivrConfig);
 
         Attendant a = new Attendant(ivrConfig, fses, params);
         HashMap<Locale, ResourceBundle> resourcesByLocale = new HashMap<Locale, ResourceBundle>();

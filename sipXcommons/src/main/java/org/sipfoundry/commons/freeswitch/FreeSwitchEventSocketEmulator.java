@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.freeswitch;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -16,6 +16,10 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 
 public class FreeSwitchEventSocketEmulator extends FreeSwitchEventSocketInterface {
+
+    public FreeSwitchEventSocketEmulator(FreeSwitchConfigurationInterface config) {
+        super(config);
+    }
 
     public Vector<String> cmds = new Vector<String>();
     public FreeSwitchEvent event;
