@@ -1,4 +1,6 @@
 //
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
+//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -79,6 +81,12 @@ SipMessageEvent::operator=(const SipMessageEvent& rhs)
 }
 
 /* ============================ ACCESSORS ================================= */
+
+/// Set the SipMessage pointer in the SipMessageEvent.
+void SipMessageEvent::setMessage(SipMessage* message)
+{
+   sipMessage = message;
+}
 
 const SipMessage* SipMessageEvent::getMessage()
 {

@@ -70,7 +70,9 @@ public:
     virtual UtlBoolean send(SipMessage& message,
         OsMsgQ* responseListener = NULL,
         void* responseListenerData = NULL) = 0;
-    //! param: message - the sip message to be sent
+    //! param: message - the SIP message to be sent
+    // Fields may be set to default values by this method.
+    // Ownership is not taken by SipUserAgent.
     //! param: responseListener - the queue on which to place SipMessageEvents containing SIP responses from the same transaction as the request sent in message
     //! param: responseListenerData - data to be passed back with responses
 

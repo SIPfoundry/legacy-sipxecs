@@ -33,46 +33,19 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
     public:
 
+    // Initializations of these variables are at the bottom of this file.
     static SipRefreshManager::RefreshRequestState smLatestSubState;
     static int smCallbackCount;
     static int smLastResponseCode;
     static long smExpiration;
 
-    UtlBoolean respond(OsMsgQ& messageQueue,
-                       int responseCode, 
-                       const char* responseText, 
-                       SipUserAgent& userAgent,
-                       int waitMilliSeconds,
-                       SipMessage*& request)
-    {
-        UtlBoolean gotRequest = FALSE;
-        request = NULL;
-        if(removeMessage(messageQueue, waitMilliSeconds, request) &&
-            request)
-        {
-            if(!request->isResponse())
-            {
-                gotRequest = TRUE;
-                SipMessage response;
-                response.setResponseData(request, responseCode, responseText);
-                userAgent.send(response);
-
-#ifdef TEST_PRINT
-                UtlString responseBytes;
-                ssize_t len;
-                response.getBytes(&responseBytes, &len);
-                printf("%s", responseBytes.data());
-#endif
-
-            }
-        }
-        return(gotRequest);
-    }
-
     UtlBoolean removeMessage(OsMsgQ& messageQueue,
                              int waitMilliSeconds,
                              const SipMessage*& message)
     {
+#ifdef TEST_PRINT
+        printf("removeMessage() entered, wait = %d\n", waitMilliSeconds);
+#endif
         UtlBoolean gotMessage = FALSE;
         message = NULL;
         OsTime messageTimeout(0, waitMilliSeconds * 1000);
@@ -87,7 +60,8 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                msgSubType == SipMessage::NET_SIP_MESSAGE &&
                messageType == SipMessageEvent::APPLICATION)
             {
-                message = ((SipMessageEvent*)osMessage)->getMessage();
+                message =
+                   (dynamic_cast <SipMessageEvent*> (osMessage))->getMessage();
                 gotMessage = TRUE;
 
 #ifdef TEST_PRINT
@@ -105,7 +79,47 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 #endif
             }
         }
+#ifdef TEST_PRINT
+        printf("removeMessage() exited, gotMessage = %d\n", gotMessage);
+#endif
         return(gotMessage);
+    }
+
+    UtlBoolean respond(OsMsgQ& messageQueue,
+                       int responseCode, 
+                       const char* responseText, 
+                       SipUserAgent& userAgent,
+                       int waitMilliSeconds,
+                       const SipMessage*& request)
+    {
+#ifdef TEST_PRINT
+       printf("respond() entered, wait = %d\n", waitMilliSeconds);
+#endif
+       UtlBoolean gotRequest = FALSE;
+       request = NULL;
+       if (removeMessage(messageQueue, waitMilliSeconds, request) &&
+           request)
+       {
+          if (!request->isResponse())
+          {
+             gotRequest = TRUE;
+             SipMessage response;
+             response.setResponseData(request, responseCode, responseText);
+             userAgent.send(response);
+
+#ifdef TEST_PRINT
+             UtlString responseBytes;
+             ssize_t len;
+             response.getBytes(&responseBytes, &len);
+             printf("%s", responseBytes.data());
+#endif
+
+          }
+       }
+#ifdef TEST_PRINT
+       printf("respond() exited, gotRequest = %d\n", gotRequest);
+#endif
+       return gotRequest;
     }
 
     static void subStateCallback(SipRefreshManager::RefreshRequestState requestState,
@@ -121,26 +135,69 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         smLastResponseCode = responseCode;
         smExpiration = expiration;
         smCallbackCount++;
-        printf("subStateCallback \n\trequestState: %d\n\tearlyDialogHandle: %s\n\tdialogHandle: %s\n\tapplicationData: %p\n\tresponseCode: %d\n\tresponseText: %s\n\texpiration: %d\n\tresponse: %p\n\tcallback count: %d\n",
-            requestState, 
-            earlyDialogHandle ? earlyDialogHandle : "",
-            dialogHandle ? dialogHandle : "",
-            applicationData,
-            responseCode,
-            responseText ? responseText : "",
-            expiration,
-            response,
-            smCallbackCount);
+#ifdef TEST_PRINT
+        printf("subStateCallback smCallbackCount = %d\n\trequestState: %s\n\tearlyDialogHandle: '%s'\n\tdialogHandle: '%s'\n\tapplicationData: %p\n\tresponseCode: %d\n\tresponseText: %s\n\texpiration: %ld\n\tresponse: %p\n",
+               smCallbackCount,
+               SipRefreshManager::refreshRequestStateText(requestState), 
+               earlyDialogHandle ? earlyDialogHandle : "",
+               dialogHandle ? dialogHandle : "",
+               applicationData,
+               responseCode,
+               responseText ? responseText : "",
+               expiration,
+               response);
+#endif
     }
 
+    // setUp() and tearDown() are needed so that we can disconnect
+    // incomingServerMsgQueue from userAgent before destroying
+    // those objects.
 
+    UtlString eventTypeKey;
+    UtlString eventType;
+    SipUserAgent* userAgentp;
+    OsMsgQ incomingServerMsgQueue;
+    SipDialogMgr clientDialogMgr;
+    SipRefreshManager* refreshManagerp;
 
+    void setUp()
+    {
+       eventTypeKey = "message-summary";
+       eventType = eventTypeKey;
+
+       UtlString hostIp = "127.0.0.1";
+       userAgentp = new SipUserAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT,
+                                     PORT_NONE,
+                                     hostIp, NULL, hostIp);
+       userAgentp->start();
+
+       // Create a crude Subscription server/observer
+
+       // Register an interest in SUBSCRIBE requests 
+       // for this event type
+       userAgentp->addMessageObserver(incomingServerMsgQueue,
+                                      SIP_SUBSCRIBE_METHOD,
+                                      TRUE, // requests
+                                      FALSE, // no reponses
+                                      TRUE, // incoming
+                                      FALSE, // no outgoing
+                                      eventType,
+                                      NULL,
+                                      NULL);
+
+       // Set up the refresh manager
+       refreshManagerp = new SipRefreshManager(*userAgentp, clientDialogMgr);
+       refreshManagerp->start();
+    }
+
+    void tearDown()
+    {
+       userAgentp->removeMessageObserver(incomingServerMsgQueue);
+    }
 
     void refreshTest()
     {
         UtlString aor("sip:111@127.0.0.1:");
-        UtlString eventTypeKey("message-summary");
-        UtlString eventType(eventTypeKey);
         UtlString from("Frida<sip:111@localhost:");
         UtlString to("Tia<sip:222@localhost:");
         UtlString contact("sip:111@127.0.0.1:");
@@ -152,7 +209,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         to.append(portString);
         to.append('>');
         contact.append(portString);
-        int expPeriod = 100;
+        int expPeriod = 10;
         SipMessage mwiSubscribeRequest;
         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
                                                          aor, 
@@ -169,212 +226,92 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         UtlString requestDump;
         mwiSubscribeRequest.getBytes(&requestDump, &len);
 
-        SipUserAgent userAgent(UNIT_TEST_SIP_PORT, UNIT_TEST_SIP_PORT);
-        userAgent.start();
-
         int transactionTimeoutPeriod = 
-            userAgent.getSipStateTransactionTimeout() / 1000;
-        int errorRefreshPeriod = expPeriod * 0.1;
-        int normalRefreshPeriod = expPeriod * 0.55;
-        if(errorRefreshPeriod < transactionTimeoutPeriod)
+            userAgentp->getSipStateTransactionTimeout() / 1000;
+        int errorRefreshPeriod = (int) (expPeriod * 0.1);
+        int normalRefreshPeriod = (int) (expPeriod * 0.65);
+        if (errorRefreshPeriod < transactionTimeoutPeriod)
         {
             errorRefreshPeriod = transactionTimeoutPeriod;
         }
-        if(normalRefreshPeriod < transactionTimeoutPeriod)
+        if (normalRefreshPeriod < transactionTimeoutPeriod)
         {
             normalRefreshPeriod = transactionTimeoutPeriod;
         }
-
-        // Set up the refresh manager
-        SipDialogMgr clientDialogMgr;
-        SipRefreshManager refreshMgr(userAgent, clientDialogMgr);
-        refreshMgr.start();
-
-
-        //CPPUNIT_ASSERT(TRUE);
-        //ASSERT_STR_EQUAL("a", "a");
-
-        // Create a crude Subscription server/observer
-        OsMsgQ incomingServerMsgQueue;
-        // Register an interest in SUBSCRIBE requests 
-        // for this event type
-        userAgent.addMessageObserver(incomingServerMsgQueue,
-                                    SIP_SUBSCRIBE_METHOD,
-                                    TRUE, // requests
-                                    FALSE, // no reponses
-                                    TRUE, // incoming
-                                    FALSE, // no outgoing
-                                    eventType,
-                                    NULL,
-                                    NULL);
-
 
         // Send a request
         UtlString earlyDialogHandle;
         long start = OsDateTime::getSecsSinceEpoch();
 
-        CPPUNIT_ASSERT(refreshMgr.initiateRefresh(mwiSubscribeRequest,
-                                                    this,
-                                                    subStateCallback,
-                                                    earlyDialogHandle));
+        CPPUNIT_ASSERT(refreshManagerp->initiateRefresh(mwiSubscribeRequest,
+                                                        this,
+                                                        subStateCallback,
+                                                        earlyDialogHandle));
 
         // Wait for the request and send a response
-        SipMessage* initialRequest = NULL;
+        const SipMessage* initialRequest = NULL;
         CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
-                        202, // response code
-                        "Got request and accepted",
-                        userAgent,
-                        5000, // milliseconds to wait for request
-                        initialRequest));
+                               202, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               5000, // milliseconds to wait for request
+                               initialRequest));
 
         // Wait a little to let the response get through the works
-        int waitIterations = 0;
-        while(smCallbackCount == 0)
+        for (int waitIterations = 0;
+             smCallbackCount < 2 && waitIterations < 50;
+             waitIterations++)
         {
             OsTask::delay(100);
-            waitIterations++;
-            if(waitIterations >= 50)
-            {
-                break;
-            }
         }
 
-        printf("expiration: %d lag: %d\n", 
-            smExpiration, 
-            smExpiration - start - expPeriod);
+#ifdef TEST_PRINT
+        printf("expiration: %ld from now: %ld lag: %ld\n", 
+               smExpiration, 
+               smExpiration - OsDateTime::getSecsSinceEpoch(),
+               smExpiration - start - expPeriod);
+#endif
         CPPUNIT_ASSERT(initialRequest);
         CPPUNIT_ASSERT(smLastResponseCode == 202);
         CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
-        CPPUNIT_ASSERT(smCallbackCount == 1);
+        CPPUNIT_ASSERT(smCallbackCount == 2);
         CPPUNIT_ASSERT(smExpiration >= start + expPeriod);
         CPPUNIT_ASSERT(smExpiration < start + expPeriod + 5); // allow 5 sec. variance
         long firstExpiration = smExpiration;
 
         // Wait for the refresh
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
-        SipMessage* firstRefresh;
+        const SipMessage* firstRefresh;
         CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
-                        203, // response code
-                        "Got request and accepted",
-                        userAgent,
-                        expPeriod * 1000, // milliseconds to wait for request
-                        firstRefresh));
+                               203, // response code
+                               "Got request and accepted",
+                               *userAgentp,
+                               expPeriod * 1000, // milliseconds to wait for request
+                               firstRefresh));
         long firstRefreshAt = OsDateTime::getSecsSinceEpoch();
         CPPUNIT_ASSERT(firstRefresh);
-        CPPUNIT_ASSERT(firstRefreshAt - start >= 32); // min transaction period
+        CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 5); // min transaction period
         CPPUNIT_ASSERT(firstRefreshAt <= start + expPeriod + 5);
 
         // Wait for the response and callback
-        waitIterations = 0;
-        while(smCallbackCount == 1)
+        for (int waitIterations = 0;
+             smCallbackCount < 3 && waitIterations < 50;
+             waitIterations++)
         {
             OsTask::delay(100);
-            waitIterations++;
-            if(waitIterations >= 50)
-            {
-                break;
-            }
         }
-        long secondExpiration = smExpiration;
-        printf("real refresh period: %d expires at: %d\n", firstRefreshAt - start, smExpiration);
-        CPPUNIT_ASSERT(smCallbackCount == 2);
+
+#ifdef TEST_PRINT
+        printf("real refresh period: %ld expires at: %ld from now: %ld\n",
+               firstRefreshAt - start,
+               smExpiration,
+               smExpiration - OsDateTime::getSecsSinceEpoch());
+#endif
+        CPPUNIT_ASSERT(smCallbackCount == 3);
         CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
         CPPUNIT_ASSERT(smExpiration + 5 >= firstExpiration + firstRefreshAt - start);
         CPPUNIT_ASSERT(smLastResponseCode == 203);
-
-        // This time do not respond and confirm that the expiration
-        // still stands
-        SipMessage* secondRefresh = NULL;
-        printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
-        CPPUNIT_ASSERT(removeMessage(incomingServerMsgQueue,
-                                     expPeriod * 1000, // milliseconds to wait for request
-                                     secondRefresh));
-
-        long secondRefreshAt = OsDateTime::getSecsSinceEpoch();
-
-        CPPUNIT_ASSERT(secondRefresh);
-        // Wait for the timeout response and callback
-        waitIterations = 0;
-        printf("waiting for callback count to be 3, currently: %d\n", 
-                smCallbackCount);
-        while(smCallbackCount <= 2)
-        {
-            OsTask::delay(1000);
-            waitIterations++;
-            if(waitIterations >= 60) //(transactionTimeoutPeriod / 1000) + 5) 
-            {
-                break;
-            }
-        }
-
-        printf("callback count is: %d\n", smCallbackCount);
-
-        // The expiration should not change on the client side as
-        // the transaction failed (timed out due to no response);
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_FAILED);
-        CPPUNIT_ASSERT(smExpiration + 5 >= firstExpiration + firstRefreshAt - start);
-        CPPUNIT_ASSERT(smLastResponseCode == SIP_REQUEST_TIMEOUT_CODE);
-        CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt < normalRefreshPeriod + 5);
-
-        // Empty the queue of the resends for the prior transaction that
-        // we did not respond to.
-        SipMessage* dupSecondRefresh = NULL;
-        long startDupRemoval = OsDateTime::getSecsSinceEpoch();
-        for(int duplicateRequestCount = 0; duplicateRequestCount < 3; duplicateRequestCount++)
-        {
-            removeMessage(incomingServerMsgQueue,
-                                 50, // milliseconds to wait for request
-                                 dupSecondRefresh);
-            if(dupSecondRefresh)
-            {
-                int dupCseq;
-                dupSecondRefresh->getCSeqField(&dupCseq, NULL);
-                printf("Removed duplicate request Cseq: %d\n", dupCseq);
-                if(dupCseq > 3) break;
-            }
-        }
-        long endDupRemoval = OsDateTime::getSecsSinceEpoch();
-        printf("duplicate removal started at %d lasted: %d\n",
-            startDupRemoval, endDupRemoval - startDupRemoval);
-
-        // The next refresh should be sooner as the prior request
-        // failed
-        printf("waiting for refresh in %d seconds\n", errorRefreshPeriod);
-        SipMessage* thirdRefresh = NULL;
-        CPPUNIT_ASSERT(respond(incomingServerMsgQueue, 
-                                204, // response code
-                                "Got request and accepted",
-                                userAgent,
-                                expPeriod * 1000, // milliseconds to wait for request
-                                thirdRefresh));
-        long thirdRefreshAt = OsDateTime::getSecsSinceEpoch();
-        printf("actual refresh period: %d\n", thirdRefreshAt - secondRefreshAt);
-        CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= errorRefreshPeriod + 5);
-
-        // Wait for the response and callback
-        waitIterations = 0;
-        while(smCallbackCount == 3)
-        {
-            OsTask::delay(1000);
-            waitIterations++;
-            if(waitIterations >= 500) 
-            {
-                break;
-            }
-        }
-
-        CPPUNIT_ASSERT(smCallbackCount == 4);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
-        CPPUNIT_ASSERT(smExpiration + 5 >= secondExpiration + normalRefreshPeriod);
-        CPPUNIT_ASSERT(smLastResponseCode == 204);
-
-        userAgent.removeMessageObserver(incomingServerMsgQueue);
-        refreshMgr.requestShutdown();
-
     }
-
-
 };
 
 SipRefreshManager::RefreshRequestState SipRefreshManagerTest::smLatestSubState = SipRefreshManager::REFRESH_REQUEST_UNKNOWN;

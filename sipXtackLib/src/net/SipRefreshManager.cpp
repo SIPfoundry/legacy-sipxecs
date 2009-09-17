@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -9,7 +10,9 @@
 
 // APPLICATION INCLUDES
 #include <os/OsLock.h>
+#include <os/OsUnLock.h>
 #include <os/OsDateTime.h>
+#include <os/OsMsgQ.h>
 #include <os/OsTimer.h>
 #include <os/OsEventMsg.h>
 #include <utl/UtlHashBagIterator.h>
@@ -21,48 +24,127 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-// STATIC VARIABLE INITIALIZATIONS
 
-// Private class to contain subscription client state.
+// msgSubType for an OsMsg that requests sending a SIP message
+#define SIP_SEND_REQUEST (OsEventMsg::USER_START)
+// msgSubType for an OsMsg that requests calling a callback routine
+#define SIP_CALLBACK     (OsEventMsg::USER_START + 1)
+
+// STATIC VARIABLE INITIALIZATIONS
+// LOCAL FUNCTIONS
+
+//! Calculate the time in seconds when a refresh should occur.
+/** Time is calculated based on the expiration provided in the response
+ *  (if successful) and whether the response was successful.
+ *  Time is based on when the request was sent.
+ */
+static int calculateResendTime(int providedExpiration, 
+                               ///< Expiration provided in response.
+                               UtlBoolean isSuccessfulResend,
+                               /**< True if the previous request succeeded,
+                                *   false if the previous request failed.
+                                */
+                               int minimumRefresh
+                               ///< Minimum refresh time that will be returned.
+   );
+
+
+// Forward reference.
+class RefreshDialogState;
+
+
+// Notifier class for RefreshDialogState::mRefreshTimer.
+class RefreshDialogStateNotification : public OsNotification
+{
+public:
+
+   /// Constructor.
+   RefreshDialogStateNotification(RefreshDialogState* state,
+                                  ///< the containing RefreshDialogState
+                                  SipRefreshManager* pRefMgr
+                                  ///< the owning SipRefreshManager
+      );
+
+   /// Signal the occurrence of the event
+   virtual OsStatus signal(intptr_t timer_i);
+
+   /// Pointer to the containing RefreshDialogState.
+   RefreshDialogState* mpState;
+   /// Pointer to the owning SipRefreshManager.
+   SipRefreshManager* mpRefMgr;
+};
+
+// Method definitions for RefreshDialogStateNotification are below the
+// declaration of RefreshDialogState.
+
+
+// Private class to contain refresh state.
 // UtlString is the dialog handle of the dialog or pseudo-dialog that
-// is maintaining it.
+// is maintaining the refresh.
 class RefreshDialogState : public UtlString
 {
 public:
 
-    RefreshDialogState();
+   RefreshDialogState(SipRefreshManager* pRefMgr
+                      ///< the governing SipRefreshManager
+      );
 
-    virtual ~RefreshDialogState();
-    void toString(UtlString& dumpString);
+   virtual ~RefreshDialogState();
 
-    // UtlString::data contains the dialog handle.
-    // Aplication data provided to ::initiateRefresh.
-    void* mpApplicationData;
-    // Callback function for changes in subscription state.
-    SipRefreshManager::RefreshStateCallback mpStateCallback;
-    // original expiration
-    int mExpirationPeriodSeconds;
-    // epoch time in seconds
-    long mPendingStartTime;
-    // epoch time in seconds
-    long mExpiration;
-    SipMessage* mpLastRequest;
-    SipRefreshManager::RefreshRequestState mRequestState;
-    int mFailedResponseCode;
-    UtlString mFailedResponseText;
-    // Fires when it is time to resend
-    OsTimer* mpRefreshTimer;
+   // UtlString::data contains the dialog handle.
 
-    //! Dump the object's internal state.
-    void dumpState();
+   /// Clean the state and attached request so that the request can be resent.
+   void resetStateForResend(UtlBoolean expireNow
+                            ///< If true, set requested expiration to 0.
+      );
 
-    //! Convert RefreshRequestState to a printable string.
-    static const char* refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState);
+   //! Set the state's refresh timer to fire when it is time to resend.
+   //  The granted expiration and specified minimum are used to determine
+   //  the time after mPendingStartTime when refresh should be done.
+   //  mRefreshTimer is set for that time.
+   //  In addition, mExpiration is set for when the granted time expires.
+   void setRefreshTimer(int grantedExpiration,
+                        ///< The granted expiration period.
+                        UtlBoolean isSuccessfulReschedule,
+                        int minimumRefresh
+                        ///< Minimum refresh that will be used.
+      );
+
+   //! Dump contents of RefreshDialogState as a string.
+   void toString(UtlString& dumpString);
+
+   /// If true, prevents event timer routines from doing anything.
+   UtlBoolean mSuppressTimerEventRoutines;
+
+   /// Aplication data provided to ::initiateRefresh.
+   void* mpApplicationData;
+   /// Callback function for changes in subscription state.
+   SipRefreshManager::RefreshStateCallback mpStateCallback;
+   /// The expiration time to request.
+   int mExpirationPeriodSeconds;
+   /// When the last message was sent.
+   long mPendingStartTime;
+   /// When the subscription/registration will expire.
+   //  Values -1, 0, and less than current time have special meanings.
+   //  See SipRefreshManager.h.
+   long mExpiration;
+   /// The last request sent for this refresh.
+   SipMessage* mpLastRequest;
+   /// The current state of this refresh.
+   SipRefreshManager::RefreshRequestState mRequestState;
+   /// Notifier for mRefreshTimer.
+   //  Stores pointer to this RefreshDialogState and the SipRefreshManager.
+   RefreshDialogStateNotification mRefreshNotification;
+   /// Fires when it is time to refresh.
+   OsTimer mRefreshTimer;
+
+   //! Dump the object's internal state.
+   void dumpState();
 
 private:
-    //! DISALLOWED accendental copying
-    RefreshDialogState(const RefreshDialogState& rRefreshDialogState);
-    RefreshDialogState& operator=(const RefreshDialogState& rhs);
+   //! DISALLOWED accendental copying
+   RefreshDialogState(const RefreshDialogState& rRefreshDialogState);
+   RefreshDialogState& operator=(const RefreshDialogState& rhs);
 
 };
 
@@ -70,17 +152,106 @@ private:
 
 /* ============================ CREATORS ================================== */
 
-RefreshDialogState::RefreshDialogState()
+RefreshDialogState::RefreshDialogState(SipRefreshManager* pRefMgr) :
+   mSuppressTimerEventRoutines(FALSE),
+   mpApplicationData(NULL),
+   mpStateCallback(NULL),
+   mExpirationPeriodSeconds(-1),
+   mPendingStartTime(-1),
+   mExpiration(-1),
+   mpLastRequest(NULL),
+   mRequestState(SipRefreshManager::REFRESH_REQUEST_UNKNOWN),
+   mRefreshNotification(this, pRefMgr),
+   mRefreshTimer(mRefreshNotification)
 {
-    mpApplicationData = NULL;
-    mpStateCallback = NULL;
-    mExpirationPeriodSeconds = -1;
-    mPendingStartTime = -1;
-    mExpiration = -1;
-    mpLastRequest = NULL;
-    mRequestState = SipRefreshManager::REFRESH_REQUEST_UNKNOWN;
-    mFailedResponseCode = -1;
-    mpRefreshTimer = NULL;
+}
+
+// Copy constructor NOT ALLOWED
+// RefreshDialogState::RefreshDialogState(const RefreshDialogState& rRefreshDialogState)
+
+// Assignment operator NOT ALLOWED
+// RefreshDialogState& 
+// RefreshDialogState::operator=(const RefreshDialogState& rhs)
+
+RefreshDialogState::~RefreshDialogState()
+{
+    if (mpLastRequest)
+    {
+       delete mpLastRequest;
+       mpLastRequest = NULL;
+    }
+
+    mRefreshTimer.stop(TRUE);
+}
+
+// Clean the state and attached request so that the request can be resent.
+void RefreshDialogState::resetStateForResend(UtlBoolean expireNow)
+{
+   // Remove the Via that was added when the request was last sent.
+   mpLastRequest->removeTopVia();
+
+   // Do not modify the Route headers in *mpLastRequest.
+   // If it is a REGISTER, they are what was specified to ::initiateRefresh
+   // (and should be maintained, as successive REGISTERS are a quasi-dialog
+   // and continue to be routed as the first message was).
+   // If it is a SUBSCRIBE, the Route headers were revised based on the
+   // Record-Route's in the 2xx response that created the dialog.
+
+   // Remove any credentials
+   while (mpLastRequest->removeHeader(HTTP_AUTHORIZATION_FIELD, 0))
+   {
+      // null
+   }
+   while (mpLastRequest->removeHeader(HTTP_PROXY_AUTHORIZATION_FIELD, 0))
+   {
+      // null
+   }
+
+   // Remove transport state info
+   mpLastRequest->resetTransport();
+
+   // Set the expiration to 0 if we are to terminate the registration/subscription.
+   if (expireNow)
+   {
+      mpLastRequest->setExpiresField(0);
+   }
+
+   // The Date header will be set by the SipUserAgent.
+
+   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   {
+      UtlString lastRequest;
+      ssize_t length;
+      mpLastRequest->getBytes(&lastRequest, &length);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+		    "RefreshDialogState::resetStateForResend last request set to '%s'",
+		    lastRequest.data());
+   }
+}
+
+void RefreshDialogState::setRefreshTimer(int grantedExpiration,
+                                         UtlBoolean isSuccessfulReschedule,
+                                         int minimumRefresh)
+{
+   // Calculate the time from mPendingStartTime when we want to refresh.
+   int nextResendSeconds = 
+      calculateResendTime(grantedExpiration,
+                          isSuccessfulReschedule,
+                          minimumRefresh);
+
+   // Correct the time to be based on now.
+   nextResendSeconds -=
+      OsDateTime::getSecsSinceEpoch() - mPendingStartTime;
+   
+   // Set the state's recorded expiration time.
+   mExpiration = mPendingStartTime + grantedExpiration;
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "RefreshDialogState::setRefreshTimer setting resend timeout in %d seconds",
+                 nextResendSeconds);
+
+   OsTime timerTime(nextResendSeconds, 0);
+   mRefreshTimer.oneshotAfter(timerTime);                
 }
 
 void RefreshDialogState::toString(UtlString& dumpString)
@@ -110,68 +281,234 @@ void RefreshDialogState::toString(UtlString& dumpString)
     UtlString stateString;
     SipRefreshManager::refreshState2String(mRequestState, stateString);
     dumpString.append(stateString);
-    dumpString.append("\n\tmFailedResponseCode: ");
-    sprintf(numBuf, "%d", mFailedResponseCode);
-    dumpString.append(numBuf);
-    dumpString.append("\n\tmFailedResponseText: ");
-    dumpString.append(mFailedResponseText ? mFailedResponseText : "");
-    dumpString.append("\n\tmpRefreshTimer: ");
-    sprintf(numBuf, "%p", mpRefreshTimer);
-    dumpString.append(numBuf);
 }
 
-// Copy constructor NOT ALLOWED
-RefreshDialogState::RefreshDialogState(const RefreshDialogState& rRefreshDialogState)
+
+// Methods for RefreshDialogStateNotification:
+
+// Constructur.
+RefreshDialogStateNotification::RefreshDialogStateNotification(RefreshDialogState* state,
+                                                               SipRefreshManager* pRefMgr) :
+   mpState(state),
+   mpRefMgr(pRefMgr)
 {
 }
 
-RefreshDialogState::~RefreshDialogState()
+// The timer event routine for RefreshDialogState's.
+OsStatus RefreshDialogStateNotification::signal(intptr_t timer_i)
 {
-    if (mpLastRequest)
-    {
-       delete mpLastRequest;
-       mpLastRequest = NULL;
-    }
+   OsLock objectLock(mpRefMgr->mObjectSem);
 
-    if (mpRefreshTimer)
-    {
-       delete mpRefreshTimer;
-       mpRefreshTimer = NULL;
-    }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "RefreshDialogStateNotification::signal Timer fired, mpState = %p '%s'",
+                 mpState, mpState->data());
+
+   if (!mpState->mSuppressTimerEventRoutines)
+   {
+      // Legitimate states in which to see a timer fire to start
+      // a re-SUBSCRIBE or re-REGISTER attempt.
+      if (mpState->mRequestState == SipRefreshManager::REFRESH_REQUEST_FAILED || 
+          mpState->mRequestState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED)
+      {
+         // Clean the message for resend.
+         mpRefMgr->prepareForResend(*mpState,
+                                    FALSE); // do not expire now
+
+         // Keep track of when this refresh is sent so we know 
+         // when the new expiration is relative to.
+         mpState->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "RefreshDialogStateNotification::handleTimerMessage %p->mPendingStartTime = %ld",
+                       mpState, mpState->mPendingStartTime);
+
+         // Do not want to keep the lock while we send the message
+         // as it could block, so we copy the message and send a
+         // message to SipRefreshManager to send the message later.
+         mpRefMgr->getMessageQueue()->sendP(
+            new OsEventMsg(SIP_SEND_REQUEST, 0,
+                           new SipMessage(*(mpState->mpLastRequest))));
+
+         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         {
+            UtlString lastRequest;
+            ssize_t length;
+            mpState->mpLastRequest->getBytes(&lastRequest, &length);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "RefreshDialogStateNotification::handleTimerMessage last request = '%s'",
+                          lastRequest.data());
+         }
+      }
+      // This should not happen
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "RefreshDialogStateNotification::handleTimerMessage "
+                       "timer fired in unexpected mpState %s",
+                       SipRefreshManager::refreshRequestStateText(mpState->mRequestState));
+         // Dump the mpState into the log.
+         mpState->dumpState();
+      }
+   }
+
+   return OS_SUCCESS;
 }
 
-//Assignment operator NOT ALLOWED
-#if 0
-RefreshDialogState& 
-RefreshDialogState::operator=(const RefreshDialogState& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
 
-   return *this;
+// Private OsMsg type to carry requests to call application callback function.
+class CallbackRequestMsg : public OsMsg
+{
+public:
+
+   typedef enum {
+      CALLBACK = 0,
+      CALLBACK_AND_DELETE,
+      DELETE
+   } Action;
+   //!enumcode: CALLBACK - call the callback function
+   //!enumcode: CALLBACK_AND_DELETE - call the callback function, then delete *state
+   //!enumcode: DELETE - delete *state
+
+   // Constructor
+   CallbackRequestMsg(RefreshDialogState* state, ///< the state object
+                      Action action,             ///< the action to take
+                      const SipMessage* message, /**< pointer to the message involved
+                                                  *   or NULL.
+                                                  *   (owned by CallbackRequestMsg).
+                                                  */
+                      const UtlString& earlyDialogHandle,
+                                                 ///< early dialog handle to report
+                      const UtlString& dialogHandle
+                                                 ///< dialog handle to report
+      );
+
+   // Destructor
+   virtual ~CallbackRequestMsg();
+
+   /// Do the callback described by this object, if 'action' specifies it.
+   void callback();
+
+private:
+   //! DISALLOWED accidental copying
+   CallbackRequestMsg(const CallbackRequestMsg& rCallbackRequestMsg);
+   CallbackRequestMsg& operator=(const CallbackRequestMsg& rhs);
+
+   //! DISALLOWED intentional copying
+   //  (Will abort at run-time.)
+   virtual OsMsg* createCopy(void) const;
+
+   /// Pointer to the relevant RefreshDialogState.
+   //  If mDelete is true, *mpState is owned by this object.
+   //  *mpState contains most of the information needed to call the callback.
+   RefreshDialogState* mpState;
+   /// The action to be performed.
+   //  (Deletion is done by our destructor.)
+   Action mAction;
+   /// The response message involved.
+   //  Owned by this object.
+   const SipMessage* mpMessage;
+   /// Early dialog handle to report
+   UtlString mEarlyDialogHandle;
+   /// Dialog handle to report
+   UtlString mDialogHandle;
+};
+
+// Constructor
+CallbackRequestMsg::CallbackRequestMsg(RefreshDialogState* state,
+                                       Action action,
+                                       const SipMessage* message,
+                                       const UtlString& earlyDialogHandle,
+                                       const UtlString& dialogHandle) :
+   OsMsg(OsMsg::OS_EVENT, SIP_CALLBACK),
+   mpState(state),
+   mAction(action),
+   mpMessage(message),
+   mEarlyDialogHandle(earlyDialogHandle),
+   mDialogHandle(dialogHandle)
+{
 }
-#endif // 0
+
+CallbackRequestMsg::~CallbackRequestMsg()
+{
+   // Delete *state if we are supposed to delete it.
+   if (mAction == CALLBACK_AND_DELETE || mAction == DELETE)
+   {
+      delete mpState;
+   }
+   // Delete *message if it exists.
+   if (mpMessage)
+   {
+      delete mpMessage;
+   }
+}
+
+// Do the callback described by this object, if specified by mAction.
+void CallbackRequestMsg::callback()
+{
+   if (mAction == CALLBACK || mAction == CALLBACK_AND_DELETE)
+   {
+      UtlString responseText;
+      int responseCode;
+   
+      // If there is a message, get the response code and text.
+      if (mpMessage)
+      {
+         mpMessage->getResponseStatusText(&responseText);
+         responseCode = mpMessage->getResponseStatusCode();
+      }
+   
+      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      {
+         UtlString m;
+         ssize_t l;
+         if (mpMessage)
+         {
+            mpMessage->getBytes(&m, &l);
+         }
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "CallbackRequestMsg::callback "
+                       "mpState = %p, mpState->mRequestState = %s, mEarlyDialogHandle = '%s', mDialogHandle = '%s', mpState->mpApplicationData = %p, mpState->mExpiration = %ld, mpMessage = '%s'",
+                       mpState,
+                       SipRefreshManager::refreshRequestStateText(mpState->mRequestState),
+                       mEarlyDialogHandle.data(),
+                       mDialogHandle.data(),
+                       mpState->mpApplicationData,
+                       mpState->mExpiration,
+                       m.data());
+      }
+      mpState->mpStateCallback(mpState->mRequestState,
+                               mEarlyDialogHandle.data(),
+                               mDialogHandle.data(),
+                               mpState->mpApplicationData,
+                               mpMessage ? responseCode : -1,
+                               mpMessage ? responseText.data() : NULL,
+                               mpState->mExpiration,
+                               mpMessage);
+   }
+}
+
+// Dynamic copy routine (unused)
+OsMsg* CallbackRequestMsg::createCopy(void) const
+{
+   assert(FALSE);
+   return NULL;
+}
+
 
 // Constructor
 SipRefreshManager::SipRefreshManager(SipUserAgent& userAgent, 
                                      SipDialogMgr& dialogMgr)
     : OsServerTask("SipRefreshManager-%d")
-    , mRefreshMgrMutex(OsMutex::Q_FIFO)
+    , mpUserAgent(&userAgent)
+    , mpDialogMgr(&dialogMgr)
+    , mDefaultExpiration(3600)
+    , mSetSem(OsBSem::Q_FIFO, OsBSem::FULL)
+    , mObjectSem(OsBSem::Q_FIFO, OsBSem::FULL)
+    , mReceivingRegisterResponses(FALSE)
+    , mReceivingSubscribeResponses(FALSE)
 {
-    mpUserAgent = &userAgent;
-    mpDialogMgr = &dialogMgr;
-    mReceivingRegisterResponses = FALSE;
-    mReceivingSubscribeResponses = FALSE;
-    mDefaultExpiration = 3600;
 }
 
-// Copy constructor
-SipRefreshManager::SipRefreshManager(const SipRefreshManager& rSipRefreshManager)
-: mRefreshMgrMutex(OsMutex::Q_FIFO)
-{
-    // NOT ALLOWED
-}
-
+// Copy constructor NOT ALLOWED
+// SipRefreshManager::SipRefreshManager(const SipRefreshManager& rSipRefreshManager)
 
 // Destructor
 SipRefreshManager::~SipRefreshManager()
@@ -179,29 +516,23 @@ SipRefreshManager::~SipRefreshManager()
     // Do not delete *mpUserAgent or *mpDialogMgr.  They are not owned
     // by this SipRefreshManager and may be used elsewhere.
 
-    // Stop receiving SUBSCRIBE responses
+    // Stop receiving REGISTER/SUBSCRIBE responses.
     mpUserAgent->removeMessageObserver(*(getMessageQueue()));
-
-    // Wait until this OsServerTask has stopped or handleMethod
-    // might access something we are about to delete here.
-    waitUntilShutDown();
 
     // Unsubscribe to anything that is in the list
     stopAllRefreshes();
     // mRefreshes should now be empty
+
+    // Wait until this OsServerTask has stopped or handleMethod
+    // might access something we are about to delete here.
+    waitUntilShutDown();
 }
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-SipRefreshManager& 
-SipRefreshManager::operator=(const SipRefreshManager& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
+// Assignment operator NOT ALLOWED
+// SipRefreshManager& 
+// SipRefreshManager::operator=(const SipRefreshManager& rhs)
 
 UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterRequest,
                                               void* applicationData,
@@ -209,308 +540,294 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage& subscribeOrRegisterReq
                                               UtlString& earlyDialogHandle,
                                               UtlBoolean suppressFirstSend)
 {
-    if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-    {
-       UtlString b;
-       ssize_t l;
-       subscribeOrRegisterRequest.getBytes(&b, &l);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRefreshManager::initiateRefresh  "
-                     "refreshStateCallback = %p, suppressFirstSend = %d, subscribeOrRegisterRequest = '%s'",
-                     refreshStateCallback, suppressFirstSend, b.data());
-    }
+   RefreshDialogState* state = NULL;
 
-    UtlBoolean intitialRequestSent = FALSE;
+   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   {
+      UtlString b;
+      ssize_t l;
+      subscribeOrRegisterRequest.getBytes(&b, &l);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::initiateRefresh  "
+                    "refreshStateCallback = %p, suppressFirstSend = %d, subscribeOrRegisterRequest = '%s'",
+                    refreshStateCallback, suppressFirstSend, b.data());
+   }
 
-    // Make sure we do not have an existing dialog or refresh session state
-    // going for the given message
-    UtlString messageDialogHandle;
-    subscribeOrRegisterRequest.getDialogHandle(messageDialogHandle);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipRefreshManager::initiateRefresh earlyDialogHandle = '%s', messageDialogHandle = '%s'",
-                  earlyDialogHandle.data(), messageDialogHandle.data());
+   // Set to true if attempt to send subscribeOrRegisterRequest failed.
+   // (Since initially we haven't attempted to send it, the initial
+   // value is false.)
+   UtlBoolean initialRequestSendFailed = FALSE;
 
-    UtlBoolean existingRefreshState = FALSE;
-    UtlBoolean existingDialogState = FALSE;
+   // Make sure we do not have an existing dialog or refresh session state
+   // going for the given message
+   UtlString messageDialogHandle;
+   subscribeOrRegisterRequest.getDialogHandle(messageDialogHandle);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::initiateRefresh earlyDialogHandle = '%s', messageDialogHandle = '%s'",
+                 earlyDialogHandle.data(), messageDialogHandle.data());
 
-    // It is OK if messageDialogHandle is an established dialog handle.
-    // That happens when we are initializing a forked subscription
-    // because we received a NOTIFY for it.
+   UtlBoolean existingRefreshState = FALSE;
+   UtlBoolean existingDialogState = FALSE;
 
-    OsLock localLock(mRefreshMgrMutex);
-    // See if there is an early or established dialog for this message
-    RefreshDialogState* s = getAnyDialog(messageDialogHandle);
-    if (s)
-    {
-        existingRefreshState = TRUE;
-        intitialRequestSent = FALSE;
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing refresh state '%s'",
-                      messageDialogHandle.data(),
-                      s->data());
-    }
+   {
+      // Seize locks.
+      OsLock setLock(mSetSem);
+      OsLock objectLock(mObjectSem);
 
-    // The dialog should not exist either
-    else if (mpDialogMgr->dialogExists(messageDialogHandle))
-    {
-        existingDialogState = TRUE;
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-                      "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing dialog state",
-            messageDialogHandle.data());
-    }
+      // Check for state for this handle in this SipRefreshManager.
+      RefreshDialogState* s = getAnyDialog(messageDialogHandle);
+      if (s)
+      {
+         existingRefreshState = TRUE;
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing refresh state '%s'",
+                       messageDialogHandle.data(),
+                       s->data());
+      }
+      // Check for early or established dialog state in *mpDialogMgr.
+      else if (mpDialogMgr->dialogExists(messageDialogHandle))
+      {
+         existingDialogState = TRUE;
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing dialog state",
+                       messageDialogHandle.data());
+      }
+      else if (mpDialogMgr->earlyDialogExistsFor(messageDialogHandle))
+      {
+         existingDialogState = TRUE;
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing early dialog state",
+                       messageDialogHandle.data());
+      }
 
-    else if (mpDialogMgr->earlyDialogExistsFor(messageDialogHandle))
-    {
-        existingDialogState = TRUE;
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing early dialog state",
-            messageDialogHandle.data());
-    }
-
-    // Should not be any existing refresh or dialog states
-    // for this message
-    if(!existingRefreshState && !existingDialogState)
-    {
-        // Make sure we are registered to receive responses
-        // for the message we are about to send
-        UtlString method;
-        subscribeOrRegisterRequest.getRequestMethod(&method);
-        if(method.compareTo(SIP_REGISTER_METHOD) == 0)
-        {
-            lock();
-            if(!mReceivingRegisterResponses)
+      // Should not be any existing refresh or dialog states
+      // for this message
+      if (!existingRefreshState && !existingDialogState)
+      {
+         // Make sure we are registered to receive responses
+         // for the message we are about to send
+         UtlString method;
+         subscribeOrRegisterRequest.getRequestMethod(&method);
+         if (method.compareTo(SIP_REGISTER_METHOD) == 0)
+         {
+            if (!mReceivingRegisterResponses)
             {
-                mReceivingRegisterResponses = TRUE;
-                // Register to receive REGISTER responses.
-                mpUserAgent->addMessageObserver(*(getMessageQueue()), 
-                                                SIP_REGISTER_METHOD,
-                                                FALSE, // no requests
-                                                TRUE, // yes responses
-                                                TRUE, // incoming,
-                                                FALSE, // outgoing
-                                                NULL);
+               mReceivingRegisterResponses = TRUE;
+               // Register to receive REGISTER responses.
+               mpUserAgent->addMessageObserver(*(getMessageQueue()), 
+                                               SIP_REGISTER_METHOD,
+                                               FALSE, // no requests
+                                               TRUE, // yes responses
+                                               TRUE, // incoming,
+                                               FALSE, // outgoing
+                                               NULL);
             }
-            unlock();
-        }
-        else if(method.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
-        {
-            UtlString eventType;
-            subscribeOrRegisterRequest.getEventField(&eventType, NULL);
+         }
+         else if (method.compareTo(SIP_SUBSCRIBE_METHOD) == 0)
+         {
             // Check to see if we have already registered to
             // receive the event type
-            lock();
-            if(!mReceivingSubscribeResponses)
+            if (!mReceivingSubscribeResponses)
             {
-                mReceivingSubscribeResponses = TRUE;
-                // Register to receive SUBSCRIBE responses.
-                mpUserAgent->addMessageObserver(*(getMessageQueue()), 
-                                                SIP_SUBSCRIBE_METHOD,
-                                                FALSE, // no requests
-                                                TRUE, // yes responses
-                                                TRUE, // incoming,
-                                                FALSE, // outgoing
-                                                NULL); // event type is not used for filtering responses
+               mReceivingSubscribeResponses = TRUE;
+               // Register to receive SUBSCRIBE responses.
+               mpUserAgent->addMessageObserver(*(getMessageQueue()), 
+                                               SIP_SUBSCRIBE_METHOD,
+                                               FALSE, // no requests
+                                               TRUE, // yes responses
+                                               TRUE, // incoming,
+                                               FALSE, // outgoing
+                                               NULL); // event type is not used for filtering responses
             }
-            unlock();
-        }
+         }
 
-        // Create a new refresh state
-        int requestedExpiration = 0;  // returned from following call
-        RefreshDialogState* state = createNewRefreshState(subscribeOrRegisterRequest,
-                                                          messageDialogHandle,
-                                                          applicationData,
-                                                          refreshStateCallback,
-                                                          requestedExpiration);
+         // Create a new refresh state.
+         int requestedExpiration;  // returned from following createNewRefreshState
+         state = createNewRefreshState(subscribeOrRegisterRequest,
+                                       messageDialogHandle,
+                                       applicationData,
+                                       refreshStateCallback,
+                                       requestedExpiration);
 
-        // create a new dialog
-        mpDialogMgr->createDialog(subscribeOrRegisterRequest, 
-                                  TRUE, // message from this side
-                                  messageDialogHandle);
+         // Create a new dialog in *mpDialogMgr.
+         mpDialogMgr->createDialog(subscribeOrRegisterRequest, 
+                                   TRUE, // message from this side
+                                   messageDialogHandle);
 
-        // Keep track of when we send this request to be refreshed
-        long now = OsDateTime::getSecsSinceEpoch();
-        state->mPendingStartTime = now;
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipRefreshManager::initiateRefresh %p->mPendingStartTime = %ld",
-                      state, state->mPendingStartTime);
+         // Keep track of when we sent this request, so we can more
+         // accurately calculate when it needs to be refreshed.
+         state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
+         state->mExpiration = state->mPendingStartTime + requestedExpiration;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRefreshManager::initiateRefresh %p->mPendingStartTime = %ld",
+                       state, state->mPendingStartTime);
 
-        // Set a timer  at which to resend the next refresh based upon the 
-        // assumption that the request will succeed.  If we receive a 
-        // failure response, we will cancel this timer and reschedule
-        // a new timer based upon a smaller fraction of the requested 
-        // expiration period 
-        setRefreshTimer(*state, 
-                        TRUE); // Set to resend with the "success" timeout value.
-        OsTimer* resendTimer = state->mpRefreshTimer;
+         // Set the request state correctly.
+         // If suppressFirstSend is specified, we immediately transition into
+         // REFRESH_REQUEST_SUCCEEDED, as if we had received a 2xx response.
+         // A registration can be terminated before the response to the initial
+         // REGISTER, so it is in state REFRESH_REQUEST_SUCCEEDED.
+         // But an initial SUBSCRIBE can't be terminated by sending a SUBSCRIBE
+         // with "Expires: 0" until we receive a success response to the initial
+         // SUBSCRIBE and thus know the to-tag.  So it is in state
+         // REFRESH_REQUEST_PENDING.
+         state->mRequestState =
+            (suppressFirstSend ||
+             method.compareTo(SIP_REGISTER_METHOD) == 0) ?
+            REFRESH_REQUEST_SUCCEEDED :
+            REFRESH_REQUEST_PENDING;
+         // Make a copy of the request.  The copy needs to be
+         // attached to the state before the send() in case the response
+         // comes back before we return from the send.
+         state->mpLastRequest = new SipMessage(subscribeOrRegisterRequest);
 
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipRefreshManager::initiateRefresh refreshTimer just being set.");
+         // Add the state to the container of refresh states
+         mRefreshes.insert(state);
 
-        // Set the request state correctly.
-        // A registration can be terminated before the response to the initial
-        // REGISTER, so it is in state REFRESH_REQUEST_SUCCEEDED.
-        // But an initial SUBSCRIBE can't be terminated by sending a SUBSCRIBE
-        // with "Expires: 0" until we receive a success response to the initial
-        // SUBSCRIBE and thus know the to-tag.  So it is in state
-        // REFRESH_REQUEST_PENDING.
-        state->mRequestState =
-           method.compareTo(SIP_REGISTER_METHOD) == 0 ?
-           REFRESH_REQUEST_SUCCEEDED :
-           REFRESH_REQUEST_PENDING;
-        // Make a copy of the request.  The copy needs to be
-        // attached to the state before the send in case the response
-        // comes back before we return from the send.
-        state->mpLastRequest = new SipMessage(subscribeOrRegisterRequest);
+         // Schedule the callback for the new state.
+         UtlBoolean stateKeyIsEarlyDialog = SipDialog::isEarlyDialog(*state);
+         const char *key = state->data();
+         postMessageP(
+            new CallbackRequestMsg(state,
+                                   CallbackRequestMsg::CALLBACK,
+                                   NULL,     // no response
+                                   stateKeyIsEarlyDialog ? key : NULL,
+                                   stateKeyIsEarlyDialog ? NULL : key
+               ));
 
-        // Add the state to the container of refresh states
-        // No need to lock this refreshMgr earlier as this is a new
-        // state and no one can touch it until it is in the list.
-        lock();
-        mRefreshes.insert(state);
-        unlock();
-        // NOTE: at this point is is no longer safe to touch the state
-        // without locking it again.  Avoid locking this SipRefreshManager object
-        // when something can block (e.g. like calling SipUserAgent ::send)
+         // Send the request (unless that is suppressed).
+         if (!suppressFirstSend)
+         {
+            // Temporarily free the locks.
+            // These must be in reverse order from the seizure.
+            OsUnLock objectUnLock(mObjectSem);
+            OsUnLock setUnLock(mSetSem);
 
-        // Send the request (unless that is suppressed).
-        // Is this correct?  Should we send the request first and only set
-        // a timer if the request succeeds??
-        if (!suppressFirstSend)
-        {
-           intitialRequestSent = mpUserAgent->send(subscribeOrRegisterRequest);
-        }
-        else
-        {
-           // Do not send a message, but pretend the send was successful.
-           intitialRequestSent = TRUE;
-           // Set the state as if we had received 2xx to an initial SUBSCRIBE.
-           state->mRequestState = REFRESH_REQUEST_SUCCEEDED;
-        }
+            // Since we are holding no locks, it doesn't matter if we block here,
+            // so we can call SipUserAgent::send() directly.
+            initialRequestSendFailed = !mpUserAgent->send(subscribeOrRegisterRequest);
 
-        // We do not clean up the state even if the send fails.
-        // The application must end the refresh as the refresh
-        // manager should retry the send if it failed
-        if (!intitialRequestSent)
-        {
-            // Need to lock this SipRefreshManager and make sure 'state'
-            // still exists.  It could have been deleted while this
-            // thread was not holding the lock.
-            lock();
-            if (stateExists(state))
-            {
-                // It is now safe to touch *state again.
+            // Note that 'state' may now be invalid, as another thread may have
+            // terminated the refresh while we weren't holding the locks.
+         }
+         else
+         {
+            // Set the expiration timer as if we received a success response.
+            state->setRefreshTimer(requestedExpiration,
+                                   TRUE, // Use the "success" timeout value.
+                                   mpUserAgent->getSipStateTransactionTimeout() / 1000
+               );
 
-                // Mark the state of the last request as having 
-                // failed, so we know to resend when the timer
-                // fires.
-                state->mRequestState = REFRESH_REQUEST_FAILED;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRefreshManager::initiateRefresh setting success timer due to suppressFirstSend");
+         }
+      }
+      else
+      {
+         // A state for the same dialog identifiers already existed.
+         initialRequestSendFailed = TRUE;
+      }
+   }
 
-                // The expiration should still be set to zero (what does this mean?)
+   // We do not set a timer here, but instead wait for the response to do so.
 
-                // the initial send failed, cancel the timer and
-                // fire the notification.  The handleMessage method
-                // will see that the subscription or registration
-                // has never succeeded and reshedule the timer for
-                // a failure timeout.  We cannot reschedule the
-                // timer here as there is a race condition between
-                // deleting the timer here (in the application's context)
-                // and in handleMessage in this refresh manager's 
-                // context.
-                // If the timer has not changed, assume it is still safe
-                // to touch it
-                if(state->mpRefreshTimer == resendTimer)
-                {
-                    stopTimerForFailureReschedule(state->mpRefreshTimer);
-                }
-
-                // Do not notify the application that the request failed
-                // when it occurs on the first invocation.  The application
-                // will know by the return value.
-            }
-            unlock();
-        }
-    }
-
-    return intitialRequestSent;
+   return !initialRequestSendFailed;
 }
 
 
 UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
 {
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipRefreshManager::stopRefresh dialogHandle = '%s'",
-                  dialogHandle);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::stopRefresh dialogHandle = '%s'",
+                 dialogHandle);
 
-    UtlBoolean stateFound = FALSE;
-    lock();
-    // Find the refresh state
-    UtlString dialogHandleString(dialogHandle);
-    RefreshDialogState* state = getAnyDialog(dialogHandleString);
+   RefreshDialogState* state;
 
-    // Remove the state from mRefreshes so we can release the lock.
-    if (state)
-    {
-        mRefreshes.removeReference(state);
-    }
-    unlock();
+   {
+      OsLock setLock(mSetSem);
 
-    // If a matching state exists
-    if (state)
-    {
-        // If the subscription is active and can be terminated.
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipRefreshManager::stopRefresh "
-                      "state = %p, state->mRequestState = %s",
-                      state,
-                      RefreshDialogState::refreshRequestStateText(state->mRequestState));
-        if (state->mRequestState == REFRESH_REQUEST_SUCCEEDED)
-        {
-           // Send a terminating request.
-           // (mRequestState tells whether sending a terminating request
-           // is allowed at this point.)
-           if (state->mpLastRequest)
-           {
-              // Reset the request with a zero expiration
-              setForResend(*state,
-                           TRUE); // expire now
+      // Find the refresh state
+      UtlString dialogHandleString(dialogHandle);
+      state = getAnyDialog(dialogHandleString);
 
-              mpUserAgent->send(*(state->mpLastRequest));
-           }
+      if (state)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRefreshManager::stopRefresh "
+                       "state = %p, state->mRequestState = %s",
+                       state,
+                       refreshRequestStateText(state->mRequestState));
 
-           // Don't really need to set this stuff as we are
-           // going to delete the state anyway
-           state->mRequestState = REFRESH_REQUEST_FAILED;
-           state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
-           state->mExpirationPeriodSeconds = 0;
+         {
+            OsLock objectLock(mObjectSem);
+            state->mSuppressTimerEventRoutines = TRUE;
+         }
+         
+         // Stop the refresh timer.
+         state->mRefreshTimer.stop(TRUE);
 
-           // Invoke the refresh state callback to indicate
-           // the refresh has been terminated.
-           UtlBoolean stateKeyIsEarlyDialog = SipDialog::isEarlyDialog(*state);
-           (state->mpStateCallback)(state->mRequestState,
-                                    stateKeyIsEarlyDialog ? state->data() : NULL,
-                                    stateKeyIsEarlyDialog ? NULL : state->data(),
-                                    state->mpApplicationData,
-                                    -1, // responseCode
-                                    NULL, // responseText,
-                                    0, // zero means expires now
-                                    NULL); // response
-        }
+         // Remove the state from mRefreshes.
+         mRefreshes.removeReference(state);
 
-        // Stop and delete the refresh timer.
-        state->mpRefreshTimer->stop();
-        deleteTimerAndEvent(state->mpRefreshTimer);
+         // Remove the dialog from the Dialog Manager.
+         mpDialogMgr->deleteDialog(*state);
+      }
+   }
 
-        // Get rid of the dialog.
-        mpDialogMgr->deleteDialog(*state);
+   // We now have the only pointer to *state and we are not holding locks.
+   if (state)
+   {
+      // mRequestState tells whether sending a terminating request is
+      // required.
+      if (state->mRequestState == REFRESH_REQUEST_SUCCEEDED)
+      {
+         // Send a terminating request.
+         if (state->mpLastRequest)
+         {
+            // Reset the request for resending.
+            // Set its expiration to 0.
+            prepareForResend(*state,
+                             TRUE); // expire now
 
-        // Delete the refresh state.
-        delete state;
-        state = NULL;
+            mpUserAgent->send(*state->mpLastRequest);
+         }
+      }
 
-        stateFound = TRUE;
-    }
+      // The action we will specify in the CallbackRequestMsg.
+      CallbackRequestMsg::Action action;
+      // mRequestState tells whether a callback is needed to report termination.
+      if (state->mRequestState != REFRESH_REQUEST_FAILED)
+      {
+         // Change the state.
+         state->mRequestState = REFRESH_REQUEST_FAILED;
 
-    return(stateFound);
+         // Set the action.
+         action = CallbackRequestMsg::CALLBACK_AND_DELETE;
+      }
+      else
+      {
+         // Set the action.
+         action = CallbackRequestMsg::DELETE;
+      }
+
+      // Send a message to our thread to call the refresh state callback.
+      // Since we are holding the only pointer to *state (except
+      // for other CallbackRequestMsg's that will be processed
+      // before this one), we can safely request it to be deleted.
+      postMessageP(
+         new CallbackRequestMsg(state,
+                                action,  // the proper action
+                                NULL,    // no message
+                                // use the provided handle as both early and established
+                                dialogHandle,
+                                dialogHandle
+            ));
+
+      // The refresh state will be deleted by our thread when it handles
+      // the message.
+   }
+
+   return state != NULL;
 }
 
 void RefreshDialogState::dumpState()
@@ -530,43 +847,909 @@ void RefreshDialogState::dumpState()
    }
 
    char refreshTimerText[100];
-   if (mpRefreshTimer)
-   {
-      OsTimer::OsTimerState state;
-      OsTimer::Time expiresAt;
-      UtlBoolean periodic;
-      OsTimer::Interval period;
 
-      mpRefreshTimer->getFullState(state, expiresAt, periodic, period);
+   OsTimer::OsTimerState state;
+   OsTimer::Time expiresAt;
+   UtlBoolean periodic;
+   OsTimer::Interval period;
 
-      sprintf(refreshTimerText,
-              "%p %s/%+d/%s/%d",
-              mpRefreshTimer,
-              state == OsTimer::STARTED ? "STARTED" : "STOPPED",
-              (int) ((expiresAt - OsTimer::now()) / 1000000),
-              periodic ? "periodic" : "one-shot",
-              (int) period);
-   }
-   else
-   {
-      sprintf(refreshTimerText,
-              "%p",
-              mpRefreshTimer);
-   }
+   mRefreshTimer.getFullState(state, expiresAt, periodic, period);
+   sprintf(refreshTimerText,
+           "%p %s/%+d/%s/%d",
+           &mRefreshTimer,
+           state == OsTimer::STARTED ? "STARTED" : "STOPPED",
+           (int) ((expiresAt - OsTimer::now()) / 1000000),
+           periodic ? "periodic" : "one-shot",
+           (int) period);
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      RefreshDialogState %p request-URI = '%s', Event = '%s', mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mFailedResponseCode = %d, mFailedResponseText = '%s', mpRefreshTimer = %s, mpLastRequest = '%s'",
+                 "\t      RefreshDialogState %p request-URI = '%s', Event = '%s', mExpirationPeriodSeconds = %d, mPendingStartTime = %+d, mExpiration = %+d, mRequestState = '%s', mRefreshTimer = %s, mpLastRequest = '%s'",
                  this, requestURI.data(), eventField.data(),
                  mExpirationPeriodSeconds, (int) (mPendingStartTime - now),
                  (int) (mExpiration - now),
-                 refreshRequestStateText(mRequestState), mFailedResponseCode,
-                 mFailedResponseText.data(),
+                 SipRefreshManager::refreshRequestStateText(mRequestState),
                  refreshTimerText,
                  msg_text.data());
 }
 
+void SipRefreshManager::stopAllRefreshes()
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::stopAllRefreshes entered");
+
+   UtlHashBagIterator iterator(mRefreshes);
+   UtlString key;
+   UtlBoolean found;
+   int count = 0;
+
+   // Repeatedly get the key of the first state in mRefreshes
+   // and terminate that refresh.
+   do {
+      {
+         OsLock setLock(mSetSem);
+         OsLock objectLock(mObjectSem);
+
+         found = !mRefreshes.isEmpty();
+         if (found)
+         {
+            iterator.reset();
+            // Copy the key of the refresh into a local variable so that we
+            // can release the locks.
+            key = *static_cast <UtlString*>
+               (dynamic_cast <RefreshDialogState*>
+                (iterator()));
+         }
+      }
+
+      if (found)
+      {
+         stopRefresh(key);
+         count++;
+      }
+   } while (found);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::stopAllRefreshes exited %d entries",
+                 count);
+}
+
+UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle,
+                                                int expirationPeriodSeconds)
+{
+   RefreshDialogState* state;
+
+   {
+      OsLock setLock(mSetSem);
+
+      state = getAnyDialog(earlyDialogHandle);
+      if (state)
+      {
+         {
+            OsLock objectLock(mObjectSem);
+            state->mSuppressTimerEventRoutines = TRUE;
+         }
+
+         state->mRefreshTimer.stop();
+
+         {
+            OsLock objectLock(mObjectSem);
+            state->mSuppressTimerEventRoutines = TRUE;
+
+            state->mExpirationPeriodSeconds = expirationPeriodSeconds;
+            state->mpLastRequest->setExpiresField(expirationPeriodSeconds);
+
+            // Reset the message for resend
+            prepareForResend(*state,
+                             FALSE); // not immediate expiration
+
+            // Keep track of when this refresh is sent so we know
+            // when the new expiration is relative to.
+            state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRefreshManager::changeRefreshTime %p->mPendingStartTime = %ld",
+                          state, state->mPendingStartTime);
+
+            // Send the message.
+            {
+               OsUnLock setUnLock(mSetSem);
+
+               mpUserAgent->send(*(state->mpLastRequest));
+               // SipUserAgent::send does not take ownership of the message.
+            }
+
+            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            {
+               UtlString lastRequest;
+               ssize_t length;
+               state->mpLastRequest->getBytes(&lastRequest, &length);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::changeRefreshTime last request = '%s'",
+                             lastRequest.data());
+            }
+         }
+      }
+   }
+
+   return state != NULL;
+}
+
+UtlBoolean SipRefreshManager::handleMessage(OsMsg& eventMessage)
+{
+    int msgType = eventMessage.getMsgType();
+    int msgSubType = eventMessage.getMsgSubType();
+
+    // Incoming SIP message
+    if (msgType == OsMsg::PHONE_APP &&
+        msgSubType == SipMessage::NET_SIP_MESSAGE)
+    {
+       handleSipMessage(dynamic_cast <SipMessageEvent&> (eventMessage));
+    }
+    // Request to send a SIP message
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == SIP_SEND_REQUEST)
+    {
+       void* p;
+       (dynamic_cast <OsEventMsg&> (eventMessage)).getUserData(p);
+       SipMessage* sipMessagep = (SipMessage*) p;
+       mpUserAgent->send(*sipMessagep);
+       // SipUserAgent::send() doesn't take ownership of sipMessage.
+       // Our caller will delete eventMesage, and with it, *sipMessagep.
+    }
+    // Request to call a callback function.
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == SIP_CALLBACK)
+    {
+       // Call the callback function.
+       (dynamic_cast <CallbackRequestMsg&> (eventMessage)).callback();
+       // Our caller deletes eventMessage, which frees everything owned by
+       // that CallbackRequestMsg.
+    }
+
+    return TRUE;
+}
+
+// Handle an incoming SIP message.
+void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
+{
+   const SipMessage* sipMessage = eventMessage.getMessage();
+   int messageType = eventMessage.getMessageStatus();
+
+   // messageType can be:
+   //    SipMessageEvent::TRANSPORT_ERROR for requests that do not get sent
+   //            (This case is only theoretical, because in this case, the
+   //            attached SipMessage is the failed request, and we have
+   //            not registered with mpUserAgent to receive requests.)
+   //    SipMessageEvent::AUTHENTICATION_RETRY for 401 or 407 responses
+   //            that mpUserAgent has resent with credentials.
+   //            When we get this message we update the dialog information
+   //            (increment the recorded CSeq).
+   //    SipMessageEvent::APPLICATION for normal incoming messages, that is,
+   //            other responses.
+
+   // If this is a SUBSCRIBE or REGISTER response
+   UtlString method;
+   int cseq;
+   sipMessage->getCSeqField(&cseq, &method);
+
+   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+   {
+      UtlString b;
+      ssize_t l;
+      sipMessage->getBytes(&b, &l);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleMessage sipMessage = '%s'",
+                    b.data());
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleMessage sipMessage %p, cseq = %d, method = '%s', isResponse = %d",
+                    sipMessage, cseq, method.data(), sipMessage->isResponse());
+   }
+
+   if (sipMessage->isResponse() &&
+       (method.compareTo(SIP_SUBSCRIBE_METHOD) == 0 ||
+        method.compareTo(SIP_REGISTER_METHOD) == 0))
+   {
+      UtlString dialogHandle;
+      sipMessage->getDialogHandle(dialogHandle);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleSipMessage %s CSeq %d, dialogHandle = '%s'",
+                    method.data(), cseq, dialogHandle.data());
+
+      UtlBoolean foundDialog = mpDialogMgr->dialogExists(dialogHandle);
+      UtlString earlyDialogHandle;
+      UtlBoolean foundEarlyDialog = FALSE;
+      UtlBoolean matchesLastLocalTransaction = FALSE;
+      if (foundDialog)
+      {
+         matchesLastLocalTransaction = 
+            mpDialogMgr->isLastLocalTransaction(*sipMessage, 
+                                                dialogHandle);
+      }
+      else
+      {
+         foundEarlyDialog = 
+            mpDialogMgr->getEarlyDialogHandleFor(dialogHandle, 
+                                                 earlyDialogHandle);
+         if (foundEarlyDialog)
+         {
+            matchesLastLocalTransaction =
+               mpDialogMgr->isLastLocalTransaction(*sipMessage, 
+                                                   earlyDialogHandle);
+         }
+      }
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleSipMessage foundDialog = %d, foundEarlyDialog = %d, matchesLastLocalTransaction = %d, earlyDialogHandle = '%s'",
+                    foundDialog, foundEarlyDialog,
+                    matchesLastLocalTransaction, earlyDialogHandle.data());
+
+#ifdef TEST_PRINT
+      UtlString refreshStateDump;
+      dumpRefreshStates(refreshStateDump);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleSipMessage state dump: %s",
+                    refreshStateDump.data());
+#endif
+
+      OsLock setLock(mSetSem);
+
+      // Find the refresh state for this response
+      RefreshDialogState* state = NULL;
+      if (foundDialog && matchesLastLocalTransaction)
+      {
+         state = (RefreshDialogState*) mRefreshes.find(&dialogHandle);
+         // Check if the key has the tags reversed
+         if (state == NULL)
+         {
+            UtlString reversedDialogHandle;
+            SipDialog::reverseTags(dialogHandle, reversedDialogHandle);
+            state =
+               (RefreshDialogState*) 
+               mRefreshes.find(&reversedDialogHandle);
+         }
+      }
+      else if (foundEarlyDialog && matchesLastLocalTransaction)
+      {
+         state = (RefreshDialogState*) mRefreshes.find(&earlyDialogHandle);
+         // See if the key has the tags reversed
+         if (state == NULL)
+         {
+            UtlString reversedEarlyDialogHandle;
+            SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
+            state =
+               (RefreshDialogState*) 
+               mRefreshes.find(&reversedEarlyDialogHandle);
+         }
+      }
+
+      if (state)
+      {
+         OsLock objectLock(mObjectSem);
+
+         // Process the response based on the response code.
+         int responseCode = sipMessage->getResponseStatusCode();
+         UtlString responseText;
+         sipMessage->getResponseStatusText(&responseText);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRefreshManager::handleSipMessage response code = %d, text = '%s'",
+                       responseCode, responseText.data());
+
+         // Provisional response, do nothing
+         if (responseCode < SIP_2XX_CLASS_CODE)
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRefreshManager::handleSipMessage Provisional response ignored");
+         }
+
+         // This event reports that mpUserAgent resent the request with
+         // credentials after receiving an authentication challenge (401 or
+         // 407).
+         else if (messageType == SipMessageEvent::AUTHENTICATION_RETRY)
+         {
+            if (matchesLastLocalTransaction)
+            {
+               // Update the recorded CSeq in mpDialogMgr to account
+               // for the resend that was done by the SipUserAgent.
+               // This is needed so that the hoped-for 200 response
+               // to the resend is seen as matchesLastLocalTransaction
+               // and updates the subscription information.
+               cseq++;
+               UtlString* handle =
+                  foundDialog ? &dialogHandle : &earlyDialogHandle;
+               UtlBoolean ret =
+                  mpDialogMgr->setNextLocalCseq(*handle, cseq);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage setNextLocalCseq('%s', %d) = %d",
+                             handle->data(), cseq, ret);
+            }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage Authentication retry response not in sequence, ignored");
+            }
+         }
+
+         // A success or failure response which will not be retried
+         // by mUserAgent.
+         // These change the state of the subscription.
+         else
+         {
+            // If the refresh state still records the early dialog,
+            // update it to the confirmed dialog.
+            // Do not do this for REGISTER requests, which never transition
+            // to an established dialog.
+            // (And below we may update the Route's in the stored
+            // request.)
+            if (foundEarlyDialog && matchesLastLocalTransaction &&
+                method.compareTo(SIP_REGISTER_METHOD) != 0)
+            {
+               // Replace the state object's handle with the confirmed
+               // dialog handle and put it in the list under the new handle.
+               mRefreshes.removeReference(state);
+               *(dynamic_cast <UtlString*> (state)) = dialogHandle;
+               mRefreshes.insert(state);
+
+               // Update the stored request to have the new to-tag.
+               Url toUrl;
+               sipMessage->getToUrl(toUrl);
+               UtlString toTag;
+               toUrl.getFieldParameter("tag", toTag);
+               state->mpLastRequest->setToFieldTag(toTag);
+
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage Updating state %p to established dialog handle '%s' and to-tag '%s'",
+                             state, dialogHandle.data(), toTag.data());
+
+               // Update the state of the dialog recorded in mpDialogMgr.
+               mpDialogMgr->updateDialog(*sipMessage);
+            }
+
+            // Success responses.
+            if (responseCode >= SIP_2XX_CLASS_CODE &&
+                responseCode < SIP_3XX_CLASS_CODE)
+            {
+               int expirationPeriod = -1;
+
+               // An expiration time is required in the response, but
+               // we assume that if the expires value is not present
+               // then we got what we requested.
+               if (!getAcceptedExpiration(state, *sipMessage, expirationPeriod))
+               {
+                  if (OsSysLog::willLog(FAC_SIP, PRI_WARNING))
+                  {
+                     UtlString b;
+                     ssize_t l;
+                     state->mpLastRequest->getBytes(&b, &l);
+                     OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                   "SipRefreshManager::handleSipMessage Response did not provide expiration: %s",
+                                   b.data());
+                  }
+                  expirationPeriod = state->mExpirationPeriodSeconds;
+               }
+
+               // Separate non-zero expirations from zero expirations.
+               if (expirationPeriod > 0)
+               {
+                  // Stop the refresh timer.
+                  state->mSuppressTimerEventRoutines = TRUE;
+                  {
+                     OsUnLock objectUnLock(mObjectSem);
+
+                     state->mRefreshTimer.stop(TRUE);
+                  }
+                  state->mSuppressTimerEventRoutines = FALSE;
+                  
+                  // Set the refresh timer based on the provided time.
+                  state->setRefreshTimer(expirationPeriod,
+                                  TRUE,
+                                  mpUserAgent->getSipStateTransactionTimeout() / 1000);
+
+                  // Mark the refresh as successfully established.
+                  state->mRequestState = REFRESH_REQUEST_SUCCEEDED;
+
+                  // If the request is a SUBSCRIBE, and this
+                  // response established a dialog, update
+                  // the Route headers of the stored request
+                  // based on the Record-Route headers of the
+                  // 2xx response, and update the request-URI
+                  // based on the Contact in the response.
+
+                  // If this is a 2xx response to a
+                  // re-SUBSCRIBE, update the request-URI
+                  // (since SUBSCRIBE is a target-refresh
+                  // method).
+
+                  // If it is a REGISTER, do not modify the
+                  // stored request, since successive
+                  // REGISTERS are a quasi-dialog and
+                  // continue to be routed as the first
+                  // message was.
+
+                  // For future extensibility, use
+                  // SipMessage::isRecordRouteAccepted to distinguish
+                  // the REGISTER and SUBSCRIBE cases.
+                  if (state->mpLastRequest->isRecordRouteAccepted())
+                  {
+                     // Copy Contact URI in response to
+                     // request-URI in request.
+                     UtlString contact;
+                     sipMessage->getContactUri(0, &contact);
+                     state->mpLastRequest->changeRequestUri(contact);
+
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "SipRefreshManager::handleSipMessage Updating request-URI to '%s'",
+                                   contact.data());
+
+                     if (foundEarlyDialog && matchesLastLocalTransaction)
+                     {
+                        // Remove Route headers from the initial request.
+                        UtlString route;
+                        while (state->mpLastRequest->removeHeader(SIP_ROUTE_FIELD, 0))
+                        {
+                           // null
+                        }
+
+                        // Copy Record-Route headers from response to
+                        // Route headers in request (in reverse order).
+                        UtlString routeField;
+                        UtlString routeValue;
+                        for (int index = 0;
+                             sipMessage->getRecordRouteUri(index, &routeValue);
+                             index++)
+                        {
+                           if (index != 0)
+                           {
+                              routeField.prepend(",");
+                           }
+                           routeField.prepend(routeValue);
+                        }
+                        state->mpLastRequest->setRouteField(routeField);
+
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipRefreshManager::handleSipMessage Updating Route headers to '%s'",
+                                      routeValue.data());
+                     }
+                  }
+               }
+               // This is an unSUBSCRIBE or unREGISTER (a 2xx response with expiration 0).
+               else
+               {
+                  state->mExpiration = 0;
+                  // If the notifier gave us a 0 expiration,
+                  // it has terminated the subscription.
+                  state->mRequestState = REFRESH_REQUEST_FAILED;
+
+                  // Stop the refresh timer.
+                  state->mSuppressTimerEventRoutines = TRUE;
+                  {
+                     OsUnLock objectUnLock(mObjectSem);
+
+                     state->mRefreshTimer.stop(TRUE);
+                  }
+                  state->mSuppressTimerEventRoutines = FALSE;
+               }
+
+               // The request succeeded.
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage SUBSCRIBE received success response, state = %p, expirationPeriod = %d, state->mExpiration = %ld",
+                             state, expirationPeriod, state->mExpiration);
+            }
+
+            // A failure response code other than authentication challenge.
+            // We don't care what error -- It is the application's job
+            // to care.  End the subscription.
+            else
+            {
+               state->mRequestState = REFRESH_REQUEST_FAILED;
+               state->mExpiration = 0;
+               // Do not change the expiration time, it
+               // is what ever it was before the response was
+               // sent.
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage Failure");
+
+<<<<<<< .working
+              // Invoke the callback to let the application
+              // know that the state changed
+              if (state->mpStateCallback)
+              {
+                 if (!foundEarlyDialog)
+                 {
+                    // the callback may need the earlyDialogHandle
+                    mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
+                                                         earlyDialogHandle);
+                 }
+
+                 (state->mpStateCallback)(state->mRequestState,
+                                          earlyDialogHandle,
+                                          dialogHandle,
+                                          state->mpApplicationData,
+                                          responseCode, // responseCode
+                                          responseText, // responseText,
+                                          state->mExpiration, // zero means expires now
+                                          sipMessage); // response
+              }
+           }
+=======
+               // Stop the refresh timer.
+               state->mSuppressTimerEventRoutines = TRUE;
+               {
+                  OsUnLock objectUnLock(mObjectSem);
+>>>>>>> .merge-right.r16201
+
+                  state->mRefreshTimer.stop(TRUE);
+               }
+               state->mSuppressTimerEventRoutines = FALSE;
+            }
+
+            // Request a callback to let the application know the state changed.
+            postMessageP(
+               new CallbackRequestMsg(state,
+                                      CallbackRequestMsg::CALLBACK,
+                                      sipMessage,
+                                      earlyDialogHandle,
+                                      dialogHandle
+                  ));
+            // Ownership of *sipMessage has passed to the callback request,
+            // so detach it from eventMessage.
+            eventMessage.setMessage(NULL);
+         }
+      }
+      else
+      {
+         // Received an event for a dialog that we have no record of.
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipRefreshManager::handleSipMessage Received event for dialog handle '%s' but cannot find refresh state for it",
+                       dialogHandle.data());
+      }
+   } // endif SUBSCRIBE or REGISTER response
+
+   // *sipMessage remains owned by eventMessage, and will be deleted by
+   // the caller of SipRefreshManager::handleMessage.
+   // But if we passed ownership of *sipMessage onward, we cleared the pointer
+   // in eventMessage.
+}
+
+/* ============================ ACCESSORS ================================= */
+
+void SipRefreshManager::refreshState2String(RefreshRequestState state, 
+                                            UtlString& stateString)
+{
+   switch(state)
+   {
+   case REFRESH_REQUEST_UNKNOWN:
+      stateString = "REFRESH_REQUEST_UNKNOWN";
+      break;
+   case REFRESH_REQUEST_PENDING:
+      stateString = "REFRESH_REQUEST_PENDING";
+      break;
+   case REFRESH_REQUEST_FAILED:
+      stateString = "REFRESH_REQUEST_FAILED";
+      break;
+   case REFRESH_REQUEST_SUCCEEDED:
+      stateString = "REFRESH_REQUEST_SUCCEEDED";
+      break;
+
+   default:
+   {
+      stateString = "unknown: ";
+      char numBuf[20];
+      sprintf(numBuf, "%d", state);
+      stateString.append(numBuf);
+   }
+   break;
+   }
+}
+
+// Get a copy of the refresh request message for a given dialog handle.
+UtlBoolean SipRefreshManager::getRequest(const UtlString& dialogHandle,
+                                         SipMessage& message)
+{
+   // Look up the state for the dialog handle.
+   RefreshDialogState* state = getAnyDialog(dialogHandle);
+   if (state)
+   {
+      // Copy the message.
+      message = *(state->mpLastRequest);
+   }
+
+   return state != NULL;
+}
+
+int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
+{
+   int count = 0;
+   dumpString.remove(0);
+
+   OsLock setLock(mSetSem);
+   OsLock objectLock(mObjectSem);
+
+   UtlHashBagIterator iterator(mRefreshes);
+   RefreshDialogState* state = NULL;
+   UtlString oneStateDump;
+
+   while((state = (RefreshDialogState*) iterator()))
+   {
+      state->toString(oneStateDump);
+      dumpString.append(oneStateDump);
+      count++;
+   }
+
+   return(count);
+}
+
+
+/* ============================ INQUIRY =================================== */
+
+// Dump the object's internal state.
+void SipRefreshManager::dumpState()
+{
+   OsLock setLock(mSetSem);
+   OsLock objectLock(mObjectSem);
+
+   // indented 4
+
+   OsSysLog::add(FAC_RLS, PRI_INFO,
+                 "\t    SipRefreshManager %p, mReceivingRegisterResponses = %d, mReceivingSubscribeResponses = %d, mDefaultExpiration = %d",
+                 this,
+                 mReceivingRegisterResponses, mReceivingSubscribeResponses,
+                 mDefaultExpiration);
+
+   UtlHashBagIterator itor2(mRefreshes);
+   RefreshDialogState* state;
+   while ((state = dynamic_cast <RefreshDialogState*> (itor2())))
+   {
+      state->dumpState();
+   }
+}
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+
+RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDialogHandle)
+{
+   RefreshDialogState* state = (RefreshDialogState*)
+      mRefreshes.find(&messageDialogHandle);
+
+   if (state == NULL)
+   {
+      UtlString reversedHandle;
+      SipDialog::reverseTags(messageDialogHandle, reversedHandle);
+      state = (RefreshDialogState*)
+         mRefreshes.find(&reversedHandle);
+   }
+
+   // It did not match
+   if (state == NULL)
+   {
+      // If this is an early dialog handle find out what the 
+      // established dialog is      
+      UtlString establishedDialogHandle;
+      if (SipDialog::isEarlyDialog(messageDialogHandle) &&
+          mpDialogMgr->getEstablishedDialogHandleFor(messageDialogHandle,
+                                                     establishedDialogHandle))
+      {
+         state = (RefreshDialogState*) 
+            mRefreshes.find(&establishedDialogHandle);
+         if(state == NULL)
+         {
+            UtlString reversedEstablishedDialogHandle;
+            SipDialog::reverseTags(establishedDialogHandle, reversedEstablishedDialogHandle);
+            state = (RefreshDialogState*) 
+               mRefreshes.find(&reversedEstablishedDialogHandle);
+         }
+      }
+
+      // If this is an established dialog, find out what the
+      // early dialog handle was and see if we can find it
+      else
+      {
+         UtlString earlyDialogHandle;
+         mpDialogMgr->getEarlyDialogHandleFor(messageDialogHandle,
+                                              earlyDialogHandle);
+
+         state = (RefreshDialogState*) 
+            mRefreshes.find(&earlyDialogHandle);
+         if(state == NULL)
+         {
+            UtlString reversedEarlyDialogHandle;
+            SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
+            state = (RefreshDialogState*) 
+               mRefreshes.find(&reversedEarlyDialogHandle);
+         }
+      }
+   }
+
+   return(state);
+}
+
+UtlBoolean SipRefreshManager::stateExists(RefreshDialogState* statePtr)
+{
+   // Our caller holds the lock.
+
+   RefreshDialogState* state =
+      (RefreshDialogState*) mRefreshes.findReference(statePtr);
+
+   return(state != NULL);
+}
+
+RefreshDialogState* 
+    SipRefreshManager::createNewRefreshState(SipMessage& subscribeOrRegisterRequest,
+                                              UtlString& messageDialogHandle,
+                                              void* applicationData,
+                                              const RefreshStateCallback refreshStateCallback,
+                                              int& requestedExpiration)
+{
+   RefreshDialogState* state = new RefreshDialogState(this);
+   *((UtlString*) state) = messageDialogHandle;
+   state->mpApplicationData = applicationData;
+   // refreshStateCallback may not be NULL, because we need to be able to tell
+   // the application that a refresh has failed, and the application needs to
+   // call stopRefresh to purge the refresh state.
+   assert(refreshStateCallback);
+   state->mpStateCallback = refreshStateCallback;
+   if (!getInitialExpiration(subscribeOrRegisterRequest, 
+                             state->mExpirationPeriodSeconds)) // original expiration
+   {
+      state->mExpirationPeriodSeconds = mDefaultExpiration;
+      subscribeOrRegisterRequest.setExpiresField(mDefaultExpiration);
+   }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::createNewRefreshState %p->mExpirationPeriodSeconds = %d",
+                 state, state->mExpirationPeriodSeconds);
+
+   requestedExpiration = state->mExpirationPeriodSeconds;
+
+   return(state);
+}
+
+// Adjust the SipDialogMgr, the RefreshDialogState, and the RefreshDialogState's
+// attached request in preparation for retransmitting the request.
+void SipRefreshManager::prepareForResend(RefreshDialogState& state, 
+                                         UtlBoolean expireNow)
+{
+   if (state.mpLastRequest)
+   {
+      // Update state and its attached request.
+      state.resetStateForResend(expireNow);
+
+      // Increment the CSeq recorded in SipDialogMgr.
+      // Copy the dialog information into the stored request.
+      mpDialogMgr->setNextLocalTransactionInfo(*state.mpLastRequest);
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SipRefreshManager::prepareForResend called with a state (%p '%s') that has no last request recorded",
+                    &state, state.data());
+   }
+}
+
+// Get the expiration from the initial SUBSCRIBE or REGISTER request.
+UtlBoolean SipRefreshManager::getInitialExpiration(const SipMessage& sipRequest, 
+                                                   int& expirationPeriod)
+{
+   UtlString method;
+   UtlBoolean foundExpiration = FALSE;
+   sipRequest.getRequestMethod(&method);
+
+   if(method.compareTo(SIP_REGISTER_METHOD) == 0)
+   {
+      // Register could have it in the Contact header
+      UtlString requestContactValue;
+      if(sipRequest.getContactEntry(0 , &requestContactValue))
+      {
+         // Get the expires parameter for the contact if it exists
+         Url contactUri(requestContactValue);
+         UtlString contactExpiresParameter;
+         if(contactUri.getFieldParameter(SIP_EXPIRES_FIELD, 
+                                         contactExpiresParameter) &&
+            !contactExpiresParameter.isNull())
+         {
+            foundExpiration = TRUE;
+
+            // Convert to int
+            expirationPeriod = atoi(contactExpiresParameter);
+         }
+      }
+   }
+
+   if(!foundExpiration)
+   {
+      // Not sure if we care if this is a request or response
+      foundExpiration = sipRequest.getExpiresField(&expirationPeriod);
+   }
+
+   return(foundExpiration);
+}
+
+// Get the expiration from the SUBSCRIBE or REGISTER response.
+UtlBoolean SipRefreshManager::getAcceptedExpiration(RefreshDialogState* state,
+                                                    const SipMessage& sipResponse, 
+                                                    int& expirationPeriod)
+{
+   UtlString method;
+   UtlBoolean foundExpiration = FALSE;
+   int cseq;
+   sipResponse.getCSeqField(&cseq, &method);
+
+   // Look for an expiration time in a REGISTER response attached to
+   // the contact.
+   if (method.compareTo(SIP_REGISTER_METHOD) == 0)
+   {
+      // Get the first contact in the REGISTER request so that we
+      // can find the same contact in the response and find out what
+      // its expiration is.
+      // :TODO: Fix this, because the first contact may not be the one we are
+      // registering.
+      UtlString requestContact;
+      Url requestContactUri;
+      if(state && state->mpLastRequest &&
+         state->mpLastRequest->getContactEntry(0, &requestContact))
+      {
+         requestContactUri = requestContact;
+      }
+
+      // The response could have the expiration time in the Contact header.
+      UtlString responseContactValue;
+      int contactIndex = 0;
+      while(sipResponse.getContactEntry(contactIndex , &responseContactValue))
+      {
+         // Get the expires parameter for the contact if it exists
+         Url contactUri(responseContactValue);
+
+         if(requestContactUri.isUserHostPortEqual(contactUri))
+         {
+            UtlString contactExpiresParameter;
+            if(contactUri.getFieldParameter(SIP_EXPIRES_FIELD, 
+                                            contactExpiresParameter) &&
+               !contactExpiresParameter.isNull())
+            {
+               foundExpiration = TRUE;
+
+               // Convert to int
+               expirationPeriod = atoi(contactExpiresParameter);
+            }
+         }
+         contactIndex++;
+      }
+   }
+
+   // If there wasn't an expires parameter of a REGISTER contact, look for an
+   // Expires header.
+   if (!foundExpiration)
+   {
+      foundExpiration = sipResponse.getExpiresField(&expirationPeriod);
+   }
+
+   return (foundExpiration);
+}
+
+/* ============================ FUNCTIONS ================================= */
+
+static int calculateResendTime(int requestedExpiration, 
+                               UtlBoolean isSuccessfulResend,
+                               int minimumRefresh)
+{
+   int expiration;
+   if (isSuccessfulResend)
+   {
+      expiration = (int)(0.65 * requestedExpiration);
+   }
+   else
+   {
+      expiration = (int)(0.1 * requestedExpiration);
+   }
+
+   // The transaction timeout is the minimum time we will return.
+   if (expiration < minimumRefresh)
+   {
+      expiration = minimumRefresh;
+   }
+
+   return expiration;
+}
+
 // Convert RefreshRequestState to a printable string.
-const char* RefreshDialogState::refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState)
+const char* SipRefreshManager::refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState)
 {
    const char* ret;
 
@@ -591,1045 +1774,3 @@ const char* RefreshDialogState::refreshRequestStateText(SipRefreshManager::Refre
 
    return ret;
 };
-
-void SipRefreshManager::stopAllRefreshes()
-{
-    //  Not sure if it is safe to take the lock on this
-    // and keep it while we unsubscribe and unregister
-    // everything.  There are some locking issues related
-    // to handling incoming messages that might be a
-    // problem.
-    RefreshDialogState* dialogKey = NULL;
-    lock();
-    UtlHashBagIterator iterator(mRefreshes);
-    while((dialogKey = (RefreshDialogState*) iterator()))
-    {
-        // Unsubscribe or unregister
-        stopRefresh(*dialogKey);
-        // Note that stopRefresh removes *dialogKey from mRefreshes and
-        // deletes it, so we do not have to do so here.
-    }
-    unlock();
-}
-
-UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle, int expirationPeriodSeconds)
-{
-   UtlBoolean ret = false;
-   lock();
-   RefreshDialogState* state = getAnyDialog(earlyDialogHandle);
-   if (state)
-   {
-      state->mExpirationPeriodSeconds = expirationPeriodSeconds;
-      state->mpLastRequest->setExpiresField(expirationPeriodSeconds);
-
-      // Clean up the timer and notifier
-      deleteTimerAndEvent(state->mpRefreshTimer);
-      // Create and set a new timer for the failed time out period
-      setRefreshTimer(*state,
-                      TRUE); // Resend with successful timeout
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRefreshManager::changeRefreshTime refreshTimer just being set for the new timeout.");
-
-      // reset the message for resend
-      setForResend(*state,
-                   FALSE); // do not expire now
-
-      // Keep track of when this refresh is sent so we know
-      // when the new expiration is relative to.
-      state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRefreshManager::changeRefreshTime %p->mPendingStartTime = %ld",
-                    state, state->mPendingStartTime);
-
-      // Do not want to keep the lock while we send the
-      // message as it could block.  Presumably it is better
-      // to incur the cost of copying the message????
-      SipMessage tempRequest(*(state->mpLastRequest));
-
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-      {
-         UtlString lastRequest;
-         ssize_t length;
-         state->mpLastRequest->getBytes(&lastRequest, &length);
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::changeRefreshTime last request = '%s'",
-                       lastRequest.data());
-      }
-
-      unlock();
-      mpUserAgent->send(tempRequest);
-      // Do not need the lock any more, but this gives us
-      // clean locking symmetry.  DO NOT TOUCH state or
-      // any of its members BEYOND this point as it may
-      // have been deleted
-      lock();
-      ret = true;
-   }
-   unlock();
-   return ret;
-}
-
-UtlBoolean SipRefreshManager::handleMessage(OsMsg& eventMessage)
-{
-    int msgType = eventMessage.getMsgType();
-    int msgSubType = eventMessage.getMsgSubType();
-
-    // Timer fired
-    if(msgType == OsMsg::OS_EVENT &&
-       msgSubType == OsEventMsg::NOTIFY)
-    {
-       handleTimerMessage(dynamic_cast <OsEventMsg&> (eventMessage));
-    }
-
-    // SIP message
-    else if (msgType == OsMsg::PHONE_APP &&
-             msgSubType == SipMessage::NET_SIP_MESSAGE)
-    {
-       handleSipMessage(dynamic_cast <SipMessageEvent&> (eventMessage));
-    }
-
-    return TRUE;
-}
-
-// Handle a message due to a timer firing.
-void SipRefreshManager::handleTimerMessage(OsEventMsg& eventMessage)
-{
-   intptr_t eventData = 0;
-   RefreshDialogState* state = NULL;
-   void* stateVoid;
-
-   eventMessage.getUserData(stateVoid);
-   eventMessage.getEventData(eventData);
-   state = (RefreshDialogState*) stateVoid;
-
-   lock();
-   // If the state is not still in the list we cannot
-   // touch it. It may have been deleted.
-   if (state && stateExists(state))
-   {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRefreshManager::handleTimerMessage Timer fired, state = %p '%s', eventData = %ld",
-                     state, state->data(), (long)eventData);
-
-       // Sending a refresh request failed, need to clean up and
-       // schedule a refresh in a short/failed time period
-       if (eventData == OS_INTERRUPTED)
-       {
-           // Clean up the timer and notifier
-           deleteTimerAndEvent(state->mpRefreshTimer);
-
-           // Create and set a new timer for the failed time out period
-           setRefreshTimer(*state, 
-                           FALSE);  // Resend with failure timeout
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                         "SipRefreshManager::handleTimerMessage refreshTimer just being set for the failed timeout.");
-       }
-
-       // Normal timer fire, time to refresh.
-       else if(eventData != 0 &&
-               ((OsTimer*)eventData) == state->mpRefreshTimer)
-       {
-           // Clean up the timer and notifier
-           deleteTimerAndEvent(state->mpRefreshTimer);
-
-           // Legitimate states in which to see a timer fire to start
-           // a reSUBSCRIBE or reREGISTER attempt.
-           if(state->mRequestState == REFRESH_REQUEST_FAILED || 
-              state->mRequestState == REFRESH_REQUEST_SUCCEEDED)
-           {
-               // Create and set a new timer for resending assuming
-               // the resend is successful.  If it fails we will
-               // cancel the timer and set a shorter timeout
-               setRefreshTimer(*state, 
-                               TRUE); // Resend with successful timeout
-
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRefreshManager::handleTimerMessage refreshTimer just being set for the normal timeout.");
-
-               // reset the message for resend
-               setForResend(*state,
-                            FALSE); // do not expire now
-
-               // Keep track of when this refresh is sent so we know 
-               // when the new expiration is relative to.
-               state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRefreshManager::handleTimerMessage %p->mPendingStartTime = %ld",
-                             state, state->mPendingStartTime);
-
-               // Do not want to keep the lock while we send the
-               // message as it could block.  Presumably it is better
-               // to incur the cost of copying the message????
-               SipMessage tempRequest(*(state->mpLastRequest));
-
-               if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-               {
-                  UtlString lastRequest;
-                  ssize_t length;
-                  state->mpLastRequest->getBytes(&lastRequest, &length);
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRefreshManager::handleTimerMessage last request = '%s'",
-                                lastRequest.data());
-               }
-
-               unlock();
-               mpUserAgent->send(tempRequest);
-               // Do not need the lock any more, but this gives us
-               // clean locking symmetry.  DO NOT TOUCH state or
-               // any of its members BEYOND this point as it may 
-               // have been deleted
-               lock(); 
-           }
-
-           // This should not happen
-           else
-           {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "SipRefreshManager::handleTimerMessage "
-                             "timer fired in unexpected state %s",
-                             RefreshDialogState::refreshRequestStateText(state->mRequestState));
-               // Dump the state into the log.
-               state->dumpState();
-
-               if(state->mRequestState == REFRESH_REQUEST_PENDING)
-               {
-                  // Set a new, short timeout if the request is still
-                  // pending.
-                  setRefreshTimer(*state, 
-                                  FALSE); // Resend with failed timeout
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipRefreshManager::handleTimerMessage "
-                                "refreshTimer resetting timeout for the pending request.");
-               }
-           }
-       }
-
-       // Bad -- do not know what happened
-       else
-       {
-           OsSysLog::add(FAC_SIP, PRI_ERR,
-               "SipRefreshManager::handleTimerMessage timer: %lx does not match state's timer: %p",
-               (long) eventData, state->mpRefreshTimer);
-       }
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipRefreshManager::handleTimerMessage Timer fired, state = %p '%s', eventData = %ld, not found in mRefreshes",
-                     state, state->data(), (long)eventData);
-
-   }
-   unlock();
-}
-
-// Handle an incoming SIP message.
-void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
-{
-   const SipMessage* sipMessage = ((SipMessageEvent&)eventMessage).getMessage();
-   int messageType = ((SipMessageEvent&)eventMessage).getMessageStatus();
-
-   // messageType can be:
-   //    SipMessageEvent::TRANSPORT_ERROR for requests that do not get sent
-   //            but we would have to register with the SipUserAgent to
-   //            receive requests.
-   //    SipMessageEvent::AUTHENTICATION_RETRY for 401 or 407 responses
-   //            that are resent with credentials.  We get this message so
-   //            that we can keep the dialog info. up to date.
-   //    SipMessageEvent::APPLICATION normal messages
-   // For now we will treat the APPLICATION and AUTHENTICATION_RETRY
-   // identically.
-
-   // If this is a SUBSCRIBE or REGISTER response
-   UtlString method;
-   int cseq;
-   sipMessage->getCSeqField(&cseq, &method);
-   if (sipMessage->isResponse() &&
-       (method.compareTo(SIP_SUBSCRIBE_METHOD) == 0 ||
-        method.compareTo(SIP_REGISTER_METHOD) == 0))
-   {
-       UtlString dialogHandle;
-       sipMessage->getDialogHandle(dialogHandle);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRefreshManager::handleSipMessage %s response %d, dialogHandle = '%s'",
-                     method.data(), sipMessage->getResponseStatusCode(),
-                     dialogHandle.data());
-
-       UtlBoolean foundDialog = 
-           mpDialogMgr->dialogExists(dialogHandle);
-       UtlString earlyDialogHandle;
-       UtlBoolean foundEarlyDialog = FALSE;
-       UtlBoolean matchesLastLocalTransaction = FALSE;
-       if (foundDialog)
-       {
-           matchesLastLocalTransaction = 
-               mpDialogMgr->isLastLocalTransaction(*sipMessage, 
-                                                   dialogHandle);
-       }
-       else
-       {
-           foundEarlyDialog =
-               mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
-                                                    earlyDialogHandle);
-           if (foundEarlyDialog)
-           {
-               matchesLastLocalTransaction =
-                   mpDialogMgr->isLastLocalTransaction(*sipMessage, 
-                                                       earlyDialogHandle);
-           }
-       }
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRefreshManager::handleSipMessage foundDialog = %d, foundEarlyDialog = %d, matchesLastLocalTransaction = %d, earlyDialogHandle = '%s'",
-                     foundDialog, foundEarlyDialog,
-                     matchesLastLocalTransaction, earlyDialogHandle.data());
-
-#ifdef TEST_PRINT
-       UtlString refreshStateDump;
-       dumpRefreshStates(refreshStateDump);
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipRefreshManager::handleSipMessage state dump: %s",
-                     refreshStateDump.data());
-#endif
-
-       lock();
-       // Find the refresh state for this response
-       RefreshDialogState* state = NULL;
-       if (foundDialog && matchesLastLocalTransaction)
-       {
-           state = (RefreshDialogState*) mRefreshes.find(&dialogHandle);
-           // Check if the key has the tags reversed
-           if (state == NULL)
-           {
-               UtlString reversedDialogHandle;
-               SipDialog::reverseTags(dialogHandle, reversedDialogHandle);
-               state =
-                  (RefreshDialogState*) 
-                  mRefreshes.find(&reversedDialogHandle);
-           }
-       }
-       else if (foundEarlyDialog && matchesLastLocalTransaction)
-       {
-           state = (RefreshDialogState*) mRefreshes.find(&earlyDialogHandle);
-           // See if the key has the tags reversed
-           if (state == NULL)
-           {
-               UtlString reversedEarlyDialogHandle;
-               SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
-               state =
-                  (RefreshDialogState*) 
-                  mRefreshes.find(&reversedEarlyDialogHandle);
-           }
-       }
-
-       if (state)
-       {
-           // Need to check for error responses vs. 2xx-class responses
-           int responseCode = sipMessage->getResponseStatusCode();
-           UtlString responseText;
-           sipMessage->getResponseStatusText(&responseText);
-
-           // Update the expiration members based on this response.
-           int expirationPeriod = 0;
-
-           // Provisional response, do nothing
-           if (responseCode < SIP_2XX_CLASS_CODE)
-           {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRefreshManager::handleSipMessage Provisional response ignored");
-           }
-
-           // There was a resend with credentials for this
-           // failed response (should be a 401 or 407 auth.
-           // challenge.
-           else if (messageType == SipMessageEvent::AUTHENTICATION_RETRY)
-           {
-              // Do not stop the timer and do not change the
-              // state from PENDING to FAILED since the SipUserAgent will
-              // resend the request with authentication.
-              // (What happens if the SipUserAgent doesn't?  What about the
-              // second failure?)
-              if (matchesLastLocalTransaction)
-              {
-                 // Update the recorded CSeq in mpDialogMgr to account
-                 // for the resend that was done by the SipUserAgent.
-                 // This is needed so that the hoped-for 200 response
-                 // to the resend is seen as matchesLastLocalTransaction
-                 // and updates the subscription information.
-                 int cseq;
-                 UtlString method;
-                 sipMessage->getCSeqField(&cseq, &method);
-                 cseq++;
-                 UtlString* handle =
-                    foundDialog ? &dialogHandle : &earlyDialogHandle;
-                 UtlBoolean ret =
-                    mpDialogMgr->setNextLocalCseq(*handle, cseq);
-                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                               "SipRefreshManager::handleSipMessage setNextLocalCseq('%s', %d) = %d",
-                               handle->data(), cseq, ret);
-              }
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                            "SipRefreshManager::handleSipMessage Authentication retry response ignored");
-           }
-
-           // A success or failure response which will not be retried.
-           // These change the state of the subscription.
-           else
-           {
-              // If the refresh state still records the early dialog,
-              // update it to the confirmed dialog.
-              // (And below we may update the Route's in the stored
-              // request.)
-              if (foundEarlyDialog && matchesLastLocalTransaction)
-              {
-                  // Replace the state object's handle with the confirmed
-                  // dialog handle and put it in the list under the new handle.
-                  mRefreshes.removeReference(state);
-                  *(dynamic_cast <UtlString*> (state)) = dialogHandle;
-                  mRefreshes.insert(state);
-
-                  // Update the stored request to have the new to-tag.
-                  Url toUrl;
-                  sipMessage->getToUrl(toUrl);
-                  UtlString toTag;
-                  toUrl.getFieldParameter("tag", toTag);
-                  state->mpLastRequest->setToFieldTag(toTag);
-
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipRefreshManager::handleSipMessage Updating state %p to established dialog handle '%s' and to-tag '%s'",
-                                state, dialogHandle.data(), toTag.data());
-
-                  // Update the state of the dialog recorded in mpDialogMgr.
-                  mpDialogMgr->updateDialog(*sipMessage);
-              }
-
-              // Success responses.
-              if (responseCode >= SIP_2XX_CLASS_CODE &&
-                  responseCode < SIP_3XX_CLASS_CODE)
-              {
-                  // Should we tolerate no expires value in the response?
-                  // Currently we assume that if the expires value is not
-                  // present then we got what we asked for.
-                  if (!getAcceptedExpiration(state, *sipMessage, 
-                                             expirationPeriod))
-                  {
-                      expirationPeriod = state->mExpirationPeriodSeconds;
-                  }
-
-                  // SUBSCRIBE or REGISTER gave us expiration seconds
-                  // from when the request was sent.
-                  if (expirationPeriod > 0)
-                  {
-                      // Calculate the new (often shorter) subscription refresh timer.
-                      int nextResendSeconds = calculateResendTime(expirationPeriod, TRUE);
-
-                      // Check if the accepted timer is less than the originally requested timer.
-                      if (expirationPeriod < state->mExpirationPeriodSeconds)
-                      { 
-                          // Stop and restart the timer with the shorter timeout period.
-                          state->mpRefreshTimer->stop();
-                          OsTime timerTime(nextResendSeconds, 0);
-                          state->mpRefreshTimer->oneshotAfter(timerTime);
-                      }
-
-                      state->mExpiration =
-                         state->mPendingStartTime + nextResendSeconds;
-                      state->mRequestState = REFRESH_REQUEST_SUCCEEDED;
-
-                      // If the request is a SUBSCRIBE, and this
-                      // response established a dialog, update
-                      // the Route headers of the stored request
-                      // based on the Record-Route headers of the
-                      // 2xx response, and update the request-URI
-                      // based on the Contact in the response.
-
-                      // If this is a 2xx response to a
-                      // re-SUBSCRIBE, update the request-URI
-                      // (since SUBSCRIBE is a target-refresh
-                      // method).
-
-                      // If it is a REGISTER, do not modify the
-                      // stored request, since successive
-                      // REGISTERS are a quasi-dialog and
-                      // continue to be routed as the first
-                      // message was.
-
-                      // Use SipMessage::isRecordRouteAccepted to distinguish
-                      // the REGISTER and SUBSCRIBE cases.
-                      if (state->mpLastRequest->isRecordRouteAccepted())
-                      {
-                         // Copy Contact URI in response to
-                         // request-URI in request.
-                         UtlString contact;
-                         sipMessage->getContactUri(0, &contact);
-                         state->mpLastRequest->changeRequestUri(contact);
-
-                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                       "SipRefreshManager::handleSipMessage Updating request-URI to '%s'",
-                                       contact.data());
-
-                         if (foundEarlyDialog && matchesLastLocalTransaction)
-                         {
-                            // Remove Route headers from the initial request.
-                            UtlString route;
-                            while (state->mpLastRequest->removeHeader(SIP_ROUTE_FIELD, 0))
-                            {
-                               // null
-                            }
-
-                            // Copy Record-Route headers from response to
-                            // Route headers in request (in reverse order).
-                            UtlString routeField;
-                            UtlString routeValue;
-                            for (int index = 0;
-                                 sipMessage->getRecordRouteUri(index, &routeValue);
-                                 index++)
-                            {
-                               if (index != 0)
-                               {
-                                  routeField.prepend(",");
-                               }
-                               routeField.prepend(routeValue);
-                            }
-                            state->mpLastRequest->setRouteField(routeField);
-
-                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                          "SipRefreshManager::handleSipMessage Updating Route headers to '%s'",
-                                          routeValue.data());
-                         }
-                      }
-                  }
-                  // UnSUBSCRIBE or unREGISTER
-                  else
-                  {
-                      state->mExpiration = 0;
-                      // If the notifier gave us a 0 expiration,
-                      // it has terminated the subscription.
-                      state->mRequestState = REFRESH_REQUEST_FAILED;
-                  }
-
-                  // The request succeeded
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipRefreshManager::handleSipMessage SUBSCRIBE received success response, state = %p, expirationPeriod = %d, state->mExpiration = %ld",
-                                state, expirationPeriod, state->mExpiration);
-              }
-
-              // A failure response code other than authentication challenge.
-              // We don't care what error -- It is the application's job
-              // to care.  End the subscription.
-              else
-              {
-                  state->mFailedResponseCode = responseCode;
-                  state->mFailedResponseText = responseText;
-                  state->mRequestState = REFRESH_REQUEST_FAILED;
-                  // Do not change the expiration time, it
-                  // is what ever it was before the response was
-                  // sent.
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SipRefreshManager::handleSipMessage Failure");
-              }
-
-              // Invoke the callback to let the application
-              // know that the state changed
-              if (state->mpStateCallback)
-              {
-                 if (!foundEarlyDialog)
-                 {
-                    // the callback may need the earlyDialogHandle
-                    mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
-                                                         earlyDialogHandle);
-                 }
-
-                 (state->mpStateCallback)(state->mRequestState,
-                                          earlyDialogHandle,
-                                          dialogHandle,
-                                          state->mpApplicationData,
-                                          responseCode, // responseCode
-                                          responseText, // responseText,
-                                          state->mExpiration, // zero means expires now
-                                          sipMessage); // response
-              }
-           }
-
-           // Check to see if the subscription was terminated, and thus
-           // we should delete the state.
-           if (state->mRequestState == REFRESH_REQUEST_FAILED)
-           {
-              // Stop and delete the refresh timer
-              state->mpRefreshTimer->stop();
-              deleteTimerAndEvent(state->mpRefreshTimer);
-
-              // Get rid of the dialog
-              mRefreshes.removeReference(state);
-              mpDialogMgr->deleteDialog(*state);
-
-              // Delete the state object.
-              delete state;
-
-              OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                            "SipRefreshManager::handleSipMessage Deleted state %p",
-                            state);
-           }
-       }
-       else
-       {
-          // Received an event for a dialog that we have no record of.
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
-                        "SipRefreshManager::handleSipMessage Received event for dialog handle '%s' but cannot find refresh state for it",
-                        dialogHandle.data());
-       }
-       unlock();
-   } // endif SUBSCRIBE or REGISTER response
-}
-
-/* ============================ ACCESSORS ================================= */
-
-void SipRefreshManager::refreshState2String(RefreshRequestState state, 
-                                            UtlString& stateString)
-{
-    switch(state)
-    {
-    case REFRESH_REQUEST_UNKNOWN:
-        stateString = "REFRESH_REQUEST_UNKNOWN";
-        break;
-    case REFRESH_REQUEST_PENDING:
-        stateString = "REFRESH_REQUEST_PENDING";
-        break;
-    case REFRESH_REQUEST_FAILED:
-        stateString = "REFRESH_REQUEST_FAILED";
-        break;
-    case REFRESH_REQUEST_SUCCEEDED:
-        stateString = "REFRESH_REQUEST_SUCCEEDED";
-        break;
-
-    default:
-        {
-            stateString = "unknown: ";
-            char numBuf[20];
-            sprintf(numBuf, "%d", state);
-            stateString.append(numBuf);
-        }
-        break;
-    }
-}
-
-// Get a copy of the refresh request message for a given dialog handle.
-UtlBoolean SipRefreshManager::getRequest(const UtlString& dialogHandle,
-                                         SipMessage& message)
-{
-   // Look up the state for the dialog handle.
-   RefreshDialogState* state = getAnyDialog(dialogHandle);
-   if (state)
-   {
-      // Copy the message.
-      message = *(state->mpLastRequest);
-   }
-
-   return state != NULL;
-}
-
-int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
-{
-    int count = 0;
-    dumpString.remove(0);
-    lock();
-    UtlHashBagIterator iterator(mRefreshes);
-    RefreshDialogState* state = NULL;
-    UtlString oneStateDump;
-
-    while((state = (RefreshDialogState*) iterator()))
-    {
-        state->toString(oneStateDump);
-        dumpString.append(oneStateDump);
-        count++;
-    }
-    unlock();
-    return(count);
-}
-
-
-/* ============================ INQUIRY =================================== */
-
-// Dump the object's internal state.
-void SipRefreshManager::dumpState()
-{
-   lock();
-
-   // indented 4
-
-   OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t    SipRefreshManager %p, mReceivingRegisterResponses = %d, mReceivingSubscribeResponses = %d, mDefaultExpiration = %d",
-                 this,
-                 mReceivingRegisterResponses, mReceivingSubscribeResponses,
-                 mDefaultExpiration);
-
-   UtlHashBagIterator itor2(mRefreshes);
-   RefreshDialogState* state;
-   while ((state = dynamic_cast <RefreshDialogState*> (itor2())))
-   {
-      state->dumpState();
-   }
-
-   unlock();
-}
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-void SipRefreshManager::lock()
-{
-    mRefreshMgrMutex.acquire();
-}
-
-void SipRefreshManager::unlock()
-{
-    mRefreshMgrMutex.release();
-}
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDialogHandle)
-{
-    RefreshDialogState* state = (RefreshDialogState*)
-        mRefreshes.find(&messageDialogHandle);
-
-    if (state == NULL)
-    {
-        UtlString reversedHandle;
-        SipDialog::reverseTags(messageDialogHandle, reversedHandle);
-        state = (RefreshDialogState*)
-            mRefreshes.find(&reversedHandle);
-    }
-
-    // It did not match
-    if (state == NULL)
-    {
-        // If this is an early dialog handle find out what the 
-        // established dialog is      
-        UtlString establishedDialogHandle;
-        if (SipDialog::isEarlyDialog(messageDialogHandle) &&
-            mpDialogMgr->getEstablishedDialogHandleFor(messageDialogHandle,
-                                                       establishedDialogHandle))
-        {
-            state = (RefreshDialogState*) 
-                mRefreshes.find(&establishedDialogHandle);
-            if(state == NULL)
-            {
-                UtlString reversedEstablishedDialogHandle;
-                SipDialog::reverseTags(establishedDialogHandle, reversedEstablishedDialogHandle);
-                state = (RefreshDialogState*) 
-                    mRefreshes.find(&reversedEstablishedDialogHandle);
-            }
-        }
-
-        // If this is an established dialog, find out what the
-        // early dialog handle was and see if we can find it
-        else
-        {
-            UtlString earlyDialogHandle;
-            mpDialogMgr->getEarlyDialogHandleFor(messageDialogHandle,
-                                                 earlyDialogHandle);
-
-            state = (RefreshDialogState*) 
-                mRefreshes.find(&earlyDialogHandle);
-            if(state == NULL)
-            {
-                UtlString reversedEarlyDialogHandle;
-                SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
-                state = (RefreshDialogState*) 
-                    mRefreshes.find(&reversedEarlyDialogHandle);
-            }
-        }
-    }
-
-    return(state);
-}
-
-UtlBoolean SipRefreshManager::stateExists(RefreshDialogState* statePtr)
-{
-    // Our caller holds the lock.
-
-    RefreshDialogState* state =
-       (RefreshDialogState*) mRefreshes.findReference(statePtr);
-
-    return(state != NULL);
-}
-
-RefreshDialogState* 
-    SipRefreshManager::createNewRefreshState(SipMessage& subscribeOrRegisterRequest,
-                                              UtlString& messageDialogHandle,
-                                              void* applicationData,
-                                              const RefreshStateCallback refreshStateCallback,
-                                              int& requestedExpiration)
-{
-    RefreshDialogState* state = new RefreshDialogState();
-    *((UtlString*) state) = messageDialogHandle;
-    state->mpApplicationData = applicationData;
-    state->mpStateCallback = refreshStateCallback;
-    if(!getInitialExpiration(subscribeOrRegisterRequest, 
-                             state->mExpirationPeriodSeconds)) // original expiration
-    {
-        state->mExpirationPeriodSeconds = mDefaultExpiration;
-        subscribeOrRegisterRequest.setExpiresField(mDefaultExpiration);
-    }
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipRefreshManager::createNewRefreshState %p->mExpirationPeriodSeconds = %d",
-                  state, state->mExpirationPeriodSeconds);
-
-    requestedExpiration = state->mExpirationPeriodSeconds;
-
-    state->mPendingStartTime = 0;
-    state->mExpiration = 0;
-    state->mRequestState = REFRESH_REQUEST_UNKNOWN;
-    state->mFailedResponseCode = 0;
-    state->mFailedResponseText = NULL;
-    state->mpRefreshTimer = NULL;  
-    state->mpLastRequest = NULL;
-
-    return(state);
-}
-
-void SipRefreshManager::setRefreshTimer(RefreshDialogState& state, 
-                                        UtlBoolean isSuccessfulReschedule)
-{
-    // Create and set a new timer for the next time out period
-    int nextResendSeconds = 
-        calculateResendTime(state.mExpirationPeriodSeconds,
-                            isSuccessfulReschedule);
-    // If a signficant amount of time has passed since the prior
-    // request was sent, decrease the error timeout a bit.
-    // This is only a problem with the error case as in the
-    // successful case we set the timer before sending the
-    // request.
-    if (!isSuccessfulReschedule)
-    {
-        long now = OsDateTime::getSecsSinceEpoch();
-        if (state.mPendingStartTime > 0 &&
-            now - state.mPendingStartTime > 5)
-        {
-            nextResendSeconds = nextResendSeconds - now + state.mPendingStartTime;
-            if (nextResendSeconds < 30)
-            {
-                nextResendSeconds = 30;
-            }
-        }
-    }
-
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipRefreshManager::setRefreshTimer setting resend timeout in %d seconds",
-                  nextResendSeconds);
-
-    OsMsgQ* incomingQ = getMessageQueue();
-    OsTimer* resendTimer = new OsTimer(incomingQ, &state);
-    state.mpRefreshTimer = resendTimer;
-    OsTime timerTime(nextResendSeconds, 0);
-    resendTimer->oneshotAfter(timerTime);                
-}
-
-int SipRefreshManager::calculateResendTime(int requestedExpiration, 
-                                           UtlBoolean isSuccessfulResend)
-{
-    int expiration;
-    if (isSuccessfulResend)
-    {
-        expiration = (int)(0.55 * requestedExpiration);
-    }
-    else
-    {
-        expiration = (int)(0.1 * requestedExpiration);
-    }
-
-    // The transaction timeout is the minimum time we will return.
-    int minRefresh = (mpUserAgent->getSipStateTransactionTimeout()) / 1000;
-    if (expiration < minRefresh)
-    {
-        expiration = minRefresh;
-    }
-
-    return(expiration);
-}
-
-void SipRefreshManager::stopTimerForFailureReschedule(OsTimer* resendTimer)
-{
-    if (resendTimer)
-    {
-        resendTimer->stop();
-        OsQueuedEvent* queuedEvent = 
-            (OsQueuedEvent*) resendTimer->getNotifier();
-
-        // If the queued event exists, fire it now with an error status
-        // to indicate that it should be resheduled with the (shorter)
-        // error timeout.  Initially the timer is scheduled with the
-        // timeout assuming that the reSUBSCRIBE or reREGISTER will
-        // succeed.
-        if (queuedEvent)
-        {
-            // Effectively make the timer fire now.
-            queuedEvent->signal(OS_INTERRUPTED);  // CANCELED
-        }
-    }
-}
-
-// Delete the given timer and its associated notifier.
-void SipRefreshManager::deleteTimerAndEvent(OsTimer*& timer)
-{
-   if (timer)
-   {
-      delete timer;
-      timer = NULL;
-   }
-}
-
-// Clean the state and attached request so that the request can be resent.
-void SipRefreshManager::setForResend(RefreshDialogState& state, 
-                                     UtlBoolean expireNow)
-{
-    if (state.mpLastRequest)
-    {
-        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-        {
-           UtlString lastRequest;
-           ssize_t length;
-           state.mpLastRequest->getBytes(&lastRequest, &length);
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                         "SipRefreshManager::setForResend last request = '%s'",
-                         lastRequest.data());
-        }
-       
-        // Remove the Via that was added when the request was last sent.
-        state.mpLastRequest->removeTopVia();
-
-        // Do not modify the Route headers in *state->mpLastRequest.
-        // If it is a REGISTER, they are what was specified to ::initiateRefresh
-        // (and should be maintained, as successive REGISTERS are a quasi-dialog
-        // and continue to be routed as the first message was).
-        // If it is a SUBSCRIBE, the Route headers were revised based on the
-        // Record-Route's in the 2xx response that created the dialog.
-
-        // Remove any credentials
-        while(state.mpLastRequest->removeHeader(HTTP_AUTHORIZATION_FIELD, 0))
-        {
-           // null
-        }
-        while(state.mpLastRequest->removeHeader(HTTP_PROXY_AUTHORIZATION_FIELD, 0))
-        {
-           // null
-        }
-
-        // Remove transport state info
-        state.mpLastRequest->resetTransport();
-
-        // Set the dialog info and cseq
-        mpDialogMgr->setNextLocalTransactionInfo(*(state.mpLastRequest));
-
-        // Set the expiration to 0 if we are to terminate the registration/subscription.
-        if (expireNow)
-        {
-           state.mpLastRequest->setExpiresField(0);
-        }
-
-        // The Date header will be set by the SipUserAgent.
-    }
-    else
-    {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
-                     "SipRefreshManager::setForResend called with a state (%p) that has no last request recorded",
-                     &state);
-    }
-}
-
-
-// Get the expiration from the initial SUBSCRIBE or REGISTER request.
-UtlBoolean SipRefreshManager::getInitialExpiration(const SipMessage& sipRequest, 
-                                                   int& expirationPeriod)
-{
-    UtlString method;
-    UtlBoolean foundExpiration = FALSE;
-    sipRequest.getRequestMethod(&method);
-
-    if(method.compareTo(SIP_REGISTER_METHOD) == 0)
-    {
-        // Register could have it in the Contact header
-        UtlString requestContactValue;
-        if(sipRequest.getContactEntry(0 , &requestContactValue))
-        {
-            // Get the expires parameter for the contact if it exists
-            Url contactUri(requestContactValue);
-            UtlString contactExpiresParameter;
-            if(contactUri.getFieldParameter(SIP_EXPIRES_FIELD, 
-                                            contactExpiresParameter) &&
-               !contactExpiresParameter.isNull())
-            {
-                foundExpiration = TRUE;
-
-                // Convert to int
-                expirationPeriod = atoi(contactExpiresParameter);
-            }
-        }
-    }
-
-    if(!foundExpiration)
-    {
-        // Not sure if we care if this is a request or response
-        foundExpiration = sipRequest.getExpiresField(&expirationPeriod);
-    }
-
-    return(foundExpiration);
-}
-
-// Get the expiration from the SUBSCRIBE or REGISTER response.
-UtlBoolean SipRefreshManager::getAcceptedExpiration(RefreshDialogState* state,
-                                                    const SipMessage& sipResponse, 
-                                                    int& expirationPeriod)
-{
-    UtlString method;
-    UtlBoolean foundExpiration = FALSE;
-    int cseq;
-    sipResponse.getCSeqField(&cseq, &method);
-
-    // Look for an expiration time in a REGISTER response attached to
-    // the contact.
-    if (method.compareTo(SIP_REGISTER_METHOD) == 0)
-    {
-        // Get the first contact in the REGISTER request so that we
-        // can find the same contact in the response and find out what
-        // its expiration is.
-        UtlString requestContact;
-        Url requestContactUri;
-        if(state && state->mpLastRequest &&
-           state->mpLastRequest->getContactEntry(0, &requestContact))
-        {
-           requestContactUri = requestContact;
-        }
-
-        // The response could have the expiration time in the Contact header.
-        UtlString responseContactValue;
-        int contactIndex = 0;
-        while(sipResponse.getContactEntry(contactIndex , &responseContactValue))
-        {
-            // Get the expires parameter for the contact if it exists
-            Url contactUri(responseContactValue);
-
-            if(requestContactUri.isUserHostPortEqual(contactUri))
-            {
-                UtlString contactExpiresParameter;
-                if(contactUri.getFieldParameter(SIP_EXPIRES_FIELD, 
-                        contactExpiresParameter) &&
-                   !contactExpiresParameter.isNull())
-                {
-                    foundExpiration = TRUE;
-
-                    // Convert to int
-                    expirationPeriod = atoi(contactExpiresParameter);
-                }
-            }
-            contactIndex++;
-        }
-    }
-
-    // If there wasn't an expiration of a REGISTER contact, look for an
-    // Expires header.
-    if (!foundExpiration)
-    {
-        foundExpiration = sipResponse.getExpiresField(&expirationPeriod);
-    }
-
-    return (foundExpiration);
-}
-
-/* ============================ FUNCTIONS ================================= */

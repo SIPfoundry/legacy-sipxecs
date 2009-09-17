@@ -127,9 +127,12 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     UtlBoolean handleOutgoing(SipMessage& outgoingMessage,
-                             SipUserAgent& userAgent,
-                             SipTransactionList& transactionList,
-                             enum messageRelationship relationship);
+                              ///< Message to be sent.
+                              // (Ownership is not taken by SipTransaction.
+                              // message is modified.)
+                              SipUserAgent& userAgent,
+                              SipTransactionList& transactionList,
+                              enum messageRelationship relationship);
 
     void handleResendEvent(const SipMessage& outgoingMessage,
                            SipUserAgent& userAgent,

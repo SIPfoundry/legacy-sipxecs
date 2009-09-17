@@ -1133,13 +1133,14 @@ public:
          // The Subscribe Client will now send a SUBSCRIBE.
          // Receive it and send a 202 response.
 
-         OsTime timeout100(1, 0);  // 1 second
+         OsTime timeout1sec(1, 0);  // 1 second
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1168,7 +1169,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1182,10 +1184,11 @@ public:
          // Wait for the re-SUBSCRIBE, and respond with 481.
 
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
-         OsTask::delay(refreshTime * 1000);
+         OsTime timeoutRefreshTime(refreshTime, 0);
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeoutRefreshTime,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_BAD_TRANSACTION_CODE,
@@ -1203,7 +1206,8 @@ public:
          CPPUNIT_ASSERT(userAgentp->send(notifyMessage));
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1240,13 +1244,14 @@ public:
          // The Subscribe Client will now send a SUBSCRIBE.
          // Receive it and send a 202 response.
 
-         OsTime timeout100(1, 0);  // 1 second
+         OsTime timeout1sec(1, 0);  // 1 second
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1274,7 +1279,8 @@ public:
          const SipMessage* noSubscribeRequest;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      noSubscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1301,7 +1307,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1343,13 +1350,14 @@ public:
          // The Subscribe Client will now send a SUBSCRIBE.
          // Receive it and send a 202 response.
 
-         OsTime timeout100(1, 0);  // 1 second
+         OsTime timeout1sec(1, 0);  // 1 second
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1377,7 +1385,8 @@ public:
          const SipMessage* noSubscribeRequest;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      noSubscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1402,7 +1411,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1448,13 +1458,14 @@ public:
          // The Subscribe Client will now send a SUBSCRIBE.
          // Receive it and send a 202 response.
 
-         OsTime timeout100(1, 0);  // 1 second
+         OsTime timeout1sec(1, 0);  // 1 second
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1482,7 +1493,8 @@ public:
          const SipMessage* noSubscribeRequest;
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      noSubscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1513,7 +1525,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      subscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1536,7 +1549,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      noSubscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1552,7 +1566,8 @@ public:
 
          runListener(incomingServerMsgQueue,
                      *userAgentp,
-                     timeout100,
+                     timeout1sec,
+                     timeout1sec,
                      noSubscribeRequest,
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
@@ -1574,7 +1589,7 @@ public:
          {
             // Read messages until no more arrive.
             OsMsg* message;
-            while (incomingServerMsgQueue.receive(message, timeout100) ==
+            while (incomingServerMsgQueue.receive(message, timeout1sec) ==
                    OS_SUCCESS)
             {
                int msgType = message->getMsgType();

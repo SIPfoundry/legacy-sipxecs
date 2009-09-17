@@ -30,6 +30,7 @@ class SipMessage;
 class SipUserAgent;
 class SipDialogMgr;
 class RefreshDialogState;
+class RefreshDialogStateNotification;
 class OsTimer;
 
 // TYPEDEFS
@@ -57,7 +58,8 @@ public:
                                  // failure response
        REFRESH_REQUEST_SUCCEEDED // last request received a success response,
                                  // or was an initial request that does not
-                                 // require waiting before termination
+                                 // require waiting before sending a terminating
+                                 // request
                                  // (The latter can only happen with REGISTER.)
     };
 
@@ -69,6 +71,9 @@ public:
      *         The dialog state is indicted by the fact that expiration
      *         is in the future (i.e. subscribed or registered) or in the
      *         past or zero (i.e. expired).
+     *         Note that a callback with requestState == REFRESH_REQUEST_FAILED
+     *         requires a call of stopRefresh to purge the state information
+     *         from the SipRefreshManager.
      *  \param earlyDialogHandle - provided if still an early dialog or if
      *         the dialog just changed to an established dialog otherwise NULL
      *  \param dialogHandle - provided if dialog is established otherwise NULL
@@ -84,13 +89,20 @@ public:
      *         or registration will occur.  A value of zero indicates that
      *         a unSUBSCRIBE or unREGISTER occurred and that it has expired
      *         and that no further attempts will be made to reSUBSCRIBE or
-     *         reREGISTER.  Usual zero indicates that the application stopped
+     *         reREGISTER.  Usually zero indicates that the application stopped
      *         the refresh.  A value of -1 indicates that no requests have 
      *         succeeded yet. A value greater than zero and less than the 
      *         current epoch time indicates the SUBSCRIBE or REGISTER has 
-     *         expired most likely because of a request failure.
+     *         expired, most likely because of a request failure.
      *  \param subscribeResponse - SIP SUBSCRIBE or REGISTER response which
-     *         stimulated the state change.  May be NULL.
+     *         stimulated the state change.  May be NULL.  Ownership retained
+     *         by SipRefreshManager.
+     *
+     *  All callbacks are called from the SipRefreshManager's thread.  In
+     *  particular, no locks will be held by the thread when the callback is
+     *  called.
+     *  All refreshes eventually generate callbacks, if only to report the
+     *  failure of the initial request.
      */
     typedef void (*RefreshStateCallback) (SipRefreshManager::RefreshRequestState requestState,
                                        const char* earlyDialogHandle,
@@ -117,18 +129,36 @@ public:
 
     //! Send message and keep request refreshed (i.e. subscribed or registered)
     /*! 
-     *  Returns TRUE if the request was sent and the 
-     *  refresh state proceeded to REFRESH_INITIATED.
-     *  Returns FALSE if the request was not able to
-     *  be sent, the refresh state is set to REFRESH_FAILED.
+     *  The request can be out-of-dialog, or in-dialog (e.g.,
+     *  generated from a NOTIFY from a fork of a SUBSCRIBE from which
+     *  we did not receive a response).
+     *
+     *  SipRefreshManager sends the request and re-sends it periodically
+     *  as indicated by the accepted expirations seen in responses.
+     *  Failure responses due to authentication challenges are re-sent
+     *  immediately.  Failure responses due to defined transient error
+     *  conditions are retried with exponential backoff.  (Except not for
+     *  initial SUBSCRIBE requests, as a retry might collide with established
+     *  subscriptions.)
+     *  The state of the refresh dialog/quasi-dialog is reported via the
+     *  callback function.
+     *
+     *  Certain immediate error conditions (generally, if the dialog identifiers
+     *  of subscribeOrRegisterRequest match a currently active refresh) cause
+     *  initiateRefresh to return false, in which case no state is created
+     *  and there will be no callback.  Otherwise, initiateRefresh returns
+     *  true (immediately upon sending the request), a state is
+     *  created, but success of the attempted request can only be determined
+     *  by monitoring the callbacks.
+     *
      *  The caller of this method must explictly call stopRefresh
-     *  to clean up the refresh state even if this method fails.
-     *  This method may fail if the dialog or refresh state already
-     *  exists or if the request immediately fails to send.  The
-     *  refresh manager may attempt to resend the request to
-     *  subscribe or register even if it fails the first time when
-     *  this method is invoked, but most error responses to the
-     *  request terminate the refresh state.
+     *  to clean up the refresh state, even if the callback function
+     *  has reported REFRESH_REQUEST_FAILED.
+     *
+     *  State changes for the refresh are always reported via the callback
+     *  function, including the initial state set by initiateRefresh and
+     *  the transition to REFRESH_REQUEST_FAILED caused by calling stopRefresh
+     *  on a refresh that has not terminated.
      */
     UtlBoolean initiateRefresh(SipMessage& subscribeOrRegisterRequest,
                                void* applicationData,
@@ -137,13 +167,15 @@ public:
                                UtlBoolean suppressFirstSend = FALSE);
 
     //! End the SIP refresh (registration or subscription) indicated by 
-    /*! the dialog handle.  If the given dialogHandle is an early dialog it
-     *  will end any established subscriptions.  Typically 
-     *  the application should use the established dialog handle.  This
-     *  method can also be used to end one of the dialogs if multiple
+    /*! the dialog handle.
+     *  If the given dialogHandle is an early dialog it will end any
+     *  established subscriptions that match the early dialog handle.
+     *  Typically the application should use the established dialog
+     *  handle.
+     *  This method can be used to end one of the dialogs if multiple
      *  subsription dialogs were created as a result of a single 
      *  subscribe request.  The application will get multiple 
-     *  REFRESH_SETUP RefreshStateCallback events when
+     *  REFRESH_REQUEST_SUCCEEDED RefreshStateCallback events when
      *  multiple dialogs are created as a result of a single SUBSCRIBE.
      *  To end one of the subscriptions, the application should use
      *  the confirmed dialogHandle provided by the SubscriptionStateCallback.
@@ -162,7 +194,8 @@ public:
      *  send a request with the new Expires value,
      *  and start a new refresh timer
      */
-    UtlBoolean changeRefreshTime(const char* earlyDialogHandle, int expirationPeriodSeconds);
+    UtlBoolean changeRefreshTime(const char* earlyDialogHandle,
+                                 int expirationPeriodSeconds);
 
     //! Handler for SUBSCRIBE and REGISTER responses
     UtlBoolean handleMessage(OsMsg &eventMessage);
@@ -193,15 +226,16 @@ public:
     //! Dump the object's internal state.
     void dumpState();
 
+    //! Convert RefreshRequestState to a printable string.
+    static const char* refreshRequestStateText(SipRefreshManager::RefreshRequestState requestState);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    //! lock for single thread use
-    void lock();
-    //! lock for single thread use
-    void unlock();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    friend class RefreshDialogStateNotification;
+
     //! Copy constructor NOT ALLOWED
     SipRefreshManager(const SipRefreshManager& rSipRefreshManager);
 
@@ -221,31 +255,17 @@ private:
                                               const RefreshStateCallback refreshStateCallback,
                                               int& requestedExpiration);
 
-    //! Create a new timer and set it to fire when its time to resend
-    void setRefreshTimer(RefreshDialogState& state, 
-                         UtlBoolean isSuccessfulReschedule);
-
-    //! Calculate the time in seconds when a refresh should occur
-    /*! Assume that the register or subscribe will succeed and that
-     *  we should send the refresh safely before the expiration
-     */
-    int calculateResendTime(int requestedExpiration, 
-                            UtlBoolean isSuccessfulResend);
-
-    //! Stop the resend timer to indicate that it should be rescheduled with a short, failure timeout
-    void stopTimerForFailureReschedule(OsTimer* timer);
-
     //! Delete the given timer and its associated notifier.
     static void deleteTimerAndEvent(OsTimer*& timer);
 
     //! Clean the state and attached request so that the request can be resent.
-    void setForResend(RefreshDialogState& state, 
-                      ///< the refresh state containing the request to resend
-                      UtlBoolean expireNow
-                      /**< If TRUE, the subscription/registration is
-                       *   to be terminated, so the expiration time will be
-                       *   set to 0.
-                       */
+    void prepareForResend(RefreshDialogState& state, 
+                          ///< the refresh state containing the request to resend
+                          UtlBoolean expireNow
+                          /**< If TRUE, the subscription/registration is
+                           *   to be terminated, so the expiration time will be
+                           *   set to 0.
+                           */
        );
 
     //! Get the expiration from the initial SUBSCRIBE or REGISTER request.
@@ -257,18 +277,29 @@ private:
                                             const SipMessage& sipResponse, 
                                             int& expirationPeriod);
 
-    OsMutex mRefreshMgrMutex; // used to lock this 
+    /// The SipUserAgent to be used.
     SipUserAgent* mpUserAgent;
+    /// The SipDialogMgr to be used.
     SipDialogMgr* mpDialogMgr;
+    /// The default subscription expiration to be used.
+    int mDefaultExpiration;
+
+    // See sipXtackib/doc/developer/SipRefreshManager-Locking.txt for
+    // how the locks are used.
+    /// Lock to protect mRefreshes.
+    OsBSem mSetSem;
+    /// Lock to protect individual objects in mRefreshes.
+    OsBSem mObjectSem;
+
     // RefreshDialogState for each subscription and registration being
     // maintained, indexed by the dialog handle of the dialog or
     // pseudo-dialog that is maintaining it.
     UtlHashBag mRefreshes;
-    // TRUE if we have registered a message observer for REGISTER responses.
+
+    /// True if we have registered a message observer for REGISTER responses.
     UtlBoolean mReceivingRegisterResponses;
-    // TRUE if we have registered a message observer for SUBSCRIBE responses.
+    /// True if we have registered a message observer for SUBSCRIBE responses.
     UtlBoolean mReceivingSubscribeResponses;
-    int mDefaultExpiration;
 };
 
 /* ============================ INLINE METHODS ============================ */

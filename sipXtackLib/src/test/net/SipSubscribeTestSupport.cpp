@@ -67,16 +67,16 @@ void createTestSipUserAgent(UtlString& hostIp,
 }
 
 // Service routine to listen for messages.
-void runListener(OsMsgQ& msgQueue, //< OsMsgQ to listen on
-                 SipUserAgent& userAgent, //< SipUserAgent to send responses
-                 OsTime timeout, //< Length of time before timing out.
-                 const SipMessage*& request, //< Pointer to any request that was received
-                 const SipMessage*& response, //< Pointer to any response that was received
-                 int responseCode, //< Response code to give to requests
-                 UtlBoolean retry, //< TRUE to add "Retry-After: 0" to responsees
-                 int expires, //< Expires value to add to SUBSCRIBE responses
-                 UtlString* toTagp //< To-tag that was created or used for response, or NULL
-   )
+void runListener(OsMsgQ& msgQueue,
+                 SipUserAgent& userAgent,
+                 OsTime timeout_first,
+                 OsTime timeout_next,
+                 const SipMessage*& request,
+                 const SipMessage*& response,
+                 int responseCode,
+                 UtlBoolean retry,
+                 int expires,
+                 UtlString* toTagp)
 {
    // Initialize the request and response pointers.
    request = NULL;
@@ -85,7 +85,9 @@ void runListener(OsMsgQ& msgQueue, //< OsMsgQ to listen on
    // Because the SUBSCRIBE response and NOTIFY request can come in either order,
    // we have to read messages until no more arrive.
    OsMsg* message;
-   while (msgQueue.receive(message, timeout) == OS_SUCCESS)
+   while (msgQueue.receive(message,
+                           request || response ? timeout_next : timeout_first
+             ) == OS_SUCCESS)
    {
       int msgType = message->getMsgType();
       int msgSubType = message->getMsgSubType();

@@ -406,7 +406,7 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
        }
        message.getBytes(&m, &l, FALSE);
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipDialogMgr::isLastLocalTransaction SipRefreshManager:: message = '%s', dialog = '%s'",
+                     "SipDialogMgr::isLastLocalTransaction message = '%s', dialog = '%s'",
                      m.data(), d.data());
     }
 
@@ -497,7 +497,7 @@ SipDialog* SipDialogMgr::findDialog(UtlString& callId,
     while((dialog = (SipDialog*) iterator()))
     {
         // Check for exact match on the dialog handle
-        if(dialog->isSameDialog(callId,localTag, remoteTag))
+        if(dialog->isSameDialog(callId, localTag, remoteTag))
         {
             break;
         }

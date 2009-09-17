@@ -731,7 +731,7 @@ public:
     int getResponseStatusCode() const;
 
     //! Get this response's status code text
-        void getResponseStatusText(UtlString* text) const;
+    void getResponseStatusText(UtlString* text) const;
     //@}
 
 

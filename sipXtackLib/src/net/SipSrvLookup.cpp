@@ -868,7 +868,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       // Debugging print.
       if (SipSrvLookup::getOption(SipSrvLookup::OptionCodePrintAnswers))
       {
-         printf("res_query(\"%s\", class = %d, type = %d)\n",
+         printf("res_nquery(\"%s\", class = %d, type = %d)\n",
                 name, C_IN, type);
       }
       
@@ -879,12 +879,12 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       res.retrans = mTimeout;
       res.retry = mRetries;
 
-      if(!mNameserverIP.isNull())
+      if (!mNameserverIP.isNull())
       {
           res.nscount = 1;
           inet_aton(mNameserverIP.data(), &res.nsaddr_list[0].sin_addr);
  
-          if(mNameserverPort > 1)
+          if (mNameserverPort > 1)
           {
              res.nsaddr_list[0].sin_port = htons(mNameserverPort);
           }

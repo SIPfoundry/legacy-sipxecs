@@ -313,7 +313,7 @@ UtlBoolean SipUdpServer::sendTo(SipMessage& message,
     }
     else
     {
-        // no local sip IP specified, so, use the default one
+        // No local SIP IP specified, so, use the default one.
         pServer = dynamic_cast <SipClient*> (mServers.findValue(&mDefaultIp));
     }
     

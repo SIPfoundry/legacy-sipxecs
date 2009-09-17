@@ -28,7 +28,8 @@ simpler algorithm:
     its score is "infinity" (in practice, 100 suffices).  If its weight is
     non-zero, its score is calculated by choosing a random number between
     0 and 1, taking the negative of the logarithm of that number, and
-    dividing the result by the weight.
+    dividing the result by the weight.  (Thus, the score is always a
+    positive number.)
 
     Then, sort the servers into order of increasing scores, so that the
     servers with the *smallest* scores are used first.
@@ -36,7 +37,7 @@ simpler algorithm:
 We implement this latter algorithm.
 
 The math that shows that the new algorithm produces the same results
-as the RFC 2782 algorithm is is LaTeX format in theory.tex and in
+as the RFC 2782 algorithm is in LaTeX format in theory.tex and in
 printable Postscript in theory.ps.
 
 A program that executes the algorithm and tallies the results is

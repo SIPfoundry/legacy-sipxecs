@@ -24,37 +24,38 @@ testsuite_SOURCES = \
     net/BranchIdTest.cpp \
     net/CallIdTest.cpp \
     net/GetDigestAuthorizationDataTest.cpp \
-    net/NameValuePairInsensitiveTest.cpp \
-    net/NameValuePairTest.cpp \
-    net/NetAttributeTokenizerTest.cpp \
-    net/UrlTest.cpp \
-    net/NetBase64CodecTest.cpp \
-    net/NetMd5CodecTest.cpp \
     net/HttpBodyTest.cpp \
     net/HttpMessageTest.cpp \
     net/HttpServerTest.cpp \
-    net/SipMessageTest.cpp \
+    net/NameValuePairInsensitiveTest.cpp \
+    net/NameValuePairTest.cpp \
+    net/NetAttributeTokenizerTest.cpp \
+    net/NetBase64CodecTest.cpp \
+    net/NetMd5CodecTest.cpp \
     net/SdpBodyTest.cpp \
     net/SignedUrlTest.cpp \
     net/SipContactDbTest.cpp \
-    net/SipUserAgentTest.cpp \
-    net/SipServerShutdownTest.cpp \
     net/SipDialogEventTest.cpp \
     net/SipDialogMonitorTest.cpp \
     net/SipDialogTest.cpp \
     net/SipLineTest.cpp \
+    net/SipMessageTest.cpp \
+    net/SipOutputProcessorTest.cpp \
     net/SipPresenceEventTest.cpp \
+    net/SipProxyMessageTest.cpp \
     net/SipPublishContentMgrTest.cpp \
+    net/SipRefreshManagerTest.cpp \
+    net/SipServerShutdownTest.cpp \
     net/SipSrvLookupTest.cpp \
     net/SipSubscribeClientTest.cpp \
     net/SipSubscribeServerTest.cpp \
     net/SipSubscribeTestSupport.cpp \
     net/SipSubscriptionMgrTest.cpp \
-    net/SipProxyMessageTest.cpp \
+    net/SipUserAgentTest.cpp \
     net/SipXauthIdentityTest.cpp \
-    net/XmlRpcTest.cpp \
-    net/SipOutputProcessorTest.cpp \
-    net/SipxNatRouteTest.cpp
+    net/SipxNatRouteTest.cpp \
+    net/UrlTest.cpp \
+    net/XmlRpcTest.cpp
 
 $(srcdir)/net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
 	$(srcdir)/net/refresh-hashes <$(srcdir)/net/SipXauthIdentityTest.cpp.in >$(srcdir)/net/SipXauthIdentityTest.cpp
@@ -74,4 +75,4 @@ EXTRA_DIST = \
 
 sandbox_LDADD = $(testsuite_LDADD)
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = 
+sandbox_SOURCES = net/SipSubscribeClientTest.cpp net/SipSubscribeTestSupport.cpp

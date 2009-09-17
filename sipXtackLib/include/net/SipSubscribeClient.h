@@ -254,11 +254,6 @@ private:
      */
     SubscribeClientState* removeState(const UtlString& dialogHandle);
 
-    //! lock for single thread use
-    void lock();
-    //! lock for single thread use
-    void unlock();
-
     //! Copy constructor NOT ALLOWED
     SipSubscribeClient(const SipSubscribeClient& rSipSubscribeClient);
 
@@ -272,7 +267,7 @@ private:
     // SIP event types that we are currently a SipUserAgent message observer for.
     UtlHashBag mEventTypes;
     // Protects mSubscriptions and mEventTypes.
-    OsMutex mSubscribeClientMutex;
+    OsBSem mSubscribeClientMutex;
 };
 
 /* ============================ INLINE METHODS ============================ */
