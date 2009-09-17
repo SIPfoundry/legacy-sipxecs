@@ -60,5 +60,17 @@
       </type>
       <value>dialog</value>
     </setting>
+    <setting name="SIP_PORT" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="TLS_SIP_PORT" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5061</value>
+    </setting>
   </group>
 </model>

@@ -7,9 +7,9 @@ SIPX_PROXY_LOG_DIR :
 SIPX_PROXY_LOG_LEVEL : $settings.getSetting('SIPX_PROXY_LOG_LEVEL').Value
 SIPX_PROXY_MAX_FORWARDS :
 SIPX_PROXY_STALE_TCP_TIMEOUT :
-SIPX_PROXY_TLS_PORT : ${proxyService.secureSipPort}
-SIPX_PROXY_TCP_PORT : ${proxyService.sipPort}
-SIPX_PROXY_UDP_PORT : ${proxyService.sipPort}
+SIPX_PROXY_TLS_PORT : $!{proxyService.secureSipPort}
+SIPX_PROXY_TCP_PORT : $!{proxyService.sipTCPPort}
+SIPX_PROXY_UDP_PORT : $!{proxyService.sipUDPPort}
 SIPX_PROXY_CALL_STATE :
 SIPX_PROXY_CALL_STATE_LOG :
 SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_STATE_DB').Value

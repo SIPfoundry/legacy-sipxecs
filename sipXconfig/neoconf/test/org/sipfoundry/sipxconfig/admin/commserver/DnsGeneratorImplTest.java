@@ -15,10 +15,12 @@ import static org.easymock.EasyMock.*;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
 import junit.framework.TestCase;
@@ -31,6 +33,11 @@ public class DnsGeneratorImplTest extends TestCase {
         Collection<SipxService> sipxServices = new ArrayList<SipxService>();
         SipxService proxyService = new SipxProxyService();
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+        Setting proxySettings = proxyService.getSettings();
+        proxySettings.getSetting("proxy-configuration/SIP_PORT").setValue("5061");
         sipxServices.add(proxyService);
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
@@ -76,19 +83,19 @@ public class DnsGeneratorImplTest extends TestCase {
         final ZoneAdminApi api = createStrictMock(ZoneAdminApi.class);
 
         // primary only
-        api.generateDns("primary.ex.org", "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns");
+        api.generateDns("primary.ex.org", "primary.ex.org/10.1.1.1 --zone --serial 1 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // all 3 locations
         api.generateDns("primary.ex.org",
-           "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 --zone --serial 2 --provide-dns");
+           "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // deleting 2nd...
         api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns");
+            "primary.ex.org/10.1.1.1 -o s3.ex.org/10.1.1.3 --zone --serial 3 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // primary and redundant locations
         api.generateDns("primary.ex.org",
-            "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns");
+            "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         replay(lm, api);
 

@@ -9,10 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class SipxProxyConfigurationTest extends SipxServiceTestBase {
 
@@ -21,10 +24,8 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         out.setTemplate("sipxproxy/sipXproxy-config.vm");
 
         SipxCallResolverService callResolverService = new SipxCallResolverService();
-        Setting callResolverSettings = TestHelper
-                .loadSettings("sipxcallresolver/sipxcallresolver.xml");
-        callResolverSettings.getSetting("callresolver").getSetting("CALLRESOLVER_CALL_STATE_DB")
-                .setValue("DISABLE");
+        Setting callResolverSettings = TestHelper.loadSettings("sipxcallresolver/sipxcallresolver.xml");
+        callResolverSettings.getSetting("callresolver").getSetting("CALLRESOLVER_CALL_STATE_DB").setValue("DISABLE");
         callResolverService.setSettings(callResolverSettings);
 
         SipxProxyService proxyService = new SipxProxyService();
@@ -37,15 +38,15 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         proxySettings.getSetting("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES").setValue("170");
         proxySettings.getSetting("SIPX_PROXY_LOG_LEVEL").setValue("CRIT");
         proxySettings.getSetting("SIPX_PROXY_DIALOG_SUBSCRIBE_AUTHENTICATION").setValue("dialog");
+        proxySettings.getSetting("SIP_PORT").setValue("5064");
+        proxySettings.getSetting("TLS_SIP_PORT").setValue("5065");
 
-        proxyService.setSecureSipPort("5061");
-
-        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(callResolverService).atLeastOnce();
+        expectLastCall().andReturn(callResolverService).atLeastOnce();
         sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
-        EasyMock.expectLastCall().andReturn(proxyService).atLeastOnce();
-        EasyMock.replay(sipxServiceManager);
+        expectLastCall().andReturn(proxyService).atLeastOnce();
+        replay(sipxServiceManager);
 
         out.setSipxServiceManager(sipxServiceManager);
 

@@ -38,6 +38,9 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         SipxProxyService proxyService = new SipxProxyService();
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("5060");
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
 
         Domain domain = new Domain();
         domain.addAlias("another.example.org");
