@@ -10,6 +10,7 @@ import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.ViaList;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 
@@ -55,7 +56,7 @@ public abstract class AbstractSipStackBean {
 
     private AuthenticationHelper m_authenticationHelper = null;
     
-    private HashSet<SipProvider> sipProviders = new HashSet<SipProvider>();
+    private HashMap<String,SipProvider> sipProviders = new HashMap<String,SipProvider>();
 
 
     /**
@@ -113,14 +114,17 @@ public abstract class AbstractSipStackBean {
             for ( ListeningPointAddress hpt : this.getListeningPointAddresses()) {
               ListeningPoint listeningPoint = stack.createListeningPoint(hpt.getHost(), hpt.getPort(), hpt.getTransport());
               hpt.listeningPoint = listeningPoint;
-              SipProvider sipProvider = stack.createSipProvider(listeningPoint);
+              SipProvider sipProvider = null;
+              String key = hpt.getHost() + ":" + hpt.getPort();
+              if ( sipProviders.get(key) == null) {
+                  sipProvider = stack.createSipProvider(listeningPoint);
+                  this.sipProviders.put(key, sipProvider);
+                  sipProvider.addSipListener(listener);
+              } else {
+                  sipProvider = this.sipProviders.get(key);
+              }
               sipProvider.addListeningPoint(listeningPoint);
               hpt.sipProvider = sipProvider;
-              if (!this.sipProviders.contains(sipProvider)) {
-                  this.sipProviders.add(sipProvider); 
-                  sipProvider.addSipListener(listener);
-              }
-            
             }
             Thread.sleep(500);
           
