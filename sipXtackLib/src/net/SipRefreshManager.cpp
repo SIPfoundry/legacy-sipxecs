@@ -1345,34 +1345,10 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SipRefreshManager::handleSipMessage Failure");
 
-<<<<<<< .working
-              // Invoke the callback to let the application
-              // know that the state changed
-              if (state->mpStateCallback)
-              {
-                 if (!foundEarlyDialog)
-                 {
-                    // the callback may need the earlyDialogHandle
-                    mpDialogMgr->getEarlyDialogHandleFor(dialogHandle,
-                                                         earlyDialogHandle);
-                 }
-
-                 (state->mpStateCallback)(state->mRequestState,
-                                          earlyDialogHandle,
-                                          dialogHandle,
-                                          state->mpApplicationData,
-                                          responseCode, // responseCode
-                                          responseText, // responseText,
-                                          state->mExpiration, // zero means expires now
-                                          sipMessage); // response
-              }
-           }
-=======
                // Stop the refresh timer.
                state->mSuppressTimerEventRoutines = TRUE;
                {
                   OsUnLock objectUnLock(mObjectSem);
->>>>>>> .merge-right.r16201
 
                   state->mRefreshTimer.stop(TRUE);
                }
