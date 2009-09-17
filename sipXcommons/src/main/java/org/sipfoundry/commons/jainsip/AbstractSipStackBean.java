@@ -114,6 +114,7 @@ public abstract class AbstractSipStackBean {
               ListeningPoint listeningPoint = stack.createListeningPoint(hpt.getHost(), hpt.getPort(), hpt.getTransport());
               hpt.listeningPoint = listeningPoint;
               SipProvider sipProvider = stack.createSipProvider(listeningPoint);
+              sipProvider.addListeningPoint(listeningPoint);
               hpt.sipProvider = sipProvider;
               if (!this.sipProviders.contains(sipProvider)) {
                   this.sipProviders.add(sipProvider); 
