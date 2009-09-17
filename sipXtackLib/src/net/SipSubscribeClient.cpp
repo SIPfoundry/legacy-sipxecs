@@ -33,7 +33,8 @@
 
 // We initially allow SUBSCRIPTION_STARTUP_INITIAL secs. for a subscription
 // to start up.  If that fials, we successively double the time until either
-// success, or the startup time would exceed SUBSCRIPTION_STARTUP_MAX.
+// success, or the startup time would exceed SUBSCRIPTION_STARTUP_MAX
+// (after which the wait interval remains unchanged).
 #define SUBSCRIPTION_STARTUP_INITIAL 15
 #define SUBSCRIPTION_STARTUP_MAX (5 * 60)
 
@@ -730,6 +731,54 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHand
    return dialogState != NULL;
 }
 
+UtlBoolean SipSubscribeClient::endSubscriptionDialogByNotifier(const UtlString& dialogHandle)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::endSubscriptionDialogByNotifier dialogHandle = '%s'",
+                 dialogHandle.data());
+
+   SubscriptionDialogState* dialogState;
+   {
+      // Delete the dialogState so that when the termination NOTIFY arrives
+      // it does not match an existing dialog and so does not cause the
+      // subscription to be reestablished.
+      dialogState = removeDialogState(dialogHandle);
+
+      // Update the SipRefreshManager while we are locking the SipSubscribeClient
+      // to ensure that the two are synchronized.
+      // Stop the refresh but do not send an un-SUBSCRIBE, as the subscription
+      // has already been ended by the notifier.
+      mpRefreshManager->stopRefresh(dialogHandle.data(), TRUE);
+   }
+
+   if (dialogState)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                    "SipSubscribeClient::endSubscriptionDialogByNotifier dialogState = %p",
+                    dialogState);
+
+      // If there is a state change and there is a callback function
+      if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
+          dialogState->mpGroupState->mpStateCallback)
+      {
+         // Indicate that the subscription was terminated
+         dialogState->mpGroupState->
+            mpStateCallback(SUBSCRIPTION_TERMINATED,
+                            dialogState->mpGroupState->data(),
+                            dialogHandle.data(),
+                            dialogState->mpGroupState->mpApplicationData,
+                            -1, // no response code
+                            NULL, // no response text
+                            0, // expires now
+                            NULL); // no response
+      }
+
+      delete dialogState;
+   }
+
+   return dialogState != NULL;
+}
+
 void SipSubscribeClient::endAllSubscriptions()
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -972,6 +1021,11 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       {
          // Increment the count of success responses.
          groupState->mSuccessResponses++;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                       "SipSubscribeClient::refreshCallback "
+                       "for group '%s', incrementing mSuccessResponses to %d",
+                       groupState->data(),
+                       groupState->mSuccessResponses);
 
          // It would be convenient to not have to create the
          // SubscriptionDialogState here (as RFC 3265bis does not
@@ -994,6 +1048,11 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
             // Increment the count of success responses.
             groupState->mSuccessResponses++;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "SipSubscribeClient::refreshCallback "
+                          "for group '%s', incrementing mSuccessResponses to %d",
+                          groupState->data(),
+                          groupState->mSuccessResponses);
          }
 
          if (groupState->mpStateCallback)
@@ -1038,6 +1097,11 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       {
          // Increment the count of failure responses.
          groupState->mFailureResponses++;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                       "SipSubscribeClient::refreshCallback "
+                       "for group '%s', incrementing mFailureResponses to %d",
+                       groupState->data(),
+                       groupState->mFailureResponses);
 
          // Find the subscription dialog.
          SubscriptionDialogState* dialogState = getDialogState(dialogHandle);
@@ -1138,10 +1202,12 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
                                 sizeof (TERMINATED) - 1) == 0;
 
        // Parse the 'expires' parameter.
-       const char* p = strcasestr(subscription_state, "expires");
+       #define EXPIRES "expires"
+       const char* p = strcasestr(subscription_state, EXPIRES);
        if (p)
        {
           // If so, extract the expriation interval.
+          p += sizeof (EXPIRES) - 1;
           while (isspace(*p))
           {
              p++;
@@ -1423,6 +1489,12 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        {
           dialogState->mpGroupState->mEstablishingNotifys++;
           dialogState->mNotifyReceived = true;
+          OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                        "SipSubscribeClient::handleNotifyRequest "
+                        "for group '%s' dialog '%s', incrementing mEstablishingNotifys to %d",
+                        dialogState->mpGroupState->data(),
+                        dialogState->data(),
+                        dialogState->mpGroupState->mEstablishingNotifys);
        }
 
        // Invoke the Notify callback.
@@ -1442,40 +1514,23 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
           if (terminated)
           {
 	     OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-			   "SipSubscribeClient::handleMessage "
-			   "ending subscription '%s' due to NOTIFY with "
+			   "SipSubscribeClient::handleNotifyRequest "
+			   "ending subscription '%s' '%s' due to NOTIFY with "
 			   "Subscription-State:terminated",
-			   notifyDialogHandle.data());
+			   notifyDialogHandle.data(), dialogState->data());
 
-             // Delete the dialogState so that when the termination NOTIFY arrives
-             // it does not match an existing dialog and so does not cause the
-             // subscription to be reestablished.
-             removeDialogState(notifyDialogHandle);
+             // Delete knowledge of this subscription dialog, without sending
+             // an un-SUBSCRIBE (which would be redundant).
+             endSubscriptionDialogByNotifier(*dialogState);
 
-	     mpRefreshManager->stopRefresh(notifyDialogHandle.data());
-
-	     // If there is a state change and there is a callback function
-	     if (dialogState->mState != SUBSCRIPTION_TERMINATED &&
-		 dialogState->mpGroupState->mpStateCallback)
-	     {
-		// Indicate that the subscription was terminated
-		dialogState->mpGroupState->
-		   mpStateCallback(SUBSCRIPTION_TERMINATED,
-				   dialogState->mpGroupState->data(),
-				   dialogState->data(),
-				   dialogState->mpGroupState->mpApplicationData,
-				   -1, // no response code
-				   NULL, // no response text
-				   0, // expires now
-				   NULL); // no response
-	     }
-
-	     delete dialogState;
+             // Queue a request to terminate and reestablish the subscription.
+             postMessageP(
+                new ReestablishRequestMsg(static_cast <UtlString&> (*dialogState->mpGroupState)));
           }
        }
        else
        {
-          // Subscription has been terminated.
+          // Subscription has been previously terminated.
           OsSysLog::add(FAC_SIP, PRI_WARNING, 
                         "SipSubscribeClient::handleNotifyRequest "
                         "subscription for '%s' has been terminated",
@@ -1700,6 +1755,11 @@ SubscriptionDialogState* SipSubscribeClient::removeDialogState(const UtlString& 
 // Has the subscription start succeeded?
 bool SubscriptionGroupState::successfulStart()
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::successfulStart "
+                 "for group '%s', mSuccessResponses = %d, mFailureResponses = %d, mEstablishingNotifys = %d",
+                 data(),
+                 mSuccessResponses, mFailureResponses, mEstablishingNotifys);
    return
       mSuccessResponses > 0 &&
       mFailureResponses == 0 &&
@@ -1709,22 +1769,38 @@ bool SubscriptionGroupState::successfulStart()
 // Set up the starting timer.
 void SubscriptionGroupState::setStartingTimer(bool initial)
 {
-   mStarting = true;
-   // Select the timeout based on whether this is an initial start,
-   // and if the current timeout exceeds SUBSCRIPTION_STARTUP_MAX.
+   // Use the initial starting time (if initial == true (when called
+   // from ::addSubscription()) or !mStarting (failure of an
+   // established subscription).
+   // Otherwise, double the previously-used starting time, if that was
+   // less than SUBSCRIPTION_STARTUP_MAX.
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::setStartingTimer "
+                 "for group '%s', initial = %d, mStarting = %d, mStartingTimeout = %d",
+                 data(),
+                 initial, mStarting, mStartingTimeout);
    mStartingTimeout = 
-      initial ? SUBSCRIPTION_STARTUP_INITIAL :
+      initial || !mStarting ? SUBSCRIPTION_STARTUP_INITIAL :
       mStartingTimeout <= SUBSCRIPTION_STARTUP_MAX ? mStartingTimeout * 2 :
       mStartingTimeout;
+   mStarting = true;            // Set mStarting after using it above.
    mSuccessResponses = 0;
    mFailureResponses = 0;
    mEstablishingNotifys = 0;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::setStartingTimer "
+                 "setting mStarting = %d, mSuccessResponses = %d, mFailureResponses = %d, mEstablishingNotifys = %d",
+                 mStarting, mSuccessResponses, mFailureResponses, mEstablishingNotifys);
 
    // We stop mStartingTimer asynchronously here because if it has a queued
    // firing, that will do no harm:  This starting will fail prematurely
    // and another start will be done.
    mStartingTimer.stop(FALSE); // async
    mStartingTimer.oneshotAfter(OsTime(mStartingTimeout, 0));
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                 "SipSubscribeClient::setStartingTimer "
+                 "for group '%s', setting mStartingTimer to fire in %d sec",
+                 data(), mStartingTimeout);
 }
 
 // Set the subscription group to established state.

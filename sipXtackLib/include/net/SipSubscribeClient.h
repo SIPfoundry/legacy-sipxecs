@@ -213,6 +213,16 @@ public:
      */
     UtlBoolean endSubscriptionDialog(const UtlString& dialogHandle);
 
+    //! End the SIP event subscription indicated by the dialog handle
+    /*  This ends only the subscription dialog indicated by the handle,
+     *  the other subscriptions in the group remain.
+     *  Used when the notifier has ended the subscription (by sending
+     *  a NOTIFY with "Subscription-State: terminated"), so we do
+     *  not need to send an un-SUBSCRIBE.
+     *  Caller MUST hold the lock!  (unlike ::endSubscriptionDialog)
+     */
+    UtlBoolean endSubscriptionDialogByNotifier(const UtlString& dialogHandle);
+
     //! End the SIP event subscription group indicated by the early dialog handle
     /*! Ends any established or early dialog subscriptions created by the
      *  addSubscription() that returned the early dialog handle.

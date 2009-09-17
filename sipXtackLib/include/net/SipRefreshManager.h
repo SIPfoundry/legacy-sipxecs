@@ -187,7 +187,10 @@ public:
      *  If stopRefresh stops a (quasi)dialog that has not been stopped
      *  before, the state callback will be called to signal its stopping.
      */
-    UtlBoolean stopRefresh(const char* dialogHandle);
+    UtlBoolean stopRefresh(const char* dialogHandle,
+                           UtlBoolean noSend = FALSE
+                           ///< if true, do not send terminating request
+       );
 
     //! Stop refreshing, unregister and unsubscribe all
     void stopAllRefreshes();

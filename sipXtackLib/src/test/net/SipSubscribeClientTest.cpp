@@ -941,7 +941,8 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
-         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                              clientSideSubResponse->getResponseStatusCode());
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -965,7 +966,8 @@ public:
                                       5000, // milliseconds
                                       serverSideNotResponse));
          CPPUNIT_ASSERT(serverSideNotResponse);
-         CPPUNIT_ASSERT(serverSideNotResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              serverSideNotResponse->getResponseStatusCode());
 
          // Check the Contact in the NOTIFY response.
          ASSERT_STR_EQUAL(notifier_contact_name_addr,
@@ -986,6 +988,7 @@ class SipSubscribeClientTest4 : public CppUnit::TestCase
    CPPUNIT_TEST(duplicateNotify);
 #ifdef EXECUTE_SLOW_TESTS
    CPPUNIT_TEST(terminate481);
+   CPPUNIT_TEST(reest2);
    CPPUNIT_TEST(forkedSubscribe);
 #endif // EXECUTE_SLOW_TESTS
    CPPUNIT_TEST_SUITE_END();
@@ -1113,6 +1116,7 @@ public:
 
    // XECS-244: When a re-SUBSCRIBE receives a 481 response, it terminates the
    // subscription.
+   // Also, verify that subscription reestablishment works.
    void terminate481()
       {
          UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
@@ -1150,6 +1154,9 @@ public:
                      refreshTime,
                      &subscribeToTag);
          CPPUNIT_ASSERT(subscribeRequest);
+         // Save the Call-Id for later test.
+         UtlString firstCallId;
+         subscribeRequest->getCallIdField(&firstCallId);
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send the NOTIFY in response to the SUBSCRIBE.
@@ -1181,7 +1188,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          // Wait for the re-SUBSCRIBE, and respond with 481.
 
@@ -1215,13 +1223,213 @@ public:
                      notifyResponse,
                      SIP_ACCEPTED_CODE,
                      FALSE,
+                     refreshTime,
+                     &subscribeToTag);
+         CPPUNIT_ASSERT(notifyResponse);
+         CPPUNIT_ASSERT_EQUAL(SIP_BAD_TRANSACTION_CODE,
+                              notifyResponse->getResponseStatusCode());
+
+         // Now check reestablishment of subscriptions.
+
+         // Verify that Subscribe Client has sent a new SUBSCRIBE.
+         CPPUNIT_ASSERT(subscribeRequest);
+         // Check that it has a different Call-Id than the first SUBSCRIBE, and no to-tag.
+         UtlString newCallId;
+         subscribeRequest->getCallIdField(&newCallId);
+         CPPUNIT_ASSERT(firstCallId != newCallId);
+         Url toUrl;
+         subscribeRequest->getToUrl(toUrl);
+         UtlString toTag;
+         toUrl.getFieldParameter("tag", toTag);
+         CPPUNIT_ASSERT(toTag.isNull());
+
+         // Send the NOTIFY in response to the SUBSCRIBE.
+       
+         sprintf(subscriptionState, "active;expires=%d", refreshTime);
+         SipMessage newNotifyMessage;
+         newNotifyMessage.setNotifyData(subscribeRequest,
+                                        1, // CSeq
+                                        NULL, // Route
+                                        subscriptionState, // Subscription-State
+                                        eventType, // Event
+                                        NULL // Event id
+            );
+         newNotifyMessage.setFromFieldTag(subscribeToTag);
+         CPPUNIT_ASSERT(userAgentp->send(newNotifyMessage));
+
+         // The Subscribe Client will now send a 200 response to the NOTIFY.
+
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeout1sec,
+                     timeout1sec,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_ACCEPTED_CODE,
+                     FALSE,
                      0,
                      NULL);
-         // Now that Subscribe Client reestablishes subscriptions, runListener
-         // will likely see a new SUBSCRIBE request.
+         CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() ==
-                        SIP_BAD_TRANSACTION_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
+       
+         // Wait for the re-SUBSCRIBE, and respond with 200.
+
+         fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeoutRefreshTime,
+                     timeoutZero,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_OK_CODE,
+                     FALSE,
+                     0,
+                     NULL);
+         CPPUNIT_ASSERT(subscribeRequest);
+         CPPUNIT_ASSERT(!notifyResponse);
+         // Verify this is a re-SUBSCRIBE for the second subscription.
+         UtlString resubCallId;
+         subscribeRequest->getCallIdField(&resubCallId);
+         CPPUNIT_ASSERT(resubCallId == newCallId);
+      }
+
+   // Check that subscription reestablishment will try a second time.
+   // Test that NOTIFY with "Subscription-State: terminated" will
+   // force reestablishment of a subscription.
+   void reest2()
+      {
+         UtlString mwiMimeType(CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
+
+         // Tell the Subscribe Client to establish a subscription.
+
+         const int refreshTime = 40;
+         UtlString earlyDialogHandle;
+         CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
+                                                    eventType,
+                                                    NULL,
+                                                    subscriber_name_addr,
+                                                    notifier_name_addr,
+                                                    subscriber_name_addr,
+                                                    refreshTime, // seconds expiration
+                                                    this,
+                                                    subStateCallback,
+                                                    notifyCallback,
+                                                    earlyDialogHandle));
+
+         // The Subscribe Client will now send a SUBSCRIBE.
+         // Receive it and send a 202 response.
+
+         OsTime timeout1sec(1, 0);  // 1 second
+         const SipMessage* subscribeRequest;
+         const SipMessage* notifyResponse;
+         UtlString subscribeToTag;
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeout1sec,
+                     timeout1sec,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_ACCEPTED_CODE,
+                     FALSE,
+                     refreshTime,
+                     &subscribeToTag);
+         CPPUNIT_ASSERT(subscribeRequest);
+         // Save the SUBSCRIBE request.
+         const SipMessage* firstSubscribeRequest = subscribeRequest;
+         // Save the Call-Id for later test.
+         UtlString firstCallId;
+         subscribeRequest->getCallIdField(&firstCallId);
+         CPPUNIT_ASSERT(!notifyResponse);
+
+         // Send the NOTIFY in response to the SUBSCRIBE.
+       
+         SipMessage notifyMessage;
+         char subscriptionState[20];
+         sprintf(subscriptionState, "active;expires=%d", refreshTime);
+         notifyMessage.setNotifyData(firstSubscribeRequest,
+                                     1, // CSeq
+                                     NULL, // Route
+                                     subscriptionState, // Subscription-State
+                                     eventType, // Event
+                                     NULL // Event id
+            );
+         notifyMessage.setFromFieldTag(subscribeToTag);
+         CPPUNIT_ASSERT(userAgentp->send(notifyMessage));
+
+         // The Subscribe Client will now send a 200 response to the NOTIFY.
+
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeout1sec,
+                     timeout1sec,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_ACCEPTED_CODE,
+                     FALSE,
+                     0,
+                     NULL);
+         CPPUNIT_ASSERT(!subscribeRequest);
+         CPPUNIT_ASSERT(notifyResponse);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
+       
+         // Delay more than 15 seconds so that the Subscribe Client recognizes
+         // the subscription as having been successfully established.
+         fprintf(stderr, "Waiting %d seconds...\n", 15+1);
+         OsTask::delay((15+1) * 1000);
+
+         // Send a NOTIFY with state "terminated" to force reestablishment
+         // of the subscription.
+
+         notifyMessage.setNotifyData(firstSubscribeRequest,
+                                     2, // CSeq
+                                     NULL, // Route
+                                     "terminated", // Subscription-State
+                                     eventType, // Event
+                                     NULL // Event id
+            );
+         notifyMessage.setFromFieldTag(subscribeToTag);
+         CPPUNIT_ASSERT(userAgentp->send(notifyMessage));
+
+         // The Subscribe Client will now send a 200 response to the NOTIFY,
+         // and then the first reestablishing SUBSCRIBE.
+         // Make the SUBSCRIBE fail by responding 404.
+
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeout1sec,
+                     timeout1sec,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_NOT_FOUND_CODE,
+                     FALSE,
+                     0,
+                     NULL);
+         CPPUNIT_ASSERT(notifyResponse);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
+         CPPUNIT_ASSERT(subscribeRequest);
+
+         // Wait for the next reestablishing SUBSCRIBE, which should happen
+         // within 15 seconds, and respond with 200.
+
+         const int delay = 15 + 1;
+         OsTime timeoutSecondReest(delay, 0);
+         OsTime timeoutZero(0, 0);
+         fprintf(stderr, "Waiting %d seconds...\n", delay);
+         runListener(incomingServerMsgQueue,
+                     *userAgentp,
+                     timeoutSecondReest,
+                     timeoutZero,
+                     subscribeRequest,
+                     notifyResponse,
+                     SIP_OK_CODE,
+                     FALSE,
+                     0,
+                     NULL);
+         CPPUNIT_ASSERT(subscribeRequest);
       }
 
    // XECS-283: When a NOTIFY is out-of-order, add "Retry-After: 0" to the 500
@@ -1293,7 +1501,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          // Send another NOTIFY, which is out-of-order.
        
@@ -1321,8 +1530,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() ==
-                        SIP_SERVER_INTERNAL_ERROR_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_SERVER_INTERNAL_ERROR_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          // Verify that there is a "Retry-After: 0" header.
          const char* v =
@@ -1399,7 +1608,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          // Send a duplicate NOTIFY.
        
@@ -1427,8 +1637,8 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          /** Verify that response code is 482, as required by RFC 3261,
           *  section 16.3, item 4 -- See XECS-246 for discussion. */
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() ==
-                        SIP_LOOP_DETECTED_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_LOOP_DETECTED_CODE,
+                              notifyResponse->getResponseStatusCode());
          /** Verify that there is a "Retry-After: 0" header to prevent
           *  terminating subscriptions. */
          const char* v =
@@ -1507,7 +1717,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          // Send a second NOTIFY, on another fork.
        
@@ -1539,7 +1750,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
 
          // Wait a second.
 
@@ -1563,7 +1775,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
        
          secondNotifyMessage.incrementCSeqNumber();
          CPPUNIT_ASSERT(userAgentp->send(secondNotifyMessage));
@@ -1580,7 +1793,8 @@ public:
                      NULL);
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
-         CPPUNIT_ASSERT(notifyResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              notifyResponse->getResponseStatusCode());
 
          // Wait until both subscriptions should have sent re-SUBSCRIBEs.
 
@@ -1930,7 +2144,8 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
-         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                              clientSideSubResponse->getResponseStatusCode());
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -2019,7 +2234,8 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse); // Sub response got to client
-         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                              clientSideSubResponse->getResponseStatusCode());
 
          CPPUNIT_ASSERT(secondNotifyRequest);
          CPPUNIT_ASSERT(secondSubResponse);
@@ -2069,7 +2285,8 @@ public:
                                       5000, // milliseconds
                                       clientSideSubResponse));
          CPPUNIT_ASSERT(clientSideSubResponse);
-         CPPUNIT_ASSERT(clientSideSubResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                              clientSideSubResponse->getResponseStatusCode());
 
          // Check the Contact in the subscribe response.
          ASSERT_STR_EQUAL(notifier_name_addr,
@@ -2093,7 +2310,8 @@ public:
                                       5000, // milliseconds
                                       serverSideNotResponse));
          CPPUNIT_ASSERT(serverSideNotResponse);
-         CPPUNIT_ASSERT(serverSideNotResponse->getResponseStatusCode() == SIP_OK_CODE);
+         CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
+                              serverSideNotResponse->getResponseStatusCode());
 
          // Check the Contact in the NOTIFY response.
          CPPUNIT_ASSERT(serverSideNotResponse->

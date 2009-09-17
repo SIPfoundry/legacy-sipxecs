@@ -485,7 +485,7 @@ void CallbackRequestMsg::callback(SipDialogMgr& dialogMgr)
    if (mAction == CALLBACK || mAction == CALLBACK_AND_DELETE)
    {
       UtlString responseText;
-      int responseCode;
+      int responseCode = -1;
    
       // If there is a message, get the response code and text.
       if (mpMessage)
@@ -788,11 +788,12 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
 }
 
 
-UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
+UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle,
+                                          UtlBoolean noSend)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRefreshManager::stopRefresh dialogHandle = '%s'",
-                 dialogHandle);
+                 "SipRefreshManager::stopRefresh dialogHandle = '%s', noSend = %d",
+                 dialogHandle, noSend);
 
    RefreshDialogState* state;
 
@@ -822,8 +823,9 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
          // Remove the state from mRefreshes.
          mRefreshes.removeReference(state);
 
-         // Remove the dialog from the Dialog Manager.
-         mpDialogMgr->deleteDialog(*state);
+         // Do not delete the dialog from *mpDialogMgr yet, because
+         // ::prepareForResend will need the dialog state to update
+         // the CSeq.
       }
    }
 
@@ -835,7 +837,7 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
       if (state->mRequestState == REFRESH_REQUEST_SUCCEEDED)
       {
          // Send a terminating request.
-         if (state->mpLastRequest)
+         if (state->mpLastRequest && !noSend)
          {
             // Reset the request for resending.
             // Set its expiration to 0.
@@ -845,6 +847,10 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
             mpUserAgent->send(*state->mpLastRequest);
          }
       }
+
+      // Remove the dialog from the Dialog Manager now that the dialog state
+      // is no longer needed.
+      mpDialogMgr->deleteDialog(*state);
 
       // The action we will specify in the CallbackRequestMsg.
       CallbackRequestMsg::Action action;
@@ -1145,8 +1151,9 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
       UtlString dialogHandle;
       sipMessage->getDialogHandle(dialogHandle);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRefreshManager::handleSipMessage %s CSeq %d, dialogHandle = '%s'",
-                    method.data(), cseq, dialogHandle.data());
+                    "SipRefreshManager::handleSipMessage %s CSeq %d, dialogHandle = '%s', response = %d",
+                    method.data(), cseq, dialogHandle.data(),
+                    sipMessage->getResponseStatusCode());
 
       UtlBoolean foundDialog = mpDialogMgr->dialogExists(dialogHandle);
       UtlString earlyDialogHandle;
@@ -1487,8 +1494,9 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
 
                // Request a callback to let the application know the state changed.
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRefreshManager::handleSipMessage %p->mRequestState = %d",
-                             state, state->mRequestState);
+                             "SipRefreshManager::handleSipMessage %p->mRequestState = %s",
+                             state, 
+                             SipRefreshManager::refreshRequestStateText(state->mRequestState));
                postMessageP(
                   new CallbackRequestMsg(state,
                                          CallbackRequestMsg::CALLBACK,
