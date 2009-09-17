@@ -868,6 +868,8 @@ class CallControlManager implements SymmitronResetHandler {
                         int port = SipUtilities.getSessionDescriptionMediaPort(sd);
                         dialogContext.getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
 
+                        dialogContext.getRtpSession().getTransmitter().setOnHold(false);
+                        
                         SipUtilities.incrementSessionVersion(sd);
                         peerDialogContext.getRtpSession().getReceiver().setSessionDescription(sd);
                         /*
