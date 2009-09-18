@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
- 
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
@@ -40,12 +41,10 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
     public static final String GATEWAY_EXPIRES_VALUE = "60";
- 
 
     private boolean m_enabled;
     private String m_name;
     private String m_description;
-    private String m_calltag;
     private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
     private transient PermissionManager m_permissionManager;
@@ -90,14 +89,6 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
 
     public String getRuleType() {
         return null;
-    }
-
-    public String getCalltag() {
-        return m_calltag;
-    }
-
-    public void setCalltag(String calltag) {
-        m_calltag = calltag;
     }
 
     public List<Gateway> getGateways() {
@@ -265,11 +256,33 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         siteTransforms.put(StringUtils.EMPTY, Arrays.asList(transforms));
         return siteTransforms;
     }
-    
+
     /**
      * Only internal rules or rules with gateways can be enabled
      */
     public boolean isEnablable() {
         return isInternal() || m_gateways.size() > 0;
+    }
+
+    @Override
+    public CallTag getCallTag() {
+        CallTag callTag = getType().getCallTag();
+        if (callTag != null) {
+            return callTag;
+        }
+        List<String> permissionNames = getPermissionNames();
+        if (permissionNames == null) {
+            return null;
+        }
+        if (permissionNames.size() == 0) {
+            return null;
+        }
+        String permissionName = permissionNames.get(0);
+        for (PermissionName p : PermissionName.values()) {
+            if (p.getName().equals(permissionName)) {
+                return p.getCalltag();
+            }
+        }
+        return null;
     }
 }

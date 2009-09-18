@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -24,9 +24,9 @@ public class DialingRuleFactory implements BeanFactoryAware {
 
     /**
      * Constructs dialing rule from prototypes defined in Spring configuration file.
-     * 
+     *
      * Throws illegal argument exception if invalid or unregistered type is passed.
-     * 
+     *
      * @param type dialing rule type
      * @return newly created object
      */
@@ -35,7 +35,6 @@ public class DialingRuleFactory implements BeanFactoryAware {
         // reset new rule - we do not want to suggest invalid values for name, description etc.
         rule.setEnabled(false);
         rule.setDescription(StringUtils.EMPTY);
-        rule.setCalltag(StringUtils.EMPTY);
         rule.setName(StringUtils.EMPTY);
         return rule;
     }

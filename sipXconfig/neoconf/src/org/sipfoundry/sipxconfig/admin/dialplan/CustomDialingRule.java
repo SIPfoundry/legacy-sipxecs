@@ -97,6 +97,15 @@ public class CustomDialingRule extends LocationBasedDialingRule {
         return DialingRuleType.CUSTOM;
     }
 
+    @Override
+    public CallTag getCallTag() {
+        CallTag callTag = super.getCallTag();
+        if (callTag != null) {
+            return callTag;
+        }
+        return CallTag.CUST;
+    }
+
     public void setPermissions(List<Permission> permissions) {
         List<String> permissionNames = getPermissionNames();
         permissionNames.clear();

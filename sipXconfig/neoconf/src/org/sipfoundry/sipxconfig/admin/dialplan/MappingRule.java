@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -57,7 +57,6 @@ public class MappingRule extends DialingRule {
     protected static final String VMAIL_RETRIEVE = "retrieve";
     protected static final String AUTOATTENDANT = "autoattendant";
     private static final String FIELD_PARAM = "q=0.1";
-    private static final String VMAIL_CALLTAG = "VM";
 
     private String[] m_patterns;
     private String m_url;
@@ -131,15 +130,14 @@ public class MappingRule extends DialingRule {
     // specialized classes
     public static class Operator extends MappingRule {
         public Operator(AutoAttendant attendant, String extension, String[] aliases, MediaServer mediaServer) {
-            this(attendant.getName(), attendant.getDescription(), attendant.getCalltag(), attendant.getSystemName(), 
-                    extension, aliases, mediaServer);
+            this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(), extension, aliases,
+                    mediaServer);
         }
 
-        public Operator(String name, String description, String calltag, String systemName, String extension, 
-                String[] aliases, MediaServer mediaServer) {
+        public Operator(String name, String description, String systemName, String extension, String[] aliases,
+                MediaServer mediaServer) {
             setName(name);
             setDescription(description);
-            setCalltag(calltag);
 
             if (null == extension) {
                 setPatterns(aliases);
@@ -149,6 +147,11 @@ public class MappingRule extends DialingRule {
 
             String url = mediaServer.buildAttendantUrl(systemName);
             setUrl(url);
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.AA;
         }
     }
 
@@ -161,12 +164,16 @@ public class MappingRule extends DialingRule {
                 "~~vm~."
             });
             setUrl(mediaServer.buildVoicemailDepositUrl(MappingRule.FIELD_PARAM));
-            setCalltag(VMAIL_CALLTAG);
         }
 
         @Override
         public List<String> getPermissionNames() {
             return Collections.singletonList(m_mediaServer.getPermissionName().getName());
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.VM;
         }
     }
 
@@ -178,7 +185,11 @@ public class MappingRule extends DialingRule {
                 voiceMail
             });
             setUrl(mediaServer.buildVoicemailRetrieveUrl());
-            setCalltag(VMAIL_CALLTAG);
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.VM;
         }
     }
 
@@ -189,7 +200,11 @@ public class MappingRule extends DialingRule {
                 pattern.calculatePattern()
             });
             setUrl(mediaServer.buildVoicemailDepositUrl(null));
-            setCalltag(VMAIL_CALLTAG);
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.VM;
         }
     }
 

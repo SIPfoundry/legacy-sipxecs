@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.permission;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+
 import org.sipfoundry.sipxconfig.permission.Permission.Type;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -21,23 +23,23 @@ public enum PermissionName {
     PERSONAL_AUTO_ATTENDANT(Type.APPLICATION, "personal-auto-attendant"),
 
     /** call handling */
-    NINEHUNDERED_DIALING(Type.CALL, "900Dialing"),
+    NINEHUNDERED_DIALING(Type.CALL, "900Dialing", CallTag.REST),
 
-    AUTO_ATTENDANT_DIALING(Type.CALL, "AutoAttendant"),
+    AUTO_ATTENDANT_DIALING(Type.CALL, "AutoAttendant", CallTag.AA),
 
-    INTERNATIONAL_DIALING(Type.CALL, "InternationalDialing"),
+    INTERNATIONAL_DIALING(Type.CALL, "InternationalDialing", CallTag.INTN),
 
-    LOCAL_DIALING(Type.CALL, "LocalDialing"),
+    LOCAL_DIALING(Type.CALL, "LocalDialing", CallTag.LOCL),
 
-    LONG_DISTANCE_DIALING(Type.CALL, "LongDistanceDialing"),
+    LONG_DISTANCE_DIALING(Type.CALL, "LongDistanceDialing", CallTag.LD),
 
-    MOBILE(Type.CALL, "Mobile"),
+    MOBILE(Type.CALL, "Mobile", CallTag.MOB),
 
     RECORD_SYSTEM_PROMPTS(Type.CALL, "RecordSystemPrompts"),
 
-    TOLL_FREE_DIALING(Type.CALL, "TollFree"),
+    TOLL_FREE_DIALING(Type.CALL, "TollFree", CallTag.TF),
 
-    VOICEMAIL(Type.CALL, "Voicemail"),
+    VOICEMAIL(Type.CALL, "Voicemail", CallTag.VM),
 
     NO_ACCESS(Type.CALL, "NoAccess"),
 
@@ -50,9 +52,16 @@ public enum PermissionName {
 
     private String m_name;
 
+    private CallTag m_callTag;
+
     PermissionName(Type type, String name) {
+        this(type, name, CallTag.UNK);
+    }
+
+    PermissionName(Type type, String name, CallTag callTag) {
         m_type = type;
         m_name = name;
+        m_callTag = callTag;
     }
 
     /**
@@ -67,6 +76,10 @@ public enum PermissionName {
      */
     public String getName() {
         return m_name;
+    }
+
+    public CallTag getCalltag() {
+        return m_callTag;
     }
 
     public void setEnabled(Group g, boolean enable) {

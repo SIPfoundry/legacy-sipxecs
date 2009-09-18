@@ -16,6 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -266,8 +269,8 @@ public class MappingRulesTest extends XMLTestCase {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(false);
-        rule.getCalltag();
-        control.andReturn("UNK").anyTimes();
+        rule.getCallTag();
+        control.andReturn(CallTag.UNK).anyTimes();
         control.replay();
 
         m_out.begin();
@@ -291,7 +294,6 @@ public class MappingRulesTest extends XMLTestCase {
         aa.setSystemId(AutoAttendant.OPERATOR_ID);
         aa.setName("Operator");
         aa.resetToFactoryDefault();
-        aa.setCalltag("AA");
         rules.add(new MohRule());
         rules.add(new RlsRule());
 

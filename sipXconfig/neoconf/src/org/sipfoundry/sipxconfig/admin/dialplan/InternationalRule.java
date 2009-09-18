@@ -18,9 +18,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
-/**
- * LongDistanceRule
- */
 public class InternationalRule extends DialingRule {
     private String m_internationalPrefix;
 

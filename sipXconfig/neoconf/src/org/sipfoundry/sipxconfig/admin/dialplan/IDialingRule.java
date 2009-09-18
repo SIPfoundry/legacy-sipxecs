@@ -27,9 +27,7 @@ public interface IDialingRule {
 
     public abstract void setName(String name);
 
-    public abstract String getCalltag();
-
-    public abstract void setCalltag(String calltag);
+    public abstract CallTag getCallTag();
 
     public abstract List<Gateway> getGateways();
 
@@ -76,9 +74,10 @@ public interface IDialingRule {
      * @return ip addresses, host names, or variables
      */
     public abstract String[] getHostPatterns();
-    
+
     /**
-     * Determines if the affected rule is enablable or not  
+     * Determines if the affected rule is enablable or not
+     *
      * @return
      */
     boolean isEnablable();

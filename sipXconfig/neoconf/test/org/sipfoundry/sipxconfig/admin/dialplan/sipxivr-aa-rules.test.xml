@@ -8,7 +8,7 @@
     <hostPattern>${MY_IP_ADDR}</hostPattern>
     <userMatch>
       <!--abc-->
-      <callTag>UNK</callTag>
+      <callTag>AA</callTag>
       <userPattern>100</userPattern>
       <userPattern>0</userPattern>
       <userPattern>operator</userPattern>

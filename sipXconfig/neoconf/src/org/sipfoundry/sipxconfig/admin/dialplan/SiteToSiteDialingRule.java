@@ -48,5 +48,4 @@ public class SiteToSiteDialingRule extends CustomDialingRule {
         // Do nothing. There is NO required permissions for SiteToSiteDialingRule.
         // Thus, leave m_permissionNames unset.
     }
-
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.permission;
@@ -24,9 +24,9 @@ import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
  */
 public class Permission implements Comparable<Permission>, PrimaryKeySource {
     public enum Type {
-        APPLICATION(APPLICATION_NAME, APPLICATION_PATH), 
-        CALL(CALLHANDLING_NAME, CALL_PERMISSION_PATH),
-        VOICEMAIL_SERVER(VOICEMAIL_NAME, VOICEMAIL_SERVER_PATH);
+        APPLICATION(APPLICATION_NAME, APPLICATION_PATH), // application permissions
+        CALL(CALLHANDLING_NAME, CALL_PERMISSION_PATH), // call permissions
+        VOICEMAIL_SERVER(VOICEMAIL_NAME, VOICEMAIL_SERVER_PATH); // used to select vm server
 
         private String m_name;
         private String m_path;
@@ -125,11 +125,11 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         return m_defaultValue;
     }
 
-    public String getLabel(Locale locale) {
+    public String getLabel(@SuppressWarnings("unused") Locale locale) {
         return getLabel();
     }
 
-    public String getDescription(Locale locale) {
+    public String getDescription(@SuppressWarnings("unused") Locale locale) {
         return getDescription();
     }
 
@@ -149,6 +149,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         m_type = type;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Permission)) {
             return false;
@@ -162,6 +163,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
         return new EqualsBuilder().append(m_type, rhs.m_type).append(getName(), rhs.getName()).isEquals();
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(getName()).append(m_type).hashCode();
     }
@@ -172,7 +174,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
 
     /**
      * Create setting that corresponds to this permission
-     * 
+     *
      * @return newly created setting
      */
     Setting getSetting() {

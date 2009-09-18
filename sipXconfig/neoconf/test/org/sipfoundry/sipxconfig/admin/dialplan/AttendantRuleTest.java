@@ -129,7 +129,6 @@ public class AttendantRuleTest extends TestCase {
         rule.setExtension("100");
         rule.setAttendantAliases("0 operator");
         rule.setEnabled(true);
-        rule.setCalltag("UNK");
 
         RulesXmlFile mappingRules = new MappingRules();
         mappingRules.setDomainManager(m_domainManager);

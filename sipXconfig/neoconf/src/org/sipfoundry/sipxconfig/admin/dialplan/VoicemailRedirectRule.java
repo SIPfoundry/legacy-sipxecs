@@ -49,8 +49,8 @@ public class VoicemailRedirectRule extends DialingRule {
     }
 
     @Override
-    public String getCalltag() {
-        return "VMR";
+    public CallTag getCallTag() {
+        return CallTag.VMR;
     }
 
     public boolean isInternal() {
@@ -60,6 +60,7 @@ public class VoicemailRedirectRule extends DialingRule {
     /**
      * Need "permission" elements in mappingrules.xml
      */
+    @Override
     public boolean isTargetPermission() {
         return true;
     }

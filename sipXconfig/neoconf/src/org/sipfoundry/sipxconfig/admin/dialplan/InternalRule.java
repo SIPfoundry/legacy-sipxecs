@@ -109,7 +109,6 @@ public class InternalRule extends DialingRule {
         mediaServer.setServerExtension(m_voiceMail);
         MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, mediaServer);
         voicemail.setDescription(getDescription());
-        voicemail.setCalltag(getCalltag());
         if (getSchedule() != null) {
             voicemail.setSchedule(getSchedule());
         }
@@ -118,7 +117,6 @@ public class InternalRule extends DialingRule {
             MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
                     m_localExtensionLen, mediaServer);
             transfer.setDescription(getDescription());
-            transfer.setCalltag(getCalltag());
             if (getSchedule() != null) {
                 transfer.setSchedule(getSchedule());
             }
@@ -128,7 +126,6 @@ public class InternalRule extends DialingRule {
 
         MappingRule fallback = new MappingRule.VoicemailFallback(mediaServer);
         fallback.setDescription(getDescription());
-        fallback.setCalltag(getCalltag());
         if (getSchedule() != null) {
             fallback.setSchedule(getSchedule());
         }
