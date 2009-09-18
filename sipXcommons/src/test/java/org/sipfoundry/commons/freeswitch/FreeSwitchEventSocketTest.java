@@ -21,7 +21,7 @@ public class FreeSwitchEventSocketTest extends TestCase {
     private FreeSwitchEventSocket m_fse;
 
     public void setResponse(String response) {
-        m_fse = new FreeSwitchEventSocket(null);
+        m_fse = new FreeSwitchEventSocket(new FreeSwitchTestConfiguration());
         m_fse.setIn(new BufferedReader(new StringReader(response)));
     }
 
