@@ -97,19 +97,21 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         SbcDevice sbcDevice = getSbcDevice(id);
         m_daoEventPublisher.publishDelete(sbcDevice);
         getHibernateTemplate().delete(sbcDevice);
+        m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, sbcDevice.getName());
     }
 
     public void deleteSbcDevice(SbcDevice sbcDevice) {
         m_daoEventPublisher.publishDelete(sbcDevice);
         getHibernateTemplate().delete(sbcDevice);
+        m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.DELETED, AUDIT_LOG_CONFIG_TYPE, sbcDevice.getName());
     }
 
     public void deleteSbcDevices(Collection<Integer> ids) {
         for (Integer id : ids) {
             SbcDevice sbcDevice = getSbcDevice(id);
             m_daoEventPublisher.publishDelete(sbcDevice);
+            deleteSbcDevice(id);
         }
-        removeAll(SbcDevice.class, ids);
         getDialPlanActivationManager().replicateDialPlan(true);
     }
 
@@ -264,6 +266,9 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
                 } else {
                     getHibernateTemplate().saveOrUpdate(sbc);
                 }
+            }
+            if (sbcs.size() > 0) {
+                getDialPlanActivationManager().replicateDialPlan(true);
             }
         }
     }

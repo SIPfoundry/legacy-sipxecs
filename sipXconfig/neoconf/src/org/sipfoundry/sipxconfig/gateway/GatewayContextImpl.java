@@ -240,7 +240,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             for (SipTrunk sipTrunk : sipTrunks) {
                 if (sbcDevice.equals(sipTrunk.getSbcDevice())) {
                     sipTrunk.setSbcDevice(null);
-                    getHibernateTemplate().update(sipTrunk);
+                    storeGateway(sipTrunk);
                 }
             }
         }
