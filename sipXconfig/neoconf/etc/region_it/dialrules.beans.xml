@@ -77,7 +77,7 @@
     <property name="externalLen" value="9" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="it.tollFreeRule" parent="it.longDistanceRule" singleton="false">
+  <bean id="it.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Numeri Verdi" />
     <property name="description" value="Numeri Verdi" />
     <property name="longDistancePrefix" value="" />
@@ -100,7 +100,7 @@
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="it.internationalRule" parent="it.longDistanceRule" singleton="false">
+  <bean id="it.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="Internazionali" />
     <property name="description" value="Chiamate Internazionali" />
     <property name="longDistancePrefix" value="00" />

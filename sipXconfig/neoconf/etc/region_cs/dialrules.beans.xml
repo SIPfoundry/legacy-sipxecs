@@ -58,7 +58,7 @@
     <property name="externalLen" value="9" />
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
-  <bean id="cs.tollFreeRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Zelené linky" />
     <property name="description" value="Volání na zelená čísla" />
     <property name="areaCodes" value="800" />
@@ -74,7 +74,7 @@
     <property name="description" value="Volání na žlutá čísla" />
     <property name="areaCodes" value="83" />
   </bean>
-  <bean id="cs.restrictedRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.restrictedRule" parent="defaultRestrictedRule" singleton="false">
     <!--  not sure how to treat ITSP numbers with prefix 32 -->
     <property name="name" value="Placené linky" />
     <property name="description" value="Volání na placené linky" />
@@ -94,7 +94,7 @@
     <property name="areaCodes" value="6,7" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="cs.internationalRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="Mezinárodní" />
     <property name="description" value="Mezinárodní volání" />
     <property name="longDistancePrefix" value="00" />

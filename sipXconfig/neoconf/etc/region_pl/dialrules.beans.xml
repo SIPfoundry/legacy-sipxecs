@@ -74,14 +74,14 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="pl.tollFreeRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800,806,808" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="pl.restrictedRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.restrictedRule" parent="defaultRestrictedRule" singleton="false">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="300, 400, 700, 900, 901, 906" />
@@ -106,7 +106,7 @@
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="pl.internationalRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="00" />
@@ -117,7 +117,7 @@
 
   <!-- Needs to be adjusted by user to his arecode since that is dialed as longdistance but prices differ vastly ..
     This example is for Warsaw, for a different City, replace the area code with the local one  -->
-  <bean id="pl.localRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.localRule" parent="defaultLocalRule" singleton="false">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
     <property name="areaCodes" value="22" />

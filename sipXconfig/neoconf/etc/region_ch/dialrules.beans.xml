@@ -57,7 +57,7 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="ch.tollFreeRule" parent="ch.longDistanceRule" singleton="false">
+  <bean id="ch.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Gratisnummern" />
     <property name="description" value="Wählen von Gratisnummern" />
     <property name="areaCodes" value="800" />
@@ -65,7 +65,7 @@
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="ch.restrictedRule" parent="ch.longDistanceRule" singleton="false">
+  <bean id="ch.restrictedRule" parent="defaultRestrictedRule" singleton="false">
     <property name="name" value="Mehrwertdienste" />
     <property name="description" value="Zuschlagspflichtige Nummern" />
     <property name="areaCodes" value="900, 901, 906" />
@@ -81,7 +81,7 @@
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="ch.internationalRule" parent="ch.longDistanceRule" singleton="false">
+  <bean id="ch.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="Wählen von internationalen Nummern" />
     <property name="longDistancePrefix" value="00" />

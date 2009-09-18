@@ -63,7 +63,7 @@
     <property name="areaCodes" value="81,82,88,89" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="fr.tollFreeRule" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Numéro gratuit" />
     <property name="description" value="Composition de numéros gratuits" />
     <property name="areaCodes" value="80" />
@@ -83,7 +83,7 @@
     <property name="areaCodes" value="6" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="fr.internationalRule" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="Composition de numéros à l'international" />
     <property name="longDistancePrefix" value="00" />

@@ -45,21 +45,21 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="can.tollFreeRule" parent="can.longDistanceRule" singleton="false">
+  <bean id="can.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Numéros gratuits" />
     <property name="description" value="Composition de numéros gratuits" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="can.restrictedRule" parent="can.longDistanceRule" singleton="false">
+  <bean id="can.restrictedRule" parent="defaultRestrictedRule" singleton="false">
     <property name="name" value="Restreint" />
     <property name="description" value="Numéros restreints" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="can.internationalRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="can.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="Composition de numéros à l'international" />
     <property name="longDistancePrefix" value="011" />
@@ -67,7 +67,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="can.localRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="can.localRule" parent="defaultLocalRule" singleton="false">
     <property name="name" value="Local" />
     <property name="description" value="Composition de numéros locaux" />
     <property name="pstnPrefix" value="9" />

@@ -37,21 +37,21 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="tollFreeRule" parent="longDistanceRule" singleton="false">
+  <bean id="tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="restrictedRule" parent="longDistanceRule" singleton="false">
+  <bean id="restrictedRule" parent="defaultRestrictedRule" singleton="false">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="internationalRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="011" />
@@ -59,7 +59,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="localRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="localRule" parent="defaultLocalRule" singleton="false">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
     <property name="pstnPrefix" value="9" />

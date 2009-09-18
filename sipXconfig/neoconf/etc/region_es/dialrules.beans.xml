@@ -62,7 +62,7 @@
     <property name="description" value="Marcación restringida - servicios profesionales" />
     <property name="areaCodes" value="807" />
   </bean>
-  <bean id="es.tollFreeRule" parent="es.longDistanceRule" singleton="false">
+  <bean id="es.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Número gratuito" />
     <property name="description" value="Marcación de números gratuitos" />
     <property name="areaCodes" value="800,900" />
@@ -82,7 +82,7 @@
     <property name="areaCodes" value="6" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="es.internationalRule" parent="es.longDistanceRule" singleton="false">
+  <bean id="es.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="Internacional" />
     <property name="description" value="Marcación internacional" />
     <property name="longDistancePrefix" value="00" />

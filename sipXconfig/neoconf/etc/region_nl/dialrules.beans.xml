@@ -58,7 +58,7 @@
     <property name="description" value="Beperkt bellen - entertainment-telefoonnummers" />
     <property name="areaCodes" value="909" />
   </bean>
-  <bean id="nl.tollFreeRule" parent="nl.longDistanceRule" singleton="false">
+  <bean id="nl.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
     <property name="name" value="Gratis telefoonnummers" />
     <property name="description" value="Gratis bellen" />
     <property name="areaCodes" value="800" />
@@ -78,7 +78,7 @@
     <property name="areaCodes" value="6" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="nl.internationalRule" parent="nl.longDistanceRule" singleton="false">
+  <bean id="nl.internationalRule" parent="defaultInternationalRule" singleton="false">
     <property name="name" value="Internationaal" />
     <property name="description" value="Bellen naar internationale nummers" />
     <property name="longDistancePrefix" value="00" />
