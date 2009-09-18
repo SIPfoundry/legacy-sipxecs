@@ -33,8 +33,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.form.FormConstants;
 import org.junit.Assert;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SiteTestHelper {
@@ -304,14 +302,6 @@ public class SiteTestHelper {
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
         }
-    }
-
-    public static Setting loadSettings(String path) {
-        String sysdir = TestUtil.getProjectDirectory() + "/../neoconf/etc";
-        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
-        Setting settings = builder.buildModel(new File(sysdir + "/" + path));
-
-        return settings;
     }
 
     /**

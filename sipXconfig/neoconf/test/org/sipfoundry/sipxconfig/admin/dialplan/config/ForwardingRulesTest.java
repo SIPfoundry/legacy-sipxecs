@@ -96,7 +96,12 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         SipxProxyService proxyService = new SipxProxyService();
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         proxyService.setSipPort("9901");
+        Setting proxySettings = proxyService.getSettings();
+        proxySettings.getSetting("proxy-configuration/SIP_PORT").setValue("9901");
         proxyService.setDomainManager(domainManager);
         m_statusLocation.addService(proxyService);
 

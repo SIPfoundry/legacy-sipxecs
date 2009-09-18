@@ -59,6 +59,9 @@ public class ConfigGeneratorTest extends XMLTestCase {
         EasyMock.replay(m_domainManager);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(m_domainManager);

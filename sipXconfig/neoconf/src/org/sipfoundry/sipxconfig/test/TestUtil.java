@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.test;
 
@@ -24,7 +24,6 @@ import java.util.Locale;
 import java.util.Properties;
 
 import junit.framework.Assert;
-
 import org.dom4j.Document;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
@@ -118,8 +117,8 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      *
      * <pre>
-     *               # Test file in same directory as JUnit test source file
-     *               String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *   # Test file in same directory as JUnit test source file
+     *   String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -128,6 +127,28 @@ public final class TestUtil {
         String path = sb.toString();
 
         return path;
+    }
+
+    /**
+     * Builds directory in which model files for a specified project (neoconf or any of the
+     * plug-ins are located)
+     *
+     */
+    public static String getModelDirectory(String project) {
+        String sourceRoot = getSourceRootDirectory();
+        return String.format("%s/%s/etc", sourceRoot, project);
+    }
+
+    /**
+     * Finds the directory in which sipXconfig source is located
+     */
+    private static String getSourceRootDirectory() {
+        String projectDirectory = getProjectDirectory();
+        int lastIndexOf = projectDirectory.lastIndexOf("sipXconfig");
+        if (lastIndexOf < 0) {
+            throw new RuntimeException("sipXconfig sources have to be in sipXconfig dir");
+        }
+        return projectDirectory.substring(0, lastIndexOf) + "/sipXconfig";
     }
 
     public static String getProjectDirectory() {

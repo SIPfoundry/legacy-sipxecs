@@ -69,6 +69,9 @@ public class EagerDialPlanActivationManagerTest extends TestCase {
         forwardingRules.setSbcManager(sbcManager);
 
         SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
         proxyService.setSipPort("9901");
         proxyService.setDomainManager(domainManager);

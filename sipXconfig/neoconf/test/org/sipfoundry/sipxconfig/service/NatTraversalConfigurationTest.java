@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.service;
 
 import java.io.InputStream;
@@ -8,6 +17,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -16,8 +26,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.createNiceMock;
@@ -33,8 +41,8 @@ public class NatTraversalConfigurationTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        SbcRoutes routes = configureSbcRoutes(Arrays.asList("*.example.org"), Arrays.asList(
-                "10.0.0.0/22", "172.16.0.0/12", "192.168.0.0/16"));
+        SbcRoutes routes = configureSbcRoutes(Arrays.asList("*.example.org"), Arrays.asList("10.0.0.0/22",
+                "172.16.0.0/12", "192.168.0.0/16"));
 
         m_sbcManager = createNiceMock(SbcManager.class);
         m_sbcManager.getRoutes();
@@ -55,6 +63,9 @@ public class NatTraversalConfigurationTest extends TestCase {
 
         SipxProxyService sipxProxyService = new SipxProxyService();
         sipxProxyService.setBeanName(SipxProxyService.BEAN_ID);
+        sipxProxyService.setModelDir("sipxproxy");
+        sipxProxyService.setModelName("sipxproxy.xml");
+        sipxProxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         sipxProxyService.setSipPort("5060");
 
         m_sipxRelayService = new SipxRelayService();

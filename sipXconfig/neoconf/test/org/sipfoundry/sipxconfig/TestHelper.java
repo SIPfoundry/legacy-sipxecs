@@ -24,6 +24,7 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
+import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
@@ -56,8 +57,6 @@ import org.springframework.beans.factory.access.BeanFactoryReference;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.aryEq;
 import static org.easymock.EasyMock.reportMatcher;
@@ -121,10 +120,14 @@ public final class TestHelper {
     }
 
     public static ModelFilesContext getModelFilesContext() {
-        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
         String sysdir = getSettingModelContextRoot();
-        mfc.setConfigDirectory(sysdir);
-        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+        return getModelFilesContext(sysdir);
+    }
+
+    public static ModelFilesContext getModelFilesContext(String modelDir) {
+        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
+        mfc.setConfigDirectory(modelDir);
+        XmlModelBuilder builder = new XmlModelBuilder(modelDir);
         mfc.setModelBuilder(builder);
         return mfc;
     }

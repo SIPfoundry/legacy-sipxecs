@@ -32,6 +32,8 @@ import static org.easymock.EasyMock.replay;
 
 public class SipxServiceTestBase extends TestCase {
     protected void initCommonAttributes(SipxService service) {
+        service.setModelFilesContext(TestHelper.getModelFilesContext());
+
         Domain domain = createDefaultDomain();
         DomainManager domainManager = createMock(DomainManager.class);
         domainManager.getAuthorizationRealm();
@@ -41,10 +43,8 @@ public class SipxServiceTestBase extends TestCase {
         replay(domainManager);
 
         service.setDomainManager(domainManager);
-        service.setSipPort("5060");
         service.setLogDir("/var/log/sipxpbx");
         service.setConfDir("/etc/sipxpbx");
-        service.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 
     protected Location createDefaultLocation() {
@@ -57,9 +57,9 @@ public class SipxServiceTestBase extends TestCase {
         return domain;
     }
 
-    public void assertCorrectFileGeneration(ConfigurationFile configuration,
-            String expectedFileName) throws Exception {
-        if(configuration instanceof TemplateConfigurationFile) {
+    public void assertCorrectFileGeneration(ConfigurationFile configuration, String expectedFileName)
+            throws Exception {
+        if (configuration instanceof TemplateConfigurationFile) {
             TemplateConfigurationFile t = (TemplateConfigurationFile) configuration;
             t.setVelocityEngine(TestHelper.getVelocityEngine());
         }

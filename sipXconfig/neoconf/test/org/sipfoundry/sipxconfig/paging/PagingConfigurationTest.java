@@ -48,9 +48,9 @@ public class PagingConfigurationTest extends SipxServiceTestBase {
         m_pagingConfiguration.setPagingContext(pagingContext);
 
         SipxPageService sipxPageService = new SipxPageService();
+        sipxPageService.setModelDir("sipxpage");
+        sipxPageService.setModelName("sipxpage.xml");
         initCommonAttributes(sipxPageService);
-        Setting settings = TestHelper.loadSettings("sipxpage/sipxpage.xml");
-        sipxPageService.setSettings(settings);
 
         Setting pageSettings = sipxPageService.getSettings().getSetting("page-config");
         pageSettings.getSetting("PAGE_SERVER_SIP_PORT").setValue("9898");
