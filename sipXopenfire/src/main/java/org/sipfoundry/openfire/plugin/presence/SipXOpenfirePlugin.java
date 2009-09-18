@@ -212,22 +212,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
         parseConfigurationFile();
         initializeLogging();
-        CallWatcher.setWatcherConfig(watcherConfig);
-        /*
-         * This initializes the SIP side of the show.
-         */
-        try {
-            CallWatcher.pluginInit();
-            log.info("completed init");
-            ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
-                    this);
-            CallWatcher.getSubscriber().setResourceStateChangeListener(
-                    resourceStateChangeListener);
-        } catch (Exception e) {
-            log.error("Error initializing CallWatcher", e);
-            throw new SipXOpenfirePluginException("Init error", e);
-        }
-
         server = XMPPServer.getInstance();
 
         userManager = server.getUserManager();
@@ -264,6 +248,23 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         InterceptorManager.getInstance().addInterceptor(new MessagePacketInterceptor(this));
         log.info("plugin initializaton completed");
         log.info("DONE");
+
+        CallWatcher.setWatcherConfig(watcherConfig);
+
+        /*
+         * Everything else is ready.  Let the SIP side of the show begin...
+         */
+        try {
+            CallWatcher.pluginInit();
+            log.info("completed init");
+            ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
+                    this);
+            CallWatcher.getSubscriber().setResourceStateChangeListener(
+                    resourceStateChangeListener);
+        } catch (Exception e) {
+            log.error("Error initializing CallWatcher", e);
+            throw new SipXOpenfirePluginException("Init error", e);
+        }
 
     }
 

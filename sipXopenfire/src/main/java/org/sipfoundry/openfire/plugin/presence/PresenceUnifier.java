@@ -262,14 +262,6 @@ public class PresenceUnifier implements PresenceEventListener
             }
             notifyListenersOfChange( unifiedPresence );
         }
-        
-        
-        
-        
-        
-        
-        
-        
         return unifiedPresence; 
     }
     

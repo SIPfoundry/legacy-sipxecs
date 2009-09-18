@@ -478,7 +478,7 @@ public class Subscriber implements SipListener {
             if (tid == subscribeTransaction) {
                 logger.debug("dialog and tid match: " + subscriberDialog.getDialogId());
                 if (response.getStatusCode() == Response.UNAUTHORIZED) {
-                    stackBean.handleChallenge(response, tid);
+                    subscribeTransaction = stackBean.handleChallenge(response, tid);                   
                 } else if (response.getStatusCode() == Response.ACCEPTED
                         || response.getStatusCode() == Response.OK) {
                     // update dialog
