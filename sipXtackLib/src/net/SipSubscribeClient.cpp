@@ -255,6 +255,8 @@ SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
    mpNotifyCallback(pNotifyCallback),
    mReestablish(reestablish),
    mRestart(restart),
+   mStarting(false),
+   mStartingTimeout(-1),
    mStartingNotification(pClient, this),
    mStartingTimer(mStartingNotification)
 {
