@@ -71,5 +71,3 @@ sipImpl.port : sip.port
 - : acdServer.maxQueues
 - : acdServer.maxAgents
 - : acdServer.maxLines
-- : sipxProxyService.sipPort
-- : sipxProxyService.secureSipPort

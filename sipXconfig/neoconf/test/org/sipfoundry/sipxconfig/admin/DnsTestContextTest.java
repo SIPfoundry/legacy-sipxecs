@@ -15,7 +15,6 @@ import static org.easymock.EasyMock.replay;
 import junit.framework.TestCase;
 
 import org.easymock.classextension.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.configdiag.ExternalCommandContext;
@@ -23,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 import static java.util.Collections.singleton;
 
@@ -54,11 +52,6 @@ public class DnsTestContextTest extends TestCase {
         SipxService proxyService = new SipxProxyService();
         proxyService.setProcessName("SIPXProxy");
         proxyService.setBeanName(SipxProxyService.BEAN_ID);
-        proxyService.setModelDir("sipxproxy");
-        proxyService.setModelName("sipxproxy.xml");
-        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
-        Setting proxySettings = proxyService.getSettings();
-        proxySettings.getSetting("proxy-configuration/SIP_PORT").setValue("5061");
         l1.setServiceDefinitions(singleton(proxyService));
         SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);

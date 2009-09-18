@@ -2,6 +2,8 @@
 #   End Users - add new settings to end of this file, be sure to add extra line feed
 #   Developers - add new settings anywhere but end of this file so pkg-upgrade script
 #                can have a better chance to migrate this file properly
+sipxProxyService.sipPort=5060
+sipxProxyService.secureSipPort=5061
 sipxRegistrarService.sipPort=5070
 sipxRegistrarService.registrarEventSipPort=5075
 sipxMediaService.sipPort=5100

@@ -14,8 +14,16 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxProxyService";
 
     public static final String LOG_SETTING = "proxy-configuration/SIPX_PROXY_LOG_LEVEL";
-    public static final String SIP_PORT_SETTING = "proxy-configuration/SIP_PORT";
-    public static final String SIP_SECURE_PORT_SETTING = "proxy-configuration/TLS_SIP_PORT";
+
+    private String m_secureSipPort;
+
+    public String getSecureSipPort() {
+        return m_secureSipPort;
+    }
+
+    public void setSecureSipPort(String secureSipPort) {
+        this.m_secureSipPort = secureSipPort;
+    }
 
     @Override
     public String getLogSetting() {
@@ -35,22 +43,5 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
     @Override
     public String getLabelKey() {
         return super.getLabelKey();
-    }
-
-    @Override
-    public String getSipPort() {
-        return getSettingValue(SIP_PORT_SETTING);
-    }
-
-    public String getSecureSipPort() {
-        return getSettingValue(SIP_SECURE_PORT_SETTING);
-    }
-
-    public String getSipTCPPort() {
-        return getSipPort();
-    }
-
-    public String getSipUDPPort() {
-        return getSipPort();
     }
 }

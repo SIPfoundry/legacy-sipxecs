@@ -60,13 +60,6 @@ public class DnsTestContextImpl implements DnsTestContext, DaoEventListener {
         if (provideDns) {
             m_command.addArgument("-p");
         }
-
-        // set TCP and UDP ports
-        m_command.addArgument("--port-TCP");
-        m_command.addArgument(((SipxProxyService) proxyService).getSipTCPPort());
-        m_command.addArgument("--port-UDP");
-        m_command.addArgument(((SipxProxyService) proxyService).getSipUDPPort());
-
         //Validate current configuration
         int returnCode = m_command.execute();
         m_valid = returnCode == 0 ? true : false;
