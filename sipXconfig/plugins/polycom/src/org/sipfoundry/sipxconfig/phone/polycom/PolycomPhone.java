@@ -132,10 +132,10 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void removeProfiles(ProfileLocation location) {
-        location.removeProfile(getAppFilename());
-        location.removeProfile(getSipFilename());
-        location.removeProfile(getPhoneFilename());
-        location.removeProfile(getDirectoryFilename());
+        Profile[] profiles = getProfileTypes();
+        for (Profile profile : profiles) {
+            location.removeProfile(profile.getName());
+        }
     }
 
     /**

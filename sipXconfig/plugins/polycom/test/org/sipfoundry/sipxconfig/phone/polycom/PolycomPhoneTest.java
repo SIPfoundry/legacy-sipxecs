@@ -68,11 +68,7 @@ public class PolycomPhoneTest extends TestCase {
         // assertSame(new PolycomModel().getVersions()[0], PolycomModel.VER_1_6);
     }
 
-    /**
-     * Tests that the Polycom profiles are successfully generated, along with the phonebook when
-     * phonebook management is enabled.
-     */
-    public void testGenerateProfilesWithPhonebook() throws Exception {
+    public void testGenerateProfiles() throws Exception {
         ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
         m_phone.generateProfiles(m_location);
 
@@ -80,31 +76,25 @@ public class PolycomPhoneTest extends TestCase {
         assertTrue(phonebook.exists());
 
         // content of profiles is tested in individual base classes of ConfigurationTemplate
-        File file = new File(m_root, cfg.getAppFilename());
-        assertTrue(file.exists());
+        File appFile = new File(m_root, cfg.getAppFilename());
+        assertTrue(appFile.exists());
+
+        File phoneFile = new File(m_root, cfg.getPhoneFilename());
+        assertTrue(phoneFile.exists());
+
+        File sipFile = new File(m_root, cfg.getSipFilename());
+        assertTrue(sipFile.exists());
+
+        File deviceFile = new File(m_root, cfg.getDeviceFilename());
+        assertTrue(deviceFile.exists());
+
 
         m_phone.removeProfiles(m_location);
-        assertFalse(file.exists());
-    }
-
-    /**
-     * Test that the Polycom profiles are successfully generated, but that the phonebook is not
-     * generated when phonebook management is disabled.
-     */
-    public void testGenerateProfilesWithoutPhonebook() throws Exception {
-        m_tester = PhoneTestDriver.supplyTestData(m_phone, false);
-        ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
-        m_phone.generateProfiles(m_location);
-
-        File phonebook = new File(m_root, cfg.getDirectoryFilename());
-        assertFalse(phonebook.exists());
-
-        // content of profiles is tested in individual base classes of ConfigurationTemplate
-        File file = new File(m_root, cfg.getAppFilename());
-        assertTrue(file.exists());
-
-        m_phone.removeProfiles(m_location);
-        assertFalse(file.exists());
+        assertTrue(phonebook.exists());
+        assertFalse(appFile.exists());
+        assertFalse(phoneFile.exists());
+        assertFalse(sipFile.exists());
+        assertFalse(deviceFile.exists());
     }
 
     public void testRestartFailureNoLine() throws Exception {
