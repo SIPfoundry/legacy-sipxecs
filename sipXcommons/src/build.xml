@@ -62,8 +62,8 @@
            deprecation="${deprecation}"
            optimize="${optimize}"
            includes="**/*.java"
-           source="1.5"
-           target="1.5"/>
+           source="1.6"
+           target="1.6"/>
   </target>
 
   <!-- C O M P I L E  T E S T S -->
@@ -76,8 +76,8 @@
            optimize="${optimize}"
            includes="**/*.java"
            excludes="**/PingerTest.java"
-           source="1.5"
-           target="1.5">
+           source="1.6"
+           target="1.6">
            <classpath>
              <pathelement path="${classes.dir}"/>
            </classpath>
@@ -221,7 +221,9 @@
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
       <batchtest todir="${test.results.dir}">
-        <fileset dir="${test.classes.dir}"/>
+        <fileset dir="${test.classes.dir}">
+          <patternset includes="**/*Test.class"/>
+        </fileset>
       </batchtest>
     </junit>
   </target>
