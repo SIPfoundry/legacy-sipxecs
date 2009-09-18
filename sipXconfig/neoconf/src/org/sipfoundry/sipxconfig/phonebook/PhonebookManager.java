@@ -57,6 +57,12 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public Phonebook getPrivatePhonebook(User user);
 
+    public PhonebookFileEntry getPhonebookFileEntry(Integer phonebookFileEntryId);
+
+    public void savePhonebookFileEntry(PhonebookFileEntry entry);
+
+    public void deletePhonebookFileEntry(PhonebookFileEntry entry);
+
     // --> this methods will be removed after version update
     public void removeTableColumns();
 

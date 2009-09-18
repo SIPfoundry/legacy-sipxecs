@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -36,6 +37,7 @@ public class ContactInformationResourceTest extends TestCase {
 
     private User m_user;
     private CoreContext m_coreContext;
+    private PhonebookManager m_phonebookManager;
 
     @Override
     protected void setUp() throws Exception {

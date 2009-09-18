@@ -107,6 +107,18 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
 
+    public PhonebookFileEntry getPhonebookFileEntry(Integer id) {
+        return (PhonebookFileEntry) getHibernateTemplate().load(PhonebookFileEntry.class, id);
+    }
+
+    public void savePhonebookFileEntry(PhonebookFileEntry entry) {
+        getHibernateTemplate().saveOrUpdate(entry);
+    }
+
+    public void deletePhonebookFileEntry(PhonebookFileEntry entry) {
+        getHibernateTemplate().delete(entry);
+    }
+
     class DuplicatePhonebookName extends UserException {
         DuplicatePhonebookName() {
             super("A phonebook already exists with that name.");

@@ -1,0 +1,15 @@
+{"entry": {
+  "first-name": "name",
+  "last-name": "lastName",
+  "number": "200",
+  "contact-information": {
+    "jobTitle": "title",
+    "companyName": "company",
+    "homeAddress": {
+      "street": "street"
+    },
+    "officeAddress": {
+      "zip": "1234"
+    }
+  }
+}}
