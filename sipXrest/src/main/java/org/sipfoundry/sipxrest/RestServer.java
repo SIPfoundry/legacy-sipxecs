@@ -30,7 +30,7 @@ public class RestServer {
     
     static final String PACKAGE = "org.sipfoundry.sipxrest";
     
-    private static String configFileName = "/etc/sipxpbx/sipxrest.xml";
+    private static String configFileName = "/etc/sipxpbx/sipxrest-config.xml";
 
     private static Appender appender;
     
@@ -195,7 +195,7 @@ public class RestServer {
                 + "/validusers.xml";
 
         configFileName = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx")
-                + "/sipxrest.xml";
+                + "/sipxrest-config.xml";
 
         if (!new File(accountFileName).exists()) {
             System.err.println("Cannot find the accounts file");

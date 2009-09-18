@@ -68,7 +68,7 @@ done
 
 
 CONFIG_FILES="\
-  @SIPX_CONFDIR@/sipxrest.xml \
+  @SIPX_CONFDIR@/sipxrest-config.xml \
   "
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1

@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<rest-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/rest-config-00-00">
+  <ip-address>${location.address}</ip-address>
+  <https-port>$settings.getSetting('httpsPort').Value</https-port>
+  <external-http-port>$settings.getSetting('extHttpPort').Value</external-http-port>
+  <sipx-proxy-domain>${restService.domainName}</sipx-proxy-domain>
+  <log-directory>${restService.logDir}</log-directory>
+  <log-level>${restService.logLevel}</log-level>
+  <sip-port>$settings.getSetting('sipPort').Value</sip-port>
+</rest-config>

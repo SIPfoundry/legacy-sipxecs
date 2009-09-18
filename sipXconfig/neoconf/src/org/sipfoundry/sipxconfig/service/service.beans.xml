@@ -608,5 +608,29 @@
     <property name="name" value="sipxsaa-config" />
     <property name="template" value="sipxsaa/sipxsaa-config.vm" />
   </bean>
+
+  <bean id="sipxRestService" class="org.sipfoundry.sipxconfig.service.SipxRestService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SipXrest"/>
+    <property name="modelName" value="sipxrest.xml" />
+    <property name="modelDir" value="sipxrest" />
+    <property name="editable" value="true" />
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRestConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxRestConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRestConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="sipxrest-config.xml" />
+    <property name="template" value="sipxrest/sipxrest-config.vm" />
+  </bean>
      
 </beans>
