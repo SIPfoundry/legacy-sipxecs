@@ -141,6 +141,36 @@ public class SipxServiceManagerImplTest extends TestCase {
         verify(lm);
     }
 
+    public void testGetServiceParam() {
+        SipxServiceManagerImpl sm = new SipxServiceManagerImpl() {
+            @Override
+            Collection<SipxService> getServicesFromDb() {
+                return Collections.emptyList();
+            }
+        };
+
+        SipxService service1 = new SipxProxyService();
+        service1.setBeanId(SipxProxyService.BEAN_ID);
+
+        SipxService service2 = new SipxRegistrarService() {
+            @Override
+            public Object getParam(String paramName) {
+                if(paramName.equals("pp")) {
+                    return "qq";
+                }
+                return super.getParam(paramName);
+            }
+        };
+
+        service2.setBeanId(SipxRegistrarService.BEAN_ID);
+
+        ModelSource<SipxService> modelSource = new ServiceModelSource(service1, service2);
+        sm.setServiceModelSource(modelSource);
+
+        assertNull(sm.getServiceParam("bongo"));
+        assertEquals("qq", sm.getServiceParam("pp"));
+    }
+
     abstract static class SimpleModelSource<T extends Model> implements ModelSource<T> {
         Map<String, T> m_map = new HashMap<String, T>();
 

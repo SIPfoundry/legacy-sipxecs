@@ -71,4 +71,7 @@ public interface SipxServiceManager {
      * Create collection of the services that belong to the specific subset of bundles
      */
     public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles);
+
+    public Object getServiceParam(String paramName);
+
 }

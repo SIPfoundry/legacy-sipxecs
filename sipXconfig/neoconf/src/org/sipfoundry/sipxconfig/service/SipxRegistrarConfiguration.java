@@ -14,6 +14,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
+    public static final String OPENFIRE_HOST = "openfire-host";
+    public static final String OPENFIRE_XML_RPCPORT = "openfire-xml-rpc-port";
     private LocationsManager m_locationsManager;
 
     @Override
@@ -25,7 +27,8 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
         context.put("proxyService", getService(SipxProxyService.BEAN_ID));
         context.put("parkService", getService(SipxParkService.BEAN_ID));
         context.put("registrarSyncHosts", getRegistrarSyncHosts(location));
-        
+        context.put(OPENFIRE_HOST, getSipxServiceManager().getServiceParam(OPENFIRE_HOST));
+        context.put(OPENFIRE_XML_RPCPORT, getSipxServiceManager().getServiceParam(OPENFIRE_XML_RPCPORT));
         return context;
     }
 

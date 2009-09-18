@@ -285,4 +285,15 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
+
+    public Object getServiceParam(String paramName) {
+        Collection<SipxService> allServices = getServiceDefinitions();
+        for (SipxService service : allServices) {
+            if (service.getParam(paramName) != null) {
+                return service.getParam(paramName);
+            }
+        }
+        return null;
+    }
+
 }

@@ -13,6 +13,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
+import org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -71,7 +72,9 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
             m_domainName = domainName;
         }
 
-        @SettingEntry(paths = { HOST_SETTING, WATCHER_SETTING })
+        @SettingEntry(paths = {
+            HOST_SETTING, WATCHER_SETTING
+        })
         public String getHostAddress() {
             return m_location.getFqdn();
         }
@@ -86,5 +89,15 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
     @Override
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    @Override
+    public Object getParam(String paramName) {
+        if (paramName.equals(SipxRegistrarConfiguration.OPENFIRE_HOST)) {
+            return getServerAddress();
+        } else if (paramName.equals(SipxRegistrarConfiguration.OPENFIRE_XML_RPCPORT)) {
+            return getPort();
+        }
+        return super.getParam(paramName);
     }
 }

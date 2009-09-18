@@ -341,4 +341,8 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     protected String getLabelKey() {
         return "label." + getBeanId();
     }
+
+    public Object getParam(String paramName) {
+        return null;
+    }
 }

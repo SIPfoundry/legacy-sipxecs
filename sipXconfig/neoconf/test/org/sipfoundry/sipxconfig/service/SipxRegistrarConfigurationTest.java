@@ -97,6 +97,8 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
 
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, registrarService,
                 proxyService, parkService);
+        expect(sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10").anyTimes();
+        expect(sipxServiceManager.getServiceParam("openfire-xml-rpc-port")).andReturn(49094).anyTimes();
         replay(domainManager, sipxServiceManager);
 
         SipxRegistrarConfiguration out = new SipxRegistrarConfiguration();
