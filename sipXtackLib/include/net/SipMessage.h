@@ -837,8 +837,9 @@ public:
                                       int               warningCode,
                                       const char*       warningText,
                                       const UtlString&  address
-                                      );
-
+                                      ///< warn-agent: hostport or token, *not* URI
+       );
+                                      
     //@}
 
 
@@ -945,7 +946,13 @@ public:
 
     void addRequestDisposition(const char* dispositionToken);
 
-    void setWarningField(int code, const char* hostname, const char* text);
+    /// Set the Warning header field.
+    void setWarningField(int code, ///< warn-code
+                         const char* hostname,
+                         ///< warn-agent: hostport or token, *not* URI
+                         const char* text
+                         ///< warn-text (will be quoted in Warning header)
+       );
     
     void getFromLabel(UtlString* fromLabel) const;
 

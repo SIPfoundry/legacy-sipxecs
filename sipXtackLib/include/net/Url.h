@@ -323,6 +323,7 @@ public:
     void setHostAddress(const char* address);
 
     /// Get the URL host port
+    // (To get the "hostport" in RFC 3261 BNF, see ::getHostWithPort().)
     int getHostPort() const;
     ///< port == PORT_NONE specifies that no port number is present.
 

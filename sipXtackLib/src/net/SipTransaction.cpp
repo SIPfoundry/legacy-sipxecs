@@ -2836,8 +2836,8 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                mySipAddress.setHostAddress(myAddress.data());
                mySipAddress.setHostPort(myPort);
 
-               UtlString identityAddress;
-               mySipAddress.getUri(identityAddress);
+               UtlString myHostport;
+               mySipAddress.getHostWithPort(myHostport);
 
                char loopDetectedText[128];
                sprintf(loopDetectedText, SIP_LOOP_DETECTED_TEXT " with %d hops ago", loopHop);
@@ -2848,7 +2848,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                                                                   loopDetectedText,
                                                                   SIP_WARN_MISC_CODE,
                                                                   loopDetectedText,
-                                                                  identityAddress
+                                                                  myHostport
                                                                  );
                userAgent.setSelfHeader(*loopDetectedResponse);
 
