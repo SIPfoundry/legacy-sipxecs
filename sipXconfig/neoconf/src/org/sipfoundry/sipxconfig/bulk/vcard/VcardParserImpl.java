@@ -24,7 +24,7 @@ public class VcardParserImpl implements BulkParser {
     private static final String DEFAULT_VERSION = "3.0";
     private Pattern m_versionPattern = Pattern.compile("(?i)VERSION:((?:\\d)+(?:\\.\\d)*)");
     private Pattern m_namePattern = Pattern
-            .compile("(?i)N:([\\p{L} ,\\.\\-]*)(?:;([\\p{L} ,\\.\\-]*))?(?:;[\\p{L} ,\\.\\-]*){0,3}");
+            .compile("(?i)N:([\\p{L} ,\\.\\-, \\d]*)(?:;([\\p{L} ,\\.\\-, \\d]*))?(?:;[\\p{L} ,\\.\\-, \\d]*){0,3}");
     private Pattern m_phoneV21Pattern;
     private Pattern m_phoneV30Pattern;
 

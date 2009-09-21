@@ -39,8 +39,8 @@ public class VcardParserImplTest extends TestCase {
 
         String[] entry1 = entriesList.get(0);
         assertEquals(3, entry1.length);
-        assertEquals("Jean Luc", entry1[0]);
-        assertEquals("Picard", entry1[1]);
+        assertEquals("34 Jean 2Luc4", entry1[0]);
+        assertEquals("Picard12", entry1[1]);
         assertEquals("1234", entry1[2]);
 
         String[] entry2 = entriesList.get(1);
