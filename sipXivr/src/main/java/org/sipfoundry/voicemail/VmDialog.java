@@ -25,6 +25,7 @@ public class VmDialog {
     public VmDialog(VoiceMail vm, String plFrag) {
         m_vm = vm ;
         m_loc = vm.getLoc();
+        m_speakCanceled = true;
         
         if (plFrag != null) {
             m_pl = m_loc.getPromptList(plFrag);

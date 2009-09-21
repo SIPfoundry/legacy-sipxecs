@@ -858,6 +858,7 @@ public class Retrieve {
                 vmd = new VmDialog(m_vm, "vm_options_nopin");
                 validDigits = "1234";
             }
+            vmd.setSpeakCanceled(false);
             String digit = vmd.collectDigit(validDigits);
             if (digit == null) {
                 // bad entry, timeout, canceled
@@ -1235,7 +1236,7 @@ public class Retrieve {
             // "To play your {thingy}, press 1."
             // "To accept your {thingy}, press 2."  
             // "To delete this {thingy} and try again, press 3."  
-            // To cancel, press *"
+            // "To cancel, press *"
             VmDialog vmd = new VmDialog(m_vm, confirmMenuFragment);
             if (playWav) {
                 PromptList messagePl = new PromptList(m_loc);
