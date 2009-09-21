@@ -30,8 +30,13 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
    , mpHttpRequest(new HttpMessage())
    , mpRequestBody(new XmlRpcBody())
 {
+   UtlString path;
+   if( uri.getPath( path ) == FALSE )
+   {
+      path = "/RPC2";
+   }   
    // Start to contruct the HTTP message
-   mpHttpRequest->setFirstHeaderLine(HTTP_POST_METHOD, "/RPC2", HTTP_PROTOCOL_VERSION_1_1);
+   mpHttpRequest->setFirstHeaderLine(HTTP_POST_METHOD, path, HTTP_PROTOCOL_VERSION_1_1);
    mpHttpRequest->addHeaderField("Accept", "text/xml");
    mpHttpRequest->setUserAgentField(PACKAGE_NAME "_xmlrpc/" PACKAGE_VERSION);
    

@@ -72,10 +72,13 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
             m_domainName = domainName;
         }
 
-        @SettingEntry(paths = {
-                HOST_SETTING, WATCHER_SETTING
-                })
+        @SettingEntry(path = WATCHER_SETTING)
         public String getHostAddress() {
+            return m_location.getAddress();
+        }
+
+        @SettingEntry(path = HOST_SETTING)
+        public String getHostFqdn() {
             return m_location.getFqdn();
         }
 

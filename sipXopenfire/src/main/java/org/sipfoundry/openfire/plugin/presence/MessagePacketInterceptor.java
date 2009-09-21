@@ -31,7 +31,6 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     public void interceptPacket(Packet packet, Session session, boolean incoming,
             boolean processed) throws PacketRejectedException {
         try {
-            log.debug("intercept Packet (" + incoming + "," + processed + "):" + packet);
             if (packet instanceof Message) {
                 Message message = (Message) packet;
                 if (message.getType() == Message.Type.chat) {
@@ -42,7 +41,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                 }
             }
         } catch (Exception e) {
-            log.debug("Caughtx: '" + e.getMessage());
+            log.debug("Caught: '" + e.getMessage());
             e.printStackTrace(System.err);
         }
     }

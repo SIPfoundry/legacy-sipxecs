@@ -103,6 +103,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    // OsNotification virtual method implementation
    virtual OsStatus signal(intptr_t eventData);
 
+   static const UtlString& getLocalDomainName( void );
   protected:
 
    // String to use in place of class name in log messages:
@@ -121,7 +122,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    OsStatus startPresenceMonitorXmlRpcServer( void );
    OsStatus registerPresenceMonitorServerWithOpenfire(void );
    OsStatus pingOpenfire( void );
-
+   static UtlString  sLocalDomain;
 };
 
 class UnifiedPresenceChangedMethod : public XmlRpcMethod

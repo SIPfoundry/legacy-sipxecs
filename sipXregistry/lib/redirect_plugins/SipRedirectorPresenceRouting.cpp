@@ -99,6 +99,8 @@ void UnifiedPresence::setUnifiedPresence( const UtlString& unifiedPresence )
 
 UnifiedPresenceContainer* UnifiedPresenceContainer::pInstance = 0;
 
+UtlString SipRedirectorPresenceRouting::sLocalDomain;
+
 UnifiedPresenceContainer* UnifiedPresenceContainer::getInstance( void )
 {
     if( pInstance == 0 )
@@ -239,15 +241,21 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
 OsStatus
 SipRedirectorPresenceRouting::initialize(OsConfigDb& configDb,
                                  int redirectorNo,
-                                 const UtlString& localDomainHost)
+                                 const UtlString& localDomainName)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "%s::SipRedirectorPresenceRouting::initialize", mLogName.data() );
 
    OsStatus rc = OS_FAILED;
-   if( startPresenceMonitorXmlRpcServer() == OS_SUCCESS &&
-	   registerPresenceMonitorServerWithOpenfire() == OS_SUCCESS )
+  
+   sLocalDomain = localDomainName;
+   
+   if( startPresenceMonitorXmlRpcServer() == OS_SUCCESS )
    {
+	   if( registerPresenceMonitorServerWithOpenfire() == OS_SUCCESS )
+	   {
+	      mbRegisteredWithOpenfire = true;
+	   }
       OsTime pingTimerPeriod( OPENFIRE_PING_TIMER_IN_SECS, 0 );
       mPingTimer.periodicEvery( pingTimerPeriod, pingTimerPeriod );
       rc = OS_SUCCESS;
@@ -439,7 +447,6 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
              }
              else
              {
-                mbRegisteredWithOpenfire = true;
                 rc = OS_SUCCESS;
              }
           }
@@ -509,9 +516,10 @@ OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
    {
       // we are not registered with openfire yet, attempt to register again
       if( registerPresenceMonitorServerWithOpenfire() == OS_SUCCESS )
-	  {
+      {
+         mbRegisteredWithOpenfire = true;
          OsSysLog::add(FAC_NAT, PRI_ERR, "%s::signal: reconnected with openfire", mLogName.data() );
-	  }
+      }
    }
    else
    {
@@ -527,6 +535,13 @@ OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
    }
    return OS_SUCCESS;
 }
+
+const UtlString& SipRedirectorPresenceRouting::getLocalDomainName( void )
+{
+   return sLocalDomain;
+}
+
+
 
 const UtlString& SipRedirectorPresenceRouting::name( void ) const
 {
@@ -562,6 +577,12 @@ XmlRpcMethod* UnifiedPresenceChangedMethod::get()
         pUp->setUnifiedPresence  ( ((UtlString*)params.at(4))->data() );
 
         UtlString* pAor = new UtlString( ((UtlString*)params.at(2))->data() );
+        // make sure that the SIP AOR really has a domain part; if not, add it.
+        if( pAor->index('@') == UTL_NOT_FOUND )
+        {
+           pAor->append( '@' );
+           pAor->append( SipRedirectorPresenceRouting::getLocalDomainName() );
+        }
         UnifiedPresenceContainer::getInstance()->insert( pAor, pUp );
     }
     UtlString responseString = "ok";
