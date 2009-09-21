@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.dbunit.database.IDatabaseConnection;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
@@ -126,8 +128,14 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
         List<Conference> conferences = m_context.getAllConferences();
 
-        assertEquals("conf_name_3001", conferences.get(0).getName());
-        assertEquals("conf_desc_3001", conferences.get(0).getDescription());
+        assertEquals(3, conferences.size());
+        Set<String> names = new HashSet<String>();
+        for (Conference conference : conferences) {
+            names.add(conference.getName());
+        }
+        assertTrue(names.contains("conf_name_3001"));
+        assertTrue(names.contains("conf_name_3002"));
+        assertTrue(names.contains("conf_name_3003"));
     }
 
     public void testFindConferenceByName() throws Exception {
