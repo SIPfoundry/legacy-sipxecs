@@ -132,6 +132,9 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                       NULL,    // SipSession* pSession,
                                       NULL     // observerData
                                       );
+   
+   // All is in readiness... Let the proxying begin...
+   mpSipUserAgent->start();
 }
 
 void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)

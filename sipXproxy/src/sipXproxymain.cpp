@@ -799,9 +799,6 @@ proxy( int argc, char* argv[] )
     // Start the router running
     pRouter->start();
 
-    // All is in readiness... Let the proxying begin...
-    pSipUserAgent->start();
-
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
     {
