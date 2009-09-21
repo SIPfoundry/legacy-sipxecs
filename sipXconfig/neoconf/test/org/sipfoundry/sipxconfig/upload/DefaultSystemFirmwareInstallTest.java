@@ -86,7 +86,8 @@ public class DefaultSystemFirmwareInstallTest extends TestCase {
         assertTrue(firmwares.isEmpty());
     }
 
-    public void testInstall() {
+    // FIXME: temporarily disabled see XX-5840
+    public void _testInstall() {
         Upload upload1 = new Upload();
         upload1.setUniqueId();
         Upload upload2 = new Upload();
