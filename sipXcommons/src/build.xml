@@ -63,7 +63,8 @@
            optimize="${optimize}"
            includes="**/*.java"
            source="1.6"
-           target="1.6"/>
+           target="1.6"
+           encoding="UTF8"/>
   </target>
 
   <!-- C O M P I L E  T E S T S -->
