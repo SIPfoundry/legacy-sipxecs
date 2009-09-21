@@ -599,12 +599,14 @@
   </bean>
 
   <bean id="appearanceGroupsConfiguration" class="org.sipfoundry.sipxconfig.service.AppearanceGroupsConfiguration" parent="serviceConfigurationFile">
+    <property name="restartRequired" value="false" />
     <property name="name" value="appearance-groups.xml" />
     <property name="template" value="sipxsaa/appearance-groups.vm" />
     <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="sipxSaaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSaaConfiguration" parent="serviceConfigurationFile">
+    <property name="restartRequired" value="false" />
     <property name="name" value="sipxsaa-config" />
     <property name="template" value="sipxsaa/sipxsaa-config.vm" />
   </bean>
