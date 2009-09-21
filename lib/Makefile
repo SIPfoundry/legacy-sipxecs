@@ -31,6 +31,7 @@ AC_TARGETS = \
 	w3c-libwww \
 	xerces-c \
 	freeswitch \
+	kraken \
 	rrdtool \
 	nsis \
 	stunnel \
