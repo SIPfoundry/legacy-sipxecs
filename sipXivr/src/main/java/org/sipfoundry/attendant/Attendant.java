@@ -428,11 +428,9 @@ public class Attendant {
         LOG.info("Attendant::failure");
 
         if (m_config.isTransferOnFailure()) {
-            Play p = new Play(m_fses);
-            PromptList pl = new PromptList();
+            PromptList pl = m_loc.getPromptList();
             pl.addPrompts(m_config.getTransferPrompt());
-            p.setDigitMask("");
-            p.go();
+            m_loc.play(pl, "");
             
             String dest = m_config.getTransferURL();
             if (!dest.toLowerCase().contains("sip:")) {
