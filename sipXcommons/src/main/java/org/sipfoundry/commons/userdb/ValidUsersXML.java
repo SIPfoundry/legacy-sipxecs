@@ -252,6 +252,8 @@ public class ValidUsersXML {
 
         String normal = orig.toUpperCase();
 
+        // TODO: Create a portable method for conversion of diacriticals.
+        /*
         // Brute force conversion of diacriticals
         normal = normal.replaceAll("[ÂÀÄÁÃ]", "A");
         normal = normal.replaceAll("[ÊÈËÉ]", "E");
@@ -260,6 +262,7 @@ public class ValidUsersXML {
         normal = normal.replaceAll("[ÛÙÜÚ]", "U");
         normal = normal.replaceAll("Ç", "C");
         normal = normal.replaceAll("Ñ", "N");
+        */
 
         // Remove non letters
         normal = normal.replaceAll("[^A-Z]", "");
