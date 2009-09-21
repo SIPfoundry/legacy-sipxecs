@@ -48,7 +48,7 @@ ${s.ProfileName}=$!{s.Value}
 
 #if(${gateway.ModelDefinitions.contains("fxo")})
 [Trunks]
-TRUNKGROUP_1=1-${gateway.ports.size()},${firstDefaultCLID},0
+TRUNKGROUP_1=1-${gateway.ports.size()},$!{firstDefaultCLID},0
 PSTNPREFIX=*,1,*,*,0
 TRUNKGROUPSETTINGS=1,1,255,$ignore
 #foreach ($port in $gateway.ports)
@@ -69,7 +69,7 @@ TARGETOFCHANNEL${port_id}=${extension},${enable}
 #set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
 #set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
 #set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
-TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},${firstDefaultCLID},0
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$!{firstDefaultCLID},0
 TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
 PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
