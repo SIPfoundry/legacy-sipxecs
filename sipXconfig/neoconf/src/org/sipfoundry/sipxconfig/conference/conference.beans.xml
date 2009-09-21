@@ -30,6 +30,7 @@
     <property name="aliasManager" ref="aliasManager" />
     <property name="coreContext" ref="coreContext" />
     <property name="domainManager" ref="domainManager" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning" />
     </property>

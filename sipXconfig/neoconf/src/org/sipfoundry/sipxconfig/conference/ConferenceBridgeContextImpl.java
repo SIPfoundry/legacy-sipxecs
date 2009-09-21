@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
@@ -59,9 +60,14 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private CoreContext m_coreContext;
     private DomainManager m_domainManager;
     private SipxServiceBundle m_conferenceBundle;
+    private DaoEventPublisher m_daoEventPublisher;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 
     public void store(Bridge bridge) {
@@ -77,6 +83,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
         m_provisioning.deploy(conference.getBridge().getId());
+        m_daoEventPublisher.publishSave(conference);
     }
 
     public void validate(Conference conference) {
@@ -122,6 +129,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         for (Iterator i = conferencesIds.iterator(); i.hasNext();) {
             Serializable id = (Serializable) i.next();
             Conference conference = loadConference(id);
+            m_daoEventPublisher.publishDelete(conference);
             Bridge bridge = conference.getBridge();
             bridge.removeConference(conference);
             bridges.add(bridge);
@@ -221,6 +229,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                     Restrictions.eq("g.id", ownerGroupId));
         }
         return criteria;
+    }
+
+    public List<Conference> getAllConferences() {
+        return getHibernateTemplate().loadAll(Conference.class);
     }
 
     public List<Conference> filterConferences(final Integer bridgeId, final Integer ownerGroupId) {

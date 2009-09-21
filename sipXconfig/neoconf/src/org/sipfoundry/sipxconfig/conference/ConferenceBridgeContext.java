@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
-    public static final String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
+    String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 
     List getBridges();
 
@@ -45,6 +45,8 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     Bridge getBridgeByServer(String hostname);
 
+    List<Conference> getAllConferences();
+
     Conference loadConference(Serializable id);
 
     Conference findConferenceByName(String name);
@@ -55,10 +57,10 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     void clear();
 
-    public List<Conference> filterConferences(final Integer bridgeId, final Integer  ownerGroupId);
+    List<Conference> filterConferences(final Integer bridgeId, final Integer ownerGroupId);
 
-    public int countFilterConferences(final Integer bridgeId, final Integer  ownerGroupId);
+    int countFilterConferences(final Integer bridgeId, final Integer ownerGroupId);
 
-    public List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer  ownerGroupId,
-            int firstRow, int pageSize, String[] orderBy, boolean orderAscending);
+    List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer ownerGroupId, int firstRow,
+            int pageSize, String[] orderBy, boolean orderAscending);
 }

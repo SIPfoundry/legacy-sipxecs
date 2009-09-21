@@ -10,25 +10,31 @@
 package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
-import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.Bridge;
+import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
+import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
-public class XmppAccountInfoTest extends XMLTestCase {
+public class XmppAccountInfoTest extends TestCase {
     private List<User> m_users;
     private List<Group> m_groups;
+    private List<Conference> m_conferences;
     private User m_userOne;
     private User m_userTwo;
     private Group m_group1;
@@ -106,10 +112,43 @@ public class XmppAccountInfoTest extends XMLTestCase {
         m_groups = new ArrayList<Group>();
         m_groups.add(m_group1);
         m_groups.add(m_group2);
+
+        m_conferences = new ArrayList<Conference>();
+
+        Conference conf1 = new Conference() {
+            @Override
+            public Bridge getBridge() {
+                Bridge mockBridge = new Bridge() {
+                    @Override
+                    public String getHost() {
+                        return "servicename.domain.com";
+                    }
+                };
+                return mockBridge;
+            }
+
+            @Override
+            public String getParticipantAccessCode() {
+                return "123";
+            }
+        };
+        conf1.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        conf1.setEnabled(true);
+        conf1.setName("conf1");
+        conf1.setDescription("Description");
+        conf1.setExtension("300");
+        conf1.setSettingTypedValue("chat-meeting/moderated", true);
+        conf1.setSettingTypedValue("chat-meeting/log-conversations", false);
+        conf1.setOwner(m_userOne);
+        m_conferences.add(conf1);
+
+        Conference conf2 = new Conference();
+        m_conferences.add(conf2);
     }
 
     public void testGenerate() throws Exception {
-        CoreContext coreContext = EasyMock.createMock(CoreContext.class);
+        CoreContext coreContext = createMock(CoreContext.class);
+
         coreContext.loadUsers();
         expectLastCall().andReturn(m_users).atLeastOnce();
         coreContext.getGroups();
@@ -118,14 +157,22 @@ public class XmppAccountInfoTest extends XMLTestCase {
         expectLastCall().andReturn(Arrays.asList(m_userOne, m_userTwo)).once();
         coreContext.getGroupMembers(m_group2);
         expectLastCall().andReturn(null).once();
-        EasyMock.replay(coreContext);
+        replay(coreContext);
+
+        ConferenceBridgeContext m_conferenceContext = createMock(ConferenceBridgeContext.class);
+
+        m_conferenceContext.getAllConferences();
+        expectLastCall().andReturn(m_conferences).atLeastOnce();
+        replay(m_conferenceContext);
 
         XmppAccountInfo xmppAccountInfo = new XmppAccountInfo();
         xmppAccountInfo.setCoreContext(coreContext);
+        xmppAccountInfo.setConferenceBridgeContext(m_conferenceContext);
+
         Document document = xmppAccountInfo.getDocument();
         String domDoc = TestUtil.asString(document);
 
         InputStream referenceXml = XmppAccountInfoTest.class.getResourceAsStream("xmpp-account-info.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(domDoc));
+        assertEquals(IOUtils.toString(referenceXml), domDoc);
     }
 }

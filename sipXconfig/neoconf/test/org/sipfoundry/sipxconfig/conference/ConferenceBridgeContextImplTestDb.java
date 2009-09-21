@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
@@ -39,8 +39,8 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
                 LocationsManager.CONTEXT_BEAN_NAME);
         m_sipxServiceManager = (SipxServiceManager) TestHelper.getApplicationContext().getBean(
-                SipxServiceManager.CONTEXT_BEAN_NAME);        
-        
+                SipxServiceManager.CONTEXT_BEAN_NAME);
+
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("conference/users.db.xml");
     }
@@ -66,11 +66,11 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         SipxService freeswitchService = m_sipxServiceManager.getServiceByBeanId("sipxFreeswitchService");
         LocationSpecificService service = new LocationSpecificService(freeswitchService);
         location.addService(service);
-        
+
         m_locationsManager.storeLocation(location);
-        
+
         Bridge bridge = new Bridge();
-        bridge.setService(service);        
+        bridge.setService(service);
         Conference conference = new Conference();
         conference.setName("c1");
         bridge.addConference(conference);
@@ -120,6 +120,14 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
         assertEquals("conf_name_3001", conference.getName());
         assertEquals("conf_desc_3001", conference.getDescription());
+    }
+
+    public void testGetAllConferences() throws Exception {
+        TestHelper.insertFlat("conference/participants.db.xml");
+        List<Conference> conferences = m_context.getAllConferences();
+
+        assertEquals("conf_name_3001", conferences.get(0).getName());
+        assertEquals("conf_desc_3001", conferences.get(0).getDescription());
     }
 
     public void testFindConferenceByName() throws Exception {

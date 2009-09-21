@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class SipxOpenfireDaoListener implements DaoEventListener {
@@ -39,6 +40,9 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
         if (entity instanceof Group) {
             Group group = (Group) entity;
             return User.GROUP_RESOURCE_ID.equals(group.getResource());
+        }
+        if (entity instanceof Conference) {
+            return true;
         }
         return false;
     }

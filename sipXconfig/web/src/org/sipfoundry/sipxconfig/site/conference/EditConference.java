@@ -10,9 +10,10 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+import static java.util.Arrays.asList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,9 +39,11 @@ import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "conference/EditConference";
-
     public static final String TAB_CONFIG = "config";
     public static final String TAB_PARTICIPANTS = "participants";
+
+    private static final String TAB_CHAT = "chat";
+    private static final String TAB_WEB = "dimdim";
 
     private static final Log LOG = LogFactory.getLog(EditConference.class);
 
@@ -141,10 +144,14 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
 
     public List<String> getTabNames() {
         Conference conference = getConference();
-        if (conference.isNew() || !conference.isEnabled()) {
-            return Arrays.asList(TAB_CONFIG);
+        if (conference.isNew()) {
+            return asList(TAB_CONFIG);
         }
-        return Arrays.asList(TAB_CONFIG, TAB_PARTICIPANTS, "dimdim");
+        if (!conference.isEnabled()) {
+            // participants are only visible for enabled conferences
+            return asList(TAB_CONFIG, TAB_WEB, TAB_CHAT);
+        }
+        return asList(TAB_CONFIG, TAB_PARTICIPANTS, TAB_WEB, TAB_CHAT);
     }
 
     public void apply() {

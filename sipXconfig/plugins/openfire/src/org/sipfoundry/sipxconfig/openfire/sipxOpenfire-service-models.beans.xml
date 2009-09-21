@@ -49,6 +49,7 @@
     parent="defaultConfigurationFile">
     <property name="name" value="xmpp-account-info.xml"/>
     <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
   </bean>
 
