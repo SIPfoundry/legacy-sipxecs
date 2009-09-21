@@ -132,7 +132,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         watcherConfig = parser.parse("file://" + configurationFile);
         logFile = watcherConfig.getLogDirectory() + "/sipxopenfire.log";
         RestServerConfigFileParser callControllerConfigFileParser = new RestServerConfigFileParser();
-        String url = configurationPath + "/sipxrest.xml";
+        String url = configurationPath + "/sipxrest-config.xml";
         restServerConfig = callControllerConfigFileParser.parse(url);
 
     }
