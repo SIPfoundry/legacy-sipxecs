@@ -9,6 +9,7 @@ package sipxpage;
 public class InboundLeg extends Leg
 {
    String fromAddress; // Identity of Page initiator in "user@hostport" format
+   String callId;      // Call Id of the initiator call. 
 
    InboundLeg (LegSipListener legSipListener, LegListener otherListener)
    {
@@ -25,6 +26,16 @@ public class InboundLeg extends Leg
    public String getAddress()
    {
       return fromAddress ;
+   }
+
+   public void setCallId(String callId)
+   {
+      this.callId = callId;
+   }
+
+   public String getCallId()
+   {
+      return callId ;
    }
 
 }

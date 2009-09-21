@@ -148,15 +148,19 @@ public class LegSipListener implements SipListener
     * Place an outbound call.
     *
     * @param leg
-    * @param uri The destination of the call
-    * @return The callId of the created call
+    * @param toAddress The destination of the call
+    * @param displayName The display name to use in the From.
+    * @param fromCallId The call Id from the page originator request.
+    * @param sdp The session description to use in placing the call.
+    * @param alertInfoKey  The magic value needed to trigger Auto-Answer on Polycom Phones
+    * @return The call Id of the created call
     */
-   public String placeCall(Leg leg, SipURI toAddress, String displayName, SessionDescription sdp, String alertInfoKey) throws Throwable
+   public String placeCall(Leg leg, SipURI toAddress, String displayName, String fromCallId, SessionDescription sdp, String alertInfoKey) throws Throwable
    {
       // TODO Lookup the toAddress in the registration database, so as to only
       // send to the registered phones.
       LOG.info(String.format("LegSipListener::placeCall to %s", toAddress.toString())) ;
-      Request request = buildInviteRequest(leg, displayName, toAddress, alertInfoKey);
+      Request request = buildInviteRequest(leg, displayName, fromCallId, toAddress, alertInfoKey);
 
       // Create ContentTypeHeader
       ContentTypeHeader contentTypeHeader = headerFactory
@@ -318,7 +322,7 @@ public class LegSipListener implements SipListener
     * @return The INVITE request
     * @throws Exception
     */
-   Request buildInviteRequest(Leg leg, String fromDisplayName, SipURI toAddress, String alertInfoKey) throws Throwable
+   Request buildInviteRequest(Leg leg, String fromDisplayName, String fromCallId, SipURI toAddress, String alertInfoKey) throws Throwable
    {
       // create From Header
       SipURI fromURI = addressFactory.createSipURI("pager", fromSipAddress);
@@ -391,6 +395,14 @@ public class LegSipListener implements SipListener
 
       ContactHeader contactHeader = headerFactory.createContactHeader(contactAddress);
       request.addHeader(contactHeader);
+
+      // Create the Reference header.
+      if (fromCallId != null)
+      {
+          Header referencesHeader = headerFactory.createHeader("References", fromCallId + ";rel=chain") ;
+          request.addHeader(referencesHeader);
+      }
+
 
       return request ;
    }
@@ -498,6 +510,7 @@ public class LegSipListener implements SipListener
                leg.setAddress( sipUri.getUserAtHostPort() );
             }
          }
+         leg.setCallId(dialog.getCallId().getCallId());
          serverTransactionId.setApplicationData(leg) ;
          dialogLegMap.put(dialog, leg) ;
          legDialogMap.put(leg, dialog) ;

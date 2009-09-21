@@ -165,7 +165,7 @@ public class PageGroup implements LegListener
                // is initiating the page.
                if (destination.compareToIgnoreCase(pageOriginatorAddress) != 0)
                {
-                  Leg outbound = placeCall(inbound.getDisplayName(), destination, alertInfoKey) ;
+                  Leg outbound = placeCall(inbound.getDisplayName(), origLeg.getCallId(), destination, alertInfoKey) ;
                   if (outbound != null)
                   {
                      // Keep track of them!
@@ -237,11 +237,12 @@ public class PageGroup implements LegListener
     * Place an outbound call
     *
     * @param fromName  The name to display as "from"
+    * @param fromCallId  The call Id from the page originator call.
     * @param destination The user@host to call
     * @param alertInfoKey The magic key needed for Polycom Auto-Answer
     * @return
     */
-   Leg placeCall(String fromName, String destination, String alertInfoKey)
+   Leg placeCall(String fromName, String fromCallId, String destination, String alertInfoKey)
    {
       LOG.debug(String.format("PageGroup::placeCall(%s, %s)", fromName, destination));
       OutboundLeg oLeg = null ;
@@ -256,7 +257,7 @@ public class PageGroup implements LegListener
 
          SessionDescription sdp = legSipListener.buildSdp(new InetSocketAddress(ipAddress, tossPort), false) ;
 
-         oLeg.createLeg(toAddress, "Page from "+fromName, sdp, alertInfoKey);
+         oLeg.createLeg(toAddress, "Page from "+fromName, fromCallId, sdp, alertInfoKey);
 
       } catch (Throwable t) {
          LOG.warn(String.format("PageGroup::placeCall Problem calling %s", destination), t) ;
