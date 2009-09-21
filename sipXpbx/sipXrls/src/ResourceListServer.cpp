@@ -268,8 +268,8 @@ void ResourceListServer::shutdown()
    // Stop the subscribe server.
    mSubscribeServer.requestShutdown();
 
-   // Shut down SipUserAgent's
-   // Shut down the ResourceListTask
+   // Shut down SipUserAgent's.
+   // Shut down the ResourceListTask.
    mServerUserAgent.shutdown(FALSE);
    mClientUserAgent.shutdown(FALSE);
    mResourceListTask.requestShutdown();

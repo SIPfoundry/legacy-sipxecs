@@ -102,9 +102,10 @@ void ResourceListSet::finalize()
                  "ResourceListSet::finalize this = %p",
                  this);
 
-   // Make sure the ResourceList's are destroyed before the ResourceCache,
-   // so that all references to the ResourceCached's are removed.
-   mResourceLists.destroyAll();
+   // Make sure the ResourceList's are destroyed so that all
+   // references to the ResourceCached's are removed, before
+   // destroying the ResourceCache.
+   deleteAllResourceLists();
 
    // Make sure the publishing timer is stopped before the ResourceListTask
    // is destroyed, because the timer posts messages to ResourceListTask.
