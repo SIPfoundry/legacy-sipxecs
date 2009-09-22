@@ -23,6 +23,7 @@ public class EditMyInformationTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(getTester(), false);
         clickLink("seedTestUser");
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");
@@ -35,7 +36,8 @@ public class EditMyInformationTestUi extends WebTestCase {
     public void testDisplay() {
         clickLink("menu.myInformation");
         SiteTestHelper.assertNoUserError(tester);
-        assertTextPresent("Active greeting");
+        assertElementPresentByXPath("//label[@for='user:activeGreeting']");
+//        assertTextPresent("Active greeting");
     }
 
     public void testTabNavigation() {

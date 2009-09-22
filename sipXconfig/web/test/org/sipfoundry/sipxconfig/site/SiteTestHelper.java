@@ -390,7 +390,7 @@ public class SiteTestHelper {
      */
     public static boolean setScriptingEnabled(WebTester tester, @SuppressWarnings("unused") boolean enabled) {
         // FIXME: always switch off - dojo is not parsed correctly
-        tester.setScriptingEnabled(false);
+        tester.setScriptingEnabled(enabled);
         return false;
     }
 
@@ -409,7 +409,7 @@ public class SiteTestHelper {
 
     public static void clickSubmitLink(WebTester tester, String linkName) {
         tester.setTextField(FormConstants.SUBMIT_NAME_PARAMETER, linkName);
-        tester.submitForm();
+        tester.submit();
     }
 
     public static void dumpPage(WebTester webTester) {
@@ -418,11 +418,11 @@ public class SiteTestHelper {
 
     public static void selectOption(WebTester tester, String selectName, String label) {
         tester.selectOption(selectName, label);
-        tester.submitForm();
+        tester.submit();
     }
 
     public static void selectOptionByValue(WebTester tester, String selectName, String value) {
         tester.selectOptionByValue(selectName, value);
-        tester.submitForm();
+        tester.submit();
     }
 }

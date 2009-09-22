@@ -37,11 +37,12 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         setWorkingForm("userSchedules");
         checkCheckbox("checkbox");
+        setExpectedJavaScriptConfirm("Are you sure you want to delete selected schedules?", true);
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
@@ -50,14 +51,14 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule_overlap");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         selectOption("day", "Monday");
         setTextField("from", "9:00 AM");
         setTextField("to", "11:00 AM");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         setWorkingForm("editScheduleForm");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         selectOption("day_0", "Monday");
         setTextField("from_0", "7:00 AM");
         setTextField("to_0", "10:00 AM");
@@ -66,6 +67,7 @@ public class EditScheduleTestUi extends WebTestCase {
         clickButton("form:cancel");
         setWorkingForm("userSchedules");
         checkCheckbox("checkbox");
+        setExpectedJavaScriptConfirm("Are you sure you want to delete selected schedules?", true);
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
@@ -74,7 +76,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule_startstop");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         selectOption("day", "Monday");
         setTextField("from", "11:00 AM");
         setTextField("to", "9:00 AM");
@@ -98,12 +100,12 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
     }
@@ -112,11 +114,12 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule name with spaces");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         setWorkingForm("userSchedules");
         SiteTestHelper.assertNoUserError(tester);
         checkCheckbox("checkbox");
+        setExpectedJavaScriptConfirm("Are you sure you want to delete selected schedules?", true);
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }

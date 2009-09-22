@@ -104,6 +104,7 @@
     <pathelement path="${easymockclassextension.jar}"/>
     <pathelement path="${commons-httpclient.jar}"/>
     <pathelement path="${htmlunit.jar}"/>
+    <pathelement path="${htmlunit-core-js.jar}"/>
     <pathelement path="${jwebunit-core.jar}"/>
     <pathelement path="${jwebunit-htmlunit-plugin.jar}"/>
     <pathelement path="${regexp.jar}"/>
@@ -115,6 +116,11 @@
     <pathelement path="${nekohtml.jar}"/>
     <pathelement path="${cssparser.jar}"/>
     <pathelement path="${commons-codec.jar}"/>
+    <pathelement path="${sac.jar}"/>
+    <pathelement path="${serializer.jar}"/>
+    <pathelement path="${xalan.jar}"/>
+    <pathelement path="${sl4j-api.jar}"/>
+    <pathelement path="${slf4j-log4j12.jar}"/>
   </path>
 
   <target name="init" depends="ant-targets.init">

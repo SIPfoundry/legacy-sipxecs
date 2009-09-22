@@ -37,7 +37,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         Table sbcsTable = getTable("list:sbc");
         assertEquals(1, sbcsTable.getRowCount());
 
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbc1");
         setTextField("sbcDevice:address", "10.1.1.1");
         clickButton("form:ok");
@@ -46,7 +46,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         assertEquals(2, sbcsTable.getRowCount());
 
         // local address automatically configured
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbc2");
         assertTextFieldEquals("sbcDevice:address", "");
         setTextField("sbcDevice:address", "10.0.0.1");
@@ -58,6 +58,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         // delete one sbc
         setWorkingForm("Form");
         checkCheckbox("checkbox");
+        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBCs?", true);
         clickButton("list:sbc:delete");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
@@ -77,6 +78,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         for (int i = 0; i < rowCount - 1; i++) {
             SiteTestHelper.selectRow(getTester(), i, true);
         }
+        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBCs?", true);
         clickButton("list:sbc:delete");
         assertEquals(1, SiteTestHelper.getRowCount(getTester(), "list:sbc"));
     }
@@ -84,12 +86,12 @@ public class EditSbcDeviceTestUi extends WebTestCase {
     public void testAddSbcWithSameName() throws Exception {
         SiteTestHelper.assertNoUserError(tester);
 
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "uniqueSbcName");
         setTextField("sbcDevice:address", "10.1.1.2");
         clickButton("form:ok");
 
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "uniqueSbcName");
         setTextField("sbcDevice:address", "10.1.1.3");
         clickButton("form:ok");
@@ -101,7 +103,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         int rowCount = SiteTestHelper.getRowCount(getTester(), "list:sbc");
 
-        SiteTestHelper.selectOption(tester, "PropertySelection", "Unmanaged SBC");
+        selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcWithoutIp");
         clickButton("form:ok");
 

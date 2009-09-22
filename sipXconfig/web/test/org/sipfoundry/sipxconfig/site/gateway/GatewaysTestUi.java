@@ -44,7 +44,7 @@ public class GatewaysTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(getBaseUrl());
         home(tester);
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("resetDialPlans");
         clickLink("resetBranches");
     }
@@ -132,6 +132,7 @@ public class GatewaysTestUi extends WebTestCase {
      * tab, and no other gateway type has it.
      */
     public void testSipTrunkRouteField() throws Exception {
+        tester.setScriptingEnabled(true);
         clickLink("ListGateways");
 
         String[] nonRouteGateways = {
@@ -140,17 +141,17 @@ public class GatewaysTestUi extends WebTestCase {
         };
 
         for (String gatewayType : nonRouteGateways) {
-            SiteTestHelper.selectOption(tester, "selectGatewayModel", gatewayType);
+            selectOption("selectGatewayModel", gatewayType);
             assertElementNotPresent("sbcDeviceSelect");
             clickButton("form:cancel");
         }
 
-        SiteTestHelper.selectOption(tester, "selectGatewayModel", "SIP trunk");
+        selectOption("selectGatewayModel", "SIP trunk");
         setTextField("gateway:name", "SipTrunkRouteTest");
         setTextField("gateway:address", "1.2.3.4");
         // // FIXME: apply should not be necessary see: XCF-2444
         clickButton("form:apply");
-        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
+        selectOption("sbcDeviceSelect", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");

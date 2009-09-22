@@ -59,7 +59,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("resetDialPlans");
         SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("FlexibleDialPlan");
     }
 
@@ -287,27 +287,30 @@ public class DialPlanEditTestUi extends WebTestCase {
     }
 
     public void testAddDeleteCustomSchedule() throws Exception {
+        SiteTestHelper.setScriptingEnabled(getTester(), true);
         SiteTestHelper.assertNoException(tester);
         clickLink("link:schedules");
         clickLink("addSchedule");
         setWorkingForm("editScheduleForm");
         setTextField("item:name", "customRuleSchedule");
         setTextField("item:description", "Schedule for a custom rule");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         checkCheckbox("checkbox");
+        setExpectedJavaScriptConfirm("Are you sure you want to delete selected schedules?", true);
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testAddGeneralScheduleWithSameName() throws Exception {
         SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("link:schedules");
         clickLink("addSchedule");
         setWorkingForm("editScheduleForm");
         setTextField("item:name", "generalSchedule");
         setTextField("item:description", "Schedule for a rule");
-        SiteTestHelper.clickSubmitLink(tester, "addPeriod");
+        clickLink("addPeriod");
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);

@@ -44,7 +44,7 @@ public class InternetCallingTestUi extends WebTestCase {
         assertElementNotPresent("sbc:list");
 
         // try toglling
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        clickLink("setting:toggle");
 
         assertLinkPresent("sbc:add");
         assertElementPresent("sbc:list");
@@ -57,13 +57,13 @@ public class InternetCallingTestUi extends WebTestCase {
         // it's going to fail since "Enable Internet Calling" is checked and SBC address is needed
         SiteTestHelper.assertUserError(tester);
 
-        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
+        selectOption("sbcDeviceSelect", "Unmanaged SBC");
         SiteTestHelper.assertNoUserError(tester);
         setTextField("sbcDevice:name", "sbcDevice1");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "sbcDevice1");
+        selectOption("sbcDeviceSelect", "sbcDevice1");
 
         Table auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
@@ -71,11 +71,11 @@ public class InternetCallingTestUi extends WebTestCase {
         // add aditional SBC
         clickLink("sbc:add");
         SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "Unmanaged SBC");
+        selectOption("sbcDeviceSelect", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbcDevice2");
         setTextField("sbcDevice:address", "sbc.example.net");
         clickButton("form:ok");
-        SiteTestHelper.selectOption(tester, "sbcDeviceSelect", "sbcDevice2");
+        selectOption("sbcDeviceSelect", "sbcDevice2");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 
@@ -86,6 +86,7 @@ public class InternetCallingTestUi extends WebTestCase {
 
         // check number of rows in the table after SBC is deleted
         SiteTestHelper.selectRow(tester, 0, true);
+        setExpectedJavaScriptConfirm("Are you sure you want to delete the selected SBCs?", true);
         clickButton("sbc:delete");
         auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());

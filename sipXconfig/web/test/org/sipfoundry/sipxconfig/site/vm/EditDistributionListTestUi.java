@@ -36,7 +36,7 @@ public class EditDistributionListTestUi extends WebTestCase {
 
     private void goToDistributionListsPage() {
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("resetVoicemail");
         clickLink("loginFirstTestUser");
         clickLink("toggleNavigation");

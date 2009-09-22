@@ -39,7 +39,7 @@ public class RestorePageTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("toggleNavigation");
         clickLink("menu.restore");
         SiteTestHelper.assertNoException(getTester());
@@ -158,13 +158,13 @@ public class RestorePageTestUi extends WebTestCase {
     //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
     //version of httpunit
     public void _testToggleFtpPanel() {
+        SiteTestHelper.setScriptingEnabled(getTester(), true);
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
         setWorkingForm("renderForm");
         assertElementPresent("backupPlan:type");
         selectOption("backupPlan:type","FTP");
         assertElementPresent("link");
-        setWorkingForm("configurationForm");
         assertElementNotPresent("ftp:address");
         assertElementNotPresent("ftp:user");
         assertElementNotPresent("ftp:password");
@@ -176,7 +176,6 @@ public class RestorePageTestUi extends WebTestCase {
         setWorkingForm("renderForm");
         selectOption("backupPlan:type","Local");
         assertElementNotPresent("link");
-        setWorkingForm("configurationForm");
         assertElementNotPresent("ftp:address");
         assertElementNotPresent("ftp:user");
         assertElementNotPresent("ftp:password");
@@ -185,14 +184,17 @@ public class RestorePageTestUi extends WebTestCase {
     //FIXME: commented because this test needs Ajax capabilities (DOJO based) not supported by the current
     //version of httpunit
     public void _testApplyFtpPanel() {
+        SiteTestHelper.setScriptingEnabled(getTester(), true);
         SiteTestHelper.assertNoException(getTester());
         setWorkingForm("renderForm");
         selectOption("backupPlan:type","FTP");
         clickButton("link");
-        setWorkingForm("configurationForm");
-        setTextField("ftp:address","address");
-        setTextField("ftp:user", "user");
-        setTextField("ftp:password", "password");
+        getElementByXPath("//input[@id='ftp:address']").setTextContent("address");
+        getElementByXPath("//input[@id='ftp:user']").setTextContent("user");
+        getElementByXPath("//input[@id='ftp:password']").setTextContent("password");
+        //setTextField("ftp:address","address");
+        //setTextField("ftp:user", "user");
+        //setTextField("ftp:password", "password");
         clickButton("form:apply");
         //refresh the panel - read again the data
         //hide panel
@@ -205,14 +207,13 @@ public class RestorePageTestUi extends WebTestCase {
     }
 
     public void testErrorConnectFtpServer() throws Exception {
+        SiteTestHelper.setScriptingEnabled(tester, true);
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:restore");
         setWorkingForm("renderForm");
         selectOption("backupPlan:type","FTP");
-        submitForm();
         SiteTestHelper.assertUserError(getTester());
         selectOption("backupPlan:type","Local");
-        submitForm();
         SiteTestHelper.assertNoException(getTester());
     }
 

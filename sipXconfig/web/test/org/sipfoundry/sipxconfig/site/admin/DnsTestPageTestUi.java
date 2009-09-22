@@ -27,6 +27,7 @@ public class DnsTestPageTestUi extends WebTestCase {
 
     private void clickDnsTestPage() {
         SiteTestHelper.home(tester);
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("toggleNavigation");
         clickLink("menu.dnsTest");
     }
@@ -41,10 +42,10 @@ public class DnsTestPageTestUi extends WebTestCase {
         setWorkingForm("detailedHelpForm");
         assertElementPresent("setting:toggle");
         assertElementNotPresent("detailedHelp");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        clickLink("setting:toggle");
         assertElementPresent("detailedHelp");
         setWorkingForm("detailedHelpForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        clickLink("setting:toggle");
         assertElementNotPresent("detailedHelp");
     }
 
@@ -56,16 +57,17 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementPresent("testResults_0");
         // assert results / help
         assertElementNotPresent("dnsTestStatus");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        clickLink("setting:toggle");
         assertElementPresent("dnsTestStatus");
         setWorkingForm("dnsTestForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
+        submit();
+        clickLink("setting:toggle");
         assertElementNotPresent("dnsTestStatus");
         setWorkingForm("detailedHelpForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle_0");
+        clickLinkWithExactText("Show Detailed Help");
         assertElementPresent("detailedHelp");
         setWorkingForm("detailedHelpForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle_0");
+        clickLinkWithExactText("Hide Detailed Help");
         assertElementNotPresent("detailedHelp");
     }
 
@@ -75,7 +77,7 @@ public class DnsTestPageTestUi extends WebTestCase {
 
         assertNeedToRunTest();
         setWorkingForm("dnsTestForm");
-        submit("runTest");
+        submit();
         assertTestRan();
 
         SiteTestHelper.assertNoException(tester);

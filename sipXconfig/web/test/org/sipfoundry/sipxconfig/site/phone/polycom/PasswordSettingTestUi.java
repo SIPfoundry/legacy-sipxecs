@@ -39,7 +39,7 @@ public class PasswordSettingTestUi extends WebTestCase {
         clickLink("ManagePhones");        
         clickLinkWithText(SiteTestHelper.TEST_USER);
         clickLinkWithText("Credentials");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
-        assertEquals("password", getElementAttributByXPath("//input[@id='setting:password']", "type"));
+        clickLink("setting:toggle");
+        assertEquals("password", getElementAttributeByXPath("//input[@id='setting:password']", "type"));
     }
 }

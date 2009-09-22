@@ -24,7 +24,7 @@ public class ListConfiguredServicesTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("resetConfiguredServices");
         clickLink("link:configuredServices");
     }

@@ -91,7 +91,6 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
             "Q2", "description 2"
         });
         selectOption("setting:overflow-type", "Queue");
-        tester.submitForm();
 
         // re-initialize upload fields as previous set refreshes page
 

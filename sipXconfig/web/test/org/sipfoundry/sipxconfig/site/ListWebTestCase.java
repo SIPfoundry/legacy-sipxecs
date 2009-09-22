@@ -55,7 +55,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.home(getTester());
 
         // assumption true for list bridges at least
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
 
         clickLink(m_resetLink);
         clickLink(m_pageLink);

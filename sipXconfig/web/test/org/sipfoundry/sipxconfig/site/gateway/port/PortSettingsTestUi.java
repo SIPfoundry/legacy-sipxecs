@@ -23,7 +23,7 @@ public class PortSettingsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("NewFxo");
     }
     

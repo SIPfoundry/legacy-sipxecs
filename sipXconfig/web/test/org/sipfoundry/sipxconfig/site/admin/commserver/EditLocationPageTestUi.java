@@ -43,6 +43,7 @@ public class EditLocationPageTestUi extends WebTestCase {
     }
 
     public void testDisplayNatLocationPanel() {
+        tester.setScriptingEnabled(true);
         SiteTestHelper.assertNoUserError(tester);
         clickLink("menu.locations");
         assertLinkPresent("editLocationLink");
@@ -58,12 +59,12 @@ public class EditLocationPageTestUi extends WebTestCase {
         assertSelectOptionValuePresent("type", "0");
         assertSelectOptionValuePresent("type", "1");
 
-        SiteTestHelper.selectOptionByValue(tester, "type", "0");
+        selectOptionByValue("type", "0");
         assertElementNotPresent("stunAddress");
         assertElementNotPresent("stunInterval");
         assertElementPresent("publicAddress");
 
-        SiteTestHelper.selectOptionByValue(tester, "type", "1");
+        selectOptionByValue("type", "1");
         SiteTestHelper.assertNoUserError(tester);
         assertElementPresent("stunAddress");
         assertElementPresent("stunInterval");
@@ -75,7 +76,7 @@ public class EditLocationPageTestUi extends WebTestCase {
         assertTextFieldEquals("publicPort", "5060");
         assertElementNotPresent("startRtpPort");
         assertElementNotPresent("stopRtpPort");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle"); // advanced
+        clickLink("setting:toggle"); // advanced
         assertElementPresent("startRtpPort");
         assertElementPresent("stopRtpPort");
         assertTextFieldEquals("startRtpPort", "30000");

@@ -45,10 +45,12 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertLinkPresentWithText("Show Detailed Help");
         setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
-        assertElementPresent("detailedHelp_0");
+        SiteTestHelper.clickSubmitLink(getTester(), "setting:toggle");
+        assertElementPresentByXPath("//span[@id='detailedHelp_0']");
+        //assertElementPresent("detailedHelp_0");
         setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "setting:toggle");
-        assertElementNotPresent("detailedHelp_0");
+        SiteTestHelper.clickSubmitLink(getTester(), "setting:toggle");
+        //assertElementNotPresent("detailedHelp_0");
+        assertElementNotPresentByXPath("//span[@id='detailedHelp_0']");
     }
 }

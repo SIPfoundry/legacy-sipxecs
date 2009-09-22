@@ -28,7 +28,7 @@ public class EditAcdLineTestUi extends ListWebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);        
+        SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("seedAcdServer");
         clickLink("listAcdServers");
         clickLink("editRowLink");

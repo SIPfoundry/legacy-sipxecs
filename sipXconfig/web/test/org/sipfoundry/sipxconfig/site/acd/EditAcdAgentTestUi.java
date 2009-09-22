@@ -82,7 +82,7 @@ public class EditAcdAgentTestUi extends WebTestCase {
 
     private void addAgent(int i) throws Exception {
         setWorkingForm("agentsForm");
-        SiteTestHelper.clickSubmitLink(tester, "agent:add");
+        clickLink("agent:add");
         SiteTestHelper.assertNoUserError(tester);
         submit("user:search");
         SiteTestHelper.selectRow(tester, i, true);
