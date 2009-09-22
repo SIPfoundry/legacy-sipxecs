@@ -265,7 +265,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             log.error("Error initializing CallWatcher", e);
             throw new SipXOpenfirePluginException("Init error", e);
         }
-
     }
 
     public void destroyPlugin() {
@@ -511,7 +510,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 && this.isValidUser(adminJID)) {
             group.getAdmins().add(adminJID);
         }
-
+        
+        // configure group as 'shared' among group members
+        // (magic recipe taken from 'AddGroup.java file of openfire project)
+        group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
+        group.getProperties().put("sharedRoster.displayName", groupName);
     }
 
     public void addUserToGroup(JID jid, String groupName, boolean isAdmin)
