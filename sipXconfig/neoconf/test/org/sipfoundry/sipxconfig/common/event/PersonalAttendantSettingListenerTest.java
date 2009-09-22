@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ *
+ */
 package org.sipfoundry.sipxconfig.common.event;
 
 import static org.easymock.EasyMock.expectLastCall;
@@ -40,9 +49,10 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
     private Setting m_firstUserSetting;
     private Setting m_secondUserSetting;
 
+    @Override
     public void setUp() {
         m_group = new Group();
-        
+
         m_firstUserSetting = new SettingSet(USER_CONSTANT);
         Setting firstUserPaSetting = new SettingSet(PERSONAL_ATTENDANT_SETTING);
         m_firstUserSetting.addSetting(firstUserPaSetting);
@@ -53,13 +63,13 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         m_firstUser.setUniqueId();
         m_firstUser.setName("firstUser");
         m_firstUser.setSettings(m_firstUserSetting);
-        
+
         m_secondUserSetting = new SettingSet(USER_CONSTANT);
         Setting secondUserPaSetting = new SettingSet(PERSONAL_ATTENDANT_SETTING);
         m_secondUserSetting.addSetting(secondUserPaSetting);
         Setting secondUserOperatorSetting = new SettingImpl(OPERATOR_SETTING);
         secondUserPaSetting.addSetting(secondUserOperatorSetting);
-        
+
         m_secondUser = new User();
         m_secondUser.setUniqueId();
         m_secondUser.setName("secondUser");
@@ -75,11 +85,11 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         PersonalAttendant firstUserAttendant = new PersonalAttendant();
         firstUserAttendant.setUser(m_firstUser);
         m_mailboxManagerMock.storePersonalAttendant(firstUserAttendant);
-        
+
         PersonalAttendant secondUserAttendant = new PersonalAttendant();
         secondUserAttendant.setUser(m_secondUser);
         m_mailboxManagerMock.storePersonalAttendant(secondUserAttendant);
-        
+
         m_out = new PersonalAttendantSettingListener();
         m_out.setCoreContext(m_coreContextMock);
         m_out.setMailboxManager(m_mailboxManagerMock);
@@ -88,33 +98,33 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
     public void testOnSaveGroup() {
         m_firstUser.addGroup(m_group);
         m_secondUser.addGroup(m_group);
-        
+
         m_group.setSettingValue("personal-attendant/operator", GROUP_OPERATOR);
         m_out.onSave(m_group);
-        
+
         assertEquals(GROUP_OPERATOR, m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
     }
 
     public void testOnSaveUserWithOverrideOperators() {
         m_firstUser.addGroup(m_group);
         m_firstUser.getSettings().getSetting("personal-attendant/operator").setValue("firstUserOperator");
-        
+
         m_secondUser.addGroup(m_group);
         m_secondUser.getSettings().getSetting("personal-attendant/operator").setValue("secondUserOperator");
-        
+
         m_out.onSave(m_firstUser);
         m_out.onSave(m_secondUser);
         assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
         assertEquals("secondUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_secondUser).getOperator());
     }
-    
+
     public void testOnSaveUserWithNoGroup() {
         m_firstUser.getSettings().getSetting("personal-attendant/operator").setValue("firstUserOperator");
-        
+
         m_out.onSave(m_firstUser);
         assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
     }
-    
+
     private static class MockMailboxManager implements MailboxManager {
 
         private Map<User, PersonalAttendant> m_attendantMap;
@@ -122,9 +132,8 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public MockMailboxManager() {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
         }
-        
+
         public void delete(Mailbox mailbox, Voicemail voicemail) {}
-        public void triggerSipNotify(Mailbox mailbox) {}
         public void deleteMailbox(String userId) {}
 
         public Mailbox getMailbox(String userId) {
@@ -156,12 +165,12 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void removePersonalAttendantForUser(User user) {}
         public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {}
         public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {}
-        
+
         /* The methods below this comment are the only ones relevant for this test */
         public PersonalAttendant loadPersonalAttendantForUser(User user) {
             return m_attendantMap.get(user);
         }
-        
+
         public void storePersonalAttendant(PersonalAttendant pa) {
             m_attendantMap.put(pa.getUser(), pa);
         }

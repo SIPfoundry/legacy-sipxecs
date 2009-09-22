@@ -342,7 +342,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return "label." + getBeanId();
     }
 
-    public Object getParam(String paramName) {
+    public Object getParam(@SuppressWarnings("unused") String paramName) {
         return null;
     }
 }

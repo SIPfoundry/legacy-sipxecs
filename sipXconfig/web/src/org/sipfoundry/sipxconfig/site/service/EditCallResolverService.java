@@ -14,6 +14,7 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public abstract class EditCallResolverService extends EditSipxService {
+    @SuppressWarnings("hiding")
     public static final String PAGE = "service/EditCallResolverService";
 
     @Override

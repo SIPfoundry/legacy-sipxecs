@@ -184,7 +184,7 @@ public abstract class Phone extends Device {
         return m_lines.get(position);
     }
 
-    public void initializeLine(Line line) {
+    public void initializeLine(@SuppressWarnings("unused") Line line) {
     }
 
     public PhoneContext getPhoneContext() {

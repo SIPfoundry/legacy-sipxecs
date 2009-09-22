@@ -11,11 +11,9 @@ package org.sipfoundry.sipxconfig.rest;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
-import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-
-import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
@@ -27,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -37,7 +35,6 @@ public class ContactInformationResourceTest extends TestCase {
 
     private User m_user;
     private CoreContext m_coreContext;
-    private PhonebookManager m_phonebookManager;
 
     @Override
     protected void setUp() throws Exception {

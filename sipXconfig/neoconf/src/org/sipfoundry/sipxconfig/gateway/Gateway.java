@@ -67,7 +67,7 @@ public class Gateway extends Device implements NamedObject {
     public void initialize() {
     }
 
-    public void initializePort(FxoPort port) {
+    public void initializePort(@SuppressWarnings("unused") FxoPort port) {
     }
 
     public static final class AddressTransport extends Enum {

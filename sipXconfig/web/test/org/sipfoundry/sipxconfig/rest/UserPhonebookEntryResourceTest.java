@@ -9,22 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createMock;
-
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.io.IOUtils;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
-import org.restlet.data.Reference;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
@@ -37,7 +33,9 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 
-import junit.framework.TestCase;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserPhonebookEntryResourceTest extends TestCase {
     private User m_user;

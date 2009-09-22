@@ -180,7 +180,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         String query = "privatePhoneBookByUser";
         List<Phonebook> privateBooks = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 query, PARAM_USER_ID, user.getId());
-        return (Phonebook) requireOneOrZero(privateBooks, query);
+        return requireOneOrZero(privateBooks, query);
     }
 
     public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {

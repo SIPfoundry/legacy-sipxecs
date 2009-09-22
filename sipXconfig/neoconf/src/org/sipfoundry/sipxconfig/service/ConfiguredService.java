@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -57,7 +57,7 @@ public abstract class ConfiguredService extends BeanWithSettings implements Name
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
-    public void setBeanId(String illegal_) {
+    public void setBeanId(@SuppressWarnings("unused") String illegal_) {
     }
 
     public String getDescription() {

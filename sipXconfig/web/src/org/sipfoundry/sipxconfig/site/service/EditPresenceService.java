@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.site.service;
 
@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
 
 public abstract class EditPresenceService extends EditSipxService {
+    @SuppressWarnings("hiding")
     public static final String PAGE = "service/EditPresenceService";
 
     @InjectObject(value = "spring:sipxReplicationContext")

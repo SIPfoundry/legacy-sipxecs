@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.upload;
@@ -101,7 +101,7 @@ public class Upload extends BeanWithSettings {
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
-    public void setBeanId(String illegal_) {
+    public void setBeanId(@SuppressWarnings("unused") String illegal_) {
     }
 
     public String getSpecificationId() {
@@ -129,6 +129,7 @@ public class Upload extends BeanWithSettings {
     }
 
     private class UploadDirectorySetter extends AbstractSettingVisitor {
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
@@ -139,6 +140,7 @@ public class Upload extends BeanWithSettings {
     }
 
     private class FileDeployer extends AbstractSettingVisitor {
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
@@ -157,6 +159,7 @@ public class Upload extends BeanWithSettings {
     }
 
     private class FileUndeployer extends AbstractSettingVisitor {
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {

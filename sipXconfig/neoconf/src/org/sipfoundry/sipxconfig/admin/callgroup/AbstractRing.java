@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
@@ -86,7 +86,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     /**
      * Retrieves the user part of the contact used to calculate contact
-     * 
+     *
      * @return String or object implementing toString method
      */
     protected abstract Object getUserPart();
@@ -97,7 +97,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     /**
      * Calculates contact for line or alias. See FORMAT field.
-     * 
+     *
      * @param domain contact domain
      * @param q contact q value
      * @return String representing the contact
@@ -131,6 +131,6 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
                 .toString());
     }
 
-    protected void addUrlParams(StringBuilder params) {
+    protected void addUrlParams(@SuppressWarnings("unused") StringBuilder params) {
     }
 }

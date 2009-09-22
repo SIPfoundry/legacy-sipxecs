@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway.port;
@@ -52,7 +52,7 @@ public abstract class PortSettings extends PageWithCallback implements PageBegin
 
     public abstract void setParentSetting(Setting parent);
 
-    public IPage editSettings(Integer portId, String section) {
+    public IPage editSettings(@SuppressWarnings("unused") Integer portId, String section) {
         setParentSettingName(section);
         return this;
     }

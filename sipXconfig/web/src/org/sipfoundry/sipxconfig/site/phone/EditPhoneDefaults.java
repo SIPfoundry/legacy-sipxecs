@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -108,13 +108,13 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return getLine().getSettings().getValues();
     }
 
-    public IPage editPhoneSettingsClicked(Integer beanId, String settingName) {
+    public IPage editPhoneSettingsClicked(@SuppressWarnings("unused") Integer beanId, String settingName) {
         setResourceId(PHONE_SETTINGS);
         setEditFormSettingName(settingName);
         return getPage();
     }
 
-    public IPage editLineSettingsClicked(Integer beanId, String settingName) {
+    public IPage editLineSettingsClicked(@SuppressWarnings("unused") Integer beanId, String settingName) {
         setResourceId(LINE_SETTITNGS);
         setEditFormSettingName(settingName);
         return getPage();

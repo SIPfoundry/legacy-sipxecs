@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
@@ -24,9 +24,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class GroupSettings extends PageWithCallback implements PageBeginRenderListener {
-
-    public static final String PAGE = "setting/GroupSettings";
-
     @Persist()
     public abstract Integer getGroupId();
 
@@ -62,7 +59,7 @@ public abstract class GroupSettings extends PageWithCallback implements PageBegi
 
     public IPage editGroupName(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
-        page.editGroup(getGroupId(), PAGE);
+        page.editGroup(getGroupId(), getPageName());
         return page;
     }
 
@@ -72,7 +69,7 @@ public abstract class GroupSettings extends PageWithCallback implements PageBegi
         setReturnPage(returnPage);
     }
 
-    public void editGroupSettings(Integer beanId, String settingName) {
+    public void editGroupSettings(@SuppressWarnings("unused") Integer beanId, String settingName) {
         setParentSettingName(settingName);
     }
 

@@ -46,12 +46,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return (Location) getHibernateTemplate().load(Location.class, id);
     }
 
-    private List<Location> getLocationsByBundle(String bundle) {
-        List<Location> locations = getHibernateTemplate().findByNamedQueryAndNamedParam("locationsByBundle",
-                "locationBundle", bundle);
-        return locations;
-    }
-
     public Location getLocationByFqdn(String fqdn) {
         return loadLocationByUniqueProperty(LOCATION_PROP_NAME, fqdn);
     }
