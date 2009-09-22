@@ -191,6 +191,7 @@ void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
 
 void ConfigurationMismatch::evConfigurationChanged( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
    if ( impl.configurationVersionMatches() )
    {
       ChangeState( impl, impl.pResourceRequired );
@@ -199,6 +200,7 @@ void ConfigurationMismatch::evConfigurationChanged( SipxProcess& impl ) const
 
 void ConfigurationMismatch::evConfigurationVersionUpdated( SipxProcess& impl ) const
 {
+   impl.clearStatusMessages();
    if ( impl.configurationVersionMatches() )
    {
       ChangeState( impl, impl.pResourceRequired );

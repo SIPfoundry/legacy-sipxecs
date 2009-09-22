@@ -1536,6 +1536,7 @@ void SipxProcess::clearStatusMessages()
    OsLock mutex(mLock);
    
    mStatusMessages.destroyAll();
+   mLastAlarmParams.destroyAll();
    mNumStdoutMsgs = 0;
    mNumStderrMsgs = 0;
 }
