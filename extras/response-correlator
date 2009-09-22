@@ -203,7 +203,7 @@ foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
     } else {
 	# Trim relatively constant parts off the beginning of the branch value.
 	$branch_print = $branch;
-	1 while $branch_print =~ s/^(z9hG4bK|-|sipXecs|sipX)//i;
+	1 while $branch_print =~ s/^(z9hG4bK|-|sipXecs|sipX|XX-)//i;
 
 	# Do the formatted print.
 	write STDOUT;
