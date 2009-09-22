@@ -135,8 +135,10 @@ public class XmppAccountInfo extends XmlFile {
         Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
         if (groupMembers != null && groupMembers.size() > 0) {
             for (User user : groupMembers) {
-                Element userElement = xmmpGroup.addElement(USER);
-                userElement.addElement(USER_NAME).setText(user.getName());
+                if (user.getImId() != null) {
+                    Element userElement = xmmpGroup.addElement(USER);
+                    userElement.addElement(USER_NAME).setText(user.getImId());
+                }
             }
         }
     }

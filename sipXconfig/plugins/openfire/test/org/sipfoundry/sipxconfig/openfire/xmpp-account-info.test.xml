@@ -23,10 +23,7 @@
     <group-name>group1</group-name>
     <description>my group</description>
     <user>
-      <user-name>One</user-name>
-    </user>
-    <user>
-      <user-name>Two</user-name>
+      <user-name>One_IM</user-name>
     </user>
   </group>
   <group>

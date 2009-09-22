@@ -37,7 +37,7 @@ public class AccountsParser {
     public static String userTag = String.format("%s/%s", XMPP_INFO, USER);
     public static String groupTag = String.format("%s/%s", XMPP_INFO, GROUP);
     public static String chatRoomTag = String.format("%s/%s", XMPP_INFO, CHAT_ROOM);
-    public static String groupMember = String.format("%s/%s", groupTag, USER);
+    public static String groupMemberTag = String.format("%s/%s", groupTag, USER);
 
     private static String currentTag = null;
     private static Digester digester;
@@ -184,8 +184,8 @@ public class AccountsParser {
 
         digester.addObjectCreate(groupTag, XmppGroup.class.getName());
         digester.addSetNext(groupTag, "addGroup");
-        digester.addObjectCreate(groupMember, XmppGroupMember.class.getName());
-        digester.addSetNext(groupMember, "addMember");
+        digester.addObjectCreate(groupMemberTag, XmppGroupMember.class.getName());
+        digester.addSetNext(groupMemberTag, "addMember");
         digester.addObjectCreate(chatRoomTag, XmppChatRoom.class.getName());
         digester.addSetNext(chatRoomTag, "addChatRoom");
         currentTag = userTag;
@@ -199,7 +199,7 @@ public class AccountsParser {
         addCallMethod("group-name", "setGroupName");
         addCallMethod("description", "setDescription");
         addCallMethod("administrator", "setAdministrator");
-        currentTag = groupMember;
+        currentTag = groupMemberTag;
         addCallMethod("user-name", "setUserName");
         currentTag = chatRoomTag;
         addCallMethod("subdomain", "setSubdomain");

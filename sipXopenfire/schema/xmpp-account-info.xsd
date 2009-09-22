@@ -173,6 +173,101 @@
     	</sequence>
     </complexType>
 
+    <complexType name="ServerList">
+    	<sequence>
+    		<element name="host" type="string" maxOccurs="1" minOccurs="1" default="">
+    			<annotation>
+    				<documentation>
+    					IP address of FQDN of the server
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="port" axOccurs="1" minOccurs="1" default="5269">
+    			<annotation>
+    				<documentation>
+    					Port number of server
+    				</documentation>
+    			</annotation>
+			    <simpleType>
+			      <restriction base='integer'>
+			        <minInclusive value='1024'/>
+			        <maxInclusive value='65535'/>
+			      </restriction>
+			    </simpleType>
+      		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="XmppServerToServer">
+    	<sequence>
+    		<element name="enabled" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Is Server-to-server functionality turned on?
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="port" maxOccurs="1" minOccurs="1" default="5269">
+    			<annotation>
+    				<documentation>
+    					Port number used by openfire for server-to-server connections.
+    				</documentation>
+    			</annotation>
+			    <simpleType>
+			      <restriction base='integer'>
+			        <minInclusive value='1024'/>
+			        <maxInclusive value='65535'/>
+			      </restriction>
+			    </simpleType>
+    		</element>
+
+    		<element name="disconnect-on-idle" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Determines if openfire closes a server-to-server connection if there is not activity of a specified period of time.
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="idle-timeout" type="integer" maxOccurs="1" minOccurs="0" default="3600">
+    			<annotation>
+    				<documentation>
+    					Value in seconds that represents the amount of time that a server-to-server connection
+    					has to be idle for before closing the connection.  This parameter is only relevant when
+    					disconnect-on-idle is true.
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="any-can-connect" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Dictates whether or not openfire will restrict the servers that can connect to it. 
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="allowed-servers" type="tns:ServerList" maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					List of servers that are allowed to connect.  Only relevant when any-can-connect
+    					is set to false 
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="disallowed-servers" type="tns:ServerList" maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					List of servers that are not allowed to connect.  Only relevant when any-can-connect
+    					is set to true 
+    				</documentation>
+    			</annotation>
+    		</element>
+    	</sequence>
+    </complexType>
+
     <complexType name="XmppAccountInfo">
     	<sequence>
     		<element name="user" type="tns:XmppUserAccount"
@@ -183,6 +278,8 @@
     		</element>
     		<element name="chat-room" type="tns:XmppChatRoom" maxOccurs="unbounded" minOccurs="0">
     		</element>
+    		<element name="server-to-server" type="tns:XmppServerToServer" maxOccurs="unbounded" minOccurs="0">
+    		</element>
     	</sequence>
     </complexType>
 
@@ -191,7 +288,7 @@
     		<element name="user-name" type="string">
     			<annotation>
     				<documentation>
-    					User name for group member. If domain is left
+    					IM Id for group member. If domain is left
     					out it is assumed to be the XMPP domain for
     					this server.
     				</documentation>
