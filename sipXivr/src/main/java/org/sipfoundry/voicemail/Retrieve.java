@@ -681,29 +681,31 @@ public class Retrieve {
             
             // Get a list of extensions 
             DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
-            if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
-                // Forward the message to each destination that has a mailbox
-                for (User destUser : choice.getUsers()) {
-                    if (destUser.hasVoicemail()) {
-                        Mailbox destMailbox = new Mailbox(destUser);
-                        vmMessage.forward(destMailbox, comments);
-                        dontDeleteTempFile(commentsFile);
-                    }
-                }
-                
-                // "Message forwarded."
-                m_loc.play("msg_forwarded", "");
-
-                // "To deliver this message to another address, press 1."
-                // "If you are finished, press *."
-                VmDialog vmd = new VmDialog(m_vm, "deposit_more_options");
-                vmd.setSpeakCanceled(false);
-                if (vmd.collectDigit("1") == null) {
-                    return;
-                }
-                
-                // Back to enter another extension
+            if (choice.getIvrChoiceReason() != IvrChoiceReason.SUCCESS) {
+                return;
             }
+
+            // Forward the message to each destination that has a mailbox
+            for (User destUser : choice.getUsers()) {
+                if (destUser.hasVoicemail()) {
+                    Mailbox destMailbox = new Mailbox(destUser);
+                    vmMessage.forward(destMailbox, comments);
+                    dontDeleteTempFile(commentsFile);
+                }
+            }
+            
+            // "Message forwarded."
+            m_loc.play("msg_forwarded", "");
+
+            // "To deliver this message to another address, press 1."
+            // "If you are finished, press *."
+            VmDialog vmd = new VmDialog(m_vm, "deposit_more_options");
+            vmd.setSpeakCanceled(false);
+            if (vmd.collectDigit("1") == null) {
+                return;
+            }
+            
+            // Back to enter another extension
         }
     }
     
@@ -765,38 +767,40 @@ public class Retrieve {
         for(;;) {
             // Get a list of extensions 
             DialByNameChoice choice = EnterExtension.dialog(m_vm, m_loc);
-            if (choice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {
-                // Forward the message to each destination that has a mailbox
-                for (User destUser : choice.getUsers()) {
-                    if (destUser.hasVoicemail()) {
-                        Mailbox destMailbox = new Mailbox(destUser);
-                        if (message == null) {
-                            // Build a message with the recording sent by this user.
-                            message = Message.newMessage(destMailbox, recordingFile, 
-                                    m_mailbox.getUser().getUri(), Priority.NORMAL);
-                            // Send the message.
-                            message.storeInInbox();
-                            dontDeleteTempFile(recordingFile);
-                        } else {
-                            // Copy the existing message
-                            message.getVmMessage().copy(destMailbox) ;
-                        }
+            if (choice.getIvrChoiceReason() != IvrChoiceReason.SUCCESS) {
+                return;
+            }
+            
+            // Forward the message to each destination that has a mailbox
+            for (User destUser : choice.getUsers()) {
+                if (destUser.hasVoicemail()) {
+                    Mailbox destMailbox = new Mailbox(destUser);
+                    if (message == null) {
+                        // Build a message with the recording sent by this user.
+                        message = Message.newMessage(destMailbox, recordingFile, 
+                                m_mailbox.getUser().getUri(), Priority.NORMAL);
+                        // Send the message.
+                        message.storeInInbox();
+                        dontDeleteTempFile(recordingFile);
+                    } else {
+                        // Copy the existing message
+                        message.getVmMessage().copy(destMailbox) ;
                     }
                 }
-                
-                // "Message sent."
-                m_loc.play("msg_sent", "");
-
-                // "To deliver this message to another address, press 1."
-                // "If you are finished, press *."
-                VmDialog vmd = new VmDialog(m_vm, "send_more_options");
-                vmd.setSpeakCanceled(false);
-                if (vmd.collectDigit("1") == null) {
-                    return;
-                }
-                
-                // Back to enter another extension
             }
+                
+            // "Message sent."
+            m_loc.play("msg_sent", "");
+
+            // "To deliver this message to another address, press 1."
+            // "If you are finished, press *."
+            VmDialog vmd = new VmDialog(m_vm, "send_more_options");
+            vmd.setSpeakCanceled(false);
+            if (vmd.collectDigit("1") == null) {
+                return;
+            }
+            
+            // Back to enter another extension
         }
     }
 
