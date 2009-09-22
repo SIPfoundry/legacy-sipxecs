@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -137,18 +137,18 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 
         relationship = transactionFound->whatRelation(message, isOutgoing);
 
-        // Since 2xx ACK transactions always get a new Via branch, we have to 
+        // Since 2xx ACK transactions always get a new Via branch, we have to
         // make sure there isn't another error transaction with a better match (branch included)
-        // 
-        // NOTE: Adding this code makes obvious that ACK's for 2xx responses always(??? at least on initial invite) 
-        // match more than one transaction tree, the original tx tree in the forking proxy function and the 
-        // consequent tx tree in the auth proxy function.  This is a result of the fix for XECS-414, which 
+        //
+        // NOTE: Adding this code makes obvious that ACK's for 2xx responses always(??? at least on initial invite)
+        // match more than one transaction tree, the original tx tree in the forking proxy function and the
+        // consequent tx tree in the auth proxy function.  This is a result of the fix for XECS-414, which
         // allows matching a transaction for a 2xx ACK without matching branch id's.
-        // This 2xx-ACK-match-except-branch result combined with the failuer to find a complete 2xx-ACK_match-with-branch, 
+        // This 2xx-ACK-match-except-branch result combined with the failuer to find a complete 2xx-ACK_match-with-branch,
         // means we can be assured that this ACK should be sent upstream. The ACK is then treated as a new transaction
-        // and the EXISTENCE of the matching transaction is used to navigate through the code.  
-        // The CONTENTS of the matched transaction are not important except for the matching itself. 
-        // ACKs for error responses will always match ONLY one transaction, since the branch id must also match. 
+        // and the EXISTENCE of the matching transaction is used to navigate through the code.
+        // The CONTENTS of the matched transaction are not important except for the matching itself.
+        // ACKs for error responses will always match ONLY one transaction, since the branch id must also match.
         if(relationship ==  SipTransaction::MESSAGE_2XX_ACK ||
            relationship ==  SipTransaction::MESSAGE_2XX_ACK_PROXY )
         {
@@ -173,7 +173,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                 relationship2xx = relationship;
                 transaction2xxFound = transactionFound;
             }
-            else 
+            else
             {
                 relationship2xx = relationship;
                 transaction2xxFound = transactionFound;
@@ -226,7 +226,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         }
     }
 
-    // 
+    //
     if((transactionFound == NULL) && transaction2xxFound)
     {
         relationship = relationship2xx;
@@ -242,7 +242,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     {
        findTimes.addEvent("unfound");
     }
-#   endif    
+#   endif
 
     UtlBoolean isBusy = FALSE;
     if(transactionFound == NULL)
@@ -279,7 +279,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
 #           ifdef TIME_LOG
             findTimes.addEvent("notavail");
 #           endif
-            
+
             transactionFound = NULL;
         }
     }
@@ -289,7 +289,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     findTimes.getLogString(findTimeLog);
 #   endif
 
-#ifdef TRANSACTION_MATCH_DEBUG  
+#ifdef TRANSACTION_MATCH_DEBUG
     UtlString bytes;
     ssize_t len;
     message.getBytes(&bytes, &len);
@@ -308,7 +308,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
                   ,findTimeLog.data()
 #                 endif
                   );
-    
+
 #endif
 
     return(transactionFound);
@@ -439,7 +439,7 @@ void SipTransactionList::stopTransactionTimers()
    lock();
 
    int numTransactions = mTransactions.entries();
-   SipTransaction** transactionsToBeProcessed = 
+   SipTransaction** transactionsToBeProcessed =
       new SipTransaction*[numTransactions];
 
    if (numTransactions > 0)
@@ -500,7 +500,7 @@ void SipTransactionList::deleteTransactionTimers()
    lock();
 
    int numTransactions = mTransactions.entries();
-   SipTransaction** transactionsToBeProcessed = 
+   SipTransaction** transactionsToBeProcessed =
       new SipTransaction*[numTransactions];
 
    if (numTransactions > 0)

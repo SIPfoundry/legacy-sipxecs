@@ -12,7 +12,7 @@ bin_PROGRAMS = dialogwatch
 bin_SCRIPTS = dialogdisplay
 
 # Program that monitors dialog events.
-dialogwatch_CXXFLAGS = 
+dialogwatch_CXXFLAGS =
 dialogwatch_LDADD = $(top_builddir)/src/libsipXtack.la
 dialogwatch_SOURCES = \
     dialogwatch.cpp

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 ////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 // APPLICATION INCLUDES
 #include <net/NetMd5Codec.h>
 
-// #define LOG_MD5_HASH_INPUTS 
+// #define LOG_MD5_HASH_INPUTS
 #ifdef LOG_MD5_HASH_INPUTS
 #   include "os/OsSysLog.h"
 #endif
@@ -151,17 +151,17 @@ void NetMd5Codec::encodeBase64Sig(const char* text, UtlString& encodedText,
  * is identified as the "RSA Data Security, Inc. MD5 Message-Digest
  * Algorithm" in all material mentioning or referencing this software
  * or this function.
- * 
+ *
  * License is also granted to make and use derivative works provided
  * THat such works are identified as "derived from the RSA Data
  * Security, Inc. MD5 Message-Digest Algorithm" in all material
  * mentioning or referencing the derived work.
- * 
+ *
  * RSA Data Security, Inc. makes no representations concerning either
  * the merchantability of this software or the suitability of this
  * software for any particular purpose. It is provided "as is"
  * without express or implied warranty of any kind.
- * 
+ *
  * These notices must be retained in any copies of any part of this
  * documentation and/or software.
  */
@@ -258,7 +258,7 @@ void MD5Update (MD5_CTX_PT *context, /* context */
                 const unsigned char *input, /* input block */
                 size_t inputLen) /* length of input block */
 {
-  size_t i, index; 
+  size_t i, index;
   size_t partLen;
 
   /* Compute number of bytes mod 64 */
@@ -273,7 +273,7 @@ void MD5Update (MD5_CTX_PT *context, /* context */
   partLen = 64 - index;
 
   /* Transform as many times as possible. */
-  if (inputLen >= partLen) 
+  if (inputLen >= partLen)
   {
      MD5_memcpy
        ((POINTER)&context->buffer[index], (POINTER)input, partLen);
@@ -297,7 +297,7 @@ void MD5Update (MD5_CTX_PT *context, /* context */
   the message digest and zeroizing the context.
  */
 void MD5Final (unsigned char *digest, /* message digest */
-               MD5_CTX_PT *context) /* context */                                     
+               MD5_CTX_PT *context) /* context */
 {
   unsigned char bits[8];
   size_t index, padLen;
@@ -464,5 +464,3 @@ static void MD5_memset (POINTER output, int value, size_t len)
  ((char *)output)[i] = (char)value;
  */
 }
-
-

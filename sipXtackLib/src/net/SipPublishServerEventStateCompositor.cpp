@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ SipPublishServerEventStateCompositor::~SipPublishServerEventStateCompositor()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipPublishServerEventStateCompositor& 
+SipPublishServerEventStateCompositor&
 SipPublishServerEventStateCompositor::operator=(const SipPublishServerEventStateCompositor& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -91,4 +91,3 @@ UtlBoolean SipPublishServerEventStateCompositor::isAuthorized(const SipMessage& 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

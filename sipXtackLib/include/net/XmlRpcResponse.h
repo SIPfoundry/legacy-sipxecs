@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@
  * used for getting the value from the request. Furthermore, setFault() is for
  * creating a fault response, and getFault() is used for getting the fault code
  * and fault string in the fault response.
- * 
+ *
  */
 
 class XmlRpcResponse
@@ -71,7 +71,7 @@ public:
       {
          IllFormedContents = -1,      ///< xmlrpc message was not well formed xml
          InvalidElement = -2,         ///< message is not schema-valid - text should explain
-         UnregisteredMethod = -3,     ///< no server found for requested method 
+         UnregisteredMethod = -3,     ///< no server found for requested method
          AuthenticationRequired = -4, ///< request was not properly authenticated
          EmptyParameterValue = -5,    ///< missing value for a required parameter
          ConnectionFailure = -6,      ///< unable to connect to service
@@ -86,7 +86,7 @@ public:
 
    /// Set the method name (for logging and comment in return)
    void setMethod(const UtlString& methodName);
-   
+
    /// Set the XML-RPC response
    bool setResponse(UtlContainable* value); ///< value for the response
 
@@ -94,7 +94,7 @@ public:
    bool setFault(int faultCode, const char* faultString);
    /**<
     * This function will create a fault response
-    * 
+    *
     */
 
    /// Get the XML-RPC response
@@ -109,7 +109,7 @@ public:
 
    /// Get the content of the response
    XmlRpcBody* getBody();
-         
+
 /* ============================ ACCESSORS ================================= */
 
 
@@ -123,28 +123,26 @@ private:
 
    /// The name of the method this is a response to
    UtlString   mMethod;
-   
+
    /// XML-RPC body
    XmlRpcBody* mpResponseBody;
 
    /// Value for the XML-RPC response
    UtlContainable* mResponseValue;
-   
+
    /// Fault code
    int mFaultCode;
-   
+
    /// Fault string
    UtlString mFaultString;
-     
+
    /// Disabled copy constructor
    XmlRpcResponse(const XmlRpcResponse& rXmlRpcResponse);
 
    /// Disabled assignment operator
-   XmlRpcResponse& operator=(const XmlRpcResponse& rhs);   
+   XmlRpcResponse& operator=(const XmlRpcResponse& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _XMLRPCRESPPONSE_H_
-
-

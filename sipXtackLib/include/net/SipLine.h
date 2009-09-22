@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@
 // TYPEDEFS
 
 /**
- * Line contact type: Use the local address or a NAT-derived address 
+ * Line contact type: Use the local address or a NAT-derived address
  * (e.g. STUN)
  */
 typedef enum LINE_CONTACT_TYPE
@@ -83,7 +83,7 @@ public:
     UtlBoolean isDeviceLine() ;
     //: Determine if this line is a device line.  Presently, a line is
     //  considered a device line if it's user is "Device"
-#endif    
+#endif
 
     UtlBoolean IsDuplicateRealm(const UtlString realm , const UtlString scheme = HTTP_DIGEST_AUTHENTICATION);
 
@@ -104,7 +104,7 @@ public:
     Url& getIdentity() ;
     Url& getCanonicalUrl() ;
 
-#ifdef DEPRECATED_SIPLINE_FEATURE    
+#ifdef DEPRECATED_SIPLINE_FEATURE
     //if line will get enabled after reboot - ( ie it is persitant)
     void setAutoEnableStatus( UtlBoolean isAutoEnabled);
     UtlBoolean getAutoEnableStatus();
@@ -138,36 +138,36 @@ public:
                                  UtlString passtoken[]/*[out/int]*/);
 
     //removes credetials for a particular realm
-    void removeCredential(const UtlString* realm);    
+    void removeCredential(const UtlString* realm);
     //removes all credentials for this line
     void removeAllCredentials();
 
     void setPreferredContactUri(const Url& preferredContactUri) ;
       //: Set the preferred host/ip for the contact in subsequent registers
-    
+
     UtlBoolean getPreferredContactUri(Url& preferredContactUri) const ;
       //: Get Preferred host/ip for the contact in subsequent registers
 
     LINE_CONTACT_TYPE getContactType() const ;
     void setContactType(LINE_CONTACT_TYPE eContactType) ;
-    
+
     void addAlias(const Url& alias);
       //: Add an alias to this line definition.  Aliases are checked when
       //  looking authentication credentials.
     int getAliases(UtlSList& list) const;
-      //: Get the alias list (UtlSList of UtlStrings).  Returns count of 
+      //: Get the alias list (UtlSList of UtlStrings).  Returns count of
       //  aliases.
-    
+
     UtlBoolean matchesLineId(const char* szLineId) const ;
     UtlBoolean matchesUserId(const char* szUserId) const ;
     UtlBoolean matchesIdentity(const Url& identity) const ;
 
 protected:
-#ifdef DEPRECATED_SIPLINE_FEATURE    
+#ifdef DEPRECATED_SIPLINE_FEATURE
     UtlBoolean mIsVisible;
     UtlBoolean mIsAutoEnabled;
     UtlBoolean mIsUsingCallHandling;
-#endif    
+#endif
     Url mIdentity; //line key which is the canonical URL stripped of display name, angle brackets and field parameters (basically the URI).
     Url mUserEnteredUrl; //user entered URL string (could be incomplete "sip:444@")
     Url mCanonicalUrl; //The canonical URL which is the URL string with the host and port filled in if they were missing.

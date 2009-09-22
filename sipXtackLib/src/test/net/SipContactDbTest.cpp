@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ public:
     {
         // first, create a new contact Db
         SipContactDb pDb;
-        
+
         // test the inserting of records
         CONTACT_ADDRESS contact1;
         memset((void*)&contact1, 0, sizeof(CONTACT_ADDRESS));
@@ -40,7 +40,7 @@ public:
         contact1.iPort = 9991;
         CPPUNIT_ASSERT(pDb.addContact(contact1));
         CPPUNIT_ASSERT(contact1.id == 1);
-        
+
         // test the addition of a duplicate (same IP and port)
         // (should fail)
         CONTACT_ADDRESS contact2;
@@ -51,7 +51,7 @@ public:
         contact2.iPort = 9991;
         CPPUNIT_ASSERT(pDb.addContact(contact2) == false);
         CPPUNIT_ASSERT(contact2.id == 1);
-        
+
         // test the addition of same IP, different port
         // (should succeed)
         CONTACT_ADDRESS contact3;
@@ -62,7 +62,7 @@ public:
         contact3.iPort = 9992;
         CPPUNIT_ASSERT(pDb.addContact(contact3) == true);
         CPPUNIT_ASSERT(contact3.id == 2);
-        
+
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
@@ -74,7 +74,7 @@ public:
         contact4.iPort = 9993;
         CPPUNIT_ASSERT(pDb.addContact(contact4) == true);
         CPPUNIT_ASSERT(contact4.id == 3);
-        
+
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
@@ -96,16 +96,16 @@ public:
         CPPUNIT_ASSERT(strcmp(pFound->cInterface, "eth1") == 0);
         CPPUNIT_ASSERT(strcmp(pFound->cIpAddress, "10.10.10.5") == 0);
         CPPUNIT_ASSERT(pFound->iPort == 9991);
-        
+
         // search by ID - negative
         pFound = pDb.find(0);
         CPPUNIT_ASSERT(pFound == NULL);
-        
+
         // search by IP and port - positive
         pFound = pDb.find("9.9.9.1", 9991);
         CPPUNIT_ASSERT(pFound != NULL);
         CPPUNIT_ASSERT(pFound->id == 1);
-        
+
         // search by IP and port - negative
         // bad IP
         pFound = pDb.find("zaphod", 9991);
@@ -115,18 +115,18 @@ public:
         // bad port
         pFound = pDb.find("9.9.9.1", 42);
         CPPUNIT_ASSERT(pFound == NULL);
-        
+
         // get All records
         CONTACT_ADDRESS* addresses[MAX_IP_ADDRESSES];
         int num = 0;
         pDb.getAll(addresses, num);
         CPPUNIT_ASSERT(4 == num);
-        
+
         for (int i = 0; i < num; i++)
         {
             delete addresses[i];
         }
-        
+
         // remove records
         CPPUNIT_ASSERT(pDb.deleteContact(1) == true);
         CPPUNIT_ASSERT(pDb.deleteContact(2) == true);

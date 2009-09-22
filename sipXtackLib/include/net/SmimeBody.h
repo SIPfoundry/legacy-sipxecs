@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -47,7 +47,7 @@ public:
     SmimeBody();
 
     //! Construct an SmimeBody from a bunch of bytes
-    SmimeBody(const char* bytes, 
+    SmimeBody(const char* bytes,
               int length,
               const char* contentEncodingValueString);
 
@@ -68,13 +68,13 @@ public:
 
     //! Decrypt this body using the given private key and cert. contained in the pkcs12 package
     /*! Decrypts this body using the derPkcs12PrivateKey.
-     *  \param derPkcs12 - DER format pkcs12 container for the 
-     *         private key and public key/Certificate for a recipent who is 
+     *  \param derPkcs12 - DER format pkcs12 container for the
+     *         private key and public key/Certificate for a recipent who is
      *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
      *  \param derPkcs12Length - length in bytes of derPkcs12PrivateKey
-     *  \param pkcs12SymmetricKey - symetric key (password) used to protect 
-     *         (encrypt) the derPkcs12PrivateKey (the private key is 
-     *         contained in a pkcs12 in an encrypted format to protect 
+     *  \param pkcs12SymmetricKey - symetric key (password) used to protect
+     *         (encrypt) the derPkcs12PrivateKey (the private key is
+     *         contained in a pkcs12 in an encrypted format to protect
      *         it from theft).  Must be NULL terminated string.
      */
     UtlBoolean decrypt(const char* derPkcs12,
@@ -86,13 +86,13 @@ public:
     *         will be attached to and deleted with this SmimeBody.
     *         bodyToEncrypt can be retrieved after invoking decrypt
     *         using the getDecyptedBody method.
-    *  \param numRecipients - number of recipients for which 
+    *  \param numRecipients - number of recipients for which
     *         bodyToEncrypt will be encrypted.  For each recipient
-    *         an element in derPublicKeyCerts and derPubliceKeyCertLengths 
+    *         an element in derPublicKeyCerts and derPubliceKeyCertLengths
     *         must be given.
     *  \param derPublicKeyCerts - array containing a DER format
     *         certificate (containing the public key) for each recipient.
-    *  \param derPubliceKeyCertLengths - length in bytes of the 
+    *  \param derPubliceKeyCertLengths - length in bytes of the
     *         corresponding element in derPublicKeyCerts.
     */
     UtlBoolean encrypt(HttpBody* bodyToEncrypt,
@@ -117,7 +117,7 @@ public:
      *  \param encryptedData - string containing the encrypted result.
      */
     static UtlBoolean nssSmimeEncrypt(int numRecipientCerts,
-                                       const char* derPublicKeyCerts[], 
+                                       const char* derPublicKeyCerts[],
                                        int derPublicKeyCertLengths[],
                                        const char* dataToEncrypt,
                                        int dataToEncryptLength,
@@ -126,13 +126,13 @@ public:
 
     // Lower level utility to do S/MIME decryption using the NSS library
     /*! Decrypts this body using the derPkcs12PrivateKey.
-     *  \param derPkcs12 - DER format pkcs12 container for the 
-     *         private key and public key/Certificate for a recipent who is 
+     *  \param derPkcs12 - DER format pkcs12 container for the
+     *         private key and public key/Certificate for a recipent who is
      *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
      *  \param derPkcs12Length - length in bytes of derPkcs12PrivateKey
-     *  \param pkcs12Password - symetric key (password) used to protect 
-     *         (encrypt) the derPkcs12PrivateKey (the private key is 
-     *         contained in a pkcs12 in an encrypted format to protect 
+     *  \param pkcs12Password - symetric key (password) used to protect
+     *         (encrypt) the derPkcs12PrivateKey (the private key is
+     *         contained in a pkcs12 in an encrypted format to protect
      *         it from theft).  Must be NULL terminated string.
      *  \param dataIsInBase64Format - TRUE: encrypted data is in base64
      *         format, FALSE: encrypted data is in binary format.
@@ -153,13 +153,13 @@ public:
 
     // Lower level utility to do S/MIME decryption using the OpenSSL library
     /*! Decrypts this body using the derPkcs12PrivateKey.
-     *  \param derPkcs12 - DER format pkcs12 container for the 
-     *         private key and public key/Certificate for a recipent who is 
+     *  \param derPkcs12 - DER format pkcs12 container for the
+     *         private key and public key/Certificate for a recipent who is
      *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
      *  \param derPkcs12Length - length in bytes of derPkcs12PrivateKey
-     *  \param pkcs12Password - symetric key (password) used to protect 
-     *         (encrypt) the derPkcs12PrivateKey (the private key is 
-     *         contained in a pkcs12 in an encrypted format to protect 
+     *  \param pkcs12Password - symetric key (password) used to protect
+     *         (encrypt) the derPkcs12PrivateKey (the private key is
+     *         contained in a pkcs12 in an encrypted format to protect
      *         it from theft).  Must be NULL terminated string.
      *  \param dataIsInBase64Format - TRUE: encrypted data is in base64
      *         format, FALSE: encrypted data is in binary format.

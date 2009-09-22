@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@
 #define SIP_DEFAULT_RTT     100 // Default T1 value (RFC 3261), in msec.
                                 // Intended to be estimate of RTT of network.
 #define SIP_MINIMUM_RTT     10  // Minimum T1 value allowed, in msec.
-#define SIP_MAX_PORT_RANGE  10  // If a port is in use and the sip user agent 
+#define SIP_MAX_PORT_RANGE  10  // If a port is in use and the sip user agent
                                 // is created with bUseNextAvailablePort set to
                                 // true, this is the number of sequential ports
                                 // to try.
@@ -167,7 +167,7 @@ public:
         SHUTDOWN_MESSAGE = 10,
         SHUTDOWN_MESSAGE_EVENT
     };
-    
+
     enum OptionsRequestHandlePref
     {
         HANDLE_OPTIONS_AUTOMATICALLY,
@@ -223,18 +223,18 @@ public:
      *        to use for the listener sockets.
      * \param queueSize - Size of the OsMsgQ to use for the queues
      *        internal to the SipUserAgent and subsystems.
-     * \param bUseNextAvailablePort - When setting up the sip user 
+     * \param bUseNextAvailablePort - When setting up the sip user
      *        agent using the designated sipTcp, sipUdp, and sipTls
      *        ports, select the next available port if the supplied
      *        port is busy.  If enable, this will attempt at most
      *        10 sequential ports.
      * \param doUaMessageChecks - check the acceptability of method,
-     *        extensions, and encoding.  The default is TRUE; it may 
+     *        extensions, and encoding.  The default is TRUE; it may
      *        be set to false in applications such as a redirect server
      *        that will never actually send a 2xx response, so the
      *        checks might cause errors that the application should
      *        never generate.
-     * \param forceSymmetricSignaling - impose that the same local 
+     * \param forceSymmetricSignaling - impose that the same local
      *        IP:Port be used for sending and receiving SIP signaling
      * \param howTohandleOptionsRequest - Incoming OPTIONS requests can
      *        either be handled automatically by the SipUserAgent class
@@ -284,10 +284,10 @@ public:
      */
     void shutdown(UtlBoolean blockingShutdown = TRUE);
 
-    //! Enable stun lookups for UDP signaling.  Use a NULL szStunServer to 
+    //! Enable stun lookups for UDP signaling.  Use a NULL szStunServer to
     //! disable
-    virtual void enableStun(const char* szStunServer, 
-                            int refreshPeriodInSecs, 
+    virtual void enableStun(const char* szStunServer,
+                            int refreshPeriodInSecs,
                             int stunOptions,
                             OsNotification* pNotification = NULL,
                             const char* szIp = NULL) ;
@@ -346,13 +346,13 @@ public:
     UtlBoolean removeMessageObserver(OsMsgQ& messageQueue,
                                     void* pObserverData = NULL);
 
-    //! Adds a new SipOutputProcessor to the list of processors 
+    //! Adds a new SipOutputProcessor to the list of processors
     //! that will get notified when an outgoing SIP message is about
     //! to be sent.  Upon successful addtion of a processor, it will
     //! start receiving notifications from the SIP stack via its
-    //! SipOutputProcessor::handleOutputMessge() method when SIP 
+    //! SipOutputProcessor::handleOutputMessge() method when SIP
     //! messages are sent out.
-    //! Please refer to comments in SipOutputProcessor.h for information  
+    //! Please refer to comments in SipOutputProcessor.h for information
     //! about threading and blocking considerations.
     //!
     //! \param pProcessor - Pointer to SipOutputProcessor-derived observer.
@@ -361,44 +361,44 @@ public:
     //!        The SIP output processor differs in many ways from the message
     //!        observers that can be registered via addMessageObserver():
     //!        #1- Output processor sees messages in the outgoing direction only
-    //!            just as they are about to be sent while the current 
+    //!            just as they are about to be sent while the current
     //!            implementation of the 'message observer' only sees
     //!            incoming messages.
-    //!        #2- 'message observer' only gives application access to a 
-    //!            limited subset of responses while the output processor 
+    //!        #2- 'message observer' only gives application access to a
+    //!            limited subset of responses while the output processor
     //!            allows an application to see all responses
-    //!        #3- For the subset of responses that can be seen by an 
+    //!        #3- For the subset of responses that can be seen by an
     //!            application via the 'message observer', it cannot
-    //!            effectively modify them as they are already sent 
+    //!            effectively modify them as they are already sent
     //!            to their destination when the application sees them.
     //!            In contrast, the output processor allows modification
-    //!            of all messages being sent. 
-    //!        #4- 'message observers' get notified of incoming messages 
-    //!            on their message loop thread which makes processing of 
+    //!            of all messages being sent.
+    //!        #4- 'message observers' get notified of incoming messages
+    //!            on their message loop thread which makes processing of
     //!            observed messages thread-safe.  On the other hand, the
-    //!            output processor feature generates callbacks in the context     
+    //!            output processor feature generates callbacks in the context
     //!            of the thread that is making the send() request to the
     //!            SipUserAgent instance being monitored.  This means
-    //!            that applications processing 'output processor'  
+    //!            that applications processing 'output processor'
     //!            callbacks must provide their own thread safety mechanisms.
-    //!       #5 - When using unreliable transport (UDP), the Output processor 
+    //!       #5 - When using unreliable transport (UDP), the Output processor
     //!            generates a notification for each retransmission of the message.
     //!            The 'message observer' sits above the retransmission
     //!            layer and as such will send a single notification per
     //!            observable message.
-    //!           
+    //!
     void addSipOutputProcessor( SipOutputProcessor *pProcessor );
-    
-    //! Removes a previously added SipOutputProcessor from the list of  
-    //! processors that will get notified when an outgoing SIP message is 
-    //! about to be sent.  
+
+    //! Removes a previously added SipOutputProcessor from the list of
+    //! processors that will get notified when an outgoing SIP message is
+    //! about to be sent.
     UtlBoolean removeSipOutputProcessor( SipOutputProcessor *pProcessor );
 
     // See comments in SipUserAgentBase.h
     virtual void executeAllSipOutputProcessors( SipMessage& message,
                                                 const char* address,
                                                 int port );
-     
+
     //! Send a SIP message over the net
 
     /*! This method sends the SIP message as dictated by policy and
@@ -490,7 +490,7 @@ public:
      * The value should be formated either as "token/token", "token", or "(string)"
      * with no leading or trailing space.
      */
-    
+
     //! Set the limit of allowed hops a message can make
     void setMaxForwards(int maxForwards);
 
@@ -539,7 +539,7 @@ public:
     //! Tells the User Agent whether or not to append
     //! the platform name onto the User Agent string
     void setIncludePlatformInUserAgentName(const bool bInclude);
-    
+
     //! Period of time a TCP socket can remain idle before it is removed
     void setMaxTcpSocketIdleTime(int idleTimeSeconds);
 
@@ -581,14 +581,14 @@ public:
     SipMessage* getRequest(const SipMessage& response);
 
     int getUdpPort() const ;
-      //! Get the local UDP port number (or PORT_NONE if disabled) 
+      //! Get the local UDP port number (or PORT_NONE if disabled)
 
     int getTcpPort() const ;
-     //! Get the local TCP port number (or PORT_NONE if disabled) 
+     //! Get the local TCP port number (or PORT_NONE if disabled)
 
     int getTlsPort() const ;
-      //! Get the local Tls port number (or PORT_NONE if disabled) 
-      
+      //! Get the local Tls port number (or PORT_NONE if disabled)
+
     void setUserAgentName(const UtlString& name);
       //! Sets the User Agent name sent with outgoing sip messages.
 
@@ -615,7 +615,7 @@ public:
 
     UtlBoolean isOk();
     //: Determine if the user agent is ok (all the protocol handlers are Ok)
-    
+
     UtlBoolean isSymmetricSignalingImposed();
 
     //! Find out if SipUserAgent has finished shutting down.
@@ -642,11 +642,11 @@ public:
 
     //! Adds a contact record to the contact db
     const bool addContactAddress(CONTACT_ADDRESS& contactAddress);
-    
+
     //! Gets all contact addresses for this user agent
     void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
 
-    //! SPECIAL CASE ONLY - 
+    //! SPECIAL CASE ONLY -
     // This is used only to forward in-dialog ACKs which the proxy
     // would otherwise have to route back to itself, causing a loop.
     // Instead, such ACKs are sent to the redirector/locater and
@@ -661,7 +661,7 @@ public:
     UtlBoolean sendSymmetricUdp(SipMessage& message,       ///< the message
                                 const char* serverAddress, ///< destination address
                                 int port                   ///< destination port
-       ); 
+       );
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -723,7 +723,7 @@ protected:
                                        SipMessage* request,
                                        int* messageType,
                                        int authorizationEntity);
-    
+
     UtlBoolean doesMaddrMatchesUserAgent(SipMessage& message) ;
 
     void setInviteTransactionTimeoutSeconds(int expiresSeconds);
@@ -756,11 +756,11 @@ private:
     UtlString mUserAgentHeaderProperties;
     UtlHashBag mMyHostAliases;
     UtlHashBag mMessageObservers;
-    UtlSortedList mOutputProcessors; 
+    UtlSortedList mOutputProcessors;
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
     OsRWMutex mOutputProcessorMutex;
-    
+
     // Timers (in seconds or milliseconds)
     // Time allowed before first resend of a message, in msec.
     // T1 in RFC 3261.

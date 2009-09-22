@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ SipUdpServer::SipUdpServer(int port,
    SipProtocolServerBase(userAgent,
                          SIP_TRANSPORT_UDP,
                          "SipUdpServer-%d"),
-   mStunRefreshSecs(28), 
+   mStunRefreshSecs(28),
    mStunOptions(0)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -83,12 +83,12 @@ SipUdpServer::SipUdpServer(int port,
        for (int i = 0; i < numAddresses; i++)
        {
           int serverSocketPort = port;
-            
+
           createServerSocket(adapterAddresses[i]->mAddress.data(),
                              serverSocketPort,
                              bUseNextAvailablePort,
                              udpReadBufferSize);
-          delete adapterAddresses[i];   
+          delete adapterAddresses[i];
        }
     }
 }
@@ -102,13 +102,13 @@ SipUdpServer::~SipUdpServer()
 
 void SipUdpServer::createServerSocket(const char* szBindAddr,
                                       int& port,
-                                      const UtlBoolean& bUseNextAvailablePort, 
+                                      const UtlBoolean& bUseNextAvailablePort,
                                       int udpReadBufferSize)
 {
    // Create the socket.
    OsStunDatagramSocket* pSocket =
       new OsStunDatagramSocket(0, NULL, port, szBindAddr, FALSE);
-   
+
    // If the socket is busy or unbindable and the user requested using the
    // next available port, try the next SIP_MAX_PORT_RANGE ports.
    if (bUseNextAvailablePort)
@@ -119,10 +119,10 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
          pSocket = new OsStunDatagramSocket(0, NULL, port+i, szBindAddr, FALSE);
       }
    }
-   
+
    // If we opened the socket.
    if (pSocket->isOk())
-   {     
+   {
       // Inform the SipUserAgent of the contact address.
       if (mSipUserAgent)
       {
@@ -206,14 +206,14 @@ UtlBoolean SipUdpServer::handleMessage(OsMsg& eventMessage)
 }
 
 void SipUdpServer::enableStun(const char* szStunServer,
-                              const char* szLocalIp, 
-                              int refreshPeriodInSecs, 
+                              const char* szLocalIp,
+                              int refreshPeriodInSecs,
                               int stunOptions,
-                              OsNotification* pNotification) 
+                              OsNotification* pNotification)
 {
     // Store settings
     mStunOptions = stunOptions ;
-    mStunRefreshSecs = refreshPeriodInSecs ;   
+    mStunRefreshSecs = refreshPeriodInSecs ;
     if (szStunServer)
     {
         mStunServer = szStunServer ;
@@ -222,13 +222,13 @@ void SipUdpServer::enableStun(const char* szStunServer,
     {
         mStunServer.remove(0) ;
     }
-    
+
     UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
 
     char szIpToStun[256];
     memset((void*)szIpToStun, 0, sizeof(szIpToStun));
-    
+
     if (szLocalIp)
     {
         strcpy(szIpToStun, szLocalIp);
@@ -244,26 +244,26 @@ void SipUdpServer::enableStun(const char* szStunServer,
             strcpy(szIpToStun, pKey->data());
         }
     }
-    
+
     while (0 != strcmp(szIpToStun, ""))
     {
         UtlString key(szIpToStun);
-        
+
         OsStunDatagramSocket* pSocket =
-           dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&key)); 
+           dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&key));
         if (pSocket)
         {
             pSocket->enableStun(false) ;
-            
+
             // Update server client
-            if (pSocket && mStunServer.length()) 
+            if (pSocket && mStunServer.length())
             {
                 pSocket->setStunServer(mStunServer) ;
                 pSocket->setKeepAlivePeriod(refreshPeriodInSecs) ;
                 pSocket->setNotifier(pNotification) ;
                 pSocket->setStunOptions(mStunOptions) ;
                 pSocket->enableStun(true) ;
-            }  
+            }
         }
         if (bStunAll)
         {
@@ -282,14 +282,14 @@ void SipUdpServer::enableStun(const char* szStunServer,
         {
             break;
         }
-    } // end while  
+    } // end while
 }
 
 void SipUdpServer::shutdownListener()
 {
     UtlHashMapIterator iterator(mServers);
     UtlString* pKey = NULL;
-    
+
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
        SipClient* pServer = dynamic_cast <SipClient*> (iterator.value());
@@ -305,7 +305,7 @@ UtlBoolean SipUdpServer::sendTo(SipMessage& message,
 {
     UtlBoolean sendOk;
     SipClient* pServer = NULL;
-    
+
     if (szLocalSipIp)
     {
         UtlString localKey(szLocalSipIp);
@@ -316,7 +316,7 @@ UtlBoolean SipUdpServer::sendTo(SipMessage& message,
         // No local SIP IP specified, so, use the default one.
         pServer = dynamic_cast <SipClient*> (mServers.findValue(&mDefaultIp));
     }
-    
+
     if (pServer)
     {
         sendOk = pServer->sendTo(message, address, port);
@@ -334,7 +334,7 @@ void SipUdpServer::printStatus()
 {
     UtlHashMapIterator iterator(mServers);
     UtlString* pKey = NULL;
-    
+
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
        SipClient* pServer = dynamic_cast <SipClient*> (iterator.value());
@@ -349,13 +349,13 @@ void SipUdpServer::printStatus()
     }
 }
 
-int SipUdpServer::getServerPort(const char* szLocalIp) 
+int SipUdpServer::getServerPort(const char* szLocalIp)
 {
     int port = PORT_NONE;
 
     char szLocalIpForPortLookup[256];
     memset((void*)szLocalIpForPortLookup, 0, sizeof(szLocalIpForPortLookup));
-    
+
     if (NULL == szLocalIp)
     {
         strcpy(szLocalIpForPortLookup, mDefaultIp);
@@ -364,22 +364,22 @@ int SipUdpServer::getServerPort(const char* szLocalIp)
     {
         strcpy(szLocalIpForPortLookup, szLocalIp);
     }
-    
+
     UtlString localIpKey(szLocalIpForPortLookup);
-    
+
     UtlInt* pUtlPort;
     pUtlPort = dynamic_cast <UtlInt*> (mServerPortMap.findValue(&localIpKey));
     if (pUtlPort)
     {
        port = pUtlPort->getValue();
     }
-    
+
     return port ;
 }
 
 
 UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
-                                        const char* szLocalIp) 
+                                        const char* szLocalIp)
 {
     UtlBoolean bRet = false;
     OsStunDatagramSocket* pSocket = NULL;
@@ -387,7 +387,7 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
     if (szLocalIp)
     {
         UtlString localIpKey(szLocalIp);
-       
+
         pSocket =
            dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&localIpKey));
     }
@@ -395,11 +395,11 @@ UtlBoolean SipUdpServer::getStunAddress(UtlString* pIpAddress, int* pPort,
     {
         // just use the default Socket in our collection
         UtlString defaultIpKey(mDefaultIp);
-       
+
         pSocket =
            dynamic_cast <OsStunDatagramSocket*> (mServerSocketMap.findValue(&defaultIpKey));
     }
-    
+
     if (pSocket)
     {
         bRet =  pSocket->getExternalIp(pIpAddress, pPort);
@@ -438,7 +438,7 @@ OsSocket* SipUdpServer::buildClientSocket(int hostPort,
    {
       // Otherwise, construct a new socket.
       pSocket = new OsStunDatagramSocket(hostPort, hostAddress,
-                                         0, localIp, 
+                                         0, localIp,
                                          !mStunServer.isNull(),
                                          mStunServer.data(),
                                          mStunRefreshSecs,

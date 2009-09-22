@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -42,7 +42,7 @@ SipDialogMgr::~SipDialogMgr()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipDialogMgr& 
+SipDialogMgr&
 SipDialogMgr::operator=(const SipDialogMgr& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -51,7 +51,7 @@ SipDialogMgr::operator=(const SipDialogMgr& rhs)
    return *this;
 }
 
-UtlBoolean SipDialogMgr::createDialog(const SipMessage& message, 
+UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
                                       UtlBoolean messageIsFromLocalSide,
                                       const char* dialogHandle)
 {
@@ -90,7 +90,7 @@ UtlBoolean SipDialogMgr::createDialog(const SipMessage& message,
     return createdDialog;
 }
 
-UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message, 
+UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message,
                                       const char* dialogHandle)
 {
     UtlString handle(dialogHandle ? dialogHandle : "");
@@ -101,7 +101,7 @@ UtlBoolean SipDialogMgr::updateDialog(const SipMessage& message,
     }
 
     lock();
-    
+
     SipDialog* dialog = findDialog(handle,
                                    TRUE, // if established handle, find early dialog
                                    FALSE); // do not want established dialogs for early handle
@@ -167,7 +167,7 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
        {
           SipDialog* dialog;
           UtlHashBagIterator iterator(mDialogs);
-          
+
           while ((dialog = (SipDialog*) iterator()))
           {
              UtlString callId, localTag, remoteTag;
@@ -195,10 +195,10 @@ UtlBoolean SipDialogMgr::setNextLocalCseq(const UtlString& dialogHandleString,
 
    // Find the dialog.
    SipDialog* dialog = findDialog(dialogHandleString,
-                                  FALSE, // If established only want exact match  dialogs 
+                                  FALSE, // If established only want exact match  dialogs
                                   TRUE); // If message is from a prior transaction
                                          // when the dialog was in an early state
-                                         // allow it to match an established 
+                                         // allow it to match an established
                                          // dialog
 
    if (dialog)
@@ -219,7 +219,7 @@ UtlBoolean SipDialogMgr::setNextLocalCseq(const UtlString& dialogHandleString,
 
 /* ============================ ACCESSORS ================================= */
 
-UtlBoolean SipDialogMgr::getEarlyDialogHandleFor(const char* establishedDialogHandle, 
+UtlBoolean SipDialogMgr::getEarlyDialogHandleFor(const char* establishedDialogHandle,
                                                  UtlString& earlyDialogHandle)
 {
     UtlBoolean foundDialog = FALSE;
@@ -370,7 +370,7 @@ UtlBoolean SipDialogMgr::dialogExists(const char* dialogHandle)
     return(foundDialog);
 }
 
-UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message, 
+UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
                                                 const char* dialogHandle)
 {
     UtlBoolean matchesTransaction = FALSE;
@@ -410,7 +410,7 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
                      m.data(), d.data());
     }
 
-    if(dialog && 
+    if(dialog &&
        dialog->isTransactionLocallyInitiated(callId, fromTag, toTag) &&
        dialog->isSameLocalCseq(message))
     {
@@ -418,7 +418,7 @@ UtlBoolean SipDialogMgr::isLastLocalTransaction(const SipMessage& message,
     }
 
     unlock();
-    
+
     return(matchesTransaction);
 }
 
@@ -440,7 +440,7 @@ enum SipDialogMgr::transactionSequence
                                    TRUE, // if established, match early dialog
                                    TRUE); // if early, match established dialog
 
-    if (dialog && 
+    if (dialog &&
         dialog->isTransactionRemotelyInitiated(callId, fromTag, toTag))
     {
        int messageCSeq;
@@ -462,7 +462,7 @@ enum SipDialogMgr::transactionSequence
     }
 
     unlock();
-    
+
     return ordering;
 }
 
@@ -578,4 +578,3 @@ void SipDialogMgr::unlock()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

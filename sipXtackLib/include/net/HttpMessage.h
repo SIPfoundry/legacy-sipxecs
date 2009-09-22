@@ -330,10 +330,10 @@ public:
 
     /// Write a partial body using chunked encoding.
     UtlBoolean writeChunk(OsSocket* outSocket, const UtlString& chunk);
-    
+
     /// Write the end-of-chunks marker to terminate a message sent with chunked encoding.
     UtlBoolean writeEndOfChunks(OsSocket* outSocket);
-    
+
     //! Converts the given token to initial cap capitialization
     //! in the style used in RFC 822 header names
     static void cannonizeToken(UtlString& token);

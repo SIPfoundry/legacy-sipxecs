@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 
 //////////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     //! Default Dialog constructor
-    SipSubscribeClient(SipUserAgent& userAgent, 
+    SipSubscribeClient(SipUserAgent& userAgent,
                        SipDialogMgr& dialogMgr,
                        SipRefreshManager& refreshMgr);
 
@@ -143,8 +143,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Create a SIP event subscription based on values specified to create a SUBSCRIBE message
-    /*! 
-     *  Returns TRUE if the SUBSCRIBE request was sent and the 
+    /*!
+     *  Returns TRUE if the SUBSCRIBE request was sent and the
      *  Subscription state proceeded to SUBSCRIPTION_INITIATED.
      *  Returns FALSE if the SUBSCRIBE request was not able to
      *  be sent, the subscription state is set to SUSCRIPTION_FAILED.
@@ -191,8 +191,8 @@ public:
        );
 
     //! Create a SIP event subscription based on a provided SUBSCRIBE request
-    /*! 
-     *  Returns TRUE if the SUBSCRIBE request was sent and the 
+    /*!
+     *  Returns TRUE if the SUBSCRIBE request was sent and the
      *  Subscription state proceeded to SUBSCRIPTION_INITIATED.
      *  Returns FALSE if the SUBSCRIBE request was not able to
      *  be sent, the subscription state is set to SUSCRIPTION_FAILED.
@@ -247,7 +247,7 @@ public:
 /* ============================ ACCESSORS ================================= */
 
     //! Get a string representation of an 'enum SubscriptionState' value.
-    static void getSubscriptionStateEnumString(enum SubscriptionState stateValue, 
+    static void getSubscriptionStateEnumString(enum SubscriptionState stateValue,
                                                UtlString& stateString);
 
 /* ============================ INQUIRY =================================== */

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -82,7 +82,7 @@ const RegEx SipXBranchRecognizer(
    "(" MD5_B64SIG_REGEX ")"                                   // the loopdetectkey
    ")?$"
                                  );
-   
+
 /// constructor for a client transaction in a User Agent Client
 BranchId::BranchId(const SipMessage& message)
 {
@@ -90,7 +90,7 @@ BranchId::BranchId(const SipMessage& message)
    smCounter++;
    smCounter &= 0xFFFF;
    generateUniquePart(message, uniqueCounter, *this);
-   mParentStringValid = true;   
+   mParentStringValid = true;
 }
 
 /// constructor for a server transaction in a proxy
@@ -98,7 +98,7 @@ BranchId::BranchId(const UtlString& existingBranchIdValue)
 {
    // store full value in parent UtlString
    append(existingBranchIdValue);
-   mParentStringValid = true;   
+   mParentStringValid = true;
 }
 
 /// constructor for building a client transaction in a proxy
@@ -119,7 +119,7 @@ BranchId::BranchId(BranchId&         parentId, ///< the branchid of the server t
       append(SIPXECS_LOOP_KEY_SEPARATOR);
       append(mLoopDetectionKey);
    }
-   
+
    mParentStringValid = true;
 }
 
@@ -184,7 +184,7 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
          size_t       counter = 0;
          UtlString    uniqueKey;
          UtlString    loopDetectKey;
-         if (parse(branch, counter, uniqueKey, loopDetectKey)) 
+         if (parse(branch, counter, uniqueKey, loopDetectKey))
          {
             // found something that looks like a sipXecs branch id
 
@@ -193,7 +193,7 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
             generateUniquePart(response, counter, generatedKey);
 
             // if they match, key is mine
-            isMyBranch = (0 == generatedKey.compareTo(uniqueKey)); 
+            isMyBranch = (0 == generatedKey.compareTo(uniqueKey));
          }
          else
          {
@@ -202,14 +202,14 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
       }
       else
       {
-         // no branch parameter - must not be 3261-compliant, so it's not me 
+         // no branch parameter - must not be 3261-compliant, so it's not me
       }
    }
    else
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "BranchId::topViaIsMyBranch - no top branch found");
    }
-   
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "BranchId::topViaIsMyBranch = %s",
                  isMyBranch ? "Is My Branch" : "Is Not My Branch");
    return isMyBranch;
@@ -218,7 +218,7 @@ bool BranchId::topViaIsMyBranch(const SipMessage& response)
 /// Record a fork into the loop detection key for this branch.
 void BranchId::addFork(const Url& contact)
 {
-   // ensure that the value is regenerated with this key 
+   // ensure that the value is regenerated with this key
    mParentStringValid = false;
 
    // make a copy of the Url so that we can remove the parameters that damage loop detection
@@ -258,7 +258,7 @@ bool BranchId::parse(const UtlString& branchValue,   ///< input
                      )
 {
    RegEx recognizer(SipXBranchRecognizer);
-   
+
    bool isAsipXbranch = recognizer.Search(branchValue);
    if (isAsipXbranch)
    {
@@ -295,12 +295,12 @@ void BranchId::generateFullValue()
    if (!mParentStringValid)
    {
       mLoopDetectionKey.remove(0);
-      
+
       UtlString* contact;
       UtlSortedListIterator contacts(mForks);
 
       NetMd5Codec loopDetectKey;
-   
+
       while((contact = dynamic_cast<UtlString*>(contacts())))
       {
          loopDetectKey.hash(*contact);
@@ -313,7 +313,7 @@ void BranchId::generateFullValue()
       UtlString    oldLoopKey;
       if (parse(*this, existingCounter, existingUniquePart, oldLoopKey))
       {
-      
+
          // rebuild the parent string with the existing unique part and the new key
          remove(0);
          append(SIPXECS_MAGIC_COOKIE);
@@ -324,7 +324,7 @@ void BranchId::generateFullValue()
             append(SIPXECS_LOOP_KEY_SEPARATOR);
             append(mLoopDetectionKey);
          }
-      
+
          mParentStringValid = true;
       }
    }
@@ -352,7 +352,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
             size_t       counter = 0;
             UtlString    uniqueKey;
             UtlString    loopDetectKey;
-            if (parse(branch, counter, uniqueKey, loopDetectKey)) 
+            if (parse(branch, counter, uniqueKey, loopDetectKey))
             {
                // found something that looks like a sipXecs branch id
 
@@ -367,7 +367,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
                   UtlString generatedSignature;
                   generatedSignature.append(generatedKey,
                                             SIPXECS_MAGIC_COOKIE_LENGTH+4, UTLSTRING_TO_END);
-                  
+
                   // if they match, key is mine
                   if (0 == generatedSignature.compareTo(uniqueKey))
                   {
@@ -386,7 +386,7 @@ unsigned int BranchId::loopDetected(const SipMessage& message)
          }
          else
          {
-            // no branch parameter - must not be 3261-compliant, so it's not me 
+            // no branch parameter - must not be 3261-compliant, so it's not me
          }
       }
    }
@@ -430,7 +430,7 @@ void BranchId::generateUniquePart(const SipMessage& message,
                                   )
 {
    uniqueValue.remove(0);
-   
+
    uniqueValue.append(SIPXECS_MAGIC_COOKIE); // make it easy to see we did this one
 
    // build up the unique part of the branch id by hashing
@@ -441,13 +441,13 @@ void BranchId::generateUniquePart(const SipMessage& message,
    branchSignature.hash(smIdSecret);
 
    uniqueValue.appendNumber(uniqueCounter & 0xFFFF, "%04x");
-   
+
    branchSignature.hash(&uniqueCounter, sizeof(uniqueCounter));
-   
+
    UtlString callValue; // make this branch unique to this call
    message.getCallIdField(&callValue);
    branchSignature.hash(callValue);
-   
+
    branchSignature.appendBase64Sig(uniqueValue);
 }
 

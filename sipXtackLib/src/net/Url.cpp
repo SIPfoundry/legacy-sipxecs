@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -71,7 +71,7 @@ const RegEx SipTokenSequenceOrQuoted("^(?:" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*"
 //    $1 matches an unquoted string
 //    $2 matches a quoted string but without the quotes
 //       Do Not Change This To Include The Quotes - that causes the regex
-//       processor to recurse, possibly very very deeply.  
+//       processor to recurse, possibly very very deeply.
 //       Instead, we add the quotes back in explicitly in later processing.
 // Does not include any leading or trailing whitespace.
 const RegEx DisplayName( SWS "(?:(" SIP_TOKEN "(?:" LWS SIP_TOKEN ")*)"
@@ -152,9 +152,9 @@ const RegEx UsernameAndPassword(
 //   $1 matches host
 //   $2 matches port
 #define DOMAIN_LABEL "(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)"
-const RegEx HostAndPort( 
+const RegEx HostAndPort(
    "("
-     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name 
+     "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name
       "|"
         "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
       "|"
@@ -241,7 +241,7 @@ bool Url::fromString(const UtlString& urlString, ///< string to parse URL from
                      )
 {
    reset();
-   
+
    return parseString(urlString.data(), uriForm, nextUri);
 }
 
@@ -306,7 +306,7 @@ Url::operator=(const Url& rhs)
       if (rhs.mpUrlParameters)
       {
          mpUrlParameters = new UtlDList;
-         
+
          UtlDListIterator paramIterator(*rhs.mpUrlParameters);
          NameValuePairInsensitive* rhsParam;
          while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
@@ -322,7 +322,7 @@ Url::operator=(const Url& rhs)
       if (rhs.mpHeaderOrQueryParameters)
       {
          mpHeaderOrQueryParameters = new UtlDList;
-         
+
          UtlDListIterator paramIterator(*rhs.mpHeaderOrQueryParameters);
          NameValuePairInsensitive* rhsParam;
          while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
@@ -338,13 +338,13 @@ Url::operator=(const Url& rhs)
       if (rhs.mpFieldParameters)
       {
          mpFieldParameters = new UtlDList;
-         
+
          UtlDListIterator paramIterator(*rhs.mpFieldParameters);
          NameValuePairInsensitive* rhsParam;
          while ((rhsParam = dynamic_cast<NameValuePairInsensitive*>(paramIterator())))
          {
             mpFieldParameters->append(new NameValuePairInsensitive(*rhsParam));
-         }         
+         }
       }
       else
       {
@@ -358,7 +358,7 @@ Url::operator=(const Url& rhs)
 Url& Url::operator=(const char* urlString)
 {
    reset();
-   
+
    if (urlString && *urlString)
    {
       parseString(urlString, NameAddr, NULL);
@@ -389,7 +389,7 @@ void Url::setUrlType(const char* urlProtocol)
    if (urlProtocol)
    {
       UtlString schemeName(urlProtocol);
-      
+
       mScheme = scheme(schemeName);
 
       if ( UnknownUrlScheme == mScheme )
@@ -602,12 +602,12 @@ UtlBoolean Url::getUrlParameter(int urlIndex, UtlString& name, UtlString& value)
 
     if (   (urlIndex >= 0)
         && (mpUrlParameters || parseUrlParameters())
-        && (((int)(mpUrlParameters->entries())) > urlIndex) 
+        && (((int)(mpUrlParameters->entries())) > urlIndex)
         )
     {
        url = (NameValuePairInsensitive*) mpUrlParameters->at(urlIndex);
     }
-    
+
     if(url)
     {
         name = *url;
@@ -656,7 +656,7 @@ void Url::setUrlParameter(const char* name, const char* value)
     {
        mpUrlParameters = new UtlDList;
     }
-    
+
     NameValuePairInsensitive* existingParam = dynamic_cast<NameValuePairInsensitive*>(mpUrlParameters->find(nv));
 
     if (existingParam)
@@ -668,7 +668,7 @@ void Url::setUrlParameter(const char* name, const char* value)
     {
        mpUrlParameters->append(nv);
     }
-    
+
 }
 
 UtlBoolean Url::getHeaderParameter(const char* name, UtlString& value, int index) const
@@ -767,7 +767,7 @@ void Url::getUri(UtlString& urlString) const
    // Insert the scheme
     urlString = schemeName(mScheme);
     urlString.append(":",1);
-    
+
     switch(mScheme)
     {
     case FileUrlScheme:
@@ -784,7 +784,7 @@ void Url::getUri(UtlString& urlString) const
        break;
     }
 
-    // Add the user 
+    // Add the user
     if (FileUrlScheme != mScheme) // no user defined in a file url
     {
        if(!mUserId.isNull())
@@ -852,7 +852,7 @@ void Url::getUri(UtlString& urlString) const
             }
         }
     }
-    
+
     // Add the header parameters
     if (   (   mpHeaderOrQueryParameters
             || const_cast<Url*>(this)->parseHeaderOrQueryParameters()
@@ -927,7 +927,7 @@ UtlBoolean Url::getHeaderParameter(int headerIndex, UtlString& name, UtlString& 
     {
        header = dynamic_cast<NameValuePairInsensitive*>(mpHeaderOrQueryParameters->at(headerIndex));
     }
-    
+
     if(header)
     {
         name = *header;
@@ -1001,12 +1001,12 @@ UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& va
 
     if (   fieldIndex >= 0
         && (mpFieldParameters || parseFieldParameters())
-        && ((int)(mpFieldParameters->entries())) > fieldIndex 
+        && ((int)(mpFieldParameters->entries())) > fieldIndex
         )
     {
        field = (NameValuePairInsensitive*) mpFieldParameters->at(fieldIndex);
     }
-    
+
     if(field)
     {
         name = *field;
@@ -1057,7 +1057,7 @@ void Url::setFieldParameter(const char* name, const char* value)
     {
        mpFieldParameters = new UtlDList;
     }
-    
+
     NameValuePairInsensitive* existingParam = dynamic_cast<NameValuePairInsensitive*>(mpFieldParameters->find(nv));
 
     if (existingParam)
@@ -1143,7 +1143,7 @@ void Url::toString(UtlString& urlString) const
                              )
                          && mpFieldParameters->entries()
                          );
-   
+
    // If this should be nameAddr as opposed to addrSpec
    // (i.e. do we need anglebrackets)
    if (   isNameAddr                             // There was a Display name
@@ -1161,7 +1161,7 @@ void Url::toString(UtlString& urlString) const
    UtlString theAddrSpec;
    const_cast<Url*>(this)->getUri(theAddrSpec);
    urlString.append(theAddrSpec);
-   
+
    // Add the terminating angle bracket
    if(isNameAddr)
    {
@@ -1265,66 +1265,66 @@ void Url::kedump()
 {
     UtlString proto;
     getUrlType(proto);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Url type: '%s'", proto.data());
 
     UtlString disp;
     getDisplayName(disp);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump DisplayName: '%s'", disp.data());
 
     UtlString user;
     getUserId(user);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump UserId: '%s'", user.data());
 
     UtlString pwd;
     getPassword(pwd);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Password: '%s'", pwd.data());
 
     UtlString server;
     getHostAddress(server);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Address: '%s'", server.data());
 
     int port = getHostPort();
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Port: %d", port);
 
     UtlString callId;
     getHeaderParameter("call-id", callId);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Call-Id: '%s'", callId.data());
 
     UtlString name;
     UtlString value;
     int index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Header Parameters:");
     while(getHeaderParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
 
     index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump Field Parameters:");
     while(getFieldParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
 
     index = 0;
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "Url::kedump URL Parameters:");
     while(getUrlParameter(index, name, value))
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "Url::kedump '%s'='%s'", name.data(), value.data());
         index++;
     }
@@ -1379,12 +1379,12 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    }
 
    int workingOffset = 0; // begin at the beginning...
-   
+
    ssize_t afterAngleBrackets = UTL_NOT_FOUND;
-   
+
    if (AddrSpec == uriForm)
    {
-      mAngleBracketsIncluded = FALSE; 
+      mAngleBracketsIncluded = FALSE;
    }
    else // ! addr-spec
    {
@@ -1402,7 +1402,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          case 2: // matched unquoted sequence of tokens
             displayName.MatchString(&mDisplayName, 1);
             break;
-            
+
          case 3: // matched a double quoted string
             // see performance note on DisplayName
             mDisplayName.append("\"");
@@ -1435,7 +1435,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          // yes, there are angle brackets
          workingOffset = angleBrackets.MatchStart(1); // inside the angle brackets
          afterAngleBrackets = angleBrackets.AfterMatch(0); // following the '>'
-         
+
          /*
           * Note: We do not set mAngleBracketsIncluded just because we saw them
           *       That is only used for explicit control from the outside.
@@ -1453,7 +1453,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     *   or  host   'foo' port '333' (and scheme 'sip' is implied)
     *
     * Now make it worse by using 'sips' as a hostname:
-    *   'sips:333'     
+    *   'sips:333'
     *       scheme 'sips' host '333'
     *   or  host   'sips' port '333' (and scheme 'sip' is implied)
     *
@@ -1463,7 +1463,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     * do the right thing for the (scheme 'sips' host '333') case, but they get what
     * they deserve.
     */
-   
+
    // Parse the scheme (aka url type)
    LOG_TIME("scheme   < ");
    RegEx supportedScheme(SupportedScheme);
@@ -1488,7 +1488,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
        */
       mScheme = UnknownUrlScheme;
    }
-   
+
 
    // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)
@@ -1510,14 +1510,14 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    default:
       break;
    }
-   
+
    if (FileUrlScheme != mScheme) // no user part in file urls
    {
       // Parse the username and password
       LOG_TIME("userpass   < ");
       RegEx usernameAndPassword(UsernameAndPassword);
       if (   usernameAndPassword.SearchAt(urlString, workingOffset)
-          && usernameAndPassword.MatchStart(0) == workingOffset 
+          && usernameAndPassword.MatchStart(0) == workingOffset
           )
       {
          LOG_TIME("userpass   > ");
@@ -1584,7 +1584,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          mPassword.remove(0);
       }
    }
-   
+
    // Next is a path if http, https, or ftp,
    //      OR url parameters if sip or sips.
    // There can be no Url parameters for http, https, or ftp
@@ -1624,7 +1624,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       //                iff it meets the right conditions:
       if (   AddrSpec == uriForm                 // in addr-spec, any param is a url param
           || afterAngleBrackets != UTL_NOT_FOUND // inside angle brackets there may be a url param
-          ) 
+          )
       {
          LOG_TIME("urlparm   < ");
          RegEx urlParams(UrlParams);
@@ -1642,7 +1642,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       }
    }
    break;
-   
+
    case MailtoUrlScheme:
    default:
       // no path component
@@ -1661,7 +1661,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          LOG_TIME("hdrparm   > ");
          headerOrQueryParams.MatchString(&mRawHeaderOrQueryParameters, 1);
          workingOffset = headerOrQueryParams.AfterMatch(0);
-            
+
          // actual parsing of the parameters is in parseHeaderOrQueryParameters
          // so that it only happens if someone asks for them.
       }
@@ -1696,7 +1696,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
                LOG_TIME("fldparm   > ");
                fieldParameters.MatchString(&mRawFieldParameters, 1);
                workingOffset = fieldParameters.AfterMatch(0);
-            
+
                // actual parsing of the parameters is in parseFieldParameters
                // so that it only happens if someone asks for them.
             }
@@ -1748,7 +1748,7 @@ UtlBoolean Url::isUserHostPortEqual(const Url &url,
 
 UtlBoolean Url::isUserHostEqual(const Url &url) const
 {
-   
+
    return (   (mHostAddress.compareTo(url.mHostAddress, UtlString::ignoreCase) == 0)
            && (mUserId.compareTo(url.mUserId) == 0));
 }
@@ -1776,7 +1776,7 @@ void Url::getIdentity(UtlString &identity) const
 Url::Scheme Url::scheme( const UtlString& schemeName )
 {
    Scheme theScheme;
-   
+
    RegEx supportedSchemeExact(SupportedSchemeExact);
    if (supportedSchemeExact.Search(schemeName.data()))
    {
@@ -1804,7 +1804,7 @@ const char* Url::schemeName( Url::Scheme scheme ) const
    }
    return theName;
 }
-   
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
@@ -1931,7 +1931,7 @@ void Url::gen_value_unescape(UtlString& escapedText)
           unescapedTextPtr++;
        }
     }
-    
+
     // Copy back into the UtlString.
     resultPtr[numUnescapedChars] = '\0';
     escapedText.replace(0, numUnescapedChars, resultPtr);

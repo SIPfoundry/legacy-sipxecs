@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public:
          for (unsigned int i = 0; i < params.entries(); i++)
          {
             printf("index = %d\n", i);
-            
+
             UtlContainable *value = params.at(i);
             UtlString paramType(value->getContainableType());
             if (paramType.compareTo("UtlInt") == 0)
@@ -54,19 +54,19 @@ public:
                UtlInt* paramValue = (UtlInt *)value;
                printf("value = %" PRIdPTR "\n", paramValue->getValue());
             }
-            
+
             else if (paramType.compareTo("UtlLongLongInt") == 0)
             {
                UtlLongLongInt* paramValue = (UtlLongLongInt *)value;
                printf("value = %" FORMAT_INTLL "d\n", paramValue->getValue());
             }
-            
+
             else if (paramType.compareTo("UtlString") == 0)
             {
                UtlString* paramValue = (UtlString *)value;
                printf("value = %s\n", paramValue->data());
             }
-   
+
             else if (paramType.compareTo("UtlSList") == 0)
             {
                UtlSList* list = (UtlSList *)value;
@@ -80,7 +80,7 @@ public:
                      UtlInt* paramValue = (UtlInt *)pObject;
                      printf("value = %" PRIdPTR "\n", paramValue->getValue());
                   }
-                  
+
                   if (elementType.compareTo("UtlString") == 0)
                   {
                      UtlString* paramValue = (UtlString *)pObject;
@@ -88,7 +88,7 @@ public:
                   }
                }
             }
-   
+
             else if (paramType.compareTo("UtlHashMap") == 0)
             {
                UtlHashMap* map = (UtlHashMap *)value;
@@ -97,7 +97,7 @@ public:
                while((pName = (UtlString *)iterator()))
                {
                   printf("name = %s\n", pName->data());
-                  
+
                   UtlContainable* pObject = map->findValue(pName);
                   UtlString elementType(pObject->getContainableType());
                   if (elementType.compareTo("UtlInt") == 0)
@@ -105,13 +105,13 @@ public:
                      UtlInt* paramValue = (UtlInt *)pObject;
                      printf("value = %" PRIdPTR "\n", paramValue->getValue());
                   }
-                  
+
                   if (elementType.compareTo("UtlString") == 0)
                   {
                      UtlString* paramValue = (UtlString *)pObject;
                      printf("value = %s\n", paramValue->data());
                   }
-                  
+
                   if (elementType.compareTo("UtlSList") == 0)
                   {
                      UtlSList* list = (UtlSList *)pObject;
@@ -125,7 +125,7 @@ public:
                            UtlInt* paramValue = (UtlInt *)pList;
                            printf("value = %" PRIdPTR "\n", paramValue->getValue());
                         }
-                        
+
                         if (elementType.compareTo("UtlString") == 0)
                         {
                            UtlString* paramValue = (UtlString *)pList;
@@ -163,8 +163,8 @@ class XmlRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST(testXmlRpcNoParamsParse);
    CPPUNIT_TEST(testXmlRpcResponseParse);
    CPPUNIT_TEST(testXmlRpcResponseSetting);
-   CPPUNIT_TEST(testIllFormattedXmlRpcRequest);   
-   CPPUNIT_TEST(testXmlRpcEmptyArrayParse);   
+   CPPUNIT_TEST(testIllFormattedXmlRpcRequest);
+   CPPUNIT_TEST(testXmlRpcEmptyArrayParse);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -225,14 +225,14 @@ public:
          request.addParam(&intValue);
 
 #if __x86_64__
-         // test 64 bit integer 
+         // test 64 bit integer
          UtlInt int64Value(178187493530);
          request.addParam(&int64Value);
 #endif
-         
+
          UtlLongLongInt llintValue(162162);
          request.addParam(&llintValue);
-         
+
          UtlSList list;
          UtlString array1("160@pingtel.com");
          list.insert(&array1);
@@ -243,21 +243,21 @@ public:
          UtlBool array4(true);
          list.insert(&array4);
          request.addParam(&list);
-         
+
          UtlHashMap members;
          UtlString stringValue("acd@pingtel.com");
          members.insertKeyAndValue(&stringValue, &list);
-         request.addParam(&members);         
+         request.addParam(&members);
 
          XmlRpcResponse response;
          response.setMethod("addExtension");
-         
+
          request.execute(response);
 
          UtlString requestBody;
          ssize_t length;
          request.mpHttpRequest->getBody()->getBytes(&requestBody, &length);
-         
+
          ASSERT_STR_EQUAL(ref, requestBody.data());
       }
 
@@ -328,7 +328,7 @@ public:
             "</params>\n"
             "</methodCall>\n"
             ;
-            
+
          const char *faultResponse =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse><!-- addExtension -->\n"
@@ -371,7 +371,7 @@ public:
          UtlString body;
          ssize_t length;
          responseBody->getBytes(&body, &length);
-         
+
          // method was not registered: expect fault response
          ASSERT_STR_EQUAL(faultResponse, body.data());
 
@@ -380,19 +380,19 @@ public:
          dispatch.addMethod("addExtension", AddExtension::get, NULL);
          result = dispatch.parseXmlRpcRequest(requestContent, method, params, newResponse);
          CPPUNIT_ASSERT(result == true);
-  
+
          // check that int was parsed correctly
-         CPPUNIT_ASSERT ( params.at(1) && params.at(1)->isInstanceOf(UtlInt::TYPE) ); 
+         CPPUNIT_ASSERT ( params.at(1) && params.at(1)->isInstanceOf(UtlInt::TYPE) );
          UtlInt* pParamValue = (UtlInt *)params.at(1);
          CPPUNIT_ASSERT ( pParamValue->getValue() == 162 );
-         
+
 #if __x86_64__
          // check that 64bit int was parsed correctly
-         CPPUNIT_ASSERT ( params.at(2) && params.at(2)->isInstanceOf(UtlInt::TYPE) ); 
+         CPPUNIT_ASSERT ( params.at(2) && params.at(2)->isInstanceOf(UtlInt::TYPE) );
          pParamValue = (UtlInt *)params.at(2);
          CPPUNIT_ASSERT ( pParamValue->getValue() == 178187493530 );
 #endif
-         
+
          HttpRequestContext context;
          XmlRpcMethod::ExecutionStatus status = XmlRpcMethod::OK;
          XmlRpcMethod::Get* methodGet;
@@ -547,7 +547,7 @@ public:
 
          Url url("http://server/RPC");
          XmlRpcResponse response;
-         
+
          UtlString stringValue("acd@pingtel.com");
 
          UtlSList list;
@@ -559,13 +559,13 @@ public:
          list.insert(&array3);
          UtlBool array4(true);
          list.insert(&array4);
-         
+
          UtlHashMap members;
          members.insertKeyAndValue(&stringValue, &list);
 
          UtlString methodName("addExtension");
-         response.setMethod(methodName);         
-         response.setResponse(&members);         
+         response.setMethod(methodName);
+         response.setResponse(&members);
 
          UtlString responseBody;
          ssize_t length;
@@ -638,7 +638,7 @@ public:
             "</params>\n"
             "</methodCall>\n"
             ;
-            
+
          const char *faultResponse1 =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse><!--  -->\n"

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -137,7 +137,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          SipSubscribeServerEventHandler eventHandler;
          UtlString resourceId;
          UtlString eventTypeKey, eventType;
-         eventHandler.getKeys(mwiSubWithAuthRequest, 
+         eventHandler.getKeys(mwiSubWithAuthRequest,
                               resourceId,
                               eventTypeKey,
                               eventType);
@@ -222,7 +222,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(notify0FromArray);
          int arrayNotify0Cseq;
          UtlString arrayNotify0Method;
-         CPPUNIT_ASSERT(notify0FromArray->getCSeqField(&arrayNotify0Cseq, 
+         CPPUNIT_ASSERT(notify0FromArray->getCSeqField(&arrayNotify0Cseq,
                                                        &arrayNotify0Method));
          CPPUNIT_ASSERT(arrayNotify0Cseq == 2);
          UtlString arrayNotify0DialogHandle;

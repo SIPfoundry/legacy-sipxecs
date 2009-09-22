@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ SipSession::SipSession(const SipMessage* initialMessage,
            }
            else
            {
-               mLocalContact = uri;               
+               mLocalContact = uri;
            }
        }
 
@@ -149,7 +149,7 @@ SipSession::~SipSession()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipSession& 
+SipSession&
 SipSession::operator=(const SipSession& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -199,7 +199,7 @@ void SipSession::updateSessionData(SipMessage& message)
         // This message is part of a transaction initiated by
         // the caller/initiator of the session
 
-        if(cSeq > mLastFromCseq) 
+        if(cSeq > mLastFromCseq)
         {
             mLastFromCseq = cSeq;
 
@@ -249,7 +249,7 @@ void SipSession::updateSessionData(SipMessage& message)
     {
         // This message is part of a transaction initiated by
         // the callee/destination of the session
-        if(cSeq > mLastToCseq) 
+        if(cSeq > mLastToCseq)
         {
             mLastToCseq = cSeq;
 
@@ -412,54 +412,54 @@ void SipSession::toString(UtlString& output) const
 {
     UtlString temp ;
     char cTemp[64] ;
-    
+
     output.append("SipSession {");
-    
-    output.append("\n  mLocalUrl="); 
-    mLocalUrl.toString(temp); 
+
+    output.append("\n  mLocalUrl=");
+    mLocalUrl.toString(temp);
     output.append(temp);
-    
-    output.append("\n  mRemoteUrl="); 
+
+    output.append("\n  mRemoteUrl=");
     mRemoteUrl.toString(temp);
     output.append(temp);
-    
-    output.append("\n  mLocalContact="); 
+
+    output.append("\n  mLocalContact=");
     mLocalContact.toString(temp);
     output.append(temp);
-    
-    output.append("\n  mRemoteContact="); 
-    mRemoteContact.toString(temp); 
+
+    output.append("\n  mRemoteContact=");
+    mRemoteContact.toString(temp);
     output.append(temp);
-    
-    output.append("\n  mInitialMethod="); 
+
+    output.append("\n  mInitialMethod=");
     output.append(mInitialMethod);
-    
-    output.append("\n  msLocalRequestUri="); 
+
+    output.append("\n  msLocalRequestUri=");
     output.append(msLocalRequestUri);
-    
+
     output.append("\n  msRemoteRequestUri=");
     output.append(msRemoteRequestUri);
-    
-    output.append("\n  mInitialLocalCseq="); 
-    sprintf(cTemp, "%d", mInitialLocalCseq); 
+
+    output.append("\n  mInitialLocalCseq=");
+    sprintf(cTemp, "%d", mInitialLocalCseq);
     output.append(cTemp);
-    
-    output.append("\n  mInitialRemoteCseq="); 
-    sprintf(cTemp, "%d", mInitialRemoteCseq); 
+
+    output.append("\n  mInitialRemoteCseq=");
+    sprintf(cTemp, "%d", mInitialRemoteCseq);
     output.append(cTemp);
-    
-    output.append("\n  mLastFromCseq="); 
-    sprintf(cTemp, "%d", mLastFromCseq); 
+
+    output.append("\n  mLastFromCseq=");
+    sprintf(cTemp, "%d", mLastFromCseq);
     output.append(cTemp);
-    
-    output.append("\n  mLastToCseq="); 
-    sprintf(cTemp, "%d", mLastToCseq); 
+
+    output.append("\n  mLastToCseq=");
+    sprintf(cTemp, "%d", mLastToCseq);
     output.append(cTemp);
-    
-    output.append("\n  mSessionState="); 
-    sprintf(cTemp, "%d", mSessionState); 
+
+    output.append("\n  mSessionState=");
+    sprintf(cTemp, "%d", mSessionState);
     output.append(cTemp);
-    
+
     output.append("}\n");
 }
 
@@ -513,4 +513,3 @@ UtlBoolean SipSession::isSameSession(const SipMessage& message) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,18 +37,18 @@ class XmlRpcDispatch;
  *
  * This class is the abstract base from which all XML-RPC methods must inherit. Two
  * methods must be implemented by the subclasses:
- * 
+ *
  * - get() is for XmlRpcDispatch to instantiate the subclass during the runtime. It
  * is not a singleton class. The XmlRpcMethod derived objects will be deleted after
  * each use in XmlRpcDispatch.
- * 
+ *
  * - execute() is for XmlRpcDispatch to execute the XML-RPC request and send back
  * the XmlRpcResponse to the client side.
- * 
+ *
  * All the params in the XML-RPC request are stored in a UtlSList and passed to
  * the service in execute(). All the param values are stored in UtlContainable
  * types. The mapping between XML-RPC value types and UtlContainable types is:
- * 
+ *
  * - <i4> or <int> is UtlInt
  * - <i8> is UtlLongLongInt
  * - <boolean> is UtlBool
@@ -56,11 +56,11 @@ class XmlRpcDispatch;
  * - <dateTime.iso8601> is UtlDateTime
  * - <array> is UtlSList
  * - <struct> is UtlHashMap
- * 
+ *
  * <i8> is a SIPfoundry extension to XML-RPC that is not compatible with other
- * XML-RPC implementations. 
+ * XML-RPC implementations.
  * <double> and <base64> are currently not supported.
- * 
+ *
  */
 
 class XmlRpcMethod
@@ -76,12 +76,12 @@ public:
    } ExecutionStatus;
 
    static const char* ExecutionStatusString(ExecutionStatus value);
-   
+
    typedef XmlRpcMethod* Get();
-   
+
    /// Get the instance of this method. Subclasses must provide a definition for this method.
    static XmlRpcMethod* get();
-   
+
    /// Destructor
    virtual ~XmlRpcMethod();
 
@@ -92,7 +92,7 @@ public:
                         XmlRpcResponse& response, ///< request response
                         ExecutionStatus& status) = 0; ///< execution status
 
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -107,11 +107,9 @@ private:
 
    /// Disabled assignment operator
    XmlRpcMethod& operator=(const XmlRpcMethod& rhs);
-   
+
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _XMLRPCMETHOD_H_
-
-

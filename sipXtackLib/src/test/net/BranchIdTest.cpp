@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -50,25 +50,25 @@ class BranchIdTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   
+
    void testBranchIdisRFC3261()
       {
          CPPUNIT_ASSERT(BranchId::isRFC3261("z9hG4bK11e0671922444aa6a5f7f10b5"));
          CPPUNIT_ASSERT(!BranchId::isRFC3261("az9hG4bK11e0671922444aa6a5f7f10b5"));
          CPPUNIT_ASSERT(!BranchId::isRFC3261("x9hG4bK11e0671922444aa6a5f7f10b5"));
       }
-   
+
    void testBranchIdparse()
       {
          size_t       counter;
          UtlString    uniqueValue;
          UtlString    loopDetectKey;
-         
+
          CPPUNIT_ASSERT(!BranchId::parse("z9hG4bK11e0671922444aa6a5f7f10b5",
                                          counter, uniqueValue, loopDetectKey));
          CPPUNIT_ASSERT(uniqueValue.isNull());
          CPPUNIT_ASSERT(loopDetectKey.isNull());
-         
+
          CPPUNIT_ASSERT(!BranchId::parse("az9hG4bK11e0671922444aa6a5f7f10b5",
                                          counter, uniqueValue, loopDetectKey));
          CPPUNIT_ASSERT(uniqueValue.isNull());
@@ -97,7 +97,7 @@ public:
 
          UtlString stableTestSecret("stable");
          BranchId::setSecret(stableTestSecret);
-         
+
          const char* testMsg =
             "INVITE sip:someone@example.com SIP/2.0"
             "To: sip:someone@example.com\r\n"
@@ -110,7 +110,7 @@ public:
             "\r\n";
 
          SipMessage sipMsg(testMsg);
-         
+
          UtlString output[CASES];
 
          // Generate some BranchIds.
@@ -122,7 +122,7 @@ public:
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d initial: %s\n", i, output[i].data());
          }
-         
+
          // Compare that they're different enough.
          for (int i = 0; i < CASES; i++)
          {
@@ -130,7 +130,7 @@ public:
             {
                UtlString* s1 = &output[i];
                UtlString* s2 = &output[j];
-             
+
                int differences = 0;
                for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
@@ -163,7 +163,7 @@ public:
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d child  : %s\n", i, output[i].data());
          }
-         
+
          // Compare that they're different enough.
          for (int i = 0; i < CASES; i++)
          {
@@ -171,7 +171,7 @@ public:
             {
                UtlString* s1 = &output[i];
                UtlString* s2 = &output[j];
-             
+
                int differences = 0;
                for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
@@ -191,17 +191,17 @@ public:
                }
             }
          }
-         
+
          // And then add a fork to each to see if the forks are different
          OsSysLog::add(FAC_SIP,PRI_DEBUG,"BranchIdTest::testBranchIdUniqueness forked cases");
          for (int i = 0; i < CASES; i++)
-         {            
+         {
             BranchId parentBranchId(output[i]);
 
             char forkContact[32];
             sprintf(forkContact, "sip:someuser%02d@domain", i);
             Url contactUrl(forkContact);
-            
+
             parentBranchId.addFork(contactUrl);
 
             BranchId branchId(parentBranchId, sipMsg);
@@ -210,7 +210,7 @@ public:
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG, "case %d forked : %s\n", i, output[i].data());
          }
-         
+
          // Compare that they're different enough.
          for (int i = 0; i < CASES; i++)
          {
@@ -218,7 +218,7 @@ public:
             {
                UtlString* s1 = &output[i];
                UtlString* s2 = &output[j];
-             
+
                int differences = 0;
                for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
                {
@@ -246,13 +246,13 @@ public:
          BranchId  sipXcopied(sipXbranchId);
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
-         
+
          UtlString non_sipXbranchId("z9hG4bK-94rkdeeepdeloepw%ww-lflll");
          BranchId  non_sipXcopied(non_sipXbranchId);
 
          ASSERT_STR_EQUAL(sipXbranchId.data(), sipXcopied.data());
       }
-   
+
    void testLoopDetection()
       {
          const char* testMsg0 =
@@ -271,7 +271,7 @@ public:
 
          // initial send - no forking
          SipMessage sipMsg1(testMsg0);
-         
+
          BranchId branchId1(sipMsg1);
          CPPUNIT_ASSERT(!branchId1.loopDetected(sipMsg1));
          sipMsg1.setMaxForwards(19);
@@ -279,7 +279,7 @@ public:
          sipMsg1.getBytes(&msgBytes, &msgLength);
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
-         
+
          // forward once - just one target
 
          SipMessage sipMsg2(sipMsg1);  // construct server transaction copy
@@ -298,13 +298,13 @@ public:
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
 
-         // forward twice 
+         // forward twice
 
          SipMessage sipMsg3(sipMsg2); // construct server transaction copy
          BranchId branchId3s(sipMsg3); // construct parent branch id
 
          branchId3s.addFork("sip:another-someone@example.com");
-         branchId3s.addFork("sip:someone@example.com"); 
+         branchId3s.addFork("sip:someone@example.com");
 
          CPPUNIT_ASSERT(!branchId3s.loopDetected(sipMsg3));
 
@@ -371,7 +371,7 @@ public:
 
          // initial send - no forking
          SipMessage sipMsg1(testMsg0);
-         
+
          BranchId branchId1(sipMsg1);
          CPPUNIT_ASSERT(!branchId1.loopDetected(sipMsg1));
          sipMsg1.setMaxForwards(19);
@@ -379,7 +379,7 @@ public:
          sipMsg1.getBytes(&msgBytes, &msgLength);
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %d: \n%s\n----\n", 1, msgBytes.data());
-         
+
          // forward once - just one target
 
          SipMessage sipMsg2(sipMsg1);  // construct server transaction copy
@@ -407,13 +407,13 @@ public:
 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "message %s: \n%s\n----\n", "2c1", msgBytes.data());
 
-         // forward twice 
+         // forward twice
 
          SipMessage sipMsg3(sipMsg2); // construct server transaction copy
          BranchId branchId3s(sipMsg3); // construct parent branch id
 
          branchId3s.addFork("sip:another-someone@example.com");
-         branchId3s.addFork("sip:someone@example.com"); 
+         branchId3s.addFork("sip:someone@example.com");
 
          CPPUNIT_ASSERT(!branchId3s.loopDetected(sipMsg3));
 

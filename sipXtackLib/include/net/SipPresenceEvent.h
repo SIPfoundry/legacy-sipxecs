@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +67,7 @@ class Tuple : public UtlString
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
@@ -85,7 +85,7 @@ class Tuple : public UtlString
    static const UtlContainableType TYPE;
 
 ///@}
-   
+
 /**
  * @name ====================== Tuple Setting Interfaces
  *
@@ -107,10 +107,10 @@ class Tuple : public UtlString
    void getContact(UtlString& uri, float& priority) const;
 
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
@@ -137,7 +137,7 @@ class SipPresenceEvent : public HttpBody
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
@@ -149,7 +149,7 @@ class SipPresenceEvent : public HttpBody
       ~SipPresenceEvent();
 
 ///@}
-   
+
 /**
  * @name ====================== Presence Event Serialization Interfaces
  *
@@ -195,10 +195,10 @@ class SipPresenceEvent : public HttpBody
 
    //! Get the Tuple object based on the tupleId.
    Tuple* getTuple(UtlString& tupleId);
-   
+
    //! Remove the Tuple object.
    Tuple* removeTuple(Tuple* tuple);
-   
+
    /** Make the hash bag of Tuples visible.
     *  Beware that this operation does not lock the SipPresenceEvent,
     *  so the caller must ensure no other operations are done on it
@@ -211,10 +211,10 @@ class SipPresenceEvent : public HttpBody
    Tuple* getTuple();
 
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    /// Parse an existing tuple event package from xml format into the internal representation.
    void parseBody(const char* bytes);
 

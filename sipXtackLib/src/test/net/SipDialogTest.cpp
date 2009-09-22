@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -52,7 +52,7 @@ Accept-Language: en\r\n\
 Supported: sip-cc, sip-cc-01, timer, replaces\r\n\
 Via: SIP/2.0/UDP 10.1.1.10;branch=z9hG4bKedff6a4031b8220192be959d966159b6\r\n\
 Content-Length: 0\r\n";
-         const char subscribeResponseString[] = 
+         const char subscribeResponseString[] =
              "SIP/2.0 202 Accepted\r\n\
 Expires: 86400\r\n\
 From: sip:10.1.1.10;Vendor=Pingtel;Model=xpressa_strongarm_vxworks;Version=2.4.0.0009;Serial=00d01e004e6f;Mac=00d01e004e6f;tag=17747cec9\r\n\
@@ -291,7 +291,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(dialogMgr.countDialogs() == 1);
          dialogMgr.updateDialog(notifyRequest);
          SipMessage nextNotifyToSend;
-         dialogMgr.setNextLocalTransactionInfo(nextNotifyToSend, 
+         dialogMgr.setNextLocalTransactionInfo(nextNotifyToSend,
                                                SIP_NOTIFY_METHOD,
                                                establishedDialogHandle);
          int cseq;

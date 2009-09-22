@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ SipProtocolServerBase::~SipProtocolServerBase()
    mServerSocketMap.removeAll();
    // Delete all the server SipClient's.
    mServers.destroyAll();
-   mServerPortMap.destroyAll();    
+   mServerPortMap.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -97,7 +97,7 @@ UtlBoolean SipProtocolServerBase::send(SipMessage* message,
     UtlBoolean sendOk = FALSE;
 
     UtlString localIp(message->getInterfaceIp());
-    
+
     if (localIp.isNull())
     {
         localIp = mDefaultIp;
@@ -139,7 +139,7 @@ UtlBoolean SipProtocolServerBase::startListener()
         if (!pServer)
         {
            // No SipClient exists in mServers, so create one and insert it.
-           pServer = 
+           pServer =
               strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
               static_cast <SipClient*> (new SipClientUdp(pSocket, this, mSipUserAgent)) :
               strcmp(mProtocolString, SIP_TRANSPORT_TCP) == 0 ?
@@ -224,7 +224,7 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
 #ifdef TEST
          osPrintf("Socket OK, creating client\n");
 #endif
-         client = 
+         client =
             strcmp(mProtocolString, SIP_TRANSPORT_UDP) == 0 ?
             static_cast <SipClient*> (new SipClientUdp(clientSocket, this, mSipUserAgent, isClientSocketReused)):
             strcmp(mProtocolString, SIP_TRANSPORT_TCP) == 0 ?
@@ -288,11 +288,11 @@ SipClient* SipProtocolServerBase::getClientForDestination(const char* hostAddres
 int SipProtocolServerBase::isOk()
 {
     UtlBoolean bRet = true;
-    
+
     UtlHashMapIterator iterator(mServers);
     UtlString* pKey;
     int count = 0;
-    
+
     // Iterate through all the SipClient's.
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
@@ -301,7 +301,7 @@ int SipProtocolServerBase::isOk()
        bRet = bRet && pServer->isOk();
        count++ ;
     }
-    
+
     // We are not OK if any of the SipClients report problems or we don't
     // have a client (e.g. unable to bind on port)
     return bRet && (count > 0);
@@ -361,7 +361,7 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
                     "SipProtocolServerBase[%s]::deleteClient(%p)",
                     getName().data(), sipClient);
    #endif
-   
+
    // Remove sipClient from mClientList (if it is on the list).
    UtlContainable* ret = mClientList.removeReference(sipClient);
 

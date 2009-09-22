@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipPublishContentMgr_h_
@@ -60,7 +60,7 @@ class SipPublishContentMgrDefaultConstructor;
  *  eventTypeKey.  Callback functions are registered for eventTypes
  *  rather than eventTypeKeys, so the set of eventTypeKeys is not
  *  limited at compile time.
- *  
+ *
  *  A suggested convention for the resourceId
  *  is to use:  <userId>@<hostname>[:port] as provided in the
  *  SUBSCRIBE or PUBLISH request URI.  It is suggested that host be
@@ -107,7 +107,7 @@ public:
      *
      *  /param applicationData - provided with the callback function pointer
      *  when it was registered.
-     *  The rest of the arguments in this callback have the same meaning as 
+     *  The rest of the arguments in this callback have the same meaning as
      *  the same arguments to the getContent method.
      */
     typedef void (*SipPublisherContentChangeCallback) (void* applicationData,
@@ -132,11 +132,11 @@ public:
      *
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
-     *         the SIP Event header parameters.  However it may contain 
+     *         the SIP Event header parameters.  However it may contain
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no semantics enforced.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used
      *         as part of the key.
      *  \param eventType - SIP event type token
      *  \param numContentTypes - the number of bodies (each having a unique
@@ -146,7 +146,7 @@ public:
      *         header content types listed.
      *  \param eventContent - the SIP Event state content which was provided
      *         via a PUBLISH or requested via a SUBSCRIBE to be delivered
-     *         via a NOTIFY.  If multiple bodies are provided and the content 
+     *         via a NOTIFY.  If multiple bodies are provided and the content
      *         types match more than one of the mime types provided in the
      *         SUBSCRIBE Accepts header, the order of the bodies in the
      *         eventContent array indicates a preference.  The bodies are
@@ -201,11 +201,11 @@ public:
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
-     *         the SIP Event header parameters.  However it may contain 
+     *         the SIP Event header parameters.  However it may contain
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no semantics enforced.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used
      *         as part of the key.
      *  \param eventType - SIP event type token
      *  \param numContentTypes - the number of bodies (each having a unique
@@ -215,7 +215,7 @@ public:
      *         header content types listed.
      *  \param eventContent - the SIP Event state content which was provided
      *         via a PUBLISH or requested via a SUBSCRIBE to be delivered
-     *         via a NOTIFY.  If multiple bodies are provided and the content 
+     *         via a NOTIFY.  If multiple bodies are provided and the content
      *         types match more than one of the mime types provided in the
      *         SUBSCRIBE Accepts header, the order of the bodies in the
      *         eventContent array indicates a preference.  The bodies are
@@ -256,11 +256,11 @@ public:
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
-     *         the SIP Event header parameters.  However it may contain 
+     *         the SIP Event header parameters.  However it may contain
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no semantics enforced.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used
      *         as part of the key.
      *  \param eventType - SIP event type token
      */
@@ -307,14 +307,14 @@ public:
      *         of the key.
      *  \param eventTypeKey - a unique id for the event type, typically the
      *         SIP Event type token.  Usually this does not contain any of
-     *         the SIP Event header parameters.  However it may contain 
+     *         the SIP Event header parameters.  However it may contain
      *         event header parameters if the parameter identifies different
      *         content.  If event parameters are included, they must be in
      *         a consistent order for all uses of eventTypeKey in this class.
-     *         There is no semantics enforced.  This is an opaque string used 
+     *         There is no semantics enforced.  This is an opaque string used
      *         as part of the key.
      *  \param eventType - SIP event type token
-     *  \param acceptHeaderValue - the mime types allowed to be returned in 
+     *  \param acceptHeaderValue - the mime types allowed to be returned in
      *         the content argument.  The first match is the one returned.
      *         This string has the same syntax/format as the SIP Accept header.
      *  \param content - the content body if a match was found, otherwise NULL.
@@ -387,7 +387,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     /// parse the accept header field and create a HashBag with a UtlString for each MIME type
-    UtlBoolean buildContentTypesContainer(const char* acceptHeaderValue, 
+    UtlBoolean buildContentTypesContainer(const char* acceptHeaderValue,
                                           UtlHashBag& contentTypes);
 
     /// Copy constructor NOT ALLOWED
@@ -407,9 +407,9 @@ private:
     // The following three hash-bags contain PublishContentContainer's
     // which index as strings:
     // Index as strings "resourceId\001eventTypeKey".
-    UtlHashBag mContentEntries; 
+    UtlHashBag mContentEntries;
     // Index as strings "resourceId\001eventTypeKey".
-    UtlHashBag mPartialContentEntries; 
+    UtlHashBag mPartialContentEntries;
     // Index as strings "\001eventTypeKey".
     UtlHashBag mDefaultContentEntries;
 

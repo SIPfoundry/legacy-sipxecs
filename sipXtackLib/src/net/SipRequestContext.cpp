@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ SipRequestContext::~SipRequestContext()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipRequestContext& 
+SipRequestContext&
 SipRequestContext::operator=(const SipRequestContext& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -118,8 +118,8 @@ SipRequestContext::operator=(const SipRequestContext& rhs)
 /* ============================ ACCESSORS ================================= */
 
 
-UtlBoolean SipRequestContext::getVariable(const char* name, 
-                                             UtlString& value, 
+UtlBoolean SipRequestContext::getVariable(const char* name,
+                                             UtlString& value,
                                              int occurance) const
 {
     UtlDListIterator iterator((UtlDList&)mVariableList);

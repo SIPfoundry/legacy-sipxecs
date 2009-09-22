@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,7 @@ public:
     virtual void executeAllSipOutputProcessors( SipMessage& message,
                                                 const char* address,
                                                 int port ) = 0;
-    
+
     void addConfigChangeConsumer(OsMsgQ& messageQueue);
     //: Register to find out when UA config changes (i.e. contact address)
 

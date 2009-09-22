@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ protected:
 
    /// The array of option values.
    static int options[OptionCodeLast+1];
-   
+
    /// Sets the timeout parameter for DNS SRV queries. Default is 3
    static int mTimeout;
 
@@ -240,9 +240,9 @@ private:
  */
 class server_t {
   public:
-   
+
    //! Sets the mDnsSrvResolveEnabled flag
-   static void setDnsSrvResolveEnabled(UtlBoolean& enabled);   
+   static void setDnsSrvResolveEnabled(UtlBoolean& enabled);
 
    char *host;                  ///< Host name. (Owned by this object.)
    OsSocket::IpProtocolSocketType type;
@@ -292,7 +292,7 @@ class server_t {
 };
 
 /**
- * A class derived from OsServerTask class, whose members are responsible for carrying out 
+ * A class derived from OsServerTask class, whose members are responsible for carrying out
  * DNS queries. The class is restricted to a total of 4 members, with each member responsible
  * for the DNS query type specified by "mLookupType".
  */
@@ -306,22 +306,22 @@ public:
    enum LookupTypes
    {
       FIRST_LookupType =0,
-      SRV_UDP = FIRST_LookupType, 
-      SRV_TCP, 
-      SRV_TLS, 
+      SRV_UDP = FIRST_LookupType,
+      SRV_TCP,
+      SRV_TLS,
       A_RECORD,
       LAST_LookupType = A_RECORD
    };
 
    /// Destructor for SipSrvLookupThread
    virtual ~SipSrvLookupThread(void);
-   
-   /// Get the SRV lookup threads, initializing them if needed 
+
+   /// Get the SRV lookup threads, initializing them if needed
    static SipSrvLookupThread ** getLookupThreads();
 
    /// Implementation of OsServerTask's pure virtual method
    UtlBoolean handleMessage(OsMsg& rMsg);
-   
+
    /// Mutex to keep the Lookups thread-safe.
    static OsMutex slookupThreadMutex;
 
@@ -338,13 +338,13 @@ private:
     * is restricted to 4 members by the getLookupThreads() function, and their pointers
     * are stored in "mLookupThreads"
     */
-   
+
    /// Class attribute indicating what type of query this class member is responsible for
    LookupTypes mLookupType;
 
    /// Array holding pointers to the four individual lookup threads
    static SipSrvLookupThread * mLookupThreads[LAST_LookupType+1];
-   
+
    /// Attribute indicating whether the lookup threads have been initialized or not
    static UtlBoolean mHaveThreadsBeenInitialized;
 
@@ -354,7 +354,7 @@ private:
 };
 
 /**
- * A class derived from OsMsg class, whose members store the arguments necessary  to 
+ * A class derived from OsMsg class, whose members store the arguments necessary  to
  * perform the DNS queries, store the result, and signal an event to the main thread
  * to indicate the completion of a query.
  */
@@ -398,7 +398,7 @@ public:
     * This attribute is shared between all the lookup threads. Access to it
     * is controlled via the "sLookupThreadMutex" mutex in the SipSrvLookupThread class
     */
-   
+
    /// Argument needed by the lookup threads
    int * list_length_allocated;
    /**<
@@ -406,7 +406,7 @@ public:
     * This attribute is shared between all the lookup threads. Access to it
     * is controlled via the "sLookupThreadMutex" mutex in the SipSrvLookupThread class
     */
-   
+
    /// Argument needed by the lookup threads
    int * list_length_used;
    /**<
@@ -417,13 +417,13 @@ public:
 
    /// Argument passed to the lookup threads by copy. No access control on this.
    UtlString domain;
-   
+
    /// Argument passed to the lookup threads by copy. No access control on this.
    UtlString service;
-   
+
    /// Argument passed to the lookup threads by copy. No access control on this.
    int port;
-   
+
    /// Argument passed to the lookup threads by copy. No access control on this.
    OsSocket::IpProtocolSocketType socketType;
 

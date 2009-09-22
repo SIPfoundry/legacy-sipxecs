@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -31,7 +31,7 @@
 //
 //  NAME:        ProvisioningAgentXmlRpcAdapter::ProvisioningAgentXmlRpcAdapter
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -65,7 +65,7 @@ ProvisioningAgentXmlRpcAdapter::ProvisioningAgentXmlRpcAdapter(const Provisionin
 //
 //  NAME:        ProvisioningAgentXmlRpcAdapter::~ProvisioningAgentXmlRpcAdapter
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -101,7 +101,7 @@ ProvisioningAgentXmlRpcAdapter::~ProvisioningAgentXmlRpcAdapter()
 //
 //  NAME:        ProvisioningAgentXmlRpcCreate::execute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: This is the actual method called by the underlying XmlRpc Dispatcher in
 //               response to receiving a <methodCall>.  It will call the corresponding
@@ -166,7 +166,7 @@ bool ProvisioningAgentXmlRpcCreate::execute(const HttpRequestContext&      rCont
 //
 //  NAME:        ProvisioningAgentXmlRpcDelete::execute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: This is the actual method called by the underlying XmlRpc Dispatcher in
 //               response to receiving a <methodCall>.  It will call the corresponding
@@ -231,7 +231,7 @@ bool ProvisioningAgentXmlRpcDelete::execute(const HttpRequestContext&      rCont
 //
 //  NAME:        ProvisioningAgentXmlRpcSet::execute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: This is the actual method called by the underlying XmlRpc Dispatcher in
 //               response to receiving a <methodCall>.  It will call the corresponding
@@ -296,7 +296,7 @@ bool ProvisioningAgentXmlRpcSet::execute(const HttpRequestContext&      rContext
 //
 //  NAME:        ProvisioningAgentXmlRpcGet::execute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: This is the actual method called by the underlying XmlRpc Dispatcher in
 //               response to receiving a <methodCall>.  It will call the corresponding
@@ -361,7 +361,7 @@ bool ProvisioningAgentXmlRpcGet::execute(const HttpRequestContext&      rContext
 //
 //  NAME:        ProvisioningAgentXmlRpcAction::execute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: This is the actual method called by the underlying XmlRpc Dispatcher in
 //               response to receiving a <methodCall>.  It will call the corresponding
@@ -420,4 +420,3 @@ bool ProvisioningAgentXmlRpcAction::execute(const HttpRequestContext&      rCont
 
    return true;
 }
-

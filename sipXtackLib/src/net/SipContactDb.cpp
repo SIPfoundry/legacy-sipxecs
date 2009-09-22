@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,14 +27,14 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipContactDb::SipContactDb() : 
+SipContactDb::SipContactDb() :
     mNextContactId(1),
     mLock(OsMutex::Q_FIFO)
 {
 }
 
 // Copy constructor
-SipContactDb::SipContactDb(const SipContactDb& SipContactDb) : 
+SipContactDb::SipContactDb(const SipContactDb& SipContactDb) :
     mLock(OsMutex::Q_FIFO)
 {
 }
@@ -43,7 +43,7 @@ SipContactDb::SipContactDb(const SipContactDb& SipContactDb) :
 SipContactDb::~SipContactDb()
 {
     UtlHashMapIterator iterator(mContacts);
-    
+
     UtlInt* pKey = NULL;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
@@ -72,9 +72,9 @@ const bool SipContactDb::addContact(CONTACT_ADDRESS& contact)
 {
     OsLock lock(mLock);
     bool bRet = false;
-    
+
     assert (contact.id < 1);
-    
+
     if (!isDuplicate(contact.cIpAddress, contact.iPort))
     {
         assignContactId(contact);
@@ -104,19 +104,19 @@ CONTACT_ADDRESS* SipContactDb::find(CONTACT_ID id)
     OsLock lock(mLock);
     CONTACT_ADDRESS* pContact = NULL;
     UtlInt idKey(id);
-    
+
     UtlVoidPtr* pValue = (UtlVoidPtr*)mContacts.findValue(&idKey);
     if (pValue)
     {
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
     }
-    
+
     return pContact;
 }
 
 
 // Finds the first contact by a given contact type
-CONTACT_ADDRESS* SipContactDb::findByType(CONTACT_TYPE type) 
+CONTACT_ADDRESS* SipContactDb::findByType(CONTACT_TYPE type)
 {
     OsLock lock(mLock);
     UtlHashMapIterator iterator(mContacts);
@@ -129,7 +129,7 @@ CONTACT_ADDRESS* SipContactDb::findByType(CONTACT_TYPE type)
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
         assert(pContact) ;
         if (pContact->eContactType == type)
@@ -165,10 +165,10 @@ CONTACT_ADDRESS* SipContactDb::getLocalContact(CONTACT_ID id)
             {
 	        pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
                 assert(pValue);
-                
+
                 pContact = (CONTACT_ADDRESS*)pValue->getValue();
                 assert(pContact) ;
-                if ((strcmp(pContact->cInterface, pOriginal->cInterface) == 0) && 
+                if ((strcmp(pContact->cInterface, pOriginal->cInterface) == 0) &&
                     (pContact->eContactType == LOCAL))
                 {
                     pRC = pContact ;
@@ -195,7 +195,7 @@ CONTACT_ADDRESS* SipContactDb::find(const UtlString ipAddress, const int port)
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
         if (strcmp(pContact->cIpAddress, ipAddress.data()) == 0)
         {
@@ -206,12 +206,12 @@ CONTACT_ADDRESS* SipContactDb::find(const UtlString ipAddress, const int port)
             }
         }
     }
-    
+
     if (!bFound)
     {
         pContact = NULL;
     }
-        
+
     return pContact;
 }
 
@@ -229,12 +229,12 @@ void SipContactDb::getAll(CONTACT_ADDRESS* contacts[], int& actualNum) const
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
         contacts[actualNum] = pContact;
         actualNum++;
     }
-    
+
     return;
 }
 const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
@@ -253,9 +253,9 @@ const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
-        
+
         if (0 != strcmp(pContact->cInterface, szAdapter))
         {
             continue;
@@ -271,10 +271,10 @@ const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
     }
     return bRet;
 }
-                                             
+
 void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
                                     const char* szAdapter,
-                                    int& actualNum, 
+                                    int& actualNum,
                                     const CONTACT_TYPE typeFilter) const
 {
 
@@ -289,9 +289,9 @@ void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
-        
+
         if (0 != strcmp(pContact->cInterface, szAdapter))
         {
             continue;
@@ -304,7 +304,7 @@ void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
         contacts[actualNum] = pContact;
         actualNum++;
     }
-    
+
     return;
 }
 
@@ -325,7 +325,7 @@ const bool SipContactDb::isDuplicate(const CONTACT_ID id)
     OsLock lock(mLock);
     bool bRet = false;
     UtlInt idKey(id);
-    
+
     UtlVoidPtr* pValue = (UtlVoidPtr*)mContacts.findValue(&idKey);
     if (pValue)
     {
@@ -347,7 +347,7 @@ const bool SipContactDb::isDuplicate(const UtlString& ipAddress, const int port)
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
-        
+
         pContact = (CONTACT_ADDRESS*)pValue->getValue();
         if (strcmp(pContact->cIpAddress, ipAddress.data()) == 0)
         {
@@ -358,20 +358,19 @@ const bool SipContactDb::isDuplicate(const UtlString& ipAddress, const int port)
             }
         }
     }
-    return bRet;    
+    return bRet;
 }
 
 const bool SipContactDb::assignContactId(CONTACT_ADDRESS& contact)
 {
     OsLock lock(mLock);
-    
+
     contact.id = mNextContactId;
     mNextContactId++;
-    
+
     return true;
 }
 
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

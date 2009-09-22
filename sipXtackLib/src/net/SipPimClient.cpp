@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -26,7 +26,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipPimClient::SipPimClient(SipUserAgent& userAgent, 
+SipPimClient::SipPimClient(SipUserAgent& userAgent,
                            Url& presentityAor)
 {
     presentityAor.toString(mFromField);
@@ -35,8 +35,8 @@ SipPimClient::SipPimClient(SipUserAgent& userAgent,
 
     // Register to get incoming MESSAGE requests
     OsMsgQ* myQueue = getMessageQueue();
-    userAgent.addMessageObserver(*myQueue, 
-                                SIP_MESSAGE_METHOD, 
+    userAgent.addMessageObserver(*myQueue,
+                                SIP_MESSAGE_METHOD,
                                 TRUE, // requests
                                 FALSE, // responces
                                 TRUE, // incoming
@@ -68,7 +68,7 @@ SipPimClient::operator=(const SipPimClient& rhs)
 }
 
 //! Send a pager style instant message to the given destination
-UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor, 
+UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
                                           const char* messageText,
                                           int& responseCode,
                                           UtlString& responseCodeText)
@@ -106,7 +106,7 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
         OsMsgQ responseQueue;
         messageRequest.setResponseListenerQueue(&responseQueue);
 
-        // Send the request 
+        // Send the request
         returnCode = mpUserAgent->send(messageRequest);
 
         // wait for the response
@@ -129,7 +129,7 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
             if(msgType == OsMsg::PHONE_APP &&
                msgSubType == SipMessage::NET_SIP_MESSAGE)
             {
-                const SipMessage* messageResponse = 
+                const SipMessage* messageResponse =
                     ((SipMessageEvent*)qMessage)->getMessage();
 
                 if(messageResponse && messageResponse->isResponse())
@@ -154,7 +154,7 @@ void SipPimClient::setIncomingImTextHandler(
 }
 
 
-//! Update the presence state of the presentity indicate 
+//! Update the presence state of the presentity indicate
 UtlBoolean SipPimClient::updatePresenceState(SipxRpidStates newState)
 {
     UtlBoolean returnCode = FALSE;
@@ -188,7 +188,7 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
 
 
             // We have a text body and a callback handler function
-            if(messageBody && 
+            if(messageBody &&
                mpTextHandlerFunction &&
                contentType.compareTo(CONTENT_TYPE_TEXT_PLAIN, UtlString::ignoreCase) == 0)
             {
@@ -205,7 +205,7 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
                 responseSent = TRUE;
 
                 // Invoke the call back with the info
-                mpTextHandlerFunction(fromField, bodyBytes, bodyLength, 
+                mpTextHandlerFunction(fromField, bodyBytes, bodyLength,
                     *sipMessage);
 
             }
@@ -214,8 +214,8 @@ UtlBoolean SipPimClient::handleMessage(OsMsg& eventMessage)
             {
                 // Send an error as we do not accept the content type
                 SipMessage badContentResponse;
-                badContentResponse.setResponseData(sipMessage, 
-                                                    SIP_BAD_MEDIA_CODE, 
+                badContentResponse.setResponseData(sipMessage,
+                                                    SIP_BAD_MEDIA_CODE,
                                                     SIP_BAD_MEDIA_TEXT);
                 mpUserAgent->send(badContentResponse);
             }

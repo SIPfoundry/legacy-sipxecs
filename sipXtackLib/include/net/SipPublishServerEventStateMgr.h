@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +34,9 @@ class UtlString;
 // TYPEDEFS
 
 //! Class for maintaining PUBLISH event state information in publish server
-/*! 
+/*!
  *
- * \par 
+ * \par
  */
 class SipPublishServerEventStateMgr
 {
@@ -57,7 +57,7 @@ public:
 
 
 /* ============================ MANIPULATORS ============================== */
-                 
+
     //! Generate a new entity tag
     virtual void generateETag(UtlString& entity);
 
@@ -68,7 +68,7 @@ public:
     //! Update the publication
     void updatePublish(UtlString& oldEntity, UtlString& entity, UtlString& resourceId,
                        UtlString& eventTypeKey, int expiration);
-                    
+
     //! Remove old publication
     void removePublish(UtlString& entity);
 
@@ -87,7 +87,7 @@ public:
 
     //! inquire if the expiration is correct
     virtual UtlBoolean checkExpiration(int* expiration);
-    
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

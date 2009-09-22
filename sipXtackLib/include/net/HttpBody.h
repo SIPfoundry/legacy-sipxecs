@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -50,7 +50,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   HttpBody(const char* bytes = NULL, 
+   HttpBody(const char* bytes = NULL,
             ssize_t length = -1,
             const char* contentType = NULL);
    //: Construct an HttpBody from a bunch of bytes
@@ -95,7 +95,7 @@ public:
    virtual void getBytes(UtlString* bytes, ssize_t* length) const;
    virtual const char* getBytes() const;
 
-   UtlBoolean getMultipartBytes(int partIndex, 
+   UtlBoolean getMultipartBytes(int partIndex,
                                 const char** bytes,
                                 ssize_t* length) const;
 

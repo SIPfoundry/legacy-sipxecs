@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ SipPublishServerEventStateMgr::~SipPublishServerEventStateMgr()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipPublishServerEventStateMgr& 
+SipPublishServerEventStateMgr&
 SipPublishServerEventStateMgr::operator=(const SipPublishServerEventStateMgr& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -116,9 +116,9 @@ SipPublishServerEventStateMgr::addPublish(UtlString& entity, UtlString& resource
                                           UtlString& eventTypeKey, int expiration)
 {
 }
-                                          
+
 void
-SipPublishServerEventStateMgr::updatePublish(UtlString& oldEntity, 
+SipPublishServerEventStateMgr::updatePublish(UtlString& oldEntity,
                                              UtlString& entity,
                                              UtlString& resourceId,
                                              UtlString& eventTypeKey,
@@ -126,7 +126,7 @@ SipPublishServerEventStateMgr::updatePublish(UtlString& oldEntity,
 {
 }
 
-                    
+
 void
 SipPublishServerEventStateMgr::removePublish(UtlString& entity)
 {
@@ -136,7 +136,7 @@ SipPublishServerEventStateMgr::removePublish(UtlString& entity)
 void SipPublishServerEventStateMgr::removeOldPublication(long oldEpochTimeSeconds)
 {
     lock();
-#if 0    
+#if 0
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
     PublishServerEventStateIndex* stateIndex = NULL;
     while((stateIndex = (PublishServerEventStateIndex*) iterator()))
@@ -230,4 +230,3 @@ void SipPublishServerEventStateMgr::unlock()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

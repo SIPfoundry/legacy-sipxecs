@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ SipLine::SipLine(const SipLine& rSipLine)
    mIsVisible = rSipLine.mIsVisible ;
    mIsAutoEnabled = rSipLine.mIsAutoEnabled ;
    mIsUsingCallHandling = rSipLine.mIsUsingCallHandling;
-#endif   
+#endif
    mIdentity = rSipLine.mIdentity ;
    mUserEnteredUrl = rSipLine.mUserEnteredUrl;
    mUser = rSipLine.mUser ;
@@ -54,9 +54,9 @@ SipLine::SipLine(const SipLine& rSipLine)
    mLineId = rSipLine.mLineId;
    mPreferredContactUri = rSipLine.mPreferredContactUri ;
    meContactType = rSipLine.meContactType;
-   
+
    copyCredentials(rSipLine);
-   copyAliases(mAliases, rSipLine.mAliases) ;   
+   copyAliases(mAliases, rSipLine.mAliases) ;
 }
 
 SipLine& SipLine::operator=(const SipLine& rSipLine)
@@ -69,7 +69,7 @@ SipLine& SipLine::operator=(const SipLine& rSipLine)
       mIsVisible = rSipLine.mIsVisible ;
       mIsAutoEnabled = rSipLine.mIsAutoEnabled ;
       mIsUsingCallHandling = rSipLine.mIsUsingCallHandling;
-#endif      
+#endif
       mIdentity = rSipLine.mIdentity ;
       mUserEnteredUrl = rSipLine.mUserEnteredUrl;
       mCanonicalUrl = rSipLine.mCanonicalUrl;
@@ -120,14 +120,14 @@ void SipLine::copyAliases(UtlSList& dest, const UtlSList& source) const
     {
         dest.destroyAll() ;
     }
-    
+
     // Copy maintaining order
     int length = source.entries() ;
     for (int i=0; i<length; i++)
     {
         UtlString* pEntry = (UtlString*) source.at(i) ;
         dest.append(new UtlString(*pEntry)) ;
-    }    
+    }
 }
 
 SipLine::SipLine(Url userEnteredUrl,
@@ -151,10 +151,10 @@ SipLine::SipLine(Url userEnteredUrl,
    mIsAutoEnabled = isAutoEnabled;
    mIsUsingCallHandling = useCallHandling;
 #endif
-   
+
    mCurrentState = state;
    mUserEnteredUrl = userEnteredUrl;
-   meContactType = LINE_CONTACT_NAT_MAPPED ; 
+   meContactType = LINE_CONTACT_NAT_MAPPED ;
    if (identityUri.toString().isNull())
    {
       //then get uri from user entered url ...uri is complete in it
@@ -242,10 +242,10 @@ void SipLine::setIdentityAndUrl(Url identity, Url userEnteredUrl)
    mUserEnteredUrl = userEnteredUrl;
    //construct a complete url from identity and userEntered Url.
    mCanonicalUrl = mUserEnteredUrl;
-   
+
    mUserEnteredUrl.getHostAddress(address);
    if (address.isNull())
-   {     
+   {
       mIdentity.getHostAddress(identityHost);
       identityPort = mIdentity.getHostPort();
       mCanonicalUrl.setHostAddress(identityHost);
@@ -355,7 +355,7 @@ UtlBoolean SipLine::getCredentials(const UtlString& type /*[in]*/,
 void SipLine::removeCredential(const UtlString *realm)
 {
    UtlString matchRealm(*realm);
- 
+
    UtlContainable* wasRemoved = mCredentials.removeReference(&matchRealm);
 
    if(wasRemoved)
@@ -382,7 +382,7 @@ void SipLine::setPreferredContactUri(const Url& preferredContactUri)
 
 UtlBoolean SipLine::getPreferredContactUri(Url& preferredContactUri) const
 {
-    UtlString host ; 
+    UtlString host ;
 
     preferredContactUri = mPreferredContactUri ;
     preferredContactUri.getHostAddress(host) ;
@@ -391,13 +391,13 @@ UtlBoolean SipLine::getPreferredContactUri(Url& preferredContactUri) const
 }
 
 
-LINE_CONTACT_TYPE SipLine::getContactType() const 
+LINE_CONTACT_TYPE SipLine::getContactType() const
 {
     return meContactType ;
 }
 
 
-void SipLine::setContactType(LINE_CONTACT_TYPE eContactType) 
+void SipLine::setContactType(LINE_CONTACT_TYPE eContactType)
 {
     meContactType = eContactType ;
 }
@@ -429,10 +429,10 @@ UtlBoolean SipLine::getAllCredentials( int MaxEnteries/*[in]*/ ,
             credential->getUserId(&UserID);
             credential->getType(&Type);
             credential->getPasswordToken(&PassToken) ;
-            
+
             realm[i].remove(0);
             realm[i].append(Realm);
-            
+
             userId[i].remove(0);
             userId[i].append(UserID);
 
@@ -480,7 +480,7 @@ void SipLine::addAlias(const Url& alias)
 
 
 int SipLine::getAliases(UtlSList& list) const
-{    
+{
     copyAliases(list, mAliases)    ;
     return list.entries() ;
 }
@@ -488,13 +488,13 @@ int SipLine::getAliases(UtlSList& list) const
 UtlBoolean SipLine::matchesLineId(const char* szLineId) const
 {
     UtlBoolean bMatch = false ;
-    
+
     if (mLineId.compareTo(szLineId) == 0)    // Case sensitive
     {
         bMatch = true ;
     }
-    
-    return bMatch ;    
+
+    return bMatch ;
 }
 
 UtlBoolean SipLine::matchesUserId(const char* szUserId) const
@@ -509,64 +509,64 @@ UtlBoolean SipLine::matchesUserId(const char* szUserId) const
     mIdentity.getHostAddress(host) ;    // if host is empty, assume invalid line
     if (!host.isNull() && matchUserId.compareTo(lineUserId) == 0) // Case sensitive
     {
-        bMatch = true ;                        
+        bMatch = true ;
     }
     else
     {
         // Next, try preferred contact
-        lineUserId.remove(0) ;        
+        lineUserId.remove(0) ;
         mPreferredContactUri.getUserId(lineUserId) ;
         host.remove(0);
         mPreferredContactUri.getHostAddress(host) ;    // if host is empty, assume invalid line
         if (!host.isNull() && matchUserId.compareTo(lineUserId) == 0) // Case sensitive
         {
-            bMatch = true ;                        
-        }            
+            bMatch = true ;
+        }
     }
-    
+
     // Finally, try aliases
     for (size_t i=0; !bMatch && i<mAliases.entries(); i++)
     {
         UtlString* pAlias = (UtlString*) mAliases.at(i) ;
-        assert(pAlias != NULL) ;                
+        assert(pAlias != NULL) ;
         if (pAlias != NULL)
         {
-            Url aliasUrl(pAlias->data()) ;                
+            Url aliasUrl(pAlias->data()) ;
             lineUserId.remove(0) ;
             aliasUrl.getUserId(lineUserId) ;
             host.remove(0);
-            aliasUrl.getHostAddress(host) ;    // if host is empty, assume invalid line            
+            aliasUrl.getHostAddress(host) ;    // if host is empty, assume invalid line
             if (!host.isNull() && matchUserId.compareTo(lineUserId) == 0) // Case sensitive
             {
-                bMatch = true ;            
+                bMatch = true ;
             }
-        }            
-    }                    
-    return bMatch;    
+        }
+    }
+    return bMatch;
 }
 
 UtlBoolean SipLine::matchesIdentity(const Url& identity) const
-{    
+{
     UtlBoolean bMatch = false ;
 
     // First, try identify
     if (identity.isUserHostPortEqual(mIdentity, SIP_PORT))
     {
-        bMatch = true ;                        
+        bMatch = true ;
     }
     else
     {
         if (identity.isUserHostPortEqual(mCanonicalUrl, SIP_PORT))
         {
-            bMatch = true ;                        
-        }            
+            bMatch = true ;
+        }
     }
-    
+
     // Finally, try aliases
     for (size_t i=0; !bMatch && i<mAliases.entries(); i++)
     {
         UtlString* pAlias = (UtlString*) mAliases.at(i) ;
-        assert(pAlias != NULL) ;                
+        assert(pAlias != NULL) ;
         if (pAlias != NULL)
         {
             Url aliasUrl(pAlias->data()) ;
@@ -575,8 +575,6 @@ UtlBoolean SipLine::matchesIdentity(const Url& identity) const
                 bMatch = true ;
             }
         }
-    }                    
-    return bMatch;    
+    }
+    return bMatch;
 }
-
-

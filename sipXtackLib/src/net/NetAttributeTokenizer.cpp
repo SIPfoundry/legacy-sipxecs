@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ NetAttributeTokenizer::~NetAttributeTokenizer()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-NetAttributeTokenizer& 
+NetAttributeTokenizer&
 NetAttributeTokenizer::operator=(const NetAttributeTokenizer& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -60,7 +60,7 @@ NetAttributeTokenizer::operator=(const NetAttributeTokenizer& rhs)
    return *this;
 }
 
-UtlBoolean NetAttributeTokenizer::getNextAttribute(UtlString& attributeName, 
+UtlBoolean NetAttributeTokenizer::getNextAttribute(UtlString& attributeName,
                                                   UtlString& attributeValue)
 {
     UtlBoolean foundNextAttribute = FALSE;
@@ -179,7 +179,7 @@ UtlBoolean NetAttributeTokenizer::getNextAttribute(UtlString& attributeName,
             if(attributeValueStart >= 0 &&
                 attributeValueEnd >= 0)
             {
-                attributeValue.append(&parseString[attributeValueStart], 
+                attributeValue.append(&parseString[attributeValueStart],
                     attributeValueEnd - attributeValueStart);
             }
         }
@@ -214,4 +214,3 @@ UtlBoolean NetAttributeTokenizer::getAttributes(UtlList& attributeList)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

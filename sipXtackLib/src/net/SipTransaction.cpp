@@ -37,7 +37,7 @@
 
 //#define LOG_FORKING
 //#define ROUTE_DEBUG
-//#define DUMP_TRANSACTIONS   
+//#define DUMP_TRANSACTIONS
 //#define RESPONSE_DEBUG
 //#define TEST_PRINT
 //#define TEST_TOUCH
@@ -162,7 +162,7 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
 
    touch(); // sets mTimeStamp
    mTransactionCreateTime = mTimeStamp;
-#ifdef DUMP_TRANSACTIONS 
+#ifdef DUMP_TRANSACTIONS
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::constructor dumps whole TransactionTree ");
     justDumpTransactionTree();
 #endif
@@ -374,7 +374,7 @@ SipTransaction::addResponse(SipMessage*& response,
         if(mpAck)
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "SipTransaction::addResponse" 
+                          "SipTransaction::addResponse"
                           " ACK already exists, IGNORED");
             delete response ;
             response = NULL;
@@ -634,7 +634,7 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
 
         touch();
     }
-#ifdef DUMP_TRANSACTIONS 
+#ifdef DUMP_TRANSACTIONS
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::handleOutgoing dumps whole TransactionTree %d", sendSucceeded);
     justDumpTransactionTree();
 #endif
@@ -665,7 +665,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
     UtlString method;
     request.getRequestMethod(&method);
 
-    if(method.compareTo(SIP_ACK_METHOD) == 0 
+    if(method.compareTo(SIP_ACK_METHOD) == 0
        && mpLastFinalResponse)
     {
         int responseCode;
@@ -678,7 +678,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
     }
     // Conditions which don't need new routing, no DNS lookup
     if(mIsDnsSrvChild               // DNS lookup already done
-       && !mSendToAddress.isNull()  // sendTo address is known 
+       && !mSendToAddress.isNull()  // sendTo address is known
        && !ackFor2xx)               // ACK for error response, follows response rules
     {
         toAddress = mSendToAddress;
@@ -700,15 +700,15 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 #      endif
     }
 
-    // Requests must be routed. 
+    // Requests must be routed.
     // ACK for a 2xx response follows request rules
     else
     {
-        // process header parameters in the request uri, 
+        // process header parameters in the request uri,
         // especially moving any route parameters to route headers
         request.applyTargetUriHeaderParams();
 
-        // Default to use the proxy 
+        // Default to use the proxy
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -762,7 +762,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
                       "SipTransaction::prepareRequestForSend route address is null");
 #       endif
         }
-        else // there is a route 
+        else // there is a route
         {
             toAddress = routeAddress;   // from top-most route or maddr
             port = routePort;
@@ -946,8 +946,8 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
        if (sendProtocol == OsSocket::UNKNOWN)
        {
           /*
-           * This problem should be fixed by XECS-414 which sends an 
-           * ACK for a 2xx response through the normal routing 
+           * This problem should be fixed by XECS-414 which sends an
+           * ACK for a 2xx response through the normal routing
            * to determine the protocol using DNS SRV lookups
            */
           toProtocol = OsSocket::UDP;
@@ -1069,7 +1069,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     }
 
     // Save the transaction in the message to make
-    // it easier to find the transaction on timeout or 
+    // it easier to find the transaction on timeout or
     // transport error, e.g. connect failure, far-end closed
     message.setTransaction(this);
 
@@ -1213,7 +1213,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                               expiresTimer);
 #endif
 
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipTransaction::doFirstSend"
                               " transaction %p setting timeout %d secs.",
                               this, expireSeconds
@@ -2212,7 +2212,7 @@ void SipTransaction::handleChildTimeoutEvent(SipTransaction& child,
 #                           endif
 
                             // this is a timeout event, choose 408 over 302 or 404
-                            if (  bestResponseCode < SIP_4XX_CLASS_CODE 
+                            if (  bestResponseCode < SIP_4XX_CLASS_CODE
                                || bestResponseCode == SIP_NOT_FOUND_CODE)
                             {
                                 bestResponseCode = SIP_REQUEST_TIMEOUT_CODE;
@@ -3051,7 +3051,7 @@ enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int respo
 #endif
     switch (responseCode)
     {
-    case HTTP_UNAUTHORIZED_CODE:        // 401       
+    case HTTP_UNAUTHORIZED_CODE:        // 401
     case HTTP_PROXY_UNAUTHORIZED_CODE:  // 407
         // 401 & 407 are better than any other 4xx, 5xx or 6xx
         respPri = RESP_PRI_CHALLENGE;
@@ -3144,8 +3144,8 @@ enum SipTransaction::ResponsePriority SipTransaction::findRespPriority(int respo
 UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int responseFoundCount)
 {
 #   ifdef TEST_PRINT
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
-                  "SipTransaction::findBestChildResponse start %p", 
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipTransaction::findBestChildResponse start %p",
                   this);
 #   endif
 
@@ -3223,7 +3223,7 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
                          * level in the stack we have no idea what our own realm is :-(
                          */
                         getChallengeRealms(bestResponse, proxyRealmsSeen);
-    
+
                         // Get the proxy authenticate challenges
                         UtlString authField;
                         unsigned  authIndex;
@@ -3266,7 +3266,7 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
                                             authField.data());
                            }
                         }
-    
+
                         // Get the UA server authenticate challenges
                         for (authIndex = 0;
                              childResponse->getAuthenticationField(authIndex,
@@ -3790,13 +3790,13 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         {
             if(mpLastProvisionalResponse)
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, 
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
                              "SipTransaction::handleIncoming"
                              " new request with an existing provisional response");
             }
             else if(mpLastFinalResponse)
             {
-                OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                OsSysLog::add(FAC_SIP, PRI_WARNING,
                               "SipTransaction::handleIncoming"
                               " new request with an existing final response");
             }
@@ -3822,10 +3822,10 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
         // but we could not send the CANCEL until we
         // got a provisional response, we can now send
         // the CANCEL (we only send CANCEL for INVITEs).
-        if(relationship == MESSAGE_PROVISIONAL 
-           && ! mIsServerTransaction 
-           && mIsCanceled 
-           && mpRequest 
+        if(relationship == MESSAGE_PROVISIONAL
+           && ! mIsServerTransaction
+           && mIsCanceled
+           && mpRequest
            && mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
         {
             if (mpCancel)
@@ -3841,7 +3841,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             else
             {
                 SipMessage cancel;
-    
+
                 cancel.setCancelData(mpRequest);
     #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -4070,14 +4070,14 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         {
             if(mpCancel)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, 
+                OsSysLog::add(FAC_SIP, PRI_ERR,
                               "SipTransaction::cancel"
                               " cancel request already exists");
             }
             // Do not send CANCELs for non-INVITE transactions
             // (all the other state stuff should be done)
-            else if(mTransactionState == TRANSACTION_PROCEEDING 
-                    && mIsDnsSrvChild 
+            else if(mTransactionState == TRANSACTION_PROCEEDING
+                    && mIsDnsSrvChild
                     && mRequestMethod.compareTo(SIP_INVITE_METHOD) == 0)
             {
                 // We can only send a CANCEL if we have heard
@@ -4107,7 +4107,7 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
         // has been created and sent)
         else if(mTransactionState != TRANSACTION_LOCALLY_INIITATED)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, 
+            OsSysLog::add(FAC_SIP, PRI_ERR,
                           "SipTransaction::cancel "
                           "no request");
         }
@@ -4115,7 +4115,7 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::cancel "
                       "already canceled");
     }
@@ -4727,7 +4727,7 @@ void SipTransaction::touchBelow(int newDate)
     toString(serialized, FALSE);
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipTransaction::touchBelow "
-                  "'%s'", 
+                  "'%s'",
                   serialized.data());
 #endif // TEST_TOUCH
 
@@ -4761,7 +4761,7 @@ void SipTransaction::markBusy()
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransaction::markBusy %p", this);
 #   endif
 
-    if(mpParentTransaction) 
+    if(mpParentTransaction)
     {
         mpParentTransaction->markBusy();
     }
@@ -4771,14 +4771,14 @@ void SipTransaction::markBusy()
         OsDateTime::getCurTimeSinceBoot(time);
         int busyTime = time.seconds();
         // Make sure it is not equal to zero
-        if(!busyTime) 
+        if(!busyTime)
         {
             busyTime++;
         }
         doMarkBusy(busyTime);
 
         OsTask* busyTask = OsTask::getCurrentTask();
-        if(busyTask) 
+        if(busyTask)
         {
             mBusyTaskName = busyTask->getName();
         }
@@ -5013,7 +5013,7 @@ SipTransaction::whatRelation(const SipMessage& message,
         // the same.  CANCEL is also a different transaction
         // that we store in the same SipTransaction object.
         if(!branchPrefixSet ||                                  // no RFC3261 branch id
-           (!isResponse &&                                      
+           (!isResponse &&
                (msgMethod.compareTo(SIP_CANCEL_METHOD) == 0 ||  // or it's aCANCEL request
                (msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&     // or it's an ACK request and THIS
                 lastFinalResponseCode < SIP_3XX_CLASS_CODE &&   // transaction never got error response
@@ -5129,7 +5129,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                       "SipTransaction::whatRelation complicated %d%d%d %d%d%d%d %d '%s' '%s' '%s'",
                                       branchIdMatches, parentBranchIdMatches, msgUri.compareTo(mRequestUri),
-                                      mIsUaTransaction, mIsServerTransaction, isResponse, msgHasVia, toTagFinalRespIsSet, 
+                                      mIsUaTransaction, mIsServerTransaction, isResponse, msgHasVia, toTagFinalRespIsSet,
                                       finalResponseToTag.data(), msgToTag.data(), msgMethod.data());
 #endif
                         // The branch of this message matches the
@@ -5137,29 +5137,29 @@ SipTransaction::whatRelation(const SipMessage& message,
                         // This is the request for this client transaction
                         // and the Via had not been added yet for this
                         // transaction.  So the branch is not there yet.
-                        if(branchIdMatches 
+                        if(branchIdMatches
                            || (parentBranchIdMatches &&
-                               msgUri.compareTo(mRequestUri) == 0) 
+                               msgUri.compareTo(mRequestUri) == 0)
                            || (mIsUaTransaction && // UA client ACK transaction for 2xx
                                !mIsServerTransaction &&
                                !isResponse &&
                                !msgHasVia &&
                                msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&
                                lastFinalResponseCode < SIP_3XX_CLASS_CODE &&
-                               lastFinalResponseCode >= SIP_2XX_CLASS_CODE) 
+                               lastFinalResponseCode >= SIP_2XX_CLASS_CODE)
                            || (mIsUaTransaction && // UA server ACK transaction for 2xx
                                mIsServerTransaction &&
                                !isResponse &&
                                msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&
                                lastFinalResponseCode < SIP_3XX_CLASS_CODE &&
                                lastFinalResponseCode >= SIP_2XX_CLASS_CODE &&
-                               finalResponseToTag.compareTo(msgToTag) == 0 ) 
+                               finalResponseToTag.compareTo(msgToTag) == 0 )
                            || (!mIsUaTransaction && // proxy forwards ACK transaction for 2xx
                                //mIsServerTransaction &&
                                !isResponse &&
                                msgMethod.compareTo(SIP_ACK_METHOD) == 0 &&
                                lastFinalResponseCode < SIP_3XX_CLASS_CODE &&
-                               lastFinalResponseCode >= SIP_2XX_CLASS_CODE ) 
+                               lastFinalResponseCode >= SIP_2XX_CLASS_CODE )
                            || (mIsUaTransaction && // UA client CANCEL transaction
                                !mIsServerTransaction &&
                                !isResponse &&
@@ -5289,7 +5289,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                                             {
                                                 if(!mIsUaTransaction)
                                                 {
-                                                   // changed this to DEBUG from WARNING, 
+                                                   // changed this to DEBUG from WARNING,
                                                    // it should be ok to get here in the new ACK version
                                                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                                                  "SipTransaction::messageRelationship"
@@ -5300,7 +5300,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                                                 {
                                                     SET_RELATIONSHIP(MESSAGE_2XX_ACK);
                                                 }
-                                                else 
+                                                else
                                                 {
 #ifdef TEST_PRINT
                                                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -5309,7 +5309,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                                                     SET_RELATIONSHIP(MESSAGE_2XX_ACK_PROXY);
                                                 }
                                             }       // end ACK with 2xx final response
-                                        }       // end ACK with valid lastFinalResponse 
+                                        }       // end ACK with valid lastFinalResponse
                                         else
                                         {
                                             OsSysLog::add(FAC_SIP, PRI_WARNING,
@@ -5318,7 +5318,7 @@ SipTransaction::whatRelation(const SipMessage& message,
                                                           "with NO final response");
                                             SET_RELATIONSHIP(MESSAGE_ACK);
                                         }
-                                    }       // end ACK with mpRequest 
+                                    }       // end ACK with mpRequest
                                     else if(msgMethod.compareTo(SIP_CANCEL_METHOD) == 0)
                                     {
                                         SET_RELATIONSHIP(MESSAGE_CANCEL);

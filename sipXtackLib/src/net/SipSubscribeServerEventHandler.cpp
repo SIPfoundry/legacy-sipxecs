@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -73,7 +73,7 @@ SipSubscribeServerEventHandler::~SipSubscribeServerEventHandler()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipSubscribeServerEventHandler& 
+SipSubscribeServerEventHandler&
 SipSubscribeServerEventHandler::operator=(const SipSubscribeServerEventHandler& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -153,18 +153,18 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
         {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                 "SipSubscribeServerEventHandler::getNotifyContent body published for resourceId: '%s' eventTypeKey: '%s' with no content type",
-                resourceId.data() ? resourceId.data() : "<null>", 
+                resourceId.data() ? resourceId.data() : "<null>",
                 eventTypeKey.data() ? eventTypeKey.data() : "<null>");
 
             contentType = "text/unknown";
         }
-          
+
         notifyRequest.setContentType(contentType);
         notifyRequest.setBody(messageBody);
-        
+
         UtlString request;
         ssize_t requestLength;
-        notifyRequest.getBytes(&request, &requestLength);   
+        notifyRequest.getBytes(&request, &requestLength);
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %zu, message = '%s'",
                       resourceId.data(), eventTypeKey.data(),

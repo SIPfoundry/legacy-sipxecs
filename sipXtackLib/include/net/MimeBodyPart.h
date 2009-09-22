@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public:
                 ssize_t rawBodyLength = 0,
                 const char* contentType = NULL);
 
-   
+
    //! Construct a MimeBodyPart from an HttpBody and a list of parameters.
    MimeBodyPart(const HttpBody& httpBody,
                 //< Provides the bytes of the body.

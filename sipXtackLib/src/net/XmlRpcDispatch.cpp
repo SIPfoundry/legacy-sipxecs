@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ const UtlContainableType XmlRpcMethodContainer::TYPE = "XmlRpcMethod";
 XmlRpcMethodContainer::XmlRpcMethodContainer(const char* name)
    :mMethodName(name)
    ,mpUserData(NULL)
-   ,mpMethod(NULL)     
+   ,mpMethod(NULL)
 {
 }
 
@@ -67,7 +67,7 @@ void XmlRpcMethodContainer::setData(XmlRpcMethod::Get* method, void* userData)
    mpMethod = method;
    mpUserData = userData;
 }
-   
+
 void XmlRpcMethodContainer::getData(XmlRpcMethod::Get*& method, void*& userData)
 {
    method = mpMethod;
@@ -113,7 +113,7 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
                                const char* uriPath,
                                const char* bindIp)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
-   , mManageHttpServer(true)     
+   , mManageHttpServer(true)
 {
     UtlString osBaseUriDirectory ;
 
@@ -133,12 +133,12 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    {
       pServerSocket = new OsServerSocket(50, httpServerPort, bindIp);
    }
-      
+
    mpHttpServer = new HttpServer(pServerSocket,
                                  NULL, // no valid ip address list
-                                 true  // use persistent http connections 
+                                 true  // use persistent http connections
                                  );
-   
+
    mpHttpServer->start();
 
    // Add the XmlRpcDispatch to the HttpServer
@@ -175,7 +175,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                   "XmlRpcDispatch::processRequest HttpEvent = \n%s",
                   httpString.data());
 #  endif
-    
+
    // Create a response
    response = new HttpMessage();
    response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
@@ -186,7 +186,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    ssize_t bodyLength;
    const HttpBody* requestBody = request.getBody();
    requestBody->getBytes(&bodyString, &bodyLength);
-   
+
    XmlRpcMethod::ExecutionStatus status;
    UtlString methodName("<unparsed>");
    XmlRpcResponse responseBody;
@@ -206,14 +206,14 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                  "XmlRpcDispatch::processRequest requestBody = \n%s",
                  logString.data());
-   
+
    if (parseXmlRpcRequest(bodyString, methodContainer, params, responseBody))
    {
       if (methodContainer)
       {
          methodContainer->getName(methodName);
          responseBody.setMethod(methodName);
-      
+
          XmlRpcMethod::Get* methodGet;
          void* userData;
          methodContainer->getData(methodGet, userData);
@@ -223,13 +223,13 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                        methodName.data()
                        );
          method->execute(requestContext,
-                         params, 
+                         params,
                          userData,
                          responseBody,
                          status
                          );
-      
-         // Delete the instance of the method                
+
+         // Delete the instance of the method
          delete method;
 
          // Clean up the memory allocated in params
@@ -247,7 +247,7 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
       else
       {
          // could not find a registered method - logged and response built in parseXmlRpcRequest
-         status = XmlRpcMethod::FAILED;         
+         status = XmlRpcMethod::FAILED;
       }
    }
    else
@@ -270,14 +270,14 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    {
       logString = bodyString;
    }
-   
+
    OsSysLog::add(FAC_XMLRPC, PRI_INFO,
                  "XmlRpcDispatch::processRequest method '%s' response status=%s\n%s",
                  methodName.data(),
                  XmlRpcMethod::ExecutionStatusString(status),
                  logString.data()
                  );
-   
+
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
    response->setContentType(CONTENT_TYPE_TEXT_XML);
    response->setContentLength(bodyLength);
@@ -336,16 +336,16 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
 
    // Parse the XML-RPC response
    TiXmlDocument doc("XmlRpcRequest.xml");
-   
-   doc.Parse(requestContent);   
+
+   doc.Parse(requestContent);
    if (!doc.Error())
    {
       TiXmlNode* rootNode = doc.FirstChild ("methodCall");
-      
+
       if (rootNode != NULL)
       {
          // Positive response example
-         // 
+         //
          // <methodCall>
          //   <methodName>examples.getStateName</methodName>
          //   <params>
@@ -354,9 +354,9 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
          //     </param>
          //   </params>
          // </methodCall>
-                  
+
          TiXmlNode* methodNode = rootNode->FirstChild("methodName");
-         
+
          if (methodNode)
          {
             // Check whether the method exists or not. If not, send back a fault response
@@ -368,18 +368,18 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
                 * Since params are optional,
                 * assume all is well until proven otherwise now
                 */
-               result = true; 
+               result = true;
                TiXmlNode* paramsNode = rootNode->FirstChild("params");
-               
+
                if (paramsNode)
                {
                   int index = 0;
                   for (TiXmlNode* paramNode = paramsNode->FirstChild("param");
-                       result /* stop if any error */ && paramNode /* or no more param nodes */; 
+                       result /* stop if any error */ && paramNode /* or no more param nodes */;
                        paramNode = paramNode->NextSibling("param"))
                   {
                      TiXmlNode* subNode = paramNode->FirstChild("value");
-                     
+
                      if (subNode)
                      {
                         UtlString parseErrorMsg;
@@ -466,8 +466,8 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
       response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, ILL_FORMED_CONTENTS_FAULT_STRING);
       result = false;
    }
-   
-   return result;   
+
+   return result;
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -475,4 +475,3 @@ bool XmlRpcDispatch::parseXmlRpcRequest(const UtlString& requestContent,
 
 
 /* ============================ FUNCTIONS ================================= */
-

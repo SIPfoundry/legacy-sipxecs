@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipSubscribeServer_h_
@@ -40,7 +40,7 @@ class SipMessage;
 // Type of the callback from the SIP Subscribe Server to the application
 // to replace variable content placeholders in the NOTIFY request.
 typedef UtlBoolean (*SipContentVersionCallback)
-    (SipMessage& notifyRequest, 
+    (SipMessage& notifyRequest,
      int version);
 
 
@@ -67,7 +67,7 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  as state specific to a resource.  The application enables the event
  *  type with the enableEventType method, providing the SipPublishContentMgr
  *  which contains the event state content for the event type.  The
- *  SipSubscribeServer provides the content for specific resource 
+ *  SipSubscribeServer provides the content for specific resource
  *  contained in the SipPublishContentMgr to subscribers.  The SipPublishContentMgr
  *  notifies the SipSubscribeServer (via callback to
  *  SipSubscribeServer::contentChangeCallback) of content changes made
@@ -95,9 +95,9 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  3) Generate NOTIFY requests to subscriptions when they expire.
  *  4) Some notification error responses should terminate the subscription
  *
- *  When enabling a SIP event type via the enableEventType method, 
+ *  When enabling a SIP event type via the enableEventType method,
  *  the SipSubscribeServer registers with
- *  the SipUserAgent to receive SUBSCRIBE requests and NOTIFY responses 
+ *  the SipUserAgent to receive SUBSCRIBE requests and NOTIFY responses
  *  for the event type, which are processed by the handleMessage method.
  *  Applications that publish event state use the SipPublishContentMgr
  *  to update resource specific or default event states.  The SipSubscribeServer
@@ -147,7 +147,7 @@ public:
                                       const char* eventType);
 
     //! Send a NOTIFY to all subscribers to the given resourceId and eventTypeKey.
-    UtlBoolean notifySubscribers(const char* resourceId, 
+    UtlBoolean notifySubscribers(const char* resourceId,
                                  const char* eventTypeKey,
                                  const char* eventType);
 
@@ -186,7 +186,7 @@ public:
 
     //! Handler for SUBSCRIBE requests, NOTIFY responses and timers
     UtlBoolean handleMessage(OsMsg &eventMessage);
-    
+
     //! Sets the Contact header for a SIP message (request or response)
     void setContact(SipMessage* message);
 
@@ -200,7 +200,7 @@ public:
      *  to get the rug pulled out from under it.  Returns the default
      *  event handler if there is not an event specific handler.
      */
-    SipSubscribeServerEventHandler* 
+    SipSubscribeServerEventHandler*
         getEventHandler(const UtlString& eventType);
 
     //! Get the content manager for the given event type
@@ -219,7 +219,7 @@ public:
      *  and destroyed, there is no locking protection.  The subscription manager
      *  is only safe to use if the application knows that it is not going
      *  to get the rug pulled out from under it.  Returns the default
-     *  subscription manager if there is not an event specific subscription 
+     *  subscription manager if there is not an event specific subscription
      *  manager.
      */
     SipSubscriptionMgr* getSubscriptionMgr(const UtlString& eventType);
@@ -279,7 +279,7 @@ private:
     SipSubscribeServerEventHandler* mpDefaultEventHandler;
     // Members are SubscribeServerEventData's, indexed as strings
     // containing the event type.
-    UtlHashBag mEventDefinitions; 
+    UtlHashBag mEventDefinitions;
     OsRWMutex mSubscribeServerMutex;
 };
 

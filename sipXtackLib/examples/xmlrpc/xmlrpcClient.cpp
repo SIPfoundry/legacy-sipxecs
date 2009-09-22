@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -72,9 +72,9 @@ void showHelp(char* argv[])
 void parseArgs(int argc, char* argv[])
 {
    int optResult = 0;
-   
+
    const char* short_options = "p:l:vqh";
-   
+
    const struct option long_options[] =
       {
          {"verbose", 0, 0, 'v'},
@@ -118,7 +118,7 @@ void parseArgs(int argc, char* argv[])
             showHelp(argv);
             exit(0);
             break;
-            
+
          default:
             fprintf( stderr, "Invalid option %s\n", argv[optind] );
             showHelp(argv);
@@ -140,7 +140,7 @@ void parseArgs(int argc, char* argv[])
       exit(1);
    }
 }
-   
+
 int main(int argc, char* argv[])
 {
     parseArgs(argc, argv);
@@ -149,12 +149,12 @@ int main(int argc, char* argv[])
     UtlString urlString = "https://" + UtlString(xmlrpcServer);
     Url url(urlString);
     url.setHostPort(HttpPort);
-    
+
     // Delay for 5 minutes
 //    printf("Wating for start of memcheck ...\n");
 //    OsTask::delay(600000);
 //    printf("Starting memcheck ...\n");
-    
+
     // Test run
     // while (1)
     for (int i = 0; i < 10; i++)
@@ -180,19 +180,19 @@ int main(int argc, char* argv[])
         {
            printf(" ok\n");
         }
-        
+
         delete request;
         request = NULL;
 
 //        OsTask::delay(2000);
     }
 //    printf("Done with memcheck ...\n");
-    
+
 //    while (1)
 //    {
 //        OsTask::delay(60000);
 //    }
-    
+
     return(1);
 }
 
@@ -202,4 +202,3 @@ int JNI_LightButton(long)
 {
    return 0;
 }
-

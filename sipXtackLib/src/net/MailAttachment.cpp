@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 
 MailAttachment::MailAttachment(const MailAttachment &original)
 {
-    // Copy Constructor: 
+    // Copy Constructor:
     m_Filename = original.m_Filename;
     m_MIMEtype = original.m_MIMEtype;
     size_t base64Len = strlen(original.m_Base64)+1;
@@ -145,7 +145,7 @@ void MailAttachment::Base64Encode(const unsigned char *buffer, unsigned long  bu
 
     // Three bytes (24 bits) from the file
     unsigned char rawByte[3];
-    
+
     // The 4-byte encoding of these 24 bits
     unsigned char encodedByte[4];
 
@@ -156,7 +156,7 @@ void MailAttachment::Base64Encode(const unsigned char *buffer, unsigned long  bu
     unsigned int iLineStart = 0;
 
     // The base64 character set
-    unsigned char base64CharSet[] = 
+    unsigned char base64CharSet[] =
     { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
       'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
       'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
@@ -213,7 +213,7 @@ void MailAttachment::Base64Encode(const unsigned char *buffer, unsigned long  bu
     m_Base64[nBytes++] = '\0';
 
 // DWW Found out eudora and other mail programs require \r\n at 76 chars
-// something our NetBase64encode does not do! 
+// something our NetBase64encode does not do!
 //      UtlString encodedData;
 //    NetBase64Codec::encode(buflen, buffer, encodedData);
 //    memcpy(m_Base64, encodedData.data(), encodedData.length());

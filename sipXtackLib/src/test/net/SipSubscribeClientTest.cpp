@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // Get value of EXECUTE_SLOW_TESTS.
@@ -187,7 +187,7 @@ public:
                         result = FALSE;
                      }
                      else
-                     {                        
+                     {
                         // The first segments have to be the same.
                         ssize_t n;
                         n = a1 - a;
@@ -352,7 +352,7 @@ public:
          earlyDialogMsg.append("'\n  notify: '");
          earlyDialogMsg.append(smClientNotifyEarlyDialog);
          earlyDialogMsg.append("'");
-         KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
+         KNOWN_BUG("INTERMITTENT failures", "XX-6383");
          CPPUNIT_ASSERT_MESSAGE(earlyDialogMsg.data(),
                                 compareHandles(smClientSubEarlyDialog.data(),
                                                smClientNotifyEarlyDialog.data()));
@@ -481,7 +481,7 @@ public:
       {
          int notifiesRxed = smNumClientNotifiesReceived;
          int substateRxed = smNumClientSubResponsesReceived;
-         
+
          // Tell the Subscribe Client to set up a subscription.
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_aor,
@@ -495,9 +495,9 @@ public:
                                                     subStateCallback,
                                                     notifyCallback,
                                                     earlyDialogHandle));
-         
+
          OsTask::delay(1000);   // 1 second to establish dialog and first NOTIFY to arrive
-         
+
          // can depend on the ordering of the first NOTIFY and the 202 response to SUBSCRIBE
          CPPUNIT_ASSERT(   (smNumClientSubResponsesReceived == substateRxed + 1)
                         || (smNumClientSubResponsesReceived == substateRxed + 2)
@@ -658,7 +658,7 @@ public:
          subServerp->enableEventType(eventType, userAgentp);
 
          // Create a SUBSCRIBE observer
-         // Register an interest in SUBSCRIBE requests 
+         // Register an interest in SUBSCRIBE requests
          // for this event type
          userAgentp->addMessageObserver(subIncomingServerMsgQueue,
                                         SIP_SUBSCRIBE_METHOD,
@@ -681,7 +681,7 @@ public:
                                         NULL);
 
          // Create a NOTIFY observer
-         // Register an interest in NOTIFY requests 
+         // Register an interest in NOTIFY requests
          // for this event type
          userAgentp->addMessageObserver(notIncomingClientMsgQueue,
                                         SIP_NOTIFY_METHOD,
@@ -745,10 +745,10 @@ public:
          UtlBoolean isDefaultContent;
          int version;
          CPPUNIT_ASSERT(!contentMgrp->getContent(resource_id,
-                                                 eventTypeKey, 
-                                                 eventType, 
-                                                 NULL, 
-                                                 preexistingBodyPtr, 
+                                                 eventTypeKey,
+                                                 eventType,
+                                                 NULL,
+                                                 preexistingBodyPtr,
                                                  version,
                                                  isDefaultContent));
          int numDefaultContent = -1;
@@ -1160,7 +1160,7 @@ public:
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send the NOTIFY in response to the SUBSCRIBE.
-       
+
          SipMessage notifyMessage;
          char subscriptionState[20];
          sprintf(subscriptionState, "active;expires=%d", refreshTime);
@@ -1190,7 +1190,7 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Wait for the re-SUBSCRIBE, and respond with 481.
 
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
@@ -1244,7 +1244,7 @@ public:
          CPPUNIT_ASSERT(toTag.isNull());
 
          // Send the NOTIFY in response to the SUBSCRIBE.
-       
+
          sprintf(subscriptionState, "active;expires=%d", refreshTime);
          SipMessage newNotifyMessage;
          newNotifyMessage.setNotifyData(subscribeRequest,
@@ -1273,7 +1273,7 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Wait for the re-SUBSCRIBE, and respond with 200.
 
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
@@ -1344,7 +1344,7 @@ public:
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send the NOTIFY in response to the SUBSCRIBE.
-       
+
          SipMessage notifyMessage;
          char subscriptionState[20];
          sprintf(subscriptionState, "active;expires=%d", refreshTime);
@@ -1374,7 +1374,7 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Delay more than 15 seconds so that the Subscribe Client recognizes
          // the subscription as having been successfully established.
          fprintf(stderr, "Waiting %d seconds...\n", 15+1);
@@ -1474,7 +1474,7 @@ public:
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send a NOTIFY in response to the SUBSCRIBE.
-       
+
          SipMessage notifyMessage;
          notifyMessage.setNotifyData(subscribeRequest,
                                      10, // CSeq
@@ -1503,9 +1503,9 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Send another NOTIFY, which is out-of-order.
-       
+
          notifyMessage.setNotifyData(subscribeRequest,
                                      9, // CSeq
                                      NULL, // Route
@@ -1532,7 +1532,7 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_SERVER_INTERNAL_ERROR_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Verify that there is a "Retry-After: 0" header.
          const char* v =
             notifyResponse->getHeaderValue(0, SIP_RETRY_AFTER_FIELD);
@@ -1581,7 +1581,7 @@ public:
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send a NOTIFY in response to the SUBSCRIBE.
-       
+
          SipMessage notifyMessage;
          notifyMessage.setNotifyData(subscribeRequest,
                                      10, // CSeq
@@ -1610,9 +1610,9 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Send a duplicate NOTIFY.
-       
+
          // Note that this re-send will get a new Via branch parameter.
          // The processing of this case is complex -- RFC 3261 requires
          // it to be considered a separate transaction (which is out-of-order),
@@ -1690,7 +1690,7 @@ public:
          CPPUNIT_ASSERT(!notifyResponse);
 
          // Send a NOTIFY in response to the SUBSCRIBE.
-       
+
          SipMessage notifyMessage;
          notifyMessage.setNotifyData(subscribeRequest,
                                      10, // CSeq
@@ -1719,9 +1719,9 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          // Send a second NOTIFY, on another fork.
-       
+
          SipMessage secondNotifyMessage;
          secondNotifyMessage.setNotifyData(subscribeRequest,
                                            10, // CSeq
@@ -1777,7 +1777,7 @@ public:
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
-       
+
          secondNotifyMessage.incrementCSeqNumber();
          CPPUNIT_ASSERT(userAgentp->send(secondNotifyMessage));
 
@@ -1998,7 +1998,7 @@ public:
          subServerp->enableEventType(eventType, userAgentp);
 
          // Create a SUBSCRIBE observer
-         // Register an interest in SUBSCRIBE requests 
+         // Register an interest in SUBSCRIBE requests
          // for this event type
          userAgentp->addMessageObserver(subIncomingServerMsgQueue,
                                         SIP_SUBSCRIBE_METHOD,
@@ -2021,7 +2021,7 @@ public:
                                         NULL);
 
          // Create a NOTIFY observer
-         // Register an interest in NOTIFY requests 
+         // Register an interest in NOTIFY requests
          // for this event type
          userAgentp->addMessageObserver(notIncomingClientMsgQueue,
                                         SIP_NOTIFY_METHOD,
@@ -2085,10 +2085,10 @@ public:
          UtlBoolean isDefaultContent;
          int version;
          CPPUNIT_ASSERT(!contentMgrp->getContent(resource_id,
-                                                 eventTypeKey, 
-                                                 eventType, 
-                                                 NULL, 
-                                                 preexistingBodyPtr, 
+                                                 eventTypeKey,
+                                                 eventType,
+                                                 NULL,
+                                                 preexistingBodyPtr,
                                                  version,
                                                  isDefaultContent));
          int numDefaultContent = -1;

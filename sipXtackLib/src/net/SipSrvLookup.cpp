@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -17,7 +17,7 @@
 #       include <resparse/wnt/resolv/resolv.h>
 #       include <winsock.h>
 extern "C" {
-#       include "resparse/wnt/inet_aton.h"       
+#       include "resparse/wnt/inet_aton.h"
 }
 #elif defined(_VXWORKS)
 #       include <netdb.h>
@@ -191,7 +191,7 @@ static union u_rdata* look_for(res_response* response,
                                ///< RR type
    );
 
-// Functions to compare two server entries. 
+// Functions to compare two server entries.
 // 3261 says to prefer TCP for large messages
 
 // sort server list so TCP forks will be tried last (UDP preferred)
@@ -200,7 +200,7 @@ static int server_compare_prefer_udp(const void* a, const void* b);
 // sort server list so UDP forks will be tried last (TCP preferred)
 static int server_compare_prefer_tcp(const void* a, const void* b);
 
-static int server_compare(const void* a, const void* b, 
+static int server_compare(const void* a, const void* b,
                           OsSocket::IpProtocolSocketType leastPreferredTransport);
 /**<
  * Compares two server_t's which represent two servers.
@@ -285,7 +285,7 @@ server_t* SipSrvLookup::servers(const char* domain,
    OsLock lock(sMutex);
 
    // Case 0: Eliminate contradictory combinations of service and type.
-   
+
    // While a sip: URI can be used with a socketType of SSL_SOCKET
    // (e.g., <sip:foo@example.com;transport=tls>), a sips: URI must
    // be used with TLS.
@@ -306,7 +306,7 @@ server_t* SipSrvLookup::servers(const char* domain,
       // If port was specified in the URI, that is the port to use.
       // if not specified, use 5061 for sips service; use 5060 for anything else.
       in.sin_port = htons(portIsValid(port) ? port :
-                          ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ? 
+                          ((strcmp(service, "sips") == 0) || (socketType == OsSocket::SSL_SOCKET)) ?
                           5061 : 5060);
       // If sips service, make sure transport is set correctly.
       if (socketType == OsSocket::UNKNOWN &&
@@ -326,20 +326,20 @@ server_t* SipSrvLookup::servers(const char* domain,
 
       // Initialize the SRV lookup thread args, and the A Record lookup thread args.
       // They are initialized separately as the A Records are only needed if SRV
-      // records don't exist for the domain. (Or if a port name is included in the 
+      // records don't exist for the domain. (Or if a port name is included in the
       // domain).
       server_t * srv_record_list;
       server_list_initialize(srv_record_list, list_length_allocated, list_length_used);
-      SrvThreadArgs srvLookupArgs(domain, service, srv_record_list, list_length_allocated, 
+      SrvThreadArgs srvLookupArgs(domain, service, srv_record_list, list_length_allocated,
                                   list_length_used, port, socketType);
-      
+
       server_t * a_record_list;
       server_list_initialize(a_record_list, list_length_allocated, list_length_used);
-      SrvThreadArgs aRecordLookupArgs(domain, service, a_record_list, list_length_allocated, 
+      SrvThreadArgs aRecordLookupArgs(domain, service, a_record_list, list_length_allocated,
                                       list_length_used, port, socketType);
-      
+
       myQueryThreads[SipSrvLookupThread::A_RECORD]->postMessage(aRecordLookupArgs);
-      
+
       // Case 2: SRV records exist for this domain.
       // (Only used if no port is specified in the URI.)
       if (port <= 0 && !options[OptionCodeIgnoreSRV])
@@ -356,7 +356,7 @@ server_t* SipSrvLookup::servers(const char* domain,
               socketType == OsSocket::TCP) &&
              strcmp(service, "sips") != 0)
          {
-             myQueryThreads[SipSrvLookupThread::SRV_TCP]->postMessage(srvLookupArgs); 
+             myQueryThreads[SipSrvLookupThread::SRV_TCP]->postMessage(srvLookupArgs);
          }
 
          // If TLS transport is acceptable.
@@ -365,7 +365,7 @@ server_t* SipSrvLookup::servers(const char* domain,
          {
             myQueryThreads[SipSrvLookupThread::SRV_TLS]->postMessage(srvLookupArgs);
          }
-         
+
          // Wait for each of the executed queries to finish
          // If UDP SRV query was carried out
          if ((socketType == OsSocket::UNKNOWN ||
@@ -387,17 +387,17 @@ server_t* SipSrvLookup::servers(const char* domain,
          {
             myQueryThreads[SipSrvLookupThread::SRV_TLS]->isDone();
          }
-         
+
       }
       // Finally wait for the A Record Query to finish as well
       myQueryThreads[SipSrvLookupThread::A_RECORD]->isDone();
-      
+
       // Check if there is a need for A records.
       // (Only used for non-numeric addresses for which SRV lookup did not
       // produce any addresses.  This includes if an explicit port was given.)
       if (*(srvLookupArgs.list_length_used) < 1)
       {
-         // No SRV query results. Discard the SRV Lookup lists, continue with  
+         // No SRV query results. Discard the SRV Lookup lists, continue with
          // and  return the A Record list back to the caller.
          delete[] srvLookupArgs.list;
          serverList = aRecordLookupArgs.list;
@@ -406,7 +406,7 @@ server_t* SipSrvLookup::servers(const char* domain,
       }
       else
       {
-         // We got SRV query results. Discard the A Record Lookup lists, 
+         // We got SRV query results. Discard the A Record Lookup lists,
          // continue with and return the SRV list back to the caller.
          delete[] aRecordLookupArgs.list;
          serverList = srvLookupArgs.list;
@@ -732,7 +732,7 @@ void lookup_A(server_t*& list,
                                      response);
 
    OsLock lock(SipSrvLookupThread::slookupThreadMutex);
-   
+
    // Search the list of RRs.
    // For each answer that is an A record for this domain name.
    if (response != NULL)
@@ -766,7 +766,7 @@ void lookup_A(server_t*& list,
              response->additional[i]->type == T_A &&
              // Note we look for the canonical name now.
              strcasecmp(canonical_name, response->additional[i]->name) == 0)
-         { 
+         {
             // An A record has been found.
             // Assemble the needed information and add it to the server list.
             struct sockaddr_in sin;
@@ -781,7 +781,7 @@ void lookup_A(server_t*& list,
          }
       }
    }
-   
+
    // Free the result of res_parse if necessary.
    if (response != NULL && response != in_response)
    {
@@ -812,7 +812,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    // Buffer into which to read DNS replies.
    char answer[DNS_RESPONSE_SIZE];
    union u_rdata* p;
- 
+
    // Loop until we find a reason to exit.  Each turn around the loop does
    // another DNS lookup.
    while (1)
@@ -871,8 +871,8 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
          printf("res_nquery(\"%s\", class = %d, type = %d)\n",
                 name, C_IN, type);
       }
-      
-      // Initialize the res state struct and set the timeout to 
+
+      // Initialize the res state struct and set the timeout to
       // 3 secs and retries to 2
       struct __res_state res;
       res_ninit(&res);
@@ -883,7 +883,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       {
           res.nscount = 1;
           inet_aton(mNameserverIP.data(), &res.nsaddr_list[0].sin_addr);
- 
+
           if (mNameserverPort > 1)
           {
              res.nsaddr_list[0].sin_port = htons(mNameserverPort);
@@ -897,7 +897,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       {
           // done with res state struct, so cleanup
           // must close once and only once per res_ninit, after res_nquery
-          res_nclose(&res);     
+          res_nclose(&res);
          // res_query failed, return.
          break;
       }
@@ -923,7 +923,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       }
       // Now that we have a fresh DNS query to analyze, go back and check it
       // for a CNAME for 'name' and then for records of the requested type.
-   }   
+   }
 
    // Final processing:  Copy the working name and response to the output
    // variables.
@@ -970,7 +970,7 @@ union u_rdata* look_for(res_response* response, const char* name,
 int server_compare_prefer_udp(const void* a, const void* b)
 {
     int result;
-    result = server_compare(a, b, 
+    result = server_compare(a, b,
                             OsSocket::TCP);  // TCP is least preferred transport
     return result;
 }
@@ -979,12 +979,12 @@ int server_compare_prefer_udp(const void* a, const void* b)
 int server_compare_prefer_tcp(const void* a, const void* b)
 {
     int result;
-    result = server_compare(a, b, 
+    result = server_compare(a, b,
                             OsSocket::UDP);  // UDP is least preferred transport
     return result;
 }
 
-int server_compare(const void* a, const void* b, 
+int server_compare(const void* a, const void* b,
                    OsSocket::IpProtocolSocketType leastPreferredProto)
 {
     int result = 0;
@@ -1021,12 +1021,12 @@ int server_compare(const void* a, const void* b,
     // Smaller messages will ask to prefer UDP (TCP is lowest)
     // Large messages will ask to prefer TCP (UDP is lowest)
     // See SipTransaction::getPreferredProtocol.
-    else if (s1->type == leastPreferredProto 
+    else if (s1->type == leastPreferredProto
           && s2->type != leastPreferredProto)
     {
         result = 1;
     }
-    else if (s1->type != leastPreferredProto 
+    else if (s1->type != leastPreferredProto
           && s2->type == leastPreferredProto)
     {
         result = -1;
@@ -1294,8 +1294,8 @@ SrvThreadArgs::SrvThreadArgs(const SrvThreadArgs& rSrvThreadArgs) :
 /// Destructor for SrvThreadArgs
 SrvThreadArgs::~SrvThreadArgs()
 {
-   // Do not delete these attributes as there maybe copies of the 
-   // object still using them. Only delete it when the original object is 
+   // Do not delete these attributes as there maybe copies of the
+   // object still using them. Only delete it when the original object is
    // being deleted
    if (!mCopyOfObject)
    {
@@ -1331,7 +1331,7 @@ UtlBoolean SipSrvLookupThread::mHaveThreadsBeenInitialized = FALSE;
 /// Destructor for SipSrvLookupThread
 SipSrvLookupThread::~SipSrvLookupThread()
 {
-   
+
 }
 
 /// Implementation of OsServerTask's pure virtual method
@@ -1374,13 +1374,13 @@ UtlBoolean SipSrvLookupThread::handleMessage(OsMsg& rMsg)
                (portIsValid(mySrvArgs->port) ? mySrvArgs->port : // use port if specified
                      ((strcmp(mySrvArgs->service.data(), "sips") == 0) || // else use 5061 for sips;
                            (mySrvArgs->socketType == OsSocket::SSL_SOCKET)) ? 5061 : 5060), // else use 5060.
-               0, 0); // Set priority and weight to 0. 
+               0, 0); // Set priority and weight to 0.
 
          break;
 
       }
    }
-   
+
    mQueryCompleted->signal(0);
 
    return TRUE;
@@ -1392,7 +1392,7 @@ SipSrvLookupThread ** SipSrvLookupThread::getLookupThreads()
    OsLock lock(SipSrvLookupThread::slookupThreadMutex);
 
    if (!mHaveThreadsBeenInitialized)
-   {     
+   {
       for(int x = FIRST_LookupType; x <= LAST_LookupType; x++)
       {
          mLookupThreads[(LookupTypes) x] = new SipSrvLookupThread((LookupTypes) x);
@@ -1427,4 +1427,3 @@ SipSrvLookupThread::SipSrvLookupThread(LookupTypes lookupType) :
    mQueryCompleted = new OsEvent();
    mQueryCompleted->reset();
 }
-

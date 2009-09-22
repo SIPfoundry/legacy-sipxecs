@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -64,9 +64,9 @@ public:
                      int port,
                      const char* szLocalSipIp = NULL);
 
-    void enableStun(const char* szStunServer, 
-                    const char* szLocalIp, 
-                    int refreshPeriodInSecs, 
+    void enableStun(const char* szStunServer,
+                    const char* szLocalIp,
+                    int refreshPeriodInSecs,
                     int stunOptions,
                     OsNotification* pNotification) ;
       //:Enable stun lookups for UDP signaling

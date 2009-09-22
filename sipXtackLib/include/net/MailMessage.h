@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@
         message.To("XXX","XXX@pingtel.com");
         message.Send();
 
-       
+
 */
 
 
@@ -50,38 +50,38 @@ public:
     }
 
     void To(const UtlString &rName, const UtlString &rAddress)
-    { 
+    {
         UtlString name = rName.data();
         UtlString address = rAddress.data();
-        m_vecTo.push_back(MailAddress(name,address)); 
+        m_vecTo.push_back(MailAddress(name,address));
     }
 
     void Cc(const UtlString &rName, const UtlString &rAddress)
-    { 
+    {
         UtlString name = rName.data();
         UtlString address = rAddress.data();
-        m_vecCc.push_back(MailAddress(name,address)); 
+        m_vecCc.push_back(MailAddress(name,address));
     }
 
     void Bcc(const UtlString &rName, const UtlString &rAddress)
-    { 
+    {
         UtlString name = rName.data();
         UtlString address = rAddress.data();
-        m_vecBcc.push_back(MailAddress(name,address)); 
+        m_vecBcc.push_back(MailAddress(name,address));
     }
-    
+
     void Subject(const UtlString &rSubject)
-    { 
+    {
         UtlString subject = rSubject.data();
-        m_Subject = subject; 
+        m_Subject = subject;
     }
-    
+
     void Body(const UtlString &rText);
-    
+
     void Body(const UtlString &rText, const UtlString &rHtml);
 
     bool Attach(const UtlString &rFilename);
-    
+
     bool Attach(const unsigned char *data, const int& rDatalength, const UtlString &rFilename );
 
     // Send the message to the SMTP server specified in the constructor.
@@ -97,7 +97,7 @@ private:
         MailAddress(const UtlString &name, const UtlString &address)
             { Name=name; Address=address; }
         UtlString toString() const
-            { 
+            {
                 UtlString str = "\"";
                 str += Name;
                 str += "\" <";

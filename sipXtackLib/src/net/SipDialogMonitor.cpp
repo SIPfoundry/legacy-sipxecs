@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -47,20 +47,20 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
 
    UtlString localAddress;
    OsSocket::getHostIp(&localAddress);
-   
+
    Url url(localAddress);
    url.setHostPort(hostPort);
    url.includeAngleBrackets();
    mContact = url.toString();
    mRefreshTimeout = refreshTimeout;
    mToBePublished = toBePublished;
-   
+
    // Create the SIP Subscribe Client
    mpRefreshMgr = new SipRefreshManager(*mpUserAgent, mDialogManager); // Component for refreshing the subscription
    mpRefreshMgr->start();
 
    mpSipSubscribeClient = new SipSubscribeClient(*mpUserAgent, mDialogManager, *mpRefreshMgr);
-   mpSipSubscribeClient->start();  
+   mpSipSubscribeClient->start();
 
    if (mToBePublished)
    {
@@ -87,22 +87,22 @@ SipDialogMonitor::~SipDialogMonitor()
       mpSipSubscribeClient->endAllSubscriptions();
       delete mpSipSubscribeClient;
    }
-   
+
    if (mpRefreshMgr)
    {
       delete mpRefreshMgr;
    }
-   
+
    if (mpSubscriptionMgr)
    {
       delete mpSubscriptionMgr;
    }
-   
+
    if (mpSubscribeServer)
    {
       delete mpSubscribeServer;
    }
-   
+
    mMonitoredLists.destroyAll();
 
    mDialogEventList.destroyAll();
@@ -115,7 +115,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 {
    bool result = false;
    mLock.acquire();
-   
+
    // Check whether the group already exists. If not, create one.
    SipResourceList* list =
       dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(&groupName));
@@ -124,11 +124,11 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       UtlString* listName = new UtlString(groupName);
       list = new SipResourceList((UtlBoolean)TRUE, listName->data(),
                                  DIALOG_EVENT_TYPE);
-      
+
       mMonitoredLists.insertKeyAndValue(listName, list);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::addExtension insert listName %s and object %p to the resource list",
-                    groupName.data(), list);   
+                    groupName.data(), list);
    }
 
    // Check whether the contact has already been added to the group.
@@ -139,16 +139,16 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    {
       // If not, add it.
       resource = new Resource(resourceId);
-      
+
       UtlString userName;
       contactUrl.getDisplayName(userName);
       resource->setName(userName);
-      
+
       UtlString id;
       NetMd5Codec::encode(resourceId, id);
       resource->setInstance(id, STATE_PENDING);
       list->insertResource(resource);
-      
+
       // Set up the subscription to the URI.
       OsSysLog::add(FAC_LOG, PRI_DEBUG,
                     "SipDialogMonitor::addExtension Sending out the SUBSCRIBE to contact %s",
@@ -156,10 +156,10 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 
       UtlString toUrl;
       contactUrl.toString(toUrl);
-      
+
       UtlString fromUri = "dialogMonitor@" + mDomainName;
       UtlString earlyDialogHandle;
-            
+
       UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
                                                                 DIALOG_EVENT_TYPE,
                                                                 DIALOG_EVENT_CONTENT_TYPE,
@@ -171,7 +171,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
                                                                 SipDialogMonitor::subscriptionStateCallback,
                                                                 SipDialogMonitor::notifyEventCallback,
                                                                 earlyDialogHandle);
-               
+
       if (!status)
       {
          result = false;
@@ -199,7 +199,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
 
    int dummy;
    list->buildBody(dummy);
-   
+
    mLock.release();
    return result;
 }
@@ -215,7 +215,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::removeExtension group %s does not exist",
-                    groupName.data());   
+                    groupName.data());
    }
    else
    {
@@ -236,7 +236,7 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
                           earlyDialogHandle->data());
             // Terminate the subscription.
             UtlBoolean status = mpSipSubscribeClient->endSubscriptionGroup(earlyDialogHandle->data());
-                     
+
             if (!status)
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
@@ -253,12 +253,12 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
                           "SipDialogMonitor::removeExtension no dialogHandle for %s.",
                           resourceId.data());
          }
-         
+
          // Now delete all the references to this URI.
          mDialogHandleList.destroy(&resourceId);
          resource = list->removeResource(resource);
          delete resource;
-         
+
          result = true;
       }
       else
@@ -269,8 +269,8 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       }
    }
 
-   mLock.release();   
-   return result;   
+   mLock.release();
+   return result;
 }
 
 // Add 'dialogEvent' to mDialogEventList as the last dialog event for
@@ -291,7 +291,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent dialogEvent %p for contact '%s' already exists, updating the content.",
                     dialogEvent, contact.data());
-                    
+
       // Get the object from the dialog event list
       UtlContainable* oldKey;
       UtlContainable* foundValue;
@@ -300,32 +300,32 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
       SipDialogEvent* oldDialogEvent = dynamic_cast <SipDialogEvent *> (foundValue);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::addDialogEvent removing the dialogEvent %p for contact '%s'",
-                    oldDialogEvent, contact.data()); 
+                    oldDialogEvent, contact.data());
 
       if (oldDialogEvent)
       {
          delete oldDialogEvent;
       }
    }
-         
+
    // Insert the AOR that we subscribed to into the DialogEvent
    // object, to overwrite the entity URI provided in the body of the
    // dialog event.
-   dialogEvent->setEntity(contact.data());   
+   dialogEvent->setEntity(contact.data());
    // Rebuild the body.
    int dummy;
    dialogEvent->buildBody(dummy);
-   
+
    // Insert it into the dialog event list
    // :TODO: This does not merge partial dialogs with the previous state.
    mDialogEventList.insertKeyAndValue(new UtlString(contact), dialogEvent);
-   
+
    if (mToBePublished)
    {
       // Publish the content to the resource list.
       publishContent(contact, dialogEvent);
    }
-   
+
    // Merge the information in the current NOTIFY with the recorded state.
    // Return the on/off hook status.
    StateChangeNotifier::Status status = mergeEventInformation(dialogEvent,
@@ -354,14 +354,14 @@ void SipDialogMonitor::publishContent(UtlString& contact,
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipDialogMonitor::publishContent listUri %s list %p",
-                    listUri->data(), list); 
+                    listUri->data(), list);
 
       // Search for the contact in this list
       resource = list->getResource(contact);
       if (resource)
       {
          resource->getInstance(id, state);
-         
+
          // :TODO:
          // The following code is incorrect.  The "state" of a resource in a
          // resource list reports on the status of the subscription
@@ -377,11 +377,11 @@ void SipDialogMonitor::publishContent(UtlString& contact,
          {
             resource->setInstance(id, STATE_ACTIVE);
          }
-         
+
          list->buildBody(version);
          contentChanged = true;
       }
-      
+
       if (contentChanged)
       {
          // Publish the content to the subscribe server
@@ -404,8 +404,8 @@ void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::Subscriptio
                                                  const SipMessage* subscribeResponse)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::subscriptionStateCallback is called with responseCode = %d (%s)",
-                 responseCode, responseText); 
-}                                            
+                 responseCode, responseText);
+}
 
 
 // Callback to handle incoming NOTIFYs.
@@ -417,7 +417,7 @@ void SipDialogMonitor::notifyEventCallback(const char* earlyDialogHandle,
    // Receive the notification and process the message
    // Our SipdialogMonitor is pointed to by the applicationData.
    SipDialogMonitor* pThis = (SipDialogMonitor *) applicationData;
-   
+
    pThis->handleNotifyMessage(notifyRequest, earlyDialogHandle, dialogHandle);
 }
 
@@ -431,22 +431,22 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
    notifyMessage->getFromUrl(fromUrl);
    UtlString contact;
    fromUrl.getIdentity(contact);
-   
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogMonitor::handleNotifyMessage receiving a notify message from %s",
-                 contact.data()); 
-   
+                 contact.data());
+
    const HttpBody* notifyBody = notifyMessage->getBody();
-   
+
    if (notifyBody)
    {
       UtlString messageContent;
       ssize_t bodyLength;
-      
+
       notifyBody->getBytes(&messageContent, &bodyLength);
-      
+
       // Parse the content and store it in a SipDialogEvent object
       SipDialogEvent* sipDialogEvent = new SipDialogEvent(messageContent);
-      
+
       // Add the SipDialogEvent object to the hash table
       addDialogEvent(contact, sipDialogEvent, earlyDialogHandle, dialogHandle);
    }
@@ -454,7 +454,7 @@ void SipDialogMonitor::handleNotifyMessage(const SipMessage* notifyMessage,
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipDialogMonitor::handleNotifyMessage receiving an empty notify body from %s",
-                    contact.data()); 
+                    contact.data());
    }
 }
 

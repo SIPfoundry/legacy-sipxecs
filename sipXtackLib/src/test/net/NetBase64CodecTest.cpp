@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -120,7 +120,7 @@ class NetBase64CodecTest : public CppUnit::TestCase
 
 public:
 
-   
+
    void testIsValid()
       {
          UtlString notBase64;
@@ -158,8 +158,8 @@ public:
          notBase64 = "123456===7"; // padding characters not at the end
          CPPUNIT_ASSERT(! NetBase64Codec::isValid(notBase64));
       }
-   
-   
+
+
    void testBadDecodeSize()
       {
          UtlString notBase64;
@@ -175,9 +175,9 @@ public:
 
          decodedSize = NetBase64Codec::decodedSize(notBase64);
          CPPUNIT_ASSERT_EQUAL(0, decodedSize);
-         
+
       }
-   
+
    void testBadDecode()
       {
          UtlString notBase64;
@@ -189,7 +189,7 @@ public:
 
          CPPUNIT_ASSERT(decoded.isNull());
       }
-   
+
    void testDecodedSize()
       {
          int  decodedSize;
@@ -222,7 +222,7 @@ public:
          char msg[2048];
 
          for (unsigned int test = 0; test < (sizeof(tests)/sizeof(TestData)); test++)
-         {            
+         {
             encodedData[0] = 0; // to make message cleaner below if not written
             NetBase64Codec::encode(tests[test].inputSize,
                                    tests[test].inputData,
@@ -231,7 +231,7 @@ public:
                                    tests[test].alphabet
                                    );
             encodedData[encodedSize] = '\000';
-            
+
             sprintf(msg,
                     "\n  test case %d encoding"
                     "\n     expected size %zu data '%s'"
@@ -290,7 +290,7 @@ public:
                                    encoded,
                                    tests[test].alphabet
                                    );
-            
+
             sprintf(msg,
                     "\n  test case %d encoding"
                     "\n     expected size %zu data '%s'"
@@ -306,7 +306,7 @@ public:
          }
       }
 
-   
+
    void testUtl2Utl()
       {
          UtlString encoded;
@@ -317,10 +317,10 @@ public:
          for (unsigned int test = 0; test < (sizeof(tests)/sizeof(TestData)); test++)
          {
             UtlString input(tests[test].inputData, tests[test].inputSize);
-            
+
             encoded.remove(0);
             NetBase64Codec::encode(input, encoded, tests[test].alphabet);
-            
+
             sprintf(msg,
                     "\n  test case %d encoding"
                     "\n     expected size %zu data '%s'"

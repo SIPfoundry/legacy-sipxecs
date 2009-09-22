@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <resolv.h>
-#endif 
+#endif
 
 #include <stdlib.h>
 #include <signal.h>
@@ -426,12 +426,12 @@ public:
            "2.1.4.0:8002,1,0.244,3,TLS\n" },
          { "test23", "sip", OsSocket::UNKNOWN, -1, NULL,
            "2.1.4.0:8000,1,0.174,1,UDP\n"
-           "2.1.4.0:8003,1,0.225,1,UDP\n" 
-           "2.1.4.0:8002,1,0.244,1,UDP\n" 
+           "2.1.4.0:8003,1,0.225,1,UDP\n"
+           "2.1.4.0:8002,1,0.244,1,UDP\n"
            "2.1.4.0:8001,1,0.930,1,UDP\n" },
          { "test24", "sip", OsSocket::UNKNOWN, -1, NULL,
-           "2.1.4.0:8003,2,0.113,1,UDP\n" 
-           "2.1.4.0:8002,2,0.122,1,UDP\n" 
+           "2.1.4.0:8003,2,0.113,1,UDP\n"
+           "2.1.4.0:8002,2,0.122,1,UDP\n"
            "2.1.4.0:8000,1,0.174,1,UDP\n"
            "2.1.4.0:8001,1,0.930,1,UDP\n" },
 
@@ -524,20 +524,20 @@ public:
          // Tests to ensure that sorting on TCP vs. UDP does not override
          // priority or score.
          { "test28", "sip", OsSocket::UNKNOWN, -1, NULL,
-           "2.1.4.0:8001,1,0.244,1,UDP\n" 
-           "2.1.4.0:8002,1,0.174,2,TCP\n" 
+           "2.1.4.0:8001,1,0.244,1,UDP\n"
+           "2.1.4.0:8002,1,0.174,2,TCP\n"
            "2.1.4.0:8003,1,0.225,3,UDP\n"
            "2.1.4.0:8004,1,0.930,4,TCP\n"
            "" },
          { "test29", "sip", OsSocket::UNKNOWN, -1, NULL,
-           "2.1.4.0:8001,1000,0.000,1,UDP\n" 
-           "2.1.4.0:8002,100,0.002,1,TCP\n" 
+           "2.1.4.0:8001,1000,0.000,1,UDP\n"
+           "2.1.4.0:8002,100,0.002,1,TCP\n"
            "2.1.4.0:8003,10,0.023,1,UDP\n"
            "2.1.4.0:8004,1,0.930,1,TCP\n"
            "" },
 
       };
-         
+
       // Flag for whether any test cases have failed.
       int failure_seen = 0;
 
@@ -600,7 +600,7 @@ public:
             q->getIpAddressFromServerT(ip_addr);
             sprintf(result_string + strlen(result_string),
                     "%s:%d,%u,%.3f,%u,%s\n",
-                    ip_addr.data(), 
+                    ip_addr.data(),
                     q->getPortFromServerT(),
                     q->getWeightFromServerT(),
                     q->getScoreFromServerT(),

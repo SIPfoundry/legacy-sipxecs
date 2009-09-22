@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -132,7 +132,7 @@ SipResourceList::SipResourceList(const UtlBoolean state,
    {
       mFullState = "false";
    }
-   
+
    mListUri = uri;
    mEventType = type;
 }
@@ -148,8 +148,8 @@ SipResourceList::SipResourceList(const char* bodyBytes, const char* type)
       bodyLength = strlen(bodyBytes);
       parseBody(bodyBytes);
    }
-   
-   ((SipResourceList*)this)->mBody = bodyBytes;   
+
+   ((SipResourceList*)this)->mBody = bodyBytes;
    mEventType = type;
 }
 
@@ -176,11 +176,11 @@ void SipResourceList::parseBody(const char* bodyBytes)
 {
    if(bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::parseBody incoming package = %s\n", 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::parseBody incoming package = %s\n",
                     bodyBytes);
-                    
+
       TiXmlDocument doc("ResourceList.xml");
-      
+
       if (doc.Parse(bodyBytes))
       {
 	// TODO
@@ -203,14 +203,14 @@ SipResourceList::operator=(const SipResourceList& rhs)
 void SipResourceList::insertResource(Resource* resource)
 {
    mLock.acquire();
-   if (mResources.insert(resource) != NULL)   
-   {                 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertResource Resource = %p", 
+   if (mResources.insert(resource) != NULL)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertResource Resource = %p",
                     resource);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertResource Resource = %p failed", 
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertResource Resource = %p failed",
                     resource);
    }
    mLock.release();
@@ -223,8 +223,8 @@ Resource* SipResourceList::removeResource(Resource* resource)
    UtlContainable *foundValue;
    foundValue = mResources.remove(resource);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeResource Resource = %p", 
-                 foundValue);                 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeResource Resource = %p",
+                 foundValue);
 
    mLock.release();
     return (Resource *) foundValue;
@@ -240,20 +240,20 @@ Resource* SipResourceList::getResource(UtlString& resourceUri)
    while ((pResource = (Resource *) resourceIterator()))
    {
       pResource->getResourceUri(foundValue);
-      
+
       if (foundValue.compareTo(resourceUri) == 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s", 
-                       pResource, resourceUri.data());                 
-            
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getResource found Resource = %p for resourceUri %s",
+                       pResource, resourceUri.data());
+
          mLock.release();
          return pResource;
       }
-   }     
-          
-   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s", 
-                 resourceUri.data());                 
-            
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_WARNING, "SipResourceList::getResource could not found the Resource for resourceUri = %s",
+                 resourceUri.data());
+
    mLock.release();
    return NULL;
 }
@@ -266,14 +266,14 @@ UtlBoolean SipResourceList::isEmpty()
 void SipResourceList::insertEvent(UtlContainable* event)
 {
    mLock.acquire();
-   if (mEvents.insert(event) != NULL)   
-   {                 
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertEvent Event = %p", 
+   if (mEvents.insert(event) != NULL)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::insertEvent Event = %p",
                     event);
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertEvent Event = %p failed", 
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipResourceList::insertEvent Event = %p failed",
                     event);
    }
    mLock.release();
@@ -286,8 +286,8 @@ UtlContainable* SipResourceList::removeEvent(UtlContainable* event)
    UtlContainable *foundValue;
    foundValue = mEvents.remove(event);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeEvent Event = %p", 
-                 foundValue);                 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::removeEvent Event = %p",
+                 foundValue);
 
    mLock.release();
    return foundValue;
@@ -341,12 +341,12 @@ void SipResourceList::buildBody(int& version) const
    resourceList.append(VERSION_EQUAL);
    singleLine = DOUBLE_QUOTE + UtlString(buffer) + DOUBLE_QUOTE;
    resourceList += singleLine;
-   
+
    resourceList.append(FULL_STATE_EQUAL);
    singleLine = DOUBLE_QUOTE + mFullState + DOUBLE_QUOTE;
    resourceList += singleLine;
    resourceList.append(END_LINE);
-   
+
    // Resource elements
    ((SipResourceList*)this)->mLock.acquire();
    UtlHashMapIterator resourceIterator(mResources);
@@ -387,14 +387,14 @@ void SipResourceList::buildBody(int& version) const
 
    // End of list element
    resourceList.append(END_LIST);
-   
+
    ((SipResourceList*)this)->mLock.release();
-  
+
    ((SipResourceList*)this)->mBody = resourceList;
    ((SipResourceList*)this)->bodyLength = resourceList.length();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s", 
-                 resourceList.data());                 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s",
+                 resourceList.data());
    ((SipResourceList*)this)->mVersion++;
 }
 
@@ -412,7 +412,7 @@ void SipResourceList::getBytes(UtlString* bytes, ssize_t* length) const
 {
    int dummy;
    buildBody(dummy);
-   
+
    *bytes = ((SipResourceList*)this)->mBody;
    *length = ((SipResourceList*)this)->bodyLength;
 }
@@ -426,4 +426,3 @@ void SipResourceList::getBytes(UtlString* bytes, ssize_t* length) const
 
 
 /* ============================ FUNCTIONS ================================= */
-

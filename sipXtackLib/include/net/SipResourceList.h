@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ class Resource : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
@@ -84,7 +84,7 @@ class Resource : public UtlContainable
    int compareTo(const UtlContainable *b) const;
 
 ///@}
-   
+
 /**
  * @name ====================== Resource Setting Interfaces
  *
@@ -106,10 +106,10 @@ class Resource : public UtlContainable
                     UtlString& state) const;
 
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
@@ -140,7 +140,7 @@ class SipResourceList : public HttpBody
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
@@ -158,7 +158,7 @@ class SipResourceList : public HttpBody
       ~SipResourceList();
 
 ///@}
-   
+
 /**
  * @name ====================== Resource List Serialization Interfaces
  *
@@ -210,10 +210,10 @@ class SipResourceList : public HttpBody
 
    //! Get the Resource object based on the resource Uri.
    Resource* getResource(UtlString& resourceUri);
-   
+
    //! Remove the Resource object from the hash table.
    Resource* removeResource(Resource* resource);
-   
+
    //! Insert a Event object to the hash table.
    void insertEvent(UtlContainable* event);
 
@@ -224,10 +224,10 @@ class SipResourceList : public HttpBody
    UtlBoolean isEmpty();
 
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    /// Parse an existing resource list from xml format into the internal representation.
    void parseBody(const char* bytes);
 
@@ -249,7 +249,7 @@ class SipResourceList : public HttpBody
 
    //! Variable for holding the event packages
    UtlHashMap mEvents;
-  
+
    //! Disabled copy constructor
    SipResourceList(const SipResourceList& rSipResourceList);
 

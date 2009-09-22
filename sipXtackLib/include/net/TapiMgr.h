@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,10 +27,10 @@
 
 /**
  * The TapiMgr singleton class allows
- * callback funtion-pointers for tapi to be set, 
+ * callback funtion-pointers for tapi to be set,
  * indicating the function that is to be called for
  * the firing of sipXtapi events.
- * This obviates the need for sipXcallLib and 
+ * This obviates the need for sipXcallLib and
  * sipXtackLib to link-in the sipXtapi library.
  */
 class TapiMgr
@@ -52,41 +52,41 @@ public:
     * Sets the callback function pointer for Call Events (to be fired to the sipXtapi layer)
     */
     void setTapiCallCallback(sipxCallEventCallbackFn fp);
-    
+
    /**
     * Sets the callback function pointer for Line Events (to be fired to the sipXtapi layer)
     */
     void setTapiLineCallback(sipxLineEventCallbackFn fp);
-    
-    
-    /** 
+
+
+    /**
      * This method calls the Call event callback using the function pointer.
      * It calls the deprecated "Call Callback" in sipXtapi.
-     */    
+     */
     void fireCallEvent(const void*          pSrc,
                        const char*		    szCallId,
                        SipSession*          pSession,
-				       const char*          szRemoteAddress,                   
+				       const char*          szRemoteAddress,
 				       SIPX_CALLSTATE_EVENT eMajorState,
 				       SIPX_CALLSTATE_CAUSE eMinorState,
                        void*                pEventData) ;
-    
-    /** 
+
+    /**
      * This method calls the Line event callback using the function pointer.
      * It calls the deprecated "Line Callback" in sipXtapi.
-     */    
+     */
     void fireLineEvent(const void* pSrc,
                         const char* szLineIdentifier,
                         SIPX_LINESTATE_EVENT event,
-                        SIPX_LINESTATE_CAUSE cause);	
-                        
-    /** 
+                        SIPX_LINESTATE_CAUSE cause);
+
+    /**
      * This method calls the new "unified callback" procedure in sipXtapi.
      */
     void fireEvent(const void* pSrc,
                    const SIPX_EVENT_CATEGORY event,
                    void* pInfo);
-    
+
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
@@ -133,7 +133,7 @@ private:
      * function pointer for the Line Event callback proc in sipXtapi.
      */
     sipxLineEventCallbackFn sipxLineEventCallbackPtr;
-    
+
 };
 
 #endif /* ifndef _TapiMgr_h_ */

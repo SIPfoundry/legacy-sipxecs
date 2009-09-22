@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@
  * This class contains all the contents presented in a XML-RPC body. This class
  * has the methods to construct a XML-RPC body. It is only used by XmlRpcRequest
  * and XmlRpcResponse classes.
- * 
+ *
  */
 class XmlRpcBody : public HttpBody
 {
@@ -123,12 +123,12 @@ class XmlRpcBody : public HttpBody
 
    /// Add a struct to the XML-RPC content
    bool addStruct(UtlHashMap* members); ///< struct of members
-   
+
    static const size_t MAX_LOG; ///< maximum size of an XML-RPC body written to the log
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    friend class XmlRpcDispatch;
    friend class XmlRpcResponse;
    friend class XmlRpcTest;
@@ -156,19 +156,19 @@ class XmlRpcBody : public HttpBody
                               UtlString& errorTxt    ///< explanation of parse error if any
                               );
    ///< @returns NULL and sets errorTxt if there was a parse error
-   
-   /// Delete the value and any memory it contains 
+
+   /// Delete the value and any memory it contains
    static
       void deallocateValue(UtlContainable*& value);
-   
+
    /// Clean up the memory in a struct, but not the UtlHashMap object itself
    static
       void deallocateContainedValues(UtlHashMap* members);
-   
+
    /// Clean up the memory in an array, but not the UtlSList object itself
    static
       void deallocateContainedValues(UtlSList* array);
-   
+
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:

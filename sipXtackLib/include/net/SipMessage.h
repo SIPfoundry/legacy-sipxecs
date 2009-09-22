@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -256,25 +256,25 @@ class SipUserAgent;
 #define SIP_7XX_CLASS_CODE 700
 
 // Warning codes
-#define SIP_WARN_INCOMPAT_PROTO_CODE          300 
+#define SIP_WARN_INCOMPAT_PROTO_CODE          300
 #define SIP_WARN_INCOMPAT_PROTO_TEXT          "Incompatible network protocol"
-#define SIP_WARN_INCOMPAT_ADDRESS_CODE        301 
+#define SIP_WARN_INCOMPAT_ADDRESS_CODE        301
 #define SIP_WARN_INCOMPAT_ADDRESS_TEXT        "Incompatible network address formats"
 #define SIP_WARN_INCOMPAT_TRANSPORT_CODE      302
 #define SIP_WARN_INCOMPAT_TRANSPORT_TEXT      "Incompatible transport protocol"
-#define SIP_WARN_INCOMPAT_BANDWIDTH_CODE      303 
+#define SIP_WARN_INCOMPAT_BANDWIDTH_CODE      303
 #define SIP_WARN_INCOMPAT_BANDWIDTH_TEXT      "Incompatible bandwidth units"
 #define SIP_WARN_MEDIA_NAVAIL_MEDIA_TYPE_CODE 304
 #define SIP_WARN_MEDIA_NAVAIL_MEDIA_TYPE_TEXT "Media type not available"
 #define SIP_WARN_MEDIA_INCOMPAT_MEDIA_CODE    305
 #define SIP_WARN_MEDIA_INCOMPAT_MEDIA_TEXT    "Insufficient compatible media types"
-#define SIP_WARN_INCOMPAT_ATTRIBUTE_CODE      306 
+#define SIP_WARN_INCOMPAT_ATTRIBUTE_CODE      306
 #define SIP_WARN_INCOMPAT_ATTRIBUTE_TEXT      "Attribute not understood"
-#define SIP_WARN_INCOMPAT_SDP_PARAM_CODE      307 
+#define SIP_WARN_INCOMPAT_SDP_PARAM_CODE      307
 #define SIP_WARN_INCOMPAT_SDP_PARAM_TEXT      "Session description parameter not understood"
-#define SIP_WARN_NAVAIL_MULTICAST_CODE        330 
+#define SIP_WARN_NAVAIL_MULTICAST_CODE        330
 #define SIP_WARN_NAVAIL_MULTICAST_TEXT        "Multicast not available"
-#define SIP_WARN_NAVAIL_UNICAST_CODE          331 
+#define SIP_WARN_NAVAIL_UNICAST_CODE          331
 #define SIP_WARN_NAVAIL_UNICAST_TEXT          "Unicast not available"
 #define SIP_WARN_NAVAIL_BANDWIDTH_CODE        370
 #define SIP_WARN_NAVAIL_BANDWIDTH_TEXT        "Insufficient bandwidth"
@@ -639,7 +639,7 @@ public:
                          const char* sipIfMatchField,
                          int expiresInSeconds);
 
-    
+
     /// Apply any header parameters in the request uri to the message
     void applyTargetUriHeaderParams();
     /**
@@ -660,7 +660,7 @@ public:
      *
      * - otherwise, the new header is just added.to the message.
      */
-    
+
     //@}
 
     void addSdpBody(const char* rtpAddress,
@@ -674,30 +674,30 @@ public:
 
     //! Accessor to get SDP body, optionally decrypting it if key info. is provided
     /*
-     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the 
-     *         private key and public key/Certificate for a recipent who is 
+     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the
+     *         private key and public key/Certificate for a recipent who is
      *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
      *  \param derPkcs12PrivateKeyLength - length in bytes of derPkcs12PrivateKey
      *  \param pkcs12SymmetricKey - symetric key used to protect (encrypt) the
      *         derPkcs12PrivateKey (the private key is contained in a
      *         pkcs12 in an encrypted format to protect it from theft).
-     *  \param pkcs12SymmetricKeyLength - the length in bytes of 
+     *  \param pkcs12SymmetricKeyLength - the length in bytes of
      *         pkcs12SymmetricKey.
      */
     const SdpBody* getSdpBody(const char* derPkcs12 = NULL,
                               int derPkcs12Length = 0,
                               const char* pkcs12SymmetricKey = NULL) const;
 
-    //! Check whether the message has a valid SDP body 
+    //! Check whether the message has a valid SDP body
     /*
-     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the 
-     *         private key and public key/Certificate for a recipent who is 
+     *  \param derPkcs12PrivateKey - DER format pkcs12 container for the
+     *         private key and public key/Certificate for a recipent who is
      *         allowed to decrypt this pkcs7 (S/MIME) encapsulated body.
      *  \param derPkcs12PrivateKeyLength - length in bytes of derPkcs12PrivateKey
      *  \param pkcs12SymmetricKey - symetric key used to protect (encrypt) the
      *         derPkcs12PrivateKey (the private key is contained in a
      *         pkcs12 in an encrypted format to protect it from theft).
-     *  \param pkcs12SymmetricKeyLength - the length in bytes of 
+     *  \param pkcs12SymmetricKeyLength - the length in bytes of
      *         pkcs12SymmetricKey.
      */
     UtlBoolean hasSdpBody(const char* derPkcs12 = NULL,
@@ -794,7 +794,7 @@ public:
 
     void setInviteOkData(const char* fromAddress,
                          const char* toAddress,
-                         const char* callId,                         
+                         const char* callId,
                          const SdpBody* inviteSdp,
                          const char* rtpAddress,
                          int rtpAudioPort,
@@ -807,7 +807,7 @@ public:
                          int sequenceNumber = 1,
                          const char* localContact = NULL);
 
-    void setInviteOkData(const SipMessage* inviteRequest,                         
+    void setInviteOkData(const SipMessage* inviteRequest,
                          const char* rtpAddress,
                          int rtpAudioPort,
                          int rtcpAudioPort,
@@ -823,7 +823,7 @@ public:
 
     /// set the body of a response to contain the received request as message/sipfrag
     void setRequestDiagBody(SipMessage request);
-    
+
     void setReferOkData(const SipMessage* referRequest);
 
     void setReferDeclinedData(const SipMessage* referRequest);
@@ -839,7 +839,7 @@ public:
                                       const UtlString&  address
                                       ///< warn-agent: hostport or token, *not* URI
        );
-                                      
+
     //@}
 
 
@@ -849,7 +849,7 @@ public:
     UtlBoolean getFieldSubfield(const char* fieldName, int subfieldIndex,
                                 UtlString* subfieldValue) const;
 
-    // Modify the value of a specific subfield 
+    // Modify the value of a specific subfield
     UtlBoolean setFieldSubfield(const char* fieldName,
                                 int addressIndex,
                                 const UtlString& newSubfieldValue);
@@ -925,7 +925,7 @@ public:
     void setFromFieldTag(const char* tagValue);
 
     void setExpiresField(int expiresInSeconds);
-    
+
     void setAcceptField( const char* acceptValue );
 
     void setAcceptEncodingField( const char* acceptEncodingValue );
@@ -933,11 +933,11 @@ public:
     void setAcceptLanguageField( const char* acceptLanguageValue );
 
     void setRequireField( const char* requireValue );
-    
+
     void setRetryAfterField( const char* retryAfterValue );
 
     void setUnsupportedField( const char* unsupportedValue );
-    
+
     void setMinExpiresField(int minimumExpiresInSeconds);
 
     void setContactField(const char* contactField, int index = 0);
@@ -953,7 +953,7 @@ public:
                          const char* text
                          ///< warn-text (will be quoted in Warning header)
        );
-    
+
     void getFromLabel(UtlString* fromLabel) const;
 
     void getToLabel(UtlString* toLabel) const;
@@ -1087,7 +1087,7 @@ public:
     const UtlString& getInterfaceIp() const;
     int getInterfacePort() const;
     void setInterfaceIpPort(const char* szIP, int port);
-        
+
 
     //@}
 
@@ -1133,11 +1133,11 @@ public:
     /// That method is used to add to a message a special 'NAT' route that can
     /// be used to alter the destination of the message.  This route is
     /// carried in the X-sipX-Nat-Route header.  More specifically,
-    /// if present in a message, the NAT route takes precedence over the 
+    /// if present in a message, the NAT route takes precedence over the
     /// Request-URI and specifies the endpoint that will be the recipient
     /// of the message provided that the message contains no Route: headers.
-    /// 
-    /// Notes: 
+    ///
+    /// Notes:
     ///  1- NAT route takes precedence over the message's Request-URI
     ///  2- The message's Route set takes precedence over the NAT route
     ///  3- The stack removes any NAT route headers from all incoming messages
@@ -1151,18 +1151,18 @@ public:
     bool getSipXNatRoute(UtlString* uriString);
 
     void removeSipXNatRoute( void );
-    
+
     /// Adjust route values as required when receiving at a proxy.
     void normalizeProxyRoutes(const SipUserAgent* sipUA, ///< used to check isMyHostAlias
                               Url& requestUri,           ///< returns normalized request uri
-                              UtlSList* removedRoutes = NULL // route headers popped 
+                              UtlSList* removedRoutes = NULL // route headers popped
                               );
     /**<
      * Check the request URI and the topmost route
      *   - Detect and correct for any strict router upstream
      *     as specified by RFC 3261 section 16.4 Route Information Preprocessing
      *   - Pop off the topmost route until it is not me
-     *  
+     *
      * If the removedRoutes is non-NULL, then any removed routes are returned
      *   on this list (in the order returned - topmost first) as UtlString objects.
      *   The caller is responsible for deleting these UtlStrings (a call to
@@ -1283,8 +1283,8 @@ public:
     UtlBoolean isServerTransaction(UtlBoolean isOutgoing) const;
 
     //! Returns TRUE if *message is part of the same dialog as *this.
-    //! Function uses RFC 3261 rules for matching dialogs. If no 
-    //! to/from tags are found, the function will compare the entire 
+    //! Function uses RFC 3261 rules for matching dialogs. If no
+    //! to/from tags are found, the function will compare the entire
     //! To/From fields (backwards compatibility with RFC 2543).
     //! NOTE:
     //! The function compares the To fields of the two messages,
@@ -1293,19 +1293,19 @@ public:
     //! responsible for swapping the To/From fields first.
     UtlBoolean isSameSession(const SipMessage* message) const;
 
-    //! Returns TRUE if the URI tags match. If we are comparing 
+    //! Returns TRUE if the URI tags match. If we are comparing
     //! URIs from To fields (comparingToUrl == TRUE), then the
     //! function takes into account that dialog-forming messages have
     //! no To-tags, so a URI with no tag matches any URI.
     //! If comparingToUrl == FALSE and no tags are present in both URIs
     //! then the function will compare the entire URIs (RFC 2543).
-    static UtlBoolean isSameSession(const Url& firstUrl, 
+    static UtlBoolean isSameSession(const Url& firstUrl,
                                     const Url& secondUrl,
                                     UtlBoolean comparingToUrl = FALSE);
 
     UtlBoolean isResponseTo(const SipMessage* message) const;
     UtlBoolean isAckFor(const SipMessage* inviteResponse) const;
-    
+
     //SDUA
     UtlBoolean isInviteFor(const SipMessage* inviteRequest) const;
     UtlBoolean isSameTransaction(const SipMessage* message) const;
@@ -1316,12 +1316,12 @@ public:
 
     UtlBoolean isRequireExtensionSet(const char* extension) const;
 
-    //! Indicates whether or not the SIP message can accept a 
-    //! Record-route header.  Applications wishing to add a 
-    //! Record-route header to a SIP message should call this 
+    //! Indicates whether or not the SIP message can accept a
+    //! Record-route header.  Applications wishing to add a
+    //! Record-route header to a SIP message should call this
     //! method first to see if the SIP method allows it.
-    UtlBoolean isRecordRouteAccepted( void ) const; 
-    
+    UtlBoolean isRecordRouteAccepted( void ) const;
+
     //! Is this a header parameter we want to allow users or apps. to
     //  pass through in the URL
     static UtlBoolean isUrlHeaderAllowed(const char*);
@@ -1332,7 +1332,7 @@ public:
     static void parseViaParameters( const char* viaField
                                    ,UtlContainer& viaParameterList
                                    );
-    
+
     /// This is here to block access to the HTTP method - not valid for SIP
     virtual void useChunkedBody(bool useChunked);
 
@@ -1341,11 +1341,11 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    
+
     static SdpBody* convertToSdpBody(const HttpBody* httpBody);
- 
+
     SipTransaction* mpSipTransaction;
-    
+
     UtlString mInterfaceIp;
     int       mInterfacePort;
 

@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -29,7 +29,7 @@
 //
 //  NAME:        ProvisioningAgent::ProvisioningAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -120,7 +120,7 @@ ProvisioningAgent::ProvisioningAgent(const char* pServerClass, bool persistentSt
 //
 //  NAME:        ProvisioningAgent::~ProvisioningAgent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -143,9 +143,9 @@ ProvisioningAgent::~ProvisioningAgent(){
 //
 //  NAME:        ProvisioningAgent::registerClass
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -182,9 +182,9 @@ OsStatus ProvisioningAgent::registerClass(ProvisioningClass* pProvisioningClass)
 //
 //  NAME:        ProvisioningAgent::unregisterClass
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -211,9 +211,9 @@ OsStatus ProvisioningAgent::unregisterClass(ProvisioningClass* pProvisioningClas
 //
 //  NAME:        ProvisioningAgent::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -242,9 +242,9 @@ ProvisioningAttrList* ProvisioningAgent::Create(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningAgent::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -273,9 +273,9 @@ ProvisioningAttrList* ProvisioningAgent::Delete(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningAgent::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -304,9 +304,9 @@ ProvisioningAttrList* ProvisioningAgent::Set(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ProvisioningAgent::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -335,9 +335,9 @@ ProvisioningAttrList* ProvisioningAgent::Get(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ProvisioningAgent::Action
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -372,9 +372,9 @@ ProvisioningAttrList* ProvisioningAgent::Action(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningAgent::lookupProvisioningClass
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -415,4 +415,3 @@ ProvisioningClass* ProvisioningAgent::lookupProvisioningClass(ProvisioningAttrLi
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

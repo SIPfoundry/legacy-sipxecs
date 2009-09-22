@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ public:
 
    void testDialogPackageParser()
       {
-         const char *package = 
+         const char *package =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.pingtel.com:5120\">\n"
             "<dialog id=\"2\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
@@ -47,16 +47,16 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
 
          // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
          ssize_t bodyLength;
-       
+
          body.getBytes(&bodyString, &bodyLength);
-       
+
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
          // Extract the Dialog, and see if its call-Id matches.
@@ -78,7 +78,7 @@ public:
 
    void testDialogPackageFromPolycom()
       {
-         const char *package = 
+         const char *package =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"4\" state=\"partial\" entity=\"sip:222@panther.pingtel.com\">\n"
             "<dialog id=\"ida648720b\" call-id=\"62c3a00e-2f2662f8-53cfd2f7@10.1.20.231\" local-tag=\"B7691142-47C44851\" remote-tag=\"1900354342\" direction=\"initiator\">\n"
@@ -95,16 +95,16 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
 
          // Convert it back to XML, and see if it is the same.
          UtlString bodyString;
          ssize_t bodyLength;
-       
+
          body.getBytes(&bodyString, &bodyLength);
-       
+
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
          // Extract the Dialog, and see if its call-Id matches.

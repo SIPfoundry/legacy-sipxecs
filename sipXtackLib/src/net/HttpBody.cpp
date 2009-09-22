@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -159,7 +159,7 @@ HttpBodyMultipart::HttpBodyMultipart(const char* contentType) :
    // No need to check validity of the boundary string, as there is no
    // body content for it to appear in.
 }
- 
+
 // Copy constructor
 HttpBody::HttpBody(const HttpBody& rHttpBody) :
    UtlString(rHttpBody),
@@ -237,17 +237,17 @@ HttpBody* HttpBody::createBody(const char* bodyBytes,
         contentTypeString.append(contentType);
         contentTypeString.toLower();
     }
-    if(contentType && 
+    if(contentType &&
        strcmp(contentTypeString.data(), SDP_CONTENT_TYPE) == 0)
     {
         body = new SdpBody(bodyBytes, bodyLength);
     }
-    else if(contentType && 
+    else if(contentType &&
             strcmp(contentTypeString.data(), CONTENT_SMIME_PKCS7) == 0)
     {
         body = new SmimeBody(bodyBytes, bodyLength, contentEncoding);
     }
-    else if ((bodyLength  > 1) || 
+    else if ((bodyLength  > 1) ||
              (bodyBytes[0] != '\n'))
     {
         body = new HttpBody(bodyBytes, bodyLength,
@@ -262,7 +262,7 @@ void HttpBody::appendBodyPart(const HttpBody& body,
                               const UtlDList& parameters)
 {
    assert(isMultipart());
-   
+
    // Construct a new MimeBodyPart for the new body part.
    MimeBodyPart* part = new MimeBodyPart(body, parameters);
 

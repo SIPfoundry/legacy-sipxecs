@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -211,7 +211,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
 
 
 UtlBoolean
-SipLineMgr::addLine(SipLine&   line, 
+SipLineMgr::addLine(SipLine&   line,
                     UtlBoolean doEnable)
 {
     UtlBoolean added = FALSE;
@@ -269,7 +269,7 @@ SipLineMgr::deleteLine(const Url& identity)
 
     syslog(FAC_LINE_MGR, PRI_INFO, "SipLineMgr::deleteLine deleted line: %s",
             identity.toString().data()) ;
-    
+
     if (pDeleteLine)
     {
         delete pDeleteLine ;
@@ -342,7 +342,7 @@ SipLineMgr::disableLine(
         syslog(FAC_LINE_MGR, PRI_ERR, "SipLineMgr::disableLine unable to disable line (not found): %s",
                 identity.toString().data()) ;
     }
-    
+
     if (line->getState() == SipLine::LINE_STATE_REGISTERED ||
         line->getState() == SipLine::LINE_STATE_TRYING)
     {
@@ -478,14 +478,14 @@ SipLineMgr::getLine(
     SipLine* line = NULL;
     UtlString lineId;
     UtlString userId;
-    
+
     // Check requestURI
     if (!line && !requestURI.isNull())
     {
         Url uri(requestURI, Url::AddrSpec);
         line = findLineByURL(uri, "requestURI") ;
     }
-    
+
     // Check Local Contact
     if (!localContact.isNull())
     {
@@ -496,22 +496,22 @@ SipLineMgr::getLine(
             temp.append("<");
             temp.append(localContact);
             temp.append(">");
-        } 
+        }
         else
         {
             temp.append(localContact);
         }
         Url localContactUrl(temp, Url::NameAddr);
-        line = findLineByURL(localContactUrl, "localContact") ;                
+        line = findLineByURL(localContactUrl, "localContact") ;
     }
-    
+
     // Check toField
     if (!line && !toField.isNull())
     {
         Url toUrl(toField, Url::NameAddr);
         line = findLineByURL(toUrl, "toURL") ;
     }
-        
+
     if(line)
     {
         sipline = *line;
@@ -1200,7 +1200,7 @@ SipLineMgr::getCredentialListForLine(
     return retVal;
 }
 
-#ifdef DEPRECATED_SIPLINE_FEATURE      
+#ifdef DEPRECATED_SIPLINE_FEATURE
 //line Call Handling
 void SipLineMgr::setCallHandlingForLine(const Url& identity , UtlBoolean useCallHandling)
 {
@@ -1305,7 +1305,7 @@ SipLineMgr::setStateForLine(
 }
 
 // Line visibility
-#ifdef DEPRECATED_SIPLINE_FEATURE      
+#ifdef DEPRECATED_SIPLINE_FEATURE
 UtlBoolean
 SipLineMgr::getVisibilityForLine( const Url& identity ) const
 {
@@ -1422,7 +1422,7 @@ SipLineMgr::getCanonicalUrlForLine(
     return retVal;
 }
 
-#ifdef DEPRECATED_SIPLINE_FEATURE      
+#ifdef DEPRECATED_SIPLINE_FEATURE
 // Delete all line definitions from the specified configuration db.
 void
 SipLineMgr::purgeLines( OsConfigDb *pConfigDb )
@@ -1469,7 +1469,7 @@ SipLineMgr::purgeLines( OsConfigDb *pConfigDb )
 UtlBoolean SipLineMgr::addLineAlias(const Url& identity, const Url& lineAlias)
 {
     UtlBoolean bSuccess = false ;
-    
+
     SipLine* pLine = sLineList.getLine(identity) ;
     if (pLine == NULL)
     {
@@ -1481,11 +1481,11 @@ UtlBoolean SipLineMgr::addLineAlias(const Url& identity, const Url& lineAlias)
         pLine->addAlias(lineAlias) ;
         bSuccess = true ;
     }
-    
-    return bSuccess ;    
+
+    return bSuccess ;
 }
 
-#ifdef DEPRECATED_SIPLINE_FEATURE      
+#ifdef DEPRECATED_SIPLINE_FEATURE
 // Load a single line
 UtlBoolean
 SipLineMgr::loadLine(
@@ -1702,7 +1702,7 @@ SipLine* SipLineMgr::findLineByURL(const Url& url, const char* szType) const
     SipLine* pLine = NULL ;
     UtlString lineId ;
     UtlString userId ;
-    
+
     // Check LineID
     url.getUrlParameter(SIP_LINE_IDENTIFIER, lineId) ;
     if( !lineId.isNull())
@@ -1715,7 +1715,7 @@ SipLine* SipLineMgr::findLineByURL(const Url& url, const char* szType) const
     {
         pLine = sLineList.getLine(url) ;
     }
-                   
+
     // Check userID
     url.getUserId(userId);
     if(pLine == NULL && !userId.isNull())
@@ -1727,7 +1727,7 @@ SipLine* SipLineMgr::findLineByURL(const Url& url, const char* szType) const
             assert(pLine != NULL) ;
             if (pLine != NULL)
             {
-                OsSysLog::add(FAC_LINE_MGR, PRI_WARNING, 
+                OsSysLog::add(FAC_LINE_MGR, PRI_WARNING,
                         "Multiple lines (%d) defined for userId %s, %s=%s selected=%s",
                         userIdmatches, userId.data(),
                         szType,
@@ -1735,12 +1735,12 @@ SipLine* SipLineMgr::findLineByURL(const Url& url, const char* szType) const
                         pLine->getIdentity().toString().data()) ;
             }
         }
-    }    
-    
+    }
+
     return pLine ;
 }
 
-#ifdef DEPRECATED_SIPLINE_FEATURE      
+#ifdef DEPRECATED_SIPLINE_FEATURE
 // Store/save a single credential
 void SipLineMgr::storeCredential(OsConfigDb* pConfigDb,
                                  UtlString strSubKey,

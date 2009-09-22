@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -32,7 +32,7 @@
 //
 //  NAME:        ProvisioningAttrList::ProvisioningAttrList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -55,7 +55,7 @@ ProvisioningAttrList::ProvisioningAttrList(void)
 //
 //  NAME:        ProvisioningAttrList::ProvisioningAttrList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Reference constructor
 //
@@ -78,7 +78,7 @@ ProvisioningAttrList::ProvisioningAttrList(UtlHashMap* pData)
 //
 //  NAME:        ProvisioningAttrList::~ProvisioningAttrList
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -104,9 +104,9 @@ ProvisioningAttrList::~ProvisioningAttrList()
 //
 //  NAME:        ProvisioningAttrList::setAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -135,9 +135,9 @@ bool ProvisioningAttrList::setAttribute(const char* pKey, UtlSList* pValue)
 //
 //  NAME:        ProvisioningAttrList::setAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -166,9 +166,9 @@ bool ProvisioningAttrList::setAttribute(const char* pKey, const UtlString& rValu
 //
 //  NAME:        ProvisioningAttrList::setAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -197,9 +197,9 @@ bool ProvisioningAttrList::setAttribute(const char* pKey, const char* pValue)
 //
 //  NAME:        ProvisioningAttrList::setAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -228,9 +228,9 @@ bool ProvisioningAttrList::setAttribute(const char* pKey, int value)
 //
 //  NAME:        ProvisioningAttrList::setAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -261,9 +261,9 @@ bool ProvisioningAttrList::setAttribute(const char* pKey, bool value)
 //
 //  NAME:        ProvisioningAttrList::getAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -285,9 +285,9 @@ UtlContainable* ProvisioningAttrList::getAttribute(const char* pKey)
 //
 //  NAME:        ProvisioningAttrList::getAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -321,9 +321,9 @@ bool ProvisioningAttrList::getAttribute(const char* pKey, UtlString& rValue)
 //
 //  NAME:        ProvisioningAttrList::getAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -357,9 +357,9 @@ bool ProvisioningAttrList::getAttribute(const char* pKey, const char*& prValue)
 //
 //  NAME:        ProvisioningAttrList::getAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -393,9 +393,9 @@ bool ProvisioningAttrList::getAttribute(const char* pKey, int& rValue)
 //
 //  NAME:        ProvisioningAttrList::getAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -429,9 +429,9 @@ bool ProvisioningAttrList::getAttribute(const char* pKey, bool& rValue)
 //
 //  NAME:        ProvisioningAttrList::dumpAttributes
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -453,9 +453,9 @@ void ProvisioningAttrList::dumpAttributes(void)
 //
 //  NAME:        ProvisioningAttrList::attributeMissing
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -476,9 +476,9 @@ bool ProvisioningAttrList::attributeMissing(const char* pKey)
 //
 //  NAME:        ProvisioningAttrList::attributePresent
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -499,9 +499,9 @@ bool ProvisioningAttrList::attributePresent(const char* pKey)
 //
 //  NAME:        ProvisioningAttrList::validateAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -563,9 +563,9 @@ void ProvisioningAttrList::validateAttribute(const char* pKey, eAttributeType ty
 //
 //  NAME:        ProvisioningAttrList::validateAttributeType
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -588,9 +588,9 @@ void ProvisioningAttrList::validateAttributeType(const char* pKey, eAttributeTyp
 //
 //  NAME:        ProvisioningAttrList::deleteAttrElements
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -636,9 +636,9 @@ void ProvisioningAttrList::deleteAttrElements(UtlContainable* pAttrElements)
 //
 //  NAME:        ProvisioningAttrList::dumpAttributes
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -711,4 +711,3 @@ void ProvisioningAttrList::dumpAttributes(const UtlContainable* pAttribute)
 }
 
 /* ============================ FUNCTIONS ================================= */
-

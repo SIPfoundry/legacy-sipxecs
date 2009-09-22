@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -128,12 +128,12 @@ SipPresenceEvent::SipPresenceEvent(const char* entity, const char* bodyBytes)
    append(PRESENCE_EVENT_CONTENT_TYPE);
 
    mEntity = entity;
-   
+
    if (bodyBytes)
    {
       bodyLength = strlen(bodyBytes);
       parseBody(bodyBytes);
-  
+
       mBody = bodyBytes;
    }
 }
@@ -152,42 +152,42 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
 {
    if (bodyBytes)
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = '%s'", 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceEvent::parseBody incoming package = '%s'",
                     bodyBytes);
-                    
+
       TiXmlDocument doc("PresenceEvent.xml");
-      
+
       if (doc.Parse(bodyBytes))
       {
          TiXmlNode * rootNode = doc.FirstChild ("presence");
-        
+
          TiXmlElement* ucElement = 0;
 
          if (rootNode != NULL)
          {
             ucElement = rootNode->ToElement();
-            
+
             if (ucElement)
             {
                mEntity = ucElement->Attribute("entity");
             }
-      
+
             // Parse each tuple
             for (TiXmlNode *groupNode = rootNode->FirstChild("tuple");
-                 groupNode; 
+                 groupNode;
                  groupNode = groupNode->NextSibling("tuple"))
             {
                UtlString tupleId;
-               
+
                // Get the attributes in tuple
                ucElement = groupNode->ToElement();
                if (ucElement)
                {
                   tupleId = ucElement->Attribute("id");
                }
-                  
+
                Tuple* pTuple = new Tuple(tupleId);
-               
+
                // Get the status element
                UtlString status;
                status = ((groupNode->FirstChild("status"))->FirstChild("basic"))->FirstChild()->Value();
@@ -200,17 +200,17 @@ void SipPresenceEvent::parseBody(const char* bodyBytes)
                {
                   contact = subNode->FirstChild()->Value();
                   ucElement = subNode->ToElement();
-               
+
                   if (ucElement)
-                  {                  
+                  {
                      priority = ucElement->Attribute("priority");
                   }
-                  
+
                pTuple->setContact(contact, atof(priority));
                }
-             
+
                // Insert it into the list
-               insertTuple(pTuple);               
+               insertTuple(pTuple);
             }
          }
       }
@@ -227,7 +227,7 @@ void SipPresenceEvent::insertTuple(Tuple* tuple)
    UtlContainable* result = mTuples.insert(tuple);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPresenceEvent::insertTuple Tuple = %p %s", 
+                 "SipPresenceEvent::insertTuple Tuple = %p %s",
                  tuple,
                  result ? "succeeded" : "failed");
 
@@ -242,7 +242,7 @@ Tuple* SipPresenceEvent::removeTuple(Tuple* tuple)
    Tuple *foundValue = dynamic_cast <Tuple*> (mTuples.remove(tuple));
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPresenceEvent::removeTuple Tuple = %p, returned %p", 
+                 "SipPresenceEvent::removeTuple Tuple = %p, returned %p",
                  tuple, foundValue);
 
    mLock.release();
@@ -257,11 +257,11 @@ Tuple* SipPresenceEvent::getTuple(UtlString& tupleId)
    // We are cheating a bit in the find() here, because we search
    // for a Tuple but give a UtlString as the argument.
    Tuple* pTuple = dynamic_cast <Tuple*> (mTuples.find(&tupleId));
-          
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPresenceEvent::getTuple seach for '%s', found %p", 
-                 tupleId.data(), pTuple);                 
-            
+                 "SipPresenceEvent::getTuple seach for '%s', found %p",
+                 tupleId.data(), pTuple);
+
    mLock.release();
    return pTuple;
 }
@@ -313,7 +313,7 @@ void SipPresenceEvent::buildBody(int& version) const
    singleLine = DOUBLE_QUOTE + mEntity + DOUBLE_QUOTE;
    mBodyMutable += singleLine;
    mBodyMutable.append(END_LINE);
-    
+
    // Tuple elements
    UtlHashBagIterator tupleIterator(const_cast <UtlHashBag&> (mTuples));
    Tuple* pTuple;
@@ -326,7 +326,7 @@ void SipPresenceEvent::buildBody(int& version) const
       singleLine = DOUBLE_QUOTE + tupleId + DOUBLE_QUOTE;
       mBodyMutable += singleLine;
       mBodyMutable.append(END_LINE);
-      
+
       // Status element
       UtlString status;
       pTuple->getStatus(status);
@@ -334,7 +334,7 @@ void SipPresenceEvent::buildBody(int& version) const
       singleLine = BEGIN_BASIC + status + END_BASIC;
       mBodyMutable += singleLine;
       mBodyMutable.append(END_STATUS);
-      
+
       // Contact element
       UtlString contact;
       float priority;
@@ -351,16 +351,16 @@ void SipPresenceEvent::buildBody(int& version) const
 
    // End of presence structure
    mBodyMutable.append(END_PRESENCE);
-   
+
    // Pretend bodyLength (from base class HttpBody) is mutable.
    // @TODO@ This is just to adjust bodyLength to match UtlString::length().
    // This seems redundant.  I suspect bodyLength is redundant for
    // UtlString::length() and should be removed.
    const_cast <ssize_t&> (bodyLength) = mBodyMutable.length();
-   
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipTupleEvent::getBytes Tuple mBodyMutable = '%s'", 
-                 mBodyMutable.data());                 
+                 "SipTupleEvent::getBytes Tuple mBodyMutable = '%s'",
+                 mBodyMutable.data());
 
    mLock.release();
 }
@@ -378,7 +378,7 @@ void SipPresenceEvent::getBytes(UtlString* bytes, ssize_t* length) const
 {
    int dummy;
    buildBody(dummy);
-   
+
    *bytes = mBody;
    *length = bodyLength;
 }
@@ -392,4 +392,3 @@ void SipPresenceEvent::getBytes(UtlString* bytes, ssize_t* length) const
 
 
 /* ============================ FUNCTIONS ================================= */
-

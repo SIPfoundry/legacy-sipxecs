@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -21,8 +21,8 @@ SipLineList::SipLineList()
 {}
 
 SipLineList::~SipLineList()
-{    
-    while (SipLine* pLine = (SipLine*) m_LineList.pop()) 
+{
+    while (SipLine* pLine = (SipLine*) m_LineList.pop())
     {
         delete pLine ;
     }
@@ -280,7 +280,7 @@ SipLine* SipLineList::findLine(const char* lineId,
                  lineId, realm, toFromUrl.toString().data(), defaultLine.toString().data()
                  );
 #  endif
-   
+
    int iteratorHandle = m_LineList.getIteratorHandle();
    SipLine* nextLine = NULL;
    for (nextLine = (SipLine*) m_LineList.next(iteratorHandle);
@@ -326,7 +326,7 @@ SipLine* SipLineList::findLine(const char* lineId,
             // Priority 2: check ToFromUrl
             //
             if (   pLineMatchingUrl == NULL
-                && nextLine->matchesIdentity(toFromUrl) 
+                && nextLine->matchesIdentity(toFromUrl)
                 )
             {
                pLineMatchingUrl = nextLine ;
@@ -350,7 +350,7 @@ SipLine* SipLineList::findLine(const char* lineId,
                   //
                   // Priority 4: Check for default line
                   //
-                  if (nextLine->matchesIdentity(defaultLine)) 
+                  if (nextLine->matchesIdentity(defaultLine))
                   {
                      pLineMatchingDefault = nextLine ;
                      // Continue searching, because we may find a better match
@@ -369,9 +369,9 @@ SipLine* SipLineList::findLine(const char* lineId,
            : pLineMatchingDefault ? pLineMatchingDefault
            : NULL );
 
-   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG, 
+   OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
                  "SipLineList::findLine %s",
                  foundLine ? "found" : "NOT found");
- 
+
    return foundLine;
 }

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,12 +43,12 @@ SipServerBroker::SipServerBroker(OsServerTask* pTask, OsServerSocket* pSocket) :
 
 int SipServerBroker::run(void *pNotUsed)
 {
-    
+
     OsConnectionSocket* clientSocket = NULL;
 
     while(!isShuttingDown() && mpSocket && mpSocket->isOk())
     {
-        clientSocket = mpSocket->accept();   
+        clientSocket = mpSocket->accept();
 
         // post a message, containing the the client socket, to the owner
         // @TODO - what about when we are shutting down?
@@ -97,4 +97,3 @@ UtlBoolean SipServerBroker::isOk() const
 /************************************************************************/
 
 /* ============================ FUNCTIONS ================================= */
-

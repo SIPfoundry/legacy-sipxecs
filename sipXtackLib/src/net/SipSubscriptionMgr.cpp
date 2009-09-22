@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -161,7 +161,7 @@ SipSubscriptionMgr::~SipSubscriptionMgr()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipSubscriptionMgr& 
+SipSubscriptionMgr&
 SipSubscriptionMgr::operator=(const SipSubscriptionMgr& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -186,9 +186,9 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
     SubscriptionServerState* state = NULL;
     int expiration = -1;
     isSubscriptionExpired = TRUE;
-    
+
     // Double check the sanity of the class attributes
-    
+
     if(mMaxExpiration < mMinExpiration)
     {
         // This is an error case. Switch the values so that we do not
@@ -196,12 +196,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         int tmp = mMaxExpiration;
         mMaxExpiration = mMinExpiration;
         mMinExpiration = tmp;
-        
+
         OsSysLog::add(FAC_SIP, PRI_WARNING,
             "Swapping values as mMinExpiration (%d) is greater than mMaxExpiration (%d)",
             mMinExpiration, mMaxExpiration);
     }
-    
+
     if(mMaxExpiration < mDefaultExpiration)
     {
         // This is an error case. Switch the values so that we do not
@@ -209,12 +209,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         int tmp = mMaxExpiration;
         mMaxExpiration = mDefaultExpiration;
         mDefaultExpiration = tmp;
-        
+
         OsSysLog::add(FAC_SIP, PRI_WARNING,
             "Swapping values as mDefaultExpiration (%d) is greater than mMaxExpiration (%d)",
             mDefaultExpiration, mMaxExpiration);
     }
-    
+
     // Set the expires period randomly
     int spreadFloor = mMinExpiration*2;
     if(!subscribeRequest.getExpiresField(&expiration))
@@ -233,7 +233,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                            + spreadFloor);
         }
         else
-        {                
+        {
             // Max Expiration is smaller than the spreadFloor, hence
             // spread it between the min and the max allowed expiration
             expiration = (  (rand() % (mMaxExpiration - mMinExpiration))
@@ -329,9 +329,9 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             stateKey->append(eventTypeKey);
             stateKey->mpState = state;
 
-            subscribeResponse.setResponseData(subscribeCopy, 
+            subscribeResponse.setResponseData(subscribeCopy,
                                               SIP_ACCEPTED_CODE,
-                                              SIP_ACCEPTED_TEXT, 
+                                              SIP_ACCEPTED_TEXT,
                                               NULL);
             subscribeResponse.setExpiresField(expiration);
             subscribeCopy->getDialogHandle(subscribeDialogHandle);
@@ -365,7 +365,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         else
         {
             // Set expiration too small error
-            subscribeResponse.setResponseData(&subscribeRequest, 
+            subscribeResponse.setResponseData(&subscribeRequest,
                                                 SIP_TOO_BRIEF_CODE,
                                                 SIP_SUB_TOO_BRIEF_TEXT);
             subscribeResponse.setMinExpiresField(mMinExpiration);
@@ -413,9 +413,9 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 url.includeAngleBrackets();
                 contact = url.toString();
 
-                subscribeResponse.setResponseData(&subscribeRequest, 
+                subscribeResponse.setResponseData(&subscribeRequest,
                                                 SIP_ACCEPTED_CODE,
-                                                SIP_ACCEPTED_TEXT, 
+                                                SIP_ACCEPTED_TEXT,
                                                 contact);
                 subscribeResponse.setExpiresField(expiration);
                 subscriptionSucceeded = TRUE;
@@ -431,7 +431,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             else
             {
                // Unknown subscription.
-               subscribeResponse.setResponseData(&subscribeRequest, 
+               subscribeResponse.setResponseData(&subscribeRequest,
                                                  SIP_BAD_SUBSCRIPTION_CODE,
                                                  SIP_BAD_SUBSCRIPTION_TEXT);
             }
@@ -442,7 +442,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         else
         {
             // Set expiration too small error
-            subscribeResponse.setResponseData(&subscribeRequest, 
+            subscribeResponse.setResponseData(&subscribeRequest,
                                                 SIP_TOO_BRIEF_CODE,
                                                 SIP_SUB_TOO_BRIEF_TEXT);
             subscribeResponse.setMinExpiresField(mMinExpiration);
@@ -690,7 +690,7 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
 
     if (state)
     {
-        notifyInfoSet = mDialogMgr.setNextLocalTransactionInfo(notifyRequest, 
+        notifyInfoSet = mDialogMgr.setNextLocalTransactionInfo(notifyRequest,
                                                                SIP_NOTIFY_METHOD,
                                                                subscribeDialogHandle);
 
@@ -796,12 +796,12 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
             else if(subscriptionIndex->mpState->mExpirationDate >= now)
             {
                 // Get the accept value.
-                acceptHeaderValuesArray[index] = 
+                acceptHeaderValuesArray[index] =
                     new UtlString(subscriptionIndex->mpState->mAcceptHeaderValue);
                 // Create the NOTIFY message.
                 notifyArray[index] = new SipMessage;
                 mDialogMgr.setNextLocalTransactionInfo(*(notifyArray[index]),
-                                                       SIP_NOTIFY_METHOD, 
+                                                       SIP_NOTIFY_METHOD,
                                                        // This is a SubscriptionServerStateIndex,
                                                        // whose superclass UtlString contains
                                                        // the dialog handle for the subscription.
@@ -1069,7 +1069,7 @@ UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
    }
    // Acceptable arguments.
    else
-   {      
+   {
       mMinExpiration = minExpiration;
       mDefaultExpiration = defaultExpiration;
       mMaxExpiration = maxExpiration;
@@ -1077,7 +1077,7 @@ UtlBoolean SipSubscriptionMgr::setSubscriptionTimes(int minExpiration,
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipSubscriptionMgr::setSubscriptionTimes set mMinExpiration = %d, mDefaultExpiration = %d, mMaxExpiration = %d",
                     mMinExpiration, mDefaultExpiration, mMaxExpiration);
-   }    
+   }
 
    return ret;
 }

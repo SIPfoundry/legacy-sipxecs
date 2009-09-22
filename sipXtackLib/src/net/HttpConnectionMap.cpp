@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@
 #define HTTP_READ_TIMEOUT_MSECS  30000
 
 HttpConnectionMap* HttpConnectionMap::pInstance = NULL;
-OsBSem HttpConnectionMap::mLock(OsBSem::Q_FIFO, OsBSem::FULL);    
+OsBSem HttpConnectionMap::mLock(OsBSem::Q_FIFO, OsBSem::FULL);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -63,7 +63,7 @@ HttpConnectionMap* HttpConnectionMap::getHttpConnectionMap()
 void HttpConnectionMap::releaseHttpConnectionMap()
 {
     OsLock lock(mLock);
-    
+
     if (pInstance)
     {
         delete pInstance;
@@ -82,14 +82,14 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
 {
     UtlString keyString;
     socket = NULL;
-    
-    getPersistentUriKey(url, keyString);    
+
+    getPersistentUriKey(url, keyString);
 
     HttpConnectionMapEntry* pEntry;
-    
+
     { // table lock scope
        OsLock lock(mLock);
-    
+
        pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
        if (!pEntry)
        {
@@ -99,14 +99,14 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
           {
              if (insertKeyAndValue(new UtlString(keyString.data()), pEntry) != NULL)
              {
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                               "HttpConnectionMap::getPersistentConnection "
-                              "- Adding %s for %s", 
-                              pEntry->data(), keyString.data());            
+                              "- Adding %s for %s",
+                              pEntry->data(), keyString.data());
              }
              else
              {
-                OsSysLog::add(FAC_HTTP, PRI_ERR,   
+                OsSysLog::add(FAC_HTTP, PRI_ERR,
                               "HttpConnectionMap::getPersistentConnection "
                               "- adding %s (entry %s) failed)",
                               keyString.data(), pEntry->data());
@@ -123,7 +123,7 @@ HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& ur
        socket = pEntry->mpSocket;
        pEntry->mbInUse = true;
        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                     "HttpConnectionMap::getPersistentConnection - Found %s for %s, socket %p", 
+                     "HttpConnectionMap::getPersistentConnection - Found %s for %s, socket %p",
                      pEntry->data(), keyString.data(), socket);
 
     }
@@ -136,12 +136,12 @@ void HttpConnectionMap::getPersistentUriKey(const Url& url, UtlString& key)
     UtlString urlType;
     UtlString httpHost;
     UtlString httpPort;
-    
+
     url.getUrlType(urlType);
     url.getHostAddress(httpHost);
-    
+
     int tempPort = url.getHostPort();
-    
+
     UtlString httpType = (url.getScheme() == Url::HttpsUrlScheme) ? "https" : "http";
     if (tempPort == PORT_NONE)
     {
@@ -193,7 +193,7 @@ HttpConnectionMapEntry::HttpConnectionMapEntry(const UtlString& name) :
 HttpConnectionMapEntry::~HttpConnectionMapEntry()
 {
     //OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-    //              "HttpConnectionMapEntry::destructor %s", this->data());    
+    //              "HttpConnectionMapEntry::destructor %s", this->data());
     if (mpSocket)
     {
         delete mpSocket;

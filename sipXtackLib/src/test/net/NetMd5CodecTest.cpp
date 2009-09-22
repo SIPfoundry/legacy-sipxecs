@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -72,7 +72,7 @@ public:
             "cd9e459ea708a948d5c2f5a6ca8838cf",
             "zZ5FnqcIqUjVwvWmyog4zw"
           },
-          // 7 
+          // 7
           { "0000000000000000000000000000000000000000000000000000000000000000",
             "10eab6008d5642cf42abd2aa41f847cb",
             "EOq2AI1WQs9Cq9KqQfhHyw"
@@ -148,7 +148,7 @@ public:
           }
        };
 
-       // For the static encode method, use the same output string for all calls, 
+       // For the static encode method, use the same output string for all calls,
        // to test that when NetMd5Codec writes its output into the string,
        // it removes any previous contents (rather than appending to
        // them).
@@ -264,11 +264,11 @@ public:
             NetMd5Codec md5;
             NetMd5Codec md5sig;
             UtlString concatenatedInput;
-            
+
             for (int input = 0; input < tests[testcase].numInputs; input++)
             {
                concatenatedInput.append(tests[testcase].inputs[input]);
-               
+
                md5.hash(tests[testcase].inputs[input],
                         strlen(tests[testcase].inputs[input])
                         );
@@ -283,7 +283,7 @@ public:
             UtlString actualOutputConcatenated;
             NetMd5Codec::encode(concatenatedInput.data(), actualOutputConcatenated);
             prefixedOutputConcatenated.append(actualOutputConcatenated);
-            
+
             if (actualOutputSegmented.compareTo(prefixedOutputConcatenated) != 0)
             {
                allPassed=false;
@@ -291,7 +291,7 @@ public:
                              "md5 multiple input test %d, segmented: %s\n  concatenated: %s",
                              testcase, actualOutputSegmented.data(), prefixedOutputConcatenated.data());
             }
-            
+
             UtlString sigOutputSegmented(prefix);
             md5sig.appendBase64Sig(sigOutputSegmented);
 
@@ -299,7 +299,7 @@ public:
             UtlString sigOutputConcatenated;
             NetMd5Codec::encodeBase64Sig(concatenatedInput.data(), sigOutputConcatenated);
             sigPrefixedOutputConcatenated.append(sigOutputConcatenated);
-            
+
             if (sigOutputSegmented.compareTo(sigPrefixedOutputConcatenated) != 0)
             {
                allPassed=false;
@@ -310,7 +310,7 @@ public:
 
             UtlString expectedOutput(prefix);
             expectedOutput.append(tests[testcase].output);
-            
+
             if (actualOutputSegmented.compareTo(expectedOutput) != 0)
             {
                allPassed=false;
@@ -319,10 +319,10 @@ public:
                              testcase, actualOutputSegmented.data(), expectedOutput.data());
             }
          }
-         
+
          CPPUNIT_ASSERT(allPassed);
 
-         
+
       }
 };
 

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -62,12 +62,12 @@ public:
         const char* macAddress = NULL );
 
     void StartRefreshMgr();
-    
+
     /**
      * Mutator for the mDefaultRegistryPeriodMember
      */
     void setRegistryPeriod(const int periodInSeconds);
-    
+
     /**
      * Mutator for the mDefaultSubscribePeriodMember
      */
@@ -105,7 +105,7 @@ public:
 
     //REGISTER METHODS
 
-    // A method to register/unregister a contact should not be called until 
+    // A method to register/unregister a contact should not be called until
     // any previous operation on that contact has completed, as messages may
     // need to be re-sent with authorization, and CSeq could get out
     // of sequence.
@@ -127,22 +127,22 @@ public:
 
     //SUBSRIBE METHODS
     void reSubscribeAll();
-    
+
     void unSubscribeAll();
       //:Unsubscribe all
-      
+
     void setLineMgr(SipLineMgr* const lineMgr);
     //: Sets a pointer to the line manager
-    
+
     SipLineMgr* const getLineMgr() const;
     //: Gets the line manager pointer
 
     UtlBoolean newSubscribeMsg( SipMessage& message );
 
-    SipRefreshMgr();   
+    SipRefreshMgr();
 
     void dumpMessageLists(UtlString& results);
-      //:Appends the message contents of both the mRegisterList and 
+      //:Appends the message contents of both the mRegisterList and
       // mSubscribeList
 
     virtual ~SipRefreshMgr();
@@ -155,7 +155,7 @@ public:
 protected:
     SipLineMgr* mpLineMgr;
     // the line manager object that uses this refresh manager
-    
+
     // MsgType categories defined for use by the system
     enum RefreshMsgTypes
     {
@@ -226,7 +226,7 @@ protected:
         const UtlString& registerCallId,
         int registerPeriod = -1);
 
-    UtlBoolean isDuplicateRegister( 
+    UtlBoolean isDuplicateRegister(
         const Url& url,
         SipMessage& oldMessage );
 
@@ -236,14 +236,14 @@ protected:
 
     UtlBoolean removeFromRegisterList( SipMessage* message );
      //: Returns TRUE if message was found and removed from list.
-     //: Message is NOT deleted.  
+     //: Message is NOT deleted.
 
     // subscribe
     void addToSubscribeList( SipMessage * message);
 
     UtlBoolean removeFromSubscribeList( SipMessage* message );
      //: Returns TRUE if message was found and removed from list.
-     //: Message is NOT deleted.  
+     //: Message is NOT deleted.
 
     UtlBoolean isDuplicateSubscribe ( const Url& url );
 
@@ -256,27 +256,27 @@ protected:
         UtlString& contact,
         const UtlString& lineId = "",
         Url* pPreferredContactUri = NULL);
-        
+
     void removeAllFromRequestList(SipMessage* response);
     //: Removes all prior request records for this response
     //: from the SipMessageLists (mRegisterList & mSubscribeList)
-    
+
     void removeAllFromRequestList(SipMessage* response, SipMessageList* pRequestList);
     //: Removes all prior request records for this response
     //: from the passed-in SipMessageList
-    
+
     UtlBoolean isExpiresZero(SipMessage* pRequest);
       //: Is the expires field set to zero for the specified msg?
-      
+
     void fireSipXLineEvent(const Url& url, const UtlString& lineId, const SIPX_LINESTATE_EVENT event, const SIPX_LINESTATE_CAUSE cause);
-    //: event firing method used to notify sipXtapi of line events       
-    
+    //: event firing method used to notify sipXtapi of line events
+
     SIPX_LINESTATE_EVENT getLastLineEvent(const UtlString& lineId);
-    //: holding on to the last known line event type 
-    
+    //: holding on to the last known line event type
+
     void setLastLineEvent(const UtlString& lineId, const SIPX_LINESTATE_EVENT eMajor);
-    //: sets the last line event type 
-    
+    //: sets the last line event type
+
     UtlHashMap* mpLastLineEventMap;
 
     // register

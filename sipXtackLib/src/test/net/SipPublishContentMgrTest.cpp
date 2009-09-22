@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ public:
 
    void testDefaultPublishContent()
       {
-         const char *content = 
+         const char *content =
             "<?xml version=\"1.0\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.example.com:5120\">\n"
             "<dialog id=\"1\" call-id=\"call-1116603513-270@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
@@ -159,7 +159,7 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          SipPublishContentMgr publisher;
 
          ssize_t bodyLength = strlen(content);
@@ -189,7 +189,7 @@ public:
          CPPUNIT_ASSERT_MESSAGE("bad body",
                                 strcmp(returned_contents.data(),
                                        content) == 0);
-         
+
          publisher.unpublishDefault("dialog", "dialog");
       }
 
@@ -224,7 +224,7 @@ public:
 
          TestDefaultConstructorClass* p = new TestDefaultConstructorClass;
          publisher.publishDefault(event_type, event_type, p);
-         
+
          // See if getPublished can retrieve it.
 
          publisher.getPublished(NULL, event_type, 1,
@@ -283,7 +283,7 @@ public:
          //    1a      N                    Y                     Y
          //    1b      Y                    Y                     Y
          //    2       Y                    N                     Y
-         
+
          const char *content_1b = "This is content for 1b.";
          {
             ssize_t bodyLength = strlen(content_1b);
@@ -337,7 +337,7 @@ public:
          // Remove the default content constructor.
 
          publisher.unpublishDefault(event_type, event_type);
-         
+
          // See if getPublished now returns NULL.
 
          publisher.getPublished(NULL, event_type, 1,
@@ -351,7 +351,7 @@ public:
 
    void testPublishContent()
       {
-         const char *content = 
+         const char *content =
             "<?xml version=\"1.0\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.example.com:5120\">\n"
             "<dialog id=\"1\" call-id=\"call-1116603513-270@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
@@ -389,7 +389,7 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          SipPublishContentMgr publisher;
 
          ssize_t bodyLength = strlen(content);
@@ -410,7 +410,7 @@ public:
 
          SipSubscribeServerEventHandler eventHandler;
          SipMessage notifyRequest;
-         CPPUNIT_ASSERT(eventHandler.getNotifyContent(TEST_RESOURCE_ID, 
+         CPPUNIT_ASSERT(eventHandler.getNotifyContent(TEST_RESOURCE_ID,
                                                       "dialog",
                                                       "dialog",
                                                       publisher,
@@ -433,7 +433,7 @@ public:
          UtlString returned_contents;
          ssize_t returned_length;
          oldContents[0]->getBytes(&returned_contents, &returned_length);
-         CPPUNIT_ASSERT_MESSAGE("bad body", 
+         CPPUNIT_ASSERT_MESSAGE("bad body",
                                 strcmp(returned_contents.data(),
                                        content) == 0);
 
@@ -442,7 +442,7 @@ public:
 
    void testGetContent()
       {
-         const char *content = 
+         const char *content =
             "<?xml version=\"1.0\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.example.com:5120\">\n"
             "<dialog id=\"1\" call-id=\"call-1116603513-270@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
@@ -480,7 +480,7 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-       
+
          SipPublishContentMgr publisher;
 
          ssize_t bodyLength = strlen(content);
@@ -537,14 +537,14 @@ public:
          UtlString returned_contents;
          ssize_t returned_length;
          oldContents[0]->getBytes(&returned_contents, &returned_length);
-         CPPUNIT_ASSERT_MESSAGE("bad body", 
+         CPPUNIT_ASSERT_MESSAGE("bad body",
                                 strcmp(returned_contents.data(),
                                        content) == 0);
       }
 
    void testContentChangeObserver()
       {
-         const char *content = 
+         const char *content =
             "<?xml version=\"1.0\"?>\n"
             "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"0\" state=\"full\" entity=\"sip:moh@panther.example.com:5120\">\n"
             "</dialog-info>\n"

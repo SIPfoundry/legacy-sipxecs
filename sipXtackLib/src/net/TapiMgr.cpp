@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -59,14 +59,14 @@ void TapiMgr::setTapiCallback(sipxEventCallbackFn fp)
 void TapiMgr::fireCallEvent(const void*          pSrc,
                        const char*		    szCallId,
                        SipSession*          pSession,
-				       const char*          szRemoteAddress,                   
+				       const char*          szRemoteAddress,
 				       SIPX_CALLSTATE_EVENT eMajorState,
 				       SIPX_CALLSTATE_CAUSE eMinorState,
                        void*                pEventData)
 {
     if (sipxCallEventCallbackPtr)
     {
-        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress, 
+        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
                                     (SIPX_CALLSTATE_MAJOR)(int)eMajorState, (SIPX_CALLSTATE_MINOR)(int)eMinorState, pEventData);
     }
     return;

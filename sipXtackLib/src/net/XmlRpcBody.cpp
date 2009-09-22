@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
 {
    bool result = false;
 
-   UtlString paramValue; 
+   UtlString paramValue;
 
    // UtlInt
    if (value->isInstanceOf(UtlInt::TYPE))
@@ -143,7 +143,7 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
       OsDateTime time;
       pTime->getTime(time);
       UtlString isoTime;
-      time.getIsoTimeStringZ(isoTime);               
+      time.getIsoTimeStringZ(isoTime);
       paramValue = BEGIN_TIME + isoTime + END_TIME;
       result = true;
    }
@@ -159,8 +159,8 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
    {
       OsSysLog::add(FAC_XMLRPC, PRI_CRIT, "XmlRpcBody::addValue unsupported type");
       assert(false);
-   }                     
-            
+   }
+
    mBody.append(paramValue);
    return result;
 }
@@ -170,7 +170,7 @@ bool XmlRpcBody::addArray(UtlSList* array)
 {
    bool result = false;
    mBody.append(BEGIN_ARRAY);
-   
+
    UtlSListIterator iterator(*array);
    UtlContainable* pObject;
    while (   (pObject = iterator())
@@ -186,7 +186,7 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
 {
    bool result = true;
    mBody.append(BEGIN_STRUCT);
-   
+
    UtlHashMapIterator iterator(*members);
    UtlString* pName;
    UtlContainable* pObject;
@@ -196,13 +196,13 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
       mBody.append(BEGIN_MEMBER);
 
       structName = BEGIN_NAME + *pName + END_NAME;
-      mBody.append(structName); 
-      
+      mBody.append(structName);
+
       pObject = members->findValue(pName);
       result = addValue(pObject);
       mBody.append(END_MEMBER);
    }
-   
+
    mBody.append(END_STRUCT);
    return result;
 }
@@ -216,7 +216,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
    if (++nestDepth <= MAX_VALUE_NESTING_DEPTH)
    {
       UtlString paramValue;
-                        
+
       // four-byte signed integer
       TiXmlNode* typeNode = valueNode->FirstChild("i4");
       if (typeNode)
@@ -234,7 +234,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
          }
       }
       else
-      {         
+      {
          typeNode = valueNode->FirstChild("int");
          if (typeNode)
          {
@@ -251,14 +251,14 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
             }
          }
          else
-         {         
+         {
             typeNode = valueNode->FirstChild("i8");
             if (typeNode)
             {
                if (typeNode->FirstChild())
                {
                   paramValue = typeNode->FirstChild()->Value();
-               
+
                   // We could use "atoll" here but it is obsolete,
                   // "strtoll" is the recommended function
                   // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
@@ -292,7 +292,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                {
                   // string
                   // Note: In the string case, we allow a null string
-                  typeNode = valueNode->FirstChild("string");            
+                  typeNode = valueNode->FirstChild("string");
                   if (typeNode)
                   {
                      if (typeNode->FirstChild())
@@ -308,7 +308,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                   else
                   {
                      // dateTime.iso8601
-                     typeNode = valueNode->FirstChild("dateTime.iso8601");            
+                     typeNode = valueNode->FirstChild("dateTime.iso8601");
                      if (typeNode)
                      {
                         if (typeNode->FirstChild())
@@ -326,7 +326,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                      else
                      {
                         // struct
-                        typeNode = valueNode->FirstChild("struct");            
+                        typeNode = valueNode->FirstChild("struct");
                         if (typeNode)
                         {
                            if (!(value=parseStruct(typeNode, nestDepth, errorTxt)))
@@ -339,7 +339,7 @@ UtlContainable* XmlRpcBody::parseValue(TiXmlNode* valueNode, ///< pointer to the
                         else
                         {
                            // array
-                           typeNode = valueNode->FirstChild("array");            
+                           typeNode = valueNode->FirstChild("array");
                            if (typeNode)
                            {
                               if (!(value=parseArray(typeNode, nestDepth, errorTxt)))
@@ -401,7 +401,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
       bool structIsOk = true;
       TiXmlNode* memberNode;
       for ((structIsOk = true, memberNode = structNode->FirstChild("member"));
-           structIsOk && memberNode; 
+           structIsOk && memberNode;
            memberNode = memberNode->NextSibling("member"))
       {
          TiXmlNode* memberName = memberNode->FirstChild("name");
@@ -410,8 +410,8 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
             if (memberName->FirstChild())
             {
                name = memberName->FirstChild()->Value();
-         
-               memberValue = memberNode->FirstChild("value");        
+
+               memberValue = memberNode->FirstChild("value");
                if (memberValue)
                {
                   UtlContainable* value;
@@ -459,7 +459,7 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
             structIsOk=false;
          }
       }
-   
+
       if (!structIsOk)
       {
          deallocateContainedValues(returnedStruct);
@@ -477,8 +477,8 @@ UtlHashMap* XmlRpcBody::parseStruct(TiXmlNode* structNode, ///< pointer to the <
                     errMsg
                     );
    }
-   
-   return returnedStruct;   
+
+   return returnedStruct;
 }
 
 UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <array> node
@@ -491,7 +491,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
    {
       pList = new UtlSList();
       bool arrayIsOk = true;
-   
+
       // array
       UtlString paramValue;
       TiXmlNode* dataNode = arrayNode->FirstChild("data");
@@ -500,7 +500,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
          TiXmlNode* valueNode;
          int index = 0;
          for (valueNode = dataNode->FirstChild("value");
-              valueNode && arrayIsOk; 
+              valueNode && arrayIsOk;
               valueNode = valueNode->NextSibling("value"))
          {
             UtlContainable* value;
@@ -528,7 +528,7 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
          errorTxt.append("'array' element does not have 'data' child");
          arrayIsOk=false;
       }
-   
+
       if (!arrayIsOk)
       {
          deallocateContainedValues(pList);
@@ -551,8 +551,8 @@ UtlSList* XmlRpcBody::parseArray(TiXmlNode* arrayNode, ///< pointer to the <arra
 }
 
 /*
- * Note: The deallocateValue method deletes the value (UtlContainable) 
- *       object passed to it, and sets the pointer to the object back to NULL, after 
+ * Note: The deallocateValue method deletes the value (UtlContainable)
+ *       object passed to it, and sets the pointer to the object back to NULL, after
  *       recursively cleaning up any contained list or structure components.
  *
  *       The deallocateContainedValues methods below that take a UtlHashMap (structure)
@@ -604,7 +604,7 @@ void XmlRpcBody::deallocateContainedValues(UtlHashMap* map)
    }
 }
 
-void XmlRpcBody::deallocateContainedValues(UtlSList* array) 
+void XmlRpcBody::deallocateContainedValues(UtlSList* array)
 {
    UtlContainable *value;
    while ((value = array->get()))
@@ -621,4 +621,3 @@ void XmlRpcBody::deallocateContainedValues(UtlSList* array)
 
 
 /* ============================ FUNCTIONS ================================= */
-

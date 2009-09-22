@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ public:
         // add header field name1
         msg->addHeaderField(name1, value1);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be zero", 1,
                 fieldCount);
@@ -244,7 +244,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
             valueRef);
 
-        // insert header field name2 as a second header with name2 
+        // insert header field name2 as a second header with name2
         msg->insertHeaderField(name2, value2a, 2);
 
         // get header field by name and index
@@ -253,17 +253,17 @@ public:
         ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
             valueRef);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 4", 4,
                 fieldCount);
 
-        // get name1 header field count 
+        // get name1 header field count
         fieldCount = msg->getCountHeaderFields(name1);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 1", 1,
                 fieldCount);
 
-        // get name2 header field count 
+        // get name2 header field count
         fieldCount = msg->getCountHeaderFields(name2);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 3", 3,
                 fieldCount);
@@ -290,7 +290,7 @@ public:
         rc = msg->removeHeader("non-exist", 36);
         CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == FALSE);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 4", 4,
                 fieldCount);
@@ -305,7 +305,7 @@ public:
         ASSERT_STR_EQUAL_MESSAGE("incorrect field value", value2,
             valueRef);
 
-        // get name1 header field count 
+        // get name1 header field count
         fieldCount = msg->getCountHeaderFields(name1);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 0", 0,
                 fieldCount);
@@ -314,12 +314,12 @@ public:
         rc = msg->removeHeader(name2, 1);
         CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 2", 2,
                 fieldCount);
 
-        // get name2 header field count 
+        // get name2 header field count
         fieldCount = msg->getCountHeaderFields(name2);
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 2", 2,
                 fieldCount);
@@ -344,7 +344,7 @@ public:
         rc = msg->removeHeader(name2, 1);
         CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 1", 1,
                 fieldCount);
@@ -359,7 +359,7 @@ public:
         rc = msg->removeHeader(name2, 0);
         CPPUNIT_ASSERT_MESSAGE("incorrect return code", rc == TRUE);
 
-        // get overall header field count 
+        // get overall header field count
         fieldCount = msg->getCountHeaderFields();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("field count should be 0", 0,
                 fieldCount);
@@ -381,7 +381,7 @@ public:
         int mediaCount = sdp->getMediaSetCount();
         CPPUNIT_ASSERT_EQUAL_MESSAGE("incorrect media count", 1, mediaCount);
 
-        const char* referenceSdp = 
+        const char* referenceSdp =
             "v=0\r\nm=audio 49170 RTP/AVP 0\r\nc=IN IP4 224.2.17.12/127\r\n";
         const char* sdpBytes = NULL;
         ssize_t sdpByteLength = 0;
@@ -436,9 +436,9 @@ public:
   void testEscape()
   {
     const char* umlautUriValue = "\"Thomas Frölich Snom 320\" <sip:2012@pforzheim.org;transport=udp>;tag=zmbmylm36n";
-    
+
     UtlString umlautString(umlautUriValue);
-    
+
     ASSERT_STR_EQUAL(umlautUriValue, umlautString.data());
 
     HttpMessage::escape(umlautString);
@@ -476,7 +476,7 @@ public:
          CPPUNIT_ASSERT(proxyRspOne.getAuthenticationField(0,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
-         
+
          CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
@@ -509,7 +509,7 @@ public:
          CPPUNIT_ASSERT(proxyRspTwo.getAuthenticationField(1,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
                           value.data());
-         
+
          CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(2,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
@@ -536,7 +536,7 @@ public:
          CPPUNIT_ASSERT(serverRspOne.getAuthenticationField(0,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
-         
+
          CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(1,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
@@ -569,7 +569,7 @@ public:
          CPPUNIT_ASSERT(serverRspTwo.getAuthenticationField(1,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
                           value.data());
-         
+
          CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
@@ -599,12 +599,12 @@ public:
          CPPUNIT_ASSERT(proxyRspMixed.getAuthenticationField(0,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
-         
+
          CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticationField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
       }
-   
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(HttpMessageTest);

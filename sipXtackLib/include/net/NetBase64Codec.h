@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -44,7 +44,7 @@ class NetBase64Codec
     * define another alphabet outside this class.
     */
    ///@{
-      
+
    typedef const char* Base64Alphabet; ///< type for alphabet parameters in this class
 
    static Base64Alphabet RFC4648MimeAlphabet;    ///< 'traditional' alphabet (the default)
@@ -64,8 +64,8 @@ class NetBase64Codec
    ///@{
 
    /// Encode from one array into another
-   static void encode(int dataSize,         ///< the size of the binary data in octets         
-                      const char data[],    ///< the binary data - not null terminated         
+   static void encode(int dataSize,         ///< the size of the binary data in octets
+                      const char data[],    ///< the binary data - not null terminated
                       int& encodedDataSize, ///< output: the size of the encoded data in octets
                       char encodedData[],   ///< output: the encoded data
                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
@@ -86,12 +86,12 @@ class NetBase64Codec
    {
       NetBase64Codec::encode(data.length(),data.data(),encodedData, alphabet);
    };
-   
+
    /// @returns the number of encoded octets for given number of input binary octets
    static int encodedSize(int dataSize);
 
    ///@}
-   
+
    // ================================================================
    /** @name                  Decoding Operations
     *
@@ -104,12 +104,12 @@ class NetBase64Codec
    /// @returns true iff the encoded data is syntactically valid.
    static bool isValid(int encodedDataSize,      ///< the size of the encoded data in octets
                        const char encodedData[], ///< the encoded data
-                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet                       
+                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                        )
    {
       return validEncodingBytes(encodedDataSize, encodedData, alphabet) > 0;
    }
-   
+
 
    /// @returns true iff the encoded data is syntactically valid.
    static bool isValid(const UtlString encodedData, ///< size is data.length(), not null terminated
@@ -118,10 +118,10 @@ class NetBase64Codec
    {
       return validEncodingBytes(encodedData.length(), encodedData.data(), alphabet) > 0;
    }
-   
+
    /// Decode from the character encodedData to the binary data array.
    static bool decode(int encodedDataSize,      ///< the size of the encoded data in octets
-                      const char encodedData[], ///< the encoded data 
+                      const char encodedData[], ///< the encoded data
                       int& dataSize,            ///< output: the size of the binary data in octets
                       char data[],              ///< output: the binary data - not null terminated
                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
@@ -134,7 +134,7 @@ class NetBase64Codec
                       Base64Alphabet alphabet = RFC4648MimeAlphabet ///< encoding alphabet
                       );
    ///< @returns false and no data if the encodedData contains any invalid characters.
-   
+
    /// Compute the number of output binary octets for given set of encoded octets.
    static int decodedSize(int encodedDataSize,
                           const char encodedData[],
@@ -150,10 +150,10 @@ class NetBase64Codec
       ///< @returns zero if the encodedData contains any invalid characters.
       return decodedSize(encodedData.length(), encodedData.data(), alphabet);
    }
-   
+
 
   private:
-   
+
    inline static char decodeChar(const char encoded,     ///< encoded data character
                                  Base64Alphabet alphabet ///< encoding alphabet
                                  );
@@ -173,14 +173,14 @@ class NetBase64Codec
 
    virtual
       ~NetBase64Codec();
-   
+
    NetBase64Codec(const NetBase64Codec& rNetBase64Codec);
    //:Copy constructor (disabled)
 
    NetBase64Codec& operator=(const NetBase64Codec& rhs);
    //:Assignment operator (disabled)
 
-   // @endcond     
+   // @endcond
 };
 
 #endif  // _NetBase64Codec_h_

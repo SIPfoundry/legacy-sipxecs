@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -106,15 +106,15 @@ class Dialog : public UtlContainable
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
    /// Constructor
    Dialog(const char* dialogId,
-          const char* callId, 
-          const char* localTag, 
-          const char* remoteTag, 
+          const char* callId,
+          const char* localTag,
+          const char* remoteTag,
           const char* direction);
 
    // copy constructor
@@ -132,7 +132,7 @@ class Dialog : public UtlContainable
    int compareTo(const UtlContainable *b) const;
 
 ///@}
-   
+
 /**
  * @name ====================== Dialog Setting Interfaces
  *
@@ -145,11 +145,11 @@ class Dialog : public UtlContainable
    void getBytes(UtlString& b, ssize_t& l);
 
    void getDialog(UtlString& dialogId,
-                  UtlString& callId, 
-                  UtlString& localTag, 
-                  UtlString& remoteTag, 
+                  UtlString& callId,
+                  UtlString& localTag,
+                  UtlString& remoteTag,
                   UtlString& direction) const;
-                  
+
    void getCallId(UtlString& callId) const;
 
    void setDialogId(const char* dialogId);
@@ -224,10 +224,10 @@ class Dialog : public UtlContainable
 
    bool getRemoteParameter(const char* pname, UtlString& pvalue);
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    // Set the unique identifier member by concatenating the call-id,
    // to-tag, and from-tag.
    void setIdentifier();
@@ -292,7 +292,7 @@ class SipDialogEvent : public HttpBody
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
@@ -313,7 +313,7 @@ class SipDialogEvent : public HttpBody
       ~SipDialogEvent();
 
 ///@}
-   
+
 /**
  * @name ====================== Dialog Event Serialization Interfaces
  *
@@ -383,7 +383,7 @@ class SipDialogEvent : public HttpBody
 
    //! In the case where a empty SipDialog object is retrieved from the
    //DialogEventPublisher in handling a DISCONNECTED or FAILED message
-   //the publisher still needs to find the dialog, even if it is just 
+   //the publisher still needs to find the dialog, even if it is just
    //by the callId. Work-around for XCL-98.
    Dialog* getDialogByCallId(UtlString& callId);
 
@@ -392,7 +392,7 @@ class SipDialogEvent : public HttpBody
 
    //! Remove a Dialog object
    Dialog* removeDialog(Dialog* dialog);
-   
+
    //! Check whether there is are any dialogs or not
    UtlBoolean isEmpty();
 
@@ -403,10 +403,10 @@ class SipDialogEvent : public HttpBody
    UtlSListIterator* getDialogIterator();
 
 ///@}
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
-   
+
    /// Parse an existing dialog event package from xml format into the internal representation.
    void parseBody(const char* bytes);
 

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +90,7 @@ class SipDialogMonitor
    // Note:  Only removes the URI from the group specified.
    // Return true if successful, false if not.
    bool removeExtension(UtlString& groupName, Url& contactUrl);
-  
+
    /// Register a StateChangeNotifier
    // notifier() will be called for every change in status of any URI that
    // has been added with addExtension().
@@ -131,7 +131,7 @@ class SipDialogMonitor
                                    const char* dialogHandle,
                                    void* applicationData,
                                    const SipMessage* notifyRequest);
-                                   
+
    /// Non-static callback to handle incoming NOTIFYs.
    void handleNotifyMessage(const SipMessage* notifyMessage,
                             const char* earlyDialogHandle,
@@ -155,7 +155,7 @@ class SipDialogMonitor
   private:
 
    // User agent to send SUBSCRIBEs and receive NOTIFYs.
-   SipUserAgent* mpUserAgent;  
+   SipUserAgent* mpUserAgent;
    // The SIP domain used to construct the identity URI for the user agent.
    UtlString mDomainName;
    // The Contact URI for the user agent.
@@ -163,13 +163,13 @@ class SipDialogMonitor
    // The (maximum) subscription refresh time for our subscriptions.
    int mRefreshTimeout;
    bool mToBePublished;
-   
+
    OsBSem mLock;
-   
+
    SipDialogMgr mDialogManager;
    SipRefreshManager* mpRefreshMgr;
    SipSubscribeClient* mpSipSubscribeClient;
-      
+
    SipDialogMgr mDialogMgr;
    SipSubscriptionMgr* mpSubscriptionMgr;
    SipSubscribeServerEventHandler mPolicyHolder;
@@ -182,7 +182,7 @@ class SipDialogMonitor
    // The last dialogEvent received for each AOR that we are watching.
    UtlHashMap mDialogEventList;
    UtlHashMap mDialogHandleList;
-   UtlHashMap mStateChangeNotifiers;   
+   UtlHashMap mStateChangeNotifiers;
    // UtlHashMap mapping SUBSCRIBEs (via early dialog handles) to
    // UtlHashBag's that list the identifiers of all non-terminated dialogs
    // on the UAs for the subscribed-to URI.

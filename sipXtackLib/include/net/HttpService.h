@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public:
 
    /// Constructor
    HttpService();
-  
+
    /// Destructor
    virtual ~HttpService();
 
@@ -70,11 +70,9 @@ private:
 
    /// Disabled assignment operator
    HttpService& operator=(const HttpService& rhs);
-   
+
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _HTTPSERVICE_H_
-
-

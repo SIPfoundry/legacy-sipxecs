@@ -8,7 +8,7 @@
  * Can be calculated by:
  *
  *    #! /usr/bin/perl
- *    
+ *
  *    for ($i = 0; $i < 256; $i++) {
  *        print int(log(1 + $i/256) * 256 / log(2)), ",\n";
  *    }

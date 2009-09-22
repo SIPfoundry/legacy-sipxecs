@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -72,13 +72,13 @@ SipPublishServer* SipPublishServer::buildBasicServer(SipUserAgent& userAgent,
     // Create a default event state manager
     SipPublishServerEventStateMgr* eventStateMgr = new SipPublishServerEventStateMgr();
 
-    newServer = new SipPublishServer(userAgent, 
+    newServer = new SipPublishServer(userAgent,
                                      *eventStateMgr,
                                      *eventStateCompositor);
 
     // Enable the server to accept the given SIP event package
-    newServer->enableEventType(eventType, 
-                               &userAgent, 
+    newServer->enableEventType(eventType,
+                               &userAgent,
                                eventStateMgr,
                                eventStateCompositor);
 
@@ -114,7 +114,7 @@ SipPublishServer::~SipPublishServer()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipPublishServer& 
+SipPublishServer&
 SipPublishServer::operator=(const SipPublishServer& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -133,9 +133,9 @@ UtlBoolean SipPublishServer::enableEventType(const char* eventTypeToken,
     UtlString eventName(eventTypeToken ? eventTypeToken : "");
     lockForWrite();
     // Only add the event support if it does not already exist;
-    PublishServerEventData* eventData = 
+    PublishServerEventData* eventData =
         (PublishServerEventData*) mEventDefinitions.find(&eventName);
-        
+
     if(!eventData)
     {
         addedEvent = TRUE;
@@ -172,13 +172,13 @@ UtlBoolean SipPublishServer::disableEventType(const char* eventTypeToken,
     UtlString eventName(eventTypeToken ? eventTypeToken : "");
     lockForWrite();
     // Only add the event support if it does not already exist;
-    PublishServerEventData* eventData = 
+    PublishServerEventData* eventData =
         (PublishServerEventData*) mEventDefinitions.remove(&eventName);
-        
+
     if(eventData)
     {
         removedEvent = TRUE;
-        userAgent = eventData->mpEventSpecificUserAgent == mpDefaultUserAgent ? 
+        userAgent = eventData->mpEventSpecificUserAgent == mpDefaultUserAgent ?
                         NULL : eventData->mpEventSpecificUserAgent;
         eventStateCompositor = eventData->mpEventSpecificStateCompositor == mpDefaultCompositor ?
                         NULL : eventData->mpEventSpecificStateCompositor;
@@ -221,7 +221,7 @@ UtlBoolean SipPublishServer::handleMessage(OsMsg &eventMessage)
 
         // PUBLISH requests
         if(sipMessage &&
-           !sipMessage->isResponse() && 
+           !sipMessage->isResponse() &&
            method.compareTo(SIP_PUBLISH_METHOD) == 0)
         {
             handlePublish(*sipMessage);
@@ -235,23 +235,23 @@ UtlBoolean SipPublishServer::handleMessage(OsMsg &eventMessage)
 
 /* ============================ ACCESSORS ================================= */
 
-SipPublishServerEventStateCompositor* 
+SipPublishServerEventStateCompositor*
 SipPublishServer::getEventStateCompositor(const UtlString& eventType)
 {
     SipPublishServerEventStateCompositor* eventStateCompositor = NULL;
     lockForRead();
-    PublishServerEventData* eventData = 
+    PublishServerEventData* eventData =
         (PublishServerEventData*) mEventDefinitions.find(&eventType);
     if(eventData)
     {
         eventStateCompositor = eventData->mpEventSpecificStateCompositor;
     }
 
-    else 
+    else
     {
         eventStateCompositor = mpDefaultCompositor;
     }
-    unlockForRead(); 
+    unlockForRead();
 
     return(eventStateCompositor);
 }
@@ -260,18 +260,18 @@ SipPublishServerEventStateMgr* SipPublishServer::getEventStateMgr(const UtlStrin
 {
     SipPublishServerEventStateMgr* eventStateMgr = NULL;
     lockForRead();
-    PublishServerEventData* eventData = 
+    PublishServerEventData* eventData =
         (PublishServerEventData*) mEventDefinitions.find(&eventType);
     if(eventData)
     {
         eventStateMgr = eventData->mpEventSpecificStateMgr;
     }
 
-    else 
+    else
     {
         eventStateMgr = mpDefaultEventStateMgr;
     }
-    unlockForRead(); 
+    unlockForRead();
 
     return(eventStateMgr);
 }
@@ -324,7 +324,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                                         publishResponse))
             {
                 // The publication is allowed, so process the PUBLISH request
-                
+
                 // Modify the expiration if neccessary
                 int expiration;
                 if (publishRequest.getExpiresField(&expiration))
@@ -332,25 +332,25 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                     // Check whether the expiration is too brief
                     if (!eventPackageInfo->mpEventSpecificStateMgr->checkExpiration(&expiration))
                     {
-                         OsSysLog::add(FAC_SIP, PRI_ERR, 
+                         OsSysLog::add(FAC_SIP, PRI_ERR,
                                        "SipPublishServer::handlePublish interval too brief");
-               
+
                          publishResponse.setResponseData(&publishRequest,
                                                          SIP_TOO_BRIEF_CODE, SIP_TOO_BRIEF_TEXT);
                          publishResponse.setMinExpiresField(expiration);
-                         
+
                          mpDefaultUserAgent->send(publishResponse);
-                         
+
                          unlockForRead();
-                     
+
                          return(handledPublish);
                     }
                 }
-                
+
                 // Generate a new entity tag
                 UtlString entity;
                 eventPackageInfo->mpEventSpecificStateMgr->generateETag(entity);
-                
+
                  UtlString sipIfMatchField;
                 if (publishRequest.getSipIfMatchField(sipIfMatchField))
                 {
@@ -370,17 +370,17 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                     }
                     else
                     {
-                         OsSysLog::add(FAC_SIP, PRI_ERR, 
+                         OsSysLog::add(FAC_SIP, PRI_ERR,
                                        "SipPublishServer::handlePublish interval too brief");
-               
+
                          publishResponse.setResponseData(&publishRequest,
                                                          SIP_CONDITIONAL_REQUEST_FAILED_CODE,
                                                          SIP_CONDITIONAL_REQUEST_FAILED_TEXT);
-                         
+
                          mpDefaultUserAgent->send(publishResponse);
-                         
+
                          unlockForRead();
-                     
+
                          return(handledPublish);
                     }
                 }
@@ -389,8 +389,8 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
                     // Initial publish
                     eventPackageInfo->mpEventSpecificStateMgr->addPublish(entity, resourceId, eventTypeKey, expiration);
                 }
-                
-                publishResponse.setResponseData(&publishRequest, 
+
+                publishResponse.setResponseData(&publishRequest,
                                                 SIP_ACCEPTED_CODE,
                                                 SIP_ACCEPTED_TEXT);
                 publishResponse.setExpiresField(expiration);
@@ -419,7 +419,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
     // This event type has not been enabled in this SubscribeServer
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, 
+        OsSysLog::add(FAC_SIP, PRI_ERR,
             "SipPublishServer::handlePublish event type: %s not enabled",
             eventName.data());
 
@@ -456,4 +456,3 @@ void SipPublishServer::unlockForWrite()
 }
 
 /* ============================ FUNCTIONS ================================= */
-

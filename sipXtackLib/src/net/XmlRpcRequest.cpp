@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,16 +34,16 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
    if( uri.getPath( path ) == FALSE )
    {
       path = "/RPC2";
-   }   
+   }
    // Start to contruct the HTTP message
    mpHttpRequest->setFirstHeaderLine(HTTP_POST_METHOD, path, HTTP_PROTOCOL_VERSION_1_1);
    mpHttpRequest->addHeaderField("Accept", "text/xml");
    mpHttpRequest->setUserAgentField(PACKAGE_NAME "_xmlrpc/" PACKAGE_VERSION);
-   
+
    // Start to construct the XML-RPC body
    mpRequestBody->append(BEGIN_METHOD_CALL BEGIN_METHOD_NAME);
    mpRequestBody->append(methodName);
-   mpRequestBody->append(END_METHOD_NAME BEGIN_PARAMS);   
+   mpRequestBody->append(END_METHOD_NAME BEGIN_PARAMS);
 }
 
 // Destructor
@@ -63,10 +63,10 @@ XmlRpcRequest::~XmlRpcRequest()
 bool XmlRpcRequest::execute(XmlRpcResponse& response)
 {
    bool result = false;
-   
+
    // End of constructing the XML-RPC body
    mpRequestBody->append(END_PARAMS END_METHOD_CALL);
-   
+
    if (OsSysLog::willLog(FAC_XMLRPC, PRI_INFO))
    {
       UtlString logString;
@@ -84,7 +84,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
                     urlString.data(),
                     logString.data());
    }
-   
+
    mpHttpRequest->setContentLength(mpRequestBody->getLength());
    mpHttpRequest->setBody(mpRequestBody);
    mpRequestBody = NULL; // the HttpMessage now owns the request body
@@ -98,7 +98,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    {
       UtlString bodyString;
       ssize_t   bodyLength;
-      
+
       httpResponse.getBody()->getBytes(&bodyString, &bodyLength);
 
       UtlString logString;
@@ -111,7 +111,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       {
          logString = bodyString;
       }
-      
+
       if (response.parseXmlRpcResponse(bodyString))
       {
          result = true;
@@ -133,10 +133,10 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       OsSysLog::add(FAC_XMLRPC, PRI_ERR,
                     "XmlRpcRequest::execute http connection failed");
    }
-   else // some non-2xx HTTP response 
+   else // some non-2xx HTTP response
    {
       UtlString statusText;
-   
+
       httpResponse.getResponseStatusText(&statusText);
       response.setFault(XmlRpcResponse::HttpFailure, statusText.data());
 
@@ -156,12 +156,12 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 bool XmlRpcRequest::addParam(const UtlContainable* value)
 {
    bool result = false;
-   mpRequestBody->append(BEGIN_PARAM);  
+   mpRequestBody->append(BEGIN_PARAM);
 
    result = mpRequestBody->addValue(value);
-   
+
    mpRequestBody->append(END_PARAM);
-        
+
    return result;
 }
 
@@ -175,4 +175,3 @@ bool XmlRpcRequest::addParam(const UtlContainable* value)
 
 
 /* ============================ FUNCTIONS ================================= */
-

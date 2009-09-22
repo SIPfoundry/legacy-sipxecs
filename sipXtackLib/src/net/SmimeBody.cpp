@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SmimeBody::SmimeBody(const char* bytes, 
+SmimeBody::SmimeBody(const char* bytes,
                      int length,
                      const char* smimeEncodingType)
 {
@@ -155,7 +155,7 @@ UtlBoolean SmimeBody::decrypt(const char* derPkcs12,
     UtlString decryptedData;
 
 #ifdef ENABLE_OPENSSL_SMIME
-    decryptionSucceeded = 
+    decryptionSucceeded =
         opensslSmimeDecrypt(derPkcs12,
                             derPkcs12Length,
                             pkcs12Password,
@@ -168,29 +168,29 @@ UtlBoolean SmimeBody::decrypt(const char* derPkcs12,
 #endif
 
     // Decryption succeeded, so create a HttpBody for the result
-    if(decryptionSucceeded && 
+    if(decryptionSucceeded &&
         decryptedData.length() > 0)
     {
         HttpBody* newDecryptedBody = NULL;
         // Need to read the headers before the real body to see
         // what the content type of the decrypted body is
         UtlDList bodyHeaders;
-        int parsedBytes = 
-            HttpMessage::parseHeaders(decryptedData.data(), 
+        int parsedBytes =
+            HttpMessage::parseHeaders(decryptedData.data(),
                                       decryptedData.length(),
                                       bodyHeaders);
 
         UtlString contentTypeName(HTTP_CONTENT_TYPE_FIELD);
-        NameValuePair* contentType = 
+        NameValuePair* contentType =
             (NameValuePair*) bodyHeaders.find(&contentTypeName);
         UtlString contentEncodingName(HTTP_CONTENT_TRANSFER_ENCODING_FIELD);
-        NameValuePair* contentEncoding = 
+        NameValuePair* contentEncoding =
             (NameValuePair*) bodyHeaders.find(&contentEncodingName);
-        
+
         const char* realBodyStart = decryptedData.data() + parsedBytes;
         int realBodyLength = decryptedData.length() - parsedBytes;
 
-        newDecryptedBody = 
+        newDecryptedBody =
             HttpBody::createBody(realBodyStart,
                                  realBodyLength,
                                  contentType ? contentType->getValue() : NULL,
@@ -264,7 +264,7 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
 #elif ENABLE_NSS_SMIME
         UtlBoolean encryptedDataInBase64Format = FALSE;
 
-        encryptionSucceeded = 
+        encryptionSucceeded =
             nssSmimeEncrypt(numRecipients,
                             derPublicKeyCerts,
                             derPubliceKeyCertLengths,
@@ -299,7 +299,7 @@ static void nssOutToUtlString(void *sink, const char *data, unsigned long dataLe
 #endif
 
 UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
-                           const char* derPublicKeyCerts[], 
+                           const char* derPublicKeyCerts[],
                            int derPublicKeyCertLengths[],
                            const char* dataToEncrypt,
                            int dataToEncryptLength,
@@ -322,7 +322,7 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
     // Should be able to get the key size from the cert somehow
     int keysize = 1024;
     NSSCMSMessage* cmsMessage = NSS_CMSMessage_Create(NULL);
-    NSSCMSEnvelopedData* myEnvelope = 
+    NSSCMSEnvelopedData* myEnvelope =
         NSS_CMSEnvelopedData_Create(cmsMessage, algorithm, keysize);
 
     // Do the following for each recipient if there is more than one.
@@ -335,23 +335,23 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
         derFormatCertItem.data = (unsigned char*) derPublicKeyCerts[certIndex];
         derFormatCertItem.len = derPublicKeyCertLengths[certIndex];
         CERTCertificate* myCertFromDer = NULL;
-        myCertFromDer = __CERT_DecodeDERCertificate(&derFormatCertItem, 
-                                                   copyDER, 
+        myCertFromDer = __CERT_DecodeDERCertificate(&derFormatCertItem,
+                                                   copyDER,
                                                    nickname);
 
         // Add just the recipient Subject key Id, if it exists to the envelope
         // This is the minimal information needed to identify which recipient
         // the the symetric/session key is encrypted for
-        NSSCMSRecipientInfo* recipientInfo = NULL; 
+        NSSCMSRecipientInfo* recipientInfo = NULL;
 
-        // Add the full set of recipient information including 
+        // Add the full set of recipient information including
         // the Cert. issuer location and org. info.
-        recipientInfo = 
+        recipientInfo =
             NSS_CMSRecipientInfo_Create(cmsMessage, myCertFromDer);
 
         if(recipientInfo)
         {
-            if(NSS_CMSEnvelopedData_AddRecipient(myEnvelope , recipientInfo) != 
+            if(NSS_CMSEnvelopedData_AddRecipient(myEnvelope , recipientInfo) !=
                 SECSuccess)
             {
                 NSS_CMSEnvelopedData_Destroy(myEnvelope);
@@ -370,13 +370,13 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
 
     // Get the content out of the envelop
     NSSCMSContentInfo* envelopContentInfo =
-       NSS_CMSEnvelopedData_GetContentInfo(myEnvelope);    
+       NSS_CMSEnvelopedData_GetContentInfo(myEnvelope);
 
     //TODO: why are we copying or setting the content pointer from the envelope into the msg????????
-    if (NSS_CMSContentInfo_SetContent_Data(cmsMessage, 
-                                           envelopContentInfo, 
-                                           NULL, 
-                                           PR_FALSE) != 
+    if (NSS_CMSContentInfo_SetContent_Data(cmsMessage,
+                                           envelopContentInfo,
+                                           NULL,
+                                           PR_FALSE) !=
         SECSuccess)
     {
         // release cmsg and other stuff
@@ -384,13 +384,13 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
         myEnvelope = NULL;
     }
 
-    //TODO: why are we copying or setting the content pointer from the message and 
+    //TODO: why are we copying or setting the content pointer from the message and
     // putting it back into the msg????????
-    NSSCMSContentInfo* messageContentInfo = 
+    NSSCMSContentInfo* messageContentInfo =
         NSS_CMSMessage_GetContentInfo(cmsMessage);
-    if(NSS_CMSContentInfo_SetContent_EnvelopedData(cmsMessage, 
-                                                   messageContentInfo, 
-                                                   myEnvelope) != 
+    if(NSS_CMSContentInfo_SetContent_EnvelopedData(cmsMessage,
+                                                   messageContentInfo,
+                                                   myEnvelope) !=
        SECSuccess)
     {
         // release cmsg and other stuff
@@ -407,8 +407,8 @@ UtlBoolean SmimeBody::nssSmimeEncrypt(int numResipientCerts,
         //encodedItem.len = 0;
         //SECITEM_AllocItem(NULL, &encodedItem, 0);
         printf("start encoder\n");
-        NSSCMSEncoderContext* encoderContext = 
-            NSS_CMSEncoder_Start(cmsMessage, nssOutToUtlString, &encryptedData, NULL, 
+        NSSCMSEncoderContext* encoderContext =
+            NSS_CMSEncoder_Start(cmsMessage, nssOutToUtlString, &encryptedData, NULL,
                                  NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
         // Add encrypted content
@@ -486,7 +486,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
         if(0) //P12U_UnicodeConversion(NULL, &uniPasswordItem, passwordItem, PR_TRUE,
 			  //    swapUnicode) != SECSuccess)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR, 
+            OsSysLog::add(FAC_SIP, PRI_ERR,
                 "NSS Unicode conversion failed for PKCS12 object for S/MIME decryption");
         }
         else
@@ -494,7 +494,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
             // Initialze the decoder for the PKCS12 container for the private key
             p12Decoder = SEC_PKCS12DecoderStart(&passwordItem, slot, NULL,
 				    NULL, NULL, NULL, NULL, NULL);
-            if(!p12Decoder) 
+            if(!p12Decoder)
             {
                 OsSysLog::add(FAC_SIP, PRI_ERR,
                     "failed to initialize PKCS12 decoder to extract private key for S/MIME decryption");
@@ -502,8 +502,8 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
             else
             {
                 // Add the PKCS12 data to the decoder
-                if(SEC_PKCS12DecoderUpdate(p12Decoder, 
-                                           (unsigned char *) derPkcs12, 
+                if(SEC_PKCS12DecoderUpdate(p12Decoder,
+                                           (unsigned char *) derPkcs12,
                                            derPkcs12Length) != SECSuccess ||
                    // Validate the decoded PKCS12
                    SEC_PKCS12DecoderVerify(p12Decoder) != SECSuccess)
@@ -514,7 +514,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                 }
                 else
                 {
-                    // Import the private key and certificate from the 
+                    // Import the private key and certificate from the
                     // decoded PKCS12 into the database
                     if(SEC_PKCS12DecoderImportBags(p12Decoder) != SECSuccess)
                     {
@@ -538,9 +538,9 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                         else
                         {
                             // Decode the S/MIME blob
-                            NSSCMSMessage *cmsMessage = 
+                            NSSCMSMessage *cmsMessage =
                                 NSS_CMSMessage_CreateFromDER(&dataToDecodeItem,
-                                                             nssOutToUtlString, 
+                                                             nssOutToUtlString,
                                                              &decryptedData,
                                                              NULL, NULL,
                                                              NULL, NULL);
@@ -553,7 +553,7 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
                             }
 
                             // TODO:
-                            // Remove the temporary private key from the 
+                            // Remove the temporary private key from the
                             // database using the slot handle
                         }
                     }
@@ -564,11 +564,11 @@ UtlBoolean SmimeBody::nssSmimeDecrypt(const char* derPkcs12,
     }
 
     // Clean up
-    if(p12Decoder) 
+    if(p12Decoder)
     {
 	    SEC_PKCS12DecoderFinish(p12Decoder);
     }
-    if(uniPasswordItem.data) 
+    if(uniPasswordItem.data)
     {
 	    SECITEM_ZfreeItem(&uniPasswordItem, PR_FALSE);
     }
@@ -606,20 +606,20 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
 	    if (trailer != NULL) {
 		*trailer = '\0';
 	    } else {
-		OsSysLog::add(FAC_SIP, PRI_ERR, 
+		OsSysLog::add(FAC_SIP, PRI_ERR,
             "input has header but no trailer\n");
 	    }
 	} else {
 	    body = pemDataPtr;
 	}
-     
+
 	/* Convert to binary */
     SECItem derItem;
     derItem.data = NULL;
     derItem.len = 0;
 	if(ATOB_ConvertAsciiToItem(&derItem, body))
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, 
+        OsSysLog::add(FAC_SIP, PRI_ERR,
             "error converting PEM base64 data to binary");
     }
     else
@@ -628,7 +628,7 @@ UtlBoolean SmimeBody::convertPemToDer(UtlString& pemData,
         conversionSucceeded = TRUE;
     }
 #else
-    OsSysLog::add(FAC_SIP, PRI_ERR, 
+    OsSysLog::add(FAC_SIP, PRI_ERR,
         "SmimeBody::convertPemToDer implemented with NSS and OpenSSL disabled");
 #endif
 
@@ -656,4 +656,3 @@ UtlBoolean SmimeBody::isDecrypted() const
 /* ============================ TESTING =================================== */
 
 /* ============================ FUNCTIONS ================================= */
-

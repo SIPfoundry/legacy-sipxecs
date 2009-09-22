@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,19 +44,19 @@ public:
    virtual unsigned int hash() const;
 
    int compareTo(const UtlContainable *b) const;
-   
+
    void setData(XmlRpcMethod::Get* method, void* userData);
-   
+
    void getData(XmlRpcMethod::Get*& method, void*& userData);
 
    void getName(UtlString& methodName);
-   
+
 private:
 
    UtlString          mMethodName; ///< record to be put in responses
    void*              mpUserData;  ///< unique instance data
    XmlRpcMethod::Get* mpMethod;    ///< factory to construct method instance
-    
+
    //! DISALLOWED accidental copying
    XmlRpcMethodContainer(const XmlRpcMethodContainer& rXmlRpcMethodContainer);
    XmlRpcMethodContainer& operator=(const XmlRpcMethodContainer& rhs);
@@ -69,7 +69,7 @@ private:
  * If the correspnding method does not exit, it will send back a 404 response.
  * Otherwise, it will always send back a 200 OK response with XmlRpcResponse
  * content.
- * 
+ *
  * For each XML-RPC server, it needs to instantiate a XmlRpcDispatch object first,
  * and then register each service method using addMethod() or remove the method
  * using removeMethod().
@@ -124,14 +124,14 @@ public:
 
    /// Return the HTTP server that services RPC requests
    HttpServer* getHttpServer();
-   
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
    friend class XmlRpcTest;
-   
+
    /// Parse the XML-RPC request
    bool parseXmlRpcRequest(const UtlString& requestContent, ///< HttpBody of received request
                            XmlRpcMethodContainer*& method,  ///< output method data
@@ -140,26 +140,26 @@ protected:
                                                              * if return is false, this is a
                                                              * fault message ready to send.
                                                              */
-                           ); 
+                           );
    /**< @returns false if request did not parse cleanly */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-   /// Http server for handling the HTTP POST request  
+   /// Http server for handling the HTTP POST request
    HttpServer* mpHttpServer;
-   
+
    UtlHashMap  mMethods; /**< Map of the registered XML-RPC methods
                           *   Key is a UtlString of the method name,
                           *   Value is an XmlRpcMethodContainer
                           */
 
-   /// Synchronizes 
+   /// Synchronizes
    OsBSem mLock;
 
    /// whether or not the HttpServer should be shut down and deleted in the destructor.
    bool mManageHttpServer;
-   
+
    /// Disabled copy constructor
    XmlRpcDispatch(const XmlRpcDispatch& rXmlRpcDispatch);
 
@@ -171,5 +171,3 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _XMLRPCDISPATCH_H_
-
-

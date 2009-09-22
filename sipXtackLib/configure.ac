@@ -62,7 +62,7 @@ ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
-AC_ARG_ENABLE(stack-examples, 
+AC_ARG_ENABLE(stack-examples,
   [  --enable-stack-examples       Builds examples directory (disabled by default) ]
   , enable_stack_examples=yes)
 AM_CONDITIONAL(EXAMPLES, test x$enable_stack_examples = xyes)
@@ -71,20 +71,20 @@ AM_CONDITIONAL(EXAMPLES, test x$enable_stack_examples = xyes)
 CHECK_NAMED
 
 AC_CONFIG_FILES([
-  Makefile 
-  include/Makefile 
-  src/Makefile 
-  bin/Makefile 
-  meta/Makefile 
+  Makefile
+  include/Makefile
+  src/Makefile
+  bin/Makefile
+  meta/Makefile
   src/test/Makefile
   examples/Makefile
   examples/im/Makefile
   examples/xmlrpc/Makefile
-  siptest/Makefile 
-  siptest/src/Makefile 
-  siptest/include/Makefile 
+  siptest/Makefile
+  siptest/src/Makefile
+  siptest/include/Makefile
   siptest/src/siptest/Makefile
-  doc/Makefile  
+  doc/Makefile
   dialogwatch/Makefile
 ])
 

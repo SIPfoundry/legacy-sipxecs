@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@
 #define SRTP_OFF                  0
 #define SRTP_ON                   (SRTP_ENCRYPTION|SRTP_AUTHENTICATION|SRTP_SEND|SRTP_RECEIVE)
 #define SRTP_SECURITY_MASK        (SRTP_ENCRYPTION|SRTP_AUTHENTICATION)
-// Key length       
+// Key length
 #define SRTP_KEY_LENGTH          30
 
 // sipX-specific SDP attributes
@@ -96,19 +96,19 @@ class SdpBody : public HttpBody
   public:
 
    /// The a= values that represent the directionality values.
-   static const char* sdpDirectionalityStrings[4];   
+   static const char* sdpDirectionalityStrings[4];
 
    /// Calcuate the "reverse" of a given directionality.
    //  I.e., sdpDirectionalityReverse[sdpDirectionalitySendOnly] ==
    //  sdpDirectionalityRecvOnly.
    static const SdpDirectionality sdpDirectionalityReverse[4];
 
-/** 
+/**
  * @name ====================== Constructors and Destructors
  * @{
  */
-   /// Construct from an existing SDP message value, or create an empty body. 
-   SdpBody(const char* bytes = NULL, ///< NULL creates an empty body             
+   /// Construct from an existing SDP message value, or create an empty body.
+   SdpBody(const char* bytes = NULL, ///< NULL creates an empty body
            ssize_t byteCount = -1        ///< -1 means treat bytes as null terminated
            );
 
@@ -122,7 +122,7 @@ class SdpBody : public HttpBody
       ~SdpBody();
 
 ///@}
-   
+
 /**
  * @name ====================== Message Serialization Interfaces
  *
@@ -201,16 +201,16 @@ class SdpBody : public HttpBody
                        int videoRtcpPort,
                        int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
-                       SdpSrtpParameters& srtpParams 
+                       SdpSrtpParameters& srtpParams
                        );
 
    /// Create a response to a set of media codec and address entries.
-   void addAudioCodecs(const char* rtpAddress, 
+   void addAudioCodecs(const char* rtpAddress,
                        int rtpAudioPort,
                        int rtcpAudioPort,
                        int rtpVideoPort,
                        int rtcpVideoPort,
-                       int numRtpCodecs, 
+                       int numRtpCodecs,
                        SdpCodec* rtpCodecs[],
                        SdpSrtpParameters& srtpParams,
                        const SdpBody* sdpRequest ///< Sdp we are responding to
@@ -226,14 +226,14 @@ class SdpBody : public HttpBody
                      int portNumber,        ///< TCP or UDP poart number for the media stream
                      int portPairCount,     ///< the number of PAIRS of ports to be used for the media stream.
                      const char* mediaTransportType, ///< i.e. "RTP/AVP"
-                     int numPayloadTypes,   ///< entries in the payloadType parameter 
+                     int numPayloadTypes,   ///< entries in the payloadType parameter
                      int payloadType[]      /**< format specifier specific to context
                                              * of mediaTransportType.
                                              * (i.e. for TRP/AVP u-law this is 0, a-law is 14).
                                              * see RFC 1890 for the Payload Type numbers
                                              */
                      );
-   
+
    /// Adds an attribute to the SDP body
    void addAttribute(const char* attributeName,      ///< name of attribute to add
                      const char* pAttributeValue = 0 ///< optional attribute value.
@@ -273,17 +273,17 @@ class SdpBody : public HttpBody
     /**
      * Set the candidate attribute per draft-ietf-mmusic-ice-04
      */
-    void addCandidateAttribute(const char* id, 
-                               double qValue, 
-                               const char* userFrag, 
-                               const char* password, 
-                               const char* unicastIp, 
-                               int unicastPort, 
-                               const char* candidateIp, 
+    void addCandidateAttribute(const char* id,
+                               double qValue,
+                               const char* userFrag,
+                               const char* password,
+                               const char* unicastIp,
+                               int unicastPort,
+                               const char* candidateIp,
                                int candidatePort) ;
 
 ///@}
-   
+
  /**
   * @name ====================== SDP Modification Interfaces
   *
@@ -305,19 +305,19 @@ class SdpBody : public HttpBody
                                );
 
     /// Set IP address for the indicated media stream.  If a media address (c= line in SDP body)
-    /// cannot be found in the designated media description, a c= line with the new address is 
+    /// cannot be found in the designated media description, a c= line with the new address is
     // added to it.  Specifying a mediaIndex of -1 will affect the Session Description section
     bool modifyMediaAddress(int mediaIndex, ///< which media description set to modify.  use -1 of Session Description section
-                            const char* pNewAddress  ///< new address information 
+                            const char* pNewAddress  ///< new address information
                                );
-    
+
     /// Set the port number for the indicated media stream.
     bool modifyMediaPort(int mediaIndex, ///< which media description set to modify
-                         int newPort     ///< new port value 
+                         int newPort     ///< new port value
                                );
 
  ///@}
-    
+
 /**
  * @name ====================== Field Reading Interfaces
  *
@@ -365,7 +365,7 @@ class SdpBody : public HttpBody
                            ) const;
 
    /// Get the media direction attribute for the inidicated media stream
-   UtlBoolean getMediaDirection(int mediaIndex, 
+   UtlBoolean getMediaDirection(int mediaIndex,
                                 SdpDirectionality* directionality) const;
 
    /// Get the port number for the indicated media stream.
@@ -398,7 +398,7 @@ class SdpBody : public HttpBody
                                   ) const;
 
    /// Get the attribute the indicated media stream.
-   /// @return TRUE is the attribute is found in either the specified media description or the 
+   /// @return TRUE is the attribute is found in either the specified media description or the
    ///         session descrpition section.
    UtlBoolean getMediaAttribute(int mediaIndex,                 ///< which media description set to read
                                 const UtlString& attributeName, ///< name of attribute to search for
@@ -449,7 +449,7 @@ class SdpBody : public HttpBody
    void getBestAudioCodecs(SdpCodecFactory& localRtpCodecs, // version used by SipConnection class
                            int& numCodecsInCommon,
                            SdpCodec**& codecsInCommonArray,
-                           UtlString& rtpAddress, 
+                           UtlString& rtpAddress,
                            int& rtpPort,
                            int& rtcpPort,
                            int& videoRtpPort,
@@ -481,12 +481,12 @@ class SdpBody : public HttpBody
      */
     UtlBoolean getCandidateAttribute(int index,
                                      UtlString& rId,
-                                     double& rQvalue, 
-                                     UtlString& rUserFrag, 
-                                     UtlString& rPassword, 
-                                     UtlString& rUnicastIp, 
-                                     int& rUnicastPort, 
-                                     UtlString& rCandidateIp, 
+                                     double& rQvalue,
+                                     UtlString& rUserFrag,
+                                     UtlString& rPassword,
+                                     UtlString& rUnicastIp,
+                                     int& rUnicastPort,
+                                     UtlString& rCandidateIp,
                                      int& rCandidatePort) const ;
 
 ///@}
@@ -494,7 +494,7 @@ class SdpBody : public HttpBody
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
    friend class SdpBodyTest;
-   
+
    /**
     * @name ====================== Generic SDP field accessors
     *
@@ -526,7 +526,7 @@ class SdpBody : public HttpBody
 ///@}
 
    /// Parse an existing string into the internal representation.
-   void parseBody(const char* bytes = NULL, ///< NULL creates an empty body             
+   void parseBody(const char* bytes = NULL, ///< NULL creates an empty body
                   ssize_t byteCount = -1        ///< -1 means treat bytes as null terminated
                   );
 
@@ -541,22 +541,22 @@ class SdpBody : public HttpBody
     *
     * Example:
     * @code
-    * 
+    *
     *    ssize_t timeLocation = findFirstOf("zkam");
     *    addValue("t", value.data(), timeLocation);
-    * 
+    *
     * @endcode
     */
-   
+
    /// Is the named field optional according to RFC 2327? true==optional.
    bool isOptionalField(const char* name) const;
 
    /// Add the given name/value pair to the body at the specified position.
-   void addValue(const char* name, 
-                 const char* value = NULL, 
+   void addValue(const char* name,
+                 const char* value = NULL,
                  ssize_t fieldIndex = UTL_NOT_FOUND /**< UTL_NOT_FOUND == at the end */
                  );
-   
+
    UtlSList* sdpFields;
 
    /// Position to the field instance.
@@ -573,23 +573,23 @@ class SdpBody : public HttpBody
    static NameValuePair* findFieldNameBefore(UtlSListIterator* iter,
                                              const char* targetFieldName,
                                              const char* beforeFieldName);
-   
+
    /**<
     * Modifies a specific subfield on a given SDP line value.
     */
-   bool modifySdpSubfieldValue( UtlString& sdpLineValue, 
-                                int subFieldToModifyIndex, 
+   bool modifySdpSubfieldValue( UtlString& sdpLineValue,
+                                int subFieldToModifyIndex,
                                 const UtlString& subFiledReplacement );
 
    /**<
     * Returns the reference of the first SDP attribute (a= line) matching
     * the supplied name for the specified media description.  If the attribute
-    * is not found in the media descrption, the session description session 
+    * is not found in the media descrption, the session description session
     * is then searched for a match.
-    */ 
+    */
    NameValuePair* getRefToMediaAttributeByName( int mediaIndex,
                                                 const char* pAttributeName ) const;
-   
+
 
    //! Disabled assignment operator
    SdpBody& operator=(const SdpBody& rhs);

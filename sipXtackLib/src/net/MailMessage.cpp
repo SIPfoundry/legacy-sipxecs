@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
         message.To("XXX","XXXr@pingtel.com");
         message.Send();
 
-       
+
 */
 
 
@@ -95,7 +95,7 @@ UtlString MailMessage::Send()
     char receiveBuf[MAILBUFLEN];
     UtlString r;
     UtlString str;
-     
+
     // Connect to the SMTP server
     OsConnectionSocket s(25,m_Server.data());
 
@@ -148,7 +148,7 @@ UtlString MailMessage::Send()
         str += m_vecCc[i].Address.data();
         str += CRLF.data();
         s.write(str.data(),str.length());
-        
+
         // Receive a 250 response
         s.read(receiveBuf,MAILBUFLEN);
         if (memcmp(receiveBuf,"250",3) != 0)
@@ -161,7 +161,7 @@ UtlString MailMessage::Send()
         str += m_vecBcc[i].Address.data();
         str += CRLF.data();
         s.write(str.data(),str.length());
-        
+
         // Receive a 250 response
         s.read(receiveBuf,MAILBUFLEN);
         if (memcmp(receiveBuf,"250",3) != 0)
@@ -172,7 +172,7 @@ UtlString MailMessage::Send()
     str = "DATA";
     str += CRLF.data();
     s.write(str.data(),str.length());
-    
+
     // Receive a 354 response
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"354",3) != 0)
@@ -190,7 +190,7 @@ UtlString MailMessage::Send()
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"250",3) != 0)
         return "Unacceptable response to body: " + r;
-    
+
     return "";
 }
 
@@ -222,7 +222,7 @@ UtlString MailMessage::FormatForSending()
         }
     }
     data += CRLF;
-    
+
     // Cc: "Name" <Address>, "Name" <Address>
     data += "Cc: ";
     for (i = 0; i < m_vecCc.size(); i++)
@@ -243,7 +243,7 @@ UtlString MailMessage::FormatForSending()
         }
     }
     data += CRLF;
-    
+
     // Subject: Subject text
     data += "Subject: " + m_Subject + CRLF;
 

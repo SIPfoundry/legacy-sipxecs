@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -32,13 +32,13 @@ class SipLineTest : public CppUnit::TestCase
       CPPUNIT_TEST_SUITE_END();
 
 public:
-    
+
     // Basic santity checking for lines; make sure they work as expected
     void sanityTest()
     {
         Url identity("\"Display Name\" <sip:userId@example.com>", Url::NameAddr, NULL) ;
         SipLine line(identity, identity, "userId") ;
-                    
+
         Url url = line.getIdentity() ;
         ASSERT_STR_EQUAL(identity.toString().data(), url.toString().data()) ;
         line.getPreferredContactUri(url) ;
@@ -48,19 +48,19 @@ public:
         url.getUrlParameter(SIP_LINE_IDENTIFIER, lineParamId) ;
         ASSERT_STR_EQUAL(lineParamId.data(), lineId.data()) ;
     }
-    
+
     // Test the SipLine::matchesUserId function
-    void matchUserId() 
+    void matchUserId()
     {
         Url identity("\"Display Name\" <sip:userId@example.com>", Url::NameAddr, NULL) ;
-        
+
         // Normal line definitions
-        SipLine line(identity, identity, "userId") ;        
+        SipLine line(identity, identity, "userId") ;
         CPPUNIT_ASSERT(line.matchesUserId("") == false) ;
         CPPUNIT_ASSERT(line.matchesUserId("USERID") == false) ;
         CPPUNIT_ASSERT(line.matchesUserId("userId") == true) ;
         CPPUNIT_ASSERT(line.matchesUserId("xyz123") == false) ;
-        
+
         // Addition of an alias
         Url alias("\"Display Name\" <sip:alias@example.com>", Url::NameAddr, NULL) ;
         line.addAlias(alias) ;
@@ -69,7 +69,7 @@ public:
         CPPUNIT_ASSERT(line.matchesUserId("userId") == true) ;
         CPPUNIT_ASSERT(line.matchesUserId("alias") == true) ;
         CPPUNIT_ASSERT(line.matchesUserId("xyz123") == false) ;
-        
+
         // Alias with no userId
         Url alias2("\"Display Name\" <sip:127.0.0.1>", Url::NameAddr, NULL) ;
         line.addAlias(alias2) ;
@@ -79,16 +79,16 @@ public:
         CPPUNIT_ASSERT(line.matchesUserId("alias") == true) ;
         CPPUNIT_ASSERT(line.matchesUserId("xyz123") == false) ;
     }
-    
-    // Test the SipLine::matchesIdentity function    
+
+    // Test the SipLine::matchesIdentity function
     void matchIdentity()
     {
         Url preferredContact;
         Url identity("\"Display Name\" <sip:userId@example.com>", Url::NameAddr, NULL) ;
-        SipLine line(identity, identity, "userId") ;        
+        SipLine line(identity, identity, "userId") ;
         line.getPreferredContactUri(preferredContact) ;
-        
-        CPPUNIT_ASSERT(line.matchesIdentity("") == false) ;        
+
+        CPPUNIT_ASSERT(line.matchesIdentity("") == false) ;
         CPPUNIT_ASSERT(line.matchesIdentity(identity) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:userId@example.com", Url::NameAddr, NULL)) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("<sip:userId@example.com:5060>", Url::NameAddr, NULL)) == true) ;
@@ -97,7 +97,7 @@ public:
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:example.com", Url::NameAddr, NULL)) == false) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:userId@example_com", Url::NameAddr, NULL)) == false) ;
         CPPUNIT_ASSERT(line.matchesIdentity(preferredContact) == true) ;
-        
+
         // Addition of an alias
         Url alias("\"Display Name\" <sip:alias@example.com>", Url::NameAddr, NULL) ;
         line.addAlias(alias) ;
@@ -111,28 +111,28 @@ public:
         CPPUNIT_ASSERT(line.matchesIdentity(preferredContact) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(alias) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:example.com", Url::NameAddr, NULL)) == false) ;
-                
+
         // Alias with no userId
         Url alias2("\"Display Name\" <sip:127.0.0.1>", Url::NameAddr, NULL) ;
-        line.addAlias(alias2) ;        
+        line.addAlias(alias2) ;
         CPPUNIT_ASSERT(line.matchesIdentity(identity) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(alias) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(alias2) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:userId@example.com", Url::NameAddr, NULL)) == true) ;
         CPPUNIT_ASSERT(line.matchesIdentity(Url("sip:example.com", Url::NameAddr, NULL)) == false) ;
     }
-    
-    // Test the SipLine::matchesLineId function        
-    void matchLineId() 
+
+    // Test the SipLine::matchesLineId function
+    void matchLineId()
     {
         Url identity("\"Display Name\" <sip:userId@example.com>", Url::NameAddr, NULL) ;
         SipLine line(identity, identity, "userId") ;
-                
+
         CPPUNIT_ASSERT(line.matchesLineId("") == false) ;
         CPPUNIT_ASSERT(line.matchesLineId(line.getLineId()) == true) ;
-        CPPUNIT_ASSERT(line.matchesLineId("xyz123") == false) ;        
+        CPPUNIT_ASSERT(line.matchesLineId("xyz123") == false) ;
     }
-    
+
     // Test line adding functions from the SipLineMgr
     void testLineManagerAddLine()
     {
@@ -150,18 +150,18 @@ public:
         // Add Line
         bRC = mgr.addLine(line, false) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         // Add alias
         bRC = mgr.addLineAlias(identity, alias) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         // Add credential
         UtlString passwordToken;
         HttpMessage::buildMd5UserPasswordDigest("userId", "testRealm", "password", passwordToken);
         bRC = mgr.addCredentialForLine(identity, "testRealm", "userId", passwordToken, HTTP_DIGEST_AUTHENTICATION) ;
         CPPUNIT_ASSERT(bRC) ;
-        
-        
+
+
         // Sanity Checking
         iRC = mgr.getNumLines() ;
         CPPUNIT_ASSERT(iRC == 1) ;
@@ -169,9 +169,9 @@ public:
         CPPUNIT_ASSERT(iRC == 1) ;
         iRC = mgr.getNumOfCredentialsForLine(alias) ;
         CPPUNIT_ASSERT(iRC == 1) ;
-        
+
         SipLine test ;
-        
+
         //
         // Test getLine via "To" URL
         //
@@ -182,7 +182,7 @@ public:
         bRC = mgr.getLine("sip:bogus@example.com", "", "", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("sip:example.com", "", "", test) ;
-        CPPUNIT_ASSERT(!bRC) ;        
+        CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("sip:userId@127.0.0.1", "", "", test) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = mgr.getLine("sip:alias@127.0.0.1", "", "", test) ;
@@ -190,11 +190,11 @@ public:
         bRC = mgr.getLine("sip:bogus@127.0.0.1", "", "", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("sip:127.0.0.1", "", "", test) ;
-        CPPUNIT_ASSERT(!bRC) ;        
+        CPPUNIT_ASSERT(!bRC) ;
         sprintf(cTemp, "<sip:127.0.0.1;LINEID=%s>", lineId.data()) ;
         bRC = mgr.getLine(cTemp, "", "", test) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         //
         // Test getLine via local contact
         //
@@ -205,7 +205,7 @@ public:
         bRC = mgr.getLine("", "sip:bogus@example.com", "", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "sip:example.com", "", test) ;
-        CPPUNIT_ASSERT(!bRC) ;        
+        CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "sip:userId@127.0.0.1", "", test) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = mgr.getLine("", "sip:alias@127.0.0.1", "", test) ;
@@ -213,13 +213,13 @@ public:
         bRC = mgr.getLine("", "sip:bogus@127.0.0.1", "", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "sip:127.0.0.1", "", test) ;
-        CPPUNIT_ASSERT(!bRC) ;                
+        CPPUNIT_ASSERT(!bRC) ;
         sprintf(cTemp, "<sip:127.0.0.1;LINEID=%s>", lineId.data()) ;
         bRC = mgr.getLine("", cTemp, "", test) ;
-        CPPUNIT_ASSERT(bRC) ;  
-        
+        CPPUNIT_ASSERT(bRC) ;
+
         //
-        // Test getLine via request URI 
+        // Test getLine via request URI
         //
         bRC = mgr.getLine("", "", "sip:userId@example.com", test) ;
         CPPUNIT_ASSERT(bRC) ;
@@ -228,7 +228,7 @@ public:
         bRC = mgr.getLine("", "", "sip:bogus@example.com", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "", "sip:example.com", test) ;
-        CPPUNIT_ASSERT(!bRC) ;        
+        CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "", "sip:userId@127.0.0.1", test) ;
         CPPUNIT_ASSERT(bRC) ;
         bRC = mgr.getLine("", "", "sip:alias@127.0.0.1", test) ;
@@ -236,19 +236,19 @@ public:
         bRC = mgr.getLine("", "", "sip:bogus@127.0.0.1", test) ;
         CPPUNIT_ASSERT(!bRC) ;
         bRC = mgr.getLine("", "", "sip:127.0.0.1", test) ;
-        CPPUNIT_ASSERT(!bRC) ;                
+        CPPUNIT_ASSERT(!bRC) ;
         sprintf(cTemp, "sip:127.0.0.1;LINEID=%s", lineId.data()) ;
         bRC = mgr.getLine("", "", cTemp, test) ;
-        CPPUNIT_ASSERT(bRC) ;                
+        CPPUNIT_ASSERT(bRC) ;
     }
-    
-    void buildRequestAndResponse(const Url& from, 
-                                 const Url& contact, 
+
+    void buildRequestAndResponse(const Url& from,
+                                 const Url& contact,
                                  SipMessage& request,
                                  SipMessage& response)
     {
         char cTemp[2048] ;
-        
+
         const char* requestTemplate = \
             "REFER sip:foo@example.com\r\n"
             "Route: <sip:127.0.0.1:5060;lr;sipXecs-rs=%%2Afrom%%7ERkI5Mjc4NjktNjY4QjM4NzQ%%60.400_authrules%%2Aauth%%7E%%212e6c4f0639ffe4ffbf878dc06fd5af09>\r\n"
@@ -268,8 +268,8 @@ public:
             "Via: SIP/2.0/UDP 127.0.0.1:5150;branch=z9hG4bK-sipX-000a66399056f9864f015727ce351eb7e7ec\r\n"
             "Content-Length: 0\n"
             "\r\n" ;
-        
-        sprintf(cTemp, requestTemplate, 
+
+        sprintf(cTemp, requestTemplate,
                 from.toString().data(),
                 contact.toString().data()) ;
 
@@ -288,13 +288,13 @@ public:
             "Contact: <sip:127.0.0.1:5060>\r\n"
             "Content-Length: 0\r\n"
             "\r\n" ;
-        
-        sprintf(cTemp, responseTemplate, 
+
+        sprintf(cTemp, responseTemplate,
                 from.toString().data()) ;
-                
-        response.parseMessage(cTemp, strlen(cTemp)) ;        
+
+        response.parseMessage(cTemp, strlen(cTemp)) ;
     }
-    
+
     // Test matching line authentication credentials
     void testLineManagerAuthLineSelect()
     {
@@ -303,39 +303,39 @@ public:
         Url alias("\"Display Name\" <sip:alias@example.com>", Url::NameAddr, NULL) ;
         UtlBoolean bRC ;
         Url from ;
-        Url contact ;        
+        Url contact ;
         SipLineMgr mgr ;
-        
+
         // Add line
-        SipLine line(identity, identity, "userId") ;        
+        SipLine line(identity, identity, "userId") ;
         lineId = line.getLineId() ;
         bRC = mgr.addLine(line, false) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         // Add alias
         bRC = mgr.addLineAlias(identity, alias) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         // Add credential
         UtlString passwordToken;
         HttpMessage::buildMd5UserPasswordDigest("userId", "testRealm", "password", passwordToken);
         bRC = mgr.addCredentialForLine(identity, "testRealm", "userId", passwordToken, HTTP_DIGEST_AUTHENTICATION) ;
         CPPUNIT_ASSERT(bRC) ;
-        
+
         // Expected From and Contact
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-        
+
             from = identity ;
             from.setFieldParameter("tag", "5678") ;
-            line.getPreferredContactUri(contact) ;        
+            line.getPreferredContactUri(contact) ;
             buildRequestAndResponse(from, contact, request, response) ;
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
-        
+
         // Expected From and Contact w/o lineId
         {
             SipMessage request ;
@@ -355,20 +355,20 @@ public:
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-            
+
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = Url("sip:unknown@example.com", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(!bRC) ;
         }
-        
+
         // Unknown identity and Unknown Contact w/ LineId
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-            
+
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = Url("sip:unknown@example.com", Url::NameAddr, NULL) ;
             contact.setUrlParameter("LINEID", lineId) ;
@@ -376,13 +376,13 @@ public:
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
-        
+
         // Unknown identity and IP w/ LineId
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-            
+
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             contact.setUrlParameter("LINEID", lineId) ;
@@ -390,48 +390,48 @@ public:
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
-        
+
         // Expected identity and Unknown contact
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-            
+
             from = identity ;
-            from.setFieldParameter("tag", "5678") ;            
+            from.setFieldParameter("tag", "5678") ;
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
-        
+
         // Alias identity and Unknown contact
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth;
-            
+
             from = alias ;
-            from.setFieldParameter("tag", "5678") ;            
+            from.setFieldParameter("tag", "5678") ;
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
-        }        
+        }
 
         // Unknown identity and alias contact
         {
             SipMessage request ;
             SipMessage response ;
             SipMessage requestWithAuth ;
-            
+
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = alias;
             buildRequestAndResponse(from, contact, request, response) ;
             bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
-        }        
-    }    
+        }
+    }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipLineTest);

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -120,8 +120,8 @@ SipDialog::SipDialog(const SipMessage* initialMessage,
 }
 
 // Constructor
-SipDialog::SipDialog(const char* callId, 
-                     const char* localField, 
+SipDialog::SipDialog(const char* callId,
+                     const char* localField,
                      const char* remoteField)
     : UtlString(callId)
 {
@@ -169,7 +169,7 @@ SipDialog::~SipDialog()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipDialog& 
+SipDialog&
 SipDialog::operator=(const SipDialog& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -227,12 +227,12 @@ void SipDialog::updateDialogData(const SipMessage& message)
         // This message is part of a transaction initiated by
         // the local side of the dialog
 
-        if(cSeq > mLastLocalCseq) 
+        if(cSeq > mLastLocalCseq)
         {
             mLastLocalCseq = cSeq;
         }
 
-        if(cSeq >= mLastLocalCseq) 
+        if(cSeq >= mLastLocalCseq)
         {
             // Always update the contact if it is set
             UtlString messageContact;
@@ -260,7 +260,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
             // A successful response to an INVITE or SUBSCRIBE
             // make this early dialog a set up dialog
             if(mLocalInitiatedDialog &&
-               message.isResponse() && 
+               message.isResponse() &&
                responseCode >= SIP_2XX_CLASS_CODE && // successful dialog setup
                responseCode < SIP_3XX_CLASS_CODE &&
                mRemoteTag.isNull() && // tag not set
@@ -289,7 +289,7 @@ void SipDialog::updateDialogData(const SipMessage& message)
 
         // This message is part of a transaction initiated by
         // the callee/destination of the session
-        if(cSeq > mLastRemoteCseq) 
+        if(cSeq > mLastRemoteCseq)
         {
             mLastRemoteCseq = cSeq;
         }
@@ -334,10 +334,10 @@ void SipDialog::updateDialogData(const SipMessage& message)
         if(cSeq == mLastRemoteCseq)
         {
             if(!mLocalInitiatedDialog &&
-               message.isResponse() && 
+               message.isResponse() &&
                responseCode >= SIP_2XX_CLASS_CODE && // successful dialog setup
                responseCode < SIP_3XX_CLASS_CODE &&
-               mLocalTag.isNull()) 
+               mLocalTag.isNull())
             {
                 // Update the local tag
                 message.getToUrl(mLocalField);
@@ -354,7 +354,7 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     {
         request.getRequestMethod(&methodString);
     }
-    
+
     // The request URI should be the remote contact
     UtlString remoteContact;
     // Use getUri() to get the contact in addr-spec format.
@@ -362,7 +362,7 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     // URI parameters, toString would add <...>, which are not allowed
     // in URIs.)
     mRemoteContact.getUri(remoteContact);
-    
+
     // If the remote contact is empty, use the remote request uri
     if (remoteContact.compareTo("sip:") == 0)
     {
@@ -374,7 +374,7 @@ void SipDialog::setRequestData(SipMessage& request, const char* method)
     {
          request.setSipRequestFirstHeaderLine(methodString, remoteContact);
     }
-    
+
     // The local field is the From field
     UtlString fromField;
     mLocalField.toString(fromField);
@@ -654,7 +654,7 @@ UtlBoolean SipDialog::isSameDialog(const UtlString& callId,
        {
            isSameDialog = TRUE;
        }
-       
+
        else if(remoteTag.compareTo(mLocalTag, UtlString::ignoreCase) == 0 &&
            localTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0)
        {
@@ -725,7 +725,7 @@ UtlBoolean SipDialog::wasEarlyDialogFor(const UtlString& callId,
 {
     UtlBoolean wasSameEarlyDialog = FALSE;
 
-    // Assume that if any either of the given tags matches 
+    // Assume that if any either of the given tags matches
     // one of the dialog's tags that they shared the same
     // early dialog
     if(localTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
@@ -769,7 +769,7 @@ UtlBoolean SipDialog::isTransactionRemotelyInitiated(const UtlString& callId,
            (fromTag.compareTo(mRemoteTag, UtlString::ignoreCase) == 0 ||
            mRemoteTag.isNull())) // If this is remotely initiated fromTag
            // cannot be a null string.  mRemoteTag can be a null string
-           // as occurs when a remotely initiated NOTIFY is received 
+           // as occurs when a remotely initiated NOTIFY is received
            // before the SUBSCRIBE response is received.
         {
             isRemoteDialog = TRUE;
@@ -905,7 +905,7 @@ void SipDialog::toString(UtlString& dialogDumpString)
     dialogDumpString.append(numberString);
 }
 
-void SipDialog::getStateString(DialogState state, 
+void SipDialog::getStateString(DialogState state,
                                UtlString& stateString)
 {
     switch(state)
@@ -941,4 +941,3 @@ void SipDialog::getStateString(DialogState state,
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

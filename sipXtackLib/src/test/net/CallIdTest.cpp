@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ public:
           {
              UtlString* s1 = &output[i];
              UtlString* s2 = &output[j];
-             
+
              int differences = 0;
              for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
              {
@@ -109,7 +109,7 @@ public:
           {
              UtlString* s1 = &output[i];
              UtlString* s2 = &output[j];
-             
+
              int differences = 0;
              for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
              {

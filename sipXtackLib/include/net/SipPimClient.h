@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -37,7 +37,7 @@ class SipMessage;
  * that a user interface can provide a session base
  * end user experience using a non-session based
  * messages.
- * 
+ *
  *
  * \par Presence State
  * The setPresenceState method can be sued to set the
@@ -56,7 +56,7 @@ class SipPimClient : public OsServerTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    typedef enum 
+    typedef enum
     {
         invalid = -1,
         closed,
@@ -89,12 +89,12 @@ public:
      * \param responseCode - the response code from the request to sent the text
      * \param responseCodeText - the response code text from the top header line
      */
-    UtlBoolean sendPagerMessage(Url& destinationAor, 
+    UtlBoolean sendPagerMessage(Url& destinationAor,
                                 const char* messageText,
                                 int& responseCode,
                                 UtlString& responseCodeText);
 
-    //! Set callback function for incoming pager mode text messages 
+    //! Set callback function for incoming pager mode text messages
     /*! Set the function to be called if there are incoming MESSAGE
      * requests with text bodies.  Note: the SipPimClient task MUST
      * be started up for the callback to get invoked.
@@ -109,7 +109,7 @@ public:
                                  int textLength,
                                  const SipMessage& messageRequest));
 
-    //! Update the presence state of the presentity indicate 
+    //! Update the presence state of the presentity indicate
     /*! Send a PUBLISH request to update the RPID document with the
      * given presence state.  If the current state is the same
      * the presence state document is not updated.

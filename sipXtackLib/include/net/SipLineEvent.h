@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 #include <net/SipMessage.h>
 
 
-class SipLineEvent : public OsMsg  
+class SipLineEvent : public OsMsg
 {
 public:
    enum EventSubTypes
@@ -35,7 +35,7 @@ public:
    };
 
 
-   SipLineEvent(SipLine* Line, 
+   SipLineEvent(SipLine* Line,
       int msgType = SipLineEvent::SIP_LINE_EVENT_FAILED,
       UtlString realm ="",
       UtlString scheme = HTTP_DIGEST_AUTHENTICATION,
@@ -44,32 +44,32 @@ public:
       void* observeData = NULL);
 
    virtual ~SipLineEvent();
-   
+
    virtual OsMsg* createCopy(void) const;
-   
+
    SipLineEvent& operator=(const SipLineEvent& rhs) ;
 
    int getSipReturnCode();
-   
+
    UtlString& getSipReturnText();
-   
+
    SipLine* getLine();
-   
+
    UtlString& getRealm();
-   
+
    UtlString& getScheme();
-   
-   
+
+
    void setMessageType(int status);
-   
+
    int getMessageType() const;
-   
+
    void setObserverData(void* pData);
-   
+
    void* getObserverData();
 
 private:
-   
+
    UtlString mRealm;
    UtlString mScheme;
    UtlString mSipReturnText;

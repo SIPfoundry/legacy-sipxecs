@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ void CallId::getNewCallId(UtlString& callId)
 
    // Increment the call number.
    sCallNum += 1;
-    
+
    // Compute the next value.
    nextValue();
 
@@ -131,17 +131,17 @@ void CallId::initialize()
    OsTime currentTime;
    OsDateTime::getCurTime(currentTime);
    encoder.hash(&currentTime, sizeof(currentTime));
-   
+
    // Get the process ID.
    PID processId;
    processId = OsProcess::getCurrentPID();
    encoder.hash(&processId, sizeof(processId));
-   
+
    // Get the host identity.
    UtlString thisHost;
    OsSocket::getHostIp(&thisHost);
    encoder.hash(thisHost);
-   
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "CallId::initialize sChainValue");
 

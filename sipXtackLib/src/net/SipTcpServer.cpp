@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -38,14 +38,14 @@
 // Constructor
 SipTcpServer::SipTcpServer(int port,
                            SipUserAgent* userAgent,
-                           const char* protocolString, 
+                           const char* protocolString,
                            const char* taskName,
                            UtlBoolean bUseNextAvailablePort,
                            const char* szBindAddr) :
     SipProtocolServerBase(userAgent,
                           protocolString,
                           taskName)
-{   
+{
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipTcpServer[%s]::_  '%s' %s port %d szBindAddr = '%s'",
                  getName().data(), mName.data(),
@@ -92,7 +92,7 @@ UtlBoolean SipTcpServer::startListener()
     // Iterate over the SipServerBroker map and call start on each element.
     UtlHashMapIterator iterator(mServerBrokers);
     UtlString* pKey;
-    
+
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
        (dynamic_cast <SipServerBroker*> (iterator.value()))->start();
@@ -106,7 +106,7 @@ UtlBoolean SipTcpServer::createServerSocket(const char* szBindAddr,
                                             const UtlBoolean& bUseNextAvailablePort)
 {
    UtlBoolean bSuccess = TRUE ;
-   
+
    // port == PORT_NONE can be used to suppress creating sockets.
    // This is a hack, but is needed to support SipTlsServer.
    // :TODO: Clean this up.
@@ -162,7 +162,7 @@ UtlBoolean SipTcpServer::createServerSocket(const char* szBindAddr,
           bSuccess = false;
       }
    }
-   
+
    return bSuccess ;
 }
 
@@ -229,7 +229,7 @@ OsSocket* SipTcpServer::buildClientSocket(int hostPort,
 /* ============================ ACCESSORS ================================= */
 
 // The local server port for this server
-int SipTcpServer::getServerPort() const 
+int SipTcpServer::getServerPort() const
 {
     return mServerPort;
 }
@@ -241,14 +241,14 @@ int SipTcpServer::isOk()
 
     UtlHashMapIterator iterator(mServerBrokers);
     UtlString* pKey;
-    
+
     while ((pKey = dynamic_cast <UtlString*> (iterator())))
     {
        count++;
        SipServerBroker* pBroker = dynamic_cast<SipServerBroker*> (iterator.value());
        if (pBroker)
        {
-          bRet = bRet && pBroker->isOk() ;       
+          bRet = bRet && pBroker->isOk() ;
        }
        else
        {
@@ -256,10 +256,10 @@ int SipTcpServer::isOk()
           bRet = false;
        }
     }
-    
+
     // We are not OK if any of the brokers report problems or we don't
     // have any brokers (e.g. unable to bind on port)
-    return bRet && (count > 0);    
+    return bRet && (count > 0);
 }
 
 UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMessage)
@@ -268,7 +268,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
     OsPtrMsg *pPtrMsg = NULL;
-    
+
     if (msgType == OsMsg::OS_EVENT)
     {
         // If we are receiving this message, an accept has occurred,
@@ -280,11 +280,11 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             // unpackage the client socket
             pPtrMsg = dynamic_cast<OsPtrMsg*>(&eventMessage);
             assert(pPtrMsg);
-            
+
             OsConnectionSocket* clientSocket = reinterpret_cast<OsConnectionSocket*>(pPtrMsg->getPtr());
             assert(clientSocket);
-            
-            SipClient* client = 
+
+            SipClient* client =
                new SipClientTcp(clientSocket, mpOwner, mpOwner->mSipUserAgent);
 
             UtlString hostAddress;
@@ -333,7 +333,7 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
                           mpOwner->mProtocolString.data());
         }
     }
-    
+
     return bRet;
 }
 

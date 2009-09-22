@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ HttpServer::HttpServer(OsServerSocket *pSocket,
    {
       OsSysLog::add(FAC_SIP, PRI_INFO, "HttpServer: Using persistent connections" );
    }
-   
+
 }
 
 void HttpServer::loadValidIpAddrList()
@@ -152,7 +152,7 @@ HttpServer::~HttpServer()
     waitUntilShutDown();
 
     /// mpServerSocket is not deleted - the caller of the constructor owns it
-    
+
     if(mpValidIpAddressDB)
     {
        delete mpValidIpAddressDB;
@@ -203,13 +203,13 @@ OsStatus HttpServer::getStatus()
 UtlBoolean HttpServer::isSocketOk() const
 {
     UtlBoolean bOk = FALSE;
-    
+
     if (mpServerSocket)
     {
         bOk = mpServerSocket->isOk();
     }
-        
-    return bOk;    
+
+    return bOk;
 }
 
 int HttpServer::run(void* runArg)
@@ -225,7 +225,7 @@ int HttpServer::run(void* runArg)
     while(!isShuttingDown() && mpServerSocket->isOk())
     {
         requestSocket = mpServerSocket->accept();
-        
+
         if(requestSocket)
         {
             if (mbPersistentConnection)
@@ -235,7 +235,7 @@ int HttpServer::run(void* runArg)
                 if (items != 0)
                 {
                     int deleted = 0;
-                    
+
                     UtlSListIterator iterator(*mpHttpConnectionList);
                     HttpConnection* connection;
                     while ((connection = dynamic_cast<HttpConnection*>(iterator())))
@@ -245,9 +245,9 @@ int HttpServer::run(void* runArg)
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                          "HttpServer: destroying connection %p",
                                          connection);
-                           mpHttpConnectionList->destroy(connection);                            
+                           mpHttpConnectionList->destroy(connection);
                            ++deleted;
-                            
+
                            if (mHttpConnections > 0)
                            {
                               --mHttpConnections;
@@ -255,20 +255,20 @@ int HttpServer::run(void* runArg)
                         }
                     }
                     items = mpHttpConnectionList->entries();
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                   "HttpServer: "
-                                  "destroyed %d inactive HttpConnections, %d remaining", 
-                                  deleted, items);                    
+                                  "destroyed %d inactive HttpConnections, %d remaining",
+                                  deleted, items);
                 }
-                // Create new persistent connection             
+                // Create new persistent connection
                 if (mHttpConnections < MAX_PERSISTENT_HTTP_CONNECTIONS)
                 {
                     ++mHttpConnections;
                     HttpConnection* newConnection = new HttpConnection(requestSocket, this);
                     mpHttpConnectionList->append(newConnection);
                     OsSysLog::add(FAC_SIP, PRI_INFO,
-                                  "HttpServer::run starting persistent connection %d (%p)", 
-                                  mHttpConnections, newConnection);                    
+                                  "HttpServer::run starting persistent connection %d (%p)",
+                                  mHttpConnections, newConnection);
                     newConnection->start();
                 }
                 else
@@ -281,7 +281,7 @@ int HttpServer::run(void* runArg)
                     HttpMessage response;
                     // Read the http request from the socket
                     request.read(requestSocket);
-                    
+
                     // Send out-of-resources message
                     response.setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                                         HTTP_OUT_OF_RESOURCES_CODE,
@@ -289,7 +289,7 @@ int HttpServer::run(void* runArg)
                     response.write(requestSocket);
                     requestSocket->close();
                     delete requestSocket;
-                    requestSocket = NULL;                                                         
+                    requestSocket = NULL;
                 }
             }
             else
@@ -326,13 +326,13 @@ int HttpServer::run(void* runArg)
         {
            httpStatus = OS_PORT_IN_USE;
         }
-    } // while (!isShuttingDown && mpServerSocket->isOk()) 
+    } // while (!isShuttingDown && mpServerSocket->isOk())
 
     if ( !isShuttingDown() )
     {
        OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
     }
-    
+
     httpStatus = OS_TASK_NOT_STARTED;
 
     return(TRUE);
@@ -1218,7 +1218,7 @@ void HttpServer::addRequestProcessor(const char* fileUrl,
                  fileUrl, requestProcessor);
 
    addUriMap( fileUrl, fileUrl );
-   
+
    UtlString* name = new UtlString(fileUrl);
    UtlVoidPtr* value = new UtlVoidPtr((void*)requestProcessor);
    mRequestProcessorMethods.insertKeyAndValue(name, value);
@@ -1256,7 +1256,7 @@ UtlBoolean HttpServer::findHttpService(const char* fileUri, HttpService*& pServi
 {
     UtlString path(fileUri);
     pService = NULL;
-    
+
     while (   !pService
            && !path.isNull()
            && !(pService = dynamic_cast<HttpService*>(mHttpServices.findValue(&path))))
@@ -1288,7 +1288,7 @@ UtlBoolean HttpServer::mapUri(UtlHashMap& uriMaps, const char* uri, UtlString& m
 {
     UtlBoolean mapFound = FALSE;
     mappedUri.remove(0);
-    
+
     if(uri)
     {
         UtlString originalUri(uri);

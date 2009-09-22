@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ public:
 
       for (int i=0; i<SIP_SHUTDOWN_ITERATIONS; ++i)
       {
-         SipTcpServer pSipTcpServer(5090, &sipUA, SIP_TRANSPORT_TCP, 
+         SipTcpServer pSipTcpServer(5090, &sipUA, SIP_TRANSPORT_TCP,
                                     "SipTcpServer-%d", false);
          pSipTcpServer.startListener();
 

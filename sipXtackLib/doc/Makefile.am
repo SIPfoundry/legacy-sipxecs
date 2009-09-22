@@ -8,5 +8,3 @@ EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
   license/MD5-LICENSE
-
-

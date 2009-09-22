@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@
 // Constructor
 XmlRpcResponse::XmlRpcResponse() :
    mpResponseBody(NULL),
-   mResponseValue(NULL),   
+   mResponseValue(NULL),
    mFaultCode(ILL_FORMED_CONTENTS_FAULT_CODE),
    mFaultString(ILL_FORMED_CONTENTS_FAULT_STRING)
 {
@@ -45,7 +45,7 @@ XmlRpcResponse::~XmlRpcResponse()
    {
       XmlRpcBody::deallocateValue(mResponseValue);
    }
-   
+
    if (mpResponseBody)
    {
       delete mpResponseBody;
@@ -60,27 +60,27 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
    // assume the worst
    mFaultCode   = IllFormedContents;
    mFaultString = ILL_FORMED_CONTENTS_FAULT_STRING;
-   
+
    // Parse the XML-RPC response
    TiXmlDocument doc("XmlRpcResponse.xml"); // document name is required but not used
-   
-   doc.Parse(responseContent);      
+
+   doc.Parse(responseContent);
    if (!doc.Error())
    {
-      TiXmlNode* rootNode = doc.FirstChild ("methodResponse");      
+      TiXmlNode* rootNode = doc.FirstChild ("methodResponse");
       if (rootNode != NULL)
       {
          // Positive response (example)
-         // 
-         // <methodResponse> 
+         //
+         // <methodResponse>
          //   <params>
          //     <param>
          //       <value><string>South Dakota</string></value>
          //     </param>
          //   </params>
          // </methodResponse>
-         
-         TiXmlNode* paramsNode = rootNode->FirstChild("params");        
+
+         TiXmlNode* paramsNode = rootNode->FirstChild("params");
          if (paramsNode != NULL)
          {
             bool parseOk = false;
@@ -89,7 +89,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
             TiXmlNode* paramNode = paramsNode->FirstChild("param");
             if (paramNode)
             {
-               TiXmlNode* subNode = paramNode->FirstChild("value");              
+               TiXmlNode* subNode = paramNode->FirstChild("value");
                if (subNode)
                {
                   // Clean up the memory in mResponseValue
@@ -97,7 +97,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                   {
                      XmlRpcBody::deallocateValue(mResponseValue);
                   }
-            
+
                   mResponseValue = XmlRpcBody::parseValue(subNode,0,parseErrorMsg);
                   parseOk = (mResponseValue != NULL);
                }
@@ -128,11 +128,11 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                              " value parsing error: %s",
                              parseErrorMsg.data());
             }
-            
+
          } // end of params (success) parsing
          else
          {
-            // Fault response 
+            // Fault response
             //
             // <methodResponse>
             //   <fault>
@@ -150,21 +150,21 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
             //     </value>
             //   </fault>
             // </methodResponse>
-            
+
             TiXmlNode* faultNode = rootNode->FirstChild("fault");
-            
+
             if (faultNode != NULL)
             {
                TiXmlNode* subNode = faultNode->FirstChild("value");
-               
+
                if (subNode != NULL)
                {
                   subNode = subNode->FirstChild("struct");
-                  
+
                   if (subNode != NULL)
                   {
                      for (TiXmlNode* memberNode = subNode->FirstChild("member");
-                          memberNode; 
+                          memberNode;
                           memberNode = memberNode->NextSibling("member"))
                      {
                         UtlString nameValue;
@@ -172,7 +172,7 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                             && (memberNode->FirstChild("name"))->FirstChild())
                         {
                            nameValue = (memberNode->FirstChild("name"))->FirstChild()->Value();
-                        
+
                            if (nameValue.compareTo("faultCode") == 0)
                            {
                               if (memberNode->FirstChild("value"))
@@ -287,8 +287,8 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
                     " ill formatted xml contents in %s. Parsing error = %s",
                      responseContent.data(), doc.ErrorDesc());
    }
-   
-   return !isFault;  
+
+   return !isFault;
 }
 
 
@@ -316,12 +316,12 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
       mpResponseBody->append(mMethod);          // method name in the comment
       mpResponseBody->append(END_NAME_COMMENT); // and close the comment
 
-      mpResponseBody->append(BEGIN_PARAMS BEGIN_PARAM);  
-   
-      result = mpResponseBody->addValue(value);        
-   
-      mpResponseBody->append(END_PARAM END_PARAMS END_RESPONSE);   
-        
+      mpResponseBody->append(BEGIN_PARAMS BEGIN_PARAM);
+
+      result = mpResponseBody->addValue(value);
+
+      mpResponseBody->append(END_PARAM END_PARAMS END_RESPONSE);
+
       OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
                     "XmlRpcResponse::setResponse called");
    }
@@ -330,7 +330,7 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
       OsSysLog::add(FAC_XMLRPC, PRI_CRIT,
                     "XmlRpcResponse::setResponse body allocation failed");
    }
-   
+
    return result;
 }
 
@@ -376,15 +376,15 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
       mpResponseBody->append(END_NAME_COMMENT); // and close the comment
 
       mpResponseBody->append(BEGIN_FAULT BEGIN_STRUCT BEGIN_MEMBER FAULT_CODE BEGIN_INT);
-   
+
       char temp[10];
       sprintf(temp, "%d", mFaultCode);
       mpResponseBody->append(temp);
-   
+
       mpResponseBody->append(END_INT END_MEMBER BEGIN_MEMBER FAULT_STRING BEGIN_STRING);
       mpResponseBody->append(mFaultString);
       mpResponseBody->append(END_STRING END_MEMBER END_STRUCT END_FAULT END_RESPONSE);
-      
+
       OsSysLog::add(FAC_XMLRPC, PRI_DEBUG,
                     "mpResponseBody::setFault %d %s", mFaultCode, mFaultString.data());
    }
@@ -426,9 +426,8 @@ XmlRpcBody* XmlRpcResponse::getBody()
       OsSysLog::add(FAC_XMLRPC,PRI_CRIT,"XmlRpcResponse::getBody no body set");
       assert(false);
    }
-   
+
    return mpResponseBody;
 }
 
 /* ============================ FUNCTIONS ================================= */
-

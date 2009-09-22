@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -36,7 +36,7 @@ class SipProxyMessageTest : public CppUnit::TestCase
 private:
 
    SipUserAgent* UserAgent;
-   
+
 public:
 
    void setUp()
@@ -75,10 +75,10 @@ public:
          {
             route.remove(0);
          }
-         
+
          return gotRoute;
       }
-   
+
    void testNoRouteLocal()
       {
          const char* message =
@@ -96,7 +96,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -107,7 +107,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          CPPUNIT_ASSERT(removedRoutes.isEmpty());
@@ -131,7 +131,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -154,7 +154,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -183,7 +183,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
          UtlString normalizedMsg;
          ssize_t msgLen;
@@ -193,7 +193,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          CPPUNIT_ASSERT(removedRoutes.isEmpty());
@@ -217,7 +217,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -240,7 +240,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@other.example.edu", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -249,7 +249,7 @@ public:
          delete removedRoute;
 
          CPPUNIT_ASSERT(removedRoutes.isEmpty());
-         
+
       }
 
    void testTwoRoutesOneLocal()
@@ -270,7 +270,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -279,7 +279,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@somewhere.com", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -341,7 +341,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
       }
 
@@ -363,7 +363,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-   
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -387,7 +387,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@other.example.edu", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -416,7 +416,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -439,7 +439,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -474,7 +474,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -497,7 +497,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@example.com", requestUriResult.data());
 
          UtlString* removedRoute;
@@ -539,7 +539,7 @@ public:
          SipMessage testMsg(message, strlen(message));
          Url requestUri;
          UtlSList removedRoutes;
-         
+
          testMsg.normalizeProxyRoutes(UserAgent, requestUri, &removedRoutes);
 
          UtlString normalizedMsg;
@@ -548,7 +548,7 @@ public:
 
          UtlString requestUriResult;
          requestUri.toString(requestUriResult);
-         
+
          ASSERT_STR_EQUAL("sip:user@foobar.com", requestUriResult.data());
 
          UtlString* removedRoute;

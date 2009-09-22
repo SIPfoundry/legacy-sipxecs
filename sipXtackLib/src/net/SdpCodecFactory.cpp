@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ SdpCodecFactory* SdpCodecFactory::getSdpCodecFactory()
    {
 
        // If the object does not yet exist, then acquire
-       // the lock to ensure that only one instance of the object is 
+       // the lock to ensure that only one instance of the object is
        // created
        sLock.acquire();
        if (spInstance == NULL)
@@ -92,7 +92,7 @@ SdpCodecFactory::~SdpCodecFactory()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SdpCodecFactory& 
+SdpCodecFactory&
 SdpCodecFactory::operator=(const SdpCodecFactory& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -110,7 +110,7 @@ SdpCodecFactory::operator=(const SdpCodecFactory& rhs)
     }
 
     mCodecCPULimit = rhs.mCodecCPULimit;
-    
+
    return *this;
 }
 
@@ -131,7 +131,7 @@ void SdpCodecFactory::addCodec(SdpCodec& newCodec)
 
 void SdpCodecFactory::bindPayloadTypes()
 {
-    int unusedDynamicPayloadId = 
+    int unusedDynamicPayloadId =
         SdpCodec::SDP_CODEC_MAXIMUM_STATIC_CODEC + 1;
     SdpCodec* codecWithoutPayloadId = NULL;
 
@@ -179,7 +179,7 @@ void SdpCodecFactory::copyPayloadType(SdpCodec& codec)
     }
 }
 
-void SdpCodecFactory::copyPayloadTypes(int numCodecs, 
+void SdpCodecFactory::copyPayloadTypes(int numCodecs,
                                        SdpCodec* codecArray[])
 {
     int index;
@@ -203,20 +203,20 @@ SdpCodec::SdpCodecTypes SdpCodecFactory::getCodecType(const char* pCodecName)
     compareString.toUpper();
 
     if (strcmp(compareString,"TELEPHONE-EVENT") == 0 ||
-       strcmp(compareString,"AUDIO/TELEPHONE-EVENT") == 0 || 
+       strcmp(compareString,"AUDIO/TELEPHONE-EVENT") == 0 ||
        strcmp(compareString,"128") == 0 ||
        strcmp(compareString,"AVT-TONES") == 0 ||
        strcmp(compareString,"AVT") == 0)
         retType = SdpCodec::SDP_CODEC_TONES;
     else
     if (strcmp(compareString,"PCMU") == 0 ||
-       strcmp(compareString,"G711U") == 0 || 
+       strcmp(compareString,"G711U") == 0 ||
        strcmp(compareString,"0") == 0 ||
        strcmp(compareString,"258") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_PCMU;
     else
     if (strcmp(compareString,"PCMA") == 0 ||
-       strcmp(compareString,"G711A") == 0 || 
+       strcmp(compareString,"G711A") == 0 ||
        strcmp(compareString,"8") == 0 ||
        strcmp(compareString,"257") == 0)
         retType = SdpCodec::SDP_CODEC_GIPS_PCMA;
@@ -341,10 +341,10 @@ int SdpCodecFactory::buildSdpCodecFactory(UtlString &codecList)
    SdpCodec::SdpCodecTypes internalCodecId;
    NameValueTokenizer::getSubField(codecList,codecStringIndex ,
                                         ", \n\r\t", &oneCodec);
- 
+
    while(!oneCodec.isNull())
    {
-       
+
        internalCodecId = SdpCodecFactory::getCodecType(oneCodec.data());
        if (internalCodecId != SdpCodec::SDP_CODEC_UNKNOWN)
        {
@@ -352,7 +352,7 @@ int SdpCodecFactory::buildSdpCodecFactory(UtlString &codecList)
            numRejected += buildSdpCodecFactory(1,codecs);
        }
 
-    
+
        codecStringIndex++;
        NameValueTokenizer::getSubField(codecList, codecStringIndex,
                                      ", \n\r\t", &oneCodec);
@@ -909,7 +909,7 @@ void SdpCodecFactory::setCodecCPULimit(int iLimit)
 {
    mCodecCPULimit = iLimit ;
 }
-     
+
 
 
 /* ============================ ACCESSORS ================================= */
@@ -933,7 +933,7 @@ const SdpCodec* SdpCodecFactory::getCodec(SdpCodec::SdpCodecTypes internalCodecI
     // Filter the codec based on CPU limit
     if ((codecFound != NULL) && (codecFound->getCPUCost() > mCodecCPULimit))
     {
-        codecFound = NULL ; 
+        codecFound = NULL ;
     }
 
     return(codecFound);
@@ -949,7 +949,7 @@ const SdpCodec* SdpCodecFactory::getCodecByType(int payloadTypeId)
     while((codecFound = (SdpCodec*) iterator()))
     {
         // If the format type matches
-        if((codecFound->getCodecPayloadFormat() == payloadTypeId) && 
+        if((codecFound->getCodecPayloadFormat() == payloadTypeId) &&
            (codecFound->getCPUCost() <= mCodecCPULimit))
         {
             // we found a match
@@ -960,7 +960,7 @@ const SdpCodec* SdpCodecFactory::getCodecByType(int payloadTypeId)
     return(codecFound);
 }
 
-const SdpCodec* SdpCodecFactory::getCodec(const char* mimeType, 
+const SdpCodec* SdpCodecFactory::getCodec(const char* mimeType,
                                           const char* mimeSubType)
 {
     const SdpCodec* codecFound = NULL;
@@ -1007,23 +1007,23 @@ int SdpCodecFactory::getCodecCount()
 {
     OsReadLock lock(mReadWriteMutex);
     SdpCodec* codecFound = NULL;
-    
+
     // Find all codecs, where the CPU cost is tolerable.
-    int iCount = 0;    
+    int iCount = 0;
     UtlDListIterator iterator(mCodecs);
     while((codecFound = (SdpCodec*) iterator()))
     {
         if (codecFound->getCPUCost() <= mCodecCPULimit)
         {
             iCount++;
-        }        
+        }
     }
 
     return iCount;
 }
 
 
-void SdpCodecFactory::getCodecs(int& numCodecs, 
+void SdpCodecFactory::getCodecs(int& numCodecs,
                                 SdpCodec**& codecArray)
 {
     const SdpCodec* codecFound = NULL;
@@ -1046,7 +1046,7 @@ void SdpCodecFactory::getCodecs(int& numCodecs,
     numCodecs = index;
 }
 
-void SdpCodecFactory::getCodecs(int& numCodecs, 
+void SdpCodecFactory::getCodecs(int& numCodecs,
                                 SdpCodec**& codecArray,
                                 const char* mimeType)
 {
@@ -1072,7 +1072,7 @@ void SdpCodecFactory::getCodecs(int& numCodecs,
     numCodecs = index;
 }
 
-void SdpCodecFactory::getCodecs(int& numCodecs, 
+void SdpCodecFactory::getCodecs(int& numCodecs,
                                 SdpCodec**& codecArray,
                                 const char* mimeType,
                                 const char* subMimeType)
@@ -1120,7 +1120,7 @@ void SdpCodecFactory::toString(UtlString& serializedFactory)
         serializedFactory.append("\n");
         index++;
     }
-        
+
 }
 
 // Gets the codec CPU limit level
@@ -1149,4 +1149,3 @@ void SdpCodecFactory::addCodecNoLock(SdpCodec& newCodec)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

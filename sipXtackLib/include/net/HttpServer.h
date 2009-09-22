@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ class HttpConnection;
  * - Applies any mappings configured using addUriMap (see addUriMap and mapUri).
  *
  * - Constructs an HttpRequestContext object to provide all the information about the request.
- * 
+ *
  * There are three ways to handle an HTTP request; the mapped path is used select the
  * processor for the request from among these method in this order (At present, this resolution
  * is applied only to GET and POST methods):
@@ -82,7 +82,7 @@ class HttpConnection;
  *    path (see addHttpService).
  *    This means of providing a service is best when you need additional contextual
  *    information in the service object or want to use additional path information.
- *    
+ *
  * -# A simple built-in file access service can be enabled by calling allowFileAccess
  *    (this is disabled by default).  The built-in service does not do any authentication
  *    beyond the IP optional address validation step described above.
@@ -107,7 +107,7 @@ public:
     virtual ~HttpServer();
 
     /// OsServerTask main loop implementation.
-    virtual int run(void* runArg); 
+    virtual int run(void* runArg);
 
     /// Translate URI prefixes.
     static UtlBoolean mapUri(UtlHashMap& uriMaps,  ///< database of prefix translations.
@@ -132,7 +132,7 @@ public:
 
     /// Add a prefix map translation step for the request URI path.
     void addUriMap(const char* fromUri, ///< normalized path prefix as received in the request URI
-                   const char* toUri    ///< translation for the above prefix 
+                   const char* toUri    ///< translation for the above prefix
                    );
     /**<
      * This provides a mapping to be applied by the mapUri method before the request URI is
@@ -157,7 +157,7 @@ public:
                                               * Must begin with '/'
                                               * Must not end with '/' unless it is exactly "/"
                                               */
-                        HttpService* service ///< service object 
+                        HttpService* service ///< service object
                         );
     /**<
      * The fileUrl parameter specifies a prefix that must start with a '/' and must
@@ -174,7 +174,7 @@ public:
     OsStatus getStatus();
 
     /// Is the server socket used by this HttpServer ok?
-    UtlBoolean isSocketOk() const ;    
+    UtlBoolean isSocketOk() const ;
 
 protected:
     friend class HttpConnection;
@@ -191,7 +191,7 @@ protected:
                                     );
 
 private:
-    
+
     static void processPostFile(const HttpRequestContext& requestContext,
                                 const HttpMessage& request,
                                 HttpMessage*& response
@@ -257,7 +257,7 @@ private:
                                );
 
     void loadValidIpAddrList();
-    
+
    static const int MAX_PERSISTENT_HTTP_CONNECTIONS;
 
    OsStatus        httpStatus;

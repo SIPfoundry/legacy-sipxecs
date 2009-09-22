@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,17 +68,17 @@ HttpConnection::~HttpConnection()
     }
 
     // Wait until run exits before clobbering members
-    waitUntilShutDown();  
-    
+    waitUntilShutDown();
+
     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                   "Shutting down HttpConnection for socket %p",
                   mpRequestSocket);
-   
+
     if (mpRequestSocket)
     {
         delete mpRequestSocket;
         mpRequestSocket = NULL;
-    }  
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -98,7 +98,7 @@ int HttpConnection::run(void* runArg)
         if (mpRequestSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS))
         {
             int bytesRead = request.read(mpRequestSocket);
-         
+
             if (bytesRead > 0)
             {
                 UtlString remoteIp;
@@ -141,4 +141,3 @@ int HttpConnection::run(void* runArg)
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-

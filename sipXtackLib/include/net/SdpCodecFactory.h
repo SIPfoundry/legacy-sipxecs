@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -88,7 +88,7 @@ public:
 
    void setCodecCPULimit(int iLimit);
      //:Limits the advertised codec by CPU limit level.
-     //!param (in) iLimit - The limit level for codecs.  A value of 
+     //!param (in) iLimit - The limit level for codecs.  A value of
      //       SDP_CODEC_CPU_LOW indicates only low cpu intensity codecs and
      //       a value of SDP_CODEC_CPU_HIGH indicates either low or high
      //       cpu intensity.
@@ -102,7 +102,7 @@ public:
    const SdpCodec* getCodecByType(int payloadTypeId);
    //: Get a codec given the payload type id
 
-   const SdpCodec* getCodec(const char* mimeType, 
+   const SdpCodec* getCodec(const char* mimeType,
                             const char* mimeSubType);
    //: Get a codec given the mime type and subtype
 
@@ -116,7 +116,7 @@ public:
                   SdpCodec**& codecArray,
                   const char* mimeType);
 
-   void getCodecs(int& numCodecs, 
+   void getCodecs(int& numCodecs,
                   SdpCodec**& codecArray,
                   const char* mimeType,
                   const char* subMimeType);
@@ -124,7 +124,7 @@ public:
 
    void toString(UtlString& serializedFactory);
    //: String representation of factory and codecs
-   
+
    static SdpCodec::SdpCodecTypes getCodecType(const char* pCodecName);
    //: Converts the readable text codec name into an enum defined in Sdpcodec.h
 

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -293,12 +293,12 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
       // transport method.
       int portToSendTo = ( port == PORT_NONE ? defaultPort() : port );
 
-      // We are about to post a message that will cause the 
-      // SIP message to be sent.  Notify the user agent so 
+      // We are about to post a message that will cause the
+      // SIP message to be sent.  Notify the user agent so
       // that it can offer the message to all its registered
       // output processors.
-      mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );      
-      
+      mpSipUserAgent->executeAllSipOutputProcessors( message, address, portToSendTo );
+
       // Create message to queue.
       SipClientSendMsg sendMsg(OsMsg::OS_EVENT,
                                SipClientSendMsg::SIP_CLIENT_SEND,
@@ -419,14 +419,14 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
       else
       {
          int tempHostPort = portIsValid(hostPort) ? hostPort : defaultPort();
-   
+
 #ifdef TEST_SOCKET
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipClient[%s]::isAcceptableForDestination hostName = '%s', tempHostPort = %d, mRemoteHostName = '%s', mRemoteHostPort = %d, mRemoteSocketAddress = '%s', mReceivedAddress = '%s', mRemoteViaAddress = '%s'",
                        mName.data(),
                        hostName.data(), tempHostPort, mRemoteHostName.data(), mRemoteHostPort, mRemoteSocketAddress.data(), mReceivedAddress.data(), mRemoteViaAddress.data());
 #endif
-   
+
          // If the ports match and the host is the same as either the
          // original name that the socket was constructed with or the
          // name it was resolved to (usually an IP address).
@@ -482,13 +482,13 @@ int SipClient::run(void* runArg)
    // into incoming SIP messages.
    UtlString readBuffer;
    bool      waitingToReportErr  = FALSE;    // controls whether to read-select on socket
-   bool      tcpOnErrWaitForSend = TRUE; 
+   bool      tcpOnErrWaitForSend = TRUE;
    int       repeatedEOFs = 0;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipClient[%s]::run start  "
                  "tcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
-                 mName.data(), tcpOnErrWaitForSend, waitingToReportErr, 
+                 mName.data(), tcpOnErrWaitForSend, waitingToReportErr,
                  mbTcpOnErrWaitForSend, repeatedEOFs);
 
    // Wait structure:
@@ -512,11 +512,11 @@ int SipClient::run(void* runArg)
       fds[0].revents = 0;
       fds[1].revents = 0;
 
-      fds[0].events = POLLIN;   // only read-select on pipe 
+      fds[0].events = POLLIN;   // only read-select on pipe
 
       // For non-blocking connect failures, don't read-select on socket if
       // the initial read showed an error but we have to wait to report it.
-      if (!waitingToReportErr)   
+      if (!waitingToReportErr)
       {
           // This is the normal path.
           // Read the socket only if the socket is not shared.
@@ -535,14 +535,14 @@ int SipClient::run(void* runArg)
           }
 
       }
-      else 
+      else
       {
           // just waiting to report error, ignore the socket
           fds[1].fd =-1;
           fds[1].events = 0;
       }
 
-      // If there is residual data in the read buffer, 
+      // If there is residual data in the read buffer,
       // pretend the socket is ready to read.
       if (!readBuffer.isNull())
       {
@@ -559,7 +559,7 @@ int SipClient::run(void* runArg)
              OsSysLog::add(FAC_SIP, PRI_DEBUG,
                            "SipClient[%s]::run "
                            "resPoll= %d revents: fd[0]= %x fd[1]= %x",
-                           mName.data(), 
+                           mName.data(),
                            resPoll, fds[0].revents, fds[1].revents );
          }
       }
@@ -571,15 +571,15 @@ int SipClient::run(void* runArg)
       {
          // Poll finished because the pipe is ready to read.
          // (One byte in pipe means message available in queue.)
-         // Only a SipClient with a derived SipClientWriteBuffer 
+         // Only a SipClient with a derived SipClientWriteBuffer
          // uses the pipe in the Sip message send process
-        
+
          // Check to see how many messages are in the queue.
          int numberMsgs = (getMessageQueue())->numMsgs();
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipClient[%s]::run got pipe-select  "
                        "Number of Messages waiting: %d",
-                       mName.data(),  
+                       mName.data(),
                        numberMsgs);
          int i;
          char buffer[1];
@@ -596,27 +596,27 @@ int SipClient::run(void* runArg)
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient[%s]::run got pipe-select  "
                           "mbTcpOnErrWaitForSend-%d waitingToReportErr-%d mbTcpOnErrWaitForSend-%d repeatedEOFs-%d",
-                          mName.data(), mbTcpOnErrWaitForSend, waitingToReportErr, 
+                          mName.data(), mbTcpOnErrWaitForSend, waitingToReportErr,
                           mbTcpOnErrWaitForSend, repeatedEOFs);
 
-            // Read 1 byte from the pipe to clear it for this message.  One byte is 
+            // Read 1 byte from the pipe to clear it for this message.  One byte is
             // inserted into the pipe for each message.
             assert(read(mPipeReadingFd, &buffer, 1) == 1);
 
             if (!handleMessage(*pMsg))            // process the message (from queue)
             {
                OsServerTask::handleMessage(*pMsg);
-            }  
+            }
 
             if (!pMsg->getSentFromISR())
             {
                pMsg->releaseMsg();                         // free the message
             }
 
-            // In order to report an unframed(eg TCP) socket error to SipUserAgent dispatcher, 
+            // In order to report an unframed(eg TCP) socket error to SipUserAgent dispatcher,
             // the error must be carried in a sip message from the client's message queue.
             // The message holds all the identifying information.
-            if (waitingToReportErr)   
+            if (waitingToReportErr)
             {
                 // Return all buffered messages with a transport error indication.
                 emptyBuffer(TRUE);
@@ -723,8 +723,8 @@ int SipClient::run(void* runArg)
                               "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
                               mName.data());
                (dynamic_cast <OsDatagramSocket*> (clientSocket))->write(buffer.data(),
-                                                                        bufferLen, 
-                                                                        fromIpAddress, 
+                                                                        bufferLen,
+                                                                        fromIpAddress,
                                                                         fromPort);
             }
                break;
@@ -738,7 +738,7 @@ int SipClient::run(void* runArg)
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
-         }  // end keep-alive msg 
+         }  // end keep-alive msg
 
          else if (res > 0)      // got message, but not keep-alive
          {
@@ -756,7 +756,7 @@ int SipClient::run(void* runArg)
             // Now that logging is done, remove the parsed bytes and
             // remember any unparsed input for later use.
             readBuffer.remove(0, res);
-         }  // end process read of >0 bytes 
+         }  // end process read of >0 bytes
          else
          {
             // Something went wrong while reading the message.
@@ -776,12 +776,12 @@ int SipClient::run(void* runArg)
                           "mbTcpOnErrWaitForSend-%d repeatedEOFs-%d "
                           "protocol %d framed %d",
                           mName.data(),
-                          tcpOnErrWaitForSend, waitingToReportErr, 
-                          mbTcpOnErrWaitForSend, repeatedEOFs, 
+                          tcpOnErrWaitForSend, waitingToReportErr,
+                          mbTcpOnErrWaitForSend, repeatedEOFs,
                           clientSocket->getIpProtocol(),
                           OsSocket::isFramed(clientSocket->getIpProtocol()));
 
-            // If the socket is not framed (is connection-oriented), 
+            // If the socket is not framed (is connection-oriented),
             // we need to abort the connection and post a message
             // :TODO: This doesn't work right for framed connection-oriented
             // protocols (like SCTP), but OsSocket doesn't have an EOF-query
@@ -790,7 +790,7 @@ int SipClient::run(void* runArg)
             // Define a virtual function that returns the correct bit.
             if (!OsSocket::isFramed(clientSocket->getIpProtocol()))
             {
-                // On non-blocking connect failures, we need to get the first send message  
+                // On non-blocking connect failures, we need to get the first send message
                 // in order to successfully trigger the protocol fallback mechanism
                 if (!tcpOnErrWaitForSend)
                 {
@@ -808,7 +808,7 @@ int SipClient::run(void* runArg)
             // deleted by HttpMessage::read.
             readBuffer.remove(0);
          }
-      } // end POLLIN reading socket 
+      } // end POLLIN reading socket
       else if ((fds[1].revents & (POLLERR | POLLHUP)) != 0)
       {
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -834,7 +834,7 @@ int SipClient::run(void* runArg)
           // to the next transport), which should cause a new connection to
           // be made to the remote end.
           {
-              // On non-blocking connect failures, we need to get the first send message  
+              // On non-blocking connect failures, we need to get the first send message
               // in order to successfully trigger the protocol fallback mechanism
               if (!tcpOnErrWaitForSend)
               {
@@ -908,9 +908,9 @@ void SipClient::preprocessMessage(SipMessage& msg,
 
    // Keep track of where this message came from
    msg.setSendAddress(fromIpAddress.data(), fromPort);
-                    
+
    // Keep track of the interface on which this message was
-   // received.               
+   // received.
    msg.setInterfaceIpPort(clientSocket->getLocalIp(), clientSocket->getLocalHostPort());
 
    if (mReceivedAddress.isNull())

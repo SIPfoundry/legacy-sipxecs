@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
@@ -101,7 +101,7 @@ public:
                                 subscriber_contact_name_addr,
                                 subscriber_resource_id);
 
-         subServerp = 
+         subServerp =
             SipSubscribeServer::buildBasicServer(*notifierUserAgentp,
                                                  eventName);
          subServerp->start();
@@ -145,10 +145,10 @@ public:
 
          notifierUserAgentp->shutdown(TRUE);
          delete notifierUserAgentp;
-       
+
          subscriberUserAgentp->shutdown(TRUE);
          delete subscriberUserAgentp;
-       
+
          delete subServerp;
       }
 
@@ -160,7 +160,7 @@ public:
          // Verify that authentication and authorization are
          // disabled by default.
          {
-            SipSubscribeServerEventHandler* eventHandler = 
+            SipSubscribeServerEventHandler* eventHandler =
                subServerp->getEventHandler(eventName);
             CPPUNIT_ASSERT(eventHandler);
 
@@ -261,16 +261,16 @@ public:
 
          // Publish some content (mwiStateString) for this resourceID
          {
-            HttpBody* newMwiBodyPtr = new HttpBody(mwiStateString, 
-                                                   strlen(mwiStateString), 
+            HttpBody* newMwiBodyPtr = new HttpBody(mwiStateString,
+                                                   strlen(mwiStateString),
                                                    mwiMimeType);
             const int version = 0;
             SipPublishContentMgr* publishMgr = subServerp->getPublishMgr(eventName);
             CPPUNIT_ASSERT(publishMgr);
-            publishMgr->publish(notifier_resource_id, 
-                                eventName, 
-                                eventName, 
-                                1, 
+            publishMgr->publish(notifier_resource_id,
+                                eventName,
+                                eventName,
+                                1,
                                 &newMwiBodyPtr,
                                 &version);
          }
@@ -455,7 +455,7 @@ public:
                                 aor_contact_name_addr,
                                 resource_id);
 
-         subServerp = 
+         subServerp =
             SipSubscribeServer::buildBasicServer(*userAgentp,
                                                  eventName);
          subServerp->start();
@@ -499,7 +499,7 @@ public:
 
          userAgentp->shutdown(TRUE);
          delete userAgentp;
-       
+
          delete subServerp;
       }
 
@@ -532,8 +532,8 @@ public:
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
          }
-         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                          aor, 
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
                                                           SIP_PROTOCOL_VERSION);
          mwiSubscribeRequest.setContactField(aor_name_addr);
 
@@ -653,8 +653,8 @@ public:
                CallId::getNewCallId(c);
                mwiSubscribeRequest.setCallIdField(c);
             }
-            mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                             aor, 
+            mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                             aor,
                                                              SIP_PROTOCOL_VERSION);
             mwiSubscribeRequest.setContactField(aor_name_addr);
             mwiSubscribeRequest.incrementCSeqNumber();
@@ -698,8 +698,8 @@ public:
             // Wait for the subscription to be ended.
             OsTask::delay(100);
 
-            // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
-            // subscription was terminated or not. 
+            // Send a re-SUBSCRIBE in the existing dialog, to find out if the
+            // subscription was terminated or not.
             mwiSubscribeRequest.incrementCSeqNumber();
             // Leave the Expires header with the default value.
 
@@ -760,8 +760,8 @@ public:
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
          }
-         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                          aor, 
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
                                                           SIP_PROTOCOL_VERSION);
          mwiSubscribeRequest.setContactField(aor_name_addr);
 
@@ -807,8 +807,8 @@ public:
                mwiSubscribeRequest.setToFieldTag(toTag);
             }
 
-            // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
-            // subscription was terminated or not. 
+            // Send a re-SUBSCRIBE in the existing dialog, to find out if the
+            // subscription was terminated or not.
             mwiSubscribeRequest.incrementCSeqNumber();
             // Leave the Expires header with the default value.
 
@@ -840,7 +840,7 @@ public:
          }
       }
 
-   // XECS-1810: Verify that subscription is *not* terminated when NOTIFY 
+   // XECS-1810: Verify that subscription is *not* terminated when NOTIFY
    // returns a Timeout error.
    void terminateSubscriptionOnErrorTimeout()
       {
@@ -868,8 +868,8 @@ public:
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
          }
-         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                          aor, 
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
                                                           SIP_PROTOCOL_VERSION);
          mwiSubscribeRequest.setContactField(aor_name_addr);
          mwiSubscribeRequest.incrementCSeqNumber();
@@ -907,8 +907,8 @@ public:
             mwiSubscribeRequest.setToFieldTag(toTag);
          }
 
-         // Send a re-SUBSCRIBE in the existing dialog, to find out if the  
-         // subscription was terminated or not. 
+         // Send a re-SUBSCRIBE in the existing dialog, to find out if the
+         // subscription was terminated or not.
          mwiSubscribeRequest.incrementCSeqNumber();
          // Leave the Expires header with the default value.
 
@@ -966,8 +966,8 @@ public:
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
          }
-         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD, 
-                                                          aor, 
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
                                                           SIP_PROTOCOL_VERSION);
          mwiSubscribeRequest.setContactField(aor_name_addr);
 

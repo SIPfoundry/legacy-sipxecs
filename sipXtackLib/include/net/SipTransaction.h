@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ class OsEvent;
 class OsTimer;
 
 /** SipTransaction correlates requests and responses.
- * 
+ *
  * CallId  + 's' or 'c' (for server or client) is used as
  * the key for the hash (i.e. stored as the string/data in
  * the parent UtlString.
@@ -110,8 +110,8 @@ public:
 
     /// Create a new transaction
     SipTransaction(SipMessage* initialMsg = NULL,     ///< message whose state this tracks
-                   UtlBoolean isOutgoing = TRUE,          ///< direction 
-                   UtlBoolean userAgentTransaction = TRUE,///< local initiated 
+                   UtlBoolean isOutgoing = TRUE,          ///< direction
+                   UtlBoolean userAgentTransaction = TRUE,///< local initiated
                    BranchId*  parentBranch = NULL         ///< for use in loop detection
                    );
     /**<
@@ -171,13 +171,13 @@ public:
 
     void justDumpTransactionTree(void);
 
-    void dumpTransactionTree(UtlString& dumpstring, 
+    void dumpTransactionTree(UtlString& dumpstring,
                              UtlBoolean dumpMessagesAlso);
     //: Serialize the contents of all the transactions in this tree
     // The parent is found first and then all children are serialized
     // recursively
 
-    void dumpChildren(UtlString& dumpstring, 
+    void dumpChildren(UtlString& dumpstring,
                       UtlBoolean dumpMessagesAlso);
     //: Serialize the contents of all the child transactions to this transaction
     // All children are serialized recursively
@@ -188,8 +188,8 @@ public:
     static const char* stateString(enum transactionStates state);
 
     static const char* relationshipString(enum messageRelationship relationship);
-    
-    static void buildHash(const SipMessage& message, 
+
+    static void buildHash(const SipMessage& message,
                           UtlBoolean isOutgoing,
                           UtlString& hash);
 
@@ -241,7 +241,7 @@ public:
 
     UtlBoolean isChildSerial();
     //: Inquire as to whether child transaction will be serial or all parallel searched
-    // If all immediate child transactions have the same 
+    // If all immediate child transactions have the same
     // Q value FALSE is returned
 
     UtlBoolean isEarlyDialogWithMedia();

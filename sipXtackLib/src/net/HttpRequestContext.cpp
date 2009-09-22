@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -271,9 +271,9 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
    int fieldIndex = 0;
    UtlString upperCaseName;
    UtlBoolean foundName = FALSE;
-   
+
    value.remove(0);
- 
+
 #  ifdef TEST_DEBUG
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "HttpRequestContext::getCgiVariable %p (\"%s\",<val>,%d)",
@@ -519,4 +519,3 @@ OsConnectionSocket* HttpRequestContext::socket() const
 {
    return mConnection;
 }
-

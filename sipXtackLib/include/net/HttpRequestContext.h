@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ public:
 
    typedef void (*UnEscapeFunction)(UtlString&);
    /// Parse variables from the requestUri parameters
-   static void parseCgiVariables(const char* queryString,   
+   static void parseCgiVariables(const char* queryString,
                                  UtlList& cgiVariableList,
                                  const char* pairSeparator = "&",
                                  const char* namValueSeparator = "=",
@@ -91,7 +91,7 @@ public:
 
    /// Tests whether or not the HTTP Method is the give value.
    bool methodIs(const char* method) const;
-   
+
    /// Get the request URI as normalized and mapped by the HttpServer.
    void getMappedPath(UtlString& path) const;
 

@@ -142,7 +142,7 @@ HttpMessage::HttpMessage(const HttpMessage& rHttpMessage)
     mResponseListenerData = rHttpMessage.mResponseListenerData;
 
     rHttpMessage.mNameValues.copyTo<NameValuePair>( mNameValues );
-    
+
 #ifdef HTTP_TIMELOG
     mTimeLog = rHttpMessage.mTimeLog;
 #endif
@@ -274,7 +274,7 @@ ssize_t HttpMessage::parseFirstLine(const char* messageBytesPtr, ssize_t byteCou
         {
                 headerLineLength = byteCount;
         }
-        
+
         if(headerLineLength > 0)
         {
                 mFirstHeaderLine.append(messageBytesPtr, headerLineLength);
@@ -1134,7 +1134,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
    // Remember to empty the list of parsed header values, as we will use it
    // to parse the headers on the HTTP response we are going to read.
    mNameValues.destroyAll();
-   
+
    //the following code if enabled will test the effect of messages coming in a
    //fragmented way.  This should NOT be enabled in a released build as
    //performance will be severely affected.
@@ -1244,7 +1244,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                           bytesRead, (int)bytesRead, buffer);
 #           endif
 
-            
+
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
             if ( bytesRead == bufferSize )
             {
@@ -1262,7 +1262,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                  }
                }
             }
-               
+
 
             if (mSendAddress.isNull())
             {
@@ -1272,7 +1272,7 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 
          bytesTotal += bytesRead;
          bytesRead = 0;
-         
+
          if (bytesTotal > 0)
          {
             // If we have not yet found the end of the headers
@@ -1312,9 +1312,9 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
                      }
                      else
                      {
-                        // We've seen the end of the headers and no Content-Length 
-                        // header was found.  Although sloppy, it is valid condition 
-                        // in most cases.  Produce a log entry and assume a content 
+                        // We've seen the end of the headers and no Content-Length
+                        // header was found.  Although sloppy, it is valid condition
+                        // in most cases.  Produce a log entry and assume a content
                         // length of 0.
                         OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                                       "HttpMessage::read "
@@ -1608,7 +1608,7 @@ UtlBoolean HttpMessage::writeHeaders(OsSocket* outSocket) const
     * chunks have been written.
     */
    UtlBoolean writtenOk = FALSE;
-   
+
    if (!mUseChunkedEncoding)
    {
       OsSysLog::add(FAC_HTTP, PRI_CRIT, "HttpMessage::writeHeaders used on a non-chunked message");
@@ -1623,7 +1623,7 @@ UtlBoolean HttpMessage::writeHeaders(OsSocket* outSocket) const
    OsSysLog::add(FAC_HTTP, PRI_INFO,
                  "HttpMessage::writeHeaders writing:\n%s",
                  buffer.data());
-   
+
    bytesWritten = outSocket->write(buffer.data(), bufferLen);
 
    writtenOk = (bytesWritten == bufferLen);
@@ -1669,7 +1669,7 @@ UtlBoolean HttpMessage::writeChunk(OsSocket* outSocket, const UtlString& chunk)
    bytesWritten += outSocket->write(EndOfChunk.data(),  EndOfChunk.length());
 
    ssize_t bytesExpected = chunkHeader.length() + chunk.length() + EndOfChunk.length();
-   
+
    return (bytesWritten == bytesExpected);
 }
 
@@ -1682,7 +1682,7 @@ UtlBoolean HttpMessage::writeEndOfChunks(OsSocket* outSocket)
    ssize_t bytesExpected = EndOfChunks.length();
    return (bytesWritten == bytesExpected);
 }
-    
+
 void HttpMessage::unescape(UtlString& escapedText)
 {
     //UtlString unescapedText;
@@ -2917,7 +2917,7 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
       UtlString name;
       UtlString value;
       UtlString scheme;
-   
+
       // If this is a digest response
       tokenizer.getNextAttribute(scheme, value);
       if( 0 == scheme.compareTo(HTTP_DIGEST_AUTHENTICATION,

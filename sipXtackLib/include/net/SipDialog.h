@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipDialog_h_
@@ -87,12 +87,12 @@ public:
     /*! Optionally construct a dialog from the given message
      *
      * \param callId - sip message call-id header value
-     * \param localField - sip message To or From field value representing the 
+     * \param localField - sip message To or From field value representing the
      *        local side of the dialog.
-     * \param remoteField - sip message To or From field value representing the 
+     * \param remoteField - sip message To or From field value representing the
      *        remote side of the dialog.
      */
-    SipDialog(const char* callId, const char* localField, const char* remoteField); 
+    SipDialog(const char* callId, const char* localField, const char* remoteField);
 
     //! Destructor
     virtual
@@ -102,7 +102,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! update the dialog information based upon the given message
-    /*! Typically this updates things like the Contact, CSeq headers and 
+    /*! Typically this updates things like the Contact, CSeq headers and
      *  tag information for the dialog.
      *  \param message - SIP message which is assumed to be part of this
      *         dialog.
@@ -186,7 +186,7 @@ public:
 
     //! Get the request URI for the local side
     /*! This may be different than the local contact.  This is
-     *  what was received in the last request from the remote 
+     *  what was received in the last request from the remote
      *  side.
      */
     void getLocalRequestUri(UtlString& requestUri) const;
@@ -195,7 +195,7 @@ public:
     //! Get the request URI for the remote side
     /*! This is typically meaningless for the remote side
      *  when observed from the local end point as it should
-     *  not be different than the local contact.  However 
+     *  not be different than the local contact.  However
      *  in some applications it may be possible to observe
      *  what the request URI is on the remote side or in
      *  a proxy in which case this may be interesting.
@@ -210,7 +210,7 @@ public:
     void toString(UtlString& dialogDumpString);
 
     //! Get a string representation for the state value
-    static void getStateString(DialogState state, 
+    static void getStateString(DialogState state,
                                UtlString& stateString);
 
 /* ============================ INQUIRY =================================== */

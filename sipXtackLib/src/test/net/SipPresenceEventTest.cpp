@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ public:
 
    void testGetPresencePackage()
       {
-         const char *package = 
+         const char *package =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\n"
             "<tuple id=\"1\">\n"
@@ -40,9 +40,9 @@ public:
             "</tuple>\n"
             "</presence>\n"
             ;
-       
+
          SipPresenceEvent presenceEvent("dong@panther.pingtel.com");
-         
+
          UtlString id = "1";
          Tuple* tuple = new Tuple(id);
 
@@ -53,7 +53,7 @@ public:
 
          UtlString bodyString;
          ssize_t bodyLength;
-       
+
          presenceEvent.getBytes(&bodyString, &bodyLength);
          //printf("body = \n%s\n", bodyString.data());
 
@@ -66,7 +66,7 @@ public:
 
    void testPresencePackageParser()
       {
-         const char *package = 
+         const char *package =
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<presence xmlns=\"urn:ietf:params:xml:ns:pidf\" entity=\"dong@panther.pingtel.com\">\n"
             "<tuple id=\"1\">\n"
@@ -77,15 +77,15 @@ public:
             "</tuple>\n"
             "</presence>\n"
             ;
-       
+
          SipPresenceEvent body("dong@panther.pingtel.com", package);
 
          UtlString bodyString;
          ssize_t bodyLength;
-       
+
          body.getBytes(&bodyString, &bodyLength);
          //printf("body = \n%s\n", bodyString.data());
-       
+
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
          ssize_t otherLength = body.getLength();

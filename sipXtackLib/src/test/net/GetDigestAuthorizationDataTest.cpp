@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2008 Nortel Networks Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Nortel Networks Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -38,14 +38,14 @@ class GetDigestAuthorizationDataTest : public CppUnit::TestCase
    UtlString opaque;
    UtlString response;
    UtlString uri;
-          
+
 public:
     void testMissingValues()
       {
          // Test that missing values in a header do not prevent
          // getDigestAuthorizationData from returning true (because callers'
          // loops test on that to determine whether to continue).
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -70,8 +70,8 @@ public:
          for (int i = 0; i < 6; i++)
          {
             result = message->getDigestAuthorizationData(&user,
-                                                         &realm, 
-                                                         &nonce, 
+                                                         &realm,
+                                                         &nonce,
                                                          &opaque,
                                                          &response,
                                                          &uri,
@@ -81,8 +81,8 @@ public:
          }
          // Check the 7th header.
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -96,8 +96,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e20ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:222@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -107,7 +107,7 @@ public:
       }
     void testProxyNoHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -115,8 +115,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -126,7 +126,7 @@ public:
       }
    void testProxyOneHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -135,8 +135,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -150,8 +150,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -161,7 +161,7 @@ public:
       }
    void testProxyTwoHeaders()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -171,8 +171,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -186,8 +186,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -201,8 +201,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e20ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:222@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -212,7 +212,7 @@ public:
       }
    void testProxyOneHeaderWithAuthorizationHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -222,8 +222,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -237,8 +237,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -248,7 +248,7 @@ public:
       }
     void testServerNoHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -256,8 +256,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -267,7 +267,7 @@ public:
       }
    void testServerOneHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -276,8 +276,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -291,8 +291,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -302,7 +302,7 @@ public:
       }
    void testServerTwoHeaders()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -312,8 +312,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -327,8 +327,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -342,8 +342,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e20ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:222@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -353,7 +353,7 @@ public:
       }
    void testServerOneHeaderWithAuthorizationHeader()
       {
-         const char* msg = 
+         const char* msg =
             "INVITE sip:14@example.com SIP/2.0\r\n"
             "Content-Type: application/sdp\r\n"
             "Content-Length : 0\r\n"
@@ -363,8 +363,8 @@ public:
          HttpMessage *message = new HttpMessage(msg);
 
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,
@@ -378,8 +378,8 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("wrong value for response", response.data(), "feaa478e10ee7d3ef6037746696bace6");
          ASSERT_STR_EQUAL_MESSAGE("wrong value for uri", uri.data(), "sip:111@example.com");
          result = message->getDigestAuthorizationData(&user,
-                                                      &realm, 
-                                                      &nonce, 
+                                                      &realm,
+                                                      &nonce,
                                                       &opaque,
                                                       &response,
                                                       &uri,

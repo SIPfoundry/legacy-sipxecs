@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007-2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007-2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,13 +60,13 @@ void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
 {
    fprintf(stderr,
            "subscriptionStateCallback is called with responseCode = %d (%s)\n",
-           responseCode, responseText); 
+           responseCode, responseText);
    // If an error reponse, terminate.
    if (!((responseCode >= 100 && responseCode <= 299) || responseCode == -1))
    {
       exit(0);
    }
-}                                            
+}
 
 
 // Callback to handle incoming NOTIFYs.
@@ -104,7 +104,7 @@ void usage(const char* szExecutable)
             "          target-URI [event-type [content-type]]\n"
             "\n"
             "    localPort defaults to 0; select ephemeral port\n"
-            "    expiration defaults to 300 (seconds)\n"            
+            "    expiration defaults to 300 (seconds)\n"
             "    -C provides authentication credentials\n"
             "    event-type defaults to '%s'\n"
             "    content-type defaults to '%s',\n"
@@ -126,16 +126,16 @@ bool parseArgs(int argc,
 {
     bool bRC = false;
 
-    enum NEXT_ARGUMENT 
+    enum NEXT_ARGUMENT
     {
         NA_TARGET_URI,
         NA_EVENT_TYPE,
         NA_CONTENT_TYPE,
         NA_DONE
     } nextArg = NA_TARGET_URI;
-    
+
     assert(pPort && pExpiration && ppTargetURI && ppEventType && ppContentType);
-    
+
     *pPort = 0;
     *pExpiration = 300;
     *ppTargetURI = NULL;
@@ -144,7 +144,7 @@ bool parseArgs(int argc,
     *ppRealm = NULL;
     *ppUser = NULL;
     *ppPassword = NULL;
-    
+
     for (int i=1; i<argc; i++)
     {
         if (strcmp(argv[i], "-p") == 0)
@@ -214,10 +214,10 @@ bool parseArgs(int argc,
             }
         }
     }
-    
+
     if (*ppEventType == NULL)
         *ppEventType = strdup(default_event_type);
-    
+
     if (*ppContentType == NULL)
         *ppContentType = strdup(default_content_type);
 
@@ -236,13 +236,13 @@ int main(int argc, char* argv[])
     char* realm;
     char* user;
     char* password;
-        
+
    // Initialize logging.
    OsSysLog::initialize(0, "test");
    OsSysLog::setOutputFile(0, "log");
    OsSysLog::setLoggingPriority(PRI_DEBUG);
    OsSysLog::setLoggingPriorityForFacility(FAC_SIP_INCOMING_PARSED, PRI_ERR);
-   
+
    if (!parseArgs(argc, argv, &port, &expiration,
                   &targetURI, &eventType, &contentType,
                   &realm, &user, &password))
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
                                           HTTP_DIGEST_AUTHENTICATION));
    }
 
-   SipUserAgent* pSipUserAgent = 
+   SipUserAgent* pSipUserAgent =
       new SipUserAgent(port, port, PORT_NONE,
                        NULL,
                        NULL,
@@ -334,7 +334,7 @@ int main(int argc, char* argv[])
        fprintf(stderr, "Unable to bind to port %d\n", port);
        exit(1);
    }
-     
+
    SipDialogMgr dialogManager;
 
    SipRefreshManager refreshMgr(*pSipUserAgent, dialogManager);
@@ -342,7 +342,7 @@ int main(int argc, char* argv[])
 
    SipSubscribeClient sipSubscribeClient(*pSipUserAgent, dialogManager,
                                          refreshMgr);
-   sipSubscribeClient.start();  
+   sipSubscribeClient.start();
 
    // Construct a name-addr from targetURI, in case it contains parameters.
    UtlString toUri;
@@ -350,10 +350,10 @@ int main(int argc, char* argv[])
    toUri += targetURI;
    toUri += ">";
    UtlString earlyDialogHandle;
-            
+
    fprintf(stderr,
            "resourceId '%s' fromString '%s' toUri '%s' event '%s' content-type '%s' port=%d expiration=%d\n",
-           targetURI, fromString.data(), toUri.data(), eventType, contentType, 
+           targetURI, fromString.data(), toUri.data(), eventType, contentType,
            port, expiration);
 
    UtlBoolean status =
@@ -368,7 +368,7 @@ int main(int argc, char* argv[])
                                          subscriptionStateCallback,
                                          notifyEventCallback,
                                          earlyDialogHandle);
-               
+
    if (!status)
    {
       fprintf(stderr, "Subscription attempt failed.\n");
@@ -379,7 +379,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Subscription attempt succeeded.  Handle: '%s'\n",
               earlyDialogHandle.data());
    }
-   
+
    while (1)
    {
       sleep(1000);

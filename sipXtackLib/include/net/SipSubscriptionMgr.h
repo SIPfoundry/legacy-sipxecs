@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipSubscriptionMgr_h_
@@ -37,9 +37,9 @@ class SipDialogMgr;
 // TYPEDEFS
 
 //! Class for maintaining SUBSCRIBE dialog information in subscription server
-/*! 
+/*!
  *
- * \par 
+ * \par
  */
 class SipSubscriptionMgr
 {
@@ -85,13 +85,13 @@ public:
                                          */
                                         SipSubscribeServerEventHandler& handler
        );
-    
+
     //! Insert subscription dialog info without checking for the existence of the dialog
     /*! This method blindly inserts dialog information and should only be called from
      *  from the SipPersistentSubscriptionMgr.  It is intended to insert subscription
      *  information into memory from the IMDB.  (Thus, e.g., it does not randomize
      *  subscription times.)
-     */ 
+     */
     virtual UtlBoolean insertDialogInfo(/// the incoming SUBSCRIBE request
                                         const SipMessage& subscribeRequest,
                                         /// the canonical URI of the resource

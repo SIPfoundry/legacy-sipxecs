@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef _SipDialogMgr_h_
@@ -62,17 +62,17 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Create a new dialog for the given SIP message
-    UtlBoolean createDialog(const SipMessage& message, 
+    UtlBoolean createDialog(const SipMessage& message,
                             UtlBoolean messageIsFromLocalSide,
                             const char* dialogHandle = NULL);
 
     //! Update the dialog information for the given message
     /*! If a dialog matches this message update the dialog information
-     *  otherwise if this message is part of an established dialog and 
-     *  matches an early dialog change the dialog to established and 
+     *  otherwise if this message is part of an established dialog and
+     *  matches an early dialog change the dialog to established and
      *  update the dialog information.
      */
-    UtlBoolean updateDialog(const SipMessage& message, 
+    UtlBoolean updateDialog(const SipMessage& message,
                             const char* dialogHandle = NULL);
 
     //! Delete the dialog for the given dialog handle
@@ -99,9 +99,9 @@ public:
     /* ============================ ACCESSORS ================================= */
 
     //! Get the early dialog handle for the given established dialog handle
-    /*! This works even if the SipDialog is an early dialog that has not yet 
+    /*! This works even if the SipDialog is an early dialog that has not yet
      *  been updated to be an established dialog. */
-    UtlBoolean getEarlyDialogHandleFor(const char* establishedDialogHandle, 
+    UtlBoolean getEarlyDialogHandleFor(const char* establishedDialogHandle,
                                        UtlString& earlyDialogHandle);
 
     //! Get the established dialog for the given early dialog
@@ -136,7 +136,7 @@ public:
     UtlBoolean dialogExists(const char* dialogHandle);
 
     //! Checks to see if the given message matches the last local transaction
-    UtlBoolean isLastLocalTransaction(const SipMessage& message, 
+    UtlBoolean isLastLocalTransaction(const SipMessage& message,
                                       const char* dialogHandle = NULL);
 
     /** Check if the message is part of a known dialog, and if so,
@@ -185,7 +185,7 @@ private:
     void unlock();
 
     OsMutex mDialogMgrMutex;
-    UtlHashBag mDialogs; 
+    UtlHashBag mDialogs;
 };
 
 /* ============================ INLINE METHODS ============================ */

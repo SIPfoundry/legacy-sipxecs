@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ SipClientWriteBuffer::~SipClientWriteBuffer()
    // Delete all the queued messages.
    mWriteBuffer.destroyAll();
 }
-   
+
 /* ============================ MANIPULATORS ============================== */
 
 // Handles an incoming message (from the message queue).
@@ -67,7 +67,7 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
       // Continue with shutdown processing.
       messageProcessed = FALSE;
    }
-   else if (msgType == OsMsg::OS_EVENT 
+   else if (msgType == OsMsg::OS_EVENT
            &&  (msgSubType == SipClientSendMsg::SIP_CLIENT_SEND
              || msgSubType == SipClientSendMsg::SIP_CLIENT_SEND_KEEP_ALIVE))
    {
@@ -226,7 +226,7 @@ void SipClientWriteBuffer::writeMore()
       else
       {
          // Some portion of the first message remains to be written.
-         
+
          // If the socket has failed, attempt to reconnect it.
          // :NOTE: OsConnectionSocket::reconnect isn't implemented.
          if (!clientSocket->isOk())

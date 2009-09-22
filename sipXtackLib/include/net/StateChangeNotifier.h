@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@
 /**
  * A StateChangeNotifier is used in the dialog monitor when the dialog state is
  * changed from one state to another.
- * 
+ *
  * This class is the abstract base from which all state change notifiers must inherit.
  * One method must be implemented by the subclasses:
  * - setState() is for SipDialogMonitor to set the state value based on its
@@ -56,7 +56,7 @@ public:
 
    /// Constructor
    StateChangeNotifier();
-  
+
    /// Destructor
    virtual ~StateChangeNotifier();
 
@@ -81,7 +81,7 @@ private:
 
    /// Disabled assignment operator
    StateChangeNotifier& operator=(const StateChangeNotifier& rhs);
-   
+
 };
 
 /* ============================ INLINE METHODS ============================ */

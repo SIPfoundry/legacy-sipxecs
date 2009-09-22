@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -32,7 +32,7 @@ OsTime      SipXauthIdentity::sSignatureValidityInterval;
  * - <separator> is
  *   - ":" if the identity is bound to the dialog
  *   - "::" if the identity is not bound to the dialog
- * - <timestamp> is epoch seconds as hex without "0x" prefix indicating the 
+ * - <timestamp> is epoch seconds as hex without "0x" prefix indicating the
  *   time the signature was generated.
  * - <signature-hash> is
  *   - if bound to the dialog: MD5(<timestamp><secret><from-tag><call-id><identity>)
@@ -77,7 +77,7 @@ SipXauthIdentity::SipXauthIdentity(const SipMessage& message,
 }
 
 /// Decode the identity from a message by searching for SipXauthIdentity then P-Asserted-Identity
-SipXauthIdentity::SipXauthIdentity( const SipMessage& message,     
+SipXauthIdentity::SipXauthIdentity( const SipMessage& message,
                                     UtlString& matchedHeaderName,
                                     bool bSipXauthIdentityTakesPrecedence,
                                     DialogRule bindRule )
@@ -92,7 +92,7 @@ SipXauthIdentity::SipXauthIdentity( const SipMessage& message,
    matchedHeaderName.remove(0);
    HeaderName firstHeaderToTest;
    HeaderName secondHeaderToTest;
-   
+
    if( bSipXauthIdentityTakesPrecedence == true )
    {
       firstHeaderToTest  = AuthIdentityHeaderName;
@@ -103,7 +103,7 @@ SipXauthIdentity::SipXauthIdentity( const SipMessage& message,
       firstHeaderToTest  = PAssertedIdentityHeaderName;
       secondHeaderToTest = AuthIdentityHeaderName;
    }
-   
+
    if( decode(firstHeaderToTest, message, callId, fromTag, bindRule) )
    {
       matchedHeaderName = firstHeaderToTest;
@@ -126,7 +126,7 @@ bool SipXauthIdentity::getIdentity(UtlString&  identityValue) const
    {
       identityValue.remove(0);
    }
-   
+
    return mIsValidIdentity;
 }
 
@@ -219,7 +219,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
                     uri.toString().data()
                     );
    }
-   
+
    return mIsValidIdentity;
 }
 
@@ -259,7 +259,7 @@ bool SipXauthIdentity::encodeUri(Url             & uri,     ///< target URI to g
                     uri.toString().data()
                     );
    }
-   
+
    return mIsValidIdentity;
 }
 
@@ -302,7 +302,7 @@ bool SipXauthIdentity::encodeUri(Url              & uri,
                     uri.toString().data()
                     );
    }
-   
+
    return mIsValidIdentity;
 }
 
@@ -345,15 +345,15 @@ bool SipXauthIdentity::insert(SipMessage & message,
 
       // Insert displayName if it is an P-Asserted-Identity header.
       if (headerName == SipXauthIdentity::PAssertedIdentityHeaderName)
-      { 
-          UtlString displayName; 
+      {
+          UtlString displayName;
           fromUrl.getDisplayName(displayName);
           value.prepend(displayName.data());
       }
 
       message.addHeaderField(headerName, value.data());
    }
-   
+
    return mIsValidIdentity;
 }
 
@@ -432,7 +432,7 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
    UtlString timestamp;
    UtlString actualSignatureHash;
    bool isBound = false;
-   
+
    Url encodedUrl(identityValue, Url::NameAddr);
    if (Url::SipUrlScheme == encodedUrl.getScheme())
    {
@@ -446,14 +446,14 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
       {
          // only proceed if signature parameter was found
          RegEx signatureRegEx(SignatureRegEx);
-         
-         if (signatureRegEx.Search(signatureParamValue)) 
+
+         if (signatureRegEx.Search(signatureParamValue))
          {
             UtlString secondSeparator;
 
             isBound = (   signatureRegEx.MatchString(&secondSeparator,2)
                        && secondSeparator.isNull()); // there is only one ':' separator
-            
+
             if (   (requireDialogBinding == bindRule) // must be bound
                 && ! isBound
                 )
@@ -571,15 +571,15 @@ bool SipXauthIdentity::decode(const UtlString& identityValue,
                        );
       }
    }
-   
+
    return mIsValidIdentity;
 }
 
 /// Check the signature and parse the identity contained in specified header name
-bool SipXauthIdentity::decode(const UtlString& headerName,  
-                              const SipMessage& message,    
-                              const UtlString& callId,      
-                              const UtlString& fromTag,     
+bool SipXauthIdentity::decode(const UtlString& headerName,
+                              const SipMessage& message,
+                              const UtlString& callId,
+                              const UtlString& fromTag,
                               DialogRule bindRule )
 {
    bool foundIdentityHeader = false;
@@ -649,4 +649,3 @@ void SipXauthIdentity::setSecret(const char* secret /**< a random value used as 
    sSignatureSecret.remove(0);
    sSignatureSecret.append(secret);
 }
-

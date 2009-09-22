@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ class NameValuePair ;
  * This object is used to parse and construct URL strings.  It
  * contains all of the parsed components of a URL.  It has the ability
  * to construct a serialized string of the object using the toString()
- * method.  It can also be used as a parser using the constructor 
+ * method.  It can also be used as a parser using the constructor
  * which accepts a string as input.  This is intended to be a
  * generic URL parser for all schema/protocol types.  It is currently
  * tested and known to work for sip, sips, http, https, ftp, and file type
@@ -98,7 +98,7 @@ class Url
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-   
+
    /// Identifiers for all supported URI schemes
    typedef enum
       {
@@ -144,7 +144,7 @@ public:
     * the target URI in the request line.  For any header field value, NameAddr
     * should be used.
     */
-   
+
    /// Default constructor from string
    Url(const UtlString& urlString,  ///< string to parse URL from
        UriForm     uriForm,         ///< context to be used to parse the uri
@@ -318,7 +318,7 @@ public:
 
     /// Get the host and port together as a string "host:port"
     void getHostWithPort(UtlString& domain) const;
-    
+
     /// Set the URL host name or IP address
     void setHostAddress(const char* address);
 
@@ -349,7 +349,7 @@ public:
     /// Get the named URL parameter value
     UtlBoolean getUrlParameter(const char* name,  ///< the parameter name to get
                                UtlString& value,  ///< the value of the named parameter
-                               int index = 0 
+                               int index = 0
                                ) const;
     /**<
      * Gets the index occurrence of the named parameter (the same parameter name may
@@ -358,7 +358,7 @@ public:
      */
 
     /// Get the name and value of the URL parameter at the indicated index.
-    UtlBoolean getUrlParameter(int urlIndex,    /**< the index indicting which URL parameter to 
+    UtlBoolean getUrlParameter(int urlIndex,    /**< the index indicting which URL parameter to
                                                  *   get (starting at 0 for the first one). */
                                UtlString& name,  ///< the parameter name at urlIndex
                                UtlString& value  ///< the value of the parameter at urlIndex
@@ -381,12 +381,12 @@ public:
 
     /// Gets all of the URL parameters and values
     UtlBoolean getUrlParameters(int iMaxReturn,     ///< the maximum number of items to return
-                                UtlString *pNames,  /**< Pointer to a preallocated array of 
+                                UtlString *pNames,  /**< Pointer to a preallocated array of
                                                      *   UtlStrings.  If a null is specified,
                                                      *   the function will false and the
                                                      *   iActualReturn will contain the actual
-                                                     *   number of parameters. */ 
-                                UtlString *pValues, /**< Pointer to a preallocated array of 
+                                                     *   number of parameters. */
+                                UtlString *pValues, /**< Pointer to a preallocated array of
                                                      *   UtlStrings.  If a null is specified,
                                                      *   the function will return false and
                                                      *   the iActualReturn will contain the
@@ -405,9 +405,9 @@ public:
     ///< @returns TRUE if the indicated parameter exists
 
     /// Get the name and value of the header parameter at the indicated index
-    /*! \param headerIndex - 
-     * \param name - 
-     * \param value - 
+    /*! \param headerIndex -
+     * \param name -
+     * \param value -
      * \
      */
     UtlBoolean getHeaderParameter(int headerIndex,      /**< the index indicating which header
@@ -440,12 +440,12 @@ public:
 
     ///Gets all of the Header parameters
     UtlBoolean getHeaderParameters(int iMaxReturn,    ///< the maximum number of items to return
-                                   UtlString *pNames, /**< Pointer to a preallocated collection of 
+                                   UtlString *pNames, /**< Pointer to a preallocated collection of
                                                        *   UtlStrings.  If a null is specified,
                                                        *   the function will return false and
                                                        *   the iActualReturn will contain the
                                                        *   actual number of parameters. */
-                                   UtlString *pValues,/**< Pointer to a preallocated collection of 
+                                   UtlString *pValues,/**< Pointer to a preallocated collection of
                                                        *   UtlStrings.  If a null is specified,
                                                        *   the function will return false and
                                                        *   the iActualReturn will contain the
@@ -455,9 +455,9 @@ public:
     ///< @returns TRUE if values are returned otherwise FALSE
 
     /// Get the named field parameter value
-    /*! \param name - 
-     * \param value - 
-     * \param index - 
+    /*! \param name -
+     * \param value -
+     * \param index -
      * \
      */
     UtlBoolean getFieldParameter(const char* name, ///< the parameter name to get
@@ -469,7 +469,7 @@ public:
     ///< @returns TRUE if the indicated parameter exists
 
     /// Get the name and value of the field parameter at the indicated location
-    UtlBoolean getFieldParameter(int fieldIndex, /**< the index indicting which field parameter to 
+    UtlBoolean getFieldParameter(int fieldIndex, /**< the index indicting which field parameter to
                                                   * get (starting at 0 for the first one). */
                                  UtlString& name, ///< the parameter name at fieldIndex
                                  UtlString& value ///< the value of the parameter at fieldIndex
@@ -495,12 +495,12 @@ public:
                                                       *   the function will return false and
                                                       *   the iActualReturn will contain the
                                                       *   actual number of parameters. */
-                                  UtlString *pNames, /**< Pointer to a preallocated collection of 
+                                  UtlString *pNames, /**< Pointer to a preallocated collection of
                                                       *   UtlStrings.  If a null is specified, the
                                                       *   function will return false and the
                                                       *   iActualReturn will contain the actual
                                                       *   number of parameters.*/
-                                  UtlString *pValues, /**< Pointer to a preallocated collection of 
+                                  UtlString *pValues, /**< Pointer to a preallocated collection of
                                                        *   UtlStrings.  If a null is specified,
                                                        *   the function will return false and
                                                        *   the iActualReturn will contain the
@@ -508,8 +508,8 @@ public:
                                   int& iActualReturn ///< The actual number of items returned
                                   ) const;
     ///< @returns TRUE if values are returned otherwise FALSE
-    
-    /// Forces the presence of angle brackets (i.e. <>) in the URL 
+
+    /// Forces the presence of angle brackets (i.e. <>) in the URL
     //! when serialized
     void includeAngleBrackets();
 
@@ -530,7 +530,7 @@ public:
 /* ============================ INQUIRY =================================== */
 
     /// Is string all digits
-    /*! \param dialedCharacters - null terminated string containing 
+    /*! \param dialedCharacters - null terminated string containing
      *       ascii test
      * \ return TRUE if the dialedCharacters are all digits
      */
@@ -538,7 +538,7 @@ public:
 
    /// Compare two URLs to see if the have the same user, host and port
    UtlBoolean isUserHostPortEqual(const Url& uri,
-                                  int impliedPort = PORT_NONE 
+                                  int impliedPort = PORT_NONE
                                   ) const ;
    /**<
     * Follows the rules of RFC 3261 section 19.1.4, especially that
@@ -553,7 +553,7 @@ public:
     * @code
     *   Url implicitPortUrl("sip:user@example.com");
     *   UtlBoolean result;
-    *   
+    *
     *   Url explicitPortUrl("<sip:user@Example.COM:5060>;param=x");
     *   result = implicitPortUrl.isUserHostPortEqual(explicitPortUrl);
     *   // result is FALSE because an implicit port != 5060
@@ -579,7 +579,7 @@ public:
    /**<
     * Assumes that host is not case sensitive, but that user id is case sensitive.
     * @return TRUE if the user Id and host are the same
-    */   
+    */
 
    /// Are angle brackets explicitly included
    UtlBoolean isIncludeAngleBracketsSet() const ;
@@ -617,7 +617,7 @@ public:
     *
     * @note at present, may be called only for SipsUrlScheme or SipsUrlScheme URLs
     */
-   
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

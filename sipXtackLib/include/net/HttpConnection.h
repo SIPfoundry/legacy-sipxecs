@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
     virtual int run(void* runArg);
-    
+
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
     bool toBeDeleted() {return mbToBeDeleted;}
@@ -51,12 +51,12 @@ private:
     OsConnectionSocket* mpRequestSocket;  ///< pointer to request socket
     HttpServer*         mpHttpServer;     ///< pointer HTTP server for callbacks
     bool                mbToBeDeleted;    ///< Indicator if connection can be deleted
-    
+
     /// no copy constructor
     HttpConnection(const HttpConnection& nocopy);
 
     /// no assignment operator
-    HttpConnection& operator=(const HttpConnection& noassignment);        
+    HttpConnection& operator=(const HttpConnection& noassignment);
 };
 
 /* ============================ INLINE METHODS ============================ */

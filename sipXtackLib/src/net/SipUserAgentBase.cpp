@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipUserAgentBase::SipUserAgentBase(int sipTcpPort, 
+SipUserAgentBase::SipUserAgentBase(int sipTcpPort,
                                    int sipUdpPort,
                                    int sipTlsPort,
                                    int queueSize) :
@@ -86,7 +86,7 @@ UtlBoolean SipUserAgentBase::waitUntilReady()
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 // Assignment operator
-SipUserAgentBase& 
+SipUserAgentBase&
 SipUserAgentBase::operator=(const SipUserAgentBase& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -102,4 +102,3 @@ SipUserAgentBase::SipUserAgentBase(const SipUserAgentBase& rSipUserAgentBase) :
 }
 
 /* ============================ FUNCTIONS ================================= */
-

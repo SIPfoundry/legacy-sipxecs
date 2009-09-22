@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -71,7 +71,7 @@ public:
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, UtlString& rValue);
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, int& rValue);
    bool       getPSAttribute(TiXmlNode* pClassInstance, const char* pAttribute, bool& rValue);
-   
+
    bool       deletePSAttribute(TiXmlNode* pClassInstance, const char* pAttribute);
 
    const UtlString* getClassName(void);
@@ -80,7 +80,7 @@ public:
     * Calculate a unique hash code for this object.  If the equals
     * operator returns true for another object, then both of those
     * objects must return the same hashcode.
-    */    
+    */
    virtual unsigned hash() const;
 
    /**
@@ -91,7 +91,7 @@ public:
 /* ============================ INQUIRY =================================== */
 
    /**
-    * Compare the this object to another like-objects.  Results for 
+    * Compare the this object to another like-objects.  Results for
     * designating a non-like object are undefined.
     *
     * @returns 0 if equal, < 0 if less then and >0 if greater.
@@ -100,7 +100,7 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-   static const UtlContainableType TYPE;           /** < Class type used for runtime checking */ 
+   static const UtlContainableType TYPE;           /** < Class type used for runtime checking */
 
    TiXmlDocument*      mpXmlConfigDoc;       /* The TinyXml persistant store for
                                               * this Provisioning Class. */
@@ -115,4 +115,3 @@ private:
 };
 
 #endif  // _ProvisioningClass_h_
-

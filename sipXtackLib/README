@@ -27,7 +27,7 @@ The "rt" command sets a template which is used to generate
 responses to incoming requests.  The format of the template
 file is the same as a SIP response message file.
 The ports that siptest listen on can be set my creating a file
-called siptest-config in the directory from which siptest is 
+called siptest-config in the directory from which siptest is
 started that contains the following parameters:
 SIP_TEST_TCP_PORT : 3000
 SIP_TEST_UDP_PORT : 3000
@@ -72,4 +72,3 @@ Searching and Reporting Bugs
 Search JIRA bug list before reporting any new bugs.
 
   http://track.sipfoundry.org/browse/XSL
-

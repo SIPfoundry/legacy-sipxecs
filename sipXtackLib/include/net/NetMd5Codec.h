@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 ////////////////////////////////////////////////////////////////////////
 #ifndef _NetMd5Codec_h_
 #define _NetMd5Codec_h_
@@ -29,22 +29,22 @@
 /* ============================ INLINE METHODS ============================ */
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991.
  * All rights reserved.
- * 
+ *
  * License to copy and use this software is granted provided that it
  * is identified as the "RSA Data Security, Inc. MD5 Message-Digest
  * Algorithm" in all material mentioning or referencing this software
  * or this function.
- * 
+ *
  * License is also granted to make and use derivative works provided
  * that such works are identified as "derived from the RSA Data
  * Security, Inc. MD5 Message-Digest Algorithm" in all material
  * mentioning or referencing the derived work.
- * 
+ *
  * RSA Data Security, Inc. makes no representations concerning either
  * the merchantability of this software or the suitability of this
  * software for any particular purpose. It is provided "as is"
  * without express or implied warranty of any kind.
- * 
+ *
  * These notices must be retained in any copies of any part of this
  * documentation and/or software.
  */
@@ -112,7 +112,7 @@ class NetMd5Codec
  * NetMd5Codec md5;
  * md5.hash("foo");
  * md5.hash("bar");
- * 
+ *
  * UtlString foobarHash;
  * md5.appendHashValue(foobarHash);
  * @endcode
@@ -123,7 +123,7 @@ class NetMd5Codec
    /// The number of ascii characters in the conventional hash representation.
    static const unsigned int ENCODED_SIZE;
    static const unsigned int BASE64_ENCODED_SIZE;
-   
+
    /// Prepare to generate an md5 hash value.
    NetMd5Codec();
 
@@ -149,7 +149,7 @@ class NetMd5Codec
    {
       hash(utlString.data(), utlString.length());
    };
-   
+
    /// Append the ascii representation of the md5 value to output.
    void appendHashValue(UtlString& output);
    /**<
@@ -206,7 +206,7 @@ class NetMd5Codec
    MD5_CTX_PT    mContext;
    unsigned char mDigest[16];
    bool          mFinalized;
-   
+
    // @cond NOINCLUDE
    NetMd5Codec& operator=(const NetMd5Codec& rhs);
    //:Assignment operator (disabled)

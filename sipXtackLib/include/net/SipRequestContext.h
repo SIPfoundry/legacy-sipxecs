@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@
  * The intention is for this to be used as part of standard
  * APIs that process SIP requests and generate SIP responses.
  * In those scenarios (e.g. the status server plugins, the
- * redirect server plugins) there is a need for a general 
+ * redirect server plugins) there is a need for a general
  * container that provides more information than is available
  * or perhaps easily accessable in the SIP request itself.
  * The specific API will need to provide specifics such as
@@ -46,7 +46,7 @@
  * same SipRequestContext.
  */
 
-class SipRequestContext 
+class SipRequestContext
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -73,10 +73,10 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
-   
+
    //! Get context variables provided in this request context.
    /*! As it is possible to have multiple occurances of a named value
-    *  the occurance argument indicates which occurance.  The default is 
+    *  the occurance argument indicates which occurance.  The default is
     *  the first.
     * \param name - the name of the variable to be retrieved from the
     * request context.  It is legal to have multiple values for the
@@ -92,8 +92,8 @@ public:
     * integer that can be used to walk through and retrieve all of the
     * values.  Returns FALSE if the given occurance number does not exist.
     */
-   UtlBoolean getVariable(const char* name, 
-                          UtlString& value, 
+   UtlBoolean getVariable(const char* name,
+                          UtlString& value,
                           int occurance = 0) const;
 
 
@@ -115,15 +115,15 @@ public:
 protected:
 
    //! Get the name and value of the variable at the given index
-   UtlBoolean getVariable(int index, 
-                             UtlString& name, 
+   UtlBoolean getVariable(int index,
+                             UtlString& name,
                              UtlString& value) const;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
    SipRequestContext(const SipRequestContext& rSipRequestContext);
-     //:Copy constructor 
+     //:Copy constructor
    SipRequestContext& operator=(const SipRequestContext& rhs);
      //:Assignment operator
 

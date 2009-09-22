@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 
@@ -103,7 +103,7 @@ public:
       int startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt
-      const char* SimpleMessage = 
+      const char* SimpleMessage =
           "INVITE sip:1@192.168.0.6 SIP/2.0\r\n"
           "Route: <sip:foo@192.168.0.4:5064;lr>\r\n"
           "From: <sip:888@10.1.1.144;user=phone>;tag=bbb\r\n"
@@ -154,13 +154,13 @@ public:
             sipUA.shutdown(TRUE);
             lineMgr.requestShutdown();
 
-            KNOWN_BUG("INTERMITTENT failures", "XX-6383");            
+            KNOWN_BUG("INTERMITTENT failures", "XX-6383");
             CPPUNIT_ASSERT(sipUA.isShutdownDone());
 
             OsTimerTask::destroyTimerTask();
             OsStunAgentTask::releaseInstance();
          }
-      
+
          // Test to see that all the threads created by the above operations
          // get properly shut down.
          int numThreads = getNumThreads(myPID);
@@ -168,7 +168,7 @@ public:
          OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipUserAgentTest::testShutdownBlocking "
                        "numThreads=%d startingThreads=%d",
                        numThreads, startingThreads);
-                       
+
          KNOWN_BUG("XECS-48", "Some threads are not cleaned up?");
          CPPUNIT_ASSERT(numThreads <= startingThreads);
       }
@@ -180,7 +180,7 @@ public:
       int startingThreads = getNumThreads(myPID);
 
       // Simple invite message from siptest/src/siptest/invite.txt
-      const char* SimpleMessage = 
+      const char* SimpleMessage =
           "INVITE sip:1@192.168.0.6 SIP/2.0\r\n"
           "Route: <sip:foo@192.168.0.4:5064;lr>\r\n"
           "From: <sip:888@10.1.1.144;user=phone>;tag=bbb\r\n"
@@ -238,7 +238,7 @@ public:
             OsTimerTask::destroyTimerTask();
             OsStunAgentTask::releaseInstance();
          }
-         
+
          // Test to see that all the threads created by the above operations
          // get properly shut down.
          int numThreads = getNumThreads(myPID);
@@ -254,9 +254,9 @@ public:
 
    void testSupportedAndRequiredFields()
    {
-      SipUserAgent sipUA( 5090, 5090, 5091, 
+      SipUserAgent sipUA( 5090, 5090, 5091,
                           NULL, NULL,   // default publicAddress and defaultUser
-                         "127.0.0.1" ); 
+                         "127.0.0.1" );
 
       // Supported
       CPPUNIT_ASSERT( ! sipUA.isExtensionAllowed( "nope" ) );

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -64,13 +64,13 @@ class SipMessage;
  *  2) Some notification error responses should cause the subscription to expire
  *
  *  When enabling a SIP event type via the enableEventType method, the SipPublishServer
- *  registers with the SipUserAgent to receive PUBLISH requests 
+ *  registers with the SipUserAgent to receive PUBLISH requests
  *  for the event type which are processed by the handleMessage method.
- *  The SipPublishServer uses timers to keep track of when event publication expire. 
+ *  The SipPublishServer uses timers to keep track of when event publication expire.
  *  When a timer fires, a message gets queued on the SipPublishServer which is that
  *  passed to handleMessage.
  */
- 
+
 class SipPublishServer : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -121,7 +121,7 @@ public:
      *  to get the rug pulled out from under it.  Returns the default
      *  event state compositor if there is not an event specific state compositor.
      */
-    SipPublishServerEventStateCompositor* 
+    SipPublishServerEventStateCompositor*
         getEventStateCompositor(const UtlString& eventType);
 
     //! Get the event state manager for the given event type
@@ -130,7 +130,7 @@ public:
      *  and destroyed, there is no locking protection.  The event state manager
      *  is only safe to use if the application knows that it is not going
      *  to get the rug pulled out from under it.  Returns the default
-     *  event state manager if there is not an event specific state 
+     *  event state manager if there is not an event specific state
      *  manager.
      */
     SipPublishServerEventStateMgr* getEventStateMgr(const UtlString& eventType);
@@ -168,7 +168,7 @@ private:
     SipUserAgent* mpDefaultUserAgent;
     SipPublishServerEventStateMgr* mpDefaultEventStateMgr;
     SipPublishServerEventStateCompositor* mpDefaultCompositor;
-    UtlHashMap mEventDefinitions; 
+    UtlHashMap mEventDefinitions;
     OsRWMutex mPublishServerMutex;
 };
 

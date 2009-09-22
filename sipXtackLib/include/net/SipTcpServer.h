@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ public:
 
     int getServerPort() const ;
     //: The the local server port for this server
-    
+
     virtual int isOk();
 
 /* ============================ INQUIRY =================================== */
@@ -72,7 +72,7 @@ public:
     {
         SIP_SERVER_BROKER_NOTIFY = 1
     };
-    
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -80,7 +80,7 @@ protected:
     UtlBoolean createServerSocket(const char* szBindAddr,
                                   int& port,
                                   const UtlBoolean& bUseNextAvailablePort);
-                                
+
     class SipServerBrokerListener : public OsServerTask
     {
         public:
@@ -98,14 +98,14 @@ protected:
         private:
             SipTcpServer* mpOwner;
     };
-    
+
     friend class SipServerBrokerListener;
     SipServerBrokerListener* mpServerBrokerListener;
-    
+
     virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused);
-    
+
     int mServerPort;
-    
+
     // Map from the local IP addresses (as UtlString's) to SipServerBroker's
     // that listen on them.
     UtlHashMap mServerBrokers;

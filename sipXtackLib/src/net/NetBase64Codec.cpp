@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -103,7 +103,7 @@ int NetBase64Codec::encodedSize(int dataSize)
 
 /// @returns the number of valid non-pad characters in the encodedData
 size_t NetBase64Codec::validEncodingBytes(int encodedDataSize, ///< number of encoded octets
-                                          const char encodedData[],   ///< the encoded data 
+                                          const char encodedData[],   ///< the encoded data
                                           Base64Alphabet alphabet
                                           )
 {
@@ -111,7 +111,7 @@ size_t NetBase64Codec::validEncodingBytes(int encodedDataSize, ///< number of en
    int  encodingBytes = 0;
 
    const RegEx* validBase64rxp;
-   
+
    if ( alphabet == RFC4648MimeAlphabet )
    {
       validBase64rxp = &Valid_RFC4648MimeAlphabet;
@@ -186,7 +186,7 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
                             Base64Alphabet alphabet)
 {
    unsigned char* udata = (unsigned char*)data;
-   
+
    dataSize = 0;
    bool valid = isValid(encodedDataSize, encodedData, alphabet);
    if (valid)
@@ -223,7 +223,7 @@ bool NetBase64Codec::decode(int encodedDataSize, const char encodedData[],
 // Decode from one UtlString into another
 bool NetBase64Codec::decode(const UtlString encodedData, /* sizeis data.length(),
                                                           * not null terminated */
-                            UtlString& data,  ///< the encoded data 
+                            UtlString& data,  ///< the encoded data
                             Base64Alphabet alphabet
                             )
 {
@@ -252,6 +252,6 @@ int NetBase64Codec::decodedSize(int encodedDataSize, const char encodedData[],
                                 Base64Alphabet alphabet)
 {
    size_t nonPadBytes = validEncodingBytes(encodedDataSize, encodedData, alphabet);
-   
+
    return nonPadBytes ? (nonPadBytes * 3) / 4 : 0;
 }

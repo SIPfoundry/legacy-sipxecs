@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -27,7 +27,7 @@ const UtlContainableType ProvisioningClass::TYPE = "ProvisioningClass";
 //
 //  NAME:        ProvisioningClass::ProvisioningClass
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Default constructor
 //
@@ -50,7 +50,7 @@ ProvisioningClass::ProvisioningClass(const char* pClassName)
 //
 //  NAME:        ProvisioningClass::~ProvisioningClass
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
 //  DESCRIPTION: Destructor
 //
@@ -72,9 +72,9 @@ ProvisioningClass::~ProvisioningClass()
 //
 //  NAME:        ProvisioningClass::setXmlConfigDoc
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -94,9 +94,9 @@ void ProvisioningClass::setXmlConfigDoc(TiXmlDocument* pConfigDoc)
 //
 //  NAME:        ProvisioningClass::loadConfiguration
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -116,9 +116,9 @@ bool ProvisioningClass::loadConfiguration(void)
 //
 //  NAME:        ProvisioningClass::Create
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -138,9 +138,9 @@ ProvisioningAttrList* ProvisioningClass::Create(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningClass::Delete
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -160,9 +160,9 @@ ProvisioningAttrList* ProvisioningClass::Delete(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningClass::Set
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -182,9 +182,9 @@ ProvisioningAttrList* ProvisioningClass::Set(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ProvisioningClass::Get
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -204,9 +204,9 @@ ProvisioningAttrList* ProvisioningClass::Get(ProvisioningAttrList& rRequestAttri
 //
 //  NAME:        ProvisioningClass::Action
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -226,9 +226,9 @@ ProvisioningAttrList* ProvisioningClass::Action(ProvisioningAttrList& rRequestAt
 //
 //  NAME:        ProvisioningClass::deletePSInstance
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -284,9 +284,9 @@ bool ProvisioningClass::deletePSInstance(const char* pClassName, const char* pIn
 //
 //  NAME:        ProvisioningClass::createPSInstance
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -361,9 +361,9 @@ TiXmlNode* ProvisioningClass::createPSInstance(const char* pClassName, const cha
 //
 //  NAME:        ProvisioningClass::setPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -383,9 +383,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::setPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -435,9 +435,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::setPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -460,9 +460,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::setPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -489,9 +489,9 @@ bool ProvisioningClass::setPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::getClassName
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -511,9 +511,9 @@ const UtlString* ProvisioningClass::getClassName(void)
 //
 //  NAME:        ProvisioningClass::getPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -554,9 +554,9 @@ bool ProvisioningClass::getPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::getPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -585,9 +585,9 @@ bool ProvisioningClass::getPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::getPSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -621,9 +621,9 @@ bool ProvisioningClass::getPSAttribute(TiXmlNode* pClassInstance, const char* pA
 //
 //  NAME:        ProvisioningClass::findPSInstance
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -680,9 +680,9 @@ TiXmlNode* ProvisioningClass::findPSInstance(const char* pClassName, const char*
 //
 //  NAME:        ProvisioningClass::deletePSAttribute
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -704,7 +704,7 @@ bool ProvisioningClass::deletePSAttribute(TiXmlNode* pClassInstance, const char*
     }
     else {
         pClassInstance->RemoveChild(pAttributeNode);
-        return true ;        
+        return true ;
     }
 }
 
@@ -712,9 +712,9 @@ bool ProvisioningClass::deletePSAttribute(TiXmlNode* pClassInstance, const char*
 //
 //  NAME:        ProvisioningClass::hash
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -734,9 +734,9 @@ unsigned ProvisioningClass::hash() const
 //
 //  NAME:        ProvisioningClass::getContainableType
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: 
+//  DESCRIPTION:
 //
 //  RETURNS:     None.
 //
@@ -757,9 +757,9 @@ UtlContainableType ProvisioningClass::getContainableType() const
 //
 //  NAME:        ProvisioningClass::compareTo
 //
-//  SYNOPSIS:    
+//  SYNOPSIS:
 //
-//  DESCRIPTION: Compare the this object to another like-object. 
+//  DESCRIPTION: Compare the this object to another like-object.
 //
 //  RETURNS:     None.
 //
@@ -771,13 +771,13 @@ UtlContainableType ProvisioningClass::getContainableType() const
 
 int ProvisioningClass::compareTo(UtlContainable const* pInVal) const
 {
-   int result ; 
+   int result ;
 
    if (pInVal->isInstanceOf(ProvisioningClass::TYPE)) {
       result = mClassName.compareTo(((ProvisioningClass*)pInVal)->getClassName());
    }
    else {
-      result = -1; 
+      result = -1;
    }
 
    return result;
@@ -788,4 +788,3 @@ int ProvisioningClass::compareTo(UtlContainable const* pInVal) const
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 /* ============================ FUNCTIONS ================================= */
-

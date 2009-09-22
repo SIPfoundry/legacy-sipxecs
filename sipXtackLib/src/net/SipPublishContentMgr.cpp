@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +143,7 @@ SipPublishContentMgr::~SipPublishContentMgr()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-SipPublishContentMgr& 
+SipPublishContentMgr&
 SipPublishContentMgr::operator=(const SipPublishContentMgr& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case
@@ -462,7 +462,7 @@ UtlBoolean SipPublishContentMgr::removeContentChangeObserver(const char* eventTy
     }
 
     // There should not be a callback set, need to unset first
-    else if((callbackEntry = (PublishCallbackContainer*) 
+    else if((callbackEntry = (PublishCallbackContainer*)
         mEventContentCallbacks.remove(&eventTypeString)))
     {
         callbackRemoved = TRUE;
@@ -524,7 +524,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     }
 
     // See if resource-specific content exists
-    container = 
+    container =
         dynamic_cast <PublishContentContainer*> (pContent->find(&key));
 
     // There is no resource-specific content.  Check if the default
@@ -547,9 +547,9 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        }
 
        // See if resource specific content exists now.
-       container = 
+       container =
           dynamic_cast <PublishContentContainer*> (pContent->find(&key));
-        
+
        // If content was found, still mark it as default content.
        if (container)
        {
@@ -558,7 +558,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        // If still no content was found, check if the default exists.
        else
        {
-           container = 
+           container =
               dynamic_cast <PublishContentContainer*>
               (mDefaultContentEntries.find(&default_key));
            if(container)
@@ -638,7 +638,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                             acceptHeaderValue ? acceptHeaderValue : "[none]",
                             resourceId ? resourceId : "[none]",
                             eventTypeKey, eventType);
-           }              
+           }
         }
     }
     else
@@ -819,7 +819,7 @@ SipPublishContentMgr::buildContentTypesContainer(const char* acceptHeaderValue,
          }
       }
    }
-    
+
    return containsMimetypes;
 }
 

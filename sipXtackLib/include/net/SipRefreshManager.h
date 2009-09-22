@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -39,7 +39,7 @@ class OsTimer;
 /*! This is currently verified for SUBSCRIPTIONS ONLY.
  *  This class is intended to replace the SipRefreshMgr class.
  *
- * \par 
+ * \par
  */
 class SipRefreshManager : public OsServerTask
 {
@@ -92,9 +92,9 @@ public:
      *         a unSUBSCRIBE or unREGISTER occurred and that it has expired
      *         and that no further attempts will be made to reSUBSCRIBE or
      *         reREGISTER.  Usually zero indicates that the application stopped
-     *         the refresh.  A value of -1 indicates that no requests have 
-     *         succeeded yet. A value greater than zero and less than the 
-     *         current epoch time indicates the SUBSCRIBE or REGISTER has 
+     *         the refresh.  A value of -1 indicates that no requests have
+     *         succeeded yet. A value greater than zero and less than the
+     *         current epoch time indicates the SUBSCRIBE or REGISTER has
      *         expired, most likely because of a request failure.
      *  \param subscribeResponse - SIP SUBSCRIBE or REGISTER response which
      *         stimulated the state change.  May be NULL.  Ownership retained
@@ -118,7 +118,7 @@ public:
 /* ============================ CREATORS ================================== */
 
     //! Constructor
-    SipRefreshManager(SipUserAgent& userAgent, 
+    SipRefreshManager(SipUserAgent& userAgent,
                       SipDialogMgr& dialogMgr);
 
 
@@ -130,7 +130,7 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Send message and keep request refreshed (i.e. subscribed or registered)
-    /*! 
+    /*!
      *  The request can be out-of-dialog, or in-dialog (e.g.,
      *  generated from a NOTIFY from a fork of a SUBSCRIBE from which
      *  we did not receive a response).
@@ -169,15 +169,15 @@ public:
                                UtlString& earlyDialogHandle,
                                UtlBoolean suppressFirstSend = FALSE);
 
-    //! End the SIP refresh (registration or subscription) indicated by 
+    //! End the SIP refresh (registration or subscription) indicated by
     /*! the dialog handle.
      *  If the given dialogHandle is an early dialog it will end any
      *  established subscriptions that match the early dialog handle.
      *  Typically the application should use the established dialog
      *  handle.
      *  This method can be used to end one of the dialogs if multiple
-     *  subsription dialogs were created as a result of a single 
-     *  subscribe request.  The application will get multiple 
+     *  subsription dialogs were created as a result of a single
+     *  subscribe request.  The application will get multiple
      *  REFRESH_REQUEST_SUCCEEDED RefreshStateCallback events when
      *  multiple dialogs are created as a result of a single SUBSCRIBE.
      *  To end one of the subscriptions, the application should use
@@ -269,7 +269,7 @@ private:
     static void deleteTimerAndEvent(OsTimer*& timer);
 
     //! Clean the state and attached request so that the request can be resent.
-    void prepareForResend(RefreshDialogState& state, 
+    void prepareForResend(RefreshDialogState& state,
                           ///< the refresh state containing the request to resend
                           UtlBoolean expireNow
                           /**< If TRUE, the subscription/registration is
@@ -279,12 +279,12 @@ private:
        );
 
     //! Get the expiration from the initial SUBSCRIBE or REGISTER request.
-    static UtlBoolean getInitialExpiration(const SipMessage& sipRequest, 
+    static UtlBoolean getInitialExpiration(const SipMessage& sipRequest,
                                            int& expirationPeriod);
 
     //! Get the expiration from the SUBSCRIBE or REGISTER response.
     static UtlBoolean getAcceptedExpiration(RefreshDialogState* refreshState,
-                                            const SipMessage& sipResponse, 
+                                            const SipMessage& sipResponse,
                                             int& expirationPeriod);
 
     /// The SipUserAgent to be used.

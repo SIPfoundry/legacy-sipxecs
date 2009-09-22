@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("Two body parts",
                                   part2,
                                   extract_contents(&body).data());
-                        
+
          const char* new_boundary_string = body.getMultipartBoundary();
          CPPUNIT_ASSERT_MESSAGE("Changed boundary string",
                                 strcmp(boundary_string, new_boundary_string));

@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   virtual UtlBoolean handleMessage(OsMsg& eventMessage);   
+   virtual UtlBoolean handleMessage(OsMsg& eventMessage);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -117,11 +117,11 @@ protected:
 
    OsStatus handleCheckSyncEvent(const SipMessage* source) ;
 
-   UtlBoolean scheduleRunScript(UtlString* pContent, 
-                               CommandSecurityPolicy *pPolicy, 
+   UtlBoolean scheduleRunScript(UtlString* pContent,
+                               CommandSecurityPolicy *pPolicy,
                                int seconds) ;
 
-   OsStatus doRunScript(UtlString* pContent, 
+   OsStatus doRunScript(UtlString* pContent,
                         CommandSecurityPolicy *pPolicy) ;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -156,10 +156,10 @@ private:
                                       int totalDeletedMessages,
                                       int urgentDeletedMessages);
 
-    UtlBoolean getStatusTotalUrgent(const char* status, 
+    UtlBoolean getStatusTotalUrgent(const char* status,
                                  UtlBoolean absoluteValues,
                                  int parameterIndex,
-                                 int& total, 
+                                 int& total,
                                  int& urgent);
 
    SipNotifyStateTask(const SipNotifyStateTask& rSipNotifyStateTask);
