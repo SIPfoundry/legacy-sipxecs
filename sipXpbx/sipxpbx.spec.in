@@ -179,13 +179,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxpark
 %attr(755,root,root) %{_bindir}/sipxpark-config
 
-%attr(755,root,root) %{_bindir}/sipxdialog.sh
-%attr(755,root,root) %{_bindir}/sipxdialog
-%attr(755,root,root) %{_bindir}/sipxdialog-config
-
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
-%attr(755,root,root) %{_sysconfdir}/sipxpbx/sipxdialog-config.in.map
-
 %attr(755,root,root) %{_bindir}/sipx-snapshot-rls
 %attr(755,root,root) %{_bindir}/sipxrls.sh
 %attr(755,root,root) %{_bindir}/sipxrls

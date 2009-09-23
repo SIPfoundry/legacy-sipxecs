@@ -9,7 +9,6 @@ SUBDIRS = . \
     bin \
     etc \
     meta \
-    sipXdialog \
     sipXpark \
     sipXpresence \
     sipXrls \
