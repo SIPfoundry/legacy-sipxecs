@@ -14,7 +14,7 @@
   </type>
   <group name="firmware">
     <setting name="sip.zip">
-      <type id="zip">
+      <type>
         <file>
           <contentType>application/zip</contentType>
           <exclude>
