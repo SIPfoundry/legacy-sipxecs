@@ -42,7 +42,7 @@ public class CdrLogRestlet extends Restlet {
     private static String serviceName = "cdr";
     private Connection cdrConnection;
     private String cdrDBUrl = "jdbc:postgresql:SIPXCDR";
-    private String sqlStmt = "SELECT caller_aor, callee_aor, start_time, duration, termination from view_cdrs";
+    private String sqlStmt = "SELECT caller_aor, callee_aor, callee_contact, start_time, (end_time - connect_time) AS duration, termination, callee_route from cdrs";
     private String sqlUserWhereStmt = "WHERE (caller_aor LIKE ? OR callee_aor LIKE ? ) ";
     private String sqlFromDateStmt = "AND start_time > ? ";
     private String sqlLimitStmt = "LIMIT ?";
@@ -135,6 +135,7 @@ public class CdrLogRestlet extends Restlet {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder =factory.newDocumentBuilder();
             Document doc = builder.newDocument();
+            doc.setXmlVersion("1.0");
             Element results = doc.createElement("Results");
             doc.appendChild(results);
 
