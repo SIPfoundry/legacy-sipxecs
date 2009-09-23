@@ -66,6 +66,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return getHibernateTemplate().loadAll(Bridge.class);
     }
 
+    @Required
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
     }
@@ -76,14 +77,15 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
+        m_daoEventPublisher.publishSave(bridge);
         m_provisioning.deploy(bridge.getId());
     }
 
     public void store(Conference conference) {
         validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
-        m_provisioning.deploy(conference.getBridge().getId());
         m_daoEventPublisher.publishSave(conference);
+        m_provisioning.deploy(conference.getBridge().getId());
     }
 
     public void validate(Conference conference) {
@@ -125,7 +127,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public void removeConferences(Collection conferencesIds) {
-        Set bridges = new HashSet();
+        Set<Bridge> bridges = new HashSet<Bridge>();
         for (Iterator i = conferencesIds.iterator(); i.hasNext();) {
             Serializable id = (Serializable) i.next();
             Conference conference = loadConference(id);
@@ -325,6 +327,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             getHibernateTemplate().save(bridge);
         } else if (bridge != null && !isConferenceInstalled) {
             getHibernateTemplate().delete(bridge);
+            m_daoEventPublisher.publishDelete(bridge);
         }
     }
 

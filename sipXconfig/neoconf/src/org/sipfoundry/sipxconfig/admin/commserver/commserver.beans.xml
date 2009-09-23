@@ -258,4 +258,16 @@
     </property>
   </bean>
 
+  <bean id="contactInformationConfig" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationConfig">
+    <property name="name" value="contact-information.xml" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+  </bean>
+
+  <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="configurationFile" ref="contactInformationConfig" />
+  </bean>
+
 </beans>
