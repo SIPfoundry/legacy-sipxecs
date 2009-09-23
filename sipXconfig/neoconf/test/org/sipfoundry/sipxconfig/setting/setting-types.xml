@@ -121,6 +121,22 @@
       </type>
       <value />
     </setting>
+    <setting name="file_setting_zip">
+      <label>ZIP File setting label</label>
+      <type>
+        <file required="yes">
+          <contentType>application/zip</contentType>
+          <exclude>
+            <filename>exclude.1</filename>
+            <filename>exclude.2</filename>
+            <filename>exclude.2</filename> <!-- Intentional duplicate. -->
+            <filename>path/////exclude.3</filename> <!-- Intentional extra separators. -->
+            <filename></filename> <!-- Intentionally empty. -->
+          </exclude>
+        </file>
+      </type>
+      <value />
+    </setting>
     <setting name="enum_setting_2">
       <label>Another enum setting</label>
       <type>

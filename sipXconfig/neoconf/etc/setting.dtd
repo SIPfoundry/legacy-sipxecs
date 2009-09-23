@@ -72,13 +72,16 @@
 
 <!ELEMENT pattern (#PCDATA)>
 
-<!ELEMENT file (directory?,contentType?)>
+<!ELEMENT file (directory?,contentType?,exclude?)>
 <!ATTLIST file
     required %flag; "no"
     variable %flag; "no">
 
 <!ELEMENT directory (#PCDATA)>
 <!ELEMENT contentType (#PCDATA)>
+<!ELEMENT exclude (filename+)>
+
+<!ELEMENT filename (#PCDATA)>
 
 <!ELEMENT sip-uri EMPTY>
 <!ATTLIST sip-uri

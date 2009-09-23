@@ -22,6 +22,7 @@ import org.apache.commons.digester.BeanPropertySetterRule;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
+import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -50,7 +51,6 @@ public class XmlModelBuilder implements ModelBuilder {
     private static final String REQUIRED = "required";
     private static final String EL_OPTION = "/option";
     private static final String ADD_ENUM_METHOD = "addEnum";
-
     private final File m_configDirectory;
 
     public XmlModelBuilder(File configDirectory) {
@@ -384,7 +384,14 @@ public class XmlModelBuilder implements ModelBuilder {
         public void addRuleInstances(Digester digester) {
             digester.addObjectCreate(getPattern(), FileSetting.class);
             digester.addSetProperties(getPattern());
-            digester.addSetNestedProperties(getPattern());
+
+            SetNestedPropertiesRule nestedPropertiesRule = new SetNestedPropertiesRule();
+            nestedPropertiesRule.setAllowUnknownChildElements(true);
+            digester.addRule(getPattern(), nestedPropertiesRule);
+
+            String zipexclude = getPattern() + "/exclude/filename";
+            digester.addCallMethod(zipexclude, "addZipExclude", 1);
+            digester.addCallParam(zipexclude, 0);
             super.addRuleInstances(digester);
         }
     }

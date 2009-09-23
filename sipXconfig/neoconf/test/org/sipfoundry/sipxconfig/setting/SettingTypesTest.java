@@ -212,6 +212,22 @@ public class SettingTypesTest extends TestCase {
         assertEquals("audio/x-wav", fileType.getContentType());
     }
 
+    public void testFileZipExcludeFull() {
+        Setting setting = group.getSetting("file_setting_zip");
+        SettingType type = setting.getType();
+
+        assertTrue(type instanceof FileSetting);
+        FileSetting fileType = (FileSetting) type;
+
+        List<String> excludes = fileType.getZipExcludes();
+        // 5 entries in the file, but one blank and one duplicate must be excluded.
+        assertEquals(3, excludes.size());
+
+        assertEquals("exclude.1/", excludes.get(0));
+        assertEquals("exclude.2/", excludes.get(1));
+        assertEquals("path/exclude.3/", excludes.get(2)); // The extra separators are removed.
+    }
+
     public void testGetEnumsWithNoLabels() {
         Setting setting = group.getSetting("enum_setting_2");
         EnumSetting enums = (EnumSetting) setting.getType();

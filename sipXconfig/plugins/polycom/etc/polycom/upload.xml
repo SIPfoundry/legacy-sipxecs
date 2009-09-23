@@ -14,7 +14,17 @@
   </type>
   <group name="firmware">
     <setting name="sip.zip">
-      <type refid="zip"/>
+      <type id="zip">
+        <file>
+          <contentType>application/zip</contentType>
+          <exclude>
+            <filename>000000000000.cfg</filename>
+            <filename>000000000000-directory~.xml</filename>
+            <filename>sip.cfg</filename>
+            <filename>phone1.cfg</filename>
+          </exclude>
+        </file>
+      </type>
     </setting>
     <setting name="bootrom">
       <label>Bootrom (zip)</label>

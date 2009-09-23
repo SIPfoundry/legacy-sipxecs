@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.upload;
 
@@ -143,17 +143,19 @@ public class Upload extends BeanWithSettings {
         @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
-            if (type instanceof FileSetting) {
-                String filename = setting.getValue();
-
-                if (filename != null) {
-                    String contentType = ((FileSetting) type).getContentType();
-                    if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                        deployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename));
-                    } else {
-                        deployFile(filename);
-                    }
-                }
+            if (!(type instanceof FileSetting)) {
+                return;
+            }
+            String filename = setting.getValue();
+            if (filename == null) {
+                return;
+            }
+            String contentType = ((FileSetting) type).getContentType();
+            if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
+                deployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
+                        (FileSetting) type);
+            } else {
+                deployFile(filename);
             }
         }
     }
@@ -162,18 +164,20 @@ public class Upload extends BeanWithSettings {
         @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
-            if (type instanceof FileSetting) {
-                String filename = setting.getValue();
-                if (filename != null) {
-                    String contentType = ((FileSetting) type).getContentType();
-                    if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
-                        undeployZipFile(new File(getDestinationDirectory()),
-                                new File(getUploadDirectory(), filename));
-                    } else {
-                        File f = new File(getDestinationDirectory(), filename);
-                        f.delete();
-                    }
-                }
+            if (!(type instanceof FileSetting)) {
+                return;
+            }
+            String filename = setting.getValue();
+            if (filename == null) {
+                return;
+            }
+            String contentType = ((FileSetting) type).getContentType();
+            if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
+                undeployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
+                        (FileSetting) type);
+            } else {
+                File f = new File(getDestinationDirectory(), filename);
+                f.delete();
             }
         }
     }
@@ -257,7 +261,7 @@ public class Upload extends BeanWithSettings {
     /**
      * Uses zip file list and list of files to be deleted
      */
-    static void undeployZipFile(File expandedDirectory, File zipFile) {
+    static void undeployZipFile(File expandedDirectory, File zipFile, FileSetting fs) {
         if (!zipFile.canRead()) {
             LOG.warn("Undeploying missing or unreadable file: " + zipFile.getPath());
             return;
@@ -269,6 +273,9 @@ public class Upload extends BeanWithSettings {
                 ZipEntry entry = entries.nextElement();
                 if (entry.isDirectory()) {
                     // do not clean up directory, no guarantee we created them
+                    continue;
+                }
+                if (fs.isExcluded(entry.getName())) {
                     continue;
                 }
                 File victim = new File(expandedDirectory, entry.getName());
@@ -284,7 +291,7 @@ public class Upload extends BeanWithSettings {
     /**
      * Expand zip file into destination directory
      */
-    static void deployZipFile(File expandDirectory, File zipFile) {
+    static void deployZipFile(File expandDirectory, File zipFile, FileSetting fs) {
         try {
             ZipFile zip = new ZipFile(zipFile);
             Enumeration< ? extends ZipEntry> entries = zip.entries();
@@ -293,6 +300,9 @@ public class Upload extends BeanWithSettings {
                 OutputStream out = null;
                 try {
                     ZipEntry entry = entries.nextElement();
+                    if (fs.isExcluded(entry.getName())) {
+                        continue;
+                    }
                     File file = new File(expandDirectory, entry.getName());
                     if (entry.isDirectory()) {
                         file.mkdirs();
@@ -314,5 +324,4 @@ public class Upload extends BeanWithSettings {
             throw new RuntimeException(e);
         }
     }
-
 }
