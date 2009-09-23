@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.ExtendedUserInfo;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
+import org.sipfoundry.sipxconfig.site.vm.MailboxPreferencesPage;
 
 public abstract class UserNavigation extends BeanNavigation {
 
@@ -64,6 +65,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = ExtendedUserInfo.PAGE)
     public abstract ExtendedUserInfo getExtendedUserInfoPage();
+
+    @InjectPage(value = MailboxPreferencesPage.PAGE)
+    public abstract MailboxPreferencesPage getMailboxPreferencesPage();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -141,6 +145,13 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public IPage viewMailboxPreferences(Integer userId) {
+        MailboxPreferencesPage page = getMailboxPreferencesPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
     public boolean isConferencesTabActive() {
         return UserConferences.PAGE.equals(getPage().getPageName());
     }
@@ -179,6 +190,10 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public boolean isExtendedUserInfoTabActive() {
         return ExtendedUserInfo.PAGE.equals(getPage().getPageName());
+    }
+
+    public boolean isMailboxPreferencesTabActive() {
+        return MailboxPreferencesPage.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {

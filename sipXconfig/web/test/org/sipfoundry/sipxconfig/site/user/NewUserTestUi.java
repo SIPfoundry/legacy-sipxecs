@@ -128,10 +128,6 @@ public class NewUserTestUi extends WebTestCase {
         // Make sure all the correct fields are empty
         SiteTestHelper.assertTextFieldEmpty(tester, "user:lastName");
         SiteTestHelper.assertTextFieldEmpty(tester, "user:firstName");
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:emailAddress");
-        assertSelectedOptionValueEquals("user:voicemailProperties", "0");
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:alternateEmailAddress");
-        assertCheckboxNotSelected("user:attachVoicemailToAlternateEmail");
         SiteTestHelper.assertTextFieldEmpty(tester, "cp:password");
         SiteTestHelper.assertTextFieldEmpty(tester, "cp:confirmPassword");
         SiteTestHelper.assertTextFieldEmpty(tester, "gms:groups");

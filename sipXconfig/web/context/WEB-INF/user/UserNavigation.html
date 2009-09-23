@@ -15,6 +15,12 @@
               <span key="link.identification">Identification</span>
             </a>
           </span>
+          <span jwcid="@common/Tab" isActive="ognl:mailboxPreferencesTabActive">
+            <a id="mailboxPreferencesLink" jwcid="mailboxPreferencesLink@DirectLink"
+              listener="listener:viewMailboxPreferences" parameters="ognl:bean.id">
+              <span key="link.mailboxPreferences">Mailbox Preferences</span>
+            </a>
+          </span>
           <span jwcid="@common/Tab" isActive="ognl:extendedUserInfoTabActive">
             <a jwcid="editExtendedUserInfoLink@DirectLink" listener="listener:editExtendedUserInfo"
               parameters="ognl:bean.id">
