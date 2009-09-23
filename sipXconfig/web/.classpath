@@ -14,7 +14,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-logging-1.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-pool-1.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/easymock-2.2.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/htmlunit-1.14.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/htmlunit-2.5.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/javassist-3.7.ga.jar" sourcepath="/LIB_SRC/javassist/3.7/src.zip"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.7.3.jar" sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip"/>
@@ -53,9 +53,9 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jwebunit-htmlunit-plugin-2.2.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/regexp-1.3.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/commons-httpclient-3.0.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/nekohtml-0.9.5.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/nekohtml-1.9.12.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/backport-util-concurrent-3.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.4.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/cssparser-0.9.5.jar"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jcommon.jar"/>
 	<classpathentry kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jfreechart.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jettison-1.1.jar" sourcepath="/LIB_SRC/jettison/1.1/src.zip"/>

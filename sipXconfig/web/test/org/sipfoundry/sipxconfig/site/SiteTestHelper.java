@@ -388,8 +388,7 @@ public class SiteTestHelper {
     /**
      * Turn on/off javascript, make sure to restore state to true after you're done
      */
-    public static boolean setScriptingEnabled(WebTester tester, @SuppressWarnings("unused") boolean enabled) {
-        // FIXME: always switch off - dojo is not parsed correctly
+    public static boolean setScriptingEnabled(WebTester tester, boolean enabled) {
         tester.setScriptingEnabled(enabled);
         return false;
     }
