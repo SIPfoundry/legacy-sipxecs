@@ -25,7 +25,10 @@ CHECK_POSTGRES
 
 #Check if the openfire base installation exists and is enabled.
 CHECK_OPENFIRE
-AM_CONDITIONAL(BUILD_OPENFIRE, test x$enable_openfire = xyes)
+AC_ARG_ENABLE(openfire,
+  AC_HELP_STRING([--enable-openfire], [Enable OPENFIRE integration]),
+  enable_openfire=yes,)
+AM_CONDITIONAL(OPENFIRE_ENABLED, test x$enable_openfire = xyes)
 
 # Java
 CHECK_JDK
