@@ -56,6 +56,9 @@ public:
     //serialize methods
     OsStatus store();
 
+    /// Count rows in table
+    int getRowCount () const;
+
     //set methods
     UtlBoolean insertRow (
         const UtlString& component,

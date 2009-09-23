@@ -52,6 +52,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    /// Count rows in table
+    int getRowCount () const;
+
     UtlBoolean insertRow (
         const Url& identityUri,
         const UtlString& location );

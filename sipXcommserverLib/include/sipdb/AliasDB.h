@@ -49,6 +49,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    /// Count rows in table
+    int getRowCount () const;
+
     // One step closer to common load/store code
     UtlBoolean insertRow ( const UtlHashMap& nvPairs );
 

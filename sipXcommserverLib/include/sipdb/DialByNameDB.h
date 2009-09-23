@@ -51,6 +51,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    /// Count rows in table
+    int getRowCount () const;
+
     // utility method for dumping all rows
     void getAllRows ( ResultSet& rResultSet ) const;
 

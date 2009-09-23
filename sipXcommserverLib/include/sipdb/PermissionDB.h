@@ -49,6 +49,9 @@ public:
     // Domain Serialization/Deserialization
     OsStatus store();
 
+    /// Count rows in table
+    int getRowCount () const;
+
     //set methods// values can be MAPPED or REGISTER
     UtlBoolean insertRow (
         const Url& uri,

@@ -60,15 +60,23 @@ DialByNameDB::DialByNameDB( const UtlString& name ) :
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "DialByNameDB::_ users = %d, mTableLoaded = %d",
+                  users, mTableLoaded);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "DialByNameDB::_ about to load");
         mTableLoaded = false;
         // Load the file implicitly
         if (this->load() == OS_SUCCESS)
         {
            mTableLoaded = true;
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "DialByNameDB::_ table successfully loaded");
         }
     }
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "DialByNameDB::_ rows in table = %d",
+                  getRowCount());
 }
 
 DialByNameDB::~DialByNameDB()
@@ -379,6 +387,26 @@ DialByNameDB::removeAllRows () const
         // Commit rows to memory - multiprocess workaround
         m_pFastDB->detach(0);
     }
+}
+
+int
+DialByNameDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   m_pFastDB->attach();
+
+   dbCursor< DialByNameRow > cursor;
+
+   dbQuery query;
+   query="";
+   count = cursor.select( query );
+
+   // Commit rows to memory - multiprocess workaround
+   m_pFastDB->detach(0);
+
+   return count;
 }
 
 void

@@ -56,15 +56,23 @@ CallerAliasDB::CallerAliasDB( const UtlString& name )
    // If we are the first process to attach
    // then we need to load the DB
    int users = pSIPDBManager->getNumDatabaseProcesses(name);
-    if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                 "CallerAliasDB::_ users = %d, mTableLoaded = %d",
+                 users, mTableLoaded);
+   if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
    {
+      OsSysLog::add(FAC_DB, PRI_DEBUG, "CallerAliasDB::_ about to load");
       mTableLoaded = false;
       // Load the file implicitly
       if (this->load() == OS_SUCCESS)
       {
          mTableLoaded = true;
+         OsSysLog::add(FAC_DB, PRI_DEBUG, "CallerAliasDB::_ table successfully loaded");
       }
    }
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                 "CallerAliasDB::_ rows in table = %d",
+                 getRowCount());
 }
 
 CallerAliasDB::~CallerAliasDB()
@@ -105,6 +113,26 @@ CallerAliasDB::releaseInstance()
       delete spInstance;
       spInstance = NULL;
    }
+}
+
+int
+CallerAliasDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   mpFastDB->attach();
+
+   dbCursor< CallerAliasRow > cursor;
+
+   dbQuery query;
+   query="";
+   count = cursor.select( query );
+
+   // Commit rows to memory - multiprocess workaround
+   mpFastDB->detach(0);
+
+   return count;
 }
 
 // Add a single mapping to the database.

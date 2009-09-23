@@ -53,15 +53,23 @@ UserLocationDB::UserLocationDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "UserLocationDB::_ users = %d, mTableLoaded = %d",
+                  users, mTableLoaded);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "UserLocationDB::_ about to load");
         mTableLoaded = false;
         // Load the file implicitly
         if (this->load() == OS_SUCCESS)
         {
            mTableLoaded = true;
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "UserLocationDB::_ table successfully loaded");
         }
     }
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "UserLocationDB::_ rows in table = %d",
+                  getRowCount());
 }
 
 UserLocationDB::~UserLocationDB() 
@@ -182,6 +190,26 @@ UserLocationDB::load()
         result = OS_FAILED;
     }
     return result;
+}
+
+int
+UserLocationDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   m_pFastDB->attach();
+
+   dbCursor< UserLocationRow > cursor;
+
+   dbQuery query;
+   query="";
+   count = cursor.select( query );
+
+   // Commit rows to memory - multiprocess workaround
+   m_pFastDB->detach(0);
+
+   return count;
 }
 
 OsStatus

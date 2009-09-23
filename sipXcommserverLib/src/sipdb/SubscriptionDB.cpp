@@ -84,16 +84,26 @@ SubscriptionDB::SubscriptionDB( const UtlString& name )
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "SubscriptionDB::_ users = %d, mTableLoaded = %d",
+                  users, mTableLoaded);
     if ( users == 1 || ( users > 1 && mTableLoaded == false ) )
     {
+        OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::_ about to load");
         mTableLoaded = false;
         // Load the file implicitly
-        this->load();
+        if (this->load() == OS_SUCCESS)
+        {
+           OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::_ table successfully loaded");
+        }
         // the SubscriptionDB is not replicated from sipXconfig, as
         // a result, make this table appear as being loaded regardless
         // of the load() result.
         mTableLoaded = true;
     }
+    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                  "SubscriptionDB::_ rows in table = %d",
+                  getRowCount());
 }
 
 SubscriptionDB::~SubscriptionDB()
@@ -314,6 +324,26 @@ SubscriptionDB::store()
         result = OS_FAILED;
     }
     return result;
+}
+
+int
+SubscriptionDB::getRowCount () const
+{
+   int count = 0;
+
+   // Thread Local Storage
+   m_pFastDB->attach();
+
+   dbCursor< SubscriptionRow > cursor;
+
+   dbQuery query;
+   query="";
+   count = cursor.select( query );
+
+   // Commit rows to memory - multiprocess workaround
+   m_pFastDB->detach(0);
+
+   return count;
 }
 
 UtlBoolean

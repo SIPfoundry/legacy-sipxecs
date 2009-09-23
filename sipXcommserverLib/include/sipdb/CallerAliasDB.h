@@ -43,6 +43,9 @@ class CallerAliasDB
    /// releaseInstance - cleans up the singleton (for use at exit)
    static void releaseInstance();
 
+   /// Count rows in table
+   int getRowCount () const;
+
    /// Add a single mapping to the database.
    void insertRow(const UtlString identity, ///< identity of caller in 'user@domain' form (no scheme)
                   const UtlString domain,   /**< domain and optional port for target
