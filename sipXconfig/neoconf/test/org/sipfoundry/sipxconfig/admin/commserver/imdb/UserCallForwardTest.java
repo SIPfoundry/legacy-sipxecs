@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -62,6 +64,7 @@ public class UserCallForwardTest extends XMLTestCase {
             m_users.add(user);
 
             CallSequence cs = new CallSequence();
+            cs.setUser(user);
             cs.setCfwdTime(Integer.valueOf(ud[3]));
 
             m_cs.add(cs);

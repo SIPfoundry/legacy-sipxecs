@@ -166,4 +166,12 @@
       <value>On the phone</value>
     </setting>
   </group>
+  <group name="callfwd">
+    <setting name="timer">
+      <type>
+        <integer min="0" required="yes"/>
+      </type>
+      <value>20</value>
+    </setting>
+  </group>
 </model>

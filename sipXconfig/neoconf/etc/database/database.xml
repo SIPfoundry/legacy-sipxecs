@@ -321,7 +321,6 @@
     <!-- sipx-version version="11" -->
     <antcall target="speeddial_group" />
 	<antcall target="add_addressbook_entry_info" />
-    <antcall target="add-user-callforward" />
   	<antcall target="add-user-shared-field" />
     <antcall target="add_addressbook_entry_info_2" />
     <antcall target="add-saa-service" />
@@ -846,10 +845,6 @@
 
   <target name="delete-volatile-gateways" unless="delete-volatile-gateways">
     <db-patch patch="volatile-clearance"/>
-  </target>
-
-  <target name="add-user-callforward" unless="add-user-callforward">
-    <db-patch patch="add-user-callforward"/>
   </target>
 
   <target name="add-user-shared-field" unless="add-user-shared-field">

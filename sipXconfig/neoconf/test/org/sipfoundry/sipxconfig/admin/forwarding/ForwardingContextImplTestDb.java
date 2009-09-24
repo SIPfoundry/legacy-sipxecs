@@ -51,7 +51,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         User user = m_coreContext.loadUser(m_testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         assertEquals(user.getId(), callSequence.getUser().getId());
-        assertEquals(25, callSequence.getCfwdTime());
+
         List calls = callSequence.getRings();
         assertEquals(3, calls.size());
         // test data: id, number: "23id", expiration "40(id-1000)", type - always delayed
@@ -120,8 +120,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         Assertion.assertEquals(expected, actual);
 
-        ITable userTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(35, userTable.getValue(0, "cfwd_time"));
+        assertEquals(35, callSequence.getCfwdTime());
     }
 
     public void testMove() throws Exception {

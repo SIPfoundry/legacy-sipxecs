@@ -72,6 +72,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void saveCallSequence(CallSequence callSequence) {
         getHibernateTemplate().update(callSequence);
+        m_coreContext.saveUser(callSequence.getUser());
         // Notify commserver of ALIAS
         notifyCommserver();
     }

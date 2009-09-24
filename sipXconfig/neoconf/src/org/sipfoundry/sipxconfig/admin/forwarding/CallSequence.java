@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
@@ -20,11 +20,10 @@ import org.sipfoundry.sipxconfig.common.User;
  * CallSequence
  */
 public class CallSequence extends AbstractCallSequence {
+    private static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
+
     private User m_user;
     private boolean m_withVoicemail;
-
-    /** Serial forking expiry timer (in seconds). */
-    private int m_cfwdTime = 20;
 
     public CallSequence() {
         // empty default constructor
@@ -71,11 +70,11 @@ public class CallSequence extends AbstractCallSequence {
     }
 
     public int getCfwdTime() {
-        return m_cfwdTime;
+        return (Integer) m_user.getSettingTypedValue(CALL_FWD_TIMER_SETTING);
     }
 
     public void setCfwdTime(int cfwdtime) {
-        m_cfwdTime = cfwdtime;
+        m_user.setSettingTypedValue(CALL_FWD_TIMER_SETTING, cfwdtime);
     }
 
     @Override
