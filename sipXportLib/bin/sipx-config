@@ -45,7 +45,11 @@ Projects="\
   sipxvxml \
   sipxacd \
   sipxpbx \
-  sipxsaa"
+  sipxsaa \
+  sipxpark \
+  sipxivr \
+  sipxpage \
+  sipxpresence"
 
 ## Test the java executable command
 testJavaTool()
