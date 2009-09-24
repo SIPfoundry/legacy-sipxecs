@@ -283,7 +283,7 @@ if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
    rpm -q jakarta-commons-net &> /dev/null
    if [ $? != 0 ]; then
       wget_repofile http://www.jpackage.org/jpackage.repo
-      DIRNAME=centos_jakarta-commons-net_problems
+      DIR_NAME=centos_jakarta-commons-net_problems
       rm -rf $DIR_NAME
       mkdir -p $DIR_NAME
       pushd $DIR_NAME
