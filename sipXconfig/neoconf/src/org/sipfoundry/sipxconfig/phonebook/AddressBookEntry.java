@@ -27,6 +27,7 @@ public class AddressBookEntry extends BeanWithId {
     private String m_imId;
     private String m_imDisplayName;
     private String m_alternateImId;
+    private boolean m_useBranchAddress = true;
 
     public String getJobTitle() {
         return m_jobTitle;
@@ -146,5 +147,13 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setLocation(String location) {
         m_location = location;
+    }
+
+    public boolean getUseBranchAddress() {
+        return m_useBranchAddress;
+    }
+
+    public void setUseBranchAddress(boolean useBranchAddress) {
+        m_useBranchAddress = useBranchAddress;
     }
 }

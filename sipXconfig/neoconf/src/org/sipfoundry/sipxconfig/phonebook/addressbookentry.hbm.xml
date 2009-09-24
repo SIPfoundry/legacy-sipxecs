@@ -21,6 +21,7 @@
     <property name="imDisplayName" />
     <property name="alternateImId" />
     <property name="location" />
+    <property name="useBranchAddress" />
     <component name="homeAddress" class="Address">
       <property name="street" column="home_address_street" />
       <property name="zip" column="home_address_zip" />

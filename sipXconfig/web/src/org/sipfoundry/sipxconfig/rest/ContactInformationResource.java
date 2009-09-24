@@ -9,7 +9,6 @@
 package org.sipfoundry.sipxconfig.rest;
 
 import com.thoughtworks.xstream.XStream;
-
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -38,6 +37,9 @@ public class ContactInformationResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         AddressBookEntry addressBook = getUser().getAddressBookEntry();
         AddressBookEntry reprAddressBook = (AddressBookEntry) addressBook.duplicate();
+        if (addressBook.getUseBranchAddress() && getUser().getBranch() != null) {
+            reprAddressBook.setOfficeAddress(getUser().getBranch().getAddress());
+        }
         return new AddressBookRepresentation(variant.getMediaType(), reprAddressBook);
     }
 
@@ -70,6 +72,7 @@ public class ContactInformationResource extends UserResource {
         @Override
         protected void configureXStream(XStream xstream) {
             xstream.omitField(BeanWithId.class, "m_id");
+            xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
             xstream.alias("contact-information", AddressBookEntry.class);
             xstream.alias("homeAddress", Address.class);
             xstream.alias("officeAddress", Address.class);

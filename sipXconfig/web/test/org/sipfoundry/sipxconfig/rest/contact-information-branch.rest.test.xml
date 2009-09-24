@@ -1,0 +1,11 @@
+<contact-information>
+  <jobTitle>Data Entry Assistant</jobTitle>
+  <jobDept>Data Management Services</jobDept>
+  <companyName>Museum of Science</companyName>
+  <homeAddress>
+    <city>NY</city>
+  </homeAddress>
+  <officeAddress>
+    <street>Branch Street</street>
+  </officeAddress>
+</contact-information>

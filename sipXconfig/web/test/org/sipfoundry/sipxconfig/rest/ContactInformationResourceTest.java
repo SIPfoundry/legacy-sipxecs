@@ -21,6 +21,7 @@ import org.restlet.data.Request;
 import org.restlet.resource.InputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Address;
@@ -130,6 +131,29 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+    }
+
+    public void testRepresentXmlUserWithBranch() throws Exception {
+        Branch branch = new Branch();
+        branch.getAddress().setStreet("Branch Street");
+        m_user.setBranch(branch);
+        m_user.getAddressBookEntry().setUseBranchAddress(true);
+
+        ContactInformationResource resource = new ContactInformationResource();
+        resource.setCoreContext(m_coreContext);
+
+        ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
+        Request request = new Request();
+        request.setChallengeResponse(challengeResponse);
+        resource.init(null, request, null);
+
+        Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
+        StringWriter writer = new StringWriter();
+        representation.write(writer);
+        String generated = writer.toString();
+        String expected = IOUtils.toString(getClass()
+                .getResourceAsStream("contact-information-branch.rest.test.xml"));
+        assertEquals(expected, generated);
     }
 
     public void testStoreJson() throws Exception {

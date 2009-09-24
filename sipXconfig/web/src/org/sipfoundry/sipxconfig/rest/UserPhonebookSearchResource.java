@@ -112,6 +112,7 @@ public class UserPhonebookSearchResource extends UserResource {
             xstream.aliasField("first-name", Representable.class, "firstName");
             xstream.aliasField("last-name", Representable.class, "lastName");
             xstream.aliasField("contact-information", Representable.class, "addressBookEntry");
+            xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
         }
     }
 }

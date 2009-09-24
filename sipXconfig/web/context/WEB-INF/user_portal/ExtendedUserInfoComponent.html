@@ -87,10 +87,23 @@
     <tr jwcid="@user_portal/AddressPanel"
       addr="ognl:addressBookEntry.homeAddress"
       panelLabel="message:label.homeAddress"/>
+<div jwcid="@If" condition="ognl:user.branch != null" renderTag="false">
+    <tr jwcid="@common/FieldPanel"
+      for="useBranchAddress"
+      field="component:useBranchAddress"
+      label="message:label.useBranchAddress">
+    <span jwcid="useBranchAddress@Checkbox"
+      id="useBranchAddress"
+	  value="ognl:addressBookEntry.useBranchAddress"
+	  onchange="javascript:this.form.submit(); "/>
+	</tr>
+</div>
+<div jwcid="@If" condition="ognl:!addressBookEntry.useBranchAddress || user.branch == null" renderTag="false">
     <tr jwcid="@user_portal/AddressPanel"
       addr="ognl:addressBookEntry.officeAddress"
       panelLabel="message:label.officeAddress"
-      office="true" />
+      office="true"/>
+</div>
   </table>
 </fieldset>
 <ul jwcid="@common/FormActions"

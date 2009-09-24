@@ -22,6 +22,7 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -124,6 +125,7 @@ public class UserPhonebookEntryResource extends UserResource {
             xstream.aliasField("last-name", PhonebookFileEntry.class, "lastName");
             xstream.aliasField("contact-information", PhonebookFileEntry.class, "addressBookEntry");
             xstream.omitField(PhonebookFileEntry.class, "m_phonebook");
+            xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
         }
     }
 }

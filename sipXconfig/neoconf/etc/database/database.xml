@@ -332,6 +332,7 @@
     <antcall target="branch-address" />
     <antcall target="remove-legacy-media-server" />
 	<antcall target="phonebook-add-user" />
+    <antcall target="add_addrbookentry_use_brnch_addr" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -998,6 +999,9 @@
   </target>
   <target name="phonebook-add-user" unless="phonebook-add-user">
 	<db-patch patch="phonebook-add-user"/>
+  </target>
+  <target name="add_addrbookentry_use_brnch_addr" unless="add_addrbookentry_use_brnch_addr">
+    <db-patch patch="add_addrbookentry_use_brnch_addr"/>
   </target>
 
   <!--
