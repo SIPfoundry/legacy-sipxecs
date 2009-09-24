@@ -611,14 +611,6 @@ if [ $? != 0 ]; then
    echo "ERROR: sipXconfig Eclipse 'ant default' failed.  See $EDE_LOGS/sipxconfig_eclipse_setup.log" >&2
    exit 18
 fi
-cd web
-echo "   ant run..."
-echo "TODO: Skipping 'ant run' because it blocks (with a failure.)"
-# TODO: ant run >>$FULL_PATH_EDE_LOGS/sipxconfig_eclipse_setup.log 2>&1
-if [ $? != 0 ]; then
-   echo "ERROR: sipXconfig Eclipse 'ant run' failed.  See $EDE_LOGS/sipxconfig_eclipse_setup.log" >&2
-   exit 19
-fi
 popd > /dev/null
 
 # Non-interactive section complete.
