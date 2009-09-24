@@ -153,7 +153,10 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
    }
    else if (value->isInstanceOf(UtlSList::TYPE))
    {
-      result = addArray((UtlSList *)value);
+      //Try and be smart about the size of the body so we don't need to constantly re-allocate.
+      UtlSList* pArray = (UtlSList *)value;
+      mBody.capacity(pArray->entries() * 650);
+      result = addArray(pArray);
    }
    else
    {
