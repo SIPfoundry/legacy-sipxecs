@@ -3,13 +3,13 @@ include $(top_srcdir)/config/project.am
 
 include ant-targets.am
 
-if OPENFIRE_ENABLED
+if BUILD_OPENFIRE
 
 BUILD_ANT=all-ant
 CHECK_ANT=check-ant
 INSTALL_ANT=install-ant
 
-bin_SCRIPTS = sipxopenfire.sh
+bin_SCRIPTS = sipxopenfire.sh sipxopenfire-initdb.sql sipxopenfire-setup.sh
 
 RPMS=$(RPM)
 
@@ -52,9 +52,7 @@ EXTRA_DIST = \
   src
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
-BUILT_SOURCES = config.properties \
-sipxopenfire.sh \
-sipxopenfire-setup.sh
+BUILT_SOURCES = config.properties
 
 SIPX_PROCESS_DEFS = \
 	sipxopenfire 
