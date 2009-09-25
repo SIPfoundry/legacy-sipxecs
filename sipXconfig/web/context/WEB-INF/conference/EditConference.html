@@ -4,14 +4,14 @@
     <span jwcid="@If" condition="ognl:bridgeId != null">
 	    <div id="breadcrumbs">
 	        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferencing" /></a>
-	        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" /> 
+	        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
 	        <a jwcid="@DirectLink" listener="listener:viewBridge" parameters="ognl:bridge.id">
 	            <span jwcid="@Insert" value="ognl:bridge.name" />
 	        </a>
 	        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
-	        <span jwcid="@If" condition="ognl:conference.isNew()"><span key="crumb.newConference"/></span>     
+	        <span jwcid="@If" condition="ognl:conference.isNew()"><span key="crumb.newConference"/></span>
 	        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:conference.name" /></span>
-	    </div>  
+	    </div>
     </span>
     <span jwcid="@Any" id="messageArea">
         <span jwcid="@common/ErrorMsg" />
@@ -29,7 +29,7 @@
          <table>
             <div jwcid="@conference/BridgeSelector" bridge="ognl:bridge" validators="validators:required[%error.bridgeSelect]" />
          </table>
-         </span>         
+         </span>
       </span>
       <span jwcid="@Else">
 	      <table>

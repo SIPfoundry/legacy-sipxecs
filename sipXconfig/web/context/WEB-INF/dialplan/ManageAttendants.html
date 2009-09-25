@@ -9,18 +9,18 @@
   <span jwcid="@common/ErrorMsg"/>
   <ul class="component-links">
     <li>
-      <a jwcid="defaultAttendantGroupLink@DirectLink" id="defaultAttendantGroup" 
+      <a jwcid="defaultAttendantGroupLink@DirectLink" id="defaultAttendantGroup"
         href="#" listener="listener:defaultGroup">
         <span key="link.defaultGroup">Default Settings</span>
       </a>
-    </li> 
+    </li>
     <li>
       <a jwcid="addAttendantLink@DirectLink" id="addAttendant" href="#"
         listener="listener:add">
         <span key="link.add">Add Attendant</span>
       </a>
-    </li>        
-  </ul>        
+    </li>
+  </ul>
   <form jwcid="attendantListForm@Form" delegate="bean:validator">
     <table jwcid="tableView@common/Table" id="list:attendant"
       columns="literal:* name,description"
@@ -36,9 +36,9 @@
     </table>
     <ul class="component-submit">
       <li>
-        <input jwcid="deleteButton@Submit" id="list:attendant:delete" 
+        <input jwcid="deleteButton@Submit" id="list:attendant:delete"
           value="message:button.delete" listener="listener:deleteSelected"/>
-        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>          
+        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>
       </li>
     </ul>
   </form>

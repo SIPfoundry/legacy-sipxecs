@@ -2,7 +2,7 @@
   <h2>
     <span key="title">Auto Attendant</span>
   </h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'menu', 'options'}" selectedTab="ognl:tab"/>  
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'menu', 'options'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg" />
     <form jwcid="form@Form" delegate="bean:validator">
@@ -12,7 +12,7 @@
         listener="listener:commit"/>
     </form>
   </div>
-  
+
   <div jwcid="menuTab@Block">
     <div class="help">
       <dl>
@@ -55,7 +55,7 @@
         <tr jwcid="common@common/ItemCommon" item="ognl:attendant"
           useEnabled="ognl:false" useFieldset="ognl:false"/>
         <tr jwcid="attendantPromptLabel@common/FieldPanel"
-          label="message:attendant.prompt" 
+          label="message:attendant.prompt"
           field="ognl:components.attendantPromptSelector.prompt">
           <span jwcid="attendantPromptSelector@common/AssetSelectorMultiple"
             asset="ognl:attendant.prompt" assetDir="ognl:attendant.promptsDirectory"
@@ -71,7 +71,7 @@
     </fieldset>
   </div>
   <div jwcid="optionsTab@Block">
-    <fieldset jwcid="settingsFieldset@setting/SettingsFieldset" 
-      settings="ognl:attendant.settings" renderGroupTitle="true"/>  
-  </div>  
+    <fieldset jwcid="settingsFieldset@setting/SettingsFieldset"
+      settings="ognl:attendant.settings" renderGroupTitle="true"/>
+  </div>
 </div>

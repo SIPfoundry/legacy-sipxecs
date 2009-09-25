@@ -3,7 +3,7 @@
     <span key="title"/>
   </h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
-  <div id="settings-content">  
+  <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" showRefresh="ognl:tab == 'conferences'"
 	  actionBlock="ognl:actionBlockForConferencesTab">
@@ -48,18 +48,18 @@
           for="personalAttendant:language"
           label="message:label.language"
           description="message:description.language">
-          <input jwcid="language@PropertySelection" 
+          <input jwcid="language@PropertySelection"
             model="bean:languageSelectionModel"
             value="ognl:personalAttendant.language"
             id="personalAttendant:language" />
         </td>
       </tr>
       <tr jwcid="@common/FieldPanel"
-        for="personalAttendant:operator" 
+        for="personalAttendant:operator"
         label="message:label.operator"
         description="message:description.operator"
         field="component:operator">
-        <td jwcid="operator@TextField" 
+        <td jwcid="operator@TextField"
           id="personalAttendant:operator"
           value="ognl:personalAttendant.operator"
           validators="spring-validators:validSipUserIdOrAor"
@@ -67,7 +67,7 @@
       </tr>
     </table>
   </fieldset>
-  <fieldset jwcid="@dialplan/AttendantMenuPanel" 
+  <fieldset jwcid="@dialplan/AttendantMenuPanel"
     menu="ognl:personalAttendant.menu"
     minKey="1"
     maxKey="9"
@@ -75,7 +75,7 @@
     <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
 </div>
 <div jwcid="distributionListsTab@Block">
-  <div class="help">        
+  <div class="help">
     <span key="description.extensions"/>
   </div>
   <p><span key="description.editDistributionLists"/></p>

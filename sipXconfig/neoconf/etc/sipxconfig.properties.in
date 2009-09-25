@@ -32,7 +32,7 @@ jasperReportContextImpl.reportsDirectory=@sipxpbx.var.dir@/reports
 
 # The following directives can be used to provide external sources
 #    of call routing information.  If you find yourself using them, it would
-#    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why 
+#    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why
 #    you could not accomplish what you needed using the normal mechanisms.
 # external aliases
 externalAliases.addinsDirectory=@sipxecs.java.dir@
@@ -84,4 +84,3 @@ mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
 packageUpdateManager.yumCapable=@YUM_EXISTS@
 
 # ======= BEGIN NEW INSTALLATION SETTINGS =================
-

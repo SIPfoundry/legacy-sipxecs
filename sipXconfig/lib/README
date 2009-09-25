@@ -13,12 +13,10 @@ Hibernate 3.0.5 required dependencies
   xerces-2.6.2
   xml-apis
   jta.jar
-  asm.jar   
+  asm.jar
   asm-attr.jar
   jdbc2_0-stdext
 
 
 Spring 1.2.2 required dependencies not already required by hibernate
   all ok
- 
-  

@@ -55,7 +55,7 @@
                 activateListener="ognl:selectActiveListener"/>
         </span>
 	</table>
-	
+
 	<div jwcid="conferenceActions@Block">
         <li>
             <input jwcid="lockButton@Submit" id="conference:lock"
@@ -65,7 +65,7 @@
         <li>
             <input jwcid="unlockButton@Submit" id="conference:unlock"
                 value="message:button.unlock"
-                action="listener:unlockConferences" />        
+                action="listener:unlockConferences" />
         </li>
         <li jwcid="@If" condition="ognl:enableDelete">
 			<input jwcid="delete@Submit" id="conference:delete"
@@ -73,6 +73,6 @@
 			    tag="ognl:selections.allSelected"
 			    action="listener:deleteConferences"
 			    value="message:button.delete" />
-        </li>        
+        </li>
     </div>
 </fieldset>

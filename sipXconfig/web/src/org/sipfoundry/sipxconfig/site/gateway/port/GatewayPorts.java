@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.site.gateway.port;
 
@@ -40,10 +40,10 @@ public abstract class GatewayPorts extends BaseComponent {
 
     @Parameter
     public abstract Gateway getGateway();
-    
+
     @Parameter(required = true)
     public abstract IActionListener getEditPortListener();
-    
+
     @Parameter(required = true)
     public abstract IActionListener getAddPortListener();
 

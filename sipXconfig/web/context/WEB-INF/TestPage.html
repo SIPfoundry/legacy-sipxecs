@@ -27,13 +27,13 @@
       <li><a jwcid="@PageLink" id="LdapServer" page="admin/ldap/LdapServer">LDAP Server</a></li>
       <li><a jwcid="@PageLink" id="ExtendedUserInfoPage" page="user_portal/ExtendedUserInfo">User Extended Information</a></li>
     </ul>
-    
+
     <h3>Voicemail</h3>
     <ul>
       <li><a jwcid="@PageLink" id="ManageVoicemail" page="vm/ManageVoicemail">Voicemail</a></li>
-      <li><a jwcid="@DirectLink" id="DisableVoicemailPermission" listener="listener:loginUserWithDisabledVoicemailPermission">Login w/no vm perm.</a></li>      
+      <li><a jwcid="@DirectLink" id="DisableVoicemailPermission" listener="listener:loginUserWithDisabledVoicemailPermission">Login w/no vm perm.</a></li>
     </ul>
-    
+
     <h3>Phones</h3>
     <ul>
       <li><a jwcid="@PageLink" id="ManagePhones" page="phone/ManagePhones">List Phones</a></li>
@@ -45,7 +45,7 @@
       <li><a jwcid="@PageLink" id="link:phonebook" page="phonebook/EditPhonebook">Phonebook</a></li>
       <li><a jwcid="@DirectLink" id="DefaultDeviceTimeZone" listener="listener:defaultDeviceTimeZone">Set Default DeviceTimeZone</a></li>
     </ul>
-    
+
     <h3>Call Groups</h3>
     <ul>
       <li><a jwcid="@PageLink" id="NewCallGroup" page="admin/EditCallGroup">New call group</a></li>
@@ -54,9 +54,9 @@
       <li><a jwcid="@PageLink" id="ListParkOrbits" page="admin/ListParkOrbits">Call Parking</a></li>
       <li><a jwcid="@PageLink" id="MusicOnHold" page="admin/MusicOnHold">MusicOnHold</a></li>
     </ul>
-    
+
   </div>
-  <div class="col">  
+  <div class="col">
     <h3>Dial Plans</h3>
     <ul>
       <li><a jwcid="@PageLink" id="ListGateways" page="gateway/ListGateways">List Gateways</a></li>
@@ -69,7 +69,7 @@
       <li><a jwcid="@PageLink" id="UserCallForwarding" page="user_portal/UserCallForwarding">Call Forwarding</a></li>
       <li><a jwcid="@PageLink" id="BackupPage" page="admin/BackupPage">Backup</a></li>
     </ul>
-    
+
     <h3>System</h3>
     <ul>
       <li><a jwcid="@PageLink" id="ExtensionPools" page="admin/ExtensionPools">User Extension Pool</a></li>
@@ -99,7 +99,7 @@
       <li><a jwcid="@DirectLink" id="link:deleteBridgeSbc" listener="listener:deleteBridgeSbc">Delete Bridge Sbc</a></li>
       <li><a jwcid="@PageLink" id="link:branches" page="branch/BranchesPage">Branches</a></li>
     </ul>
-    
+
     <h3>User Portal</h3>
     <ul>
       <li><a jwcid="loginFirstTestUser" id="loginFirstTestUser">Log in the first test user</a></li>
@@ -107,14 +107,14 @@
       <li><a jwcid="@DirectLink" id="loginTestUserWithoutAutoAttendantPermission" listener="listener:loginTestUserWithoutAutoAttendantPermission">Log in user without personal auto attendant permission</a></li>
       <li><a jwcid="@PageLink" id="EditMyInformation" page="user_portal/EditMyInformation">Edit My Information</a></li>
     </ul>
-    
+
     <h3>Conference Bridge</h3>
     <ul>
       <li><a jwcid="@DirectLink" id="createTestBridge" listener="listener:createTestBridge">Create test conference bridge</a></li>
       <li><a jwcid="@PageLink" id="ListBridges" page="conference/ListBridges">Conference Bridges</a></li>
     </ul>
-  </div>      
-  <div class="col">    
+  </div>
+  <div class="col">
     <h3>Reset</h3>
     <p>This clears all related data in that context!</p>
     <ul>
@@ -143,13 +143,13 @@
     </ul>
     <h3>ACD</h3>
     <ul>
-      <li><a jwcid="seedAcdServer@DirectLink" id="seedAcdServer" listener="listener:seedAcdServer">Seed Acd Server</a></li>      
+      <li><a jwcid="seedAcdServer@DirectLink" id="seedAcdServer" listener="listener:seedAcdServer">Seed Acd Server</a></li>
       <li><a jwcid="@PageLink" id="acdPresenceServer" page="acd/AcdPresenceServer">ACD Presence Server</a></li>
       <li><a jwcid="@PageLink" id="acdSupervisorConsole" page="acd/AcdSupervisorConsole">ACD Supervisor Console</a></li>
       <li><a jwcid="@PageLink" id="listAcdServers" page="acd/ListAcdServers">ACD Servers</a></li>
       <li><a jwcid="@PageLink" id="acdReports" page="acd/AcdHistoryPage">ACD Reports</a></li>
       <li><a jwcid="resetAcdContext" id="resetAcdContext">Reset ACD context</a></li>
-    </ul>					        
+    </ul>
     <h3>Search</h3>
     <ul>
       <li><a jwcid="indexAll" id="link:indexAll">Index All</a></li>

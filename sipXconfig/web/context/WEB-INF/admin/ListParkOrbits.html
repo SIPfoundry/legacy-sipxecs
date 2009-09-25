@@ -1,9 +1,9 @@
 <div jwcid="@common/Border">
-  <h2><span key="title">Call Parking</span></h2>        
+  <h2><span key="title">Call Parking</span></h2>
   <ul class="component-links">
     <li><a jwcid="defaultsLink" id="orbits:defaults"><span key="link.defaults">Defaults</span></a></li>
     <li><a jwcid="addLink" id="orbits:add"><span key="link.add">Add Extension</span></a></li>
-  </ul>                
+  </ul>
   <form jwcid="form" id="orbits:form">
     <table jwcid="tableView" id="orbits:list">
       <span jwcid="nameColumnValue">
@@ -11,7 +11,7 @@
       </span>
       <span jwcid="enabledColumnValue@Block">
         <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
-      </span>      
+      </span>
     </table>
     <ul class="component-submit">
       <li>
@@ -19,5 +19,5 @@
         <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
       </li>
     </ul>
-  </form>                    
+  </form>
 </div>

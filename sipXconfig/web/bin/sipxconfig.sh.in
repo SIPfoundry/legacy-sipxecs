@@ -1,6 +1,6 @@
 #!@bash@
 #
-# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
@@ -74,9 +74,9 @@ setTrustStoreOpts() {
 
 
 
-    
-# Take a list of files or directories 
-# and expand pathnames to create a string for PATH-based variables 
+
+# Take a list of files or directories
+# and expand pathnames to create a string for PATH-based variables
 classpath() {
     # initialize with additional JARS
     Cpath=@classpath.run@
@@ -104,7 +104,7 @@ databaseCommand() {
         ${LibDir}/*.jar`
 
     JavaOpts="$SIPXCONFIG_OPTS"
-    
+
     # XCF-1275 - Do not want to suppress output if there is an error
     # however want to be quiet if everything is ok for clean rpm install
     # output
@@ -127,7 +127,7 @@ databaseCommand() {
 
     if [ $? != "0" ]; then
        echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
-    fi       
+    fi
 }
 
 runningUserCheck() {
@@ -154,11 +154,11 @@ firstRunCheck() {
 }
 
 
-    
+
 # Run Web interface
 onWebUi() {
 
-    runningUserCheck || exit 1 
+    runningUserCheck || exit 1
 
     firstRunCheck
 
@@ -166,7 +166,7 @@ onWebUi() {
     databaseVersionCheck
 
     setTrustStoreOpts
-    
+
     JavaOpts="$SIPXCONFIG_OPTS"
 
     clearIndexLocks
@@ -210,8 +210,8 @@ stopWebUi() {
     sipx_stop sipxconfig ${PidFile}
 }
 
-# Return false if postgres is 
-#  1. not running 
+# Return false if postgres is
+#  1. not running
 #  2. running but not setup to communicate w/java or ${Psql} command
 #  3. Database is not created
 databaseCheck() {
@@ -235,9 +235,9 @@ databaseVersionCheck() {
     then
         if [ $dbver -eq 0 ]
         then
-            cat <<EOF 
-    Error: bad ${Database} database version.  
-    This database was created by a prerelease version of sipXconfig.  
+            cat <<EOF
+    Error: bad ${Database} database version.
+    This database was created by a prerelease version of sipXconfig.
     You should drop and recreate the database by running:
 
         @bin.dir@/sipxconfig.sh --database drop create
@@ -247,8 +247,8 @@ EOF
         else
             cat <<EOF
     Error: bad ${Database} database version.
-    Expected version $RequiredDatabaseVersion, got version $dbver.  
-    This database was created or modified by a newer version of sipXconfig.  
+    Expected version $RequiredDatabaseVersion, got version $dbver.
+    This database was created or modified by a newer version of sipXconfig.
     Exiting now.
 EOF
         fi
@@ -296,7 +296,7 @@ do
         -c|--configtest)
             Action=CONFIGTEST
             ;;
-            
+
         -s|--setup)
             Action=SETUP
             ;;
@@ -314,7 +314,7 @@ do
             shift
             Args="${@}"
             break 2
-            ;;    
+            ;;
 
         --nop)
             Action=NOP
@@ -323,7 +323,7 @@ do
         -h|--help|*)
             Action=HELP
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -332,10 +332,10 @@ if [ ${Action} = CONFIGTEST ]
 then
     configtest
     exit $Status
-elif [ ${Action} = DATABASE ] 
+elif [ ${Action} = DATABASE ]
 then
     databaseCommand $Args
-elif [ ${Action} = RUN ] 
+elif [ ${Action} = RUN ]
 then
     onWebUi
 elif [ ${Action} = SETUP ]
@@ -356,7 +356,7 @@ Usage: sipxconfig.sh [-d|--database commands ...]
                      [-s|--setup]
                      [--first-run]
                      [-h|--help]
-                     
+
 Start Web UI administration for sipXpbx and for remotely provisioned
 SIP-based phones.
 
@@ -364,13 +364,13 @@ Options include:
 
   none                 Runs web admin ui
 
-  --database commands  Runs an operation on the database. Database commands 
-                       are detailed below 
+  --database commands  Runs an operation on the database. Database commands
+                       are detailed below
 
   --configtest         Run diagnostics
 
   --setup              Initialize postgresql for communicating with sipxconfig
-                       and create initial database. Will most likely need 
+                       and create initial database. Will most likely need
                        root permissions.
 
   --first-run          Force first-run mode - makes sipXconfig behave as if it was
@@ -383,7 +383,7 @@ Common Database commands include:
    create              Create new ${Database} database
 
    upgrade             Upgrade database from a previous version by applying
-                       patches to the database schema.  This will only 
+                       patches to the database schema.  This will only
                        upgrade if nec.
 
    reset-superadmin    Clear the password of the superadmin user.

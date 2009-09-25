@@ -32,7 +32,7 @@ uninstall-gem :
 	  sipXconfig-report
 
 # install gems now, this is the final host machine
-.PHONY: install-gem 
+.PHONY: install-gem
 install-gem : package-gem
 	$(mkdir_p) $(GEM_LIB_DIR)
 	$(GEM) install \

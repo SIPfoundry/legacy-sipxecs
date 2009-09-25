@@ -1,11 +1,11 @@
 <div jwcid="@common/Border">
-    <h2><span key="title">Hunt Groups</span></h2>        
+    <h2><span key="title">Hunt Groups</span></h2>
 	<ul class="component-links">
 		<li>
             <a jwcid="addLink" id="callgroups:add" href="edit-call-group.html">
             <span key="add_link">Add Hunt Group</span></a>
         </li>
-	</ul>                
+	</ul>
     <form jwcid="form">
 		<span id="callgroups:form"/>
     	<table jwcid="tableView" id="callgroups:list" class="component">
@@ -14,7 +14,7 @@
 			</span>
             <span jwcid="enabledColumnValue@Block">
               <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
-            </span>      
+            </span>
 		</table>
 		<ul class="component-submit">
 			<li>
@@ -25,5 +25,5 @@
                 <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
 			</li>
 		</ul>
-	</form>                    
+	</form>
 </div>

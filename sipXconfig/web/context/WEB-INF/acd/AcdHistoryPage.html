@@ -13,7 +13,7 @@
             </span>
           </span>
         </span>
-    </div>  
+    </div>
     <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
         <form jwcid="@Form">
           <fieldset>
@@ -33,7 +33,7 @@
                   <span key="link.export">Export</span>
               </a>
             </li>
-          </ul>        
+          </ul>
           <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
           <table jwcid="@common/StatsTable" id="acd:history:list" class="component"
             source="ognl:rows"

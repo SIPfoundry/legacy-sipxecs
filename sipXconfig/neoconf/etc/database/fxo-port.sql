@@ -6,15 +6,14 @@ create table fxo_port (
   primary key (fxo_port_id)
 );
 
-alter table fxo_port 
-  add constraint fk_fxo_port_gateway 
-  foreign key (gateway_id) 
+alter table fxo_port
+  add constraint fk_fxo_port_gateway
+  foreign key (gateway_id)
   references gateway;
 
-alter table fxo_port 
-  add constraint fk_fxo_port_value_storage 
-  foreign key (value_storage_id) 
+alter table fxo_port
+  add constraint fk_fxo_port_value_storage
+  foreign key (value_storage_id)
   references value_storage;
 
 create sequence fxo_port_seq;
-

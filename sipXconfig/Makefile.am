@@ -23,7 +23,7 @@ RPMS = \
 	$(DEST_RPM)/@PACKAGE@-tftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-ftp-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
 	$(DEST_RPM)/@PACKAGE@-agent-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm \
-	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm 
+	$(DEST_RPM)/@PACKAGE@-report-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
 
 if REPORTS
 REPORTS_OPT = report
@@ -92,9 +92,8 @@ build.properties : build.properties.in Makefile _top.build.dir
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory
 # target name is not a file to force this make everytime
-_top.build.dir :    
+_top.build.dir :
 	echo "top.build.dir="`pwd` > $(top_srcdir)/top.build.dir
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
-

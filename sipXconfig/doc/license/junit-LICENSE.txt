@@ -48,13 +48,13 @@ A Contributor may choose to distribute the Program in object code form under its
 
     iii) states that any provisions which differ from this Agreement are offered by that Contributor alone and not by any other party; and
 
-    iv) states that source code for the Program is available from such Contributor, and informs licensees how to obtain it in a reasonable manner on or through a medium customarily used for software exchange. 
+    iv) states that source code for the Program is available from such Contributor, and informs licensees how to obtain it in a reasonable manner on or through a medium customarily used for software exchange.
 
 When the Program is made available in source code form:
 
     a) it must be made available under this Agreement; and
 
-    b) a copy of this Agreement must be included with each copy of the Program. 
+    b) a copy of this Agreement must be included with each copy of the Program.
 
 Contributors may not remove or alter any copyright notices contained within the Program.
 

@@ -20,4 +20,3 @@ SUBDIRS = \
 EXTRA_DIST = \
 	$(SUBDIRS) \
 	plugins.build.xml
-

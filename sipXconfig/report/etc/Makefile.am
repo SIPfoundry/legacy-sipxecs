@@ -41,4 +41,3 @@ install-crontab : sipxconfig-report-crontab.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $(srcdir)/sipxconfig-report-crontab.in > sipxconfig-report-crontab
 	$(INSTALL) -D -m 644 sipxconfig-report-crontab $(DESTDIR)$(CRON_D)/sipxconfig-report-crontab
-

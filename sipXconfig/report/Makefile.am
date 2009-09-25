@@ -2,4 +2,3 @@ SUBDIRS = \
 	etc \
 	src \
 	bin
-

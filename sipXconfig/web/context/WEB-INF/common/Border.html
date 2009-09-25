@@ -28,7 +28,7 @@
                 <span key="link.home">Home</span>
             </a>
             <a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
-                target="sipxconfig-help" 
+                target="sipxconfig-help"
                 href="ognl:getHelpLink(versionInfo.versionIds)">
                 <span key="link.help">Online Help</span>
             </a>
@@ -54,12 +54,12 @@
             <span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
                 <div jwcid="@RenderBlock" block="ognl:navigationBlock" />
             </span>
-            &nbsp; <!-- to ensure this block is never empty, so it has the min width -->                
+            &nbsp; <!-- to ensure this block is never empty, so it has the min width -->
         </div>
-        <div id="content">            
+        <div id="content">
             <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
                 <span jwcid="@admin/StatusWarning"/>
-            </span>       
+            </span>
             <span jwcid="@RenderBody">Page content goes here.</span>
         </div>
     </div>

@@ -5,14 +5,14 @@
     title="RSS"
     href="ognl:feedLink" />
   <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
-    <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>            
+    <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>
   </span>
   <h1>
     <span key="title.manageVoicemail"/> -
     <span jwcid="@Insert" value="ognl:folderLabel"/> </h1>
-  
+
   <span jwcid="@common/TabNavigation" elementId="voicemailFolders" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
-  
+
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">

@@ -30,47 +30,47 @@ def parse(args)
     opts.separator ""
     opts.separator "Specific options:"
 
-    opts.on_tail("-c", "--configtest", "Run tests on configuration") do 
+    opts.on_tail("-c", "--configtest", "Run tests on configuration") do
       if ! defined? CONFIG_SERVER_AGENT_URL
-        raise "Missing item 'CONFIG_SERVER_AGENT_URL'" 
+        raise "Missing item 'CONFIG_SERVER_AGENT_URL'"
       end
       if CONFIG_SERVER_REPORT == "DISABLED"
-        puts "sipxconfig-report DISABLED" 
+        puts "sipxconfig-report DISABLED"
       end
       exit
     end
-    
-    opts.on_tail("--createdb", "Create postgres database") do 
+
+    opts.on_tail("--createdb", "Create postgres database") do
       createdb
       exit
     end
 
-    opts.on_tail("--setup", "Configure postgres to allow connection and create database") do 
+    opts.on_tail("--setup", "Configure postgres to allow connection and create database") do
       setuppg
       createdb
       exit
     end
 
-    opts.on_tail("--disable", "Disable production of the sipxconfig-report") do 
+    opts.on_tail("--disable", "Disable production of the sipxconfig-report") do
       disablereport
       exit
     end
 
-    opts.on_tail("--dropdb", "Drop postgres database") do 
+    opts.on_tail("--dropdb", "Drop postgres database") do
       dropdb
       exit
     end
 
-    opts.on_tail("--resetdb", "Drop and create postgres database") do 
+    opts.on_tail("--resetdb", "Drop and create postgres database") do
       dropdb
       createdb
       exit
     end
-    
+
     def dropdb
       `#{DROPDB} -U #{DB_USER} #{DB_NAME}`
     end
-    
+
     def createdb
       db_exists = `#{$psql} -U #{DB_USER} -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
       if db_exists == "0"
@@ -85,16 +85,16 @@ def parse(args)
 
     def setuppg
       if ! system('@bindir@/pgpatch.sh')
-        raise "could not patch postgres setup"        
+        raise "could not patch postgres setup"
       end
     end
-        
+
   end
   opts.parse!(args)
   options
 end
 
-# ruby-postgress RPM installs postgres.so in /usr/lib/site_ruby/1.8/i386-linux 
+# ruby-postgress RPM installs postgres.so in /usr/lib/site_ruby/1.8/i386-linux
 # however on CentOS ruby 'sitearchdir' is /usr/lib/site_ruby/1.8/i386-linux-gnu
 # this function tries to load postgres from both places
 def load_postgres_driver()

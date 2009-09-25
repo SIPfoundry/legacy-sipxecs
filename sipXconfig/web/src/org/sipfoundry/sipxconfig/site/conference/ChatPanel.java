@@ -57,5 +57,3 @@ public abstract class ChatPanel extends BaseComponent implements PageBeginRender
         }
     }
 }
-
-

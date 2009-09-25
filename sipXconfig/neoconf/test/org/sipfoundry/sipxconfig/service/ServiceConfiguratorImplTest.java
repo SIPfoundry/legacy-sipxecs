@@ -259,7 +259,7 @@ public class ServiceConfiguratorImplTest extends TestCase {
 
         domainManager.replicateDomainConfig(rc, location1);
         domainManager.replicateDomainConfig(rc, location2);
-        
+
         ac.replicateAlarmServer(rc, location1);
         ac.replicateAlarmServer(rc, location2);
 

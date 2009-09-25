@@ -6,10 +6,10 @@ import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import junit.framework.TestCase;
 
 public class EditAcdQueueTest extends TestCase {
-	
+
 	public void testGetAcdQueueUriWithNullAcdServer() {
 		Creator creator = new Creator();
-		EditAcdQueue queuePage = 
+		EditAcdQueue queuePage =
 			(EditAcdQueue) creator.newInstance(EditAcdQueue.class);
 		// new instance of queue has null server
 		queuePage.setAcdQueue(new AcdQueue());

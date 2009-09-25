@@ -13,9 +13,9 @@
               value="ognl:domain.name"
               validators="spring-validators:required,validHostOrIp"
               displayName="message:label.name"/>
-          </tr>          
+          </tr>
         </tbody>
-      </table>      
+      </table>
     </fieldset>
     <fieldset>
       <legend><span key="label.aliasSection">Domain Aliases</span></legend>
@@ -33,7 +33,7 @@
               volatile="ognl:true">
               <td>
                 <label jwcid="aliasLabel@FieldLabel"
-                  field="component:alias" 
+                  field="component:alias"
                   label="message:label.alias">Alias</label>
               </td>
               <td>
@@ -53,5 +53,5 @@
     </fieldset>
     <ul jwcid="formActions@common/FormActions"
       listener="listener:commit" successMessage="message:msg.actionSuccess"/>
-	</form>                    
+	</form>
 </div>

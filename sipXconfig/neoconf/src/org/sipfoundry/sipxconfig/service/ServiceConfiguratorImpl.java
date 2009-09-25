@@ -225,7 +225,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     /**
      * Replicates dial plans eagerly.
-     * 
+     *
      * This is a temporary hack: at some point all files that comprise dial plan should be
      * declared as configuration files that belong to their owners and get replciated before
      * respective services are started.
@@ -237,7 +237,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     /**
      * Replicates all data sets eagerly.
-     * 
+     *
      * Needs to be called whenever we initialize or re-initialize location. It replicates data
      * sets in the same thread as the one used for pushing configuration files. It ensures the all
      * the resources are replicated before sipXconfig attempts to start the service.

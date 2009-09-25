@@ -45,4 +45,3 @@ DB2, DB2 OLAP Server, WebSphere, and IBM are trademarks or registered trademarks
 MySQL is a trademark of MySQL AB in the United States and other countries.
 
 Other product names mentioned herein and throughout the this web site are the trademarks of their respective owners.
-
