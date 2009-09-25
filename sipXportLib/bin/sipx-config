@@ -42,6 +42,7 @@ Projects="\
   sipxpublisher \
   sipxproxy \
   sipxconfig \
+  sipxfreeswitch \
   sipxvxml \
   sipxacd \
   sipxpbx \
