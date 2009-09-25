@@ -165,6 +165,12 @@
       </type>
       <value>On the phone</value>
     </setting>
+    <setting name="replicate-group">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="callfwd">
     <setting name="timer">

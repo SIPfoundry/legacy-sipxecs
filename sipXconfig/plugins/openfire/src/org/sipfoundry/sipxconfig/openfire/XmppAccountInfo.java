@@ -126,18 +126,20 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     private void createXmmpGroup(Group group, Element accountInfos) {
-        Element xmmpGroup = accountInfos.addElement("group");
-        xmmpGroup.addElement("group-name").setText(group.getName());
-        String groupDescription = group.getDescription();
-        if (groupDescription != null) {
-            xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
-        }
-        Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
-        if (groupMembers != null && groupMembers.size() > 0) {
-            for (User user : groupMembers) {
-                if (user.getImId() != null) {
-                    Element userElement = xmmpGroup.addElement(USER);
-                    userElement.addElement(USER_NAME).setText(user.getImId());
+        if (group.getSettingValue("openfire/replicate-group") != null) {
+            Element xmmpGroup = accountInfos.addElement("group");
+            xmmpGroup.addElement("group-name").setText(group.getName());
+            String groupDescription = group.getDescription();
+            if (groupDescription != null) {
+                xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
+            }
+            Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
+            if (groupMembers != null && groupMembers.size() > 0) {
+                for (User user : groupMembers) {
+                    if (user.getImId() != null) {
+                        Element userElement = xmmpGroup.addElement(USER);
+                        userElement.addElement(USER_NAME).setText(user.getImId());
+                    }
                 }
             }
         }

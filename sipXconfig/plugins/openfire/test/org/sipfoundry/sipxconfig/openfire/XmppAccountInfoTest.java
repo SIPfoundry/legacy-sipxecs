@@ -39,6 +39,7 @@ public class XmppAccountInfoTest extends TestCase {
     private User m_userTwo;
     private Group m_group1;
     private Group m_group2;
+    private Group m_group3;
 
     @Override
     protected void setUp() throws Exception {
@@ -99,19 +100,39 @@ public class XmppAccountInfoTest extends TestCase {
         m_users.add(m_userTwo);
         m_users.add(userThree);
 
-        m_group1 = new Group();
+        m_group1 = new Group() {
+            @Override
+            public String getSettingValue(String path) {
+                if (path.equals("openfire/replicate-group")) {
+                    return "1";
+                }
+                return null;
+            }
+        };
         m_group1.setName("group1");
         m_group1.setDescription("my group");
         m_userOne.addGroup(m_group1);
         m_userTwo.addGroup(m_group1);
 
-        m_group2 = new Group();
+        m_group2 = new Group() {
+            @Override
+            public String getSettingValue(String path) {
+                if (path.equals("openfire/replicate-group")) {
+                    return "1";
+                }
+                return null;
+            }
+        };
         m_group2.setName("group2");
         m_group2.setDescription("empty group");
+
+        // the following group won't be replicated
+        m_group3 = new Group();
 
         m_groups = new ArrayList<Group>();
         m_groups.add(m_group1);
         m_groups.add(m_group2);
+        m_groups.add(m_group3);
 
         m_conferences = new ArrayList<Conference>();
 
