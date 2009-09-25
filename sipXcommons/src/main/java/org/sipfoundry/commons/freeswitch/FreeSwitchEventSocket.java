@@ -40,6 +40,16 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
      * 
      * Enable FreeSwitch to report async events of interest.
      */
+    public boolean connect(Socket socket) throws IOException {
+        return connect(socket, null);
+    }
+    
+    /**
+     * Given the socket from a FreeSwitch "outbound" call, do the "connect" dance to collect all
+     * the variables FreeSwitch reports.
+     * 
+     * Enable FreeSwitch to report async events of interest.
+     */
     public boolean connect(Socket socket, String authPassword) throws IOException {
         m_clientSocket = socket;
         m_out = new PrintWriter(m_clientSocket.getOutputStream(), true);
@@ -168,4 +178,5 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     public BufferedReader getIn() {
         return m_in;
     }
+
 }
