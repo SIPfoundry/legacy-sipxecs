@@ -87,7 +87,7 @@
     <setting name="default-asserted-identity" advanced="yes">
       <label>Use default asserted identity</label>
       <type refid="switch"></type>
-      <value>true</value>
+      <value>false</value>
       <description>
 	The asserted identity header may be used by the ITSP to determine the originating
 	party for call setup requests.
