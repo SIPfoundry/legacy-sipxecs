@@ -77,7 +77,12 @@ public class UnifiedPresence {
 
     public void setXmppStatusMessage( String newXmppStatusMessage )
     {
-        this.xmppStatusMessage = newXmppStatusMessage;
+        if (newXmppStatusMessage != null){
+            this.xmppStatusMessage = newXmppStatusMessage;
+        }
+        else{
+            this.xmppStatusMessage = "";
+        }
     }
     
     public String getXmppStatusMessageWithSipState()
@@ -87,7 +92,12 @@ public class UnifiedPresence {
 
     public void setXmppStatusMessageWithSipState( String newXmppStatusMessageWithSipState )
     {
-        this.xmppStatusMessageWithSipState = newXmppStatusMessageWithSipState;
+        if (newXmppStatusMessageWithSipState != null){
+            this.xmppStatusMessageWithSipState = newXmppStatusMessageWithSipState;
+        }
+        else{
+            this.xmppStatusMessageWithSipState = "";
+        }
     }
     
     public void setXmppPresence( Presence presence )
