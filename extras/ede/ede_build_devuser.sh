@@ -604,14 +604,18 @@ echo SIPX-PROJECT-ROOT $WORKING_DIR/$CODE >> $ECLIPSE_WINDOW_PREFS_FILE
 echo "Running sipXconfig-specific Eclipse setup..."
 rm -rf $CODE/BUILD1 
 ln -s $WORKING_DIR/BUILD $CODE/BUILD1
-pushd $CODE/sipXconfig > /dev/null
-echo "   ant default..."
-ant default >>$FULL_PATH_EDE_LOGS/sipxconfig_eclipse_setup.log 2>&1
-if [ $? != 0 ]; then
-   echo "ERROR: sipXconfig Eclipse 'ant default' failed.  See $EDE_LOGS/sipxconfig_eclipse_setup.log" >&2
-   exit 18
+if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
+   echo "Skipping sipXconfig Eclipse 'ant default'..."
+else
+   pushd $CODE/sipXconfig > /dev/null
+   echo "   ant default..."
+   ant default >>$FULL_PATH_EDE_LOGS/sipxconfig_eclipse_setup.log 2>&1
+   if [ $? != 0 ]; then
+      echo "ERROR: sipXconfig Eclipse 'ant default' failed.  See $EDE_LOGS/sipxconfig_eclipse_setup.log" >&2
+      exit 18
+   fi
+   popd > /dev/null
 fi
-popd > /dev/null
 
 # Non-interactive section complete.
 echo ""
@@ -622,7 +626,7 @@ echo ""
 
 # Local setup and run?
 if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
-   echo "Skipping sipxecs-setup and /etc/init.d/sipxecs start..."
+   echo "Skipping sipxecs-setup..."
 else
    $FULL_INSTALL_PATH/bin/sipxecs-setup
 fi
