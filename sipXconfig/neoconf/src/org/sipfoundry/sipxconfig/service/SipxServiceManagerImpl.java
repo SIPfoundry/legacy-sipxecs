@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.service;
 
@@ -289,11 +289,14 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     public Object getServiceParam(String paramName) {
         Collection<SipxService> allServices = getServiceDefinitions();
         for (SipxService service : allServices) {
-            if (service.getParam(paramName) != null) {
-                return service.getParam(paramName);
+            if (!isServiceInstalled(service.getBeanId())) {
+                continue;
+            }
+            Object param = service.getParam(paramName);
+            if (param != null) {
+                return param;
             }
         }
         return null;
     }
-
 }

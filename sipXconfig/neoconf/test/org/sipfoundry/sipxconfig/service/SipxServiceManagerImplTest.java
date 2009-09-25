@@ -14,8 +14,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import static java.util.Arrays.asList;
 
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -23,8 +24,6 @@ import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooFewBundles;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooManyBundles;
-
-import static java.util.Arrays.asList;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -147,6 +146,11 @@ public class SipxServiceManagerImplTest extends TestCase {
             Collection<SipxService> getServicesFromDb() {
                 return Collections.emptyList();
             }
+
+            @Override
+            public boolean isServiceInstalled(String serviceBeanId) {
+                return true;
+            }
         };
 
         SipxService service1 = new SipxProxyService();
@@ -155,7 +159,7 @@ public class SipxServiceManagerImplTest extends TestCase {
         SipxService service2 = new SipxRegistrarService() {
             @Override
             public Object getParam(String paramName) {
-                if(paramName.equals("pp")) {
+                if (paramName.equals("pp")) {
                     return "qq";
                 }
                 return super.getParam(paramName);
@@ -169,6 +173,36 @@ public class SipxServiceManagerImplTest extends TestCase {
 
         assertNull(sm.getServiceParam("bongo"));
         assertEquals("qq", sm.getServiceParam("pp"));
+    }
+
+    public void testGetServiceParamNotInstalled() {
+        SipxServiceManagerImpl sm = new SipxServiceManagerImpl() {
+            @Override
+            Collection<SipxService> getServicesFromDb() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public boolean isServiceInstalled(String serviceBeanId) {
+                return false;
+            }
+        };
+
+        SipxService service1 = new SipxRegistrarService() {
+            @Override
+            public Object getParam(String paramName) {
+                if (paramName.equals("pp")) {
+                    return "qq";
+                }
+                return super.getParam(paramName);
+            }
+        };
+        service1.setBeanId(SipxRegistrarService.BEAN_ID);
+
+        ModelSource<SipxService> modelSource = new ServiceModelSource(service1);
+        sm.setServiceModelSource(modelSource);
+
+        assertNull(sm.getServiceParam("pp"));
     }
 
     abstract static class SimpleModelSource<T extends Model> implements ModelSource<T> {

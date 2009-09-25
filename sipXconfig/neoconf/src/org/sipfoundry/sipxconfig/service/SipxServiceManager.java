@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.service;
 
@@ -16,7 +16,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public interface SipxServiceManager {
-    static final String CONTEXT_BEAN_NAME = "sipxServiceManager";
+    String CONTEXT_BEAN_NAME = "sipxServiceManager";
 
     SipxService getServiceByName(String name);
 
@@ -65,13 +65,12 @@ public interface SipxServiceManager {
      * @param location affected location
      * @param bundles list of bundles that should be installed on this location
      */
-    public void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles);
+    void setBundlesForLocation(Location location, List<SipxServiceBundle> bundles);
 
     /**
      * Create collection of the services that belong to the specific subset of bundles
      */
-    public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles);
+    Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles);
 
-    public Object getServiceParam(String paramName);
-
+    Object getServiceParam(String paramName);
 }
