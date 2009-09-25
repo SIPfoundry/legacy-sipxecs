@@ -122,8 +122,8 @@ public class XmppAccountInfo extends XmlFile {
 
     private void createXmmpGroup(Group group, Element accountInfos) {
         // HACK: we assume that 'replicate-group' is a standard boolean setting
-        boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-account");
-        if (!replicate) {
+        Boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-account");
+        if (replicate == null || !replicate) {
             return;
         }
         Element xmmpGroup = accountInfos.addElement("group");

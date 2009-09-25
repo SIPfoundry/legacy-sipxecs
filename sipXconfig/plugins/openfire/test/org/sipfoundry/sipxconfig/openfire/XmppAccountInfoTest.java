@@ -105,13 +105,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_group2.setDescription("empty group");
 
         // the following group won't be replicated
-        m_group3 = new Group() {
-            @Override
-            public Object getSettingTypedValue(SettingType type, String path) {
-                return false;
-            }
-        };
-
+        m_group3 = new Group();
         m_groups = new ArrayList<Group>();
         m_groups.add(m_group1);
         m_groups.add(m_group2);
