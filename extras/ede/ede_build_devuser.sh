@@ -629,10 +629,10 @@ if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
    echo "Skipping sipxecs-setup..."
 else
    $FULL_INSTALL_PATH/bin/sipxecs-setup
-fi
 
-# Display the current service status, for reference.
-$ETC_AND_VAR_PATH/etc/init.d/sipxecs status
+   # Display the current service status, for reference.
+   $ETC_AND_VAR_PATH/etc/init.d/sipxecs status
+fi
 
 echo ""
 echo "DONE!"
