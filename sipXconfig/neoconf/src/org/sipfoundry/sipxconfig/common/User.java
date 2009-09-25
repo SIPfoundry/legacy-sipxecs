@@ -183,8 +183,7 @@ public class User extends BeanWithGroups implements NamedObject {
         Set<String> aliases = getAliases();
         List<String> numeric = new ArrayList<String>(aliases.size());
         for (String alias : aliases) {
-            Matcher m = PATTERN_NUMERIC.matcher(alias);
-            if (m.matches()) {
+            if (isNumeric(alias)) {
                 numeric.add(alias);
             }
         }
@@ -211,7 +210,11 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public boolean hasNumericUsername() {
-        Matcher m = PATTERN_NUMERIC.matcher(m_userName);
+        return isNumeric(m_userName);
+    }
+
+    public static boolean isNumeric(String s) {
+        Matcher m = PATTERN_NUMERIC.matcher(s);
         return m.matches();
     }
 

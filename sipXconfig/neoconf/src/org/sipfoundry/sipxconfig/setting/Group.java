@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -17,12 +17,13 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 /**
  * User labeled storage of settings.
- * 
+ *
  * @author dhubler
- * 
+ *
  */
 public class Group extends ValueStorage implements Comparable, DataCollectionItem, NamedObject {
     private String m_name;
@@ -57,7 +58,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     /**
      * When setting values conflict, the setting with the highest weight wins.
-     * 
+     *
      * @return setting weight
      */
     public Integer getWeight() {
@@ -110,11 +111,11 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     /**
      * Creates a copy of settings that can be used to edit settings for this group.
-     * 
+     *
      * We use the same group object for all types of groups (phone, lines, attendants etc.).
      * Because of that group does not know which settings it supports. Use this function to pass
      * settings that will become a base for this group.
-     * 
+     *
      * @param beanSettings settings to inherit from, no model can be set for those settings
      * @return copy of settings to be edited
      */
@@ -132,11 +133,26 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     }
 
     /**
+     * Calculate a typed value of a setting.
+     *
+     * Beans can easily calculate typed value of a setting since they have access to setting
+     * models. Groups only have access to raw value of a setting kept in the database.
+     *
+     * @param type setting type
+     * @param setting path to the setting
+     * @return converted value of the setting
+     */
+    public Object getSettingTypedValue(SettingType type, String setting) {
+        String settingValue = getSettingValue(setting);
+        return type.convertToTypedValue(settingValue);
+    }
+
+    /**
      * Delegate all functions with the exception of setSettingValue to base settings.
      */
     static class GroupSettingModel implements SettingModel {
-        private Group m_group;
-        private Setting m_baseSetting;
+        private final Group m_group;
+        private final Setting m_baseSetting;
 
         public GroupSettingModel(Group group, Setting baseSetting) {
             m_group = group;
@@ -144,8 +160,7 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
         }
 
         public void setSettingValue(Setting setting, String value) {
-            m_group.setSettingValue(setting, new SettingValueImpl(value),
-                    getDefaultSettingValue(setting));
+            m_group.setSettingValue(setting, new SettingValueImpl(value), getDefaultSettingValue(setting));
         }
 
         public SettingValue getSettingValue(Setting setting) {
@@ -168,8 +183,9 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     }
 
     /**
-     * Returns the group with the highest weight from the list.  Returns null if
-     * the list of groups is empty
+     * Returns the group with the highest weight from the list. Returns null if the list of groups
+     * is empty
+     *
      * @param groups A list of groups
      * @return The group with the highest weight
      */
@@ -177,11 +193,11 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
         if (groups.size() == 0) {
             return null;
         }
-        
+
         List<Group> localGroupList = new ArrayList<Group>(groups.size());
         localGroupList.addAll(groups);
-        Collections.<Group>sort(localGroupList);
-        
+        Collections.<Group> sort(localGroupList);
+
         return localGroupList.get(0);
     }
 }

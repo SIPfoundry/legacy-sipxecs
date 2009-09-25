@@ -146,30 +146,30 @@
       <value>0</value>
     </setting>
   </group>
-  <group name="openfire">
-    <setting name="advertise-sip-presence">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="include-call-info">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="on-the-phone-message">
-      <type>
-        <string />
-      </type>
-      <value>On the phone</value>
-    </setting>
-    <setting name="replicate-group">
+  <group name="im">
+    <setting name="im-account">
       <type>
         <boolean />
       </type>
       <value>0</value>
+    </setting>
+    <setting name="advertise-sip-presence" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="include-call-info" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="on-the-phone-message" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>On the phone</value>
     </setting>
   </group>
   <group name="callfwd">

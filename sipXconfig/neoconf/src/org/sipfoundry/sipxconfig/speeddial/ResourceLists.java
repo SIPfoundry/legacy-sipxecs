@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
@@ -113,7 +114,8 @@ public class ResourceLists extends XmlFile {
 
         @Override
         public void execute(User user) {
-            if (user.hasImAccount()) {
+            ImAccount imAccount = new ImAccount(user);
+            if (imAccount.isEnabled()) {
                 if (m_imList == null) {
                     m_imList = createResourceList(m_lists, XMPP_SERVER.getUserName());
                 }

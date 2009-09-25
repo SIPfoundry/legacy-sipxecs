@@ -23,7 +23,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
@@ -43,70 +45,46 @@ public class XmppAccountInfoTest extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
 
-        m_userOne = new User() {
-            @Override
-            public Object getSettingTypedValue(String path) {
-                Object ret = null;
-                if (path.equals("openfire/on-the-phone-message")) {
-                    ret = "testing phone message";
-                } else if (path.equals("openfire/advertise-sip-presence")) {
-                    ret = true;
-                } else if (path.equals("openfire/include-call-info")) {
-                    ret = false;
-                }
-                return ret;
-            }
-        };
-        m_userTwo = new User() {
-            @Override
-            public Object getSettingTypedValue(String path) {
-                Object ret = null;
-                if (path.equals("openfire/on-the-phone-message")) {
-                    ret = "On the phone";
-                } else if (path.equals("openfire/advertise-sip-presence")) {
-                    ret = true;
-                } else if (path.equals("openfire/include-call-info")) {
-                    ret = false;
-                }
-                return ret;
-            }
-        };
-        User userThree = new User() {
-            @Override
-            public Object getSettingTypedValue(String path) {
-                Object ret = null;
-                if (path.equals("openfire/on-the-phone-message")) {
-                    ret = "";
-                } else if (path.equals("openfire/advertise-sip-presence")) {
-                    ret = true;
-                } else if (path.equals("openfire/include-call-info")) {
-                    ret = false;
-                }
-                return ret;
-            }
-        };
-
+        m_userOne = new User();
+        m_userOne.setPermissionManager(pm);
+        m_userOne.setSettingTypedValue("im/im-account", true);
+        m_userOne.setSettingTypedValue("im/on-the-phone-message", "testing phone message");
+        m_userOne.setSettingTypedValue("im/advertise-sip-presence", true);
+        m_userOne.setSettingTypedValue("im/include-call-info", false);
         m_userOne.setUserName("One");
         m_userOne.setImId("One_IM");
         m_userOne.setImDisplayName("One_IM_DisplayName");
+
+        m_userTwo = new User();
+        m_userTwo.setPermissionManager(pm);
+        m_userTwo.setSettingTypedValue("im/on-the-phone-message", "On the phone");
+        m_userTwo.setSettingTypedValue("im/advertise-sip-presence", true);
+        m_userTwo.setSettingTypedValue("im/include-call-info", false);
         m_userTwo.setUserName("Two");
         m_userTwo.setImDisplayName("Two_IM_DisplayName");
+
+        User userThree = new User();
+        userThree.setPermissionManager(pm);
+        userThree.setSettingTypedValue("im/im-account", true);
+        userThree.setSettingTypedValue("im/on-the-phone-message", "");
+        userThree.setSettingTypedValue("im/advertise-sip-presence", true);
+        userThree.setSettingTypedValue("im/include-call-info", false);
         userThree.setUserName("Three");
         userThree.setImId("Three_IM");
 
         m_users = new ArrayList<User>();
-        m_users.add(m_userOne);
-        m_users.add(m_userTwo);
-        m_users.add(userThree);
+        m_users.addAll(Arrays.asList(m_userOne, m_userTwo, userThree));
 
         m_group1 = new Group() {
             @Override
-            public String getSettingValue(String path) {
-                if (path.equals("openfire/replicate-group")) {
-                    return "1";
+            public Object getSettingTypedValue(SettingType type, String path) {
+                if (path.equals("im/im-account")) {
+                    return true;
                 }
-                return null;
+                return false;
             }
         };
         m_group1.setName("group1");
@@ -116,18 +94,23 @@ public class XmppAccountInfoTest extends TestCase {
 
         m_group2 = new Group() {
             @Override
-            public String getSettingValue(String path) {
-                if (path.equals("openfire/replicate-group")) {
-                    return "1";
+            public Object getSettingTypedValue(SettingType type, String path) {
+                if (path.equals("im/im-account")) {
+                    return true;
                 }
-                return null;
+                return false;
             }
         };
         m_group2.setName("group2");
         m_group2.setDescription("empty group");
 
         // the following group won't be replicated
-        m_group3 = new Group();
+        m_group3 = new Group() {
+            @Override
+            public Object getSettingTypedValue(SettingType type, String path) {
+                return false;
+            }
+        };
 
         m_groups = new ArrayList<Group>();
         m_groups.add(m_group1);

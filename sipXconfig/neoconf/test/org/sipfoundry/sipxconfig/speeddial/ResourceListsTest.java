@@ -20,9 +20,11 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
 
@@ -62,14 +64,20 @@ public class ResourceListsTest extends XMLTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
         m_users = new ArrayList<User>();
         for (int i = 0; i < 4; i++) {
             User user = new DummyUser(i);
+            user.setPermissionManager(pm);
             m_users.add(user);
         }
 
         for (int i = 0; i < 2; i++) {
             User user = new DummyImUser(i);
+            user.setPermissionManager(pm);
+            user.setSettingTypedValue("im/im-account", true);
             m_users.add(user);
         }
 
@@ -219,6 +227,7 @@ public class ResourceListsTest extends XMLTestCase {
         int m_id;
 
         public DummyUser(int id) {
+            setModelFilesContext(TestHelper.getModelFilesContext());
             char c = (char) ('a' - 1 + id);
             setUserName("user_" + c);
             m_id = id;

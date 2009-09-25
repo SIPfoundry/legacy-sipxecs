@@ -19,7 +19,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -50,9 +52,7 @@ public class XmppAccountInfo extends XmlFile {
         List<User> users = m_coreContext.loadUsers();
 
         for (User user : users) {
-            if (user.hasImAccount()) {
-                createUserAccount(user, accountInfos);
-            }
+            createUserAccount(user, accountInfos);
         }
 
         List<Group> groups = m_coreContext.getGroups();
@@ -68,26 +68,20 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     private void createUserAccount(User user, Element accountInfos) {
-        String displayName = user.getImDisplayName();
-        if (null == displayName) {
-            displayName = user.getName();
-        }
-
-        String onPhoneMessage = (String) user.getSettingTypedValue("openfire/on-the-phone-message");
-        if (null == onPhoneMessage) {
-            onPhoneMessage = "";
+        ImAccount imAccount = new ImAccount(user);
+        if (!imAccount.isEnabled()) {
+            return;
         }
 
         Element userAccounts = accountInfos.addElement(USER);
-        userAccounts.addElement(USER_NAME).setText(user.getImId());
+        userAccounts.addElement(USER_NAME).setText(imAccount.getImId());
         userAccounts.addElement("sip-user-name").setText(user.getName());
-        userAccounts.addElement("display-name").setText(displayName);
-        userAccounts.addElement(PASSWORD).setText(user.getImId());
-        userAccounts.addElement("on-the-phone-message").setText(onPhoneMessage);
+        userAccounts.addElement("display-name").setText(imAccount.getImDisplayName());
+        userAccounts.addElement(PASSWORD).setText(imAccount.getImPassword());
+        userAccounts.addElement("on-the-phone-message").setText(imAccount.getOnThePhoneMessage());
         userAccounts.addElement("advertise-on-call-status").setText(
-                ((Boolean) user.getSettingTypedValue("openfire/advertise-sip-presence")).toString());
-        userAccounts.addElement("show-on-call-details").setText(
-                ((Boolean) user.getSettingTypedValue("openfire/include-call-info")).toString());
+                Boolean.toString(imAccount.advertiseSipPresence()));
+        userAccounts.addElement("show-on-call-details").setText(Boolean.toString(imAccount.includeCallInfo()));
     }
 
     private void createXmppChatRoom(Conference conference, Element accountInfos) {
@@ -98,7 +92,8 @@ public class XmppAccountInfo extends XmlFile {
         if (owner == null) {
             return;
         }
-        if (!owner.hasImAccount()) {
+        ImAccount imAccount = new ImAccount(owner);
+        if (!imAccount.isEnabled()) {
             return;
         }
 
@@ -126,20 +121,23 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     private void createXmmpGroup(Group group, Element accountInfos) {
-        if (group.getSettingValue("openfire/replicate-group") != null) {
-            Element xmmpGroup = accountInfos.addElement("group");
-            xmmpGroup.addElement("group-name").setText(group.getName());
-            String groupDescription = group.getDescription();
-            if (groupDescription != null) {
-                xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
-            }
-            Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
-            if (groupMembers != null && groupMembers.size() > 0) {
-                for (User user : groupMembers) {
-                    if (user.getImId() != null) {
-                        Element userElement = xmmpGroup.addElement(USER);
-                        userElement.addElement(USER_NAME).setText(user.getImId());
-                    }
+        // HACK: we assume that 'replicate-group' is a standard boolean setting
+        boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-account");
+        if (!replicate) {
+            return;
+        }
+        Element xmmpGroup = accountInfos.addElement("group");
+        xmmpGroup.addElement("group-name").setText(group.getName());
+        String groupDescription = group.getDescription();
+        if (groupDescription != null) {
+            xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
+        }
+        Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
+        if (groupMembers != null && groupMembers.size() > 0) {
+            for (User user : groupMembers) {
+                if (user.getImId() != null) {
+                    Element userElement = xmmpGroup.addElement(USER);
+                    userElement.addElement(USER_NAME).setText(user.getImId());
                 }
             }
         }
