@@ -28,6 +28,7 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 
 public class XmppAccountInfo extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00";
+    private static final String MUC_SUBDOMAIN = "conference";
     private static final String USER = "user";
     private static final String USER_NAME = "user-name";
     private static final String PASSWORD = "password";
@@ -101,7 +102,7 @@ public class XmppAccountInfo extends XmlFile {
 
         String displayName = conference.getName();
 
-        chatRoom.addElement("subdomain").setText(conference.getBridge().getHost());
+        chatRoom.addElement("subdomain").setText(MUC_SUBDOMAIN);
         chatRoom.addElement("room-owner").setText(owner.getImId());
         chatRoom.addElement("room-name").setText(displayName);
         chatRoom.addElement(DESCRIPTION).setText(defaultString(conference.getDescription()));
@@ -109,8 +110,7 @@ public class XmppAccountInfo extends XmlFile {
         addBooleanSetting(chatRoom, conference, "moderated", "chat-meeting/moderated");
         addBooleanSetting(chatRoom, conference, "is-public-room", "chat-meeting/public");
         addBooleanSetting(chatRoom, conference, "is-members-only", "chat-meeting/members-only");
-        addBooleanSetting(chatRoom, conference, "is-persistant", "chat-meeting/persistent");
-        addBooleanSetting(chatRoom, conference, "is-room-listed", "chat-meeting/listed");
+        addBooleanSetting(chatRoom, conference, "is-persistent", "chat-meeting/persistent");
         addBooleanSetting(chatRoom, conference, "log-room-conversations", "chat-meeting/log-conversations");
         chatRoom.addElement("conference-extension").setText(conference.getExtension());
     }

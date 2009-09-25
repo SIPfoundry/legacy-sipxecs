@@ -84,13 +84,7 @@
       <type>
         <boolean />
       </type>
-      <value>0</value>
-    </setting>
-    <setting name="listed" advanced="yes">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="log-conversations" advanced="yes">
       <type>
