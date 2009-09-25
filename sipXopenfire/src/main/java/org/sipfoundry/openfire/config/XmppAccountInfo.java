@@ -92,11 +92,11 @@ public class XmppAccountInfo {
             return;
         }
         plugin.createChatRoom(xmppChatRoom.getSubdomain(), xmppChatRoom.getOwner(), xmppChatRoom
-                .getRoomName(), xmppChatRoom.isRoomListed(), moderated, xmppChatRoom
+                .getRoomName(), moderated, xmppChatRoom
                 .isMembersOnly(), allowInvite, xmppChatRoom.isPublicRoom(), xmppChatRoom
                 .isLogRoomConversations(), xmppChatRoom.isPersistent(), xmppChatRoom
                 .getPassword(), xmppChatRoom.getDescription(), xmppChatRoom
-                .getConferenceExtension(), xmppChatRoom.getConferencePin());
+                .getConferenceExtension());
         this.chatRooms.put(xmppChatRoom.getSubdomain() + ":" + xmppChatRoom.getRoomName(),
                 xmppChatRoom);
 

@@ -39,8 +39,6 @@ import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.util.NotFoundException;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.restconfig.RestServerConfig;
-import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
 import org.sipfoundry.openfire.config.WatcherConfig;
@@ -65,7 +63,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private Map<String, Presence> probedPresence;
     private JID componentJID;
     private XMPPServer server;
-    private static RestServerConfig restServerConfig;
 
     private static String configurationPath = "/etc/sipxpbx";
 
@@ -131,9 +128,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         ConfigurationParser parser = new ConfigurationParser();
         watcherConfig = parser.parse("file://" + configurationFile);
         logFile = watcherConfig.getLogDirectory() + "/sipxopenfire.log";
-        RestServerConfigFileParser callControllerConfigFileParser = new RestServerConfigFileParser();
-        String url = configurationPath + "/sipxrest-config.xml";
-        restServerConfig = callControllerConfigFileParser.parse(url);
 
     }
 
@@ -432,13 +426,17 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             user.setPassword(password);
             user.setName(displayName);
             user.setEmail(email);
+user.getRoster().createRosterItem(new JID("403_conf@conference.rjolyscs2.ca.nortel.com"), true, true);            
         } catch (UserNotFoundException e) {
             try {
                 userManager.createUser(userName, password, displayName, email);
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
+        } catch (Exception ex) {
+            throw new SipXOpenfirePluginException(ex);
         }
+        
     }
 
     public void destroyUser(String jid) throws UserNotFoundException {
@@ -641,12 +639,13 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             log.debug("destroyMultiUserChatService not found " + subdomain);
         }
     }
-
+    
+    
     public void createChatRoom(String subdomain, String ownerJid, String roomName,
-            boolean listRoomInDirectory, boolean makeRoomModerated, boolean makeRoomMembersOnly,
+            boolean makeRoomModerated, boolean makeRoomMembersOnly,
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
-            String description, String conferenceExtension, String conferencePin)
+            String description, String conferenceExtension)
             throws Exception {
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(subdomain);
@@ -748,7 +747,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName,
-                new ConferenceInformation(conferenceExtension, conferencePin));
+                new ConferenceInformation(conferenceExtension, password));
 
     }
 
@@ -993,8 +992,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         return this.getServer().getPacketRouter();
     }
 
-    public RestServerConfig getRestServerConfig() {
-        return restServerConfig;
+    public WatcherConfig getSipXopenfireConfig() {
+        return watcherConfig;
     }
 
     /**

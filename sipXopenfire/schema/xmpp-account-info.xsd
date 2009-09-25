@@ -123,7 +123,7 @@
     		<element name="is-public-room" type="boolean" maxOccurs="1" minOccurs="0" default="true">
     			<annotation>
     				<documentation>
-    					Is chat room public.
+    					Is chat room public, i.e. it is listed in the directory.
     				</documentation>
     			</annotation>
     		</element>
@@ -134,17 +134,10 @@
     				</documentation>
     			</annotation>
     		</element>
-    		<element name="is-persistent" type="boolean" maxOccurs="1" minOccurs="0" default="false">
+    		<element name="is-persistent" type="boolean" maxOccurs="1" minOccurs="0" default="true">
     			<annotation>
     				<documentation>
     					Is chat room persistent.
-    				</documentation>
-    			</annotation>
-    		</element>
-    		<element name="is-room-listed" type="boolean" maxOccurs="1" minOccurs="0" default="false">
-    			<annotation>
-    				<documentation>
-    					Is chat room listed for search.
     				</documentation>
     			</annotation>
     		</element>
@@ -163,10 +156,10 @@
     				</documentation>
     			</annotation>
     		</element>
-    		<element name="conference-pin" type="string" maxOccurs="1" minOccurs="0">
+    		<element name="password" type="string" maxOccurs="1" minOccurs="0">
     			<annotation>
     				<documentation>
-    					PIN required to enter conference.
+    					PIN required to enter conference and IM Chatroom.
     				</documentation>
     			</annotation>
     		</element>

@@ -61,8 +61,19 @@ public class ConfigurationParser {
                });
        digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "openfire-host"),
                "setOpenfireHost", 0);
+
+       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-ip-address"),
+               "setSipXrestIpAddress", 0);
+              
+       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-https-port"),
+               "setSipXrestHttpsPort", 0, new Class[] {
+                   Integer.class
+               });
       
-      
+       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-external-http-port"),
+               "setSipXrestHttpPort", 0, new Class[] {
+                   Integer.class
+               });
     }
    
    public WatcherConfig parse(String url) {

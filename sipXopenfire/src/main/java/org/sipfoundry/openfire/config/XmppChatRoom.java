@@ -6,13 +6,11 @@ public class XmppChatRoom {
     private String description; 
     private String password;
     private String conferenceExtension;
-    private String conferencePin;
     private String owner;
     private boolean logRoomConversations;
     private boolean isPublicRoom = true;
     private boolean membersOnly;
     private boolean isPersistent;
-    private boolean isRoomListed = true;
     
     public XmppChatRoom() {
         
@@ -55,7 +53,8 @@ public class XmppChatRoom {
         return description;
     }
     /**
-     * @param password the password to set
+     * @param password - the password to set for the IM chatroom and the
+     *                   the one required to enter the associated audio conference
      */
     public void setPassword(String password) {
         this.password = password;
@@ -79,20 +78,6 @@ public class XmppChatRoom {
      */
     public String getConferenceExtension() {
         return conferenceExtension;
-    }
-
-    /**
-     * @param sets the PIN required to enter the conference
-     */
-    public void setConferencePin(String conferencePin) {
-        this.conferencePin = conferencePin;
-    }
-
-    /**
-     * @return the conferenceExtension
-     */
-    public String getConferencePin() {
-        return conferencePin;
     }
 
     public String getOwner() {
@@ -138,14 +123,4 @@ public class XmppChatRoom {
    public boolean isPersistent() {
        return this.isPersistent;
    }
-   
-   public void setRoomListed(String flag) {
-       this.isRoomListed = Boolean.parseBoolean(flag);
-   }
-   
-   public boolean isRoomListed() {
-       return this.isRoomListed;
-   }
- 
-    
 }

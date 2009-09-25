@@ -47,24 +47,24 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     }
 
     String buildRestCallCommand(String callerNumber, String calledNumber) {
-        String restCallCommand =  "https://"+ plugin.getRestServerConfig().getIpAddress()
-                + ":" + plugin.getRestServerConfig().getHttpPort() + "/callcontroller/"
+        String restCallCommand =  "https://"+ plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + callerNumber + "/" + calledNumber;
         log.debug("rest call command is: " + restCallCommand);
         return restCallCommand;
     }
 
     String buildRestCallCommand(String agentId, String caller, String calledNumber) {
-        String restCallCommand =  "https://" + plugin.getRestServerConfig().getIpAddress()
-                + ":" + plugin.getRestServerConfig().getHttpPort() + "/callcontroller/"
+        String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
                 + "?agent=" + agentId;
         return restCallCommand;
     }
 
     String buildRestConferenceCommand(String agentId, String caller, String calledNumber, String conferencePin) {
-        String restCallCommand =  "https://" + plugin.getRestServerConfig().getIpAddress()
-                + ":" + plugin.getRestServerConfig().getHttpPort() + "/callcontroller/"
+        String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
+                + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
                 + "?agent=" + agentId
                 + "&confpin=" + conferencePin;

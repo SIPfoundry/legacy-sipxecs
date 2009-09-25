@@ -13,6 +13,9 @@ public class WatcherConfig {
     private String logDirectory = "/var/log/sipxpbx";
     private int openfireXmlRpcPort = 9094;
     private String openfireHost;
+    private String sipXrestIpAddress;
+    private int sipXrestHttpPort;
+    private int sipXrestHttpsPort;
     
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
@@ -157,6 +160,37 @@ public class WatcherConfig {
     public String getOpenfireHost() {
         return openfireHost;
     }
+
+    public String getSipXrestIpAddress()
+    {
+        return sipXrestIpAddress;
+    }
+
+    public void setSipXrestIpAddress( String sipXrestIpAddress )
+    {
+        this.sipXrestIpAddress = sipXrestIpAddress;
+    }
+
+    public int getSipXrestHttpPort()
+    {
+        return sipXrestHttpPort;
+    }
+
+    public void setSipXrestHttpPort( int sipXrestHttpPort )
+    {
+        this.sipXrestHttpPort = sipXrestHttpPort;
+    }
+
+    public int getSipXrestHttpsPort()
+    {
+        return sipXrestHttpsPort;
+    }
+
+    public void setSipXrestHttpsPort( int sipXrestHttpsPort )
+    {
+        this.sipXrestHttpsPort = sipXrestHttpsPort;
+    }
+    
     
    
    
