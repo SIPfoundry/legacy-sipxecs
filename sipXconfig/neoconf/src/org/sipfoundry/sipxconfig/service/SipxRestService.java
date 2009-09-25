@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 
 package org.sipfoundry.sipxconfig.service;
@@ -35,4 +35,11 @@ public class SipxRestService extends SipxService implements LoggingEntity {
         return super.getLabelKey();
     }
 
+    public String getExtHttpPort() {
+        return getSettingValue("rest-config/extHttpPort");
+    }
+
+    public String getHttpsPort() {
+        return getSettingValue("rest-config/httpsPort");
+    }
 }

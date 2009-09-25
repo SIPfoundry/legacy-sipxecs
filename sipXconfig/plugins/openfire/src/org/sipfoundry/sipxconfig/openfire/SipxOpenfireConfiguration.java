@@ -12,6 +12,7 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxRestService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
@@ -28,6 +29,9 @@ public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
         SipxService openfireService = getService(SipxOpenfireService.BEAN_ID);
         context.put("settings", openfireService.getSettings());
         context.put("service", openfireService);
+
+        SipxService restService = getService(SipxRestService.BEAN_ID);
+        context.put("restService", restService);
 
         String username = XMPP_SERVER.getUserName();
         User user = m_coreContext.getSpecialUser(XMPP_SERVER);

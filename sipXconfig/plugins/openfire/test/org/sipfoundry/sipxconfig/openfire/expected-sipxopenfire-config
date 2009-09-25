@@ -11,4 +11,7 @@
 	<log-level>DEBUG</log-level>
 	<openfire-xml-rpc-port>9095</openfire-xml-rpc-port>
 	<openfire-host>locationTest</openfire-host>
+	<sipxrest-ip-address>192.168.1.1</sipxrest-ip-address>
+	<sipxrest-https-port>6666</sipxrest-https-port>
+	<sipxrest-external-http-port>6667</sipxrest-external-http-port>
 </sipxopenfire-config>

@@ -10,18 +10,15 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.common.CoreContext;
-
-import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
-
-import org.sipfoundry.sipxconfig.common.User;
-
 import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.service.SipxRestService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
@@ -29,9 +26,12 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.TestHelper.getModelFilesContext;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
     private SipxOpenfireService m_service;
+    private SipxRestService m_restService;
     private LocationsManager m_locationsManager;
     SipxServiceManager m_sipxServiceManager;
     DomainManager m_domainManager;
@@ -48,7 +48,11 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         location.setAddress("192.168.1.1");
         location.setPrimary(true);
         m_service = new SipxOpenfireService();
+        m_restService = new SipxRestService();
         m_locationsManager.getLocationsForService(m_service);
+        expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
+
+        m_locationsManager.getLocationsForService(m_restService);
         expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
         EasyMock.replay(m_locationsManager);
         Domain domain = new Domain();
@@ -64,12 +68,23 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         m_service.setDomainManager(m_domainManager);
 
         m_service.initialize();
-        m_service.setModelFilesContext(TestHelper.getModelFilesContext());
+        m_service.setModelFilesContext(getModelFilesContext());
         m_service.setSettingValue(SipxOpenfireService.XML_RPC_PORT_SETTING, "9095");
 
         m_sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxOpenfireService.BEAN_ID);
         expectLastCall().andReturn(m_service).atLeastOnce();
+
+        m_restService.setLocationsManager(m_locationsManager);
+        m_restService.setModelDir("sipxrest");
+        m_restService.setModelName("sipxrest.xml");
+
+        m_restService.setModelFilesContext(getModelFilesContext(getModelDirectory("neoconf")));
+        m_restService.setSettingValue("rest-config/httpsPort", "6666");
+        m_restService.setSettingValue("rest-config/extHttpPort", "6667");
+
+        m_sipxServiceManager.getServiceByBeanId(SipxRestService.BEAN_ID);
+        expectLastCall().andReturn(m_restService).atLeastOnce();
 
         User xmppuser = new User();
         xmppuser.setSipPassword("1234");
