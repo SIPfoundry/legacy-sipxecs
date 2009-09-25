@@ -38,6 +38,7 @@ then
   AC_CONFIG_SUBDIRS(sipXproxy)
   AC_CONFIG_SUBDIRS(sipXpublisher)
   AC_CONFIG_SUBDIRS(sipXregistry)
+  AC_CONFIG_SUBDIRS(sipXvxml)
   AC_CONFIG_SUBDIRS(sipXconfig)
   AC_CONFIG_SUBDIRS(sipXacd)
   AC_CONFIG_SUBDIRS(sipXpage)
