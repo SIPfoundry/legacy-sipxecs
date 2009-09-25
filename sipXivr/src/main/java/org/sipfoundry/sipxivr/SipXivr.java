@@ -52,7 +52,7 @@ public class SipXivr implements Runnable {
 
         try {
             m_fses = new FreeSwitchEventSocket(s_config);
-            if (m_fses.connect(m_clientSocket)) {
+            if (m_fses.connect(m_clientSocket, null)) {
 		
 		
 		        String sipReqParams = m_fses.getVariable("variable_sip_req_params");

@@ -40,10 +40,14 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
      * 
      * Enable FreeSwitch to report async events of interest.
      */
-    public boolean connect(Socket socket) throws IOException {
+    public boolean connect(Socket socket, String authPassword) throws IOException {
         m_clientSocket = socket;
         m_out = new PrintWriter(m_clientSocket.getOutputStream(), true);
         setIn(new BufferedReader(new InputStreamReader(m_clientSocket.getInputStream())));
+
+        if (authPassword != null) {
+            cmdResponse("auth " + authPassword);
+        }
 
         // Accept the connection from FreeSwitch, and get the variables for this call
         FreeSwitchEvent event = cmdResponse("connect");

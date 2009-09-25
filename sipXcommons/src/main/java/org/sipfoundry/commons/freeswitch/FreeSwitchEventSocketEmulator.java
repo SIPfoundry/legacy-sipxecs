@@ -45,7 +45,7 @@ public class FreeSwitchEventSocketEmulator extends FreeSwitchEventSocketInterfac
     }
 
     @Override
-    public boolean connect(Socket socket) throws IOException {
+    public boolean connect(Socket socket, String authPassword) throws IOException {
     	return true;
     }
 

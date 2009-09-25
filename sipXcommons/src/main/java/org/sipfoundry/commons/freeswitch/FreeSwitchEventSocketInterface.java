@@ -38,7 +38,7 @@ public abstract class FreeSwitchEventSocketInterface {
         this.LOG = config.getLogger();
     }
 
-    public abstract boolean connect(Socket socket) throws IOException;
+    public abstract boolean connect(Socket socket, String authPassword) throws IOException;
 
     public abstract void cmd(String cmd);
 
