@@ -9,6 +9,7 @@
 <blinkLightOnIncomingCall><![CDATA[TRUE]]></blinkLightOnIncomingCall>
 <flashLightOnMwi><![CDATA[TRUE]]></flashLightOnMwi>
 <imBeepAlert><![CDATA[TRUE]]></imBeepAlert>
+<enableAutoAnswer><![CDATA[FALSE]]></enableAutoAnswer>
 <enableSyslog><![CDATA[FALSE]]></enableSyslog>
 <syslogServer><![CDATA[10.4.5.2]]></syslogServer>
 <enableSessionTimer><![CDATA[FALSE]]></enableSessionTimer>

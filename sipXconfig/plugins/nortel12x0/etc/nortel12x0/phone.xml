@@ -275,6 +275,20 @@
      </description>
    </setting>
 
+   <setting name="enableAutoAnswer">
+     <label>Enable Auto-Answer</label>
+     <type refid="on-off" />
+     <value>FALSE</value>
+     <description>
+	When checked, the phone auto-answers after the time duration specified in the answer-after
+	parameter in the Call-Info: header of a SIP INVITE request.
+        When the phone is in auto-answer mode, the phone's Intercom feature behaves exactly the same as
+	the auto-answer feature, and the phone does not require a key-press for enabling a two-way speech path.
+	Further, the phone auto-answers only when the phone not in a call.
+	&lt;br/&gt; ( &lt; enableAutoAnswer &gt; ) &lt;br/&gt;
+     </description>
+   </setting>
+
    <setting name="enableSyslog">
      <label>Enable Syslog</label>
      <type refid="on-off" />
