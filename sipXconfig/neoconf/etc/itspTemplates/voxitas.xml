@@ -85,7 +85,7 @@
       </description>
     </setting>
     <setting name="is-user-phone" advanced="yes">
-      <label>User part of INVITE SIP URI is a phone#</label>
+      <label>User part of INVITE SIP URI is a phone number</label>
       <type refid="switch"></type>
       <value>true</value>
       <description>If true (the default), sipxbridge will attach a user=phone parameter to the call setup INVITE request URI.</description>

@@ -68,7 +68,7 @@
       </description>
     </setting>
     <setting name="itsp-registrar-listening-port" advanced="yes">
-      <label>ITSP Registrar Listening Port</label>
+      <label>ITSP Registrar Port</label>
       <description>
 	 The port where REGISTER requests are sent. Defaults to ITSP Server Port if nothing specified.
       </description>
@@ -107,7 +107,7 @@
       </description>
     </setting>
     <setting name="is-user-phone" advanced="yes">
-      <label>User part INVITE SIP URI is a phone#</label>
+      <label>User part of INVITE SIP URI is a phone number</label>
       <type refid="switch"></type>
       <value>false</value>
       <description>If true (the default), sipxbridge will attach a user=phone parameter to the call setup INVITE request URI.</description>
@@ -127,7 +127,7 @@
       </description>
     </setting>
     <setting name="itsp-registrar-listening-port" advanced="yes">
-      <label>ITSP Registrar Listening Port</label>
+      <label>ITSP Registrar Port</label>
       <type>
         <integer />
       </type>
