@@ -28,10 +28,10 @@ import org.apache.log4j.Logger;
  * The getTextToPrompt() method will search for and instantiate the most specific class based on
  * the local using classForName() at run time. If no class is found, it will default to
  * sipxivr.TextToPrompts_en.class
- * 
+ *
  */
 public abstract class TextToPrompts {
-    
+
     public enum Types {
         cardinal, ordinal, digits, letters, prompts, date
     }
@@ -43,7 +43,7 @@ public abstract class TextToPrompts {
 
     /**
      * Instantiate the appropriate TextToPrompts object for the given locale.
-     * 
+     *
      * @param l
      * @return
      */
@@ -78,7 +78,7 @@ public abstract class TextToPrompts {
 
     /**
      * Set the prompt prefix
-     * 
+     *
      * @param prefix
      */
     public void setPrefix(String prefix) {
@@ -103,13 +103,13 @@ public abstract class TextToPrompts {
     public String getFormat() {
         return m_format;
     }
-    
+
     /**
      * Render the value as a colon separated list of audio files to play that "speaks" the value
      * as if were type, in a format. <br>
      * <br>
      * Value to speak is the member variable "value".
-     * 
+     *
      * @return
      */
     public String render() {
@@ -138,7 +138,7 @@ public abstract class TextToPrompts {
      * as if were type, in a format. <br>
      * <br>
      * Value to speak is passed in.
-     * 
+     *
      * @param value
      * @return
      */
@@ -152,7 +152,7 @@ public abstract class TextToPrompts {
      * as if were type. <br>
      * <br>
      * Value to speak, type, and format are passed in.
-     * 
+     *
      * @param value
      * @return
      */
@@ -165,7 +165,7 @@ public abstract class TextToPrompts {
 
     /**
      * Append the path prefix to each un-rooted file in a colon separated list of files.
-     * 
+     *
      * @param prompts A colon separated list of files.
      * @return A colon separated list of files
      */
@@ -190,7 +190,7 @@ public abstract class TextToPrompts {
     /**
      * Render the value as a cardinal. (A cardinal number is a counting number, like "one hundred
      * and two")
-     * 
+     *
      * @return
      */
     public abstract String cardinal();
@@ -198,7 +198,7 @@ public abstract class TextToPrompts {
     /**
      * Render the value as an ordinal. (An ordinal number is positional, like "first, second,
      * third".)
-     * 
+     *
      * @return
      */
     public abstract String ordinal();
@@ -206,7 +206,7 @@ public abstract class TextToPrompts {
     /**
      * Render the value as individual digits.
      * (Non digits in value are silently ignored)
-     * 
+     *
      * @return
      */
     public abstract String digits();
@@ -214,7 +214,7 @@ public abstract class TextToPrompts {
     /**
      * Render the value as individual letters.
      * (characters for which there are no prompts are silently ignored)
-     * 
+     *
      * @return
      */
     public abstract String letters();
@@ -222,7 +222,7 @@ public abstract class TextToPrompts {
     /**
      * Render the value as a colon separated list of prompts.  Just returns value unchanged.
      * (Allows for passing pre-rendered or pre-recorded files in place of a value)
-     * 
+     *
      * @return
      */
     public abstract String prompts();
@@ -252,7 +252,7 @@ public abstract class TextToPrompts {
     public static DateFormat ttsDateFormat() {
         return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     }
-    
+
     /**
      * Render the value as a Date and/or Time.
      * <br><br>
@@ -274,18 +274,18 @@ public abstract class TextToPrompts {
      */
     public String date() {
         String result = "";
-        
+
         try {
             // Parse value as YYYY-MM-DD HH:MM:SS
             DateFormat timeFormat = ttsDateFormat();
             Date d = timeFormat.parse(getValue());
-    
+
             // For each letter of format, get the corresponding part of the value
             for (int i=0; i< getFormat().length(); i++) {
                 if (result.length() > 0) {
                     result += ":";
                 }
-                
+
                 switch (getFormat().charAt(i)) {
                 case 'Y': // Year
                     result += year(d);

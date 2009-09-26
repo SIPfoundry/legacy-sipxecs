@@ -20,7 +20,7 @@ public class Record extends CallCommand {
     private Break m_breaker;
     private String m_recordFile;
     private int m_recordTime; // in seconds
-    
+
     public Record(FreeSwitchEventSocketInterface fses) {
         super(fses);
     }
@@ -48,19 +48,19 @@ public class Record extends CallCommand {
     public PromptList getPromptList() {
         return m_prompts;
     }
-    
+
     public void setRecordFile(String recordFile) {
     	this.m_recordFile = recordFile;
     }
-    
+
     public String getRecordFile() {
     	return m_recordFile;
     }
-    
+
     public void setRecordTime(int recordTime) {
     	this.m_recordTime = recordTime;
     }
-    
+
     public int getRecordTime() {
     	return m_recordTime;
     }
@@ -71,7 +71,7 @@ public class Record extends CallCommand {
         m_stopped = false;
 
         // dummy loop for break
-        for (;;) { 
+        for (;;) {
             // Found a bargable digit in the DTMF queue
             if (m_fses.trimDtmfQueue(m_digitMask)) {
                 m_finished = true;
@@ -132,7 +132,7 @@ public class Record extends CallCommand {
             if (m_digitMask.contains(digit)) {
                 // Add digit to the DTMF queue
                 m_fses.appendDtmfQueue(digit);
-                
+
                 // No more prompts to play
                 m_stopped = true;
 

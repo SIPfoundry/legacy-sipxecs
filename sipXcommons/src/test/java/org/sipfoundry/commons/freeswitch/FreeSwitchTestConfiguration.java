@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package org.sipfoundry.commons.freeswitch;
 

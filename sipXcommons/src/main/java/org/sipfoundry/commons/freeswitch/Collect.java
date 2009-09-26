@@ -113,7 +113,7 @@ public class Collect extends CallCommand {
             // Wait for the next digit
             m_currentTimer = m_interDigitTimer;
         }
-        
+
         if (m_currentTimer <= 0) {
         	// Next timer is "immediate", so give up now
         	m_done = true;

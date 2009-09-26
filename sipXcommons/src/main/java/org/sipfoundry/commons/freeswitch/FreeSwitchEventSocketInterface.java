@@ -19,9 +19,9 @@ import org.apache.log4j.Logger;
 
 /**
  * An abstraction of the FreeSwitchEventSocket.
- * 
+ *
  * Good for Unit Tests to emulate FreeSwitch, and a place to hang some common code.
- * 
+ *
  */
 public abstract class FreeSwitchEventSocketInterface {
 
@@ -57,10 +57,10 @@ public abstract class FreeSwitchEventSocketInterface {
         }
         return que.toString();
     }
-    
+
     /**
      * Remove any initial digits in the dtmfQueue that are not in the digitMask.
-     * 
+     *
      * @param digitMask
      * @return true if dtmfQueue still contains digits after trimming
      */
@@ -76,10 +76,10 @@ public abstract class FreeSwitchEventSocketInterface {
             i.remove(); // Toss any digits not in the digit mask
         }
         if (m_redactDtmf) {
-            LOG.debug(String.format("trimDtmfQueue(_REDACTED_) dtmfQueue was (%d long) is (%d long)", 
+            LOG.debug(String.format("trimDtmfQueue(_REDACTED_) dtmfQueue was (%d long) is (%d long)",
                     origDtmfQueue.length(), getDtmfQueue().length()));
         } else {
-            LOG.debug(String.format("trimDtmfQueue(%s) dtmfQueue was (%s) is (%s)", 
+            LOG.debug(String.format("trimDtmfQueue(%s) dtmfQueue was (%s) is (%s)",
                     digitMask, origDtmfQueue, getDtmfQueue()));
         }
         return hasDigits;
@@ -87,30 +87,30 @@ public abstract class FreeSwitchEventSocketInterface {
 
     /**
      * Get the first digit in the dtmfQueue.
-     * 
+     *
      * @return The digit, or null if none.
      */
     public String getDtmfDigit() {
-        LOG.debug(String.format("getDtmfDigit() dtmfQueue is (%s)", 
+        LOG.debug(String.format("getDtmfDigit() dtmfQueue is (%s)",
                 redact(getDtmfQueue())));
         return m_dtmfQueue.poll();
     }
 
     /**
      * Add a digit to the dtmfQueue.
-     * 
+     *
      * @param digit
      */
     public void appendDtmfQueue(String digit) {
         m_dtmfQueue.add(digit);
-        LOG.debug(String.format("appendDtmfQueue(%s) dtmfQueue is (%s)", 
+        LOG.debug(String.format("appendDtmfQueue(%s) dtmfQueue is (%s)",
             redact(digit), redact(getDtmfQueue())));
     }
 
     /**
      * Parse the initial response from "connect" into name/value pairs. Store in the variables
      * list.
-     * 
+     *
      * @param vars
      */
     public void setVariables(Vector<String> vars) {
@@ -119,7 +119,7 @@ public abstract class FreeSwitchEventSocketInterface {
 
     /**
      * Return a particular variable in the variables list.
-     * 
+     *
      * @param name
      * @return The value of the variable, or null if it isn't found.
      */
@@ -129,9 +129,9 @@ public abstract class FreeSwitchEventSocketInterface {
 
     /**
      * Await for an event to occur.
-     * 
+     *
      * First checks if any are queued, and uses them if so, else blocks waiting for a live event.
-     * 
+     *
      * @return
      */
     public FreeSwitchEvent awaitEvent() {
@@ -148,10 +148,10 @@ public abstract class FreeSwitchEventSocketInterface {
     /**
      * Invoke (start performing) the FreeSwitch command represented by "handler". Pass all events
      * to that handler until it says it's finished.
-     * 
+     *
      * "empty" events signify FreeSwitch closed the socket (the caller hungup). Throw a DisconnectException
      * event in this case.
-     * 
+     *
      * @param handler
      * @throws Throwable
      */
@@ -213,7 +213,7 @@ public abstract class FreeSwitchEventSocketInterface {
     public String getFromUri() {
         return getVariable("variable_sip_from_uri");
     }
-    
+
     public String getFromUser() {
         return getVariable("variable_sip_from_user");
     }
@@ -232,7 +232,7 @@ public abstract class FreeSwitchEventSocketInterface {
     public void setRedactDTMF(boolean redactDTMF) {
         m_redactDtmf = redactDTMF;
     }
-    
+
     public String redact(String digits) {
         if (m_redactDtmf) {
             return "_REDACTED_";

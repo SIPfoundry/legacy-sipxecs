@@ -53,7 +53,7 @@ public class Play extends CallCommand {
         m_stopped = false;
 
         // dummy loop for break
-        for (;;) { 
+        for (;;) {
             // Found a bargable digit in the DTMF queue
             // Or no prompts to play
             if (m_fses.trimDtmfQueue(m_digitMask) || m_prompts == null) {

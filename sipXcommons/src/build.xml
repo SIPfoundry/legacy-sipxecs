@@ -198,7 +198,7 @@
       <fileset file="${src.dir}/lib/xpp3.jar"/>
       <fileset file="${src.dir}/lib/ArpTable.dll"/>
       <fileset file="${src.dir}/lib/com.noelios.restlet.ext.servlet.jar" />
-      <fileset file="${src.dir}/lib/com.noelios.restlet.jar" /> 
+      <fileset file="${src.dir}/lib/com.noelios.restlet.jar" />
       <fileset file="${src.dir}/lib/org.restlet.jar" />
       <fileset file="${src.dir}/lib/rocksaw.dll"/>
     </copy>

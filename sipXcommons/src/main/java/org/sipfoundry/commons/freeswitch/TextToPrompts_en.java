@@ -19,14 +19,14 @@ import java.util.Date;
  * <br>
  * This is the English version. It uses a prompt set from the sipXecs standard prompts library.
  * The prompt names are hard-coded to match those prompts.
- * 
- * 
+ *
+ *
  */
 public class TextToPrompts_en extends TextToPrompts {
 
     /**
      * Convert cardinal numbers 1000 or less
-     * 
+     *
      * @param card
      * @return
      */
@@ -49,7 +49,7 @@ public class TextToPrompts_en extends TextToPrompts {
 
     /**
      * Convert positive cardinal numbers up to 999,999
-     * 
+     *
      * @param card
      * @return
      */
@@ -88,9 +88,9 @@ public class TextToPrompts_en extends TextToPrompts {
     }
 
     /**
-     * Convert a small Ordinal (small is 31 or less!  
+     * Convert a small Ordinal (small is 31 or less!
      * There are prompts for 40th, and 50th, however.)
-     * 
+     *
      * @param ord
      * @return
      */
@@ -180,7 +180,7 @@ public class TextToPrompts_en extends TextToPrompts {
 
     /**
      * Speak string of digits (ignore non-digits)
-     * 
+     *
      */
     @Override
     public String digits() {
@@ -205,7 +205,7 @@ public class TextToPrompts_en extends TextToPrompts {
 
     /**
      * Speak string of letters and symbols
-     * 
+     *
      */
     @Override
     public String letters() {
@@ -412,7 +412,7 @@ public class TextToPrompts_en extends TextToPrompts {
         int min = calendar.get(Calendar.MINUTE);
 
         if (hour == 0 && min == 0) {
-            // "Zero Hundred Hours" but we don't have "hundred.wav", 
+            // "Zero Hundred Hours" but we don't have "hundred.wav",
             // So say "Zero hours" for now.
             return "0.wav:hours.wav";
         }

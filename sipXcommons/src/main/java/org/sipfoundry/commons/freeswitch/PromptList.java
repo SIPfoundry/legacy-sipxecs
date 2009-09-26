@@ -33,7 +33,7 @@ public class PromptList {
         setTtp(localization.getTtp());
         setPrefix(localization.getPrefix());
     }
-    
+
     public PromptList(ResourceBundle resourceBundle, FreeSwitchConfigurationInterface config, TextToPrompts ttp) {
         setResourceBundle(resourceBundle, config);
         setTtp(ttp);
@@ -72,7 +72,7 @@ public class PromptList {
 
     public String appendPrefix(String localPrefix, String prompt) {
         String usePrefix = localPrefix != null ? localPrefix : m_globalPrefix;
-        
+
         // If no prefix, or if rooted, don't prepend prefix
         if (usePrefix == null || prompt.startsWith("/") || prompt.startsWith(".") || prompt.startsWith("{")) {
             return prompt;
@@ -172,7 +172,7 @@ public class PromptList {
     }
     /**
      * Get the prompts as an ArrayList
-     * 
+     *
      * @return
      */
     public ArrayList<String> getPrompts() {

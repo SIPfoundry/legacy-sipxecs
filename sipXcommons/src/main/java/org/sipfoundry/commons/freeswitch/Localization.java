@@ -19,13 +19,13 @@ import org.apache.log4j.Logger;
 public class Localization {
     /**
      * Load and hold all the needed configuration.
-     * 
+     *
      * The Bundle with the resources is located based on locale, as is the TextToPrompts
-     * class. 
-     * 
+     * class.
+     *
      */
     private final Logger LOG;
-    
+
     private String m_bundleName;
     private HashMap<Locale, ResourceBundle> m_resourcesByLocale;
     private ResourceBundle m_bundle;
@@ -37,7 +37,7 @@ public class Localization {
 
     public Localization(String bundleName, String localeString, HashMap<Locale, ResourceBundle> resourcesByLocale,
             FreeSwitchConfigurationInterface config, FreeSwitchEventSocketInterface fses) {
-        
+
         // Load the resources for the given locale.
 
         m_bundleName = bundleName;
@@ -48,7 +48,7 @@ public class Localization {
         LOG = config.getLogger();
         changeLocale(localeString);
     }
-    
+
     /**
      * Copy a new Localization with a different bundle, but the rest is the same
      * @param bundleName
@@ -65,7 +65,7 @@ public class Localization {
         LOG = origLoc.LOG;
         changeLocale(null);
     }
-    
+
     public void changeLocale(String localeString) {
         // A locale was passed in . Parse it into parts and find a Locale to match
         if (localeString != null) {
@@ -85,7 +85,7 @@ public class Localization {
                 lang = localeElements[0];
             }
             m_locale = new Locale(lang, country, variant);
-            LOG.debug(String.format("Localization::changeLocale to %s,%s,%s found %s", 
+            LOG.debug(String.format("Localization::changeLocale to %s,%s,%s found %s",
                     lang, country, variant, m_locale.toString()));
         }
 
@@ -123,14 +123,14 @@ public class Localization {
                 docDir += "/";
             }
             globalPrefix = docDir + globalPrefix;
-            
+
         }
 
         if (m_bundle != null) {
             Locale actual = m_bundle.getLocale();
             if (actual == null || !actual.equals(m_locale)) {
                 // This bundle's locale isn't exactly what we asked for.
-                
+
                 // If the path doesn't end with the locale, add the locale
                 // to it.  This is in case the Properties file isn't there
                 // and the top level one was picked up instead.  The prompts
@@ -167,18 +167,18 @@ public class Localization {
     public FreeSwitchConfigurationInterface getConfig() {
         return m_config;
     }
-    
+
     public FreeSwitchEventSocketInterface getFreeSwitchEventSocketInterface() {
         return m_fses;
     }
-    
+
     public String getPrefix() {
         return m_prefix;
     }
-    
+
     /**
      * Helper function to get the PromptList from the bundle.
-     * 
+     *
      * @return The appropriate PromptList.
      */
     public PromptList getPromptList() {
@@ -188,7 +188,7 @@ public class Localization {
 
     /**
      * Helper function to get the PromptList from the bundle given a fragment name.
-     * 
+     *
      * @param fragment
      * @param vars
      * @return The appropriate PromptList.
@@ -201,7 +201,7 @@ public class Localization {
 
     /**
      * Helper function to get a Player with a PromptList from the bundle given a fragment name.
-     * 
+     *
      * @param fragment
      * @param digitMask
      * @param vars
@@ -216,7 +216,7 @@ public class Localization {
 
     /**
      * Helper function to just Play with a PromptList from the bundle given a fragment name.
-     * 
+     *
      * @param fragment
      * @param digitMask
      * @param vars
@@ -230,7 +230,7 @@ public class Localization {
 
     /**
      * Helper function to just Play given a PromptList
-     * 
+     *
      * @param prompt list
      * @param digitMask
      */

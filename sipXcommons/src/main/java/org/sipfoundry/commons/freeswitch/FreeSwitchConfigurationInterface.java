@@ -5,7 +5,7 @@ import org.apache.log4j.Logger;
 public interface FreeSwitchConfigurationInterface {
 
 	public abstract Logger getLogger();
-	
+
 	public abstract String getLogLevel();
 
 	public abstract String getLogFile();

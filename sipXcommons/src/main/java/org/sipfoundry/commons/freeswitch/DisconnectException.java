@@ -14,5 +14,5 @@ public class DisconnectException extends RuntimeException {
      * When FreeSWITCH detects the far end as hung up, throw this
      */
     private static final long serialVersionUID = 4641960744304728103L;
-   
+
 }

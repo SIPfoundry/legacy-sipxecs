@@ -88,7 +88,7 @@ public class PromptListTest extends TestCase {
         pl.setPrefix("/cat");
         assertEquals("/cat/dog", pl.appendPrefix(null, "dog"));
     }
-    
+
     public void testAddPrompts() {
         ResourceBundle rb = new MyResources();
         TextToPrompts ttp = new TextToPrompts_en();

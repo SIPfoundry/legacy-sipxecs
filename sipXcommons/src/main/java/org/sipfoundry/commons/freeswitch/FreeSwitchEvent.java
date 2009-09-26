@@ -20,7 +20,7 @@ import java.util.Vector;
  * A FreeSwitch event is the group of lines that FreeSwitch sends in response to a command or to
  * an asynchronous occurrence. The event may contain a "content-type" header, and if so there is
  * also a String of content (based on the "content-length" header).
- * 
+ *
  */
 public class FreeSwitchEvent {
     private Vector<String> m_response;
@@ -33,7 +33,7 @@ public class FreeSwitchEvent {
 
     /**
      * Given all the pieces parts (plus some error that occurred), build the event
-     * 
+     *
      * @param response
      * @param content
      * @param e
@@ -46,7 +46,7 @@ public class FreeSwitchEvent {
 
     /**
      * Given all the pieces parts, build the event
-     * 
+     *
      * @param response
      * @param content
      */
@@ -81,10 +81,10 @@ public class FreeSwitchEvent {
 
     /**
      * Parse the headers into key/value pairs.
-     * 
+     *
      * Header names (Keys) are case insensitive, and thus forced to lower-case. Values are URL
      * unescaped.
-     * 
+     *
      * @param heads A bunch of strings that make up the headers.
      * @return A HashMap of header name values.
      */
@@ -117,7 +117,7 @@ public class FreeSwitchEvent {
 
     /**
      * Given a header name, find the corresponding value.
-     * 
+     *
      * @param name
      * @return null if not found, "" if no value, or the value.
      */
@@ -132,7 +132,7 @@ public class FreeSwitchEvent {
     /**
      * Given a header name, find the corresponding value. Don't return null if not found, return
      * onNull instead.
-     * 
+     *
      * @param name
      * @param onNull The value to return if not found
      * @return onNull if not found, "" if no value, or the value.
@@ -144,7 +144,7 @@ public class FreeSwitchEvent {
 
     /**
      * Take the content part and split it into lines.
-     * 
+     *
      * @return
      */
     public Vector<String> parseEventContent() {
@@ -167,7 +167,7 @@ public class FreeSwitchEvent {
 
     /**
      * Get the value of the Content-Type header if any. "(None)" if none.
-     * 
+     *
      * @return
      */
     public String getContentType() {
@@ -178,7 +178,7 @@ public class FreeSwitchEvent {
     /**
      * Events of Content-type "text/event-plain" are name value/pairs. Parse them return the value
      * for the given name.
-     * 
+     *
      * @param name
      * @return null if not found, else the value.
      */
@@ -198,7 +198,7 @@ public class FreeSwitchEvent {
 
     /**
      * Same as above, but return onNull if the value is is null.
-     * 
+     *
      * @param name
      * @param onNull
      * @return
