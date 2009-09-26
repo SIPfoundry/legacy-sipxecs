@@ -41,7 +41,6 @@ class ResourceListServerTest : public CppUnit::TestCase
    CPPUNIT_TEST(regInfoSubscribeWithJustUriTest);
    CPPUNIT_TEST(regInfoSubscribeWithMultiplePathHeadersTest);
    CPPUNIT_TEST(regInfoSubscribeWithMultiplePathHeaderElementsTest);
-   
    CPPUNIT_TEST_SUITE_END();
 
 private:

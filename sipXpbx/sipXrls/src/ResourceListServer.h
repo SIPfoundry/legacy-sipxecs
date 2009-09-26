@@ -103,6 +103,8 @@ class ResourceListServer : public UtlContainableAtomic
                       const UtlString&  credentialsDbName = "credential"
       );
 
+   //! Destroy the ResourceListServer.
+   // ::shutdown() must be called first.
    virtual ~ResourceListServer();
 
    //! Start the call processing components.
