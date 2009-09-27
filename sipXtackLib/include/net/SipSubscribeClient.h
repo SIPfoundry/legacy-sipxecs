@@ -63,6 +63,7 @@ public:
     // suitable accessors.
     friend class ReestablishRequestMsg;
     friend class SubscriptionStartingNotification;
+    friend class SubscriptionRestartNotification;
 
     enum SubscriptionState
     {

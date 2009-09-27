@@ -22,6 +22,7 @@
 #include <net/SipDialogMgr.h>
 #include <net/NetMd5Codec.h>
 #include <net/CallId.h>
+#include <utl/UtlRandom.h>
 #include <utl/UtlHashBagIterator.h>
 
 // EXTERNAL FUNCTIONS
@@ -38,10 +39,13 @@
 #define SUBSCRIPTION_STARTUP_INITIAL 15
 #define SUBSCRIPTION_STARTUP_MAX (5 * 60)
 
+#define RESTART_INTERVAL  (24 * 60 * 60) // Subscription restart interval, in secs.
+
 // STATIC VARIABLE INITIALIZATIONS
 
-
 // Private OsMsg type to carry requests to reestablish a subscription.
+// These messages are used both to "reestablish" a subscription that has failed
+// and to "restart" a subscription based on a near-daily timer.
 class ReestablishRequestMsg : public OsMsg
 {
 public:
@@ -129,6 +133,32 @@ public:
 // declaration of SubscriptionGroupState.
 
 
+// Notifier class for SipSubscribeClient::mRestartTimer.
+class SubscriptionRestartNotification : public OsNotification
+{
+public:
+
+   /// Constructor.
+   SubscriptionRestartNotification(SipSubscribeClient* pSubscribeClient,
+                                   ///< the owning SipSubscribeClient
+                                   SubscriptionGroupState* pGroupState
+                                   ///< the relevant SubscriptionGroupState
+      );
+
+   /// Signal the occurrence of the event
+   virtual OsStatus signal(intptr_t timer_i);
+
+   /// The owning SipSubscribeClient.
+   SipSubscribeClient* mpSubscribeClient;
+
+   /// The relevant SubscriptionGroupState.
+   SubscriptionGroupState* mpGroupState;
+};
+
+// Method definitions for SubscriptionRestartNotification are below the
+// declaration of SubscriptionGroupState.
+
+
 // Private class to contain information about subscription groups
 class SubscriptionGroupState : public UtlString
 {
@@ -184,6 +214,9 @@ public:
    //  on the time for the previous attempt
    void setStartingTimer(bool initial);
 
+   /// Set the timer for subscription restarting.
+   void setRestartTimer();
+
    /** Set the subscription group state variables to indicate a
     *  successfully established subscription.
     */
@@ -196,6 +229,9 @@ public:
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
    virtual UtlContainableType getContainableType() const;
+
+   //! Random number generator for generating refresh times.
+   static UtlRandom sRandom;
 
    // Prototype SUBSCRIBE request for the subscriptions.
    SipMessage* mpSubscriptionRequest;
@@ -231,6 +267,12 @@ public:
    /// Timer for subscription establishement.
    OsTimer mStartingTimer;
 
+   /// Notifier for mRestartTimer.
+   //  Stores pointer to this SubscriptionGroupState and the SipSubscribeClient.
+   SubscriptionRestartNotification mRestartNotification;
+   /// Timer for periodic subscription restart.
+   OsTimer mRestartTimer;
+
 private:
 };
 
@@ -258,7 +300,9 @@ SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
    mStarting(false),
    mStartingTimeout(-1),
    mStartingNotification(pClient, this),
-   mStartingTimer(mStartingNotification)
+   mStartingTimer(mStartingNotification),
+   mRestartNotification(pClient, this),
+   mRestartTimer(mRestartNotification)
 {
 }
 
@@ -322,6 +366,21 @@ SubscriptionStartingNotification::SubscriptionStartingNotification(
 }
 
 // The definition of SubscriptionStartingNotification::signal is at
+// the bottom, with the other methods that implement subscription
+// reestablishment.
+
+
+// Constructor.
+SubscriptionRestartNotification::SubscriptionRestartNotification(
+   SipSubscribeClient* pSubscribeClient,
+   SubscriptionGroupState* pGroupState
+   ) :
+   mpSubscribeClient(pSubscribeClient),
+   mpGroupState(pGroupState)
+{
+}
+
+// The definition of SubscriptionRestartNotification::signal is at
 // the bottom, with the other methods that implement subscription
 // reestablishment.
 
@@ -577,6 +636,12 @@ UtlBoolean SipSubscribeClient::addSubscription(
     // Start the timer that checks for successful creation of
     // subscription dialog(s).
     groupState->setStartingTimer(true);
+
+    // Start the timer that periodically reestablishes the subscription.
+    if (restart)
+    {
+       groupState->setRestartTimer();
+    }
 
     // Put the state in the list
     {
@@ -1946,6 +2011,50 @@ OsStatus SubscriptionStartingNotification::signal(intptr_t timer_i)
          mpSubscribeClient->postMessageP(
             new ReestablishRequestMsg(static_cast <UtlString&> (*mpGroupState)));
       }
+   }
+
+   return OS_SUCCESS;
+}
+
+// The following functions implement the feature of restarting subscriptions
+// at long intervals (12 to 24 hours), to revise them if the routing of
+// the notifier URI changes.
+
+// Random number generator.
+UtlRandom SubscriptionGroupState::sRandom;
+
+// Set the restart timer.
+void SubscriptionGroupState::setRestartTimer()
+{
+   // Choose a random time between 1/2 and 1 times RESTART_INTERVAL.
+   int refresh_time =
+      (int) ((1.0 + ((float) sRandom.rand()) / RAND_MAX) / 2.0 *
+             RESTART_INTERVAL);
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "SubscriptionGroupState::setRestartTimer for group '%s', refresh_time = %d",
+                 data(), refresh_time);
+   OsTime rt(refresh_time, 0);
+   mRestartTimer.oneshotAfter(rt);
+}
+
+// The timer event routine for SipSubscribeClient::mRestartTimer.
+OsStatus SubscriptionRestartNotification::signal(intptr_t timer_i)
+{
+   OsLock lock(mpSubscribeClient->mSubscribeClientMutex);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SubscriptionRestartNotification::signal Timer fired, mpGroupState = %p '%s'",
+                 mpGroupState, mpGroupState->data());
+
+   // Test whether restart is set.
+   // It may be false because the subscription group is being ended.
+   if (mpGroupState->mRestart)
+   {
+      // Queue a request to restart (reestablish) the subscription.
+      mpSubscribeClient->postMessageP(
+         new ReestablishRequestMsg(static_cast <UtlString&> (*mpGroupState)));
+
+      mpGroupState->setRestartTimer();
    }
 
    return OS_SUCCESS;
