@@ -11,6 +11,7 @@ import org.jivesoftware.openfire.interceptor.PacketRejectedException;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.session.Session;
+import org.jivesoftware.openfire.PacketDeliverer; 
 import org.restlet.Client;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
@@ -19,6 +20,8 @@ import org.restlet.data.Response;
 import org.restlet.resource.Representation;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
+import org.xmpp.packet.JID;
+
 
 public class MessagePacketInterceptor implements PacketInterceptor {
     private static Logger log = Logger.getLogger("org.sipfoundry");
@@ -40,6 +43,8 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                     processGroupChatMessage(message, incoming, processed);                    
                 }
             }
+        } catch (PacketRejectedException e) {
+            throw new PacketRejectedException(e);
         } catch (Exception e) {
             log.debug("Caught: '" + e.getMessage());
             e.printStackTrace(System.err);
@@ -228,6 +233,8 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     }    
 
     private void processGroupChatMessage(Message message, boolean incoming, boolean processed) throws Exception{
+        log.debug("Chat message in:" + message + " incoming=" + incoming + "; processed=" + processed);
+        
         String chatText = message.getBody();
         if (chatText != null) {
             if (incoming && !processed) {
@@ -271,8 +278,14 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                     }
                                 }
                                 else{
+                                    // Not an owner; send back a message saying that command is not allowed
                                     log.debug(commandRequesterSipId + "is not the onwer of MUC room " + subdomain + ":" + roomName);
-                                    // send back a message denying access
+                                    JID from = message.getFrom();
+                                    JID to   = message.getTo();
+                                    message.setTo(from);
+                                    message.setFrom(to);
+                                    message.setBody("NOT ALLOWED: Only the owners of the " + roomName + " chatroom are allowed to perform this operation");
+                                    throw new PacketRejectedException(commandRequesterSipId + " is not the onwer of MUC room " + subdomain + ":" + roomName);
                                 }
                             }
                             log.debug("MUC room " + subdomain + ":" + roomName + " does not have an associated conference");
