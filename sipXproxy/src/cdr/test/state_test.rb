@@ -20,7 +20,7 @@ class StateTest < Test::Unit::TestCase
   
   class DummyCdr
 
-    attr_reader :counter, :call_id, :callee_aor
+    attr_reader :counter, :call_id, :callee_aor, :reference
     
     def initialize(call_id, log = nil, callee_aor="sip:221@example.com")
       @counter = 0
@@ -131,7 +131,7 @@ class StateTest < Test::Unit::TestCase
   class MockCdr
     @@results = []
     
-    attr_reader :call_id, :start_time, :callee_aor
+    attr_reader :call_id, :start_time, :callee_aor, :reference
     
     def initialize(call_id, log=nil, callee_aor="sip:221@example.com")
       @call_id = call_id
