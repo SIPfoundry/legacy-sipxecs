@@ -20,7 +20,7 @@ EXTRA_DIST = \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
-  ant-targets.xml \
+  plugin.xml \
   src 
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make
