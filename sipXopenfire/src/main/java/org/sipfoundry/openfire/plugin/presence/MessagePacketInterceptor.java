@@ -247,8 +247,8 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         MUCRoom chatRoom;
                         if ((chatRoom = plugin.getChatRoom(subdomain, roomName)) != null) {
                             // check if the chat room is associated with a conference bridge
-                            String conferenceExtension;
-                            if ((conferenceExtension = plugin.getConferenceExtension(subdomain, roomName)) != null) {
+                            String conferenceName;
+                            if ((conferenceName = plugin.getConferenceName(subdomain, roomName)) != null) {
                                 // verify that the command issuer has the privilege to start the conference and 
                                 // has a SIP ID.
                                 String commandRequester = message.getFrom().toBareJID();
@@ -264,7 +264,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                             String occupantSipId = plugin.getSipId(occupantJID);
                                             if ( occupantSipId != null) {
                                                 String restCallCommand = buildRestConferenceCommand(
-                                                        commandRequesterSipId, occupantSipId, conferenceExtension, conferencePin);
+                                                        commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
                                                 sendRestRequest(restCallCommand);                                                    
                                             }
                                         }

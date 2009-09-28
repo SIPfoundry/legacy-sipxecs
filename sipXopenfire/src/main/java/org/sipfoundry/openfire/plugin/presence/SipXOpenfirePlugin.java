@@ -92,6 +92,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public class ConferenceInformation {
         private String extension;
+        private String name;
         private String pin;
 
         public String getExtension() {
@@ -110,7 +111,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             this.pin = pin;
         }
 
-        public ConferenceInformation(String extension, String pin) {
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public ConferenceInformation(String name, String extension, String pin) {
+            this.name = name;
             this.extension = extension;
             this.pin = pin;
         }
@@ -746,7 +756,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName,
-                new ConferenceInformation(conferenceExtension, password));
+                new ConferenceInformation(roomName, conferenceExtension, password));
 
     }
 
@@ -857,6 +867,22 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         boolean canOccupantsChangeSubject = Boolean.parseBoolean(attribs
                 .get("canOccupantsChangeSubject"));
         mucRoom.setCanOccupantsChangeSubject(canOccupantsChangeSubject);
+    }
+
+    public String getConferenceName(String domain, String roomName) throws NotFoundException {
+        MultiUserChatService mucService = this.multiUserChatManager
+                .getMultiUserChatService(domain);
+        MUCRoom mucRoom = mucService.getChatRoom(roomName);
+        if (mucRoom == null) {
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
+        ConferenceInformation confInfo = this.roomNameToConferenceInfoMap.get(domain + "."
+                + roomName);
+        ;
+        if (confInfo == null) {
+            throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
+        }
+        return confInfo.name;
     }
 
     public String getConferenceExtension(String domain, String roomName) throws NotFoundException {

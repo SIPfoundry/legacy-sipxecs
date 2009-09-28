@@ -20,6 +20,8 @@ public interface CallControllerParams {
     
     public static final String TIMEOUT = "timeout";
 
+    public static final String CONFERENCE_PIN = "confpin";
+
     public static final String RESULTCACHETIME = "resultCachetime";
 
 }

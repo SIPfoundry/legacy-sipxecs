@@ -18,6 +18,8 @@ import org.sipfoundry.sipxrest.SipHelper;
 
 public class CallControllerRestlet extends Restlet {
 
+    private static String CONF_BRIDGE_PIN_PARAM = "X-ConfPin";
+
     private static Logger logger = Logger.getLogger(CallControllerRestlet.class);
 
     private String getAddrSpec(String name) {
@@ -84,6 +86,11 @@ public class CallControllerRestlet extends Restlet {
             String key = agentAddr + ":" + callingParty + ":" + calledParty;
 
             logger.debug(String.format("method = %s key %s", httpMethod.toString(), key));
+
+            String conferencePin = (String) request.getAttributes().get(CallControllerParams.CONFERENCE_PIN);
+            if (conferencePin != null) {
+                calledParty += "?" + CONF_BRIDGE_PIN_PARAM + "=" + conferencePin;
+            }
 
             if (httpMethod.equals(Method.POST)) {
                 String fwdAllowed = (String) request.getAttributes().get(

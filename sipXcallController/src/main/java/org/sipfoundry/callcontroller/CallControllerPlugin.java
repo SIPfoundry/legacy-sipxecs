@@ -22,6 +22,7 @@ public class CallControllerPlugin extends Plugin {
         route.extractQuery(CallControllerParams.FORWARDING_ALLOWED, CallControllerParams.FORWARDING_ALLOWED, true);
         route.extractQuery(CallControllerParams.SUBJECT, CallControllerParams.SUBJECT, true);
         route.extractQuery(CallControllerParams.TIMEOUT, CallControllerParams.TIMEOUT, true);
+        route.extractQuery(CallControllerParams.CONFERENCE_PIN, CallControllerParams.CONFERENCE_PIN, true);
         route.extractQuery(CallControllerParams.RESULTCACHETIME, CallControllerParams.RESULTCACHETIME, true );
        
     }
