@@ -44,7 +44,7 @@ public class Bridge extends BeanWithSettings {
 
     private boolean m_enabled;
 
-    private Set m_conferences = new HashSet();
+    private Set<Conference> m_conferences = new HashSet<Conference>();
 
     private String m_audioDirectory;
 
@@ -98,11 +98,11 @@ public class Bridge extends BeanWithSettings {
         return getService().getLocation().getFqdn();
     }
 
-    public Set getConferences() {
+    public Set<Conference> getConferences() {
         return m_conferences;
     }
 
-    public void setConferences(Set conferences) {
+    public void setConferences(Set<Conference> conferences) {
         m_conferences = conferences;
     }
 

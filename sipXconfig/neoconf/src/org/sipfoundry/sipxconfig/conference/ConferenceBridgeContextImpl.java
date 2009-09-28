@@ -135,6 +135,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             Bridge bridge = conference.getBridge();
             bridge.removeConference(conference);
             bridges.add(bridge);
+            m_provisioning.deploy(bridge.getId());
         }
         getHibernateTemplate().saveOrUpdateAll(bridges);
     }

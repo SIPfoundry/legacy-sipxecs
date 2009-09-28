@@ -5,13 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 
-import org.apache.commons.io.FileUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.easymock.EasyMock;
@@ -21,13 +22,30 @@ import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class ConferenceConfigurationTest extends XMLTestCase {
+
+    private DomainManager m_domainManager;
+    private final Location m_location = new Location();
+    private final ConferenceConfiguration m_config = new ConferenceConfiguration();
 
     @Override
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
+
+        m_location.setFqdn("test.example.com");
+
+        Domain domain = new Domain("example.com");
+        IMocksControl control = EasyMock.createControl();
+        m_domainManager = control.createMock(DomainManager.class);
+        m_domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain);
+        EasyMock.replay(m_domainManager);
+
+        m_config.setDomainManager(m_domainManager);
+        m_config.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_config.setTemplate("sipxconference/conference.conf.xml.vm");
+
     }
 
     public void testGenerate() throws Exception {
@@ -49,6 +67,8 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_DOWN, "*");
         bridge.setSettingValue(Bridge.CALL_CONTROL_HANGUP, "0");
 
+        bridge.setAudioDirectory("/audioDirectory");
+
         Conference conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
@@ -66,42 +86,28 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         conf.setUniqueId();
         bridge.addConference(conf);
 
-        Domain domain = new Domain("example.com");
-        IMocksControl control = EasyMock.createControl();
-        DomainManager domainManager = control.createMock(DomainManager.class);
-        domainManager.getDomain();
-        EasyMock.expectLastCall().andReturn(domain);
-        EasyMock.replay(domainManager);
-
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
         confContext.getBridgeByServer("test.example.com");
-        EasyMock.expectLastCall().andReturn(bridge).anyTimes();
+        EasyMock.expectLastCall().andReturn(bridge).once();
         EasyMock.replay(confContext);
 
-        Location location = new Location();
-        location.setFqdn("test.example.com");
+        m_config.setConferenceBridgeContext(confContext);
 
-        ConferenceConfiguration config = new ConferenceConfiguration();
-        config.setDomainManager(domainManager);
-        config.setConferenceBridgeContext(confContext);
+        String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
+        InputStream referenceXml = getClass().getResourceAsStream("conference_config.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+    }
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(config, location);
-        /*
-         * We use two files for reversed order of the "profile" elements of the xml because the
-         * HashSet containing the conferences doesn't guarantee some specific order
-         */
-        String referenceXml = FileUtils.readFileToString(new File(TestUtil
-                .getTestSourceDirectory(ConferenceConfigurationTest.class), "conference_config.test.xml"));
-        String alternativeReferenceXml = FileUtils
-                .readFileToString(new File(TestUtil.getTestSourceDirectory(ConferenceConfigurationTest.class),
-                        "conference_config_alternative.test.xml"));
-        /*
-         * We trim all the \t \n and spaces from the xml strings in order for the comparison not
-         * to be ruined by different formatting
-         */
-        generatedXml = generatedXml.replace(" ", "").replace("\t", "").replace("\n", "");
-        referenceXml = referenceXml.replace(" ", "").replace("\t", "").replace("\n", "");
-        alternativeReferenceXml = alternativeReferenceXml.replace(" ", "").replace("\t", "").replace("\n", "");
-        assertTrue(generatedXml.equals(referenceXml) || generatedXml.equals(alternativeReferenceXml));
+    public void testGenerateNullBridge() throws Exception {
+        ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
+        confContext.getBridgeByServer("test.example.com");
+        EasyMock.expectLastCall().andReturn(null).once();
+        EasyMock.replay(confContext);
+
+        m_config.setConferenceBridgeContext(confContext);
+
+        String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
+        InputStream referenceXml = getClass().getResourceAsStream("conference_config_null_bridge.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
     }
 }

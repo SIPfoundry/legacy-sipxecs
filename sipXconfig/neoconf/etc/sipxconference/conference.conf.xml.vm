@@ -1,29 +1,30 @@
 <configuration name="conference.conf" description="sipX MeetMe Audio Conference">
-  <caller-controls>
-    <group name="sipx-default">
-      <control action="mute" digits="1"/>
-      <control action="deaf mute" digits="2"/>
-      <control action="energy up" digits="3"/>
-      <control action="energy equ" digits="4"/>
-      <control action="energy dn" digits="5"/>
-      <control action="vol talk up" digits="9"/>
-      <control action="vol talk zero" digits="#"/>
-      <control action="vol talk dn" digits="*"/>
-      <control action="vol listen up" digits="6"/>
-      <control action="vol listen zero" digits="7"/>
-      <control action="vol listen dn" digits="8"/>
-      <control action="hangup" digits="0"/>
-    </group>
-  </caller-controls>
-  <profiles>
+#if(${bridge})
+<caller-controls>
+<group name="sipx-default">
+<control action="mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_MUTE}")"/>
+<control action="deaf mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_DEAF_MUTE}")"/>
+<control action="energy up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_UP}")"/>
+<control action="energy equ" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_RESET}")"/>
+<control action="energy dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_DOWN}")"/>
+<control action="vol talk up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_UP}")"/>
+<control action="vol talk zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_RESET}")"/>
+<control action="vol talk dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_DOWN}")"/>
+<control action="vol listen up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_UP}")"/>
+<control action="vol listen zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_RESET}")"/>
+<control action="vol listen dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_DOWN}")"/>
+<control action="hangup" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_HANGUP}")"/>
+</group>
+</caller-controls>
+<profiles>
     <profile name="default">
-      <param name="domain" value="example.com"/>
+      <param name="domain" value="$domain.getName()"/>
       <param name="caller-controls" value="sipx-default"/>
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
+      <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>
@@ -43,14 +44,15 @@
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="0"/>
     </profile>
-    <profile name="234">
-      <param name="domain" value="example.com"/>
+#foreach($conference in $conferences)
+    <profile name="${conference.getExtension()}">
+      <param name="domain" value="$domain.getName()"/>
       <param name="caller-controls" value="sipx-default"/>
       <param name="rate" value="8000"/>
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
+      <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>
@@ -69,35 +71,12 @@
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="0"/>
-      <param name="max-members" value="4"/>
-    </profile>
-    <profile name="123">
-      <param name="domain" value="example.com"/>
-      <param name="caller-controls" value="sipx-default"/>
-      <param name="rate" value="8000"/>
-      <param name="interval" value="20"/>
-      <param name="energy-level" value="0"/>
-      <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
-      <param name="ack-sound" value="beep.wav"/>
-      <param name="nack-sound" value="beep.wav"/>
-      <param name="muted-sound" value="conf/mutingYourself.wav"/>
-      <param name="unmuted-sound" value="conf/unMutingYourself.wav"/>
-      <param name="alone-sound" value="conf/rollcallYouAreTheOnly.wav"/>
-      <param name="moh-sound" value="$${hold_music}"/>
-      <param name="enter-sound" value="conf/JoinTone.wav"/>
-      <param name="exit-sound" value="beep.wav"/>
-      <param name="kicked-sound" value="conf/ByeBye.wav"/>
-      <param name="locked-sound" value="conf/lockingConference.wav"/>
-      <param name="max-members-sound" value="conf/lockingConference.wav"/>
-      <param name="is-locked-sound" value="conf/lockingConference.wav"/>
-      <param name="is-unlocked-sound" value="beep.wav"/>
-      <param name="pin-sound" value="conf/confid.wav"/>
-      <param name="bad-pin-sound" value="conf/authfailed.wav"/>
-      <param name="caller-id-name" value="$${outbound_caller_name}"/>
-      <param name="caller-id-number" value="$${outbound_caller_id}"/>
-      <param name="comfort-noise" value="0"/>
-      <param name="max-members" value="0"/>
-    </profile>
-  </profiles>
+      #set($conf_max_members = ${conference.getSettingTypedValue(${Conference.MAX_LEGS})})
+      #if($conf_max_members)
+        <param name="max-members" value="$conf_max_members"/>
+      #end
+   </profile>
+#end
+</profiles>
+#end
 </configuration>

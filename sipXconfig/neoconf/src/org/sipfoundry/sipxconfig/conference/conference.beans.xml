@@ -54,11 +54,13 @@
   </bean>
 
   <bean id="conferenceConfiguration" class="org.sipfoundry.sipxconfig.conference.ConferenceConfiguration" scope="prototype"
-    parent="defaultConfigurationFile">
+    parent="serviceConfigurationFile">
     <property name="name" value="conference.conf.xml" />
+    <property name="template" value="sipxconference/conference.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
     <property name="domainManager" ref="domainManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="restartRequired" value="false" />
   </bean>
 
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -66,7 +68,6 @@
     <property name="target">
       <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
         <property name="sessionFactory" ref="sessionFactory" />
-        <lookup-method name="createConferenceConfiguration" bean="conferenceConfiguration" />
         <!-- eager replication here -->
         <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
         <property name="replicationContext" ref="sipxReplicationContextDao" />

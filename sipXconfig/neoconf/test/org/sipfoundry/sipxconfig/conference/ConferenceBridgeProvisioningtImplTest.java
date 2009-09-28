@@ -8,14 +8,13 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.isA;
@@ -53,18 +52,11 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         sc.replicateServiceConfig(location, service, true);
 
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
-        rc.replicate(same(location), isA(ConferenceConfiguration.class));
         rc.generate(DataSet.ALIAS);
 
         replay(ht, rc, sc, service);
 
-        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl() {
-            @Override
-            public ConferenceConfiguration createConferenceConfiguration() {
-                return new ConferenceConfiguration();
-            }
-        };
-
+        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(ht);
         impl.setReplicationContext(rc);
         impl.setServiceConfigurator(sc);

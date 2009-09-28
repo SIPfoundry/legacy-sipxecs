@@ -5,10 +5,10 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
-public interface ConferenceBridgeProvisioning  {
+public interface ConferenceBridgeProvisioning {
     void deploy(int bridgeId);
 }

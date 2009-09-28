@@ -23,7 +23,7 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
+      <param name="sound-prefix" value="/audioDirectory"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>
@@ -50,7 +50,7 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
+      <param name="sound-prefix" value="/audioDirectory"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>
@@ -78,7 +78,7 @@
       <param name="interval" value="20"/>
       <param name="energy-level" value="0"/>
       <param name="member-flags" value="waste"/>
-      <param name="sound-prefix"/>
+      <param name="sound-prefix" value="/audioDirectory"/>
       <param name="ack-sound" value="beep.wav"/>
       <param name="nack-sound" value="beep.wav"/>
       <param name="muted-sound" value="conf/mutingYourself.wav"/>

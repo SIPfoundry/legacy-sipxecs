@@ -474,6 +474,7 @@
         <ref bean="switchConfiguration" />
         <ref bean="logfileConfiguration" />
         <ref bean="localStreamConfiguration" />
+        <ref bean="conferenceConfiguration" />
       </list>
     </property>
     <property name="docDir" value="${sysdir.doc}" />
