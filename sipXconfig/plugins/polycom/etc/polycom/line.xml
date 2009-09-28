@@ -325,7 +325,7 @@
         <type>
           <integer min="1" />
         </type>
-        <value>60</value>
+        <value>55</value>
       </setting>
       <setting name="contact">
         <type />

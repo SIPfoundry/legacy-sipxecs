@@ -26,6 +26,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>IP_300_CodecPref</value>
+        <value>pre_3.2.0_model</value>
       </set>
     </property>
   </bean>
@@ -78,6 +79,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
+        <value>pre_3.2.0_model</value>
       </set>
     </property>
   </bean>
@@ -107,6 +109,7 @@
         <value>G711Mu_CodecPref</value>
         <value>G711A_CodecPref</value>
         <value>G729AB_CodecPref</value>
+        <value>pre_3.2.0_model</value>
       </set>
     </property>
   </bean>
@@ -144,6 +147,10 @@
         <value>G7221C</value>
         <value>Siren14</value>
         <value>video</value>
+
+        <!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500. -->
+        <value>pre_3.2.0_model</value>
+        <!-- Temporary. -->
       </set>
     </property>
   </bean>
@@ -157,6 +164,7 @@
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
         <value>IP_4000_CodecPref</value>
+        <value>pre_3.2.0_model</value>
       </set>
     </property>
   </bean>
@@ -195,6 +203,6 @@
   <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
     <property name="beanId" value="upload" />
     <property name="modelFilePath" value="polycom/upload.xml" />
-    <property name="label" value="Polycom Soundpoint" />
+    <property name="label" value="Polycom SoundPoint IP/SoundStation IP/VVX" />
   </bean>
 </beans>

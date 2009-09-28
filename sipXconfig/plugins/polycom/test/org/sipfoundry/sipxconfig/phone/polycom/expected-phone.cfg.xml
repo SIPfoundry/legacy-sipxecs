@@ -343,22 +343,22 @@
     />
     <noanswer
       divert.noanswer.1.enabled="0"
-      divert.noanswer.1.timeout="60"
+      divert.noanswer.1.timeout="55"
       divert.noanswer.1.contact=""
       divert.noanswer.2.enabled="0"
-      divert.noanswer.2.timeout="60"
+      divert.noanswer.2.timeout="55"
       divert.noanswer.2.contact=""
       divert.noanswer.3.enabled="0"
-      divert.noanswer.3.timeout="60"
+      divert.noanswer.3.timeout="55"
       divert.noanswer.3.contact=""
       divert.noanswer.4.enabled="0"
-      divert.noanswer.4.timeout="60"
+      divert.noanswer.4.timeout="55"
       divert.noanswer.4.contact=""
       divert.noanswer.5.enabled="0"
-      divert.noanswer.5.timeout="60"
+      divert.noanswer.5.timeout="55"
       divert.noanswer.5.contact=""
       divert.noanswer.6.enabled="0"
-      divert.noanswer.6.timeout="60"
+      divert.noanswer.6.timeout="55"
       divert.noanswer.6.contact=""
     />
     <dnd
@@ -484,6 +484,7 @@
   <attendant
     attendant.uri=""
     attendant.reg=""
+    attendant.behaviors.display.spontaneousCallAppearances.normal="0"
   />
   <roaming_buddies
     roaming_buddies.reg=""

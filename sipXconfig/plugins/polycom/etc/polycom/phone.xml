@@ -233,7 +233,7 @@
       <type>
         <integer min="96" max="127" />
       </type>
-      <value>101</value>
+      <value>127</value>
     </setting>
   </group>
   <group name="se">
@@ -1538,6 +1538,7 @@
       <setting name="net" copy-of="so" />
       <setting name="cfg" copy-of="so" />
       <setting name="cdp" copy-of="so" />
+      <setting name="lldp" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="pmt" copy-of="so" />
       <setting name="ftp" copy-of="so" />
       <setting name="ares" copy-of="so" />
@@ -1558,6 +1559,16 @@
       <setting name="ttrs" copy-of="so" />
       <setting name="usb" copy-of="so" />
       <setting name="srtp" copy-of="so" />
+      <setting name="clink" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="pnetm" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="peer" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="efk" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="ldap" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="cmr" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="cmp" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="usbio" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="pres" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="pwrsv" copy-of="so" unless="pre_3.2.0_model"/>
     </group>
     <group name="device.syslog" advanced="yes">
       <setting name="serverName.set" hidden="yes"> 
@@ -2175,7 +2186,13 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="lcs">
+      <setting name="use486forReject" advanced="yes" unless="pre_3.2.0_model">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+     </setting>
+     <setting name="lcs">
         <type>
           <boolean />
         </type>
@@ -2552,6 +2569,12 @@
     <setting name="reg">
       <type refid="reg-server-index" />
       <value />
+    </setting>
+    <setting name="behaviors.display.spontaneousCallAppearances.normal" advanced="yes" unless="pre_3.2.0_model">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
     </setting>
   </group>
   <group name="roaming_buddies">

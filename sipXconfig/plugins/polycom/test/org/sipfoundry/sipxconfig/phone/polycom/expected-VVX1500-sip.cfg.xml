@@ -15,6 +15,7 @@
     <SIP
       voIpProt.SIP.csta="0"
       voIpProt.SIP.useRFC2543hold="0"
+      voIpProt.SIP.use486forReject="1"
       voIpProt.SIP.lcs="0"
       voIpProt.SIP.useSendonlyHold="1"
       voIpProt.SIP.sendCompactHdrs="0"
@@ -125,7 +126,7 @@
       tone.dtmf.stim.pac.offHookOnly="0"
       tone.dtmf.viaRtp="1"
       tone.dtmf.rfc2833Control="1"
-      tone.dtmf.rfc2833Payload="101"
+      tone.dtmf.rfc2833Payload="127"
     />
   </tones>
   <sound_effects
@@ -418,6 +419,7 @@
         log.level.change.net="4"
         log.level.change.cfg="4"
         log.level.change.cdp="4"
+        log.level.change.lldp="4"
         log.level.change.pmt="4"
         log.level.change.ftp="4"
         log.level.change.ares="4"
@@ -438,6 +440,16 @@
         log.level.change.ttrs="4"
         log.level.change.usb="4"
         log.level.change.srtp="4"
+        log.level.change.clink="4"
+        log.level.change.pnetm="4"
+        log.level.change.peer="4"
+        log.level.change.efk="4"
+        log.level.change.ldap="4"
+        log.level.change.cmr="4"
+        log.level.change.cmp="4"
+        log.level.change.usbio="4"
+        log.level.change.pres="4"
+        log.level.change.pwrsv="4"
       />
     </level>
     <render
