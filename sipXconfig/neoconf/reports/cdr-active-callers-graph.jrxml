@@ -16,24 +16,33 @@
 
 	<title>
 		<band height="300" isSplitAllowed="true" >
+		        <frame>
+		                <reportElement mode="Opaque" x="0" y="-20" width="555" height="70" backcolor="#3FD8E3"/>
+
 			<line>
 				<reportElement x="0" y="0" width="555" height="1"/>
 				<graphicElement/>
 			</line>
 			<textField  isBlankWhenNull="true">
-				<reportElement x="0" y="10" width="550" height="30"/>
+				<reportElement x="125" y="10" width="300" height="30"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="22"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
 			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+			        <reportElement x="430" y="10" width="120" height="30"/>
+			        <textElement verticalAlignment="Middle" />
+			        <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
 			<textField  isBlankWhenNull="true">
-				<reportElement x="0" y="40" width="550" height="30"/>
+				<reportElement x="0" y="40" width="555" height="30"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="18"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{start} + " - " + $P{end}]]></textFieldExpression>
 			</textField>
+			</frame>
 			<image scaleImage="Clip" vAlign="Middle" hAlign="Center" isUsingCache="false" evaluationTime="Now">
 				<reportElement x="0" y="74" width="555" height="220" mode="Opaque"/>
 				<graphicElement/>
@@ -89,6 +98,11 @@
 				<reportElement x="0" y="10" width="555" height="1"/>
 				<graphicElement/>
 			</line>
+			<textField isBlankWhenNull="true">
+			        <reportElement x="0" y="20" width="195" height="15"/>
+			        <textElement />
+			        <textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+			</textField>
 			<textField hyperlinkType="None">
 				<reportElement x="200" y="20" width="80" height="15"/>
 				<textElement textAlignment="Right"/>
@@ -99,6 +113,11 @@
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[" " + String.valueOf($V{PAGE_NUMBER})]]></textFieldExpression>
 			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+			        <reportElement x="400" y="20" width="145" height="15"/>
+			        <textElement textAlignment="Right" verticalAlignment="Middle" />
+			        <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+		        </textField>
 		</band>
 	</pageFooter>
 </jasperReport>

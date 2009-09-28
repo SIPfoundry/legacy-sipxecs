@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.cdr;
 
 import java.util.Date;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Cdr {
@@ -42,6 +43,12 @@ public class Cdr {
     public static final String CALL_TANDEM = "TANDEM";
     public static final String CALL_INTERNAL = "INTERNAL";
     public static final String CALL_UNKNOWN = "UNKNOWN";
+    public static final String CALL_FAILED = "FAILED/ABANDONED";
+
+    public static final String CALL_LOCAL = "LOCAL";
+    public static final String CALL_MOBILE = "MOBILE";
+    public static final String CALL_EMERGENCY = "EMERGENCY";
+    public static final String CALL_CUST = "CUSTOM";
 
     private String m_callerAor;
     private String m_calleeAor;
@@ -170,33 +177,93 @@ public class Cdr {
 
     public String getCallDirection() {
         String direction = CALL_UNKNOWN;
-        if (m_callerInternal) {
+        if (getTermination() == Termination.FAILED) {
+            direction = CALL_FAILED;
+        } else if (m_callerInternal) {
             direction = CALL_OUTGOING;
             if (m_calleeRoute != null) {
-                if (m_calleeRoute.endsWith("INT")  
-                    || m_calleeRoute.endsWith("AA") 
-                    || m_calleeRoute.endsWith("VM") 
-                    || m_calleeRoute.endsWith("VMR")
-                    || m_calleeRoute.endsWith("AL")) {
+                if (m_calleeRoute.endsWith(CallTag.INT.toString())  
+                    || m_calleeRoute.endsWith(CallTag.AA.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.VM.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.VMR.toString())
+                    || m_calleeRoute.endsWith(CallTag.PAGE.toString())
+                    || m_calleeRoute.endsWith(CallTag.AL.toString())) {
                     direction = CALL_INTERNAL;
                 }
             }
         } else {
             direction = CALL_INCOMING;
             if (m_calleeRoute != null) {
-                if (m_calleeRoute.endsWith("STS") 
-                    || m_calleeRoute.endsWith("LD") 
-                    || m_calleeRoute.endsWith("TF") 
-                    || m_calleeRoute.endsWith("REST") 
-                    || m_calleeRoute.endsWith("LOCL") 
-                    || m_calleeRoute.endsWith("INTN") 
-                    || m_calleeRoute.endsWith("EMERG") 
-                    || m_calleeRoute.endsWith("CUST")) {
+                if (m_calleeRoute.endsWith(CallTag.STS.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.LD.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.TF.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.REST.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.LOCL.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.INTN.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.EMERG.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.MOB.toString()) 
+                    || m_calleeRoute.endsWith(CallTag.CUST.toString())) {
                     direction = CALL_TANDEM;
                 }
             }
         }
         return direction; 
+    }
+        
+    public String getCallTypeName() {
+        String callType = CallTag.UNK.getName();
+        if (m_calleeRoute.endsWith(CallTag.AA.toString())) {
+            callType = CallTag.AA.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.CUST.toString())) {
+            callType = CallTag.CUST.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.EMERG.toString())) {
+            callType = CallTag.EMERG.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.INTN.toString())) {
+            callType = CallTag.INTN.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.LD.toString())) {
+            callType = CallTag.LD.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.LOCL.toString())) {
+            callType = CallTag.LOCL.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.MOH.toString())) {
+            callType = CallTag.MOH.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.PAGE.toString())) {
+            callType = CallTag.PAGE.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.RL.toString())) {
+            callType = CallTag.RL.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.REST.toString())) {
+            callType = CallTag.REST.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.STS.toString())) {
+            callType = CallTag.STS.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.MOB.toString())) {
+            callType = CallTag.MOB.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.TF.toString())) {
+            callType = CallTag.TF.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.VM.toString())) {
+            callType = CallTag.VM.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.VMR.toString())) {
+            callType = CallTag.VMR.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.AL.toString())) {
+            callType = CallTag.AL.getName();
+        }
+        if (m_calleeRoute.endsWith(CallTag.INT.toString())) {
+            callType = CallTag.INT.getName();
+        }
+        return callType; 
     }
         
 

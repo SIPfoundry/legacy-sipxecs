@@ -14,20 +14,32 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
  * has been used to process the call.
  */
 public enum CallTag {
-    AA, // auto-attendant
-    CUST, // custom
-    EMERG, // emergency
-    INTN, // international
-    LD, // long distance
-    LOCL, // local
-    MOH, // music on hold
-    PAGE, // paging
-    RL, // resource list server
-    REST, // restricted dialing
-    STS, // site to site
-    MOB, // mobile
-    TF, // toll free
-    VM, // voicemail
-    VMR, // voicemail redirect
-    UNK; // unknown
+    AA("Auto Attendant"), // auto-attendant
+    CUST("Custom"), // custom
+    EMERG("Emergency"), // emergency
+    INTN("International"), // international
+    LD("Long Distance"), // long distance
+    LOCL("Local"), // local
+    MOH("Music on Hold"), // music on hold
+    PAGE("Page"), // paging
+    RL("Resource List"), // resource list server
+    REST("Restricted"), // restricted dialing
+    STS("Site-To-Site"), // site to site
+    MOB("Mobile"), // mobile
+    TF("Toll Free"), // toll free
+    VM("VoiceMail"), // voicemail
+    VMR("VoiceMail Redirect"), // voicemail redirect
+    AL("Alias"),  // Alias
+    INT("Internal"), // Internal
+    UNK("Unknown"); // unknown
+
+    private String m_name;
+ 
+    CallTag(String name) {
+        m_name = name;
+    }
+
+    public String getName() {
+        return m_name;
+    }
 }

@@ -92,11 +92,14 @@
 	</group>
 	<title>
 		<band height="80">
+                        <frame>
+                        <reportElement mode="Opaque" x="0" y="-20" width="555" height="80" backcolor="#3FD8E3"/>
+                                                         
 			<line>
-				<reportElement x="0" y="0" width="555" height="3"/>
+				<reportElement x="0" y="0" width="555" height="1"/>
 			</line>
 			<textField isBlankWhenNull="true">
-				<reportElement x="0" y="10" width="555" height="30"/>
+				<reportElement x="120" y="10" width="305" height="30"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="24"/>
 				</textElement>
@@ -109,9 +112,15 @@
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{start} + " - " + $P{end}]]></textFieldExpression>
 			</textField>
+                        <textField pattern="MMMMM dd, yyyy">
+                                <reportElement x="425" y="10" width="120" height="30"/>
+                                <textElement verticalAlignment="Middle" />
+                                <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+                        </textField>
 			<line>
-				<reportElement x="0" y="77" width="555" height="3"/>
+				<reportElement x="0" y="77" width="555" height="1"/>
 			</line>
+                        </frame>
 		</band>
 	</title>
 	<detail>
@@ -151,6 +160,11 @@
 			<line>
 				<reportElement x="0" y="10" width="555" height="1"/>
 			</line>
+			<textField isBlankWhenNull="true">
+			       <reportElement x="0" y="20" width="195" height="15"/>
+			       <textElement />
+			       <textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+			</textField>
 			<textField>
 				<reportElement x="200" y="20" width="80" height="15"/>
 				<textElement textAlignment="Right"/>
@@ -160,6 +174,11 @@
 				<reportElement x="280" y="20" width="75" height="15"/>
 				<textElement/>
 				<textFieldExpression class="java.lang.String"><![CDATA[" " + String.valueOf($V{PAGE_NUMBER})]]></textFieldExpression>
+			</textField>
+                        <textField pattern="MMMMM dd, yyyy">
+                                <reportElement x="400" y="20" width="145" height="15"/>
+                                <textElement verticalAlignment="Middle" />
+                                <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
 			</textField>
 		</band>
 	</pageFooter>

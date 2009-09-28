@@ -126,12 +126,20 @@ class State
     end    
   end
   
-  # Some special calls (i.e. to music on hold) we don't want to report on. If the cdr
+  # Filter out calls that are simply chains of another call (i.e. via B2BUA).
+  # The detection of chained calls is done by checking for a reference which indicates chaining.
+  def filter_cdr_chained(cdr)
+     if cdr.reference && cdr.reference.include?("rel=chain")
+        return true
+     end
+     return false
+  end
+
+  # Some special user calls (i.e. to music on hold) we don't want to report on. If the cdr
   # involves one of these special identities then return that it should be ignored/filtered.
-  def filter_cdr(cdr)
+  def filter_cdr_user(cdr)
      to_id = cdr.callee_aor
      user = Utils.contact_user(to_id)
-     @log.info("User part of to_id is: #{user}") if @log
      if @filtered_identities.include?(user)
         return true
      end
@@ -209,6 +217,6 @@ class State
   def notify(cdr)
     cdr.retire
     @retired_calls[cdr.call_id] = @generation
-    @cdr_queue << cdr  if !filter_cdr(cdr)
+    @cdr_queue << cdr  if !filter_cdr_user(cdr) && !filter_cdr_chained(cdr)
   end
 end

@@ -46,6 +46,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultKeyedValuesDataset;
 import org.jfree.data.general.DefaultPieDataset;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.cdr.CdrGraphBean;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl;
@@ -59,6 +60,7 @@ import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.jasperreports.JasperReportContext;
 import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrCallDirectionDecorator;
+import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrCallLongDistanceDecorator;
 import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrCallerDecorator;
 import org.sipfoundry.sipxconfig.site.cdr.decorators.CdrDecorator;
 
@@ -354,17 +356,24 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
     }
 
     // Get data for CDR Long Distance report
-    private List<CdrDecorator> getLongDistanceReportData(List<Cdr> cdrs, Locale locale) {
+    private List<CdrCallLongDistanceDecorator> getLongDistanceReportData(List<Cdr> cdrs, Locale locale) {
         String calleeroute;
 
-        List<CdrDecorator> cdrsData = new ArrayList<CdrDecorator>();
+        List<CdrCallLongDistanceDecorator> cdrsData = new ArrayList<CdrCallLongDistanceDecorator>();
         for (Cdr cdr : cdrs) {
             calleeroute = cdr.getCalleeRoute();
-            if ((calleeroute != null) && (calleeroute.endsWith("LD"))) {
-                CdrDecorator cdrDecorator = new CdrDecorator(cdr, locale, getMessages());
-                cdrsData.add(cdrDecorator);
+            if ((calleeroute != null) 
+                && (calleeroute.endsWith(CallTag.LD.toString())
+                 || calleeroute.endsWith(CallTag.INTN.toString())
+                 || calleeroute.endsWith(CallTag.REST.toString())
+                 || calleeroute.endsWith(CallTag.TF.toString()))
+            ) {
+                CdrCallLongDistanceDecorator cdrLongDistanceDecorator = 
+                    new CdrCallLongDistanceDecorator(cdr, locale, getMessages());
+                cdrsData.add(cdrLongDistanceDecorator);
             }
         }
+        Collections.sort(cdrsData);
         return cdrsData;
     }
 

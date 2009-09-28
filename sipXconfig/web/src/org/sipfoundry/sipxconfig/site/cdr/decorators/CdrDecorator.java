@@ -82,4 +82,12 @@ public class CdrDecorator implements Serializable {
     public String getCallDirection() {
         return m_cdr.getCallDirection();
     }
+
+    public String getCalleeRoute() {
+        return m_cdr.getCalleeRoute();
+    }
+
+    public String getCallTypeName() {
+        return m_cdr.getCallTypeName();
+    }
 }
