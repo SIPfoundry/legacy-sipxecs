@@ -11,6 +11,8 @@ Url: http://www.sipfoundry.org
 
 Source: %name-%version.tar.gz
 
+Obsoletes: sipxvxml
+
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
 

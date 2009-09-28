@@ -19,7 +19,6 @@ Requires: sipxproxy >= %version
 Requires: sipxregistry >= %version
 Requires: sipxconfig >= %version
 Requires: sipxpublisher >= %version
-Requires: sipxvxml >= %version
 Requires: sipxpage >= %version
 Requires: sipxacd >= %version
 Requires: sipxproxy-cdr >= %version
@@ -59,7 +58,6 @@ Summary: Internal documentation for %name
 Requires: sipxproxy-devel >= %version
 Requires: sipxregistry-devel >= %version
 Requires: sipxpublisher-devel >= %version
-Requires: sipxvxml-devel >= %version
 Requires: sipxacd-devel >= %version
 
 %description devel

@@ -61,16 +61,12 @@ sipXproxy : sipXcommserverLib
 sipXconfig : sipXcommons
 	@echo sipXconfig
 
-.PHONY: sipXvxml
-sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
-	@echo sipXvxml
-
 .PHONY: sipXacd
 sipXacd : sipXcallLib
 	@echo sipXacd
 
 .PHONY: sipXpbx
-sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
+sipXpbx : sipXproxy sipXregistry sipXpublisher sipXconfig
 	@echo sipXpbx
 
 .PHONY: sipXsupervisor
@@ -115,7 +111,6 @@ sipXecs : \
 	sipXregistry \
 	sipXpublisher \
 	sipXsaa \
-	sipXvxml \
 	sipXconfig \
 	sipXfreeSwitch \
 	sipXpbx \
