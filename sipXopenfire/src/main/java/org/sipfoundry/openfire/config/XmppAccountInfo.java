@@ -44,6 +44,7 @@ public class XmppAccountInfo {
         String sipUserName = xmppUserAccount.getSipUserName();
         logger.debug("setSipId " + jid + " sipUserName " + sipUserName);
         plugin.setSipId(jid, sipUserName);
+        plugin.setOnThePhoneMessage(sipUserName, xmppUserAccount.getOnThePhoneMessage());
         this.userAccounts.put(xmppUserAccount.getUserName(), xmppUserAccount);
 
     }

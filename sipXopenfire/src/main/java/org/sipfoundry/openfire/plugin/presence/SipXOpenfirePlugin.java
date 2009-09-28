@@ -426,7 +426,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             user.setPassword(password);
             user.setName(displayName);
             user.setEmail(email);
-user.getRoster().createRosterItem(new JID("403_conf@conference.rjolyscs2.ca.nortel.com"), true, true);            
         } catch (UserNotFoundException e) {
             try {
                 userManager.createUser(userName, password, displayName, email);
