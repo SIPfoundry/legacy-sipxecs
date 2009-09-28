@@ -825,6 +825,10 @@ UtlBoolean SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResp
        }
        else if (notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
        {
+          OsSysLog::add(FAC_SIP, PRI_WARNING,
+                        "SipSubscribeServer::handleNotifyResponse "
+                        "Terminating subscription due to %d response. Handle: %s",
+                        responseCode, dialogHandle.data());
           // Not modifying the SubscribeServerEventData, just reading it
           lockForRead();
 
