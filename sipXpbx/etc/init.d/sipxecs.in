@@ -212,8 +212,8 @@ configtest() { # process-name  process-wd  process-command
         status=1
     fi
 
-    test $status -eq 0 && echo "    OK"
-    # This assures that our return is either 0 or 1, regardless of what
+    test $status -eq 0
+    # This ensures that our return is either 0 or 1, regardless of what
     # $status was.
     return $?
 }
