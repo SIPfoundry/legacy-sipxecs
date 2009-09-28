@@ -149,7 +149,9 @@ public class PhonebookManagerTest extends TestCase {
     public void testGetCsvFile() throws Exception {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         VcardParserImpl impl = new VcardParserImpl();
-        context.setCsvParser(new CsvParserImpl());
+        CsvParserImpl csvParser = new CsvParserImpl();
+        csvParser.setSkipHeaderLine(false);
+        context.setCsvParser(csvParser);
         impl.setTelType("work");
         context.setVcardParser(impl);
         context.setCvsEncoding("UTF-8");
@@ -162,11 +164,12 @@ public class PhonebookManagerTest extends TestCase {
 
     public void testGetVCardFile() throws Exception {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
+        CsvParserImpl csvParser = new CsvParserImpl();
+        csvParser.setSkipHeaderLine(false);
+        context.setCsvParser(csvParser);
         VcardParserImpl impl = new VcardParserImpl();
-        context.setCsvParser(new CsvParserImpl());
         impl.setTelType("work");
         context.setVcardParser(impl);
-        context.setCvsEncoding("UTF-8");
         context.setVcardEncoding("US-ASCII");
 
         Phonebook phonebook1 = new Phonebook();

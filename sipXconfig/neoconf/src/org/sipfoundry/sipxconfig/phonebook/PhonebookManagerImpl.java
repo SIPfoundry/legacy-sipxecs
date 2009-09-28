@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
@@ -28,6 +28,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.collections.Closure;
@@ -178,8 +179,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public Phonebook getPrivatePhonebook(User user) {
         String query = "privatePhoneBookByUser";
-        List<Phonebook> privateBooks = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                query, PARAM_USER_ID, user.getId());
+        List<Phonebook> privateBooks = getHibernateTemplate().findByNamedQueryAndNamedParam(query, PARAM_USER_ID,
+                user.getId());
         return requireOneOrZero(privateBooks, query);
     }
 
@@ -227,9 +228,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void addEntriesFromFile(Map<String, PhonebookEntry> entries, InputStream in, String encoding,
-            BulkParser parser) throws IOException {
+            BulkParser parser, boolean extractHeader) throws IOException {
         Reader fileReader = new InputStreamReader(in, encoding);
-        parser.parse(fileReader, new PhonebookEntryMaker(entries));
+        parser.parse(fileReader, new PhonebookEntryMaker(entries, extractHeader));
     }
 
     /**
@@ -349,17 +350,61 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class PhonebookEntryMaker implements Closure {
         private final Map<String, PhonebookEntry> m_entries;
+        private PhonebookFileEntryHelper m_header = new InternalPhonebookCsvHeader();
+        private boolean m_extractHeader;
 
-        PhonebookEntryMaker(Map entries) {
+        PhonebookEntryMaker(Map entries, boolean extractHeader) {
             m_entries = entries;
+            m_extractHeader = extractHeader;
         }
 
         public void execute(Object input) {
-            String[] row = (String[]) input;
-            PhonebookEntry entry = new StringArrayPhonebookEntry(row);
-            m_entries.put(entry.getNumber(), entry);
+            if (m_extractHeader) {
+                Map<String, Integer> header = extractHeader(input);
+                m_header = findHeaderType(header);
+                m_extractHeader = false;
+            } else {
+                String[] row = (String[]) input;
+                PhonebookEntry entry = new StringArrayPhonebookEntry(m_header, row);
+                m_entries.put(entry.getNumber(), entry);
+            }
         }
 
+        /**
+         * Attempt to guess is this is Outlook of GMail generated CSV file.
+         *
+         * It's based on looking for specific words in header line ('yomi' for GMail and 'tty/tdd
+         * phone' for Outlook. Would be nice to have a better method for that.
+         *
+         */
+        private PhonebookFileEntryHelper findHeaderType(Map<String, Integer> header) {
+            if (header == null) {
+                return new InternalPhonebookCsvHeader();
+            }
+
+            // searching for a "yomi" word in the header to see if it is a gmail header
+            // or searching for a "tty/tdd phone" word in the header to see if it is an
+            // outlook header
+            Set<String> keySet = header.keySet();
+            for (String key : keySet) {
+                if (key.toLowerCase().contains("yomi")) {
+                    return new GmailPhonebookCsvHeader(header);
+                }
+                if (key.toLowerCase().contains("tty/tdd phone")) {
+                    return new OutlookPhonebookCsvHeader(header);
+                }
+            }
+            return new InternalPhonebookCsvHeader();
+        }
+
+        private Map<String, Integer> extractHeader(Object input) {
+            String[] row = (String[]) input;
+            Map<String, Integer> header = new HashMap<String, Integer>();
+            for (int i = 0; i < row.length; i++) {
+                header.put(row[i], i);
+            }
+            return header;
+        }
     }
 
     /**
@@ -367,62 +412,34 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      */
     public static class StringArrayPhonebookEntry implements PhonebookEntry {
         private final String[] m_row;
+        private final PhonebookFileEntryHelper m_helper;
 
         StringArrayPhonebookEntry(String... row) {
+            this(new InternalPhonebookCsvHeader(), row);
+        }
+
+        StringArrayPhonebookEntry(PhonebookFileEntryHelper helper, String... row) {
             if (row.length < 3) {
                 throw new UserException("&msg.invalidPhonebookFormat");
             }
             m_row = row;
+            m_helper = helper;
         }
 
         public String getFirstName() {
-            return m_row[0];
+            return m_helper.getFirstName(m_row);
         }
 
         public String getLastName() {
-            return m_row[1];
+            return m_helper.getLastName(m_row);
         }
 
         public String getNumber() {
-            return m_row[2];
+            return m_helper.getNumber(m_row);
         }
 
         public AddressBookEntry getAddressBookEntry() {
-            if (m_row.length < 25) {
-                return null;
-            }
-
-            AddressBookEntry abe = new AddressBookEntry();
-            abe.setJobTitle(m_row[3]);
-            abe.setJobDept(m_row[4]);
-            abe.setCompanyName(m_row[5]);
-            abe.setAssistantName(m_row[6]);
-            abe.setCellPhoneNumber(m_row[7]);
-            abe.setHomePhoneNumber(m_row[8]);
-            abe.setAssistantPhoneNumber(m_row[9]);
-            abe.setFaxNumber(m_row[10]);
-            abe.setImId(m_row[11]);
-            abe.setAlternateImId(m_row[12]);
-            abe.setLocation(m_row[13]);
-
-            Address homeAddress = new Address();
-            homeAddress.setCity(m_row[14]);
-            homeAddress.setCountry(m_row[15]);
-            homeAddress.setState(m_row[16]);
-            homeAddress.setStreet(m_row[17]);
-            homeAddress.setZip(m_row[18]);
-            abe.setHomeAddress(homeAddress);
-
-            Address officeAddress = new Address();
-            officeAddress.setCity(m_row[19]);
-            officeAddress.setCountry(m_row[20]);
-            officeAddress.setState(m_row[21]);
-            officeAddress.setStreet(m_row[22]);
-            officeAddress.setZip(m_row[23]);
-            officeAddress.setOfficeDesignation(m_row[24]);
-            abe.setOfficeAddress(officeAddress);
-
-            return abe;
+            return m_helper.getAddressBookEntry(m_row);
         }
     }
 
@@ -505,9 +522,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         BufferedInputStream in = new BufferedInputStream(is);
         if (isVcard(in)) {
-            addEntriesFromFile(entries, in, m_vcardEncoding, m_vcardParser);
+            addEntriesFromFile(entries, in, m_vcardEncoding, m_vcardParser, false);
         } else {
-            addEntriesFromFile(entries, in, m_csvEncoding, m_csvParser);
+            addEntriesFromFile(entries, in, m_csvEncoding, m_csvParser, true);
         }
 
         List<PhonebookEntry> entriesList = new ArrayList(entries.values());

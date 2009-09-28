@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
@@ -103,7 +103,7 @@ public class CsvParserImplTest extends TestCase {
             }
         };
         parser.parse(new InputStreamReader(cutsheet), add);
-        // there are 6 rows - we expect that the header row is always skipped
+        // there are 6 rows - we expect that the header row is skipped
         assertEquals(NAMES.length, rows.size());
         for (int i = 0; i < NAMES.length; i++) {
             Object item = rows.get(i);

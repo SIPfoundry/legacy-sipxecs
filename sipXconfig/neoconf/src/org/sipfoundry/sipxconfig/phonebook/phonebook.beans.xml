@@ -20,11 +20,15 @@
     <property name="telType" value="work" />
   </bean>
 
+  <bean id="phonebookCsvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl">
+    <property name="skipHeaderLine" value="false" />
+  </bean>
+
   <bean id="phonebookManagerImpl" class="org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContext" />
     <property name="phonebookManagementEnabled" value="true" />
-    <property name="csvParser" ref="csvParser" />
+    <property name="csvParser" ref="phonebookCsvParser" />
     <property name="vcardParser" ref="vcardParser" />
     <property name="vcardWriter" ref="vcardWriter" />
     <property name="vcardEncoding" value="UTF-8" />

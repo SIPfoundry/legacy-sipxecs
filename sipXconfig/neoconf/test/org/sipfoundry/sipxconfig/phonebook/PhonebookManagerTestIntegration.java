@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
@@ -101,18 +101,41 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
         Phonebook p = m_phonebookManager.getPhonebook(new Integer(2001));
 
+        // testing Gmail CSV file import
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_gmail.csv"));
+
+        // testing Outlook CSV file import
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_outlook.csv"));
+
         // testing CSV file import
         m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook.csv"));
 
         // testing vCard file import
-        m_phonebookManager.addEntriesFromFile(2001,  getClass().getResourceAsStream("phonebook.vcf"));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook.vcf"));
 
         Collection<PhonebookEntry> entries = m_phonebookManager.getEntries(p);
         Iterator<PhonebookEntry> it = entries.iterator();
 
-        assertEquals(2, entries.size());
-        assertEquals("Abe", it.next().getFirstName());
-        assertEquals("William", it.next().getFirstName());
+        assertEquals(4, entries.size());
+        PhonebookEntry entry1 = it.next();
+        assertEquals("Abe", entry1.getFirstName());
+        assertEquals("Lincoln", entry1.getLastName());
+        assertEquals("12345", entry1.getNumber());
+
+        PhonebookEntry entry2 = it.next();
+        assertEquals("Zack", entry2.getFirstName());
+        assertEquals("McCracken", entry2.getLastName());
+        assertEquals("66667", entry2.getNumber());
+
+        PhonebookEntry entry3 = it.next();
+        assertEquals("William", entry3.getFirstName());
+        assertEquals("Riker", entry3.getLastName());
+        assertEquals("1234", entry3.getNumber());
+
+        PhonebookEntry entry4 = it.next();
+        assertEquals("John", entry4.getFirstName());
+        assertEquals("Wayne", entry4.getLastName());
+        assertEquals("5555", entry4.getNumber());
     }
 
     public void testDeletePhonebooks() throws Exception {

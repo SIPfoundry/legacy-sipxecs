@@ -1,11 +1,11 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * $
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.bulk.BulkParser;
 /**
  * Very simple CSV parser. Always skips headers, field quote is optional and only matters on field
  * boundaries. Field separator is ignored inside of field quote
- * 
+ *
  * TODO: Switch to commons CSV parser once it's available
  */
 public class CsvParserImpl implements BulkParser {
@@ -34,6 +34,8 @@ public class CsvParserImpl implements BulkParser {
      * well
      */
     private static final int DEFAULT_FIELD_COUNT = 32;
+
+    private boolean m_skipHeaderLine = true;
 
     public List parse(Reader csv) {
         final List result = new ArrayList();
@@ -49,8 +51,11 @@ public class CsvParserImpl implements BulkParser {
     public void parse(Reader csv, Closure closure) {
         try {
             BufferedReader reader = new BufferedReader(csv);
-            // skip header
-            String line = reader.readLine();
+            String line;
+            if (m_skipHeaderLine) {
+                // skip header
+                line = reader.readLine();
+            }
             // read remaining file
             while ((line = reader.readLine()) != null) {
                 String[] row = parseLine(line);
@@ -105,5 +110,9 @@ public class CsvParserImpl implements BulkParser {
     private void addField(List row, String line, int startIndex, int endIndex) {
         String field = line.substring(startIndex, endIndex);
         row.add(field);
+    }
+
+    public void setSkipHeaderLine(boolean skipHeaderLine) {
+        m_skipHeaderLine = skipHeaderLine;
     }
 }
