@@ -51,7 +51,7 @@ static UtlString smClientSubEstablishedDialog;
 static SipMessage* smLastClientSubResponseReceived;
 
 // NOTIFY callback.
-static void notifyCallback(const char* earlyDialogHandle,
+static bool notifyCallback(const char* earlyDialogHandle,
                            const char* dialogHandle,
                            void* applicationData,
                            const SipMessage* notifyRequest)
@@ -67,6 +67,7 @@ static void notifyCallback(const char* earlyDialogHandle,
       smLastClientNotifyReceived = new SipMessage(*notifyRequest);
       smClientNotifyEarlyDialog = earlyDialogHandle;
       smClientNotifyEstablishedDialog = dialogHandle;
+      return true;
    };
 
 // SUBSCRIBE callback.

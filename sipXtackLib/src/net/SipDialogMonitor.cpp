@@ -409,7 +409,7 @@ void SipDialogMonitor::subscriptionStateCallback(SipSubscribeClient::Subscriptio
 
 
 // Callback to handle incoming NOTIFYs.
-void SipDialogMonitor::notifyEventCallback(const char* earlyDialogHandle,
+bool SipDialogMonitor::notifyEventCallback(const char* earlyDialogHandle,
                                            const char* dialogHandle,
                                            void* applicationData,
                                            const SipMessage* notifyRequest)
@@ -419,6 +419,8 @@ void SipDialogMonitor::notifyEventCallback(const char* earlyDialogHandle,
    SipDialogMonitor* pThis = (SipDialogMonitor *) applicationData;
 
    pThis->handleNotifyMessage(notifyRequest, earlyDialogHandle, dialogHandle);
+
+   return true;
 }
 
 

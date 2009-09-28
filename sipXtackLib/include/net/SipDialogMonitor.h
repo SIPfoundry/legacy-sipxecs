@@ -127,7 +127,7 @@ class SipDialogMonitor
                                          const SipMessage* subscribeResponse);
 
    /// Callback to handle incoming NOTIFYs.
-   static void notifyEventCallback(const char* earlyDialogHandle,
+   static bool notifyEventCallback(const char* earlyDialogHandle,
                                    const char* dialogHandle,
                                    void* applicationData,
                                    const SipMessage* notifyRequest);

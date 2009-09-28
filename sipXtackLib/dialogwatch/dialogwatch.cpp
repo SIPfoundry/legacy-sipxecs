@@ -70,7 +70,7 @@ void subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
 
 
 // Callback to handle incoming NOTIFYs.
-void notifyEventCallback(const char* earlyDialogHandle,
+bool notifyEventCallback(const char* earlyDialogHandle,
                          const char* dialogHandle,
                          void* applicationData,
                          const SipMessage* notifyRequest)
@@ -93,6 +93,7 @@ void notifyEventCallback(const char* earlyDialogHandle,
       // Make sure the event notice is written promptly.
       fflush(stdout);
    }
+   return true;
 }
 
 

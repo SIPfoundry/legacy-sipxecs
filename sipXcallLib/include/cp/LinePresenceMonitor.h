@@ -181,7 +181,7 @@ protected:
                                          long expiration,
                                          const SipMessage* subscribeResponse);
 
-   static void notifyEventCallback(const char* earlyDialogHandle,
+   static bool notifyEventCallback(const char* earlyDialogHandle,
                                    const char* dialogHandle,
                                    void* applicationData,
                                    const SipMessage* notifyRequest);

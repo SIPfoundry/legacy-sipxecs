@@ -1516,6 +1516,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 
     // Construct the response based on the request's status.
     SipMessage subscriptionResponse;
+    UtlBoolean bSendResponse = true;
 
     switch (sequence)
     {
@@ -1569,13 +1570,16 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        {
           if (dialogState->mpGroupState->mpNotifyCallback)
           {
-             dialogState->mpGroupState->mpNotifyCallback(dialogState->mpGroupState->data(),
+             bSendResponse = dialogState->mpGroupState->mpNotifyCallback(dialogState->mpGroupState->data(),
                                                          dialogState->data(),
                                                          dialogState->mpGroupState->mpApplicationData,
                                                          &notifyRequest);
           }
-          // Send an OK response; this NOTIFY matched a subscription state.
-          subscriptionResponse.setOkResponseData(&notifyRequest);
+          if (bSendResponse)
+          {
+             // Send an OK response; this NOTIFY matched a subscription state.
+             subscriptionResponse.setOkResponseData(&notifyRequest);
+          }
 
           // If the NOTIFY says the state is terminated, end the subscription.
           if (terminated)
@@ -1652,8 +1656,11 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
        break;
     }
 
-    // Send the response.
-    mpUserAgent->send(subscriptionResponse);
+    if (bSendResponse)
+    {
+       // Send the response.
+       mpUserAgent->send(subscriptionResponse);
+    }
 }
 
 void SipSubscribeClient::addGroupState(SubscriptionGroupState* groupState)

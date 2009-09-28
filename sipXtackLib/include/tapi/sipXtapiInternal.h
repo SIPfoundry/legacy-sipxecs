@@ -442,7 +442,7 @@ void sipxSubscribeClientSubCallback(enum SipSubscribeClient::SubscriptionState n
 /**
  * Callback for subscription client NOTIFY content
  */
-void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
+bool sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
                                      const char* dialogHandle,
                                      void* applicationData,
                                      const SipMessage* notifyRequest);

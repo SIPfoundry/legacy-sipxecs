@@ -380,7 +380,7 @@ void ResourceListSet::subscriptionEventCallbackSync(
 
 // Callback routine for NOTIFY events.
 // Called as a callback routine.
-void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
+bool ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
                                                const char* dialogHandle,
                                                void* applicationData,
                                                const SipMessage* notifyRequest)
@@ -410,6 +410,7 @@ void ResourceListSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    resourceListSet->getResourceListServer()->getResourceListTask().
       postMessageP(new NotifyCallbackMsg(dialogHandle, b, l));
 
+   return true;
 }
 
 // Callback routine for NOTIFY events.

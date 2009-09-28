@@ -631,7 +631,7 @@ void sipxSubscribeClientSubCallback(SipSubscribeClient::SubscriptionState newSta
 }
 
 
-void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
+bool sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
                                      const char* dialogHandle,
                                      void* applicationData,
                                      const SipMessage* notifyRequest)
@@ -690,6 +690,7 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
             "sipxSubscribeClientNotifyCallback: cannot find subscription data for handle: %p",
             applicationData);
     }
+    return true;
 }
 
 void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type)

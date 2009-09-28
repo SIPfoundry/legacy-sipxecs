@@ -158,7 +158,7 @@ class ResourceListSet : public UtlContainableAtomic
    //  May be called externally.
    //  Queues a message for the ResourceListTask to do the work.
    //  Can be called as a callback routine.
-   static void notifyEventCallbackAsync(const char* earlyDialogHandle,
+   static bool notifyEventCallbackAsync(const char* earlyDialogHandle,
                                         const char* dialogHandle,
                                         void* applicationData,
                                         const SipMessage* notifyRequest);

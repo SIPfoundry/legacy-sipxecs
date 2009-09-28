@@ -266,7 +266,7 @@ void AppearanceGroupSet::subscriptionEventCallbackSync(
 
 // Callback routine for NOTIFY events.
 // Called as a callback routine.
-void AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
+bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
                                                const char* dialogHandle,
                                                void* applicationData,
                                                const SipMessage* notifyRequest)
@@ -296,10 +296,14 @@ void AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    NotifyCallbackMsg msg(dialogHandle, b, l);
    appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
       postMessage(msg);
+
+   // do NOT send an OK response
+   return false;
 }
 
 // Callback routine for NOTIFY events.
 // Called by AppearanceGroupTask.
+// This callback MUST send a response, as we told the SipSubscribeClient not to.
 void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                                               const UtlString* content)
 {

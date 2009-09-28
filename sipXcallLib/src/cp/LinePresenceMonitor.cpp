@@ -269,7 +269,7 @@ void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::Subscrip
 }
 
 
-void LinePresenceMonitor::notifyEventCallback(const char* earlyDialogHandle,
+bool LinePresenceMonitor::notifyEventCallback(const char* earlyDialogHandle,
                                               const char* dialogHandle,
                                               void* applicationData,
                                               const SipMessage* notifyRequest)
@@ -278,6 +278,7 @@ void LinePresenceMonitor::notifyEventCallback(const char* earlyDialogHandle,
    LinePresenceMonitor* pThis = (LinePresenceMonitor *) applicationData;
 
    pThis->handleNotifyMessage(notifyRequest);
+   return true;
 }
 
 
