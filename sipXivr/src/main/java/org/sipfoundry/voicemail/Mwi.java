@@ -49,6 +49,20 @@ public class Mwi {
                 numNew > 0 ? "yes":"no", numNew, numOld, numNewUrgent, numOldUrgent);
     }
 
+    public static String formatRFC3842(Messages messages) {
+        int heard = 0;
+        int unheard = 0;
+        int heardUrgent = 0;
+        int unheardUrgent = 0;
+
+        synchronized (messages) {
+            heard = messages.getHeardCount();
+            unheard = messages.getUnheardCount();
+            // No support for urgent messages at this time
+        }
+        return formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
+    }
+    
     /**
      * Send MWI info to the Status Server (which in turn sends it to interested parties via SIP NOTIFY)
      * (Loads up messages)
@@ -71,19 +85,10 @@ public class Mwi {
             return ;
         }
 
-        int heard = 0;
-        int unheard = 0;
-        int heardUrgent = 0;
-        int unheardUrgent = 0;
         String idUri = mailbox.getUser().getIdentity();
 
-        synchronized (messages) {
-            heard = messages.getHeardCount();
-            unheard = messages.getUnheardCount();
-            // No support for urgent messages at this time
-        }
-
-        LOG.info(String.format("Mwi::SendMWI %s %d/%d", idUri, unheard, heard));
+        LOG.info(String.format("Mwi::SendMWI %s", idUri));
+        
         // URL of Status Server
         String mwiUrlString = IvrConfiguration.get().getMwiUrl();
         URL mwiUrl;
@@ -91,7 +96,7 @@ public class Mwi {
             mwiUrl = new URL(mwiUrlString);
             String content = "eventType=message-summary&" + "identity=" + 
                 URLEncoder.encode(idUri, "UTF-8") + "\r\n" + 
-            formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
+                formatRFC3842(messages);
             RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
             if (!rr.http()) {
                 LOG.error("Mwi::sendMWI Trouble with RemoteRequest "+rr.getResponse());

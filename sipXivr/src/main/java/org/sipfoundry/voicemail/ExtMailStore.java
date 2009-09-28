@@ -325,6 +325,25 @@ public class ExtMailStore {
         }
     }
 
+    public static void MarkNew(String mbxId, String msgId) {
+
+        IMAPConnection conn = Connection(mbxId);
+        if (conn != null) {
+            if (!conn.m_synching) {
+                IMAPMessage msg = GetMsg(conn.m_infolder, msgId);
+
+                if (msg != null) {
+                    try {
+                        msg.setFlag(Flag.SEEN, false);
+                        msg.setFlag(Flag.DELETED, false);
+                    } catch (MessagingException e) {
+                        LogError("MarkNew", mbxId, e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
     public static void MarkDeleted(String mbxId, String msgId) {
 
         IMAPConnection conn = Connection(mbxId);

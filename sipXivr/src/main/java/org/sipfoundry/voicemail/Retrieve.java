@@ -43,7 +43,8 @@ public class Retrieve {
     FreeSwitchEventSocketInterface m_fses;
     Mailbox m_mailbox;
     Messages m_messages;
-    Vector<File> m_tempRecordings; // Temp recordings that need to be destroyed on hangup
+    Vector<File> m_tempRecordings;  // Temp recordings that need to be destroyed on hangup
+    String m_userEnteredPin;        // PIN the user entered at login
     
     String m_ident; // Used to identify a particular call in the logs
     
@@ -186,6 +187,7 @@ public class Retrieve {
                 ++errorCount;
                 continue;
             }
+            m_userEnteredPin = choice.getDigits();
             break ;
         }
         return user ;
@@ -1159,6 +1161,7 @@ public class Retrieve {
                 
                 continue adminOptions;
             }
+            
             if (digit.equals("2")) {
                 // "To enable the special autoattendant menu, press 1."
                 // "To disable it, press 2."
@@ -1168,20 +1171,35 @@ public class Retrieve {
                 if (digit1 == null) {
                     continue adminOptions;
                 }
-                // TODO tell sipXconfig about the change.
-                // (or write organizationprefs.xml directly)
+                // Tell sipXconfig about the change.
                 
-                if (digit1.equals("1")) {
-                    // "Special Auto Attendant menu is enabled."
-                    m_loc.play("special_menu_enabled", "");
-                    continue adminOptions;
+                try {
+                    // Use sipXconfig's RESTful interface to change the special mode
+                    RestfulRequest rr = new RestfulRequest(
+                            ((IvrConfiguration)m_loc.getConfig()).getConfigUrl()+"/sipxconfig/rest/auto-attendant/specialmode", 
+                            m_mailbox.getUser().getUserName(), m_userEnteredPin);
+                    
+                    if (digit1.equals("1")) {
+                        if (rr.put(null)) {
+                            LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode enabled.");
+                            // "Special Auto Attendant menu is enabled."
+                            m_loc.play("special_menu_enabled","");
+                            continue adminOptions;
+                        }
+                    } else if (digit1.equals("2")) {
+                        if (rr.delete()) {
+                            LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode disabled.");
+                            // "Special Auto Attendant menu is disabled."
+                            m_loc.play("special_menu_disabled","");
+                            continue adminOptions;
+                        }
+                    }
+                    LOG.error("Retrieve::adminOptions:specialmode trouble "+rr.getResponse());
+                } catch (Exception e) {
+                    LOG.error("Retrieve::adminOptions:specialmode trouble", e);
                 }
-
-                if (digit1.equals("2")) {
-                    // "Special Auto Attendant menu is disabled."
-                    m_loc.play("special_menu_disabled", "");
-                    continue adminOptions;
-                }
+                // "An error occurred while processing your request."
+                m_loc.play("special_menu_failed", "");
             }
         }
 

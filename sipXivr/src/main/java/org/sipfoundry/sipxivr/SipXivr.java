@@ -26,6 +26,7 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
+import org.sipfoundry.voicemail.MailboxServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
 
@@ -142,8 +143,13 @@ public class SipXivr implements Runnable {
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
         PropertyConfigurator.configure(props);
         
-        // start MWI servlet on /mwi
-        Mwistatus.StartMWIServlet(s_config, "/mwi");
+        // Create Web Server
+        WebServer webServer = new WebServer(s_config);
+        // add MWI servlet on /mwi
+        webServer.addServlet("mwistatus", "/mwi", Mwistatus.class.getName());
+        webServer.addServlet("mailbox", "/mailbox/*", MailboxServlet.class.getName());
+        // Start it up
+        webServer.start();
         
         ExtMailStore.Initialize();
         

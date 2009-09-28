@@ -22,24 +22,39 @@ public class RestfulRequest {
     
     String m_urlString;
     String m_digest;
-    
+    String m_method;
     String m_result;
     String m_response;
     Exception m_exception;
     
     public RestfulRequest(String urlString, String user, String password) {
         m_urlString = urlString;
-        if (!m_urlString.endsWith("/")) {
-            m_urlString += "/";
-        }
         m_digest = "Basic " + new String(Base64.encodeBase64((user+":"+password).getBytes()));
     }
-    
+
     /**
      * Connect via http/https, put content
      * @throws Exception 
      */
-    public boolean put(String value) throws Exception {
+    public boolean put(String value) throws Exception{
+        m_method = "PUT";
+        return send(value);
+    }
+
+    /**
+     * Connect via http/https, delete content
+     * @throws Exception 
+     */
+    public boolean delete() throws Exception{
+        m_method = "DELETE";
+        return send(null);
+    }
+
+    /**
+     * Connect via http/https, send content
+     * @throws Exception 
+     */
+    public boolean send(String value) throws Exception {
         if (m_justTesting) {
             // Don't do anything if we are just in a test situation
             m_result = m_testingResult;
@@ -48,7 +63,14 @@ public class RestfulRequest {
 
         HttpURLConnection urlConn = null;
         try {
-            URL url = new URL(m_urlString+value);
+            String urlString = m_urlString;
+            if (value != null) {
+                if (!urlString.endsWith("/")) {
+                    urlString += "/";
+                }
+                urlString += value;
+            }
+            URL url = new URL(urlString);
             // URL connection channel.
             urlConn = (HttpURLConnection) url.openConnection();
 
@@ -61,7 +83,7 @@ public class RestfulRequest {
             // No caching, we want the real thing.
             urlConn.setUseCaches(false);
 
-            urlConn.setRequestMethod("PUT");
+            urlConn.setRequestMethod(m_method);
 
             LOG.info(String.format("RestfulRequest::put to %s/(_REDACTED_)", m_urlString));
 

@@ -228,8 +228,37 @@ public class Messages {
     }
     
     /**
-     * Mark the message unheard
+     * Find the messageId in the mailbox, no matter what directory it's in
+     * @param messageId
+     * @return
+     */
+    public synchronized VmMessage getMessage(String messageId) {
+        VmMessage msg = m_inbox.get(messageId) ;
+        if (msg == null) {
+            msg = m_saved.get(messageId);
+            if (msg == null) {
+                msg = m_deleted.get(messageId);
+            }
+        }
+        return msg;
+    }
+    
+    /**
+     * Mark the message represented by messageId heard
+     * @param messageId
+     * @param sendMwi
+     */
+    public synchronized void markMessageHeard(String messageId, boolean sendMwi) {
+        VmMessage msg = getMessage(messageId);
+        if (msg != null) {
+            markMessageHeard(msg, sendMwi);
+        }
+    }
+    
+    /**
+     * Mark the message heard
      * @param msg
+     * @param sendMwi
      */
     public synchronized void markMessageHeard(VmMessage msg, boolean sendMwi) {
         if (msg.isUnHeard()) {
@@ -241,7 +270,35 @@ public class Messages {
         }        
         ExtMailStore.MarkSaved(m_mbxid, msg.getMessageId());    
     }
+
+    /**
+     * Mark the message represented by messageId Unheard
+     * @param messageId
+     * @param sendMwi
+     */
+    public synchronized void markMessageUnheard(String messageId, boolean sendMwi) {
+        VmMessage msg = getMessage(messageId);
+        if (msg != null) {
+            markMessageUnheard(msg, sendMwi);
+        }
+    }
     
+    /**
+     * Mark the message Unheard
+     * @param msg
+     * @param sendMwi
+     */
+    public synchronized void markMessageUnheard(VmMessage msg, boolean sendMwi) {
+        if (!msg.isUnHeard()) {
+            msg.markUnheard();
+            m_numUnheard++;
+            if (sendMwi) {
+                Mwi.sendMWI(m_mailbox, this);
+            }
+        }        
+        ExtMailStore.MarkNew(m_mbxid, msg.getMessageId());    
+    }
+
     /**
      * "Delete" the message.
      * If it is in the inbox, move it to the deleted folder, and the files into the deleted directory.

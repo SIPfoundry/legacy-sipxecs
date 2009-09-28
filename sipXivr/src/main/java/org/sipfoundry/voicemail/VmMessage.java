@@ -11,20 +11,11 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 import java.io.IOException;
 import java.io.SequenceInputStream;
-import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Part;
-import javax.mail.Session;
-import javax.mail.Transport;
 import javax.mail.Flags.Flag;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -32,7 +23,6 @@ import javax.sound.sampled.AudioSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 import com.sun.mail.imap.IMAPMessage;
@@ -127,8 +117,8 @@ public class VmMessage {
                  
         // Check for -00.sta
         File status = new File(directory, id+"-00.sta");
+        me.m_statusFile = status;
         if (status.exists()) {
-            me.m_statusFile = status;
             me.m_unHeard = true ;
         } 
 
@@ -429,7 +419,9 @@ public class VmMessage {
      */
     private static File moveFileToDirectory(File file, File newDirectory) throws IOException {
         if (file != null) {
-            FileUtils.moveFileToDirectory(file, newDirectory, false);
+            if (file.exists()) {
+                FileUtils.moveFileToDirectory(file, newDirectory, false);
+            }
             return new File(newDirectory, file.getName());
         }
         return null;
@@ -543,10 +535,25 @@ public class VmMessage {
         if (m_unHeard) {
             if (m_statusFile != null) {
                 FileUtils.deleteQuietly(m_statusFile);
-                m_statusFile = null;
             }
             LOG.info(String.format("VmMessage::markHeard %s marked heard", m_descriptorFile.getPath()));
             m_unHeard = false;
+        }
+    }
+
+    public void markUnheard() {
+        if (!m_unHeard) {
+            if (m_statusFile != null) {
+                String operation= "update status";
+                try {
+                    operation = "creating status file "+m_statusFile.getPath();
+                    FileUtils.touch(m_statusFile);
+                    LOG.info(String.format("VmMessage::markHeard %s marked unheard", m_descriptorFile.getPath()));
+                    m_unHeard = false;
+                } catch (IOException e) {
+                    LOG.error("VmMessage::markUnHeard error while "+operation, e);
+                }
+            } 
         }
     }
 
