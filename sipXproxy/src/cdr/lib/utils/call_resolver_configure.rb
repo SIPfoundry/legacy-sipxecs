@@ -213,10 +213,17 @@ class CallResolverConfigure
           "Log messages will go to the console.") if $DEBUG
         return STDOUT
       end
-    elsif !File.writable?(log_dir)
-      $stderr.puts("init_logging: Log directory '#{@log_dir}' is not writable. " +
-        "Log messages will go to the console.") if $DEBUG
-      return STDOUT
+    else
+      if !File.writable?(log_dir)
+        $stderr.puts("init_logging: Log directory '#{@log_dir}' is not writable. " +
+          "Log messages will go to the console.") if $DEBUG
+        return STDOUT
+      else
+        # File doesn't exist and the directory is writable.  Create the file ourselves so that
+        # we can get around Logger creating it and adding a comment at the top of the file.
+        logdev = open(log_device, (File::WRONLY | File::APPEND | File::CREAT))
+        logdev.close
+      end
     end
     return log_device
   end
