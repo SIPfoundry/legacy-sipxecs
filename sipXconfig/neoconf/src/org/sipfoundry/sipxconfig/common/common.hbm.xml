@@ -111,4 +111,8 @@
   <query name="sharedUsers">
     <![CDATA[select u from User u where u.isShared = :isShared]]>
   </query>
+
+  <query name="userImIds">
+    <![CDATA[select count (*) from User u where u.addressBookEntry.imId = :imId and u.id != :userId]]>
+  </query>
 </hibernate-mapping>

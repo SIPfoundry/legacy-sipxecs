@@ -149,4 +149,5 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     List<User> getUsersThatISupervise(User uservisor);
 
     void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
+    boolean isImIdUnique(User user);
 }

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <table name="address_book_entry">
+    <column>address_book_entry_id</column>
+    <column>im_id</column>
+    <row>
+		<value>1</value>
+		<value>openfire1</value>
+    </row>
+    <row>
+		<value>2</value>
+		<value>openfire2</value>
+    </row>
+  </table>
+  <table name="users">
+    <column>user_id</column>
+    <column>first_name</column>
+    <column>last_name</column>
+    <column>user_name</column>
+    <column>pintoken</column>
+    <column>address_book_entry_id</column>
+    <row>
+      <value>1001</value>
+      <value></value>
+      <value></value>
+      <value>userseed1</value>
+      <value>x</value>
+      <value>1</value>
+    </row>
+    <row>
+      <value>1002</value>
+      <value></value>
+      <value></value>
+      <value>userseed2</value>
+      <value>x</value>
+      <value>2</value>
+    </row>
+  </table>
+</dataset>

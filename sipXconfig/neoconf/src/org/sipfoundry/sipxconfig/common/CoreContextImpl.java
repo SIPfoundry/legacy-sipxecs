@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext, DaoEventListener {
 
@@ -45,6 +46,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
+    private static final String QUERY_IM_ID = "imId";
+    private static final String QUERY_USER_ID = "userId";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -99,6 +102,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
             throw new NameInUseException(dup);
         }
 
+        checkImIdUnique(user);
         checkMaxUsers(user, m_maxUserCount);
 
         if (!user.isNew()) {
@@ -211,6 +215,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
 
     public User loadUserByUserNameOrAlias(String userNameOrAlias) {
         return loadUserByNamedQueryAndNamedParam(QUERY_USER_BY_NAME_OR_ALIAS, VALUE, userNameOrAlias);
+    }
+
+    private void checkImIdUnique(User user) {
+        if (!isImIdUnique(user)) {
+            throw new UserException("&duplicate.imid.error", user.getImId());
+        }
     }
 
     /**
@@ -438,6 +448,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         Collection<String> userNames = getHibernateTemplate().findByNamedQueryAndNamedParam("userNamesGroupMembers",
                 QUERY_PARAM_GROUP_ID, group.getId());
         return userNames;
+    }
+
+    public boolean isImIdUnique(User user) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds",
+                new String[] {QUERY_IM_ID, QUERY_USER_ID}, new Object[] {user.getImId(), user.getId()});
+        return intResult(count) == 0;
     }
 
     public void onDelete(Object entity) {

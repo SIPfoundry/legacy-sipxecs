@@ -183,6 +183,38 @@ public class NewUserTestUi extends WebTestCase {
         assertTextFieldEquals("gms:groups", "a b c");
     }
 
+    public void testImIdUnique() {
+        clickLink("ManageUsers");
+        //create user with instant message id: openfire1
+        clickLink("AddUser");
+        setTextField("user:userId", "x");
+        setTextField("user:imId","openfire1");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        //try to create user with the same instant message id: openfire1
+        clickLink("AddUser");
+        setTextField("user:userId", "y");
+        setTextField("user:imId","openfire1");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        //create user with instant message id: openfire2
+        setTextField("user:imId","openfire2");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        //update already created user with message id: openfire2
+        setTextField("user:userId", "yy");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+    }
+
     public void testExtensionPoolLink() {
         clickLink("ManageUsers");
         clickLink("AddUser");
