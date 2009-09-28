@@ -484,7 +484,7 @@ SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent,
     , mpUserAgent(&userAgent)
     , mpDialogMgr(&dialogMgr)
     , mpRefreshManager(&refreshManager)
-    , mSubscribeClientMutex(OsMutex::Q_FIFO, OsBSem::FULL)
+    , mSetSem(OsBSem::Q_FIFO, OsBSem::FULL)
 {
 }
 
@@ -592,7 +592,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     // If this event type is not in the list, we need to register
     // to receive NOTIFY requests for this event type.
     {
-       OsLock lock(mSubscribeClientMutex);
+       OsLock setLock(mSetSem);
 
        if (mEventTypes.find(&eventType) == NULL)
        {
@@ -645,7 +645,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
 
     // Put the state in the list
     {
-       OsLock lock(mSubscribeClientMutex);
+       OsLock setLock(mSetSem);
 
        addGroupState(groupState);
     }
@@ -681,7 +681,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
 
    SubscriptionGroupState* groupState;
    {
-      OsLock lock(mSubscribeClientMutex);
+      OsLock setLock(mSetSem);
 
       groupState = removeGroupStateByOriginalHandle(earlyDialogHandle);
 
@@ -695,8 +695,12 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
 
       // Update the SipRefreshManager while we are locking the SipSubscribeClient
       // to ensure that the two are synchronized.
-      // Stop the refresh of all dialogs and unsubscribe
+      // Stop the refresh of all dialogs and unsubscribe.
       mpRefreshManager->stopRefresh(earlyDialogHandle);
+
+      // At this point, we have the only pointer to *groupState, so we do not
+      // need to hold the lock to prevent other threads from deleting it while
+      // we are accessing *groupState.
    }
 
    if (groupState)
@@ -704,6 +708,12 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipSubscribeClient::endSubscriptionGroup groupState = %p",
                     groupState);
+
+      // Stop the timers, synchronously.
+      // Since mReestablish and mRestart are now false, this cannot cause
+      // further actions.
+      groupState->mStartingTimer.stop(TRUE);
+      groupState->mRestartTimer.stop(TRUE);
 
       UtlHashBagIterator iterator(mSubscriptionDialogs);
       UtlBoolean found;
@@ -714,7 +724,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
       // that is within the group and terminate that subscription.
       do {
          {
-            OsLock lock(mSubscribeClientMutex);
+            OsLock setLock(mSetSem);
 
             iterator.reset();
 
@@ -757,7 +767,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHand
 
    SubscriptionDialogState* dialogState;
    {
-      OsLock lock(mSubscribeClientMutex);
+      OsLock setLock(mSetSem);
 
       // Delete the dialogState so that when the termination NOTIFY arrives
       // it does not match an existing dialog and so does not cause the
@@ -860,7 +870,7 @@ void SipSubscribeClient::endAllSubscriptions()
    // and terminate that subscription.
    do {
       {
-         OsLock lock(mSubscribeClientMutex);
+         OsLock setLock(mSetSem);
 
          found = !mSubscriptionGroups.isEmpty();
          if (found)
@@ -946,24 +956,20 @@ UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
 
 int SipSubscribeClient::countSubscriptionGroups()
 {
-    int count = 0;
-    {
-       OsLock lock(mSubscribeClientMutex);
+   OsLock setLock(mSetSem);
 
-       count = mSubscriptionGroups.entries();
-    }
-    return count;
+   int count = mSubscriptionGroups.entries();
+
+   return count;
 }
 
 int SipSubscribeClient::countSubscriptionDialogs()
 {
-    int count = 0;
-    {
-       OsLock lock(mSubscribeClientMutex);
+   OsLock setLock(mSetSem);
 
-       count = mSubscriptionDialogs.entries();
-    }
-    return count;
+   int count = mSubscriptionDialogs.entries();
+
+   return count;
 }
 
 void SipSubscribeClient::getSubscriptionStateEnumString(enum SubscriptionState stateValue,
@@ -999,7 +1005,7 @@ void SipSubscribeClient::getSubscriptionStateEnumString(enum SubscriptionState s
 // Dump the object's internal state.
 void SipSubscribeClient::dumpState()
 {
-   OsLock lock(mSubscribeClientMutex);
+   OsLock setLock(mSetSem);
 
    // indented 2
 
@@ -1080,7 +1086,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // A subscription received a successful response.
       // We may already have dialog state for it, or we may not.
 
-      OsLock lock(mSubscribeClientMutex);
+      OsLock setLock(mSetSem);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1156,7 +1162,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // there is no matching credentials or the credentials did
       // not work.
 
-      OsLock lock(mSubscribeClientMutex);
+      OsLock setLock(mSetSem);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1240,8 +1246,8 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 
 void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 {
-    // Hold the lock for the entire function body.
-    OsLock lock(mSubscribeClientMutex);
+    // Hold the locks for the entire function body.
+    OsLock setLock(mSetSem);
 
     UtlString eventField;
     notifyRequest.getEventField(&eventField, NULL);
@@ -1868,7 +1874,8 @@ void SubscriptionGroupState::setStartingTimer(bool initial)
 
    // We stop mStartingTimer asynchronously here because if it has a queued
    // firing, that will do no harm:  This starting will fail prematurely
-   // and another start will be done.
+   // and another start will be done.  This code does not delete the
+   // SubscriptionGroupState.
    mStartingTimer.stop(FALSE); // async
    mStartingTimer.oneshotAfter(OsTime(mStartingTimeout, 0));
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -1921,7 +1928,7 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
 
       do {
          {
-            OsLock lock(client.mSubscribeClientMutex);
+            OsLock setLock(client.mSetSem);
 
             found = FALSE;
             // Look up the group state.
@@ -1959,7 +1966,7 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
                        count);
 
       {
-         OsLock lock(client.mSubscribeClientMutex);
+         OsLock setLock(client.mSetSem);
 
          // Look up the group state.
          SubscriptionGroupState* groupState =
@@ -1993,9 +2000,14 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
 }
 
 // The timer event routine for SipSubscribeClient::mStartingTimer.
+// This method can be called while mStartingTimer is being stopped by
+// a method that is deleting *mpGroupState, but that is harmless:
+// the call of postMessageP() is protected by a test of mReestablish,
+// and successfulStart() and transitionToEstablished() only access
+// memeber variables of *mpGroupState.
 OsStatus SubscriptionStartingNotification::signal(intptr_t timer_i)
 {
-   OsLock lock(mpSubscribeClient->mSubscribeClientMutex);
+   OsLock setLock(mpSubscribeClient->mSetSem);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SubscriptionStartingNotification::signal Timer fired, mpGroupState = %p '%s'",
@@ -2047,7 +2059,7 @@ void SubscriptionGroupState::setRestartTimer()
 // The timer event routine for SipSubscribeClient::mRestartTimer.
 OsStatus SubscriptionRestartNotification::signal(intptr_t timer_i)
 {
-   OsLock lock(mpSubscribeClient->mSubscribeClientMutex);
+   OsLock setLock(mpSubscribeClient->mSetSem);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SubscriptionRestartNotification::signal Timer fired, mpGroupState = %p '%s'",
