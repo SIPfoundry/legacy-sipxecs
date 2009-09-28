@@ -86,7 +86,7 @@ class Appearance : public UtlContainableAtomic,
 
    /// Process a notify event callback.
    virtual void notifyEventCallback(const UtlString* dialogHandle,
-                                    const UtlString* content);
+                                    const SipMessage* msg);
 
    /** Mark dialogs at this appearance as terminated.
     *  Held dialogs are only terminated based on provided flag.

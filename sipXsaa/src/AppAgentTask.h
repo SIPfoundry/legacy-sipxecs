@@ -62,9 +62,6 @@ public:
    /// Method to process messages which get queued for this OsServerTask.
    UtlBoolean handleMessage(OsMsg& rMsg);
 
-   /// Process a NOTIFY request - allow or disallow the state transition, and publish
-   void handleNotifyRequest(const SipMessage& msg);
-
    /// Process a MESSAGE request, which is used to trigger debugging actions.
    void handleMessageRequest(const SipMessage& msg);
 

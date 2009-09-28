@@ -119,8 +119,7 @@ public:
                      const char* dialogHandle,
                      /// location and length of the NOTIFY content
                      //  content_bytes == NULL && content_length == 0 is allowed
-                     const char* content_bytes,
-                     int content_length);
+                     SipMessage* msg);
    //:Constructor
 
    NotifyCallbackMsg(const NotifyCallbackMsg& rNotifyCallbackMsg);
@@ -149,7 +148,7 @@ public:
    virtual const UtlString* getDialogHandle() const;
 
    //: Return pointer to the mContent.
-   virtual const UtlString* getContent() const;
+   virtual const SipMessage* getMsg() const;
 
 /* ============================ INQUIRY =================================== */
 
@@ -163,7 +162,7 @@ private:
    UtlString mDialogHandle;
 
    //! The content of the NOTIFY.
-   UtlString mContent;
+   SipMessage* mpMsg;
 
 };
 

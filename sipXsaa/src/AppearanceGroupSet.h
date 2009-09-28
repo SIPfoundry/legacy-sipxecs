@@ -133,7 +133,7 @@ class AppearanceGroupSet : public UtlContainableAtomic
    //  May be called externally.
    //  Calls subscription methods, so cannot be called as a callback routine.
    void notifyEventCallbackSync(const UtlString* dialogHandle,
-                                const UtlString* content);
+                                const SipMessage* msg);
 
    /** Add a mapping for an early dialog handle to its handler for
     *  subscription events.

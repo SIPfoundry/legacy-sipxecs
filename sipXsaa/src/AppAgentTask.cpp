@@ -81,7 +81,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
          dynamic_cast <NotifyCallbackMsg*> (&rMsg);
          getAppearanceAgent()->getAppearanceGroupSet().
          notifyEventCallbackSync(pNotifyMsg->getDialogHandle(),
-                                 pNotifyMsg->getContent());
+                                 pNotifyMsg->getMsg());
       handled = TRUE;
    }
    else if (rMsg.getMsgType() == OsMsg::PHONE_APP &&
@@ -95,14 +95,7 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
       {
          UtlString method;
          sipMessage->getRequestMethod(&method);
-         if (method.compareTo(SIP_NOTIFY_METHOD) == 0 &&
-             !sipMessage->isResponse())
-         {
-            // Process the request and send a response.
-            handleNotifyRequest(*sipMessage);
-            handled = TRUE;
-         }
-         else if (method.compareTo(SIP_MESSAGE_METHOD) == 0 &&
+         if (method.compareTo(SIP_MESSAGE_METHOD) == 0 &&
                !sipMessage->isResponse())
          {
             // Process the request and send a response.
@@ -137,38 +130,6 @@ UtlBoolean AppearanceAgentTask::handleMessage(OsMsg& rMsg)
    return handled;
 }
 
-
-// Process a NOTIFY request
-void AppearanceAgentTask::handleNotifyRequest(const SipMessage& msg)
-{
-   UtlString eventType;
-   msg.getEventField(eventType);
-   if (eventType == SLA_EVENT_TYPE)
-   {
-      UtlString sharedUri;
-      msg.getToUri(&sharedUri);
-      OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceAgentTask::handleNotifyRequest for '%s'", sharedUri.data());
-
-      // send it to the AppearanceGroup matching
-      AppearanceGroup* appearanceGroup =
-         getAppearanceAgent()->getAppearanceGroupSet().findAppearanceGroup(sharedUri);
-      if ( appearanceGroup )
-      {
-         appearanceGroup->handleNotifyRequest(msg);
-      }
-      else
-      {
-         // This happens on shutdown, since it is correct for the UA to send a NOTIFY
-         // following the SUBSCRIBE with Expires: 0.  However, nothing is left to handle it.
-         // Construct the response.
-         SipMessage response;
-         OsSysLog::add(FAC_SAA, PRI_ERR, "AppearanceAgentTask::handleNotifyRequest for unknown group '%s'", sharedUri.data());
-         response.setInterfaceIpPort(msg.getInterfaceIp(), msg.getInterfacePort());
-         response.setResponseData(&msg, SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
-         getAppearanceAgent()->getServerUserAgent().send(response);
-      }
-   }
-}
 
 // Process a MESSAGE request, which is used to trigger debugging actions.
 void AppearanceAgentTask::handleMessageRequest(const SipMessage& msg)

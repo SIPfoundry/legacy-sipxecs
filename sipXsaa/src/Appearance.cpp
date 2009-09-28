@@ -153,11 +153,11 @@ void Appearance::subscriptionEventCallback(
    }
 }
 
-// This callback does nothing: the NOTIFY is handled through the MessageObserver interface,
-// so that appropriate responses can be sent
+// Pass the messaqe to the AppearanceGroup for handling.
 void Appearance::notifyEventCallback(const UtlString* dialogHandle,
-                                     const UtlString* content)
+                                     const SipMessage* msg)
 {
+   mAppearanceGroup->handleNotifyRequest(dialogHandle, msg);
 }
 
 

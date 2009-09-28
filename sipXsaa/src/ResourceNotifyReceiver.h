@@ -46,7 +46,7 @@ class ResourceNotifyReceiver
     *  ResourceNotifyReceiver.
     */
    virtual void notifyEventCallback(const UtlString* dialogHandle,
-                                    const UtlString* content) = 0;
+                                    const SipMessage* msg) = 0;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:

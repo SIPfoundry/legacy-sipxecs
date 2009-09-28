@@ -306,11 +306,25 @@ void AppearanceGroup::subscriptionEventCallback(
 // of contacts and update the set of subscriptions to match the current
 // contacts.
 void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
-                                     const UtlString* content)
+                                     const SipMessage* msg)
 {
+   // Get the NOTIFY content.
+   const char* content;
+   ssize_t l;
+   const HttpBody* body = msg->getBody();
+   if (body)
+   {
+      body->getBytes(&content, &l);
+   }
+   else
+   {
+      content = NULL;
+      l = 0;
+   }
+
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroup::notifyEventCallback mSharedUser = '%s', dialogHandle = '%s', content = '%s'",
-                 mSharedUser.data(), dialogHandle->data(), content->data());
+                 mSharedUser.data(), dialogHandle->data(), content);
 
    // Parse the XML and update the contact status.
 
@@ -351,7 +365,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
       TiXmlNode* reginfo_node;
       if (
          // Load the XML into it.
-         document.Parse(content->data()) &&
+         document.Parse(content) &&
          // Find the top element, which should be a <reginfo>.
          (reginfo_node = document.FirstChild("reginfo")) != NULL &&
          reginfo_node->Type() == TiXmlNode::ELEMENT)
@@ -536,31 +550,6 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
    }
 }
 
-#ifdef DEBUG
-void dumpMsg(SipDialogEvent* content)
-{
-   UtlSListIterator* itor = content->getDialogIterator();
-   UtlString uniqueDialogId;
-   UtlString dialogState = STATE_TERMINATED;
-   UtlString event;
-   UtlString code;
-   UtlString appearanceId;
-   UtlString rendering;
-   Dialog* pDialog;
-   while ( (pDialog = dynamic_cast <Dialog*> ((*itor)())) )
-   {
-      pDialog->getDialogId(uniqueDialogId);
-      pDialog->getLocalParameter("x-line-id", appearanceId);
-      pDialog->getState(dialogState, event, code);
-      pDialog->getLocalParameter("+sip.rendering", rendering);
-      printf("   dialogId %s, x-line-id %s, state %s(%s)\n",
-            uniqueDialogId.data(), appearanceId.data(), dialogState.data(), rendering.data());
-   }
-   delete itor;
-}
-#endif
-
-
 void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, SipDialogEvent* lContent)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
@@ -598,10 +587,6 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
             DIALOG_EVENT_TYPE,     //eventType
             1, &pHttpBody, &mVersion,
             TRUE, TRUE);
-#ifdef DEBUG
-      printf("   full going out: ");
-      dumpMsg(lFullContent);
-#endif
       delete lFullContent;
    }
 
@@ -619,51 +604,56 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
             DIALOG_EVENT_TYPE,     //eventType
             1, &pPartialBody, &mVersion,
             FALSE, FALSE);
-#ifdef DEBUG
-      printf("   partial going out: ");
-      dumpMsg(lContent);
-#endif
    }
 
 }
-void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
+
+/// Process an incoming NOTIFY from an Appearance.  Always sends a response.
+void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
+                                          const SipMessage* msg)
 {
-   UtlString contactUri;
-   msg.getContactUri(0, &contactUri);
-   UtlString dialogHandle;
-   msg.getDialogHandleReverse(dialogHandle);
-   Appearance* pThisAppearance = findAppearance(dialogHandle);
+   SipMessage response;
+   Appearance* pThisAppearance = findAppearance(*dialogHandle);
    if ( !pThisAppearance )
    {
       UtlString swappedDialogHandle;
-      mAppearanceGroupSet->swapTags(dialogHandle, swappedDialogHandle);
+      mAppearanceGroupSet->swapTags(*dialogHandle, swappedDialogHandle);
       pThisAppearance = findAppearance(swappedDialogHandle);
       if ( !pThisAppearance )
       {
-         OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                       "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY from unknown subscription to "
-                       "'%s', dialogHandle %s (normal on shutdown)",
-                       contactUri.data(), dialogHandle.data());
+         // should never happen, since the NOTIFY was sent straight to the Appearance
+         OsSysLog::add(FAC_SAA, PRI_WARNING,
+               "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY from unknown subscription, dialogHandle %s",
+               dialogHandle->data());
+         response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
+         response.setResponseData(msg, 481, "Subscription does not exist");
+         getAppearanceAgent()->getServerUserAgent().send(response);
          return;
       }
    }
+   UtlString contactUri = pThisAppearance->getUri()->data();
 
-   const char* b;
+   // TODO: check that event type is supported
+   // Get the NOTIFY content.
+   const char* content;
    ssize_t l;
-   const HttpBody* requestBody = msg.getBody();
-   if (requestBody)
+   const HttpBody* body = msg->getBody();
+   if (body)
    {
-      requestBody->getBytes(&b, &l);
+      body->getBytes(&content, &l);
    }
    else
    {
-      b = NULL;
-      l = 0;
+      OsSysLog::add(FAC_SAA, PRI_WARNING,
+            "AppearanceGroup::handleNotifyRequest: could not get NOTIFY content, dialogHandle %s",
+            dialogHandle->data());
+      response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
+      response.setResponseData(msg, 493, "Undecipherable");
+      getAppearanceAgent()->getServerUserAgent().send(response);
+      return;
    }
-   SipDialogEvent* lContent = new SipDialogEvent(b);
+   SipDialogEvent* lContent = new SipDialogEvent(content);
 
-   // Construct the response.
-   SipMessage response;
    UtlString state;
    UtlString entity;
    lContent->getState(state);
@@ -676,6 +666,7 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
 
    if (state == STATE_TERMINATED)
    {
+      // probably not needed now that SipSubscribeClient checks for NOTIFY with terminated state
       // our subscription to this Appearance has terminated.
       OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::handleNotifyRequest: subscription to %s has been terminated",
@@ -720,7 +711,7 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
          // make a guaranteed unique dialog id, by
          // prepending to each id value the call-id of the subscription
          // from which the dialog event was obtained, with "@@" as a separator
-         msg.getCallIdField(&uniqueDialogId);
+         msg->getCallIdField(&uniqueDialogId);
          uniqueDialogId.append("@@");
          uniqueDialogId.append(dialogId);
          pDialog->setDialogId(uniqueDialogId);
@@ -730,16 +721,10 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
                     "%s update from %s: dialogId %s, x-line-id %s, state %s(%s)",
                     state.data(), contactUri.data(), uniqueDialogId.data(),
                     appearanceId.data(), dialogState.data(), rendering.data());
-#ifdef DEBUG
-      printf("   %s from %s: dialogId %s, x-line-id %s, state %s(%s)\n",
-            state.data(), contactUri.data(), uniqueDialogId.data(),
-            appearanceId.data(), dialogState.data(), rendering.data());
-#endif
-
    }
    delete itor;
 
-   // Check to see if this appearance is available
+   // Check to see if this appearance (of the Appearance) is available
    bool okToProceed = true;
    if ( state == "partial" && dialogState == "trying" )
    {
@@ -752,35 +737,33 @@ void AppearanceGroup::handleNotifyRequest(const SipMessage& msg)
       }
    }
 
-   // Send the content to the proper Appearance instance
    bool bSendPartialContent = false;
    bool bSendFullContent = false;
-   if (okToProceed && pThisAppearance && lContent)
-   {
-      // save these dialogs, and set flag to indicate whether they should be sent in partial update
-      bSendPartialContent = pThisAppearance->updateState(lContent, bSendFullContent);
-   }
 
    // Send the response.
-   // TODO: I'm not sure the conflict case will work:
-   // SipSubscribeClient might automatically OK the NOTIFY
    if (okToProceed)
    {
-      response.setOkResponseData(&msg, NULL);
+      response.setOkResponseData(msg, NULL);
    }
    else
    {
       OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroup::handleNotifyRequest '%s' appearanceId %s is busy",
                     entity.data(), appearanceId.data());
-      response.setInterfaceIpPort(msg.getInterfaceIp(), msg.getInterfacePort());
-      response.setResponseData(&msg, 409, "Conflict");
-      getAppearanceAgent()->getServerUserAgent().send(response);
+      response.setInterfaceIpPort(msg->getInterfaceIp(), msg->getInterfacePort());
+      response.setResponseData(msg, 409, "Conflict");
    }
+   getAppearanceAgent()->getServerUserAgent().send(response);
 
-   // Publish full and partial updates to the SipPublishContentMgr
    if (okToProceed)
    {
+      if (lContent)
+      {
+         // Send the content to the proper Appearance instance, so it can
+         // save these dialogs, and set flag to indicate whether they should be sent in partial update
+         bSendPartialContent = pThisAppearance->updateState(lContent, bSendFullContent);
+      }
+      // Publish full and partial updates to the SipPublishContentMgr
       publish(bSendFullContent, bSendPartialContent, lContent);
    }
 

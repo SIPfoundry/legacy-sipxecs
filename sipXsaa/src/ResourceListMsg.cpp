@@ -132,15 +132,14 @@ const UtlString* SubscriptionCallbackMsg::getSubscriptionState() const
 
 // Constructor
 NotifyCallbackMsg::NotifyCallbackMsg(const char* dialogHandle,
-                                     const char* content_bytes,
-                                     int content_length) :
+                                     SipMessage* msg) :
    OsMsg(RLS_NOTIFY_MSG, 0),
    mDialogHandle(dialogHandle),
-   mContent(content_bytes, content_length)
+   mpMsg(msg)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "NotifyCallbackMsg:: dialogHandle = '%s', content = '%.*s'",
-                 dialogHandle, content_length, content_bytes);
+                 "NotifyCallbackMsg:: dialogHandle = '%s'",
+                 dialogHandle);
 }
 
 // Copy constructor
@@ -148,7 +147,7 @@ NotifyCallbackMsg::NotifyCallbackMsg(const NotifyCallbackMsg& rNotifyCallbackMsg
 :  OsMsg(rNotifyCallbackMsg)
 {
    mDialogHandle = rNotifyCallbackMsg.mDialogHandle;
-   mContent      = rNotifyCallbackMsg.mContent;
+   mpMsg         = rNotifyCallbackMsg.mpMsg;
 }
 
 // Create a copy of this msg object (which may be of a derived type)
@@ -175,7 +174,7 @@ NotifyCallbackMsg::operator=(const NotifyCallbackMsg& rhs)
    OsMsg::operator=(rhs);       // assign fields for parent class
 
    mDialogHandle = rhs.mDialogHandle;
-   mContent      = rhs.mContent;
+   mpMsg         = rhs.mpMsg;
 
    return *this;
 }
@@ -197,10 +196,10 @@ const UtlString* NotifyCallbackMsg::getDialogHandle() const
    return &mDialogHandle;
 }
 
-// Return pointer to the mContent.
-const UtlString* NotifyCallbackMsg::getContent() const
+// Return pointer to the NOTIFY SipMessage.
+const SipMessage* NotifyCallbackMsg::getMsg() const
 {
-   return &mContent;
+   return mpMsg;
 }
 
 /* ============================ INQUIRY =================================== */

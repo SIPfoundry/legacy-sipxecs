@@ -272,32 +272,18 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
                                                const SipMessage* notifyRequest)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                 "AppearanceGroupSet::notifyEventCallbackAsync applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
+                 "AppearanceGroupSet::notifyEventCallbackAsync "
+                 "applicationData = %p, earlyDialogHandle = '%s', dialogHandle = '%s'",
                  applicationData, earlyDialogHandle, dialogHandle);
 
    // The AppearanceGroupSet concerned is applicationData.
    AppearanceGroupSet* appearanceGroupSet = (AppearanceGroupSet*) applicationData;
 
-   // Get the NOTIFY content.
-   const char* b;
-   ssize_t l;
-   const HttpBody* body = notifyRequest->getBody();
-   if (body)
-   {
-      body->getBytes(&b, &l);
-   }
-   else
-   {
-      b = NULL;
-      l = 0;
-   }
+   // Send a message to the AppearanceGroupTask.  The handler owns the SipMessage pointer.
+   NotifyCallbackMsg msg(dialogHandle, new SipMessage(*notifyRequest));
+   appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().postMessage(msg);
 
-   // Send a message to the AppearanceGroupTask.
-   NotifyCallbackMsg msg(dialogHandle, b, l);
-   appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
-      postMessage(msg);
-
-   // do NOT send an OK response
+   // Do NOT send an OK response; the callback handler is responsible for this.
    return false;
 }
 
@@ -305,7 +291,7 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
 // Called by AppearanceGroupTask.
 // This callback MUST send a response, as we told the SipSubscribeClient not to.
 void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
-                                              const UtlString* content)
+                                              const SipMessage* msg)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
                  "AppearanceGroupSet::notifyEventCallbackSync dialogHandle = '%s'",
@@ -329,7 +315,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 
    if (receiver)
    {
-      receiver->notifyEventCallback(dialogHandle, content);
+      receiver->notifyEventCallback(dialogHandle, msg);
    }
    else
    {
@@ -337,6 +323,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
                     "AppearanceGroupSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
                     this, dialogHandle->data());
    }
+   delete msg;
 }
 
 /** Add a mapping for an early dialog handle to its handler for

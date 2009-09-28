@@ -83,14 +83,14 @@ class AppearanceGroup : public UtlContainableAtomic,
 
    //! Process a notify event callback.
    virtual void notifyEventCallback(const UtlString* dialogHandle,
-                                    const UtlString* content);
+                                    const SipMessage* msg);
 
    /// Format and publish NOTIFY content.
    void publish(bool bSendFullContent, bool bSendPartialContent, SipDialogEvent* lContent);
 
-   /// Process an incoming NOTIFY.
-   // Used rather than the notifyEventCallback to allow NOTIFYs to be rejected.
-   void handleNotifyRequest(const SipMessage& msg);
+   /// Process an incoming NOTIFY from an Appearance.  Always sends a response.
+   void handleNotifyRequest(const UtlString* dialogHandle,
+                            const SipMessage* msg);
 
    /** add the newState to the consolidated state for the group, and return true
     * if the state allows a call to proceed.

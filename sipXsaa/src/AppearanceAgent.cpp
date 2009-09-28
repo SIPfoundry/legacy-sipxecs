@@ -175,14 +175,6 @@ void AppearanceAgent::start()
          TRUE, // incoming,
          FALSE // outgoing
    );
-   // The Appearance Agent must respond to incoming NOTIFY messages to allow or disallow
-   // a "line seize".
-   mServerUserAgent.addMessageObserver(*(mAppearanceAgentTask.getMessageQueue()),
-         SIP_NOTIFY_METHOD, TRUE, // yes requests
-         FALSE, // no responses
-         TRUE, // incoming,
-         FALSE // outgoing
-   );
 
    OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceAgent::_ Initialization done.");
 }
