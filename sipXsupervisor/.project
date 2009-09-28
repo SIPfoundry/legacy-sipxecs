@@ -85,10 +85,5 @@
 			<type>2</type>
 			<locationURI>SIPX_OUT</locationURI>
 		</link>
-		<link>
-			<name>SIPX_SUPERVISOR_MYBUILD_OUT</name>
-			<type>2</type>
-			<locationURI>SIPX_MYBUILD_OUT/sipXsupervisor</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

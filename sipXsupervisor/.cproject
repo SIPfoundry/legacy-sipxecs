@@ -483,7 +483,6 @@
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_SUPERVISOR_OUT"/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_SUPERVISOR_MYBUILD_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.497137124" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
