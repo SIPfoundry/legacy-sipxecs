@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -17,10 +17,10 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 /**
  * Marshal/Unmarshal object from dao to tapestry based on ids.
- * 
+ *
  * All beans that implement PrimaryKeySource use the this squezer instance. One can overwrite it
  * by passing converter parameter to Tapestry components such as TableRows or For.
- * 
+ *
  */
 public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
     /** 1 character safest choice, read code in DataSqueezerImpl.register for rationale */

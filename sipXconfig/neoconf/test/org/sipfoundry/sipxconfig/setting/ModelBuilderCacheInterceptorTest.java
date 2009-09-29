@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -22,9 +22,9 @@ import org.easymock.IMocksControl;
 import org.springframework.aop.framework.ProxyFactory;
 
 public class ModelBuilderCacheInterceptorTest extends TestCase {
-    
+
     // FIXME: REQUIRED FOR PORTING TO SPRING 2.0
-    public void testNop() {        
+    public void testNop() {
     }
 
     // FIXME: FAILED WHILE PORTING TO SPRING 2.0

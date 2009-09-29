@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
@@ -37,8 +37,8 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
         setOutputStream(wtr);
         write();
     }
-    
-    protected void write() { 
+
+    protected void write() {
         m_phone.getSettings().acceptVisitor(this);
         for (Line line : getLines()) {
             line.getSettings().acceptVisitor(this);
@@ -91,10 +91,10 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
         }
         writeLineEntry(lname, value);
     }
-    
+
     protected void writeLineEntry(String name, String value) {
         String line = name + " = " + nonNull(value) + LF;
-        writeString(line);        
+        writeString(line);
     }
 
     boolean isCompositeProfileName(String name) {

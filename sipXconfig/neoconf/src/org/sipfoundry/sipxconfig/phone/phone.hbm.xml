@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phone" default-lazy="false">
   <!-- P H O N E -->
@@ -27,7 +27,7 @@
       <one-to-many class="Line"/>
     </list>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
-  </class>  
+  </class>
   <!-- L I N E -->
   <class name="Line" table="line">
     <id name="id" column="line_id" type="int" unsaved-value="-1">
@@ -49,21 +49,21 @@
   </class>
 
   <query name="phoneIds">
-    <![CDATA[select p.id from Phone p]]>        
-  </query>  
+    <![CDATA[select p.id from Phone p]]>
+  </query>
 
   <query name="phoneIdsWithSerialNumber">
-    <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>        
-  </query>  
+    <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>
+  </query>
 
   <query name="phonesByGroupId">
     <![CDATA[select p from Phone as p join p.groups as pgroups where pgroups.id = :groupId]]>
   </query>
-  
+
   <query name="phonesByUserId">
     <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId]]>
   </query>
-  
+
   <query name="phonesByUserIdAndPhoneModel">
     <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId and line.phone.modelId = :modelId]]>
   </query>

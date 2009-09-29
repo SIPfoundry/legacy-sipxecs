@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -22,13 +22,13 @@ public class UserRingBuilderTest extends TestCase {
     static {
         USER.setUserName(USER_NAME);
     }
-    
+
     private UserRingBuilder m_builder;
     private org.sipfoundry.sipxconfig.admin.callgroup.UserRing m_myUserRing;
     private UserRing m_apiUserRing;
     private IMocksControl m_control;
     private CoreContext m_coreContext;
-    
+
     protected void setUp() {
         m_control = EasyMock.createControl();
         m_coreContext = m_control.createMock(CoreContext.class);
@@ -38,12 +38,12 @@ public class UserRingBuilderTest extends TestCase {
         m_apiUserRing.setType(AbstractRingBuilder.TYPE_IMMEDIATE);
     }
 
-    public void testFromApi() {                
+    public void testFromApi() {
         // set up the mock core context
         m_coreContext.loadUserByUserName(USER_NAME);
         m_control.andReturn(USER);
         m_control.replay();
-        
+
         m_apiUserRing.setUserName(USER_NAME);
         ApiBeanUtil.toMyObject(m_builder, m_myUserRing, m_apiUserRing);
         assertEquals(USER, m_myUserRing.getUser());

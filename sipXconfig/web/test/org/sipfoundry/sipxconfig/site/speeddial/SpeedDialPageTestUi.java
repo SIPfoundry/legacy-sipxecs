@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.speeddial;
@@ -32,13 +32,13 @@ public class SpeedDialPageTestUi extends WebTestCase {
         assertButtonPresent("form:cancel");
         assertButtonPresent("form:apply");
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);        
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testUpdatePhones() throws Exception {
         // just exercises page for error
         clickLink("SpeedDialPage");
         clickButton("form:updatePhones");
-        SiteTestHelper.assertNoUserError(tester);        
+        SiteTestHelper.assertNoUserError(tester);
     }
 }

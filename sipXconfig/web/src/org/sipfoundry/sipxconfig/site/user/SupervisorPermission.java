@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -42,7 +42,7 @@ public abstract class SupervisorPermission extends PageWithCallback implements
     public abstract String getSupervisorForGroupsString();
 
     public abstract void setSupervisorForGroupsString(String groups);
-    
+
     public abstract void setGroupCandidates(Collection groupsList);
 
     public void buildGroupCandidates(String groupsString) {
@@ -77,5 +77,5 @@ public abstract class SupervisorPermission extends PageWithCallback implements
         }
 
         getCoreContext().saveUser(user);
-    }    
+    }
 }

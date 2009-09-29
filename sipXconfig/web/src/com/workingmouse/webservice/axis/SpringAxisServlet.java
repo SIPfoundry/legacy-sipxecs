@@ -19,25 +19,25 @@ import org.springframework.web.context.support.XmlWebApplicationContext;
 
 /**
  * Extends AxisServlet to load a Spring application context for an AxisServlet.
- * This context will automatically refer to the root WebApplicationContext (loaded by 
+ * This context will automatically refer to the root WebApplicationContext (loaded by
  * ContextLoaderListener/Servlet) as parent.
  * <p>
- * This class follows the same configuration and inialisation pattern as found in Spring's 
- * {@link org.springframework.web.struts.ContextLoaderPlugIn} and 
- * {@link org.springframework.web.servlet.FrameworkServlet}. Consequently, the default namespace 
- * of the WebApplicationContext is the name of this SpringAxisServlet, suffixed with "-servlet" 
- * (e.g. "axis-servlet"). The default location of the XmlWebApplicationContext configuration file 
+ * This class follows the same configuration and inialisation pattern as found in Spring's
+ * {@link org.springframework.web.struts.ContextLoaderPlugIn} and
+ * {@link org.springframework.web.servlet.FrameworkServlet}. Consequently, the default namespace
+ * of the WebApplicationContext is the name of this SpringAxisServlet, suffixed with "-servlet"
+ * (e.g. "axis-servlet"). The default location of the XmlWebApplicationContext configuration file
  * is therefore "/WEB-INF/axis-servlet.xml".
  * <p>
- * The intended usage of this class is in conjunction with SpringBeanMsgProvider and 
- * SpringBeanRPCProvider to allow you to have Spring-managed web service end points. You could 
- * always extend Spring's {@link org.springframework.remoting.jaxrpc.ServletEndpointSupport} in 
- * your web service end points and not use any of these classes, but that would mean that each 
+ * The intended usage of this class is in conjunction with SpringBeanMsgProvider and
+ * SpringBeanRPCProvider to allow you to have Spring-managed web service end points. You could
+ * always extend Spring's {@link org.springframework.remoting.jaxrpc.ServletEndpointSupport} in
+ * your web service end points and not use any of these classes, but that would mean that each
  * end point would have to retrieve its dependencies from the WebApplicationContext at
  * initialisation, rather than using Spring's dependency injection.
- * 
+ *
  * @author Tom Czarniecki (cThomas AT workingmouse DOT com)
- * 
+ *
  * @see com.workingmouse.webservice.axis.SpringBeanMsgProvider
  * @see com.workingmouse.webservice.axis.SpringBeanRPCProvider
  */
@@ -54,7 +54,7 @@ public class SpringAxisServlet extends AxisServlet {
 
     /**
      * Default context class for SpringAxisServlet.
-     * 
+     *
      * @see org.springframework.web.context.support.XmlWebApplicationContext
      */
     public static final Class DEFAULT_CONTEXT_CLASS = XmlWebApplicationContext.class;
@@ -73,7 +73,7 @@ public class SpringAxisServlet extends AxisServlet {
 
     /**
      * Initialise the WebApplicationContext of the SpringAxisServlet.
-     * 
+     *
      * @see org.apache.axis.transport.http.AxisServlet#init()
      */
     public void init() throws ServletException {
@@ -107,7 +107,7 @@ public class SpringAxisServlet extends AxisServlet {
 
     /**
      * Close the WebApplicationContext of the SpringAxisServlet.
-     * 
+     *
      * @see org.apache.axis.transport.http.AxisServletBase#destroy()
      */
     public void destroy() {
@@ -123,7 +123,7 @@ public class SpringAxisServlet extends AxisServlet {
      * Set a custom context class by name. This class must be of type WebApplicationContext,
      * when using the default SpringAxisServlet implementation, the context class
      * must also implement ConfigurableWebApplicationContext.
-     * 
+     *
      * @see #createWebApplicationContext
      */
     public void setContextClassName(String contextClassName) throws IllegalArgumentException {
@@ -141,7 +141,7 @@ public class SpringAxisServlet extends AxisServlet {
      * Set a custom context class. This class must be of type WebApplicationContext,
      * when using the default SpringAxisServlet implementation, the context class
      * must also implement ConfigurableWebApplicationContext.
-     * 
+     *
      * @see #createWebApplicationContext
      */
     public void setContextClass(Class contextClass_) {
@@ -194,10 +194,10 @@ public class SpringAxisServlet extends AxisServlet {
      * Initialize and publish the WebApplicationContext for the SpringAxisServlet.
      * Delegates to createWebApplicationContext for actual creation.
      * Can be overridden in subclasses.
-     * 
-     * @throws org.springframework.beans.BeansException 
+     *
+     * @throws org.springframework.beans.BeansException
      *      if the context couldn't be initialized
-     * 
+     *
      * @see #createWebApplicationContext
      */
     protected WebApplicationContext initWebApplicationContext() throws BeansException {
@@ -229,12 +229,12 @@ public class SpringAxisServlet extends AxisServlet {
      * XmlWebApplicationContext or a custom context class if set. This implementation
      * expects custom contexts to implement ConfigurableWebApplicationContext.
      * Can be overridden in subclasses.
-     * 
-     * @throws org.springframework.beans.BeansException 
+     *
+     * @throws org.springframework.beans.BeansException
      *      if the context couldn't be initialized
-     * 
+     *
      * @see #setContextClass
-     * 
+     *
      * @see org.springframework.web.context.support.XmlWebApplicationContext
      */
     protected WebApplicationContext createWebApplicationContext(WebApplicationContext parent)

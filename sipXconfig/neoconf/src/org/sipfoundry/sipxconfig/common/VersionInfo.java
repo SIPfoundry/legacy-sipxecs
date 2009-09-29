@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -16,8 +16,8 @@ import org.apache.commons.lang.StringUtils;
  * manifest task in neoconf/build.xml for more details.
  */
 public class VersionInfo {
-    
-    
+
+
     /**
      * @return Major and minor version number
      */
@@ -27,7 +27,7 @@ public class VersionInfo {
 
     /**
      * Split version into convienient ids for comparison
-     * 
+     *
      * @return versions ids as string array
      */
     public Integer[] getVersionIds() {
@@ -45,7 +45,7 @@ public class VersionInfo {
         }
         return ids;
     }
-    
+
     String getBuildStamp() {
         return getClass().getPackage().getImplementationVersion();
     }
@@ -53,7 +53,7 @@ public class VersionInfo {
     /**
      * @return more specific build information
      */
-    public String[] getVersionDetails() {        
+    public String[] getVersionDetails() {
         String[] implVer = StringUtils.defaultString(getBuildStamp()).split(" ");
         String[] details = new String[implVer.length + 1];
         System.arraycopy(implVer, 0, details, 1, implVer.length);

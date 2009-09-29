@@ -3,17 +3,17 @@
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm" allow-body="no"
   allow-informal-parameters="no">
   <description>UserForm shows/edits a User</description>
-  
+
   <parameter name="user" required="yes"/>
   <parameter name="alwaysShowSipPassword" default-value="false"/>
-  
+
   <!--
   - P R O P E R T I E S
   -->
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="settingDao" object="spring:settingDao"/>
   <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
-  
+
   <property name="pin"/>
   <property name="showSipPassword" persist="session"/>
   <!-- space-delimited list of aliases -->
@@ -99,7 +99,7 @@
   </component>
   <component id="groupsPanel" type="common/FieldPanel">
     <!-- Tacos/Tapestry Bug
-      - give the right value for field, and autocomplete renders double 
+      - give the right value for field, and autocomplete renders double
       -->
     <binding name="field" value="components.groupsX"/>
     <binding name="label" value="message:label.groups"/>
@@ -120,14 +120,14 @@
     <binding name="validators" value="spring-validators:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.aliases"/>
   </component>
-  
+
   <component id="ifRenderSipPassword" type="If">
     <binding name="condition" value="alwaysShowSipPassword || showSipPassword"/>
   </component>
   <component id="ifRenderToggle" type="If">
     <binding name="condition" value="!alwaysShowSipPassword"/>
   </component>
-  
+
   <component id="toggleShowSipPassword" type="common/ToggleLink">
     <binding name="toggle" value="showSipPassword"/>
   </component>

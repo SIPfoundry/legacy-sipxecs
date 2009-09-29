@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -17,21 +17,21 @@ public class AttrMapTest extends TestCase {
         AttrMap map = new AttrMap();
         assertEquals("(objectclass=*)", map.getSearchFilter());
         map.setObjectClass("person");
-        assertEquals("(objectclass=person)", map.getSearchFilter());        
+        assertEquals("(objectclass=person)", map.getSearchFilter());
     }
 
 
     public void testGetSearchFilterExtra() {
         AttrMap map = new AttrMap();
         map.setFilter("attr=kuku");
-        assertEquals("(&(objectclass=*)(attr=kuku))", map.getSearchFilter());        
+        assertEquals("(&(objectclass=*)(attr=kuku))", map.getSearchFilter());
         map.setObjectClass("person");
-        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());        
+        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());
         map.setFilter("(attr=kuku)");
-        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());        
+        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());
         map.setFilter("!(attr=kuku)(attr=bongo)");
-        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());        
+        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());
         map.setFilter("(!(attr=kuku)(attr=bongo))");
-        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());        
+        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());
     }
 }

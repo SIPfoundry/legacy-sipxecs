@@ -37,7 +37,7 @@ public class  NT1535Upload extends Upload {
     private static final String APPENDIX = "S";
 
     private String m_profileDir;
-    
+
 
 
     public String getProfileDir() {
@@ -56,57 +56,57 @@ public class  NT1535Upload extends Upload {
 
     @Override
     public void undeploy() {
-        rmFwUpdateRequestFile();  
+        rmFwUpdateRequestFile();
         super.undeploy();
-       
-    }
- 
-    private void cpFwUpdateRequestFile() {
-     
-        String fromFileName = m_profileDir + PATH_DELIM    
-               + getSettingValue(TO_HW_VERSION)  
-               + PATH_DELIM                     
-               + getSettingValue(TO_SW_VERSION)
-               + APPENDIX                       
-               + PATH_DELIM                    
-               + FW_UPDATE_REQ_FILE; 
 
-        String toFileName = m_profileDir + PATH_DELIM    
-               + getSettingValue(FROM_HW_VERSION) 
-               + PATH_DELIM                       
-               + getSettingValue(FROM_SW_VERSION) 
-               + APPENDIX                         
-               + PATH_DELIM                       
+    }
+
+    private void cpFwUpdateRequestFile() {
+
+        String fromFileName = m_profileDir + PATH_DELIM
+               + getSettingValue(TO_HW_VERSION)
+               + PATH_DELIM
+               + getSettingValue(TO_SW_VERSION)
+               + APPENDIX
+               + PATH_DELIM
+               + FW_UPDATE_REQ_FILE;
+
+        String toFileName = m_profileDir + PATH_DELIM
+               + getSettingValue(FROM_HW_VERSION)
+               + PATH_DELIM
+               + getSettingValue(FROM_SW_VERSION)
+               + APPENDIX
+               + PATH_DELIM
                + FW_UPDATE_REQ_FILE;
 
         File fromFile = new File(fromFileName);
         File toFile = new File(toFileName);
-      
-        LOG.debug("NT1535Upload::cpFwUpdateRequestFile from " + fromFileName 
-                   + " to " + toFileName);            
+
+        LOG.debug("NT1535Upload::cpFwUpdateRequestFile from " + fromFileName
+                   + " to " + toFileName);
 
         try {
             FileUtils.copyFile(fromFile, toFile);
         } catch (IOException ext) {
 
-            LOG.error("NT1535Upload failed to copy " + FW_UPDATE_REQ_FILE + " " + ext);            
+            LOG.error("NT1535Upload failed to copy " + FW_UPDATE_REQ_FILE + " " + ext);
 
-        }   
+        }
     }
 
     private void rmFwUpdateRequestFile() {
 
-        String fileName = m_profileDir + PATH_DELIM  
-            + getSettingValue(FROM_HW_VERSION)       
-            + PATH_DELIM                             
-            + getSettingValue(FROM_SW_VERSION)       
-            + APPENDIX                               
-            + PATH_DELIM                             
+        String fileName = m_profileDir + PATH_DELIM
+            + getSettingValue(FROM_HW_VERSION)
+            + PATH_DELIM
+            + getSettingValue(FROM_SW_VERSION)
+            + APPENDIX
+            + PATH_DELIM
             + FW_UPDATE_REQ_FILE;
 
-        LOG.debug("NT1535Upload delete " + fileName);            
+        LOG.debug("NT1535Upload delete " + fileName);
 
         File file = new File(fileName);
-        FileUtils.deleteQuietly(file); 
+        FileUtils.deleteQuietly(file);
     }
 }

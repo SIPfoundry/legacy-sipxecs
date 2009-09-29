@@ -19,6 +19,6 @@ public interface ProvisioningContext {
     public String getUploadDirectory();
 
     public String getDomainName();
-    
+
     public Phone getPhoneForUser(User user);
 }

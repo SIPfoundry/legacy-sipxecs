@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.cdr;
@@ -182,9 +182,9 @@ public class Cdr {
         } else if (m_callerInternal) {
             direction = CALL_OUTGOING;
             if (m_calleeRoute != null) {
-                if (m_calleeRoute.endsWith(CallTag.INT.toString())  
-                    || m_calleeRoute.endsWith(CallTag.AA.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.VM.toString()) 
+                if (m_calleeRoute.endsWith(CallTag.INT.toString())
+                    || m_calleeRoute.endsWith(CallTag.AA.toString())
+                    || m_calleeRoute.endsWith(CallTag.VM.toString())
                     || m_calleeRoute.endsWith(CallTag.VMR.toString())
                     || m_calleeRoute.endsWith(CallTag.PAGE.toString())
                     || m_calleeRoute.endsWith(CallTag.AL.toString())) {
@@ -194,22 +194,22 @@ public class Cdr {
         } else {
             direction = CALL_INCOMING;
             if (m_calleeRoute != null) {
-                if (m_calleeRoute.endsWith(CallTag.STS.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.LD.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.TF.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.REST.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.LOCL.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.INTN.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.EMERG.toString()) 
-                    || m_calleeRoute.endsWith(CallTag.MOB.toString()) 
+                if (m_calleeRoute.endsWith(CallTag.STS.toString())
+                    || m_calleeRoute.endsWith(CallTag.LD.toString())
+                    || m_calleeRoute.endsWith(CallTag.TF.toString())
+                    || m_calleeRoute.endsWith(CallTag.REST.toString())
+                    || m_calleeRoute.endsWith(CallTag.LOCL.toString())
+                    || m_calleeRoute.endsWith(CallTag.INTN.toString())
+                    || m_calleeRoute.endsWith(CallTag.EMERG.toString())
+                    || m_calleeRoute.endsWith(CallTag.MOB.toString())
                     || m_calleeRoute.endsWith(CallTag.CUST.toString())) {
                     direction = CALL_TANDEM;
                 }
             }
         }
-        return direction; 
+        return direction;
     }
-        
+
     public String getCallTypeName() {
         String callType = CallTag.UNK.getName();
         if (m_calleeRoute.endsWith(CallTag.AA.toString())) {
@@ -263,8 +263,8 @@ public class Cdr {
         if (m_calleeRoute.endsWith(CallTag.INT.toString())) {
             callType = CallTag.INT.getName();
         }
-        return callType; 
+        return callType;
     }
-        
+
 
 }

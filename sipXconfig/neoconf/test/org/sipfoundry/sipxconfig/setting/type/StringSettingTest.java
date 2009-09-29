@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting.type;
@@ -33,5 +33,5 @@ public class StringSettingTest extends TestCase {
         StringSetting type = new StringSetting();
         type.setPassword(true);
         assertNull(type.getLabel("foo"));
-    }    
+    }
 }

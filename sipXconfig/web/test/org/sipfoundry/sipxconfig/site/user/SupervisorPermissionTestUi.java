@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -29,14 +29,14 @@ public class SupervisorPermissionTestUi extends WebTestCase {
 
     public void testDisplay() throws Exception {
         gotoTestUserPermissionPage();
-        SiteTestHelper.assertNoException(tester);                
+        SiteTestHelper.assertNoException(tester);
     }
-    
+
     private void gotoTestUserPermissionPage() {
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
-        clickLink("userNameLink");        
-        clickLink("groupSupervisorLink");                
+        clickLink("userNameLink");
+        clickLink("groupSupervisorLink");
     }
 
     public void testSetGroups() throws Exception {

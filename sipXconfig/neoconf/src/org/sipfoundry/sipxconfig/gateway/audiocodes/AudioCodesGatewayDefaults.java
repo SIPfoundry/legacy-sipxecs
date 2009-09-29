@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
@@ -41,7 +41,7 @@ public class AudioCodesGatewayDefaults {
     @SettingEntry(path = "SIP_general/ChannelSelectMode")
     public String getChannelSelecMode() {
         if (m_fxoGateway != null) {
-            // 
+            //
             return "1";
         }
         return "0";

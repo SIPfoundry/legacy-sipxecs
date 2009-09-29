@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -34,7 +34,7 @@ public class SchemaTest extends TestCase {
 
         assertEquals(expected, StringUtils.join(attributes, " "));
     }
-    
+
     public void testAddClassDefinitionFullActiveDirectory() {
         String definition = "( 2.5.6.6 NAME 'person' SUP top "
             + "STRUCTURAL MUST (cn ) MAY (sn $ serialNumber $ telephoneNumber $ seeAlso $ userPassword $ attributeCertificateAttribute ) ) ";
@@ -49,7 +49,7 @@ public class SchemaTest extends TestCase {
 
         assertEquals(expected, StringUtils.join(attributes, " "));
     }
-    
+
 
     public void testGetObjectClassesNames() {
         Schema schema = new Schema();
@@ -126,8 +126,8 @@ public class SchemaTest extends TestCase {
 
         assertEquals(expected, StringUtils.join(attributes, " "));
     }
-    
-    
+
+
     public void testGetAttributesPool() throws Exception {
         Schema schema = new Schema();
         assertEquals(0, schema.getAttributesPool(Collections.singleton("person")).length);
@@ -138,12 +138,12 @@ public class SchemaTest extends TestCase {
                 + "AUXILIARY MUST a1 MAY a3 )");
         schema.addClassDefinition("( 1.3 NAME 'z' DESC '' SUP top "
                 + "AUXILIARY MUST a1 MAY a4 )");
-        
-        
+
+
         String[] attributesPool = schema.getAttributesPool(Arrays.asList(new String[] { "x", "z" }));
-        
+
         assertEquals(3, attributesPool.length);
-        assertEquals("a1a2a4", StringUtils.join(attributesPool));        
+        assertEquals("a1a2a4", StringUtils.join(attributesPool));
     }
 
 }

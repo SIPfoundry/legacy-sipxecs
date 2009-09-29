@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -34,18 +34,18 @@ public class LocalizedTableRendererSourceTest extends TestCase {
             }
             fail("should be only called with value1, or value2 as parameter");
             return null;
-        
+
         }
     }
 
     public void testGetRenderer() {
         IMocksControl messagesCtrl = EasyMock.createControl();
         Messages messages = messagesCtrl.createMock(Messages.class);
-        
+
         // PORT
         //messages.getMessage("prefix.bongo", "bongo");
         messages.getMessage("prefix.bongo");
-        
+
         messagesCtrl.andReturn("kuku");
         messagesCtrl.replay();
 
@@ -62,7 +62,7 @@ public class LocalizedTableRendererSourceTest extends TestCase {
 
         messagesCtrl.verify();
     }
-    
+
     public void testGetRendererNoPrefix() {
         IMocksControl messagesCtrl = EasyMock.createControl();
         Messages messages = messagesCtrl.createMock(Messages.class);
@@ -80,6 +80,6 @@ public class LocalizedTableRendererSourceTest extends TestCase {
 
         messagesCtrl.verify();
     }
-    
+
 
 }

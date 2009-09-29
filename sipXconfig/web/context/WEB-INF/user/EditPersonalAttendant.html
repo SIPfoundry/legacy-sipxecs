@@ -20,7 +20,7 @@
             for="personalAttendant:language"
             label="message:label.language"
             description="message:description.language">
-            <input jwcid="language@PropertySelection" 
+            <input jwcid="language@PropertySelection"
               model="bean:languageSelectionModel"
               value="ognl:personalAttendant.language"
               id="personalAttendant:language" />
@@ -28,8 +28,8 @@
         </tr>
       </table>
     </fieldset>
-    
-    <fieldset jwcid="@dialplan/AttendantMenuPanel" 
+
+    <fieldset jwcid="@dialplan/AttendantMenuPanel"
       menu="ognl:personalAttendant.menu"
       minKey="1"
       maxKey="9"
@@ -37,5 +37,5 @@
 
     <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
   </form>
-</div> 
+</div>
 

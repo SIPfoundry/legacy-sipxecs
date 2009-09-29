@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -74,7 +74,7 @@ public class AcdCallStats implements AcdStatsItem.AgentName, AcdStatsItem.QueueN
     }
 
     public String getAgentName() {
-        return m_agentUri != null ? SipUri.extractUser(m_agentUri) : m_agentUri; 
+        return m_agentUri != null ? SipUri.extractUser(m_agentUri) : m_agentUri;
     }
 
     public String getCaller() {
@@ -87,7 +87,7 @@ public class AcdCallStats implements AcdStatsItem.AgentName, AcdStatsItem.QueueN
 
     /**
      * Extracts short user ID from caller URI.
-     * 
+     *
      * @return userId or fuller caller string if it cannot parse caller URI
      */
     public String getCallerName() {

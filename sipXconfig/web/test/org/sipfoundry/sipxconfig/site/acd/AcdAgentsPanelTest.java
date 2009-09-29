@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -54,7 +54,7 @@ public class AcdAgentsPanelTest extends TestCase {
         control.verify();
         mc.verify();
     }
-    
+
     public void testDownUp() {
         Collection ids = new ArrayList();
         ids.add(new Integer(2));
@@ -80,7 +80,7 @@ public class AcdAgentsPanelTest extends TestCase {
         control.verify();
         mc.verify();
     }
-    
+
     public void testDelete() {
         Collection ids = new ArrayList();
         ids.add(new Integer(2));
@@ -106,7 +106,7 @@ public class AcdAgentsPanelTest extends TestCase {
         control.verify();
         mc.verify();
     }
-    
+
     public void testNoAction() {
         IMocksControl mc = EasyMock.createControl();
         IRequestCycle rc = mc.createMock(IRequestCycle.class);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.time;
@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 public abstract class EditTimeZoneSettings extends BaseComponent implements PageBeginRenderListener {
     @Parameter(required = true)
     public abstract TimeManager getTimeManager();
-    
+
     public abstract String getTimezoneType();
 
     public abstract void setTimezoneType(String type);
@@ -40,7 +40,7 @@ public abstract class EditTimeZoneSettings extends BaseComponent implements Page
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
-    
+
     public void pageBeginRender(PageEvent event_) {
         // Init. the timezone dropdown menu.
         Timezone timezone = new Timezone();
@@ -56,10 +56,10 @@ public abstract class EditTimeZoneSettings extends BaseComponent implements Page
         // Note: getAllTimezones will have added the current timezone to
         // the dropdown list, if it wasn't in it.
         setTimezoneType(timezone.getTimezone());
-        
+
         TimeZone.setDefault(TimeZone.getTimeZone(timezone.getTimezone()));
     }
-    
+
     public void setSysTimezone() {
         getTimeManager().setSystemTimezone(getTimezoneType());
     }

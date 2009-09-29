@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -36,9 +36,9 @@ public class EnumUserType implements UserType {
 
     /**
      * Initializes static fields for this enumeration
-     * 
+     *
      * Workaround for: http://issues.apache.org/jira/browse/LANG-76
-     * 
+     *
      */
     public void initStaticFields() {
         Field[] fields = m_enumClass.getFields();
@@ -104,7 +104,7 @@ public class EnumUserType implements UserType {
             throw new IllegalArgumentException("Received value is not a ["
                     + returnedClass().getName() + "] but [" + value.getClass() + "]");
         }
-        
+
         if (value == null) {
             st.setNull(index, Types.VARCHAR);
             return;

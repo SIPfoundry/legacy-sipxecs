@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.job;
@@ -139,8 +139,8 @@ public class JobContextImplTest extends TestCase {
         context.failure(first, null, null);
         assertFalse(context.isFailure());
     }
-    
-    
+
+
     public void testAgeFailure() {
         final int max = 2;
         JobContextImpl context = new JobContextImpl();
@@ -151,18 +151,18 @@ public class JobContextImplTest extends TestCase {
         context.start(job0);
         context.success(job0);
         assertFalse(context.isFailure());
-        
+
         Serializable job1 = context.schedule("job1");
         context.start(job1);
         context.failure(job1, null, null);
         assertTrue(context.isFailure());
-        
+
         Serializable job2 = context.schedule("job2");
         context.start(job2);
-        context.success(job2);        
+        context.success(job2);
         assertTrue(context.isFailure());
-        
+
         context.schedule("job3");
         assertFalse(context.isFailure());
-    }    
+    }
 }

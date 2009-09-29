@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -34,12 +34,12 @@ public class BackgroundTaskQueueTest extends TestCase {
         assertEquals("", buffer.toString());
 
         queue.resume();
-        
+
         char[] expected = new char[taskNum];
         Arrays.fill(expected, 'A');
-        
+
         queue.yieldTillEmpty();
-        
+
         assertEquals(new String(expected), buffer.toString());
     }
 

@@ -23,9 +23,9 @@ public class InitialConfigTestIntegration extends IntegrationTestCase {
         assertTrue(new File(m_initialConfig.getTmpDirectory() + "/initial-config/test_location.tar.gz").exists());
         m_initialConfig.deleteInitialConfigDirectory();
         // archive is deleted
-        assertFalse(new File(m_initialConfig.getTmpDirectory() + "/initial-config/test_location.tar.gz").exists());        
+        assertFalse(new File(m_initialConfig.getTmpDirectory() + "/initial-config/test_location.tar.gz").exists());
     }
-    
+
     public void setInitialConfig(InitialConfig initialConfig) {
         m_initialConfig = initialConfig;
     }

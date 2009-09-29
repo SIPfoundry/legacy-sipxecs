@@ -21,7 +21,7 @@ public class FreeswitchApiResultParserTest {
 
     private FreeswitchApiResultParser m_parser;
     private Conference m_conference;
-    
+
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(FreeswitchApiResultParserTest.class);
     }

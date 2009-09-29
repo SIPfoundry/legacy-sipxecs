@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -35,7 +35,7 @@ public class UserSearchManagerImplTestDb extends TestCase {
         indexManager.indexAll();
     }
 
-    
+
     public void testSearchEmpty() throws Exception {
         User user = new User();
         user.setFirstName("first");
@@ -47,9 +47,9 @@ public class UserSearchManagerImplTestDb extends TestCase {
         User template = new User();
         Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
-        assertTrue(collection.contains(user));        
+        assertTrue(collection.contains(user));
     }
-    
+
     public void testSearchFirstName() throws Exception {
         User user = new User();
         user.setFirstName("first");

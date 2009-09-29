@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 /**
  * Helper methods for phone base unittesting.
- * 
+ *
  * Thought about making this a helper w/static functions but webunit methods are protected, as
  * they probably should be.
  */

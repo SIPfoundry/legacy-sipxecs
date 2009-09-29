@@ -15,8 +15,8 @@
   <component id="filter" type="common/FlexiblePropertySelection">
     <binding name="value" value="cdrSearch.mode" />
     <binding name="model" value="selectionModel" />
-    <!-- FIXME: hardcoded 'refresh' button ID - 
-      if it stops working can be replaced with this.form.submit(); 
+    <!-- FIXME: hardcoded 'refresh' button ID -
+      if it stops working can be replaced with this.form.submit();
       there should be a better way to trigger asynchronous Submit
     -->
     <binding name="onchange" value="literal:javascript:dojo.byId('refresh').click();" />

@@ -24,11 +24,11 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     private DomainManager m_out;
     private DomainManagerImpl m_domainManagerImpl;
     private LocationsManager m_originalLocationsManager;
-    
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        
+
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         Location primaryLocation = TestUtil.createDefaultLocation();
         locationsManager.getPrimaryLocation();
@@ -36,7 +36,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         locationsManager.getLocations();
         EasyMock.expectLastCall().andReturn(new Location[]{primaryLocation}).anyTimes();
         EasyMock.replay(locationsManager);
-        
+
         modifyContext(m_domainManagerImpl, "locationsManager", m_originalLocationsManager, locationsManager);
     }
 
@@ -91,7 +91,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
 
         Domain domain = m_out.getDomain();
         assertNotNull(domain);
-        
+
         assertEquals("domain.example.org", domain.getName());
         assertEquals("realm.example.org", domain.getSipRealm());
         assertNotNull(domain.getAliases());
@@ -102,11 +102,11 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
     public void setDomainManager(DomainManager domainManager) {
         m_out = domainManager;
     }
-    
+
     public void setDomainManagerImpl(DomainManagerImpl domainManagerImpl) {
         m_domainManagerImpl = domainManagerImpl;
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_originalLocationsManager = locationsManager;
     }

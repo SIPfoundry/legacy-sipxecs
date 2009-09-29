@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.lg_nortel;
@@ -329,7 +329,7 @@ public class LgNortelPhoneTest extends TestCase {
         supplyTestData(phone);
 
         // disable PROVISION/overwrite
-        phone.setSettingValue("PROVISION/overwrite", "0"); 
+        phone.setSettingValue("PROVISION/overwrite", "0");
         phone.getProfileTypes()[0].generate(phone, location);
         InputStream expectedProfile = getClass().getResourceAsStream("mac_disable_overwrite_provision.cfg");
         assertNotNull(expectedProfile);

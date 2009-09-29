@@ -8,7 +8,7 @@
 
   <parameter name="rings" required="yes"/>
   <parameter name="idConverter" required="yes"/>
-  
+
   <!-- P R O P E R T I E S -->
   <inject property="coreContext" object="spring:coreContext"/>
   <property name="currentRow"/>
@@ -18,7 +18,7 @@
   <property name="rowsToMoveUp"/>
   <property name="rowsToMoveDown"/>
   <property name="addRow" initial-value="false"/>
-  
+
   <!-- B E A N S -->
   <bean name="delayModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
@@ -28,7 +28,7 @@
     <set name="resourcePrefix" value="literal:ring.delay."/>
     <set name="messages" value="messages"/>
   </bean>
-  
+
   <!-- C O M P O N E N T S -->
   <component id="tableView" type="common/Table">
     <binding name="columns" value="literal:* !sequence:type,!userid:user.userName,!alias:user.aliasesString,!expiration"/>
@@ -43,7 +43,7 @@
     <binding name="value" value="currentRow.type"/>
     <binding name="model" value="bean:delayModel"/>
   </component>
-  <!-- it would be better if we just suppress this for the first row however 
+  <!-- it would be better if we just suppress this for the first row however
   it's hard to get access to the row number -->
   <component id="ifRenderSequence" type="If">
     <binding name="condition" value="!currentRow.first"/>

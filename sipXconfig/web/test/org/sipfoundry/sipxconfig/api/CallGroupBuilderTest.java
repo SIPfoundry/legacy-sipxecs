@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -30,7 +30,7 @@ public class CallGroupBuilderTest extends TestCase {
     private CallGroup m_apiCallGroup;
     private IMocksControl m_control;
     private CoreContext m_coreContext;
-    
+
     protected void setUp() {
         m_control = EasyMock.createControl();
         m_coreContext = m_control.createMock(CoreContext.class);
@@ -40,7 +40,7 @@ public class CallGroupBuilderTest extends TestCase {
         m_apiCallGroup = new CallGroup();
     }
 
-    public void testFromApi() {        
+    public void testFromApi() {
         m_apiCallGroup.setName("cg1");
         m_apiCallGroup.setExtension("101");
         m_apiCallGroup.setDescription("i'm still alive");
@@ -68,7 +68,7 @@ public class CallGroupBuilderTest extends TestCase {
         assertEquals(true, m_myCallGroup.isEnabled());
         List myRings = m_myCallGroup.getRings();
         assertEquals(1, myRings.size());
-        org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing = 
+        org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing =
             (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myRings.get(0);
         assertEquals(19, myRing.getExpiration());
         assertEquals(0, myRing.getPosition());
@@ -92,7 +92,7 @@ public class CallGroupBuilderTest extends TestCase {
         List myRings = new ArrayList(1);
         myRings.add(myRing);
         m_myCallGroup.setRings(myRings);
-        
+
         ApiBeanUtil.toApiObject(m_builder, m_apiCallGroup, m_myCallGroup);
         assertEquals("cg1", m_apiCallGroup.getName());
         assertEquals("101", m_apiCallGroup.getExtension());
@@ -103,6 +103,6 @@ public class CallGroupBuilderTest extends TestCase {
         UserRing apiRing = apiRings[0];
         assertEquals(19, apiRing.getExpiration());
         assertEquals(5, apiRing.getPosition());
-        assertEquals(AbstractRingBuilder.TYPE_IMMEDIATE, apiRing.getType());        
+        assertEquals(AbstractRingBuilder.TYPE_IMMEDIATE, apiRing.getType());
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -28,7 +28,7 @@ public abstract class DialRulesTable extends BaseComponent implements PageBeginR
      */
     @Parameter(required = true)
     public abstract List<DialingRule> getDialingRules();
-    
+
     /**
      * Gets the table selections.
      */
@@ -38,8 +38,8 @@ public abstract class DialRulesTable extends BaseComponent implements PageBeginR
      * Sets the table selections.
      * @param selected the table selections
      */
-    public abstract void setSelections(SelectMap selected);    
-    
+    public abstract void setSelections(SelectMap selected);
+
     /**
      * Initializes the table selection model before the page begins rendering.
      */
@@ -48,6 +48,6 @@ public abstract class DialRulesTable extends BaseComponent implements PageBeginR
         if (selections == null) {
             setSelections(new SelectMap());
         }
-    }    
-    
+    }
+
 }

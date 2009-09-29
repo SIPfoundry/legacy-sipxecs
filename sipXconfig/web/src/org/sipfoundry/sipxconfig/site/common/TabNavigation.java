@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.common;
@@ -18,18 +18,18 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = true, allowInformalParameters = true)
 public abstract class TabNavigation extends BaseComponent {
-    
+
     public abstract String getCurrentTab();
-    
+
     @Parameter(required = false, defaultValue = "literal:tabNavigation")
     public abstract String getElementId();
-    
+
     @Parameter(required = true)
     public abstract Collection getTabNames();
-    
+
     @Parameter()
     public abstract void setSelectedTab(String section);
-    
+
     @Parameter(required = false, defaultValue = "false")
     public abstract boolean isSubmit();
 
@@ -48,7 +48,7 @@ public abstract class TabNavigation extends BaseComponent {
             setSelectedTab(tabName);
         }
     }
-    
+
     public String getCurrentTabLabel() {
         return getContainer().getMessages().getMessage("tab." + getCurrentTab());
     }

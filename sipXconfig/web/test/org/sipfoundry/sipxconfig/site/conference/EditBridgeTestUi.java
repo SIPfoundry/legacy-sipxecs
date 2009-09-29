@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
@@ -40,7 +40,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         assertLinkPresent("link:config");
         assertLinkPresent("link:conferences");
     }
-    
+
     @Override
     public void setUp() {
         m_conferenceHelper = new ConferenceTestHelper(tester);
@@ -89,7 +89,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         clickLink("ListBridges");
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
-        
+
         // all conferences
         SiteTestHelper.selectOption(tester, "group:filter", "- all -");
         int tableCount = SiteTestHelper.getRowCount(tester, "conference:list");

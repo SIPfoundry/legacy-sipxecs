@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip.log4j;
@@ -16,8 +16,8 @@ import gov.nist.javax.sip.LogRecordFactory;
  * This class returns a Log record for each SipMessage logged by the jain sip stack. It should
  * generate a log record with the correct format. This log format was obtained by reverse
  * engineering the log records found in the SIPX logs.
- * 
- * 
+ *
+ *
  */
 public class SipFoundryLogRecordFactory implements LogRecordFactory {
 
@@ -41,7 +41,7 @@ public class SipFoundryLogRecordFactory implements LogRecordFactory {
 
     /**
      * Create a log record.
-     * 
+     *
      * @param message -- the message to be logged.
      * @param source -- host:port of the source of the message.
      * @param destination -- host:port of the destination of the message.
@@ -52,7 +52,7 @@ public class SipFoundryLogRecordFactory implements LogRecordFactory {
      * @param tid -- the transaction id
      * @param callId -- the call id
      * @param timestampVal -- the timestamp header value of the incoming message.
-     * 
+     *
      * @return -- a log record with the appropriate fields set.
      */
 

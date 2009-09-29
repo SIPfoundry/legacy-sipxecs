@@ -26,7 +26,7 @@
   <inject property="restartService" object="engine-service:restart"/>
   <inject property="applicationLifecycle" object="service:sipxconfig.ApplicationLifecycle"/>
   <inject property="userSession" type="state" object="userSession"/>
-  
+
   <component id="resetCallForwarding" type="DirectLink">
     <binding name="listener" value="listener:resetCallForwarding"/>
   </component>

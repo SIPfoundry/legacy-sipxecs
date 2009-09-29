@@ -9,7 +9,7 @@
       <ref local="timeManagerImpl" />
     </property>
   </bean>
-  
+
   <bean id="timeManagerImpl" class="org.sipfoundry.sipxconfig.admin.time.TimeManagerImpl" autowire="byType">
     <property name="libExecDirectory" value="${sysdir.libexec}" />
     <property name="binDirectory" value="${sysdir.bin}" />

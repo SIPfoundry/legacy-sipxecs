@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <!-- 
-  - LOCALIZATION C O N T E X T           
+  <!--
+  - LOCALIZATION C O N T E X T
   -->
   <bean id="localizationContextImpl" class="org.sipfoundry.sipxconfig.admin.localization.LocalizationContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />

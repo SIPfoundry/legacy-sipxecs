@@ -32,7 +32,7 @@
   </component>
   <component id="groupsPanel" type="common/FieldPanel">
     <!-- Tacos/Tapestry Bug
-      - give the right value for field, and autocomplete renders double 
+      - give the right value for field, and autocomplete renders double
       - hence: 'null' instead of 'component:groups'
     -->
     <binding name="field" value="null" />

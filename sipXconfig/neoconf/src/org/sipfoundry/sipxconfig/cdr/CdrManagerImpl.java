@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.cdr;
@@ -104,10 +104,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
     /**
      * Current implementation only dumps at most m_csvLimit CDRs. This limitation is necessary due
      * to limitations of URLConnection used to download exported data to the client system.
-     * 
+     *
      * See: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4212479
      * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5026745
-     * 
+     *
      * If we had direct access to that connection we could try calling "setChunkedStreamingMode"
      * on it.
      */

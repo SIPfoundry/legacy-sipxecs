@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -20,7 +20,7 @@ public class AcdLineTestDb extends TestCase {
     private AcdServer m_server;
 
     protected void setUp() throws Exception {
-        m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");        
+        m_server = (AcdServer) TestHelper.getApplicationContext().getBean("acdServer");
         m_line = (AcdLine) TestHelper.getApplicationContext().getBean("acdLine");
         m_line.setAcdServer(m_server);
     }

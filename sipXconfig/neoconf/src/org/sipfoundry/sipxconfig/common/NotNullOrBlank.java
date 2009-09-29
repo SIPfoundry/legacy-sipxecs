@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -19,7 +19,7 @@ public final class NotNullOrBlank implements PropertySelector {
     private NotNullOrBlank() {
         // use single static instance
     }
-    
+
     public boolean include(Object propertyValue, String propertyName_, Type type_) {
         if (propertyValue == null) {
             return false;

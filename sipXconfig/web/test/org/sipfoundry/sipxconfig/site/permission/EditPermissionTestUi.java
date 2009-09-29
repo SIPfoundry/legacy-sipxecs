@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.permission;
@@ -24,7 +24,7 @@ public class EditPermissionTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-        tester.clickLink("toggleNavigation");        
+        tester.clickLink("toggleNavigation");
         clickLink("menu.permissions");
         setWorkingForm("Form");
     }
@@ -38,7 +38,7 @@ public class EditPermissionTestUi extends WebTestCase {
         clickLink("permissions:add");
         setTextField("label", "duplicate");
         clickButton("form:apply");
-        SiteTestHelper.assertUserError(tester);        
+        SiteTestHelper.assertUserError(tester);
     }
 
     public void testDeleteCustomPermission() throws Exception {

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.line;
@@ -16,16 +16,16 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 public class AddExternalLineTestUi extends WebTestCase {
-    
+
     private PhoneTestHelper m_helper;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(AddExternalLineTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
         SiteTestHelper.seedUser(tester);
@@ -40,13 +40,13 @@ public class AddExternalLineTestUi extends WebTestCase {
     }
 
     public void testDisplay() {
-        clickLink("AddExternalLine");        
+        clickLink("AddExternalLine");
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("form:externalLine");
     }
-    
+
     public void testAddExternalLine() {
-        clickLink("AddExternalLine");        
+        clickLink("AddExternalLine");
         setTextField("line:displayName", "Dil Bert");
         setTextField("line:userId", "dilbert");
         setTextField("cp:password", "1234");
@@ -60,12 +60,12 @@ public class AddExternalLineTestUi extends WebTestCase {
         assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 2); // 1 plus header
         assertLinkPresentWithText("\"Dil Bert\"<sip:dilbert@frakenberry.org>", 0);
     }
-    
+
     public void testAddExternalLineWithError() {
         assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 1); // header
 
-        clickLink("AddExternalLine");        
-        
+        clickLink("AddExternalLine");
+
         // empty
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
@@ -79,9 +79,9 @@ public class AddExternalLineTestUi extends WebTestCase {
         setTextField("line:registrationServer", "fwd.org");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-        
+
         assertTablePresent("line:list");
         assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 2); // 1 plus header
-        
+
     }
 }

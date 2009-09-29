@@ -3,7 +3,7 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification class="org.apache.tapestry.BaseComponent" allow-body="no"
   allow-informal-parameters="no">
-  
+
   <description>Show existing groups to inform users
     of all the possible items</description>
 

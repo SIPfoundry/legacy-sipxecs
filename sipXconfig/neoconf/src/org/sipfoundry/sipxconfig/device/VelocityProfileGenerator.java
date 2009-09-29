@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -40,10 +40,10 @@ public class VelocityProfileGenerator extends AbstractProfileGenerator {
      * Most phones/devices are not very clear on what type of encoding they use in the profiles.
      * We set it to UTF-8 by default. It is required by standard to be supported on all Java
      * platforms and it *should* work with most phones.
-     * 
+     *
      * The only case where profile encoding does matter is when profile contain non-ASCII
      * characters, which happens most often in names, phonesbooks, speeddials.
-     * 
+     *
      */
     public void setProfileEncoding(String profileEncoding) {
         m_profileEncoding = profileEncoding;

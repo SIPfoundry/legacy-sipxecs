@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -76,13 +76,13 @@ public abstract class EditCallGroup extends PageWithCallback implements PageBegi
 
     /**
      * Called when any of the submit components on the form is activated.
-     * 
+     *
      * Usually submit components are setting properties. formSubmit will first check if the form
      * is valid, then it will call all the "action" listeners. Only one of the listeners (the one
      * that recognizes the property that is set) will actually do something. This is a strange
      * consequence of the fact that Tapestry listeners are pretty much useless because they are
      * called while the form is still rewinding and not all changes are committed to beans.
-     * 
+     *
      * @param cycle current request cycle
      */
     public IPage formSubmit(IRequestCycle cycle) {
@@ -105,7 +105,7 @@ public abstract class EditCallGroup extends PageWithCallback implements PageBegi
 
     /**
      * Saves current call group and displays add ring page.
-     * 
+     *
      * @param cycle current request cycle
      * @param ringTable component with table of rings
      */

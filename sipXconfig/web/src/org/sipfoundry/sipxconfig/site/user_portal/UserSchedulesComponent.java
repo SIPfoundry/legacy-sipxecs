@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -32,7 +32,7 @@ public abstract class UserSchedulesComponent extends BaseComponent implements Pa
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
-    
+
     public abstract void setSchedules(List groups);
 
     public abstract List getSchedules();
@@ -46,10 +46,10 @@ public abstract class UserSchedulesComponent extends BaseComponent implements Pa
     public abstract SelectMap getSelections();
 
     public abstract boolean getChanged();
-    
+
     @Parameter(required = true)
     public abstract User getUser();
-    
+
     @Parameter(required = true)
     public abstract UserSession getUserSession();
 
@@ -71,7 +71,7 @@ public abstract class UserSchedulesComponent extends BaseComponent implements Pa
         page.setGroupId(groupId);
         return page;
     }
-    
+
     public void pageBeginRender(PageEvent event) {
         if (getChanged()) {
             setSchedules(null);
@@ -80,7 +80,7 @@ public abstract class UserSchedulesComponent extends BaseComponent implements Pa
         if (getSchedules() != null) {
             return;
         }
-        
+
         ForwardingContext forwardingContext = getForwardingContext();
         List<Schedule> schedules = forwardingContext.getPersonalSchedulesForUserId(getUser().getId());
         setSchedules(schedules);

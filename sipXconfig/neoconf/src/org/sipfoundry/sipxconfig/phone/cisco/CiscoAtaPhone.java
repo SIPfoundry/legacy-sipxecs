@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
@@ -55,7 +55,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     /**
      * Generate files in text format. Won't be usable by phone, but you can use cisco config tool
      * to convert manually. This is mostly for debugging
-     * 
+     *
      * @param isTextFormatEnabled true to save as text, default is false
      */
     public void setTextFormatEnabled(boolean isTextFormatEnabled) {

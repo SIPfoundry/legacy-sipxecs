@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -18,19 +18,19 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
-    
+
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);        
+                PhoneContext.CONTEXT_BEAN_NAME);
     }
-    
-    public void testLoad() throws Exception {        
+
+    public void testLoad() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/PhoneSummarySeed.xml");
-        
+
         Collection summaries = m_context.loadPhones();
-        
+
         assertEquals(3, summaries.size());
         Phone[] summariesArray = (Phone[]) summaries.toArray(new Phone[0]);
 

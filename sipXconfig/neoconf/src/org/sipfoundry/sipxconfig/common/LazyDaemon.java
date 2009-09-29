@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -37,8 +37,8 @@ public abstract class LazyDaemon extends Thread {
                 do {
                     LOG.debug("Waiting for quiet period, ms: " + m_sleepInterval);
                     sleep(m_sleepInterval);
-                    quietPeriod = System.currentTimeMillis() - m_workAddedTimestamp;                    
-                } while(quietPeriod < m_sleepInterval);                
+                    quietPeriod = System.currentTimeMillis() - m_workAddedTimestamp;
+                } while(quietPeriod < m_sleepInterval);
                 try {
                     LOG.debug("Staring work");
                     moreWork = work();
@@ -50,16 +50,16 @@ public abstract class LazyDaemon extends Thread {
             LOG.error(getName() + "exiting due to exception.", e);
         }
     }
-    
+
     public void workScheduled() {
-        m_workAddedTimestamp = System.currentTimeMillis();        
+        m_workAddedTimestamp = System.currentTimeMillis();
     }
 
     /**
      * Overwrite to call wait function to suspend this thread until there is something to be done.
      * It's pefectly valid not to wait for anything - in that case this thread will still sleep
      * for m_sleepInterval before calling work
-     * 
+     *
      * @throws InterruptedException
      */
     protected abstract void waitForWork() throws InterruptedException;
@@ -67,7 +67,7 @@ public abstract class LazyDaemon extends Thread {
     /**
      * Overwrite to do something with low priority that needs to be done regularly (house cleaning
      * tasks).
-     * 
+     *
      * @return moreWork - true if thread should keep on calling work, false to finish thread
      */
     protected abstract boolean work();

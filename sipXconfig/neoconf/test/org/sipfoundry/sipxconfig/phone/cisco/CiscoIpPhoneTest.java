@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
@@ -59,7 +59,7 @@ public class CiscoIpPhoneTest extends TestCase {
 
         List<Line> lines = m_phone.getLines();
         assertEquals(2, lines.size());
-        
+
         Line externalLine = lines.get(1);
         assertEquals("sippassword", externalLine.getSettingTypedValue("line/password"));
         assertEquals("juser", externalLine.getSettingTypedValue("line/name"));

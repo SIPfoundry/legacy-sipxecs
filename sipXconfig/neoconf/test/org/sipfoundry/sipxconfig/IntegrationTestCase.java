@@ -48,7 +48,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     public IntegrationTestCase() {
         setAutowireMode(AUTOWIRE_BY_NAME);
     }
-    
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
@@ -138,7 +138,7 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
     }
 
     /**
-     * Modifies a concrete object from the spring context.  Any modifications will be be 
+     * Modifies a concrete object from the spring context.  Any modifications will be be
      * rolled back in the tearDown
      * @param target The context object to modify
      * @param propertyName The property of the the target to modify
@@ -149,10 +149,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
         if (! m_modifiedContextObjectMap.containsKey(target)) {
             m_modifiedContextObjectMap.put(target, new HashMap<String, Object>());
         }
-        
+
         Map<String, Object> originalContextObjectValueMap = m_modifiedContextObjectMap.get(target);
         originalContextObjectValueMap.put(propertyName, originalValue);
-        
+
         try {
             BeanUtils.setProperty(target, propertyName, valueForTest);
         } catch (IllegalAccessException e) {
@@ -179,10 +179,10 @@ public abstract class IntegrationTestCase extends AbstractAnnotationAwareTransac
                     LOG.error("Unable to set property " + propertyName + " on target " + target, e);
                 }
             }
-            
+
             m_modifiedContextObjectMap.remove(target);
         }
-        
+
         assertTrue(m_modifiedContextObjectMap.isEmpty());
     }
 }

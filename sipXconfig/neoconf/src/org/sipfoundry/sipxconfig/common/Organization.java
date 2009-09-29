@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -20,12 +20,12 @@ public class Organization extends BeanWithId implements Serializable, NamedObjec
     private static final long serialVersionUID = 1L;
 
     private String m_name;
-    
+
     private String m_dnsDomain;
-    
+
     // TODO : Enumerate stereotypes
     private int m_stereotype = 1;
-    
+
     /**
      * @return Returns the dnsDomain.
      */
@@ -38,7 +38,7 @@ public class Organization extends BeanWithId implements Serializable, NamedObjec
     public void setDnsDomain(String dnsDomain) {
         m_dnsDomain = dnsDomain;
     }
-    
+
     /**
      * @return Returns the stereoType.
      */
@@ -51,7 +51,7 @@ public class Organization extends BeanWithId implements Serializable, NamedObjec
     public void setStereotype(int stereotype) {
         m_stereotype = stereotype;
     }
-    
+
     /**
      * @return Returns the name.
      */

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common.event;
@@ -20,18 +20,18 @@ import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
  * Publisher for Dao events
- * 
+ *
  * Implementation: we could probably use Spring application context event publishing facility but
  * it would require that our event handling is aware of ApplicationEvent class.
  */
-public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAware {    
+public class DaoEventPublisherImpl  implements DaoEventPublisher, BeanFactoryAware {
     private Collection m_listeners;
 
     private ListableBeanFactory m_beanFactory;
 
     /**
      * Lazily creates the collection of beans that implement DaoEventListener interface
-     * 
+     *
      * @return cached or newly created listener collection
      */
     private Collection getListeners() {

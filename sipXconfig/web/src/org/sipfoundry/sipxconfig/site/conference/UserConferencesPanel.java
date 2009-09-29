@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
@@ -23,16 +23,16 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class UserConferencesPanel extends BaseComponent {
-    
+
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
-    
+
     @InjectPage(EditConference.PAGE)
     public abstract EditConference getEditConferencePage();
-    
+
     @InjectState(value = "userSession")
-    public abstract UserSession getUserSession();    
-    
+    public abstract UserSession getUserSession();
+
     public IPage addConference() {
         EditConference editConference = getEditConferencePage();
         editConference.setBridgeId(null);
@@ -40,23 +40,23 @@ public abstract class UserConferencesPanel extends BaseComponent {
         editConference.setOwnerId(getUser().getId());
         editConference.setReturnPage(getPage());
         return editConference;
-    }       
-    
+    }
+
     @Parameter(required = true)
     public abstract void setUser(User user);
     public abstract User getUser();
-    
+
     public abstract Conference getCurrentRow();
     public abstract void setCurrentRow(Conference currentRow);
- 
+
     public IPage selectConference(Integer conferenceId) {
         return activateEditConferencePage(conferenceId, EditConference.TAB_CONFIG);
     }
-    
+
     public IPage selectActiveConference(Integer conferenceId) {
         return activateEditConferencePage(conferenceId, EditConference.TAB_PARTICIPANTS);
     }
-    
+
     private IPage activateEditConferencePage(Integer conferenceId, String tab) {
         EditConference editConferencePage = getEditConferencePage();
         editConferencePage.setTab(tab);
@@ -64,5 +64,5 @@ public abstract class UserConferencesPanel extends BaseComponent {
         editConferencePage.setReturnPage(getPage());
         return editConferencePage;
     }
-    
+
 }

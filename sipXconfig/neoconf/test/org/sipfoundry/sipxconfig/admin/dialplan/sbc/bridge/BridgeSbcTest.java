@@ -139,20 +139,20 @@ public class BridgeSbcTest {
         String expected = IOUtils.toString(expectedConfig);
         assertEquals(expected, actual);
     }
-    
+
     public void testSetLogLevel() {
         m_sbc.setLogLevel("DEBUG");
         assertEquals("DEBUG", m_sbc.getLogLevel());
-        
+
         m_sbc.setLogLevel("ERR");
         assertEquals("ERR", m_sbc.getLogLevel());
-        
+
         m_sbc.setLogLevel("CRIT");
         assertEquals("ERR", m_sbc.getLogLevel());
-        
+
         m_sbc.setLogLevel("ALERT");
         assertEquals("ERR", m_sbc.getLogLevel());
-        
+
         m_sbc.setLogLevel("EMERG");
         assertEquals("ERR", m_sbc.getLogLevel());
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -20,7 +20,7 @@ public class VersionInfoTest extends TestCase {
         VersionInfo info = new VersionInfo();
         assertEquals("", info.getVersion());
     }
-    
+
     public void testGetVersionIds() {
         Integer[] ids = VersionInfo.versionStringToVersionIds("12.34.56");
         assertEquals(3, ids.length);
@@ -28,8 +28,8 @@ public class VersionInfoTest extends TestCase {
         assertEquals(34, ids[1].intValue());
         assertEquals(56, ids[2].intValue());
         assertEquals(0, VersionInfo.versionStringToVersionIds(null).length);
-    }    
-    
+    }
+
     public void testVersionDetails() {
         VersionInfo info = new VersionInfo() {
             String getBuildStamp() {

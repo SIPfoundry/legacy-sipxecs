@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -50,7 +50,7 @@ public class XmlRpcSettingsTest extends TestCase {
         Hashtable params = new Hashtable();
         params.put("object-class", "testGroup");
         params.put("integerSetting", new Integer(4));
-        params.put("stringSetting", "bongo");        
+        params.put("stringSetting", "bongo");
 
         IMocksControl control = EasyMock.createControl();
         Provisioning prov = control.createMock(Provisioning.class);

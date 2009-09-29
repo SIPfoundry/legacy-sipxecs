@@ -48,10 +48,10 @@ public class AdminContextImplTestIntegration extends IntegrationTestCase {
 
     public void testInUpgradePhase() {
         assertFalse(m_adminContext.inInitializationPhase());
-    
+
         System.setProperty("sipxconfig.initializationPhase", "true");
         assertTrue(m_adminContext.inInitializationPhase());
-        
+
         System.clearProperty("sipxconfig.initializationPhase");
     }
 

@@ -3,7 +3,7 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
   <!--
     - B E A N S
-  -->  
+  -->
   <bean name="permissionAdapter" class="org.sipfoundry.sipxconfig.site.permission.PermissionOptionAdapter"
     lifecycle="request">
     <set name="locale" value="locale" />
@@ -13,7 +13,7 @@
     <set name="collection" value="permissionManager.callPermissions" />
     <set name="adapter" value="bean:permissionAdapter" />
   </bean>
-  
+
   <!--
     - C O M P O N E N T S
   -->

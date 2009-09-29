@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -36,7 +36,7 @@ public abstract class DiscoverTable extends BaseComponent {
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestryContext();
-    
+
     public abstract void setTargets(List<DiscoveredDevice> targets);
 
     public abstract List<DiscoveredDevice> getTargets();

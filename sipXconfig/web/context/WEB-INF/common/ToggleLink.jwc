@@ -5,7 +5,7 @@
   <parameter name="toggle" required="yes"/>
   <parameter name="labelOn" default-value="message:hideAdvanced"/>
   <parameter name="labelOff" default-value="message:showAdvanced"/>
-  
+
   <component id="toggleLink" type="LinkSubmit">
     <binding name="tag" value="!toggle"/>
     <binding name="selected" value="toggle"/>

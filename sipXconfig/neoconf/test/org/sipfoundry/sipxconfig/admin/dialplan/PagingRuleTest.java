@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -16,11 +16,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
 public class PagingRuleTest extends TestCase {
     private PagingRule m_rule;
-    
+
     protected void setUp() {
         m_rule = new PagingRule("*77", "alert");
     }
-    
+
     public void testGetPatterns() {
         String[] patterns = m_rule.getPatterns();
         assertEquals(1, patterns.length);
@@ -35,5 +35,5 @@ public class PagingRuleTest extends TestCase {
         assertEquals("Alert-info=alert", transform.getUrlParams()[0]);
         assertEquals("${PAGE_SERVER_ADDR}:${PAGE_SERVER_SIP_PORT}", transform.getHost());
         assertNull(transform.getHeaderParams());
-    }    
+    }
 }

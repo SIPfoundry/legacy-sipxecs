@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 
@@ -20,23 +20,23 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class ConflictingFeatureCodeValidator extends AbstractSettingVisitor {
     private List<Setting> m_codes;
-    
+
     /**
      * Reentrant but not multi-threaded
      */
     public void validate(Setting settings) {
         m_codes = new ArrayList<Setting>();
-        settings.acceptVisitor(this);            
+        settings.acceptVisitor(this);
     }
-    
+
     public void validate(Collection<Setting> settings) {
         m_codes = new ArrayList<Setting>();
-        
+
         for (Setting setting : settings) {
             setting.acceptVisitor(this);
         }
     }
-    
+
     public void visitSetting(Setting setting) {
         String value = setting.getValue();
         if (StringUtils.isBlank(value)) {
@@ -52,5 +52,5 @@ public class ConflictingFeatureCodeValidator extends AbstractSettingVisitor {
             }
             m_codes.add(setting);
         }
-    }        
+    }
 }

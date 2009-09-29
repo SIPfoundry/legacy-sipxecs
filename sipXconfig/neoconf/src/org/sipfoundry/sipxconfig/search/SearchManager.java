@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -23,7 +23,7 @@ public interface SearchManager {
 
     /**
      * Search for an indexed item using class and user entered query.
-     * 
+     *
      * @param entityClass class of the entity we are searching for
      * @param query lucene query that is ANDed with entityClass query
      * @param firstResult index of the first found result
@@ -38,6 +38,6 @@ public interface SearchManager {
      */
     List search(Class entityClass, String query, int firstResult, int pageSize, String[] sort,
             boolean orderAscending, Transformer transformer);
-    
-    List search(Query query, int firstResult, int pageSize, Transformer transformer);    
+
+    List search(Query query, int firstResult, int pageSize, Transformer transformer);
 }

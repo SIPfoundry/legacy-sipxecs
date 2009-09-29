@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
@@ -37,7 +37,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
                 PhoneContext.CONTEXT_BEAN_NAME);
         m_settingsDao = (SettingDao) TestHelper.getApplicationContext().getBean(
                 SettingDao.CONTEXT_NAME);
-        
+
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -92,7 +92,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         groups = intercom.getGroupsAsList();
         assertEquals(2, groups.size());
     }
-    
+
     public void testDeleteGroup() throws Exception {
         TestHelper.insertFlat("phone/SeedPhoneGroup.xml");
 
@@ -111,9 +111,9 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
 
         // save the intercom
         m_intercomManager.saveIntercom(intercom);
-        
-        m_settingsDao.deleteGroups(Collections.singleton(groups.get(0).getId()));        
-        
+
+        m_settingsDao.deleteGroups(Collections.singleton(groups.get(0).getId()));
+
         // load it back up and check it
         List intercoms = m_intercomManager.loadIntercoms();
         assertEquals(1, intercoms.size());
@@ -124,7 +124,7 @@ public class IntercomManagerImplTestDb extends SipxDatabaseTestCase {
         groups = intercom.getGroupsAsList();
         assertEquals(1, groups.size());
     }
-    
+
 
     public void testLoadIntercoms() throws Exception {
         // verify loading the sample data

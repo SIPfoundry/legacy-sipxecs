@@ -5,5 +5,5 @@
   <description>Presence Server page Status/Sign In/Sign Out</description>
 
   <component id="presencePanel" type="acd/AcdAgentPresencePanel"/>
-    
+
 </page-specification>

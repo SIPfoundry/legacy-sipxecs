@@ -4,7 +4,7 @@
         <li jwcid="@For" source="ognl:statusMessages.statusMessages" value="ognl:currentMessage">
             <span jwcid="@Insert" value="ognl:messages.getMessage(currentMessage.prefix)" />:
             <span jwcid="@Insert" value="ognl:currentMessage.message" />
-        </li>    
+        </li>
     </ul>
 
     <span jwcid="@If" condition="ognl:!statusMessages.stdOut.empty" renderTag="false">
@@ -12,7 +12,7 @@
         <ul>
             <li jwcid="@For" source="ognl:statusMessages.stdOut" value="ognl:currentMessage">
                 <span jwcid="@Insert" value="ognl:currentMessage.message" />
-            </li>        
+            </li>
         </ul>
     </span>
 
@@ -22,7 +22,7 @@
 	    <ul>
 	        <li jwcid="@For" source="ognl:statusMessages.stdErr" value="ognl:currentMessage">
 	            <span jwcid="@Insert" value="ognl:currentMessage.message" />
-	        </li>        
+	        </li>
 	    </ul>
     </span>
 

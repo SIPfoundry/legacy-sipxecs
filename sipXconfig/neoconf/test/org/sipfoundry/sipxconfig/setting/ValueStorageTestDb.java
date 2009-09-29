@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -34,39 +34,39 @@ public class ValueStorageTestDb extends SipxDatabaseTestCase {
 
         m_bean.setSettingValue("towhee/canyon", "chirp");
         m_bean.setSettingValue("pigeon/rock-dove", null);
-        
+
         ValueStorage vs = (ValueStorage) m_bean.getValueStorage();
         m_dao.storeValueStorage(vs);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveValueStorageExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveValueStorageExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
-        expectedRds.addReplacementObject("[value_storage_id]", vs.getId());        
-        
+        expectedRds.addReplacementObject("[value_storage_id]", vs.getId());
+
         ITable expected = expectedRds.getTable("setting_value");
-                
+
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
-        
-        Assertion.assertEquals(expected, actual);        
+
+        Assertion.assertEquals(expected, actual);
     }
-    
+
     public void testUpdate() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("setting/UpdateValueStorageSeed.xml");        
-        
+        TestHelper.cleanInsertFlat("setting/UpdateValueStorageSeed.xml");
+
         ValueStorage vs = m_dao.loadValueStorage(new Integer(1));
         m_bean.setValueStorage(vs);
-        
+
         m_bean.setSettingValue("towhee/canyon", null);
         m_bean.setSettingValue("pigeon/rock-dove", "coo coo");
-        
+
         m_dao.storeValueStorage(vs);
 
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateValueStorageExpected.xml"); 
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/UpdateValueStorageExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         ITable expected = expectedRds.getTable("setting_value");
-                
+
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
-        
-        Assertion.assertEquals(expected, actual);        
-    }   
+
+        Assertion.assertEquals(expected, actual);
+    }
 }

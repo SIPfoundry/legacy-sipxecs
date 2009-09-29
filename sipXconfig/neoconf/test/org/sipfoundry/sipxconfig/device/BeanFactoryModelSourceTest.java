@@ -9,10 +9,10 @@ import org.easymock.IMocksControl;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 public class BeanFactoryModelSourceTest extends TestCase {
-    
+
     public void testGetSortModels() {
         String[] birdNames = {
-                "bufflehead", "towhee", "bobolink", "grasshopper sparrow" 
+                "bufflehead", "towhee", "bobolink", "grasshopper sparrow"
         };
         IMocksControl beanFactoryControl = EasyMock.createControl();
         ListableBeanFactory beanFactory = beanFactoryControl.createMock(ListableBeanFactory.class);
@@ -22,7 +22,7 @@ public class BeanFactoryModelSourceTest extends TestCase {
             beanFactory.getBean(name);
             beanFactoryControl.andReturn(new BirdType(name));
         }
-        beanFactoryControl.replay();        
+        beanFactoryControl.replay();
         BeanFactoryModelSource<BirdType> modelSource = new BeanFactoryModelSource(BirdType.class.getName());
         modelSource.setBeanFactory(beanFactory);
         Iterator<BirdType> birds = modelSource.getModels().iterator();
@@ -33,12 +33,12 @@ public class BeanFactoryModelSourceTest extends TestCase {
 
         beanFactoryControl.verify();
     }
-    
+
     public static class BirdType extends DeviceDescriptor {
         BirdType(String name) {
             setModelId(name);
             setLabel(name);
-        }        
+        }
     }
 
 }

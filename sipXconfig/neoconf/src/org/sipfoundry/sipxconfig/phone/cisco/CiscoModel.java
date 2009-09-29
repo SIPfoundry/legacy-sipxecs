@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
@@ -18,10 +18,10 @@ public final class CiscoModel extends PhoneModel {
     private String m_cfgPrefix;
 
     private String m_upgCode;
-    
-    public CiscoModel() {        
+
+    public CiscoModel() {
     }
-    
+
     public CiscoModel(String beanId) {
         super(beanId);
     }
@@ -33,7 +33,7 @@ public final class CiscoModel extends PhoneModel {
     public String getUpgCode() {
         return m_upgCode;
     }
-    
+
     public boolean isAta() {
         return "ata".equals(getCfgPrefix());
     }

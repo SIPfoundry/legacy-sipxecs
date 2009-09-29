@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -39,44 +39,44 @@ public class SelectGatewaysTest extends TestCase {
 
     public void testSelectGateways() {
         List gatewaysToAdd = new ArrayList();
-        List gateways = new ArrayList(); 
+        List gateways = new ArrayList();
         for(int i = 0; i< 3; i++) {
             Gateway gateway = new AcmeGateway();
             gateway.setUniqueId();
             gatewaysToAdd.add(gateway.getId());
             gateways.add(gateway);
         }
-        
+
         DialingRule rule = new CustomDialingRule();
         rule.setUniqueId();
-        
+
         IMocksControl dialPlanContextControl = EasyMock.createStrictControl();
         DialPlanContext dialPlanContext = dialPlanContextControl.createMock(DialPlanContext.class);
-        
+
         IMocksControl contextControl = EasyMock.createStrictControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);
-        
+
         dialPlanContext.getRule(rule.getId());
         dialPlanContextControl.andReturn(rule);
-        context.getGatewayByIds(gatewaysToAdd);        
+        context.getGatewayByIds(gatewaysToAdd);
         contextControl.andReturn(gateways);
         dialPlanContext.storeRule(rule);
         dialPlanContextControl.replay();
         contextControl.replay();
-        
+
         // do not have setters for dial plan context and gateway context...
         PropertyUtils.write(m_page, "dialPlanContext", dialPlanContext);
         PropertyUtils.write(m_page, "gatewayContext", context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);
-        
+
         List ruleGateways = rule.getGateways();
         assertEquals(gatewaysToAdd.size(), ruleGateways.size());
         for (Iterator i = ruleGateways.iterator(); i.hasNext();) {
             Gateway g = (Gateway) i.next();
             assertTrue(gatewaysToAdd.contains(g.getId()));
         }
-        
+
         dialPlanContextControl.verify();
         contextControl.verify();
     }

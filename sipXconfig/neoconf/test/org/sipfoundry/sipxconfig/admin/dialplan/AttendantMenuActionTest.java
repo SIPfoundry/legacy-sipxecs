@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import junit.framework.TestCase;
 
 public class AttendantMenuActionTest extends TestCase {
-    
+
     public void testVxmlParameter() {
         assertEquals("operatoraddr", AttendantMenuAction.OPERATOR.vxmlParameter(null, "somedomain"));
         assertEquals("operatoraddr", AttendantMenuAction.OPERATOR.vxmlParameter("anything", "somedomain"));

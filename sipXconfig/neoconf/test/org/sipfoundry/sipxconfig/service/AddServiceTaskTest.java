@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -24,14 +24,14 @@ public class AddServiceTaskTest extends TestCase {
         serviceSource.getModel("turkey");
         serviceSourceControl.andReturn(turkeyDesctriptor).anyTimes();
         serviceSourceControl.replay();
-        
+
         ConfiguredService turkey = new UnmanagedService();
         turkey.setDescriptor(turkeyDesctriptor);
-        
+
         IMocksControl serviceManagerControl = EasyMock.createStrictControl();
         ServiceManager serviceManager = serviceManagerControl.createMock(ServiceManager.class);
 
-        
+
         // already a service
         serviceManager.getServiceByName("Thanksgiving");
         serviceManagerControl.andReturn(turkey);
@@ -42,31 +42,31 @@ public class AddServiceTaskTest extends TestCase {
         try {
             task.addService("Thanksgiving", "chicken", "1.1.1.1");
             fail();
-        } catch (IllegalArgumentException expected) {            
-        }        
+        } catch (IllegalArgumentException expected) {
+        }
         serviceManagerControl.verify();
-        
+
 
         // update service
         serviceManagerControl.reset();
         serviceManager.getServiceByName("Thanksgiving");
         serviceManagerControl.andReturn(turkey);
         serviceManager.saveService(turkey);
-        serviceManagerControl.replay();        
+        serviceManagerControl.replay();
         turkey.setName("Thanksgiving");
         task.addService("Thanksgiving", "turkey", "1.1.1.1");
         serviceManagerControl.verify();
-        
+
         // add a service
         serviceManagerControl.reset();
         serviceManager.getServiceByName("Thanksgiving");
         serviceManagerControl.andReturn(null);
         serviceManager.newService(turkeyDesctriptor);
         serviceManagerControl.andReturn(turkey);
-        serviceManager.saveService(turkey);        
-        serviceManagerControl.replay();            
+        serviceManager.saveService(turkey);
+        serviceManagerControl.replay();
         turkey.setName("Thanksgiving");
-        task.addService("Thanksgiving", "turkey", "1.1.1.1");        
+        task.addService("Thanksgiving", "turkey", "1.1.1.1");
         serviceManagerControl.verify();
     }
 

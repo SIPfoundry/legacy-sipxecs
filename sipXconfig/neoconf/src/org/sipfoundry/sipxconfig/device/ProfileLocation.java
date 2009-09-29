@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -17,7 +17,7 @@ import java.io.OutputStream;
 public interface ProfileLocation {
     /**
      * Called to obtain the output stream that might be used to write profile content.
-     * 
+     *
      * @param profileName identifies profile to be propagated
      * @return output stream, write to it and call closeOutput when done
      */
@@ -25,9 +25,9 @@ public interface ProfileLocation {
 
     /**
      * Called after the entire content has been written to the stream.
-     * 
+     *
      * Good place to close resources, copy files etc.
-     * 
+     *
      * @param stream stream previously retrieved using getOutput
      */
     void closeOutput(OutputStream stream);

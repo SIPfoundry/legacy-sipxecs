@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site;
@@ -34,25 +34,25 @@ public abstract class UiFieldsTestPage extends BasePage implements PageBeginRend
 
     @InjectObject(value = "spring:modelBuilder")
     public abstract ModelBuilder getModelBuilder();
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
-    
+
     @Persist
     public abstract Setting getSettings();
     public abstract void setSettings(Setting settings);
-    
+
     @Persist
     public abstract Collection<Setting> getFlatSettings();
     public abstract void setFlatSettings(Collection<Setting> settings);
-    
+
     public abstract Setting getCurrentSetting();
-    
+
     public void pageBeginRender(PageEvent event) {
         if (getSettings() == null) {
             Setting settings = new SettingSet("ui-fields-test");
             SimpleSettingModel settingModel = new SimpleSettingModel();
-            
+
             SettingImpl minMaxRequiredSetting = new SettingImpl("int-min-max-required");
             IntegerSetting minMaxSettingType = new IntegerSetting();
             minMaxSettingType.setMin(1);
@@ -63,7 +63,7 @@ public abstract class UiFieldsTestPage extends BasePage implements PageBeginRend
             settingModel.setDefaultSettingValue(minMaxRequiredSetting, new SettingValueImpl("25"));
             minMaxRequiredSetting.setValue("16");
             settings.addSetting(minMaxRequiredSetting);
-            
+
             SettingImpl minMaxNotRequiredSetting = new SettingImpl("int-min-max-not-required");
             IntegerSetting minMaxNotRequiredSettingType = new IntegerSetting();
             minMaxNotRequiredSettingType.setMin(1);
@@ -72,42 +72,42 @@ public abstract class UiFieldsTestPage extends BasePage implements PageBeginRend
             minMaxNotRequiredSetting.setType(minMaxNotRequiredSettingType);
             minMaxNotRequiredSetting.setModel(settingModel);
             settings.addSetting(minMaxNotRequiredSetting);
-            
+
             SettingImpl noConstraintsSetting = new SettingImpl("no-constraints");
             IntegerSetting noConstraintsSettingType = new IntegerSetting();
             noConstraintsSetting.setType(noConstraintsSettingType);
             settings.addSetting(noConstraintsSetting);
-            
+
             setSettings(settings);
-            
+
             SettingsIron settingsIron = new SettingsIron();
             settings.acceptVisitor(settingsIron);
             setFlatSettings(settingsIron.getFlat());
-            
+
         }
     }
-    
+
     public void ok() {
-        
+
     }
-    
+
     public void apply() {
-        
+
     }
-    
+
     public void cancel() {
-        
+
     }
-    
+
     private class SimpleSettingModel implements SettingModel {
 
         private Map<String, SettingValue> m_settingValueMap = new HashMap();
         private Map<String, SettingValue> m_settingDefaultValueMap = new HashMap();
-        
+
         public SettingValue getDefaultSettingValue(Setting setting) {
             return m_settingDefaultValueMap.get(setting.getName());
         }
-        
+
         public void setDefaultSettingValue(Setting setting, SettingValue settingValue) {
             m_settingValueMap.put(setting.getName(), settingValue);
         }

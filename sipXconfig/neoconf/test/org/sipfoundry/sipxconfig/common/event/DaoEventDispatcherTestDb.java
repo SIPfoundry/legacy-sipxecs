@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common.event;
@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
 
 public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
-    
+
     private DaoEventDispatcher m_dispatcher;
     private DaoEventPublisher m_publisherOrg;
     private CoreContext m_core;
@@ -31,10 +31,10 @@ public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         m_publisherOrg = null;
     }
-    
+
     protected void tearDown() throws Exception {
         // this is called in finally block to restore the appliation context
-        if(m_publisherOrg != null) {            
+        if(m_publisherOrg != null) {
             m_dispatcher.setPublisher(m_publisherOrg);
         }
     }
@@ -50,10 +50,10 @@ public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
 
         m_publisherOrg = m_dispatcher.getPublisher();
         m_dispatcher.setPublisher(publisher);
-        
+
         // should generate event
     	m_core.saveUser(u);
-        
+
         // no event now
     	m_core.clear();
     	

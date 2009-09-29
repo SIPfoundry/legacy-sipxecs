@@ -95,7 +95,7 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         submit("submit:apply");
         SiteTestHelper.assertUserError(tester);
-        
+
         selectOption("bridgeSelect", TestPage.TEST_LOCATION_FQDN);
         setTextField("conferences:prefix", "prefix");
         submit("submit:apply");

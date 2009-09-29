@@ -30,7 +30,7 @@
     <binding name="item" value="acdLine" />
     <binding name="useEnabled" value="false" />
     <binding name="useExtension" value="true" />
-    <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>    
+    <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>
   </component>
 
   <component id="queueSelectionPanel" type="common/FieldPanel">

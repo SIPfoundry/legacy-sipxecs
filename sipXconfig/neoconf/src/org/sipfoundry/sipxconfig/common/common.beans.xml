@@ -29,11 +29,11 @@
       <ref local="coreContextImpl"/>
     </property>
   </bean>
-  
+
   <bean id="resetAdministrator" class="org.sipfoundry.sipxconfig.common.ResetAdministratorInitTaskListener">
     <property name="coreContext" ref="coreContext"/>
   </bean>
-  
+
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T   I M P L
   -->
@@ -57,13 +57,13 @@
       <ref local="extensionPoolContextImpl"/>
     </property>
   </bean>
-  
+
   <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
     singleton="false" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="permissionManager" ref="permissionManager"/>
   </bean>
-  
+
   <!-- DST change monitoring -->
   <bean id="checkDST" class="org.sipfoundry.sipxconfig.common.CheckDST"/>
 
@@ -84,7 +84,7 @@
       </list>
     </property>
   </bean>
-  
+
   <bean id="userGroupSettingsListener" class="org.sipfoundry.sipxconfig.common.event.PersonalAttendantSettingListener">
     <property name="coreContext" ref="coreContext"/>
     <property name="mailboxManager" ref="mailboxManager"/>

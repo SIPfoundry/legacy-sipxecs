@@ -30,9 +30,9 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        
+
         System.setProperty(SIPXCONFIG_HOSTNAME, "sipx.example.org");
-        
+
         m_out = new LocationsMigrationTrigger();
         m_out.setConfigDirectory(getConfigDirectory());
         m_out.setLocationsManager(m_locationsManager);
@@ -40,11 +40,11 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         m_out.setNetworkPropertiesFilename("sipxconfig-netif");
         m_out.setTaskNames(Arrays.asList(new String[] {"migrate_locations"}));
     }
-    
+
     @Override
     protected void onTearDownInTransaction() throws Exception {
         super.onTearDownInTransaction();
-        
+
         System.clearProperty(SIPXCONFIG_HOSTNAME);
     }
 
@@ -75,7 +75,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
                 foundSecondary = true;
             }
         }
-        
+
         assertTrue("Primary location not found.", foundPrimary);
         assertTrue("Secondary location not found.", foundSecondary);
         assertFalse("Topology file not deleted.", testTopologyFile.exists());
@@ -114,7 +114,7 @@ public class LocationsMigrationTriggerTestIntegration extends IntegrationTestCas
         assertEquals("https://sipx.example.org:8092/RPC2", primaryLocation.getProcessMonitorUrl());
         assertEquals("192.168.87.11", primaryLocation.getAddress());
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

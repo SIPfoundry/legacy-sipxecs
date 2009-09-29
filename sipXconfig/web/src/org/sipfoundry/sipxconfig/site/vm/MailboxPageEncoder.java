@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.vm;
@@ -17,11 +17,11 @@ import org.apache.tapestry.services.ServiceConstants;
 
 /**
  * Map human friendly urls to/from tapestry urls
- * 
- *   /mailbox/userid/folderid                    - manage voicemails page      
- *   /mailbox/userid/folderid/messageid          - plays a voicemail    
- *   /mailbox/userid/folderid/messageid/delete   - deletes a voicemail      
- *   /mailbox/userid/folderid/messageid/save     - saves a voicemail     
+ *
+ *   /mailbox/userid/folderid                    - manage voicemails page
+ *   /mailbox/userid/folderid/messageid          - plays a voicemail
+ *   /mailbox/userid/folderid/messageid/delete   - deletes a voicemail
+ *   /mailbox/userid/folderid/messageid/save     - saves a voicemail
  */
 public class MailboxPageEncoder implements ServiceEncoder {
     private String m_url;

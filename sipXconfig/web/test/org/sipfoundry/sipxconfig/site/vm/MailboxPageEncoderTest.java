@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.vm;
@@ -17,7 +17,7 @@ import org.easymock.IMocksControl;
 
 public class MailboxPageEncoderTest extends TestCase {
     private MailboxPageEncoder m_encoder;
-    
+
     protected void setUp() {
         m_encoder = new MailboxPageEncoder();
         m_encoder.setUrl("myapp");
@@ -34,9 +34,9 @@ public class MailboxPageEncoderTest extends TestCase {
         encoding.setParameterValue("page", ManageVoicemail.PAGE);
         encoding.setParameterValue("sp", "Suserid/inbox");
         encodingControl.replay();
-        
+
         m_encoder.decode(encoding);
-        
+
         encodingControl.verify();
     }
 
@@ -54,9 +54,9 @@ public class MailboxPageEncoderTest extends TestCase {
         encoding.setParameterValue("page", null);
         encoding.setParameterValue("sp", null);
         encodingControl.replay();
-        
+
         m_encoder.encode(encoding);
-        
+
         encodingControl.verify();
     }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan" default-lazy="false">
   <class name="DialPlan" table="dial_plan">
@@ -183,9 +183,9 @@
     <return-scalar type="int" column="id" />
     <return-scalar type="string" column="aliases" />
     <return-scalar type="string" column="extension" />
-    <![CDATA[select rule.auto_attendant_id as id, rule.aa_aliases as aliases, a.extension as extension 
-      	from internal_dialing_rule as rule, auto_attendant as a 
-      	where rule.auto_attendant_id=a.auto_attendant_id]]>
+    <![CDATA[select rule.auto_attendant_id as id, rule.aa_aliases as aliases, a.extension as extension
+        from internal_dialing_rule as rule, auto_attendant as a
+        where rule.auto_attendant_id=a.auto_attendant_id]]>
   </sql-query>
 
   <query name="dialingRulesForScheduleId">

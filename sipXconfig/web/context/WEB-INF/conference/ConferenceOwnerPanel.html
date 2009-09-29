@@ -1,12 +1,12 @@
 <fieldset>
     <table>
-        <tr jwcid="@common/FieldPanel" 
-            field="component:conferenceOwner" for="conferenceOwner" 
+        <tr jwcid="@common/FieldPanel"
+            field="component:conferenceOwner" for="conferenceOwner"
             label="message:label.conferenceOwner"
             description="message:description.conferenceOwner">
-            
+
             <input jwcid="conferenceOwner@Hidden" value="ognl:conference.owner" />
-            
+
             <span jwcid="@If" condition="ognl:conference.hasOwner">
                 <img jwcid="@Image" image="asset:userIcon" align="absmiddle" />
                 <span jwcid="@Insert" value="ognl:conference.owner.displayName" />

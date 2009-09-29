@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -121,7 +121,7 @@ public class CronScheduleTest extends TestCase {
     public void testGetCronStringDaily() {
         CronSchedule schedule = new CronSchedule();
         assertEquals("0 0 0 ? * *", schedule.getCronString());
-        
+
         schedule.setMin(30);
         schedule.setHrs(7);
         schedule.setType(CronSchedule.Type.DAILY);
@@ -160,7 +160,7 @@ public class CronScheduleTest extends TestCase {
     public void testGetScheduledDay() {
         CronSchedule schedule = new CronSchedule();
         assertEquals(ScheduledDay.MONDAY, schedule.getScheduledDay());
-        
+
         schedule.setDayOfWeek(Calendar.THURSDAY);
         assertEquals(ScheduledDay.THURSDAY, schedule.getScheduledDay());
     }

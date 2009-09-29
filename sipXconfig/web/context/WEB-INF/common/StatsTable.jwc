@@ -10,13 +10,13 @@
   <parameter name="row" required="no"/>
   <parameter name="usePager" required="no" default-value="false"/>
   <inject property="tableVariables" object="spring:tableVariables"/>
-  
+
   <reserved-parameter name="converter"/>
   <reserved-parameter name="selection"/>
-  
+
   <!-- B E A N S -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-  
+
   <!-- C O M P O N E N T S  -->
   <component id="tableElement" type="Any" inherit-informal-parameters="yes">
   </component>

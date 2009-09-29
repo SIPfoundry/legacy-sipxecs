@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -53,7 +53,7 @@ public class MillisDurationFormatTest extends TestCase {
         assertEquals("5 days, 0 hours, 1 minute, 8 seconds", m_format.format(new Long(5
                 * DateUtils.MILLIS_PER_DAY + DateUtils.MILLIS_PER_MINUTE + 7070)));
     }
-    
+
     public void testFormatPolish() {
         m_format.setLocale(new Locale("pl","PL",""));
         assertEquals("1 sekunda", m_format.format(new Long(1000)));
@@ -73,7 +73,7 @@ public class MillisDurationFormatTest extends TestCase {
         assertEquals("5 dni, 0 godzin, 1 minuta, 8 sekund", m_format.format(new Long(5
                 * DateUtils.MILLIS_PER_DAY + DateUtils.MILLIS_PER_MINUTE + 7070)));
     }
-    
+
 
     public void testFormatSeconds() {
         m_format.setLocale(Locale.US);

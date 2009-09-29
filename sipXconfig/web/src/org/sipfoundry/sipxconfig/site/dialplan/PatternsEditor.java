@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -25,10 +25,10 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
  * PatternsEditor - list of pattersn with ability to edit, remove and delete
  */
 public abstract class PatternsEditor extends BaseComponent {
-    
+
     @Bean(lifecycle = Lifecycle.PAGE, initializer = "min=0,max=18")
     public abstract LenSelectionModel getDigitsOnlyModel();
-    
+
     public abstract boolean getAddPattern();
     public abstract void setAddPattern(boolean addPattern);
 

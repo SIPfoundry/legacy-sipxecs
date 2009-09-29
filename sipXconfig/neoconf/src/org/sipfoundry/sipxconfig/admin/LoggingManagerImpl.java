@@ -55,7 +55,7 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
                 LOG.warn("Special case of sipxbridge (BridgeSbc)");
                 BridgeSbc bridgeSbc = m_sbcDeviceManager.getBridgeSbc(m_locationsManager.getPrimaryLocation());
                 loggingEntity = bridgeSbc;
-                
+
             } else if (bean instanceof AcdServer) {
                 LOG.warn("Special case of ACD (AcdServer)");
                 AcdServer server = m_acdContext.getAcdServerForLocationId(m_locationsManager
@@ -65,7 +65,7 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
                 LOG.warn("For now, only logging entities of the following types are supported: "
                         + "SipxService, BridgeSbc and AcdService ");
             }
-            
+
             if (loggingEntity != null) {
                 logEnabledServices.add(loggingEntity);
             }

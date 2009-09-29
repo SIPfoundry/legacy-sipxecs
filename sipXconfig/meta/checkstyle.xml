@@ -202,5 +202,12 @@
       <property name="message"
         value="System.err or System.out used: use commons logging instead."/>
     </module>
+
+    <!-- Trailing spaces -->
+    <module name="Regexp">
+      <property name="format" value="[ \t]+$"/>
+      <property name="illegalPattern" value="true"/>
+      <property name="message" value="Trailing whitespace"/>
+    </module>
   </module>
 </module>

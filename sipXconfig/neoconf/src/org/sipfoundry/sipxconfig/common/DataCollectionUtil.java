@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -32,7 +32,7 @@ public final class DataCollectionUtil {
 
     /**
      * Removes items from collections by their primary key and updates the positions on the items
-     * 
+     *
      * @param c items must implement DataCollectionItem
      */
     public static Collection removeByPrimaryKey(Collection c, Object... primaryKeys) {
@@ -50,7 +50,7 @@ public final class DataCollectionUtil {
     /**
      * Given a list of objects that know their primary keys, extract a collection of just primary
      * keys
-     * 
+     *
      * @param c collection of PrimaryKeySource objects
      * @return collecion of primary keys
      */
@@ -106,7 +106,7 @@ public final class DataCollectionUtil {
      * Moves items from collections by their primary key and updates the positions on the items.
      * Items that are attempted to move out of list bounds are quietly moved to beginning or end
      * of list.
-     * 
+     *
      * @param step how many slots to move items, positive or negative
      * @param c items must implement DataCollectionItem
      */
@@ -149,10 +149,10 @@ public final class DataCollectionUtil {
     /**
      * Deep copy for bean collection. Duplicate and not clone is called which makes it hibernate
      * friendly. (all new objects have UNSAVED id set).
-     * 
+     *
      * We do not want to deal with cloning the collection itself. The caller has to provide a
      * newly created (or at least empty) destination collection.
-     * 
+     *
      * @param from source collection
      * @param to destination (empty collection)
      */
@@ -168,16 +168,16 @@ public final class DataCollectionUtil {
 
     /**
      * Move a single item in the list by specified offset
-     * 
+     *
      * If the move would take the item outside of the valid list range the item is moved to the
      * beginning or end of the list instead.
-     * 
+     *
      * @param list to be modified by this funtion
      * @param index of the element to be moved
      * @param offset by which item will be moved, negative for moving "up"/"towards beginning of
      *        the list"
      * @return new index of an item
-     * 
+     *
      */
     public static int move(List list, int index, int offset) {
         Object item = list.remove(index);

@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.components;
@@ -74,7 +74,7 @@ public class UserExceptionFilter implements ListenerInvokerFilter {
 
     /**
      * Locate validator form source.
-     * 
+     *
      * It is in a separate method mostly to make testing possible. Standard implementation is
      * using our trusted TapestryUtil hack.
      */

@@ -1,11 +1,11 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * 
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
@@ -155,7 +155,7 @@ public class SbcManagerImplTestIntegration extends IntegrationTestCase {
         assertNotNull(sbc);
         assertNull(sbc.getSbcDevice());
         assertFalse(sbc.isEnabled());
-        assertEquals(3, countRowsInTable("sbc"));        
+        assertEquals(3, countRowsInTable("sbc"));
 
         AuxSbc auxSbc = m_sbcManager.loadSbc(1001);
         assertNotNull(auxSbc);

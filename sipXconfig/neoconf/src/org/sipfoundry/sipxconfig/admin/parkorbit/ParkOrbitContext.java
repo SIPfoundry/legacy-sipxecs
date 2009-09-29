@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
@@ -19,7 +19,7 @@ public interface ParkOrbitContext extends AliasOwner, AliasProvider, DialingRule
     public static final String CONTEXT_BEAN_NAME = "parkOrbitContext";
 
     ParkOrbit loadParkOrbit(Integer id);
-    
+
     ParkOrbit newParkOrbit();
 
     void storeParkOrbit(ParkOrbit parkOrbit);

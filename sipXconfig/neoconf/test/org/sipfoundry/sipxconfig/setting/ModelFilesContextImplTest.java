@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -30,7 +30,7 @@ public class ModelFilesContextImplTest extends TestCase {
         assertEquals("basename", modelFile.getName());
         assertEquals(getFile("manu", "basename"), modelFile);
     }
-    
+
     public void testLoadModelFile() {
         SettingSet setting = new SettingSet();
         setting.setName("bongo");
@@ -48,7 +48,7 @@ public class ModelFilesContextImplTest extends TestCase {
 
         control.verify();
     }
-    
+
     private static File getFile(String manu, String base) {
         return new File(DIR + File.separator + manu + File.separator + base);
     }

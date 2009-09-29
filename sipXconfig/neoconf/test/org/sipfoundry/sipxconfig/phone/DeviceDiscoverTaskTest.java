@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -53,7 +53,7 @@ public class DeviceDiscoverTaskTest extends TestCase {
         out.run();
         assertEquals(DeviceFinder.FINISHED, m_deviceFinder.getState());
 
-        List<DiscoveredDevice> discoveredDevices = m_deviceFinder.getDevices(); 
+        List<DiscoveredDevice> discoveredDevices = m_deviceFinder.getDevices();
         assertEquals(3, discoveredDevices.size());
 
         DiscoveredDevice firstDevice = new DiscoveredDevice();
@@ -67,7 +67,7 @@ public class DeviceDiscoverTaskTest extends TestCase {
         assertTrue(discoveredDevices.contains(secondDevice));
         assertTrue(discoveredDevices.contains(thirdDevice));
     }
-    
+
     private Document parseDeviceDocument() throws Exception {
         File xmlFile = new File(TestUtil.getTestSourceDirectory(getClass()),"devicesFound.xml");
         String xmlString = FileUtils.readFileToString(xmlFile);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -35,7 +35,7 @@ public class UserCallForwardingTestUi extends WebTestCase {
         assertButtonPresent("form:cancel");
         assertButtonPresent("form:apply");
     }
-    
+
     public void _testNonAdminDisplay() throws Exception {
         SiteTestHelper.home(getTester());
         tester.clickLink("loginFirstTestUser");
@@ -43,13 +43,13 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickLink("");
         SiteTestHelper.assertNoException(getTester());
 
-        // at the time, no where to go to, e.g. callback null, so 
-        // apply is only option        
+        // at the time, no where to go to, e.g. callback null, so
+        // apply is only option
         assertButtonNotPresent("form:ok");
         assertButtonNotPresent("form:cancel");
         assertButtonPresent("form:apply");
     }
-    
+
     public void _testAddAddress() throws Exception {
         SiteTestHelper.home(getTester());
         tester.clickLink("resetCallForwarding");
@@ -58,7 +58,7 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickLink("UserCallForwarding");
 
         // Javascript submit link
-        clickLink("addRingLink");        
+        clickLink("addRingLink");
         setTextField("number", "123");
         clickButton("form:apply");
         assertElementPresent("user:success");

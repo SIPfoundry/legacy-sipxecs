@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -20,10 +20,10 @@ public class AbstractRingBuilder extends SimpleBeanBuilder {
     // and use the enum names rather than constants defined here.
     public static final String TYPE_DELAYED = "delayed";
     public static final String TYPE_IMMEDIATE = "immediate";
-    
+
     private static final String TYPE_PROP =
-        org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.TYPE_PROP;    
-    private static final String[] IGNORE_LIST = { 
+        org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.TYPE_PROP;
+    private static final String[] IGNORE_LIST = {
         TYPE_PROP
     };
 

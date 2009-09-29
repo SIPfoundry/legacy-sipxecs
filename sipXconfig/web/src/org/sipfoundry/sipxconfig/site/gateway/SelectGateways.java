@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -69,7 +69,7 @@ public abstract class SelectGateways extends BasePage implements PageBeginRender
 
     /**
      * Adds/removes gateways from dial plan
-     * 
+     *
      * @param gatewayIds list of gateway ids to be added to the dial plan
      */
     void selectGateways(Collection gatewayIds) {

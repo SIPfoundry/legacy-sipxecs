@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -24,7 +24,7 @@ public class ObjectSelectionModelTest extends TestCase {
         m_objects.add(new ExampleBusinessObject("kuku", new Integer(101)));
         m_objects.add(new ExampleBusinessObject("bongo", new Integer(102)));
     }
-    
+
     public void testSetArray() {
         ObjectSelectionModel model = new ObjectSelectionModel();
         model.setArray(m_objects.toArray());

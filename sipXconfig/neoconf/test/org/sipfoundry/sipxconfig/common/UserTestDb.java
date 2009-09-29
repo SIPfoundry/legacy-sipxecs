@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -37,7 +37,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
-        
+
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -176,7 +176,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
                 "select * from supervisor where user_id = 1001");
         assertEquals(1, actual.getRowCount());
     }
-    
+
 
     public void testSupervisorSaveNewGroup() throws Exception {
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
@@ -217,28 +217,28 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testIsSupervisor() throws Exception {
-        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
         User supervisor = m_core.loadUser(1001);
         assertTrue(supervisor.isSupervisor());
 
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");        
+        TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User peon = m_core.loadUser(1000);
         assertFalse(peon.isSupervisor());
     }
-    
+
     public void testUpdateSuperviser() throws Exception {
-        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
         User supervisor = m_core.loadUser(1001);
-        
-        Group newGroup = m_core.getGroupByName("group2", true);        
+
+        Group newGroup = m_core.getGroupByName("group2", true);
         supervisor.clearSupervisorForGroups();
         supervisor.addSupervisorForGroup(newGroup);
         m_core.saveUser(supervisor);
-        
+
         ITable actual = TestHelper.getConnection().createQueryTable("x", "select * from supervisor");
         assertEquals(1, actual.getRowCount());
-        assertEquals(supervisor.getId(), actual.getValue(0, "user_id"));        
-        assertEquals(newGroup.getId(), actual.getValue(0, "group_id"));        
+        assertEquals(supervisor.getId(), actual.getValue(0, "user_id"));
+        assertEquals(newGroup.getId(), actual.getValue(0, "group_id"));
     }
 }

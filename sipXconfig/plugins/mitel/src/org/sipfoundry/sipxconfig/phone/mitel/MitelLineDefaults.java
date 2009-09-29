@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.mitel;
@@ -22,12 +22,12 @@ public class MitelLineDefaults {
         m_line = line;
         m_defaults = defaults;
     }
-    
+
     @SettingEntry(paths = { "sip/ID", "sip/AuthName" })
     public String getUserName() {
         return m_line.getDisplayLabel();
     }
-    
+
     @SettingEntry(path = "sip/DispName")
     public String getDisplayName() {
         User user = m_line.getUser();
@@ -36,12 +36,12 @@ public class MitelLineDefaults {
         }
         return user.getDisplayName();
     }
-    
+
     @SettingEntry(path = "sip/Realm")
     public String getRalm() {
         return m_defaults.getAuthorizationRealm();
     }
-    
+
 
     @SettingEntry(path = "sip/Pwd")
     public String getSipPassword() {

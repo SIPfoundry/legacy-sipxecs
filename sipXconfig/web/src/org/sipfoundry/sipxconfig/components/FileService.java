@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -53,7 +53,7 @@ public abstract class FileService implements IEngineService {
     public void setResponse(WebResponse response) {
         m_response = response;
     }
-    
+
 
     public FileDigestSource getDigestSource() {
         return m_digestSource;
@@ -66,7 +66,7 @@ public abstract class FileService implements IEngineService {
     public void setStateManager(ApplicationStateManager stateManager) {
         m_stateManager = stateManager;
     }
-    
+
     protected void sendFile(File file, String expectedMd5Digest, ContentType contentType) throws IOException {
         Integer userId = getUserId();
         if (userId == null) {
@@ -93,18 +93,18 @@ public abstract class FileService implements IEngineService {
 
         OutputStream responseOutputStream = m_response.getOutputStream(contentType);
         InputStream stream = new FileInputStream(file);
-        IOUtils.copy(stream, responseOutputStream);                
+        IOUtils.copy(stream, responseOutputStream);
     }
-    
+
     protected Integer requireUserId() {
         Integer userId = getUserId();
         if (userId == null) {
             throw new RuntimeException("You have to be logged in to generate download links.");
-        }        
+        }
         return userId;
     }
 
     public LinkFactory getLinkFactory() {
         return m_linkFactory;
-    }    
+    }
 }

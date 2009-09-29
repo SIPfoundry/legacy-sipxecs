@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -41,7 +41,7 @@ public class CallDigits extends Enum {
     /**
      * VARIABLE_DIGITS means - the suffix of the dial string that starts with the first variable
      * digit matched.
-     * 
+     *
      * @param prefix in a dial pattern
      * @return prefix in a pattern transformed by me
      */
@@ -81,7 +81,7 @@ public class CallDigits extends Enum {
     /**
      * Finds a first characted in the pattern string that is a special character and is not
      * escaped by escape character. Escape character is escaped by itself.
-     * 
+     *
      * @param pattern
      * @param special set of special characters to look for
      * @param escape

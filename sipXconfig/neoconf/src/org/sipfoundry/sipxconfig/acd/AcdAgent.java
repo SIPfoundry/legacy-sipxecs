@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -64,12 +64,12 @@ public class AcdAgent extends AcdComponent {
         AcdAgentDefaults(AcdAgent agent) {
             m_agent = agent;
         }
-        
+
         @SettingEntry(path = URI)
         public String getUri() {
             return m_agent.calculateUri();
         }
-        
+
         @SettingEntry(path = NAME)
         public String getName() {
             User user = m_agent.getUser();
@@ -77,7 +77,7 @@ public class AcdAgent extends AcdComponent {
                     .getUserName());
             return acdName;
         }
-        
+
         @SettingEntry(path = QUEUE_LIST)
         public String getQueueList() {
             String list = StringUtils.join(m_agent.getQueueUris(), ',');

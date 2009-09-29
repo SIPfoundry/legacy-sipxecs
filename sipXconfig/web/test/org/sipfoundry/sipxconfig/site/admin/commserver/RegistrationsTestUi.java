@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
@@ -41,19 +41,19 @@ public class RegistrationsTestUi extends WebTestCase {
     }
 
     /**
-     * DISABLED because this requires javascript and javascript has to be disabled now that 
-     * page uses dojo which is incompatible with the version of httpunit we are using  
+     * DISABLED because this requires javascript and javascript has to be disabled now that
+     * page uses dojo which is incompatible with the version of httpunit we are using
      */
     public void DISABLED_testShowPrimary() {
         SiteTestHelper.assertNoException(tester);
-        
+
         // display primary column
         clickLink("setting:toggle");
         SiteTestHelper.assertNoException(tester);
         assertTablePresent("registrations:list");
         Table table = getTable("registrations:list");
         assertEquals(4, SiteTestHelper.getColumnCount(table));
-        
+
         // hide primary column
         clickLink("setting:toggle");
         SiteTestHelper.assertNoException(tester);

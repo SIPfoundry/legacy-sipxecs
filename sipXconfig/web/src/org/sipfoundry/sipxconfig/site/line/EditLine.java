@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.line;
@@ -22,14 +22,14 @@ public abstract class EditLine extends BasePage implements PageBeginRenderListen
     public static final String PAGE = "line/EditLine";
 
     public abstract Line getLine();
-    
+
     public abstract void setLine(Line line);
-    
+
     /** REQUIRED PROPERTY */
     public abstract Integer getLineId();
-    
+
     public abstract void setLineId(Integer id);
-    
+
     public abstract PhoneContext getPhoneContext();
 
     public String ok() {
@@ -42,11 +42,11 @@ public abstract class EditLine extends BasePage implements PageBeginRenderListen
         dao.storeLine(getLine());
         dao.flush();
     }
-    
+
     public String cancel() {
         return ManagePhones.PAGE;
     }
-    
+
     public void pageBeginRender(PageEvent event_) {
         PhoneContext context = getPhoneContext();
         setLine(context.loadLine(getLineId()));

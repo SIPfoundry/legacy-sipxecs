@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -14,7 +14,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 /**
  * Implementation of IPropertySelectionModel Tapestry interface, which allows two custom Strings
  * to be used as labels for a property of type Boolean. Can be used as a bean
- * 
+ *
  * @see org.apache.tapestry.form.IPropertySelectionModel
  */
 public class BooleanPropertySelectionModel implements IPropertySelectionModel {

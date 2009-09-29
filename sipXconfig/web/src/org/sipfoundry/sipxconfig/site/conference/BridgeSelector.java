@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.conference;
@@ -28,18 +28,18 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 public abstract class BridgeSelector extends BaseComponent {
 
     @Parameter(required = false)
-    public abstract IValidationDelegate getValidator();    
-    
+    public abstract IValidationDelegate getValidator();
+
     @Parameter(required = false)
     public abstract Collection<Validator> getValidators();
-    
+
     @Parameter(required = true)
     public abstract Bridge getBridge();
     public abstract void setBridge(Bridge bridge);
-    
+
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
-    
+
     public IPropertySelectionModel getConferenceBridgesModel() {
         List<Bridge> bridges = getConferenceBridgeContext().getBridges();
         BeanPropertySelectionModel bridgeModel = new BeanPropertySelectionModel(bridges, "name");
@@ -47,11 +47,11 @@ public abstract class BridgeSelector extends BaseComponent {
         model.setModel(bridgeModel);
         model.setExtraLabel(getMessages().getMessage("option.selectBridge"));
         model.setExtraOption(null);
-        
+
         if (bridges.size() == 1) {
             setBridge(bridges.get(0));
         }
-        
+
         return model;
     }
 }

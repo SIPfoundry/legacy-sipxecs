@@ -30,11 +30,11 @@
     <binding name="value" value="currentLocationId" />
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
-  
+
   <component id="errorMsg" type="common/ErrorMsg">
-    <binding name="validator" value="bean:validator"/>  
+    <binding name="validator" value="bean:validator"/>
   </component>
-  
+
   <component id="userTable" type="common/Table">
     <binding name="source" value="users"/>
     <binding name="row" value="currentUser"/>
@@ -44,7 +44,7 @@
 
   <component id="statusLabel" type="Insert">
     <binding name="value" value="currentUserStatus"/>
-    <binding name="format" value="bean:presenceFormat"/>    
-  </component> 
-  
+    <binding name="format" value="bean:presenceFormat"/>
+  </component>
+
 </component-specification>

@@ -23,9 +23,9 @@ public class LocalStreamConfigurationTest extends SipxServiceTestBase {
         service.setModelDir("freeswitch");
         service.setModelName("freeswitch.xml");
         initCommonAttributes(service);
-        
+
         service.setDocDir("/usr/share/www/doc");
-        
+
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         expectLastCall().andReturn(service);

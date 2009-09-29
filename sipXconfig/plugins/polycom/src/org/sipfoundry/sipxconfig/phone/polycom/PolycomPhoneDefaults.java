@@ -42,7 +42,7 @@ public class PolycomPhoneDefaults {
 
     // The attributes that control Daylight Savings Time (DST) are explained here:
     //    http://sipx-wiki.calivia.com/index.php/
-    //       Polycom_SoundPointIP_Configuration_File_Notes#sip_-_tcpIpApp.sntp.daylightSavings 
+    //       Polycom_SoundPointIP_Configuration_File_Notes#sip_-_tcpIpApp.sntp.daylightSavings
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
     public boolean isDstEnabled() {
@@ -51,7 +51,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.time")
     public int getDstStartTime() {
-        return getZone().getStartTime() / DeviceTimeZone.MINUTES_PER_HOUR; 
+        return getZone().getStartTime() / DeviceTimeZone.MINUTES_PER_HOUR;
     }
 
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.time")
@@ -111,7 +111,7 @@ public class PolycomPhoneDefaults {
         return getMonthIndexPolycomFromJava(getZone().getStopMonth());
     }
 
-    
+
     @SettingEntry(paths = { "voIpProt.SIP/protocol/musicOnHold.uri", "voIpProt/reg/musicOnHold.uri" })
     public String getMohUrl() {
         String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());

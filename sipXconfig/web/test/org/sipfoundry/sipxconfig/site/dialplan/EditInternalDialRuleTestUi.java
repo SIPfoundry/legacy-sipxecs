@@ -19,7 +19,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("resetDialPlans");
     }
-    
+
     public void testHostnameRequiredForExternalVoicemailServer() {
         navigateToVoicemailRule();
         setTextField("item:name", "EditInternalDialRuleTest_HostnameMissing");
@@ -28,7 +28,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertUserError(tester);
-        
+
         navigateToVoicemailRule();
         setTextField("item:name", "EditInternalDialRuleTest_HostnamePresent");
         setTextField("dialplan:voiceMail", "112");
@@ -37,7 +37,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertUserError(tester);
-        
+
         navigateToVoicemailRule();
         setTextField("item:name", "EditInternalDialRuleTest_InternalServer");
         setTextField("dialplan:voiceMail", "113");
@@ -47,7 +47,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
-    
+
     public void testHostnameNotRequiredForInternalVoicemailServer() {
         navigateToVoicemailRule();
         setTextField("item:name", "EditInternalDialRuleTest_HostnameMissing");
@@ -57,7 +57,7 @@ public class EditInternalDialRuleTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
-    
+
     private void navigateToVoicemailRule() {
         SiteTestHelper.home(getTester());
         SiteTestHelper.setScriptingEnabled(tester, true);

@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.sipxconfig.setting;
 
@@ -15,14 +15,14 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Provides special equality testing for SettingMaps.
- * 
+ *
  * It is intended to eliminate duplicate name=value settings from a set or SettingArray.
  * Overriding equals() and hashCode() in AbstractSetting itself causes problems with the unit
  * test.
- * 
+ *
  * To use simply wrap each SettingMap that should not have any equivalent settings in an
  * EquivalentSettingMapWrapper, and add the wrapper to your list, set, or other data structure.
- * 
+ *
  * The main point is that class determines equality by looking at the setting name, type, path,
  * and String value.
  */

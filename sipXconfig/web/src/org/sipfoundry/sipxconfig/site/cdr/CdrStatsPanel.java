@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.cdr;
@@ -40,7 +40,7 @@ public abstract class CdrStatsPanel extends BaseComponent {
 
     @Parameter
     public abstract Date getEndTime();
-    
+
     @Parameter
     public abstract User getUser();
 
@@ -59,7 +59,7 @@ public abstract class CdrStatsPanel extends BaseComponent {
     public void export() {
         try {
             PrintWriter writer = TapestryUtils.getCsvExportWriter(getResponse(), "cdrs.csv");
-            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(), 
+            getCdrManager().dumpCdrs(writer, getStartTime(), getEndTime(),
                     getCdrSearch(), getUser());
             writer.close();
         } catch (IOException e) {

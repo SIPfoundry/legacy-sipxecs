@@ -50,20 +50,20 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     public void testPagingGroups() throws Exception {
         assertElementNotPresent("prefix");
         assertButtonNotPresent("pagingGroups:save");
-        
+
         createGroup();
         reloadPage();
-        
+
         assertElementPresent("prefix");
         assertTextFieldEquals("prefix", "*77");
-        assertButtonPresent("pagingGroups:save");        
-        
+        assertButtonPresent("pagingGroups:save");
+
         editGroup();
         reloadPage();
         deleteAllGroups();
-        
+
         assertElementNotPresent("prefix");
-        assertButtonNotPresent("pagingGroups:save");        
+        assertButtonNotPresent("pagingGroups:save");
     }
 
     private void editGroup() throws IOException {
@@ -103,7 +103,7 @@ public class PagingGroupsPageTestUi extends WebTestCase {
     }
 
     private void deleteAllGroups() {
-        SiteTestHelper.assertNoException(tester);        
+        SiteTestHelper.assertNoException(tester);
         setWorkingForm("pagingGroups");
         int rowCount = SiteTestHelper.getRowCount(tester, "pagingGroups:list");
         if (rowCount <= 1) {

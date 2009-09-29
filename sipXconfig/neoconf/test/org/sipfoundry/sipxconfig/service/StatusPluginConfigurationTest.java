@@ -26,7 +26,7 @@ public class StatusPluginConfigurationTest extends SipxServiceTestBase {
         ivrService.setModelName("sipxivr.xml");
         initCommonAttributes(ivrService);
         ivrService.setBeanName(SipxIvrService.BEAN_ID);
-        
+
         SipxServiceManager sipxServiceManager = TestUtil.getMockSipxServiceManager(false, statusService,
                 ivrService);
         replay(sipxServiceManager);

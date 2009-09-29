@@ -37,7 +37,7 @@
     <binding name="listener" value="listener:formSubmit" />
   </component>
 
-  <component id="agentsForm" copy-of="form" />  
+  <component id="agentsForm" copy-of="form" />
 
   <component id="commonFieldset" type="common/ItemCommon">
     <binding name="item" value="acdQueue" />
@@ -65,14 +65,14 @@
     <binding name="acdStatistics" value="acdStatistics" />
     <binding name="acdQueueUri" value="acdQueueUri"/>
     <binding name="showQueueSelector" value="false"/>
-  </component>  
+  </component>
 
   <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
     <binding name="acdServerId" value="acdServerId" />
     <binding name="acdStatistics" value="acdStatistics" />
     <binding name="acdQueueUri" value="acdQueueUri"/>
     <binding name="showQueueSelector" value="false"/>
-  </component>    
+  </component>
 
   <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply" />

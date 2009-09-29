@@ -10,7 +10,7 @@
   <property name="returnToEditPhone" />
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
-  <inject property="tapestry" object="spring:tapestry"/>	
+  <inject property="tapestry" object="spring:tapestry"/>
   <property name="simpleSearch"  initial-value="true" persist="session"/>
   <!--
       - B E A N S

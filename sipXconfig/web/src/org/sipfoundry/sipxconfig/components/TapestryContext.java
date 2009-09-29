@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -86,7 +86,7 @@ public class TapestryContext {
 
     /**
      * Join a list of names objects into a string give a delimiter.
-     * 
+     *
      * Example: <code>
      *  <span jwcid="@Insert" value="ognl:tapestry.joinNamed(items, ', ')"/>
      * </code>
@@ -135,7 +135,7 @@ public class TapestryContext {
 
     /**
      * Returns desired session timeout
-     * 
+     *
      * @param admin - true if it is an admin session
      * @return session timeout in seconds
      */

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -18,13 +18,13 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 public class DailyBackupScheduleTest extends TestCase {
-        
+
     private DailyBackupSchedule schedule;
-    
+
     protected void setUp() {
         schedule = new DailyBackupSchedule();
     }
-    
+
     /**
      * Converts time of day expressed in 24-hour clock of local time into localized string
      * expressed in GMT time. We only need this for Whacker which should be rewritten to use
@@ -36,27 +36,27 @@ public class DailyBackupScheduleTest extends TestCase {
         Date date = format.parse(tod);
         return DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(date);
     }
-    
+
 
     public void testGetTimeOfDay() throws Exception {
         Date midnight = schedule.getTime();
         String actual = DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(midnight);
-        String expected = simpleTimeOfDayToLocalizedGmt("00:00"); 
+        String expected = simpleTimeOfDayToLocalizedGmt("00:00");
         assertEquals(expected, actual);
-        
+
         assertEquals(0, schedule.getTime().getTime()); // midnight gmt
     }
-    
+
     public void testGetTimerPeriod() {
         assertEquals(1000 * 60 * 60 * 24, schedule.getTimerPeriod());
         schedule.setScheduledDay(ScheduledDay.THURSDAY);
-        assertEquals(1000 * 60 * 60 * 24 * 7, schedule.getTimerPeriod());        
+        assertEquals(1000 * 60 * 60 * 24 * 7, schedule.getTimerPeriod());
     }
-    
+
     public void testGetTimerDate() {
         assertNotNull(schedule.getTimerDate());
         schedule.setScheduledDay(ScheduledDay.EVERYDAY);
-        DateFormat localTimeFormat = DateFormat.getTimeInstance(DateFormat.LONG); 
+        DateFormat localTimeFormat = DateFormat.getTimeInstance(DateFormat.LONG);
         Date date;
         Calendar midnightLocal = Calendar.getInstance();
         midnightLocal.set(Calendar.HOUR_OF_DAY, 0);
@@ -70,5 +70,5 @@ public class DailyBackupScheduleTest extends TestCase {
         String expected = localTimeFormat.format(midnightLocal.getTime());
         String actual = localTimeFormat.format(schedule.getTimerDate());
         assertEquals(expected, actual);
-    }    
+    }
 }

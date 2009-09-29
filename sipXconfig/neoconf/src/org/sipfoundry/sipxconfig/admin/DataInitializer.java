@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -29,7 +29,7 @@ public class DataInitializer implements SystemTaskEntryPoint, ApplicationContext
     public void runSystemTask(String[] args) {
         // set system property to prevent replication during initialization tasks
         System.setProperty("sipxconfig.initializationPhase", "true");
-        
+
         String[] tasks = m_adminContext.getInitializationTasks();
         for (String task : tasks) {
             initializeData(task);

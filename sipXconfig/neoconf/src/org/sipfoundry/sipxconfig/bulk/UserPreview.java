@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk;
@@ -32,7 +32,7 @@ public class UserPreview {
     public User getUser() {
         return m_user;
     }
-    
+
     public MailboxPreferences getMailboxPreferences() {
         return m_mailboxPreferences;
     }

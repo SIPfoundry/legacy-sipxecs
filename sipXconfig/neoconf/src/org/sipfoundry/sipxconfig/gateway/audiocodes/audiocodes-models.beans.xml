@@ -39,11 +39,11 @@
   <bean id="audiocodesMediant1000" parent="audiocodesMediant">
     <property name="label" value="AudioCodes Mediant 1000" />
   </bean>
-  
+
   <bean id="audiocodesMediant2000" parent="audiocodesMediant">
     <property name="label" value="AudioCodes Mediant 2000" />
   </bean>
-  
+
   <bean id="audiocodesMediant3000" parent="audiocodesMediant">
     <property name="label" value="AudioCodes Mediant 3000" />
   </bean>

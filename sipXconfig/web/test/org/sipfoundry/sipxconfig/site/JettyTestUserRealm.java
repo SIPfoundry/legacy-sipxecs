@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site;
@@ -20,40 +20,40 @@ import org.mortbay.http.UserRealm;
  * One can add other users to test if role-based authentication works correctly.
  */
 class JettyTestUserRealm implements UserRealm {
-    
+
     private static final class User implements Principal {
         private String[] m_roles;
 
         public User(String[] roles) {
             m_roles = roles;
         }
-        
+
         public String getName() {
             return "admin";
         }
-        
+
         public String[] getRoles() {
             return m_roles;
         }
-        
+
         public boolean isUserInRole(String role) {
             for (int i = 0; i < m_roles.length; i++) {
                 if (m_roles[i].equals(role)) {
                     return true;
                 }
             }
-            return false;            
+            return false;
         }
     }
 
-    /** 
+    /**
      * For unit testing, all roles are considered to be admin roles.
      * Roles listed here must match roles listed in web.xml.
      */
     private static final String[] ADMIN_ROLES = { "admin" };
 
     User m_admin = new User(ADMIN_ROLES);
-    
+
     /** Return the realm name.  Must match the realm declared in web.xml. */
     public String getName() {
         return "jetty realm";
@@ -93,5 +93,5 @@ class JettyTestUserRealm implements UserRealm {
     public void logout(Principal user) {
         // do nothing
     }
-    
+
 }

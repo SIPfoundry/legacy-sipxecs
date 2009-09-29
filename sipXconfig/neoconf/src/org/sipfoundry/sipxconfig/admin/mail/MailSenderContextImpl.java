@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.mail;
@@ -72,7 +72,7 @@ public class MailSenderContextImpl implements MailSenderContext {
 
     /**
      * Appends SIP domain name to addresses that do not have domain names
-     * 
+     *
      * @param address
      * @return
      */

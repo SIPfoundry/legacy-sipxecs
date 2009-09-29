@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -45,23 +45,23 @@ public class ObjectSourceDataSqueezerTest extends TestCase {
     public void testGetValue() {
         IMocksControl control = EasyMock.createStrictControl();
         DataObjectSource source = control.createMock(DataObjectSource.class);
-        
+
         source.load(PrimaryKeySource.class, KEY);
         control.andReturn(m_object);
         control.replay();
 
         ObjectSourceDataSqueezer squeezer = new ObjectSourceDataSqueezer(source,
                 PrimaryKeySource.class);
-        
+
         assertSame(m_object,squeezer.getValue(KEY));
         control.verify();
     }
-    
+
     public void testSetClass() {
         try {
             ObjectSourceDataSqueezer squeezer = new ObjectSourceDataSqueezer();
             squeezer.setClass(Object.class);
-            fail("setClass should only support class implementing PrimaryKeySource");            
+            fail("setClass should only support class implementing PrimaryKeySource");
         }
         catch(IllegalArgumentException e) {
             // ok

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -21,7 +21,7 @@ public class ExtraOptionModelDecoratorTest extends TestCase {
         model.setMax(6);
         m_model = new ExtraOptionModelDecorator();
         m_model.setModel(model);
-        m_model.setExtraLabel("A new option");        
+        m_model.setExtraLabel("A new option");
     }
 
     public void testGetOptionCount() {
@@ -52,7 +52,7 @@ public class ExtraOptionModelDecoratorTest extends TestCase {
         String value = m_model.getValue(3);
         assertEquals(new Integer(5), m_model.translateValue(value));
     }
-    
+
     public void testSetExtraOptionNull() {
         m_model.setExtraOption(null);
         assertNull(m_model.getOption(0));

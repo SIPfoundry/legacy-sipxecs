@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -37,21 +37,21 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
     private static final String SETTING_PATH_CONFERENCE_ENABLED = "conference/enabled";
     private static final String SETTING_PATH_CONFERENCE_BRIDGE_ID = "conference/bridgeId";
     private static final String SETTING_PATH_CONFERENCE_PREFIX = "conference/prefix";
-    
+
     private static final Log LOG = LogFactory.getLog(UserGroupConferenceSettings.class);
-    
+
     @Parameter(required = true)
     public abstract Setting getSettings();
-    
+
     @Parameter(required = true)
     public abstract Group getGroup();
-    
+
     @Parameter(required = true)
     public abstract IValidationDelegate getValidator();
-    
+
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
-    
+
     public IPropertySelectionModel getConferenceBridgesModel() {
         List<Bridge> bridges = getConferenceBridgeContext().getBridges();
         BeanPropertySelectionModel bridgeModel = new BeanPropertySelectionModel(bridges, "name");
@@ -61,7 +61,7 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
         model.setExtraOption(null);
         return model;
     }
-    
+
     public Bridge getBridge() {
         Bridge bridge = null;
         Integer bridgeId = (Integer) getSettings().getSetting(SETTING_PATH_CONFERENCE_BRIDGE_ID).getTypedValue();
@@ -73,19 +73,19 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
                         getGroup().getName(), bridgeId));
             }
         }
-        
+
         return bridge;
     }
-    
+
     public void setBridge(Bridge bridge) {
         getSettings().getSetting(SETTING_PATH_CONFERENCE_BRIDGE_ID).setTypedValue(
                 bridge != null ? bridge.getId() : bridge);
     }
-    
+
     public Boolean isConferenceEnabled() {
         return Boolean.valueOf(getSettings().getSetting(SETTING_PATH_CONFERENCE_ENABLED).getValue());
     }
-    
+
     public void setConferenceEnabled(Boolean enabled) {
         getSettings().getSetting(SETTING_PATH_CONFERENCE_ENABLED).setTypedValue(enabled.toString());
     }
@@ -93,11 +93,11 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
     public String getConferencePrefix() {
         return getSettings().getSetting(SETTING_PATH_CONFERENCE_PREFIX).getValue();
     }
-    
+
     public void setConferencePrefix(String prefix) {
         getSettings().getSetting(SETTING_PATH_CONFERENCE_PREFIX).setValue(prefix);
     }
-    
+
     public boolean validateConferenceSettings() {
         IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         boolean valid = true;
@@ -111,27 +111,27 @@ public abstract class UserGroupConferenceSettings extends BaseComponent {
                 valid = false;
             }
         }
-        
+
         return valid;
-    }  
-    
-    
+    }
+
+
     public void ok(IRequestCycle cycle) {
         if (validateConferenceSettings()) {
             GroupSettings groupPage = (GroupSettings) getPage();
             groupPage.ok(cycle);
-        }        
+        }
     }
 
     public void apply() {
         if (validateConferenceSettings()) {
             GroupSettings groupPage = (GroupSettings) getPage();
-            groupPage.apply();            
+            groupPage.apply();
         }
-    }    
-    
+    }
+
     public void cancel(IRequestCycle cycle) {
         GroupSettings groupPage = (GroupSettings) getPage();
-        groupPage.cancel(cycle);            
-    }        
+        groupPage.cancel(cycle);
+    }
 }

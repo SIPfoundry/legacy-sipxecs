@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 
@@ -23,13 +23,13 @@ public class ConflictingFeatureCodeException extends UserException {
         m_a = a;
         m_b = b;
     }
-    
+
     @Override
     public String getMessage() {
         Object[] params = new String[] {
                 m_a.getMessageSource().getMessage(m_a.getLabelKey(), null, Locale.getDefault()),
                 m_b.getMessageSource().getMessage(m_b.getLabelKey(), null, Locale.getDefault())
         };
-        return String.format("Conflicting feature codes: %s and %s", params);            
+        return String.format("Conflicting feature codes: %s and %s", params);
     }
 }

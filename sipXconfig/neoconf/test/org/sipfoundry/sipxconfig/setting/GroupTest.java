@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -76,15 +76,15 @@ public class GroupTest extends TestCase {
         assertEquals("0", originalSetting.getValue());
         assertEquals("0", originalSetting.getDefaultValue());
 
-        bird.addGroup(g); 
+        bird.addGroup(g);
         // inherited setting did not change even after we added bird to the group
         assertEquals("1", inheritedSetting.getValue());
         assertEquals("0", inheritedSetting.getDefaultValue());
-        
+
         // original setting now different - since we are in the group
         assertEquals("1", originalSetting.getValue());
         assertEquals("1", originalSetting.getDefaultValue());
-                
+
         inheritedSetting.setValue("0");
         assertEquals(0, g.size());
         assertEquals("0", inheritedSetting.getValue());
@@ -106,7 +106,7 @@ public class GroupTest extends TestCase {
         assertEquals("0", ivoryBilled.getDefaultValue());
         assertEquals("2", ivoryBilled.getValue());
     }
-    
+
     public void testSelectGroupWithHighestWeight() {
         Group firstGroup = new Group();
         firstGroup.setWeight(10);
@@ -114,10 +114,10 @@ public class GroupTest extends TestCase {
         secondGroup.setWeight(15);
         Group thirdGroup = new Group();
         thirdGroup.setWeight(5);
-        
+
         List<Group> groups = new ArrayList<Group>();
         Collections.<Group>addAll(groups, firstGroup, secondGroup, thirdGroup);
-        
+
         Group heaviestGroup = Group.selectGroupWithHighestWeight(groups);
         assertEquals(firstGroup, heaviestGroup);
     }

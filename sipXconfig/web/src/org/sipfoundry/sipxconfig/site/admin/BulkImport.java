@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 public abstract class BulkImport extends BasePage {
     @Persist
     @InitialValue(value = "literal:import")
-    public abstract String getTab();    
+    public abstract String getTab();
 
     public abstract IUploadFile getUploadFile();
 
@@ -53,7 +53,7 @@ public abstract class BulkImport extends BasePage {
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator(this);
         IUploadFile uploadFile = getUploadFile();
-        String filePath = uploadFile.getFilePath(); 
+        String filePath = uploadFile.getFilePath();
         if (StringUtils.isBlank(filePath)) {
             validator.record(getMessages().getMessage("msg.errorNoFile"), ValidationConstraint.REQUIRED);
             return;

@@ -40,7 +40,7 @@ public class EquivalentSettingMapWrapperTest extends TestCase {
         assertEquals(uniqueMap1, uniqueMap3);
         assertEquals(uniqueMap3, uniqueMap1);
         assertEquals(uniqueMap1.hashCode(), uniqueMap3.hashCode());
-        
+
         assertFalse(uniqueMap1.equals(uniqueMap2));
         assertFalse(uniqueMap2.equals(uniqueMap1));
     }

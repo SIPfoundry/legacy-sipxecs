@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
@@ -51,10 +51,10 @@ public abstract class Registrations extends BasePage implements PageBeginRenderL
     /**
      * Retrieves registration metrics object. Can be called multiple times during rewind/render
      * and it'll lazily initialize registrations metrics only the first time it is called.
-     * 
+     *
      * Workaround for Tapestry 4.0 table model problem, in some case table model is retrieved
      * before pageBenginRender gets called
-     * 
+     *
      * @return properly initialized registration metrics object
      */
     public RegistrationMetrics getMetrics() {

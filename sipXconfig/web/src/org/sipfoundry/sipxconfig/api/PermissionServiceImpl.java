@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -83,7 +83,7 @@ public class PermissionServiceImpl implements PermissionService {
             }
             if (p.isBuiltIn()) {
                 // Can not modify builtIn permission
-                // Do not throw, we allow bulk modification for all custom permissions 
+                // Do not throw, we allow bulk modification for all custom permissions
                 // with and empty search block
                 continue;
             }

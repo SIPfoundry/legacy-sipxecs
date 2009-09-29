@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -41,13 +41,13 @@ public class AcdServerPageTestUi extends WebTestCase {
         clickLink("link:queues");
         SiteTestHelper.assertNoException(tester);
         clickLink("link:config");
-        SiteTestHelper.assertNoException(tester);        
-        
+        SiteTestHelper.assertNoException(tester);
+
         resetAcdContext();
     }
-    
+
     public void resetAcdContext() {
-        SiteTestHelper.home(getTester());        
+        SiteTestHelper.home(getTester());
         clickLink("resetAcdContext");
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 /**
  * Base page for all the user specific pages.
- * 
+ *
  * User specific pages can be displayed in User Portal, in Admin Portal or in both places. The
  * important characteristics of such pages is that they display some data specific to the user.
  * When they are displayed in User portal the page will only present the data for logged in user.
@@ -52,10 +52,10 @@ public abstract class UserBasePage extends PageWithCallback implements PageBegin
 
     /**
      * Determine the id of the user for which page will be changing call forwarding setting.
-     * 
+     *
      * If current login user has admin privilidges he can change call forwarding for any user.
      * However user without admin privilidges can only edit settings for logged in user.
-     * 
+     *
      * @return id of the user for which page will be changing call forwarding setting
      */
     protected Integer getActiveUserId() {

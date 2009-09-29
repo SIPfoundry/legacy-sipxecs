@@ -4,7 +4,7 @@
 	tabNames="ognl:availableTabNames"
 	selectedTab="ognl:tab"
 	renderCondition="ognl:!locationBean.isNew() && registered"/>
-  <div id="settings-content">  
+  <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>

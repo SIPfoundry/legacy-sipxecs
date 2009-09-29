@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -24,23 +24,23 @@ import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
  * Helper class for reading/writing XML
  */
 public abstract class XmlReaderImpl<T> {
-    
+
     public T readObject(File file) {
         Reader ioreader = null;
         T object = null;
         try {
             if (file.exists()) {
                 ioreader = new FileReader(file);
-                object = readObject(ioreader); 
-            }        
+                object = readObject(ioreader);
+            }
             return object;
         } catch (IOException e) {
             throw new MailstoreMisconfigured("Cannot read from file ", e);
         } finally {
             IOUtils.closeQuietly(ioreader);
-        }                
+        }
     }
-    
+
     public T readObject(Reader input) {
         SAXReader reader = new SAXReader();
         Document doc;
@@ -51,12 +51,12 @@ public abstract class XmlReaderImpl<T> {
         }
         return readObject(doc);
     }
-    
+
     public static class XmlFormatError extends RuntimeException {
         public XmlFormatError(String message, Exception cause) {
             super(message, cause);
         }
     }
-    
+
     public abstract T readObject(Document doc);
 }

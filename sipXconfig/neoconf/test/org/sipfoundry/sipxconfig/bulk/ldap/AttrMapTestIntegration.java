@@ -5,9 +5,9 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 
 public class AttrMapTestIntegration extends IntegrationTestCase {
-    
+
     AttrMap m_attrMap;
-    
+
     public void setAttrMap(AttrMap attrMap) {
         m_attrMap = attrMap;
     }

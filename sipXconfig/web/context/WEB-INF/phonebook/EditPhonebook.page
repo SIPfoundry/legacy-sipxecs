@@ -8,8 +8,8 @@
   <property name="phonebook"/>
   <property name="phonebookId" persist="client"/>
   <inject property="phonebookManager" object="spring:phonebookManager" />
-  <inject property="coreContext" object="spring:coreContext" />  
-  <inject property="settingDao" object="spring:settingDao" />  
+  <inject property="coreContext" object="spring:coreContext" />
+  <inject property="settingDao" object="spring:settingDao" />
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <component id="phonebookForm" type="Form">
     <binding name="delegate" value="bean:validator"/>

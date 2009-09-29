@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
@@ -56,7 +56,7 @@ public abstract class SettingsFieldset extends BaseComponent {
     @Parameter(defaultValue = "true")
     public abstract void setShowAdvancedToggle(boolean showAdvancedToggle);
     public abstract boolean getShowAdvancedToggle();
-    
+
     public abstract Collection<Setting> getFlattenedSettings();
 
     public abstract void setFlattenedSettings(Collection<Setting> flat);
@@ -90,7 +90,7 @@ public abstract class SettingsFieldset extends BaseComponent {
     /**
      * Render group if it's not advanced (hidden) or if show advanced is set and group title
      * rendering is allowed
-     * 
+     *
      * @param setting
      * @return true if setting should be rendered
      */
@@ -105,7 +105,7 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     /**
      * Render setting if it's not advanced (hidden) or if show advanced is set
-     * 
+     *
      * @param setting
      * @return true if setting should be rendered
      */

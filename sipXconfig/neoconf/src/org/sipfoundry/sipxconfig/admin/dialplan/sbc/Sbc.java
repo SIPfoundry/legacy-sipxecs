@@ -1,11 +1,11 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
- * 
+ *
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc;
 
@@ -44,7 +44,7 @@ public abstract class Sbc extends BeanWithId {
 
     /**
      * Called when SBC device asociated with this SBC gets deleted.
-     * 
+     *
      * @return true if SBC should be deleted as well
      */
     public boolean onDeleteSbcDevice() {

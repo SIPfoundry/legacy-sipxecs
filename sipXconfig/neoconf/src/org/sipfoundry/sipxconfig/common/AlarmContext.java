@@ -25,7 +25,7 @@ public interface AlarmContext {
 
     /**
      * Send an alarm to the Alarm Server with a list of runtime parameters.
-     * 
+     *
      * @param unique internal alarm id
      * @param list of runtime parameters
      */
@@ -43,7 +43,7 @@ public interface AlarmContext {
     public void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
     public void replicateAlarmServer(SipxReplicationContext replicationContext, Location location);
-    
+
     public String getSipxUser();
 
     public String getConfigDirectory();

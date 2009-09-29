@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
@@ -21,7 +21,7 @@ public abstract class JainSipMessage extends AbstractMessage {
     private SipStackBean m_helper;
     private byte[] m_payload;
     private String m_contentType;
-   
+
 
     public JainSipMessage(SipStackBean helper, String contentType, byte[] payload) {
         m_helper = helper;
@@ -36,7 +36,7 @@ public abstract class JainSipMessage extends AbstractMessage {
     protected Request createRequest(String requestType, String userName, String fromDisplayName,
             String fromAddrSpec, String toAddrSpec, boolean forwardingAllowed) {
         try {
-            Request request = m_helper.createRequest(requestType, userName, fromDisplayName, 
+            Request request = m_helper.createRequest(requestType, userName, fromDisplayName,
                     fromAddrSpec, toAddrSpec, forwardingAllowed);
             m_helper.addContent(request, m_contentType, m_payload);
             return request;
@@ -45,7 +45,7 @@ public abstract class JainSipMessage extends AbstractMessage {
             throw new SipxSipException(e);
         }
     }
-    
+
     protected SipProvider getSipProvider() {
         return m_helper.getSipProvider();
     }
@@ -53,11 +53,11 @@ public abstract class JainSipMessage extends AbstractMessage {
     protected SipStackBean getHelper() {
         return m_helper;
     }
-    
+
     protected void setClientTransaction(ClientTransaction clientTransaction) {
         m_clientTransaction = clientTransaction;
     }
-    
+
     public void send() {
         try {
             m_clientTransaction.sendRequest();

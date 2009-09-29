@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -20,11 +20,11 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
 public class RegistrationMetricsTest extends TestCase {
     private RegistrationMetrics m_metrics;
-    
+
     protected void setUp() {
         m_metrics = new RegistrationMetrics();
     }
-    
+
     public void testUniqueRegistrations() {
         String[][] regData = {
                 {
@@ -60,14 +60,14 @@ public class RegistrationMetricsTest extends TestCase {
             assertEquals(13, ((RegistrationItem) cleanRegs.get(2)).getExpires());
     }
 
-    public void testCalculateMetricsEmpty() {       
+    public void testCalculateMetricsEmpty() {
         RegistrationMetrics metrics = new RegistrationMetrics();
         assertTrue(1.0 == metrics.getLoadBalance());
 
         metrics.setRegistrations(Collections.EMPTY_LIST);
         assertTrue(1.0 == metrics.getLoadBalance());
     }
-    
+
     public void testCalculateMetricsSingleMachine() {
         RegistrationItem[] items = new RegistrationItem[] {
                 newRegistrationItem("mallard"),
@@ -79,7 +79,7 @@ public class RegistrationMetricsTest extends TestCase {
         metrics.setRegistrations(Arrays.asList(items));
         assertTrue(1.0 == metrics.getLoadBalance());
     }
-    
+
     public void testCalculateExcellentMetrics() {
         RegistrationItem[] items = new RegistrationItem[] {
                 newRegistrationItem("mallard"),
@@ -91,7 +91,7 @@ public class RegistrationMetricsTest extends TestCase {
         metrics.setUniqueRegistrations(Arrays.asList(items));
         assertTrue(2.0 == metrics.getLoadBalance());
     }
-    
+
     public void testCalculateGoodMetrics() {
         RegistrationItem[] items = new RegistrationItem[] {
                 newRegistrationItem("mallard"),

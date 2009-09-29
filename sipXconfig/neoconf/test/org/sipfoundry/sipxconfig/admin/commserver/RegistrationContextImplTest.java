@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -49,7 +49,7 @@ public class RegistrationContextImplTest extends TestCase {
         for (int i = 0; i < DATA.length; i++) {
             Map<String, Object> item = new HashMap<String, Object>();
             for (int f = 0; f < FIELDS.length; f++) {
-                item.put(FIELDS[f], DATA[i][f]);                
+                item.put(FIELDS[f], DATA[i][f]);
             }
             m_data.add(item);
         }

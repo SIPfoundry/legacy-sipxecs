@@ -15,12 +15,12 @@ public class CounterpathPhoneModel extends PhoneModel {
     public CounterpathPhoneModel() {
         super();
     }
-    
+
     public CounterpathPhoneModel(String beanId) {
         super(beanId);
     }
-    
+
     public CounterpathPhoneModel(String beanId, String modelId) {
         super(beanId, modelId);
-    }      
+    }
 }

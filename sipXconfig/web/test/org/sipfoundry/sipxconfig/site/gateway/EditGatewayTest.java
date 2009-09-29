@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -90,15 +90,15 @@ public class EditGatewayTest extends TestCase {
     }
 
     public void testPageBeginRenderAdd() {
-        Gateway gateway = new Gateway();       
+        Gateway gateway = new Gateway();
         gateway.setModel(new GatewayModel("xxx", "xxx"));
-        
+
         IMocksControl contextControl = EasyMock.createStrictControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);
         context.newGateway(gateway.getModel());
         contextControl.andReturn(gateway);
         contextControl.replay();
-        
+
         PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
 
         m_editGatewayPage.setGatewayModel(gateway.getModel());
@@ -106,7 +106,7 @@ public class EditGatewayTest extends TestCase {
 
         assertNotNull(m_editGatewayPage.getGateway());
         assertNull(m_editGatewayPage.getGatewayId());
-        
+
         contextControl.verify();
     }
 

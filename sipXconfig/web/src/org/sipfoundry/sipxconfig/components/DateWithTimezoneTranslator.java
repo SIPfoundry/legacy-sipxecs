@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -19,9 +19,9 @@ import org.apache.tapestry.form.translator.DateTranslator;
  * Default date tranlsator doesn't support setting timezones
  */
 public class DateWithTimezoneTranslator extends DateTranslator {
-    
+
     private TimeZone m_timeZone = TimeZone.getDefault();
-    
+
     public TimeZone getTimeZone() {
         return m_timeZone;
     }

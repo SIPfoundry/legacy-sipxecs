@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -50,7 +50,7 @@ public class CheckDST extends TimerTask implements ApplicationContextAware {
 
     /**
      * Find the aproximate time of DTS change
-     * 
+     *
      * @param tz time zone
      * @param today time from which we will start checking
      * @return null if not DST change in next 24 hours, otherwise time of the spproximate DST

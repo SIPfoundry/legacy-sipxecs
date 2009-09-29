@@ -4,7 +4,7 @@
  	  </h2>
 	  <h2 jwcid="@Else">
 		<span key="title">Schedule</span>
-	  </h2>      	
+	  </h2>
 	  <span jwcid="@common/ErrorMsg"></span>
 	  <form jwcid="editScheduleForm@Form" delegate="bean:validator" listener="listener:submit">
 	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required" useEnabled="literal:false" useExtension="literal:false"/>
@@ -22,7 +22,7 @@
 				</tr>
 	          </tbody>
 	        </table>
-	      </fieldset>	      
+	      </fieldset>
 	    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
-	  </form>	  
+	  </form>
     </div>

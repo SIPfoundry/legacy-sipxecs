@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
 public class Mailbox {
     private File m_mailstoreDirectory;
     private String m_userId;
-    
+
     public Mailbox(File mailstoreDirectory, String userId) {
         m_mailstoreDirectory = mailstoreDirectory;
         m_userId = userId;
@@ -31,15 +31,15 @@ public class Mailbox {
         // directories here
         return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
     }
-    
+
     public File getMailstoreDirectory() {
         return m_mailstoreDirectory;
     }
-    
+
     public File getUserDirectory() {
         return new File(getMailstoreDirectory(), getUserId());
     }
-    
+
     public void deleteUserDirectory() {
         File userDir = getUserDirectory();
         if (userDir.exists()) {
@@ -50,7 +50,7 @@ public class Mailbox {
             }
         }
     }
-    
+
     public File getDistributionListsFile() {
         return new File(getUserDirectory(), "distribution.xml");
     }
@@ -66,11 +66,11 @@ public class Mailbox {
     public void setUserId(String userId) {
         m_userId = userId;
     }
-    
+
     public File getVoicemailPreferencesFile() {
-        return new File(getUserDirectory(), "mailboxprefs.xml");        
+        return new File(getUserDirectory(), "mailboxprefs.xml");
     }
-    
+
     public Voicemail getVoicemail(String folderId, String messageId) {
         return new Voicemail(m_mailstoreDirectory, m_userId, folderId, messageId);
     }

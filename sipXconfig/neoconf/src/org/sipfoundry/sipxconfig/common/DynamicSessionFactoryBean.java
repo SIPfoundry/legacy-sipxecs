@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -46,7 +46,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
     /**
      * Finds all subclasesses of baseClass in the bean factory and binds them to the same table as
      * base class using bean id as a discriminator value.
-     * 
+     *
      * @param config hibernate config that will be modified
      * @param baseClass base class - needs to be already mapped statically
      */
@@ -65,7 +65,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
     /**
      * Finds all subclasesses of baseClass in the bean factory and binds them to the same table as
      * base class using bean id as a discriminator value.
-     * 
+     *
      * @param config hibernate config that will be modified
      * @param baseClassBeanId - bean representing the base class - needs to be already mapped
      *        statically
@@ -77,7 +77,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
 
     /**
      * Create XML that contains a single subclass mapping
-     * 
+     *
      * @param baseClass already mapped hibernate entity class
      * @param subClass new entity to be mapped
      * @param discriminator value of disciminator for this subclass

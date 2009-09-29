@@ -38,7 +38,7 @@ public class Server {
         }
         return len;
     }
-    
+
     public Hashtable create(Hashtable map) {
         return map;
     }

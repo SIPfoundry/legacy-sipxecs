@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -33,7 +33,7 @@ public class SettingTypeReferencesTest extends TestCase {
         assertNotNull(type);
         assertTrue(type instanceof BooleanSetting);
     }
-    
+
     public void testRequired() {
         SettingType notrequired = group.getSetting("not-required-in-type/not-required").getType();
         assertFalse(notrequired.isRequired());

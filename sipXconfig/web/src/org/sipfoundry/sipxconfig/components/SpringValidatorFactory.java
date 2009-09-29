@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -22,17 +22,17 @@ import org.springframework.beans.factory.BeanFactory;
  * Use validators defined in spring, then consult hivemind
  */
 public class SpringValidatorFactory implements ValidatorFactory {
-    
+
     private SpringBeanFactorySource m_beanFactorySource;
-    
+
     private ValidatorFactory m_hivemindValidatorFactory;
 
     public void setBeanFactorySource(SpringBeanFactorySource beanFactorySource) {
         m_beanFactorySource = beanFactorySource;
     }
 
-    public List constructValidatorList(IComponent component, String specification) {        
-        String[] tokens = splitSpecification(specification); 
+    public List constructValidatorList(IComponent component, String specification) {
+        String[] tokens = splitSpecification(specification);
         ArrayList validators = new ArrayList();
         BeanFactory factory = m_beanFactorySource.getBeanFactory();
         for (int i = 0; i < tokens.length; i++) {
@@ -42,17 +42,17 @@ public class SpringValidatorFactory implements ValidatorFactory {
                 Validator v = (Validator) factory.getBean(tokens[i]);
                 validators.add(v);
             } else {
-                // delegate the "magic" to the hivemind 
+                // delegate the "magic" to the hivemind
                 List hivemindValidators = m_hivemindValidatorFactory.constructValidatorList(component, tokens[i]);
                 validators.addAll(hivemindValidators);
             }
         }
 
         return validators;
-    }       
-    
+    }
+
     String[] splitSpecification(String specification) {
-        return specification.split("\\s*,\\s*");        
+        return specification.split("\\s*,\\s*");
     }
 
     public void setHivemindValidatorFactory(ValidatorFactory hivemindValidators) {

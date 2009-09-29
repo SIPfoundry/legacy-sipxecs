@@ -28,7 +28,7 @@ public class HistoryAlarmsTableModelTest {
 
     private HistoryAlarmsTableModel m_out;
     private DummyAlarmContext m_alarmContext;
-    
+
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(HistoryAlarmsTableModelTest.class);
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -29,17 +29,17 @@ public class ModelMessageSource extends ResourceBundleMessageSource {
 
     /**
      * Find name for message bundle based on the name of the model file.
-     * 
+     *
      * The assumption here is that the parent directory is in the classpath. If the name of the
      * file is '/etc/sipxpbx/polycom/phone.xml' we conver it to polycom.phone because we assume
      * that /etc/sipxpbx is in the classpath.
-     * 
+     *
      * This will only work of course if model files are kept in subdirectories. It would be better
      * if both model class and resource bundles were loaded as resources using the same mechanism.
-     * 
+     *
      * @param modelFile name of the .xml file containing the phone model, this is usually a name
      *        somewhere in /etc/sipxpbx directory
-     * 
+     *
      * @return name of the bundle which has to look like a class name hence '.' as an separator
      */
     private String getBundleBasename(File modelFile) {

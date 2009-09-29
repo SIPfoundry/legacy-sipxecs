@@ -59,7 +59,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * Sends IMDB table data to all locations
-     * 
+     *
      * It only returns one result, if there is a failure checking the log is the only way to
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
@@ -93,7 +93,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * Encodes payload using Base64 and returns encoded data as string
-     * 
+     *
      * @param payload
      * @return string representing encoded data
      */

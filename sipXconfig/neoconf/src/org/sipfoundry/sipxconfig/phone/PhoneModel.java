@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -50,11 +50,11 @@ public class PhoneModel extends DeviceDescriptor {
 
     /**
      * Used to test if phone supports external lines.
-     * 
+     *
      * External line is a line that registers with a different SIP proxy than out default proxy.
      * Some phones support multiple lines but all of the have to be registered with the same
      * proxy. This flag needs to be switched to falso for such phones.
-     * 
+     *
      */
     public boolean isExternalLinesSupported() {
         return m_externalLinesSupported;

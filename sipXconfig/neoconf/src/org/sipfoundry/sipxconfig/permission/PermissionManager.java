@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.permission;
@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * PermissionManger interface provides access to user/usergroup Permissions.
- * 
+ *
  * There are three types of Permissions: Application, VMServer and CallHandling. CallHandling
  * permissions are used in coordination with dial plan rules to implement system dialing
  * restrictions. CallHandling permissions are further classified as built in and custom, i.e.

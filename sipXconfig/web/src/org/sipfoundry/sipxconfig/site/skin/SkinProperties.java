@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.skin;
@@ -17,7 +17,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.config.PropertyResourceConfigurer;
 import org.springframework.core.io.ClassPathResource;
 
-public class SkinProperties extends PropertyResourceConfigurer {   
+public class SkinProperties extends PropertyResourceConfigurer {
 
     @Override
     protected void processProperties(ConfigurableListableBeanFactory beanFactory, Properties props) {
@@ -28,7 +28,7 @@ public class SkinProperties extends PropertyResourceConfigurer {
         }
         skin.setAssets(assets);
     }
-    
+
     /**
      * convience method to set location w/o ClassPathResource in bean file.
      * @param path

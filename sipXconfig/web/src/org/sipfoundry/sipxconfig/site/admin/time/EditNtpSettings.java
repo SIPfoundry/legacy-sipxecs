@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.time;
@@ -41,10 +41,10 @@ public abstract class EditNtpSettings extends BaseComponent implements PageBegin
     public abstract boolean getShowNtpServers();
 
     public abstract void setShowNtpServers(boolean bool);
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
-    
+
     public void pageBeginRender(PageEvent event_) {
         if (getNtpServers() == null) {
             setNtpServers(getTimeManager().getNtpServers());
@@ -53,7 +53,7 @@ public abstract class EditNtpSettings extends BaseComponent implements PageBegin
             setNtpConfig(getTimeManager().getNtpConfiguration());
         }
     }
-    
+
     public void submitNtpConfig() {
         if (!getShowNtpServers()) {
             try {

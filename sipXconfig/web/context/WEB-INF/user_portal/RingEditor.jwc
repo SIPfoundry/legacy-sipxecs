@@ -7,7 +7,7 @@
   <parameter name="index" required="yes"/>
   <parameter name="deleteListener" required="yes"/>
   <parameter name="availableSchedules" required="yes"/>
-  
+
   <!-- B E A N S -->
   <bean name="delayModel_en" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>
@@ -22,7 +22,7 @@
     <set name="trueLabel" value="message:enabled"/>
   </bean>
 
-  <bean name="bareScheduleModel" 
+  <bean name="bareScheduleModel"
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="render">
 	<set name="collection" value="availableSchedules"/>
     <set name="labelExpression" value="literal:name"/>

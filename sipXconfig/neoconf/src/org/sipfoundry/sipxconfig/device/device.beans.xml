@@ -25,10 +25,10 @@
 
   <bean id="httpProfileLocation" class="org.sipfoundry.sipxconfig.device.FileSystemProfileLocation">
     <property name="parentDir">
-      <!-- 
-        - this is directory for a preferred place for serving 
+      <!--
+        - this is directory for a preferred place for serving
         - phone configuration profiles for http access
-        -    http://host:8090/phone/profile/docroot/, 
+        -    http://host:8090/phone/profile/docroot/,
       -->
       <value>${sysdir.phone}/profile/docroot</value>
     </property>

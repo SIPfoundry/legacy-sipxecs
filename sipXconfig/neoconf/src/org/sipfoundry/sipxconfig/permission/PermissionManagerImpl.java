@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.permission;
@@ -192,7 +192,7 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
 
     /**
      * Load all permissions from the DB
-     * 
+     *
      * HACK: In order to make this function work in non-DB test we return empty set of permissions
      * in case hibernate session factory is not set.
      */

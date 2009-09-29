@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.linksys;
@@ -30,7 +30,7 @@ public class LinksysModel extends PhoneModel {
     /**
      * Linksys phones by default look for a minimum initial configuration file, which in turns
      * provide the name of the specific configuration file.
-     * 
+     *
      * The name of the file seems to depend on the device model. Most documents on the web suggest
      * it's 'spa$PSN.cfg' where $PSN refers to numeric portion of the model name.
      */

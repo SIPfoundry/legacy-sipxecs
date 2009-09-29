@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.service;
@@ -22,14 +22,14 @@ public class AddServiceTask implements SystemTaskEntryPoint {
     private static final Log LOG = LogFactory.getLog(AddServiceTask.class);
     private ServiceManager m_serviceManager;
     private ModelSource<ServiceDescriptor> m_servicesSource;
-        
+
     public void runSystemTask(String[] args) {
         String serviceName = assertArgument(args, 1, "-Dservice.name");
         String serviceId = assertArgument(args, 2, "-Dservice.id");
         String serviceAddress = assertArgument(args, 3, "-Dservice.address");
         addService(serviceName, serviceId, serviceAddress);
     }
-    
+
     void addService(String serviceName, String serviceId, String serviceAddress) {
         ConfiguredService service =  m_serviceManager.getServiceByName(serviceName);
         if (service != null) {
@@ -42,12 +42,12 @@ public class AddServiceTask implements SystemTaskEntryPoint {
             service = m_serviceManager.newService(descriptor);
             service.setName(serviceName);
         }
-            
+
         service.setAddress(serviceAddress);
         m_serviceManager.saveService(service);
         LOG.info(String.format("service %s added", serviceName));
     }
-    
+
     static String assertArgument(String[] args, int index, String label) {
         if (args == null || args.length <= index) {
             throw new IllegalArgumentException(String.format("Argument '%s' is required", label));

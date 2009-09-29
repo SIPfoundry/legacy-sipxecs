@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.monitoring;
@@ -108,7 +108,7 @@ public class RRDToolGraphUpdater {
         return result;
     }
 
-    private void writePrintInfo(MRTGTarget target, String intervalExt, 
+    private void writePrintInfo(MRTGTarget target, String intervalExt,
                                 List<String> lines) throws IOException {
         String eol = System.getProperty("line.separator");
         String name = m_graphDirectory + target.getId() + intervalExt
@@ -120,7 +120,7 @@ public class RRDToolGraphUpdater {
         out.close();
     }
 
-    private void executeCommand(MRTGTarget target, String intervalExt, 
+    private void executeCommand(MRTGTarget target, String intervalExt,
                                 String[] command) throws Exception {
         int exitValue = 0;
         List<String> results = new ArrayList<String>();

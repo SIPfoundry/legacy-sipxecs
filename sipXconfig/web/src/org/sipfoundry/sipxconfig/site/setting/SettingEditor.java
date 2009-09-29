@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
@@ -105,7 +105,7 @@ public abstract class SettingEditor extends BaseComponent {
 
     /**
      * Prepares Tapestry4 validators list
-     * 
+     *
      * @return list of Validator objects
      */
     public List getValidatorList() {
@@ -164,11 +164,11 @@ public abstract class SettingEditor extends BaseComponent {
      * In order to make FieldLabel happy we need IFormComponent instance. In most cases this is
      * actually the widget directly passed to setting editor. However in some cases our widget is
      * a collection of components, and there is no easy way of extracting a usable IFormElement.
-     * 
+     *
      * I tried searching for IFormComponent among component children: this does not work since
      * there is no guarantee that found component will be actually renderer (it can be inside of
      * if block)
-     * 
+     *
      * @return IFormComponent or null if labeled component is not IFormComponent
      */
     public IFormComponent getFormComponent() {
@@ -217,7 +217,7 @@ public abstract class SettingEditor extends BaseComponent {
 
     /**
      * Retrieve default value for current setting.
-     * 
+     *
      * This is less than ideal implementation since Enum and Boolean types are treated very
      * differently from all other types.
      */

@@ -1,7 +1,7 @@
 /*
- * 
- * 
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -180,7 +180,7 @@ public class AastraPhone extends Phone {
         return MessageFormat.format(m_phonebookFilename, getSerialNumber().toUpperCase());
     }
 
-    public class AastraPhonebookDefaults { 
+    public class AastraPhonebookDefaults {
         @SettingEntry(path = "preferences/dir/directory1")
         public String getFirstDirectoryName() {
             return getPhonebookFilename();

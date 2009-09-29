@@ -25,7 +25,7 @@
     initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
 
   <!-- C O M P O N E N T S -->
-  
+
   <component id="addLink" type="DirectLink">
     <binding name="listener" value="addListener" />
   </component>

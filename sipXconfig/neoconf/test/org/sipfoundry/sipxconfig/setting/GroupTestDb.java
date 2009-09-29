@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
 public class GroupTestDb extends SipxDatabaseTestCase {
-    
+
     private SettingDao m_dao;
 
     protected void setUp() throws Exception {
@@ -47,10 +47,10 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         Group ms = new Group();
         ms.setResource("unittest");
         ms.setName("food");
-        
+
         TestBeanWithSettings bean = new TestBeanWithSettings(root);
         Setting settings = ms.inherhitSettingsForEditing(bean);
-        
+
         settings.getSetting("fruit/apple").setValue("granny smith");
         settings.getSetting("vegetable/pea").setValue(null);
 
@@ -79,7 +79,7 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
         Group ms = m_dao.loadGroup(new Integer(1));
-        
+
         TestBeanWithSettings bean = new TestBeanWithSettings(root);
         Setting settings = ms.inherhitSettingsForEditing(bean);
         // should make it disappear
@@ -104,36 +104,36 @@ public class GroupTestDb extends SipxDatabaseTestCase {
     public void testDuplicateName() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
-        
+
         Group ms = m_dao.loadGroup(new Integer(1));
         Group duplicate = new Group();
         duplicate.setName(ms.getName());
         duplicate.setResource(ms.getResource());
-        
+
         try {
             m_dao.saveGroup(duplicate);
             fail();
-        } catch (UserException u) {            
+        } catch (UserException u) {
             assertTrue(true);
         }
     }
-    
+
     public void testWeightSequence() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         Group newGroup = new Group();
         newGroup.setResource("unittest");
-        newGroup.setName("unittest");        
+        newGroup.setName("unittest");
         m_dao.saveGroup(newGroup);
         assertNotNull(newGroup.getWeight());
     }
-    
+
     public void testGetByName() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/UpdateGroupSeed.xml");
-        
+
         Group byName = m_dao.getGroupByName("unittest", "food");
         assertNotNull(byName);
         assertEquals("food", byName.getName());
-        assertEquals("unittest", byName.getResource());        
+        assertEquals("unittest", byName.getResource());
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -22,8 +22,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxManagerImpl.MailstoreMisconfigured;
 /**
  * Helper class for reading/writing XML
  */
-public abstract class XmlWriterImpl<T> {  
-    private String m_template;    
+public abstract class XmlWriterImpl<T> {
+    private String m_template;
     private VelocityEngine m_velocityEngine;
 
     /**
@@ -54,20 +54,20 @@ public abstract class XmlWriterImpl<T> {
         m_template = template;
     }
 
-    public void writeObject(T object, Writer output) {        
+    public void writeObject(T object, Writer output) {
         VelocityContext velocityContext = new VelocityContext();
         addContext(velocityContext, object);
         writeObject(velocityContext, output);
     }
-    
+
     protected abstract void addContext(VelocityContext context, T object);
-    
+
     protected void writeObject(VelocityContext context, Writer output) {
         try {
             getVelocityEngine().mergeTemplate(getTemplate(), context, output);
         } catch (Exception e) {
             throw new RuntimeException("Error using velocity template " + getTemplate(), e);
-        }        
+        }
     }
 
     public VelocityEngine getVelocityEngine() {

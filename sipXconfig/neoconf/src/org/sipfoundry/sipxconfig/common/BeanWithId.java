@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -18,7 +18,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
  * BeanWithId - simplify implementation of the model layer
- * 
+ *
  * Hibernate advises against using object IDs in equals and hashCode methods, as we do below. See
  * http://www.hibernate.org/109.html . However, we disagree. It's true that using the ID means
  * that an unsaved object (with ID = -1) doesn't have a unique identity and that can cause
@@ -53,7 +53,7 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
     /**
      * Checks if the object has been saved to the database Works because hibernate changes id when
      * the object is saved
-     * 
+     *
      * @return true if the object has never been saved
      */
     public boolean isNew() {
@@ -100,10 +100,10 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
 
     /**
      * Assigns a unique id to a newly created object.
-     * 
+     *
      * For testing only. Most objects are created with id -1 and hibernate sets a proper id. We
      * want to be able to set the id to a unique value in tests.
-     * 
+     *
      * @return the same object - to allow for chaining calls
      */
     public BeanWithId setUniqueId() {

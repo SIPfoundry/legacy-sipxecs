@@ -54,10 +54,10 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     public String getDeviceFilename() {
         return getDevice().getDeviceFilename();
     }
-   
+
    /**
-    * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg 
-    * in the &lt;MAC&gt.cfg if they exist.          
+    * This will list 000000000000-license.cfg and &lt;MAC&gt-license.cfg
+    * in the &lt;MAC&gt.cfg if they exist.
     *
     */
     public String getLicenseFileNames() {

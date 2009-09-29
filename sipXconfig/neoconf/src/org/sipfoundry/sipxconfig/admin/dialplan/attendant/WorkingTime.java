@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
@@ -31,7 +31,7 @@ public class WorkingTime extends ScheduledAttendant {
      * Initialization is a bit tricky - days here are numbered from 0 to 6, with - 0 being Monday
      * and 6 being Sunday. Days in getScheduleDay and in Calendar object are number from 1 to 7
      * with 1 being Sunday and 7 being Saturday.
-     * 
+     *
      */
     public WorkingTime() {
         final int days = ScheduledDay.DAYS_OF_WEEK.length;
@@ -231,7 +231,7 @@ public class WorkingTime extends ScheduledAttendant {
 
         /**
          * Formats time as 24 hours (00:00-23:59), GMT time.
-         * 
+         *
          * @param date date to format - needs to be GMT time zone
          * @return formatted time string
          */
@@ -276,7 +276,7 @@ public class WorkingTime extends ScheduledAttendant {
         /**
          * Calculates minute intervals that correspond to this working hours object and adds them
          * to minutes list.
-         * 
+         *
          * @param minutes - list of minutes that all intervals need to be added to
          * @param tzOffsetInMinutes - current time zone offset expressed in minutes
          */

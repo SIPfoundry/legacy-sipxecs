@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -18,21 +18,21 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Treat any bean as a value storage, mapping properties to setting paths.
- * 
+ *
  * Methods should return external representations, e.g. booleans instead of "0" or "1" for
  * example.
- * 
+ *
  * Example:
- * 
+ *
  * public static class MyDefaults {
- * 
+ *
  * @SettingEntry(path = "hat/color") public String getHatColor() { return "red"; } }
- * 
+ *
  * public void initialize() { addDefaultBeanValueStorage(new MyDefaults()); }
  */
 public class BeanValueStorage implements SettingValueHandler {
     private Object m_bean;
-    private Map<String, Method> m_methods = new HashMap<String, Method>();    
+    private Map<String, Method> m_methods = new HashMap<String, Method>();
 
     public BeanValueStorage(Object bean) {
         m_bean = bean;
@@ -60,13 +60,13 @@ public class BeanValueStorage implements SettingValueHandler {
             // should be getter (although not strictly nec), with no args
             Object result = m.invoke(m_bean);
             if (result == null) {
-                // obstain on null.  
+                // obstain on null.
                 // NOTE: There is not way to return NULL as a setting value. If this
                 // is nec., I would suggest adding field to SettingEntry annotation
-                // called "obstainOn" and check if that matches this result. 
+                // called "obstainOn" and check if that matches this result.
                 return null;
-            }            
-            
+            }
+
             String svalue = setting.getType().convertToStringValue(result);
             return new SettingValueImpl(svalue);
         } catch (IllegalArgumentException e) {

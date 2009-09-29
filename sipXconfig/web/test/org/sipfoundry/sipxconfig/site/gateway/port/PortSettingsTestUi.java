@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway.port;
@@ -26,18 +26,18 @@ public class PortSettingsTestUi extends WebTestCase {
         SiteTestHelper.setScriptingEnabled(tester, false);
         clickLink("NewFxo");
     }
-    
+
     public void testAddPortAndEditSettings() {
         SiteTestHelper.assertNoException(tester);
         clickLink("tab:ports");
         assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));  // 1 is header
         setWorkingForm("Form");
         SiteTestHelper.clickSubmitLink(tester, "addPort");
-        setWorkingForm("settingsForm");        
+        setWorkingForm("settingsForm");
         assertElementPresent("setting:ProtocolType");  // TP260 port setting
         setTextField("setting:MaxChannel", "22");
         clickButton("setting:ok");
-        SiteTestHelper.assertNoException(tester);        
+        SiteTestHelper.assertNoException(tester);
         clickLink("tab:ports");
         assertEquals(2, SiteTestHelper.getRowCount(tester, "line:list"));
     }
@@ -47,11 +47,11 @@ public class PortSettingsTestUi extends WebTestCase {
         clickLink("tab:ports");
         setWorkingForm("Form");
         SiteTestHelper.clickSubmitLink(tester, "addPort");
-        clickButton("setting:ok");        
+        clickButton("setting:ok");
         clickLink("tab:ports");
         assertEquals(2, SiteTestHelper.getRowCount(tester, "line:list"));
         checkCheckbox("checkbox");
         clickButton("port:delete");
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));        
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));
     }
 }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.api;
 public class Frack {
     private String m_name;
     private String m_abode;
-    public Frack() {        
+    public Frack() {
     }
     public Frack(String name, String abode) {
         setName(name);

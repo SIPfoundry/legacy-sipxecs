@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.vm;
@@ -25,7 +25,7 @@ public class MoveVoicemailAction extends BulkGroupAction {
     private String m_folderLabel;
     private VoicemailSource m_source;
     private MailboxManager m_mgr;
-    
+
     public MoveVoicemailAction(MailboxManager mgr, VoicemailSource source, String folderLabel, String folderId) {
         super(null);
         m_mgr = mgr;
@@ -33,7 +33,7 @@ public class MoveVoicemailAction extends BulkGroupAction {
         m_folderId = folderId;
         m_source = source;
     }
-    
+
     public void actionTriggered(IComponent arg0, IRequestCycle arg1) {
         for (Serializable id : (Collection<Serializable>) getIds()) {
             Voicemail vm = m_source.getVoicemail(id);

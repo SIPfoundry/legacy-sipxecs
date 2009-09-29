@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $$
  */
 
@@ -18,7 +18,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 public final class Md5Encoder {
     /** MD5 message digest length */
     public static final int LEN = 32;
-    
+
     private Md5Encoder() {
         // do not instantiate
     }
@@ -35,7 +35,7 @@ public final class Md5Encoder {
     /**
      * Computes the digest with DNS domain name - "old way" left for compatibility In future we
      * may allow user to choose this method or "no DNS" method
-     * 
+     *
      * @deprecated use version that does not require credentials
      */
     @Deprecated

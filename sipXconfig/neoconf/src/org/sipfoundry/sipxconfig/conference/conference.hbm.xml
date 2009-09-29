@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.conference" default-lazy="false">
 
@@ -11,7 +11,7 @@
     </id>
     <property name="enabled" />
 
-    <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService" 
+    <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService"
                  column="location_specific_service_id" />
 
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"

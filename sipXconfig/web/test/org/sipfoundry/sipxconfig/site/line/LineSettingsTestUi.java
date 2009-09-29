@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.line;
@@ -23,10 +23,10 @@ public class LineSettingsTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(LineSettingsTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
     }
@@ -37,10 +37,10 @@ public class LineSettingsTestUi extends WebTestCase {
 
     public void testEditLine() {
         m_helper.seedLine(1);
-        
-        clickLink("ManagePhones");        
+
+        clickLink("ManagePhones");
         clickLinkWithText(SiteTestHelper.TEST_USER);
-        // NOTE: AcmePhone only setting 
+        // NOTE: AcmePhone only setting
         clickLinkWithText("Server");
         SiteTestHelper.assertNoException(tester);
     }

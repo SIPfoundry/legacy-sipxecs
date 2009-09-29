@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip.log4j;
@@ -20,9 +20,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 /**
  * A log4j Layout class that matches the SipFoundry C++ OsSyslog format (within reason)
- * 
+ *
  * TODO -- to sipx commons.
- * 
+ *
  * @author Woof!
  */
 public class SipFoundryLayout extends Layout {
@@ -32,7 +32,7 @@ public class SipFoundryLayout extends Layout {
     private SimpleDateFormat m_dateFormat;
 
     private String m_facility;
-    
+
     private LocationsManager m_locationsManager;
 
     public SipFoundryLayout() {
@@ -44,7 +44,7 @@ public class SipFoundryLayout extends Layout {
 
     /**
      * Map the log4j levels to the SipFoundry text (ERROR is ERR)
-     * 
+     *
      * @param l The level to map
      * @return The SipFoundry level text if available, otherwise the log4j text
      */
@@ -65,7 +65,7 @@ public class SipFoundryLayout extends Layout {
 
     /**
      * Map the SipFoundry text to the log4j Priority number
-     * 
+     *
      * @param level
      * @return
      */
@@ -93,7 +93,7 @@ public class SipFoundryLayout extends Layout {
     /**
      * Escape any CR or LF in the message with the \r \n escapes. SipFoundry logging logs
      * multiline messages (like a SIP PDU) on a single log entry by escaping the CRs and LFs
-     * 
+     *
      * @param msg The message to escape
      * @return The escaped message
      */
@@ -191,7 +191,7 @@ public class SipFoundryLayout extends Layout {
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
-    
+
     private String getHostname() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }

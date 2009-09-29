@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -24,7 +24,7 @@ public class EditAcdLineTestUi extends ListWebTestCase {
         setHasDuplicate(false);
         setExactCheck(false);
     }
-    
+
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -32,7 +32,7 @@ public class EditAcdLineTestUi extends ListWebTestCase {
         clickLink("seedAcdServer");
         clickLink("listAcdServers");
         clickLink("editRowLink");
-        clickLink("link:lines");        
+        clickLink("link:lines");
     }
 
     protected String getFormId() {

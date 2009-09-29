@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
@@ -23,13 +23,13 @@ public class Intercom extends BeanWithGroups {
     private boolean m_enabled;
     private String m_prefix;
     private int m_timeout;
-    private String m_code;    
-    
+    private String m_code;
+
     @Override
     protected Setting loadSettings() {
         return null;
     }
-                            
+
     /** Return the code that identifies an auto-answer configuration to the phone */
     public String getCode() {
         return m_code;
@@ -47,12 +47,12 @@ public class Intercom extends BeanWithGroups {
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
-    
+
     /** Return the prefix used to place intercom calls */
     public String getPrefix() {
         return m_prefix;
     }
-    
+
     /** Set the prefix used to place intercom calls */
     public void setPrefix(String prefix) {
         m_prefix = prefix;
@@ -67,7 +67,7 @@ public class Intercom extends BeanWithGroups {
     public void setTimeout(int timeout) {
         m_timeout = timeout;
     }
-    
+
     /** Return the timeout (seconds) after which the phone auto-answers */
     public int getTimeoutInSeconds() {
         return getTimeout() / (int) DateUtils.MILLIS_PER_SECOND;
@@ -76,5 +76,5 @@ public class Intercom extends BeanWithGroups {
     /** Set the timeout (seconds) after which the phone auto-answers */
     public void setTimeoutInSeconds(int timeout) {
         setTimeout(timeout * (int) DateUtils.MILLIS_PER_SECOND);
-    }    
+    }
 }

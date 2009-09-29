@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class LogfileConfiguration extends SipxServiceConfiguration {
-    
+
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -15,13 +15,13 @@ public class AbstractRingBuilderTest extends TestCase {
     private AbstractRingBuilder m_builder;
     private org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing m_myAbstractRing;
     private UserRing m_apiAbstractRing;
-    
+
     protected void setUp() {
         m_builder = new AbstractRingBuilder();
 
         // UserRing copies over user name
         m_builder.getCustomFields().add("userName");
-        
+
         m_myAbstractRing = new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
         m_apiAbstractRing = new UserRing();
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.gateway;
@@ -43,7 +43,7 @@ public class GatewaySelectionModelTest extends TestCase {
         try {
             m_model.setGateways(new ArrayList());
             fail("Should have thrown the exception");
-            
+
         } catch (IllegalStateException e) {
             // this is expected
         }
@@ -61,7 +61,7 @@ public class GatewaySelectionModelTest extends TestCase {
     }
 
     public void testGetLabel() {
-        assertEquals(NAMES[1], m_model.getLabel(1));        
+        assertEquals(NAMES[1], m_model.getLabel(1));
     }
 
     public void testGetValue() {

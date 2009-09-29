@@ -50,14 +50,14 @@ public class EditConferenceTestUi extends WebTestCase {
         clickButton("user:search");
         checkCheckbox("checkbox");
         clickButton("user:select");
-        
+
         // Make sure we didn't lose all the settings
         assertTextFieldEquals("item:name", "OwnerTestConf");
         assertTextFieldEquals("item:extension", "9999");
         assertTextFieldEquals("item:description", "test description 123");
         assertTextFieldEquals("setting:participant-code", "12345");
     }
-    
+
     /**
      * Tests adding a conference from a User Conferences page.
      * This Edit Conference page should have an owner assigned, and should
@@ -99,40 +99,40 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
         SiteTestHelper.clickSubmitLink(tester, "conference:add");
-        
+
         // Test empty fields
         submit("form:ok");
         SiteTestHelper.assertUserError(tester);
-        
+
         setTextField("item:extension", "4444");
-        
+
         // Test invalid conference names (must be a valid SIP user part)
         setTextField("item:name", "conference 123");
         submit("form:ok");
         SiteTestHelper.assertUserError(tester);
-        
+
         setTextField("item:name", "conf@$)(*@#");
         submit("form:ok");
         SiteTestHelper.assertUserError(tester);
-        
+
         setTextField("item:name", "conference123");
         submit("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        
+
         // Test invalid extensions
         setTextField("item:extension", "testextension");
         submit("form:apply");
         SiteTestHelper.assertUserError(tester);
-        
+
         setTextField("item:extension", "");
         submit("form:apply");
         SiteTestHelper.assertUserError(tester);
-        
+
         setTextField("item:extension", "4444");
         submit("form:apply");
         SiteTestHelper.assertNoUserError(tester);
     }
-    
+
     /**
      * Tests to ensure a validation error is displayed when no conference bridge is selected.
      */
@@ -148,11 +148,11 @@ public class EditConferenceTestUi extends WebTestCase {
        setTextField("item:name", "test101");
        setTextField("item:extension", "1101");
        checkCheckbox("item:enabled");
-       
+
        // Deselect the conference bridge
        selectOptionByValue("bridgeSelect", "");
        submit("form:ok");
        SiteTestHelper.assertUserError(tester);
     }
-    
+
 }

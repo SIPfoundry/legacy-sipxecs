@@ -91,14 +91,14 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
 
         return sb.toString();
     }
-    
+
     public static String getCacheKey(Object o) {
         if (o == null) {
             return "";
         }
-        
+
         // TODO Collections
-        
+
         if (Object[].class.isAssignableFrom(o.getClass())) {
             Object[] a = (Object[]) o;
             StringBuffer sb = new StringBuffer();
@@ -108,8 +108,8 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
             }
             sb.append(']');
             return sb.toString();
-        } 
-        
+        }
+
         return o.toString();
     }
 }

@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -37,7 +37,7 @@ public class DeviceFinderTest extends TestCase {
         DiscoverTaskMock discoverTask = new DiscoverTaskMock(m_out);
         m_out.setTask(discoverTask);
 
-        //additional mock configuration and activation (replay) is done in test methods 
+        //additional mock configuration and activation (replay) is done in test methods
         m_phoneContext = EasyMock.createNiceMock(PhoneContext.class);
         m_phoneContext.getPhoneIdBySerialNumber(MAC_ADDR_3);
         EasyMock.expectLastCall().andReturn(1).anyTimes();

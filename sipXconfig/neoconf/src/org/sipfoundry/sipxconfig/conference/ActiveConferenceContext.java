@@ -25,13 +25,13 @@ public interface ActiveConferenceContext {
     public int getActiveConferenceCount(Bridge bridge);
 
     public ActiveConference getActiveConference(Conference conference);
-    
+
     public boolean isConferenceLocked(Conference conference);
-    
+
     public List<ActiveConference> getActiveConferences(Bridge bridge);
 
     public Map<Conference, ActiveConference> getActiveConferencesMap(Bridge bridge);
-    
+
     public List<ActiveConferenceMember> getConferenceMembers(Conference conference);
 
     public boolean lockConference(Conference conference);
@@ -47,6 +47,6 @@ public interface ActiveConferenceContext {
     public boolean undeafUser(Conference conference, ActiveConferenceMember member);
 
     public boolean kickUser(Conference conference, ActiveConferenceMember member);
-    
+
     public void inviteParticipant(User user, Conference conference, String addressSpec);
 }

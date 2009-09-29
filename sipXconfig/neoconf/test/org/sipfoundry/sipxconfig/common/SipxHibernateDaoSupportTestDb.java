@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -65,15 +65,15 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
 
     public void testGetOriginalValue() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        Integer id = new Integer(1000);       
+        Integer id = new Integer(1000);
         User user = (User) m_dao.load(User.class, id);
         user.setUserName("goofy");
         assertEquals("testuser", m_dao.getOriginalValue(user, "userName"));
-    }    
+    }
 
     public void testGetOriginalValueIllegalProperty() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.db.xml");
-        Integer id = new Integer(1000);       
+        Integer id = new Integer(1000);
         User user = (User) m_dao.load(User.class, id);
         user.setUserName("goofy");
         try {
@@ -82,12 +82,12 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().indexOf("eyeglassPerscription") >= 0);
         }
-    }    
-    
+    }
+
     public void testIsBeanAvailable() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         assertFalse(m_dao.isBeanAvailable(User.class, 1000));
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        assertTrue(m_dao.isBeanAvailable(User.class, 1000));        
+        assertTrue(m_dao.isBeanAvailable(User.class, 1000));
     }
 }

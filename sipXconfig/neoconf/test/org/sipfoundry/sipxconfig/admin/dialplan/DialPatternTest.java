@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
@@ -34,7 +34,7 @@ public class DialPatternTest extends TestCase {
         pattern.setDigits(5);
         pattern.setPrefix(null);
         assertEquals("xxxxx", pattern.calculatePattern());
-        
+
         pattern.setDigits(-1);
         pattern.setPrefix("134");
         assertEquals("134.", pattern.calculatePattern());
@@ -56,5 +56,5 @@ public class DialPatternTest extends TestCase {
 
         patterns = DialPattern.getPatternsFromList(StringUtils.EMPTY, "bongo");
         assertEquals(0, patterns.length);
-    }    
+    }
 }

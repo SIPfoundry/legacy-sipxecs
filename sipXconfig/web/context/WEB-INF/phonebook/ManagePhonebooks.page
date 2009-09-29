@@ -16,15 +16,15 @@
     <binding name="selections" value="selections"/>
   </component>
   <component id="nameColumnValue" type="Block"/>
-  <component id="editPhonebookLink" type="DirectLink">	  
+  <component id="editPhonebookLink" type="DirectLink">
     <binding name="listener" value="listener:edit"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
   </component>
-  <component id="phonebookLabel" type="Insert">	  
+  <component id="phonebookLabel" type="Insert">
     <binding name="value" value="currentRow.name"/>
   </component>
   <component id="addPhonebook" type="DirectLink">
-    <binding name="listener" value="listener:addPhonebook"/>	  
+    <binding name="listener" value="listener:addPhonebook"/>
   </component>
   <component id="delete" type="Submit">
     <binding name="listener" value="listener:deletePhonebooks"/>

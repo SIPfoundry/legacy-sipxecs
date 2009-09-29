@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.sip;
@@ -61,7 +61,7 @@ class SipListenerImpl implements SipListener {
                 LOG.debug("got a NOTIFY");
                 Response response = m_stackBean.createResponse(request, Response.OK);
                 serverTransaction.sendResponse(response);
-                SubscriptionStateHeader subscriptionState = 
+                SubscriptionStateHeader subscriptionState =
                         (SubscriptionStateHeader) request.getHeader(SubscriptionStateHeader.NAME);
                 if (subscriptionState.getState().equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
                     Dialog dialog = requestEvent.getDialog();

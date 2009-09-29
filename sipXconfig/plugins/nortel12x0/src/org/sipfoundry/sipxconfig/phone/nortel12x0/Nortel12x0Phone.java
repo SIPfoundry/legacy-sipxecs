@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.nortel12x0;
@@ -376,13 +376,13 @@ public class Nortel12x0Phone extends Phone {
         private SpeedDial m_speedDial;
         private Collection<PhonebookEntry> m_phoneBook;
 
-        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial, 
+        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial,
             CoreContext coreContext, Collection<PhonebookEntry> phoneBook,
             String profileTemplate) {
             super(device, profileTemplate);
             m_speedDial = speedDial;
             m_phoneBook = trim(phoneBook);
-            m_coreContext = coreContext; 
+            m_coreContext = coreContext;
         }
 
         public Map<String, Object> getContext() {
@@ -424,7 +424,7 @@ public class Nortel12x0Phone extends Phone {
             for (int i = 0; i < numbers.length / CONFIGURATION_PARAMS_PER_SPEEDDIAL_ENTRY; i++) {
                 for (int j = 0; j < CONFIGURATION_PARAMS_PER_SPEEDDIAL_ENTRY; j++) {
                     spName = buttons.get(i).getLabel();
-                    if (spName == null) { 
+                    if (spName == null) {
                         spName = buttons.get(i).getNumber();
                     }
                     spName = StringUtils.substring(spName, 0, 15);
@@ -435,7 +435,7 @@ public class Nortel12x0Phone extends Phone {
                         if (user != null) {
                             // if number matches any known user make sure
                             // to use username and not an alias
-                            spNumber = user.getUserName(); 
+                            spNumber = user.getUserName();
                         }
                     } else {
                         spPresence = "0";

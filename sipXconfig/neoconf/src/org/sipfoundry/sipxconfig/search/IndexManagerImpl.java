@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -57,7 +57,7 @@ public class IndexManagerImpl extends HibernateDaoSupport implements IndexManage
 
     /**
      * Make sure that we always create a new session.
-     * 
+     *
      * We need to use our entity interceptor for indexing to work.
      */
     protected HibernateTemplate createHibernateTemplate(SessionFactory sessionFactory) {

@@ -34,7 +34,7 @@ public class InviteMessage extends JainSipMessage {
     private final String m_toAddrSpec;
 
     private final String m_fromDisplayName;
-    
+
     private final String m_fromAddrSpec;
 
     private final Operator m_operator;
@@ -44,13 +44,13 @@ public class InviteMessage extends JainSipMessage {
     private final UserCredentials m_userCredentials;
 
     private String m_referTarget;
-    
+
     private boolean m_forwardingAllowed;
 
-    
 
-    public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromDisplayName, 
-            String fromAddressSpec, String toAddressSpec, String referTarget, 
+
+    public InviteMessage(SipStackBean helper, UserCredentials userCredentials, String fromDisplayName,
+            String fromAddressSpec, String toAddressSpec, String referTarget,
             Operator operator) {
         super(helper);
         m_toAddrSpec = toAddressSpec;
@@ -60,11 +60,11 @@ public class InviteMessage extends JainSipMessage {
         m_operator = operator;
         m_userCredentials = userCredentials;
     }
-    
+
     @Override
     public ClientTransaction createAndSend() {
         try {
-            Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName, 
+            Request request = createRequest(Request.INVITE, m_userCredentials.getUserName(), m_fromDisplayName,
                     m_fromAddrSpec, m_toAddrSpec, m_forwardingAllowed);
             AllowHeader allowHeader = getHelper().createAllowHeader(METHODS);
             request.addHeader(allowHeader);
@@ -103,7 +103,7 @@ public class InviteMessage extends JainSipMessage {
     public void setforwardingAllowed(boolean forwardingAllowed) {
         m_forwardingAllowed = forwardingAllowed;
     }
-    
+
     public boolean isforwardingAllowed() {
         return m_forwardingAllowed;
     }

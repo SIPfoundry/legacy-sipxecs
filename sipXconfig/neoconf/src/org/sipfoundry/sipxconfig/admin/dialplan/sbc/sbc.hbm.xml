@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan.sbc" default-lazy="false">
 
@@ -69,7 +69,7 @@
   <query name="sbcDevicesForBranch">
     <![CDATA[from SbcDevice s where s.branch = :branch]]>
   </query>
-  
+
   <sql-query name="allSbcs">
     <return-scalar type="int" column="id" />
     <return-scalar type="string" column="address" />

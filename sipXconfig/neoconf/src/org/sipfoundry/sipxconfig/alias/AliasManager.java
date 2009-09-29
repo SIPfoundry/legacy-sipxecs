@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.alias;
@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  */
 public interface AliasManager extends AliasOwner {
     public static final String CONTEXT_BEAN_NAME = "aliasManager";
-    
+
     /**
      * Return true if the bean is allowed to use the specified alias.
      * If there are no existing database objects with that alias, then the
@@ -29,5 +29,5 @@ public interface AliasManager extends AliasOwner {
      * If alias is null, then return true, since null aliases don't cause SIP collisions.
      */
     public boolean canObjectUseAlias(BeanWithId bean, String alias);
-    
+
 }

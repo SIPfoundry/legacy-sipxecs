@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.common;
@@ -20,11 +20,11 @@ public class SipxconfigNumberTranslator extends NumberTranslator {
     public SipxconfigNumberTranslator() {
         super();
     }
-    
+
     public SipxconfigNumberTranslator(String initializer) {
         super(initializer);
     }
-    
+
     /**
      * Format the given object as a Number, ignoring the omitZero flag in the NumberTranslator superclass
      */

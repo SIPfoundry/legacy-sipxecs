@@ -30,7 +30,7 @@ public class CdrCallLongDistanceDecorator extends CdrDecorator implements Compar
         }
         String s1 = StringUtils.defaultString(getCallTypeName());
         String s2 = StringUtils.defaultString(obj.getCallTypeName());
-        
+
         return s1.compareTo(s2);
     }
 }

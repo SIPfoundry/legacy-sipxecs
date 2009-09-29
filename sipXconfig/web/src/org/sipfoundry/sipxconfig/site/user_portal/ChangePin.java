@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -29,7 +29,7 @@ public abstract class ChangePin extends BasePage {
     /**
      * Properties
      */
-    
+
     public abstract CoreContext getCoreContext();
     public abstract LoginContext getLoginContext();
 
@@ -42,8 +42,8 @@ public abstract class ChangePin extends BasePage {
 
     /**
      * Listeners
-     */  
-    
+     */
+
     public void changePin() {
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
@@ -57,14 +57,14 @@ public abstract class ChangePin extends BasePage {
         // Validate the current PIN.
         // Note that the ConfirmPassword component ensures that the new PIN and
         // confirm new PIN fields match, so we don't have to worry about that here.
-        
+
         CoreContext coreContext = getCoreContext();
         User user = coreContext.loadUser(userId);
         LoginContext loginContext = getLoginContext();
-        
+
         // If the currentPin is null, then make it the empty string
         String currentPin = (String) ObjectUtils.defaultIfNull(getCurrentPin(), StringUtils.EMPTY);
-        
+
         user = loginContext.checkCredentials(user.getUserName(), currentPin);
         if (user == null) {
             IValidationDelegate delegate = TapestryUtils.getValidator(this);
@@ -75,10 +75,10 @@ public abstract class ChangePin extends BasePage {
         // Change the PIN
         user.setPin(getNewPin(), coreContext.getAuthorizationRealm());
         coreContext.saveUser(user);
-        
+
         // Scrub the PIN fields, for security
         setCurrentPin(null);
         setNewPin(null);
     }
-    
+
 }

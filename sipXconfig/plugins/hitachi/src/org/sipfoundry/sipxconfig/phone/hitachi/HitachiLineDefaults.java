@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.hitachi;
@@ -19,13 +19,13 @@ public class HitachiLineDefaults {
     public HitachiLineDefaults(Line line) {
         m_line = line;
     }
-    
+
     @SettingEntry(path = "USER_ACCOUNT/Displayname")
     public String getDisplayName() {
         User u = m_line.getUser();
         if (u != null) {
             return u.getDisplayName();
-        } 
+        }
         return m_line.getLineInfo().getUserId();
     }
 
@@ -34,7 +34,7 @@ public class HitachiLineDefaults {
         // FIXME: we need a method that returns a numerical alias for the user
         return getUserName();
     }
-        
+
     @SettingEntry(path = "USER_ACCOUNT/User_ID")
     public String getUserName() {
         m_line.getDisplayLabel();
@@ -42,15 +42,15 @@ public class HitachiLineDefaults {
         if (user == null) {
             return null;
         }
-        return user.getUserName();        
+        return user.getUserName();
     }
-        
+
     @SettingEntry(path = "USER_ACCOUNT/User_Password")
     public String getSipPassword() {
         User user = m_line.getUser();
         if (user == null) {
             return null;
         }
-        return user.getSipPassword();        
+        return user.getSipPassword();
     }
 }

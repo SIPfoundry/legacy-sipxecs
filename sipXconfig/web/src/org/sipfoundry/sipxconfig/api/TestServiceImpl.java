@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -18,18 +18,18 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
-public class TestServiceImpl implements TestService {    
+public class TestServiceImpl implements TestService {
     private ForwardingContext m_forwardingContext;
     private CallGroupContext m_callGroupContext;
     private CoreContext m_coreContext;
     private ParkOrbitContext m_parkOrbitContext;
-    private PhoneContext m_phoneContext; 
+    private PhoneContext m_phoneContext;
     private PermissionManager m_permissionManager;
-    
+
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
     }
-    
+
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
     }
@@ -41,7 +41,7 @@ public class TestServiceImpl implements TestService {
     public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
         m_parkOrbitContext = parkOrbitContext;
     }
-    
+
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
@@ -69,20 +69,20 @@ public class TestServiceImpl implements TestService {
             m_permissionManager.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getUser())) {
-            // kludge: XCF-1010: have to clear these too, any leftover data            
+            // kludge: XCF-1010: have to clear these too, any leftover data
             // from any other tests will cause contraint violations
             // on user context delete
             m_forwardingContext.clear();
             m_forwardingContext.clearSchedules();
             m_callGroupContext.clear();
-            
+
             org.sipfoundry.sipxconfig.common.User superadmin = m_coreContext.loadUserByUserName(adminUsername);
             if (superadmin != null) {
                 preserveAdminPintoken = superadmin.getPintoken();
             }
-            
-            m_coreContext.clear();            
-        }        
+
+            m_coreContext.clear();
+        }
         if (Boolean.TRUE.equals(resetServices.getSuperAdmin())) {
             m_coreContext.createAdminGroupAndInitialUser("");
             if (preserveAdminPintoken != null) {
@@ -90,6 +90,6 @@ public class TestServiceImpl implements TestService {
                 superadmin.setPintoken(preserveAdminPintoken);
                 m_coreContext.saveUser(superadmin);
             }
-        }        
+        }
     }
 }

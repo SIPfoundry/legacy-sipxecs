@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -30,11 +30,11 @@ public class EditAcdQueueTestUi extends ListWebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        SiteTestHelper.setScriptingEnabled(tester, true);        
+        SiteTestHelper.setScriptingEnabled(tester, true);
         clickLink("seedAcdServer");
         clickLink("listAcdServers");
         clickLink("editRowLink");
-        clickLink("link:queues");        
+        clickLink("link:queues");
     }
 
     protected String getFormId() {

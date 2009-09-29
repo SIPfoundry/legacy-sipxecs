@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
@@ -32,7 +32,7 @@ public class RegistrationMetrics {
     /**
      * All registrations from registration.xml which may include redunant
      * registrations from clients that reregister w/slighlty different uri
-     * w/o unregistering last uri. 
+     * w/o unregistering last uri.
      */
     public void setRegistrations(List registrations) {
         UniqueRegistrations unique = new UniqueRegistrations();
@@ -62,7 +62,7 @@ public class RegistrationMetrics {
     public Collection getUniqueRegistrations() {
         return m_uniqueRegistrations;
     }
-    
+
     void setUniqueRegistrations(Collection registrations) {
         m_uniqueRegistrations = registrations;
     }

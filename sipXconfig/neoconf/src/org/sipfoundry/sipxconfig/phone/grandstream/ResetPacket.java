@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
@@ -25,7 +25,7 @@ class ResetPacket {
     private static final int MILLIS_IN_SECOND = 1000;
     private static final int MESSAGE_LEN = 24;
     private byte[] m_message;
-    
+
     ResetPacket(String password, String macAddress) {
         m_message = new byte[MESSAGE_LEN];
         MessageDigest mymd;
@@ -53,8 +53,8 @@ class ResetPacket {
         } catch (DecoderException e) {
             throw new RuntimeException("hex string must be multiples of 2", e);
         }
-        byte[] colon = new byte[] { 
-            ':' 
+        byte[] colon = new byte[] {
+            ':'
         };
         mymd.update(colon);
         mymd.update(password.getBytes());
@@ -62,7 +62,7 @@ class ResetPacket {
         mymd.update(m_message, 4, 4);
         System.arraycopy(mymd.digest(), 0, m_message, 8, 16);
     }
-    
+
     protected int getTimeCode() {
         Date time = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
         int timeCode = (int) (time.getTime() / MILLIS_IN_SECOND);

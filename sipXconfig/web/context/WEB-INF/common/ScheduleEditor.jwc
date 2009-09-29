@@ -56,5 +56,5 @@
   </component>
   <component id="renderMinutes" type="If">
     <binding name="condition" value="schedule.hourly"/>
-  </component>  
+  </component>
 </component-specification>

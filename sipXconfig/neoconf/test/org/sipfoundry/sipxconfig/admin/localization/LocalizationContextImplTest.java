@@ -13,7 +13,7 @@ public class LocalizationContextImplTest extends TestCase {
                 return new String[] {"stdprompts_en", "stdprompts_de"};
             }
         };
-        
+
         List<String> languageList = Arrays.<String>asList(out.getInstalledLanguages());
         assertTrue(languageList.contains("en"));
         assertTrue(languageList.contains("de"));

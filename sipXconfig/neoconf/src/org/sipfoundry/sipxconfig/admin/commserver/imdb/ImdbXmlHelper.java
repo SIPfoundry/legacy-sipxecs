@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -19,7 +19,7 @@ import org.apache.commons.digester.SetNestedPropertiesRule;
  */
 public final class ImdbXmlHelper {
     public static final String PATTERN = "items/item";
-    
+
     private ImdbXmlHelper() {
         // utility class - no instantiation
     }
@@ -30,7 +30,7 @@ public final class ImdbXmlHelper {
         digester.setNamespaceAware(false);
 
         digester.addObjectCreate("items", ArrayList.class);
-        
+
         digester.addObjectCreate(ImdbXmlHelper.PATTERN, itemClass);
         SetNestedPropertiesRule rule = new SetNestedPropertiesRule();
         // ignore all properties that we are not interested in

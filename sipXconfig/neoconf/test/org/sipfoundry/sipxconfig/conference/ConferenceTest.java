@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -21,21 +21,21 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 public class ConferenceTest extends BeanWithSettingsTestCase {
     private Conference m_conf;
     private Bridge m_bridge;
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        
+
         Location location = new Location();
         SipxFreeswitchService sipxService = new SipxFreeswitchService();
         sipxService.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
         LocationSpecificService service = new LocationSpecificService(sipxService);
-        service.setLocation(location);          
-        
+        service.setLocation(location);
+
         m_bridge = new Bridge();
         m_bridge.setService(service);
         m_bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         initializeBeanWithSettings(m_bridge);
-        
+
         m_conf = new Conference();
         initializeBeanWithSettings(m_conf);
         m_conf.getSettings();
@@ -61,7 +61,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
     public void testGenerateRemoteAdmitSecret() {
         m_bridge.getService().getLocation().setFqdn("bridge1.sipfoundry.org");
         m_bridge.addConference(m_conf);
-                
+
         assertNull(m_conf.getRemoteAdmitSecret());
         m_conf.generateRemoteAdmitSecret();
         assertTrue(m_conf.getRemoteAdmitSecret().length() > 0);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.line;
@@ -22,27 +22,27 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
  * Comments
  */
 public abstract class LineSettings extends BasePage implements PageBeginRenderListener {
-    
+
     public static final String PAGE = "line/LineSettings";
 
     public abstract Integer getLineId();
-    
+
     /** REQUIRED PAGE PARAMETER */
     public abstract void setLineId(Integer id);
-    
+
     public abstract Line getLine();
-    
+
     public abstract void setLine(Line line);
-    
+
     public abstract String getParentSettingName();
-    
+
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setParentSettingName(String name); 
+    public abstract void setParentSettingName(String name);
 
     public abstract Setting getParentSetting();
-    
+
     public abstract void setParentSetting(Setting parent);
-    
+
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
@@ -69,8 +69,8 @@ public abstract class LineSettings extends BasePage implements PageBeginRenderLi
         dao.storeLine(getLine());
         dao.flush();
     }
-    
+
     public String cancel() {
         return ManagePhones.PAGE;
-    }    
+    }
 }

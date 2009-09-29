@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.vm;
@@ -25,13 +25,13 @@ import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public abstract class DistributionListComponent extends BaseComponent implements PageBeginRenderListener {
-    
+
     @Parameter(required = true)
     public abstract User getUser();
-    
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-    
+
     @Bean()
     public RowInfo getRowInfo() {
         return RowInfo.UNSELECTABLE;
@@ -43,12 +43,12 @@ public abstract class DistributionListComponent extends BaseComponent implements
     public String getExtensionsString() {
         return TapestryUtils.joinBySpace(getDistributionList().getExtensions());
     }
-    
+
     public abstract DistributionList[] getDistributionLists();
     public abstract void setDistributionLists(DistributionList[] distributionLists);
     public abstract DistributionList getDistributionList();
-    
-    
+
+
     public void pageBeginRender(PageEvent event) {
         DistributionList[] lists = getDistributionLists();
         if (lists == null) {
@@ -57,7 +57,7 @@ public abstract class DistributionListComponent extends BaseComponent implements
             setDistributionLists(lists);
         }
     }
-    
+
     public void save() {
         if (TapestryUtils.isValid(this)) {
             Mailbox mailbox = getMailboxManager().getMailbox(getUser().getUserName());

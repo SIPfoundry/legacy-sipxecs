@@ -39,13 +39,13 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
             if (location.getFqdn().equals(currentLocation.getFqdn())) {
                 continue;
             }
-            
+
             if (location.getService(SipxRegistrarService.BEAN_ID) != null) {
                 registrarSyncHosts.append(location.getFqdn());
                 registrarSyncHosts.append(' ');
             }
         }
-        
+
         return registrarSyncHosts.toString();
     }
 
@@ -53,7 +53,7 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
     public boolean isReplicable(Location location) {
         return getSipxServiceManager().isServiceInstalled(location.getId(), SipxRegistrarService.BEAN_ID);
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }

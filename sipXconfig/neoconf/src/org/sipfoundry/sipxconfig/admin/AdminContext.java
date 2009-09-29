@@ -34,7 +34,7 @@ public interface AdminContext {
 
     public String getBinDirectory();
     public String getLibExecDirectory();
-    
+
     /**
      * @return true if this is an upgrade/data init run, and *not* a real sipXconfig run
      */

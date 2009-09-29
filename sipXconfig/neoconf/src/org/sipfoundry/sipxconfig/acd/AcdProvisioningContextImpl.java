@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -30,7 +30,7 @@ public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
             // ENG-494 very first command in try block to ensure job state machine
             // goes from start --> (failure|success)
             m_jobContext.start(jobId);
-            
+
             AcdServer server = (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
             // TODO: it would be nice if we could use Spring to set it up somehow
             XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();

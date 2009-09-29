@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -34,7 +34,7 @@ public class OptionalElementTest extends TestCase {
         cycle.isRewinding();
         mcCycle.andReturn(false).atLeastOnce();
         mcCycle.replay();
-        
+
         IMocksControl mcWriter = EasyMock.createControl();
         IMarkupWriter writer = mcWriter.createMock(IMarkupWriter.class);
 
@@ -66,7 +66,7 @@ public class OptionalElementTest extends TestCase {
         writer.attribute("attr1", "kuku");
         writer.end("bongo");
         mcWriter.replay();
-        
+
         IMocksControl mcComponentSpec = EasyMock.createNiceControl();
         IComponentSpecification componentSpec = mcComponentSpec.createMock(IComponentSpecification.class);
         mcComponentSpec.replay();

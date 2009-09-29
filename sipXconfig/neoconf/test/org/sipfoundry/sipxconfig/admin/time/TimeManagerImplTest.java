@@ -20,35 +20,35 @@ public class TimeManagerImplTest extends TestCase {
         m_manager.setLibExecDirectory(TestUtil.getTestSourceDirectory(TimeManagerImplTest.class));
         m_manager.setNtpConfigFile("tempNtpConfigFile");
     }
-    
+
     public void testGetStatus() throws Exception {
         int returnValue = m_manager.getSystemTimeSettingType();
         assertEquals(1, returnValue);
     }
-    
+
     public void testGetServers() throws Exception {
         List<String> returnValue = m_manager.getNtpServers();
         ArrayList<String> expectedServers = new ArrayList<String>();
         expectedServers.add("1.ntp.server");
         expectedServers.add("2.ntp.server");
         expectedServers.add("3.ntp.server");
-        
+
         assertEquals(expectedServers, returnValue);
     }
-    
+
     public void testGetConfiguration() throws Exception {
         String returnValue = m_manager.getNtpConfiguration();
         String expectedConfiguration = "\nNTP CONFIGURATION LINE 1\nNTP CONFIGURATION LINE 2\nNTP CONFIGURATION LINE 3\n";
-        
+
         assertEquals(expectedConfiguration, returnValue);
     }
-    
+
     public void testNtpServers() throws Exception {
         ArrayList<String> servers = new ArrayList<String>();
         servers.add("1.ntp.server");
         servers.add("2.ntp.server");
         servers.add("3.ntp.server");
-        
+
         try {
             m_manager.setNtpServers(servers);
         } catch (UserException ex) {
@@ -67,8 +67,8 @@ public class TimeManagerImplTest extends TestCase {
          gc.set(Calendar.DAY_OF_MONTH, 02);
          gc.set(Calendar.HOUR_OF_DAY, 02);
          gc.set(Calendar.MINUTE, 02);
-         
-         
+
+
         try {
             m_manager.setSystemDate(new SimpleDateFormat("MMddHHmmyyyy").format(gc.getTime()));
         } catch (UserException ex) {

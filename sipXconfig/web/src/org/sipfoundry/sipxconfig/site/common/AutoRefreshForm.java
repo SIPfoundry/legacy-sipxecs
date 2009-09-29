@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.site.common;
@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass
 public abstract class AutoRefreshForm extends BaseComponent implements PageBeginRenderListener {
-    
+
     /**
      * Additional actions to be displayed on the left side of refresh button
      */
@@ -40,17 +40,17 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
 
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean getShowRefresh();
-    
+
     @Parameter(defaultValue = "ognl:{}")
     public abstract List<String> getUpdateComponents();
-    
+
     @Persist
     @InitialValue(value = "true")
     public abstract boolean isAuto();
 
     @Parameter(defaultValue = "30")
     public abstract int getInterval();
-    
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
@@ -71,7 +71,7 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
         // This will trigger a JavaScript call to update the timer on the client.
         cycle.getResponseBuilder().addStatusMessage(null, "refreshInterval", Integer.toString(getCurrentInterval()));
     }
-    
+
     public void pageBeginRender(PageEvent event) {
         if (0 == getCurrentInterval()) {
             setCurrentInterval(getInterval());
@@ -79,12 +79,12 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
         //Send the error to the page that displays the component (and error if necessary).
         TapestryUtils.sendValidatorError(getPage(), getValidator());
     }
-    
+
     public Collection<String> getComponentsToUpdate() {
         List<String> componentsToUpdate = new ArrayList<String>();
         componentsToUpdate.add("refreshedContent");
         componentsToUpdate.addAll(getUpdateComponents());
-        
+
         return componentsToUpdate;
     }
 }

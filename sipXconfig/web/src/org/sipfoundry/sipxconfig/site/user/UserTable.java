@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user;
@@ -26,25 +26,25 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
 
     @Asset("/images/user.png")
     public abstract IAsset getNormalUserIcon();
-    
+
     @Asset("/images/adminUser.png")
-    public abstract IAsset getAdminUserIcon();    
-    
+    public abstract IAsset getAdminUserIcon();
+
     /** REQUIRED PROPERTY */
     public abstract SelectMap getSelections();
 
     public abstract User getCurrentUser();
-    
+
     public abstract void setSelections(SelectMap selected);
 
     public abstract CoreContext getCoreContext();
 
     public abstract Integer getGroupId();
-    
+
     public abstract Integer getBranchId();
 
     public abstract String getSearchString();
-    
+
     public abstract boolean getSearchMode();
 
     public IAsset getUserIcon(User user) {
@@ -53,9 +53,9 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
 
     public String getUserIconTitle(User user) {
         Messages messages = getMessages();
-        return user.isAdmin() ? messages.getMessage("adminUser") : messages.getMessage("normalUser"); 
+        return user.isAdmin() ? messages.getMessage("adminUser") : messages.getMessage("normalUser");
     }
-    
+
     public IBasicTableModel getTableModel() {
         String searchQuery = getSearchMode() ? getSearchString() : null;
         return new UserTableModel(getCoreContext(), getGroupId(), getBranchId(), searchQuery);

@@ -1,4 +1,4 @@
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="jobContext" class="org.sipfoundry.sipxconfig.job.JobContextImpl" init-method="init">

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -48,12 +48,12 @@ public class AttrMap extends BeanWithId {
 
     /**
      * Object class containing user attributes.
-     * 
+     *
      * This is used in a filter that selects user related entries. It's perfectly OK to use
      * attributes from other object class in the mapping
-     * 
+     *
      * @see m_selectedObjectClasses
-     * 
+     *
      */
     private String m_objectClass;
 

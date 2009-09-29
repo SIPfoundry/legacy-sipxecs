@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
@@ -27,7 +27,7 @@ public class PatternsEditorTest extends TestCase {
         assertEquals(3, patterns.size());
         Object pattern = patterns.get(0);
         assertTrue(pattern instanceof DialPattern);
-        PatternsEditor.setCollectionSize(patterns, 1);        
+        PatternsEditor.setCollectionSize(patterns, 1);
         assertEquals(1, patterns.size());
         assertSame(pattern, patterns.get(0));
         PatternsEditor.setCollectionSize(patterns, 2);

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -37,10 +37,10 @@ public class MusicOnHoldTestUi extends WebTestCase {
     public void testDisplay() throws Exception {
         clickLink("MusicOnHold");
         SiteTestHelper.assertNoException(tester);
-        setTextField("promptUpload", m_tempFile.getAbsolutePath());        
+        setTextField("promptUpload", m_tempFile.getAbsolutePath());
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
-        setTextField("promptUpload", m_wavFile.getAbsolutePath());        
+        setTextField("promptUpload", m_wavFile.getAbsolutePath());
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         setWorkingForm("form");

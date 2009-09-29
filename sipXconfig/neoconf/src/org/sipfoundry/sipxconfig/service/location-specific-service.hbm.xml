@@ -13,6 +13,6 @@
     <many-to-one name="sipxService" cascade="save-update" column="sipx_service_id"
       class="org.sipfoundry.sipxconfig.service.SipxService"/>
     <many-to-one name="location" column="location_id"
-      class="org.sipfoundry.sipxconfig.admin.commserver.Location"/>      
+      class="org.sipfoundry.sipxconfig.admin.commserver.Location"/>
   </class>
 </hibernate-mapping>

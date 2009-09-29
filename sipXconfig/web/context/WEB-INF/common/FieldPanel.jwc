@@ -11,7 +11,7 @@
   <parameter name="defaultValue" required="no"/>
   <parameter name="description" required="no"/>
   <parameter name="highlight" required="no"/>
-  
+
   <component id="settingLabel" type="FieldLabel">
     <binding name="field" value="field"/>
     <binding name="displayName" value="label"/>

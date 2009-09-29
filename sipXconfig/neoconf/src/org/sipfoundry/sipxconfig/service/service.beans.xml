@@ -90,7 +90,7 @@
     <property name="serviceModelSource" ref="sipxServiceModelSource" />
     <property name="bundleModelSource" ref="sipxBundleModelSource" />
   </bean>
-       
+
   <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.SipxServiceManager" />
     <property name="target" ref="sipxServiceManagerImpl" />
@@ -110,7 +110,7 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
-  
+
   <bean id="sipxSupervisorService" class="org.sipfoundry.sipxconfig.service.SipxSupervisorService" parent="sipxService"
   	scope="prototype">
   	<property name="processName" value="sipxsupervisor" />
@@ -121,13 +121,13 @@
     </property>
     <property name="loggingManager" ref="loggingManager" />
   </bean>
-  
+
   <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="commserver/sipxsupervisor-config.vm" />
     <property name="name" value="sipxsupervisor-config" />
-  </bean>  
-  
+  </bean>
+
   <bean id="sipxSupervisorDaoListener" class="org.sipfoundry.sipxconfig.service.SipxSupervisorDaoListener">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
@@ -578,7 +578,7 @@
         <ref bean="managementBundle" />
       </set>
     </property>
-  </bean>  
+  </bean>
 
   <bean id="sipxSaaService" class="org.sipfoundry.sipxconfig.service.SipxSaaService" scope="prototype"
     parent="sipxService">
@@ -635,5 +635,5 @@
     <property name="name" value="sipxrest-config.xml" />
     <property name="template" value="sipxrest/sipxrest-config.vm" />
   </bean>
-     
+
 </beans>

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
@@ -27,7 +27,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (ParkOrbitContext) appContext.getBean(ParkOrbitContext.CONTEXT_BEAN_NAME);
-        
+
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsert("admin/parkorbit/OrbitSeed.xml");
     }
@@ -40,7 +40,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertEquals("501", orbit.getExtension());
         assertEquals("something.wav", orbit.getMusic());
     }
-    
+
     public void testGetParkOrbits() throws Exception {
         Collection<ParkOrbit> orbits = m_context.getParkOrbits();
         assertEquals(2, orbits.size());
@@ -79,7 +79,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
         assertEquals(1, orbitTable.getRowCount());
     }
-    
+
     public void testGenerateAliases() throws Exception {
         // park orbits do not generate any aliases
         Collection aliases = m_context.getAliasMappings();
@@ -92,11 +92,11 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertEquals("default.wav", m_context.getDefaultMusicOnHold());
         m_context.setDefaultMusicOnHold(newMusic);
         assertEquals(newMusic, m_context.getDefaultMusicOnHold());
-        
+
         ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
         assertEquals(newMusic, orbitTable.getValue(2, "music"));
     }
-    
+
     public void testIsAliasInUse() {
         assertTrue(m_context.isAliasInUse("sales"));
         assertTrue(m_context.isAliasInUse("501"));
@@ -110,7 +110,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("502").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
     }
-    
+
     public void testDialingRulesProvider() {
         List< ? extends DialingRule> rules = m_context.getDialingRules();
         assertEquals(1, rules.size());

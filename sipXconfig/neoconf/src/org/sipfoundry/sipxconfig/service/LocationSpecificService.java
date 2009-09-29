@@ -55,7 +55,7 @@ public class LocationSpecificService extends BeanWithId {
     public void setEnableOnNextUpgrade(boolean enableOnNextUpgrade) {
         m_enableOnNextUpgrade = enableOnNextUpgrade;
     }
-    
+
     public String toString() {
         StringBuffer strBuffer = new StringBuffer();
         strBuffer.append("LocationSpecificService: ");

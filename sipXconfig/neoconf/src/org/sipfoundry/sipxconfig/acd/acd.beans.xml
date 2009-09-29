@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  
-  <bean id="acdComponent" abstract="true" class="org.sipfoundry.sipxconfig.acd.AcdComponent" 
+
+  <bean id="acdComponent" abstract="true" class="org.sipfoundry.sipxconfig.acd.AcdComponent"
     parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="coreContext" ref="coreContext"/>
     <property name="callGroupContext" ref="callGroupContext"/>
   </bean>
-  
+
   <bean id="acdServer" class="org.sipfoundry.sipxconfig.acd.AcdServer" parent="acdComponent"
     singleton="false">
     <property name="location" ref="location"/>
@@ -27,12 +27,12 @@
   <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent"
     singleton="false"/>
   <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
-    singleton="false"/>  
+    singleton="false"/>
 
   <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
-	<property name="sipxServiceManager" ref="sipxServiceManager"/>    
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>
 	<property name="callCenterBundle" ref="callCenterBundle"/>
 	<property name="aliasManager" ref="aliasManager"/>
   </bean>
@@ -42,7 +42,7 @@
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
     <property name="target" ref="acdContextImpl"/>
   </bean>
-  
+
   <bean id="acdMigrationTrigger" class="org.sipfoundry.sipxconfig.acd.AcdMigrationTrigger">
     <property name="acdContext">
       <ref local="acdContext"/>
@@ -73,5 +73,5 @@
       </bean>
     </property>
   </bean>
-  
+
 </beans>

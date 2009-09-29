@@ -5,28 +5,28 @@
 
   <!-- P R O P E R T I E S -->
   <property name="dayOfWeekModel" />
-  
+
   <!-- P A R A M E T E R S -->
   <parameter name="workingHour" required="yes" />
   <parameter name="index" required="yes"/>
   <parameter name="deleteListener" required="yes"/>
-  
+
   <!-- C O M P O N E N T S -->
   <component id="dayLabel" type="FieldLabel">
     <binding name="field" value="components.day"/>
     <binding name="displayName" value="message:label.day"/>
   </component>
-  
+
   <component id="day" type="PropertySelection">
   	<binding name="value" value="workingHour.day"/>
   	<binding name="model" value="dayOfWeekModel"/>
   </component>
-  
+
   <component id="fromLabel" type="FieldLabel">
     <binding name="field" value="components.from"/>
     <binding name="displayName" value="message:label.from"/>
   </component>
-  
+
   <component id="from" type="TextField">
     <binding name="validators" value="validators:required"/>
     <binding name="translator" value="hivemind:spring:timeOfDayTranslator" />
@@ -34,12 +34,12 @@
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.from"/>
   </component>
-  
+
   <component id="toLabel" type="FieldLabel">
     <binding name="field" value="components.to"/>
     <binding name="displayName" value="message:label.to"/>
   </component>
-  
+
   <component id="to" type="TextField">
     <binding name="validators" value="validators:required"/>
 	<binding name="translator" value="hivemind:spring:timeOfDayTranslator" />
@@ -47,10 +47,10 @@
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.to"/>
   </component>
-  
+
   <component id="deletePeriod" type="LinkSubmit">
     <binding name="listener" value="deleteListener"/>
     <binding name="parameters" value="index"/>
   </component>
-  
+
 </component-specification>

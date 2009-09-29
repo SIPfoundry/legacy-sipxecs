@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
@@ -125,7 +125,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
 
     /**
      * Inserts a new ring for a specific user
-     * 
+     *
      * @param user
      * @return newly created user ring
      */
@@ -149,7 +149,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
      * Create list of aliases that descibe forwarding for this group. All aliases have the form
      * group_name@domain => user_name@domain with the specific q value. In addtion alias extension =>
      * group name is added to allow calling to extension
-     * 
+     *
      * @return list of AliasMapping objects (identity => contact)
      */
     public List<AliasMapping> generateAliases(String domainName) {
@@ -197,7 +197,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     /**
      * Generates a new SIP password for the call group. If the password already exist this method
      * does not change it.
-     * 
+     *
      * @return true is the passwors has been generated/changed
      */
     public boolean generateSipPassword() {

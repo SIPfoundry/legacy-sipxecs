@@ -12,11 +12,11 @@
       </span>
     </span>
   </div>
-  
+
   <div jwcid="@common/ProfilePreview" device="ognl:sbcDevice"/>
   <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:sbcDevice.model" />
   <div jwcid="@common/QuickHelp" value="message:help.newSBC">SBC config help text here...</div>
-  
+
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:sbcDevice.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="sbc">
       <span jwcid="@Hidden" value="ognl:activeTab"/>

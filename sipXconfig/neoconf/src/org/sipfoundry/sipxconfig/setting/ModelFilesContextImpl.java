@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -24,9 +24,9 @@ public class ModelFilesContextImpl implements ModelFilesContext {
     /**
      * loadModelFile("phone.xml", "cisco", new String[] { "7912" }) Loads settings model from XML
      * file
-     * 
+     *
      * The full path of the model file is: systemEtcDirectory/manufacturer/basename
-     * 
+     *
      * @return new copy of the settings model
      */
     public Setting loadModelFile(String basename, String manufacturer) {

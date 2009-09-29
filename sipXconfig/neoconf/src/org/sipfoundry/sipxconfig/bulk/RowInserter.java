@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk;
@@ -66,7 +66,7 @@ public abstract class RowInserter<T> implements Closure {
     /**
      * Should be used to verify data format. If it returns falls insertData is not called. This is
      * just an optimization, that eliminates the cost of tranaction setup for invalid data.
-     * 
+     *
      * @param input - one row of imported data
      * @return if true data can be imported, if false the row will be skipped
      */
@@ -90,7 +90,7 @@ public abstract class RowInserter<T> implements Closure {
 
     /**
      * Provide user-readable representation of the row
-     * 
+     *
      * @param input - row input
      * @return user-readable representation to be used in logs and UI
      */

@@ -13,7 +13,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 /**
  * Special TestCase class that catches and prints additional info for SQL exceptions that may
  * happen during setUp, testXXX and tearDown.
- * 
+ *
  * Alternatively we could just throw e.getNextException, but we may want to preserve the original
  * exception.
  */

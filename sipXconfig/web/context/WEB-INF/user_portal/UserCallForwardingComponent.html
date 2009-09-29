@@ -1,7 +1,7 @@
 <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
   <span jwcid="@common/QuickHelp" value="message:quick.help"/>
   <form jwcid="callForwardingForm@Form" delegate="ognl:page.validator" listener="listener:submit">
-    <ul class="component-links">      
+    <ul class="component-links">
       <li><a jwcid="addRingLink@LinkSubmit" selected="ognl:action" tag="add">
         <span key="add">Add Number</span></a>
       </li>
@@ -18,7 +18,7 @@
               <span key="msg.seconds">seconds</span>
             </td>
           </tr>
-          <!-- iterate here -->            
+          <!-- iterate here -->
           <tr jwcid="@For" source="ognl:rings" value="ognl:ring" index="ognl:index" volatile="true">
             <span jwcid="@user_portal/RingEditor" ring="ognl:ring" index="ognl:index" deleteListener="listener:deleteRing" availableSchedules="ognl:availableSchedules"/>
           </tr>
@@ -26,10 +26,10 @@
             <td colspan="4">
               <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
             </td>
-          </tr>            
+          </tr>
         </tbody>
       </table>
-    </fieldset>  
+    </fieldset>
     <ul jwcid="@common/FormActions" callback="ognl:container.callback" listener="listener:commit"/>
   </form>
 </div>

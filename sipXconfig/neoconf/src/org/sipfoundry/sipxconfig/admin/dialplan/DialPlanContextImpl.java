@@ -45,7 +45,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         DialPlanContext, ApplicationContextAware {
 
     /**
-     * 
+     *
      */
     private static final String AUDIT_LOG_CONFIG_TYPE = "Dialing Rule";
     private static final Log LOG = LogFactory.getLog(DialPlanContextImpl.class);
@@ -66,7 +66,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Loads dial plan, creates a new one if none exist
-     * 
+     *
      * @return the single instance of dial plan
      */
     DialPlan getDialPlan() {
@@ -118,7 +118,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Checks for duplicate names. Should be called before saving the rule.
-     * 
+     *
      * @param rule to be verified
      */
     private void validateRule(DialingRule rule) {
@@ -168,7 +168,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Gets all of the dialing rules using a particular gateway.
-     * 
+     *
      * @param gatewayId The ID of the gateway.
      * @return A List of the DialingRules for that gateway.
      */
@@ -179,7 +179,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Gets all of the dialing rules that can be added to a particular gateway.
-     * 
+     *
      * @param gatewayId The ID of the gateway
      * @return A List of the DialingRules that can be added to the gateway
      */
@@ -249,7 +249,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     /**
      * Resets the flexible dial plan to factory defaults.
-     * 
+     *
      * Loads default rules definition from bean factory file.
      */
     public DialPlan resetToFactoryDefault(String dialPlanBeanName, AutoAttendant operator) {

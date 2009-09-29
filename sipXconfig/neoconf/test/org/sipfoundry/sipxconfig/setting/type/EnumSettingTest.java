@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting.type;
@@ -47,17 +47,17 @@ public class EnumSettingTest extends TestCase {
 
         assertEquals("two", m_stringEnum.convertToStringValue("two"));
         assertNull(m_stringEnum.convertToStringValue("five"));
-        assertNull(m_stringEnum.convertToStringValue(null));        
+        assertNull(m_stringEnum.convertToStringValue(null));
     }
-    
+
     public void testGet() {
         SettingImpl setting = new SettingImpl();
         setting.setName("abc");
         assertEquals("abc.label.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
-        
+
         m_stringEnum.setId("enum3");
         assertEquals("type.enum3.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
-        
+
         m_stringEnum.setLabelKeyPrefix("enum3.labels");
         assertEquals("enum3.labels.xyz", m_stringEnum.getLabelKey(setting, "xyz"));
     }

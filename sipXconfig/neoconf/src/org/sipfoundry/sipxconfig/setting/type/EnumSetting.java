@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting.type;
@@ -77,7 +77,7 @@ public class EnumSetting extends AbstractSettingType {
 
     /**
      * Check if the value is known by this enum
-     * 
+     *
      * @param key
      * @return true if this is one of the enumeration values
      */
@@ -109,11 +109,11 @@ public class EnumSetting extends AbstractSettingType {
     /**
      * Construct the labelKey that will be used to retrive the localized label for a particular
      * settings value.
-     * 
+     *
      * We are trying to acomodate various usage patterns here: (1) if setting has a special
      * labelPrefix set we use it (2) if setting has a an id the key will start with "type.id." (3)
      * if none of the above the setting name is used to construct label key
-     * 
+     *
      * @param setting used only to retrieve setting name
      * @param value enumeration value for which the key will be created, since this is an
      *        enumeration different values have to render different keys

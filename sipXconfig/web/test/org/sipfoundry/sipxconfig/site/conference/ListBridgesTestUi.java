@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class ListBridgesTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ListBridgesTestUi.class);
     }
@@ -29,7 +29,7 @@ public class ListBridgesTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
         clickLink("resetConferenceBridgeContext");
     }
-    
+
     public void testDisplay() {
         clickLink("ListBridges");
         SiteTestHelper.assertNoException(tester);
@@ -37,7 +37,7 @@ public class ListBridgesTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "bridge:list"));
         assertElementPresentByXPath("//input[@type = 'submit' and @id='refresh']");
     }
-       
+
     public void testAdd() {
         ConferenceTestHelper helper = new ConferenceTestHelper(tester);
         helper.createBridge();
@@ -45,13 +45,13 @@ public class ListBridgesTestUi extends WebTestCase {
         clickLink("ListBridges");
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "bridge:list")); 
-        
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "bridge:list"));
+
         Table expected = new Table();
-        Row expectedRow = 
+        Row expectedRow =
             new Row(new Object[]{ "unchecked", TestPage.TEST_LOCATION_FQDN, "Disabled", TestPage.TEST_LOCATION_NAME, "0 ( )" });
         expected.appendRow(expectedRow);
         assertTableRowsEqual("bridge:list", 1, expected);
-        
+
     }
 }

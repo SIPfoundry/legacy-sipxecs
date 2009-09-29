@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phonebook;
@@ -33,7 +33,7 @@ public class ManagePhonebooksTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("phonebook:list");
     }
-    
+
     public void testEditPhonebook() {
         seedPhonebook(tester, "manage-phonebooks");
         SiteTestHelper.home(getTester());
@@ -43,11 +43,11 @@ public class ManagePhonebooksTestUi extends WebTestCase {
         // ok button tests that callback is present
         assertButtonPresent("form:ok");
     }
-    
-    public static void seedPhonebook(WebTester tester, String name) {        
+
+    public static void seedPhonebook(WebTester tester, String name) {
         SiteTestHelper.home(tester);
-        tester.clickLink("link:phonebook");        
+        tester.clickLink("link:phonebook");
         tester.setTextField("item:name", name);
-        tester.clickButton("form:apply");        
+        tester.clickButton("form:apply");
     }
 }

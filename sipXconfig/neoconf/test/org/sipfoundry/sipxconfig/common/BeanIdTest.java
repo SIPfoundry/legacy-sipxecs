@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -28,7 +28,7 @@ public class BeanIdTest extends TestCase {
             setId(id);
         }
     }
-    
+
     private Collection m_ids = new ArrayList(2);
     private Integer m_id1 = new Integer(1);
     private Integer m_id2 = new Integer(2);
@@ -39,9 +39,9 @@ public class BeanIdTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_ids.add(m_id1);
-        m_ids.add(m_id2);        
+        m_ids.add(m_id2);
     }
-    
+
     public void testCreateBeanIdCollection() {
         Collection bids = BeanId.createBeanIdCollection(m_ids, Dummy.class);
         assertTrue(bids.size() == 2);
@@ -53,7 +53,7 @@ public class BeanIdTest extends TestCase {
         assertTrue(bid2.getId().equals(m_id2));
         assertTrue(bid2.getBeanClass() == Dummy.class);
     }
-    
+
     public void testCreateBeanIdCollectionExceptions() {
         // test null ID
         try {
@@ -88,14 +88,14 @@ public class BeanIdTest extends TestCase {
             // expected
         }
     }
-    
+
     public void testEqualsAndHashCode() {
         assertFalse(m_bid1Dummy.equals(m_bid1OtherClass));
         assertFalse(m_bid1Dummy.equals(m_bid2Dummy));
         assertTrue(m_bid1Dummy.equals(m_bid1DummyAgain));
         assertFalse(m_bid1Dummy.equals(null));
         assertFalse(m_bid1Dummy.equals(new Object()));
-        
+
         // Add these four objects to a Set, should end up with three objects in the Set
         // because one of them is a dup according to the hashCode.
         Set set = new HashSet();
@@ -105,13 +105,13 @@ public class BeanIdTest extends TestCase {
         set.add(m_bid1DummyAgain);
         assertEquals(3, set.size());
     }
-    
+
     public void testIsIdOfBean() {
         BeanWithId bean1 = new Dummy(m_id1);
         BeanWithId bean2 = new Dummy(m_id2);
         BeanWithId bean3 = new Dummy2(m_id1);
         BeanId bid1 = new BeanId(bean1);
-        
+
         assertTrue(bid1.isIdOfBean(bean1));
         assertFalse(bid1.isIdOfBean(bean2));
         assertFalse(bid1.isIdOfBean(bean3));

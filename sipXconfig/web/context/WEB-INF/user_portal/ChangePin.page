@@ -11,7 +11,7 @@
   <property name="currentPin" />
   <property name="newPin" />
   <!--
-      - B E A N S 
+      - B E A N S
       -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!--

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin;
@@ -21,24 +21,24 @@ public class LocalizedLanguageMessages extends AbstractMessages {
     private Map<String, String> m_languageNameMap = new HashMap<String, String>();
     private LanguageSupport m_languageSupport;
     private Locale m_locale;
-    
+
     public void setAvailableLanguages(String[] languages) {
         for (int i = 0; i < languages.length; i++) {
-            m_languageNameMap.put(languages[i], 
+            m_languageNameMap.put(languages[i],
                     m_languageSupport.resolveLocaleName(languages[i]));
         }
     }
-    
+
     public void setLanguageSupport(LanguageSupport languageSupport) {
         m_languageSupport = languageSupport;
     }
-    
+
     public void setLocale(Locale locale) {
         m_locale = locale;
     }
 
     /**
-     * Looks up the name of a language specified by the 
+     * Looks up the name of a language specified by the
      */
     protected String findMessage(String key) {
         String languageId = key;

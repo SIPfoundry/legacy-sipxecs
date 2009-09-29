@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.gateway;
@@ -35,7 +35,7 @@ public class GatewayCallerAliasInfo implements Cloneable {
 
     /**
      * Transforms user extension into from header
-     * 
+     *
      * @param user for which we are transforming extension
      * @return transformed extension which should be used, or null if there is nothing to
      *         transform

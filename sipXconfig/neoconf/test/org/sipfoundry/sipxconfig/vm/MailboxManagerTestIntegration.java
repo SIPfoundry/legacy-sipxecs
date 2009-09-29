@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.vm;
@@ -21,7 +21,7 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
 
     public void testLoadPersonalAttendantPerUser() throws Exception {
         loadDataSetXml("admin/dialplan/sbc/domain.xml");
-        
+
         assertEquals(0, countRowsInTable("personal_attendant"));
 
         User newUser = m_coreContext.newUser();

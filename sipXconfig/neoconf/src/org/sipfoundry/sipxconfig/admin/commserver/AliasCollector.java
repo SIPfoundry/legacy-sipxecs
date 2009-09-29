@@ -33,7 +33,7 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
     private ListableBeanFactory m_beanFactory;
 
     private List m_aliasProviderBeanIds = Collections.EMPTY_LIST;
-    
+
     private boolean m_includeProxies;
 
     public Collection getAliasMappings() {
@@ -60,7 +60,7 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
             }
             Map beanMap = m_beanFactory.getBeansOfType(AliasProvider.class, false, true);
             m_aliasProviders = new ArrayList(beanMap.size());
-            
+
             if (m_includeProxies) {
                 // collect all proxies
                 for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
@@ -84,7 +84,7 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
     public void setIncludeProxies(boolean includeProxies) {
         m_includeProxies = includeProxies;
     }
-    
+
     public void setAliasProviderBeanIds(List aliasProviderBeanIds) {
         m_aliasProviderBeanIds = aliasProviderBeanIds;
     }

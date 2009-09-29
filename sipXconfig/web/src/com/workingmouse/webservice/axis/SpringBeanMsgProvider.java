@@ -33,9 +33,9 @@ import org.apache.axis.providers.java.MsgProvider;
  *   &lt;property name=&quot;documentServices&quot;&gt;&lt;ref bean=&quot;documentServices&quot;/&gt;&lt;/property&gt;
  * &lt;/bean&gt;
  * </pre>
- * 
+ *
  * @author Tom Czarniecki (cThomas AT workingmouse DOT com)
- * 
+ *
  * @see com.workingmouse.webservice.axis.SpringAxisServlet
  * @see com.workingmouse.webservice.axis.SpringBeanProvider
  */

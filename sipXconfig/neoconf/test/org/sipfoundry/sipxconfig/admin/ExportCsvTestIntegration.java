@@ -23,11 +23,11 @@ public class ExportCsvTestIntegration extends IntegrationTestCase {
     private ExportCsv m_exportCsv;
     private CoreContextImpl m_coreContext;
     private DomainManager m_originalDomainManager;
-    
+
     @Override
     protected void onSetUpInTransaction() throws Exception {
         super.onSetUpInTransaction();
-        
+
         DomainManager domainManager = EasyMock.createMock(DomainManager.class);
         domainManager.getAuthorizationRealm();
         EasyMock.expectLastCall().andReturn("realm");
@@ -44,11 +44,11 @@ public class ExportCsvTestIntegration extends IntegrationTestCase {
     public void setExportCsv(ExportCsv exportCsv) {
         m_exportCsv = exportCsv;
     }
-    
+
     public void setCoreContextImpl(CoreContextImpl coreContextImpl) {
         m_coreContext = coreContextImpl;
     }
-    
+
     public void setDomainManager(DomainManager domainManager) {
         m_originalDomainManager = domainManager;
     }

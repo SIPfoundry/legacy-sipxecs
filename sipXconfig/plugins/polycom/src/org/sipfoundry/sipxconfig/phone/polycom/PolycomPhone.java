@@ -71,7 +71,7 @@ public class PolycomPhone extends Phone {
 
     /**
      * Default firmware version for polycom phones. Default is 1.6 right now
-     * 
+     *
      * @param defaultVersionId 1.6 or 2.0
      */
     public void setDefaultVersionId(String defaultVersionId) {

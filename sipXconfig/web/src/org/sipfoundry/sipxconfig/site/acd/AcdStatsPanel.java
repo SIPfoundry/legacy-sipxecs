@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -17,7 +17,7 @@ public abstract class AcdStatsPanel extends BaseComponent implements PageBeginRe
 //    public abstract String getAcdQueueUri();
 //    public abstract AcdStatistics getAcdStatistics();
 //    public abstract String getSelectedAcdQueueUri();
-    
+
     public void pageBeginRender(PageEvent event) {
 //        if (event.getRequestCycle().isRewinding()) {
 //            AcdStatistics context = getAcdStatistics();
@@ -25,7 +25,7 @@ public abstract class AcdStatsPanel extends BaseComponent implements PageBeginRe
 //            if (queueUri == null) {
 //                queueUri = getSelectedAcdQueueUri();
 //            }
-//            context.setQueueUri(queueUri);        
+//            context.setQueueUri(queueUri);
 //        }
     }
 }

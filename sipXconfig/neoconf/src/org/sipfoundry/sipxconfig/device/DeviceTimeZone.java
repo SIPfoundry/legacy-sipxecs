@@ -115,7 +115,7 @@ public class DeviceTimeZone extends BeanWithId {
                 m_stopWeek = DST_LASTWEEK;
                 m_stopDayOfWeek = Calendar.SUNDAY;
 
-                // LDT = 01:00 GMT + Time Zone Offset + Daylight Savings 
+                // LDT = 01:00 GMT + Time Zone Offset + Daylight Savings
                 m_stopTime = (1/*am*/ * MINUTES_PER_HOUR) + getOffset() + getDstSavings();
 
             }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -52,7 +52,7 @@ public class EditAcdLineTest extends TestCase {
 
         m_page.setAcdLineId(line.getId());
         PropertyUtils.write(m_page, "acdContext", context);
-        
+
         m_page.pageBeginRender(null);
 
         assertEquals(queue.getId(), m_page.getAcdQueueId());

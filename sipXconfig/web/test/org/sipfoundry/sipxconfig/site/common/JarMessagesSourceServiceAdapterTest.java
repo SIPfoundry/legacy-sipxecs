@@ -21,13 +21,13 @@ import org.sipfoundry.sipxconfig.site.admin.configdiag.ConfigurationDiagnosticPa
 
 public class JarMessagesSourceServiceAdapterTest extends TestCase {
 
-    
+
     private JarMessagesSourceServiceAdapter m_out;
     private JarMessagesSource m_jarMessagesSource;
     private DefaultJarMessagesSourceContext m_context;
     private IComponent m_component;
     private IPage m_mockPage;
-    
+
     protected void setUp() throws Exception {
         m_out = new JarMessagesSourceServiceAdapter();
 
@@ -40,7 +40,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         m_jarMessagesSource.setContext(m_context);
 
         m_out.setJarMessagesSource(m_jarMessagesSource);
-        
+
         m_out.setSystemMessagesSource(new ComponentMessagesSource() {
             public Messages getMessages(IComponent component) {
                 Properties messageProps = new Properties();
@@ -53,7 +53,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         m_component = (ConfigurationDiagnosticPage)creator.newInstance(ConfigurationDiagnosticPage.class);
         m_mockPage = EasyMock.createNiceMock(IPage.class);
         m_component.setPage(m_mockPage);
-        
+
         ComponentSpecification specification = new ComponentSpecification();
         specification.setSpecificationLocation(new FileResource("context:/WEB-INF/admin/configdiag/ConfigurationDiagnosticPage.page"));
         PropertyUtils.write(m_component, "specification", specification);
@@ -63,7 +63,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.FRENCH).anyTimes();
         EasyMock.replay(m_mockPage);
-        
+
         Messages messages = m_out.getMessages(m_component);
         assertEquals("My French Title", messages.getMessage("title"));
     }
@@ -72,7 +72,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.CANADA_FRENCH).anyTimes();
         EasyMock.replay(m_mockPage);
-        
+
         Messages messages = m_out.getMessages(m_component);
         assertEquals("My Canadian French Title", messages.getMessage("title"));
     }
@@ -99,7 +99,7 @@ public class JarMessagesSourceServiceAdapterTest extends TestCase {
         m_mockPage.getLocale();
         EasyMock.expectLastCall().andReturn(Locale.PRC).anyTimes();
         EasyMock.replay(m_mockPage);
-        
+
         Messages messages = m_out.getMessages(m_component);
         assertEquals("System Title", messages.getMessage("title"));
     }

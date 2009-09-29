@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -44,7 +44,7 @@ public class DownloadService extends FileService {
 
     /**
      * Retrieves the file object from service parameters (filename, content type)
-     * 
+     *
      * @param cycle
      * @return nely created file object
      */
@@ -55,7 +55,7 @@ public class DownloadService extends FileService {
 
     /**
      * Retrieves the content type from service parameters
-     * 
+     *
      * @param cycle
      * @return nely created file object
      */

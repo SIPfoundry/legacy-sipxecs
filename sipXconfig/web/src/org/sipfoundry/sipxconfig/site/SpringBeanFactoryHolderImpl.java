@@ -1,12 +1,12 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
- * 
+ *
  * Incarnation from http://sourceforge.net/projects/diaphragma/ project
  */
 package org.sipfoundry.sipxconfig.site;
@@ -47,7 +47,7 @@ public class SpringBeanFactoryHolderImpl extends
 
     public BeanFactory getBeanFactory() {
         if (super.getBeanFactory() == null) {
-            BeanFactory factory = getWebApplicationContext(getContext()); 
+            BeanFactory factory = getWebApplicationContext(getContext());
             TapestryContext tapestry = (TapestryContext) factory.getBean(TapestryContext.CONTEXT_BEAN_NAME);
             tapestry.setHivemindContext(getHivemindContext());
             super.setBeanFactory(factory);

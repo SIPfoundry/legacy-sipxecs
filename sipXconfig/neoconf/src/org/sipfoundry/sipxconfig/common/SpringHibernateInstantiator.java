@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -28,7 +28,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * Enables Spring to create the hibernate object. Use to allow Spring to manage object
  * dependencies with hibernate.
- * 
+ *
  * Note: it inherits from IndexingInterceptor: only one interceptor can be registered with
  * hibernate session.
  */

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.phone;
@@ -63,10 +63,10 @@ public class PhoneTableModel implements IBasicTableModel {
     /**
      * Translates table column to array of phone properties. It is safe to call with null - emtpy
      * array is returned in such case
-     * 
+     *
      * HACK: this is dangerously dependend on relation between the table column name and the
      * properties names
-     * 
+     *
      * @param objSortColumn column object
      * @return array of strings by which we need to sort the table
      */

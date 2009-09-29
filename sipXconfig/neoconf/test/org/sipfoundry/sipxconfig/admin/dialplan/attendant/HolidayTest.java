@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
@@ -69,7 +69,7 @@ public class HolidayTest extends TestCase {
         List days = holiday.getDates();
         for(int i = 0; i < days.size(); i++) {
             assertSame(dates[i], days.get(i));
-        }        
+        }
     }
 
     public void testChopLast() {
@@ -82,7 +82,7 @@ public class HolidayTest extends TestCase {
         holiday.chop(2);
         assertEquals(3, holiday.getDates().size());
     }
-    
+
     public void testChopOutOfRange() {
         Holiday holiday = new Holiday();
         assertTrue(holiday.getDates().isEmpty());

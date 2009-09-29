@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -22,15 +22,15 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
 public final class ApiBeanUtil {
-    
+
     private ApiBeanUtil() {
     }
-    
+
     public static void toApiObject(ApiBeanBuilder builder, Object apiObject, Object myObject) {
         Set properties = getProperties(apiObject);
         builder.toApiObject(apiObject, myObject, properties);
     }
-    
+
     public static void toMyObject(ApiBeanBuilder builder, Object myObject, Object apiObject) {
         Set properties = getProperties(apiObject);
         builder.toMyObject(myObject, apiObject, properties);
@@ -39,9 +39,9 @@ public final class ApiBeanUtil {
     public static void setProperties(Object object, Property[] properties) {
         for (int i = 0; i < properties.length; i++) {
             setProperty(object, properties[i].getProperty(), properties[i].getValue());
-        }        
+        }
     }
-    
+
     public static Set getSpecifiedProperties(Property[] properties) {
         Set props = new HashSet(properties.length);
         for (int i = 0; i < properties.length; i++) {
@@ -49,7 +49,7 @@ public final class ApiBeanUtil {
         }
         return props;
     }
-    
+
     /**
      * @return null if not found
      */
@@ -61,17 +61,17 @@ public final class ApiBeanUtil {
         }
         return null;
     }
-    
+
     public static Object[] newArray(Class elementClass, int size) {
         Object[] to = (Object[]) Array.newInstance(elementClass, size);
         for (int i = 0; i < size; i++) {
             to[i] = newInstance(elementClass);
         }
-        
-        return to;        
+
+        return to;
     }
-    
-    /** 
+
+    /**
      * Convert an array of server objects to an array of equivalent SOAP API objects (instances
      * of apiClass), using the supplied bean builder.  Return the array of API objects.
      */
@@ -79,7 +79,7 @@ public final class ApiBeanUtil {
         int numObjects = myObjects != null ? myObjects.length : 0;
         Object[] apiArray = ApiBeanUtil.newArray(apiClass, numObjects);
         if (numObjects == 0) {
-            return apiArray; 
+            return apiArray;
         }
         Set properties = ApiBeanUtil.getProperties(apiArray[0]);
         for (int i = 0; i < numObjects; i++) {
@@ -87,7 +87,7 @@ public final class ApiBeanUtil {
         }
         return apiArray;
     }
-    
+
     public static Object[] toApiArray(ApiBeanBuilder builder, Collection myObjects, Class apiClass) {
         int numObjects = SipxCollectionUtils.safeSize(myObjects);
         if (numObjects == 0) {
@@ -97,8 +97,8 @@ public final class ApiBeanUtil {
         myArray = myObjects.toArray(myArray);
         return toApiArray(builder, myArray, apiClass);
     }
-    
-    /** 
+
+    /**
      * Convert an array of SOAP API objects to an array of equivalent server objects (instances
      * of myClass), using the supplied bean builder.  Return the array of server objects.
      */
@@ -106,7 +106,7 @@ public final class ApiBeanUtil {
         int numObjects = apiObjects != null ? apiObjects.length : 0;
         Object[] myArray = newArray(myClass, numObjects);
         if (numObjects == 0) {
-            return myArray; 
+            return myArray;
         }
         for (int i = 0; i < apiObjects.length; i++) {
             Object myObj = newInstance(myClass);
@@ -115,7 +115,7 @@ public final class ApiBeanUtil {
         }
         return myArray;
     }
-    
+
     public static Object[] toMyArray(ApiBeanBuilder builder, Collection apiObjects, Class myClass) {
         int numObjects = SipxCollectionUtils.safeSize(apiObjects);
         if (numObjects == 0) {
@@ -125,15 +125,15 @@ public final class ApiBeanUtil {
         apiArray = apiObjects.toArray(apiArray);
         return toMyArray(builder, apiArray, myClass);
     }
-    
+
     public static void wrapImpossibleException(Exception e) {
-        throw new RuntimeException("Unexpected bean error", e);        
+        throw new RuntimeException("Unexpected bean error", e);
     }
-    
+
     public static void wrapPropertyException(String property, Exception e) {
-        throw new RuntimeException("Error accessing property " + property, e);                
+        throw new RuntimeException("Error accessing property " + property, e);
     }
-    
+
     public static Set getProperties(Object o) {
         Set properties = null;
         try {
@@ -149,7 +149,7 @@ public final class ApiBeanUtil {
         }
         return properties;
     }
-    
+
     public static void copyProperties(Object to, Object from, Set properties, Set ignoreList) {
         Iterator i = SipxCollectionUtils.safeIterator(properties);
         while (i.hasNext()) {
@@ -158,7 +158,7 @@ public final class ApiBeanUtil {
                 continue;
             }
             try {
-                Object value = PropertyUtils.getSimpleProperty(from, name);                
+                Object value = PropertyUtils.getSimpleProperty(from, name);
                 BeanUtils.copyProperty(to, name, value);
             } catch (IllegalAccessException iae) {
                 wrapPropertyException(name, iae);
@@ -179,12 +179,12 @@ public final class ApiBeanUtil {
         } catch (InvocationTargetException ite) {
             ApiBeanUtil.wrapPropertyException(property, ite);
         }
-    }    
-    
+    }
+
     /** Like Class.newInstance, but convert checked exceptions to runtime exceptions */
     public static Object newInstance(Class klass) {
         Object obj = null;
-        try {                
+        try {
             obj = klass.newInstance();
         } catch (InstantiationException impossible1) {
             wrapImpossibleException(impossible1);

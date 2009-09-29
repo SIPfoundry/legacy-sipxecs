@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!--
@@ -54,7 +54,7 @@
       <value>3</value>
     </property>
     <!-- The number of milliseconds a client calling getConnection() will wait for a Connection
-      to be checked-in or acquired when the pool is exhausted. Zero means wait indefinitely. 
+      to be checked-in or acquired when the pool is exhausted. Zero means wait indefinitely.
       Setting any positive value will cause the getConnection() call to time-out and break
       with an SQLException after the specified number of milliseconds.  Default: 0.
       Set this to 300000 (5 minutes) because sipXconfig should never hang forever, and the

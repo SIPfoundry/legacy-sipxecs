@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -27,7 +27,7 @@ public class BeanId {
         m_id = id;
         m_beanClass = beanClass;
     }
-    
+
     public BeanId(BeanWithId bean) {
         this(bean.getId(), bean.getClass());
     }
@@ -54,7 +54,7 @@ public class BeanId {
             }
             if (idCheck.contains(id)) {
                 throw new IllegalArgumentException(
-                        "The ID collection contains this ID more than once: " + idVal);                
+                        "The ID collection contains this ID more than once: " + idVal);
             }
             idCheck.add(id);
             BeanId bid = new BeanId(id, beanClass);
@@ -62,7 +62,7 @@ public class BeanId {
         }
         return bids;
     }
-    
+
     public Class getBeanClass() {
         return m_beanClass;
     }
@@ -83,7 +83,7 @@ public class BeanId {
         return getBeanClass().equals(bean.getClass())
                 && getId().equals(bean.getId());
     }
-    
+
     public boolean equals(Object obj) {
         if (obj instanceof BeanId) {
             BeanId bid = (BeanId) obj;

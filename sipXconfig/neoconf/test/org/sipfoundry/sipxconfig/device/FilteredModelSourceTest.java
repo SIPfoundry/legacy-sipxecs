@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.device;
@@ -27,7 +27,7 @@ public class FilteredModelSourceTest extends TestCase {
 
     protected void setUp() throws Exception {
         m_models = Arrays.asList(new PhoneModel[] {
-            new PhoneModel("beanId", "falcon300"), 
+            new PhoneModel("beanId", "falcon300"),
             new PhoneModel("beanId", "vulture7960"),
             new PhoneModel("beanId", "sparrow420"),
             new PhoneModel("beanId", "kestrel"),
@@ -67,7 +67,7 @@ public class FilteredModelSourceTest extends TestCase {
         assertTrue(certified.contains(m_models.get(3)));
         assertTrue(certified.contains(m_models.get(4)));
     }
-    
+
     public void testSetFilter() {
         Predicate onlySparrow = new Predicate() {
             public boolean evaluate(Object object) {
@@ -77,6 +77,6 @@ public class FilteredModelSourceTest extends TestCase {
         m_modelSource.setFilter(onlySparrow);
         Collection certified = m_modelSource.getModels();
         assertEquals(1, certified.size());
-        assertTrue(certified.contains(m_models.get(0)));        
+        assertTrue(certified.contains(m_models.get(0)));
     }
 }

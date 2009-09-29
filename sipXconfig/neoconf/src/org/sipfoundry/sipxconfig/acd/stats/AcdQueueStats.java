@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
  * Average and max values are computed based on the last 30 minutes of calls.
  * Processed calls and abandoned calls are also computed based on 30 minutes rolling window.
  * All other values are computed based on the calls currently in the queue.
- *  
+ *
  */
 public class AcdQueueStats implements AcdStatsItem.QueueName {
 
@@ -25,7 +25,7 @@ public class AcdQueueStats implements AcdStatsItem.QueueName {
 
     /** Waiting calls information: calls not picked up and not abandoned yet */
     private long m_waitingCalls;
-    
+
     /** Average wait time for all the calls waiting, processed and abandoned */
     private long m_averageWaitMillis;
 
@@ -38,14 +38,14 @@ public class AcdQueueStats implements AcdStatsItem.QueueName {
     private long m_maxAbandonedMillis;
 
     private long m_abandonedCalls;
-    
+
     /** Processed calls */
     private long m_processedCalls;
-    
+
     private long m_averageProcessingMillis;
 
     private long m_maxProcessingMillis;
-    
+
     /** Number of idle agents */
     private int m_idleAgents;
 

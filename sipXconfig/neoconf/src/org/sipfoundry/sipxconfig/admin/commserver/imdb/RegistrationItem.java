@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
@@ -40,11 +40,11 @@ public class RegistrationItem implements Comparable {
     public void setUri(String uri) {
         m_uri = uri;
     }
-    
+
     public String getPrimary() {
         return m_primary;
     }
-    
+
     public void setPrimary(String primary) {
         m_primary = primary;
     }

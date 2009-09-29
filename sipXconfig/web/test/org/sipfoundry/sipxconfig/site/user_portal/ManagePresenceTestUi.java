@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
@@ -28,10 +28,10 @@ public class ManagePresenceTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         tester.clickLink("managePresence");
     }
-    
+
     public void testNotEnabled() {
         assertElementNotPresent("menu.managePresence");
-        
+
         // not enabled by in unit test env.
         // system test should run tests
         assertElementPresent("presence-disabled");

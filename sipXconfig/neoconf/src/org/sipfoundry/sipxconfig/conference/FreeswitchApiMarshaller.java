@@ -1,10 +1,10 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  *
  */
 package org.sipfoundry.sipxconfig.conference;
@@ -14,9 +14,9 @@ import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcMarshaller;
 
 /**
  * Hides details of low level XML/RPC that freeswitch provides.
- * 
+ *
  * See: http://wiki.freeswitch.org/wiki/Freeswitch_XML-RPC
- * 
+ *
  * There is really only one method and the first parameter is the name of the command. Other
  * parameters follow.
  */

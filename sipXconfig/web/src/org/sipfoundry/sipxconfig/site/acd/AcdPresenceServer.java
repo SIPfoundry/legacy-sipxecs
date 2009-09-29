@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.acd;
@@ -33,23 +33,23 @@ import org.sipfoundry.sipxconfig.presence.PresenceServer;
 import org.sipfoundry.sipxconfig.presence.PresenceStatus;
 
 public abstract class AcdPresenceServer extends BaseComponent implements PageBeginRenderListener {
-    
+
     public abstract AcdContext getAcdContext();
 
     public abstract PresenceServer getPresenceServer();
-    
+
     public abstract CoreContext getCoreContext();
-    
+
     public abstract List getUsers();
-    
+
     public abstract void setUsers(List users);
 
     public abstract List getAllowedUsers();
 
     public abstract void setAllowedUsers(List users);
-    
+
     public abstract User getCurrentUser();
-    
+
     public abstract SelectMap getSelections();
 
     public abstract int getCurrentLocationId();
@@ -62,14 +62,14 @@ public abstract class AcdPresenceServer extends BaseComponent implements PageBeg
 
     public abstract void setLocationSelectionModel(LocationSelectionModel locationSelectionModel);
 
-    /** 
-     * acts as cache for user status so we do not get status twice, once for rewind and 
+    /**
+     * acts as cache for user status so we do not get status twice, once for rewind and
      * once for render
      **/
     public abstract Map getUserStatuses();
-    
+
     public abstract void setUserStatuses(Map statuses);
-    
+
     public PresenceStatus getCurrentUserStatus() {
         User user = getCurrentUser();
         PresenceStatus status = (PresenceStatus) getUserStatuses().get(user);
@@ -77,17 +77,17 @@ public abstract class AcdPresenceServer extends BaseComponent implements PageBeg
         if (status == null) {
             status = getPresenceServer().getStatus(user, acdServer);
             getUserStatuses().put(user, status);
-        }   
+        }
         return status;
     }
-    
+
     public void refresh() {
         // empty
     }
 
     public void signIn() {
         PresenceServer presenceServer = getPresenceServer();
-        User[] users = DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class, 
+        User[] users = DaoUtils.loadBeansArrayByIds(getCoreContext(), User.class,
                 getSelections().getAllSelected());
         AcdServer acdServer = getAcdContext().getAcdServerForLocationId(getCurrentLocationId());
         for (int i = 0; i < users.length; i++) {

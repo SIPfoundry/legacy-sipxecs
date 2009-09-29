@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -31,7 +31,7 @@ public abstract class ScheduleEditor extends BaseComponent {
         if (getTypeModel() == null) {
             NewEnumPropertySelectionModel typeModel = new NewEnumPropertySelectionModel();
             typeModel.setEnumType(CronSchedule.Type.class);
-            
+
             LocalizedOptionModelDecorator decoratedModel = new LocalizedOptionModelDecorator();
             decoratedModel.setMessages(getMessages());
             decoratedModel.setModel(typeModel);

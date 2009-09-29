@@ -1,9 +1,9 @@
 <span jwcid="@common/QuickHelp" value="message:ntpSettings.quickHelp" />
 <form jwcid="@Form" delegate="bean:validator">
   <ul class="component-links">
-    <li jwcid="@common/ToggleLink" 
-      toggle="ognl:showNtpServers" 
-      labelOn="message:label.showNtpConfiguration" 
+    <li jwcid="@common/ToggleLink"
+      toggle="ognl:showNtpServers"
+      labelOn="message:label.showNtpConfiguration"
       labelOff="message:label.showNtpServers">
     </li>
   </ul>
@@ -18,5 +18,5 @@
   <fieldset jwcid="@Else">
     <span jwcid="@TextArea" rows="30" cols="80" value="ognl:ntpConfig"/>
   </fieldset>
-  <span jwcid="submitNtpConfig@Submit" value="message:button.apply" action="listener:submitNtpConfig"/> 
+  <span jwcid="submitNtpConfig@Submit" value="message:button.apply" action="listener:submitNtpConfig"/>
 </form>

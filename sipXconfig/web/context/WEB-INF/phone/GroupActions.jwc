@@ -8,13 +8,13 @@
   <description>Component presents action to add and remove property groups.</description>
   <parameter name="selectedIds" required="no" default-value="null"/>
   <parameter name="actionModel" required="yes"/>
-  
+
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
-  
+
   <property name="selectedAction"/>
-  
+
   <inject property="tapestry" object="spring:tapestry"/>
-  
+
   <component id="actionSelection" type="common/FlexiblePropertySelection">
     <binding name="model" value="decorateModel(actionModel)"/>
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>

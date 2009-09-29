@@ -362,13 +362,13 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         List<CdrCallLongDistanceDecorator> cdrsData = new ArrayList<CdrCallLongDistanceDecorator>();
         for (Cdr cdr : cdrs) {
             calleeroute = cdr.getCalleeRoute();
-            if ((calleeroute != null) 
+            if ((calleeroute != null)
                 && (calleeroute.endsWith(CallTag.LD.toString())
                  || calleeroute.endsWith(CallTag.INTN.toString())
                  || calleeroute.endsWith(CallTag.REST.toString())
                  || calleeroute.endsWith(CallTag.TF.toString()))
             ) {
-                CdrCallLongDistanceDecorator cdrLongDistanceDecorator = 
+                CdrCallLongDistanceDecorator cdrLongDistanceDecorator =
                     new CdrCallLongDistanceDecorator(cdr, locale, getMessages());
                 cdrsData.add(cdrLongDistanceDecorator);
             }

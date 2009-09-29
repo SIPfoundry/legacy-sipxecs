@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -13,13 +13,13 @@ import java.util.List;
 
 
 public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements ExtensionPoolContext {
-    
+
     /** Name of the user extension pool */
     public static final String USER_POOL_NAME = "user";
 
     /** Name of the name property */
     private static final String PROP_NAME = "name";
-    
+
     // Default pool values.  When we add multiple pools later, we'll need to have
     // different defaults for each named pool.
     private static final boolean DEFAULT_ENABLED = true;
@@ -28,11 +28,11 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
     private static final Integer DEFAULT_NEXT_EXTENSION = new Integer(200);
 
     private CoreContext m_coreContext;
-    
+
     public ExtensionPool getUserExtensionPool() {
         return getExtensionPool(USER_POOL_NAME);
     }
-    
+
     public void saveExtensionPool(ExtensionPool pool) {
         getHibernateTemplate().saveOrUpdate(pool);
     }
@@ -44,43 +44,43 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
     public Integer getNextFreeUserExtension() {
         Integer ext = null;     // return value
         ExtensionPool pool = getUserExtensionPool();
-        
+
         // If the pool is disabled or has no firstExtension, then bail out
         if (!pool.isEnabled() || pool.getFirstExtension() == null) {
             return null;
         }
         int firstExt = pool.getFirstExtension().intValue();
-        
+
         // Start the search at the pool's nextExtension if that's defined,
         // otherwise the pool's firstExtension
         int start = pool.getNextExtension() != null ? pool.getNextExtension().intValue()
                                                     : firstExt;
-        
+
         // End the search at the pool's lastExtension
         int end = pool.getLastExtension() != null ? pool.getLastExtension().intValue()
                                                   : Integer.MAX_VALUE;
-        
+
         // Look for free extensions, starting with the desired next extension
         ext = getFreeUserExtension(start, end);
-     
+
         // If that didn't work, then try searching the beginning of the range
         if (ext == null && firstExt < start) {
             ext = getFreeUserExtension(firstExt, start - 1);
         }
-        
+
         return ext;
     }
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-    
+
     /** Return the named extension pool.  Create it if necessary. */
     private ExtensionPool getExtensionPool(String poolName) {
         List pools = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "extensionPoolByName", PROP_NAME, poolName);
         ExtensionPool pool = null;
-        
+
         // Create the pool if it doesn't exist
         if (SipxCollectionUtils.safeIsEmpty(pools)) {
             // Create the pool

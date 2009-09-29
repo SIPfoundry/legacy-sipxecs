@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.search;
@@ -81,9 +81,9 @@ public abstract class SearchPage extends BasePage implements IExternalPage,
 
     /**
      * Iterate klass hierarchy untule it finds the name for the class.
-     * 
+     *
      * Names should be defined in SearchPage.properties file.
-     * 
+     *
      * @return name for the class of found item or label.default.type
      */
     public String getResultItemType() {

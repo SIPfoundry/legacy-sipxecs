@@ -51,8 +51,8 @@ public class PhoneConfiguration extends ProfileContext {
             linesSettings.add(line.getSettings());
         }
 
-        // If the device has less than TEMPLATE_DEFAULT_LINE_COUNT lines, then 
-        // add enough blanks lines (with appropriate sipXecs settings) to 
+        // If the device has less than TEMPLATE_DEFAULT_LINE_COUNT lines, then
+        // add enough blanks lines (with appropriate sipXecs settings) to
         // override the blank lines in polycom_phone1.cfg.
         for (int i = lines.size(); i < lineCount; i++) {
             Line line = phone.createLine();

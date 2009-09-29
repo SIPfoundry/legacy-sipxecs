@@ -6,7 +6,7 @@
   <parameter name="cancelListener" required="yes"/>
   <parameter name="okListener"  required="no"  default-value="null"/>
   <parameter name="applyListener" required="yes"/>
-  <parameter name="validator" required="yes"/>  
+  <parameter name="validator" required="yes"/>
   <parameter name="requiredEnabled" required="no" default-value="true"/>
   <property name="action"/>
   <inject property="tapestry" object="spring:tapestry"/>

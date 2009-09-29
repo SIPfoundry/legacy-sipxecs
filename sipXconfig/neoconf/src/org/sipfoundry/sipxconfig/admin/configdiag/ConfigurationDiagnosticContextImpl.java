@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.configdiag;
@@ -79,7 +79,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     /**
      * Checks if any tests are currently in progress
-     * 
+     *
      * @param results list of test results - can be null
      * @return true is at least one future is not completed yet
      */
@@ -97,7 +97,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     /**
      * Loads test descriptors from XML test descriptor files.
-     * 
+     *
      * @return list of test descriptors in the order tests should be run
      */
     private List<ConfigurationDiagnostic> loadConfigurationTests() {
@@ -118,7 +118,7 @@ public class ConfigurationDiagnosticContextImpl implements ConfigurationDiagnost
 
     /**
      * Finds all test descriptor files
-     * 
+     *
      * @param directory in which descriptor files are located
      * @return list of test descriptor files in the alphabetic order.
      */

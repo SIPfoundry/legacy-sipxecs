@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.cdr;
@@ -44,7 +44,7 @@ public class CdrTableModel implements IBasicTableModel {
         m_activeUser = user;
     }
 
-    
+
     public void setFrom(Date from) {
         m_from = from;
     }
@@ -58,7 +58,7 @@ public class CdrTableModel implements IBasicTableModel {
         if (objSortColumn != null) {
             m_cdrSearch.setOrder(objSortColumn.getColumnName(), ascending);
         }
-        List<Cdr> cdrs = m_cdrManager.getCdrs(m_from, m_to, m_cdrSearch, 
+        List<Cdr> cdrs = m_cdrManager.getCdrs(m_from, m_to, m_cdrSearch,
                 m_activeUser, nPageSize, nFirst);
         return cdrs.iterator();
     }

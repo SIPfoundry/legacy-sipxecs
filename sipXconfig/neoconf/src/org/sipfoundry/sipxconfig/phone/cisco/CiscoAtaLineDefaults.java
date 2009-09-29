@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
@@ -23,7 +23,7 @@ public class CiscoAtaLineDefaults {
     private static final String DISPLAY_NAME_PATH = "port/DisplayName";
     private static final String REGISTRATION_PATH = "port/_Proxy.79";
     private static final String REGISTRATION_ATA_PATH = "port/_Proxy.18x";
-    
+
     private Line m_line;
 
     public CiscoAtaLineDefaults(Line line) {
@@ -94,7 +94,7 @@ public class CiscoAtaLineDefaults {
     }
 
     public static class StubAtaLine {
-        @SettingEntry(paths = { DISPLAY_NAME_PATH, USER_ID_PATH, LOGIN_ID_PATH, USER_ID_PATH, 
+        @SettingEntry(paths = { DISPLAY_NAME_PATH, USER_ID_PATH, LOGIN_ID_PATH, USER_ID_PATH,
                 PASSWORD_PATH })
         public String getZero() {
             return "0";

@@ -7,7 +7,7 @@
     <set name="maxField" value="2" />
     <set name="locale" value="ognl:page.locale"/>
     <set name="showZero" value="true" />
-  </bean>  
+  </bean>
   <bean name="terminationFormat" class="org.sipfoundry.sipxconfig.components.NewEnumFormat"
     lifecycle="page">
     <set name="messages" value="messages" />

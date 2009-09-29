@@ -1,5 +1,5 @@
 <span jwcid="@conference/DimDimConferenceLink" dimDimConference="ognl:dimDimConference" />
-<form jwcid="@common/AutoRefreshForm" actionBlock="component:actionButtons" 
+<form jwcid="@common/AutoRefreshForm" actionBlock="component:actionButtons"
       updateComponents="ognl:{'messageArea', 'conferencesTable'}">
     <table jwcid="tableView@common/Table"
            id="conferencesTable"
@@ -21,8 +21,8 @@
               <span jwcid="@Insert" value="ognl:nicknameForCurrentMember" />
             </a>
         </span>
-    </table>  
-    
+    </table>
+
 </form>
 <div jwcid="actionButtons@Block">
     <li>
@@ -54,7 +54,7 @@
            value="message:button.kick"
            updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
            action="listener:kickUsers" />
-    </li>    
+    </li>
 </div>
 
 <form jwcid="@Form" delegate="ognl:validator">
@@ -65,24 +65,24 @@
         <div>
             <ul class="component-submit">
                 <li>
-                 
-                   <input jwcid="inviteNumber@TextField" class="inactive"   
-                          validators="spring-validators:required,validPhoneOrAor"            
-                          id="conference:inviteNumber" size="30" value="ognl:inviteFieldValue" />        
+
+                   <input jwcid="inviteNumber@TextField" class="inactive"
+                          validators="spring-validators:required,validPhoneOrAor"
+                          id="conference:inviteNumber" size="30" value="ognl:inviteFieldValue" />
                    <input jwcid="inviteButton@Submit" id="conference:inviteParticipant"
                           value="message:button.invite"
 			  updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
                           action="listener:inviteParticipant" />
-                </li>  
-                <!-- temporarily commented out until it gets implemented 
+                </li>
+                <!-- temporarily commented out until it gets implemented
                 <li>
                    <input jwcid="lockButton@Submit" id="conference:lockConference"
                           value="message:button.lock"
                           updateComponents="ognl:{'messageArea', 'conferenceControls', 'refreshedContent'}"
                           action="listener:lockConference" />
                 </li>
-                 -->           
+                 -->
             </ul>
         </div>
-    </div>   
+    </div>
 </form>

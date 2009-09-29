@@ -11,13 +11,13 @@ import org.springframework.web.context.WebApplicationContext;
  * Utility class used by the {@link com.workingmouse.webservice.axis.SpringBeanMsgProvider}
  * and the {@link com.workingmouse.webservice.axis.SpringBeanRPCProvider} to retrieve
  * Spring-managed beans from a Spring WebApplicationContext.
- * 
+ *
  * @author Tom Czarniecki (cThomas AT workingmouse DOT com)
  */
 public class SpringBeanProvider {
 
     /**
-     * The server-config.wsdd service parameter used to provide the name of the 
+     * The server-config.wsdd service parameter used to provide the name of the
      * Spring-managed bean to use as the web service end-point.
      */
     public static final String BEAN_OPTION_NAME = "springBean";
@@ -45,7 +45,7 @@ public class SpringBeanProvider {
             throw new AxisFault(Messages.getMessage("noClassForService00", beanName), e);
         }
     }
-    
+
     public static WebApplicationContext getWebApplicationContext(AxisEngine engine) throws ServiceException {
         WebApplicationContext context = (WebApplicationContext) engine.getApplicationSession().get(APPLICATION_SESSION_ATTRIBUTE);
         if (context == null) {
@@ -55,11 +55,11 @@ public class SpringBeanProvider {
                         + APPLICATION_SESSION_ATTRIBUTE
                         + "]");
         }
-        
+
         return context;
     }
-    
+
     public static void setWebApplicationContext(AxisEngine engine, WebApplicationContext context) {
-        engine.getApplicationSession().set(APPLICATION_SESSION_ATTRIBUTE, context);        
+        engine.getApplicationSession().set(APPLICATION_SESSION_ATTRIBUTE, context);
     }
 }

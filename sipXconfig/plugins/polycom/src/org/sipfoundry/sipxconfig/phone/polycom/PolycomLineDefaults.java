@@ -17,11 +17,11 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class PolycomLineDefaults {
 
     /**
-     * 
+     *
      */
     private static final String TYPE_PRIVATE = "private";
     /**
-     * 
+     *
      */
     private static final String TYPE_SHARED = "shared";
     private DeviceDefaults m_defaults;

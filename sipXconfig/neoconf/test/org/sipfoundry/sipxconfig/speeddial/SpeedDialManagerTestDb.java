@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.speeddial;
@@ -97,7 +97,7 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
     }
 
     public void testOnDeleteUser() throws Exception {
-        TestHelper.insertFlat("speeddial/speeddial.db.xml");        
+        TestHelper.insertFlat("speeddial/speeddial.db.xml");
         assertEquals(3, getConnection().getRowCount("speeddial_button"));
         assertEquals(1, getConnection().getRowCount("speeddial"));
         m_coreContext.deleteUsers(Collections.singleton(1001));

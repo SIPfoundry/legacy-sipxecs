@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin;
@@ -20,10 +20,10 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * This is a schedule that keeps its format as a cron compatible string.
- * 
+ *
  * The format of the string is: "seconds(0-59) minutes(0-59) hours(0-23) day-of-month(1-32)
  * month(1-12) day-of-week(1-7)"
- * 
+ *
  * It can be used with Java timer class,
  */
 public class CronSchedule extends BeanWithId {

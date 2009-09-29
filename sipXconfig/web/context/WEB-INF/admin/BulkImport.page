@@ -6,7 +6,7 @@
   <property name="uploadFile" />
   <inject property="bulkManager" object="spring:bulkManager"/>
   <inject property="adminContext" object="spring:adminContext"/>
-  <inject property="tapestry" object="spring:tapestry"/>	
+  <inject property="tapestry" object="spring:tapestry"/>
   <!--
      - B E A N S
      -->

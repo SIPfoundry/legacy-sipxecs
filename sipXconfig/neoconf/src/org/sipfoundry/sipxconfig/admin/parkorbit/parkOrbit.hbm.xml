@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.admin.parkorbit" default-lazy="false">
-  <!-- 
+  <!--
     - Default background music
   -->
   <class name="BackgroundMusic" table="park_orbit" discriminator-value="H"
@@ -17,7 +17,7 @@
     <property name="enabled" />
   </class>
 
-  <!-- 
+  <!--
     - Park Orbit
     - It is implemented as BackgroundMusic subclass but unfortunately <subclass> mapping does not work here
     - hibernate returns ParkOrbit objects even if querying for BackgroundMusic only

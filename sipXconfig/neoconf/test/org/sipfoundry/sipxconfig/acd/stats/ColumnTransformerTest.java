@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd.stats;
@@ -26,19 +26,19 @@ public class ColumnTransformerTest extends TestCase {
         Date signinTime = TestUtil.localizeDateTime("12/19/06 1:40:50 AM GMT0:00");
         Timestamp timeOriginal = new Timestamp(signinTime.getTime());
         Timestamp timeInUtc = new Timestamp(signinTime.getTime());
-        
+
         IMocksControl rsControl = EasyMock.createControl();
         ResultSet rs = rsControl.createMock(ResultSet.class);
         rs.getObject(0);
         rsControl.andReturn(timeOriginal);
         rs.getTimestamp(0, ColumnTransformer.UTC);
-        rsControl.andReturn(timeInUtc);        
+        rsControl.andReturn(timeInUtc);
         rsControl.replay();
 
         ColumnTransformer t = new ColumnTransformer();
         Object o = t.getColumnValue(rs, 0);
         assertSame(o, timeInUtc);
 
-        rsControl.verify();        
+        rsControl.verify();
     }
 }

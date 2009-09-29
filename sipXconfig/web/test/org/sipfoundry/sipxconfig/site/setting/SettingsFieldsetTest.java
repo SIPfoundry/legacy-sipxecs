@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.setting;
@@ -62,24 +62,24 @@ public class SettingsFieldsetTest extends TestCase {
         set.addSetting(new SettingImpl("a"));
         set.addSetting(toggle);
         set.addSetting(new SettingImpl("c"));
-        
-        toggle.setHidden(true);        
+
+        toggle.setHidden(true);
         m_fieldset.setSettings(set);
         m_fieldset.prepareForRender(null);
-        
+
         Collection<Setting> flat = m_fieldset.getFlattenedSettings();
         assertEquals(3, flat.size());
         assertFalse(flat.contains(toggle));
         assertTrue(flat.contains(set));
-        
-        toggle.setHidden(false);        
+
+        toggle.setHidden(false);
         m_fieldset.setFlattenedSettings(null);
         m_fieldset.prepareForRender(null);
-        
+
         flat = m_fieldset.getFlattenedSettings();
         assertEquals(4, flat.size());
         assertTrue(flat.contains(toggle));
-        assertTrue(flat.contains(set));        
+        assertTrue(flat.contains(set));
     }
 
     public void testRenderToggle() throws Exception {

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class LdapRowInserterTest extends TestCase {
     private LdapRowInserter m_rowInserter;
-    
+
     protected void setUp() {
         m_rowInserter = new LdapRowInserter();
         AttrMap attrMap = new AttrMap();
@@ -38,8 +38,8 @@ public class LdapRowInserterTest extends TestCase {
         UserMapper userMapper = control.createMock(UserMapper.class);
         SearchResult searchResult = control.createMock(SearchResult.class);
         Attributes attributes = control.createMock(Attributes.class);
-        
-        userMapper.getUserName(attributes);        
+
+        userMapper.getUserName(attributes);
         control.andReturn("joe");
         userMapper.getGroupNames(searchResult);
         control.andReturn(Collections.singleton("sales"));
@@ -47,11 +47,11 @@ public class LdapRowInserterTest extends TestCase {
 
         User joe = new User();
         Group importGroup = new Group();
-        
+
         AttrMap map = new AttrMap();
         map.setObjectClass("person");
 
-        IMocksControl coreContextControl = EasyMock.createControl();        
+        IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
         LdapManager ldapManager = coreContextControl.createMock(LdapManager.class);
         ldapManager.getAttrMap();
@@ -59,10 +59,10 @@ public class LdapRowInserterTest extends TestCase {
         coreContext.getGroupByName("test-import", false);
         coreContextControl.andReturn(importGroup);
         coreContext.loadUserByUserName("joe");
-        
-        // another useful test would be to return an existing user 
+
+        // another useful test would be to return an existing user
         coreContextControl.andReturn(null);
-        
+
         coreContext.getGroupMembersNames(importGroup);
         coreContextControl.andReturn(Collections.singleton("olderImportUser"));
         coreContext.newUser();

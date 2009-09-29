@@ -18,7 +18,7 @@ public class ConfigAgentConfiguration extends SipxServiceConfiguration {
     public boolean isReplicable(Location location) {
         return true;
     }
-    
+
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);

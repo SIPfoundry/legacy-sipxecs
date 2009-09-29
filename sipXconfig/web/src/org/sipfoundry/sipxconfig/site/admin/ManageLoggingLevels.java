@@ -129,9 +129,9 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
             if (m_generalLevel != null) {
                 entity.setLogLevel(m_generalLevel);
             }
-            
+
             SipxService serviceToRestart = getLoggingManager().getSipxServiceForLoggingEntity(entity);
-            
+
             if (entity instanceof SipxService) {
                 services.add((SipxService) entity);
             } else if (entity instanceof BridgeSbc) {

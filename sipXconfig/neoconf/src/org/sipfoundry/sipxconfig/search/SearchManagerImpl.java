@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -114,13 +114,13 @@ public class SearchManagerImpl implements SearchManager {
                 results.add(identity);
             }
         }
-        
+
         return results;
     }
 
     /**
      * Return prefix queries if user only enters single field, otherwise use query parser
-     * 
+     *
      * @param queryText
      * @return newly created query object
      */

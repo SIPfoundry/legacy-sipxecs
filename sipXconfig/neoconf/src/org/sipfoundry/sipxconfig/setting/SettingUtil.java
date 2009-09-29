@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -21,17 +21,17 @@ public final class SettingUtil {
      * generate a collection. Runner will naturally recurse tree up to filter to accept/reject
      * settings. For chaining filters, try creating a composite filter instead for running
      * collections back into this runner.
-     * 
+     *
      * <pre>
      *             Example:
      *               class MyClass {
-     *             
+     *
      *                    private static final SettingFilter MY_SETTING = new SettingFilter() {
      *                        public boolean acceptSetting(Setting root_, Setting setting) {
      *                            return setting.getName().equals(&quot;mysetting&quot;);
      *                        }
      *                    };
-     *                    
+     *
      *                   public Collection getMySettings(Setting settings) {
      *                         return SettingUtil.filter(MY_SETTINGS, settings);
      *                   }
@@ -49,7 +49,7 @@ public final class SettingUtil {
     /**
      * If a setting set is advanced, then all it's children can be considered advanced. USE CASE :
      * XCF-751
-     * 
+     *
      * @param node parent to some level of setting
      * @param setting descendant of parent
      * @return true if any node is advanced including node itself

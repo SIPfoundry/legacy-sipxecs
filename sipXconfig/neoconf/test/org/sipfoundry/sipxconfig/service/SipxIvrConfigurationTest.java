@@ -49,7 +49,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
 
         verify(sipxServiceManager);
     }
-    
+
     @Override
     protected Location createDefaultLocation() {
         Location location = super.createDefaultLocation();

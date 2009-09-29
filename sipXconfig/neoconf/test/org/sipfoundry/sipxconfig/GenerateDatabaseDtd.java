@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig;
@@ -17,9 +17,9 @@ import org.dbunit.dataset.xml.XmlDataSet;
 
 /**
  * Generate a DTD that helps writing dbunit files.  You can run this from eclipse or commandline
- * 
+ *
  * NOTE: After you run this, replace first DTD entry w/this
- * 
+ *
  * <!ELEMENT dataset ANY>
  */
 public class GenerateDatabaseDtd {

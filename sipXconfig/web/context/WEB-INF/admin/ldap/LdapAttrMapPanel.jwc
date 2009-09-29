@@ -5,11 +5,11 @@
   <!--
     - P A R A M E T E R S
   -->
-  <parameter name="attrMap" />  
+  <parameter name="attrMap" />
   <parameter name="objectClassesSelectionModel" />
   <parameter name="attributesSelectionModel" />
   <parameter name="attributesOptionalSelectionModel" />
-    
+
   <!--
     - C O M P O N E N T S
   -->
@@ -87,7 +87,7 @@
     <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.alias" />
   </component>
-  
+
   <component id="emailPanel" type="common/FieldPanel">
     <binding name="field" value="components.email" />
     <binding name="label" value="message:label.email" />

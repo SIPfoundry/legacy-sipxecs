@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
@@ -107,16 +107,16 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     /**
      * Removes all rings associated with a removed user. This is temporary. In the long term we
      * will introduce hibernate dependency between the users and rings table.
-     * 
+     *
      * Note: we cannot just blindly removed rings from database, there is a cascade relationship
      * between call groups and rings, hibernate will resave the ring if it's removed from database
      * but not from the call group
-     * 
+     *
      * This function is called from legacy notification service, there is no need to activate call
      * groups - they will be activated anyway because alias generation follows user deletion.
-     * 
+     *
      * @param userId id of the user that us being deleted
-     * 
+     *
      */
     public void removeUser(Integer userId) {
         final HibernateTemplate hibernate = getHibernateTemplate();

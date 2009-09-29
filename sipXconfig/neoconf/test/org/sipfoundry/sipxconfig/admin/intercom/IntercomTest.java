@@ -1,8 +1,8 @@
 /*
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.admin.intercom;
@@ -17,7 +17,7 @@ public class IntercomTest extends TestCase {
     public static final String TEST_PREFIX = "prefix";
     public static final int TEST_TIMEOUT = 123;
     public static final String TEST_CODE = "code";
-    
+
     public void testPrefix() {
         Intercom intercom = new Intercom();
         intercom.setPrefix(TEST_PREFIX);
@@ -35,7 +35,7 @@ public class IntercomTest extends TestCase {
         intercom.setCode(TEST_CODE);
         assertEquals(TEST_CODE, intercom.getCode());
     }
-    
+
     public void testGroups() {
         Intercom intercom = new Intercom();
         Group group = new Group();

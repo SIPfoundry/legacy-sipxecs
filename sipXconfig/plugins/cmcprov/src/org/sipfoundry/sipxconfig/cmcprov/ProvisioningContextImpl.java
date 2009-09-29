@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.upload.Upload;
 
 public class ProvisioningContextImpl implements ProvisioningContext {
     private static final String MODEL_ID = "counterpathCMCEnterprise";
-    
+
     private CoreContext m_sipxCoreContext;
     private PhoneContext m_sipxPhoneContext;
     private Upload m_sipxUpload;
@@ -81,7 +81,7 @@ public class ProvisioningContextImpl implements ProvisioningContext {
     private String getEncodedPassword(String userName, String password) {
         return Md5Encoder.digestPassword(userName, m_sipxCoreContext.getAuthorizationRealm(), password);
     }
-    
+
     public Phone getPhoneForUser(User user) {
         Collection<Phone> phones = getSipxPhoneContext().getPhonesByUserIdAndPhoneModel(user.getId(), MODEL_ID);
         if (!phones.isEmpty()) {

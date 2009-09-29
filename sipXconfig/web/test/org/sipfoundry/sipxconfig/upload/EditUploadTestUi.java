@@ -1,7 +1,7 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *  $
@@ -54,10 +54,10 @@ public class EditUploadTestUi extends WebTestCase {
         assertButtonPresent("upload:inactivate");
         clickButton("upload:inactivate");
     }
-    
+
     public void testCancel() throws Exception {
         setTextField("item:name", "cancelled");
         clickButton("form:cancel");
-        assertTextNotPresent("cancelled");       
-    }       
+        assertTextNotPresent("cancelled");
+    }
 }

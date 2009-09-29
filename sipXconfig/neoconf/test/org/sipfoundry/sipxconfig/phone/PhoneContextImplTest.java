@@ -20,7 +20,7 @@ public class PhoneContextImplTest extends TestCase {
         EasyMock.expectLastCall().andReturn(null).anyTimes();
         EasyMock.replay(intercomManager);
         m_impl.setIntercomManager(intercomManager);
-        
+
         m_impl.getIntercomForPhone(phone);
         EasyMock.verify(intercomManager);
     }

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site;
@@ -35,11 +35,11 @@ public class InitializeTestSystem implements ApplicationListener {
     public void setReplicationManagerImpl(ReplicationManagerImpl replicationManagerImpl) {
         m_replicationManagerImpl = replicationManagerImpl;
     }
-    
+
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
     }
-    
+
     public void setLocationsMigrationTrigger(LocationsMigrationTrigger locationsMigrationTrigger) {
         m_locationsMigrationTrigger = locationsMigrationTrigger;
     }

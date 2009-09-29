@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -14,7 +14,7 @@ import java.util.Collections;
 import junit.framework.TestCase;
 
 public class InitTaskListenerTest extends TestCase {
-    
+
     public void testEventType() {
         InitTaskListenerDummy itl = new InitTaskListenerDummy();
         itl.setTaskNames(Collections.singletonList("bongo"));
@@ -34,7 +34,7 @@ public class InitTaskListenerTest extends TestCase {
             // expected behavior
         }
     }
-    
+
     public void testTaskName() {
         InitTaskListenerDummy itl = new InitTaskListenerDummy();
         itl.setTaskNames(Collections.singletonList("kuku"));

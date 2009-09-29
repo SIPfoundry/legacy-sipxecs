@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -42,7 +42,7 @@ public class EnumFormatTest extends TestCase {
         assertEquals("localized kuku", format.format(FakeEnum.KUKU));
         messagesCtrl.verify();
     }
-    
+
     public void testSpaceInEnumName() throws Exception {
         IMocksControl messagesCtrl = EasyMock.createControl();
         Messages messages = messagesCtrl.createMock(Messages.class);
@@ -55,7 +55,7 @@ public class EnumFormatTest extends TestCase {
         format.setPrefix("fake");
 
         assertEquals("localized space", format.format(FakeEnum.SPACE));
-        messagesCtrl.verify();        
+        messagesCtrl.verify();
     }
 
     static class FakeEnum extends Enum {

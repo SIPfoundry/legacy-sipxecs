@@ -18,14 +18,14 @@
       <value>${sysdir.etc}/domain-config</value>
     </property>
     <!--
-      - CIRCULAR REFERENCE WARNING: 
+      - CIRCULAR REFERENCE WARNING:
       -  sipxServer->coreContext->domainMgr->sipXserver->...
       - this can cause this error
       -   "Cannot create AopProxy with no advisors and no target source"
       - problem and solution is here
       -  http://opensource.atlassian.com/projects/spring/browse/SPR-689
       - notice there's no intention to fix this, so I'm implemented the
-      - recommend workaround. 
+      - recommend workaround.
       -
       - I do not think domain manager should reference sipxServer because
       - if other systems are integrated other than sipx, domain manager would

@@ -13,7 +13,7 @@
   <property name="stay" />
   <property name="buttonPressed" />
   <!--
-      - B E A N S 
+      - B E A N S
       -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="mailboxPreferences" class="org.sipfoundry.sipxconfig.vm.MailboxPreferences"/>

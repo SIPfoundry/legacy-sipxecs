@@ -8,7 +8,7 @@
 	  -->
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
   <inject property="orbitsGenerator" object="spring:orbitsGenerator"/>
-  
+
   <property name="parkOrbit"  persist="session"/>
   <property name="parkOrbitId"  persist="session"/>
   <property name="commitChanges"  initial-value="false"/>
@@ -30,7 +30,7 @@
   </component>
   <component id="musicLabel" type="common/FieldPanel">
     <binding name="field" value="components.musicOnHoldSelector.prompt"/>
-    <binding name="label" value="message:label.music"/>    
+    <binding name="label" value="message:label.music"/>
   </component>
   <component id="musicOnHoldSelector" type="common/AssetSelectorMultiple">
     <binding name="asset" value="parkOrbit.music"/>
@@ -41,7 +41,7 @@
   <component id="settingsFieldset" type="setting/SettingsFieldset">
     <binding name="settings" value="parkOrbit.settings"/>
     <binding name="renderGroupTitle" value="false"/>
-  </component>  
+  </component>
   <component id="formActions" type="common/FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>

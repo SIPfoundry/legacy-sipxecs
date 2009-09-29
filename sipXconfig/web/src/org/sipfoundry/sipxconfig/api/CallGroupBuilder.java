@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.api;
@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
 public class CallGroupBuilder extends SimpleBeanBuilder {
     private static final String RINGS_PROP = AbstractCallSequence.RINGS_PROP;
-    private static final String[] IGNORE_LIST = { 
+    private static final String[] IGNORE_LIST = {
         RINGS_PROP
     };
     private CoreContext m_coreContext;
@@ -55,7 +55,7 @@ public class CallGroupBuilder extends SimpleBeanBuilder {
         if (properties.contains(RINGS_PROP)) {
             my.getRings().clear();
             if (apiRings != null) {
-                org.sipfoundry.sipxconfig.admin.callgroup.UserRing[] myRings = 
+                org.sipfoundry.sipxconfig.admin.callgroup.UserRing[] myRings =
                     (org.sipfoundry.sipxconfig.admin.callgroup.UserRing[])
                     ApiBeanUtil.toMyArray(new UserRingBuilder(m_coreContext), apiRings,
                             org.sipfoundry.sipxconfig.admin.callgroup.UserRing.class);

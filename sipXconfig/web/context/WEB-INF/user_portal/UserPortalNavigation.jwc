@@ -3,5 +3,5 @@
 <component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
   <description>Navigation links available in user portal</description>
   <inject property="presenceServer" object="spring:presenceServer"/>
-  <inject property="userSession" type="state" object="userSession"/>  
+  <inject property="userSession" type="state" object="userSession"/>
 </component-specification>

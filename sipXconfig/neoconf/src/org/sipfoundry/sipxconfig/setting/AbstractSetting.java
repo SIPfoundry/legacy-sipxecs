@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.setting;
@@ -176,7 +176,7 @@ public abstract class AbstractSetting implements Setting, NamedObject {
 
     /**
      * Builds setting path by iterating through the list of parents
-     * 
+     *
      * @param separator string used to separate path components
      * @param addThis if true this setting name will be also added to path
      * @param useProfile if true build path from profile names
@@ -220,17 +220,17 @@ public abstract class AbstractSetting implements Setting, NamedObject {
 
     /**
      * Find setting coresponding to the path.
-     * 
+     *
      * Please note that setting == setting.getPath("") to support path round-tripping
-     * 
+     *
      * <code>
-     *  String s = root.getSetting("x").getParent().getPath(); 
+     *  String s = root.getSetting("x").getParent().getPath();
      *  Setting root = root.getSetting(s);
      * </code>
-     * 
+     *
      * @param path relative to this setting
      * @return found setting or nothing
-     * 
+     *
      */
     public Setting getSetting(String path) {
         if (StringUtils.isEmpty(path)) {

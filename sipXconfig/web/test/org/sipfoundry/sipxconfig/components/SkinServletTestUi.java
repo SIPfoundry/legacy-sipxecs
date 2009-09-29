@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.components;
@@ -27,12 +27,12 @@ public class SkinServletTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
     }
-    
-    public void testLogoAsset() throws Exception {        
+
+    public void testLogoAsset() throws Exception {
         assertAssetEquals("/skin/logo.png", "test-logo.png");
         assertAssetEquals("/skin/unused.png", "unused.png");
     }
-    
+
     private void assertAssetEquals(String assetPath, String expectedAsset) throws Exception {
         URL logoUrl = new URL(SiteTestHelper.getBaseUrl() + assetPath);
         InputStream actual = logoUrl.openStream();

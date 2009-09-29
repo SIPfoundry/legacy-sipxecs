@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.acd;
@@ -12,7 +12,7 @@ package org.sipfoundry.sipxconfig.acd;
 import org.sipfoundry.sipxconfig.common.InitTaskListener;
 
 public class AcdMigrationTrigger extends InitTaskListener {
-    private AcdContext m_acdContext;        
+    private AcdContext m_acdContext;
 
     public void setAcdContext(AcdContext acdContext) {
         m_acdContext = acdContext;

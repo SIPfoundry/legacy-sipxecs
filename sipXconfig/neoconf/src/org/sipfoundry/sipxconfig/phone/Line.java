@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.phone;
@@ -108,7 +108,7 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
 
     /**
      * Extract basic values from a phone line that most phones should understand.
-     * 
+     *
      * @return as much information as phone has or understands
      */
     public LineInfo getLineInfo() {

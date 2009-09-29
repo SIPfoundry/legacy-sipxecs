@@ -1,9 +1,9 @@
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
   <!--
-  - A L I A S  M A N A G E R 
+  - A L I A S  M A N A G E R
   -->
 
   <bean id="aliasManagerImpl" class="org.sipfoundry.sipxconfig.alias.AliasManagerImpl">
@@ -11,7 +11,7 @@
       <ref bean="sessionFactory"/>
     </property>
   </bean>
-  
+
   <bean id="aliasManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.alias.AliasManager</value>

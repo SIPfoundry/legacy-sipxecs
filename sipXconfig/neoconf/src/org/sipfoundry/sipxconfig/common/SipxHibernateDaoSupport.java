@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.common;
@@ -68,7 +68,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
      * duplicate a new, unique name. The queryName identifies a named query that returns the IDs
      * of all objects with a given name. (Return IDs rather than objects to avoid the overhead of
      * loading all the objects.) Use the query to ensure that the new name is unique.
-     * 
+     *
      * @param bean bean to duplicate
      * @param queryName name of the query to be executed (define in *.hbm.xml file)
      */

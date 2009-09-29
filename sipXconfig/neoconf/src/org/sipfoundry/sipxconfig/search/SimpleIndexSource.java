@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -22,7 +22,7 @@ import org.apache.lucene.store.FSDirectory;
 /**
  * Naive implementation, always return FS directory, do not try to cache or optimize anything,
  * recreate if it does not exist
- * 
+ *
  */
 public class SimpleIndexSource implements IndexSource {
     private File m_indexDirectory;
@@ -49,7 +49,7 @@ public class SimpleIndexSource implements IndexSource {
 
     /**
      * Overwrite to create different directory
-     * 
+     *
      * @throws IOException
      */
     protected Directory createDirectory(File file, boolean createDirectory) throws IOException {

@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
@@ -25,13 +25,13 @@ public abstract class LdapImport extends BasePage implements PageBeginRenderList
     public static final String PAGE = "admin/ldap/LdapImport";
 
     public abstract LdapImportManager getLdapImportManager();
-    
+
     public abstract LdapManager getLdapManager();
 
     public abstract CronSchedule getSchedule();
 
     public abstract void setSchedule(CronSchedule schedule);
-    
+
     public void pageBeginRender(PageEvent event) {
         if (getSchedule() == null) {
             setSchedule(getLdapManager().getSchedule());
@@ -53,7 +53,7 @@ public abstract class LdapImport extends BasePage implements PageBeginRenderList
         ldapImportPreview.setExample(null);
         return ldapImportPreview;
     }
-    
+
     public void applySchedule() {
         getLdapManager().setSchedule(getSchedule());
     }

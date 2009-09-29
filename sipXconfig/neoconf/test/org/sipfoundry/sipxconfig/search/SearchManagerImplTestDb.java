@@ -1,10 +1,10 @@
 /*
- * 
- * 
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  * $
  */
 package org.sipfoundry.sipxconfig.search;
@@ -68,7 +68,7 @@ public class SearchManagerImplTestDb extends TestCase {
 
         collection = m_searchManager.search("e3e367*", m_identityToBean);
         assertEquals(0, collection.size());
-        
+
 
         user.setUserName("kuku");
         // when changing username, must change PIN too
