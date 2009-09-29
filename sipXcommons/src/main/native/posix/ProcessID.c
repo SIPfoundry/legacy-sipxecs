@@ -19,10 +19,10 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
 
 /*
  * Class:     org_sipfoundry_commons_util_ProcessID
- * Method:    get
+ * Method:    getPid
  * Signature: ()I
  */
-JNIEXPORT jint JNICALL Java_org_sipfoundry_commons_util_ProcessID_get(JNIEnv *env, jclass class)
+JNIEXPORT jint JNICALL Java_org_sipfoundry_commons_util_ProcessID_getPid(JNIEnv *env, jclass class)
 {
     int pid = getpid();
 

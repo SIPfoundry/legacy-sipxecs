@@ -21,10 +21,10 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved)
 
 /*
  * Class:     org_sipfoundry_commons_util_Hostname
- * Method:    get
+ * Method:    getHostname
  * Signature: ()Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_org_sipfoundry_commons_util_Hostname_get(JNIEnv *env, jclass class)
+JNIEXPORT jstring JNICALL Java_org_sipfoundry_commons_util_Hostname_getHostname(JNIEnv *env, jclass class)
 {
     char name[255];
     size_t namelen = 255;
