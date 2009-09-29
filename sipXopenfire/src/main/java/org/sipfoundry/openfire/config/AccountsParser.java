@@ -204,6 +204,7 @@ public class AccountsParser {
         currentTag = chatRoomTag;
         addCallMethod("subdomain", "setSubdomain");
         addCallMethod("conference-extension", "setConferenceExtension");
+        addCallMethod("conference-reach-info", "setConferenceReachabilityInfo");
         addCallMethod("room-name", "setRoomName");
         addCallMethod("description", "setDescription");
         addCallMethod("password", "setPassword");

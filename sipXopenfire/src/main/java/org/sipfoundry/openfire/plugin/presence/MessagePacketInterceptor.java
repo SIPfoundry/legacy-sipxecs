@@ -279,13 +279,13 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                 }
                                 else{
                                     // Not an owner; send back a message saying that command is not allowed
-                                    log.debug(commandRequesterSipId + "is not the onwer of MUC room " + subdomain + ":" + roomName);
+                                    log.debug(commandRequesterSipId + "is not the owner of MUC room " + subdomain + ":" + roomName);
                                     JID from = message.getFrom();
                                     JID to   = message.getTo();
                                     message.setTo(from);
                                     message.setFrom(to);
                                     message.setBody("NOT ALLOWED: Only the owners of the " + roomName + " chatroom are allowed to perform this operation");
-                                    throw new PacketRejectedException(commandRequesterSipId + " is not the onwer of MUC room " + subdomain + ":" + roomName);
+                                    throw new PacketRejectedException(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
                                 }
                             }
                             log.debug("MUC room " + subdomain + ":" + roomName + " does not have an associated conference");

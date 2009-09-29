@@ -6,6 +6,7 @@ public class XmppChatRoom {
     private String description; 
     private String password;
     private String conferenceExtension;
+    private String conferenceReachabilityInfo;
     private String owner;
     private boolean logRoomConversations;
     private boolean isPublicRoom = true;
@@ -78,6 +79,14 @@ public class XmppChatRoom {
      */
     public String getConferenceExtension() {
         return conferenceExtension;
+    }
+    
+    public String getConferenceReachabilityInfo() {
+        return conferenceReachabilityInfo;
+    }
+    
+    public void setConferenceReachabilityInfo( String conferenceReachabilityInfo ) {
+        this.conferenceReachabilityInfo = conferenceReachabilityInfo;
     }
 
     public String getOwner() {

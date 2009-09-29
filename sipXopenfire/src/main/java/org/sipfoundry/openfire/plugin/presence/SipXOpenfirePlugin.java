@@ -94,6 +94,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         private String extension;
         private String name;
         private String pin;
+        private String reachabilityInfo;
 
         public String getExtension() {
             return extension;
@@ -119,10 +120,19 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             this.name = name;
         }
 
-        public ConferenceInformation(String name, String extension, String pin) {
+        public ConferenceInformation(String name, String extension, String pin, String reachabilityInfo) {
             this.name = name;
             this.extension = extension;
             this.pin = pin;
+            this.reachabilityInfo = reachabilityInfo;
+        }
+
+        public String getReachabilityInfo() {
+            return reachabilityInfo;
+        }
+
+        public void setReachabilityInfo( String reachabilityInfo ) {
+            this.reachabilityInfo = reachabilityInfo;
         }
     }
 
@@ -654,7 +664,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean makeRoomModerated, boolean makeRoomMembersOnly,
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
-            String description, String conferenceExtension)
+            String description, String conferenceExtension, String conferenceReachabilityInfo)
             throws Exception {
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(subdomain);
@@ -756,7 +766,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName,
-                new ConferenceInformation(roomName, conferenceExtension, password));
+                new ConferenceInformation(roomName, conferenceExtension, password, conferenceReachabilityInfo));
 
     }
 

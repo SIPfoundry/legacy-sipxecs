@@ -97,7 +97,7 @@ public class XmppAccountInfo {
                 .isMembersOnly(), allowInvite, xmppChatRoom.isPublicRoom(), xmppChatRoom
                 .isLogRoomConversations(), xmppChatRoom.isPersistent(), xmppChatRoom
                 .getPassword(), xmppChatRoom.getDescription(), xmppChatRoom
-                .getConferenceExtension());
+                .getConferenceExtension(), xmppChatRoom.getConferenceReachabilityInfo());
         this.chatRooms.put(xmppChatRoom.getSubdomain() + ":" + xmppChatRoom.getRoomName(),
                 xmppChatRoom);
 
