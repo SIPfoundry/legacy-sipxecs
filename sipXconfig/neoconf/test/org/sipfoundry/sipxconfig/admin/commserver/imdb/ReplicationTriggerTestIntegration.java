@@ -9,13 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+
 import static org.easymock.EasyMock.createStrictMock;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -26,6 +32,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private SipxReplicationContext m_originalSipxReplicationContext;
     private SettingDao m_dao;
     private CoreContext m_coreContext;
+    private BranchManager m_branchManager;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -41,6 +48,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_originalSipxReplicationContext = sipxReplicationContext;
+    }
+
+    public void setBranchManager(BranchManager branchManager) {
+        m_branchManager = branchManager;
     }
 
     @Override
@@ -125,6 +136,39 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
         m_trigger.setReplicateOnStartup(false);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
+
+        verify(replicationContext);
+    }
+
+    /**
+     * Tests that replication is triggered when branch with users deleted
+     */
+    public void testDeleteBranchWithUser() throws Exception {
+        loadDataSet("branch/attached_branches.db.xml");
+
+        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        replicationContext.generate(DataSet.USER_LOCATION);
+        replay(replicationContext);
+        m_trigger.setReplicationContext(replicationContext);
+
+        Collection<Integer> allSelected = new ArrayList<Integer>();
+        allSelected.add(1000);
+        m_branchManager.deleteBranches(allSelected);
+
+        verify(replicationContext);
+    }
+
+    /**
+     * Tests that no replication when branch without users is deleted
+     */
+    public void testDeleteBranchesWithoutUser() throws Exception {
+        loadDataSet("branch/branches.db.xml");
+
+        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        replay(replicationContext);
+        m_trigger.setReplicationContext(replicationContext);
+
+        m_branchManager.deleteBranches(Arrays.asList(1, 2, 3, 4, 5));
 
         verify(replicationContext);
     }

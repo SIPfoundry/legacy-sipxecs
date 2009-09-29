@@ -5,13 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.branch.BranchesWithUsersDeletedEvent;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -57,6 +58,8 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
             m_replicationContext.generateAll();
+        } else if (event instanceof BranchesWithUsersDeletedEvent) {
+            m_replicationContext.generate(DataSet.USER_LOCATION);
         }
     }
 

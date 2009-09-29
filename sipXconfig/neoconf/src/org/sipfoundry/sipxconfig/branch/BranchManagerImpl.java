@@ -9,8 +9,12 @@
 
 package org.sipfoundry.sipxconfig.branch;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.singletonList;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -20,10 +24,15 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
-public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager {
+public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager,
+        ApplicationContextAware {
 
     private static final String BRANCH = "branch";
 
@@ -31,9 +40,23 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
 
     private AliasManager m_aliasManager;
 
+    private ApplicationContext m_applicationContext;
+
+    private SettingDao m_settingDao;
+
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
+    }
+
+    @Required
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 
     @Override
@@ -55,12 +78,37 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         getHibernateTemplate().saveOrUpdate(branch);
     }
 
+    /**
+     * deletes the given branch and publishes event to trigger user location replication if branch
+     * contains users (event contains branch name)
+     */
     public void deleteBranch(Branch branch) {
-        getHibernateTemplate().delete(branch);
+        deleteBranches(singletonList(branch.getId()));
     }
 
+    /**
+     * deletes the given branches and publishes a single event to trigger user location
+     * replication if any branch contains users (event contains names for branches with users)
+     */
     public void deleteBranches(Collection<Integer> branchIds) {
-        removeAll(Branch.class, branchIds);
+        Map<Integer, Long> branchMemberCount = m_settingDao.getBranchMemberCountIndexedByBranchId(User.class);
+        List<Integer> branchWithUsersIds = new ArrayList<Integer>();
+
+        Collection<Branch> branches = new ArrayList<Branch>(branchIds.size());
+        for (Integer id : branchIds) {
+            Branch branch = getBranch(id);
+            branches.add(branch);
+            Long memberCount = branchMemberCount.get(id);
+            if (memberCount != null && memberCount > 0) {
+                branchWithUsersIds.add(branch.getId());
+            }
+        }
+
+        getHibernateTemplate().deleteAll(branches);
+
+        if (branchWithUsersIds.size() > 0) {
+            m_applicationContext.publishEvent(new BranchesWithUsersDeletedEvent(branchWithUsersIds));
+        }
     }
 
     public List<Branch> getBranches() {
@@ -88,4 +136,5 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
     public void clear() {
         removeAll(Branch.class);
     }
+
 }
