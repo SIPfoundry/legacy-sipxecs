@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.site.user_portal.ExtendedUserInfo;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 import org.sipfoundry.sipxconfig.site.user_portal.UserSchedules;
 import org.sipfoundry.sipxconfig.site.vm.MailboxPreferencesPage;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public abstract class UserNavigation extends BeanNavigation {
 
@@ -68,6 +69,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = MailboxPreferencesPage.PAGE)
     public abstract MailboxPreferencesPage getMailboxPreferencesPage();
+
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
 
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
@@ -218,8 +222,8 @@ public abstract class UserNavigation extends BeanNavigation {
      * - group 2
      * </code>
      *
-     * Additionally, the personal-attendant group is hidden as this tab is implemented
-     * as its own page
+     * Additionally, the personal-attendant group is hidden as this tab is implemented as its own
+     * page
      */
     public static Collection<Setting> getUserNavigationGroups(Setting settings) {
         Collection<Setting> result = new ArrayList<Setting>();

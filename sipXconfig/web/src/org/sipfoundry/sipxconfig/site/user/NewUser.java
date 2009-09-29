@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
@@ -17,6 +17,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -24,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -35,23 +38,25 @@ import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/NewUser";
-    private static final int SIP_PASSWORD_LEN = 8;
-    private static final String CONFERENCE_SETTING_PATH = "conference" + Setting.PATH_DELIM;
 
     private static final Log LOG = LogFactory.getLog(NewUser.class);
+    private static final int SIP_PASSWORD_LEN = 8;
 
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @InjectObject("spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
+    @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
 
     public abstract User getUser();
@@ -62,9 +67,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
     public abstract String getButtonPressed();
 
-    public abstract MailboxManager getMailboxManager();
-
-    public IPage onCommit(IRequestCycle cycle) {
+    public IPage commit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
@@ -78,14 +81,6 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         Group conferenceGroup = getConferenceGroup(user);
         if (conferenceGroup != null) {
             createUserConference(user, conferenceGroup);
-        }
-
-        MailboxManager mmgr = getMailboxManager();
-        if (mmgr.isEnabled()) {
-            String userName = user.getUserName();
-            mmgr.deleteMailbox(userName);
-            Mailbox mailbox = mmgr.getMailbox(userName);
-            mmgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
         }
 
         // On saving the user, transfer control to edituser page.
@@ -105,13 +100,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
      * @param conferenceGroup The group containing conference settings to use.
      */
     private void createUserConference(User user, Group conferenceGroup) {
-        SettingValue bridgeIdValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
-                + "bridgeId"));
+        SettingValue bridgeIdValue = conferenceGroup.getSettingValue(new SettingImpl("conference/bridgeId"));
         Integer bridgeId = Integer.parseInt(bridgeIdValue.getValue());
-
-        SettingValue conferencePrefixValue = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
-                + "prefix"));
-
+        SettingValue conferencePrefixValue = conferenceGroup.getSettingValue(new SettingImpl("conference/prefix"));
         ConferenceBridgeContext bridgeContext = getConferenceBridgeContext();
 
         Bridge bridge = null;
@@ -160,8 +151,8 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         Group conferenceGroup = null;
         while (!userGroups.isEmpty() && conferenceGroup == null) {
             Group highestGroup = Group.selectGroupWithHighestWeight(userGroups);
-            SettingValue groupValue = highestGroup.getSettingValue(new SettingImpl(CONFERENCE_SETTING_PATH
-                    + "enabled"));
+            SettingValue groupValue = highestGroup.getSettingValue(new SettingImpl(
+                    ("conference" + Setting.PATH_DELIM) + "enabled"));
             if (groupValue != null && Boolean.valueOf(groupValue.getValue())) {
                 conferenceGroup = highestGroup;
             } else {
@@ -175,10 +166,6 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
 
         return conferenceGroup;
-    }
-
-    private MailboxPreferences getMailboxPreferences() {
-        return (MailboxPreferences) getBeans().getBean("mailboxPreferences");
     }
 
     public IPage extensionPools(IRequestCycle cycle) {
@@ -206,16 +193,6 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
                 // otherwise keep form values as is theory that creating users in bulk will want
                 // all the same settings by default
                 setUser(null);
-
-                MailboxPreferences mailboxPrefs = getMailboxPreferences();
-                // Clear the email addresses
-                mailboxPrefs.setEmailAddress(null); // XCF-1523
-                mailboxPrefs.setAlternateEmailAddress(null);
-
-                // Reset (clear) the voicemail checkboxes
-                mailboxPrefs.setAttachVoicemailToEmail(false);
-                mailboxPrefs.setAttachVoicemailToAlternateEmail(false);
-
                 cycle.activate(PAGE);
             } else if (m_delegate != null) {
                 m_delegate.performCallback(cycle);

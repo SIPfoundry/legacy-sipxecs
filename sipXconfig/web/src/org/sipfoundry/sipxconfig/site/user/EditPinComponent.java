@@ -22,9 +22,9 @@ public interface EditPinComponent {
     // we shouldn't show it.
     // Pick an obscure PIN to avoid colliding with real user PINs.  (I tried using a
     // non-printable PIN "\1\1\1\1\1\1\1\1" but Tapestry silently discards the string!)
-    public static final String DUMMY_PIN = "`p1n6P0\361g";
+    String DUMMY_PIN = "`p1n6P0\361g";
 
-    public void setPin(String pin);
+    void setPin(String pin);
 
-    public String getPin();
+    String getPin();
 }

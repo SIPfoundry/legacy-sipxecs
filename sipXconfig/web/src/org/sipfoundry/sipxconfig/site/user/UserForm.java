@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
@@ -19,10 +19,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEndRenderListener;
-import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -30,10 +27,9 @@ import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
-public abstract class UserForm extends BaseComponent implements PageBeginRenderListener, PageEndRenderListener,
-        EditPinComponent {
+@ComponentClass(allowBody = false, allowInformalParameters = false)
+public abstract class UserForm extends BaseComponent implements EditPinComponent {
     public abstract CoreContext getCoreContext();
 
     public abstract SettingDao getSettingDao();
@@ -55,9 +51,6 @@ public abstract class UserForm extends BaseComponent implements PageBeginRenderL
     public abstract String getGroupsString();
 
     public abstract void setGroupsString(String groups);
-
-    @Parameter(required = true)
-    public abstract MailboxPreferences getMailboxPreferences();
 
     // Update the User object if input data is valid
     @Override
@@ -187,9 +180,5 @@ public abstract class UserForm extends BaseComponent implements PageBeginRenderL
         });
 
         delegate.record(message, ValidationConstraint.CONSISTENCY);
-    }
-
-    public void pageBeginRender(PageEvent event_) {
-        getMailboxPreferences().setUser(getUser());
     }
 }

@@ -5,10 +5,11 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.PageCallback;
@@ -17,6 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -28,20 +30,20 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/EditUser";
-    private static final String HOST_SETTING = "unified-messaging/host";
-    private static final String PORT_SETTING = "unified-messaging/port";
-    private static final String TLS_SETTING = "unified-messaging/tls";
 
-    @InjectObject(value = "spring:speedDialManager")
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @InjectObject("spring:speedDialManager")
     public abstract SpeedDialManager getSpeedDialManager();
 
-    @InjectObject(value = "spring:coreContext")
+    @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    @InjectObject(value = "spring:settingDao")
+    @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
 
-    @InjectObject(value = "spring:mailboxManager")
+    @InjectObject("spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
 
     @Persist
@@ -52,10 +54,6 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public abstract User getUser();
 
     public abstract void setUser(User user);
-
-    public abstract MailboxPreferences getMailboxPreferences();
-
-    public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
     public void commit() {
         if (!TapestryUtils.isValid(this)) {
@@ -71,12 +69,12 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
                 mmgr.deleteMailbox(user.getUserName());
             }
 
-            MailboxPreferences preferences = getMailboxPreferences();
-            preferences.setEmailServerHost(user.getSettingValue(HOST_SETTING));
-            preferences.setEmailServerPort(user.getSettingValue(PORT_SETTING));
-            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue(TLS_SETTING));
-
             Mailbox mailbox = mmgr.getMailbox(user.getUserName());
+            MailboxPreferences preferences = mmgr.loadMailboxPreferences(mailbox);
+            preferences.setEmailServerHost(user.getSettingValue("unified-messaging/host"));
+            preferences.setEmailServerPort(user.getSettingValue("unified-messaging/port"));
+            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue("unified-messaging/tls"));
+
             mmgr.saveMailboxPreferences(mailbox, preferences);
         }
 
@@ -91,14 +89,6 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
         if (user == null) {
             user = getCoreContext().loadUser(getUserId());
             setUser(user);
-        }
-
-        MailboxPreferences preferences = getMailboxPreferences();
-        MailboxManager mmgr = getMailboxManager();
-        if (preferences == null && mmgr.isEnabled()) {
-            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
-            preferences = mmgr.loadMailboxPreferences(mailbox);
-            setMailboxPreferences(preferences);
         }
 
         // If no callback has been given, then navigate back to Manage Users on OK/Cancel
