@@ -5,13 +5,13 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -44,7 +44,7 @@ public class Bridge extends BeanWithSettings {
 
     private boolean m_enabled;
 
-    private Set<Conference> m_conferences = new HashSet<Conference>();
+    private Set<Conference> m_conferences = new LinkedHashSet<Conference>();
 
     private String m_audioDirectory;
 
