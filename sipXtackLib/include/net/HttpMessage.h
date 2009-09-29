@@ -288,7 +288,7 @@ public:
     int read(OsSocket* inSocket,
              ssize_t bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
              UtlString* externalBuffer = NULL,
-             int maxContentLength = 12000000);
+             int maxContentLength = 24000000);
 
     //! Will read bytes off the socket until the header of the message is
     //! believed received.
