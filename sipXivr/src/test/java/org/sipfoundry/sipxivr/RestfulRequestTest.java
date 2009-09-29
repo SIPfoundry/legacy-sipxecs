@@ -55,7 +55,7 @@ public class RestfulRequestTest extends TestCase {
         
         RestfulRequest rr = new RestfulRequest("http://localhost:12345/woof/dog");
         try {
-            boolean okay = rr.post("put");
+            boolean okay = rr.put("put");
             assertTrue("response not okay", okay);
         } catch (Exception e) {
             fail("Exception "+e);
