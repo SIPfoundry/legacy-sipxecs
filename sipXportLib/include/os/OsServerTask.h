@@ -90,6 +90,7 @@ public:
    /// Posts a message to this task.
    virtual OsStatus postMessage(const OsMsg& rMsg,
                                 ///< rMsg is usually copied before being used.
+                                //   Caller retains ownership of rMsg.
                                 const OsTime& rTimeout=OsTime::OS_INFINITY,
                                 UtlBoolean sentFromISR=FALSE);
    ///< Return the result of the message send operation.
