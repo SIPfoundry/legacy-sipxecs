@@ -212,56 +212,13 @@ public class Cdr {
 
     public String getCallTypeName() {
         String callType = CallTag.UNK.getName();
-        if (m_calleeRoute.endsWith(CallTag.AA.toString())) {
-            callType = CallTag.AA.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.CUST.toString())) {
-            callType = CallTag.CUST.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.EMERG.toString())) {
-            callType = CallTag.EMERG.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.INTN.toString())) {
-            callType = CallTag.INTN.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.LD.toString())) {
-            callType = CallTag.LD.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.LOCL.toString())) {
-            callType = CallTag.LOCL.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.MOH.toString())) {
-            callType = CallTag.MOH.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.PAGE.toString())) {
-            callType = CallTag.PAGE.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.RL.toString())) {
-            callType = CallTag.RL.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.REST.toString())) {
-            callType = CallTag.REST.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.STS.toString())) {
-            callType = CallTag.STS.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.MOB.toString())) {
-            callType = CallTag.MOB.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.TF.toString())) {
-            callType = CallTag.TF.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.VM.toString())) {
-            callType = CallTag.VM.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.VMR.toString())) {
-            callType = CallTag.VMR.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.AL.toString())) {
-            callType = CallTag.AL.getName();
-        }
-        if (m_calleeRoute.endsWith(CallTag.INT.toString())) {
-            callType = CallTag.INT.getName();
+        if ((m_calleeRoute != null)
+            && (m_calleeRoute != "")) {
+            String[] callRoutes = m_calleeRoute.split(",");
+            if (callRoutes.length > 0) {
+                CallTag calltag = CallTag.valueOf(callRoutes[callRoutes.length - 1]);
+                callType = calltag.getName();
+            }
         }
         return callType;
     }

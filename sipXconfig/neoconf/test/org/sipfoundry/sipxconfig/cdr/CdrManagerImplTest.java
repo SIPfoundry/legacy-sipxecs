@@ -33,6 +33,7 @@ import org.easymock.IArgumentMatcher;
 import org.easymock.internal.matchers.InstanceOf;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.CdrsResultReader;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfo;
@@ -178,6 +179,7 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         assertEquals(Termination.IN_PROGRESS, cdr.getTermination());
         assertEquals(true, cdr.getCallerInternal());
         assertEquals("AL,LD", cdr.getCalleeRoute());
+        assertEquals(CallTag.LD.getName(), cdr.getCallTypeName());
 
         verify(rs);
     }
