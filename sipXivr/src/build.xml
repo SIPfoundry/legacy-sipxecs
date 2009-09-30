@@ -20,6 +20,8 @@
     <pathelement location="${javax.servlet.jar}"/>
     <pathelement location="${jetty.jar}"/>
     <pathelement location="${javamail.jar}"/>
+    <pathelement location="${sipxopenfireplugin.jar}"/>
+    <pathelement location="${xmlrpc-common.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

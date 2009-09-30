@@ -82,7 +82,7 @@ sipXpage : sipXcommons
 	@echo sipXpage
 
 .PHONY: sipXivr
-sipXivr : sipXcommons
+sipXivr : sipXcommons sipXopenfire
 	@echo sipXivr
 
 .PHONY: sipXsaa

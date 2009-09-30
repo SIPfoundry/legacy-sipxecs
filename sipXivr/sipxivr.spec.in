@@ -15,6 +15,7 @@ Obsoletes: sipxvxml
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
+Requires: sipxopenfire >= %version
 
 %if %{use_ibm_jvm}
 Requires: java-ibm >= 1.6

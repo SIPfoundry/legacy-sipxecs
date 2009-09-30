@@ -53,7 +53,7 @@ public abstract class OpenfireXmlRpcClient {
         config.setEnabledForExceptions(true);
         config.setEnabledForExtensions(true);
         String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port+"/plugins/sipx-openfire/" + service;
-        System.out.println("URL = " + url);
+        // System.out.println("URL = " + url);
         config.setServerURL(new URL(url));     
         this.client.setConfig(config);
         this.server = server;

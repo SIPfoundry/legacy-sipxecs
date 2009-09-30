@@ -39,7 +39,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private String m_mwiUrl; // The url of the Status Server we send MWI requests to
     private String m_configUrl; // The url of the Config Server for PIN change requests
     private int m_httpsPort; // The port on which we listen for HTTPS services
-
+    private String m_3pccSecureUrl; // The url of the third party call controller via HTTPS
+    private String m_openfireHost; // The host name where the Openfire service runs
+    private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
+    
     private static IvrConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
@@ -133,6 +136,16 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_mwiUrl = props.getProperty(prop = "ivr.mwiUrl");
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
             m_configUrl = props.getProperty(prop = "ivr.configUrl");
+            
+            // Make up the 3pcc REST server URL for now until it is provided by sipxconfig
+            // For now assume that the REST service resides on the same system as this service
+            m_3pccSecureUrl = "https://" + m_sipxchangeDomainName + ":6666" + "/callcontroller/";
+            
+            // Make up the Openfire server hostname and port numbers for now until
+            // it is provided by sipxconfig. Assume that the openfire service
+            // resides on the same system as this service
+            m_openfireHost = m_sipxchangeDomainName;
+            m_openfireXmlRpcPort = 9094;
         } catch (Exception e) {
             System.err.println("Problem understanding property " + prop);
             e.printStackTrace(System.err);
@@ -214,6 +227,30 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     
     public void setHttpsPort(int httpsPort) {
         m_httpsPort = httpsPort;
+    }
+
+    public String get3pccSecureUrl() {
+        return m_3pccSecureUrl;
+    }
+    
+    public void set3pccSecureUrl(String url) {
+    	m_3pccSecureUrl = url;
+    }
+
+    public String getOpenfireHost() {
+        return m_openfireHost;
+    }
+    
+    public void setOpenfireHost(String host) {
+    	m_openfireHost = host;
+    }
+
+    public int getOpenfireXmlRpcPort() {
+        return m_openfireXmlRpcPort;
+    }
+    
+    public void setOpenfireXmlRpcPort(int port) {
+        m_openfireXmlRpcPort = port;
     }
 
 	@Override

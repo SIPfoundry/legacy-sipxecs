@@ -33,7 +33,7 @@ public class DialogContext {
     private String key;
     private StringBuffer status = new StringBuffer();
     private HashSet<Dialog> dialogs = new HashSet<Dialog>();
-    public static String HEADER = "<?xml version=\"1.0\" ?>" + "\n<status-lines "
+    public static String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n<status-lines "
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">";
     public static String FOOTER = "\n</status-lines>\n";
     

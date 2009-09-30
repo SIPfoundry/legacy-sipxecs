@@ -91,6 +91,7 @@
 	<target name="install" depends="all,makedirs">
 		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${sipxopenfire.dir}/conf" />
 		<copy file="${root}/dist/sipx-openfire.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
+                <copy file="${root}/dist/sipx-openfire-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
                 <chmod file="${dest.dir}${sipxpbx.libexec.dir}/setup.d/sipxopenfire-setup.sh" perm="ugo+rx" />
