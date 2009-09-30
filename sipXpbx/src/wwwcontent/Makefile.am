@@ -525,6 +525,7 @@ wwwcontent = \
         stdprompts/conf/authfailed.wav \
         stdprompts/conf/ByeBye.wav \
         stdprompts/conf/confid.wav \
+        stdprompts/conf/ExitTone.wav \
         stdprompts/conf/JoinTone.wav \
         stdprompts/conf/lockingConference.wav \
         stdprompts/conf/mutingYourself.wav \
