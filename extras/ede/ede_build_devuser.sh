@@ -473,7 +473,7 @@ else
    ACTUAL_BUILD_DIR=$WORKING_DIR/$BUILD
    mkdir -p $ACTUAL_BUILD_DIR
    pushd $ACTUAL_BUILD_DIR > /dev/null
-   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr"
+   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_OPTIMIZED=off JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr"
    ${CONFIGURE_COMMAND} &> $FULL_PATH_EDE_LOGS/designer_configure_output.log
    config_result=$?
    cp config.log $FULL_PATH_EDE_LOGS
@@ -582,7 +582,7 @@ sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/fr
 
 # Eclipse readiness.
 mkdir -p $FULL_PATH_ECLIPSE_WORKSPACE
-echo alias \'ede-eclipse=eclipse -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib -data $FULL_PATH_ECLIPSE_WORKSPACE \&\' >> env
+echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> env
 echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> env
 echo SIPX_MYBUILD_OUT=\"`pwd`/$BUILD\" >> env
 ECLIPSE_WINDOW_PREFS_FILE=eclipse-windowprefs.txt
@@ -595,7 +595,7 @@ echo "These values must be manually entered into Eclipse under" >> $ECLIPSE_WIND
 echo "   Window->Preferences->Java->Build Path->Classpath Variables" >> $ECLIPSE_WINDOW_PREFS_FILE
 echo JAVA_LIBDIR /usr/share/java >> $ECLIPSE_WINDOW_PREFS_FILE
 echo OPENFIRE-ROOT $WORKING_DIR/BUILD/sipXopenfire >> $ECLIPSE_WINDOW_PREFS_FILE
-echo SIPX_BUILD $WORKING_DIR/BUILD >> $ECLIPSE_WINDOW_PREFS_FILE
+echo SIPX_BUILD $WORKING_DIR/BUILD/sipXconfig >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_COMMONS $WORKING_DIR/$CODE/sipXcommons >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_CONFIG $WORKING_DIR/$CODE/sipXconfig >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_PREFIX $WORKING_DIR/$INSTALL >> $ECLIPSE_WINDOW_PREFS_FILE
@@ -605,7 +605,7 @@ echo "Running sipXconfig-specific Eclipse setup..."
 rm -rf $CODE/BUILD1 
 ln -s $WORKING_DIR/BUILD $CODE/BUILD1
 if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
-   echo "Skipping sipXconfig Eclipse 'ant default'..."
+   echo "Skipping sipXconfig Eclipse setup..."
 else
    pushd $CODE/sipXconfig > /dev/null
    echo "   ant default..."
@@ -615,6 +615,9 @@ else
       exit 18
    fi
    popd > /dev/null
+   echo 'SIPXCONFIG_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=4241"' \
+      > $ETC_AND_VAR_PATH/etc/sipxpbx/sipxconfigrc
+
 fi
 
 # Non-interactive section complete.
