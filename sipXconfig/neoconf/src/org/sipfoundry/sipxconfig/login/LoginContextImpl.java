@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.acegisecurity.event.authentication.AbstractAuthenticationEvent;
+import org.acegisecurity.event.authentication.AbstractAuthenticationFailureEvent;
 import org.acegisecurity.event.authentication.InteractiveAuthenticationSuccessEvent;
 import org.acegisecurity.ui.WebAuthenticationDetails;
 import org.apache.commons.io.IOUtils;
@@ -137,7 +138,8 @@ public class LoginContextImpl implements LoginContext, ApplicationListener {
      * Log WEB authentication attempts
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        if (!(event instanceof AbstractAuthenticationEvent)) {
+        if (!(event instanceof InteractiveAuthenticationSuccessEvent)
+                && !(event instanceof AbstractAuthenticationFailureEvent)) {
             return;
         }
 
