@@ -174,14 +174,11 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             if (bridge == null) {
                 bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
             }
-
-            bridge.addConference(conference);
-            getConferenceBridgeContext().store(bridge);
-            Integer id = conference.getId();
-            setConferenceId(id);
-        } else {
-            getConferenceBridgeContext().store(conference);
+            conference.setBridge(bridge);
         }
+        getConferenceBridgeContext().store(conference);
+        Integer id = conference.getId();
+        setConferenceId(id);
     }
 
     public void formSubmit() {
