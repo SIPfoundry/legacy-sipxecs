@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.JUnit4TestAdapter;
-
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +34,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -45,7 +45,7 @@ public class CustomDialingRuleTest {
 
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(CustomDialingRuleTest.class);
-      }
+    }
 
     private static final int PATTERN_COUNT = 10;
     private static final String[] GATEWAYS = {
@@ -159,6 +159,7 @@ public class CustomDialingRuleTest {
     @Test
     public void testGetRouteHeader() {
         Gateway g = new Gateway() {
+            @Override
             public String getRoute() {
                 return "bongo.example.org";
             }
@@ -290,5 +291,11 @@ public class CustomDialingRuleTest {
         assertEquals(names.length, perms.size());
         assertTrue(perms.contains(permissions[0]));
         assertTrue(perms.contains(permissions[1]));
+    }
+
+    @Test
+    public void testGetCallTag() {
+        CustomDialingRule rule = new CustomDialingRule();
+        assertSame(CallTag.CUST, rule.getCallTag());
     }
 }

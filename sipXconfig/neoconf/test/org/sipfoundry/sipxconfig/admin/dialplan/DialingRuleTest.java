@@ -5,13 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -19,13 +20,12 @@ import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
-/**
- * DialingRuleTest
- */
 public class DialingRuleTest extends TestCase {
     public void testDetach() throws Exception {
         CustomDialingRule orgRule = new CustomDialingRule();
@@ -186,5 +186,66 @@ public class DialingRuleTest extends TestCase {
         assertEquals(2, siteTransforms.get("Lisbon").size());
         // shared, lisbon
         assertEquals(2, siteTransforms.get("").size());
+    }
+
+    public void testGetCallType() {
+        DummyDialingRule rule = new DummyDialingRule();
+
+        assertNull(rule.getCallTag());
+
+        rule.setPermissionNames("LongDistanceDialing");
+        assertSame(CallTag.LD, rule.getCallTag());
+
+        rule.setType(DialingRuleType.ATTENDANT);
+        assertSame(CallTag.AA, rule.getCallTag());
+    }
+
+    private static final class DummyDialingRule extends DialingRule {
+        private DialingRuleType m_type;
+        private List<String> m_permissionNames = Collections.emptyList();
+
+        public DummyDialingRule() {
+            PermissionManagerImpl impl = new PermissionManagerImpl();
+            impl.setModelFilesContext(TestHelper.getModelFilesContext());
+            setPermissionManager(impl);
+        }
+
+        public void setType(DialingRuleType type) {
+            m_type = type;
+        }
+
+        @Override
+        public List<String> getPermissionNames() {
+            return m_permissionNames;
+        }
+
+        public void setPermissionNames(String... permissionNames) {
+            m_permissionNames = Arrays.asList(permissionNames);
+        }
+
+        @Override
+        public DialingRuleType getType() {
+            return m_type;
+        }
+
+        @Override
+        public String[] getPatterns() {
+            return null;
+        }
+
+        @Override
+        public Transform[] getTransforms() {
+            return null;
+        }
+
+        @Override
+        public boolean isGatewayAware() {
+            return false;
+        }
+
+        @Override
+        public boolean isInternal() {
+            return false;
+        }
     }
 }

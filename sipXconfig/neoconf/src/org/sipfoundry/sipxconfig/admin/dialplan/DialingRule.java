@@ -266,21 +266,30 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
 
     @Override
     public CallTag getCallTag() {
-        CallTag callTag = getType().getCallTag();
-        if (callTag != null) {
-            return callTag;
+        // try to determine the call type based on the rule type
+        DialingRuleType type = getType();
+        if (type != null) {
+            CallTag callTag = type.getCallTag();
+            if (callTag != null) {
+                return callTag;
+            }
         }
-        List<String> permissionNames = getPermissionNames();
-        if (permissionNames == null) {
+        // try to check for permissions
+        List<Permission> permissions = getPermissions();
+        if (permissions == null) {
             return null;
         }
-        if (permissionNames.size() == 0) {
-            return null;
-        }
-        String permissionName = permissionNames.get(0);
-        for (PermissionName p : PermissionName.values()) {
-            if (p.getName().equals(permissionName)) {
-                return p.getCalltag();
+        for (Permission p : permissions) {
+            if (!p.isBuiltIn()) {
+                continue;
+            }
+            PermissionName permissionName = PermissionName.findByName(p.getName());
+            if (permissionName == null) {
+                continue;
+            }
+            CallTag callTag = permissionName.getCalltag();
+            if (callTag != null) {
+                return callTag;
             }
         }
         return null;

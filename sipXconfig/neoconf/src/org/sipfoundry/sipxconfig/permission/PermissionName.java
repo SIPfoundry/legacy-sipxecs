@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.permission;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
-
 import org.sipfoundry.sipxconfig.permission.Permission.Type;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -86,5 +85,14 @@ public enum PermissionName {
         String path = getPath();
         String value = enable ? Permission.ENABLE : Permission.DISABLE;
         g.setSettingValue(path, value);
+    }
+
+    public static PermissionName findByName(String name) {
+        for (PermissionName pm : PermissionName.values()) {
+            if (pm.getName().equals(name)) {
+                return pm;
+            }
+        }
+        return null;
     }
 }
