@@ -73,7 +73,6 @@ public class XmppAccountInfoTest extends TestCase {
         userThree.setSettingTypedValue("im/advertise-sip-presence", true);
         userThree.setSettingTypedValue("im/include-call-info", false);
         userThree.setUserName("Three");
-        userThree.setImId("Three_IM");
 
         m_users = new ArrayList<User>();
         m_users.addAll(Arrays.asList(m_userOne, m_userTwo, userThree));
@@ -106,31 +105,19 @@ public class XmppAccountInfoTest extends TestCase {
 
         // the following group won't be replicated
         m_group3 = new Group();
-        m_groups = new ArrayList<Group>();
-        m_groups.add(m_group1);
-        m_groups.add(m_group2);
-        m_groups.add(m_group3);
+        m_groups = Arrays.asList(m_group1, m_group2, m_group3);
 
-        m_conferences = new ArrayList<Conference>();
-
-        Conference conf1 = new Conference() {
+        Bridge mockBridge = new Bridge() {
             @Override
-            public Bridge getBridge() {
-                Bridge mockBridge = new Bridge() {
-                    @Override
-                    public String getHost() {
-                        return "servicename.domain.com";
-                    }
-                };
-                return mockBridge;
-            }
-
-            @Override
-            public String getParticipantAccessCode() {
-                return "123";
+            public String getHost() {
+                return "servicename.domain.com";
             }
         };
+
+        Conference conf1 = new Conference();
         conf1.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        conf1.setBridge(mockBridge);
+        conf1.setSettingTypedValue("fs-conf-conference/participant-code", "123");
         conf1.setEnabled(true);
         conf1.setName("conf1");
         conf1.setDescription("Description");
@@ -138,10 +125,22 @@ public class XmppAccountInfoTest extends TestCase {
         conf1.setSettingTypedValue("chat-meeting/moderated", true);
         conf1.setSettingTypedValue("chat-meeting/log-conversations", false);
         conf1.setOwner(m_userOne);
-        m_conferences.add(conf1);
 
         Conference conf2 = new Conference();
-        m_conferences.add(conf2);
+
+        Conference conf3 = new Conference();
+        conf3.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        conf3.setBridge(mockBridge);
+        conf3.setEnabled(true);
+        conf3.setName("conf3");
+        conf3.setDescription("Description 3");
+        conf3.setExtension("300");
+        conf3.setSettingTypedValue("chat-meeting/moderated", false);
+        conf3.setSettingTypedValue("chat-meeting/log-conversations", true);
+        conf3.setOwner(userThree);
+
+        m_conferences = Arrays.asList(conf1, conf2, conf3);
+
     }
 
     public void testGenerate() throws Exception {

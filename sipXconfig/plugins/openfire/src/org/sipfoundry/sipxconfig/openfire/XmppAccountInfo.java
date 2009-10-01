@@ -103,7 +103,7 @@ public class XmppAccountInfo extends XmlFile {
         String displayName = conference.getName();
 
         chatRoom.addElement("subdomain").setText(MUC_SUBDOMAIN);
-        chatRoom.addElement("room-owner").setText(owner.getImId());
+        chatRoom.addElement("room-owner").setText(imAccount.getImId());
         chatRoom.addElement("room-name").setText(displayName);
         chatRoom.addElement(DESCRIPTION).setText(defaultString(conference.getDescription()));
         chatRoom.addElement(PASSWORD).setText(defaultString(conference.getParticipantAccessCode()));
