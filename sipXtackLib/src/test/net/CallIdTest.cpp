@@ -37,11 +37,16 @@ public:
     void testCallId()
     {
 #define CASES 10
-// The test succeeds if at least 9 of the 16 digits differ between all
-// pairs of Call-Ids we generate.  If the generated Call-Ids are random, this
-// test will fail 0.00023% of the time for any one pair, or about 0.011%
-// of the time for one of the 45 pairs.
-#define MIN_CALLID_DIFFS 9
+#define MIN_CALLID_DIFFS 7
+#define CHARS_TO_COMPARE 10
+
+// The test succeeds if at least 7 of the initial 10 characters differ
+// between all pairs of Call-Ids we generate.  If the generated
+// Call-Ids are random, the initial 10 pseudo-random characters will
+// have at least 7 differences all but 0.00024% of the time.  Since
+// there are 45 pairs of Call-Ids to compare, this test will fail
+// about 0.00109% of the time for some pair.
+
        UtlString output[CASES];
 
        // Generate some call-Ids.
@@ -62,7 +67,7 @@ public:
              UtlString* s2 = &output[j];
 
              int differences = 0;
-             for (size_t k = 0; k < s1->length() && k < s1->length(); k++)
+             for (size_t k = 0; k < CHARS_TO_COMPARE; k++)
              {
                 if ((*s1)(k) != (*s2)(k))
                 {
