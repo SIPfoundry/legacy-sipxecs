@@ -664,7 +664,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean makeRoomModerated, boolean makeRoomMembersOnly,
             boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
             boolean logRoomConversations, boolean isPersistent, String password,
-            String description, String conferenceExtension, String conferenceReachabilityInfo)
+            String description, String conferenceExtension, String conferenceName, String conferenceReachabilityInfo)
             throws Exception {
         MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
                 .getMultiUserChatService(subdomain);
@@ -766,7 +766,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         /* The conference extension is the voice conf bridge extension */
         this.roomNameToConferenceInfoMap.put(subdomain + "." + roomName,
-                new ConferenceInformation(roomName, conferenceExtension, password, conferenceReachabilityInfo));
+                new ConferenceInformation(conferenceName, conferenceExtension, password, conferenceReachabilityInfo));
 
     }
 

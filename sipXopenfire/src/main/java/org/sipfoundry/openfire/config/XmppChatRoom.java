@@ -6,6 +6,7 @@ public class XmppChatRoom {
     private String description; 
     private String password;
     private String conferenceExtension;
+    private String conferenceName;
     private String conferenceReachabilityInfo;
     private String owner;
     private boolean logRoomConversations;
@@ -33,7 +34,8 @@ public class XmppChatRoom {
      * @param roomName the roomName to set
      */
     public void setRoomName(String roomName) {
-        this.roomName = roomName.toLowerCase();
+        setConferenceName(roomName);         // Conference Name needs to preserve capitalization for proper SIP routing
+        this.roomName = roomName.toLowerCase(); // MUC room needs to be lowercase to avoid confusing openfire
     }
     /**
      * @return the roomName
@@ -79,6 +81,20 @@ public class XmppChatRoom {
      */
     public String getConferenceExtension() {
         return conferenceExtension;
+    }
+    
+    /**
+     * @param conferenceName the conferenceName to set
+     */
+    public void setConferenceName(String conferenceName) {
+        this.conferenceName = conferenceName;
+    }
+
+    /**
+     * @return the conferenceName
+     */
+    public String getConferenceName() {
+        return conferenceName;
     }
     
     public String getConferenceReachabilityInfo() {
