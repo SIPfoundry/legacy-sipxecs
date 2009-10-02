@@ -21,6 +21,29 @@
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
+void extract_error(const char *fn,
+                   SQLHANDLE handle,
+                   SQLSMALLINT type)
+{
+   SQLINTEGER i = 0;
+   SQLINTEGER native;
+   SQLCHAR state[ 7 ];
+   SQLCHAR text[256];
+   SQLSMALLINT len;
+   SQLRETURN ret;
+
+   do
+   {
+      ret = SQLGetDiagRec(type, handle, ++i, state, &native, text, sizeof(text), &len );
+      if (SQL_SUCCEEDED(ret))
+      {
+         OsSysLog::add(FAC_ODBC, PRI_ERR,
+                       "  SQLGetDiagRec(%s):%s", fn, text);
+      }
+   }
+   while( ret == SQL_SUCCESS );
+}
+
 OdbcHandle odbcConnect(const char* dbname,
                        const char* servername,
                        const char* username,
@@ -54,6 +77,7 @@ OdbcHandle odbcConnect(const char* dbname,
             OsSysLog::add(FAC_ODBC, PRI_ERR,
                           "odbcConnect: Failed to allocate "
                           "connection handle");
+            extract_error("SQLSetEnvAttr", handle->mEnvironmentHandle, SQL_HANDLE_ENV);
             SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
             delete handle;
             handle = NULL;
@@ -111,6 +135,7 @@ OdbcHandle odbcConnect(const char* dbname,
                OsSysLog::add(FAC_ODBC, PRI_ERR,
                              "odbcConnect: Failed to connect %s, error code %d",
                              connectionString.data(), sqlRet);
+               extract_error("SQLDriverConnect", handle->mConnectionHandle, SQL_HANDLE_DBC);
 
                SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
                SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
@@ -127,6 +152,7 @@ OdbcHandle odbcConnect(const char* dbname,
                   OsSysLog::add(FAC_ODBC, PRI_ERR,
                                 "odbcConnect: Failed to allocate "
                                 "statement handle");
+                  extract_error("SQLAllocHandle", handle->mStatementHandle, SQL_HANDLE_STMT);
 
                   // Disconnect from database
                   SQLDisconnect(handle->mConnectionHandle);
@@ -173,6 +199,7 @@ bool odbcDisconnect(OdbcHandle &handle)
          OsSysLog::add(FAC_ODBC, PRI_ERR,
                        "odbcDisconnect - failed disconnecting from "
                        "database, error code %d", sqlRet);
+         extract_error("SQLDisconnect", handle->mConnectionHandle, SQL_HANDLE_DBC);
       }
       else
       {
@@ -214,6 +241,7 @@ bool odbcExecute(const OdbcHandle handle,
          OsSysLog::add(FAC_ODBC, PRI_ERR,
                        "odbcExecute: statement %s failed, error code %d",
                        sqlStatement, sqlRet);
+         extract_error("SQLExecDirect", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
@@ -246,6 +274,7 @@ int odbcResultColumns(const OdbcHandle handle)
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcResultColumns: SQLNumResultCols failed, "
                        "error code %d", sqlRet);
+         extract_error("SQLNumResultCols", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
@@ -277,6 +306,7 @@ bool odbcGetNextRow(const OdbcHandle handle)
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                        "odbcGetNextRow: SQLFetch failed, error code %d",
                        sqlRet);
+         extract_error("SQLFetch", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
@@ -316,6 +346,7 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
                        "odbcGetColumnStringData: SQLGetData on column %d "
                        "failed, error code %d",
                        columnIndex, sqlRet);
+         extract_error("SQLGetData", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
@@ -350,6 +381,7 @@ bool odbcClearResultSet(const OdbcHandle handle)
          OsSysLog::add(FAC_ODBC, PRI_WARNING,
                        "odbcClearResultSet: SQLFreeStmt failed, "
                        "error code %d", sqlRet);
+         extract_error("SQLFreeStmt", handle->mStatementHandle, SQL_HANDLE_STMT);
       }
       else
       {
