@@ -148,7 +148,7 @@ class AppearanceGroupSet : public UtlContainableAtomic
     *  Note that the handler is UtlContainable, not ResourceNotifyReceiver,
     *  in parallel to addSubscribeMapping().
     */
-   void addNotifyMapping(UtlString* dialogHandle,
+   void addNotifyMapping(const UtlString* dialogHandle,
                          UtlContainable* handler);
 
    /** Delete a mapping for a dialog handle.

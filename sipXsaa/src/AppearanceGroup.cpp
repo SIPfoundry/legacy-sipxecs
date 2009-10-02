@@ -217,14 +217,11 @@ void AppearanceGroup::subscriptionEventCallback(
           getAppearanceAgent()->getMaxRegSubscInGroup())
       {
          // Add this AppearanceGroup to mNotifyMap for the subscription.
-         UtlString* d = new UtlString(*dialogHandle);
-         getAppearanceAgent()->getAppearanceGroupSet().addNotifyMapping(d, this);
+         getAppearanceAgent()->getAppearanceGroupSet().addNotifyMapping(dialogHandle, this);
          // Remember it in mSubscriptions, if there isn't already an entry.
-         if (!mSubscriptions.find(d))
+         if (!mSubscriptions.find(dialogHandle))
          {
-            // Remember to make a copy of *d, because the NotifyMapping logic
-            // now owns *d.
-            mSubscriptions.insertKeyAndValue(new UtlString(*d), new UtlHashMap);
+            mSubscriptions.insertKeyAndValue(new UtlString(*dialogHandle), new UtlHashMap);
             OsSysLog::add(FAC_SAA, PRI_INFO,
                           "AppearanceGroup::subscriptionEventCallback "
                           "subscription setup for AppearanceGroup = '%s', dialogHandle = '%s'",
@@ -696,7 +693,7 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
       if ( appearanceId == "" )
       {
          OsSysLog::add(FAC_SAA, PRI_DEBUG, "AppearanceGroup::handleNotifyRequest skipping call with no appearance info");
-         lContent->removeDialog(pDialog);
+         delete lContent->removeDialog(pDialog);
          continue;
       }
 

@@ -348,7 +348,7 @@ void AppearanceGroupSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 /** Add a mapping for a dialog handle to its handler for
  *  NOTIFY events.
  */
-void AppearanceGroupSet::addNotifyMapping(UtlString* dialogHandle,
+void AppearanceGroupSet::addNotifyMapping(const UtlString* d,
                                        UtlContainable* handler)
 {
    /* The machinery surrounding dialog handles is broken in that it
@@ -368,6 +368,15 @@ void AppearanceGroupSet::addNotifyMapping(UtlString* dialogHandle,
     * sometimes they aren't.  So we have to file both handles in
     * mNotifyMap.  Yuck.
     */
+   if ( mNotifyMap.findValue(d) )
+   {
+      OsSysLog::add(FAC_SAA, PRI_DEBUG,
+                    "AppearanceGroupSet::addNotifyMapping already exists for this = %p, dialogHandle = '%s', handler = %p",
+                    this, d->data(),
+                    handler);
+      return;
+   }
+   UtlString* dialogHandle = new UtlString(*d);
    mNotifyMap.insertKeyAndValue(dialogHandle, handler);
 
    UtlString* swappedDialogHandleP = new UtlString;
@@ -391,7 +400,6 @@ void AppearanceGroupSet::deleteNotifyMapping(const UtlString* dialogHandle)
 {
    // See comment in addNotifyMapping for why we do this.
    UtlString swappedDialogHandle;
-
    swapTags(*dialogHandle, swappedDialogHandle);
 
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
@@ -399,12 +407,16 @@ void AppearanceGroupSet::deleteNotifyMapping(const UtlString* dialogHandle)
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
    // Delete the un-swapped mapping.
-   mNotifyMap.remove(dialogHandle);
-
-   // Have to get a pointer to the key object, as our caller won't
-   // free it.  Otherwise, we could just do "mNotifyMap.remove(dialogHandle)".
    UtlContainable* value;
-   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
+   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(dialogHandle, value);
+   if (keyString)
+   {
+      // Delete the key object.
+      delete keyString;
+   }
+
+   // Delete the swapped mapping.
+   keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
    if (keyString)
    {
       // Delete the key object.

@@ -127,8 +127,7 @@ void Appearance::subscriptionEventCallback(
                     mUri.data(), dialogHandle->data());
       mDialogHandle = *dialogHandle;
       // Add this Appearance to mNotifyMap for the subscription.
-      UtlString* d = new UtlString(*dialogHandle);
-      getAppearanceGroupSet().addNotifyMapping(d, this);
+      getAppearanceGroupSet().addNotifyMapping(dialogHandle, this);
    }
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
