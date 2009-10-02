@@ -24,6 +24,6 @@
     <file>@SIPX_CONFDIR@/resource-lists.xml</file>
     <file>@SIPX_CONFDIR@/sipxrls-config</file>
     <imdb>credential</imdb>
-    <imdb required='false' configAccess='read-only'>subscription</imdb>
+    <imdb configAccess='read-only'>subscription</imdb>
   </resources>
 </sipXecs-process>

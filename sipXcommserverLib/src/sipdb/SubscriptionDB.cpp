@@ -81,6 +81,10 @@ SubscriptionDB::SubscriptionDB( const UtlString& name )
     SIPDBManager* pSIPDBManager = SIPDBManager::getInstance();
     m_pFastDB = pSIPDBManager->getDatabase(name);
 
+    // The following logic is not correct and will not work properly if several processes
+    // attempt to load at the same time.
+    // It is circumvented by the fact that supervisor preloads the database before
+    // any other processes are started.
     // If we are the first process to attach
     // then we need to load the DB
     int users = pSIPDBManager->getNumDatabaseProcesses(name);
@@ -213,9 +217,13 @@ SubscriptionDB::load()
             }
         } else
         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING, "SubscriptionDB::load failed to load \"%s\"",
-                          pathName.data());
-            result = OS_FAILED;
+            // non-existence of the file is not an error for this DB
+            if (OsFileSystem::exists(pathName))
+            {
+                OsSysLog::add(FAC_SIP, PRI_WARNING, "SubscriptionDB::load failed to load \"%s\"",
+                              pathName.data());
+                result = OS_FAILED;
+            }
         }
     } else
     {

@@ -24,7 +24,7 @@
     <file>@SIPX_CONFDIR@/appearance-groups.xml</file>
     <file>@SIPX_CONFDIR@/sipxsaa-config</file>
     <imdb>credential</imdb>
-    <imdb required='false' configAccess='read-only'>subscription</imdb>
+    <imdb configAccess='read-only'>subscription</imdb>
     <process>SIPRegistrar</process>
   </resources>
 </sipXecs-process>

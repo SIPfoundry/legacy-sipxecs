@@ -41,6 +41,7 @@
 #define  REGISTRATION   "registration"
 #define  USERLOCATION   "userlocation"
 #define  USERFORWARD    "userforward"
+#define  SUBSCRIPTION   "subscription"
 
 REGISTER( TableInfo );
 
@@ -898,6 +899,13 @@ SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
    else if (tableName == REGISTRATION)
    {
       if (RegistrationDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else if (tableName == SUBSCRIPTION)
+   {
+      if (SubscriptionDB::getInstance()->isLoaded())
       {
           res = OS_SUCCESS;
       }

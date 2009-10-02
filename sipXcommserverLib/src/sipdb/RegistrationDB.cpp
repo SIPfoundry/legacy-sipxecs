@@ -235,9 +235,13 @@ RegistrationDB::load()
             }
         } else
         {
-            OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load TiXmlDocument::LoadFile() failed for file '%s'",
-                    pathName.data());
-            result = OS_FAILED;
+           // non-existence of the file is not an error for this DB
+           if (OsFileSystem::exists(pathName))
+           {
+                OsSysLog::add(FAC_DB, PRI_WARNING, "RegistrationDB::load TiXmlDocument::LoadFile() failed for file '%s'",
+                        pathName.data());
+                result = OS_FAILED;
+           }
         }
     } else
     {
