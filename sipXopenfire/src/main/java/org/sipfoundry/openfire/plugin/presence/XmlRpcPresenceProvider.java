@@ -1,11 +1,14 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 import java.util.Map;
+import java.util.Random;
 import org.apache.log4j.Logger;
 import org.xmpp.packet.JID;
 
 public class XmlRpcPresenceProvider extends XmlRpcProvider {
  
+    private static String myHandle = "of:" + Math.abs(new Random().nextLong());
+
     public static final String SERVICE = "status";
     
     public static final String SERVER = "presenceServer";
@@ -139,6 +142,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     {
         log.info("ping received from " + originatorName );            
         Map retval = createSuccessMap();
+        retval.put(INSTANCE_HANDLE, myHandle);
         return retval;
     }
     

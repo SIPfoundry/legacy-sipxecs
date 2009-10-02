@@ -41,6 +41,8 @@
 
 // sipXopenfire presence plug-in  XML-RPC response member names
 #define STATUS_CODE "status-code"   // string representing status of request "ERROR" or "OK"
+#define INSTANCE_HANDLE "instance-handle"
+#define NIL_INSTANCE_HANDLE_VALUE  "nil_handle"
 #define STATUS_CODE_VALUE_OK    "OK"
 #define STATUS_CODE_VALUE_ERROR "ERROR"
 #define ERROR_CODE  "error-code"     // int providing a detailed error code.  Provided only when "status-code" is "ERROR"
@@ -167,7 +169,8 @@ extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
 SipRedirectorPresenceRouting::SipRedirectorPresenceRouting(const UtlString& instanceName) :
     RedirectPlugin(instanceName),
     mPingTimer( *this ),
-    mbRegisteredWithOpenfire( false )
+    mbRegisteredWithOpenfire( false ),
+    mOpenfireInstanceHandle(NIL_INSTANCE_HANDLE_VALUE)
 {
     mLogName.append("[");
     mLogName.append(instanceName);
@@ -501,7 +504,33 @@ OsStatus SipRedirectorPresenceRouting::pingOpenfire( void )
              UtlString* pStatusCode = dynamic_cast<UtlString*>( pMap->findValue( &keyName ) );
              if( pStatusCode->compareTo( STATUS_CODE_VALUE_OK, UtlString::ignoreCase ) == 0 )
              {
-                rc = OS_SUCCESS;
+                keyName = INSTANCE_HANDLE;
+                UtlString* pInstanceHandle = dynamic_cast<UtlString*>( pMap->findValue( &keyName ) );
+                if( pInstanceHandle )
+                {
+                   if( mOpenfireInstanceHandle.compareTo( NIL_INSTANCE_HANDLE_VALUE ) == 0 )
+                   {
+                      // This is the first instance handle we get from openfire, save it
+                      mOpenfireInstanceHandle = *pInstanceHandle;
+                      rc = OS_SUCCESS;
+                   }
+                   else
+                   {
+                      // check if the openfire handle we received matches the one we have on record
+                      if( mOpenfireInstanceHandle.compareTo( *pInstanceHandle ) == 0 )
+                      {
+                         // there is a match; everything is fine.
+                         rc = OS_SUCCESS;
+                      }
+                      else
+                      {
+                         // mistmatch - likely caused by openfire resetting behind our back.
+                         // fail the ping to cause a re-register with openfire
+                         mOpenfireInstanceHandle = *pInstanceHandle;
+                         rc = OS_FAILED; // rc already set to OS_FAILED; added for readability
+                      }
+                   }
+                }
              }
           }
        }
@@ -511,14 +540,17 @@ OsStatus SipRedirectorPresenceRouting::pingOpenfire( void )
 
 OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
 {
-    OsSysLog::add(FAC_NAT, PRI_CRIT, "SipRedirectorPresenceRouting::tick");
    if( mbRegisteredWithOpenfire == false )
    {
       // we are not registered with openfire yet, attempt to register again
       if( registerPresenceMonitorServerWithOpenfire() == OS_SUCCESS )
       {
          mbRegisteredWithOpenfire = true;
-         OsSysLog::add(FAC_NAT, PRI_ERR, "%s::signal: reconnected with openfire", mLogName.data() );
+         OsSysLog::add(FAC_NAT, PRI_INFO, "%s::signal: reconnected with openfire", mLogName.data() );
+      }
+      else
+      {
+         OsSysLog::add(FAC_NAT, PRI_ERR, "%s::signal: failed to reconnect with openfire - retrying later", mLogName.data() );
       }
    }
    else

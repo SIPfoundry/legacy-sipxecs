@@ -123,6 +123,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    OsStatus registerPresenceMonitorServerWithOpenfire(void );
    OsStatus pingOpenfire( void );
    static UtlString  sLocalDomain;
+   UtlString mOpenfireInstanceHandle;
 };
 
 class UnifiedPresenceChangedMethod : public XmlRpcMethod

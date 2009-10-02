@@ -71,8 +71,10 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
-                + "?agent=" + agentId
-                + "&confpin=" + conferencePin;
+                + "?agent=" + agentId;
+        if (conferencePin != null && conferencePin.length() > 0 ){
+            restCallCommand += "&confpin=" + conferencePin;
+        }
         return restCallCommand;
     }
 
