@@ -58,7 +58,6 @@
 #define CONFIG_SETTING_RLS_FILE       "SIP_RLS_FILE_NAME"
 #define CONFIG_SETTING_DOMAIN_NAME    "SIP_RLS_DOMAIN_NAME"
 #define CONFIG_SETTING_AUTHENTICATE_REALM "SIP_RLS_AUTHENTICATE_REALM"
-#define CONFIG_SETTING_STARTUP_WAIT   "SIP_RLS_STARTUP_WAIT"
 #define CONFIG_SETTING_REFRESH_INTERVAL "SIP_RLS_REFRESH_INTERVAL"
 #define CONFIG_SETTING_RESUBSCRIBE_INTERVAL "SIP_RLS_RESUBSCRIBE_INTERVAL"
 #define CONFIG_SETTING_MIN_RESUBSCRIBE_INTERVAL "SIP_RLS_MIN_RESUBSCRIBE_INTERVAL"
@@ -71,7 +70,6 @@
 #define RLS_DEFAULT_UDP_PORT          5130       // Default UDP port
 #define RLS_DEFAULT_TCP_PORT          5130       // Default TCP port
 #define RLS_DEFAULT_BIND_IP           "0.0.0.0"  // Default bind ip; all interfaces
-#define RLS_DEFAULT_STARTUP_WAIT      (2 * 60)   // Default wait upon startup (in sec.)
 #define RLS_DEFAULT_REFRESH_INTERVAL  (24 * 60 * 60) // Default subscription refresh interval.
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
 #define RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL (40 * 60) // Default minimum subscription resubscribe interval.
@@ -437,12 +435,6 @@ int main(int argc, char* argv[])
       return 1;
    }
 
-   int startupWait;
-   if (configDb.get(CONFIG_SETTING_STARTUP_WAIT, startupWait) != OS_SUCCESS)
-   {
-      startupWait = RLS_DEFAULT_STARTUP_WAIT;
-   }
-
    int refreshInterval;
    if (configDb.get(CONFIG_SETTING_REFRESH_INTERVAL, refreshInterval) != OS_SUCCESS)
    {
@@ -477,19 +469,6 @@ int main(int argc, char* argv[])
    if (configDb.get(CONFIG_SETTING_SERVER_MAX_EXPIRATION, serverMaxExpiration) != OS_SUCCESS)
    {
        serverMaxExpiration = RLS_DEFAULT_SERVER_MAX_EXPIRATION;
-   }
-
-   // Wait to allow our targets time to come up.
-   // (Wait is determined by CONFIG_SETTING_STARTUP_WAIT, default 2 minutes.)
-   OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                 "Waiting %d sec. before starting operation.",
-                 startupWait);
-
-   // If we get the shutdown signal during this delay, the signal will
-   // terminate the wait.
-   for(int i=0; i<startupWait && !gShutdownFlag; i++)
-   {
-      OsTask::delay(1000);
    }
 
    // add the ~~sipXrls credentials so that sipXrls can respond to challenges
