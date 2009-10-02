@@ -13,8 +13,8 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <os/OsServerTask.h>
-#include <os/OsMsg.h>
+#include "os/OsServerTask.h"
+#include "os/OsMsg.h"
 
 // DEFINES
 // MACROS

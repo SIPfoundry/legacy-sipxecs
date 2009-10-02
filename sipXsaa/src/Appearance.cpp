@@ -9,11 +9,11 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "net/SipDialogEvent.h"
+#include "os/OsSysLog.h"
+#include "utl/UtlHashMapIterator.h"
 #include "Appearance.h"
-#include "AppearanceAgent.h"
 #include "AppearanceGroup.h"
-#include <os/OsSysLog.h>
-#include <utl/UtlHashMapIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

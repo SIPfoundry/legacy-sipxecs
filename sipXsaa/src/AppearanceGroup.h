@@ -12,15 +12,13 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "net/SipSubscribeClient.h"
+#include "utl/UtlContainableAtomic.h"
+#include "utl/UtlString.h"
+#include "utl/UtlHashMap.h"
 #include "AppearanceAgent.h"
 #include "ResourceSubscriptionReceiver.h"
 #include "ResourceNotifyReceiver.h"
-#include <utl/UtlContainableAtomic.h>
-#include <utl/UtlString.h>
-#include <utl/UtlHashBag.h>
-#include <utl/UtlHashMap.h>
-#include <net/SipSubscribeClient.h>
-#include <net/HttpBody.h>
 
 // DEFINES
 // MACROS
@@ -32,6 +30,7 @@
 // FORWARD DECLARATIONS
 
 class Appearance;
+class SipDialogEvent;
 
 
 //! Container for a set of subscriptions to the contacts of an AOR.

@@ -9,17 +9,12 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "os/OsSysLog.h"
+#include "os/OsLock.h"
+#include "utl/UtlSListIterator.h"
 #include "AppearanceGroupSet.h"
 #include "AppearanceGroup.h"
-#include "Appearance.h"
-#include "ResourceNotifyReceiver.h"
-#include "ResourceSubscriptionReceiver.h"
 #include "ResourceListMsg.h"
-#include <os/OsSysLog.h>
-#include <os/OsLock.h>
-#include <os/OsEventMsg.h>
-#include <utl/UtlSListIterator.h>
-#include <net/SipDialogEvent.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

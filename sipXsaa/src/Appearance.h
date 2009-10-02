@@ -12,14 +12,12 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "net/SipSubscribeClient.h"
+#include "utl/UtlContainableAtomic.h"
+#include "utl/UtlString.h"
+#include "AppearanceAgent.h"
 #include "ResourceSubscriptionReceiver.h"
 #include "ResourceNotifyReceiver.h"
-#include <utl/UtlContainableAtomic.h>
-#include <utl/UtlString.h>
-#include <utl/UtlSList.h>
-#include <net/SipSubscribeClient.h>
-#include <net/HttpBody.h>
-#include "AppearanceAgent.h"
 
 // DEFINES
 // MACROS
@@ -30,9 +28,9 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class AppearanceAgent;
 class AppearanceGroupSet;
 class AppearanceGroup;
+class SipDialogEvent;
 
 
 //! Container for a set of subscriptions created by a SUBSCRIBE request.

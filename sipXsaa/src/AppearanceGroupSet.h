@@ -12,15 +12,12 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <utl/UtlContainableAtomic.h>
-#include <utl/UtlString.h>
-#include <utl/UtlSList.h>
-#include <utl/UtlHashMap.h>
-#include <net/HttpBody.h>
-#include <net/SipPublishContentMgr.h>
-#include <net/SipSubscribeClient.h>
-#include <os/OsBSem.h>
-#include <os/OsTimer.h>
+#include "net/SipSubscribeClient.h"
+#include "os/OsBSem.h"
+#include "utl/UtlContainableAtomic.h"
+#include "utl/UtlHashMap.h"
+#include "utl/UtlString.h"
+#include "utl/UtlSList.h"
 
 // DEFINES
 // MACROS

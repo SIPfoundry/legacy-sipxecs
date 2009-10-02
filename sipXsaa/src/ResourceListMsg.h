@@ -15,9 +15,9 @@
 
 // APPLICATION INCLUDES
 
-#include <os/OsMsg.h>
-#include <net/SipSubscribeClient.h>
-#include <utl/UtlString.h>
+#include "net/SipSubscribeClient.h"
+#include "os/OsMsg.h"
+#include "utl/UtlString.h"
 
 // DEFINES
 

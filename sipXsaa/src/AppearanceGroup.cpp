@@ -9,18 +9,17 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "AppearanceAgent.h"
+#include "os/OsSysLog.h"
+#include "net/SipMessage.h"
+#include "net/HttpBody.h"
+#include "net/SipDialogEvent.h"
+#include "net/SipRegEvent.h"
+#include "utl/UtlHashMapIterator.h"
+#include "utl/UtlHashBagIterator.h"
+#include "xmlparser/tinyxml.h"
+#include "xmlparser/ExtractContent.h"
 #include "AppearanceGroup.h"
 #include "Appearance.h"
-#include <os/OsSysLog.h>
-#include <utl/UtlHashMapIterator.h>
-#include <utl/UtlHashBagIterator.h>
-#include <net/SipMessage.h>
-#include <net/HttpBody.h>
-#include <net/SipRegEvent.h>
-#include <xmlparser/tinyxml.h>
-#include <xmlparser/tinystr.h>
-#include <xmlparser/ExtractContent.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

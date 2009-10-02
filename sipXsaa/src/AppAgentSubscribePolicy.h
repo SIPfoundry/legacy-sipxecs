@@ -11,11 +11,11 @@
 #define _AppAgentSubscribePolicy_h_
 
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
-#include <net/SipSubscribeServerEventHandler.h>
-#include <sipXecsService/SipNonceDb.h>
-#include <sipdb/CredentialDB.h>
+
+#include "net/SipSubscribeServerEventHandler.h"
+#include "sipXecsService/SipNonceDb.h"
+#include "utl/UtlString.h"
 
 // DEFINES
 // MACROS
@@ -25,8 +25,6 @@
 // STRUCTS
 // FORWARD DECLARATIONS
 class SipMessage;
-class UtlString;
-class SipPublishContentMgr;
 
 // TYPEDEFS
 

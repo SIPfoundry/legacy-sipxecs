@@ -9,16 +9,12 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
+#include "os/OsSysLog.h"
+#include "utl/UtlString.h"
+#include "xmlparser/tinystr.h"
 #include "AppearanceGroupFileReader.h"
 #include "AppearanceGroupSet.h"
 #include "main.h"
-#include <os/OsSysLog.h>
-#include <xmlparser/tinystr.h>
-#include <xmlparser/ExtractContent.h>
-#include <xmlparser/TiXmlUtlStringWriter.h>
-#include <utl/UtlString.h>
-#include <utl/XmlContent.h>
-#include <net/NameValueTokenizer.h>
 
 // DEFINES
 // EXTERNAL FUNCTIONS

@@ -11,25 +11,19 @@
 #include <signal.h>
 
 // APPLICATION INCLUDES
-#include <os/OsConfigDb.h>
-#include <os/OsSysLog.h>
-#include <os/OsFS.h>
-#include <os/OsSocket.h>
-#include <xmlparser/tinystr.h>
-#include "xmlparser/ExtractContent.h"
-#include <utl/UtlString.h>
-#include <utl/XmlContent.h>
-#include <net/NameValueTokenizer.h>
-#include <net/SipDialogEvent.h>
-#include <os/OsSysLog.h>
+#include "config/sipxsaa-buildstamp.h"
+#include "net/NameValueTokenizer.h"
+#include "net/SipLine.h"
+#include "net/SipLineMgr.h"
+#include "net/HttpMessage.h"
+#include "os/OsConfigDb.h"
+#include "os/OsSysLog.h"
+#include "sipdb/CredentialDB.h"
+#include "sipXecsService/SipXecsService.h"
+#include "utl/UtlString.h"
+#include "xmlparser/tinystr.h"
 #include "AppearanceAgent.h"
 #include "main.h"
-#include <net/SipLine.h>
-#include <net/SipLineMgr.h>
-#include <sipdb/CredentialDB.h>
-#include <net/HttpMessage.h>
-#include <sipXecsService/SipXecsService.h>
-#include "config/sipxsaa-buildstamp.h"
 
 // DEFINES
 #ifndef SIPX_VERSION
@@ -164,7 +158,6 @@ void initSysLog(OsConfigDb* pConfig)
          OsPath path(fileTarget);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
          OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
                        CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
@@ -174,7 +167,6 @@ void initSysLog(OsConfigDb* pConfig)
          OsFileSystem::getWorkingDirectory(path);
          path.getNativePath(workingDirectory);
 
-         osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
          OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
                        CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
@@ -186,7 +178,6 @@ void initSysLog(OsConfigDb* pConfig)
    else
    {
       bSpecifiedDirError = false;
-      osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, fileTarget.data());
       OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
                     CONFIG_SETTING_LOG_DIR, fileTarget.data());
 
@@ -217,8 +208,6 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
 
-   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE,
-            bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
    OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE,
                  bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 

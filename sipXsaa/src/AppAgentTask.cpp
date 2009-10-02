@@ -10,18 +10,11 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include "AppearanceAgent.h"
+#include "net/SipMessage.h"
+#include "os/OsSysLog.h"
 #include "AppAgentTask.h"
-#include "AppearanceGroupSet.h"
-#include "AppearanceGroup.h"
+#include "AppearanceAgent.h"
 #include "ResourceListMsg.h"
-#include <os/OsSysLog.h>
-#include <os/OsEventMsg.h>
-#include <os/OsMsg.h>
-#include <xmlparser/tinyxml.h>
-#include <xmlparser/tinystr.h>
-#include <xmlparser/ExtractContent.h>
-
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

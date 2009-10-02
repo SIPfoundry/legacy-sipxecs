@@ -9,16 +9,8 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <net/SipDialogEvent.h>
-#include <net/SipMessage.h>
-#include <os/OsSysLog.h>
-#include <os/OsDefs.h>
-#include <sipdb/SubscriptionDB.h>
+#include "os/OsSysLog.h"
 #include "AppearanceAgent.h"
-#include "ResourceNotifyReceiver.h"
-#include "ResourceSubscriptionReceiver.h"
-#include "ResourceListMsg.h"
-
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

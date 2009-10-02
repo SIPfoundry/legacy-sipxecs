@@ -13,18 +13,18 @@
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
 
-#include <utl/UtlContainableAtomic.h>
-#include <utl/UtlString.h>
-#include <utl/UtlSList.h>
-#include <net/SipPublishContentMgr.h>
-#include <net/SipSubscribeClient.h>
-#include <net/SipSubscribeServer.h>
-#include <net/SipDialogEvent.h>
-#include <net/SipDialogMgr.h>
-#include <net/SipUserAgent.h>
-#include <persist/SipPersistentSubscriptionMgr.h>
-#include <os/OsBSem.h>
-#include <os/OsTime.h>
+#include "net/SipDialogEvent.h"
+#include "net/SipDialogMgr.h"
+#include "net/SipPublishContentMgr.h"
+#include "net/SipSubscribeClient.h"
+#include "net/SipSubscribeServer.h"
+#include "net/SipUserAgent.h"
+#include "os/OsBSem.h"
+#include "os/OsTime.h"
+#include "persist/SipPersistentSubscriptionMgr.h"
+#include "utl/UtlContainableAtomic.h"
+#include "utl/UtlString.h"
+#include "utl/UtlSList.h"
 #include "AppAgentSubscribePolicy.h"
 #include "AppAgentTask.h"
 #include "AppearanceGroupFileReader.h"

@@ -10,13 +10,10 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsSysLog.h>
-#include <utl/UtlString.h>
-#include <os/OsSysLog.h>
-#include <net/SipSubscribeServerEventHandler.h>
-#include <net/SipPublishContentMgr.h>
-#include <net/SipMessage.h>
-#include <net/Url.h>
+#include "os/OsSysLog.h"
+#include "net/SipMessage.h"
+#include "net/Url.h"
+#include "sipdb/CredentialDB.h"
 #include "AppAgentSubscribePolicy.h"
 
 // EXTERNAL FUNCTIONS
@@ -24,7 +21,7 @@
 // CONSTANTS
 
 // Expiration time for nonces (in seconds):  5 minutes
-#define RLS_SUBSCRIBE_NONCE_EXPIRATION	(5 * 60)
+#define SAA_SUBSCRIBE_NONCE_EXPIRATION	(5 * 60)
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -37,7 +34,7 @@ AppAgentSubscribePolicy::AppAgentSubscribePolicy(UtlString defaultDomain,
                                        UtlString realm,
                                        UtlString credentialDbName)
    : mRealm(realm),
-     mNonceExpiration(RLS_SUBSCRIBE_NONCE_EXPIRATION),
+     mNonceExpiration(SAA_SUBSCRIBE_NONCE_EXPIRATION),
      mDefaultDomain(defaultDomain),
      mCredentialDbName(credentialDbName)
 {
