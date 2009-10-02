@@ -207,10 +207,10 @@ void AppearanceGroupSet::subscriptionEventCallbackAsync(
    }
 
    // Send a message to the AppearanceGroupTask.
-   SubscriptionCallbackMsg msg(earlyDialogHandle, dialogHandle,
-                               newState, subscription_state);
    appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
-      postMessage(msg);
+      postMessageP(
+         new SubscriptionCallbackMsg(earlyDialogHandle, dialogHandle,
+                                     newState, subscription_state));
 }
 
 // Callback routine for subscription state events.
@@ -275,8 +275,8 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    AppearanceGroupSet* appearanceGroupSet = (AppearanceGroupSet*) applicationData;
 
    // Send a message to the AppearanceGroupTask.  The handler owns the SipMessage pointer.
-   NotifyCallbackMsg msg(dialogHandle, new SipMessage(*notifyRequest));
-   appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().postMessage(msg);
+   appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
+      postMessageP(new NotifyCallbackMsg(dialogHandle, new SipMessage(*notifyRequest)));
 
    // Do NOT send an OK response; the callback handler is responsible for this.
    return false;
