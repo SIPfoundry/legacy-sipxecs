@@ -8,12 +8,18 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -21,12 +27,13 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
+    private Conference m_conf = new Conference();
 
-public class ContactInformationConfigTest extends TestCase {
+    protected void setUp() throws Exception {
+        super.setUp();
+        initializeBeanWithSettings(m_conf);
+    }
 
     public void testGenerate() throws Exception {
         User u1 = new User();
@@ -64,23 +71,34 @@ public class ContactInformationConfigTest extends TestCase {
 
         u1.setAddressBookEntry(abe1);
 
-        Conference conf = new Conference();
-        conf.setOwner(u1);
-        conf.setName("conf1");
-        conf.setExtension("111");
+        m_conf.setOwner(u1);
+        m_conf.setName("conf1");
+        m_conf.setExtension("111");
+        m_conf.getSettings().getSetting(Conference.PARTICIPANT_CODE).setValue("1234");
 
         User u2 = new User();
         u2.setUserName("201");
         AddressBookEntry abe2 = new AddressBookEntry();
         u2.setAddressBookEntry(abe2);
 
+        User u3 = new User();
+        u3.setUserName("202");
+        AddressBookEntry abe3 = new AddressBookEntry();
+        abe3.setUseBranchAddress(true);
+        Branch branch = new Branch();
+        Address addr = new Address();
+        addr.setStreet("1, Branch Street");
+        branch.setAddress(addr);
+        u3.setBranch(branch);
+        u3.setAddressBookEntry(abe3);
+
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsersByPage(null, null, null, 0, 250, "id", true);
-        expectLastCall().andReturn(Arrays.asList(u1, u2));
+        expectLastCall().andReturn(Arrays.asList(u1, u2, u3));
 
         ConferenceBridgeContext bridgeContext = createMock(ConferenceBridgeContext.class);
         bridgeContext.findConferencesByOwner(u1);
-        expectLastCall().andReturn(Arrays.asList(conf)).once().andReturn(new ArrayList<Conference>()).once();
+        expectLastCall().andReturn(Arrays.asList(m_conf)).once().andReturn(new ArrayList<Conference>()).times(2);
         replay(bridgeContext);
         replay(coreContext);
 

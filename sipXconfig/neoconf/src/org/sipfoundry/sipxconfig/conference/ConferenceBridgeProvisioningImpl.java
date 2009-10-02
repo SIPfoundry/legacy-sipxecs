@@ -14,13 +14,16 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implements
-        ConferenceBridgeProvisioning {
+public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implements ConferenceBridgeProvisioning {
     private SipxReplicationContext m_replicationContext;
     private ServiceConfigurator m_serviceConfigurator;
+    private SipxServiceManager m_serviceManager;
 
     public void deploy(int bridgeId) {
         Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
@@ -32,6 +35,11 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         SipxFreeswitchService service = bridge.getFreeswitchService();
         m_serviceConfigurator.replicateServiceConfig(location, service, true);
         service.reloadXml(location);
+
+        if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
+            SipxService ivrService = (SipxIvrService) m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+            m_serviceConfigurator.replicateServiceConfig(ivrService, true);
+        }
     }
 
     @Required
@@ -42,5 +50,10 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
     @Required
     public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
         m_serviceConfigurator = serviceConfigurator;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager serviceManager) {
+        m_serviceManager = serviceManager;
     }
 }

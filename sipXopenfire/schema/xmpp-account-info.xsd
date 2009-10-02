@@ -182,7 +182,7 @@
     				</documentation>
     			</annotation>
     		</element>
-    		<element name="port" axOccurs="1" minOccurs="1" default="5269">
+            <element name="port" maxOccurs="1" minOccurs="1" default="5269">
     			<annotation>
     				<documentation>
     					Port number of server

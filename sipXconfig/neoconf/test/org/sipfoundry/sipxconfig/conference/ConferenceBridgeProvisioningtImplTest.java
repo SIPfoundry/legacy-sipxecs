@@ -8,20 +8,20 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.verify;
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.orm.hibernate3.HibernateTemplate;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.same;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.verify;
 
 public class ConferenceBridgeProvisioningtImplTest extends TestCase {
     public void testGenerateConfigurationData() throws Exception {
@@ -31,6 +31,9 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         final SipxFreeswitchService service = createMock(SipxFreeswitchService.class);
         service.reloadXml(location);
         expectLastCall().andReturn(true);
+
+        SipxIvrService ivrService = new SipxIvrService();
+        ivrService.setBeanId(SipxIvrService.BEAN_ID);
 
         Bridge bridge = new Bridge() {
             @Override
@@ -50,16 +53,24 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
 
         ServiceConfigurator sc = createMock(ServiceConfigurator.class);
         sc.replicateServiceConfig(location, service, true);
+        sc.replicateServiceConfig(ivrService, true);
 
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
         rc.generate(DataSet.ALIAS);
 
-        replay(ht, rc, sc, service);
+        SipxServiceManager sm = createMock(SipxServiceManager.class);
+        sm.isServiceInstalled(SipxIvrService.BEAN_ID);
+        expectLastCall().andReturn(true);
+        sm.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        expectLastCall().andReturn(ivrService);
+
+        replay(ht, rc, sc, sm, service);
 
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(ht);
         impl.setReplicationContext(rc);
         impl.setServiceConfigurator(sc);
+        impl.setSipxServiceManager(sm);
 
         impl.deploy(0);
 

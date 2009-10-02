@@ -14,7 +14,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.conference.Bridge;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ContactInformationDaoListener implements DaoEventListener {
@@ -38,7 +37,7 @@ public class ContactInformationDaoListener implements DaoEventListener {
     }
 
     private boolean shouldGenerate(Object entity) {
-        return entity instanceof User || entity instanceof Conference || entity instanceof Bridge;
+        return entity instanceof User || entity instanceof Bridge;
     }
 
     @Required

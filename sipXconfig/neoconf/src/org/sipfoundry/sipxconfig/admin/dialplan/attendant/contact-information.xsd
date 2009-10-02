@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/contactinfo-00-00"
+	targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/contactinfo-00-00">
+	<element name="userName" type="string" />
+	<element name="imId" type="string" />
+	<element name="imDisplayName" type="string" />
+	<element name="alternateImId" type="string" />
+	<element name="jobTitle" type="string" />
+	<element name="jobDept" type="string" />
+	<element name="companyName" type="string" />
+	<element name="assistantName" type="string" />
+	<element name="assistantPhoneNumber" type="string" />
+	<element name="faxNumber" type="string" />
+	<element name="location" type="string" />
+	<element name="homePhoneNumber" type="string" />
+	<element name="cellPhoneNumber" type="string" />
+	<element name="homeAddress" type="tns:Address" />
+	<element name="officeAddress" type="tns:Address" />
+	<element name="street" type="string" />
+	<element name="city" type="string" />
+	<element name="country" type="string" />
+	<element name="state" type="string" />
+	<element name="zip" type="string" />
+	<element name="officeDesignation" type="string" />
+	<element name="name" type="string" />
+	<element name="extension" type="string" />
+	<element name="pin" type="string" />
+	<element name="conferences" type="tns:Conferences" />
+	<element name="conference" type="tns:Conference"></element>
+	<element name="user">
+		<complexType>
+			<sequence>
+				<element ref="tns:userName" minOccurs="1" maxOccurs="1" />
+				<element ref="tns:imId" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:imDisplayName" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:alternateImId" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:jobTitle" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:jobDept" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:companyName" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:assistantName" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:assistantPhoneNumber" minOccurs="0"
+					maxOccurs="1" />
+				<element ref="tns:faxNumber" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:location" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:homePhoneNumber" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:cellPhoneNumber" minOccurs="0" maxOccurs="1" />
+				<element ref="tns:homeAddress" minOccurs="1" maxOccurs="1" />
+				<element ref="tns:officeAddress" minOccurs="1" maxOccurs="1" />
+				<element ref="tns:conferences" minOccurs="1" maxOccurs="1" />
+			</sequence>
+		</complexType>
+	</element>
+	<complexType name="UserAccount">
+		<sequence>
+			<element ref="tns:user" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+	<complexType name="Address">
+		<sequence>
+			<element ref="tns:street" minOccurs="0" maxOccurs="1" />
+			<element ref="tns:city" minOccurs="0" maxOccurs="1" />
+			<element ref="tns:country" minOccurs="0" maxOccurs="1" />
+			<element ref="tns:state" minOccurs="0" maxOccurs="1" />
+			<element ref="tns:zip" minOccurs="0" maxOccurs="1" />
+			<element ref="tns:officeDesignation" minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<complexType name="Conferences">
+		<sequence>
+			<element ref="tns:conference" minOccurs="0" maxOccurs="unbounded" />
+		</sequence>
+	</complexType>
+	<complexType name="Conference">
+		<sequence>
+			<element ref="tns:name" minOccurs="1" maxOccurs="1" />
+			<element ref="tns:extension" minOccurs="1" maxOccurs="1" />
+			<element ref="tns:pin" minOccurs="0" maxOccurs="1" />
+		</sequence>
+	</complexType>
+	<element name="contact-info" type="tns:UserAccount" />
+</schema>

@@ -71,6 +71,7 @@
         <!-- eager replication here -->
         <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
         <property name="replicationContext" ref="sipxReplicationContextDao" />
+        <property name="sipxServiceManager" ref="sipxServiceManager" />
       </bean>
     </property>
   </bean>

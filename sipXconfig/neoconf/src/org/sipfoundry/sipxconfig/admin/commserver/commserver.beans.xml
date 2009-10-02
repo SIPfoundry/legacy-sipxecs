@@ -263,6 +263,8 @@
     <property name="name" value="contact-information.xml" />
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="false" />
   </bean>
 
   <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">

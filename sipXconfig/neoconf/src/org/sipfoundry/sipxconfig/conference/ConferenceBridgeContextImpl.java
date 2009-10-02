@@ -66,18 +66,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return getHibernateTemplate().loadAll(Bridge.class);
     }
 
-    @Required
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
     public void store(Bridge bridge) {
         getHibernateTemplate().saveOrUpdate(bridge);
         if (bridge.isNew()) {
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
-        m_daoEventPublisher.publishSave(bridge);
         m_provisioning.deploy(bridge.getId());
     }
 
@@ -330,6 +324,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             bridge = newBridge();
             bridge.setService(location.getService(SipxFreeswitchService.BEAN_ID));
             getHibernateTemplate().save(bridge);
+            m_provisioning.deploy(bridge.getId());
         } else if (bridge != null && !isConferenceInstalled) {
             getHibernateTemplate().delete(bridge);
             m_daoEventPublisher.publishDelete(bridge);
@@ -351,4 +346,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
+
+    @Required
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
 }

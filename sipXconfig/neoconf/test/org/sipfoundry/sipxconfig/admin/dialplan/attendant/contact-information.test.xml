@@ -34,6 +34,7 @@
       <conference>
         <name>conf1</name>
         <extension>111</extension>
+        <pin>1234</pin>
       </conference>
     </conferences>
   </user>
@@ -41,6 +42,14 @@
     <userName>201</userName>
     <homeAddress/>
     <officeAddress/>
+    <conferences/>
+  </user>
+  <user>
+    <userName>202</userName>
+    <homeAddress/>
+    <officeAddress>
+      <street>1, Branch Street</street>
+    </officeAddress>
     <conferences/>
   </user>
 </contact-info>

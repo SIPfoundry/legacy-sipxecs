@@ -18,6 +18,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -26,6 +27,8 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
@@ -36,6 +39,7 @@ public class ContactInformationConfig extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/contactinfo-00-00";
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceBridgeContext;
+    private SipxServiceManager m_sipxServiceManager;
 
     @Override
     public Document getDocument() {
@@ -64,7 +68,11 @@ public class ContactInformationConfig extends XmlFile {
             Element homeAddressEl = userEl.addElement("homeAddress");
             addAddressInfo(homeAddressEl, abe.getHomeAddress());
             Element officeAddressEl = userEl.addElement("officeAddress");
-            addAddressInfo(officeAddressEl, abe.getOfficeAddress());
+            if (abe.getUseBranchAddress() && user.getBranch() != null) {
+                addAddressInfo(officeAddressEl, user.getBranch().getAddress());
+            } else {
+                addAddressInfo(officeAddressEl, abe.getOfficeAddress());
+            }
             addElements(officeAddressEl, abe.getOfficeAddress(), "officeDesignation");
         }
 
@@ -76,6 +84,9 @@ public class ContactInformationConfig extends XmlFile {
             // check for null/empty here
             conferenceElement.addElement("name").setText(conference.getName());
             conferenceElement.addElement("extension").setText(conference.getExtension());
+            if (StringUtils.isNotEmpty(conference.getParticipantAccessCode())) {
+                conferenceElement.addElement("pin").setText(conference.getParticipantAccessCode());
+            }
         }
     }
 
@@ -110,7 +121,17 @@ public class ContactInformationConfig extends XmlFile {
     }
 
     @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
+    @Override
+    public boolean isReplicable(Location location) {
+        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxIvrService.BEAN_ID);
     }
 }
