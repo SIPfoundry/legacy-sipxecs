@@ -32,6 +32,8 @@ public interface DomainManager extends DialingRuleProvider {
 
     Localization getExistingLocalization();
 
+    String getSharedSecret();
+
     static class DomainNotInitializedException extends RuntimeException {
         DomainNotInitializedException() {
             super("System was not initialized properly");

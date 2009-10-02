@@ -159,6 +159,10 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
+    public String getSharedSecret() {
+        return getDomain().getSharedSecret();
+    }
+
     private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
         List<String> infoLocations = new ArrayList<String>();
         Location[] locations = m_locationsManager.getLocations();
