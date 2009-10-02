@@ -20,11 +20,10 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
-import org.sipfoundry.sipxconfig.admin.NameInUseException;
-import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -34,20 +33,11 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implements BranchManager,
         ApplicationContextAware {
 
-    private static final String BRANCH = "branch";
-
     private static final String NAME_PROP_NAME = "name";
-
-    private AliasManager m_aliasManager;
 
     private ApplicationContext m_applicationContext;
 
     private SettingDao m_settingDao;
-
-    @Required
-    public void setAliasManager(AliasManager aliasManager) {
-        m_aliasManager = aliasManager;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -69,13 +59,27 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
     }
 
     public void saveBranch(Branch branch) {
-        // Check for duplicate names or extensions before saving the branch
-        String name = branch.getName();
-        if (!m_aliasManager.canObjectUseAlias(branch, name)) {
-            throw new NameInUseException(BRANCH, name);
+        // Check for duplicate names before saving the branch
+        if (branch.isNew() || (!branch.isNew() && isNameChanged(branch))) {
+            checkForDuplicateName(branch);
         }
+        if (!branch.isNew()) {
+            getHibernateTemplate().merge(branch);
+        } else {
+            getHibernateTemplate().save(branch);
+        }
+    }
 
-        getHibernateTemplate().saveOrUpdate(branch);
+    private boolean isNameChanged(Branch branch) {
+        return !getBranch(branch.getId()).getName().equals(branch.getName());
+    }
+
+    private void checkForDuplicateName(Branch branch) {
+        String branchName = branch.getName();
+        Branch existingBranch = getBranch(branchName);
+        if (existingBranch != null) {
+            throw new UserException("&duplicate.branchName.error", branchName);
+        }
     }
 
     /**

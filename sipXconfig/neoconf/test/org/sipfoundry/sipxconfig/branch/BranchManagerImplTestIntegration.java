@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class BranchManagerImplTestIntegration extends IntegrationTestCase {
@@ -109,5 +110,29 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         // We should have reduced the branch count by two
         branchTable = getConnection().createDataSet().getTable("branch");
         assertEquals(3, branchTable.getRowCount());
+    }
+
+    public void testCreateUpdateBranch() throws Exception {
+        loadDataSet("branch/branches.db.xml");
+
+        // save a new branch with an existing name
+        try {
+            Branch branch = new Branch();
+            branch.setName("branch1");
+            m_branchManager.saveBranch(branch);
+            flush();
+
+            fail();
+        } catch (UserException ex) {
+
+        }
+
+        // update an existing branch
+        Branch branch4 = m_branchManager.getBranch("branch4");
+        branch4.setDescription("Updated Description");
+        m_branchManager.saveBranch(branch4);
+        flush();
+        assertEquals("Updated Description", m_branchManager.getBranch("branch4").getDescription());
+
     }
 }

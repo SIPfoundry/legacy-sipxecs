@@ -31,23 +31,23 @@ public class BranchesPageTestUi extends ListWebTestCase {
     @Override
     protected String[] getParamNames() {
         return new String[] {
-            "item:name", "item:description", "street", "city", "state", "country", "zip",
-            "item:phoneNumber", "item:faxNumber"
+            "item:name", "item:description", "street", "city", "state", "country", "zip", "item:phoneNumber",
+            "item:faxNumber"
         };
-     }
+    }
 
     @Override
     protected String[] getParamValues(int i) {
         return new String[] {
-            "branch" + i, "branch description" + i, "street" + i, "city" + i, "state" + i,
-             "country" + i, "zip" + i, "number" + i, "number" + i
+            "branch" + i, "branch description" + i, "street" + i, "city" + i, "state" + i, "country" + i, "zip" + i,
+            "number" + i, "number" + i
         };
     }
 
     @Override
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return new String[] {
-                "unchecked", paramValues[0], EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, paramValues[1]
+            "unchecked", paramValues[0], EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, paramValues[1]
         };
     }
 
@@ -67,7 +67,7 @@ public class BranchesPageTestUi extends ListWebTestCase {
         assertEquals(2, tableCount);
 
         // back to all branches
-        SiteTestHelper.selectOptionByValue(tester, "group:filter",  "label.all");
+        SiteTestHelper.selectOptionByValue(tester, "group:filter", "label.all");
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "branch:list");
         assertEquals(allTableCount, allTableCountAgain);
     }
@@ -86,5 +86,53 @@ public class BranchesPageTestUi extends ListWebTestCase {
             tester.setTextField("item:name", "seedBranch" + i);
             tester.clickButton("form:ok");
         }
+    }
+
+    public void testBranchCrud() {
+        // create new branch
+        SiteTestHelper.home(tester);
+        SiteTestHelper.setScriptingEnabled(getTester(), true);
+        tester.clickLink("link:branches");
+        clickLink("branch:add");
+        setWorkingForm("branchForm");
+        // name should not be empty
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(getTester());
+        setTextField("item:name", "Earth");
+        clickButton("form:ok");
+
+        // create 2nd branch
+        clickLink("branch:add");
+        setWorkingForm("branchForm");
+        // should fail if an existing name provided
+        setTextField("item:name", "Earth");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(getTester());
+        setTextField("item:name", "Moon");
+        clickButton("form:ok");
+
+        // modify branch name
+        clickLinkWithExactText("Moon");
+        // should fail if an existing name provided
+        setWorkingForm("branchForm");
+        setTextField("item:name", "Earth");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(getTester());
+        // change name
+        setTextField("item:name", "Mars");
+        clickButton("form:ok");
+
+        // modify branch properties other than name
+        clickLinkWithExactText("Mars");
+        setWorkingForm("branchForm");
+        setTextField("item:description", "Planet");
+        clickButton("form:ok");
+
+        // delete all branches
+        setExpectedJavaScriptConfirm("Are you sure you want to delete the selected branches?", true);
+        clickElementByXPath("//input[@onclick='setCheckboxGroup(this.checked)']");
+        clickButton("branch:delete");
+        SiteTestHelper.assertNoUserError(getTester());
+
     }
 }
