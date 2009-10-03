@@ -137,6 +137,5 @@ sipXecs : \
 	sipXsaa \
 	sipXsupervisor \
 	sipXtools \
-	sipXvxml \
 	doc
 	@echo sipXecs

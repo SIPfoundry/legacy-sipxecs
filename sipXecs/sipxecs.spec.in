@@ -41,7 +41,6 @@ Requires: sipxrls >= %version
 Requires: sipxsaa >= %version
 Requires: sipxsupervisor >= %version
 Requires: sipxtools >= %version
-Requires: sipxvxml >= %version
 Requires: sipxrest >= %version
 Requires: sipxcallcontroller >= %version
 Requires: sipxcdrlog >= %version
