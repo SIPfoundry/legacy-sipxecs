@@ -18,7 +18,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/svn-version \
     config/Doxyfile.in \
-    sipxpark.spec
+    sipxpresence.spec
 
 editscripts_IN = \
     bin/sipxpresence.sh.in
