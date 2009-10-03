@@ -25,8 +25,8 @@ sipxpark_CXXFLAGS = \
         -DSIPX_VARDIR=\"@SIPX_VARDIR@\"
 
 sipxpark_SOURCES =  \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxpark-buildstamp.h \
+	$(top_builddir)/config/sipxpark-buildstamp.cpp \
 	main.cpp \
 	OrbitListener.cpp \
 	ParkedCallObject.cpp

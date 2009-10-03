@@ -14,30 +14,34 @@ Url: http://www.sipfoundry.org
 
 %define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
-Requires: sipxsupervisor >= %version
-Requires: sipxproxy >= %version
-Requires: sipxregistry >= %version
-Requires: sipxconfig >= %version
-Requires: sipxpublisher >= %version
-Requires: sipxpage >= %version
 Requires: sipxacd >= %version
-Requires: sipxproxy-cdr >= %version
-Requires: sipxconfig-ftp >= %version
-Requires: sipxconfig-tftp >= %version
-Requires: sipxconfig-report >= %version
-Requires: sipxconfig-agent >= %version
-Requires: sipxconfig-mrtg >= %version
-Requires: sipxfreeswitch >= %version
 Requires: sipxbridge >= %version
+Requires: sipxconfig >= %version
+Requires: sipxconfig-agent >= %version
+Requires: sipxconfig-ftp >= %version
+Requires: sipxconfig-mrtg >= %version
+Requires: sipxconfig-report >= %version
+Requires: sipxconfig-tftp >= %version
+Requires: sipxecs-doc >= %version
+Requires: sipxfreeswitch >= %version
 Requires: sipx-freeswitch >= 1.0 
+Requires: sipx-freeswitch-codec-passthru-amr 
 Requires: sipx-freeswitch-codec-passthru-g723_1 
 Requires: sipx-freeswitch-codec-passthru-g729 
-Requires: sipx-freeswitch-codec-passthru-amr 
-Requires: sipxtools >= %version
-Requires: sipxecs-doc >= %version
 Requires: sipxivr >= %version
-Requires: sipxsaa >= %version
 Requires: sipxopenfire >= %version
+Requires: sipxpage >= %version
+Requires: sipxpark >= %version
+Requires: sipxpresence >= %version
+Requires: sipxproxy >= %version
+Requires: sipxproxy-cdr >= %version
+Requires: sipxpublisher >= %version
+Requires: sipxregistry >= %version
+Requires: sipxrls >= %version
+Requires: sipxsaa >= %version
+Requires: sipxsupervisor >= %version
+Requires: sipxtools >= %version
+Requires: sipxvxml >= %version
 Requires: sipxrest >= %version
 Requires: sipxcallcontroller >= %version
 Requires: sipxcdrlog >= %version

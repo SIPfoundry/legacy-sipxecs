@@ -30,6 +30,9 @@ Requires: chkconfig
 Requires: sipxcalllib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxtools >= %version
+Requires: sipxpark >= %version
+Requires: sipxpresence >= %version
+Requires: sipxrls >= %version
 
 Requires: httpd >= 2.0
 Requires: rsyslog
@@ -149,10 +152,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
 
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpark-process.xml
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
-
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
@@ -170,27 +169,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/vm_vxml
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/mediaserver
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/parkserver
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx/phone
-
-%attr(755,root,root) %{_bindir}/sipxpark.sh
-%attr(755,root,root) %{_bindir}/sipxpark
-%attr(755,root,root) %{_bindir}/sipxpark-config
-
-%attr(755,root,root) %{_bindir}/sipx-snapshot-rls
-%attr(755,root,root) %{_bindir}/sipxrls.sh
-%attr(755,root,root) %{_bindir}/sipxrls
-%attr(755,root,root) %{_bindir}/sipxrls-config
-
-%attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
-
-%attr(755,root,root) %{_bindir}/sipxpresence.sh
-%attr(755,root,root) %{_bindir}/sipxpresence
-%attr(755,root,root) %{_bindir}/sipxpresence-config
-
-%attr(755,root,root) %{_datadir}/sipxecs/schema/presence-state.xsd
 
 %files devel
 %defattr(644,root,root,755)

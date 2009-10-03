@@ -16,8 +16,8 @@ sipxpresence_CXXFLAGS = \
         -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipxpresence_SOURCES =  \
-    ../../config/sipxpbx-buildstamp.h \
-    ../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxpresence-buildstamp.h \
+	$(top_builddir)/config/sipxpresence-buildstamp.cpp \
 	main.cpp
 
 noinst_HEADERS =

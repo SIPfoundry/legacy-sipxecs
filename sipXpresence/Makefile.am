@@ -1,10 +1,24 @@
 ## Process this file with automake to produce Makefile.in
+include config/project.am
 
-include $(top_srcdir)/config/subdir.am
+RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
+
+include $(top_srcdir)/config/conditional_doc.am
 
 unconditional_SUBDIRS = . src bin etc meta
 
-include $(top_srcdir)/config/conditional_doc.am
+SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+
+EXTRA_DIST = \
+    CONTRIBUTORS \
+    BUILDSTAMP \
+    SVN-VERSION \
+    config/sipX-config.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    config/svn-version \
+    config/Doxyfile.in \
+    sipxpark.spec
 
 editscripts_IN = \
     bin/sipxpresence.sh.in
@@ -16,6 +30,3 @@ editscripts :
      $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
 	  $(INSTALL) -D -m 755 $$target $(DESTDIR)$(bindir)/$$target; \
 	done
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
-RELEASE = 1

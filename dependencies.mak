@@ -65,8 +65,20 @@ sipXconfig : sipXcommons
 sipXacd : sipXcallLib
 	@echo sipXacd
 
+.PHONY: sipXpark
+sipXpark : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
+	@echo sipXpark
+
+.PHONY: sipXpresence
+sipXpresence : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
+	@echo sipXpresence
+
+.PHONY: sipXrls
+sipXrls : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
+	@echo sipXrls
+
 .PHONY: sipXpbx
-sipXpbx : sipXproxy sipXregistry sipXpublisher sipXconfig
+sipXpbx : sipXproxy sipXregistry sipXpublisher sipXconfig sipXpark sipXpresence sipXrls
 	@echo sipXpbx
 
 .PHONY: sipXsupervisor
@@ -107,18 +119,24 @@ sipXcdrLog : sipXrest
 
 .PHONY: sipXecs
 sipXecs : \
-	sipXproxy \
-	sipXregistry \
-	sipXpublisher \
-	sipXsaa \
-	sipXconfig \
-	sipXfreeSwitch \
-	sipXpbx \
-	sipXsupervisor \
-	sipXtools \
-	sipXopenfire \
-	sipXrest \
 	sipXcallController \
 	sipXcdrLog \
+	sipXconfig \
+	sipXfreeSwitch \
+	sipXivr \
+	sipXopenfire \
+	sipXpage \
+	sipXpark \
+	sipXpbx \
+	sipXpresence \
+	sipXproxy \
+	sipXpublisher \
+	sipXregistry \
+	sipXrest \
+	sipXrls \
+	sipXsaa \
+	sipXsupervisor \
+	sipXtools \
+	sipXvxml \
 	doc
 	@echo sipXecs

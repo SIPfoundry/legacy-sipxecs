@@ -2,7 +2,7 @@ Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
 
-Summary:  SIP SUBSCRIBE/NOTIFY Server
+Summary:  SIP Call Parking Server
 License:  LGPL
 Group:    Productivity/Telephony/SIP/Servers
 Vendor:   SIPfoundry
@@ -60,11 +60,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-%doc CONTRIBUTORS %name.configlog
-%docdir doc
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpark-process.xml
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/parkserver
+
 %attr(755,root,root) %{_bindir}/sipxpark.sh
 %attr(755,root,root) %{_bindir}/sipxpark
-%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipxpark-config
 
 %files devel
 %defattr(644,root,root,755)

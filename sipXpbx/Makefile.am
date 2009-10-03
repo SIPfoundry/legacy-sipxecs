@@ -9,9 +9,6 @@ SUBDIRS = . \
     bin \
     etc \
     meta \
-    sipXpark \
-    sipXpresence \
-    sipXrls \
     $(doc_SUBDIRS)
 
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)

@@ -2,12 +2,12 @@ Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
 
-Summary:  SIP Dialog Resource List Server
-License:  LGPL
+Summary:  SIP Presence Server
+License:  Pingtel Commercial License
 Group:    Productivity/Telephony/SIP/Servers
-Vendor:   SIPfoundry
-Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
-Url:      http://www.sipfoundry.org/sipXrls
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
@@ -26,20 +26,20 @@ TBD
 
 %package devel
 Requires: %name
-Requires: sipxcalllib-devel >= %version
-Requires: sipxcommserverlib-devel >= %version
 Group: Development/Libraries
 Vendor: SIPfoundry
-Summary: Header files for %name
+Summary: Internal documentation for %name
+Requires: sipxcommserverlib-devel >= %version
+Requires: sipxcalllib-devel >= %version
 
 %description devel
-Developer support for sipXrls.
+Developer support for sipXpresence.
 
 %prep
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -60,15 +60,14 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 
-%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
 
-%docdir doc
-%attr(755,root,root) %{_bindir}/sipx-snapshot-rls
-%attr(755,root,root) %{_bindir}/sipxrls.sh
-%attr(755,root,root) %{_bindir}/sipxrls
-%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipxpresence.sh
+%attr(755,root,root) %{_bindir}/sipxpresence
+%attr(755,root,root) %{_bindir}/sipxpresence-config
 
-%attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/presence-state.xsd
 
 %files devel
 %defattr(644,root,root,755)

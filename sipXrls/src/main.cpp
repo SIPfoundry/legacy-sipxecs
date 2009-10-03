@@ -33,9 +33,9 @@
 // DEFINES
 
 #ifndef SIPX_VERSION
-#  include "sipxpbx-buildstamp.h"
-#  define SIPXCHANGE_VERSION          SipXpbxVersion
-#  define SIPXCHANGE_VERSION_COMMENT  SipXpbxBuildStamp
+#  include "sipxrls-buildstamp.h"
+#  define SIPXCHANGE_VERSION          SipXrlsVersion
+#  define SIPXCHANGE_VERSION_COMMENT  SipXrlsBuildStamp
 #else
 #  define SIPXCHANGE_VERSION          SIPX_VERSION
 #  define SIPXCHANGE_VERSION_COMMENT  ""

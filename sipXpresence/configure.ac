@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT(sipXpbx, 4.1.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXpresence, 4.1.0, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
@@ -11,7 +11,6 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/mailboxmgr/MailboxManager.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
@@ -33,9 +32,6 @@ AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
-CHECK_APACHE2
-CHECK_SELINUX
-CHECK_CGICC
 CHECK_XARGS_REPLACE
 # CHECK_RPM_DEBUG
 
@@ -62,20 +58,11 @@ CHECK_POSTGRES
 CHECK_SERVICEDIR
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([bin/Makefile])
-AC_CONFIG_FILES([doc/developer/Makefile.config])
-AC_CONFIG_FILES([etc/Makefile])
-AC_CONFIG_FILES([meta/Makefile])
-AC_CONFIG_FILES([doc/Makefile])
-AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([include/sipxcgi/Makefile])
 AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([src/mailboxmgr/Makefile])
-AC_CONFIG_FILES([src/mediaservercgi/Makefile])
-AC_CONFIG_FILES([src/sipxcgi/Makefile])
-AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([src/test/sipxcgi/Makefile])
-AC_CONFIG_FILES([src/wwwcontent/Makefile])
+AC_CONFIG_FILES([etc/Makefile])
+AC_CONFIG_FILES([bin/Makefile])
+AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([meta/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
 

@@ -45,9 +45,9 @@
 
 // DEFINES
 #ifndef SIPX_VERSION
-#  include "sipxpbx-buildstamp.h"
-#  define SIPX_VERSION SipXpbxVersion
-#  define SIPX_BUILD   SipXpbxBuildStamp
+#  include "sipxpark-buildstamp.h"
+#  define SIPX_VERSION SipXparkVersion
+#  define SIPX_BUILD   SipXparkBuildStamp
 #else
 #  define SIPX_BUILD   ""
 #endif

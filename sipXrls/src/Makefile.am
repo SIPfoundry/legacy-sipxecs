@@ -20,8 +20,8 @@ sipxrls_CXXFLAGS = \
         -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipxrls_SOURCES =  \
-	../../config/sipxpbx-buildstamp.h \
-	../../config/sipxpbx-buildstamp.cpp \
+	$(top_builddir)/config/sipxrls-buildstamp.h \
+	$(top_builddir)/config/sipxrls-buildstamp.cpp \
 	main.cpp \
 	ContactSet.cpp \
 	ResourceCache.cpp \
