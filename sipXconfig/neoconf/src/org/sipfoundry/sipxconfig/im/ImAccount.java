@@ -28,6 +28,11 @@ public class ImAccount {
     }
 
     public boolean isEnabled() {
+        //If permission manager is null there is no setting available
+        //This additional filter should be done to avoid null pointer exception when no setting is available
+        if (m_user.getSettings() == null) {
+            return false;
+        }
         return (Boolean) m_user.getSettingTypedValue("im/im-account");
     }
 

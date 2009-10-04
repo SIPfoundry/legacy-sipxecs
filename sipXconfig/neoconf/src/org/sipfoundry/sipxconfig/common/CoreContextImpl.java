@@ -27,11 +27,13 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext, DaoEventListener {
@@ -115,8 +117,21 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
                 }
             }
         }
+        applyImId(user);
         getHibernateTemplate().saveOrUpdate(user);
         return newUserName;
+    }
+
+    /**
+     * Propagate imId and imDisplayName to the user when instant messaging user setting is enabled
+     * @param user
+     */
+    private void applyImId(User user) {
+        ImAccount imUser = new ImAccount(user);
+        if (imUser.isEnabled()) {
+            user.setImId(imUser.getImId());
+            user.setImDisplayName(imUser.getImDisplayName());
+        }
     }
 
     /**
