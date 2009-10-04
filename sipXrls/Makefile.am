@@ -10,7 +10,6 @@ unconditional_SUBDIRS = . src bin meta etc
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
 EXTRA_DIST = \
-    CONTRIBUTORS \
     BUILDSTAMP \
     SVN-VERSION \
     config/sipX-config.in \
