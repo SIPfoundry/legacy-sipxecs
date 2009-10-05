@@ -17,7 +17,7 @@
                   conferenceMember="ognl:currentMember" />
         </span>
         <span jwcid="nicknameColumnValue@Block">
-            <a jwcid="@DirectLink" listener="listener:editCurrentMember" parameters="ognl:{currentMember.uuid,conference.name}">
+            <a jwcid="@DirectLink" listener="listener:editCurrentMember" parameters="ognl:{currentMember.uuid}">
               <span jwcid="@Insert" value="ognl:nicknameForCurrentMember" />
             </a>
         </span>

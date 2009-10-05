@@ -37,7 +37,7 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         service.reloadXml(location);
 
         if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
-            SipxService ivrService = (SipxIvrService) m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+            SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
             m_serviceConfigurator.replicateServiceConfig(ivrService, true);
         }
     }

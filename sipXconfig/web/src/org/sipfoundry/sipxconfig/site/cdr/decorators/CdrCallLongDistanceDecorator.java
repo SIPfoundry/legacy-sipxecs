@@ -12,14 +12,10 @@ package org.sipfoundry.sipxconfig.site.cdr.decorators;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 
 public class CdrCallLongDistanceDecorator extends CdrDecorator implements Comparable<CdrCallLongDistanceDecorator> {
-    private static final Log LOG = LogFactory.getLog(CdrCallLongDistanceDecorator.class);
-
     public CdrCallLongDistanceDecorator(Cdr cdr, Locale locale, Messages messages) {
         super(cdr, locale, messages);
     }

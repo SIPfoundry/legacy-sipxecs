@@ -295,7 +295,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
         forAllMembers(kick);
     }
 
-    public IPage editCurrentMember(String conferenceMemberUuid, String conferenceName) {
+    public IPage editCurrentMember(String conferenceMemberUuid) {
         EditActiveConferenceMember editMemberPage = getEditActiveConferenceMemberPage();
         editMemberPage.setReturnPage(getPage());
         editMemberPage.setConferenceMemberUuid(conferenceMemberUuid);

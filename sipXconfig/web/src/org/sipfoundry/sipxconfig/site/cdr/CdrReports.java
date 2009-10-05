@@ -267,7 +267,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
             mapParameters.put(TITLE_STARTREPORT, dateformat.format(startdate));
             mapParameters.put(TITLE_ENDREPORT, dateformat.format(enddate));
             setReportParameters(mapParameters);
-            List<CdrGraphBean> gdata = getCallDirectionGraphData(data, locale);
+            List<CdrGraphBean> gdata = getCallDirectionGraphData(data);
             mapParameters.put("calldirectionCallsPieImage", createCallDirectionCallsPieImage(gdata));
             setReportParameters(mapParameters);
             return;
@@ -390,7 +390,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
     }
 
     // Get graph data for CDR call direction pie.
-    private List<CdrGraphBean> getCallDirectionGraphData(List<CdrCallDirectionDecorator> cdrdecorated, Locale locale) {
+    private List<CdrGraphBean> getCallDirectionGraphData(List<CdrCallDirectionDecorator> cdrdecorated) {
         List<CdrGraphBean> directionCalls = new ArrayList<CdrGraphBean>();
         Bag directionCallsBag = new HashBag();
         for (CdrCallDirectionDecorator cdr : cdrdecorated) {

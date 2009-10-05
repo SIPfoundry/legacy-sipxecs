@@ -16,7 +16,6 @@ import org.acegisecurity.userdetails.UserDetails;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -24,6 +23,7 @@ public class SharedSecretUserDetailsImplTest extends TestCase {
 
     private DomainManager m_domainManager;
 
+    @Override
     public void setUp() {
         m_domainManager= TestUtil.getMockDomainManager();
         m_domainManager.getSharedSecret();
