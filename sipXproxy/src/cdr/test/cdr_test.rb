@@ -29,7 +29,7 @@ def make_cse(args)
   cse.from_tag="abcd"
   cse.to_tag="efghss"
   cse.from_url='sip:alice@example.com; tag=f'
-  cse.to_url='sip:bob@example.com'
+  cse.to_url='sip:bob@example.com; tag=g'
   cse.contact='sip:alice@1.1.1.1'
   
   if(args)
