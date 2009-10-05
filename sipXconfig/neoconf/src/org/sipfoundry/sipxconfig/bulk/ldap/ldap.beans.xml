@@ -17,6 +17,9 @@
         <entry key="lastName" value="sn" />
         <entry key="aliasesString" value="telephoneNumber" />
         <entry key="userGroupName" value="ou" />
+        <entry key="imId">
+          <null />
+        </entry>
       </map>
     </property>
     <property name="defaultGroupName" value="ldap_imports" />

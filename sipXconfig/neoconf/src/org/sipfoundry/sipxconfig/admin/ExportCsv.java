@@ -132,6 +132,8 @@ public class ExportCsv {
         }
         String userPinToken = user.getPintoken();
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
+        // XMPP
+        Index.IM_ID.set(row, user.getImId());
         csv.write(row, true);
     }
 

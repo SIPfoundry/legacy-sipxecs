@@ -132,4 +132,14 @@
     <binding name="displayName" value="message:label.email" />
   </component>
 
+  <component id="imIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.imId" />
+    <binding name="label" value="message:label.imId" />
+  </component>
+  <component id="imId" type="TextField">
+    <binding name="value" value="user.imId" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.imId" />
+  </component>
+
 </page-specification>

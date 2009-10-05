@@ -138,4 +138,15 @@
     <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.sipPassword" />
   </component>
+
+  <component id="imIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.imId"/>
+    <binding name="label" value="message:label.imId"/>
+    <binding name="description" value="message:description.imId"/>
+  </component>
+  <component id="imId" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['imId']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.imId" />
+  </component>
 </component-specification>

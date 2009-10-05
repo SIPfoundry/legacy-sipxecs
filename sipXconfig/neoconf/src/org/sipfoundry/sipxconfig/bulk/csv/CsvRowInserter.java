@@ -189,6 +189,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.LAST_NAME.setProperty(user, row);
         Index.ALIAS.setProperty(user, row);
         Index.SIP_PASSWORD.setProperty(user, row);
+        Index.IM_ID.setProperty(user, row);
 
         return user;
     }

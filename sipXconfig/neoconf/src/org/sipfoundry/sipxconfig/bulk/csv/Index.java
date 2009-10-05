@@ -29,7 +29,9 @@ public enum Index {
 
     // phone fields
     SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP("phoneGroupName", 10), PHONE_DESCRIPTION(
-            "description", 11);
+            "description", 11),
+    // XMPP
+    IM_ID("imId", 12);
 
     private final String m_name;
     private final int m_value;
@@ -100,7 +102,7 @@ public enum Index {
         return new String[] {
             "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
             "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-            "Phone group", "Phone description"
+            "Phone group", "Phone description", "Im Id"
         };
     }
 }

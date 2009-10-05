@@ -52,7 +52,7 @@ public class CsvRowInserterTest extends TestCase {
         replay(domainManager, coreContext);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234", "abcdef", "", "Star", ""
+            "bongo", "1234", "abcdef", "", "Star", "","","","","","","","im_id"
         };
 
         String[] userRow2 = new String[] {
@@ -68,6 +68,7 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("Ringo", user1.getFirstName());
         assertEquals("Star", user1.getLastName());
         assertEquals("abcdef", user1.getSipPassword());
+        assertEquals("im_id", user1.getImId());
         assertEquals(32, user1.getPintoken().length());
 
         User user2 = impl.userFromRow(userRow2);

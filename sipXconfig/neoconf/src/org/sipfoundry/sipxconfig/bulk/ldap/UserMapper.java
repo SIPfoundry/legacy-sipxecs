@@ -70,6 +70,7 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.FIRST_NAME);
         setProperty(user, attrs, Index.LAST_NAME);
         setProperty(user, attrs, Index.SIP_PASSWORD);
+        setProperty(user, attrs, Index.IM_ID);
 
         Set<String> aliases = getValues(attrs, Index.ALIAS);
         if (aliases != null) {
