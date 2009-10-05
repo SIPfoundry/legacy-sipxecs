@@ -309,6 +309,17 @@ class Cdr
   end
   
   def accept_call_setup(cse)
+    if !@start_time
+        # probably a case where we've missed the request.  Setup necessary
+        # info as if a request was seen.
+        @from_tag = cse.from_tag
+        @caller_aor = cse.caller_aor
+        @callee_aor = cse.callee_aor
+        @start_time = cse.event_time     
+        @reference = cse.reference
+        @caller_internal = cse.caller_internal 
+        @caller_contact = Utils.contact_without_params(cse.contact)
+    end
     @legs.accept_setup(cse)
     @callee_route = cse.callee_route
     @termination = CALL_IN_PROGRESS_TERM 
