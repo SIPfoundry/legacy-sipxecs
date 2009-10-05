@@ -19,7 +19,6 @@ import org.apache.commons.lang.enums.Enum;
  * Each enum corresponds to a single IMDB table
  */
 public class DataSet extends Enum {
-    public static final DataSet EXTENSION = new DataSet("extension");
     public static final DataSet ALIAS = new DataSet("alias");
     public static final DataSet CREDENTIAL = new DataSet("credential");
     public static final DataSet PERMISSION = new DataSet("permission");

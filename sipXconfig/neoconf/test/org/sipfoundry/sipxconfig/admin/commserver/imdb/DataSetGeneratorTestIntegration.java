@@ -28,10 +28,6 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void setExtensionDataSet(Extensions extensions) {
-        m_dataSetGeneratorMap.put(DataSet.EXTENSION.getName(), extensions);
-    }
-
     public void setCredentialDataSet(Credentials credentials) {
         m_dataSetGeneratorMap.put(DataSet.CREDENTIAL.getName(), credentials);
     }

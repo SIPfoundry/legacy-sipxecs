@@ -177,8 +177,6 @@
     </property>
   </bean>
 
-  <bean id="extensionDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions" />
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
     dependency-check="objects">

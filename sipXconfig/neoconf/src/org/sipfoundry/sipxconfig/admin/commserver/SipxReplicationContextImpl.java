@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
@@ -49,6 +49,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     // should be replicated every time aliases are replicated
     private ConfigurationFile m_validUsersConfig;
     private SipxServiceManager m_sipxServiceManager;
+
     protected abstract ServiceConfigurator getServiceConfigurator();
 
     public void generate(DataSet dataSet) {
