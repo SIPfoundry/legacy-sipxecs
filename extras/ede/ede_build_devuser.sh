@@ -602,8 +602,6 @@ echo SIPX_PREFIX $WORKING_DIR/$INSTALL >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_PROJECT_ROOT $WORKING_DIR/$CODE >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX-PROJECT-ROOT $WORKING_DIR/$CODE >> $ECLIPSE_WINDOW_PREFS_FILE
 echo "Running sipXconfig-specific Eclipse setup..."
-rm -rf $CODE/BUILD1 
-ln -s $WORKING_DIR/BUILD $CODE/BUILD1
 if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
    echo "Skipping sipXconfig Eclipse setup..."
 else
