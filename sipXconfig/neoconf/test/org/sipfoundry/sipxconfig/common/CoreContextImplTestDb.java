@@ -204,6 +204,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(NUM_USERS, users.size());
     }
 
+    @SuppressWarnings("deprecation")
     public void testLoadUsers() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 

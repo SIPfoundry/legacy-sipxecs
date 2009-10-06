@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -146,7 +147,7 @@ public class XmppAccountInfoTest extends TestCase {
     public void testGenerate() throws Exception {
         CoreContext coreContext = createMock(CoreContext.class);
 
-        coreContext.loadUsers();
+        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
         expectLastCall().andReturn(m_users).atLeastOnce();
         coreContext.getGroups();
         expectLastCall().andReturn(m_groups);

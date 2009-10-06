@@ -52,6 +52,13 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     User loadUser(Integer id);
 
+    /**
+     * Loads all users.
+     *
+     * Instead of loading all users, use DaoUtils.forAllUsersDo - it works regardless of how many
+     * users we have. This method only works if all users can actually fit in available memory.
+     */
+    @Deprecated
     List<User> loadUsers();
 
     int getUsersCount();
@@ -149,5 +156,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     List<User> getUsersThatISupervise(User uservisor);
 
     void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
+
     boolean isImIdUnique(User user);
 }

@@ -526,6 +526,7 @@ public abstract class TestPage extends BasePage {
         return page;
     }
 
+    @SuppressWarnings("deprecation")
     public void deleteAllUsers() {
         resetPersonalAttendants();
         List users = getCoreContext().loadUsers();
