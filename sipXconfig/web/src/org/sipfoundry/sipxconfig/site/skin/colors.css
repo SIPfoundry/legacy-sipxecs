@@ -376,3 +376,7 @@ div.autocomplete ul strong.highlight {
     font-weight: bold;
     color: #003333;
 }
+
+.avatar img {
+	border: 5px solid  #F0F0F0;
+}

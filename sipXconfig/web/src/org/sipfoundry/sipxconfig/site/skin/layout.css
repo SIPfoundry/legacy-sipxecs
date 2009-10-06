@@ -701,3 +701,12 @@ html, body {
     width: 70%;
     white-space:normal;
 }
+
+.avatar {
+	width: 30%;
+	float: right;
+}
+
+.avatar img {
+	margin: 10px;
+}
