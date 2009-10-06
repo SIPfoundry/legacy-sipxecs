@@ -419,7 +419,7 @@ fi
 popd > /dev/null
 
 # How are we building sipXecs?
-CONFIGURE_FLAGS="--enable-reports --enable-agent --enable-cdr --enable-mrtg --enable-conference"
+CONFIGURE_FLAGS="--enable-reports --enable-agent --enable-cdr --enable-mrtg"
 if [ $BUILD_RPMS ]; then
    # RPM build/install  - http://sipx-wiki.calivia.com/index.php/Building_RPMs
    mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
