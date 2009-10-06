@@ -246,6 +246,11 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                   }
                   mNextAvailableCallTrackerHandle++;
                }
+               else
+               {
+                  // new fork to a call-id already tracked by a CallTracker, notify CallTracker
+                  pCallTracker->notifyIncomingDialogFormingInvite( request, routeState, pCaller, pCallee );
+               }
             }
             else // non-INVITE dialog-forming request
             {
