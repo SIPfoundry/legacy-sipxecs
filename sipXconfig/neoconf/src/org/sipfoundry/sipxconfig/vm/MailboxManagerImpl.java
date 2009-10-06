@@ -214,8 +214,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     public void clearPersonalAttendants() {
-        List<PersonalAttendant> allPersonalAttendants = getHibernateTemplate().loadAll(
-                PersonalAttendant.class);
+        List<PersonalAttendant> allPersonalAttendants = getHibernateTemplate().loadAll(PersonalAttendant.class);
         getHibernateTemplate().deleteAll(allPersonalAttendants);
     }
 
@@ -232,8 +231,8 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     private PersonalAttendant findPersonalAttendant(User user) {
-        Collection pas = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "personalAttendantForUser", "user", user);
+        Collection pas = getHibernateTemplate().findByNamedQueryAndNamedParam("personalAttendantForUser", "user",
+                user);
         return (PersonalAttendant) DataAccessUtils.singleResult(pas);
     }
 
@@ -246,5 +245,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         protected void onUserDelete(User user) {
             removePersonalAttendantForUser(user);
         }
+    }
+
+    @Override
+    public MailboxPreferences getMailboxPreferencesForUser(User user) {
+        Mailbox mailbox = getMailbox(user.getUserName());
+        return loadMailboxPreferences(mailbox);
     }
 }

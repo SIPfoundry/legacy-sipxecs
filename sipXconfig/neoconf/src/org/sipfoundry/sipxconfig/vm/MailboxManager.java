@@ -32,6 +32,8 @@ public interface MailboxManager {
 
     void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
 
+    MailboxPreferences getMailboxPreferencesForUser(User user);
+
     DistributionList[] loadDistributionLists(Mailbox mailbox);
 
     void markRead(Mailbox mailbox, Voicemail voicemail);

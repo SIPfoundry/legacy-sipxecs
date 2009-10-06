@@ -83,6 +83,7 @@
 	office_address_office_designation CDATA #IMPLIED
 	im_id CDATA #IMPLIED
 	alternate_im_id CDATA #IMPLIED
+	gravatar CDATA #IMPLIED
  >
 
 <!ELEMENT alarm_contacts EMPTY>

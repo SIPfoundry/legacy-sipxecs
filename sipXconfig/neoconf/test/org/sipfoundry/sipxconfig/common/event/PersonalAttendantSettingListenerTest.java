@@ -9,17 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createStrictMock;
-import static org.easymock.classextension.EasyMock.replay;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -32,6 +27,10 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
+
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createStrictMock;
+import static org.easymock.classextension.EasyMock.replay;
 
 public class PersonalAttendantSettingListenerTest extends TestCase {
 
@@ -77,7 +76,9 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         m_coreContextMock = createStrictMock(CoreContext.class);
         m_coreContextMock.getGroupMembers(m_group);
-        expectLastCall().andReturn(Arrays.asList(new User[] {m_firstUser, m_secondUser}));
+        expectLastCall().andReturn(Arrays.asList(new User[] {
+            m_firstUser, m_secondUser
+        }));
         replay(m_coreContextMock);
 
         m_mailboxManagerMock = new MockMailboxManager();
@@ -114,15 +115,18 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         m_out.onSave(m_firstUser);
         m_out.onSave(m_secondUser);
-        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
-        assertEquals("secondUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_secondUser).getOperator());
+        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser)
+                .getOperator());
+        assertEquals("secondUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_secondUser)
+                .getOperator());
     }
 
     public void testOnSaveUserWithNoGroup() {
         m_firstUser.getSettings().getSetting("personal-attendant/operator").setValue("firstUserOperator");
 
         m_out.onSave(m_firstUser);
-        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser).getOperator());
+        assertEquals("firstUserOperator", m_mailboxManagerMock.loadPersonalAttendantForUser(m_firstUser)
+                .getOperator());
     }
 
     private static class MockMailboxManager implements MailboxManager {
@@ -133,8 +137,11 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
         }
 
-        public void delete(Mailbox mailbox, Voicemail voicemail) {}
-        public void deleteMailbox(String userId) {}
+        public void delete(Mailbox mailbox, Voicemail voicemail) {
+        }
+
+        public void deleteMailbox(String userId) {
+        }
 
         public Mailbox getMailbox(String userId) {
             return null;
@@ -160,11 +167,20 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             return null;
         }
 
-        public void markRead(Mailbox mailbox, Voicemail voicemail) {}
-        public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {}
-        public void removePersonalAttendantForUser(User user) {}
-        public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {}
-        public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {}
+        public void markRead(Mailbox mailbox, Voicemail voicemail) {
+        }
+
+        public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
+        }
+
+        public void removePersonalAttendantForUser(User user) {
+        }
+
+        public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
+        }
+
+        public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
+        }
 
         /* The methods below this comment are the only ones relevant for this test */
         public PersonalAttendant loadPersonalAttendantForUser(User user) {
@@ -177,6 +193,10 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         public void clearPersonalAttendants() {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
+        }
+
+        public MailboxPreferences getMailboxPreferencesForUser(User user) {
+            return null;
         }
     }
 }
