@@ -70,13 +70,13 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     		} else {
     	        if (!terminated) {
     	            discoveryService.addDiscovered(targetAddress, "");
-    	            ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+    	            ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
     	            activeObjectGroup.deleteInstance(this);
     	        }
     		}
     	} else {
     		if (!terminated) {
-    			ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+    			ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
     			activeObjectGroup.deleteInstance(this);
     		}
     	}
@@ -105,7 +105,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
 
         if (!terminated) {
             discoveryService.addDiscovered(targetAddress, userAgentInfo);
-            ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+            ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
             activeObjectGroup.deleteInstance(this);
         }
     }
@@ -118,7 +118,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void processPingTimeout() {
         if (!terminated) {
-        	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        	ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
         	activeObjectGroup.deleteInstance(this);
         }
     }
@@ -131,7 +131,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void processSIPTimeout(TimeoutEvent timeoutEvent) {
         if (!terminated) {
-        	ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        	ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
         	activeObjectGroup.deleteInstance(this);
         }
     }
@@ -149,7 +149,7 @@ public class DiscoveryAgentImpl extends ActiveObject implements DiscoveryAgent {
     @Synchronous
     public void terminate() {
         terminated = true;
-        ActiveObjectGroup activeObjectGroup = getActiveObjectGroup();
+        ActiveObjectGroupInterface activeObjectGroup = getActiveObjectGroup();
         activeObjectGroup.deleteInstance(this);
     }
 }

@@ -10,7 +10,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
-import org.sipfoundry.commons.ao.ActiveObjectGroupImpl;
+import org.sipfoundry.commons.ao.ActiveObjectGroup;
 import org.sipfoundry.commons.util.JournalService;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import java.text.*;
  * @author Mardy Marshall
  */
 
-public class DiscoveryService extends ActiveObjectGroupImpl<String> implements SipListener {
+public class DiscoveryService extends ActiveObjectGroup<String> implements SipListener {
     private String localHostAddress;
     private SipFactory sipFactory;
     private SipProvider sipProvider;
@@ -138,7 +138,7 @@ public class DiscoveryService extends ActiveObjectGroupImpl<String> implements S
     }
 
     public DiscoveryService(String localHostAddress, int localHostPort, JournalService journalService) {
-        super("PreflightDiscovery", Thread.NORM_PRIORITY, 64, 3000);
+        super("PreflightDiscovery", Thread.NORM_PRIORITY, 64, 3000, null);
 
         this.localHostAddress = localHostAddress;
         this.journalService = journalService;

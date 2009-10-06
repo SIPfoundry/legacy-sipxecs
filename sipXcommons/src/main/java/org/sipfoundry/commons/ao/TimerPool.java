@@ -22,7 +22,7 @@ public class TimerPool {
 
 	public TimerPool(String name) {
 		timerQueue = new DelayQueue<ActiveObject.Timer>();
-		timerPoolThread = new TimerPoolThread(name);
+		timerPoolThread = new TimerPoolThread(name + "-TimerPool");
 		timerPoolThread.start();
 	}
 

@@ -59,7 +59,7 @@ public class ActiveObject {
 	protected Object thisActiveObject;
 	protected Object groupMemberID;
 	//protected ActiveObjectGroup<? extends ActiveObjectGroup> activeObjectGroup;
-	protected ActiveObjectGroup activeObjectGroup;
+	protected ActiveObjectGroupInterface activeObjectGroup;
 
 	public ActiveObject() {
 		this("ActiveObject");
@@ -136,11 +136,11 @@ public class ActiveObject {
 		return groupMemberID;
 	}
 
-	public void setActiveObjectGroup(ActiveObjectGroup activeObjectGroup) {
+	public void setActiveObjectGroup(ActiveObjectGroupInterface activeObjectGroup) {
 		this.activeObjectGroup = activeObjectGroup;
 	}
 
-	public ActiveObjectGroup getActiveObjectGroup() {
+	public ActiveObjectGroupInterface getActiveObjectGroup() {
 		return activeObjectGroup;
 	}
 
