@@ -194,20 +194,20 @@ class DialogContext {
         @Override
         public void run() {
             if (dialog.getState() == DialogState.TERMINATED) {
+                logger.debug("Dialog is terminated -- not firing the  session timer");
                 this.cancel();
+                return;
             }
 
             try {
                 Request request;
-                long currentTimeMilis = System.currentTimeMillis();
+                logger.debug("Firing Session timer " );
+                logger.debug("DialogState = " + dialog.getState());
+                logger.debug("peerDialog " + DialogContext.this.getPeerDialog());
+                
                 if (dialog.getState() == DialogState.CONFIRMED
                         && DialogContext.get(dialog).getPeerDialog() != null) {
                     if (method.equalsIgnoreCase(Request.INVITE)) {
-
-                        if (currentTimeMilis < timeLastAckSent - sessionExpires * 1000) {
-                            return;
-                        }
-
                         SipProvider provider = ((DialogExt) dialog).getSipProvider();
                         RtpSession rtpSession = getRtpSession();
                         if (rtpSession == null || rtpSession.getReceiver() == null) {
@@ -228,10 +228,7 @@ class DialogContext {
                         ContactHeader cth = SipUtilities.createContactHeader(provider,
                                 getItspInfo());
                         request.setHeader(cth);
-                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires();
-                        
-                       
-                        
+                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires();                      
                         request.setHeader(sexp);
                         MinSE minSe = new MinSE();
                         minSe.setExpires(Gateway.getSessionExpires());
@@ -264,11 +261,7 @@ class DialogContext {
                     new Thread(reInviteSender).start();
                     DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
 
-                    int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
-                            : sessionExpires;
-
-                    Gateway.getTimer().schedule(sessionTimer,
-                            (expiryTime - Gateway.TIMER_ADVANCE) * 1000);
+                
 
                 }
 
@@ -443,20 +436,23 @@ class DialogContext {
        return SipUtilities.getCallLegId(this.getRequest());
     }
 
-    private void startSessionTimer() {
-        logger.debug("startSessionTimer()");
-        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-        Gateway.getTimer().schedule(this.sessionTimer,
-                (Gateway.getSessionExpires() - Gateway.TIMER_ADVANCE) * 1000);
+    public void startSessionTimer() {
+        logger.debug("startSessionTimer() for " + this.dialog);
+        this.startSessionTimer(Gateway.getSessionExpires());
     }
     
    public void startSessionTimer( int sessionTimeout ) {
-       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout));
+       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout) + " dialog " + dialog);
        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-        this.sessionExpires = sessionTimeout;
-        Gateway.getTimer().schedule(this.sessionTimer,
-                (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000);
+       this.sessionExpires = sessionTimeout;
+       int time = (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000;
+       Gateway.getTimer().schedule(this.sessionTimer,time,time
+                );
     }
+   
+   public boolean isSessionTimerStarted() {
+       return this.sessionTimer != null;
+   }
 
     /*
      * Constructor.
@@ -636,6 +632,7 @@ class DialogContext {
      * Cancel the session timer.
      */
     void cancelSessionTimer() {
+        logger.debug("cancelSessionTimer " + this.dialog);
         if (this.sessionTimer != null) {
             this.sessionTimer.terminate();
             this.sessionTimer = null;
@@ -648,7 +645,13 @@ class DialogContext {
      * @param expires
      */
     void setSetExpires(int expires) {
-        this.sessionExpires = expires;
+        if ( expires != this.sessionExpires) {
+            if ( this.sessionTimer != null ) {
+                this.sessionTimer.terminate();
+            }
+            this.startSessionTimer(expires);    
+        }
+        
 
     }
 
