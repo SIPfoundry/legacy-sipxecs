@@ -634,7 +634,7 @@ Backtrace=${Work}/Backtrace
 if [ ${GenerateCoreFiles} = YES ]
 then
     echo ======== Generate core files for all sipX processes > ${Backtrace}
-    for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
+    for PID_FILE in @SIPX_RUNDIR@/*.pid
     do
         PID=$( cat ${PID_FILE} )
         FILE=/tmp/core.${PID}
@@ -661,7 +661,7 @@ then
     done
 else
     echo ======== Backtrace of all sipX processes > ${Backtrace}
-    for PID_FILE in ~/sandbox-147/dir-local/var/run/sipxpbx/*.pid
+    for PID_FILE in @SIPX_RUNDIR@/*.pid
     do
         PID=$( cat ${PID_FILE} )
         echo
