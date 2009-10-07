@@ -150,8 +150,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/cron.daily/voicemail_clean
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
 
-%attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
-
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/mime.types
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
 %config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
