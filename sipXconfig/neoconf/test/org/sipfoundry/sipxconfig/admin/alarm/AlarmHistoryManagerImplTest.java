@@ -8,21 +8,21 @@
  *
  */
 
-package org.sipfoundry.sipxconfig.common;
+package org.sipfoundry.sipxconfig.admin.alarm;
 
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
-
 import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManagerImpl;
 
-public class AlarmContextImplTest extends TestCase {
+public class AlarmHistoryManagerImplTest extends TestCase {
 
     public void testParseEventsStream() throws Exception {
-        AlarmContextImpl impl = new AlarmContextImpl();
+        AlarmHistoryManagerImpl impl = new AlarmHistoryManagerImpl();
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.set(2009, Calendar.JUNE, 20);
@@ -37,7 +37,7 @@ public class AlarmContextImplTest extends TestCase {
     }
 
     public void testParseEventsStreamByPage() throws Exception {
-        AlarmContextImpl impl = new AlarmContextImpl();
+        AlarmHistoryManagerImpl impl = new AlarmHistoryManagerImpl();
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
         calendar.set(2009, Calendar.JUNE, 20);

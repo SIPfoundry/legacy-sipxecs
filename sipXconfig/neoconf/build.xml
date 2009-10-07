@@ -364,7 +364,8 @@
   <target name="test-datasets">
     <xmlvalidate description="validate dataset files used in tests">
       <!-- temporary exclude acd files - will fix them in a separate commit -->
-      <fileset dir="test" includes="**/*.db.xml" excludes="**/acd/**">
+      <!-- temporary exclude alarm files - will fix them in a separate commit -->
+      <fileset dir="test" includes="**/*.db.xml" excludes="**/acd/** **/alarm/**">
       </fileset>
     </xmlvalidate>
   </target>

@@ -25,6 +25,7 @@ import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -33,30 +34,33 @@ import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBeginRenderListener {
     private static final String CLIENT = "client";
 
-    @InjectObject(value = "spring:alarmContextImpl")
+    @InjectObject("spring:alarmContextImpl")
     public abstract AlarmContext getAlarmContext();
+
+    @InjectObject("spring:alarmHistoryManager")
+    public abstract AlarmHistoryManager getAlarmHistoryManager();
 
     @InjectObject("spring:monitoringContext")
     public abstract MonitoringContext getMonitoringContext();
 
-    @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
+    @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
     public abstract void setHost(String host);
 
-    @Persist(value = CLIENT)
+    @Persist(CLIENT)
     public abstract String getHost();
 
     public abstract IPropertySelectionModel getHostModel();
 
     public abstract void setHostModel(IPropertySelectionModel model);
 
-    @Persist(value = CLIENT)
+    @Persist(CLIENT)
     public abstract Date getStartDate();
 
     public abstract void setStartDate(Date date);
 
-    @Persist(value = CLIENT)
+    @Persist(CLIENT)
     public abstract Date getEndDate();
 
     public abstract void setEndDate(Date date);
@@ -110,7 +114,7 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
         if (getHistoryAlarmsTableModel() == null) {
             HistoryAlarmsTableModel tableModel = new HistoryAlarmsTableModel();
-            tableModel.setAlarmContext(getAlarmContext());
+            tableModel.setAlarmHistoryManager(getAlarmHistoryManager());
             setHistoryAlarmsTableModel(tableModel);
         }
     }
@@ -128,8 +132,9 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
         getAlarmContext().reloadAlarms();
 
-        getHistoryAlarmsTableModel().setHost(getHost());
-        getHistoryAlarmsTableModel().setStartDate(getStartDate());
-        getHistoryAlarmsTableModel().setEndDate(getEndDate());
+        HistoryAlarmsTableModel model = getHistoryAlarmsTableModel();
+        model.setHost(getHost());
+        model.setStartDate(getStartDate());
+        model.setEndDate(getEndDate());
     }
 }

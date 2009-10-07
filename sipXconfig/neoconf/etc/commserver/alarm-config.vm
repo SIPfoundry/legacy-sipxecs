@@ -14,11 +14,11 @@
       <email enabled="${email}">
          <!-- Alarm notification emails will be sent from this address. -->
          <email-notification-addr>${fromEmailAddress}</email-notification-addr>
-         <!-- Alarm notification emails will be sent to each contact in this list. -->
-#foreach ($address in ${contacts.addresses})
-         <contact>${address}</contact>
-#end
       </email>
+      <sms enabled="${email}">
+         <!-- Alarm notification SMS will be sent from this address. -->
+         <email-notification-addr>${fromEmailAddress}</email-notification-addr>
+      </sms>
       <!-- snmp traps are not yet implemented
       <trap enabled="false">
          <snmp_manager>1.2.3.4</snmp_manager>

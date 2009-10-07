@@ -26,7 +26,7 @@ public class Alarm implements Comparable, PrimaryKeySource, Serializable {
 
     private boolean m_logEnabled = true;
 
-    private boolean m_emailEnabled = true;
+    private String m_groupName = "disabled";
 
     private int m_minThreshold;
 
@@ -68,12 +68,12 @@ public class Alarm implements Comparable, PrimaryKeySource, Serializable {
         m_description = description;
     }
 
-    public boolean isEmailEnabled() {
-        return m_emailEnabled;
+    public String getGroupName() {
+        return m_groupName;
     }
 
-    public void setEmailEnabled(boolean emailEnabled) {
-        m_emailEnabled = emailEnabled;
+    public void setGroupName(String groupName) {
+        m_groupName = groupName;
     }
 
     public boolean isLogEnabled() {
@@ -120,10 +120,12 @@ public class Alarm implements Comparable, PrimaryKeySource, Serializable {
         return getAlarmId().compareTo(((Alarm) alarm).getAlarmId());
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_alarmId).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof Alarm)) {
             return false;
@@ -135,6 +137,7 @@ public class Alarm implements Comparable, PrimaryKeySource, Serializable {
         return new EqualsBuilder().append(m_alarmId, alarm.m_alarmId).isEquals();
     }
 
+    @Override
     public String toString() {
         return "Alarm: " + m_alarmId;
     }

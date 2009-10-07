@@ -131,5 +131,9 @@
   <table name="paging_group"/>
   <table name="user_paging_group"/>  
 
+  <!-- alarm group -->
+  <table name="alarm_group"/>
+  <table name="user_alarm_group"/>  
+
   <table name="branch"/>
 </dataset>

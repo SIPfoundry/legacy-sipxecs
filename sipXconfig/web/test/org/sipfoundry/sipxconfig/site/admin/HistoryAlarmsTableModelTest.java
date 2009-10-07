@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
@@ -16,18 +16,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.JUnit4TestAdapter;
-
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
-import org.sipfoundry.sipxconfig.common.AlarmContextImpl;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManagerImpl;
+
+import static org.junit.Assert.assertEquals;
 
 public class HistoryAlarmsTableModelTest {
 
     private HistoryAlarmsTableModel m_out;
-    private DummyAlarmContext m_alarmContext;
+    private DummyAlarmHistoryManager m_historyManager;
 
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(HistoryAlarmsTableModelTest.class);
@@ -36,8 +35,8 @@ public class HistoryAlarmsTableModelTest {
     @Before
     public void setUp() {
         m_out = new HistoryAlarmsTableModel();
-        m_alarmContext = new DummyAlarmContext();
-        m_out.setAlarmContext(m_alarmContext);
+        m_historyManager = new DummyAlarmHistoryManager();
+        m_out.setAlarmHistoryManager(m_historyManager);
 
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
@@ -72,9 +71,10 @@ public class HistoryAlarmsTableModelTest {
         assertEquals(expectedCount, count);
     }
 
-    private static class DummyAlarmContext extends AlarmContextImpl {
+    private static class DummyAlarmHistoryManager extends AlarmHistoryManagerImpl {
         @Override
-        public List<AlarmEvent> getAlarmEventsByPage(String host, Date startDate, Date endDate, int first, int pageSize) {
+        public List<AlarmEvent> getAlarmEventsByPage(String host, Date startDate, Date endDate, int first,
+                int pageSize) {
             InputStream stream = getClass().getResourceAsStream("alarm.test.large.log");
             try {
                 return parseEventsStreamByPage(stream, startDate, endDate, first, pageSize);
@@ -93,5 +93,4 @@ public class HistoryAlarmsTableModelTest {
             }
         }
     }
-
 }

@@ -7,40 +7,27 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.alarm;
+package org.sipfoundry.sipxconfig.admin.alarm;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerContacts;
 
-public class AlarmServerConfigurationTest extends XMLTestCase {
+public class AlarmServerConfigurationTest extends TestCase {
     public void testGenerateAlarmServer() throws Exception {
         AlarmServerConfiguration alarmServerConf = new AlarmServerConfiguration();
         alarmServerConf.setVelocityEngine(TestHelper.getVelocityEngine());
         alarmServerConf.setTemplate("commserver/alarm-config.vm");
         AlarmServer server = new AlarmServer();
         server.setEmailNotificationEnabled(true);
-        AlarmServerContacts contacts = new AlarmServerContacts();
-        List<String> addresses = new ArrayList<String>();
-        addresses.add("address1@localhost");
-        addresses.add("address2@localhost");
-        contacts.setAddresses(addresses);
-
-        server.setContacts(contacts);
 
         alarmServerConf.generate(server, "/usr/local/sipx/var/log/sipxpbx", "post.example.org");
 
         String generatedXml = AbstractConfigurationFile.getFileContent(alarmServerConf, null);
         InputStream referenceXmlStream = AlarmConfigurationTest.class.getResourceAsStream("alarm-config-test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
+        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
     }
 }

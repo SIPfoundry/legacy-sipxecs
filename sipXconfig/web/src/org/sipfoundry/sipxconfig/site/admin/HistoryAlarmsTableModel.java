@@ -5,22 +5,23 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
 
 public class HistoryAlarmsTableModel implements IBasicTableModel {
 
-    private AlarmContext m_alarmContext;
+    private AlarmHistoryManager m_alarmHistoryManager;
     private String m_host;
     private Date m_startDate;
     private Date m_endDate;
@@ -28,10 +29,12 @@ public class HistoryAlarmsTableModel implements IBasicTableModel {
     @Override
     public Iterator getCurrentPageRows(int first, int pageSize, ITableColumn sortColumn, boolean sortOrder) {
         if (!isValidConfig()) {
-            return new ArrayList<AlarmEvent>().iterator();
+            return Collections.emptyList().iterator();
         }
 
-        return m_alarmContext.getAlarmEventsByPage(m_host, m_startDate, m_endDate, first, pageSize).iterator();
+        List<AlarmEvent> alarms = m_alarmHistoryManager.getAlarmEventsByPage(m_host, m_startDate, m_endDate, first,
+                pageSize);
+        return alarms.iterator();
     }
 
     @Override
@@ -39,7 +42,7 @@ public class HistoryAlarmsTableModel implements IBasicTableModel {
         if (!isValidConfig()) {
             return 0;
         }
-        return m_alarmContext.getAlarmEvents(m_host, m_startDate, m_endDate).size();
+        return m_alarmHistoryManager.getAlarmEvents(m_host, m_startDate, m_endDate).size();
     }
 
     private boolean isValidConfig() {
@@ -58,7 +61,7 @@ public class HistoryAlarmsTableModel implements IBasicTableModel {
         m_endDate = endDate;
     }
 
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
+    public void setAlarmHistoryManager(AlarmHistoryManager alarmHistoryManager) {
+        m_alarmHistoryManager = alarmHistoryManager;
     }
 }

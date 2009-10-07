@@ -23,13 +23,13 @@ import static java.util.Collections.singleton;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -53,7 +53,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     private DomainManager m_domainManager;
 
-    private AlarmContext m_alarmContext;
+    private AlarmServerManager m_alarmServerManager;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -216,7 +216,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             replicateServiceConfig(location, supervisorService);
 
             // replicate alarm server. alarm server should be re-implemented as a sipx service
-            m_alarmContext.replicateAlarmServer(m_replicationContext, location);
+            m_alarmServerManager.replicateAlarmServer(m_replicationContext, location);
         }
 
         generateDataSets();
@@ -282,8 +282,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     @Required
-    public void setAlarmContext(AlarmContext alarmContext) {
-        m_alarmContext = alarmContext;
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 
     public void markServiceForRestart(SipxService service) {

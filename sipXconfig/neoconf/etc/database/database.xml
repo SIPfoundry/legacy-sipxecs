@@ -333,6 +333,7 @@
     <antcall target="remove-legacy-media-server" />
 	<antcall target="phonebook-add-user" />
     <antcall target="add_addrbookentry_use_brnch_addr" />
+    <antcall target="alarm-groups" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -1002,6 +1003,9 @@
   </target>
   <target name="add_addrbookentry_use_brnch_addr" unless="add_addrbookentry_use_brnch_addr">
     <db-patch patch="add_addrbookentry_use_brnch_addr"/>
+  </target>
+  <target name="alarm-groups" unless="alarm-groups">
+    <db-patch patch="alarm-groups"/>
   </target>
 
   <!--

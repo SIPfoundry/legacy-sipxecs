@@ -136,17 +136,11 @@
 
   <bean id="alarmContextImpl" class="org.sipfoundry.sipxconfig.common.AlarmContextImpl">
     <property name="alarmApiProvider" ref="alarmApiProvider" />
-    <property name="sessionFactory" ref="sessionFactory" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="alarmServerConfiguration" ref="alarmServerConfiguration" />
-    <property name="alarmsConfiguration" ref="alarmsConfiguration" />
-    <property name="sipxUser" value="${sysdir.user}" />
-    <property name="logDirectory" value="${sysdir.log}" />
-    <property name="configDirectory" value="${sysdir.etc}" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 
-  <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="alarmContextUserDelete">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.common.AlarmContext"/>
     <property name="interceptorNames">
       <list>

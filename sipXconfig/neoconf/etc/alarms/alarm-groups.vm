@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<alarm_groups xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00">
+  <!-- Per-alarmgroup definitions. -->
+  <definitions>
+#foreach ($group in ${groups})
+    <group id="$group.name">
+      <email>
+#foreach ($address in ${group.contactEmailAddresses})
+        <contact>$address</contact>
+#end
+      </email>
+      <sms>
+#foreach ($address in ${group.contactSmsAddresses})
+        <contact>$address</contact>
+#end
+      </sms>
+    </group>
+#end
+  </definitions>
+</alarm_groups>

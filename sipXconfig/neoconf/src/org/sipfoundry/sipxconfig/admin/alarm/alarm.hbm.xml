@@ -11,12 +11,39 @@
     </id>
     <property name="emailNotificationEnabled" />
     <property name="fromEmailAddress" />
-    <component name="contacts" class="AlarmServerContacts">
-      <list name="addresses" table="alarm_contacts">
-        <key column="alarm_server_id" foreign-key="fk_alarm_server_contacts" />
-        <index column="index" />
-        <element type="string" column="address" not-null="true" />
-      </list>
-    </component>
   </class>
+
+  <class name="AlarmGroup" table="alarm_group">
+    <id name="id" column="alarm_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_group_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="description" />
+    <property name="enabled" />
+    <list name="smsAddresses" table="alarm_group_smscontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <element type="string" column="address" not-null="true" />
+    </list>
+    <list name="emailAddresses" table="alarm_group_emailcontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <element type="string" column="address" not-null="true" />
+    </list>
+    <set name="users" table="user_alarm_group">
+      <key column="alarm_group_id" />
+      <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
+    </set>
+  </class>
+
+  <query name="countAlarmGroupWithSameName">
+    <![CDATA[select count (*) from AlarmGroup pg where pg.id = :alarmGroupId and pg.name = :alarmGroupName]]>
+  </query>
+
+  <query name="anotherAlarmGroupWithSameName">
+    <![CDATA[select count (*) from AlarmGroup pg where pg.name = :alarmGroupName]]>
+  </query>
+
 </hibernate-mapping>

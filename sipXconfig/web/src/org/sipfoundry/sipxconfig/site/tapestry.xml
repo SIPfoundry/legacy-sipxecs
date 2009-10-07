@@ -164,6 +164,13 @@
     </property>
   </bean>
 
+  <bean name="validAlarmGroupName" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern" value="[A-Za-z0-9]{1,16}"/>
+    <property name="message">
+      <value>Please enter letters and numbers only, maximium 16 characters</value>
+    </property>
+  </bean>
+
   <bean name="validCountryName" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern" value="[A-Z]{2}"/>
     <property name="message" value="Please enter only two letters in uppercase, for example US, UK"/>

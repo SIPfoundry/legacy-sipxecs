@@ -73,3 +73,4 @@ sipImpl.port : sip.port
 - : acdServer.maxLines
 - : sipxProxyService.sipPort
 - : sipxProxyService.secureSipPort
+- : alarmContextImpl.alarmsStringsDirectory

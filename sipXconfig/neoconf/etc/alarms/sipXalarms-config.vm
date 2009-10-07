@@ -19,7 +19,7 @@
          <severity>$alarm.severity</severity>
          <component>$alarm.component</component>
          <action log="$alarm.logEnabled"
-                 email="$alarm.emailEnabled"
+                 email="$alarm.groupName"
                  />
          <filter min_threshold="$alarm.minThreshold"
                  />

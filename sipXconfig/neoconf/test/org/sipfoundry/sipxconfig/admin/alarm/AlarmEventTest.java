@@ -7,14 +7,12 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.alarm;
+package org.sipfoundry.sipxconfig.admin.alarm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 import junit.framework.TestCase;
-import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 
 public class AlarmEventTest extends TestCase {
     private static final String LOG_ENTRY = "\"2009-06-22T13:39:56.406437Z\":4:ALARM:CRIT:sipx.example.org:sipXbridge::"

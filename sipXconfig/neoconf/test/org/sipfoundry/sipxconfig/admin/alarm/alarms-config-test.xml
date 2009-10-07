@@ -18,7 +18,7 @@
          <severity>warning</severity>
          <component>sipXconfig</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
          <filter min_threshold="3"
                  />
@@ -28,7 +28,7 @@
          <severity>crit</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="false"
+                 email="disabled"
                  />
          <filter min_threshold="0"
                  />

@@ -212,6 +212,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.user", "sipxpbxuser");
         sysProps.setProperty("sysdir.libexec", outputDirectory);
         sysProps.setProperty("sysdir.default.firmware", outputDirectory + "/devicefiles");
+        sysProps.setProperty("sysdir.alarmsStrings", etcDirectory);
 
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
