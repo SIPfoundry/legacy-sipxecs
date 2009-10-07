@@ -49,6 +49,7 @@ public:
    enum eAlarmActions { 
       eActionLog,       ///< Log Notifier
       eActionEmail,     ///< Email Notifier
+      eActionSms,       ///< SMS Notifier
       eActionTrap,      ///< SNMP Trap Notifier (not currently implemented)
       eActionMax        ///< Insert new notifiers before this line
    };
@@ -61,6 +62,7 @@ public:
    const OsSysLogPriority getSeverity() const { return m_severity; }
    const UtlString& getResolution() const     { return m_resolution; }
    const UtlBoolean getAction(const eAlarmActions act) { return actions[act]; }
+   const UtlString& getGroupName() const      { return group_name; }
    const int        getCount() const          { return count; }
    const OsTime     getLastTime() const       { return lastTime; }
    
@@ -94,6 +96,7 @@ private:
    
    // these are things that can be configured
    UtlBoolean actions[eActionMax]; ///< which notifiers should be invoked on this alarm
+   UtlString  group_name;          ///< alarm group name to contact
    int        max_report;          ///< max number of times to report in a brief interval
    int        min_threshold;       ///< report only after this number of occurrences in a brief interval
    

@@ -87,7 +87,7 @@ private:
    /// Unload alarms and free all resources
    void unloadAlarms();
    
-   bool loadAlarmConfig(const UtlString& alarmFile);
+   bool loadAlarmConfig(const UtlString& alarmFile, const UtlString& groupFile);
    bool loadAlarmDefinitions(const UtlString& alarmFile);
 
    /// Load alarm strings from the specified file

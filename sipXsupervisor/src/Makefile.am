@@ -85,17 +85,19 @@ libsipXalarms_la_LIBADD = \
     @SIPXTACK_LIBS@
 
 libsipXalarms_la_SOURCES = \
+	AlarmData.cpp \
+	AlarmServer.cpp \
 	AlarmUtils.cpp \
 	EmailNotifier.cpp \
 	EmailSendTask.cpp \
 	LogNotifier.cpp \
 	NotifierBase.cpp \
-	AlarmData.cpp \
-	AlarmServer.cpp \
+	SmsNotifier.cpp \
+	AlarmData.h \
+	AlarmServer.h \
 	AlarmUtils.h \
 	EmailNotifier.h \
 	EmailSendTask.h \
 	LogNotifier.h \
 	NotifierBase.h \
-	AlarmData.h \
-	AlarmServer.h
+	SmsNotifier.h

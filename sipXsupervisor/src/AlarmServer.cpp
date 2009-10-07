@@ -26,6 +26,7 @@
 #include "AlarmServer.h"
 #include "AlarmUtils.h"
 #include "EmailNotifier.h"
+#include "SmsNotifier.h"
 #include "LogNotifier.h"
 
 // EXTERNAL FUNCTIONS
@@ -121,7 +122,9 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
    UtlString compStr("");
    UtlString sevStr("minor");
    UtlString resStr("");
+   UtlString groupName("disabled");
    bool actEmail = true;
+   bool actSms = true;
    bool actLog = true;
    bool actTrap = false;
    int  filtMax = INT_MAX;
@@ -167,7 +170,17 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
 
       codeElement = element->FirstChildElement("action");
       actLog   = getBoolAttribute(codeElement, "log", true);
-      actEmail = getBoolAttribute(codeElement, "email", true);
+      if ( codeElement )
+      {
+         // Get the alarm group name used for both regular emails and SMS emails.
+         groupName = codeElement->Attribute("email");
+         if (strcmp(groupName.data(), "disabled") == 0)
+         {
+            // All regular/SMS notifications for this alarm type must be disabled.
+            actEmail = false;
+            actSms = false;
+         }
+      }
       actTrap  = getBoolAttribute(codeElement, "trap");
       codeElement = element->FirstChildElement("filter");
       filtMax  = getIntAttribute(codeElement, "max_reports", INT_MAX);
@@ -187,7 +200,9 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
    data->setResolution(resStr);
    data->actions[cAlarmData::eActionLog] = actLog;
    data->actions[cAlarmData::eActionEmail] = actEmail;
+   data->actions[cAlarmData::eActionSms] = actSms;
    data->actions[cAlarmData::eActionTrap] = actTrap;
+   data->group_name = groupName;
    data->max_report = filtMax;
    data->min_threshold = filtMin;
    data->resetCount();
@@ -259,6 +274,12 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
          if (mpNotifiers[cAlarmData::eActionEmail])
          {
             mpNotifiers[cAlarmData::eActionEmail]->initStrings(element);
+         }
+
+         element = alarmActionsElement->FirstChildElement("sms");
+         if (mpNotifiers[cAlarmData::eActionSms])
+         {
+            mpNotifiers[cAlarmData::eActionSms]->initStrings(element);
          }
 
          /* not implemented yet
@@ -351,24 +372,39 @@ cAlarmData* cAlarmServer::lookupAlarm(const UtlString& id)
 }
 
 
-bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
+bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& groupFile)
 {
    // load global alarm config from alarm-config.xml
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm config file '%s'", alarmFile.data());
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Loading alarm config files '%s' '%s'",
+                 alarmFile.data(), groupFile.data());
 
-   TiXmlDocument doc(alarmFile);
-   TiXmlHandle docHandle( &doc );
-   if (!doc.LoadFile())
+   // Load the alarm configuration file
+   TiXmlDocument alarmDoc(alarmFile);
+   TiXmlHandle alarmDocHandle( &alarmDoc );
+   if (!alarmDoc.LoadFile())
    {
       UtlString errorMsg;
-      XmlErrorMsg( doc, errorMsg );
+      XmlErrorMsg( alarmDoc, errorMsg );
       OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm config file: %s", errorMsg.data());
       return false;
    }
+   TiXmlHandle alarmDocH( &alarmDoc );
+   TiXmlHandle alarmServerHandle = alarmDocH.FirstChildElement("alarm_server");
 
-   TiXmlHandle docH( &doc );
-   TiXmlHandle alarmServerHandle = docH.FirstChildElement("alarm_server");
-   
+   // Load the alarm group configuration file
+   TiXmlDocument groupDoc(groupFile);
+   TiXmlHandle groupDocHandle( &groupDoc );
+   if (!groupDoc.LoadFile())
+   {
+      UtlString errorMsg;
+      XmlErrorMsg( groupDoc, errorMsg );
+      OsSysLog::add(FAC_ALARM, PRI_ERR, "Failed to load alarm group config file: %s", errorMsg.data());
+      return false;
+   }
+   TiXmlHandle groupDocH( &groupDoc );
+   TiXmlHandle groupServerHandle = groupDocH.FirstChildElement("alarm_groups");
+
+   // Continue to process the alarm configuration file
    TiXmlElement* settingsElement = alarmServerHandle.FirstChildElement("settings").Element();
    if (!settingsElement)
    {
@@ -400,11 +436,12 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
          mpNotifiers[cAlarmData::eActionLog] = pLogNotifier;
          if (pLogNotifier)
          {
-            pLogNotifier->init(element);
+            pLogNotifier->init(element, NULL);
             gbActions[cAlarmData::eActionLog] = true;
          }
       }
       
+      // Alarm email notifications
       element = alarmActionsElement->FirstChildElement("email");
       if (getBoolAttribute(element, "enabled"))
       {
@@ -416,10 +453,28 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
          mpNotifiers[cAlarmData::eActionEmail] = pEmailNotifier;
          if (pEmailNotifier)
          {
-            pEmailNotifier->init(element);
+            TiXmlElement* groupElement = groupServerHandle.FirstChildElement("definitions").Element();
+            pEmailNotifier->init(element, groupElement);
             gbActions[cAlarmData::eActionEmail] = true;
          }
       }      
+
+      element = alarmActionsElement->FirstChildElement("sms");
+      if (getBoolAttribute(element, "enabled"))
+      {
+         SmsNotifier* pSmsNotifier = new SmsNotifier();
+         if (mpNotifiers[cAlarmData::eActionSms])
+         {
+            delete mpNotifiers[cAlarmData::eActionSms];
+         }
+         mpNotifiers[cAlarmData::eActionSms] = pSmsNotifier;
+         if (pSmsNotifier)
+         {
+            TiXmlElement* groupElement = groupServerHandle.FirstChildElement("definitions").Element();
+            pSmsNotifier->init(element, groupElement);
+            gbActions[cAlarmData::eActionSms] = true;
+         }
+      }
       
       /* not implemented yet
       element = alarmActionsElement->FirstChildElement("trap");
@@ -433,7 +488,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile)
          mpNotifiers[cAlarmData::eActionTrap] = pTrapNotifier;
          if (pTrapNotifier)
          {
-            pTrapNotifier->init(element);
+            pTrapNotifier->init(element, NULL);
             gbActions[cAlarmData::eActionTrap] = true;
          }
       }  
@@ -495,7 +550,9 @@ bool cAlarmServer::loadAlarms()
    // load global alarm config from alarm-config.xml
    UtlString strAlarmFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
          "alarm-config.xml");
-   loadAlarmConfig(strAlarmFilename);
+   UtlString strGroupFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
+         "alarm-groups.xml");
+   loadAlarmConfig(strAlarmFilename, strGroupFilename);
    
    // load specific alarm definitions from ${confdir}/alarms/*.xml
    UtlString alarmDefDir = SipXecsService::Path(SipXecsService::ConfigurationDirType);

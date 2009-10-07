@@ -61,7 +61,8 @@ public:
 
    /// Initialize notifier (including loading parameters from the provided xml element).
    virtual OsStatus init(
-         TiXmlElement* element             ///< pointer to xml config element for this notifier
+         TiXmlElement* element1,           ///< pointer to xml config element1 for this notifier
+         TiXmlElement* element2            ///< pointer to xml config element2 for this notifier
          )
       = 0;
 

@@ -62,6 +62,7 @@ public:
       
       // copy test files into parallel structure
       mAlarmTestContext->inputFile("alarm-config.xml");
+      mAlarmTestContext->inputFile("alarm-groups.xml");
       mAlarmTestContext2->inputFile("test-localization-config.xml");
       mAlarmTestContext4->inputFile("test-localization-strings.xml");
       mAlarmTestContext4->inputFile("test-localization-strings_fr.xml");
@@ -99,7 +100,7 @@ public:
             PRI_ALERT,
             "C'est une épreuve de la système alarme. La seule parameter devrait être ici: {0}, et c'est tout.",
             "C'est aussi une épreuve de l'insertion des parametres, des accents, et des virgules.",
-            { true, true, false },
+            { true, true, true, false },
             3,
             0
          },
@@ -110,7 +111,7 @@ public:
             PRI_WARNING,
             "La deuxième parametre est {1}, puis parametre {0}",
             "Check for bugs in assembleMsg!",
-            { true, true, false },
+            { true, true, true, false },
             INT_MAX,
             0
          },
@@ -121,7 +122,7 @@ public:
             PRI_DEBUG,
             "Print special characters such as <, >, and & properly.",
             "Text must be escaped in the strings file, and unescaped before sending notifications.",
-            { true, true, false },
+            { true, true, true, false },
             INT_MAX,
             0
          },
@@ -132,7 +133,7 @@ public:
             PRI_WARNING,
             "This is missing from the _fr strings file.",
             "It should be displayed in English.",
-            { true, true, false },
+            { true, true, true, false },
             INT_MAX,
             0
          }

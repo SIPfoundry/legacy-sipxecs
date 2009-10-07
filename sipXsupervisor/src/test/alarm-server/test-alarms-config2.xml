@@ -7,7 +7,7 @@
          <severity>error</severity>
          <component>alarmTest</component>
          <action log="true"
-                  email="true"
+                  email="default"
                   />
       </alarm>
    </definitions>

@@ -19,9 +19,11 @@
       <email enabled="false">
          <!-- Alarm notification emails will be sent from this address. -->
          <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
-         <!-- Alarm notification emails will be sent to each contact in this list. -->
-         <contact>@SIPXPBXUSER@@localhost</contact>
       </email>
+      <sms enabled="false">
+         <!-- Alarm notification SMS will be sent from this address. -->
+         <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
+      </sms>
       <!-- snmp traps are not yet implemented
       <trap enabled="false">
          <snmp_manager>1.2.3.4</snmp_manager>

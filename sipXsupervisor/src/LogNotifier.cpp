@@ -91,7 +91,7 @@ OsStatus LogNotifier::handleAlarm(
    return retval;
 }
 
-OsStatus LogNotifier::init(TiXmlElement* element)
+OsStatus LogNotifier::init(TiXmlElement* element, TiXmlElement* dummy)
 {
    UtlString alarmFile;
    textContentShallow(alarmFile, element->FirstChildElement("file"));

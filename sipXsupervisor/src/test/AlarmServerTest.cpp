@@ -42,7 +42,7 @@ alarmRowData expectedResult[] =
       "Short title for test log",
       "This is a test of the log function. Single parameter should be here: {0}, and that's all that is required",
       "This also tests parameter insertion, and single quote.",
-      { true, true, false },
+      { true, true, true, false },
       3,
       0
    },
@@ -54,7 +54,7 @@ alarmRowData expectedResult[] =
       "NO_LOG",
       "This should not be logged",
       "Set log=true in actions element",
-      { false, true, false },
+      { false, true, true, false },
       3,
       0
    },
@@ -66,7 +66,7 @@ alarmRowData expectedResult[] =
       "MISSING_DESCRIPTION",
       "MISSING_DESCRIPTION",
       "Add description. Default should be id.",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    },
@@ -79,7 +79,7 @@ alarmRowData expectedResult[] =
       "Strings from the second instance of the duplicate id over-write the first by design. "
         "However the rest of the data comes from the first instance.",
       "The duplicate id is flagged in sipXsupervisor.log",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    },
@@ -91,7 +91,7 @@ alarmRowData expectedResult[] =
      "DUPLICATE_CODE_1",
      "This is the first instance of the duplicate code.",
      "",
-     { true, true, false },
+     { true, true, true, false },
      INT_MAX,
      0
   },    {
@@ -102,7 +102,7 @@ alarmRowData expectedResult[] =
      "DUPLICATE_CODE_2",
      "This is the second instance of the duplicate code.",
      "It should cause a test failure, but how?",
-     { true, true, false },
+     { true, true, true, false },
      INT_MAX,
      0
   }, 
@@ -114,7 +114,7 @@ alarmRowData expectedResult[] =
       "UNKNOWN_SEVERITY",
       "Unknown severity.",
       "Severity should be one of 'debug info notice warning error crit alert emerg'",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    },
@@ -126,7 +126,7 @@ alarmRowData expectedResult[] =
       "PARAMETER_SUBSTITUTION",
       "Parameter {1}, then parameter {0}",
       "Check for bugs in assembleMsg!",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    },
@@ -138,7 +138,7 @@ alarmRowData expectedResult[] =
       "SPECIAL_CHARACTERS",
       "Print special characters such as <, >, and & properly.",
       "Text must be escaped in the strings file, and unescaped before sending notifications.",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    },
@@ -150,7 +150,7 @@ alarmRowData expectedResult[] =
       "DIFF_CONFIG_XML",
       "The config data for this alarm is in a separate file.",
       "The alarm server should load it and handle it normally.",
-      { true, true, false },
+      { true, true, true, false },
       INT_MAX,
       0
    }
@@ -196,6 +196,7 @@ public:
       
       // copy test files into parallel structure
       mAlarmTestContext->inputFile("alarm-config.xml");
+      mAlarmTestContext->inputFile("alarm-groups.xml");
       mAlarmTestContext2->inputFile("test-alarms-config.xml");
       mAlarmTestContext2->inputFile("test-alarms-config2.xml");
       mAlarmTestContext3->inputFile("alarm-strings.xml");

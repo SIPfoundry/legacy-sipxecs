@@ -6,7 +6,7 @@
          <severity>alert</severity>
          <component>alarmTest</component>
          <action log="true"
-                  email="true"
+                  email="default"
                   />
          <filter max_reports="3"/>
       </alarm>

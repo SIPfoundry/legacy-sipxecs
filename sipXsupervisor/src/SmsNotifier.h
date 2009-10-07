@@ -1,14 +1,14 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _EmailNotifier_h_
-#define _EmailNotifier_h_
+#ifndef _SmsNotifier_h_
+#define _SmsNotifier_h_
 
 // SYSTEM INCLUDES
 #include "os/OsDefs.h"
@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 
 /// Sends emails containing alarm description and resolution to configured contacts
-class EmailNotifier : public NotifierBase
+class SmsNotifier : public NotifierBase
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -35,10 +35,10 @@ public:
 /* ============================ CREATORS ================================== */
 
    ///Default constructor
-   EmailNotifier();
+   SmsNotifier();
 
    ///Destructor
-   virtual ~EmailNotifier();
+   virtual ~SmsNotifier();
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -48,14 +48,14 @@ public:
          const UtlString& callingHost,     ///< host on which event occurred
          const cAlarmData* alarmData,      ///< pointer to alarmData structure
          const UtlString& alarmParameters  ///< formatted message with parameters
-         );  
+         );
 
    /// Initialize notifier (including loading parameters from the provided xml element).
    virtual OsStatus init(
-         TiXmlElement* emailElement,       ///< pointer to xml config element for this notifier
-         TiXmlElement* groupElement        ///< pointer to xml group config element for this notifier
+         TiXmlElement* element,            ///< pointer to xml config element for this notifier
+         TiXmlElement* dummy               ///< currently unused
          );
-  
+
    /// Load strings needed by this notifier from the provided xml element.
    virtual OsStatus initStrings(
          TiXmlElement* element             ///< pointer to xml config element for this notifier
@@ -72,29 +72,23 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    UtlHashMap mContacts;                   ///< list of contacts to send mail to
-   
+
    UtlString mSmtpServer;                  ///< default localhost; cannot be configured
    UtlString mReplyTo;                     ///< default postmaster\@localhost; can be configured
 
    // localizable strings to build email notification message
-   UtlString mEmailStrFrom;                ///< email comes From this string
-   UtlString mEmailStrSubject;             ///< email subject line
-   UtlString mEmailStrIntro;               ///< first line of email
-   UtlString mEmailStrAlarm;               ///< Alarm:
-   UtlString mEmailStrTime;                ///< Time:
-   UtlString mEmailStrHost;                ///< Host:
-   UtlString mEmailStrSeverity;            ///< Severity:
-   UtlString mEmailStrDescription;         ///< Description:
-   UtlString mEmailStrResolution;          ///< Resolution
-    
+   UtlString mSmsStrFrom;                ///< email comes From this string
+   UtlString mSmsStrSubject;             ///< email subject line
+   UtlString mSmsStrHost;                ///< Host:
+
    /// no copy constructor
-   EmailNotifier(const EmailNotifier& nocopy);
+   SmsNotifier(const SmsNotifier& nocopy);
 
    ///Assignment operator
-   EmailNotifier& operator=(const EmailNotifier& rhs);   
+   SmsNotifier& operator=(const SmsNotifier& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif  // _EmailNotifier_h_
+#endif  // _SmsNotifier_h_
 

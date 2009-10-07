@@ -12,6 +12,12 @@
             <!-- Alarm notification emails will be sent to each contact in this list. -->
             <contact>@SIPXPBXUSER@@localhost</contact>
          </email>
+         <sms enabled="false">
+            <!-- Alarm notification SMS will be sent from this address. -->
+            <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
+            <!-- Alarm notification SMS will be sent to each contact in this list. -->
+            <contact>@SIPXPBXUSER@@localhost</contact>
+         </sms>
       </actions>
    </settings>
 

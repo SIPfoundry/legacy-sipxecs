@@ -20,7 +20,7 @@
          <severity>info</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="false"
+                 email="default"
                   />
       </alarm>
       <alarm id="PROCESS_RESTARTED">
@@ -28,7 +28,7 @@
          <severity>warning</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="false"
+                 email="disabled"
                   />
       </alarm>
       <alarm id="PROCESS_FAILED">
@@ -36,7 +36,7 @@
          <severity>crit</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="true"
+                 email="default"
                   />
       </alarm>
       <alarm id="LOGIN_FAILED">
@@ -44,7 +44,7 @@
          <severity>warning</severity>
          <component>sipXconfig</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
          <filter min_threshold="3"
                  />
@@ -54,7 +54,7 @@
          <severity>warning</severity>
          <component>monitoring</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="THRESH_CPUUTIL_OK">
@@ -62,7 +62,7 @@
          <severity>info</severity>
          <component>monitoring</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="THRESH_DISK_EXCEEDED">
@@ -70,7 +70,7 @@
          <severity>warning</severity>
          <component>monitoring</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="THRESH_DISK_OK">
@@ -78,7 +78,7 @@
          <severity>info</severity>
          <component>monitoring</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="EMERG_NUMBER_DIALED">
@@ -86,7 +86,7 @@
          <severity>crit</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="STUN_ADDRESS_DISCOVERY_FAILED">
@@ -94,7 +94,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
          <filter max_reports="1"
                  />
@@ -104,7 +104,7 @@
          <severity>info</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
          <filter max_reports="1"
                  />
@@ -114,7 +114,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
@@ -122,7 +122,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
@@ -130,7 +130,7 @@
          <severity>info</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="STUN_ADDRESS_ERROR">
@@ -138,7 +138,7 @@
          <severity>crit</severity>
          <component>sipXconfig</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
          <filter max_reports="1"
                  />
@@ -148,7 +148,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
@@ -156,7 +156,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
@@ -164,7 +164,7 @@
          <severity>info</severity>
          <component>sipXconfig</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
@@ -172,7 +172,7 @@
          <severity>info</severity>
          <component>sipXconfig</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY">
@@ -180,7 +180,7 @@
          <severity>crit</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY">
@@ -188,7 +188,7 @@
          <severity>error</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED">
@@ -196,7 +196,7 @@
          <severity>warning</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING">
@@ -204,7 +204,7 @@
          <severity>error</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED">
@@ -212,7 +212,7 @@
          <severity>info</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
@@ -220,7 +220,7 @@
          <severity>crit</severity>
          <component>sipXproxy</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
@@ -228,7 +228,7 @@
          <severity>info</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="PROCESS_CONFIGTEST_FAILED">
@@ -236,7 +236,7 @@
          <severity>crit</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="PROCESS_RESOURCE_REQUIRED">
@@ -244,7 +244,7 @@
          <severity>warning</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="PROCESS_CONFIG_MISMATCH">
@@ -252,7 +252,7 @@
          <severity>warning</severity>
          <component>sipXsupervisor</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
@@ -260,7 +260,7 @@
          <severity>crit</severity>
          <component>sipXrelay</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
@@ -268,7 +268,7 @@
          <severity>crit</severity>
          <component>sipXbridge</component>
          <action log="true"
-                 email="true"
+                 email="default"
                  />
       </alarm>
 

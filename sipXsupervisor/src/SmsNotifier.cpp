@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "AlarmUtils.h"
-#include "EmailNotifier.h"
+#include "SmsNotifier.h"
 #include "EmailSendTask.h"
 #include "sipXecsService/SipXecsService.h"
 
@@ -28,24 +28,18 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-EmailNotifier::EmailNotifier() :
+SmsNotifier::SmsNotifier() :
    mContacts(),
    mSmtpServer("localhost"),
    mReplyTo("postmaster@localhost"),
-   mEmailStrFrom("default {0} Alarm Notification Service"),
-   mEmailStrSubject("default Alarm {0}"),
-   mEmailStrIntro("default Message from {0}"),
-   mEmailStrAlarm("default Alarm: {0}"),
-   mEmailStrTime("default Reported at: {0}"),
-   mEmailStrHost("default Reported on: {0}"),
-   mEmailStrSeverity("default"),
-   mEmailStrDescription("default Alarm Text: {0}"),
-   mEmailStrResolution("default Suggested Resolution: {0}")
+   mSmsStrFrom("default {0} Alarm Notification Service"),
+   mSmsStrSubject("default Alarm {0}"),
+   mSmsStrHost("default Reported on: {0}")
 {
 }
 
 // Destructor
-EmailNotifier::~EmailNotifier()
+SmsNotifier::~SmsNotifier()
 {
    mContacts.destroyAll();
 }
@@ -53,7 +47,7 @@ EmailNotifier::~EmailNotifier()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-EmailNotifier& EmailNotifier::operator=(const EmailNotifier& rhs)
+SmsNotifier& SmsNotifier::operator=(const SmsNotifier& rhs)
 {
    if (this == &rhs) // handle the assignment to self case
    return *this;
@@ -61,9 +55,9 @@ EmailNotifier& EmailNotifier::operator=(const EmailNotifier& rhs)
    return *this;
 }
 
-OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime, 
-      const UtlString& callingHost, 
-      const cAlarmData* alarmData, 
+OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
+      const UtlString& callingHost,
+      const cAlarmData* alarmData,
       const UtlString& alarmMsg)
 {
    OsStatus retval = OS_FAILED;
@@ -71,44 +65,24 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
    UtlString body;
    UtlString tempStr;
 
-   body = mEmailStrIntro;
-   body.append("\n");
-   
-   assembleMsg(mEmailStrAlarm, alarmData->getCode(), tempStr);
-   body.append(tempStr);
-   body.append("\n");
-   
-   assembleMsg(mEmailStrHost, callingHost, tempStr);
-   body.append(tempStr);
-   body.append("\n");
-   
-   OsDateTime logTime(alarmTime);
-   UtlString strTime;
-   logTime.getIsoTimeStringZus(strTime);
-   assembleMsg(mEmailStrTime, strTime, tempStr);
-   body.append(tempStr);
-   body.append("\n");
-   
    UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
-   assembleMsg(mEmailStrSeverity, sevStr, tempStr);
-   body.append(tempStr);
-   body.append("\n");
-   assembleMsg(mEmailStrDescription, alarmMsg, tempStr);
-   body.append(tempStr);
-   body.append("\n");
-   assembleMsg(mEmailStrResolution, alarmData->getResolution(), tempStr);
-   body.append(tempStr);
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: email body is %s", body.data());
+   body.append(sevStr);
+   body.append(" ");
+   body.append(callingHost);
+   body.append(": ");
+   body.append(alarmMsg);
 
-   MailMessage message( mEmailStrFrom, mReplyTo, mSmtpServer );
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
+
+   MailMessage message( mSmsStrFrom, mReplyTo, mSmtpServer );
    message.Body(body);
-   
+
    UtlSList subjectParams;
    UtlString codeStr(alarmData->getCode());
    UtlString titleStr(alarmData->getShortTitle());
    subjectParams.append(&codeStr);
    subjectParams.append(&titleStr);
-   assembleMsg(mEmailStrSubject, subjectParams, tempStr);
+   assembleMsg(mSmsStrSubject, subjectParams, tempStr);
    message.Subject(tempStr);
 
    //execute the mail command for each user
@@ -116,8 +90,8 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
    if (!groupKey.isNull())
    {
       UtlContainable* pContact = mContacts.findValue(&groupKey);
-      if (pContact)
-      {
+       if (pContact)
+       {
          // Process the comma separated list of contacts
          UtlString* contactList = dynamic_cast<UtlString*>(pContact);
          UtlTokenizer tokenList(*contactList);
@@ -136,14 +110,14 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
    return retval;
 }
 
-OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElement)
+OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
 {
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created EmailNotifier");
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created SmsNotifier");
    UtlString contactList;
    TiXmlElement* element;
-   
+
    // Extract the "From" contact from the alarm configuration file
-   element = emailElement->FirstChildElement("email-notification-addr");
+   element = smsElement->FirstChildElement("email-notification-addr");
    textContentShallow(mReplyTo, element);
 
    // Extract the "To" contacts from the alarm groups configuration file
@@ -156,9 +130,9 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
       {
          OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Processing alarm group name: %s", groupName.data());
 
-         TiXmlElement* emailElement = element->FirstChildElement("email");
+         TiXmlElement* smsElement = element->FirstChildElement("sms");
 
-         TiXmlElement* toElement = emailElement->FirstChildElement("contact");
+         TiXmlElement* toElement = smsElement->FirstChildElement("contact");
          for (; toElement; toElement=toElement->NextSiblingElement("contact") )
          {
             UtlString contactStr;
@@ -178,37 +152,23 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
    return OS_SUCCESS;
 }
 
-OsStatus EmailNotifier::initStrings(TiXmlElement* emailElement)
-{   
-   TiXmlElement* element = emailElement->FirstChildElement("email-intro");
-   textContentShallow(mEmailStrIntro, element);
-   assembleMsg(mEmailStrIntro, SipXecsService::Name(), mEmailStrIntro);
 
-   element = emailElement->FirstChildElement("email-subject");
-   textContentShallow(mEmailStrSubject, element);
-   
-   element = emailElement->FirstChildElement("email-alarm");
-   textContentShallow(mEmailStrAlarm, element);
-   
-   element = emailElement->FirstChildElement("email-time");
-   textContentShallow(mEmailStrTime, element);
-   
-   element = emailElement->FirstChildElement("email-host");
-   textContentShallow(mEmailStrHost, element);
-   
-   element = emailElement->FirstChildElement("email-severity");
-   textContentShallow(mEmailStrSeverity, element);
-   
-   element = emailElement->FirstChildElement("email-description");
-   textContentShallow(mEmailStrDescription, element);
-   
-   element = emailElement->FirstChildElement("email-resolution");
-   textContentShallow(mEmailStrResolution, element);
-   
-   element = emailElement->FirstChildElement("email-from");
-   textContentShallow(mEmailStrFrom, element);
-   assembleMsg(mEmailStrFrom, SipXecsService::Name(), mEmailStrFrom);
-   
+OsStatus SmsNotifier::initStrings(TiXmlElement* smsElement)
+{
+   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "SmsNotifier initStrings");
+
+   TiXmlElement* element = smsElement->FirstChildElement("email-intro");
+
+   element = smsElement->FirstChildElement("email-subject");
+   textContentShallow(mSmsStrSubject, element);
+
+   element = smsElement->FirstChildElement("email-host");
+   textContentShallow(mSmsStrHost, element);
+
+   element = smsElement->FirstChildElement("email-from");
+   textContentShallow(mSmsStrFrom, element);
+   assembleMsg(mSmsStrFrom, SipXecsService::Name(), mSmsStrFrom);
+
    return OS_SUCCESS;
 }
 

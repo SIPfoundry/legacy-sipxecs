@@ -117,6 +117,25 @@
     </complexType>
   </element>
 
+  <element name='sms'>
+    <annotation>
+      <documentation>
+        Settings for the SMS notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:email-notification-addr' minOccurs='0' maxOccurs='1' />
+        <element ref='h:contact' minOccurs='0'  maxOccurs='5'/>
+        <element ref='h:email-subject' minOccurs='0' />
+        <element ref='h:email-intro' minOccurs='0' />
+        <element ref='h:email-host' minOccurs='0' />
+        <element ref='h:email-from' minOccurs='0' />
+      </sequence>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
   <element name="email-notification-addr">
     <annotation>
       <documentation>
@@ -336,7 +355,7 @@
     </annotation>
     <complexType>
       <attribute name="log" type="boolean"/>
-      <attribute name="email" type="boolean"/>
+      <attribute name="email" type="string"/>
     </complexType>
   </element>
 

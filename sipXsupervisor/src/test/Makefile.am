@@ -44,9 +44,11 @@ alarm_testsuite_SOURCES = \
 
 EXTRA_DATA = \
     alarm-server/alarm-config.xml \
+    alarm-server/alarm-groups.xml \
     alarm-server/test-alarms-config.xml \
     alarm-server/test-alarms-strings.xml \
     alarm-localization/alarm-config.xml \
+    alarm-localization/alarm-groups.xml \
     alarm-localization/test-localization-config.xml \
     alarm-localization/test-localization-strings.xml \
     alarm-localization/test-localization-strings_fr.xml \
