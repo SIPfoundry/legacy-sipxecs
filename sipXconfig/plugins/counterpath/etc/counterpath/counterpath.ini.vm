@@ -5,8 +5,7 @@
 #if($setting.value)
 ${setting.name}="${setting.value}"
 #else
-#if($setting.name == "system:auto_update:code_server_url")
-#else
+#if($setting.name != "system:auto_update:code_server_url")
 ${setting.name}=""
 #end
 #end
@@ -17,13 +16,21 @@ Success=1
 
 [SETTINGS]
 
-#foreach ($line in $phone.lines)
-#set ($i = $velocityCount - 1)
-#foreach ($setting in $line_leaf_settings.get($i))
-proxies:proxy${i}:#generate_setting($setting)
-#end
+#foreach ($sip_account in $line_sip_settings)
+#set ($line_index = $velocityCount - 1)
+#foreach ($setting in $sip_account)
+proxies:proxy${line_index}:#generate_setting($setting)
 #end
 
+#end
+#set ($last_sip_line_index = $line_index)
+#foreach ($xmpp_account in $line_xmpp_settings)
+#set ($line_index = $last_sip_line_index + $velocityCount)
+#foreach ($setting in $xmpp_account)
+proxies:proxy${line_index}:#generate_setting($setting)
+#end
+
+#end
 #foreach ($setting in $phone_leaf_settings)
 #generate_setting($setting)
 #end

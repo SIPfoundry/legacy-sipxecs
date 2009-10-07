@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
@@ -28,34 +28,53 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
     @Override
     public Map<String, Object> getContext() {
         Map<String, Object> context = super.getContext();
-        LeafSettings leafs = new LeafSettings();
-        List<Collection> lineLeafSettings = new ArrayList<Collection>();
         Phone phone = getDevice();
+        LeafSettings ps = new LeafSettings();
+        phone.getSettings().acceptVisitor(ps);
+        context.put("phone_leaf_settings", ps.getSip());
+
         List<Line> lines = phone.getLines();
-        phone.getSettings().acceptVisitor(leafs);
-        context.put("phone_leaf_settings", leafs.getLeafs());
+        List<Collection> lineSipSettings = new ArrayList<Collection>();
+        List<Collection> lineXmppSettings = new ArrayList<Collection>();
         for (Line line : lines) {
-            leafs = new LeafSettings();
-            line.getSettings().acceptVisitor(leafs);
-            lineLeafSettings.add(leafs.getLeafs());
+            LeafSettings ls = new LeafSettings();
+            line.getSettings().acceptVisitor(ls);
+            lineSipSettings.add(ls.getSip());
+            lineXmppSettings.add(ls.getXmpp());
         }
-        context.put("line_leaf_settings", lineLeafSettings);
+        context.put("line_sip_settings", lineSipSettings);
+        context.put("line_xmpp_settings", lineXmppSettings);
+
         return context;
     }
 
-    private class LeafSettings extends AbstractSettingVisitor {
+    /**
+     * Separates XMPP and SIP settings
+     */
+    private static class LeafSettings extends AbstractSettingVisitor {
 
-        private final Collection<Setting> m_leaf = new ArrayList<Setting>();
+        private final Collection<Setting> m_sip = new ArrayList<Setting>();
+        private final Collection<Setting> m_xmpp = new ArrayList<Setting>();
 
-        public Collection<Setting> getLeafs() {
-            return m_leaf;
+        public Collection<Setting> getSip() {
+            return m_sip;
+        }
+
+        public Collection<Setting> getXmpp() {
+            return m_xmpp;
         }
 
         @Override
         public void visitSetting(Setting setting) {
-            if (setting.isLeaf()) {
-                m_leaf.add(setting);
+            if (!setting.isLeaf()) {
+                return;
             }
+            Collection<Setting> leaves = isXmpp(setting) ? m_xmpp : m_sip;
+            leaves.add(setting);
+        }
+
+        private boolean isXmpp(Setting setting) {
+            return "xmpp-config".equals(setting.getParent().getProfileName());
         }
     }
 }

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
@@ -13,6 +13,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -91,42 +92,68 @@ public class CounterpathPhone extends Phone {
 
     public static class CounterpathLineDefaults {
         private final Line m_line;
+        private final User m_user;
+        private final ImAccount m_imAccount;
 
         public CounterpathLineDefaults(Line line) {
             m_line = line;
+            m_user = m_line.getUser();
+            if (m_user != null) {
+                m_imAccount = new ImAccount(m_user);
+            } else {
+                m_imAccount = null;
+            }
         }
 
         @SettingEntry(paths = { REG_USERNAME, REG_AUTH_USERNAME })
         public String getUserName() {
-            String userName = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                userName = user.getUserName();
+            if (m_user == null) {
+                return null;
             }
-            return userName;
+            return m_user.getUserName();
+        }
+
+        @SettingEntry(path = "xmpp-config/username")
+        public String getImId() {
+            if (m_imAccount == null) {
+                return null;
+            }
+            return m_imAccount.getImId();
         }
 
         @SettingEntry(path = REG_DISPLAY_NAME)
         public String getDisplayName() {
-            String displayName = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                displayName = user.getDisplayName();
+            if (m_user == null) {
+                return null;
             }
-            return displayName;
+            return m_user.getDisplayName();
+        }
+
+        @SettingEntry(path = "xmpp-config/account_name")
+        public String getImDisplayName() {
+            if (m_imAccount == null) {
+                return null;
+            }
+            return m_imAccount.getImDisplayName();
         }
 
         @SettingEntry(path = REG_PASSWORD)
         public String getPassword() {
-            String password = null;
-            User user = m_line.getUser();
-            if (user != null) {
-                password = user.getSipPassword();
+            if (m_user == null) {
+                return null;
             }
-            return password;
+            return m_user.getSipPassword();
         }
 
-        @SettingEntry(path = REG_DOMAIN)
+        @SettingEntry(path = "xmpp-config/password")
+        public String getImPassword() {
+            if (m_imAccount == null) {
+                return null;
+            }
+            return m_imAccount.getImPassword();
+        }
+
+        @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();

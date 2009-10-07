@@ -17,17 +17,20 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathLineDefaults;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class CounterpathPhoneTest extends TestCase {
     private Line m_line;
     private User m_user;
     private CounterpathPhone m_phone;
+    private PermissionManagerImpl m_permissionManager;
 
     protected void setUp() {
         CounterpathPhoneModel counterpathModel = new CounterpathPhoneModel("counterpath");
@@ -36,6 +39,9 @@ public class CounterpathPhoneTest extends TestCase {
         m_phone = new CounterpathPhone();
         m_phone.setModel(counterpathModel);
         m_phone.setDefaults(new DeviceDefaults());
+
+        m_permissionManager = new PermissionManagerImpl();
+        m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
     }
 
     public void testGetFileName() throws Exception {
@@ -45,11 +51,14 @@ public class CounterpathPhoneTest extends TestCase {
 
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
         PhoneTestDriver.supplyTestData(m_phone, true, true, false);
+        User user = m_phone.getLines().get(0).getUser();
+        user.setPermissionManager(m_permissionManager);
+        user.setImId("jsmit_id");
+        user.setImDisplayName("John Smith Id");
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
 
         m_phone.generateProfiles(location);
-
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise.ini"));
         assertEquals(expected, location.toString());
     }
@@ -103,9 +112,12 @@ public class CounterpathPhoneTest extends TestCase {
 
     private void supplyUserData() {
         m_user = new User();
+        m_user.setPermissionManager(m_permissionManager);
         m_user.setUserName("jsmit");
         m_user.setFirstName("John");
         m_user.setLastName("Smit");
         m_user.setSipPassword("1234");
+        m_user.setImId("jsmit_id");
+        m_user.setImDisplayName("John Smith Id");
     }
 }
