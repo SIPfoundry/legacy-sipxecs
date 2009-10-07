@@ -234,12 +234,12 @@ public final class DaoUtils {
         int userIndex = 0;
         int size = 0;
         do {
+            userIndex += size;
             List<User> users = coreContext.loadUsersByPage(null, null, null, userIndex, PAGE_SIZE, ID_PROPERTY_NAME,
                     true);
             for (User user : users) {
                 closure.execute(user);
             }
-            userIndex += size;
             size = users.size();
         } while (size == PAGE_SIZE);
     }

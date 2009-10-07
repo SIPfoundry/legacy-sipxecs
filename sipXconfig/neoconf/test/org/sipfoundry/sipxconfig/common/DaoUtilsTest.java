@@ -21,6 +21,7 @@ import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.PAGE_SIZE;
 
 public class DaoUtilsTest extends TestCase {
 
@@ -75,7 +76,7 @@ public class DaoUtilsTest extends TestCase {
 
     public void testForAllUsersDoEmpty() {
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(null, null, null, 0, PAGE_SIZE, "id", true);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         replay(coreContext);
 
@@ -89,18 +90,39 @@ public class DaoUtilsTest extends TestCase {
         verify(coreContext);
     }
 
-    public void testForAllUsersDo() {
-        User[] firstPage = new User[DaoUtils.PAGE_SIZE];
-        User[] secondPage = new User[DaoUtils.PAGE_SIZE - 1];
+    public void testForAllUsersDoOnePage() {
+        User[] page = new User[PAGE_SIZE - 1];
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
-        expectLastCall().andReturn(Arrays.asList(firstPage)).andReturn(Arrays.asList(secondPage));
+        coreContext.loadUsersByPage(null, null, null, 0, PAGE_SIZE, "id", true);
+        expectLastCall().andReturn(Arrays.asList(page));
+
         replay(coreContext);
 
         CountingClosure closure = new CountingClosure();
         DaoUtils.forAllUsersDo(coreContext, closure);
-        assertEquals(firstPage.length + secondPage.length, closure.getCount());
+        assertEquals(page.length, closure.getCount());
+        verify(coreContext);
+    }
+
+    public void testForAllUsersDo() {
+        final int fullPages = 3;
+
+        User[] page = new User[PAGE_SIZE];
+        User[] lastPage = new User[PAGE_SIZE / 2];
+
+        CoreContext coreContext = createMock(CoreContext.class);
+        for (int i = 0; i < fullPages; i++) {
+            coreContext.loadUsersByPage(null, null, null, i * PAGE_SIZE, PAGE_SIZE, "id", true);
+            expectLastCall().andReturn(Arrays.asList(page));
+        }
+        coreContext.loadUsersByPage(null, null, null, fullPages * PAGE_SIZE, PAGE_SIZE, "id", true);
+        expectLastCall().andReturn(Arrays.asList(lastPage));
+        replay(coreContext);
+
+        CountingClosure closure = new CountingClosure();
+        DaoUtils.forAllUsersDo(coreContext, closure);
+        assertEquals(fullPages * page.length + lastPage.length, closure.getCount());
         verify(coreContext);
     }
 
