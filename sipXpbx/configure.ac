@@ -11,7 +11,6 @@ SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
-AC_CONFIG_SRCDIR([src/mailboxmgr/MailboxManager.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
@@ -68,13 +67,8 @@ AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([include/sipxcgi/Makefile])
 AC_CONFIG_FILES([src/Makefile])
-AC_CONFIG_FILES([src/mailboxmgr/Makefile])
-AC_CONFIG_FILES([src/mediaservercgi/Makefile])
-AC_CONFIG_FILES([src/sipxcgi/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
-AC_CONFIG_FILES([src/test/sipxcgi/Makefile])
 AC_CONFIG_FILES([src/wwwcontent/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
