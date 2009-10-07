@@ -321,7 +321,7 @@ class Cdr
         @caller_contact = Utils.contact_without_params(cse.contact)
     end
     @legs.accept_setup(cse)
-    @callee_route = cse.callee_route
+    @callee_route = cse.callee_route if !@callee_route
     @termination = CALL_IN_PROGRESS_TERM 
     finish
   end
