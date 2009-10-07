@@ -159,13 +159,11 @@ Return settings or paths to programs for sipX family of modules
 
 Usage:
 
-    ./sipx-config [--java] [--javabin] [--version]
+    ./sipx-config [--java] [--version]
 
 Options are:
 
      --java     Locate java vm command
-
-     --javabin  Locate path to java commands in vm home directory
 
      --version  Display version of installed sipx packages
 
