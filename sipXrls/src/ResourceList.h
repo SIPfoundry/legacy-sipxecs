@@ -64,7 +64,11 @@ class ResourceList : public UtlContainableAtomic
    void deleteAllResources();
 
    //! Create and add a resource to the resource list.
-   void addResource(const char* uri,
+   //  Returns true if resource 'URI' was added, returns false if resource
+   //  was not added.
+   //  Adding can fail because 'URI' duplicates (is string-equal to)
+   //  the name of an existing resource.
+   bool addResource(const char* uri,
                     const char* nameXml,
                     const char* display_name);
 

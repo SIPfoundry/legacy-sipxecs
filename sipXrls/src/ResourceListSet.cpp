@@ -131,7 +131,7 @@ void ResourceListSet::refreshAllResources()
 }
 
 // Create and add a resource list.
-void ResourceListSet::addResourceList(const char* user,
+bool ResourceListSet::addResourceList(const char* user,
                                       const char* userCons,
                                       const char* nameXml)
 {
@@ -143,7 +143,8 @@ void ResourceListSet::addResourceList(const char* user,
    OsLock lock(mSemaphore);
 
    // Check to see if there is already a list with this name.
-   if (!findResourceList(user))
+   bool ret = !findResourceList(user);
+   if (ret)
    {
       // Create the resource list.
       ResourceList* resourceList = new ResourceList(this, user, userCons);
@@ -167,10 +168,12 @@ void ResourceListSet::addResourceList(const char* user,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_WARNING,
-                    "ResourceListSet::addResourceList ResourceList '%s' already exists -- continuing to add resources to the list",
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::addResourceList ResourceList '%s' already exists",
                     user);
    }
+
+   return ret;
 }
 
 // Delete all resource lists.
@@ -252,7 +255,7 @@ void ResourceListSet::getAllResourceLists(UtlSList& list)
 
 //! Create and add a resource to the resource list.
 //  Returns the generated Resource object.
-void ResourceListSet::addResource(const char* user,
+bool ResourceListSet::addResource(const char* user,
                                   const char* uri,
                                   const char* nameXml,
                                   const char* display_name)
@@ -265,18 +268,22 @@ void ResourceListSet::addResource(const char* user,
    OsLock lock(mSemaphore);
 
    ResourceList* resourceList = findResourceList(user);
+   bool ret;
    if (resourceList)
    {
-      resourceList->addResource(uri, nameXml, display_name);
+      ret = resourceList->addResource(uri, nameXml, display_name);
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResource resource added");
    }
    else
    {
+      ret = false;
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResource ResourceList '%s' not found",
                     user);
    }
+
+   return ret;
 }
 
 // Callback routine for subscription state events.

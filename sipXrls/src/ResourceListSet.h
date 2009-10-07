@@ -98,8 +98,11 @@ class ResourceListSet : public UtlContainableAtomic
    void refreshAllResources();
 
    //! Create and add a resource list.
+   //  Returns true if resource list was added, returns false if 'user'
+   //  duplicates the name of an existing resource list, and hence,
+   //  no new list was created.
    //  May be called externally.
-   void addResourceList(/// The user-part of the resource list URI for "full" events.
+   bool addResourceList(/// The user-part of the resource list URI for "full" events.
                         const char* user,
                         /// The user-part of the resource list URI for "consolidated" events.
                         const char* userCons,
@@ -122,8 +125,15 @@ class ResourceListSet : public UtlContainableAtomic
                             UtlSList& list);
 
    //! Create and add a resource to a resource list.
+   //  Returns true if resource 'URI' was added, returns false if resource
+   //  was not added.
+   //  Adding can fail because 'user' is not the name of a resource list.
+   //  Adding can fail because 'URI' duplicates (is string-equal to)
+   //  the name of an existing resource.  (Duplicating resource URIs
+   //  is forbidden because it makes it impossible to unambiguously
+   //  process partial-state updates.)
    //  May be called externally.
-   void addResource(/// The user-part of the resource list URI.
+   bool addResource(/// The user-part of the resource list URI.
                     const char* user,
                     /// The resource URI.
                     const char* URI,

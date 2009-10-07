@@ -130,9 +130,18 @@ OsStatus ResourceListFileReader::initialize()
                {
                   // Add this resource list to the set of all resource lists.
                   // (No NAME XML for the resource list.)
-                  mResourceListSet->addResourceList(user_attribute,
-                                                    user_cons_attribute,
-                                                    "");
+                  bool r =
+                     mResourceListSet->addResourceList(user_attribute,
+                                                       user_cons_attribute,
+                                                       "");
+                  if (!r)
+                  {
+                     OsSysLog::add(FAC_RLS, PRI_WARNING,
+                                   "ResourceListFileReader::initialize "
+                                   "ResourceList '%s' already exists -- "
+                                   "continuing to add resources to the list",
+                                   user_attribute);
+                  }
                   OsTask::delay(changeDelay);
 
                   // Find all the <resource> children and add them to the
@@ -193,10 +202,19 @@ OsStatus ResourceListFileReader::initialize()
                               }
                            }
 
-                           mResourceListSet->addResource(user_attribute,
-                                                         uri_attribute,
-                                                         names.data(),
-                                                         display_name.data());
+                           bool r =
+                              mResourceListSet->addResource(user_attribute,
+                                                            uri_attribute,
+                                                            names.data(),
+                                                            display_name.data());
+                           if (!r)
+                           {
+                              OsSysLog::add(FAC_RLS, PRI_WARNING,
+                                            "ResourceListFileReader::initialize "
+                                            "Resource '%s' already exists in ResourceList '%s' -- "
+                                            "not adding a second time",
+                                            uri_attribute, user_attribute);
+                           }
                            OsTask::delay(changeDelay);
                         }
                      }

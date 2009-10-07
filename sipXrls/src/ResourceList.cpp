@@ -130,7 +130,7 @@ void ResourceList::deleteAllResources()
 }
 
 // Create and add a resource to the resource list.
-void ResourceList::addResource(const char* uri,
+bool ResourceList::addResource(const char* uri,
                                const char* nameXml,
                                const char* display_name)
 {
@@ -138,7 +138,36 @@ void ResourceList::addResource(const char* uri,
                  "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
                  mUserPart.data(), uri, nameXml, display_name);
 
-   mResourcesList.append(new ResourceReference(this, uri, nameXml, display_name));
+   // See if 'uri' is already in the list of ResourceReference's.
+   bool ret;
+   {
+      UtlSListIterator itor(mResourcesList);
+      ResourceReference* r;
+      // Exit this loop if 'itor' runs out of elements, or if the resource
+      // URI of an element string-equals 'uri'.
+      while ((r = dynamic_cast <ResourceReference*> (itor())) &&
+             r->getUri()->compareTo(uri) != 0)
+      {
+         /* null */
+      }
+      // At this point, r == NULL if no ResourceReference in mResourcesList has
+      // getUri() string-equal to 'uri'.
+      ret = !r;
+   }
+
+   if (ret)
+   {
+      mResourcesList.append(new ResourceReference(this, uri, nameXml,
+                                                  display_name));
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceList::addResource Resource URI '%s' is already in resource list '%s'",
+                    uri, mUserPart.data());
+   }
+
+   return ret;
 }
 
 // Declare that the contents have changed and need to be published.
