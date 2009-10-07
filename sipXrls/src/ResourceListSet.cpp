@@ -167,8 +167,8 @@ void ResourceListSet::addResourceList(const char* user,
    }
    else
    {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                    "ResourceListSet::addResourceList ResourceList '%s' already exists",
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceListSet::addResourceList ResourceList '%s' already exists -- continuing to add resources to the list",
                     user);
    }
 }
