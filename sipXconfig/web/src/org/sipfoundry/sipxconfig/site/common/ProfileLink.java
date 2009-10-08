@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.common;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.BaseComponent;
@@ -64,9 +65,9 @@ public abstract class ProfileLink extends BaseComponent {
         }
         Profile profileType = profileTypes[profileIndex];
         try {
-
-            OutputStream stream = TapestryUtils.getResponseOutputStream(getResponse(),
-                    profileType.getName(), profileType.getMimeType());
+            String fileName = FilenameUtils.getName(profileType.getName());
+            OutputStream stream = TapestryUtils.getResponseOutputStream(getResponse(), fileName, profileType
+                    .getMimeType());
             OutputStreamProfileLocation location = new OutputStreamProfileLocation(stream);
             profileType.generate(device, location);
         } catch (IOException e) {
@@ -77,7 +78,7 @@ public abstract class ProfileLink extends BaseComponent {
 
     /**
      * Prepares parameters for export method - the order in the result needs to match export
-     * parameter lsit.
+     * parameter list.
      */
     public Object[] getParams() {
         Device device = getDevice();
