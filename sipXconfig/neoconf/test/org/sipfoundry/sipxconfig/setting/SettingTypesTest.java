@@ -118,7 +118,7 @@ public class SettingTypesTest extends TestCase {
         SettingType type = stringSetting.getType();
         assertTrue(type instanceof StringSetting);
         StringSetting strType = (StringSetting) type;
-        assertEquals(256, strType.getMaxLen());
+        assertEquals(255, strType.getMaxLen());
         assertNull(strType.getPattern());
         assertFalse(strType.isRequired());
         assertFalse(strType.isPassword());
@@ -265,7 +265,7 @@ public class SettingTypesTest extends TestCase {
         SettingType type = stringSetting.getType();
         assertTrue(type instanceof SipUriSetting);
         SipUriSetting strType = (SipUriSetting) type;
-        assertEquals(256, strType.getMaxLen());
+        assertEquals(255, strType.getMaxLen());
         assertNotNull(strType.getPattern());
         assertFalse(strType.getPattern().contains("@"));
         assertTrue(strType.isRequired());
