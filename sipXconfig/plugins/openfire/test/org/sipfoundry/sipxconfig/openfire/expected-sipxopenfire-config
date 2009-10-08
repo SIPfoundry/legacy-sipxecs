@@ -14,4 +14,27 @@
 	<sipxrest-ip-address>192.168.1.1</sipxrest-ip-address>
 	<sipxrest-https-port>6666</sipxrest-https-port>
 	<sipxrest-external-http-port>6667</sipxrest-external-http-port>
+	<server-to-server>
+		<enabled>1</enabled>
+		<port>5269</port>
+		<disconnect-on-idle>0</disconnect-on-idle>
+		<idle-timeout>3601</idle-timeout>
+		<any-can-connect>0</any-can-connect>
+		<allowed-servers>
+			<host>http://server1.org</host>
+			<port>1234</port>
+		</allowed-servers>
+		<allowed-servers>
+			<host>server2</host>
+			<port>12345</port>
+		</allowed-servers>
+		<allowed-servers>
+			<host>server2</host>
+			<port>5269</port>
+		</allowed-servers>
+		<disallowed-servers>
+			<host>server3.org</host>
+			<port>1111</port>
+		</disallowed-servers>
+	</server-to-server>
 </sipxopenfire-config>

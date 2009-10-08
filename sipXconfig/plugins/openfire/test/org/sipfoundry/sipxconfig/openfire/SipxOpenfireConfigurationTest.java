@@ -69,7 +69,13 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
 
         m_service.initialize();
         m_service.setModelFilesContext(getModelFilesContext());
-        m_service.setSettingValue(SipxOpenfireService.XML_RPC_PORT_SETTING, "9095");
+        m_service.setSettingTypedValue(SipxOpenfireService.XML_RPC_PORT_SETTING, 9095);
+        m_service.setSettingTypedValue("openfire-server-to-server/enabled", true);
+        m_service.setSettingTypedValue("openfire-server-to-server/idle-timeout", 3601);
+        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING, "http://server1.org:1234, " +
+                "server2:12345, server2,   server2,     server2, server2:12345");
+        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING, "server3.org:1111");
+
 
         m_sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxOpenfireService.BEAN_ID);

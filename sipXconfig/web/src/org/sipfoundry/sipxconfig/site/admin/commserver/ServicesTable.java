@@ -67,6 +67,7 @@ import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Un
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class ServicesTable extends BaseComponent {
+    public static final String SIPX_OPENFIRE_SERVICE_BEAN_ID = "sipxOpenfireService";
 
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
@@ -231,6 +232,8 @@ public abstract class ServicesTable extends BaseComponent {
             EditSipxService servicePage = (EditSipxService) page;
             servicePage.setBeanId(serviceBeanId);
             if (SipxRegistrarService.BEAN_ID.equals(serviceBeanId)) {
+                servicePage.setGroupTitleEnabled(true);
+            } else if (SIPX_OPENFIRE_SERVICE_BEAN_ID.equals(serviceBeanId)) {
                 servicePage.setGroupTitleEnabled(true);
             }
             page.setReturnPage(getEditLocationPage().getPage(), getBreadCrumbs());

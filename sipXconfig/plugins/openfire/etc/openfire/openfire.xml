@@ -70,4 +70,56 @@
       </type>
     </setting>
   </group>
+  <group name="openfire-server-to-server">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="port">
+      <type>
+        <integer min="1024" max="65535" required="yes" />
+      </type>
+      <value>5269</value>
+    </setting>
+    <setting name="disconnect-on-idle">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="idle-timeout">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="any-can-connect">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="allowed-servers">
+      <type>
+        <string>
+          <pattern>[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1}(,\s*[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1})*</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="disallowed-servers">
+      <type>
+        <string>
+          <pattern>[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1}(,\s*[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1})*</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="default-remote-server-port" hidden="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>5269</value>
+    </setting>
+  </group>
 </model>

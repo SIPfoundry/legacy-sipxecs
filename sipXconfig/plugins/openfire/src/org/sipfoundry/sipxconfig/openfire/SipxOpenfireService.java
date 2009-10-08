@@ -26,6 +26,12 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
     public static final String WATCHER_SETTING = "settings/watcher-address";
     public static final String DOMAIN_SETTING = "settings/sipx-proxy-domain";
     public static final String XML_RPC_PORT_SETTING = "settings/openfire-xml-rpc-port";
+    public static final String SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING =
+        "openfire-server-to-server/allowed-servers";
+    public static final String SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING =
+        "openfire-server-to-server/disallowed-servers";
+    public static final String SERVER_TO_SERVER_DEFAULT_REMOTE_PORT =
+        "openfire-server-to-server/default-remote-server-port";
 
     private LocationsManager m_locationsManager;
 

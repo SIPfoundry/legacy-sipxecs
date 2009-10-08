@@ -1,3 +1,12 @@
+## Velocity macros
+#macro(generate_severs_list $servers_list $label)
+#foreach ($server in $servers_list)
+		<$label>
+			<host>$server.host</host>
+			<port>$server.port</port>
+		</$label>
+#end
+#end
 <?xml version="1.0" ?>
 <sipxopenfire-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00">
 	<sipx-proxy-domain>$settings.getSetting('settings/sipx-proxy-domain').Value</sipx-proxy-domain>
@@ -14,4 +23,13 @@
 	<sipxrest-ip-address>$!{restService.address}</sipxrest-ip-address>
 	<sipxrest-https-port>$!{restService.httpsPort}</sipxrest-https-port>
 	<sipxrest-external-http-port>$!{restService.extHttpPort}</sipxrest-external-http-port>
+	<server-to-server>
+		<enabled>$settings.getSetting('openfire-server-to-server/enabled').Value</enabled>
+		<port>$settings.getSetting('openfire-server-to-server/port').Value</port>
+		<disconnect-on-idle>$settings.getSetting('openfire-server-to-server/disconnect-on-idle').Value</disconnect-on-idle>
+		<idle-timeout>$settings.getSetting('openfire-server-to-server/idle-timeout').Value</idle-timeout>
+		<any-can-connect>$settings.getSetting('openfire-server-to-server/any-can-connect').Value</any-can-connect>
+#generate_severs_list($allowedServers, 'allowed-servers')
+#generate_severs_list($disallowedServers, 'disallowed-servers')
+	</server-to-server>
 </sipxopenfire-config>
