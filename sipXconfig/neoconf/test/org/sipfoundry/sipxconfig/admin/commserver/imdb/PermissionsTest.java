@@ -47,7 +47,7 @@ public class PermissionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("host.company.com");
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();
@@ -86,7 +86,7 @@ public class PermissionsTest extends TestCase {
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.getDomainName();
         expectLastCall().andReturn("host.company.com");
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();

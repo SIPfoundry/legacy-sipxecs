@@ -147,7 +147,7 @@ public class XmppAccountInfoTest extends TestCase {
     public void testGenerate() throws Exception {
         CoreContext coreContext = createMock(CoreContext.class);
 
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(m_users).atLeastOnce();
         coreContext.getGroups();
         expectLastCall().andReturn(m_groups);

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.speeddial;
 
@@ -16,12 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Element;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
@@ -109,7 +110,7 @@ public class ResourceListsTest extends XMLTestCase {
     public void testGenerate() throws Exception {
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, XmlFile.DEFAULT_PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         coreContextControl.andReturn(m_users);
         coreContext.getDomainName();
         coreContextControl.andReturn("example.org").anyTimes();
@@ -150,7 +151,7 @@ public class ResourceListsTest extends XMLTestCase {
     public void testGenerateEmpty() throws Exception {
         IMocksControl coreContextControl = EasyMock.createControl();
         CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, XmlFile.DEFAULT_PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         coreContextControl.andReturn(Collections.emptyList());
         coreContext.getDomainName();
         coreContextControl.andReturn("example.org");

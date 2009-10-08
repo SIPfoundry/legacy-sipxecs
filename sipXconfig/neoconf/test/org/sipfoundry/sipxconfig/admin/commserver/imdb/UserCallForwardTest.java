@@ -77,7 +77,7 @@ public class UserCallForwardTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.emptyList());
 
         uf.setCoreContext(coreContext);
@@ -99,7 +99,7 @@ public class UserCallForwardTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(m_users);
         ForwardingContext forwardingContext = createMock(ForwardingContext.class);
         for (int i = 0; i < m_users.size(); i++) {

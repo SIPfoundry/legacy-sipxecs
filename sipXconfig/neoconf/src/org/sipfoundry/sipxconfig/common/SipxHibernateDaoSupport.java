@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -16,35 +16,22 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Storage;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
-
-    /**
-     * Check if a bean exists w/o loading it or trying to load it and getting a
-     * dataintegrityexcepiton
-     */
-    public boolean isBeanAvailable(Class c, Serializable id) {
-        ClassMetadata classMetadata = getHibernateTemplate().getSessionFactory()
-                .getClassMetadata(c);
-        String name = classMetadata.getEntityName();
-        List results = getHibernateTemplate().findByNamedParam(
-                "select 1 from " + name + " where id = :id", "id", id);
-        return !results.isEmpty();
-    }
+public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements DataObjectSource<T> {
 
     public T load(Class<T> c, Serializable id) {
         return (T) getHibernateTemplate().load(c, id);
@@ -72,7 +59,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
      * @param bean bean to duplicate
      * @param queryName name of the query to be executed (define in *.hbm.xml file)
      */
-    public Object duplicateBean(BeanWithId bean, String queryName) {
+    public BeanWithId duplicateBean(BeanWithId bean, String queryName) {
         BeanWithId copy = bean.duplicate();
 
         if (bean instanceof NamedObject) {
@@ -83,29 +70,31 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
             namedCopy.setName(((NamedObject) bean).getName());
             do {
                 namedCopy.setName("CopyOf" + namedCopy.getName());
-            } while (DaoUtils.checkDuplicatesByNamedQuery(template, copy, queryName, namedCopy
-                    .getName(), null));
+            } while (DaoUtils.checkDuplicatesByNamedQuery(template, copy, queryName, namedCopy.getName(), null));
         }
 
         return copy;
     }
 
-    public List loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
+    public List<T> loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
             String[] orderBy, boolean orderAscending) {
-        Criteria c;
-        if (groupId != null) {
-            c = getByGroupCriteria(beanClass, groupId);
-        } else {
-            c = getByBranchCriteria(beanClass, branchId);
+        DetachedCriteria c = DetachedCriteria.forClass(beanClass);
+        addByGroupCriteria(c, groupId);
+        addByBranchCriteria(c, branchId);
+        if (orderBy != null) {
+            for (String o : orderBy) {
+                Order order = orderAscending ? Order.asc(o) : Order.desc(o);
+                c.addOrder(order);
+            }
         }
-        c.setFirstResult(firstRow);
-        c.setMaxResults(pageSize);
-        for (int i = 0; i < orderBy.length; i++) {
-            Order order = orderAscending ? Order.asc(orderBy[i]) : Order.desc(orderBy[i]);
-            c.addOrder(order);
-        }
-        List users = c.list();
-        return users;
+        return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
+    }
+
+    public List<T> loadBeansByPage(Class beanClass, int firstRow, int pageSize) {
+        String[] orderBy = new String[] {
+            "id"
+        };
+        return loadBeansByPage(beanClass, null, null, firstRow, pageSize, orderBy, true);
     }
 
     /**
@@ -113,40 +102,11 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
      * then don't filter by group, just count all the beans.
      */
     public int getBeansInGroupCount(Class beanClass, Integer groupId) {
-        Criteria crit = getByGroupCriteria(beanClass, groupId);
+        DetachedCriteria crit = DetachedCriteria.forClass(beanClass);
+        addByGroupCriteria(crit, groupId);
         crit.setProjection(Projections.rowCount());
-        List results = crit.list();
-        if (results.size() > 1) {
-            throw new RuntimeException("Querying for bean count returned multiple results!");
-        }
-        Integer count = (Integer) results.get(0);
-        return count.intValue();
-    }
-
-    /**
-     * Create and return a Criteria object for filtering beans by group membership. The class
-     * passed in should extend BeanWithGroups. If groupId is null, then don't filter by group.
-     */
-    public Criteria getByGroupCriteria(Class klass, Integer groupId) {
-        Criteria crit = getSession().createCriteria(klass);
-        if (groupId != null) {
-            crit.createCriteria("groups", "g");
-            crit.add(Restrictions.eq("g.id", groupId));
-        }
-        return crit;
-    }
-
-    /**
-     * Create and return a Criteria object for filtering beans by group membership. The class
-     * passed in should extend BeanWithGroups. If groupId is null, then don't filter by group.
-     */
-    public Criteria getByBranchCriteria(Class klass, Integer branchId) {
-        Criteria crit = getSession().createCriteria(klass);
-        if (branchId != null) {
-            crit.createCriteria("branch", "b");
-            crit.add(Restrictions.eq("b.id", branchId));
-        }
-        return crit;
+        List results = getHibernateTemplate().findByCriteria(crit);
+        return (Integer) DataAccessUtils.requiredSingleResult(results);
     }
 
     protected void removeAll(Class<T> klass, Collection ids) {
@@ -187,9 +147,29 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
         return originalValue;
     }
 
+    /**
+     * Update a Criteria object for filtering beans by group membership. If groupId is null, then
+     * don't filter by group.
+     */
+    public static void addByGroupCriteria(DetachedCriteria crit, Integer groupId) {
+        if (groupId != null) {
+            crit.createCriteria("groups", "g").add(Restrictions.eq("g.id", groupId));
+        }
+    }
+
+    /**
+     * Update a Criteria object for filtering beans by branch membership. If brnachId is null,
+     * then don't filter by branch.
+     */
+    public static void addByBranchCriteria(DetachedCriteria crit, Integer branchId) {
+        if (branchId != null) {
+            crit.createCriteria("branch", "b").add(Restrictions.eq("b.id", branchId));
+        }
+    }
+
     static class GetOriginalValueCallback implements HibernateCallback {
-        private PrimaryKeySource m_object;
-        private String m_propertyName;
+        private final PrimaryKeySource m_object;
+        private final String m_propertyName;
 
         GetOriginalValueCallback(PrimaryKeySource object, String propertyName) {
             m_object = object;
@@ -203,8 +183,8 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport {
             String[] propNames = ep.getPropertyNames();
             int propIndex = ArrayUtils.indexOf(propNames, m_propertyName);
             if (propIndex < 0) {
-                throw new IllegalArgumentException("Property '" + m_propertyName
-                        + "' not found on object '" + m_object.getClass() + "'");
+                throw new IllegalArgumentException("Property '" + m_propertyName + "' not found on object '"
+                        + m_object.getClass() + "'");
             }
 
             Serializable id = (Serializable) m_object.getPrimaryKey();

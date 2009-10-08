@@ -91,7 +91,7 @@ public class UserLocationTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.emptyList());
 
         ul.setCoreContext(coreContext);
@@ -113,7 +113,7 @@ public class UserLocationTest extends XMLTestCase {
         };
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(m_users);
 
         ul.setCoreContext(coreContext);

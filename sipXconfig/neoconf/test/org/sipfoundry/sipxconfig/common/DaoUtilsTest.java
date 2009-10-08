@@ -76,7 +76,7 @@ public class DaoUtilsTest extends TestCase {
 
     public void testForAllUsersDoEmpty() {
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         replay(coreContext);
 
@@ -94,7 +94,7 @@ public class DaoUtilsTest extends TestCase {
         User[] page = new User[PAGE_SIZE - 1];
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, PAGE_SIZE);
         expectLastCall().andReturn(Arrays.asList(page));
 
         replay(coreContext);
@@ -113,10 +113,10 @@ public class DaoUtilsTest extends TestCase {
 
         CoreContext coreContext = createMock(CoreContext.class);
         for (int i = 0; i < fullPages; i++) {
-            coreContext.loadUsersByPage(null, null, null, i * PAGE_SIZE, PAGE_SIZE, "id", true);
+            coreContext.loadUsersByPage(i * PAGE_SIZE, PAGE_SIZE);
             expectLastCall().andReturn(Arrays.asList(page));
         }
-        coreContext.loadUsersByPage(null, null, null, fullPages * PAGE_SIZE, PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(fullPages * PAGE_SIZE, PAGE_SIZE);
         expectLastCall().andReturn(Arrays.asList(lastPage));
         replay(coreContext);
 

@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 /**
  * CoreContext
  */
-public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner {
+public interface CoreContext extends DataObjectSource<User>, AliasProvider, AliasOwner {
 
     static final String USER_GROUP_RESOURCE_ID = "user";
     static final String CONTEXT_BEAN_NAME = "coreContext";
@@ -79,6 +79,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
 
     List<User> loadUsersByPage(String search, Integer groupId, Integer branchId, int page, int pageSize,
             String orderBy, boolean orderAscending);
+
+    List<User> loadUsersByPage(int first, int pageSize);
 
     List<User> loadUserByTemplateUser(User template);
 

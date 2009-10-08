@@ -12,11 +12,12 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.Arrays;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -67,7 +68,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u2.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, true);
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, XmlFile.DEFAULT_PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Arrays.asList(u1, u2));
 
         Domain domain = new Domain();

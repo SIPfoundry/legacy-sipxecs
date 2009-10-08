@@ -17,6 +17,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -28,8 +30,9 @@ import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
-    private Conference m_conf = new Conference();
+    private final Conference m_conf = new Conference();
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         initializeBeanWithSettings(m_conf);
@@ -93,7 +96,7 @@ public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
         u3.setAddressBookEntry(abe3);
 
         CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, 250, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Arrays.asList(u1, u2, u3));
 
         ConferenceBridgeContext bridgeContext = createMock(ConferenceBridgeContext.class);

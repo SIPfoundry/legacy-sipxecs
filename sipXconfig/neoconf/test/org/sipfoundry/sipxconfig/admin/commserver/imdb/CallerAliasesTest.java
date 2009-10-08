@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
@@ -110,7 +110,7 @@ public class CallerAliasesTest extends XMLTestCase {
         };
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         EasyMock.expectLastCall().andReturn(Collections.emptyList()).anyTimes();
 
         GatewayContext gatewayContext = EasyMock.createMock(GatewayContext.class);
@@ -139,7 +139,7 @@ public class CallerAliasesTest extends XMLTestCase {
         cas.setAnonymousAlias("sip:anonymous@anonymous.invalid");
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         EasyMock.expectLastCall().andReturn(m_users).anyTimes();
 
         GatewayContext gatewayContext = EasyMock.createMock(GatewayContext.class);

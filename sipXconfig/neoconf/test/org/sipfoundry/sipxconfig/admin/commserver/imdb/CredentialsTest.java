@@ -37,7 +37,7 @@ public class CredentialsTest extends TestCase {
         expectLastCall().andReturn("host.company.com");
         coreContext.getAuthorizationRealm();
         expectLastCall().andReturn("company.com");
-        coreContext.loadUsersByPage(null, null, null, 0, DaoUtils.PAGE_SIZE, "id", true);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
 
         User user = new User();

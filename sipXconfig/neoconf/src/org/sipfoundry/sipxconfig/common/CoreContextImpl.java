@@ -32,9 +32,10 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
+
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
-public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext, DaoEventListener {
+public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext, DaoEventListener {
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final int SIP_PASSWORD_LEN = 8;
@@ -185,9 +186,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
     }
 
     public User loadUser(Integer id) {
-        User user = (User) getHibernateTemplate().load(User.class, id);
-
-        return user;
+        return load(User.class, id);
     }
 
     public User loadUserByUserName(String userName) {
@@ -352,6 +351,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
         return users;
     }
 
+    public List<User> loadUsersByPage(int first, int pageSize) {
+        return loadBeansByPage(User.class, first, pageSize);
+    }
+
     public void clear() {
         Collection c = getHibernateTemplate().find(QUERY_USER);
         getHibernateTemplate().deleteAll(c);
@@ -451,8 +454,11 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport implements
     }
 
     public boolean isImIdUnique(User user) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds",
-                new String[] {QUERY_IM_ID, QUERY_USER_ID}, new Object[] {user.getImId(), user.getId()});
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds", new String[] {
+            QUERY_IM_ID, QUERY_USER_ID
+        }, new Object[] {
+            user.getImId(), user.getId()
+        });
         return intResult(count) == 0;
     }
 

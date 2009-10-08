@@ -30,6 +30,7 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         return support;
     }
 
+    @Override
     protected void setUp() throws Exception {
         m_dao = createDao();
         TestHelper.cleanInsert("ClearDb.xml");
@@ -82,12 +83,5 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         } catch (IllegalArgumentException e) {
             assertTrue(e.getMessage().indexOf("eyeglassPerscription") >= 0);
         }
-    }
-
-    public void testIsBeanAvailable() throws Exception {
-        TestHelper.cleanInsert("ClearDb.xml");
-        assertFalse(m_dao.isBeanAvailable(User.class, 1000));
-        TestHelper.insertFlat("common/TestUserSeed.db.xml");
-        assertTrue(m_dao.isBeanAvailable(User.class, 1000));
     }
 }

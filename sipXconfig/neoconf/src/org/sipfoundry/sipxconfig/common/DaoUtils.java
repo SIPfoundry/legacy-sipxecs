@@ -235,8 +235,7 @@ public final class DaoUtils {
         int size = 0;
         do {
             userIndex += size;
-            List<User> users = coreContext.loadUsersByPage(null, null, null, userIndex, PAGE_SIZE, ID_PROPERTY_NAME,
-                    true);
+            List<User> users = coreContext.loadUsersByPage(userIndex, PAGE_SIZE);
             for (User user : users) {
                 closure.execute(user);
             }
