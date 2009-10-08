@@ -94,6 +94,7 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_SERVER_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.REJECT_STRAY_RESPONSES","true");
+            stackProperties.setProperty("gov.nist.javax.sip.ALLOW_RE_INVITE_INTERLEAVING", "false");
             /*
              * Break up the via encoding.
              */

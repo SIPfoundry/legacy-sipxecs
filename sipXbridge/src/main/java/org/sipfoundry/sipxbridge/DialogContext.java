@@ -29,6 +29,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
+import javax.sip.TransactionDoesNotExistException;
 import javax.sip.address.Address;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
@@ -105,6 +106,8 @@ class DialogContext {
      * single call ( each call leg can have its own ITSP).
      */
     private ItspAccountInfo itspInfo;
+    
+    private Semaphore ackSem = new Semaphore(0);
 
     /*
      * A flag that indicates whether this Dialog was created by sipxbridge and is managed by
@@ -112,10 +115,8 @@ class DialogContext {
      */
     boolean isOriginatedBySipxbridge;
     
-    /*
-     * A semaphore to wait for ACK to be sent.
-     */
-    Semaphore ackSem = new Semaphore(0);
+    
+   
     
 
     // /////////////////////////////////////////////////////////////
@@ -184,8 +185,7 @@ class DialogContext {
     class SessionTimerTask extends TimerTask {
 
         String method;
-        private ReInviteSender reInviteSender;
-
+       
         public SessionTimerTask(String method) {
             this.method = method;
 
@@ -257,12 +257,7 @@ class DialogContext {
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
                             request);
                     TransactionContext.attach(ctx, Operation.SESSION_TIMER);
-                    this.reInviteSender =  new ReInviteSender(DialogContext.get(dialog), ctx);
-                    new Thread(reInviteSender).start();
-                    DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
-
-                
-
+                    DialogContext.this.sendReInvite(ctx);
                 }
 
             } catch (Exception ex) {
@@ -274,104 +269,11 @@ class DialogContext {
 
         public void terminate() {
             logger.debug("Terminating session Timer Task for " + dialog);
-            if (this.reInviteSender != null) {
-                this.reInviteSender.terminate();
-            }
             this.cancel();
         }
     }
 
-    /**
-     * This task waits till a pending ACK has been recorded and then sends out a re-INVITE. This
-     * is to prevent interleaving INVITEs ( which will result in a 493 from the ITSP ).
-     * Some ITSPs will send 400 response instead of 493 and are generally very bad at
-     * dealing with interleaved INVITEs on dialogs. Hence we use this mechanism
-     * to strictly serialize INVTES sent to the ITSP. 
-     * 
-     */
-    class ReInviteSender implements Runnable {
-        DialogContext dialogContext;
-        ClientTransaction ctx;
-        
-        
-        public void terminate() {
-            try {
-                ctx.terminate();
-                Thread.currentThread().interrupt();
-            } catch (ObjectInUseException e) {          
-                logger.error("unexpected error",e);
-            }
-        }
-        
-
-        public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
-            this.dialogContext = dialogContext;
-            this.ctx = ctx;
-            this.dialogContext.waitingToSendReInvite.set(true);
-            TransactionContext.get(ctx).setItspAccountInfo(DialogContext.this.itspInfo);
-        }
-
-        public void run() {
-            try {
-                int i = 0;
-                long timeToWait = 0;
-
-                if  (this.dialogContext.dialog.getState() != DialogState.TERMINATED
-                        && this.dialogContext.reInviteTransaction != null) {
-                     /*
-                      * prevent interleaving by waiting for 8 seconds until the previous ACK gets 
-                      * sent. Certain ITSPs do not deal well with interleaved INVITE transactions 
-                      * (return bad error code).
-                      */
-                     long startTime = System.currentTimeMillis();
-                     if ( ! this.dialogContext.ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
-                         /*
-                          * Could not send re-INVITE we should kill the call.
-                          */
-                         logger.error("Could not send re-INVITE -- killing call Dialog = " + this.dialogContext.dialog);
-                         ctx.terminate();
-                         backToBackUserAgent.tearDown("sipxbridge",
-                                 ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
-                                 "Timed out waiting to re-INVITE");
-                         return;
-                     } else {
-                         timeToWait = System.currentTimeMillis() - startTime;
-                     }
-                }
-
-                /*
-                 * If we had to wait for ACK then
-                 * wait for the ACK to actually get to the other side. Wait for any ACK
-                 * retransmissions to finish. Then send out the request. This is a 
-                 * hack in support of some ITSPs that want re-INVITEs to be spaced 
-                 * out in time ( else they return a 400 error code ).
-                 */
-                try {
-                    if ( timeToWait != 0 ) {
-                        Thread.sleep(500);
-                    }
-                } catch ( InterruptedException ex) {
-                    logger.debug("Interrupted sleep");
-                    return;
-                }
-
-                logger.debug("Sending re-INVITE : Transaction operation = "
-                        + TransactionContext.get(ctx).getOperation());
-
-                if (this.dialogContext.dialog.getState() != DialogState.TERMINATED) {
-                    this.dialogContext.reInviteTransaction = ctx;
-                    this.dialogContext.dialog.sendRequest(ctx);
-                }
-                logger.debug("re-INVITE successfully sent");
-            } catch (Exception ex) {
-                logger.error("Error sending INVITE", ex);
-            } finally {
-                dialogContext.waitingToSendReInvite.set(false);
-                this.dialogContext = null;
-                this.ctx = null;
-            }
-        }
-    }
+    
 
     /**
      * Delays sending the INVITE to the park server. If a RE-INVITE is sent to the ITSP in that
@@ -835,10 +737,7 @@ class DialogContext {
             logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
         }
 
-        if ( lastResponse != null && lastResponse != this.lastResponse &&
-        		lastResponse.getStatusCode() / 100 > 2 ) {
-        	this.ackSem.release();
-        }
+       
         this.lastResponse = lastResponse;
         
         
@@ -885,13 +784,13 @@ class DialogContext {
 
         TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
-        new Thread(new ReInviteSender(this, ctx)).start();
+        this.sendReInvite(ctx);
+        
 
     }
 
     /**
-     * Send an ACK and record it. If some thread is wating to send re-INVITE based upon that ACK
-     * it will get up and and run the re-INVITE.
+     * Send an ACK and record it.
      * 
      * @param ack
      * @throws SipException
@@ -901,8 +800,7 @@ class DialogContext {
         this.lastAck = ack;
         logger.debug("SendingAck ON " + dialog);
         dialog.sendAck(ack);
-        ackSem.release();
-
+        
         if (terminateOnConfirm) {
             Request byeRequest = dialog.createRequest(Request.BYE);
 
@@ -940,7 +838,16 @@ class DialogContext {
      * Asynchronously send a re-INVITE (when we can).
      */
     void sendReInvite(ClientTransaction clientTransaction) {
-        new Thread(new ReInviteSender(this, clientTransaction)).start();
+      
+        if (dialog.getState() != DialogState.TERMINATED) {
+            this.reInviteTransaction = clientTransaction;
+            try {
+                dialog.sendRequest(clientTransaction);
+            } catch (SipException e) {
+                logger.error("Exception sending re-INVITE",e);
+               
+            }
+        }
     }
 
     /**
