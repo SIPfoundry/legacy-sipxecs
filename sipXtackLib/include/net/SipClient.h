@@ -83,10 +83,6 @@ public:
 
    UtlBoolean isSharedSocket( void ) const;
 
-   UtlBoolean sendInvite(char* toAddress, char* callId, int rtpPort,
-                         int numCodecs, int rtpCodecs[],
-                         int sequenceNumber = 1);
-
    void touch();
    //: Set the time when this client was last used
    // This is potentially used for garbage collection

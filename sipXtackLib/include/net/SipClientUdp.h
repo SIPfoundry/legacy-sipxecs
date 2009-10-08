@@ -54,10 +54,6 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   UtlBoolean sendInvite(char* toAddress, char* callId, int rtpPort,
-                         int numCodecs, int rtpCodecs[],
-                         int sequenceNumber = 1);
-
    // Send a message.  Executed by the thread.
    virtual void sendMessage(const SipMessage& message,
                             const char* address,
