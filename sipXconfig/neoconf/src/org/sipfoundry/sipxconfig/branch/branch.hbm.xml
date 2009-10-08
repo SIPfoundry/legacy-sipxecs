@@ -18,6 +18,7 @@
       <property name="state" column="address_state" />
       <property name="country" column="address_country" />
       <property name="zip" column="address_zip" />
+      <property name="officeDesignation" column="office_designation" />
     </component>
   </class>
 

@@ -334,6 +334,7 @@
 	<antcall target="phonebook-add-user" />
     <antcall target="add_addrbookentry_use_brnch_addr" />
     <antcall target="alarm-groups" />
+    <antcall target="add_branch_office_designation" />
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -1006,6 +1007,9 @@
   </target>
   <target name="alarm-groups" unless="alarm-groups">
     <db-patch patch="alarm-groups"/>
+  </target>
+  <target name="add_branch_office_designation" unless="add_branch_office_designation">
+    <db-patch patch="add_branch_office_designation"/>
   </target>
 
   <!--

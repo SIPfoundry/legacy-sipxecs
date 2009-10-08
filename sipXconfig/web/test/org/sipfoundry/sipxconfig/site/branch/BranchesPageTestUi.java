@@ -31,8 +31,8 @@ public class BranchesPageTestUi extends ListWebTestCase {
     @Override
     protected String[] getParamNames() {
         return new String[] {
-            "item:name", "item:description", "street", "city", "state", "country", "zip", "item:phoneNumber",
-            "item:faxNumber"
+            "item:name", "item:description", "street", "city", "state", "country", "zip", "phoneNumber",
+            "faxNumber", "designation"
         };
     }
 
@@ -40,7 +40,7 @@ public class BranchesPageTestUi extends ListWebTestCase {
     protected String[] getParamValues(int i) {
         return new String[] {
             "branch" + i, "branch description" + i, "street" + i, "city" + i, "state" + i, "country" + i, "zip" + i,
-            "number" + i, "number" + i
+            "number" + i, "number" + i, "1000" + i
         };
     }
 
