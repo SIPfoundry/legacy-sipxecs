@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone;
 
@@ -26,12 +26,11 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
     private SettingDao m_settingContext;
 
+    @Override
     protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
 
-        m_settingContext = (SettingDao) TestHelper.getApplicationContext().getBean(
-                SettingDao.CONTEXT_NAME);
+        m_settingContext = (SettingDao) TestHelper.getApplicationContext().getBean(SettingDao.CONTEXT_NAME);
     }
 
     public void testClear() throws Exception {
@@ -47,7 +46,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
         Phone p = m_context.newPhone(new TestPhoneModel());
-        p.setSerialNumber("999123456");
+        p.setSerialNumber("999123456789");
 
         try {
             m_context.storePhone(p);
@@ -71,12 +70,26 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         }
     }
 
+    public void testCheckForInvalidSerialNumberOnSave() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+
+        Phone p = m_context.newPhone(new TestPhoneModel());
+        p.setSerialNumber("0000000z");
+
+        // The pattern is quite flexible, but does not accept 'z'.
+        try {
+            m_context.storePhone(p);
+            fail("should have thrown InvalidSerialNumberException");
+        } catch (UserException e) {
+            // ok
+        }
+    }
+
     public void testGetGroupMemberCountIndexedByGroupId() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
 
-        Map<Integer, Long> counts = m_settingContext
-                .getGroupMemberCountIndexedByGroupId(Phone.class);
+        Map<Integer, Long> counts = m_settingContext.getGroupMemberCountIndexedByGroupId(Phone.class);
         assertEquals(2, counts.size());
         assertEquals(2, counts.get(1001).intValue());
         assertEquals(1, counts.get(1002).intValue());
@@ -183,12 +196,10 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
             1001, 1002
         };
 
-        assertEquals(2, TestHelper.getConnection().getRowCount("phone_group",
-                "where phone_group.group_id = 1001"));
+        assertEquals(2, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
 
         m_context.removeFromGroup(1001, Arrays.asList(ids));
 
-        assertEquals(0, TestHelper.getConnection().getRowCount("phone_group",
-                "where phone_group.group_id = 1001"));
+        assertEquals(0, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
     }
 }

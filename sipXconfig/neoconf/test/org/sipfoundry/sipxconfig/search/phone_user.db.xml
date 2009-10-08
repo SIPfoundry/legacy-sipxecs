@@ -3,7 +3,7 @@
 <dataset>
   <users user_id="1000" user_name="kuku"/>
 	<phone 
-		serial_number="999123456" 
+		serial_number="999123456789"
 		phone_id="1000" 
 		description="unittest-sample phone1" 
 		bean_id="testPhone"

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone;
 
@@ -43,8 +43,8 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
  */
-public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
-        PhoneContext, ApplicationListener, DaoEventListener {
+public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, PhoneContext,
+        ApplicationListener, DaoEventListener {
 
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
@@ -116,8 +116,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER,
-                serialNumber, new DuplicateSerialNumberException(serialNumber));
+        if (!phone.getModel().isSerialNumberValid(serialNumber)) {
+            throw new InvalidSerialNumberException(serialNumber, phone.getModel().getSerialNumberPattern());
+        }
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER, serialNumber,
+                new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
@@ -175,8 +178,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value",
+                serialNumber);
         return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
@@ -226,6 +229,14 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
     }
 
+    private static class InvalidSerialNumberException extends UserException {
+        private static final String ERROR = "The serial number \"{0}\" does not fulfill the required pattern {1}.";
+
+        public InvalidSerialNumberException(String serialNumber, String pattern) {
+            super(ERROR, serialNumber, pattern);
+        }
+    }
+
     public void onApplicationEvent(ApplicationEvent event_) {
         // no init tasks defined yet
     }
@@ -239,8 +250,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection getPhonesByGroupId(Integer groupId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "phonesByGroupId", "groupId", groupId);
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", "groupId",
+                groupId);
         return users;
     }
 
@@ -281,8 +292,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection<Phone> getPhonesByUserId(Integer userId) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", USER_ID,
-                userId);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", USER_ID, userId);
     }
 
     public Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId) {

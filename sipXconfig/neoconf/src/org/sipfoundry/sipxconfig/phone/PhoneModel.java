@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 
 public class PhoneModel extends DeviceDescriptor {

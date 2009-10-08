@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.device;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,7 +52,7 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
      * By default we accept MAC address as serial number. Device plugin developers can define
      * other regular expressions to accept serial number in a format specific for a device.
      */
-    private String m_serialNumberPattern = "^[a-f\\d]{12}$";
+    private Pattern m_serialNumberPattern = Pattern.compile("^[a-f\\d]{12}$");
 
     private DeviceVersion[] m_versions = new DeviceVersion[0];
 
@@ -118,7 +119,7 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
      * If non-empty pattern is specified than assume serial number is needed.
      */
     public boolean getHasSerialNumber() {
-        return StringUtils.isNotBlank(getSerialNumberPattern());
+        return m_serialNumberPattern != null;
     }
 
     public void setVersions(DeviceVersion[] versions) {
@@ -130,18 +131,41 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
     }
 
     public String getSerialNumberPattern() {
-        return m_serialNumberPattern;
+        if (m_serialNumberPattern == null) {
+            return StringUtils.EMPTY;
+        }
+        return m_serialNumberPattern.pattern();
     }
 
     public void setSerialNumberPattern(String serialNumberPattern) {
-        m_serialNumberPattern = serialNumberPattern;
+        if (StringUtils.isBlank(serialNumberPattern)) {
+            m_serialNumberPattern = null;
+        } else {
+            m_serialNumberPattern = Pattern.compile(serialNumberPattern);
+        }
+    }
+
+    /**
+     * Checks if a provided serial number is valid for a specific device model.
+     *
+     * @param serialNumber new or updated serial number
+     *
+     * @return true is serial number is valid
+     */
+    public boolean isSerialNumberValid(String serialNumber) {
+        if (!getHasSerialNumber()) {
+            return true;
+        }
+        return m_serialNumberPattern.matcher(serialNumber).matches();
     }
 
     public void setSupportedFeatures(Set<String> supportedFeatures) {
         m_supportedFeatures = supportedFeatures;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     *
      * @see org.sipfoundry.sipxconfig.device.FeatureProvider#isSupported(java.lang.String)
      */
     public boolean isSupported(String feature) {
@@ -273,5 +297,4 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
     public boolean isRestartSupported() {
         return m_restartSupported;
     }
-
 }

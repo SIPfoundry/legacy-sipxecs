@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.device;
 
@@ -73,5 +73,33 @@ public class DeviceDescriptorTest extends TestCase {
         assertTrue(definitions.contains("4x4"));
         assertTrue(definitions.contains("s80"));
         assertTrue(definitions.contains("leather"));
+    }
+
+    public void testValidateSerialNumber() {
+        DeviceDescriptor dd = new DeviceDescriptor() {
+        };
+
+        assertFalse(dd.isSerialNumberValid("55"));
+        assertTrue(dd.isSerialNumberValid("554433221100"));
+
+        dd.setSerialNumberPattern("\\d{1,3}");
+        assertTrue(dd.isSerialNumberValid("55"));
+        assertFalse(dd.isSerialNumberValid("554433221100"));
+
+        dd.setSerialNumberPattern("");
+        assertTrue(dd.isSerialNumberValid("554433221100"));
+        assertTrue(dd.isSerialNumberValid("55"));
+    }
+
+    public void testGetSerialNumber() {
+        DeviceDescriptor dd = new DeviceDescriptor() {
+        };
+
+        assertTrue(dd.getHasSerialNumber());
+
+        dd.setSerialNumberPattern(null);
+        assertEquals("", dd.getSerialNumberPattern());
+
+        assertFalse(dd.getHasSerialNumber());
     }
 }

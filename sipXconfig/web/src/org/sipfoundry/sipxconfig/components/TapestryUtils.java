@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -183,8 +182,9 @@ public final class TapestryUtils {
     }
 
     /**
-     * send the error recorded in a validator to the affected page
-     * (the page must contain a validator bean)
+     * send the error recorded in a validator to the affected page (the page must contain a
+     * validator bean)
+     *
      * @param page - affected page
      * @param validator - validator with error recorded
      */
@@ -305,11 +305,13 @@ public final class TapestryUtils {
     }
 
     public static List<Validator> getSerialNumberValidators(DeviceDescriptor model) {
-        Validator[] vs = new Validator[2];
-        vs[0] = new Required();
-        Pattern pattern = new Pattern();
-        pattern.setPattern(model.getSerialNumberPattern());
-        vs[1] = pattern;
-        return Arrays.asList(vs);
+        List<Validator> vs = new ArrayList<Validator>(2);
+        vs.add(new Required());
+        if (model.getHasSerialNumber()) {
+            Pattern pattern = new Pattern();
+            pattern.setPattern(model.getSerialNumberPattern());
+            vs.add(pattern);
+        }
+        return vs;
     }
 }

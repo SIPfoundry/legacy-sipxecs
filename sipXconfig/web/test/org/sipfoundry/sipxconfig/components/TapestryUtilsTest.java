@@ -13,10 +13,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 
+import junit.framework.TestCase;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.ValidationMessages;
+import org.apache.tapestry.form.validator.Pattern;
+import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.form.validator.Validator;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -191,10 +193,22 @@ public class TapestryUtilsTest extends TestCase {
         String serialNumber = "FT0123456";
 
         List<Validator> serialNumberValidators = TapestryUtils.getSerialNumberValidators(model);
+        assertEquals(2, serialNumberValidators.size());
+        assertTrue(serialNumberValidators.get(0) instanceof Required);
+        assertTrue(serialNumberValidators.get(1) instanceof Pattern);
         for (Validator v : serialNumberValidators) {
             v.validate(fc, messages, serialNumber);
         }
 
         EasyMock.verify(messages, fc);
+    }
+
+    public void testGetSerialNumberValidatorsNoPattern() throws Exception {
+        GatewayModel model = new GatewayModel();
+        model.setSerialNumberPattern("");
+
+        List<Validator> serialNumberValidators = TapestryUtils.getSerialNumberValidators(model);
+        assertEquals(1, serialNumberValidators.size());
+        assertTrue(serialNumberValidators.get(0) instanceof Required);
     }
 }

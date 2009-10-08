@@ -53,7 +53,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
     public void testSave() throws Exception {
         Phone phone = context.newPhone(new TestPhoneModel());
-        phone.setSerialNumber("999123456");
+        phone.setSerialNumber("999123456789");
         phone.setDescription("unittest-sample phone1");
         context.storePhone(phone);
 
@@ -72,7 +72,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/EndpointLineSeed.xml");
 
         Phone p = context.loadPhone(new Integer(1000));
-        assertEquals("999123456", p.getSerialNumber());
+        assertEquals("999123456789", p.getSerialNumber());
 
         Integer id = p.getId();
         context.deletePhone(p);
