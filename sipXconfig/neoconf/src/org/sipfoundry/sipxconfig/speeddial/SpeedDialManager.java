@@ -27,4 +27,6 @@ public interface SpeedDialManager extends DialingRuleProvider {
     void clear();
 
     void deleteSpeedDialsForUser(int userId);
+
+    boolean isSpeedDialDefinedForUserId(Integer userId);
 }

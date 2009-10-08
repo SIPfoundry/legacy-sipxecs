@@ -48,6 +48,10 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     public abstract boolean isValidationEnabled();
 
+    public abstract boolean isGroupSynced();
+
+    public abstract void setGroupSynced(boolean groupSynced);
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
@@ -61,6 +65,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         SpeedDial speedDial = getSpeedDialManager().getSpeedDialForUserId(userId, true);
         setSpeedDial(speedDial);
         setSavedUserId(userId);
+        setGroupSynced(!getSpeedDialManager().isSpeedDialDefinedForUserId(userId));
     }
 
     public void onSubmit() {
@@ -77,7 +82,15 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     public void onApply() {
         setValidationEnabled(true);
-        if (TapestryUtils.isValid(this)) {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        if (isGroupSynced()) {
+            getSpeedDialManager().deleteSpeedDialsForUser(getUserId());
+            // force reload
+            setSpeedDial(null);
+        } else {
             SpeedDialManager speedDialManager = getSpeedDialManager();
             speedDialManager.saveSpeedDial(getSpeedDial());
         }
@@ -93,9 +106,4 @@ public abstract class SpeedDialPage extends UserBasePage {
         }
     }
 
-    public void onGroupSync() {
-        getSpeedDialManager().deleteSpeedDialsForUser(getUserId());
-        // force reload
-        setSpeedDial(null);
-    }
 }

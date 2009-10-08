@@ -80,6 +80,14 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return speedDialGroup;
     }
 
+    public boolean isSpeedDialDefinedForUserId(Integer userId) {
+        List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
+        if (!speeddials.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     private List<SpeedDial> findSpeedDialForUserId(Integer userId) {
         List<SpeedDial> speeddials = getHibernateTemplate().findByNamedQueryAndNamedParam("speedDialForUserId",
                 "userId", userId);
