@@ -8,6 +8,13 @@
   -->
   <bean id="restletSpringBeanRouter" class="org.sipfoundry.sipxconfig.rest.SipxSpringBeanRouter" />
 
+  <bean id="phonesResource" class="org.sipfoundry.sipxconfig.rest.PhonesResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="phoneModelSource" ref="phoneModelSource" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="phonesResource" alias="/phone" />
+
   <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.rest.PhonebookResource" scope="prototype">
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="modifiable" value="false" />
