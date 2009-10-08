@@ -66,10 +66,6 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
    UtlString tempStr;
 
    UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
-   body.append(sevStr);
-   body.append(" ");
-   body.append(callingHost);
-   body.append(": ");
    body.append(alarmMsg);
 
    OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
@@ -79,7 +75,7 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
 
    UtlSList subjectParams;
    UtlString codeStr(alarmData->getCode());
-   UtlString titleStr(alarmData->getShortTitle());
+   UtlString titleStr(sevStr);
    subjectParams.append(&codeStr);
    subjectParams.append(&titleStr);
    assembleMsg(mSmsStrSubject, subjectParams, tempStr);
