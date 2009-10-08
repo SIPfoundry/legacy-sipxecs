@@ -2192,6 +2192,12 @@
         </type>
         <value>1</value>
      </setting>
+     <setting name="useContactInReferTo" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+     </setting>
      <setting name="lcs">
         <type>
           <boolean />
