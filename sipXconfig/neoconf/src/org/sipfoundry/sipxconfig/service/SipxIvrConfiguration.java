@@ -18,6 +18,8 @@ public class SipxIvrConfiguration extends SipxServiceConfiguration {
         VelocityContext context = super.setupContext(location);
         context.put("service", getService(SipxIvrService.BEAN_ID));
         context.put("statusService", getService(SipxStatusService.BEAN_ID));
+        context.put("restService", getService(SipxRestService.BEAN_ID));
+        context.put("sipxServiceManager", getSipxServiceManager());
         return context;
     }
 

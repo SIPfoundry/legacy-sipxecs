@@ -23,6 +23,7 @@
         <ref bean="sipxOpenfireConfiguration" />
         <ref bean="xmppAccountInfo" />
         <ref bean="sipxRegistrarConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
       </list>
     </property>
     <property name="bundles">

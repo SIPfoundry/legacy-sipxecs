@@ -628,6 +628,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxRestConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
       </list>
     </property>
   </bean>

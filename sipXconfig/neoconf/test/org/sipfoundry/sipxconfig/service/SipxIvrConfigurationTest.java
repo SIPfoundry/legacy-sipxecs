@@ -10,44 +10,95 @@
 package org.sipfoundry.sipxconfig.service;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import java.util.Arrays;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
+    private SipxIvrService m_ivrService;
+    private SipxStatusService m_statusService;
+    private SipxRestService m_restService;
+    private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
 
-    public void testWrite() throws Exception {
-        SipxIvrService ivrService = new SipxIvrService();
-        ivrService.setModelDir("sipxivr");
-        ivrService.setModelName("sipxivr.xml");
-        initCommonAttributes(ivrService);
+    public void setUp() {
+        Location location = createDefaultLocation();
+        m_ivrService = new SipxIvrService();
+        m_ivrService.setModelDir("sipxivr");
+        m_ivrService.setModelName("sipxivr.xml");
+        initCommonAttributes(m_ivrService);
 
-        ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
-        ivrService.setPromptsDir("/var/sipxdata/mediaserver/data/prompts");
-        ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
-        ivrService.setDocDir("/usr/share/www/doc");
-        ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
+        m_ivrService.setMailstoreDir("/var/sipxdata/mediaserver/data/mailstore");
+        m_ivrService.setPromptsDir("/var/sipxdata/mediaserver/data/prompts");
+        m_ivrService.setScriptsDir("/usr/share/www/doc/aa_vxml");
+        m_ivrService.setDocDir("/usr/share/www/doc");
+        m_ivrService.setVxmlDir("/var/sipxdata/mediaserver/data");
 
-        SipxStatusService statusService = new SipxStatusService();
-        statusService.setBeanName(SipxStatusService.BEAN_ID);
-        statusService.setHttpsPort(9910);
+        m_statusService = new SipxStatusService();
+        m_statusService.setBeanName(SipxStatusService.BEAN_ID);
+        m_statusService.setHttpsPort(9910);
 
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
-        expectLastCall().andReturn(statusService).atLeastOnce();
-        sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
-        expectLastCall().andReturn(ivrService).atLeastOnce();
-        replay(sipxServiceManager);
+        m_restService = new SipxRestService();
+        m_restService.setModelDir("sipxrest");
+        m_restService.setModelName("sipxrest.xml");
+
+        m_restService.setModelFilesContext(TestHelper.getModelFilesContext());
+        m_restService.setSettingValue("rest-config/httpsPort", "6666");
+
+        m_locationsManager = createMock(LocationsManager.class);
+        m_locationsManager.getLocationsForService(m_restService);
+        expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
+
+        replay(m_locationsManager);
+
+        m_restService.setLocationsManager(m_locationsManager);
+
+        m_sipxServiceManager = createMock(SipxServiceManager.class);
+        m_sipxServiceManager.getServiceByBeanId(SipxStatusService.BEAN_ID);
+        expectLastCall().andReturn(m_statusService).atLeastOnce();
+        m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        expectLastCall().andReturn(m_ivrService).atLeastOnce();
+        m_sipxServiceManager.getServiceByBeanId(SipxRestService.BEAN_ID);
+        expectLastCall().andReturn(m_restService).atLeastOnce();
+    }
+
+    public void testWriteWithoutOpenfireService() throws Exception {
+
+        expect(m_sipxServiceManager.isServiceInstalled("sipxOpenfireService")).andReturn(false);
+
+        replay(m_sipxServiceManager);
 
         SipxIvrConfiguration out = new SipxIvrConfiguration();
-        out.setSipxServiceManager(sipxServiceManager);
+        out.setSipxServiceManager(m_sipxServiceManager);
         out.setTemplate("sipxivr/sipxivr.properties.vm");
 
-        assertCorrectFileGeneration(out, "expected-sipxivr.properties");
+        assertCorrectFileGeneration(out, "expected-sipxivr-without-openfire.properties");
 
-        verify(sipxServiceManager);
+        verify(m_sipxServiceManager);
+    }
+
+    public void testWriteWithOpenfireService() throws Exception {
+
+        expect(m_sipxServiceManager.isServiceInstalled("sipxOpenfireService")).andReturn(true);
+        expect(m_sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10");
+        expect(m_sipxServiceManager.getServiceParam("openfire-xml-rpc-port")).andReturn(49094);
+
+        replay(m_sipxServiceManager);
+
+        SipxIvrConfiguration out = new SipxIvrConfiguration();
+        out.setSipxServiceManager(m_sipxServiceManager);
+        out.setTemplate("sipxivr/sipxivr.properties.vm");
+
+        assertCorrectFileGeneration(out, "expected-sipxivr-with-openfire.properties");
+
+        verify(m_sipxServiceManager);
     }
 
     @Override
