@@ -25,6 +25,7 @@
   <component id="isSharedPanel" type="common/FieldPanel">
     <binding name="field" value="components.isShared"/>
     <binding name="label" value="message:label.isShared"/>
+    <binding name="description" value="message:description.isShared"/>
   </component>
   <component id="isShared" type="Checkbox">
     <binding name="value" value="user.isShared"/>
