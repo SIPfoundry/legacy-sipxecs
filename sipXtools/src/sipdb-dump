@@ -20,23 +20,29 @@ class SipDbDumper
       doc = REXML::Document.new(File.new(file))
       items = doc.elements['items']
       type = items.attributes['type']
-      dump_items(@out, type, items.elements)
+      timestamp = items.attributes['timestamp']
+      if timestamp == nil
+        reftime = Time.now
+      else
+        reftime = Time.at(timestamp.to_i)
+      end
+      dump_items(@out, type, items.elements, reftime)
     }
   end
 
-  def dump_items(sinc, type, items)
+  def dump_items(sinc, type, items, reftime)
     items.each {|item|
       item.elements.each {|entry|
         text = entry.get_text.to_s
         full_candidate = "dump_#{type}_#{entry.name}"
         if methods.index(full_candidate) 
-          send(full_candidate, sinc, entry.name, text)
+          send(full_candidate, sinc, entry.name, text, reftime)
         else
           partial_candidate = "dump_#{entry.name}"
           if methods.index(partial_candidate) 
-            send(partial_candidate, sinc, entry.name, text)
+            send(partial_candidate, sinc, entry.name, text, reftime)
           else
-            dump_item(sinc, entry.name, text)
+            dump_item(sinc, entry.name, text, reftime)
           end
         end
       }
@@ -44,7 +50,7 @@ class SipDbDumper
     }
   end
   
-  def dump_item(sinc, name, text)
+  def dump_item(sinc, name, text, reftime)
     sinc.write name
     sinc.write '='
     sinc.write text
@@ -64,17 +70,17 @@ class SipDbDumper
   #     handle here
   #   end
   #
-  def dump_contact(sinc, name, text)
-    dump_item(sinc, name, text)
+  def dump_contact(sinc, name, text, reftime)
+    dump_item(sinc, name, text, reftime)
     host = text.match(/@([^;&>:]*)/)[1]
-    dump_item(sinc, "contact_host", host)    
+    dump_item(sinc, "contact_host", host, reftime)    
   end
   
-  def dump_expires(sinc, name, text)
-    dump_item(sinc, name, text)
+  def dump_expires(sinc, name, text, reftime)
+    dump_item(sinc, name, text, reftime)
     expires = text.to_i
-    expired = Time.now > Time.at(expires) ? "true" : "false"
-    dump_item(sinc, "expired", expired)
+    expired = reftime > Time.at(expires) ? "true" : "false"
+    dump_item(sinc, "expired", expired, reftime)
   end
 end
 
@@ -82,7 +88,7 @@ end
 def usage_exit(error_code=1)
       usage = <<__EOU__
 
-  sipX In Memory Database (IMDB) data dumper
+  sipXecs In Memory Database (IMDB) data dumper
 
 Usage:
   #{ $0 } [-h|--help] [-v|--verbose] [imdb-xml-files...]
