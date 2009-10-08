@@ -25,7 +25,7 @@
 // DEFINES
 #define MAX_IP_ADDRESSES 32
 
-//: constant indentifier indicating the maximum number of IP addresses on this host.
+//: constant indentifier that cannot be a valid socket descriptor
 #define OS_INVALID_SOCKET_DESCRIPTOR (-1)
 
 #if defined(_WIN32)
@@ -54,7 +54,7 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // CONSTANTS
 // STRUCTS
 /**
- * CONTACT_TYPE is an enumeration of possible address type for use with
+ * CONTACT_TYPE is an enumeration of possible address types for use with
  * SIP contacts and SDP connection information.
  */
 typedef enum

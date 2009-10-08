@@ -45,7 +45,6 @@ public:
                 const char* szBindAddr = NULL);
      //:Default constructor
 
-
    virtual
    ~SipTcpServer();
      //:Destructor
@@ -102,7 +101,10 @@ protected:
     friend class SipServerBrokerListener;
     SipServerBrokerListener* mpServerBrokerListener;
 
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused);
+    virtual OsSocket* buildClientSocket(int hostPort,
+                                        const char* hostAddress,
+                                        const char* localIp,
+                                        bool& existingSocketReused);
 
     int mServerPort;
 

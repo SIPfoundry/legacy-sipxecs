@@ -170,7 +170,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         {
             OsSysLog::add(FAC_NET, PRI_EMERG, "Unable to bind on tls port %d (ok=%d)",
                     sipTlsPort, mSipTlsServer->isOk());
-            mTlsPort == PORT_NONE;
+            mTlsPort = PORT_NONE;
         }
     }
 #endif

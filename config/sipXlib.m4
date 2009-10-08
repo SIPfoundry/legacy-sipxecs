@@ -781,7 +781,7 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
    AC_ARG_ENABLE(sip-tls, 
                  [  --enable-sip-tls        enable support for sips: and transport=tls (no)],
                  [], [enable_sip_tls=no])
-   AC_MSG_CHECKING([Support for SIP over TLS])
+   AC_MSG_CHECKING([support for SIP over TLS])
    AC_MSG_RESULT(${enable_sip_tls})
 
    if test "${enable_sip_tls}" = "yes"
