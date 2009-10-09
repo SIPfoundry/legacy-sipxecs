@@ -24,7 +24,7 @@ class SipdbDumpTest < Test::Unit::TestCase
        "contact_host=10.1.1.161",
        "qvalue=",
        "expires=1164082496",
-       "expired=true",
+       "expired=false",
        "instance_id=",
        "gruu=",
        "path=",
@@ -34,27 +34,30 @@ class SipdbDumpTest < Test::Unit::TestCase
   
   def test_contact_host_1
       out = StringIO.new
-      SipDbDumper.new().dump_contact(out, "contact", "&quot;D K&quot;&lt;sip:154@10.1.1.164;LINEID=7bfd&gt;")
+      dbtime=Time.at(1164082128)
+      SipDbDumper.new().dump_contact(out, "contact", "&quot;D K&quot;&lt;sip:154@10.1.1.164;LINEID=7bfd&gt;",dbtime)
       assert_equal "contact=&quot;D K&quot;&lt;sip:154@10.1.1.164;LINEID=7bfd&gt;\tcontact_host=10.1.1.164\t", out.string
   end
   
   def test_contact_host_2
       out = StringIO.new
-      SipDbDumper.new().dump_contact(out, "contact", "&lt;sip:154@10.1.1.164&gt;")
+      dbtime=Time.at(1164082128)
+      SipDbDumper.new().dump_contact(out, "contact", "&lt;sip:154@10.1.1.164&gt;",dbtime)
       assert_equal "contact=&lt;sip:154@10.1.1.164&gt;\tcontact_host=10.1.1.164\t", out.string
-  end
-  
-  def test_expired_true
-      out = StringIO.new
-      SipDbDumper.new().dump_expires(out, "expires", "1")
-      assert_equal "expires=1\texpired=true\t", out.string    
   end
   
   def test_expired_false
       out = StringIO.new
-      future = Time.now.to_i + 100
-      SipDbDumper.new().dump_expires(out, "expires", future)
-      assert_equal "expires=#{future}\texpired=false\t", out.string    
+      dbtime=Time.at(1164082128)
+      SipDbDumper.new().dump_expires(out, "expires", "1164082496",dbtime)
+      assert_equal "expires=1164082496\texpired=false\t", out.string    
+  end
+  
+  def test_expired_true
+      out = StringIO.new
+      dbtime=Time.at(1164082500)
+      SipDbDumper.new().dump_expires(out, "expires", "1164082496",dbtime)
+      assert_equal "expires=1164082496\texpired=true\t", out.string    
   end
   
   def test_cli
