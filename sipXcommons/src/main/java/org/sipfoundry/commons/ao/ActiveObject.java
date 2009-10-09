@@ -140,6 +140,10 @@ public class ActiveObject {
 		this.activeObjectGroup = activeObjectGroup;
 	}
 
+	public Object getThisActiveObject() {
+	    return thisActiveObject;
+	}
+	
 	public ActiveObjectGroupInterface getActiveObjectGroup() {
 		return activeObjectGroup;
 	}
