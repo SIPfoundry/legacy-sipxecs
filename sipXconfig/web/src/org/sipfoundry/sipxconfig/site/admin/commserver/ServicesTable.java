@@ -46,12 +46,7 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
-import org.sipfoundry.sipxconfig.service.SipxConfigService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
-import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
-import org.sipfoundry.sipxconfig.service.SipxRelayService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -67,15 +62,8 @@ import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Un
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
 public abstract class ServicesTable extends BaseComponent {
-    public static final String SIPX_OPENFIRE_SERVICE_BEAN_ID = "sipxOpenfireService";
-
     public static final Map<String, String> SERVICE_MAP = new HashMap<String, String>();
     static {
-        SERVICE_MAP.put(SipxConfigService.BEAN_ID, EditSipxService.PAGE);
-        SERVICE_MAP.put(SipxProxyService.BEAN_ID, EditSipxService.PAGE);
-        SERVICE_MAP.put(SipxRegistrarService.BEAN_ID, EditSipxService.PAGE);
-        SERVICE_MAP.put(SipxFreeswitchService.BEAN_ID, EditSipxService.PAGE);
-        SERVICE_MAP.put(SipxRelayService.BEAN_ID, EditSipxService.PAGE);
         SERVICE_MAP.put(SipxPresenceService.BEAN_ID, EditPresenceService.PAGE);
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
         SERVICE_MAP.put(SipxBridgeService.BEAN_ID, EditSbcDevice.PAGE);
@@ -231,11 +219,6 @@ public abstract class ServicesTable extends BaseComponent {
         } else if (page instanceof EditSipxService) {
             EditSipxService servicePage = (EditSipxService) page;
             servicePage.setBeanId(serviceBeanId);
-            if (SipxRegistrarService.BEAN_ID.equals(serviceBeanId)) {
-                servicePage.setGroupTitleEnabled(true);
-            } else if (SIPX_OPENFIRE_SERVICE_BEAN_ID.equals(serviceBeanId)) {
-                servicePage.setGroupTitleEnabled(true);
-            }
             page.setReturnPage(getEditLocationPage().getPage(), getBreadCrumbs());
         }
         return page;

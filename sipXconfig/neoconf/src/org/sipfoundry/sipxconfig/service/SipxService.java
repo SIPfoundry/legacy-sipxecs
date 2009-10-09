@@ -50,8 +50,11 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private SipxServiceManager m_serviceManager;
     private LoggingManager m_loggingManager;
 
-    /** If set to true sipXconfig will display default configuration page */
+    /** If true sipXconfig will display default configuration page */
     private boolean m_editable;
+
+    /** If true sipXconfig will enable group title on config page */
+    private boolean m_groupTitleEnabled;
 
     public String getProcessName() {
         return m_processName;
@@ -185,6 +188,14 @@ public abstract class SipxService extends BeanWithSettings implements Model {
 
     public boolean isEditable() {
         return m_editable;
+    }
+
+    public void setGroupTitleEnabled(boolean groupTitleEnabled) {
+        m_groupTitleEnabled = groupTitleEnabled;
+    }
+
+    public boolean isGroupTitleEnabled() {
+        return m_groupTitleEnabled;
     }
 
     /**

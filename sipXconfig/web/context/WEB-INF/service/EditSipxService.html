@@ -6,7 +6,7 @@
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:sipxService.settings"
-        renderGroupTitle="ognl:groupTitleEnabled" />
+        renderGroupTitle="ognl:sipxService.groupTitleEnabled" />
     <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
         listener="listener:apply"/>
   </form>

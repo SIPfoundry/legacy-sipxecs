@@ -18,6 +18,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="modelDir" value="openfire" />
     <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxOpenfireConfiguration" />

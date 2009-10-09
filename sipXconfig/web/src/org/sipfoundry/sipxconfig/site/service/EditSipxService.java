@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.service;
 
@@ -42,10 +42,6 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
 
     @Persist
     public abstract void setBeanId(String beanId);
-
-    public abstract boolean isGroupTitleEnabled();
-
-    public abstract void setGroupTitleEnabled(boolean enabled);
 
     public void pageBeginRender(PageEvent event) {
         if (getSipxService() == null) {

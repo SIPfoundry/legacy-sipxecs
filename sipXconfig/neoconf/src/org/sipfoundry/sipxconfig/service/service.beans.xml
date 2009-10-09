@@ -65,7 +65,7 @@
   <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
     <!-- eager versions of sipx replication and dial plan activation manager injected here -->
     <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
-    <property name="dialPlanActivationManager" ref="eagerDialPlanActivationManager"/>
+    <property name="dialPlanActivationManager" ref="eagerDialPlanActivationManager" />
     <property name="configVersionManager" ref="configVersionManager" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
@@ -101,8 +101,8 @@
     <property name="domainManager" ref="domainManager" />
     <property name="confDir" value="${sysdir.etc}" />
     <property name="logDir" value="${sysdir.log}" />
-	<property name="sipxServiceManager" ref="sipxServiceManager" />
-	<property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
     <property name="loggingManager" ref="loggingManager" />
   </bean>
 
@@ -112,8 +112,8 @@
   </bean>
 
   <bean id="sipxSupervisorService" class="org.sipfoundry.sipxconfig.service.SipxSupervisorService" parent="sipxService"
-  	scope="prototype">
-  	<property name="processName" value="sipxsupervisor" />
+    scope="prototype">
+    <property name="processName" value="sipxsupervisor" />
     <property name="configurations">
       <list>
         <ref bean="sipxSupervisorConfiguration" />
@@ -122,8 +122,8 @@
     <property name="loggingManager" ref="loggingManager" />
   </bean>
 
-  <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration" scope="prototype"
-    parent="serviceConfigurationFile">
+  <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
     <property name="template" value="commserver/sipxsupervisor-config.vm" />
     <property name="name" value="sipxsupervisor-config" />
   </bean>
@@ -138,6 +138,7 @@
     <property name="processName" value="SIPXProxy" />
     <property name="modelName" value="sipxproxy.xml" />
     <property name="modelDir" value="sipxproxy" />
+    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxProxyConfiguration" />
@@ -163,6 +164,8 @@
     <property name="processName" value="SIPRegistrar" />
     <property name="modelName" value="sipxregistrar.xml" />
     <property name="modelDir" value="sipxregistrar" />
+    <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxRegistrarConfiguration" />
@@ -225,8 +228,8 @@
     </property>
   </bean>
 
-  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
+  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
     <property name="template" value="sipxpresence/sipxpresence-config.vm" />
     <property name="name" value="sipxpresence-config" />
     <property name="acdContext" ref="acdContext" />
@@ -277,6 +280,7 @@
     <property name="modelName" value="sipxivr.xml" />
     <property name="modelDir" value="sipxivr" />
     <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxIvrConfiguration" />
@@ -328,8 +332,8 @@
     <property name="name" value="status-config" />
   </bean>
 
-  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration"
-    scope="prototype" parent="serviceConfigurationFile">
+  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
     <property name="template" value="sipxstatus/status-plugin.vm" />
     <property name="name" value="status-plugin.xml" />
   </bean>
@@ -379,6 +383,7 @@
     <property name="modelName" value="sipxconfig.xml" />
     <property name="modelDir" value="sipxconfig" />
     <property name="restartable" value="false" />
+    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="phoneLogConfiguration" />
@@ -466,6 +471,7 @@
     <property name="jobContext" ref="jobContext" />
     <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="freeswitchConfiguration" />
@@ -542,8 +548,8 @@
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
   </bean>
 
-  <bean id="localStreamConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration"
-    scope="prototype">
+  <bean id="localStreamConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration" scope="prototype">
     <property name="name" value="local_stream.conf.xml" />
     <property name="template" value="freeswitch/local_stream.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
@@ -554,6 +560,7 @@
     <property name="processName" value="SipXrelay" />
     <property name="modelName" value="nattraversal.xml" />
     <property name="modelDir" value="nattraversal" />
+    <property name="editable" value="true" />
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />
@@ -567,7 +574,8 @@
     </property>
   </bean>
 
-  <bean id="natTraversalConfiguration" class="org.sipfoundry.sipxconfig.service.NatTraversalConfiguration" parent="serviceConfigurationFile">
+  <bean id="natTraversalConfiguration" class="org.sipfoundry.sipxconfig.service.NatTraversalConfiguration"
+    parent="serviceConfigurationFile">
     <property name="name" value="nattraversalrules.xml" />
     <property name="template" value="nattraversal/nattraversalrules.vm" />
     <property name="sbcManager" ref="sbcManager" />
@@ -582,9 +590,8 @@
     </property>
   </bean>
 
-  <bean id="sipxSaaService" class="org.sipfoundry.sipxconfig.service.SipxSaaService" scope="prototype"
-    parent="sipxService">
-    <property name="processName" value="SharedAppearanceAgent"/>
+  <bean id="sipxSaaService" class="org.sipfoundry.sipxconfig.service.SipxSaaService" scope="prototype" parent="sipxService">
+    <property name="processName" value="SharedAppearanceAgent" />
     <property name="modelName" value="sipxsaa.xml" />
     <property name="modelDir" value="sipxsaa" />
     <property name="bundles">
@@ -601,7 +608,8 @@
     </property>
   </bean>
 
-  <bean id="appearanceGroupsConfiguration" class="org.sipfoundry.sipxconfig.service.AppearanceGroupsConfiguration" parent="serviceConfigurationFile">
+  <bean id="appearanceGroupsConfiguration" class="org.sipfoundry.sipxconfig.service.AppearanceGroupsConfiguration"
+    parent="serviceConfigurationFile">
     <property name="restartRequired" value="false" />
     <property name="name" value="appearance-groups.xml" />
     <property name="template" value="sipxsaa/appearance-groups.vm" />
@@ -614,9 +622,8 @@
     <property name="template" value="sipxsaa/sipxsaa-config.vm" />
   </bean>
 
-  <bean id="sipxRestService" class="org.sipfoundry.sipxconfig.service.SipxRestService" scope="prototype"
-    parent="sipxService">
-    <property name="processName" value="SipXrest"/>
+  <bean id="sipxRestService" class="org.sipfoundry.sipxconfig.service.SipxRestService" scope="prototype" parent="sipxService">
+    <property name="processName" value="SipXrest" />
     <property name="modelName" value="sipxrest.xml" />
     <property name="modelDir" value="sipxrest" />
     <property name="editable" value="true" />
