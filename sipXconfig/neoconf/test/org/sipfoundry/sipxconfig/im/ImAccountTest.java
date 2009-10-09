@@ -10,9 +10,8 @@
 
 package org.sipfoundry.sipxconfig.im;
 
-import org.sipfoundry.sipxconfig.common.User;
-
 import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.common.User;
 
 public class ImAccountTest extends TestCase {
 
@@ -52,5 +51,19 @@ public class ImAccountTest extends TestCase {
 
         user.setImDisplayName("joe im");
         assertEquals("joe im", imAccount.getImDisplayName());
+    }
+
+    public void testGeImPassword() {
+        User user = new User();
+        ImAccount imAccount = new ImAccount(user);
+
+        user.setUserName("555");
+        assertEquals("555", imAccount.getImPassword());
+
+        user.setImPassword("pwd");
+        assertEquals("pwd", imAccount.getImPassword());
+
+        user.setImPassword("  ");
+        assertEquals("555", imAccount.getImPassword());
     }
 }

@@ -5,29 +5,36 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
-
-import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.TestPage;
+
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoException;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertTextFieldEmpty;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertUserError;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getIndexedId;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
+import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
 
 public class NewUserTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(NewUserTestUi.class);
+        return webTestSuite(NewUserTestUi.class);
     }
 
     @Override
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
+        getTestContext().setBaseUrl(getBaseUrl());
+        home(getTester());
         tester.clickLink("resetCoreContext");
-        SiteTestHelper.home(getTester());
+        home(getTester());
         clickLink("seedTestUser");
     }
 
@@ -38,7 +45,7 @@ public class NewUserTestUi extends WebTestCase {
         final String NEW_USER_PWORD = "1234";
         final String NEW_USER_ALIASES = "lazyboy, 993";
 
-        SiteTestHelper.home(tester);
+        home(tester);
         clickLink("NewUser");
         setTextField("user:userId", NEW_USER_USERNAME);
         setTextField("user:firstName", NEW_USER_FNAME);
@@ -47,18 +54,18 @@ public class NewUserTestUi extends WebTestCase {
         setTextField("cp:confirmPassword", NEW_USER_PWORD);
         setTextField("user:aliases", NEW_USER_ALIASES);
         clickButton("form:apply");
-        SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        assertNoUserError(tester);
+        assertNoException(tester);
 
-        SiteTestHelper.home(tester);
+        home(tester);
         clickLink("ManageUsers");
 
         // Instead of specifying exactly what the table should look like, just look
         // for text that we expect to be there. Since UI tests don't reset the DB,
         // there may be users in the table that we don't expect.
         assertTextInTable("user:list", new String[] {
-            TestPage.TEST_USER_FIRSTNAME, TestPage.TEST_USER_LASTNAME,
-            TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_ALIASES
+            TestPage.TEST_USER_FIRSTNAME, TestPage.TEST_USER_LASTNAME, TestPage.TEST_USER_USERNAME,
+            TestPage.TEST_USER_ALIASES
         });
     }
 
@@ -69,25 +76,25 @@ public class NewUserTestUi extends WebTestCase {
         final String NEW_USER_PWORD = "1234";
 
         for (int i = 0; i < NEW_USER_USERNAME.length; i++) {
-            SiteTestHelper.home(tester);
+            home(tester);
             clickLink("NewUser");
             setTextField("user:userId", NEW_USER_USERNAME[i]);
             setTextField("cp:password", NEW_USER_PWORD);
             setTextField("cp:confirmPassword", NEW_USER_PWORD);
             clickButton("form:apply");
-            SiteTestHelper.assertNoUserError(tester);
-            SiteTestHelper.assertNoException(tester);
+            assertNoUserError(tester);
+            assertNoException(tester);
         }
 
-        SiteTestHelper.home(tester);
+        home(tester);
         clickLink("ManageUsers");
 
         clickLinkWithText(NEW_USER_USERNAME[0]);
         setTextField("user:userId", NEW_USER_USERNAME[1]);
         clickButton("form:apply");
 
-        SiteTestHelper.assertUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        assertUserError(tester);
+        assertNoException(tester);
     }
 
     public void testDuplicateNameOnNew() {
@@ -100,18 +107,47 @@ public class NewUserTestUi extends WebTestCase {
         setTextField("cp:password", NEW_USER_PWORD);
         setTextField("cp:confirmPassword", NEW_USER_PWORD);
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        assertNoUserError(tester);
+        assertNoException(tester);
 
-        SiteTestHelper.home(tester);
+        home(tester);
         clickLink("ManageUsers");
         clickLink("AddUser");
         setTextField("user:userId", NEW_USER_USERNAME);
         setTextField("cp:password", NEW_USER_PWORD);
         setTextField("cp:confirmPassword", NEW_USER_PWORD);
         clickButton("form:ok");
-        SiteTestHelper.assertUserError(tester);
-        SiteTestHelper.assertNoException(tester);
+        assertUserError(tester);
+        assertNoException(tester);
+    }
+
+    public void testImPassword() {
+        // configure different IM ID passwords - Error
+        home(tester);
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setTextField("user:userId", "cuser33");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        setTextField("user:imId", "myImId33");
+        setTextField(getIndexedId("cp:password", 1), "myImPwd");
+        setTextField(getIndexedId("cp:confirmPassword", 1), "XXXmyImPwd");
+        clickButton("form:ok");
+        assertUserError(tester);
+
+        // configure both IM ID and IM password. OK.
+        home(tester);
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setTextField("user:userId", "cuser34");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        setTextField("user:imId", "myImId34");
+        setTextField(getIndexedId("cp:password", 1), "myImPwd");
+        setTextField(getIndexedId("cp:confirmPassword", 1), "myImPwd");
+        clickButton("form:ok");
+        assertNoUserError(tester);
+        assertNoException(tester);
     }
 
     public void testStay() {
@@ -126,12 +162,12 @@ public class NewUserTestUi extends WebTestCase {
         assertElementPresent("user:success");
 
         // Make sure all the correct fields are empty
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:lastName");
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:firstName");
-        SiteTestHelper.assertTextFieldEmpty(tester, "cp:password");
-        SiteTestHelper.assertTextFieldEmpty(tester, "cp:confirmPassword");
-        SiteTestHelper.assertTextFieldEmpty(tester, "gms:groups");
-        SiteTestHelper.assertTextFieldEmpty(tester, "user:aliases");
+        assertTextFieldEmpty(tester, "user:lastName");
+        assertTextFieldEmpty(tester, "user:firstName");
+        assertTextFieldEmpty(tester, "cp:password");
+        assertTextFieldEmpty(tester, "cp:confirmPassword");
+        assertTextFieldEmpty(tester, "gms:groups");
+        assertTextFieldEmpty(tester, "user:aliases");
 
         setTextField("user:userId", "y");
         setTextField("cp:password", "1234");
@@ -145,8 +181,8 @@ public class NewUserTestUi extends WebTestCase {
         clickLink("toggleNavigation");
         clickLink("link.home");
         clickLink("addUser");
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoException(tester);
+        assertNoUserError(tester);
 
         setTextField("user:userId", "xx");
         setTextField("cp:password", "1234");
@@ -185,42 +221,42 @@ public class NewUserTestUi extends WebTestCase {
 
     public void testImIdUnique() {
         clickLink("ManageUsers");
-        //create user with instant message id: openfire1
+        // create user with instant message id: openfire1
         clickLink("AddUser");
         setTextField("user:userId", "x");
-        setTextField("user:imId","openfire1");
+        setTextField("user:imId", "openfire1");
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-        //try to create user with the same instant message id: openfire1
+        assertNoUserError(tester);
+        // try to create user with the same instant message id: openfire1
         clickLink("AddUser");
         setTextField("user:userId", "y");
-        setTextField("user:imId","openfire1");
+        setTextField("user:imId", "openfire1");
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
         clickButton("form:ok");
-        SiteTestHelper.assertUserError(tester);
-        //create user with instant message id: openfire2
-        setTextField("user:imId","openfire2");
+        assertUserError(tester);
+        // create user with instant message id: openfire2
+        setTextField("user:imId", "openfire2");
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
         clickButton("form:apply");
-        SiteTestHelper.assertNoUserError(tester);
-        //update already created user with message id: openfire2
+        assertNoUserError(tester);
+        // update already created user with message id: openfire2
         setTextField("user:userId", "yy");
         setTextField("cp:password", "1234");
         setTextField("cp:confirmPassword", "1234");
         clickButton("form:apply");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
     }
 
     public void testExtensionPoolLink() {
         clickLink("ManageUsers");
         clickLink("AddUser");
         clickLink("link:extensionPool");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
         clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
+        assertNoUserError(tester);
     }
 }

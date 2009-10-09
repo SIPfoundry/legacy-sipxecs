@@ -15,12 +15,6 @@
       <tr jwcid="firstNamePanel" for="user:firstName">
         <input jwcid="firstName" id="user:firstName" type="text" autocomplete="off"/>
       </tr>
-      <tr jwcid="imIdPanel" for="user:imId">
-        <input jwcid="imId" id="user:imId" type="text" autocomplete="off"/>
-      </tr>
-      <tr jwcid="imDisplayNamePanel" for="user:imDisplayName">
-        <input jwcid="imDisplayName" id="user:imDisplayName" type="text" autocomplete="off"/>
-      </tr>
       <tr jwcid="pin"/>
       <tr jwcid="ifRenderSipPassword">
         <span jwcid="sipPasswordPanel" for="user:sipPassword">
@@ -34,5 +28,19 @@
       <tr jwcid="aliasesPanel" for="user:aliases">
         <input jwcid="aliases" id="user:aliases" type="text"/>
       </tr>
+      <div jwcid="ifRenderImFields">
+        <tr jwcid="imIdPanel" for="user:imId">
+          <input jwcid="imId" id="user:imId" autocomplete="off"/>
+        </tr>
+        <tr jwcid="@user/ConfirmPassword"
+          password="ognl:user.imPassword"
+          passwordDisplayName="message:label.imPassword"
+          confirmPasswordDisplayName="message:label.confirm.imPassword"
+          passwordDescription="message:description.imPassword"
+          passwordValidator="ognl:{}" />
+        <tr jwcid="imDisplayNamePanel" for="user:imDisplayName">
+          <input jwcid="imDisplayName" id="user:imDisplayName" autocomplete="off"/>
+        </tr>
+      </div>
     </table>
   </fieldset>

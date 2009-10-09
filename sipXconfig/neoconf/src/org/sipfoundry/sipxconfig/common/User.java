@@ -446,10 +446,7 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public void setImId(String id) {
-        if (m_addressBookEntry == null) {
-            m_addressBookEntry = new AddressBookEntry();
-        }
-        m_addressBookEntry.setImId(id);
+        useAddressBookEntry().setImId(id);
     }
 
     public String getImDisplayName() {
@@ -460,10 +457,28 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public void setImDisplayName(String imDisplayName) {
+        useAddressBookEntry().setImDisplayName(imDisplayName);
+    }
+
+    public String getImPassword() {
+        if (m_addressBookEntry == null) {
+            return null;
+        }
+        return m_addressBookEntry.getImPassword();
+    }
+
+    public void setImPassword(String imPassword) {
+        useAddressBookEntry().setImPassword(imPassword);
+    }
+
+    /**
+     * Creates address book entry if it does not exist
+     */
+    private AddressBookEntry useAddressBookEntry() {
         if (m_addressBookEntry == null) {
             m_addressBookEntry = new AddressBookEntry();
         }
-        m_addressBookEntry.setImDisplayName(imDisplayName);
+        return m_addressBookEntry;
     }
 
     public void setPermissionManager(PermissionManager permissionManager) {

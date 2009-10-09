@@ -14,7 +14,7 @@
     <user-name>Three</user-name>
     <sip-user-name>Three</sip-user-name>
     <display-name>Three</display-name>
-    <password>Three</password>
+    <password>bongoImPassword</password>
     <on-the-phone-message></on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>

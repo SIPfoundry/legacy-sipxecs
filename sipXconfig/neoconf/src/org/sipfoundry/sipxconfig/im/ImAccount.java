@@ -63,7 +63,10 @@ public class ImAccount {
     }
 
     public String getImPassword() {
-        // temporary - until we add password support
+        String imPassword = m_user.getImPassword();
+        if (isNotBlank(imPassword)) {
+            return imPassword;
+        }
         return getImId();
     }
 

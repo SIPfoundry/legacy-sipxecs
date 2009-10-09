@@ -317,8 +317,6 @@
   </target>
 
   <target name="version10" description="upgrade from version 9" unless="version11">
-    <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="11" -->
     <antcall target="speeddial_group" />
 	<antcall target="add_addressbook_entry_info" />
   	<antcall target="add-user-shared-field" />
@@ -335,6 +333,9 @@
     <antcall target="add_addrbookentry_use_brnch_addr" />
     <antcall target="alarm-groups" />
     <antcall target="add_branch_office_designation" />
+    <antcall target="add-im-password" />
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="11" -->
   </target>
 
   <target name="time_of_day" unless="time_of_day">
@@ -975,6 +976,10 @@
   <target name="add_addressbook_entry_info_2" unless="add_addressbook_entry_info_2">
     <db-patch patch="add_addressbook_entry_info_2"/>
   </target>
+  <target name="add-im-password" unless="add-im-password">
+    <db-patch patch="add-im-password"/>
+  </target>
+
   <target name="speeddial_group" unless="speeddial_group">
     <db-patch patch="speeddial_group"/>
   </target>

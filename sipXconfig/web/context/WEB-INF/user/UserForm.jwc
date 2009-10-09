@@ -120,6 +120,9 @@
   <component id="ifRenderSipPassword" type="If">
     <binding name="condition" value="alwaysShowSipPassword || showSipPassword"/>
   </component>
+  <component id="ifRenderImFields" copy-of="ifRenderSipPassword">
+    <binding name="renderTag" value="false"/>
+  </component>
   <component id="ifRenderToggle" type="If">
     <binding name="condition" value="!alwaysShowSipPassword"/>
   </component>

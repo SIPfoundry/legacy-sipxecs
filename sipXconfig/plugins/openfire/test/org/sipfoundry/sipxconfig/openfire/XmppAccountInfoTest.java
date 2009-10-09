@@ -74,6 +74,7 @@ public class XmppAccountInfoTest extends TestCase {
         userThree.setSettingTypedValue("im/advertise-sip-presence", true);
         userThree.setSettingTypedValue("im/include-call-info", false);
         userThree.setUserName("Three");
+        userThree.setImPassword("bongoImPassword");
 
         m_users = new ArrayList<User>();
         m_users.addAll(Arrays.asList(m_userOne, m_userTwo, userThree));

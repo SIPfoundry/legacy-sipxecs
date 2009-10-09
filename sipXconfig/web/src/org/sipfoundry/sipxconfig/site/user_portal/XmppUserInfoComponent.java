@@ -10,13 +10,16 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
+@ComponentClass
 public abstract class XmppUserInfoComponent extends BaseComponent {
     @Parameter(required = true)
     public abstract User getUser();
@@ -28,6 +31,11 @@ public abstract class XmppUserInfoComponent extends BaseComponent {
         if (TapestryUtils.isValid(this)) {
             getCoreContext().saveUser(getUser());
         }
+    }
+
+    public String getImId() {
+        ImAccount imAccount = new ImAccount(getUser());
+        return imAccount.getImId();
     }
 
     public Setting getOpenfireSettings() {
