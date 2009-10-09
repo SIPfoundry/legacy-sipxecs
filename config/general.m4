@@ -677,51 +677,6 @@ AC_DEFUN([CHECK_APACHE2],
    fi
 ])dnl
 
-# ==================== C G I C C  =========================
-AC_DEFUN([CHECK_CGICC],
-[
-    AC_MSG_CHECKING([for cgicc])
-    AC_ARG_WITH(cgicc,
-                [--with-cgicc=PATH to cgicc library],
-                [cgicc_path=$withval],
-                [
-                 AC_PATH_PROG([CGICC_CONFIG],cgicc-config)
-                 if test "x_$CGICC_CONFIG" != "x_"; then
-                   cgicc_path=`$CGICC_CONFIG --prefix`
-                   cgicc_libpath="$cgicc_path/lib $cgicc_path/lib64"
-                 else
-                   cgicc_path="/usr/local/cgicc /usr/local /usr"
-                   cgicc_libpath="/usr/local/cgicc/lib /usr/local/cgicc/lib64 /usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64"
-                 fi
-                ]
-                )
-
-    found_cgicc="no";
-    for cgicc_dir in $cgicc_path; do
-      if test x_$found_cgicc = x_no -a -f "$cgicc_dir/include/cgicc/Cgicc.h"
-      then
-        for cgicc_libdir in $cgicc_libpath; do
-          if test -f "$cgicc_libdir/libcgicc.la"
-          then
-             found_cgicc="yes";
-             break;
-          fi
-        done
-      fi
-    done
-
-    if test x_$found_cgicc = x_yes
-    then
-        AC_MSG_RESULT( [    cgicc includes found in $cgicc_dir] )
-        AC_MSG_RESULT( [    cgicc libraries found in $cgicc_libdir] )
-
-        AC_SUBST(CGICC_CFLAGS,"-I$cgicc_dir/include")
-        AC_SUBST(CGICC_LIBS,"$cgicc_libdir/libcgicc.la")
-    else
-        AC_MSG_ERROR([cgicc not found - looked for lib/libcgicc.la and include/cgicc/Cgicc.h in $cgicc_path])
-    fi
-])dnl
-
 
 # ============ L I B W W W ==================
 AC_DEFUN([CHECK_LIBWWW],

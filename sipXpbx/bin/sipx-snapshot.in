@@ -820,7 +820,7 @@ do
 done
 
 # Get version info for key prerequisite packages
-for prereq in pcre cgicc glib
+for prereq in pcre glib
 do
   echo "" >> ${SystemConfig}
   prereq_version=`${prereq}-config --version 2> /dev/null`

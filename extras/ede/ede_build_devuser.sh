@@ -236,7 +236,7 @@ uninstall_sipxecs_rpms
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)
-SIPFOUNDRY_BASE_DEPS="cgicc cgicc-devel cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
+SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.

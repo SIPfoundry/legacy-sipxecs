@@ -842,7 +842,6 @@ AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],
   AC_SUBST(MOD_CPLUSPLUS_URL, http://umn.dl.sourceforge.net/sourceforge/modcplusplus)
   AC_SUBST(JPKG_FREE_URL, http://mirrors.dotsrc.org/jpackage/1.7/generic/free)
   AC_SUBST(JPKG_NONFREE_URL, http://mirrors.dotsrc.org/jpackage/1.7/generic/non-free)
-  AC_SUBST(CGICC_URL, http://ftp.gnu.org/gnu/cgicc)
   AC_SUBST(XERCES_C_URL, http://www.apache.org/dist/xerces/c/sources)
   AC_SUBST(RUBY_RPM_URL, http://dev.centos.org/centos/4/testing)
   AC_SUBST(FC4_RUBY_RPM_URL, http://download.fedora.redhat.com/pub/fedora/linux/core/updates/4)

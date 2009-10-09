@@ -307,15 +307,7 @@ And is it right, anyway?]
 4. If Expat 1.95.7 RPM has not been installed on your machine, you have to
 download and install it (and expat-devel as well).
 
-5. Download and install the "cgicc" RPM (v. >= 3.2.2):
-        - http://www.cgicc.org/
-        - tar -zxvf cgicc-3.2.3.tar.gz
-        - cd cgicc-3.2.3
-        - ./configure
-        - make
-        - sudo make install
-
-6. Install sipXpbx:
+5. Install sipXpbx:
         - autoreconf --install --force
           [Make sure you have installed or built Apache by this point,
           as ./configure needs to know where Apache is.]
@@ -390,7 +382,6 @@ xml-commons-resolver-1.1-1jpp.noarch.rpm
 
 Here are the foreign tarballs I installed on the system to build sipXpbx:
 
-cgicc-3.2.3
 cppunit-1.10.2
 glib-2.2.1
 httpd-2.0.50
