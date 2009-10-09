@@ -34,13 +34,15 @@
           </tbody>
         </table>
       </fieldset>
-      <fieldset jwcid="@If" condition="ognl:advanced">
+      <div jwcid="@If" condition="ognl:advanced" renderTag="false">
+        <fieldset>
         <legend><span key="label.alarms"/></legend>
+        </fieldset>
         <div jwcid="@admin/AlarmTypes" validator="bean:validator"
            selections="ognl:selections"
            alarms="ognl:alarms"
            alarmGroupModel="ognl:alarmGroupModel"/>
-      </fieldset>
+      </div>
       <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
     </form>
   </div>
