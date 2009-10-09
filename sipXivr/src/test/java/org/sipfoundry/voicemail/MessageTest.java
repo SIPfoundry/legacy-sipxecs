@@ -20,8 +20,8 @@ import javax.sound.sampled.AudioSystem;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class MessageTest extends TestCase {

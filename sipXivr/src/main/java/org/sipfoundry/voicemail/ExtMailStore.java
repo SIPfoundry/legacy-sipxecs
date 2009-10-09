@@ -61,10 +61,10 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 import org.sipfoundry.voicemail.Greeting;
 
@@ -174,7 +174,7 @@ public class ExtMailStore {
         public void run() {
             boolean running = true;
             Vector<User> users, currUsers;
-            ValidUsersXML validUsersXML;
+            ValidUsersXML validUsersXML = null;
             Collection<IMAPConnection> connections;
             IMAPConnection conn;
 
@@ -183,7 +183,11 @@ public class ExtMailStore {
             m_LastCheckedTime = now.getTime();    
             
             while (running) {
-                validUsersXML = ValidUsersXML.update(true);
+                try {
+                    validUsersXML = ValidUsersXML.update(LOG, true);
+                } catch (Exception e1) {
+                    System.exit(1); // If you can't trust validUsers, who can you trust?
+                }
 
                 users = ValidUsersXML.GetUsers();
                 if (!users.equals(currUsers)) {
@@ -193,7 +197,7 @@ public class ExtMailStore {
                     for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
                         conn = it.next();
 
-                        User user = validUsersXML.isValidUser(conn.m_user.getUserName());
+                        User user = validUsersXML.getUser(conn.m_user.getUserName());
                         boolean deleteit;
                         if (user != null) {
                             deleteit = !user.hasVoicemail();

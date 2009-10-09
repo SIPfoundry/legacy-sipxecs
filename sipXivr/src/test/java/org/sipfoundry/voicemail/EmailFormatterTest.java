@@ -10,9 +10,9 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 import junit.framework.TestCase;

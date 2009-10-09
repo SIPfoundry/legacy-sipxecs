@@ -26,14 +26,14 @@ import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Record;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.Transfer;
-import org.sipfoundry.sipxivr.DistributionList;
+import org.sipfoundry.commons.userdb.DistributionList;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 
 public class VoiceMail {
@@ -104,7 +104,11 @@ public class VoiceMail {
         m_config = Configuration.update(true);
 
         // Update the valid users list
-        m_validUsers = ValidUsersXML.update(true);
+        try {
+            m_validUsers = ValidUsersXML.update(LOG, true);
+        } catch (Exception e) {
+            System.exit(1); // If you can't trust validUsers, who can you trust?        
+        }
     }
 
 
@@ -152,7 +156,7 @@ public class VoiceMail {
      * @throws Throwable indicating an error or hangup condition.
      */
     String voicemail(String mailboxString) {
-        User user = m_validUsers.isValidUser(mailboxString) ;
+        User user = m_validUsers.getUser(mailboxString) ;
         Mailbox mailbox = null;
         if (user != null) {
            mailbox = new Mailbox(user);
@@ -256,7 +260,7 @@ public class VoiceMail {
             if (userNames != null) {
                 Vector<User> users = new Vector<User>();
                 for (String userName : userNames) {
-                    User u = m_validUsers.isValidUser(userName);
+                    User u = m_validUsers.getUser(userName);
                     if (u != null && u.hasVoicemail()) {
                         users.add(u);
                     }

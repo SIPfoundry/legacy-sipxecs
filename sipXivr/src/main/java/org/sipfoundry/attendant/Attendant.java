@@ -24,16 +24,15 @@ import org.sipfoundry.commons.freeswitch.Collect;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.freeswitch.Localization;
-import org.sipfoundry.commons.freeswitch.Play;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.freeswitch.Transfer;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 
@@ -102,7 +101,11 @@ public class Attendant {
         m_attendantConfig = Configuration.update(true);
 
         // Update the valid users list
-        m_validUsers = ValidUsersXML.update(true);
+        try {
+            m_validUsers = ValidUsersXML.update(LOG, true);
+        } catch (Exception e) {
+            System.exit(1); // If you can't trust validUsers, who can you trust?
+        }
 
         // Load the schedule configuration
         m_schedule = m_attendantConfig.getSchedule(m_scheduleId) ;
@@ -261,7 +264,7 @@ public class Attendant {
                 // See if the entered digits matches a dialable extension
                 // (keeps AA users from entering long distance numbers, 900 numbers,
                 // call pickup, paging, etc.)
-                User user = m_validUsers.isValidUser(digits);
+                User user = m_validUsers.getUser(digits);
                 if (user != null) {
                     String uri = user.getUri();
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s)", digits, uri));
@@ -316,7 +319,7 @@ public class Attendant {
             
             // Lookup the extension (it may be an alias)
             String extension = item.getExtension();
-            User u = m_validUsers.isValidUser(extension);
+            User u = m_validUsers.getUser(extension);
             if (u != null) {
                 // Use the internal ~~vm~xxxx user to do this.
                 dest = extensionToUrl("~~vm~"+u.getUserName());

@@ -24,8 +24,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.PropertyConfigurator;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
 public class MessagesTest extends TestCase {

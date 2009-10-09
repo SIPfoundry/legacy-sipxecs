@@ -11,6 +11,8 @@ package org.sipfoundry.sipxivr;
 
 import java.util.Vector;
 
+import org.sipfoundry.commons.userdb.User;
+
 /**
  * Holds the User selected by the DialByName dialog, and a reason code if none selected
  */

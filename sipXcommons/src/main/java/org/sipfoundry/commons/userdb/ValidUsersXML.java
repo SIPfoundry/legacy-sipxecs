@@ -26,7 +26,7 @@ import org.w3c.dom.NodeList;
  * 
  */
 public class ValidUsersXML {
-    static final Logger LOG = Logger.getLogger(ValidUsersXML.class);
+    private static Logger LOG = Logger.getLogger(ValidUsersXML.class);
     private static ValidUsersXML s_current;
     private static File s_validUsersFile;
     private static long s_lastModified;
@@ -55,7 +55,10 @@ public class ValidUsersXML {
      * 
      * @return
      */
-    public static ValidUsersXML update(boolean load) throws Exception {
+    public static ValidUsersXML update(Logger log, boolean load) throws Exception {
+        if (log != null) {
+            LOG = log;
+        }
         if (s_current == null || s_validUsersFile == null ||
                 s_validUsersFile.lastModified() != s_lastModified) {
             s_current = new ValidUsersXML();
@@ -77,14 +80,26 @@ public class ValidUsersXML {
 
     /**
      * Load the validusers.xml file
+     * 
+     * Looks in directory specified by JVM argument -Dconf.dir.  If -Dconf.dir isn't there, it 
+     * uses /etc/sipxpbx.
+     * 
+     * @throws Exception on trouble reading or parsing the file
      */
     void loadXML() throws Exception {
         LOG.info("Loading validusers.xml configuration");
         Document validUsers = null; 
-        s_validUsersFile = new File(s_validUsersFileName);
-        s_lastModified = s_validUsersFile.lastModified();
-        DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        validUsers = builder.parse(s_validUsersFile);
+
+        try {
+            s_validUsersFile = new File(s_validUsersFileName);
+            s_lastModified = s_validUsersFile.lastModified();
+            DocumentBuilder builder;
+            builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            validUsers = builder.parse(s_validUsersFile);
+        } catch (Exception e) {
+            LOG.error(String.format("Something went wrong loading the %s file.", s_validUsersFile.getPath()), e);
+            throw(e);
+        }
         walkXML(validUsers);
     }
     

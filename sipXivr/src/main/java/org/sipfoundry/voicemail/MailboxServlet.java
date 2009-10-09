@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -85,8 +85,14 @@ public class MailboxServlet extends HttpServlet {
         // Load the list of valid users 
         // (it is static, so don't worry about sucking it in each time, it'll only 
         // be re-read if it has changed on disk)
-        ValidUsersXML validUsers = ValidUsersXML.update(true);
-        User user = validUsers.isValidUser(mailboxString);
+        ValidUsersXML validUsers = null;
+        try {
+            validUsers = ValidUsersXML.update(LOG, true);
+        } catch (Exception e) {
+            response.sendError(500, "Cannot read validusers.xml");
+            return;
+        }
+        User user = validUsers.getUser(mailboxString);
         if (user != null) {
             PrintWriter pw = response.getWriter();
             LOG.info(String.format("MailboxServlet::doIt %s %s", method, pathInfo));

@@ -13,10 +13,10 @@ import java.util.Vector;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
-import org.sipfoundry.sipxivr.User;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class EnterExtension {
@@ -78,7 +78,7 @@ public class EnterExtension {
                 userList.addAll(dbnChoice.getUsers());
                 break ;
             } else {
-                User user = vm.getValidUsers().isValidUser(digits);
+                User user = vm.getValidUsers().getUser(digits);
                 if (user == null || !user.hasVoicemail()) {
                     // "that extension is not valid"
                     loc.play("invalid_extension", "");

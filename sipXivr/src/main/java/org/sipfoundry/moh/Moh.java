@@ -22,10 +22,10 @@ import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 
 public class Moh {
@@ -84,7 +84,11 @@ public class Moh {
                 m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
         
         // Update the valid users list
-        m_validUsers = ValidUsersXML.update(true);
+        try {
+            m_validUsers = ValidUsersXML.update(LOG, true);
+        } catch (Exception e) {
+            System.exit(1); // If you can't trust validUsers, who can you trust?
+        }
     }
 
 
@@ -142,7 +146,7 @@ public class Moh {
             musicPath = "portaudio_stream://";
         } else if (id.startsWith("u")) {
             String userName = id.substring(1);
-            User user = m_validUsers.isValidUser(userName);
+            User user = m_validUsers.getUser(userName);
             if (user != null) {
                 Mailbox mbox = new Mailbox(user);
                 // TBD: where the per user music lives.  I'm making this one up for now

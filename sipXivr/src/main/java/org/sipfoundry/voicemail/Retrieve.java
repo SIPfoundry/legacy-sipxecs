@@ -22,13 +22,13 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.RestfulRequest;
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
@@ -147,7 +147,7 @@ public class Retrieve {
                 LOG.info("Retrieve::login "+m_ident+" changing to extension "+extChoice.getDigits());
 
                 // See if the user exists
-                user = m_vm.getValidUsers().isValidUser(extChoice.getDigits());
+                user = m_vm.getValidUsers().getUser(extChoice.getDigits());
             }
 
             // "Enter your personal identification number, and then press #.":
@@ -405,7 +405,7 @@ public class Retrieve {
                 MessageDescriptor md = new MessageDescriptorReader().readObject(vmMessage.getDescriptorFile());
                 // Determine if the message is from a known user
                 String from = ValidUsersXML.getUserPart(md.getFromUri());                
-                User user = m_vm.getValidUsers().isValidUser(from);
+                User user = m_vm.getValidUsers().getUser(from);
                 if (user != null) {
                     // If user doesn't have voicemail, don't allow reply
                     if (!user.hasVoicemail()) {
@@ -600,7 +600,7 @@ public class Retrieve {
         // Build the appropriate "from" based on what we know about the caller who left this message
         String fromPrompts;
         String from = ValidUsersXML.getUserPart(md.getFromUri());
-        User user = m_vm.getValidUsers().isValidUser(from);
+        User user = m_vm.getValidUsers().getUser(from);
         if (user != null) {
             // Well, looky here!  A sipXecs user!  Get his recorded name if we can
             Mailbox userMbox = new Mailbox(user);

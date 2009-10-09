@@ -2,8 +2,6 @@ package org.sipfoundry.sipxrest;
 
 import java.net.InetAddress;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Random;
 
 import javax.sip.address.Hop;
@@ -24,11 +22,6 @@ import org.restlet.util.Series;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
-
-import com.noelios.restlet.http.HttpResponse;
-
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class DigestAuthenticationFilter extends Filter {
     private static Logger logger = Logger.getLogger(DigestAuthenticationFilter.class);
@@ -88,7 +81,7 @@ public class DigestAuthenticationFilter extends Filter {
             } else {
                 String agentName = plugin.getAgent(request);
                 logger.debug("AgentName = " + agentName);
-                ValidUsersXML validUsers = ValidUsersXML.update(true);
+                ValidUsersXML validUsers = ValidUsersXML.update(logger, true);
 
                 User user = validUsers.getUser(agentName);
 

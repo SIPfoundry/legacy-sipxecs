@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxivr;
+package org.sipfoundry.commons.userdb;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -16,8 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.sipfoundry.sipxivr.User;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -36,7 +34,7 @@ public class ValidUsersXMLTest extends TestCase {
      * public void testIsValidUser() { fail("Not yet implemented"); }
      * 
      */
-	public void testWalkXML() {
+	public void testWalkXML() throws Exception {
 		String xml = 
 			"<validusers xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00\">" +
             "  <user>" +
@@ -86,21 +84,21 @@ public class ValidUsersXMLTest extends TestCase {
 			fail("exception "+e);
 		}
         
-		ValidUsersXML vu = ValidUsersXML.update(false) ;
+		ValidUsersXML vu = ValidUsersXML.update(null, false) ;
 		vu.walkXML(validUsers) ;
-		User u = vu.isValidUser("+9663");  // primary user name
+		User u = vu.getUser("+9663");  // primary user name
 		assertNotNull(u);
         assertNotNull(u.getDistributionLists());
         assertTrue(u.getDistributionLists().get("1").getList(null).contains("+9663"));
-		u = vu.isValidUser("lab");  // primary user name
+		u = vu.getUser("lab");  // primary user name
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
-		u = vu.isValidUser("puppy") ; // no such user name
+		u = vu.getUser("puppy") ; // no such user name
 		assertNull(u);
-		u = vu.isValidUser("42"); // Alias for lab
+		u = vu.getUser("42"); // Alias for lab
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
-		u = vu.isValidUser("24"); // Another alias for lab
+		u = vu.getUser("24"); // Another alias for lab
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
 		assertTrue("hasVoicemail", u.hasVoicemail());

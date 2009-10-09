@@ -12,9 +12,9 @@ package org.sipfoundry.voicemail;
 import java.text.MessageFormat;
 import java.util.Date;
 
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.ValidUsersXML;
 
 public class EmailFormatter {
     IvrConfiguration m_ivrConfig;

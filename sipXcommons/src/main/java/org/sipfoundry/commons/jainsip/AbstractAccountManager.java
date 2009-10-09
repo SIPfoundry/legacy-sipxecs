@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Nortel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Nortel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -13,10 +13,10 @@ import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 
 import javax.sip.ClientTransaction;
-import javax.sip.address.Address;
 import javax.sip.address.SipURI;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
+
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 
@@ -25,13 +25,13 @@ public abstract class AbstractAccountManager implements SecureAccountManager {
     ValidUsersXML validUsers;
  
     public AbstractAccountManager() throws Exception {
-        validUsers = ValidUsersXML.update(true);
+        validUsers = ValidUsersXML.update(null, true);
       
     }
 
     public UserCredentialHash getCredentialHash(String userName) {
         try {
-            validUsers = ValidUsersXML.update(true);
+            validUsers = ValidUsersXML.update(null, true);
             User user = validUsers.getUser(userName);
             if (user == null) {
                 return null;
@@ -45,7 +45,7 @@ public abstract class AbstractAccountManager implements SecureAccountManager {
 
     public User getUser(String userName) {
         try {
-            validUsers = ValidUsersXML.update(true);
+            validUsers = ValidUsersXML.update(null, true);
             return validUsers.getUser(userName);
         } catch (Exception ex) {
             return null;
