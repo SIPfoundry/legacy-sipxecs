@@ -276,6 +276,7 @@
     <property name="processName" value="sipXivr" />
     <property name="modelName" value="sipxivr.xml" />
     <property name="modelDir" value="sipxivr" />
+    <property name="editable" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxIvrConfiguration" />

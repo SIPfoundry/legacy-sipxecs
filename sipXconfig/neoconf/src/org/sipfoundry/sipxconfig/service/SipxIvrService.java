@@ -9,17 +9,20 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+
 public class SipxIvrService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxIvrService";
 
     public static final String LOG_SETTING = "ivr/log.level";
+    public static final String PA_USER_NAME_SETTING = "pa/imId";
+    public static final String PA_PASSWORD_SETTING = "pa/imPassword";
 
     private String m_vxmlDir;
     private String m_mailstoreDir;
     private String m_promptsDir;
     private String m_scriptsDir;
     private String m_docDir;
-
 
     @Required
     public void setMailstoreDir(String mailstoreDirectory) {
@@ -84,5 +87,13 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
     @Override
     public String getLabelKey() {
         return super.getLabelKey();
+    }
+
+    public String getPersonalAssistantImId() {
+        return getSettingValue(PA_USER_NAME_SETTING);
+    }
+
+    public String getPersonalAssistantImPassword() {
+        return defaultIfEmpty(getSettingValue(PA_PASSWORD_SETTING), getPersonalAssistantImId());
     }
 }

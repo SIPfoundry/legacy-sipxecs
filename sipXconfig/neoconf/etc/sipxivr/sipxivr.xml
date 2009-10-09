@@ -47,9 +47,22 @@
     </setting>
     <setting name="httpsPort" advanced="yes">
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>8085</value>
+    </setting>
+  </group>
+  <group name="pa">
+    <setting name="imId">
+      <type>
+        <string required="yes" />
+      </type>
+      <value>MyAssistant</value>
+    </setting>
+    <setting name="imPassword">
+      <type>
+        <string password="yes" />
+      </type>
     </setting>
   </group>
 </model>

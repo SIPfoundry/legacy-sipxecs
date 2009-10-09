@@ -25,7 +25,9 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
@@ -43,14 +45,18 @@ public class XmppAccountInfoTest extends TestCase {
     private Group m_group1;
     private Group m_group2;
     private Group m_group3;
+    private ModelFilesContext m_neoconfModelFilesContext;
+    private PermissionManagerImpl m_pm;
 
     @Override
     protected void setUp() throws Exception {
-        PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        m_neoconfModelFilesContext = TestHelper.getModelFilesContext(getModelDirectory("neoconf"));
+
+        m_pm = new PermissionManagerImpl();
+        m_pm.setModelFilesContext(m_neoconfModelFilesContext);
 
         m_userOne = new User();
-        m_userOne.setPermissionManager(pm);
+        m_userOne.setPermissionManager(m_pm);
         m_userOne.setSettingTypedValue("im/im-account", true);
         m_userOne.setSettingTypedValue("im/on-the-phone-message", "testing phone message");
         m_userOne.setSettingTypedValue("im/advertise-sip-presence", true);
@@ -60,7 +66,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_userOne.setImDisplayName("One_IM_DisplayName");
 
         m_userTwo = new User();
-        m_userTwo.setPermissionManager(pm);
+        m_userTwo.setPermissionManager(m_pm);
         m_userTwo.setSettingTypedValue("im/on-the-phone-message", "On the phone");
         m_userTwo.setSettingTypedValue("im/advertise-sip-presence", true);
         m_userTwo.setSettingTypedValue("im/include-call-info", false);
@@ -68,7 +74,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_userTwo.setImDisplayName("Two_IM_DisplayName");
 
         User userThree = new User();
-        userThree.setPermissionManager(pm);
+        userThree.setPermissionManager(m_pm);
         userThree.setSettingTypedValue("im/im-account", true);
         userThree.setSettingTypedValue("im/on-the-phone-message", "");
         userThree.setSettingTypedValue("im/advertise-sip-presence", true);
@@ -117,7 +123,7 @@ public class XmppAccountInfoTest extends TestCase {
         };
 
         Conference conf1 = new Conference();
-        conf1.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        conf1.setModelFilesContext(m_neoconfModelFilesContext);
         conf1.setBridge(mockBridge);
         conf1.setSettingTypedValue("fs-conf-conference/participant-code", "123");
         conf1.setEnabled(true);
@@ -131,7 +137,7 @@ public class XmppAccountInfoTest extends TestCase {
         Conference conf2 = new Conference();
 
         Conference conf3 = new Conference();
-        conf3.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+        conf3.setModelFilesContext(m_neoconfModelFilesContext);
         conf3.setBridge(mockBridge);
         conf3.setEnabled(true);
         conf3.setName("conf3");
@@ -156,6 +162,10 @@ public class XmppAccountInfoTest extends TestCase {
         expectLastCall().andReturn(Arrays.asList(m_userOne, m_userTwo)).once();
         coreContext.getGroupMembers(m_group2);
         expectLastCall().andReturn(null).once();
+        User paUser = new User();
+        paUser.setPermissionManager(m_pm);
+        coreContext.newUser();
+        expectLastCall().andReturn(paUser);
         replay(coreContext);
 
         ConferenceBridgeContext m_conferenceContext = createMock(ConferenceBridgeContext.class);
@@ -164,9 +174,17 @@ public class XmppAccountInfoTest extends TestCase {
         expectLastCall().andReturn(m_conferences).atLeastOnce();
         replay(m_conferenceContext);
 
+        SipxIvrService sipxIvrService = new SipxIvrService();
+        sipxIvrService.setBeanName(SipxIvrService.BEAN_ID);
+        sipxIvrService.setModelDir("sipxivr");
+        sipxIvrService.setModelName("sipxivr.xml");
+        sipxIvrService.setModelFilesContext(m_neoconfModelFilesContext);
+        sipxIvrService.setSettingValue("pa/imPassword", "password");
+
         XmppAccountInfo xmppAccountInfo = new XmppAccountInfo();
         xmppAccountInfo.setCoreContext(coreContext);
         xmppAccountInfo.setConferenceBridgeContext(m_conferenceContext);
+        xmppAccountInfo.setSipxIvrService(sipxIvrService);
 
         Document document = xmppAccountInfo.getDocument();
         String domDoc = TestUtil.asString(document);

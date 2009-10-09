@@ -80,7 +80,7 @@ public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
             String port = StringUtils.substringAfterLast(server, HOST_PORT_SEPERATOR);
             if (port.isEmpty() || Integer.valueOf(port) < SERVER_TO_SERVER_PORT_MIN
                     || Integer.valueOf(port) > SERVER_TO_SERVER_PORT_MAX) {
-                port = String.valueOf((Integer) getSipxOpenfireService().getSettingTypedValue(
+                port = String.valueOf(getSipxOpenfireService().getSettingTypedValue(
                         SipxOpenfireService.SERVER_TO_SERVER_DEFAULT_REMOTE_PORT));
             }
 

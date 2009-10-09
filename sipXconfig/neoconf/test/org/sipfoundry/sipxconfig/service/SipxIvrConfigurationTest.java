@@ -5,21 +5,21 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.service;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 import java.util.Arrays;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxIvrConfigurationTest extends SipxServiceTestBase {
     private SipxIvrService m_ivrService;
@@ -28,6 +28,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
 
+    @Override
     public void setUp() {
         Location location = createDefaultLocation();
         m_ivrService = new SipxIvrService();

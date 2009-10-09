@@ -20,6 +20,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
  * services
  */
 public class ImAccount {
+    private static final String IM_ACCOUNT = "im/im-account";
 
     private final User m_user;
 
@@ -28,7 +29,11 @@ public class ImAccount {
     }
 
     public boolean isEnabled() {
-        return (Boolean) m_user.getSettingTypedValue("im/im-account");
+        return (Boolean) m_user.getSettingTypedValue(IM_ACCOUNT);
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_user.setSettingTypedValue(IM_ACCOUNT, enabled);
     }
 
     /**

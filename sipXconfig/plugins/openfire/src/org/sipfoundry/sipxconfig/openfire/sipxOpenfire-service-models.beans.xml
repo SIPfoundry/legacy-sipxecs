@@ -23,7 +23,6 @@
         <ref bean="sipxOpenfireConfiguration" />
         <ref bean="xmppAccountInfo" />
         <ref bean="sipxRegistrarConfiguration" />
-        <ref bean="sipxIvrConfiguration" />
       </list>
     </property>
     <property name="bundles">
@@ -53,6 +52,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
+    <property name="sipxIvrService" ref="sipxIvrService" />
   </bean>
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">

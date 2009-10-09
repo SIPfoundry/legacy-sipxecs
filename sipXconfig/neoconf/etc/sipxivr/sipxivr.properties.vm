@@ -21,4 +21,6 @@ ivr.callHistoryUrl=https://$!{restService.address}:$!{restService.httpsPort}/cdr
 #if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
 ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
+ivr.paUserName=${service.personalAssistantImId}@${service.domainName}
+ivr.paPassword=${service.personalAssistantImPassword}
 #end
