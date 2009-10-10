@@ -41,6 +41,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AcceptLanguageHeader;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
@@ -238,7 +239,7 @@ class CallControlManager implements SymmitronResetHandler {
         /*
          * Is he other side trying to solicit an offer?
          */
-
+       
         if (SipUtilities.isSdpOfferSolicitation(request)) {
             /*
              * This case occurs if MOH is turned OFF on sipxbridge and is turned ON on the phone.
@@ -252,6 +253,13 @@ class CallControlManager implements SymmitronResetHandler {
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, peerDialogProvider);
             newRequest.setHeader(contactHeader);
+            
+            if ( request.getHeader(AuthorizationHeader.NAME) != null ) {  
+               AuthorizationHeader authHeader = (AuthorizationHeader)
+                        request.getHeader(AuthorizationHeader.NAME);
+                newRequest.setHeader(authHeader);
+            }
+
 
             ClientTransaction ctx = peerDialogProvider.getNewClientTransaction(newRequest);
 

@@ -1126,7 +1126,9 @@ public class BackToBackUserAgent {
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
-            newRequest.addHeader(authorization);
+            if ( authorization != null ) {
+                newRequest.addHeader(authorization);
+            }
             
             
             /*

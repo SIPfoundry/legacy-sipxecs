@@ -58,32 +58,24 @@ public class SipListenerImpl implements SipListener {
 
         Dialog dialog = responseEvent.getDialog();
         /*
-         * challenge from LAN side. Cannot handle this.
+         * challenge from LAN side. Forward it to the WAN. 
          */
         if (provider == Gateway.getLanProvider()) {
             /*
              * If we do not handle LAN originated challenges, tear down the
              * call.
+             * xx-6663: Forward authentication challenges.
              */
-            if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
-                ServerTransaction stx = ((TransactionContext) responseEvent
-                        .getClientTransaction().getApplicationData())
-                        .getServerTransaction();
-                if (stx != null) {
-                    Response errorResponse = SipUtilities.createResponse(stx,
-                            Response.DECLINE);
-                    stx.sendResponse(errorResponse);
-
-                }
-                if (dialog != null
-                        && DialogContext.get(dialog).getBackToBackUserAgent() != null) {
-                    DialogContext.get(dialog).getBackToBackUserAgent()
-                            .tearDown(Gateway.SIPXBRIDGE_USER,
-                                    ReasonCode.AUTHENTICATION_FAILURE,
-                                    "Unexpected challenge from Pbx.");
-                }
+            if ( responseEvent.getClientTransaction() == null ) {
+                logger.debug("Dropping response - no client transaction");
                 return;
             }
+            TransactionContext transactionContext = TransactionContext.get(responseEvent.getClientTransaction());
+            ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+            Response newResponse = SipUtilities.createResponse(serverTransaction, responseEvent.getResponse().getStatusCode());
+            SipUtilities.copyHeaders(responseEvent.getResponse(),newResponse);
+            serverTransaction.sendResponse(newResponse);
+            return;
         }
 
         Response response = responseEvent.getResponse();

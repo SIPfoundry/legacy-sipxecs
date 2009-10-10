@@ -20,6 +20,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.header.AcceptHeader;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -45,12 +46,14 @@ public class RtpSessionUtilities {
 	static void forwardReInvite(RtpSession rtpSession,
 			ServerTransaction serverTransaction, Dialog dialog)
 			throws Exception {
-		/*
+		AuthorizationHeader authorizationHeader = null;
+	    /*
 		 * If we are re-negotiating media, then use the new session description
 		 * of the incoming invite for the call setup attempt.
 		 */
+	    
 		if (serverTransaction != null) {
-			Request request = serverTransaction.getRequest();
+		    Request request = serverTransaction.getRequest();
 			if (request.getContentLength().getContentLength() != 0) {
 				SessionDescription inboundSessionDescription = SipUtilities
 						.getSessionDescription(request);
@@ -68,6 +71,7 @@ public class RtpSessionUtilities {
 				rtpSession.getReceiver().setSessionDescription(
 						inboundSessionDescription);
 			}
+	        authorizationHeader = (AuthorizationHeader)request.getHeader(AuthorizationHeader.NAME);  
 		}
 
 		/*
@@ -146,6 +150,10 @@ public class RtpSessionUtilities {
 		ContentTypeHeader cth = ProtocolObjects.headerFactory
 				.createContentTypeHeader("application", "sdp");
 		newInvite.setContent(outboundSessionDescription.toString(), cth);
+		if (authorizationHeader != null) {
+		    newInvite.setHeader(authorizationHeader);
+		}
+		
 
 		ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()
 				.getNewClientTransaction(newInvite);
