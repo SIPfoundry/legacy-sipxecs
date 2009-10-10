@@ -156,7 +156,7 @@ public class Gateway {
     /*
      * Advance timer by 10 seconds for session timer.
      */
-    protected static final int TIMER_ADVANCE = 10;
+    protected static final int TIMER_ADVANCE = 45;
 
     /*
      * set to true to enable tls for sip signaling (untested).

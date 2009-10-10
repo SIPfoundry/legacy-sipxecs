@@ -208,12 +208,11 @@ public class SipListenerImpl implements SipListener {
                 b2bua.removeDialog(dialog);
                 b2bua.addDialog(newClientTransaction.getDialog());
                 DialogContext dialogApplicationData = (DialogContext) dialog
-                        .getApplicationData();
-
+                .getApplicationData();
                 DialogContext newDialogApplicationData = DialogContext
-                        .attach(b2bua, newClientTransaction.getDialog(),
-                                newClientTransaction, newClientTransaction
-                                        .getRequest());
+                .attach(b2bua, newClientTransaction.getDialog(),
+                        newClientTransaction, newClientTransaction
+                        .getRequest());
                 if ( newDialogApplicationData != dialogApplicationData ) {
                     newDialogApplicationData.setPeerDialog(dialogApplicationData
                             .getPeerDialog());
@@ -237,6 +236,7 @@ public class SipListenerImpl implements SipListener {
                     }
                 }
 
+
             }
 
             if (dialog.getState() == DialogState.CONFIRMED) {
@@ -250,11 +250,18 @@ public class SipListenerImpl implements SipListener {
                      * This check should not be necessary.
                      */
                     dialog.sendRequest(newClientTransaction);
+                  
                 }
 
             } else {
                 newClientTransaction.sendRequest();
             }
+           
+            DialogContext dialogContext  = DialogContext.get(newClientTransaction.getDialog());
+            if ( !dialogContext.isSessionTimerStarted()) {
+                dialogContext.startSessionTimer();
+            }
+            
         }
 
     }

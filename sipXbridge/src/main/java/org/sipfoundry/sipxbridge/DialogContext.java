@@ -29,6 +29,7 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
+import javax.sip.TransactionDoesNotExistException;
 import javax.sip.address.Address;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
@@ -105,6 +106,7 @@ class DialogContext {
      * single call ( each call leg can have its own ITSP).
      */
     private ItspAccountInfo itspInfo;
+    
 
     /*
      * A flag that indicates whether this Dialog was created by sipxbridge and is managed by
@@ -112,10 +114,8 @@ class DialogContext {
      */
     boolean isOriginatedBySipxbridge;
 
-    /*
-     * A semaphore to wait for ACK to be sent.
-     */
-    Semaphore ackSem = new Semaphore(0);
+   
+    
 
 
     // /////////////////////////////////////////////////////////////
@@ -184,8 +184,7 @@ class DialogContext {
     class SessionTimerTask extends TimerTask {
 
         String method;
-        private ReInviteSender reInviteSender;
-
+       
         public SessionTimerTask(String method) {
             this.method = method;
 
@@ -194,20 +193,20 @@ class DialogContext {
         @Override
         public void run() {
             if (dialog.getState() == DialogState.TERMINATED) {
+                logger.debug("Dialog is terminated -- not firing the  session timer");
                 this.cancel();
+                return;
             }
 
             try {
                 Request request;
-                long currentTimeMilis = System.currentTimeMillis();
+                logger.debug("Firing Session timer " );
+                logger.debug("DialogState = " + dialog.getState());
+                logger.debug("peerDialog " + DialogContext.this.getPeerDialog());
+                
                 if (dialog.getState() == DialogState.CONFIRMED
                         && DialogContext.get(dialog).getPeerDialog() != null) {
                     if (method.equalsIgnoreCase(Request.INVITE)) {
-
-                        if (currentTimeMilis < timeLastAckSent - sessionExpires * 1000) {
-                            return;
-                        }
-
                         SipProvider provider = ((DialogExt) dialog).getSipProvider();
                         RtpSession rtpSession = getRtpSession();
                         if (rtpSession == null || rtpSession.getReceiver() == null) {
@@ -257,16 +256,7 @@ class DialogContext {
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
                             request);
                     TransactionContext.attach(ctx, Operation.SESSION_TIMER);
-                    this.reInviteSender =  new ReInviteSender(DialogContext.get(dialog), ctx);
-                    new Thread(reInviteSender).start();
-                    DialogContext.this.sessionTimer = new SessionTimerTask(this.method);
-
-                    int expiryTime = sessionExpires < Gateway.MIN_EXPIRES ? Gateway.MIN_EXPIRES
-                            : sessionExpires;
-
-                    Gateway.getTimer().schedule(sessionTimer,
-                            (expiryTime - Gateway.TIMER_ADVANCE) * 1000);
-
+                    DialogContext.this.sendReInvite(ctx);
                 }
 
             } catch (Exception ex) {
@@ -278,102 +268,7 @@ class DialogContext {
 
         public void terminate() {
             logger.debug("Terminating session Timer Task for " + dialog);
-            if (this.reInviteSender != null) {
-                this.reInviteSender.terminate();
-            }
             this.cancel();
-        }
-    }
-
-    /**
-     * This task waits till a pending ACK has been recorded and then sends out a re-INVITE. This
-     * is to prevent interleaving INVITEs ( which will result in a 493 from the ITSP ).
-     * Some ITSPs will send 400 response instead of 493 and are generally very bad at
-     * dealing with interleaved INVITEs on dialogs. Hence we use this mechanism
-     * to strictly serialize INVTES sent to the ITSP.
-     *
-     */
-    class ReInviteSender implements Runnable {
-        DialogContext dialogContext;
-        ClientTransaction ctx;
-
-
-        public void terminate() {
-            try {
-                ctx.terminate();
-                Thread.currentThread().interrupt();
-            } catch (ObjectInUseException e) {
-                logger.error("unexpected error",e);
-            }
-        }
-
-
-        public ReInviteSender(DialogContext dialogContext, ClientTransaction ctx) {
-            this.dialogContext = dialogContext;
-            this.ctx = ctx;
-            this.dialogContext.waitingToSendReInvite.set(true);
-            TransactionContext.get(ctx).setItspAccountInfo(DialogContext.this.itspInfo);
-        }
-
-        public void run() {
-            try {
-                int i = 0;
-                long timeToWait = 0;
-
-                if  (this.dialogContext.dialog.getState() != DialogState.TERMINATED
-                        && this.dialogContext.reInviteTransaction != null) {
-                     /*
-                      * prevent interleaving by waiting for 8 seconds until the previous ACK gets
-                      * sent. Certain ITSPs do not deal well with interleaved INVITE transactions
-                      * (return bad error code).
-                      */
-                     long startTime = System.currentTimeMillis();
-                     if ( ! this.dialogContext.ackSem.tryAcquire(8,TimeUnit.SECONDS) ) {
-                         /*
-                          * Could not send re-INVITE we should kill the call.
-                          */
-                         logger.error("Could not send re-INVITE -- killing call Dialog = " + this.dialogContext.dialog);
-                         ctx.terminate();
-                         backToBackUserAgent.tearDown("sipxbridge",
-                                 ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE,
-                                 "Timed out waiting to re-INVITE");
-                         return;
-                     } else {
-                         timeToWait = System.currentTimeMillis() - startTime;
-                     }
-                }
-
-                /*
-                 * If we had to wait for ACK then
-                 * wait for the ACK to actually get to the other side. Wait for any ACK
-                 * retransmissions to finish. Then send out the request. This is a
-                 * hack in support of some ITSPs that want re-INVITEs to be spaced
-                 * out in time ( else they return a 400 error code ).
-                 */
-                try {
-                    if ( timeToWait != 0 ) {
-                        Thread.sleep(500);
-                    }
-                } catch ( InterruptedException ex) {
-                    logger.debug("Interrupted sleep");
-                    return;
-                }
-
-                logger.debug("Sending re-INVITE : Transaction operation = "
-                        + TransactionContext.get(ctx).getOperation());
-
-                if (this.dialogContext.dialog.getState() != DialogState.TERMINATED) {
-                    this.dialogContext.reInviteTransaction = ctx;
-                    this.dialogContext.dialog.sendRequest(ctx);
-                }
-                logger.debug("re-INVITE successfully sent");
-            } catch (Exception ex) {
-                logger.error("Error sending INVITE", ex);
-            } finally {
-                dialogContext.waitingToSendReInvite.set(false);
-                this.dialogContext = null;
-                this.ctx = null;
-            }
         }
     }
 
@@ -393,40 +288,17 @@ class DialogContext {
 
         public void run() {
             try {
-
-                /*
-                 * Check the state of the peer dialog. If the phone has answered,
-                 * waitingToSendReInvite will be true. If so, just return an ACK. This will allow
-                 * the process to continue.
-                 */
-                if (waitingToSendReInvite.get()) {
-                    /*
-                     * The ITSP is waiting for an ACK at this point -- so let him have the ACK but
-                     * fool him by sending a filtered version of the SDP.
-                     */
-                    if (getLastResponse() != null && getLastResponse().getContent() != null) {
-                        // If the response has not been consumed, send it off.
-                        SessionDescription sessionDescription = SipUtilities
-                                .getSessionDescription(getLastResponse());
-                        SipUtilities.cleanSessionDescription(sessionDescription, Gateway
-                                .getParkServerCodecs());
-                        getRtpSession().getReceiver().setSessionDescription(sessionDescription);
-                        sendAck(sessionDescription);
-                    }
-                    mohCtx.terminate();
-                } else {
-                    if (!DialogContext.get(mohCtx.getDialog()).terminateOnConfirm) {
-                        TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
-                        DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
-                        mohDialogContext.setPendingAction(
+                if (!DialogContext.get(mohCtx.getDialog()).terminateOnConfirm) {
+                    TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
+                    DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
+                    mohDialogContext.setPendingAction(
                                 PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
-                        mohDialogContext.setPeerDialog(dialog);
-                        mohDialogContext.setRtpSession(getPeerRtpSession(dialog));
-                        mohCtx.sendRequest();
-                    } else {
-                        mohCtx.terminate();
-                    }
-                }
+                    mohDialogContext.setPeerDialog(dialog);
+                    mohDialogContext.setRtpSession(getPeerRtpSession(dialog));
+                    mohCtx.sendRequest();
+                 } else {
+                      mohCtx.terminate();
+                 }
             } catch (Exception ex) {
                 logger.error("Error sending moh request", ex);
             } finally {
@@ -440,20 +312,22 @@ class DialogContext {
        return SipUtilities.getCallLegId(this.getRequest());
     }
 
-    private void startSessionTimer() {
-        logger.debug("startSessionTimer()");
-        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-        Gateway.getTimer().schedule(this.sessionTimer,
-                ((this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000));
+    public void startSessionTimer() {
+        logger.debug("startSessionTimer() for " + this.dialog);
+        this.startSessionTimer(Gateway.getSessionExpires());
     }
 
    public void startSessionTimer( int sessionTimeout ) {
-       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout));
+       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout) + " dialog " + dialog);
        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
-        this.sessionExpires = sessionTimeout;
-        Gateway.getTimer().schedule(this.sessionTimer,
-                (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000);
+       this.sessionExpires = sessionTimeout;
+       int time = (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000;
+       Gateway.getTimer().schedule(this.sessionTimer,time,time);
     }
+   
+   public boolean isSessionTimerStarted() {
+       return this.sessionTimer != null;
+   }
 
     /*
      * Constructor.
@@ -635,6 +509,7 @@ class DialogContext {
      * Cancel the session timer.
      */
     void cancelSessionTimer() {
+        logger.debug("cancelSessionTimer " + this.dialog);
         if (this.sessionTimer != null) {
             this.sessionTimer.terminate();
             this.sessionTimer = null;
@@ -647,7 +522,13 @@ class DialogContext {
      * @param expires
      */
     void setSetExpires(int expires) {
-        this.sessionExpires = expires;
+        if ( expires != this.sessionExpires) {
+            if ( this.sessionTimer != null ) {
+                this.sessionTimer.terminate();
+            }
+            this.startSessionTimer(expires);    
+        }
+        
 
     }
 
@@ -831,10 +712,7 @@ class DialogContext {
             logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
         }
 
-        if ( lastResponse != null && lastResponse != this.lastResponse &&
-        		lastResponse.getStatusCode() / 100 > 2 ) {
-        	this.ackSem.release();
-        }
+       
         this.lastResponse = lastResponse;
 
 
@@ -881,13 +759,13 @@ class DialogContext {
 
         TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
 
-        new Thread(new ReInviteSender(this, ctx)).start();
+        this.sendReInvite(ctx);
+        
 
     }
 
     /**
-     * Send an ACK and record it. If some thread is wating to send re-INVITE based upon that ACK
-     * it will get up and and run the re-INVITE.
+     * Send an ACK and record it.
      *
      * @param ack
      * @throws SipException
@@ -897,8 +775,7 @@ class DialogContext {
         this.lastAck = ack;
         logger.debug("SendingAck ON " + dialog);
         dialog.sendAck(ack);
-        ackSem.release();
-
+        
         if (terminateOnConfirm) {
             Request byeRequest = dialog.createRequest(Request.BYE);
 
@@ -936,7 +813,16 @@ class DialogContext {
      * Asynchronously send a re-INVITE (when we can).
      */
     void sendReInvite(ClientTransaction clientTransaction) {
-        new Thread(new ReInviteSender(this, clientTransaction)).start();
+      
+        if (dialog.getState() != DialogState.TERMINATED) {
+            this.reInviteTransaction = clientTransaction;
+            try {
+                dialog.sendRequest(clientTransaction);
+            } catch (SipException e) {
+                logger.error("Exception sending re-INVITE",e);
+               
+            }
+        }
     }
 
     /**

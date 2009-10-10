@@ -1120,7 +1120,6 @@ class SipUtilities {
         ContactHeader contactHeader = createContactHeader(
                 Gateway.SIPXBRIDGE_USER, provider);
         response.addHeader(contactHeader);
-
         if (provider == Gateway.getLanProvider()) {
             SupportedHeader sh = ProtocolObjects.headerFactory
                     .createSupportedHeader("replaces");
@@ -1671,10 +1670,21 @@ class SipUtilities {
         try {
             Response newResponse = SipUtilities.createResponse(
                     serverTransaction, response.getStatusCode());
+            /*
+             * If this is a 3xx response, we preserve the inbound contact information when forwarding the
+             * response.
+             */
+            if ( response.getStatusCode() / 100 == 3 && response.getHeader(ContactHeader.NAME) != null ) {
+                ContactHeader contactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME).clone();
+                newResponse.setHeader(contactHeader);
+            }
 
             SipProvider provider = ((TransactionExt) serverTransaction)
                     .getSipProvider();
 
+            /*
+             * Rewrite the Contact header of the ITSP bound error response.
+             */
             if (provider != Gateway.getLanProvider()) {
                 ContactHeader contactHeader = SipUtilities.createContactHeader(
                         provider, itspAccount);
