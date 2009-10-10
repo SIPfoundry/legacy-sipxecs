@@ -49,6 +49,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.CallInfoHeader;
@@ -59,6 +60,7 @@ import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
+import javax.sip.header.ProxyAuthorizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
@@ -150,6 +152,9 @@ public class BackToBackUserAgent {
     private boolean pendingTermination;
 
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
+    
+    private int baseCounter;
+    
 
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
@@ -635,6 +640,7 @@ public class BackToBackUserAgent {
                     .createMaxForwardsHeader(20);
             CallIdHeader callId = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "."
+                            + this.baseCounter + "."
                             + this.counter++);
 
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
@@ -1052,18 +1058,15 @@ public class BackToBackUserAgent {
             uri.setParameter("maddr", proxyAddress.getHost());
             uri.setPort(proxyAddress.getPort());
 
-            CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + counter++);
+             
+            CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader
+                    (((CSeqHeader) request.getHeader(CSeqHeader.NAME)).getSeqNumber(), Request.INVITE);
 
-            CSeqHeader cseqHeader = ProtocolObjects.headerFactory
-                    .createCSeqHeader(1L, Request.INVITE);
 
             FromHeader fromHeader = (FromHeader) request.getHeader(
                     FromHeader.NAME).clone();
 
-            fromHeader.setParameter("tag", Long.toString(Math.abs(new Random()
-                    .nextLong())));
-
+          
             /*
              * Change the domain of the inbound request to that of the sipx
              * proxy. Change the user part if routed to specific extension.
@@ -1089,6 +1092,9 @@ public class BackToBackUserAgent {
                 }
                 toHeader.removeParameter("tag");
             }
+       
+           
+       
 
             String transport = proxyAddress.getTransport().equalsIgnoreCase(
                     "TLS") ? "TLS" : "UDP";
@@ -1105,12 +1111,24 @@ public class BackToBackUserAgent {
                     .getHeader(MaxForwardsHeader.NAME);
 
             maxForwards.decrementMaxForwards();
+            ProxyAuthorizationHeader authorization = null;
+            if ( request.getHeader(ProxyAuthorizationHeader.NAME) != null ) {
+                 authorization = (ProxyAuthorizationHeader)request.getHeader(ProxyAuthorizationHeader.NAME);
+            } else {
+                this.baseCounter++;
+            }
+            CallIdHeader callIdHeader = ProtocolObjects.headerFactory
+            .createCallIdHeader(this.creatingCallId + "." + baseCounter );
+
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
+            newRequest.addHeader(authorization);
+            
+            
             /*
              * The incoming session description.
              */
@@ -1234,7 +1252,7 @@ public class BackToBackUserAgent {
             uri.setPort(this.proxyAddress.getPort());
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "."
+                    .createCallIdHeader(this.creatingCallId + "." + this.baseCounter + "."
                             + this.counter++);
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory
@@ -1418,11 +1436,17 @@ public class BackToBackUserAgent {
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
             Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
-
+            /*
+             * If there is an AUTH header there, it could be that the client is sending
+             * us credentials. In that case, do not change the call ID.
+             */
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) == null ) {
+                baseCounter ++;
+            }
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
-                            + this.counter++, addresses);
+                           + baseCounter , addresses);
 
             /*
              * Attach headers selectively to the outbound request. If privacy is
