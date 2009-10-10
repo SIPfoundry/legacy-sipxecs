@@ -67,14 +67,16 @@ public class SipListenerImpl implements SipListener {
         ClientTransaction ctx = responseEvent.getClientTransaction();
 
         /*
-         * challenge from LAN side. Cannot handle this.
+         * challenge from LAN side. Forward it to the WAN. 
          */
         if (provider == Gateway.getLanProvider()) {
             /*
              * By default, we do not handle LAN originated challenges unless the inbound domain is the
              * same as the sipx domain -- in which case sipx will challenge us and we will forward that
              * challenge.
+             * xx-6663: Forward authentication challenges.
              */
+<<<<<<< .working
             if (Gateway.getBridgeConfiguration().getSipxbridgePassword() == null) {
                 ServerTransaction stx = ((TransactionContext) responseEvent
                         .getClientTransaction().getApplicationData())
@@ -96,8 +98,16 @@ public class SipListenerImpl implements SipListener {
                     stx.sendResponse(errorResponse);
                 }
 
+            if ( responseEvent.getClientTransaction() == null ) {
+                logger.debug("Dropping response - no client transaction");
                 return;
             }
+            TransactionContext transactionContext = TransactionContext.get(responseEvent.getClientTransaction());
+            ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+            Response newResponse = SipUtilities.createResponse(serverTransaction, responseEvent.getResponse().getStatusCode());
+            SipUtilities.copyHeaders(responseEvent.getResponse(),newResponse);
+            serverTransaction.sendResponse(newResponse);
+            return;
         }
 
         Response response = responseEvent.getResponse();

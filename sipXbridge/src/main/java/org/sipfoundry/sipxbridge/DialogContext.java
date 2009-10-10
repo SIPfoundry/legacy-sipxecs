@@ -82,11 +82,6 @@ class DialogContext {
     Transaction dialogCreatingTransaction;
 
     /*
-     * The current re-invite transaction
-     */
-    private ClientTransaction reInviteTransaction;
-
-    /*
      * The last ACK.
      */
     Request lastAck;
@@ -107,7 +102,6 @@ class DialogContext {
      */
     private ItspAccountInfo itspInfo;
     
-
     /*
      * A flag that indicates whether this Dialog was created by sipxbridge and is managed by
      * sipXbridge.
@@ -287,18 +281,20 @@ class DialogContext {
         }
 
         public void run() {
-            try {
+            try {            
                 if (!DialogContext.get(mohCtx.getDialog()).terminateOnConfirm) {
+                    logger.debug("Bridge sending INVITE to MOH server");
                     TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
                     DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
                     mohDialogContext.setPendingAction(
-                                PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
+                            PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
                     mohDialogContext.setPeerDialog(dialog);
-                    mohDialogContext.setRtpSession(getPeerRtpSession(dialog));
+                    mohDialogContext.setRtpSession(getPeerRtpSession(dialog));        
                     mohCtx.sendRequest();
-                 } else {
-                      mohCtx.terminate();
-                 }
+                } else {
+                    logger.debug("Phone already sent INVITE - canceling MOH transaction");
+                    mohCtx.terminate();
+                }
             } catch (Exception ex) {
                 logger.error("Error sending moh request", ex);
             } finally {
@@ -393,9 +389,6 @@ class DialogContext {
         }
         DialogContext dialogContext = new DialogContext(dialog);
         dialogContext.dialogCreatingTransaction = transaction;
-        if (transaction instanceof ClientTransaction) {
-            dialogContext.reInviteTransaction = (ClientTransaction) transaction;
-        }
         dialogContext.request = request;
         dialogContext.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dialogContext);
@@ -810,18 +803,19 @@ class DialogContext {
     }
 
     /**
-     * Asynchronously send a re-INVITE (when we can).
+     * Send a re-INVITE. The dialog layer will asynchronously send the re-INVITE
      */
     void sendReInvite(ClientTransaction clientTransaction) {
       
         if (dialog.getState() != DialogState.TERMINATED) {
-            this.reInviteTransaction = clientTransaction;
-            try {
+             try {
                 dialog.sendRequest(clientTransaction);
             } catch (SipException e) {
                 logger.error("Exception sending re-INVITE",e);
                
             }
+        } else {
+            logger.warn("sendReInvite was called when the dialog is terminated - ignoring");
         }
     }
 

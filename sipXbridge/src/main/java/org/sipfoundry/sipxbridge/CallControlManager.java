@@ -239,7 +239,7 @@ class CallControlManager implements SymmitronResetHandler {
         /*
          * Is he other side trying to solicit an offer?
          */
-
+       
         if (SipUtilities.isSdpOfferSolicitation(request)) {
             /*
              * This case occurs if MOH is turned OFF on sipxbridge and is turned ON on the phone.
@@ -255,6 +255,13 @@ class CallControlManager implements SymmitronResetHandler {
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, peerDialogProvider);
             newRequest.setHeader(contactHeader);
+            
+            if ( request.getHeader(AuthorizationHeader.NAME) != null ) {  
+               AuthorizationHeader authHeader = (AuthorizationHeader)
+                        request.getHeader(AuthorizationHeader.NAME);
+                newRequest.setHeader(authHeader);
+            }
+
 
             ClientTransaction ctx = peerDialogProvider.getNewClientTransaction(newRequest);
 
