@@ -314,7 +314,7 @@ class DialogContext {
 
     public void startSessionTimer() {
         logger.debug("startSessionTimer() for " + this.dialog);
-        this.startSessionTimer(Gateway.getSessionExpires());
+        this.startSessionTimer(this.sessionExpires);
     }
 
    public void startSessionTimer( int sessionTimeout ) {
