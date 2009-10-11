@@ -1451,6 +1451,15 @@ public class BackToBackUserAgent {
                            + baseCounter , addresses);
 
             /*
+            * If we have authorization information, we can attach it to the outbound request.
+            */
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) != null ) {
+                AuthorizationHeader authorization = (AuthorizationHeader)
+                    incomingRequest.getHeader(AuthorizationHeader.NAME);
+                outgoingRequest.setHeader(authorization);
+            }
+
+            /*
              * Attach headers selectively to the outbound request. If privacy is
              * requested, we suppress forwarding certain headers that can reveal
              * information about the caller.
