@@ -119,7 +119,7 @@ public class EditDistributionListTestUi extends WebTestCase {
         clickLinkWithExactText(NEW_USER_USERNAME[i]);
         clickLink("link:permission.label");
         uncheckCheckbox("setting:Voicemail");
-        clickButton("setting:ok");
+        clickButton("form:ok");
     }
 
     private void addNewUser(int i) {

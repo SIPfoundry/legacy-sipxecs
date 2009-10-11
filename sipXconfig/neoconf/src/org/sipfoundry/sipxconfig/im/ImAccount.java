@@ -47,6 +47,10 @@ public class ImAccount {
         if (isNotBlank(imId)) {
             return imId;
         }
+        return getDefaultImId();
+    }
+
+    public String getDefaultImId() {
         String userName = m_user.getUserName();
         if (!User.isNumeric(userName)) {
             return userName;
@@ -64,6 +68,10 @@ public class ImAccount {
         if (isNotBlank(displayName)) {
             return displayName;
         }
+        return getDefaultImDisplayName();
+    }
+
+    public String getDefaultImDisplayName() {
         return defaultString(m_user.getDisplayName(), m_user.getUserName());
     }
 

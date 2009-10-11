@@ -111,6 +111,7 @@ public abstract class UserNavigation extends BeanNavigation {
         UserSettings page = getUserSettingsPage();
         page.setUserId(beanId);
         page.setParentSettingName(path);
+        page.setReturnPage(ManageUsers.PAGE);
         return page;
     }
 

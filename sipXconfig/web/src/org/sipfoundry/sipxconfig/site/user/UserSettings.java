@@ -15,14 +15,14 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public abstract class UserSettings extends BasePage implements PageBeginRenderListener {
+public abstract class UserSettings extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "user/UserSettings";
 
@@ -64,18 +64,9 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
         setParentSetting(parent);
     }
 
-    public String ok() {
-        apply();
-        return ManageUsers.PAGE;
-    }
-
     public void apply() {
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
-    }
-
-    public String cancel() {
-        return ManageUsers.PAGE;
     }
 
     public String getParentSettingLabel() {

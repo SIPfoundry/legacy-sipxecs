@@ -41,8 +41,6 @@ public class UserAddressBookTestUi extends WebTestCase {
         assertElementPresent("homePhoneNumber");
         assertElementPresent("assistantPhoneNumber");
         assertElementPresent("faxNumber");
-        assertElementPresent("imId");
-        assertElementPresent("imDisplayName");
         assertElementPresent("alternateImId");
         assertElementPresent("location");
 

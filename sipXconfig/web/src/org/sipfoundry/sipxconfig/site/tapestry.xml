@@ -115,6 +115,13 @@
     </property>
   </bean>
 
+  <bean name="validImId" class="org.apache.tapestry.form.validator.Pattern" parent="validSipUserId">
+    <property name="message">
+      <value>Only a limited set of characters is valid for IM ID or IM DisplayName. Spaces and some special characters are not allowed. For
+        example: 321, joedoe, joe!?~*222</value>
+    </property>
+  </bean>
+
    <bean name="validSipUserIdOrAor" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>

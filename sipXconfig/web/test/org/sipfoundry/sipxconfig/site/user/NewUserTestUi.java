@@ -121,35 +121,6 @@ public class NewUserTestUi extends WebTestCase {
         assertNoException(tester);
     }
 
-    public void testImPassword() {
-        // configure different IM ID passwords - Error
-        home(tester);
-        clickLink("ManageUsers");
-        clickLink("AddUser");
-        setTextField("user:userId", "cuser33");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        setTextField("user:imId", "myImId33");
-        setTextField(getIndexedId("cp:password", 1), "myImPwd");
-        setTextField(getIndexedId("cp:confirmPassword", 1), "XXXmyImPwd");
-        clickButton("form:ok");
-        assertUserError(tester);
-
-        // configure both IM ID and IM password. OK.
-        home(tester);
-        clickLink("ManageUsers");
-        clickLink("AddUser");
-        setTextField("user:userId", "cuser34");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        setTextField("user:imId", "myImId34");
-        setTextField(getIndexedId("cp:password", 1), "myImPwd");
-        setTextField(getIndexedId("cp:confirmPassword", 1), "myImPwd");
-        clickButton("form:ok");
-        assertNoUserError(tester);
-        assertNoException(tester);
-    }
-
     public void testStay() {
         clickLink("ManageUsers");
         clickLink("AddUser");
@@ -217,38 +188,6 @@ public class NewUserTestUi extends WebTestCase {
         setTextField("gms:groups", "a b c");
         clickButton("form:apply");
         assertTextFieldEquals("gms:groups", "a b c");
-    }
-
-    public void testImIdUnique() {
-        clickLink("ManageUsers");
-        // create user with instant message id: openfire1
-        clickLink("AddUser");
-        setTextField("user:userId", "x");
-        setTextField("user:imId", "openfire1");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        clickButton("form:ok");
-        assertNoUserError(tester);
-        // try to create user with the same instant message id: openfire1
-        clickLink("AddUser");
-        setTextField("user:userId", "y");
-        setTextField("user:imId", "openfire1");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        clickButton("form:ok");
-        assertUserError(tester);
-        // create user with instant message id: openfire2
-        setTextField("user:imId", "openfire2");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        clickButton("form:apply");
-        assertNoUserError(tester);
-        // update already created user with message id: openfire2
-        setTextField("user:userId", "yy");
-        setTextField("cp:password", "1234");
-        setTextField("cp:confirmPassword", "1234");
-        clickButton("form:apply");
-        assertNoUserError(tester);
     }
 
     public void testExtensionPoolLink() {
