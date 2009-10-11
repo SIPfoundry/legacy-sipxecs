@@ -808,7 +808,6 @@ class DialogContext {
     void sendReInvite(ClientTransaction clientTransaction) {
       
         if (dialog.getState() != DialogState.TERMINATED) {
-             try {
                 dialog.sendRequest(clientTransaction);
             } catch (SipException e) {
                 logger.error("Exception sending re-INVITE",e);
