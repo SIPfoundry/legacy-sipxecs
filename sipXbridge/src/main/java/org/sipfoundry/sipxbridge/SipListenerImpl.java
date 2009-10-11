@@ -508,6 +508,7 @@ public class SipListenerImpl implements SipListener {
                 logger.warn("dropping response " + method);
             }
 
+
         } catch (Exception ex) {
             logger.error("Unexpected error processing response >>>> "
                     + response, ex);
