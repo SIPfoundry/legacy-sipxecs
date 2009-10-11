@@ -158,7 +158,6 @@ public class BackToBackUserAgent {
 
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
     
-    private int baseCounter;
     
 
     // ///////////////////////////////////////////////////////////////////////
