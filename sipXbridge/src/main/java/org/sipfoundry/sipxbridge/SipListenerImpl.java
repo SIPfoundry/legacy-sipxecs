@@ -71,6 +71,7 @@ public class SipListenerImpl implements SipListener {
          */
         if (provider == Gateway.getLanProvider()) {
             /*
+<<<<<<< HEAD:sipXbridge/src/main/java/org/sipfoundry/sipxbridge/SipListenerImpl.java
              * By default, we do not handle LAN originated challenges unless the inbound domain is the
              * same as the sipx domain -- in which case sipx will challenge us and we will forward that
              * challenge.
@@ -98,15 +99,42 @@ public class SipListenerImpl implements SipListener {
                     stx.sendResponse(errorResponse);
                 }
 
+=======
+             * Local originated challenge. This must be forwarded to the ITSP for processing.
+             * xx-6663: Forward authentication challenges.
+             */
+>>>>>>> XX-6663: Fix compile problem.:sipXbridge/src/main/java/org/sipfoundry/sipxbridge/SipListenerImpl.java
             if ( responseEvent.getClientTransaction() == null ) {
                 logger.debug("Dropping response - no client transaction");
                 return;
             }
+<<<<<<< HEAD:sipXbridge/src/main/java/org/sipfoundry/sipxbridge/SipListenerImpl.java
             TransactionContext transactionContext = TransactionContext.get(responseEvent.getClientTransaction());
             ServerTransaction serverTransaction = transactionContext.getServerTransaction();
             Response newResponse = SipUtilities.createResponse(serverTransaction, responseEvent.getResponse().getStatusCode());
             SipUtilities.copyHeaders(responseEvent.getResponse(),newResponse);
             serverTransaction.sendResponse(newResponse);
+=======
+            ServerTransaction stx = ((TransactionContext) responseEvent
+                    .getClientTransaction().getApplicationData())
+                    .getServerTransaction();
+            if (stx != null && stx.getState() != TransactionState.TERMINATED) {
+                /*
+                 * Forward it to the peer. Maybe he knows how to handle the challenge and if not
+                 * he will hang up the call.
+                 */
+                Response errorResponse = SipUtilities.createResponse(stx, statusCode);
+                SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
+                errorResponse.removeHeader(ContactHeader.NAME);
+                ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
+                errorResponse.setHeader(cth);
+                if ( TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo() == null ||
+                        TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo().isGlobalAddressingUsed()) {
+                    SipUtilities.setGlobalAddress(errorResponse);
+                }
+                stx.sendResponse(errorResponse);
+            }
+>>>>>>> XX-6663: Fix compile problem.:sipXbridge/src/main/java/org/sipfoundry/sipxbridge/SipListenerImpl.java
             return;
         }
 

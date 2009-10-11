@@ -1645,25 +1645,7 @@ class SipUtilities {
         }
     }
 
-    /**
-     * This routine copies headers from inbound to outbound responses.
-     *
-     * @param message
-     * @param newMessage
-     */
-    public static void copyHeaders(Message message, Message newMessage) {
-        Iterator<String> headerNames = message.getHeaderNames();
-        while (headerNames.hasNext()) {
-            String headerName = headerNames.next();
-           if ( newMessage.getHeader(headerName) == null) {
-               ListIterator<Header> responseHeaderIterator = message.getHeaders(headerName);
-               while (responseHeaderIterator.hasNext()) {
-                   newMessage.addHeader(responseHeaderIterator.next());
-               }
-           }
-        }
-
-    }
+   
 
     static Response createErrorResponse(ServerTransaction serverTransaction,
             ItspAccountInfo itspAccount, Response response) {
