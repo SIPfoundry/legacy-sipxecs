@@ -207,24 +207,7 @@ public class RegistrationManager {
             }
 
         } else {
-            if (response.getStatusCode() == Response.FORBIDDEN) {
-                ItspAccountInfo itspAccount = ((TransactionContext) ct
-                        .getApplicationData()).getItspAccountInfo();
-                itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
-                if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
-                    itspAccount.stopCrLfTimerTask();
-                }
-                if (!itspAccount.isAlarmSent()) {
-                    try {
-                        Gateway.getAlarmClient().raiseAlarm(
-                                Gateway.SIPX_BRIDGE_AUTHENTICATION_FAILED,
-                                itspAccount.getSipDomain());
-                        itspAccount.setAlarmSent(true);
-                    } catch (Exception ex) {
-                        logger.debug("Could not send alarm", ex);
-                    }
-                }
-            } else if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
+            if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
                 ItspAccountInfo itspAccount = ((TransactionContext) ct
                         .getApplicationData()).getItspAccountInfo();
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
