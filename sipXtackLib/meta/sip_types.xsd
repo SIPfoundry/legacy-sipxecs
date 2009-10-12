@@ -45,10 +45,10 @@
     </restriction>
   </simpleType>
 
-  <simpleType name="tag">
+  <simpleType name="token">
     <annotation>
       <documentation>
-        This type corresponds to the token 'tag' in RFC 3261 section
+        This type corresponds to the production 'token' in RFC 3261 section
         25.1.
       </documentation>
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
@@ -60,6 +60,17 @@
         </annotation>
       </pattern>
     </restriction>
+  </simpleType>
+
+  <simpleType name="tag">
+    <annotation>
+      <documentation>
+        This type corresponds to the value part of the production 'tag-param'
+	in RFC 3261 section 25.1.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="token"/>
   </simpleType>
 
   <simpleType name="call_id">
@@ -100,7 +111,7 @@
     <annotation>
       <documentation>
         A 'SIP-URI' or 'SIPS-URI' per RFC 3261 section 25.1.
-        This should be further restricted, but for now is just a string.
+        This should be further restricted, but for now it is just a string.
       </documentation>
       <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
     </annotation>
