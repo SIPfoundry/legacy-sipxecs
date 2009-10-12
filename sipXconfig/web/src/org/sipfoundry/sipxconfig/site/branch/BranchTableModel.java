@@ -71,7 +71,7 @@ public class BranchTableModel implements IBasicTableModel {
             objSortColumn.getColumnName()
         } : ArrayUtils.EMPTY_STRING_ARRAY;
         if (!isSearchMode() || StringUtils.isBlank(m_queryText)) {
-            return m_branchManager.getBranches().iterator();
+            return m_branchManager.loadBranchesByPage(firstRow, pageSize, orderBy, orderAscending).iterator();
         }
         IdentityToBean identityToBean = new IdentityToBean(m_branchManager);
         return m_searchManager.search(Branch.class, m_queryText, firstRow, pageSize, orderBy, orderAscending,

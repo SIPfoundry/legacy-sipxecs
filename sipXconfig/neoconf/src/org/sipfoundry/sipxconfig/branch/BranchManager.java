@@ -29,5 +29,8 @@ public interface BranchManager extends DataObjectSource<Branch> {
 
     List<Branch> getBranches();
 
+    List<Branch> loadBranchesByPage(final int firstRow, final int pageSize, final String[] orderBy,
+            final boolean orderAscending);
+
     void clear();
 }

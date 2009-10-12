@@ -136,6 +136,11 @@ public class BranchManagerImpl extends SipxHibernateDaoSupport<Branch> implement
         return branch;
     }
 
+    public List<Branch> loadBranchesByPage(final int firstRow, final int pageSize, final String[] orderBy,
+            final boolean orderAscending) {
+        return loadBeansByPage(Branch.class, null, null, firstRow, pageSize, orderBy, orderAscending);
+    }
+
     @Override
     public void clear() {
         removeAll(Branch.class);

@@ -133,6 +133,25 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         m_branchManager.saveBranch(branch4);
         flush();
         assertEquals("Updated Description", m_branchManager.getBranch("branch4").getDescription());
+    }
 
+    public void testLoadBranchesByPage() throws Exception {
+    loadDataSet("branch/branches.db.xml");
+
+    List<Branch> page1 = m_branchManager.loadBranchesByPage(0, 5, new String[] { "name" }, true);
+    // Check that we have the expected number of branches
+    assertEquals(NUM_BRANCHES, page1.size());
+
+    assertEquals("branch1", page1.get(0).getName());
+    assertEquals("branch2", page1.get(1).getName());
+    assertEquals("branch4", page1.get(3).getName());
+
+    List<Branch> page2 = m_branchManager.loadBranchesByPage(0, 5, new String[] { "description" }, true);
+    // Check that we have the expected number of branches
+    assertEquals(NUM_BRANCHES, page2.size());
+
+    assertEquals("fifth_", page2.get(0).getDescription());
+    assertEquals("first_", page2.get(1).getDescription());
+    assertEquals("second", page2.get(3).getDescription());
     }
 }
