@@ -8,8 +8,6 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
-import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
@@ -32,6 +30,8 @@ import com.smartgwt.client.widgets.layout.SectionStackSection;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.viewer.DetailViewer;
 import com.smartgwt.client.widgets.viewer.DetailViewerField;
+
+import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
 
 public class UserPhonebookSearch implements EntryPoint {
 
