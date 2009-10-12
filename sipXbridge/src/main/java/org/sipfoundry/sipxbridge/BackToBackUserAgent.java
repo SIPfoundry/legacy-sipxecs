@@ -1851,9 +1851,10 @@ public class BackToBackUserAgent {
                         Operation.HANDLE_INVITE_WITH_REPLACES);
                 tad.setServerTransaction(serverTransaction);
                 tad.setReplacedDialog(replacedDialog);
-
                 // send the in-dialog re-invite to the other side.
                 DialogContext.get(peerDialog).sendReInvite(ctx);
+                // Tear down the dialog with the transfer controller.
+                replacedDialogApplicationData.sendBye();
             } else {
                 /*
                  * The following condition happens during call pickup. The other
