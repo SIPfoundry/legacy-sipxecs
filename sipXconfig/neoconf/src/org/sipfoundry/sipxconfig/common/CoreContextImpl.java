@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.dao.support.DataAccessUtils;
@@ -54,6 +55,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private SettingDao m_settingDao;
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
+    private ConfigFileActivationManager m_configFileManager;
     private boolean m_debug;
 
     /** limit number of users */
@@ -96,6 +98,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_aliasManager = aliasManager;
     }
 
+    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
+        m_configFileManager = configFileManager;
+    }
+
     public boolean saveUser(User user) {
         boolean newUserName = user.isNew();
         String dup = checkForDuplicateNameOrAlias(user);
@@ -117,6 +123,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             }
         }
         getHibernateTemplate().saveOrUpdate(user);
+
+        m_configFileManager.activateConfigFiles();
+
         return newUserName;
     }
 
@@ -155,6 +164,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     public void deleteUser(User user) {
         getHibernateTemplate().delete(user);
+        m_configFileManager.activateConfigFiles();
     }
 
     public void deleteUsers(Collection<Integer> userIds) {
@@ -169,6 +179,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             m_daoEventPublisher.publishDelete(user);
         }
         getHibernateTemplate().deleteAll(users);
+        m_configFileManager.activateConfigFiles();
     }
 
     public void deleteUsersByUserName(Collection<String> userNames) {

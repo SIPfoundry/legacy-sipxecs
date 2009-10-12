@@ -17,6 +17,7 @@
     </property>
     <property name="debug" value="false" />
     <property name="domainManager" ref="domainManager"/>
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
   </bean>
   <!--
   - C O R E  C O N T E X T

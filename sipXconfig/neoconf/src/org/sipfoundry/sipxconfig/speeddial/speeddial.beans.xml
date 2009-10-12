@@ -24,8 +24,7 @@
   <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
   </bean>
 
   <bean id="speedDialManagerUserDelete" factory-bean="speedDialManagerImpl"

@@ -21,10 +21,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxRlsService;
-import org.sipfoundry.sipxconfig.service.SipxService;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -32,9 +29,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
 
     private CoreContext m_coreContext;
 
-    private SipxServiceManager m_sipxServiceManager;
-
-    private ServiceConfigurator m_serviceConfigurator;
+    private ConfigFileActivationManager m_configFileManager;
 
     public SpeedDial getSpeedDialForUserId(Integer userId, boolean create) {
         List<SpeedDial> speeddials = findSpeedDialForUserId(userId);
@@ -50,8 +45,8 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         }
         if (!speeddialGroups.isEmpty()) {
             /*
-             * If there are more than 1 group, choose the first group on the list
-             * that has a non-zero number of speeddial buttons defined.
+             * If there are more than 1 group, choose the first group on the list that has a
+             * non-zero number of speeddial buttons defined.
              */
             for (SpeedDialGroup speedDialGroup : speeddialGroups) {
                 if (0 < speedDialGroup.getButtons().size()) {
@@ -152,8 +147,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     public void activateResourceList() {
-        SipxService rlsService = m_sipxServiceManager.getServiceByBeanId(SipxRlsService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(rlsService, true);
+        m_configFileManager.activateConfigFiles();
     }
 
     @Required
@@ -162,13 +156,8 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     @Required
-    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
-        m_serviceConfigurator = serviceConfigurator;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
+    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
+        m_configFileManager = configFileManager;
     }
 
     public void clear() {

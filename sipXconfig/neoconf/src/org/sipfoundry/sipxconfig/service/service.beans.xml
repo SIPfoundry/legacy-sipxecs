@@ -646,4 +646,14 @@
     <property name="template" value="sipxrest/sipxrest-config.vm" />
   </bean>
 
+  <bean id="abstractConfigFilesActivator" abstract="true" >
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
+  </bean>
+
+  <bean id="rlsConfigFilesActivator" class="org.sipfoundry.sipxconfig.service.LazyConfigFileActivationManager" parent="abstractConfigFilesActivator"
+    init-method="init">
+    <property name="serviceBeanId" value="sipxRlsService" />
+  </bean>
+
 </beans>
