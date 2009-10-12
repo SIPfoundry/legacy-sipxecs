@@ -320,7 +320,7 @@ void ResourceCached::generateBody(UtlString& rlmi,
 void ResourceCached::purgeTerminated()
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceCached:: this = %p, URI = '%s'",
+                 "ResourceCached::purgeTerminated this = %p, URI = '%s'",
                  this, data());
 
    // Call the ContactSet to do the work.
