@@ -1,68 +1,46 @@
-.gwt-SuggestBox {
-    border: 1px solid #666;
-    text-align: left;
-    width: 185px;
+.gwtGridHeaderTitle, .gwtGridHeaderTitleSelected
+{
+	border-width:1px;
+	border-style: solid;
+	white-space:nowrap;
+	padding:3px 5px;
+	text-align: left;
+	color: #fff;
+	background: #355563;
+	border-color: #1B2B31;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
+	font-weight:bold;
 }
 
-.gwt-SuggestBoxPopup {
-    text-align: left;
-    cursor: pointer;
-    cursor: hand;
-    border: 1px solid #666;
-    background-color: #fff;
-
+.gwtGridBody, .gwtGridBodyOver
+{
+	background: #D3E2E8;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
 }
 
-.gwt-SuggestBoxPopup .item {
-    padding: 2px 6px;
-    color: #424242;
-    cursor: default;
-    width: 165px;
+.gwtGridBodyDark, .gwtGridBodyOverDark
+{
+	background: #fff;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
 }
 
-.gwt-SuggestBoxPopup .item-selected {
-
-    background-color: #cdcdcd;
+.gwtGridBodySelected, .gwtGridBodySelectedDark
+{
+	color: #FFFFFF;
+	background: #000000;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
 }
 
-.gwt-SuggestBoxPopup .suggestPopupContent {
-   background: #FFFFBB;
+.gwtGridBodySelectedOver, .gwtGridBodySelectedOverDark
+{
+	color: #FFFFFF;
+	background: #000000;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
 }
 
-.gwt-Button {
-  margin: 0;
-  text-decoration: none;
-  font-size: small;
-  cursor: pointer;
-  cursor: hand;
-  border: 1px solid #ccc;
-}
 
-.gwt-Button:active {
-  border: 1px solid #ccc;
-}
-
-.gwt-Button:hover {
-  border: 1px solid;
-  border-color: #9cf #69e #69e #7af;
-}
-
-.gwt-Button[disabled] {
-  cursor: default;
-  color: #888;
-}
-
-.gwt-Button[disabled]:hover {
-  border: 1px outset #ccc;
-}
-
-.gwt-SipxSearchHelp {
-   font-size: 8pt;
-   font-family: Verdana, Arial, sans-serif;
-   color:#424242;
-}
-
-.gwt-SipxSearchTitle {
-   font-size: 11pt;
-   font-family: Verdana, Arial, sans-serif;
-}

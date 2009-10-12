@@ -8,10 +8,68 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
-import com.google.gwt.i18n.client.Constants;
+import com.google.gwt.i18n.client.ConstantsWithLookup;
 
-public interface SearchConstants extends Constants {
+public interface SearchConstants extends ConstantsWithLookup {
     String searchWidgetTitle();
+
     String searchWidgetDescription();
+
     String resetButton();
+
+    String firstName();
+
+    String lastName();
+
+    String phoneNumber();
+
+    String contactInformation();
+
+    String selectUser();
+
+    String noUserFound();
+
+    String jobTitle();
+
+    String jobDept();
+
+    String companyName();
+
+    String assistantName();
+
+    String location();
+
+    String cellPhoneNumber();
+
+    String homePhoneNumber();
+
+    String assistantPhoneNumber();
+
+    String faxNumber();
+
+    String imId();
+
+    String alternateImId();
+
+    String homeStreet();
+
+    String homeCity();
+
+    String homeCountry();
+
+    String homeState();
+
+    String homeZip();
+
+    String officeStreet();
+
+    String officeCity();
+
+    String officeCountry();
+
+    String officeState();
+
+    String officeZip();
+
+    String officeDesignation();
 }

@@ -8,7 +8,11 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
+import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.OperatorId;
@@ -21,36 +25,46 @@ import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
 import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
+import com.smartgwt.client.widgets.grid.events.SelectionChangedHandler;
+import com.smartgwt.client.widgets.grid.events.SelectionEvent;
 import com.smartgwt.client.widgets.layout.SectionStack;
 import com.smartgwt.client.widgets.layout.SectionStackSection;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.viewer.DetailViewer;
 import com.smartgwt.client.widgets.viewer.DetailViewerField;
 
-import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
-
 public class UserPhonebookSearch implements EntryPoint {
 
     private static final String FIRST_NAME = "first-name";
     private static final String LAST_NAME = "last-name";
     private static final String NUMBER = "number";
-    private static final String MAX_WIDTH = "100%";
+    private static SearchConstants s_searchConstants = GWT.create(SearchConstants.class);
 
     @Override
     public void onModuleLoad() {
 
         DataSource phonebookDS = new PhonebookDataSource("phonebookGridId");
         final ListGrid phonebookGrid = new ListGrid();
-        phonebookGrid.setEmptyMessage("No users found.");
-        phonebookGrid.setWidth(MAX_WIDTH);
+
+        phonebookGrid.addSelectionChangedHandler(new SelectionChangedHandler() {
+            @Override
+            public void onSelectionChanged(SelectionEvent event) {
+                String number = event.getRecord().getAttribute(NUMBER);
+                RootPanel.get("call:number").getElement().setPropertyString("value", number);
+            }
+        });
+
+        phonebookGrid.setHeaderTitleStyle("gwtGridHeaderTitle");
+        phonebookGrid.setBaseStyle("gwtGridBody");
+        phonebookGrid.setEmptyMessage(s_searchConstants.noUserFound());
         phonebookGrid.setHeight("40%");
         phonebookGrid.setAlternateRecordStyles(true);
         phonebookGrid.setDataSource(phonebookDS);
         phonebookGrid.fetchData();
 
-        ListGridField firstNameField = new ListGridField(FIRST_NAME, "First name");
-        ListGridField lastNameField = new ListGridField(LAST_NAME, "Last name");
-        ListGridField numberField = new ListGridField(NUMBER, "Phone Number");
+        ListGridField firstNameField = new ListGridField(FIRST_NAME, s_searchConstants.firstName());
+        ListGridField lastNameField = new ListGridField(LAST_NAME, s_searchConstants.lastName());
+        ListGridField numberField = new ListGridField(NUMBER, s_searchConstants.phoneNumber());
         phonebookGrid.setFields(firstNameField, lastNameField, numberField);
 
         final DynamicForm searchForm = new DynamicForm();
@@ -60,8 +74,7 @@ public class UserPhonebookSearch implements EntryPoint {
         final TextItem searchTextItem = new TextItem();
         searchTextItem.setCriteriaField(FIRST_NAME);
         searchTextItem.setOperator(OperatorId.ISTARTS_WITH);
-        searchTextItem.setTitle("Search");
-        searchTextItem.setWidth(MAX_WIDTH);
+        searchTextItem.setTitle(s_searchConstants.searchWidgetTitle());
 
         final TextItem searchTextItem2 = new TextItem();
         searchTextItem2.setCriteriaField(LAST_NAME);
@@ -87,7 +100,7 @@ public class UserPhonebookSearch implements EntryPoint {
         });
         searchForm.setFields(searchTextItem, searchTextItem2, searchTextItem3);
 
-        final DetailViewer phonebookViewer = new PhonebookViewer();
+        final DetailViewer phonebookViewer = new PhonebookViewer(s_searchConstants);
 
         phonebookGrid.addRecordClickHandler(new RecordClickHandler() {
             @Override
@@ -98,9 +111,8 @@ public class UserPhonebookSearch implements EntryPoint {
 
         SectionStack contactStack = new SectionStack();
         contactStack.setVisibilityMode(VisibilityMode.MULTIPLE);
-        contactStack.setWidth(MAX_WIDTH);
         SectionStackSection contactSection = new SectionStackSection();
-        contactSection.setTitle("Contact information");
+        contactSection.setTitle(s_searchConstants.contactInformation());
         contactSection.setExpanded(false);
         contactSection.setItems(phonebookViewer);
         contactStack.setSections(contactSection);
@@ -116,64 +128,23 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class PhonebookViewer extends DetailViewer {
-        private static final String[][] FIELDS = {
-            {
-                "jobTitle", "Title"
-            }, {
-                "jobDept", "Department"
-            }, {
-                "companyName", "Company"
-            }, {
-                "assistantName", "Assistant"
-            }, {
-                "location", "Location"
-            }, {
-                "cellPhoneNumber", "Cellular number"
-            }, {
-                "homePhoneNumber", "Home number"
-            }, {
-                "assistantPhoneNumber", "Assistant number"
-            }, {
-                "faxNumber", "Fax number"
-            }, {
-                "imId", "IM id"
-            }, {
-                "alternateImId", "alternate IM id"
-            }, {
-                "homeStreet", "Home street"
-            }, {
-                "homeCity", "Home city"
-            }, {
-                "homeCountry", "Home country"
-            }, {
-                "homeState", "Home state"
-            }, {
-                "homeZip", "Home zip"
-            }, {
-                "officeStreet", "Office street"
-            }, {
-                "officeCity", "Office city"
-            }, {
-                "officeCountry", "Office country"
-            }, {
-                "officeState", "Office state"
-            }, {
-                "officeZip", "Office zip"
-            }, {
-                "officeDesignation", "Office designation"
-            },
+        private static final String[] FIELDS = {
+            "jobTitle", "jobDept", "companyName", "assistantName", "location", "cellPhoneNumber", "homePhoneNumber",
+            "assistantPhoneNumber", "faxNumber", "imId", "alternateImId", "homeStreet", "homeCity", "homeCountry",
+            "homeState", "homeZip", "officeStreet", "officeCity", "officeCountry", "officeState", "officeZip",
+            "officeDesignation"
         };
 
-        public PhonebookViewer() {
-            setEmptyMessage("Select a user to see contact information.");
-            setHeight(MAX_WIDTH);
-            setFields(createFields(FIELDS));
+        public PhonebookViewer(SearchConstants constants) {
+            setEmptyMessage(constants.selectUser());
+            setFields(createFields(FIELDS, constants));
         }
 
-        private DetailViewerField[] createFields(String[][] descriptors) {
-            DetailViewerField[] fields = new DetailViewerField[descriptors.length];
+        private DetailViewerField[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
+            DetailViewerField[] fields = new DetailViewerField[fieldNames.length];
             for (int i = 0; i < fields.length; i++) {
-                fields[i] = new DetailViewerField(descriptors[i][0], descriptors[i][1]);
+                String title = constants.getString(fieldNames[i]);
+                fields[i] = new DetailViewerField(fieldNames[i], title);
             }
             return fields;
         }
