@@ -25,12 +25,12 @@ import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.DialByNameChoice;
+import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.RestfulRequest;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
-import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 import org.sipfoundry.voicemail.Messages.Folders;
 
@@ -990,7 +990,7 @@ public class Retrieve {
                     }
 
                     if (digit2.equals("1")) {
-                        m_mailbox.getMailboxPreferences().setActiveGreeting(type);
+                        m_mailbox.getMailboxPreferences().getActiveGreeting().setGreetingType(type);
                         m_mailbox.writeMailboxPreferences();
                         // Active greeting set successfully.
                         m_loc.play("selected_greeting_okay", "");

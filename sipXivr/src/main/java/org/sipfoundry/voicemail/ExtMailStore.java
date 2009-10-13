@@ -63,9 +63,9 @@ import javax.security.auth.login.LoginException;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
-import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 import org.sipfoundry.voicemail.Greeting;
 
 /**

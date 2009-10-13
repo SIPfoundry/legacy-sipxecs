@@ -10,16 +10,23 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.sipxivr.ActiveGreeting;
+import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.Mailbox;
+import org.sipfoundry.sipxivr.MailboxPreferences;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -38,6 +45,11 @@ import org.sipfoundry.sipxivr.Mailbox;
  *              /heard   PUT (no data) Marks the message heard (and updates MWI)
  *                       GET returns message heard status
  *                       DELETE Marks the message unheard (and updates MWI)
+ *      /preferences/
+ *          /activegreeting PUT sets the active greeting (body is fragment <activegreeting>{value}</activegreeting>)
+ *                             {value} is one of none, standard, outofoffice, extendedabsence
+ *                          GET returns the active greeting (returns fragment above)
+ *                          DELETE sets the active greeting to "none"
  */
 public class MailboxServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -130,6 +142,49 @@ public class MailboxServlet extends HttpServlet {
                         pw.write(Mwi.formatRFC3842(messages));
                     } else {
                         response.sendError(405);
+                    }
+                } if (context.equals("preferences")) {
+                    if (subDirs.length >= 4) {
+                        String whichPreference = subDirs[3];
+                        if (whichPreference.equals("activegreeting")) {
+                            MailboxPreferences prefs = mailbox.getMailboxPreferences();
+                            if (method.equals(METHOD_DELETE)) {
+                                prefs.setActiveGreeting(new ActiveGreeting());
+                                mailbox.writeMailboxPreferences();
+                            } else if (method.equals(METHOD_PUT)) {
+                                try {
+                                    JAXBContext jc = JAXBContext.newInstance(ActiveGreeting.class);
+                                    ActiveGreeting ag = (ActiveGreeting) jc.createUnmarshaller().unmarshal(
+                                            request.getReader());
+                                    prefs.setActiveGreeting(ag);
+                                    mailbox.writeMailboxPreferences();
+                                } catch (Exception e) {
+                                    //e.printStackTrace(pw);
+                                    response.sendError(400, e.getMessage());
+                                }
+                            }
+                            else if (method.equals(METHOD_GET)) {
+                                response.setContentType("text/xml");
+                                try {
+                                    JAXBContext jc = JAXBContext.newInstance(ActiveGreeting.class);
+                                    ActiveGreeting ag = prefs.getActiveGreeting();
+                                    Marshaller m = jc.createMarshaller();
+                                    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,new Boolean(true));
+                                    m.setProperty(Marshaller.JAXB_FRAGMENT, new Boolean(true));
+                                    StringWriter xml = new StringWriter();
+                                    m.marshal(ag, xml);
+                                    pw.write(xml.toString());
+                                    pw.write("\n");
+                                } catch (Exception e) {
+                                    e.printStackTrace(pw);
+                                    response.sendError(400, e.getMessage());
+                                }
+                            }
+                        } else {
+                            response.sendError(400, "preference not understood");
+                        }
+                    } else {
+                        response.sendError(400, "preference selection missing");
                     }
                 } else {
                     response.sendError(400, "context not understood");

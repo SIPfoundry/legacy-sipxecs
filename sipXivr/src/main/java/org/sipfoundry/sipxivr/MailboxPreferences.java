@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  * 
- * $
+ * 
  */
 package org.sipfoundry.sipxivr;
 
@@ -25,7 +25,7 @@ package org.sipfoundry.sipxivr;
  */
 public class MailboxPreferences {
     public static final String EMAIL_PROP = "emailAddress";
-    private GreetingType m_activeGreeting = GreetingType.NONE;
+    private ActiveGreeting m_activeGreeting = new ActiveGreeting();
     private String m_emailAddress;
     
     private boolean m_useTLS;
@@ -38,38 +38,13 @@ public class MailboxPreferences {
     private String m_alternateEmailAddress;
     private boolean m_attachVoicemailToAlternateEmail;
          
-    public enum GreetingType {
-        NONE("none"), 
-        STANDARD("standard"), 
-        OUT_OF_OFFICE("outofoffice"), 
-        EXTENDED_ABSENCE("extendedabsence");
-        
-        private String m_id;
-        
-        GreetingType(String id) {
-            m_id = id;
-        }
-        
-        public String getId() {
-            return m_id;
-        }
-        
-        public static GreetingType valueOfById(String id) {
-            for (GreetingType greeting : GreetingType.values()) {
-                if (greeting.getId().equals(id)) {
-                    return greeting;
-                }
-            }
-            throw new IllegalArgumentException("id not recognized " + id);
-        }
-    }
-    
-    public GreetingType getActiveGreeting() {
+    public ActiveGreeting getActiveGreeting() {
+//        return m_activeGreeting.getGreetingType();
         return m_activeGreeting;
     }
     
-    public void setActiveGreeting(GreetingType greetingType) {
-        m_activeGreeting = greetingType;
+    public void setActiveGreeting(ActiveGreeting activeGreeting) {
+        m_activeGreeting = activeGreeting;
     }
     
     public boolean isAttachVoicemailToEmail() {

@@ -13,9 +13,9 @@ import java.io.File;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
-import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 
 
 /**
@@ -128,7 +128,7 @@ public class Greeting {
      * @return
      */
     public PromptList getPromptList() {
-        return getPromptList(m_MailboxPreferences.getActiveGreeting());
+        return getPromptList(m_MailboxPreferences.getActiveGreeting().getGreetingType());
     }
     
     /**

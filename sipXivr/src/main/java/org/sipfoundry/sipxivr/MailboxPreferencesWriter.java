@@ -46,7 +46,7 @@ public class MailboxPreferencesWriter extends XmlWriterImpl<MailboxPreferences> 
         Document document = FACTORY.createDocument();
         QName prefsQ = FACTORY.createQName("prefs");
         Element prefsEl = document.addElement(prefsQ);
-        prefsEl.addElement("activegreeting").setText(m_prefs.getActiveGreeting().getId());
+        prefsEl.addElement("activegreeting").setText(m_prefs.getActiveGreeting().getGreetingType().getId());
         addNotification(prefsEl);
         return document ;
     }

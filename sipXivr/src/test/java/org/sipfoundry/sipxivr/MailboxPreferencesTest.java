@@ -14,7 +14,6 @@ import java.io.IOException;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.sipxivr.MailboxPreferencesReader;
 import org.sipfoundry.sipxivr.MailboxPreferencesWriter;
-import org.sipfoundry.sipxivr.MailboxPreferences.GreetingType;
 
 import junit.framework.TestCase;
 
@@ -47,7 +46,7 @@ public class MailboxPreferencesTest extends TestCase {
             "  <notification/>\n" +
             "</prefs>\n";
 
-        prefs.setActiveGreeting(GreetingType.STANDARD);
+        prefs.getActiveGreeting().setGreetingType(GreetingType.STANDARD);
         tempFile.delete();
         mpw.writeObject(prefs, tempFile);
         assertTrue(tempFile.exists());
@@ -65,7 +64,7 @@ public class MailboxPreferencesTest extends TestCase {
             "  </notification>\n" +
             "</prefs>\n";
 
-        prefs.setActiveGreeting(GreetingType.EXTENDED_ABSENCE);
+        prefs.getActiveGreeting().setGreetingType(GreetingType.EXTENDED_ABSENCE);
         prefs.setEmailAddress("woof@dog");
         prefs.setAttachVoicemailToEmail(true);
         tempFile.delete();
@@ -86,7 +85,7 @@ public class MailboxPreferencesTest extends TestCase {
             "  </notification>\n" +
             "</prefs>\n";
 
-        prefs.setActiveGreeting(GreetingType.EXTENDED_ABSENCE);
+        prefs.getActiveGreeting().setGreetingType(GreetingType.EXTENDED_ABSENCE);
         prefs.setEmailAddress("woof@dog");
         prefs.setAttachVoicemailToEmail(true);
         prefs.setAlternateEmailAddress("dog@woof");
@@ -115,7 +114,7 @@ public class MailboxPreferencesTest extends TestCase {
         MailboxPreferencesReader mpr = new MailboxPreferencesReader();
         MailboxPreferences newPrefs = mpr.readObject(tempFile) ;
         assertNull(newPrefs.getEmailAddress());
-        assertEquals(GreetingType.NONE, newPrefs.getActiveGreeting());
+        assertEquals(GreetingType.NONE, newPrefs.getActiveGreeting().getGreetingType());
 
         xml = 
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -128,7 +127,7 @@ public class MailboxPreferencesTest extends TestCase {
             "</prefs>\n";
         org.apache.commons.io.FileUtils.writeStringToFile(tempFile, xml);
         newPrefs = mpr.readObject(tempFile) ;
-        assertEquals(GreetingType.STANDARD, newPrefs.getActiveGreeting());
+        assertEquals(GreetingType.STANDARD, newPrefs.getActiveGreeting().getGreetingType());
         assertEquals("puppy@creature", newPrefs.getEmailAddress());
         assertFalse(newPrefs.isAttachVoicemailToEmail());
 
@@ -145,7 +144,7 @@ public class MailboxPreferencesTest extends TestCase {
             "</prefs>\n";
         org.apache.commons.io.FileUtils.writeStringToFile(tempFile, xml);
         newPrefs = mpr.readObject(tempFile) ;
-        assertEquals(GreetingType.OUT_OF_OFFICE, newPrefs.getActiveGreeting());
+        assertEquals(GreetingType.OUT_OF_OFFICE, newPrefs.getActiveGreeting().getGreetingType());
         assertEquals("puppy@creature", newPrefs.getEmailAddress());
         assertFalse(newPrefs.isAttachVoicemailToEmail());
         assertEquals("dog@creature", newPrefs.getAlternateEmailAddress());
