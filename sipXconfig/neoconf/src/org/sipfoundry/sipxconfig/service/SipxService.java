@@ -228,6 +228,21 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return address;
     }
 
+    /**
+     * This only works for services that have "one per cluster" restrictions. Exception is thrown
+     * otherwise.
+     *
+     * It returns null if non of the locations have this service installed.
+     *
+     * @return single FQDN of the server on which this service is installed
+     */
+    public String getFqdn() {
+        List<Location> locations = m_locationsManager.getLocationsForService(this);
+        String fqdn = locations.get(0).getFqdn();
+        return fqdn;
+    }
+
+
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;

@@ -16,8 +16,8 @@ ivr.realm=${service.realm}
 ivr.httpsPort=$ivr.getSetting('httpsPort').Value
 ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi
 ivr.configUrl=https://${location.fqdn}:8443
-ivr.3pccSecureUrl=https://$!{restService.address}:$!{restService.httpsPort}
-ivr.callHistoryUrl=https://$!{restService.address}:$!{restService.httpsPort}/cdr/
+ivr.3pccSecureUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}
+ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
 #if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
 ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
