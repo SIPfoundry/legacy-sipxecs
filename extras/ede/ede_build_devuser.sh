@@ -236,7 +236,7 @@ uninstall_sipxecs_rpms
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)
-SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
+SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire kraken"
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.
@@ -292,8 +292,8 @@ if [ $BUILD_ALL_DEPENDENCIES ]; then
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       DISTRO=f10
    fi
-   # Manually add sipx-openfire, since it isn't listed in the CUSTOM_PACKAGES of the lib/Makefile.
-   DEPENDENCY_TARGET="$DISTRO sipx-openfire"
+   # Manually add sipx-openfire and kraken, since they aren't listed in the CUSTOM_PACKAGES of the lib/Makefile.
+   DEPENDENCY_TARGET="$DISTRO sipx-openfire kraken"
    BUILD_DEPENDENCY_TARGET="yup"
 else
    if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
@@ -600,10 +600,10 @@ echo SIPX_COMMONS $WORKING_DIR/$CODE/sipXcommons >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_CONFIG $WORKING_DIR/$CODE/sipXconfig >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX_PREFIX $WORKING_DIR/$INSTALL >> $ECLIPSE_WINDOW_PREFS_FILE
 echo SIPX-PROJECT-ROOT $WORKING_DIR/$CODE >> $ECLIPSE_WINDOW_PREFS_FILE
-echo "Running sipXconfig-specific Eclipse setup..."
-if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
+if [ -n "$BUILD_RPMS" ]; then
    echo "Skipping sipXconfig Eclipse setup..."
 else
+   echo "Running sipXconfig-specific Eclipse setup..."
    pushd $CODE/sipXconfig > /dev/null
    echo "   ant default..."
    ant default >>$FULL_PATH_EDE_LOGS/sipxconfig_eclipse_setup.log 2>&1
