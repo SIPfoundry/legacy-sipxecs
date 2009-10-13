@@ -155,7 +155,7 @@ bool XmlRpcBody::addValue(const UtlContainable* value)
    {
       //Try and be smart about the size of the body so we don't need to constantly re-allocate.
       UtlSList* pArray = (UtlSList *)value;
-      mBody.capacity(pArray->entries() * 650);
+      mBody.capacity(pArray->entries() * 850);
       result = addArray(pArray);
    }
    else
