@@ -61,6 +61,8 @@
     <property name="domainManager" ref="domainManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
+    <property name="mohLocalStreamUrl" value="local_stream://moh" />
+    <property name="portAudioUrl" value="portaudio_stream://" />
   </bean>
 
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

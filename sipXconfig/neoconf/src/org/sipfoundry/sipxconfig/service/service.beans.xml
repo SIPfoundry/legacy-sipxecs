@@ -553,6 +553,7 @@
     <property name="name" value="local_stream.conf.xml" />
     <property name="template" value="freeswitch/local_stream.conf.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
   </bean>
 
   <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"

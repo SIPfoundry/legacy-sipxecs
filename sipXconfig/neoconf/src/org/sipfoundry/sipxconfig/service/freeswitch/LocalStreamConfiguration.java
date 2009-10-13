@@ -9,12 +9,15 @@ package org.sipfoundry.sipxconfig.service.freeswitch;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.springframework.beans.factory.annotation.Required;
 
 public class LocalStreamConfiguration extends SipxServiceConfiguration {
+
+    private MusicOnHoldManager m_musicOnHoldManager;
 
     @Override
     protected VelocityContext setupContext(Location location) {
@@ -22,8 +25,7 @@ public class LocalStreamConfiguration extends SipxServiceConfiguration {
 
         SipxService service = getService(SipxFreeswitchService.BEAN_ID);
         context.put("service", service);
-        Setting freeswitchConfig = service.getSettings().getSetting("freeswitch-config");
-        context.put("settings", freeswitchConfig);
+        context.put("moh", m_musicOnHoldManager);
 
         return context;
     }
@@ -31,5 +33,10 @@ public class LocalStreamConfiguration extends SipxServiceConfiguration {
     @Override
     public boolean isReplicable(Location location) {
         return getSipxServiceManager().isServiceInstalled(location.getId(), SipxFreeswitchService.BEAN_ID);
+    }
+
+    @Required
+    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
+        m_musicOnHoldManager = musicOnHoldManager;
     }
 }

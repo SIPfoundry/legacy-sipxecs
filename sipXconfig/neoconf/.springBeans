@@ -55,6 +55,7 @@
 		<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>
 	</configs>
 	<configSets>
 		<configSet>
@@ -109,7 +110,8 @@
 				<config>src/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/service/bundle.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml</config>
-		                <config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/branch/branch.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/moh/moh.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>

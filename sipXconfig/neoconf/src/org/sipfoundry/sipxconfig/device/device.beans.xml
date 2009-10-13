@@ -11,8 +11,7 @@
     <property name="timeZoneManager" ref="timeZoneManager" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="pagingContext" ref="pagingContext" />
-    <!-- default music-on-hold user -->
-    <property name="mohUser" value="~~mh~" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="routeEmergencyCallsDirectly" value="false" />
   </bean>
 

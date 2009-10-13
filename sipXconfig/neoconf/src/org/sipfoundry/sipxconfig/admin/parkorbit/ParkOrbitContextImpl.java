@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +18,6 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
@@ -179,17 +177,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
-    }
-
-    /**
-     * Music on hold implementation requires that ~~mh~ calls are forwarded to Park Server. We are
-     * adding the rule here.
-     */
-    public List<DialingRule> getDialingRules() {
-        DialingRule[] rules = new DialingRule[] {
-            new MohRule()
-        };
-        return Arrays.asList(rules);
     }
 
     public EntitySaveListener<Group> createGroupSaveListener() {

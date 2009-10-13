@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
@@ -181,7 +182,11 @@ public class PhoneTestDriver {
         domainManager.getDomain().setName("sipfoundry.org");
         defaults.setDomainManager(domainManager);
 
-        defaults.setMohUser("~~mh~");
+        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
+        musicOnHoldManager.getDefaultMohUri();
+        expectLastCall().andReturn("sip:~~mh~@sipfoundry.org").anyTimes();
+        defaults.setMusicOnHoldManager(musicOnHoldManager);
+        replay(musicOnHoldManager);
         defaults.setLogDirectory("/var/log/sipxpbx");
 
         SipxService registrarService = new SipxRegistrarService();

@@ -66,6 +66,9 @@ public abstract class AssetSelector extends BaseComponent {
     @Parameter(defaultValue = "ognl:true")
     public abstract boolean isEnabled();
 
+    @Parameter(defaultValue = "ognl:true")
+    public abstract boolean getCheckForEmptyAssets();
+
     public abstract void setAsset(String asset);
 
     public abstract IUploadFile getUploadAsset();
@@ -173,7 +176,7 @@ public abstract class AssetSelector extends BaseComponent {
         if (StringUtils.isEmpty(errorMsg)) {
             return;
         }
-        if (StringUtils.isBlank(getAsset()) && !isUploadFileSpecified(getUploadAsset())) {
+        if (StringUtils.isBlank(getAsset()) && getCheckForEmptyAssets() && !isUploadFileSpecified(getUploadAsset())) {
             validator.record(errorMsg, ValidationConstraint.REQUIRED);
         }
     }

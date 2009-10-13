@@ -114,7 +114,7 @@ public class PolycomPhoneDefaults {
 
     @SettingEntry(paths = { "voIpProt.SIP/protocol/musicOnHold.uri", "voIpProt/reg/musicOnHold.uri" })
     public String getMohUrl() {
-        String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+        String mohUri = m_defaults.getMusicOnHoldUri();
         return SipUri.stripSipPrefix(mohUri);
 
     }

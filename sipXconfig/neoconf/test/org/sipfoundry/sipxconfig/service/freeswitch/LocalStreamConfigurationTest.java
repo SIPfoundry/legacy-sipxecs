@@ -7,6 +7,7 @@
  */
 package org.sipfoundry.sipxconfig.service.freeswitch;
 
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
@@ -32,8 +33,18 @@ public class LocalStreamConfigurationTest extends SipxServiceTestBase {
 
         replay(sipxServiceManager);
 
+        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
+        musicOnHoldManager.isAudioDirectoryEmpty();
+        expectLastCall().andReturn(false).atLeastOnce();
+
+        musicOnHoldManager.getAudioDirectoryPath();
+        expectLastCall().andReturn("/test/moh/dir").atLeastOnce();
+
+        replay(musicOnHoldManager);
+
         LocalStreamConfiguration configuration = new LocalStreamConfiguration();
         configuration.setSipxServiceManager(sipxServiceManager);
+        configuration.setMusicOnHoldManager(musicOnHoldManager);
         configuration.setTemplate("freeswitch/local_stream.conf.xml.vm");
 
         assertCorrectFileGeneration(configuration, "local_stream.conf.test.xml");

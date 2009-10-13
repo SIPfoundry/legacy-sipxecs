@@ -129,7 +129,7 @@ public class LinksysPhone extends Linksys {
 
         @SettingEntry(path = "Call_Feature_Settings/MOH_Server")
         public String getMohUrl() {
-            String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+            String mohUri = m_defaults.getMusicOnHoldUri();
             return stripSipPrefix(mohUri);
         }
 

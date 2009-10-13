@@ -18,7 +18,6 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertTextFieldEmpty;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
-import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getIndexedId;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
 

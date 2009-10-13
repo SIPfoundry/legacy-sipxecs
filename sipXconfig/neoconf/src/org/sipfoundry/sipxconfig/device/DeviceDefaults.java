@@ -18,8 +18,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
-import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
@@ -56,7 +56,7 @@ public class DeviceDefaults {
 
     private LocationsManager m_locationsManager;
 
-    private String m_mohUser;
+    private MusicOnHoldManager m_musicOnHoldManager;
 
     private PagingContext m_pagingContext;
 
@@ -240,8 +240,8 @@ public class DeviceDefaults {
     }
 
     @Required
-    public void setMohUser(String mohUser) {
-        m_mohUser = mohUser;
+    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
+        m_musicOnHoldManager = musicOnHoldManager;
     }
 
     @Required
@@ -249,8 +249,8 @@ public class DeviceDefaults {
         m_routeEmergencyCallsDirectly = routeEmergencyCallsDirectly;
     }
 
-    public String getMusicOnHoldUri(String domainName) {
-        return SipUri.format(m_mohUser, domainName, false);
+    public String getMusicOnHoldUri() {
+        return m_musicOnHoldManager.getDefaultMohUri();
     }
 
     public void setLogDirectory(String logDirectory) {

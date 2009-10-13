@@ -48,6 +48,19 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="MOH">
+       <type>
+        <enum>
+          <option>
+            <value>FILES_SRC</value>
+          </option>
+          <option>
+            <value>SOUNDCARD_SRC</value>
+          </option>
+        </enum>
+      </type>
+      <value>FILES_SRC</value>
+    </setting>
     <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
   </group>
   <group name="web-meeting">

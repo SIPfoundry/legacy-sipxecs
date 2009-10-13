@@ -19,10 +19,15 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserTest extends TestCase {
 
@@ -276,6 +281,39 @@ public class UserTest extends TestCase {
 
         user.setBranch(lisbon);
         assertSame(lisbon, user.getSite());
+    }
+
+    public void testGetMusicOnHoldUri() {
+        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
+        musicOnHoldManager.getDefaultMohUri();
+        expectLastCall().andReturn("sip:moh@example.org").anyTimes();
+        musicOnHoldManager.getLocalFilesMohUri();
+        expectLastCall().andReturn("sip:moh~l@example.org").anyTimes();
+        musicOnHoldManager.getPersonalMohFilesUri("1234");
+        expectLastCall().andReturn("sip:moh~1234@example.org").anyTimes();
+        musicOnHoldManager.getPortAudioMohUri();
+        expectLastCall().andReturn("sip:moh~p@example.org").anyTimes();
+        replay(musicOnHoldManager);
+
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        User user = new User();
+        user.setPermissionManager(pm);
+        user.setMusicOnHoldManager(musicOnHoldManager);
+        user.setName("1234");
+
+        assertEquals("sip:moh@example.org", user.getMusicOnHoldUri());
+
+        user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.FILES_SRC.toString());
+        assertEquals("sip:moh~l@example.org", user.getMusicOnHoldUri());
+
+        user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.PERSONAL_FILES_SRC.toString());
+        assertEquals("sip:moh~1234@example.org", user.getMusicOnHoldUri());
+
+        user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.SOUNDCARD_SRC.toString());
+        assertEquals("sip:moh~p@example.org", user.getMusicOnHoldUri());
+
     }
 
     private String getPintoken(String username, String pin) {

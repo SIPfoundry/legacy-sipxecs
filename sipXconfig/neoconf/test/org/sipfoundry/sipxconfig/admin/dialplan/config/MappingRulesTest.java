@@ -42,7 +42,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServer;
 import org.sipfoundry.sipxconfig.admin.dialplan.VoicemailRedirectRule;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.admin.parkorbit.MohRule;
+import org.sipfoundry.sipxconfig.moh.MohRule;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.SipxPageService;
@@ -294,7 +294,7 @@ public class MappingRulesTest extends XMLTestCase {
         aa.setSystemId(AutoAttendant.OPERATOR_ID);
         aa.setName("Operator");
         aa.resetToFactoryDefault();
-        rules.add(new MohRule());
+        rules.add(new MohRule("192.168.1.5:9905", "~~mh~"));
         rules.add(new RlsRule());
 
         LocalizationContext lc = EasyMock.createNiceMock(LocalizationContext.class);

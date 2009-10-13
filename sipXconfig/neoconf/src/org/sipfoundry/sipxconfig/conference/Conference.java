@@ -41,6 +41,8 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String REMOTE_ADMIT_SECRET = "fs-conf-conference/remote-admin-secret";
     public static final String AOR_RECORD = "fs-conf-conference/AOR";
     public static final String MAX_LEGS = "fs-conf-conference/MAX_LEGS";
+    public static final String MOH = "fs-conf-conference/MOH";
+    public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
 
     private boolean m_enabled;
 
@@ -141,6 +143,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     public String getParticipantAccessCode() {
         return getSettingValue(PARTICIPANT_CODE);
+    }
+
+    public boolean isMohPortAudioEnabled() {
+        return getSettingValue(MOH).equals(MOH_SOUNDCARD_SOURCE);
     }
 
     public String getUri() {

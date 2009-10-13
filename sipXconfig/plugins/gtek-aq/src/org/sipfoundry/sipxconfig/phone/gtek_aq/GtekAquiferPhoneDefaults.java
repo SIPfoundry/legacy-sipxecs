@@ -29,7 +29,7 @@ public class GtekAquiferPhoneDefaults {
 
     @SettingEntry(path = "MoHSettings/NMOH")
     public String getMohUrl() {
-        String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+        String mohUri = m_defaults.getMusicOnHoldUri();
         return SipUri.stripSipPrefix(mohUri);
     }
 

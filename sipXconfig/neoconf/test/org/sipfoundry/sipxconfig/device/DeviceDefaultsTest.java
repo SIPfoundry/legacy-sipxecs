@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.device;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyInfo;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 
 import junit.framework.TestCase;
 
@@ -23,8 +24,15 @@ public class DeviceDefaultsTest extends TestCase {
 
     public void testGetMusicOnHoldUri() {
         DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setMohUser("~~mh~");
-        assertEquals("sip:~~mh~@example.org", defaults.getMusicOnHoldUri("example.org"));
+
+        MusicOnHoldManager musicOnHoldManager = createMock(MusicOnHoldManager.class);
+        musicOnHoldManager.getDefaultMohUri();
+        expectLastCall().andReturn("sip:~~mh~@example.org").anyTimes();
+        replay(musicOnHoldManager);
+
+        defaults.setMusicOnHoldManager(musicOnHoldManager);
+
+        assertEquals("sip:~~mh~@example.org", defaults.getMusicOnHoldUri());
     }
 
     public void testGetLikelyEmergencyInfo() {

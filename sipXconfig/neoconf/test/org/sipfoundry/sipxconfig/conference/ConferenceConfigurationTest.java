@@ -44,6 +44,8 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
         m_config.setDomainManager(m_domainManager);
         m_config.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_config.setMohLocalStreamUrl("local_stream://moh");
+        m_config.setPortAudioUrl("portaudio_stream://");
         m_config.setTemplate("sipxconference/conference.conf.xml.vm");
 
     }

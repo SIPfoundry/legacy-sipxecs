@@ -31,5 +31,21 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="MOH_SOURCE">
+       <type>
+        <enum>
+          <option>
+            <value>FILES_SRC</value>
+          </option>
+          <option>
+            <value>SOUNDCARD_SRC</value>
+          </option>
+          <option>
+            <value>LEGACY_PARK_MUSIC</value>
+          </option>
+        </enum>
+      </type>
+      <value>LEGACY_PARK_MUSIC</value>
+    </setting>
   </group>
 </model>

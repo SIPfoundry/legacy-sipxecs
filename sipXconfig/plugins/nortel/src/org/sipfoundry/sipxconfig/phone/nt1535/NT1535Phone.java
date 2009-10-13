@@ -225,7 +225,7 @@ public class NT1535Phone extends Phone {
 
         @SettingEntry(path = VOIP_MOH_URL)
         public String getMohUrl() {
-            String mohUri = m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+            String mohUri = m_defaults.getMusicOnHoldUri();
             return SipUri.stripSipPrefix(mohUri);
         }
     }

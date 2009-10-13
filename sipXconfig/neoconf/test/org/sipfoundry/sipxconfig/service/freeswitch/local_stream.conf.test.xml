@@ -8,7 +8,7 @@
     <param name="timer-name" value="soft"/>
   </directory>
 
-  <directory name="moh/8000" path="/usr/share/www/doc/stdprompts/music/8000">
+  <directory name="moh/8000" path="/test/moh/dir">
     <param name="rate" value="8000"/>
     <param name="shuffle" value="true"/>
     <param name="channels" value="1"/>

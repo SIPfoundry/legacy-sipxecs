@@ -22,10 +22,23 @@ import org.springframework.beans.factory.annotation.Required;
 public class SipxFreeswitchService extends SipxService implements LoggingEntity {
     public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
+    public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
 
     public static final String BEAN_ID = "sipxFreeswitchService";
 
     public static final String LOG_SETTING = "freeswitch-config/FREESWITCH_SIP_DEBUG";
+
+    public static enum SystemMohSetting {
+        FILES_SRC, SOUNDCARD_SRC, LEGACY_PARK_MUSIC;
+
+        public static SystemMohSetting parseSetting(String mohSetting) {
+            try {
+                return valueOf(mohSetting);
+            } catch (IllegalArgumentException e) {
+                return LEGACY_PARK_MUSIC;
+            }
+        }
+    }
 
     private static final String FALSE = "0";
     private static final String TRUE = "1";

@@ -209,6 +209,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.vxml", vxmlDir);
         sysProps.setProperty("sysdir.vxml.prompts", vxmlDir + "/prompts");
         sysProps.setProperty("sysdir.vxml.scripts", vxmlDir + "/scripts");
+        sysProps.setProperty("sysdir.vxml.moh", vxmlDir + "/moh");
         sysProps.setProperty("sysdir.user", "sipxpbxuser");
         sysProps.setProperty("sysdir.libexec", outputDirectory);
         sysProps.setProperty("sysdir.default.firmware", outputDirectory + "/devicefiles");

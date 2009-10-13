@@ -180,4 +180,25 @@
       <value>20</value>
     </setting>
   </group>
+  <group name="moh">
+    <setting name="audio-source">
+       <type>
+        <enum>
+          <option>
+            <value>FILES_SRC</value>
+          </option>
+          <option>
+            <value>PERSONAL_FILES_SRC</value>
+          </option>
+          <option>
+            <value>SOUNDCARD_SRC</value>
+          </option>
+          <option>
+            <value>SYSTEM_DEFAULT</value>
+          </option>
+        </enum>
+      </type>
+      <value>SYSTEM_DEFAULT</value>
+    </setting>
+  </group>
 </model>

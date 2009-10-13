@@ -194,7 +194,7 @@ public class IpDialogPhone extends Phone {
         @SettingEntry(path = MOH_SETTING)
         public String getUserMoh() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getMusicOnHoldUri(defaults.getDomainName());
+            return defaults.getMusicOnHoldUri();
         }
 
         @SettingEntry(path = PRESENCE_SERVER_SETTING)

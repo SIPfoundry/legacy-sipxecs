@@ -63,6 +63,7 @@
     singleton="false" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="permissionManager" ref="permissionManager"/>
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
   </bean>
 
   <!-- DST change monitoring -->

@@ -142,7 +142,7 @@ public class Nortel12x0Phone extends Phone {
 
         @SettingEntry(path = MOH_SETTING)
         public String getUserMoh() {
-            return m_defaults.getMusicOnHoldUri(m_defaults.getDomainName());
+            return m_defaults.getMusicOnHoldUri();
         }
 
         @SettingEntry(path = PRESENCE_SERVER_SETTING)

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -48,6 +49,21 @@ public class User extends BeanWithGroups implements NamedObject {
     public static final String FIRST_NAME_PROP = "firstName";
     public static final String LAST_NAME_PROP = "lastName";
     public static final String USER_NAME_PROP = "userName";
+
+    public static final String MOH_SETTING = "moh";
+    public static final String MOH_AUDIO_SOURCE_SETTING = "moh/audio-source";
+
+    public static enum MohAudioSource {
+        FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT;
+
+        public static MohAudioSource parseSetting(String mohSetting) {
+            try {
+                return valueOf(mohSetting);
+            } catch (IllegalArgumentException e) {
+                return SYSTEM_DEFAULT;
+            }
+        }
+    }
 
     // Reserved name for the special superadmin user. In principle, this name could now be
     // anything, it's just "superadmin" by current convention.
@@ -77,6 +93,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private boolean m_isShared;
 
     private Branch m_branch;
+
+    private MusicOnHoldManager m_musicOnHoldManager;
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -177,6 +195,10 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public void setBranch(Branch branch) {
         m_branch = branch;
+    }
+
+    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
+        m_musicOnHoldManager = musicOnHoldManager;
     }
 
     private List<String> getNumericAliases() {
@@ -503,5 +525,22 @@ public class User extends BeanWithGroups implements NamedObject {
 
     public boolean hasImAccount() {
         return StringUtils.isNotEmpty(getImId());
+    }
+
+    public String getMusicOnHoldUri() {
+        String mohAudioSource = getSettings().getSetting(MOH_AUDIO_SOURCE_SETTING).getValue();
+
+        switch (MohAudioSource.parseSetting(mohAudioSource)) {
+        case FILES_SRC:
+            return m_musicOnHoldManager.getLocalFilesMohUri();
+        case PERSONAL_FILES_SRC:
+            return m_musicOnHoldManager.getPersonalMohFilesUri(getName());
+        case SOUNDCARD_SRC:
+            return m_musicOnHoldManager.getPortAudioMohUri();
+        case SYSTEM_DEFAULT:
+            return m_musicOnHoldManager.getDefaultMohUri();
+        default:
+            return m_musicOnHoldManager.getDefaultMohUri();
+        }
     }
 }

@@ -37,13 +37,14 @@ public class MusicOnHoldTestUi extends WebTestCase {
     public void testDisplay() throws Exception {
         clickLink("MusicOnHold");
         SiteTestHelper.assertNoException(tester);
+        assertElementPresent("setting:MOH_SOURCE");
         setTextField("promptUpload", m_tempFile.getAbsolutePath());
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
         setTextField("promptUpload", m_wavFile.getAbsolutePath());
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
-        setWorkingForm("form");
-        assertSelectedOptionEquals("musicOnHoldSelector_0", m_wavFile.getName());
+        setWorkingForm("moh");
+        assertSelectedOptionEquals("common_AssetSelectorMultiple_0", m_wavFile.getName());
     }
 }

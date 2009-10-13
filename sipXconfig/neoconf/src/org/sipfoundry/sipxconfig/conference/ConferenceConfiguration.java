@@ -22,6 +22,8 @@ public class ConferenceConfiguration extends SipxServiceConfiguration {
     private ConferenceBridgeContext m_conferenceBridgeContext;
 
     private DomainManager m_domainManager;
+    private String m_mohLocalStreamUrl;
+    private String m_portAudioUrl;
 
     @Required
     public void setDomainManager(DomainManager domainManager) {
@@ -33,6 +35,16 @@ public class ConferenceConfiguration extends SipxServiceConfiguration {
         m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
+    @Required
+    public void setMohLocalStreamUrl(String mohLocalStreamUrl) {
+        m_mohLocalStreamUrl = mohLocalStreamUrl;
+    }
+
+    @Required
+    public void setPortAudioUrl(String portAudioUrl) {
+        m_portAudioUrl = portAudioUrl;
+    }
+
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
@@ -40,6 +52,8 @@ public class ConferenceConfiguration extends SipxServiceConfiguration {
         // FieldMethodizer is used to allow for easy access to static fields (string constants)
         context.put("Bridge", new FieldMethodizer(Bridge.class.getName()));
         context.put("Conference", new FieldMethodizer(Conference.class.getName()));
+        context.put("mohLocalStreamUrl", m_mohLocalStreamUrl);
+        context.put("portAudioUrl", m_portAudioUrl);
 
         String fqdn = location.getFqdn();
         Bridge bridge = m_conferenceBridgeContext.getBridgeByServer(fqdn);
