@@ -269,6 +269,11 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                      routeState.setParameter( mInstanceName.data(), CALLEE_PUBLIC_TRANSPORT_PARAM, urlString );
                   }  
                }
+               else
+               {
+                  // new fork to a call-id already tracked by a CallTracker, notify CallTracker
+                  pCallTracker->notifyIncomingDialogFormingInvite( request, routeState, pCaller, pCallee );
+               }
             }
          }
 
