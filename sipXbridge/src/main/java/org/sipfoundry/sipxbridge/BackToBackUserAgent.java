@@ -1130,11 +1130,13 @@ public class BackToBackUserAgent {
             ProxyAuthorizationHeader authorization = null;
             if ( request.getHeader(ProxyAuthorizationHeader.NAME) != null ) {
                  authorization = (ProxyAuthorizationHeader)request.getHeader(ProxyAuthorizationHeader.NAME);
-            } else {
+            }
+            
+            CallIdHeader callIdHeader = ProtocolObjects.headerFactory.createCallIdHeader(this.creatingCallId + "." + baseCounter );
+            
+            if ( request.getHeader(ProxyAuthorizationHeader.NAME) == null ) {
                 this.baseCounter++;
             }
-            CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-            .createCallIdHeader(this.creatingCallId + "." + baseCounter );
 
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
@@ -1466,17 +1468,22 @@ public class BackToBackUserAgent {
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
             Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
-            /*
-             * If there is an AUTH header there, it could be that the client is sending
-             * us credentials. In that case, do not change the call ID. 
-             */
-            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) == null ) {
-                baseCounter ++;
-            }
+           
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) incomingRequestUri.clone(), itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
                            + baseCounter , addresses);
+            /*
+             * If there is an AUTH header there, it could be that the client is sending
+             * us credentials. In that case, do not change the call ID. 
+             * Incrementing the base counter ensures that other calls that get assigned
+             * this B2Bua instance get a unique call Id. For example, this would be the
+             * case with the call leg we establish with the MOH server. All calls have the
+             * same prefix but the suffix is baseCounter.counter.
+             */
+            if ( incomingRequest.getHeader(AuthorizationHeader.NAME) == null ) {
+                baseCounter ++;
+            }
             /*
              * If we have authorization information, we can attach it to the outbound request.
              */
