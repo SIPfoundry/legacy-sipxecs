@@ -40,8 +40,8 @@
 //
 const char* ZoneAdminExec = "sipx-zoneadmin.sh";
 const char* ZoneAdminGenerate_cmd = "generateDns";
-const char* ZoneAdminStdOut_filetype = ".output";
-const char* ZoneAdminStdErr_filetype = ".err";
+const char* ZoneAdminStdOut_filetype = ".output.log";
+const char* ZoneAdminStdErr_filetype = ".err.log";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -308,8 +308,8 @@ bool ZoneAdminRpcExec::execute(const HttpRequestContext& requestContext,
                     return result;
                }
 
-               OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data());
-               OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data());
+               OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::LogDirType, mStdOutFile.data());
+               OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::LogDirType, mStdErrFile.data());
 
                // Pass the argumenst to sipx-zoneadmin.sh
                arguments[0] = "-n";                 // non-interactive

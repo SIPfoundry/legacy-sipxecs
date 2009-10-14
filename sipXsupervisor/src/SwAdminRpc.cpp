@@ -46,8 +46,8 @@ const char* SwAdminVersion_cmd = "version";
 const char* SwAdminRestart_cmd = "restart";
 const char* SwAdminReboot_cmd = "reboot";
 const char* SwAdminSnapshot_cmd = "snapshot";
-const char* SwAdminStdOut_filetype = ".output";
-const char* SwAdminStdErr_filetype = ".err";
+const char* SwAdminStdOut_filetype = ".output.log";
+const char* SwAdminStdErr_filetype = ".err.log";
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -346,8 +346,8 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                     return result;
                }
 
-               OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data());
-               OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data());
+               OsPath    mStdOutPath = SipXecsService::Path(SipXecsService::LogDirType, mStdOutFile.data());
+               OsPath    mStdErrPath = SipXecsService::Path(SipXecsService::LogDirType, mStdErrFile.data());
 
                // arguments[0] = mExec.data();
                arguments[0] = pSubCommand->data();
@@ -483,8 +483,8 @@ bool SwAdminRpcSnapshot::execute(const HttpRequestContext& requestContext,
                   mStdErrFile.append(SwAdminStdErr_filetype);
 
                   // Construct and set the response.
-                  OsPath mStdOutPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, mStdOutFile.data()));
-                  OsPath mStdErrPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, mStdErrFile.data()));
+                  OsPath mStdOutPath = OsPath(SipXecsService::Path(SipXecsService::LogDirType, mStdOutFile.data()));
+                  OsPath mStdErrPath = OsPath(SipXecsService::Path(SipXecsService::LogDirType, mStdErrFile.data()));
                   OsPath processOutPath = OsPath(SipXecsService::Path(SipXecsService::TmpDirType, OUTPUT_FILENAME));
 
                   for (int i = 0; (pArg = dynamic_cast<UtlString*>(argsListIterator())); i++)
