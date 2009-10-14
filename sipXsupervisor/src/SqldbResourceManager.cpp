@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -28,7 +28,7 @@ SqldbResourceManager* SqldbResourceManager::spSingleton;
 SqldbResourceManager::SqldbResourceManager() :
    mSqldbResourceTableLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
-   
+
 }
 
 SqldbResourceManager* SqldbResourceManager::getInstance()
@@ -39,7 +39,7 @@ SqldbResourceManager* SqldbResourceManager::getInstance()
    {
       spSingleton = new SqldbResourceManager();
    }
-   
+
    return spSingleton;
 }
 

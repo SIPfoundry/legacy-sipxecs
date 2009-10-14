@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -77,7 +77,7 @@ void cleanup()
     SipxProcessManager::getInstance()->shutdown();
 
     cAlarmServer::getInstance()->cleanup();
-    
+
     OsSysLog::add(FAC_SUPERVISOR,PRI_ALERT,"Execution Completed.");
 
     //cause main loop to exit
@@ -108,7 +108,7 @@ void sig_routine(int sig)
 #endif /* DEBUG */
        OsSysLog::add(FAC_SUPERVISOR,PRI_DEBUG,"Execution CHILD exited; ignoring");
        return;
-       break;    
+       break;
        case SIGINT:
 #ifdef DEBUG
        osPrintf("Execution USER ABORTED!\n");
@@ -141,7 +141,7 @@ void sig_routine(int sig)
        return;
        break;
     }
-       
+
     case SIGKILL:
 #ifdef DEBUG
        osPrintf("Execution KILLED!\n");
@@ -173,7 +173,7 @@ public:
 
       // Wait for a signal.  This will unblock signals
       // for THIS thread only, so this will be the only thread
-      // to catch an async signal directed to the process 
+      // to catch an async signal directed to the process
       // from the outside.
       while (!gbDone)
       {
@@ -281,7 +281,7 @@ int main(int argc, char* argv[])
 
    UtlString argString;
 
-    for (int argIndex = 1; argIndex < argc; argIndex++) 
+    for (int argIndex = 1; argIndex < argc; argIndex++)
     {
         bool usageExit = false;
         int valueExit = 1;
@@ -289,12 +289,12 @@ int main(int argc, char* argv[])
         argString = argv[argIndex];
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
 
-        if (argString.compareTo("-h") == 0) 
+        if (argString.compareTo("-h") == 0)
         {
            usageExit = true;
            valueExit = 0;
         }
-        if (argString.compareTo("-v") == 0) 
+        if (argString.compareTo("-v") == 0)
         {
            osPrintf("sipxsupervisor %s\n\n", SipXsupervisorVersion);
            return 0;
@@ -347,7 +347,7 @@ int supervisorMain(bool bOriginalSupervisor)
     {
        if (0 != errno)
        {
-          osPrintf("getgrnam(%s) failed, errno = %d.", 
+          osPrintf("getgrnam(%s) failed, errno = %d.",
              sipxpbxgroup, errno);
        }
        else
@@ -364,7 +364,7 @@ int supervisorMain(bool bOriginalSupervisor)
     {
        if (0 != errno)
        {
-          osPrintf("getpwnam(%s) failed, errno = %d.", 
+          osPrintf("getpwnam(%s) failed, errno = %d.",
              sipxpbxuser, errno);
        }
        else
@@ -394,7 +394,7 @@ int supervisorMain(bool bOriginalSupervisor)
 
 # if 0
 // Only output problems.  This keeps the startup output clean.
-    osPrintf("sipXsupervisor: Dropped privileges with setuid(%s)/setgid(%s).", 
+    osPrintf("sipXsupervisor: Dropped privileges with setuid(%s)/setgid(%s).",
        sipxpbxuser, sipxpbxgroup);
 #endif
 
@@ -494,7 +494,7 @@ int supervisorMain(bool bOriginalSupervisor)
                            );
              allowedPeers.insert(new UtlString(hostName));
           }
-       }                
+       }
     }
     else
     {
@@ -520,7 +520,7 @@ int supervisorMain(bool bOriginalSupervisor)
                      SUPERVISOR_HOST, supervisorConfigPath.data()
                      );
     }
-   
+
     if (allowedPeers.isEmpty())
     {
        OsSysLog::add(FAC_SUPERVISOR,PRI_ERR,
@@ -549,7 +549,7 @@ int supervisorMain(bool bOriginalSupervisor)
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "Management listening socket failure");
     }
-    
+
     // Read the process definitions.
     UtlString processDefinitionDirectory =
        SipXecsService::Path(SipXecsService::DataDirType, "process.d");

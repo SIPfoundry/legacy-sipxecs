@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SIPXRESOURCE_H_
 #define _SIPXRESOURCE_H_
@@ -58,13 +58,13 @@ class SipxResource : public UtlString
     *
     * @returns whether or not the element was valid.
     */
-   
+
    /// get a description of the SipxResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
-   
+
    /// record that a resource is used by a particular SipxProcess
    void usedBy(SipxProcess* currentProcess);
-   
+
 
 // ================================================================
 /** @name           Status Operations
@@ -104,13 +104,13 @@ class SipxResource : public UtlString
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 
 
   protected:
-   
+
    /// constructor
    SipxResource(const char* uniqueId);
 
@@ -127,23 +127,23 @@ class SipxResource : public UtlString
     */
 
    bool mFirstDefinition; ///< true only until saved in the appropriate ResourceManager
-   
+
    bool mWritableImplicit; ///< true if no definition had an explicit 'configAccess' attribute.
    bool mWritable; ///< the value from the 'configAccess' attribute.
 
    UtlSList mUsedBy;  ///< SipxProcessResource objects that use this SipxResource.
-   
+
   private:
 
-   
-   
+
+
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    SipxResource(const SipxResource& nocopyconstructor);
 
    /// There is no assignment operator.
    SipxResource& operator=(const SipxResource& noassignmentoperator);
-   // @endcond     
+   // @endcond
 
    friend class SipxProcessDefinitionParserTest;
    friend class SipxResourceUseTest;

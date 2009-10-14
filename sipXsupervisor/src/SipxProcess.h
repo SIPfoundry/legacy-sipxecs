@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SIPXPROCESS_H_
 #define _SIPXPROCESS_H_
@@ -46,13 +46,13 @@ class SipxProcessStateTest;
  *
  * SipxProcess objects are created by the createFromDefinition, called from
  * SipxProcessManager::instantiateProcesses with each process definition document (see
- * sipXsupervisor/meta/sipXecs-process.xsd.in). 
+ * sipXsupervisor/meta/sipXecs-process.xsd.in).
  *
  * The parsing of the 'resources' element is delegated to SipxResource::parse,
  * which in turn delegates it to the appropriate resource subclass.  The connections
  * from a SipxProcess to the SipxResources it depends on are created by callbacks from
  * those resource parsing routines:
- 
+
  * @msc
  *    SipxProcess, SipxResource, xxxResource;
  *
@@ -108,42 +108,42 @@ class SipxProcessStateTest;
  * Testing [label="Testing"];
  * Starting [label="Starting"];
  * Stopping [label="Stopping"];
- * 
+ *
  * ConfigurationTestFailed [label="ConfigurationTestFailed"];
  * Failed [label="Failed"];
- * 
+ *
  * Disabled -> ConfigurationMismatch [label="enable"];
- * 
+ *
  * ConfigurationMismatch -> ResourceRequired [label="ConfigurationVersionUpdate matches"];
- * 
+ *
  * ResourceRequired -> Testing [label="all ResourcesAreReady"];
- * 
+ *
  * Testing -> Starting [label="passed"];
- * 
+ *
  * Testing -> ConfigurationTestFailed [label="failed"];
- * 
+ *
  * Testing -> ConfigurationMismatch [label="restart"];
  *
  * ConfigurationTestFailed -> ConfigurationMismatch [label="ResourceCreated?"];
- * 
+ *
  * Starting -> Running [label="processStarted"];
- * 
+ *
  * Running -> Stopping [label="restart (stopProcess)"];
- * 
+ *
  * Stopping -> ConfigurationMismatch [label="processStopped && isEnabled"];
- * 
+ *
  * Stopping -> Disabled [label="processStopped && !isEnabled"];
- * 
+ *
  * Running -> Failed [label="processStopped"];
- * 
+ *
  * Running -> ShuttingDown [label="shutdown"];
- * 
+ *
  * ShuttingDown -> Disabled [label="processStopped"];
- * 
+ *
  * Failed -> ConfigurationMismatch [label="retry"];
- * 
+ *
  * Undefined -> ConfigurationMismatch [label="enable"];
- * 
+ *
  * };
  * @enddot
  *
@@ -181,7 +181,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Return whether or not the service for this process is Running.
    virtual bool isRunning();
- 
+
    /// Return whether or not the service for this process is completely stopped
    /// (i.e. neither the Start nor the Stop command is running)
    bool isCompletelyStopped();
@@ -201,7 +201,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Called from the task which is running the FSM, when it has shut down
    void done();
-   
+
    /// Run configtest as a separate task (does not interfere with normal process)
    /// Returns false if the configtest is already running
    bool runConfigtest();
@@ -209,11 +209,11 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Return any status messages accumulated during or leading up to the current state
    void getStatusMessages(UtlSList& statusMessages);
    ///< The caller is responsible for freeing the memory used for the strings.
-   
+
    /// Return any status messages accumulated during configtest
    void getConfigtestMessages(UtlSList& statusMessages);
    ///< The caller is responsible for freeing the memory used for the strings.
-   
+
    /// Clear any status messages accumulated so far and reset log counters
    void clearStatusMessages();
 
@@ -230,20 +230,20 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// using UtlStrings or any UtlString-derived object.
    virtual int compareTo(UtlContainable const *other) const;
    virtual int compareTo(const char* other) const;
-   
+
   private:
      /// start the FSM up in its own task
      void startStateMachine();
-     
+
      /// Save status message so it can be queried later
      void addStatusMessage(const char* msgTag, UtlString& msg);
-     
+
      /// Save and log a version mismatch message
      void logVersionMismatch(UtlString& swversion, UtlString& cfgversion);
-     
+
      /// Save and log a missing resource message
      void logMissingResource(UtlString& missingResource);
- 
+
      /// Save and log a command output message
      void logCommandOutput(OsSysLogPriority pri, UtlString& msg);
 
@@ -265,7 +265,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Notify the SipxProcess that a command has completed starting.
    virtual void evCommandStarted(const SipxProcessCmd* command);
-   
+
    /// Notify the SipxProcess that a command has stopped.
    virtual void evCommandStopped(const SipxProcessCmd* command, int rc);
 
@@ -276,7 +276,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Notify the SipxProcess that a timeout has occurred.
    void evTimeout();
-   
+
    /// Callback for timer task.
    static void timeoutCallback(void* userData, const intptr_t eventData);
 
@@ -290,7 +290,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    void startDelayReportingTimer();
    void startTimer(int timerVal);
    void cancelTimer();
-   
+
    bool hadProcessFailed() {return (mRetries > 0);}
    bool hadProcessBlocked() {return mbProcessBlocked;}
 
@@ -314,8 +314,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
      void configurationVersionChangeInTask();
      void configurationChangeInTask(const SipxResource* changedResource);
 
-   
-   
+
+
 // ================================================================
 /** @name           Destructor
  *
@@ -323,7 +323,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 ///@{
 
   public:
-   
+
    /// destructor
    virtual ~SipxProcess();
 
@@ -340,7 +340,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 // ================================================================
@@ -364,7 +364,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Add this to the list of objects whose status is checked before starting or stopping.
    void requireResource(SipxResource* resource);
 
-   /// Remove this from the list of objects whose status is checked before starting or stopping.   
+   /// Remove this from the list of objects whose status is checked before starting or stopping.
    void resourceIsOptional(SipxResource* resource);
 
    /// Check that all resources on the mRequiredResources list are ready so this can start.
@@ -372,7 +372,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
   private:
 
-   
+
 ///@}
 // ================================================================
 /** @name           Persistent State Manipulation
@@ -386,10 +386,10 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    // state machine framework related methods //
    // /////////////////////////////////////// //
    void checkThreadId();                                 ///< Enforces single threading of FSM
-   const SipxProcessFsm* GetCurrentState();              ///< Returns the current state, as required by UtlFsm's StateAlg 
+   const SipxProcessFsm* GetCurrentState();              ///< Returns the current state, as required by UtlFsm's StateAlg
    void SetCurrentState( const SipxProcessFsm* pState ); ///< Sets the current state, as required by UtlFsm's StateAlg
    const char* name( void ) const;                       ///< Returns the state name string
-   
+
    // ///////////////////////////////////////////////////////// //
    // states.  Note: the state objects are shared by all instances of this class.    //
    // ///////////////////////////////////////////////////////// //
@@ -416,11 +416,11 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Read the persistent desired state into mDesiredState.
    void readPersistentState();
    ///< sets mDesiredState to Undefined if no persistent desired state is set.
-   
+
   private:
    /// Initialize static state pointers
    void initializeStatePointers( void );
-     
+
 ///@}
 // ================================================================
 /** @name           Configuration Version Manipulation
@@ -431,7 +431,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// Check whether or not the configuration version matches the process version.
    bool configurationVersionMatches();
-   
+
    /// Set the version stamp value of the configuration.
    void setConfigurationVersion(const UtlString& version);
    ///< this class persists this value.
@@ -476,7 +476,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
                                      *   this is a list of FileResource objects created using
                                      *   the FileResource::logFileResource constructor
                                      */
-   
+
    UtlSList         mRequiredResources; /**< Lists SipxResource objects that are required
                                          *   to be ready before starting this service, and
                                          *   wait until they are _not_ ready before stopping
@@ -487,7 +487,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
                                          *   this list).
                                          */
    OsPath           mDefinitionFile; ///< path to *-process.xml file that defined this process.
-   
+
    UtlBoolean       mbTaskRunning;     ///< true if the FSM is running in its own task
    pthread_t        mpThreadId;        /**< thread ID of the FSM task.  All state activity
                                         *   must be in this thread.
@@ -502,7 +502,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart
-   
+
    /// constructor
    SipxProcess(const UtlString& name,
                const UtlString& version,
@@ -515,7 +515,7 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
 
    /// There is no assignment operator.
    SipxProcess& operator=(const SipxProcess& noassignmentoperator);
-   // @endcond     
+   // @endcond
 
    friend class SipxProcessFsm;     // the FSM has no data
    friend class SipxSupervisorProcess;
@@ -525,14 +525,14 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    friend class SipxResourceUseTest;
 };
 
-/** 
+/**
  * Message sent by the SipxProcess in application thread to be handled in task */
 class SipxProcessMsg : public OsMsg
 {
 public:
-   
+
    enum EventSubType
-   {   
+   {
       START_FSM   = 0,
 
       // events from "outside" the SipxProcess infrastructure
@@ -543,12 +543,12 @@ public:
       TIMEOUT     = 5,
       CONFIG_VERSION_CHANGED = 6,
       CONFIG_CHANGED = 7,
-      
+
       // return events from the SipxProcessCmd task: must supply cmd
       STARTED     = 10,
       STOPPED     = 11,
       OUTPUT      = 12
-   };   
+   };
 
    /// Constructor.
    SipxProcessMsg(EventSubType eventSubType,
@@ -566,7 +566,7 @@ public:
    int   getIntData( void )             const    {return mIntData;}
    const UtlString& getMessage( void )  const    {return mMessage;}
    const void* getUserData( void )      const    {return mUserData;}
- 
+
 protected:
    static const UtlContainableType TYPE;   ///< Class type used for runtime checking
 

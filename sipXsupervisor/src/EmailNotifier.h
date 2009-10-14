@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,14 +48,14 @@ public:
          const UtlString& callingHost,     ///< host on which event occurred
          const cAlarmData* alarmData,      ///< pointer to alarmData structure
          const UtlString& alarmParameters  ///< formatted message with parameters
-         );  
+         );
 
    /// Initialize notifier (including loading parameters from the provided xml element).
    virtual OsStatus init(
          TiXmlElement* emailElement,       ///< pointer to xml config element for this notifier
          TiXmlElement* groupElement        ///< pointer to xml group config element for this notifier
          );
-  
+
    /// Load strings needed by this notifier from the provided xml element.
    virtual OsStatus initStrings(
          TiXmlElement* element             ///< pointer to xml config element for this notifier
@@ -72,7 +72,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    UtlHashMap mContacts;                   ///< list of contacts to send mail to
-   
+
    UtlString mSmtpServer;                  ///< default localhost; cannot be configured
    UtlString mReplyTo;                     ///< default postmaster\@localhost; can be configured
 
@@ -86,12 +86,12 @@ private:
    UtlString mEmailStrSeverity;            ///< Severity:
    UtlString mEmailStrDescription;         ///< Description:
    UtlString mEmailStrResolution;          ///< Resolution
-    
+
    /// no copy constructor
    EmailNotifier(const EmailNotifier& nocopy);
 
    ///Assignment operator
-   EmailNotifier& operator=(const EmailNotifier& rhs);   
+   EmailNotifier& operator=(const EmailNotifier& rhs);
 };
 
 /* ============================ INLINE METHODS ============================ */

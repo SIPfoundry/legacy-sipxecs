@@ -63,7 +63,7 @@ bool SipxProcessResource::parse(const TiXmlDocument& processDefinitionDoc, ///< 
          {
             processResource->usedBy( currentProcess );
          }
-         
+
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
                attribute = attribute->Next()
@@ -131,10 +131,10 @@ bool SipxProcessResource::isWriteable()
 /// If possible, get the corresponding SipxProcess object.
 SipxProcess* SipxProcessResource::getProcess()
 {
-   // return the SipxProcess that has the same name as this SipxProcessResource. 
-   return SipxProcessManager::getInstance()->findProcess(*this); 
+   // return the SipxProcess that has the same name as this SipxProcessResource.
+   return SipxProcessManager::getInstance()->findProcess(*this);
 }
-   
+
 
 // Whether or not the SipxProcessResource is ready for use by a SipxProcess.
 bool SipxProcessResource::isReadyToStart(UtlString& missingResource)
@@ -146,7 +146,7 @@ bool SipxProcessResource::isReadyToStart(UtlString& missingResource)
    {
       missingResource = "";
       appendDescription(missingResource);
-       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING, 
+       OsSysLog::add(FAC_SUPERVISOR, PRI_WARNING,
                      "SipxProcessResource::isReadyToStart returns false; %s is not running ",
                      data());
    }

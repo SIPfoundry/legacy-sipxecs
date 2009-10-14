@@ -131,7 +131,7 @@ void SipxResource::modified()
           * - can happen when a definition is invalid, and has already been logged.
           */
       }
-   }   
+   }
 }
 
 /// Whether or not the SipxResource may be written by configuration update methods.

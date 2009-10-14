@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,9 +61,9 @@ EmailNotifier& EmailNotifier::operator=(const EmailNotifier& rhs)
    return *this;
 }
 
-OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime, 
-      const UtlString& callingHost, 
-      const cAlarmData* alarmData, 
+OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
+      const UtlString& callingHost,
+      const cAlarmData* alarmData,
       const UtlString& alarmMsg)
 {
    OsStatus retval = OS_FAILED;
@@ -73,22 +73,22 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
 
    body = mEmailStrIntro;
    body.append("\n");
-   
+
    assembleMsg(mEmailStrAlarm, alarmData->getCode(), tempStr);
    body.append(tempStr);
    body.append("\n");
-   
+
    assembleMsg(mEmailStrHost, callingHost, tempStr);
    body.append(tempStr);
    body.append("\n");
-   
+
    OsDateTime logTime(alarmTime);
    UtlString strTime;
    logTime.getIsoTimeStringZus(strTime);
    assembleMsg(mEmailStrTime, strTime, tempStr);
    body.append(tempStr);
    body.append("\n");
-   
+
    UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
    assembleMsg(mEmailStrSeverity, sevStr, tempStr);
    body.append(tempStr);
@@ -102,7 +102,7 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
 
    MailMessage message( mEmailStrFrom, mReplyTo, mSmtpServer );
    message.Body(body);
-   
+
    UtlSList subjectParams;
    UtlString codeStr(alarmData->getCode());
    UtlString titleStr(alarmData->getShortTitle());
@@ -141,7 +141,7 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
    OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created EmailNotifier");
    UtlString contactList;
    TiXmlElement* element;
-   
+
    // Extract the "From" contact from the alarm configuration file
    element = emailElement->FirstChildElement("email-notification-addr");
    textContentShallow(mReplyTo, element);
@@ -179,36 +179,36 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
 }
 
 OsStatus EmailNotifier::initStrings(TiXmlElement* emailElement)
-{   
+{
    TiXmlElement* element = emailElement->FirstChildElement("email-intro");
    textContentShallow(mEmailStrIntro, element);
    assembleMsg(mEmailStrIntro, SipXecsService::Name(), mEmailStrIntro);
 
    element = emailElement->FirstChildElement("email-subject");
    textContentShallow(mEmailStrSubject, element);
-   
+
    element = emailElement->FirstChildElement("email-alarm");
    textContentShallow(mEmailStrAlarm, element);
-   
+
    element = emailElement->FirstChildElement("email-time");
    textContentShallow(mEmailStrTime, element);
-   
+
    element = emailElement->FirstChildElement("email-host");
    textContentShallow(mEmailStrHost, element);
-   
+
    element = emailElement->FirstChildElement("email-severity");
    textContentShallow(mEmailStrSeverity, element);
-   
+
    element = emailElement->FirstChildElement("email-description");
    textContentShallow(mEmailStrDescription, element);
-   
+
    element = emailElement->FirstChildElement("email-resolution");
    textContentShallow(mEmailStrResolution, element);
-   
+
    element = emailElement->FirstChildElement("email-from");
    textContentShallow(mEmailStrFrom, element);
    assembleMsg(mEmailStrFrom, SipXecsService::Name(), mEmailStrFrom);
-   
+
    return OS_SUCCESS;
 }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -10,7 +10,7 @@
 #include "utl/UtlBool.h"
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
-#include "utl/UtlHashMapIterator.h" 
+#include "utl/UtlHashMapIterator.h"
 #include "utl/UtlSListIterator.h"
 #include "os/OsSysLog.h"
 #include "net/XmlRpcDispatch.h"
@@ -107,7 +107,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(ProcMgmtRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -118,7 +118,7 @@ bool ProcMgmtRpcMethod::validCaller(const HttpRequestContext& requestContext,
    {
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
-            
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
@@ -219,11 +219,11 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                         case USER_PROCESS_START:
                            result = process->enable();
                            break;
-                           
+
                         case USER_PROCESS_STOP:
                            result = process->disable();
                            break;
-                           
+
                         case USER_PROCESS_RESTART:
                            result = process->restart();
                            break;
@@ -242,7 +242,7 @@ bool ProcMgmtRpcMethod::executeSetUserRequestState(const HttpRequestContext& req
                      tmp_alias = new UtlString(*pAlias);
                      process_results.insertKeyAndValue(tmp_alias, new UtlBool(result));
                   }
-                  
+
                   // Construct and set the response.
                   response.setResponse(&process_results);
                   status = XmlRpcMethod::OK;
@@ -368,7 +368,7 @@ bool ProcMgmtRpcStart::execute(const HttpRequestContext& requestContext,
                                XmlRpcResponse& response,
                                ExecutionStatus& status)
 {
-   return executeSetUserRequestState(requestContext, params, 
+   return executeSetUserRequestState(requestContext, params,
              userData, response, status, USER_PROCESS_START);
 }
 
@@ -403,7 +403,7 @@ bool ProcMgmtRpcStop::execute(const HttpRequestContext& requestContext,
                               XmlRpcResponse& response,
                               ExecutionStatus& status)
 {
-   return executeSetUserRequestState(requestContext, params, 
+   return executeSetUserRequestState(requestContext, params,
              userData, response, status, USER_PROCESS_STOP);
 }
 
@@ -438,7 +438,7 @@ bool ProcMgmtRpcRestart::execute(const HttpRequestContext& requestContext,
                                  XmlRpcResponse& response,
                                  ExecutionStatus& status)
 {
-   return executeSetUserRequestState(requestContext, params, 
+   return executeSetUserRequestState(requestContext, params,
              userData, response, status, USER_PROCESS_RESTART);
 }
 
@@ -889,7 +889,7 @@ bool ProcMgmtRpcSetConfigVersion::execute(const HttpRequestContext& requestConte
                    if ( pProcess )
                    {
                       // Write the version number to the appropriate process.
-                      pProcess->setConfigurationVersion( *pserviceVersion ); 
+                      pProcess->setConfigurationVersion( *pserviceVersion );
 
                       UtlBool method_result(true);
                       response.setResponse(&method_result);

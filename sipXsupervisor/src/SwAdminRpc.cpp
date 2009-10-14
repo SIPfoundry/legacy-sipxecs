@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -7,14 +7,14 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-// 
+//
 #include <unistd.h>
 #include <sys/stat.h>
 #include "utl/UtlBool.h"
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
-#include "utl/UtlHashMapIterator.h" 
-#include "utl/UtlSListIterator.h" 
+#include "utl/UtlHashMapIterator.h"
+#include "utl/UtlSListIterator.h"
 #include "utl/UtlTokenizer.h"
 #include "os/OsSysLog.h"
 #include "os/OsFileSystem.h"
@@ -124,7 +124,7 @@ bool SwAdminRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(SwAdminRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -135,7 +135,7 @@ bool SwAdminRpcMethod::validCaller(const HttpRequestContext& requestContext,
    {
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
-            
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
@@ -205,7 +205,7 @@ bool SwAdminRpcMethod::isProcessActive(const char* command)
    OsStatus procStatus;
 
    OsStatus iter_status = ProcessIterator.findFirst( runningProcess );
-   while ( (iter_status == OS_SUCCESS) && (!result) ) 
+   while ( (iter_status == OS_SUCCESS) && (!result) )
    {
       procStatus = runningProcess.getInfo(procInfo);
       if (procStatus == OS_SUCCESS)
@@ -231,40 +231,40 @@ bool SwAdminRpcMethod::buildOutputFiles(const UtlString&     command,
    bool result = true;
    stdoutfn.remove(0);
    stderrfn.remove(0);
-   if ( command.compareTo(SwAdminVersion_cmd, UtlString::ignoreCase) == 0) 
+   if ( command.compareTo(SwAdminVersion_cmd, UtlString::ignoreCase) == 0)
    {
        stdoutfn.append(SwAdminVersion_cmd);
        stderrfn.append(SwAdminVersion_cmd);
-   } 
+   }
    else
-      if ( command.compareTo(SwAdminCheckUpdate_cmd, UtlString::ignoreCase) == 0) 
+      if ( command.compareTo(SwAdminCheckUpdate_cmd, UtlString::ignoreCase) == 0)
       {
          stdoutfn.append(SwAdminCheckUpdate_cmd);
          stderrfn.append(SwAdminCheckUpdate_cmd);
-      }      
+      }
       else
-         if ( command.compareTo(SwAdminUpdate_cmd, UtlString::ignoreCase) == 0) 
+         if ( command.compareTo(SwAdminUpdate_cmd, UtlString::ignoreCase) == 0)
          {
             stdoutfn.append(SwAdminUpdate_cmd);
             stderrfn.append(SwAdminUpdate_cmd);
-         }   
+         }
          else
-            if ( command.compareTo(SwAdminRestart_cmd, UtlString::ignoreCase) == 0) 
+            if ( command.compareTo(SwAdminRestart_cmd, UtlString::ignoreCase) == 0)
             {
                stdoutfn.append(SwAdminRestart_cmd);
                stderrfn.append(SwAdminRestart_cmd);
-            }      
+            }
             else
-               if ( command.compareTo(SwAdminReboot_cmd, UtlString::ignoreCase) == 0) 
+               if ( command.compareTo(SwAdminReboot_cmd, UtlString::ignoreCase) == 0)
                {
                   stdoutfn.append(SwAdminReboot_cmd);
                   stderrfn.append(SwAdminReboot_cmd);
-               }   
+               }
                else
                {
                   return false;
                }
-  
+
    stderrfn.append(SwAdminStdErr_filetype);
    stdoutfn.append(SwAdminStdOut_filetype);
 
@@ -326,7 +326,7 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
             handleMissingExecuteParam(name(), PARAM_NAME_COMMAND, response, status);
          }
          else
-         {        
+         {
             if(validCaller(requestContext, *pCallingHostname, response, *pSipxRpcImpl, name()))
             {
                UtlBool   method_result(true);
@@ -362,9 +362,9 @@ bool SwAdminRpcExec::execute(const HttpRequestContext& requestContext,
                   // Setup the Standard Output and Standard Error files.
                   OsPath mStdInFile;   // Blank
                   int rc;
-                  rc = swCheck->setIORedirect(mStdInFile, mStdOutPath, mStdErrPath); 
-            
-                  // Launch the process but tell the parent to ignore the child's signals (especially on shutdown).  
+                  rc = swCheck->setIORedirect(mStdInFile, mStdOutPath, mStdErrPath);
+
+                  // Launch the process but tell the parent to ignore the child's signals (especially on shutdown).
                   // It will let the system handle it to avoid a defunct process.
                   if ( (rc=swCheck->launch(mExec, &arguments[0], mWorkingDirectory,
                                    swCheck->NormalPriorityClass, FALSE,

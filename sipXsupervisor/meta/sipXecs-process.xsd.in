@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
 <!--
-- XML Schema for sipXecs supervisor process configuration: 
+- XML Schema for sipXecs supervisor process configuration:
 -    @SIPX_DATADIR@/process.d/*-process.xml
 -->
 <schema
@@ -35,7 +35,7 @@
       </documentation>
     </annotation>
   </element>
-      
+
   <element name='version' type="normalizedString">
     <annotation>
       <documentation>
@@ -43,7 +43,7 @@
       </documentation>
     </annotation>
   </element>
-      
+
   <complexType name='Command'>
     <annotation>
       <documentation>

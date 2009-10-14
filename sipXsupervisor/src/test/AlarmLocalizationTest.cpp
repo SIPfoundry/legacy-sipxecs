@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,20 +36,20 @@ class AlarmLocalizationTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   
+
    FileTestContext* mAlarmTestContext;
    FileTestContext* mAlarmTestContext2;
    FileTestContext* mAlarmTestContext3;
    FileTestContext* mAlarmTestContext4;
-            
+
    void setUp()
-   {   
+   {
       OsSysLog::initialize(0, "alarm");
       OsSysLog::setOutputFile(0, "alarmTest.log");
-      OsSysLog::setLoggingPriority(PRI_DEBUG);  
-      
+      OsSysLog::setLoggingPriority(PRI_DEBUG);
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::setUp");
-      
+
       // set up parallel directory structure to match actual
       mAlarmTestContext = new FileTestContext(TEST_DATA_DIR "/alarm-localization",
          TEST_WORK_DIR "/alarms-localization-config");
@@ -59,24 +59,24 @@ public:
          TEST_WORK_DIR "/alarms-localization-share");
       mAlarmTestContext4 = new FileTestContext(TEST_DATA_DIR "/alarm-localization",
          TEST_WORK_DIR "/alarms-localization-share/alarms");
-      
+
       // copy test files into parallel structure
       mAlarmTestContext->inputFile("alarm-config.xml");
       mAlarmTestContext->inputFile("alarm-groups.xml");
       mAlarmTestContext2->inputFile("test-localization-config.xml");
       mAlarmTestContext4->inputFile("test-localization-strings.xml");
       mAlarmTestContext4->inputFile("test-localization-strings_fr.xml");
-      
+
       // tell SipXecsService to use the parallel structure
       mAlarmTestContext->setSipxDir(SipXecsService::ConfigurationDirType);
       mAlarmTestContext3->setSipxDir(SipXecsService::DataDirType);
-      
+
       // now load the test files
       cAlarmServer::getInstance()->init();
-   }   
-   
+   }
+
    void tearDown()
-   {   
+   {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::tearDown");
       cAlarmServer::getInstance()->cleanup();
       delete mAlarmTestContext;
@@ -85,8 +85,8 @@ public:
       delete mAlarmTestContext4;
       OsSysLog::flush();
       fflush(stdout);
-   }   
-   
+   }
+
    void testLocalizedAlarms()
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testLoadAlarms");
@@ -138,7 +138,7 @@ public:
             0
          }
       };
-      
+
       cAlarmData* alarmData;
       for (size_t i=0; i<sizeof(expectedResult)/sizeof(alarmRowData); i++)
       {
@@ -160,7 +160,7 @@ public:
       }
 
    }
-   
+
    void testParameterSubstitution()
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmLocalizationTest::testParameterSubstitution");
@@ -174,7 +174,7 @@ public:
       cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
       // check for "La deuxième parametre est 2, puis parametre 1" in log
    }
-   
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AlarmLocalizationTest);

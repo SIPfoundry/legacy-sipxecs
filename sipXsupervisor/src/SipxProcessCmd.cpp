@@ -224,7 +224,7 @@ void SipxProcessCmd::execute(SipxProcessCmdOwner* owner)
 bool SipxProcessCmd::isRunning()
 {
    UtlBoolean status = false;
-   
+
    if ( mProcess != NULL )
    {
       status = mProcess->isRunning();
@@ -251,7 +251,7 @@ UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
       requestShutdown();
       handled = TRUE;
       break;
-      
+
    case OsMsg::OS_EVENT:
    {
       switch ( pMsg->getMsgSubType() )
@@ -288,7 +288,7 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
    UtlString argString;
    ssize_t i=0;
    while ( (pParameter = dynamic_cast<UtlString*> (parameterListIterator())) )
-   {   
+   {
       args[i++] = *pParameter;
       argString.append(" ");
       argString.append(*pParameter);
@@ -301,16 +301,16 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
    {
       mProcess = new OsProcess();
    }
-   
+
    int rc;
 
    if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory,
-                             mProcess->NormalPriorityClass, FALSE, 
+                             mProcess->NormalPriorityClass, FALSE,
                              FALSE /*don't automatically reap children*/))
        == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
-      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld", 
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld",
                     mExecutable.data(), (long)mProcess->getPID());
 
       //now wait around for the thing to finish
@@ -403,7 +403,7 @@ ExecuteMsg::~ExecuteMsg()
 }
 
 OsMsg* ExecuteMsg::createCopy( void ) const
-{  
+{
    return new ExecuteMsg( *this );
 }
 

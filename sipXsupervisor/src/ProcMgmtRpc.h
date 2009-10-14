@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _PROCMGMTRPC_H_
 #define _PROCMGMTRPC_H_
@@ -27,13 +27,13 @@ class SipxRpc;
 class ProcMgmtRpcMethod : public XmlRpcMethod
 {
 public:
-   
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor
    virtual ~ProcMgmtRpcMethod() {}
-   
+
    /// Get the name of the XML-RPC method.
    virtual const char* name() = 0;
 
@@ -65,7 +65,7 @@ protected:
 
    /// The name of the XML-RPC method.
    static const char* METHOD_NAME;
-   
+
    /// The name of the XML-RPC 'callingHostname' parameter.
    static const char* PARAM_NAME_CALLING_HOST;
 
@@ -81,7 +81,7 @@ protected:
    /// The name of the XML-RPC 'service version' parameter.
    static const char* PARAM_NAME_SERVICE_VERSION;
 
-   /// constructor 
+   /// constructor
    ProcMgmtRpcMethod();
 
    /// Common method for registering with the XML-RPC dispatcher.
@@ -106,13 +106,13 @@ protected:
                     const char*               callingMethod   ///< calling xml rpc method name
                     );
    /**<
-    * Ensures that: 
+    * Ensures that:
     *  - the peerName is one of the configured allowed hosts; and
     *  - the HttpRequestContext indicates that the connection is indeed from that host.
-    * 
+    *
     * If the caller is not a valid, then the XMLRPC 'response' is populated with an
     * appropriate message.
-    * 
+    *
     * \return True is the caller is a valid (allowed) peer, false otherwise.
     */
 
@@ -122,7 +122,7 @@ protected:
                                   XmlRpcResponse& response,///< response (fault is set on this)
                                   ExecutionStatus& status  ///< set to FAILED
                                   );
-   
+
    /// Handle extra parameters for the execute method.
    void handleExtraExecuteParam(const char* methodName,  ///< name of the called XmlRpc method
                                 XmlRpcResponse& response,///< response (fault is set on this)
@@ -140,7 +140,7 @@ protected:
    /**<
      Returns true on success, false otherwise.
     */
-   
+
 private:
    /// no copy constructor
    ProcMgmtRpcMethod(const ProcMgmtRpcMethod& nocopy);
@@ -166,11 +166,11 @@ private:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -180,8 +180,8 @@ private:
     </tr>
     <tr>
        <td>string struct</td>
-       <td>The current status of each process, indexed by process alias.  (The alias 
-           is the "name" attribute of the "sipXecs-process" element in the process's 
+       <td>The current status of each process, indexed by process alias.  (The alias
+           is the "name" attribute of the "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
            \par
            Possible states are:
@@ -204,7 +204,7 @@ class ProcMgmtRpcGetStateAll : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -250,14 +250,14 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>array</td>
        <td>alias</td>
-       <td>List of aliases (strings) of the processes whose state is to be changed.  (The alias 
-           is the "name" attribute of the "sipXecs-process" element in the process's 
+       <td>List of aliases (strings) of the processes whose state is to be changed.  (The alias
+           is the "name" attribute of the "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
@@ -266,7 +266,7 @@ protected:
        <td><b>Deprecated and ignored.</b>  Whether or not to block for the state change to occur.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -287,7 +287,7 @@ class ProcMgmtRpcStart : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -333,14 +333,14 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>array</td>
        <td>alias</td>
        <td>List of aliases of the processes.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
@@ -349,7 +349,7 @@ protected:
        <td><b>Deprecated and ignored.</b>  Whether or not to block for the state change to occur.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -371,7 +371,7 @@ class ProcMgmtRpcStop : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -417,14 +417,14 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>array</td>
        <td>alias</td>
        <td>List of process aliases to restart.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
     <tr>
@@ -433,7 +433,7 @@ protected:
        <td>Whether or not to block for the state change to occur.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -445,7 +445,7 @@ protected:
        <td>boolean struct</td>
        <td>Whether or not each process was found and instructed to restart.
            Indexed by process alias.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
  </table>
@@ -454,7 +454,7 @@ class ProcMgmtRpcRestart : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -501,19 +501,19 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>string</td>
        <td>alias</td>
        <td>Alias of process to get messages for.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
 
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -545,7 +545,7 @@ protected:
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -592,19 +592,19 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>string</td>
        <td>alias</td>
        <td>Alias of process to run configtest for.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
 
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -624,7 +624,7 @@ protected:
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -671,19 +671,19 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
        <td>string</td>
        <td>alias</td>
        <td>Alias of process to get configtest messages for.  (The alias is the "name" attribute of the
-           "sipXecs-process" element in the process's 
+           "sipXecs-process" element in the process's
            SIPX_SHAREDIR/process.d/___.process.xml configuration file.)</td>
     </tr>
 
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -720,7 +720,7 @@ class ProcMgmtRpcGetConfigtestMessages : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -751,7 +751,7 @@ protected:
 
 
 /**
- Returns the configuration version of the process specified by its name.  (The 
+ Returns the configuration version of the process specified by its name.  (The
  name is the "name" attribute of the "sipXecs-process" element in the
  process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
 
@@ -769,7 +769,7 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
@@ -778,7 +778,7 @@ protected:
        <td>The service name of the process whose configuration version is to be returned.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -796,7 +796,7 @@ class ProcMgmtRpcGetConfigVersion : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -827,8 +827,8 @@ protected:
 
 
 /**
- Sets the configuration version of the process specified by its name.  (The 
- name is the "name" attribute of the "sipXecs-process" element in  
+ Sets the configuration version of the process specified by its name.  (The
+ name is the "name" attribute of the "sipXecs-process" element in
  the process's SIPX_SHAREDIR/process.d/___.process.xml configuration file.)
 
  \par
@@ -845,7 +845,7 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
@@ -856,7 +856,7 @@ protected:
     <tr>
        <td>string</td>
        <td>version</td>
-       <td>The configuration version for the service to be written to the service's 
+       <td>The configuration version for the service to be written to the service's
            configuration file.</td>
     </tr>
  </table>
@@ -865,7 +865,7 @@ class ProcMgmtRpcSetConfigVersion : public ProcMgmtRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.

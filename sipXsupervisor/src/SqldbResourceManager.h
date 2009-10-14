@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SQLDBRESOURCEMANAGER_H_
 #define _SQLDBRESOURCEMANAGER_H_
@@ -29,13 +29,13 @@ class SqldbResourceManager
 
    /// Singleton accessor
    static SqldbResourceManager* getInstance();
-   
+
    /// Return an existing SqldbResource or NULL if no SqldbResource is found for 'sqldb'.
    SqldbResource* find(const char* sqldb /**< name of the sqldb */);
-   
+
    /// Add the new fileResource to those available in the system.
    void save(SqldbResource* sqldbResource /**< new SqldbResource object */);
-   
+
    /// destructor
    ~SqldbResourceManager();
 
@@ -48,7 +48,7 @@ class SqldbResourceManager
 
    static OsBSem sSingletonLock;            ///< protects access to spSingleton
    static SqldbResourceManager* spSingleton; ///< pointer to the one SqldbResourceManager
-   
+
    OsBSem     mSqldbResourceTableLock;
    UtlHashBag mSqldbResourceTable; ///< contains SqldbResource objects
 
@@ -58,7 +58,7 @@ class SqldbResourceManager
 
    /// There is no assignment operator.
    SqldbResourceManager& operator=(const SqldbResourceManager& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _SQLDBRESOURCEMANAGER_H_

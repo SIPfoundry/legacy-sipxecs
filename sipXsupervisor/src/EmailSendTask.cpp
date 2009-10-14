@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -38,7 +38,7 @@ EmailSendTask::~EmailSendTask()
 {
    // Critical Section here
    OsLock lock( sLockMutex );
-   
+
    // reset the static instance pointer to NULL
    spEmailSendTask = NULL;
 }
@@ -70,9 +70,9 @@ UtlBoolean EmailSendTask::handleMessage( OsMsg& rMsg )
 {
    UtlBoolean handled = FALSE;
    AsynchEmailMsg* pEmailMsg = dynamic_cast <AsynchEmailMsg*> ( &rMsg );
-   
+
    MailMessage msg       = pEmailMsg->getMessage();
-   
+
    switch ( rMsg.getMsgType() )
    {
    case OsMsg::OS_EVENT:
@@ -89,7 +89,7 @@ UtlBoolean EmailSendTask::handleMessage( OsMsg& rMsg )
       handled = TRUE;
       break;
    }
-      
+
    default:
       OsSysLog::add(FAC_ALARM, PRI_CRIT,
                     "EmailSendTask::handleMessage: '%s' unhandled message type %d.%d",
@@ -108,7 +108,7 @@ AsynchEmailMsg::AsynchEmailMsg(//EventSubType eventSubType,
    mMessage( msg )
 {
 }
-         
+
 // deep copy of alarm and parameters
 AsynchEmailMsg::AsynchEmailMsg( const AsynchEmailMsg& rhs) :
    OsMsg( OS_EVENT, rhs.getMsgSubType() ),

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -184,14 +184,14 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                message.append("' errno ");
                message.appendNumber(errno);
                message.append(" ");
-               
+
                char errnoMsg[1024];
                strerror_r(errno, errnoMsg, sizeof(errnoMsg));
                message.append(errnoMsg);
-               
+
                OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                              peerName.data(), message.data());
-      
+
                response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                                     httpStatusCode,
                                                     httpStatusText);
@@ -199,7 +199,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
                response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
                response->setContentLength(message.length());
             }
-         } 
+         }
          else
          {
             message.append("File resource '");
@@ -207,7 +207,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
             message.append("' not known to sipXsupervisor.");
             OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
                           peerName.data(), message.data());
-      
+
             response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                                  HTTP_FILE_NOT_FOUND_CODE,
                                                  HTTP_FILE_NOT_FOUND_TEXT);
@@ -220,7 +220,7 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
       {
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s from %s",
                        HTTP_UNSUPPORTED_METHOD_TEXT, peerName.data());
-      
+
          response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                               HTTP_UNSUPPORTED_METHOD_CODE,
                                               HTTP_UNSUPPORTED_METHOD_TEXT);
@@ -231,10 +231,10 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
       message.append("Request not supported from untrusted peer.");
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest %s",
                     message.data());
-      
+
       response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
                                            HTTP_FORBIDDEN_CODE, HTTP_FORBIDDEN_TEXT);
-      
+
       response->setBody(new HttpBody(message.data(),message.length()));
       response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
       response->setContentLength(message.length());

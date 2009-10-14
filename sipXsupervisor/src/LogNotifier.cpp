@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -60,13 +60,13 @@ LogNotifier& LogNotifier::operator=(const LogNotifier& rhs)
 /* ============================ ACCESSORS ================================= */
 
 OsStatus LogNotifier::handleAlarm(
-      const OsTime alarmTime, 
-      const UtlString& callingHost, 
-      const cAlarmData* alarmData, 
+      const OsTime alarmTime,
+      const UtlString& callingHost,
+      const cAlarmData* alarmData,
       const UtlString& alarmMsg)
 {
    OsStatus retval = OS_SUCCESS;
-   OsSysLog::add(alarmData->getComponent().data(), 0, FAC_ALARM, alarmData->getSeverity(), 
+   OsSysLog::add(alarmData->getComponent().data(), 0, FAC_ALARM, alarmData->getSeverity(),
          "%s: %s", alarmData->getCode().data(), alarmMsg.data());
 
    OsDateTime logTime(alarmTime);
@@ -77,7 +77,7 @@ OsStatus LogNotifier::handleAlarm(
    snprintf(tempMsg, sizeof(tempMsg), "\"%s\":%zd:%s:%s:%s:%s::%s:\"%s\"",
              strTime.data(),
              ++mEventCount,
-             OsSysLog::sFacilityNames[FAC_ALARM], 
+             OsSysLog::sFacilityNames[FAC_ALARM],
              OsSysLog::priorityName(alarmData->getSeverity()),
              callingHost.data(),
              alarmData->getComponent().data(),
@@ -118,7 +118,7 @@ OsStatus LogNotifier::initLogfile(UtlString &alarmFile)
    {
       OsSysLogMsg msgSetFile(OsSysLogMsg::SET_FILE, strdup(alarmFile.data()));
       mpOsSysLogTask->postMessage(msgSetFile);
-      OsSysLog::add(FAC_ALARM, PRI_NOTICE, 
+      OsSysLog::add(FAC_ALARM, PRI_NOTICE,
             "Initializing alarm log file to %s", alarmFile.data());
    }
 

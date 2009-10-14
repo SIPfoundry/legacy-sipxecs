@@ -53,7 +53,7 @@ public:
          ASSERT_STR_EQUAL("0.9.0", process->mConfigVersion.data());
          CPPUNIT_ASSERT(!process->configurationVersionMatches());
       };
-   
+
    void versionSetting()
       {
          FileTestContext testContext(TEST_DATA_DIR "processVersions",
@@ -85,7 +85,7 @@ public:
          CPPUNIT_ASSERT(!process->configurationVersionMatches());
 
       };
-   
+
    void versionGetting()
       {
          FileTestContext testContext(TEST_DATA_DIR "processVersions",
@@ -110,8 +110,8 @@ public:
          ASSERT_STR_EQUAL("2.1.0", version.data());
 
       };
-   
-   
+
+
 };
 
 

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SQLDBRESOURCE_H_
 #define _SQLDBRESOURCE_H_
@@ -28,13 +28,13 @@ class SqldbResource : public SipxResource
   public:
 
 // ================================================================
-/** @name           Creation 
+/** @name           Creation
  *
  */
 ///@{
    /// Public name of the resource element parsed by this parser.
    static const char* SqldbResourceTypeName;
-   
+
    /// Factory method that parses an 'sqldb' resource description element.
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
@@ -43,7 +43,7 @@ class SqldbResource : public SipxResource
                  );
    /**<
     * This is called by SipxResource::parse with any 'sqldb' child of
-    * the 'resources' element in a process definition.  
+    * the 'resources' element in a process definition.
     *
     * @returns false if the element was in any way invalid.
     */
@@ -51,11 +51,11 @@ class SqldbResource : public SipxResource
    /// Return an existing SqldbResource or NULL if no SqldbResource is found.
    static
       SqldbResource* find(const char* sqldbName /**< sqldb table name */);
-   
+
    /// get a description of the SqldbResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
-///@}   
+///@}
 // ================================================================
 /** @name           Status Operations
  *
@@ -78,12 +78,12 @@ class SqldbResource : public SipxResource
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 
   protected:
-   
+
    /// constructor
    SqldbResource(const char* uniqueId);
 
@@ -107,7 +107,7 @@ class SqldbResource : public SipxResource
 
    /// There is no assignment operator.
    SqldbResource& operator=(const SqldbResource& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _SQLDBRESOURCE_H_

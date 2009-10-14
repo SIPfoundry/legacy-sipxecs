@@ -35,7 +35,7 @@ class SipxProcessStateTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   
+
    void setUp()
    {
       OsSysLog::initialize(0, "processFsm");

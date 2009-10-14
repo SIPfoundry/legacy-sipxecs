@@ -1,5 +1,5 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -105,7 +105,7 @@ alarmRowData expectedResult[] =
      { true, true, true, false },
      INT_MAX,
      0
-  }, 
+  },
   {
       "UNKNOWN_SEVERITY",
       "SCF33321",
@@ -155,7 +155,7 @@ alarmRowData expectedResult[] =
       0
    }
 };
-         
+
 class AlarmServerTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(AlarmServerTest);
@@ -166,24 +166,24 @@ class AlarmServerTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   
+
    FileTestContext* mAlarmTestContext;
    FileTestContext* mAlarmTestContext2;
    FileTestContext* mAlarmTestContext3;
    FileTestContext* mAlarmTestContext4;
    UtlString mLogFile;
    UtlString mAlarmFile;
-   
+
    void setUp()
-   {   
+   {
       OsSysLog::initialize(0, "alarm");
       mLogFile = "alarmTest.log";
       mAlarmFile = "sipXalarms.log";
       OsSysLog::setOutputFile(0, mLogFile);
-      OsSysLog::setLoggingPriority(PRI_DEBUG);  
-      
+      OsSysLog::setLoggingPriority(PRI_DEBUG);
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::setUp");
-      
+
       // set up parallel directory structure to match actual
       mAlarmTestContext = new FileTestContext(TEST_DATA_DIR "/alarm-server",
          TEST_WORK_DIR "/alarms-server-config");
@@ -193,7 +193,7 @@ public:
          TEST_WORK_DIR "/alarms-server-share");
       mAlarmTestContext4 = new FileTestContext(TEST_DATA_DIR "/alarm-server",
          TEST_WORK_DIR "/alarms-server-share/alarms");
-      
+
       // copy test files into parallel structure
       mAlarmTestContext->inputFile("alarm-config.xml");
       mAlarmTestContext->inputFile("alarm-groups.xml");
@@ -201,17 +201,17 @@ public:
       mAlarmTestContext2->inputFile("test-alarms-config2.xml");
       mAlarmTestContext3->inputFile("alarm-strings.xml");
       mAlarmTestContext4->inputFile("test-alarms-strings.xml");
-      
+
       // tell SipXecsService to use the parallel structure
       mAlarmTestContext->setSipxDir(SipXecsService::ConfigurationDirType);
       mAlarmTestContext3->setSipxDir(SipXecsService::DataDirType);
-      
+
       // now load the test files
       cAlarmServer::getInstance()->init();
-   }   
-   
+   }
+
    void tearDown()
-   {   
+   {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::tearDown");
       cAlarmServer::getInstance()->cleanup();
       delete mAlarmTestContext;
@@ -220,8 +220,8 @@ public:
       delete mAlarmTestContext4;
       OsSysLog::flush();
       fflush(stdout);
-   }   
-   
+   }
+
 
    /// read the last message from a log file
    void tail(UtlString& fileName, UtlString& lastLine)
@@ -248,7 +248,7 @@ public:
       }
    }
 
-   
+
    void testLoadAlarms()
    {
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testLoadAlarms");
@@ -278,7 +278,7 @@ public:
    void testHandleAlarm()
    {
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServerTest::testHandleAlarm");
-      
+
       UtlString localhost("localhost");
       UtlString alarmId("NO_LOG");
       UtlString alarmParam("testing");
@@ -294,7 +294,7 @@ public:
       tail(mAlarmFile, newLastString);
       OsSysLog::add(FAC_ALARM, PRI_DEBUG, "newLastString %s", newLastString.data());
       CPPUNIT_ASSERT_MESSAGE("alarm with 'NO_LOG' was logged", !oldLastString.compareTo(newLastString));
-      
+
       alarmId = "TEST_LOG";
       alarmParam = "single parameter";
       alarmParams.removeAll();
@@ -308,12 +308,12 @@ public:
       char msg[1000];
       sprintf(msg, "incorrect message was logged: actualString '%s'  expected '%s'", actualString.data(), expectedString.data());
       CPPUNIT_ASSERT_MESSAGE(msg, actualString.contains(expectedString));
-      
+
       // test that non-existant alarm returns false
       alarmId = "NONEXISTANT_ID";
       rc=cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
       CPPUNIT_ASSERT_MESSAGE("handleAlarm('NONEXISTANT_ID') did not fail, and should have", rc!=true);
-      
+
       // test that alarm with min_threshold is only logged after n attempts
       alarmId = "MIN_THRESHOLD";
       alarmParam = "one";
@@ -336,14 +336,14 @@ public:
       CPPUNIT_ASSERT_MESSAGE(msg, actualString.contains(expectedString));
 
    }
-   
+
    void testReloadAlarms()
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReloadAlarms");
       bool rc=cAlarmServer::getInstance()->reloadAlarms();
       CPPUNIT_ASSERT_EQUAL((int)true, (int)rc);
    }
-   
+
    void testParameterSubstitution()
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testParameterSubstitution");
@@ -363,7 +363,7 @@ public:
       sprintf(msg, "incorrect message was logged: actualString '%s'  expected '%s'", actualString.data(), expectedString.data());
       CPPUNIT_ASSERT_MESSAGE(msg, actualString.contains(expectedString));
    }
-   
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AlarmServerTest);

@@ -276,7 +276,7 @@
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
           Notes:
             Make sure the block begins with the 'alarm' tag and ends with '/alarm'.
-            'id=' the id can be any unique string (no spaces).  This is how the alarm is raised 
+            'id=' the id can be any unique string (no spaces).  This is how the alarm is raised
                   by application code.
             'code' should be unique, and of the form SPXnnnnn, incremented for each new alarm
             'severity' is one of debug, info, notice, warning, error, crit

@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ NotifierBase::~NotifierBase()
 /* ============================ MANIPULATORS ============================== */
 
 // Assignment operator
-NotifierBase& 
+NotifierBase&
 NotifierBase::operator=(const NotifierBase& rhs)
 {
    if (this == &rhs)            // handle the assignment to self case

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -28,7 +28,7 @@ FileResourceManager* FileResourceManager::spSingleton;
 FileResourceManager::FileResourceManager() :
    mFileResourceTableLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
-   
+
 }
 
 FileResourceManager* FileResourceManager::getInstance()
@@ -39,7 +39,7 @@ FileResourceManager* FileResourceManager::getInstance()
    {
       spSingleton = new FileResourceManager();
    }
-   
+
    return spSingleton;
 }
 

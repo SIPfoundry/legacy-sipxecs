@@ -40,7 +40,7 @@
   <element name='group'>
     <annotation>
       <documentation>
-        Individual alarm group definition.  
+        Individual alarm group definition.
       </documentation>
     </annotation>
     <complexType>
@@ -55,7 +55,7 @@
   <element name='email'>
     <annotation>
       <documentation>
-        Individual alarm group email definition.  
+        Individual alarm group email definition.
       </documentation>
     </annotation>
     <complexType>
@@ -68,7 +68,7 @@
   <element name='sms'>
     <annotation>
       <documentation>
-        Individual alarm group sms definition.  
+        Individual alarm group sms definition.
       </documentation>
     </annotation>
     <complexType>

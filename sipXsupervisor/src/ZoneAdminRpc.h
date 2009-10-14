@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _ZONEADMINRPC_H_
 #define _ZONEADMINRPC_H_
@@ -28,13 +28,13 @@ class SipxRpc;
 class ZoneAdminRpcMethod : public XmlRpcMethod
 {
 public:
-   
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor
    virtual ~ZoneAdminRpcMethod() {}
-   
+
    /// Get the name of the XML-RPC method.
    virtual const char* name() = 0;
 
@@ -54,12 +54,12 @@ protected:
 
    /// The name of the XML-RPC method.
    static const char* METHOD_NAME;
-   
+
    /// The name of the XML-RPC 'callingHostname' parameter.
    static const char* PARAM_NAME_CALLING_HOST;
    static const char* PARAM_NAME_COMMAND;
 
-   /// constructor 
+   /// constructor
    ZoneAdminRpcMethod();
 
    /// Common method for registering with the XML-RPC dispatcher.
@@ -100,13 +100,13 @@ protected:
                         );
 
    /**<
-    * Ensures that: 
+    * Ensures that:
     *  - the peerName is one of the configured allowed hosts; and
     *  - the HttpRequestContext indicates that the connection is indeed from that host.
-    * 
+    *
     * If the caller is not a valid, then the XMLRPC 'response' is populated with an
     * appropriate message.
-    * 
+    *
     * \return True is the caller is a valid (allowed) peer, false otherwise.
     */
 
@@ -116,7 +116,7 @@ protected:
                                   XmlRpcResponse& response,///< response (fault is set on this)
                                   ExecutionStatus& status  ///< set to FAILED
                                   );
-   
+
    /// Handle extra parameters for the execute method.
    void handleExtraExecuteParam(const char* methodName,  ///< name of the called XmlRpc method
                                 XmlRpcResponse& response,///< response (fault is set on this)
@@ -177,7 +177,7 @@ class ZoneAdminRpcExec :  public ZoneAdminRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.

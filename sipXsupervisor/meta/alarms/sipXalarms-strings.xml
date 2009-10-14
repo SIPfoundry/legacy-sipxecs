@@ -4,7 +4,7 @@
   Each alarm is defined in the etc/sipXalarms-config.xml file, and identified by its
   unique id, which is an internal (not customer-visible) string.
   Strings containing the alarm description, a short title for the alarm,
-  and suggested actions to resolve it, must be added in this file.  
+  and suggested actions to resolve it, must be added in this file.
   These strings can be localized for different languages (into sipXalarms-strings_xx.xml).
 
   Parameters provided at runtime can be inserted into the description string using placeholders
@@ -96,19 +96,19 @@
       <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
          <shorttitle>NAT Reboot or SIPX Public Address change detected.</shorttitle>
          <description>The SIPX Server Public IP Address as determined by STUN has changed to {0}, or a  NAT rebooted was detected. </description>
-         <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens. 
-           If your public address changed, all ITSP accounts that were directly provisioned by your public 
-           IP Address will cease to function. Contact the ITSP to report your new public 
-           address in such cases and re-start the SIP Trunking service after the ITSP has reprovisioned such 
-           accounts with your new Public IP Address.  If your ITSP implements "Hosted NAT compensation", and your 
-           NAT reboots,  you may need to restart your SIP Trunking, depending upon the type of NAT you are using. 
+         <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens.
+           If your public address changed, all ITSP accounts that were directly provisioned by your public
+           IP Address will cease to function. Contact the ITSP to report your new public
+           address in such cases and re-start the SIP Trunking service after the ITSP has reprovisioned such
+           accounts with your new Public IP Address.  If your ITSP implements "Hosted NAT compensation", and your
+           NAT reboots,  you may need to restart your SIP Trunking, depending upon the type of NAT you are using.
          </resolution>
       </alarm>
       <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
          <shorttitle>Stray packets were detected by the Media Relay service.</shorttitle>
          <description>Stray packets originating from {0} were detected by the Media Relay Service. </description>
-         <resolution> Stray packets can adversely affect the performance of the Media Relay Service. 
-          Shut down the source of the problem. 
+         <resolution> Stray packets can adversely affect the performance of the Media Relay Service.
+          Shut down the source of the problem.
          </resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
@@ -119,7 +119,7 @@
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
          <shorttitle>An ITSP account could not be found. </shorttitle>
          <description>An ITSP for the domain '{0}' could not be found. </description>
-         <resolution>Check your Trunking Gateway configuration and ITSP account. 
+         <resolution>Check your Trunking Gateway configuration and ITSP account.
                Make sure the Address of the Trunking Gateway matches the ITSP account server domain name.</resolution>
       </alarm>
       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
@@ -187,11 +187,11 @@
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml
             'shorttitle'  contains a short title to be used in email subject headers.
-            'description' contains text to be sent in alarm notifications.  Parameters may be 
-                          inserted at runtime by using placeholders of the format {0}, {1}, etc.  
-                          XML reserved characters (&lt;, &gt;, &amp;) should be escaped as in 
+            'description' contains text to be sent in alarm notifications.  Parameters may be
+                          inserted at runtime by using placeholders of the format {0}, {1}, etc.
+                          XML reserved characters (&lt;, &gt;, &amp;) should be escaped as in
                           this example.
-            'resolution'  contains text to be sent in alarm notifications.  It should provide any 
+            'resolution'  contains text to be sent in alarm notifications.  It should provide any
                           steps the customer could follow to solve or debug the problem.
       -->
    </definitions>

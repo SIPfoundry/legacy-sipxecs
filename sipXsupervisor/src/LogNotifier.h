@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,14 +45,14 @@ public:
 
    ///Assignment operator
    LogNotifier& operator=(const LogNotifier& rhs);
-   
+
    /// Log the alarm in the dedicated file.  Non-blocking (logging done in another task).
    virtual OsStatus handleAlarm(
          const OsTime alarmTime,           ///< time alarm was reported
          const UtlString& callingHost,     ///< host on which event occurred
          const cAlarmData* alarmData,      ///< pointer to alarmData structure
          const UtlString& alarmParameters  ///< formatted message with parameters
-         );  
+         );
 
    /// Initialize notifier (including loading parameters from the provided xml element).
    virtual OsStatus init(
@@ -69,13 +69,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   
+
    OsSysLogTask* mpOsSysLogTask;           ///< pointer to the log task
    size_t        mEventCount;              ///< sequential alarm count
-    
+
    /// Create a task for logging and initialize the alarm log file
    OsStatus initLogfile(UtlString& logFile);
-   
+
    /// no copy constructor
    LogNotifier(const LogNotifier& nocopy);
 

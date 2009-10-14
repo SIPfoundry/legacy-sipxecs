@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 
@@ -18,7 +18,7 @@ proc_alive() # pid
 sipx_stop() {
    proc_name=$1; shift
    pidFile=$1; shift
-   
+
    STATUS=0
 
    echo -n "  Confirm Stop: $proc_name "
@@ -98,7 +98,7 @@ do
         *)
             Args="$1"
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done

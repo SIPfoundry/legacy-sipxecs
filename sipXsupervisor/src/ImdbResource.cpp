@@ -57,7 +57,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
             imdbResource = new ImdbResource(tableName);
          }
          imdbResource->usedBy(currentProcess);
-         
+
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
                attribute = attribute->Next()
@@ -125,12 +125,12 @@ bool ImdbResource::isReadyToStart(UtlString& missingResource)
    bool rc;
    rc = false;
 
-        
+
    if (NULL == mDatabase)
    {
         mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
    }
-           
+
    rc = (NULL != mDatabase);
    if (rc)
    {

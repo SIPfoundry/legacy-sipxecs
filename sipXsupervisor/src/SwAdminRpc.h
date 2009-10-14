@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SWADMINRPC_H_
 #define _SWADMINRPC_H_
@@ -28,13 +28,13 @@ class SipxRpc;
 class SwAdminRpcMethod : public XmlRpcMethod
 {
 public:
-   
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor
    virtual ~SwAdminRpcMethod() {}
-   
+
    /// Get the name of the XML-RPC method.
    virtual const char* name() = 0;
 
@@ -54,12 +54,12 @@ protected:
 
    /// The name of the XML-RPC method.
    static const char* METHOD_NAME;
-   
+
    /// The name of the XML-RPC 'callingHostname' parameter.
    static const char* PARAM_NAME_CALLING_HOST;
    static const char* PARAM_NAME_COMMAND;
 
-   /// constructor 
+   /// constructor
    SwAdminRpcMethod();
 
    /// Common method for registering with the XML-RPC dispatcher.
@@ -100,13 +100,13 @@ protected:
                         );
 
    /**<
-    * Ensures that: 
+    * Ensures that:
     *  - the peerName is one of the configured allowed hosts; and
     *  - the HttpRequestContext indicates that the connection is indeed from that host.
-    * 
+    *
     * If the caller is not a valid, then the XMLRPC 'response' is populated with an
     * appropriate message.
-    * 
+    *
     * \return True is the caller is a valid (allowed) peer, false otherwise.
     */
 
@@ -116,7 +116,7 @@ protected:
                                   XmlRpcResponse& response,///< response (fault is set on this)
                                   ExecutionStatus& status  ///< set to FAILED
                                   );
-   
+
    /// Handle extra parameters for the execute method.
    void handleExtraExecuteParam(const char* methodName,  ///< name of the called XmlRpc method
                                 XmlRpcResponse& response,///< response (fault is set on this)
@@ -134,7 +134,7 @@ private:
 
 /**
  Execute Software Administration commands for sipX on the system.
- Currently support three operations: 
+ Currently support three operations:
 
  "version"  - checks the current version of sipXecs installed.
  "check-update" - returns sipXecs software updates available.
@@ -154,7 +154,7 @@ private:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
@@ -164,7 +164,7 @@ private:
            "version", "check-update", "update", "restart" and "reboot"</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -183,7 +183,7 @@ class SwAdminRpcExec :  public SwAdminRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.

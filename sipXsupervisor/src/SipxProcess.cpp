@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -36,7 +36,7 @@
 // CONSTANTS
 // This list contains the intervals at which a failed process will be restarted.
 // The last interval will be used "forever".
-const int retry_interval[] = { 
+const int retry_interval[] = {
       2*OsTime::MSECS_PER_SEC,
       10*OsTime::MSECS_PER_SEC,
       1*60*OsTime::MSECS_PER_SEC,
@@ -68,7 +68,7 @@ struct SipxProcessFsmStateStruct
 {
    Disabled              disabled;
    ConfigurationMismatch configurationMismatch;
-   ResourceRequired      resourceRequired;   
+   ResourceRequired      resourceRequired;
    Testing               testing;
    StoppingConfigtestToRestart  stoppingConfigtestToRestart;
    ConfigTestFailed      configTestFailed;
@@ -136,7 +136,7 @@ SipxProcess::SipxProcess(const UtlString& name,
    if (!(mSelfResource = processResourceManager->find(name.data())))
    {
       // No other SipxProcess has declared this one as a resource yet,
-      // so create the SipxProcessResource 
+      // so create the SipxProcessResource
       mSelfResource = new SipxProcessResource(name.data());
       processResourceManager->save(mSelfResource);
    }
@@ -152,7 +152,7 @@ SipxProcess::SipxProcess(const UtlString& name,
 void SipxProcess::initializeStatePointers( void )
 {
    static SipxProcessFsmStateStruct states;
-   
+
    pDisabled              = &states.disabled;
    pConfigurationMismatch = &states.configurationMismatch;
    pResourceRequired      = &states.resourceRequired;
@@ -189,8 +189,8 @@ const SipxProcessFsm* SipxProcess::GetCurrentState()
    OsLock mutex(mLock);
 
    return mpCurrentState;
-}  
-   
+}
+
 void SipxProcess::SetCurrentState( const SipxProcessFsm* pState )
 {
    checkThreadId();
@@ -205,7 +205,7 @@ const char* SipxProcess::name( void ) const
    return this->data();
 }
 
-      
+
 
 /// Read a process definition and return a process if definition is valid.
 // SipxSupervisorProcess::createFromDefinition implements a very similar function and changes made here
@@ -214,7 +214,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
 {
    SipxProcess* process = NULL;
    SipxProcessManager* processManager = SipxProcessManager::getInstance();
-   
+
    UtlString errorMsg;
 
    TiXmlDocument processDefinitionDoc(definitionFile);
@@ -234,7 +234,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
             // step through the top level elements
 
             bool definitionValid = true;
-            
+
             TiXmlElement* nameElement = NULL;
             UtlString name;
             TiXmlElement* versionElement = NULL;
@@ -247,7 +247,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
             nameElement = processDefElem->FirstChildElement();
             if (nameElement && (0 == strcmp("name",nameElement->Value())))
             {
-            
+
                if (   ! textContent(name, nameElement)
                    || name.isNull()
                    )
@@ -281,7 +281,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                              errorMsg.data()
                              );
             }
-   
+
             if ( definitionValid && (0 == name.compareTo(SUPERVISOR_PROCESS_NAME)) )
             {
                // this is the special definition for the Supervisor itself.
@@ -521,7 +521,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                          && (0 == strcmp("status",statusElement->Value())))
                      {
                         TiXmlElement* statusChildElement;
-                     
+
                         // mPidFile <= sipXecs-process/status/pid
                         statusChildElement = statusElement->FirstChildElement();
                         if (statusChildElement)
@@ -565,9 +565,9 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                               {
                                  FileResource* logFileResource =
                                     FileResource::logFileResource(logPath, process);
-                                 
+
                                  process->mLogFiles.append(logFileResource);
-                              
+
                                  // advance the statusChildElement to the first log element, if any
                                  statusChildElement = statusChildElement->NextSiblingElement();
                               }
@@ -590,7 +590,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                                             "SipxProcess::createFromDefinition "
                                             "'%s' element is invalid here: expected 'log'",
-                                            statusChildElement->Value()                
+                                            statusChildElement->Value()
                                             );
                            }
                         }
@@ -598,7 +598,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                      else
                      {
                         definitionValid = false;
-                     
+
                         XmlErrorMsg(processDefinitionDoc,errorMsg);
                         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxProcess::createFromDefinition "
                                       "required 'status' element is missing %s",
@@ -606,7 +606,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                                       );
                      }
                   }
-                  
+
                   if (definitionValid)
                   {
                      // Parse the 'resources' elements
@@ -644,7 +644,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                                          "SipxProcess::createFromDefinition "
                                          "'%s' element is invalid here: expected 'resources'",
-                                         resourcesElement->Value()                
+                                         resourcesElement->Value()
                                          );
                         }
                      }
@@ -658,7 +658,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                                       );
                      }
                   }
-                  
+
                   if (definitionValid)
                   {
                      SipxProcessManager::getInstance()->save(process);
@@ -672,7 +672,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                          * important.  Both persistDesiredState and readConfigurationVersion
                          * require that the lock be held.
                          */
-                        
+
                         process->mpTimeoutCallback = new OsCallback((void*)process, timeoutCallback);
                         process->mpTimer = new OsTimer(*process->mpTimeoutCallback);
 
@@ -685,7 +685,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                            process->persistDesiredState();
                         }
                         process->readConfigurationVersion();
-                        
+
                      } // end lock
 
                      // kickstart the state machine
@@ -745,7 +745,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
 SipxProcessResource* SipxProcess::resource()
 {
    OsLock mutex(mLock);
-   
+
    return mSelfResource;
 }
 
@@ -754,7 +754,7 @@ SipxProcessResource* SipxProcess::resource()
 bool SipxProcess::isEnabled()
 {
    OsLock mutex(mLock);
-   
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::isEnabled %d",
                  data(), (pRunning == mpDesiredState) );
 
@@ -769,7 +769,7 @@ bool SipxProcess::isEnabled()
 bool SipxProcess::isRunning()
 {
    OsLock mutex(mLock);
-   
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::isRunning %d",
                  data(), (pRunning == mpCurrentState) );
 
@@ -945,8 +945,8 @@ void SipxProcess::evCommandStopped(const SipxProcessCmd* command, int rc)
    postMessage( message );
 }
 
-void SipxProcess::evCommandOutput(const SipxProcessCmd* command, 
-                                  OsSysLogPriority pri, 
+void SipxProcess::evCommandOutput(const SipxProcessCmd* command,
+                                  OsSysLogPriority pri,
                                   UtlString output)
 {
    SipxProcessMsg message(SipxProcessMsg::OUTPUT, command, pri, output );
@@ -976,7 +976,7 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
       requestShutdown();
       handled = TRUE;
       break;
-      
+
    case OsMsg::OS_EVENT:
    {
       switch ( pMsg->getMsgSubType() )
@@ -985,7 +985,7 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          startStateMachineInTask();
          handled = TRUE;
          break;
-         
+
       case SipxProcessMsg::ENABLE:
          enableInTask();
          handled = TRUE;
@@ -1027,7 +1027,7 @@ UtlBoolean SipxProcess::handleMessage( OsMsg& rMsg )
          evCommandOutputInTask(pMsg->getCmd(), (OsSysLogPriority)pMsg->getIntData(), pMsg->getMessage());
          handled = TRUE;
          break;
-         
+
       default:
          OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT,
                        "SipxProcess::handleMessage: '%s' unhandled message subtype %d.%d",
@@ -1110,8 +1110,8 @@ void SipxProcess::evCommandStoppedInTask(const SipxProcessCmd* command, int rc)
 }
 
 
-void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command, 
-                                        OsSysLogPriority pri, 
+void SipxProcess::evCommandOutputInTask(const SipxProcessCmd* command,
+                                        OsSysLogPriority pri,
                                         UtlString output)
 {
    checkThreadId();
@@ -1131,20 +1131,20 @@ void SipxProcess::configurationChangeInTask(const SipxResource* changedResource)
 {
    UtlString changedResourceDescription;
    changedResource->appendDescription(changedResourceDescription);
-   
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
    checkThreadId();
 
    mpCurrentState->evConfigurationChanged(*this);
 }
-   
+
 /// Notify the SipxProcess that some configuration change has occurred.
 void SipxProcess::configurationVersionChangeInTask()
 {
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::configurationVersionChange(%s)",
                  data(), mConfigVersion.data());
-   
+
    checkThreadId();
    mpCurrentState->evConfigurationChanged(*this);
 }
@@ -1173,7 +1173,7 @@ void SipxProcess::stopProcess()
 void SipxProcess::processFailed()
 {
    OsLock mutex(mLock);
-   // if process managed to stay up for a minute after its last restart, 
+   // if process managed to stay up for a minute after its last restart,
    // then start the retry counter over again.  Otherwise random failures
    // will accumulate and prevent quick recovery.
    unsigned long currTime = OsDateTime::getSecsSinceEpoch();
@@ -1186,7 +1186,7 @@ void SipxProcess::processFailed()
    {
       mRetries++;
    }
-      
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::processFailed last %lu sec ago",
                     data(), (currTime - mLastFailure));
 
@@ -1285,27 +1285,27 @@ bool SipxProcess::configurationVersionMatches()
    {
       logVersionMismatch(mVersion, mConfigVersion);
    }
-   
+
    return versionMatches;
 }
 
-   
+
 
 /// Set the version stamp value of the configuration.
 void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
 {
    OsLock mutex(mLock);
-   
+
    if (0!=newConfigVersion.compareTo(mConfigVersion,UtlString::matchCase))
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::setConfigurationVersion"
                     " '%s' -> '%s'", data(), mConfigVersion.data(), newConfigVersion.data());
 
       mConfigVersion = newConfigVersion;
-      
+
       OsPath persistentConfigVersionDirPath  // normally {prefix}/var/sipxdata/process-cfgver
          = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessConfigVersionDir);
-   
+
       OsDir persistentConfigVersionDir(persistentConfigVersionDirPath);
       OsPath persistentConfigVersionPath(persistentConfigVersionDirPath
                                          + OsPath::separator + data());
@@ -1320,7 +1320,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
                           "created directory '%s'",
                           persistentConfigVersionDirPath.data());
          }
-         else 
+         else
          {
             OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "SipxProcess[%s]::setConfigurationVersion "
                           "directory create failed for '%s'",
@@ -1332,7 +1332,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
       {
          UtlString configVersion(mConfigVersion);
          configVersion.append("\n");
-         
+
          size_t bytesWritten;
          if (OS_SUCCESS!=persistentConfigVersionFile.write(configVersion.data(),
                                                            configVersion.length(),
@@ -1358,7 +1358,7 @@ void SipxProcess::setConfigurationVersion(const UtlString& newConfigVersion)
                     "new value '%s' matches existing value.",
                     data(),mConfigVersion.data());
    }
-   
+
 }
 
 
@@ -1368,7 +1368,7 @@ void SipxProcess::getConfigurationVersion(UtlString& version)
 {
    version.remove(0);
    OsLock mutex(mLock);
-   
+
    if (!mConfigVersion.isNull())
    {
       OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "SipxProcess[%s]::getConfigurationVersion"
@@ -1383,7 +1383,7 @@ void SipxProcess::getConfigurationVersion(UtlString& version)
    }
 }
 
-   
+
 /// Check that all resources on the mRequiredResources list are ready so this can start.
 bool SipxProcess::resourcesAreReady()
 {
@@ -1404,7 +1404,7 @@ bool SipxProcess::resourcesAreReady()
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::resourcesAreReady %d",
                  data(), bReady );
 
-   return bReady; 
+   return bReady;
 }
 
 
@@ -1436,7 +1436,7 @@ void SipxProcess::persistDesiredState()
 
    OsPath persistentStateDirPath  // normally {prefix}/var/sipxecs/process-state
       = SipXecsService::Path(SipXecsService::VarDirType, SipxProcessStateDir);
-   
+
    OsDir persistentStateDir(persistentStateDirPath);
 
    if (!persistentStateDir.exists())
@@ -1457,12 +1457,12 @@ void SipxProcess::persistDesiredState()
 
    OsPath persistentStatePath(persistentStateDirPath + OsPath::separator + data());
    OsFile persistentStateFile(persistentStatePath);
-   
+
    if (OS_SUCCESS==persistentStateFile.open(OsFile::CREATE))
    {
       UtlString persistentState(mpDesiredState->name());
       persistentState.append("\n");
-      
+
       size_t bytesWritten;
       if (OS_SUCCESS != persistentStateFile.write(persistentState.data(),
                                                   persistentState.length(),
@@ -1483,13 +1483,13 @@ void SipxProcess::persistDesiredState()
 void SipxProcess::readPersistentState()
 {
    OsLock mutex(mLock);
-   
+
    mpDesiredState = pDisabled;
 
    OsPath persistentStatePath(SipXecsService::Path(SipXecsService::VarDirType, SipxProcessStateDir)
                               + OsPath::separator + data());
    OsFile persistentStateFile(persistentStatePath);
-   
+
    OsStatus rc;
    if (OS_SUCCESS == (rc=persistentStateFile.open(OsFile::READ_ONLY)))
    {
@@ -1534,7 +1534,7 @@ void SipxProcess::getStatusMessages(UtlSList& statusMessages)
 void SipxProcess::clearStatusMessages()
 {
    OsLock mutex(mLock);
-   
+
    mStatusMessages.destroyAll();
    mLastAlarmParams.destroyAll();
    mNumStdoutMsgs = 0;
@@ -1606,7 +1606,7 @@ int SipxProcess::compareTo(UtlContainable const *other) const
    }
 
    return compareFlag;
-   
+
 }
 
 int SipxProcess::compareTo(const char* other) const
@@ -1618,7 +1618,7 @@ int SipxProcess::compareTo(const char* other) const
 void SipxProcess::addStatusMessage(const char* msgTag, UtlString& msg)
 {
    OsLock mutex(mLock);
-   
+
    // only keep a limited amount of command output.
    if ( mStatusMessages.entries() > MAX_STATUS_MSGS )
    {
@@ -1660,7 +1660,7 @@ void SipxProcess::logMissingResource(UtlString& resource)
 void SipxProcess::logCommandOutput(OsSysLogPriority pri, UtlString& msg)
 {
    OsLock mutex(mLock);
-   
+
    UtlString msgTag;
    if ( pri == PRI_ERR )
    {
@@ -1701,7 +1701,7 @@ SipxProcess::~SipxProcess()
 
       waitUntilShutDown();
    }
-   
+
    OsLock mutex(mLock);
    if (mConfigtest)
    {
@@ -1761,6 +1761,6 @@ SipxProcessMsg::~SipxProcessMsg()
 }
 
 OsMsg* SipxProcessMsg::createCopy( void ) const
-{  
+{
    return new SipxProcessMsg( *this );
 }

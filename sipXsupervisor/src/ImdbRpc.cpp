@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -10,8 +10,8 @@
 #include "utl/UtlBool.h"
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
-#include "utl/UtlHashMapIterator.h" 
-#include "utl/UtlSListIterator.h" 
+#include "utl/UtlHashMapIterator.h"
+#include "utl/UtlSListIterator.h"
 #include "os/OsSysLog.h"
 #include "os/OsFileSystem.h"
 #include "net/XmlRpcDispatch.h"
@@ -134,7 +134,7 @@ bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(ImdbRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -145,7 +145,7 @@ bool ImdbRpcMethod::validCaller(const HttpRequestContext& requestContext,
    {
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
-            
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
@@ -211,7 +211,7 @@ void ImdbRpcMethod::storeTable(const UtlString& tableName){
        if ( CallerAliasDB::getInstance()->store() != OS_SUCCESS ){
        }
     }
-    
+
     else if ( tableName == USERLOCATION ){
        if ( UserLocationDB::getInstance()->store() != OS_SUCCESS ){
        }
@@ -252,16 +252,16 @@ UtlBoolean ImdbRpcMethod::insertTableRecord(UtlString& tableName, const UtlHashM
 
     else if ( tableName == USERLOCATION ){
        result = UserLocationDB::getInstance()->insertRow(tableRecord);
-    }    
+    }
 
     else if ( tableName == USERFORWARD ){
        result = UserForwardDB::getInstance()->insertRow(tableRecord);
-    }    
+    }
 
     else if ( tableName == CALLER_ALIAS ){
        UtlString* optionalIdentity = dynamic_cast<UtlString*>(tableRecord.findValue(&identityKey));
        UtlString nullIdentity;
- 
+
        result = TRUE;
        CallerAliasDB::getInstance()->
           insertRow(optionalIdentity ? *optionalIdentity : nullIdentity,
@@ -301,7 +301,7 @@ void ImdbRpcReplaceTable::registerSelf(SipxRpc & sipxRpcImpl)
 }
 
 bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
-                                     UtlSList& params, 
+                                     UtlSList& params,
                                      void* userData,
                                      XmlRpcResponse& response,
                                      ExecutionStatus& status)
@@ -309,7 +309,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
    bool result = false;
    status = XmlRpcMethod::FAILED;
    UtlString faultMsg;
-   
+
    // Verify that the number of parameters expected is correct.
    if (3 != params.entries())
    {
@@ -339,7 +339,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
                UtlString* pIMDBTable = dynamic_cast<UtlString*>(params.at(1));
 
                // find the ImdbResource object for this table
-               ImdbResource* imdbResource; 
+               ImdbResource* imdbResource;
                if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
                   if (imdbResource->isWriteable())
@@ -367,7 +367,7 @@ bool ImdbRpcReplaceTable::execute(const HttpRequestContext& requestContext,
                            // we've validated the caller and the parm types.
                            // steps are to clear the existing table
                            // and then insert each record individually.
-                           clearTable( *pIMDBTable );         
+                           clearTable( *pIMDBTable );
 
                            UtlSListIterator tableRecordItor(*pIMDBTableData);
                            UtlHashMap*      tableRecord;
@@ -491,7 +491,7 @@ void ImdbRpcRetrieveTable::registerSelf(SipxRpc & sipxRpcImpl)
 }
 
 bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
-                                     UtlSList& params, 
+                                     UtlSList& params,
                                      void* userData,
                                      XmlRpcResponse& response,
                                      ExecutionStatus& status)
@@ -533,7 +533,7 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
                ImdbResource* imdbResource;
                if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
-                  
+
                   OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,
                                 "ImdbRpc::retrieveTable"
                                 " '%s' read table '%s'",
@@ -550,7 +550,7 @@ bool ImdbRpcRetrieveTable::execute(const HttpRequestContext& requestContext,
                   status = XmlRpcMethod::OK;
                   result = true;
 
-                  // Delete the new'd objects 
+                  // Delete the new'd objects
                   imdb_tabledata.destroyAll();
                }
                else
@@ -635,7 +635,7 @@ void ImdbRpcAddTableRecords::registerSelf(SipxRpc & sipxRpcImpl)
 }
 
 bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
-                                     UtlSList& params, 
+                                     UtlSList& params,
                                      void* userData,
                                      XmlRpcResponse& response,
                                      ExecutionStatus& status)
@@ -674,7 +674,7 @@ bool ImdbRpcAddTableRecords::execute(const HttpRequestContext& requestContext,
                UtlString faultMsg;
 
                // find the ImdbResource object for this table
-               ImdbResource* imdbResource; 
+               ImdbResource* imdbResource;
                if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
                   if (imdbResource->isWriteable())
@@ -786,7 +786,7 @@ void ImdbRpcDeleteTableRecords::registerSelf(SipxRpc & sipxRpcImpl)
 }
 
 bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext,
-                                     UtlSList& params, 
+                                     UtlSList& params,
                                      void* userData,
                                      XmlRpcResponse& response,
                                      ExecutionStatus& status)
@@ -825,7 +825,7 @@ bool ImdbRpcDeleteTableRecords::execute(const HttpRequestContext& requestContext
 
                // find the ImdbResource object for this table
                UtlString faultMsg;
-               ImdbResource* imdbResource; 
+               ImdbResource* imdbResource;
                if ((imdbResource = ImdbResourceManager::getInstance()->find(pIMDBTable->data())))
                {
                   if (imdbResource->isWriteable())

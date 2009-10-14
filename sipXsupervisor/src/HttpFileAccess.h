@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _HTTPFILEACCESS_H_
 #define _HTTPFILEACCESS_H_
@@ -55,7 +55,7 @@ class HttpFileAccess : public HttpService
 
    /// There is no assignment operator.
    HttpFileAccess& operator=(const HttpFileAccess& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _HTTPFILEACCESS_H_

@@ -41,7 +41,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
    UtlString errorMsg;
    bool resourceIsValid = true;
    bool validResourceParm;
-   
+
    TiXmlElement*    dbElement;
 
    UtlString databaseName;
@@ -90,7 +90,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
                           errorMsg.data()
                           );
     }
-        
+
     if (resourceIsValid && dbElement)
     {
        if (0 == strcmp("dbname",dbElement->Value()))
@@ -206,7 +206,7 @@ bool SqldbResource::parse(const TiXmlDocument& sqldbDefinitionDoc, ///< sqldb de
        if (!(sqldbResource = sqldbManager->find(databaseName + serverName + userName)))
        {
           sqldbResource = new SqldbResource(databaseName + serverName + userName );
-       } 
+       }
        sqldbResource->usedBy(currentProcess);
 
        for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
@@ -270,7 +270,7 @@ void SqldbResource::appendDescription(UtlString&  description /**< returned desc
 bool SqldbResource::isReadyToStart(UtlString& missingResource)
 {
    bool dbIsReady;
-   
+
    // Check to ensure that we can connect to the database.
    OdbcHandle dbHandle = odbcConnect(mDbName, mServer, mUser, mDbDriver, mPassword);
    if (dbHandle)

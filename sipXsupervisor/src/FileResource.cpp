@@ -57,7 +57,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
             fileResource = new FileResource(path);
          }
 
-         fileResource->usedBy(currentProcess); 
+         fileResource->usedBy(currentProcess);
 
          for ( const TiXmlAttribute* attribute = resourceElement->FirstAttribute();
                resourceIsValid && attribute;
@@ -121,8 +121,8 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxPr
       // a log file resource is read-only and not required
       logFile = new FileResource(logFilePath.data());
       logFile->usedBy(currentProcess);
-      currentProcess->resourceIsOptional(logFile); // logs are never required 
-   
+      currentProcess->resourceIsOptional(logFile); // logs are never required
+
       logFile->mWritableImplicit = false;
       logFile->mWritable = false;
 
@@ -149,7 +149,7 @@ void FileResource::appendDescription(UtlString&  description /**< returned descr
 bool FileResource::isReadyToStart(UtlString& missingResource)
 {
    OsPath filePath(*this);
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, 
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
                  "FileResource::isReadyToStart checking for existence of %s",
                  data());
    bool bReady = OsFileSystem::exists(filePath);

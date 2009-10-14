@@ -14,5 +14,5 @@ EXTRA_DIST = \
 SIPX_PROCESS_DEFS=\
 	sipxsupervisor
 
-install-data-hook : 
+install-data-hook :
 

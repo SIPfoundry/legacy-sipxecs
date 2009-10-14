@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -63,7 +63,7 @@ public:
          testContext.inputFilePath("firstprocess.xml", path);
          CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
          CPPUNIT_ASSERT_EQUAL(process, SipxProcessManager::getInstance()->findProcess("First"));
-         
+
          ASSERT_STR_EQUAL("First", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
 
@@ -74,7 +74,7 @@ public:
          description.remove(0);
          processResource->appendDescription(description);
          ASSERT_STR_EQUAL("process 'First'",description.data());
-         
+
          FileResource* fileResource;
          CPPUNIT_ASSERT((fileResource =
                          FileResourceManager::getInstance()->find("/var/log/firstprocess.log")));
@@ -150,7 +150,7 @@ public:
          testContext.inputFilePath("secondprocess.xml", path);
          CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
          CPPUNIT_ASSERT_EQUAL(process, SipxProcessManager::getInstance()->findProcess("Second"));
-         
+
          ASSERT_STR_EQUAL("Second", process->data());
          ASSERT_STR_EQUAL("1.0.0", process->mVersion.data());
 
@@ -161,7 +161,7 @@ public:
          description.remove(0);
          processResource->appendDescription(description);
          ASSERT_STR_EQUAL("process 'Second'",description.data());
-         
+
          FileResource* fileResource;
          CPPUNIT_ASSERT((fileResource =
                          FileResourceManager::getInstance()->find("/var/log/secondprocess.log")));
@@ -236,7 +236,7 @@ public:
 
          CPPUNIT_ASSERT_EQUAL((size_t)2, fileResource->mUsedBy.entries());
       };
-   
+
 };
 
 

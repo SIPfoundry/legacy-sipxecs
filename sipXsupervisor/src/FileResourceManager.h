@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _FILERESOURCEMANAGER_H_
 #define _FILERESOURCEMANAGER_H_
@@ -29,13 +29,13 @@ class FileResourceManager
 
    /// Singleton accessor
    static FileResourceManager* getInstance();
-   
+
    /// Return an existing FileResource or NULL if no FileResource is found for 'fileName'.
    FileResource* find(const char* fileName /**< full path to the file */);
-   
+
    /// Add the new fileResource to those available in the system.
    void save(FileResource* fileResource /**< new FileResource object */);
-   
+
    /// destructor
    ~FileResourceManager();
 
@@ -48,7 +48,7 @@ class FileResourceManager
 
    static OsBSem sSingletonLock;            ///< protects access to spSingleton
    static FileResourceManager* spSingleton; ///< pointer to the one FileResourceManager
-   
+
    OsBSem     mFileResourceTableLock;
    UtlHashBag mFileResourceTable; ///< contains FileResource objects
 
@@ -58,7 +58,7 @@ class FileResourceManager
 
    /// There is no assignment operator.
    FileResourceManager& operator=(const FileResourceManager& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _FILERESOURCEMANAGER_H_

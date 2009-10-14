@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _FILERESOURCE_H_
 #define _FILERESOURCE_H_
@@ -52,7 +52,7 @@ class FileResource : public SipxResource
                  );
    /**<
     * This is called by SipxResource::parse with any 'file' or 'osconfig' child of
-    * the 'resources' element in a process definition.  
+    * the 'resources' element in a process definition.
     *
     * @returns false if the element was in any way invalid.
     */
@@ -61,8 +61,8 @@ class FileResource : public SipxResource
    static
       FileResource* logFileResource(const UtlString& logFilePath, SipxProcess* currentProcess);
    ///< a log file resource is read-only and not required
-   
-///@}   
+
+///@}
 // ================================================================
 /** @name           Status Operations
  *
@@ -89,12 +89,12 @@ class FileResource : public SipxResource
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 
   protected:
-   
+
    /// constructor
    FileResource(const char* uniqueId);
 
@@ -109,7 +109,7 @@ class FileResource : public SipxResource
 
    /// There is no assignment operator.
    FileResource& operator=(const FileResource& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _FILERESOURCE_H_

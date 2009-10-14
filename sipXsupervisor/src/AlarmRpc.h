@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _ALARMRPC_H_
 #define _ALARMRPC_H_
@@ -27,13 +27,13 @@ class SipxRpc;
 class AlarmRpcMethod : public XmlRpcMethod
 {
 public:
-   
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor
    virtual ~AlarmRpcMethod() {}
-   
+
    /// Get the name of the XML-RPC method.
    virtual const char* name() = 0;
 
@@ -50,7 +50,7 @@ protected:
 
    /// The name of the XML-RPC method.
    static const char* METHOD_NAME;
-   
+
    /// The name of the XML-RPC 'callingHostname' parameter.
    static const char* PARAM_NAME_CALLING_HOST;
 
@@ -60,7 +60,7 @@ protected:
    /// The name of the XML-RPC 'AlarmParams' parameter.
    static const char* PARAM_NAME_ALARM_PARAMS;
 
-   /// constructor 
+   /// constructor
    AlarmRpcMethod();
 
    /// Common method for registering with the XML-RPC dispatcher.
@@ -85,13 +85,13 @@ protected:
                     const char*               callingMethod   ///< calling xml rpc method name
                     );
    /**<
-    * Ensures that: 
+    * Ensures that:
     *  - the peerName is one of the configured allowed hosts; and
     *  - the HttpRequestContext indicates that the connection is indeed from that host.
-    * 
+    *
     * If the caller is not a valid, then the XMLRPC 'response' is populated with an
     * appropriate message.
-    * 
+    *
     * \return True is the caller is a valid (allowed) peer, false otherwise.
     */
 
@@ -101,7 +101,7 @@ protected:
                                   XmlRpcResponse& response,///< response (fault is set on this)
                                   ExecutionStatus& status  ///< set to FAILED
                                   );
-   
+
    /// Handle extra parameters for the execute method.
    void handleExtraExecuteParam(const char* methodName,  ///< name of the called XmlRpc method
                                 XmlRpcResponse& response,///< response (fault is set on this)
@@ -134,7 +134,7 @@ private:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
     <tr>
@@ -148,7 +148,7 @@ private:
        <td>Any runtime parameters to be displayed along with the standard alarm text.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -168,7 +168,7 @@ class AlarmRpcRaiseAlarm :  public AlarmRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -214,11 +214,11 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -236,7 +236,7 @@ class AlarmRpcGetAlarmCount : public AlarmRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.
@@ -282,11 +282,11 @@ protected:
     <tr>
        <td>string</td>
        <td>callingHostname</td>
-       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b> 
+       <td>The FQDN of the calling host to be checked as an SSL trusted peer <b>and</b>
            against an explicit list of hosts allowed to make requests.</td>
     </tr>
  </table>
- 
+
  \par
  <b>Return Value:</b>
  <table border="1">
@@ -305,7 +305,7 @@ class AlarmRpcReloadAlarms : public AlarmRpcMethod
 {
 public:
 
-   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.  
+   /// The XmlRpcMethod::Get registered with the dispatcher for this XML-RPC Method.
    static XmlRpcMethod* get();
 
    /// Destructor.

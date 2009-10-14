@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _IMDBRESOURCE_H_
 #define _IMDBRESOURCE_H_
@@ -34,7 +34,7 @@ class ImdbResource : public SipxResource
 ///@{
    /// Public name of the resource element parsed by this parser.
    static const char* ImdbResourceTypeName;
-   
+
    /// Factory method that parses an 'imdb' resource description element.
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
@@ -43,7 +43,7 @@ class ImdbResource : public SipxResource
                  );
    /**<
     * This is called by SipxResource::parse with any 'imdb' child of
-    * the 'resources' element in a process definition.  
+    * the 'resources' element in a process definition.
     *
     * @returns false if the element was in any way invalid.
     */
@@ -51,11 +51,11 @@ class ImdbResource : public SipxResource
    /// Return an existing ImdbResource or NULL if no ImdbResource is found.
    static
       ImdbResource* find(const char* imdbName /**< imdb table name */);
-   
+
    /// get a description of the ImdbResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
-///@}   
+///@}
 // ================================================================
 /** @name           Status Operations
  *
@@ -78,13 +78,13 @@ class ImdbResource : public SipxResource
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 
 
   protected:
-   
+
    /// constructor
    ImdbResource(const char* uniqueId);
 
@@ -95,14 +95,14 @@ class ImdbResource : public SipxResource
 
    OsBSem      mLock;
    dbDatabase* mDatabase;
-   
+
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    ImdbResource(const ImdbResource& nocopyconstructor);
 
    /// There is no assignment operator.
    ImdbResource& operator=(const ImdbResource& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _IMDBRESOURCE_H_

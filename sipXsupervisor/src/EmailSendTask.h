@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _EMAIL_SEND_TASK_H_
@@ -22,9 +22,9 @@
 // FORWARD DECLARATIONS
 
 
-/** 
+/**
  * Class used to send a MailMessage in an asynchronous fashion.
- * This class ensures that the Alarm Server does not block. 
+ * This class ensures that the Alarm Server does not block.
  */
 class EmailSendTask : public OsServerTask
 {
@@ -33,15 +33,15 @@ public:
 
    /// Singleton Accessor
    static EmailSendTask* getInstance();
-   
+
    /// Send asynchynchronous email message
    void sendMessage(const MailMessage& msg    ///< msg to send
                    );
 
-   
+
 private:
    MailMessage              mMessage;         ///< msg to send
-   
+
    static EmailSendTask*    spEmailSendTask;  ///< Singleton instance
    static OsMutex           sLockMutex;       ///< Exclusive binary lock
 
@@ -51,21 +51,21 @@ private:
          UtlString& smtpServer);
 
    /// Process asynchronous request from application code
-   virtual UtlBoolean handleMessage(OsMsg& rMsg); 
+   virtual UtlBoolean handleMessage(OsMsg& rMsg);
 };
 
-/** 
+/**
  * Message sent to the Email Send Task to prevent Alarm Server code from blocking
  * while an email message is sent.
  */
 class AsynchEmailMsg : public OsMsg
 {
 public:
-   
+
    enum EventSubType
    {
       SEND_MESSAGE    = 52
-   };   
+   };
 
    /// Constructor.
    AsynchEmailMsg(//EventSubType eventSubType,
@@ -81,7 +81,7 @@ public:
    const MailMessage& getMessage( void )    const;
    //const UtlString& getAlarmId( void )          const;
    //const UtlSList&  getAlarmParams( void )      const;
- 
+
 protected:
    static const UtlContainableType TYPE;   ///< Class type used for runtime checking
 

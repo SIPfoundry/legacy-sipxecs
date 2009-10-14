@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -7,7 +7,7 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "utl/UtlSListIterator.h" 
+#include "utl/UtlSListIterator.h"
 #include "net/XmlRpcDispatch.h"
 #include "SipxRpc.h"
 
@@ -94,7 +94,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(AlarmRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_ALARM, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -105,7 +105,7 @@ bool AlarmRpcMethod::validCaller(const HttpRequestContext& requestContext,
    {
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
-            
+
       OsSysLog::add(FAC_ALARM, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
@@ -207,7 +207,7 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
             else
             {
                UtlSList* pAlarmParams = dynamic_cast<UtlSList*>(params.at(2));
-           
+
                UtlBool method_result(false);
                SipxRpc* pSipxRpcImpl = ((SipxRpc *)userData);
 
@@ -217,7 +217,7 @@ bool AlarmRpcRaiseAlarm::execute(const HttpRequestContext& requestContext,
                         "AlarmRpc::raiseAlarm: host %s requested alarm '%s'",
                         pCallingHostname->data(), pAlarmId->data() );
 
-                  method_result = cAlarmServer::getInstance()->handleAlarm(*pCallingHostname, 
+                  method_result = cAlarmServer::getInstance()->handleAlarm(*pCallingHostname,
                         *pAlarmId, *pAlarmParams);
 
                   // Construct and set the response.

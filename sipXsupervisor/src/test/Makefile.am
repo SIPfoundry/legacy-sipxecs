@@ -1,6 +1,6 @@
 INCLUDES = \
 	-I$(top_srcdir)/src \
-	-I$(top_srcdir)/include 
+	-I$(top_srcdir)/include
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
@@ -10,7 +10,7 @@ check_PROGRAMS = testsuite alarm_testsuite sandbox
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
-    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work/\" 
+    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work/\"
 
 testsuite_LDADD = \
    @SIPXCOMMSERVERTEST_LIBS@ \
@@ -31,7 +31,7 @@ alarm_testsuite_CXXFLAGS = \
     -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
     -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
     -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-    -DSIPX_DBDIR=\"@SIPX_DBDIR@\" 
+    -DSIPX_DBDIR=\"@SIPX_DBDIR@\"
 
 alarm_testsuite_LDADD = \
     @SIPXCOMMSERVERTEST_LIBS@ \

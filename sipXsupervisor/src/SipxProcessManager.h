@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _PROCESSMANAGER_H_
 #define _PROCESSMANAGER_H_
@@ -24,7 +24,7 @@ class SipxProcess;
 
 /// Instantiates SipxProcess objects and provides access to them.
 /**
- * 
+ *
  */
 class SipxProcessManager
 {
@@ -32,7 +32,7 @@ class SipxProcessManager
 
    /// Singleton accessor
    static SipxProcessManager* getInstance();
-   
+
    /// destructor
    virtual ~SipxProcessManager();
 
@@ -48,7 +48,7 @@ class SipxProcessManager
 
    /// Activate all process monitors
    void startProcesses();
-   
+
    /// Shutdown all processes
    void shutdown();
 
@@ -59,15 +59,15 @@ class SipxProcessManager
 
   protected:
    friend class SipxProcessManagerTest;
-      
+
   private:
 
    static OsBSem sSingletonLock;       ///< protects access to spSingleton
    static SipxProcessManager* spSingleton; ///< pointer to the one SipxProcessManager
-   
+
    OsBSem     mProcessTableLock;  ///< protects access to mProcesses
    UtlHashBag mProcesses;              ///< contains all SipxProcess objects
-   
+
    /// constructor
    SipxProcessManager();
 
@@ -77,7 +77,7 @@ class SipxProcessManager
 
    /// There is no assignment operator.
    SipxProcessManager& operator=(const SipxProcessManager& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _PROCESSMANAGER_H_

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _PROCESSRESOURCE_H_
 #define _PROCESSRESOURCE_H_
@@ -33,13 +33,13 @@ class SipxProcessResource : public SipxResource
   public:
 
 // ================================================================
-/** @name           Creation 
+/** @name           Creation
  *
  */
 ///@{
    /// Public name of the resource element parsed by this parser.
    static const char* SipxProcessResourceTypeName;
-   
+
    /// Factory method that parses a 'process' resource description element.
    static
       bool parse(const TiXmlDocument& processDefinitionDoc, ///< process definition document
@@ -48,7 +48,7 @@ class SipxProcessResource : public SipxResource
                  );
    /**<
     * This is called by SipxResource::parse with any 'process' child of the 'resources' element
-    * in a process definition.  
+    * in a process definition.
     *
     * @returns false if the element was in any way invalid.
     */
@@ -56,7 +56,7 @@ class SipxProcessResource : public SipxResource
    /// get a description of the SipxProcessResource (for use in logging)
    virtual void appendDescription(UtlString&  description /**< returned description */) const;
 
-///@}   
+///@}
 // ================================================================
 /** @name           Configuration Control Methods
  *
@@ -68,7 +68,7 @@ class SipxProcessResource : public SipxResource
 
    /// If possible, get the corresponding SipxProcess object.
    SipxProcess* getProcess();
-   
+
 ///@}
 // ================================================================
 /** @name           Status Operations
@@ -95,7 +95,7 @@ class SipxProcessResource : public SipxResource
     * This returns a unique type for UtlString
     */
 
-   static const UtlContainableType TYPE;    ///< Class type used for runtime checking 
+   static const UtlContainableType TYPE;    ///< Class type used for runtime checking
 
 ///@}
 
@@ -103,7 +103,7 @@ class SipxProcessResource : public SipxResource
   protected:
    friend class SipxProcess;
    friend class SipxSupervisorProcess;
-   
+
    /// constructor
    SipxProcessResource(const char* uniqueId);
 
@@ -118,7 +118,7 @@ class SipxProcessResource : public SipxResource
 
    /// There is no assignment operator.
    SipxProcessResource& operator=(const SipxProcessResource& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _PROCESSRESOURCE_H_

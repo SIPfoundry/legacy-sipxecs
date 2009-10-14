@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -50,7 +50,7 @@ void SipxProcessManager::save(SipxProcess* process)
 {
    // called from within SipxProcess::createFromDefinition
    OsLock mutex(mProcessTableLock);
-         
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessManager::save "
                  " SipxProcess '%s'", process->data());
    mProcesses.insert(process);
@@ -76,7 +76,7 @@ void SipxProcessManager::instantiateProcesses(const OsPath& processDefinitionDir
    OsFileIterator definitions(processDefinitionDirectory);
    OsPath    processDefinitionFile;
    OsStatus  iteratorStatus;
-   
+
    OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"SipxProcessManager::instantiateProcesses searching %s",
                  processDefinitionDirectory.data()
                  );
@@ -147,7 +147,7 @@ SipxProcessManager::~SipxProcessManager()
                  "delete %zu SipxProcess objects", mProcesses.entries());
 
    mProcesses.destroyAll();
-   
+
    while (mProcesses.entries() > 0)
    {
       OsTask::delay(1000);

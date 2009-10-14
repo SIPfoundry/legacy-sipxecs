@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // SYSTEM INCLUDES
@@ -29,11 +29,11 @@ void assembleMsg(const UtlString& formatStr,   //< input string with placeholder
    int paramNum=0;
    const char* separator=" ";
    char placeHolder[255];
-   
+
    outMsg = formatStr;
    while ( (pParam = dynamic_cast<UtlString*> (paramListIterator())) )
    {
-     
+
       sprintf(placeHolder, "{%d}", paramNum);
       ssize_t pos = outMsg.index(placeHolder);
       if (pos != UTL_NOT_FOUND)
@@ -58,7 +58,7 @@ void assembleMsg(const UtlString& formatStr, //< input string containing one pla
 {
    const char* placeHolder = "{0}";
    const char* separator = " ";
-     
+
    outMsg = formatStr;
    ssize_t pos = outMsg.index(placeHolder);
    if (pos != UTL_NOT_FOUND)
@@ -72,7 +72,7 @@ void assembleMsg(const UtlString& formatStr, //< input string containing one pla
       outMsg += separator;
       outMsg += param;
    }
-   
+
 }
 
 

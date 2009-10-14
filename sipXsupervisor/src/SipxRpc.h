@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@
 class XmlRpcDispatch;
 
 
-///Class to provide interface to supervisor xmlrpc (including process management 
+///Class to provide interface to supervisor xmlrpc (including process management
 ///and file replication)
 class SipxRpc
 {
@@ -51,7 +51,7 @@ public:
 
    ///Assignment operator
    SipxRpc& operator=(const SipxRpc& rhs);
-   
+
 /* ============================ ACCESSORS ================================= */
 
    /// Get the XML-RPC dispatcher
@@ -61,9 +61,9 @@ public:
    bool isAllowedPeer(const UtlString& peer) const;
    /**<
     * The mAllowedPeers list is currently only modified once (during the thread
-    * initialization.)  After that all access is thread-safe by virtue of being 
+    * initialization.)  After that all access is thread-safe by virtue of being
     * read-only.  i.e. Calling this method does not lock the semephore.
-    * 
+    *
     * \param peer The name of the peer making the request.
     * \return True if the specified peer is allowed, false otherwise.
     * \see mAllowedPeers
@@ -88,7 +88,7 @@ private:
 
    XmlRpcDispatch* mpXmlRpcDispatch;
 
-   UtlSList  mAllowedPeers;  /// The list of peers allowed to make XML-RPC Process 
+   UtlSList  mAllowedPeers;  /// The list of peers allowed to make XML-RPC Process
                              /// Management requests.
 
    ///Copy constructor (not implemented for this class)

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _IMDBRESOURCEMANAGER_H_
 #define _IMDBRESOURCEMANAGER_H_
@@ -29,13 +29,13 @@ class ImdbResourceManager
 
    /// Singleton accessor
    static ImdbResourceManager* getInstance();
-   
+
    /// Return an existing ImdbResource or NULL if no ImdbResource is found for 'imdb'.
    ImdbResource* find(const char* imdb /**< name of the imdb */);
-   
+
    /// Add the new fileResource to those available in the system.
    void save(ImdbResource* imdbResource /**< new ImdbResource object */);
-   
+
    /// destructor
    ~ImdbResourceManager();
 
@@ -48,7 +48,7 @@ class ImdbResourceManager
 
    static OsBSem sSingletonLock;            ///< protects access to spSingleton
    static ImdbResourceManager* spSingleton; ///< pointer to the one ImdbResourceManager
-   
+
    OsBSem     mImdbResourceTableLock;
    UtlHashBag mImdbResourceTable; ///< contains ImdbResource objects
 
@@ -58,7 +58,7 @@ class ImdbResourceManager
 
    /// There is no assignment operator.
    ImdbResourceManager& operator=(const ImdbResourceManager& noassignmentoperator);
-   // @endcond     
+   // @endcond
 };
 
 #endif // _IMDBRESOURCEMANAGER_H_

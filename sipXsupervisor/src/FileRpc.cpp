@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -11,8 +11,8 @@
 #include "utl/UtlBool.h"
 #include "utl/UtlHashBag.h"
 #include "utl/UtlHashBagIterator.h"
-#include "utl/UtlHashMapIterator.h" 
-#include "utl/UtlSListIterator.h" 
+#include "utl/UtlHashMapIterator.h"
+#include "utl/UtlSListIterator.h"
 #include "os/OsSysLog.h"
 #include "os/OsFileSystem.h"
 #include "net/XmlRpcDispatch.h"
@@ -106,7 +106,7 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
          faultMsg.append(peerName);
          faultMsg.append("'");
          response.setFault(FileRpcMethod::UnconfiguredPeer, faultMsg.data());
-            
+
          OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                        "%s failed - '%s' not a configured peer",
                        callingMethod, peerName.data()
@@ -117,7 +117,7 @@ bool FileRpcMethod::validCaller(const HttpRequestContext& requestContext,
    {
       // ssl says not authenticated - provide only a generic error
       response.setFault(XmlRpcResponse::AuthenticationRequired, "TLS Peer Authentication Failure");
-            
+
       OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
                     "%s failed: '%s' failed SSL authentication",
                     callingMethod, peerName.data()
@@ -222,7 +222,7 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
             else
             {
                UtlInt* pfilePermissions = dynamic_cast<UtlInt*>(params.at(2));
-           
+
                if (!params.at(3) || !params.at(3)->isInstanceOf(UtlString::TYPE))
                {
                   handleMissingExecuteParam(name(), PARAM_NAME_FILE_DATA, response, status);
@@ -345,7 +345,7 @@ bool FileRpcReplaceFile::replicateFile(UtlString& path_and_name,
                rc = temporaryFile.remove(TRUE);
 
                // Change the permissions on the file as indicated.
-               int_rc = chmod( path_and_name.data(), file_permissions.getValue() ); 
+               int_rc = chmod( path_and_name.data(), file_permissions.getValue() );
                result = true;
             }
             else

@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
@@ -235,17 +235,17 @@ SipxCommand* SipxCommand::createFromDefinition( const UtlString& name,
 bool SipxCommand::isRunning()
 {
    OsLock mutex(mLock);
-   
+
    return mCommand->isRunning();
 }
 
 bool SipxCommand::execute()
 {
    OsLock mutex(mLock);
-   
+
    if ( mCommand->isRunning() )
    {
-      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, 
+      OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
                     "SipxCommand[%s]::execute failed; command is already running",
                     data());
       return false;
@@ -270,8 +270,8 @@ void SipxCommand::evCommandStopped(const SipxProcessCmd* command, int rc)
    addCommandMessage(commandReturnTag, msg);
 }
 
-void SipxCommand::evCommandOutput(const SipxProcessCmd* command, 
-                                  OsSysLogPriority pri, 
+void SipxCommand::evCommandOutput(const SipxProcessCmd* command,
+                                  OsSysLogPriority pri,
                                   UtlString output)
 {
    // The output is sure to contain newlines, and may contain several lines.
@@ -296,7 +296,7 @@ UtlContainableType SipxCommand::getContainableType() const
 void SipxCommand::getCommandMessages(UtlSList& statusMessages)
 {
    OsLock mutex(mLock);
-   
+
    statusMessages.removeAll();
    UtlSListIterator messages(mCommandMessages);
    UtlString* message = NULL;
@@ -310,7 +310,7 @@ void SipxCommand::getCommandMessages(UtlSList& statusMessages)
 void SipxCommand::clearCommandMessages()
 {
    OsLock mutex(mLock);
-   
+
    mCommandMessages.destroyAll();
    mNumStdoutMsgs = 0;
    mNumStderrMsgs = 0;
@@ -320,7 +320,7 @@ void SipxCommand::clearCommandMessages()
 void SipxCommand::addCommandMessage(const char* msgTag, UtlString& msg)
 {
    OsLock mutex(mLock);
-   
+
    // only keep a limited amount of command output.
    if ( mCommandMessages.entries() > MAX_STATUS_MSGS )
    {
@@ -338,7 +338,7 @@ void SipxCommand::addCommandMessage(const char* msgTag, UtlString& msg)
 void SipxCommand::logCommandOutput(OsSysLogPriority pri, UtlString& msg)
 {
    OsLock mutex(mLock);
-   
+
    UtlString msgTag;
    if ( pri == PRI_ERR )
    {

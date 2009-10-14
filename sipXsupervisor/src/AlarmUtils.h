@@ -1,9 +1,9 @@
-// 
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 // SYSTEM INCLUDES
@@ -26,7 +26,7 @@ void assembleMsg(
 /// Assemble a message by substituting in the parameter for placeholders {0} in the formatStr
 void assembleMsg(
       const UtlString& formatStr,          ///< template message with placeholder
-      const UtlString& param,              ///< runtime parameter 
+      const UtlString& param,              ///< runtime parameter
       UtlString& outMsg                    ///< formatted message with parameter
       );
 

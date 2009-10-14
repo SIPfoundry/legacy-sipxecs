@@ -21,7 +21,7 @@ EXTRA_DIST = \
     config/sipX-config.in \
     config/svn-version \
     config/Doxyfile.in \
-    sipxsupervisor.spec 
+    sipxsupervisor.spec
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)

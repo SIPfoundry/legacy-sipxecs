@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ cAlarmServer::~cAlarmServer()
 {
    // Critical Section here
    OsLock lock( sLockMutex );
-   
+
    // reset the static instance pointer to NULL
    spAlarmServer = NULL;
 }
@@ -137,7 +137,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
          OsSysLog::add(FAC_ALARM, PRI_ERR,"code=%s: alarm ID is required", codeStr.data());
          return false;
       }
-      
+
       TiXmlElement* codeElement = element->FirstChildElement("code");
       if ( !codeElement )
       {
@@ -215,7 +215,7 @@ bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
 {
    // load file in English for fallback
    bool loadResult = loadAlarmStringsFile(stringsFile);
-   
+
    // load localized version if available
    if (!mLanguage.isNull() && mLanguage.compareTo("en"))
    {
@@ -231,10 +231,10 @@ bool cAlarmServer::loadAlarmStrings(const UtlString& stringsFile)
       }
       else
       {
-         OsSysLog::add(FAC_ALARM, PRI_NOTICE, 
+         OsSysLog::add(FAC_ALARM, PRI_NOTICE,
                "stringsFile %s is not .xml, not loading local language", stringsFile.data());
          loadResult = false;
-      }   
+      }
    }
 
    return loadResult;
@@ -256,7 +256,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
 
    TiXmlHandle docH( &doc );
    TiXmlHandle alarmServerHandle = docH.FirstChildElement("alarm_server");
-      
+
    TiXmlElement* settingsElement = alarmServerHandle.FirstChildElement("settings").Element();
    if (settingsElement)
    {
@@ -287,7 +287,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
           if (mpNotifiers[cAlarmData::eActionTrap])
           {
           mpNotifiers[cAlarmData::eActionTrap]->initStrings(element);
-          } 
+          }
           */
       }
    }
@@ -316,7 +316,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
             OsSysLog::add(FAC_ALARM, PRI_ERR,"Parsing alarm strings file %s: alarm ID is required", stringsFile.data());
             continue;
          }
-         
+
          cAlarmData* alarmData = lookupAlarm(idStr);
          if (!alarmData)
          {
@@ -335,7 +335,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
                alarmData->setShortTitle(tempStr);
             }
          }
-         
+
          codeElement = element->FirstChildElement("description");
          if (codeElement)
          {
@@ -347,7 +347,7 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
                alarmData->setDescription(tempStr);
             }
          }
-         
+
          codeElement = element->FirstChildElement("resolution");
          if (codeElement)
          {
@@ -440,7 +440,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
             gbActions[cAlarmData::eActionLog] = true;
          }
       }
-      
+
       // Alarm email notifications
       element = alarmActionsElement->FirstChildElement("email");
       if (getBoolAttribute(element, "enabled"))
@@ -457,7 +457,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
             pEmailNotifier->init(element, groupElement);
             gbActions[cAlarmData::eActionEmail] = true;
          }
-      }      
+      }
 
       element = alarmActionsElement->FirstChildElement("sms");
       if (getBoolAttribute(element, "enabled"))
@@ -475,7 +475,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
             gbActions[cAlarmData::eActionSms] = true;
          }
       }
-      
+
       /* not implemented yet
       element = alarmActionsElement->FirstChildElement("trap");
       if (getBoolAttribute(element, "enabled"))
@@ -491,8 +491,8 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
             pTrapNotifier->init(element, NULL);
             gbActions[cAlarmData::eActionTrap] = true;
          }
-      }  
-      */    
+      }
+      */
    }
    return true;
 }
@@ -511,8 +511,8 @@ bool cAlarmServer::loadAlarmDefinitions(const UtlString& alarmFile)
       return false;
    }
 
-   TiXmlHandle docH( &doc );    
-         
+   TiXmlHandle docH( &doc );
+
    //load alarm definitions
    TiXmlElement* alarmDefElement = docH.FirstChildElement("alarm_server").
    FirstChildElement("definitions").Element();
@@ -553,14 +553,14 @@ bool cAlarmServer::loadAlarms()
    UtlString strGroupFilename = SipXecsService::Path(SipXecsService::ConfigurationDirType,
          "alarm-groups.xml");
    loadAlarmConfig(strAlarmFilename, strGroupFilename);
-   
+
    // load specific alarm definitions from ${confdir}/alarms/*.xml
    UtlString alarmDefDir = SipXecsService::Path(SipXecsService::ConfigurationDirType);
    alarmDefDir.append("/alarms/");
    OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm def files in '%s'", alarmDefDir.data());
    OsFileIterator files(alarmDefDir);
    OsPath entry;
-   
+
    // for each file in the ${confdir}/alarms, load alarm definitions
    OsStatus status;
    int numFound;
@@ -577,7 +577,7 @@ bool cAlarmServer::loadAlarms()
    OsSysLog::add(FAC_ALARM, PRI_INFO, "Looking for alarm string files in '%s'",
                  alarmStringsDir.data());
    OsFileIterator stringFiles(alarmStringsDir);
-   
+
    // for each "base" file (*-strings.xml) in the ${datadir}/alarms, load alarm strings
    for (status=stringFiles.findFirst(entry, ".*-strings\\.xml$", OsFileIterator::FILES), numFound=0;
         status == OS_SUCCESS;
@@ -594,21 +594,21 @@ bool cAlarmServer::loadAlarms()
    while ((alarmKey = dynamic_cast<UtlString*>(alarmIter())))
    {
       cAlarmData* alarm = dynamic_cast<cAlarmData*>(alarmIter.value());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
-            "alarm[%d]: %s %s: %s, Log:%d, Email:%d", 
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
+            "alarm[%d]: %s %s: %s, Log:%d, Email:%d",
             count, alarmKey->data(), alarm->getCode().data(),
             OsSysLog::priorityName(alarm->getSeverity()),
             alarm->actions[cAlarmData::eActionLog], alarm->actions[cAlarmData::eActionEmail]);
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
             "           Title:%s", alarm->getShortTitle().data());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
             "           Description:%s", alarm->getDescription().data());
-      OsSysLog::add(FAC_ALARM, PRI_DEBUG, 
+      OsSysLog::add(FAC_ALARM, PRI_DEBUG,
             "           Resolution:%s", alarm->getResolution().data());
       count++;
    }
 #endif
-   
+
    return true;
 }
 
@@ -634,7 +634,7 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
       if (alarmData->applyThresholds())
       {
          // alarm has been filtered out due to thresholds
-         OsSysLog::add(FAC_ALARM, PRI_INFO, 
+         OsSysLog::add(FAC_ALARM, PRI_INFO,
                        "Alarm '%s' not logged due to thresholds",
                        alarmId.data());
          return true;
@@ -642,7 +642,7 @@ bool cAlarmServer::handleAlarm(UtlString& callingHost, UtlString& alarmId, UtlSL
 
       //:TODO: keep counts at each severity level
       mAlarmCount++;
-      
+
       UtlString alarmMsg;
       assembleMsg(alarmData->getDescription(), alarmParams, alarmMsg);
 
@@ -681,10 +681,10 @@ bool cAlarmServer::init()
    {
       gbActions[i] = false;
    }
-   
+
    mLanguage="";
    mAlarmCount=0;
-   
+
    return loadAlarms();
 }
 

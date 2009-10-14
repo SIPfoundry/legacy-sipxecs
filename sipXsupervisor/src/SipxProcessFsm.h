@@ -1,8 +1,8 @@
-// 
-// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+//
+// Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
-// 
+//
 // $$
 //////////////////////////////////////////////////////////////////////////////
 #ifndef _SipxProcessFsmS_H_
@@ -23,7 +23,7 @@ class SipxProcessFsm
 {
 public:
    /***
-    * Returns the parent state of this state. As required by StateAlg. 
+    * Returns the parent state of this state. As required by StateAlg.
     */
    virtual const SipxProcessFsm* GetParent( SipxProcess& impl ) const;
 
@@ -43,7 +43,7 @@ public:
    virtual void DoExitAction( SipxProcess& impl ) const;
 
    virtual const char* name( void ) const {return "SipxProcessFsm";}
-   
+
    virtual ~SipxProcessFsm(){};
 
    // State machine events
@@ -61,9 +61,9 @@ public:
    virtual void evProcessStopped( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;
 
-   
+
 protected:
-   void ChangeState( SipxProcess& impl, 
+   void ChangeState( SipxProcess& impl,
                       const SipxProcessFsm* targetState ) const;
 
 };
@@ -238,7 +238,7 @@ class ShutDown : public SipxProcessFsm
 public:
    virtual const char* name( void ) const {return "ShutDown";}
    virtual ~ShutDown(){};
-   
+
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;

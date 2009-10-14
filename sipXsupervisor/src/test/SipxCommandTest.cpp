@@ -34,7 +34,7 @@ class SipxCommandTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   
+
    void runCommand()
    {
       FileTestContext testContext(TEST_DATA_DIR "commandDef",
@@ -70,15 +70,15 @@ public:
 
       OsTask::delay(1000); // give task some time to finish
       CPPUNIT_ASSERT(false == command1->isRunning());
-      
+
       command1->getCommandMessages(msgs);
 
       CPPUNIT_ASSERT(3 == msgs.entries());
-      
+
       ASSERT_STR_EQUAL("stdout.msg-1: goodprocess.sh" , ((UtlString*)msgs.at(0))->data());
       ASSERT_STR_EQUAL("return.code: 11" , ((UtlString*)msgs.at(2))->data());
       msgs.destroyAll();
-      
+
       delete command1;
       OsTask::delay(1000); // give task some time to shutdown
    }
@@ -108,12 +108,12 @@ public:
 
       command1->execute();
       OsTask::delay(500); // give task some time to get up and running
-      
+
       // another invocation should fail: command is already running
       CPPUNIT_ASSERT(false == command1->execute());
-      
+
       OsTask::delay(1000); // give task some time to shutdown
-      
+
       delete command1;
    }
 
@@ -142,7 +142,7 @@ public:
 
       command1->execute();
       OsTask::delay(500); // give task some time to get up and running
-      
+
       // shut it down while it is running
       delete command1;
       OsTask::delay(1000); // give task some time to shutdown

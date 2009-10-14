@@ -18,7 +18,7 @@
    </settings>
    <definitions>
       <alarm id="TEST_LOG">
-         <description>C'est une épreuve de la système alarme.  La seule parameter devrait être ici: {0}, 
+         <description>C'est une épreuve de la système alarme.  La seule parameter devrait être ici: {0},
             et c'est tout.</description>
          <resolution>C'est aussi une épreuve de l'insertion des parametres, des accents, et des virgules.</resolution>
       </alarm>
