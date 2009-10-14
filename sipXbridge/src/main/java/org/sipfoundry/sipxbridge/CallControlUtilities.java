@@ -252,8 +252,72 @@ public class CallControlUtilities {
             dialogContext.sendAck(ackRequest);
 
         } else {
-            logger.error("ERROR  0 contentLength ");
+            logger.error("ERROR  0 contentLength  -- resend the old SDP answer");
+            sendSdpAnswerInAck(dialog);
         }
+
+    }
+    
+    
+    /**
+     * Replay the old SDP offer in the ACK. This condition is encountered when we encounter an error during
+     * call transfer.
+     * 
+     * @param dialog
+     */
+
+    public static void sendSdpAnswerInAck(Dialog dialog) throws Exception {
+        
+        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        if (logger.isDebugEnabled()) {
+            logger.debug("sendSdpAnswerInAck : dialog = " + dialog
+                    + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
+                    + dialogContext.getLastResponse());
+        }
+
+        dialogContext.setPendingAction(PendingDialogAction.NONE);
+
+        SessionDescription transmitterSd = DialogContext.getPeerTransmitter(dialog)
+        .getTransmitter().getSessionDescription();
+        /*
+         * Extract the codec numbers previously offered.
+         */
+        Set<Integer> transmitterCodecs = SipUtilities.getMediaFormats(transmitterSd);
+
+        /*
+         * We did a SDP query. So we need to put an SDP Answer in the response. Retrieve
+         * the previously offered session description.
+         */
+
+        SessionDescription ackSd = DialogContext.getRtpSession(dialog).getReceiver().getSessionDescription();
+
+        /*
+         * Only pick the codecs that the other side will support.
+         */
+        SipUtilities.cleanSessionDescription(ackSd, transmitterCodecs);
+
+        DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
+        
+        Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(dialogContext
+                .getLastResponse()));
+        /*
+         * Consume the last response.
+         */
+        dialogContext.setLastResponse(null);
+
+        /*
+         * Answer is no longer pending.
+         */
+        dialogContext.setPendingAction(PendingDialogAction.NONE);
+
+        /*
+         * Send the SDP answer in an ACK.
+         */
+
+        ackRequest.setContent(ackSd.toString(), ProtocolObjects.headerFactory
+                .createContentTypeHeader("application", "sdp"));
+        dialogContext.sendAck(ackRequest);
+
 
     }
 

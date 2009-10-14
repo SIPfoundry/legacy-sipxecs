@@ -155,6 +155,8 @@ public class BackToBackUserAgent {
     
     private int baseCounter;
     
+    private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
+    
 
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
@@ -1821,7 +1823,7 @@ public class BackToBackUserAgent {
                 // send the in-dialog re-invite to the other side.
                 DialogContext.get(peerDialog).sendReInvite(ctx);
                 // Tear down the dialog with the transfer controller.
-                replacedDialogApplicationData.sendBye();
+                replacedDialogApplicationData.sendBye(false);
             } else {
                 /*
                  * The following condition happens during call pickup. The other
@@ -1982,7 +1984,8 @@ public class BackToBackUserAgent {
                 .getApplicationData();
         Dialog peer = dialogContext.getPeerDialog();
 
-        if (dialogContext.isForwardByeToPeer() && peer != null
+        if (!SipUtilities.isRequestNotForwarded(st.getRequest()) &&
+                dialogContext.isForwardByeToPeer() && peer != null
                 && peer.getState() != DialogState.TERMINATED
                 && peer.getState() != null) {
             SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer)
@@ -2155,6 +2158,16 @@ public class BackToBackUserAgent {
                         .setTerminateOnConfirm();
             }
         }
+        
+        for (Dialog dialog : this.dialogTable) {
+            Request byeRequest = dialog.createRequest(Request.BYE);
+            if (dialog.getState() != DialogState.TERMINATED) {
+                logger.debug("Tear down call " + dialog);
+                ClientTransaction ctx = ((DialogExt)dialog).getSipProvider().getNewClientTransaction(byeRequest);
+                TransactionContext.attach(ctx, Operation.SEND_BYE_FOR_TEARDOWN);
+                dialog.sendRequest(ctx);
+            }
+        }
 
     }
 
@@ -2223,6 +2236,11 @@ public class BackToBackUserAgent {
         }
 
         return (this.proxyAddress != null);
+    }
+
+    public void addDialogToCleanup(Dialog dialog) {
+      this.cleanupList.add(dialog);
+        
     }
 
 }
