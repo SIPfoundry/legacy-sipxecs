@@ -126,9 +126,7 @@ public class MailboxServlet extends HttpServlet {
                             else if (method.equals(METHOD_GET)) {
                                 VmMessage msg = messages.getMessage(messageId);
                                 response.setContentType("text/xml");
-                                pw.write("<message>\n") ;
-                                pw.format("  <heard>%s</heard>\n", msg.isUnHeard() ? "false" : "true" );
-                                pw.write("</message>\n") ;
+                                pw.format("<heard>%s</heard>\n", msg.isUnHeard() ? "false" : "true" );
                             }
                         }
                     } else {
@@ -143,7 +141,7 @@ public class MailboxServlet extends HttpServlet {
                     } else {
                         response.sendError(405);
                     }
-                } if (context.equals("preferences")) {
+                } else if (context.equals("preferences")) {
                     if (subDirs.length >= 4) {
                         String whichPreference = subDirs[3];
                         if (whichPreference.equals("activegreeting")) {
