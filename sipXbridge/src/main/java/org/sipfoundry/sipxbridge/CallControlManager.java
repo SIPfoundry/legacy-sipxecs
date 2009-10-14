@@ -818,18 +818,26 @@ class CallControlManager implements SymmitronResetHandler {
                     .getApplicationData();
 
             Dialog peerDialog = dialogContext.getPeerDialog();
-
-            if (peerDialog == null) {
-                logger.debug("Could not find peer dialog -- not forwarding ACK!");
-                return;
-            }
-
+            
             /*
              * Forward the ACK if we have not already done so.
              */
 
             Request inboundAck = requestEvent.getRequest();
+            
+            SipProvider provider = (SipProvider) requestEvent.getSource();
 
+
+            if (peerDialog == null) {
+                logger.debug("Could not find peer dialog -- not forwarding ACK!");
+                if ( SipUtilities.isOriginatorSipXbridge(inboundAck) && provider == Gateway.getLanProvider()) {
+                    logger.debug("The ack was originated by sipxbridge - tearing down call leg");
+                    btobua.addDialogToCleanup(requestEvent.getDialog());
+                }
+                return;
+            }
+
+            
             DialogContext peerDialogContext = (DialogContext) peerDialog.getApplicationData();
 
             if (logger.isDebugEnabled()) {
@@ -1130,9 +1138,10 @@ class CallControlManager implements SymmitronResetHandler {
                 logger.debug("ingoring 4xx response " + tad.getOperation());
 
             } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+                // Is the dialog marked as one that needs an SDP answer in ACK? If so replay the old SDP answer
+               
                 if (serverTransaction != null) {
                     if (serverTransaction.getState() != TransactionState.TERMINATED) {
-
                         if ((tad.getOperation().equals(Operation.SEND_INVITE_TO_SIPX_PROXY) || tad
                                 .getOperation().equals(Operation.SEND_INVITE_TO_ITSP))
                                 && (response.getStatusCode() / 100 == 6 || response
@@ -1159,6 +1168,14 @@ class CallControlManager implements SymmitronResetHandler {
                         && SipUtilities.isOriginatorSipXbridge(response)) {
                     this.notifyReferDialog(referRequest, referDialog, response);
 
+                }
+                /*
+                 * Handle the case of 404 not found. If the other end is expecting an SDP answer
+                 * we replay the previous SDP offer in the answer.
+                 */
+                DialogContext peerDialogContext = DialogContext.getPeerDialogContext(ct.getDialog());
+                if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+                    CallControlUtilities.sendSdpAnswerInAck(DialogContext.getPeerDialog(ct.getDialog()));
                 }
                 /*
                  * Tear down the call if the response status code requires for Should this also
@@ -1909,7 +1926,7 @@ class CallControlManager implements SymmitronResetHandler {
                         .sendSdpAnswerInAck(response, tad.getDialogPendingSdpAnswer());
                     } else {
                         // The MOH dialog can be safely killed off.
-                        DialogContext.get(dialog).sendBye();
+                        DialogContext.get(dialog).sendBye(true);
                     }
                 } else {
                     if (logger.isDebugEnabled()) {
@@ -1929,7 +1946,7 @@ class CallControlManager implements SymmitronResetHandler {
         } catch (Exception ex) {
             logger.error("Exception occured sending SDP in ACK to MOH Server",ex);
             // The MOH dialog can be safely killed off.
-            DialogContext.get(dialog).sendBye();
+            DialogContext.get(dialog).sendBye(true);
         }
 
 

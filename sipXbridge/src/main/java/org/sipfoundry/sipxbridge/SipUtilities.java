@@ -1799,4 +1799,21 @@ class SipUtilities {
         }
 
     }
+    
+    static boolean isRequestNotForwarded(Request incomingMessage) {
+        ListIterator headerIterator = incomingMessage
+                .getHeaders(ViaHeader.NAME);
+        boolean noforward = false;
+        while (headerIterator.hasNext()) {
+            ViaHeader via = (ViaHeader) headerIterator.next();
+            String noforwardStr = via
+                    .getParameter("noforward");
+            if (noforwardStr != null
+                    && noforwardStr.equals("true")) {
+                noforward = true;
+            }
+        }
+        return noforward;
+    }
+    
 }

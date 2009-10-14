@@ -887,8 +887,10 @@ class DialogContext {
 
     }
 
-    void sendBye() throws Exception {
+    void sendBye(boolean forward) throws Exception {
         Request bye = dialog.createRequest(Request.BYE);
+        ViaHeader via  = ((ViaHeader) bye.getHeader(ViaHeader.NAME));
+        if ( !forward ) via.setParameter("noforward", "true");
         ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);
         dialog.sendRequest(clientTransaction);
     }
