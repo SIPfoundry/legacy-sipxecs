@@ -82,7 +82,7 @@ public class UserGravatarResourceTest extends TestCase {
         representation.write(writer);
         String generated = writer.toString();
 
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802", generated);
+        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", generated);
         verify(mailboxManager);
     }
 }

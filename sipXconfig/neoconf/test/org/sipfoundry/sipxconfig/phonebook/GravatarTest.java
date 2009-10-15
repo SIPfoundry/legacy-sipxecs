@@ -29,13 +29,39 @@ public class GravatarTest extends TestCase {
 
         MailboxManager mailboxManager = createMock(MailboxManager.class);
         mailboxManager.getMailboxPreferencesForUser(user);
+        expectLastCall().andReturn(mailboxPreferences).times(3);
+        replay(mailboxManager);
+
+        Gravatar gravatar = new Gravatar(user);
+        String url = gravatar.getUrl(mailboxManager);
+        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
+
+        gravatar.setSize(100);
+        gravatar.setType(Gravatar.DefaultType.monsterid);
+        url = gravatar.getUrl(mailboxManager);
+        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=100&d=monsterid", url);
+
+        String signupURl = gravatar.getSignupUrl(mailboxManager);
+        assertEquals("http://en.gravatar.com/site/signup/ihavean@email.com", signupURl);
+
+        verify(mailboxManager);
+    }
+
+    public void testGetUrlNoEmail() {
+        User user = new User();
+
+        MailboxPreferences mailboxPreferences = new MailboxPreferences();
+
+        MailboxManager mailboxManager = createMock(MailboxManager.class);
+        mailboxManager.getMailboxPreferencesForUser(user);
         expectLastCall().andReturn(mailboxPreferences);
         replay(mailboxManager);
 
         Gravatar gravatar = new Gravatar(user);
         String url = gravatar.getUrl(mailboxManager);
+        assertNull(url);
 
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802", url);
         verify(mailboxManager);
     }
+
 }

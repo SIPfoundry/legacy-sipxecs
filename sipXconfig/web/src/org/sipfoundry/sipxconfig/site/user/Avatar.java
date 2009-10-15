@@ -34,4 +34,9 @@ public abstract class Avatar extends BaseComponent {
         String url = defaultString(gravatar.getUrl(getMailboxManager()), "http://gravatar.com/avatar");
         return new ExternalAsset(url, null);
     }
+
+    public String getAvatarLinkUrl() {
+        Gravatar gravatar = new Gravatar(getUser());
+        return gravatar.getSignupUrl(getMailboxManager());
+    }
 }
