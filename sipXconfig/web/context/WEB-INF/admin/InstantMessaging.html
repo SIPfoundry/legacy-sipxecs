@@ -1,17 +1,10 @@
 <div jwcid="@common/Border" useDojo="true">
   <h2><span key="title">OpenFire Configuration</span></h2>
-  <span jwcid="@common/TabNavigation" tabNames="ognl:{'certificates', 'serverToServer'}" selectedTab="ognl:tab"/>
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'serverToServer'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
 	<span jwcid="@common/ErrorMsg"/>
 	<span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
-  <span jwcid="certificatesTab@Block">
-    <span jwcid="@Insert" value="Certificate management - to be implemented..." />
-    <!--
-	<span jwcid="certificates@openfire/Certificates"/>
-     -->
-  </span>
-
   <span jwcid="serverToServerTab@Block">
 	<form jwcid="serverToServerForm@Form" delegate="bean:validator">
 	  <span jwcid="serverToServer@openfire/ServerToServerPanel"/>
