@@ -1,12 +1,14 @@
 #!/bin/sh
 
 # Purpose of this script is to return locations of programs and
-# settings used by the sipx family of modules. This is installed for
-# runtime scripts usage
+# settings used by the sipx family of modules.  This is installed for
+# runtime scripts' usage.
+# Configuration information about the sipX modules themselves is
+# printed by the sipx*-config scripts.
 
 # DEVELOPER NOTE: This is not meant to replace autoconf
 # macros. Instead this is to find programs (like java) that can differ
-# then what is used to compile then what is used to run.  This
+# from what is used to compile then what is used to run.  This
 # difference is extremely important when building binary distributions
 # like RPMs
 
@@ -30,27 +32,6 @@ JavaTool="java"
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
 JavaVersions="1\.[456]"
-
-# List of all sipx projects
-Projects="\
-  sipxportlib \
-  sipxtacklib \
-  sipxmedialib \
-  sipxcalllib \
-  sipxcommserverlib \
-  sipxregistry \
-  sipxpublisher \
-  sipxproxy \
-  sipxconfig \
-  sipxfreeswitch \
-  sipxvxml \
-  sipxacd \
-  sipxpbx \
-  sipxsaa \
-  sipxpark \
-  sipxivr \
-  sipxpage \
-  sipxpresence"
 
 ## Test the java executable command
 testJavaTool()
@@ -106,10 +87,6 @@ do
         fi
         ;;
 
-        --version)
-        Action=VERSION
-        ;;
-
         *)
         Action=HELP
         ;;
@@ -137,20 +114,6 @@ NOJAVA
     echo "$JavaToolCommand"
     exit 0
 
-elif test "$Action" = "VERSION"
-then
-    echo "sipX version information:"
-    for Project in $Projects; do
-        echo -n "  $Project "
-        # Test if the script was installed
-        if ${MyDir}/${Project}-config >/dev/null 2>&1
-        then
-           ${MyDir}/${Project}-config --version --build
-        else
-           echo "not installed"
-        fi
-    done
-    exit 0
 fi
 
 cat <<USAGE
@@ -159,13 +122,11 @@ Return settings or paths to programs for sipX family of modules
 
 Usage:
 
-    ./sipx-config [--java] [--version]
+    ./sipx-config [--java]
 
 Options are:
 
      --java     Locate java vm command
-
-     --version  Display version of installed sipx packages
 
 USAGE
 

@@ -66,7 +66,14 @@ fi
 
 SFAC_DIST_DIR
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([top.mak])
+# sipXecs/bin/sipxecs-config-ext is specified here because it needs to
+# have @subdirs@ substituted, and @subdirs@ is loaded by AC_CONFIG_SUBDIRS,
+# which is done only in this configure.ac, which is the only one that knows
+# the names of all the components.
+AC_CONFIG_FILES([
+	Makefile
+	top.mak
+	sipXecs/bin/sipxecs-config-ext
+])
 
 AC_OUTPUT

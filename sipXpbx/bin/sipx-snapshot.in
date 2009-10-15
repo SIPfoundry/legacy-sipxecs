@@ -416,12 +416,9 @@ function cutIfTimestamps() {
 # Assemble the list of files to record.
 
 # These files and directories are always recorded.
-# (In @wwwdir@/doc, we only want to record VXML files, and not the directories
-# of prompts.)
 cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@
 @SIPX_DBDIR@
-` ls -1d @wwwdir@/doc/*vxml 2>/dev/null `
 /etc/host.conf
 /etc/resolv.conf
 /etc/named.conf
@@ -531,7 +528,7 @@ esac
 for File in ${ExtraFiles}
 do
   # Point the file name to $PWD if it has no /.
-  File=$( make_absolute ${File} ${PWD} )
+  File=`make_absolute ${File} ${PWD}`
 
   # Check that the file exists.
   if [ ! -e ${File} ]
@@ -548,7 +545,7 @@ done
 for File in ${CommentFiles}
 do
   # Point the file name to $PWD if it has no /.
-  File=$( make_absolute ${File} ${PWD} )
+  File=`make_absolute ${File} ${PWD}`
 
   # Check that the file exists.
   if [ ! -e ${File} ]
@@ -558,7 +555,7 @@ do
   fi
 
   # Copy the file into the work directory.
-  cp -pR --dereference ${File} ${Work}/$( basename ${File} )
+  cp -pR --dereference ${File} ${Work}/`basename ${File}`
 done
 
 # Record miscellaneous information about the host.
@@ -636,7 +633,7 @@ then
     echo ======== Generate core files for all sipX processes > ${Backtrace}
     for PID_FILE in @SIPX_RUNDIR@/*.pid
     do
-        PID=$( cat ${PID_FILE} )
+        PID=`cat ${PID_FILE}`
         FILE=/tmp/core.${PID}
         echo
         echo Generate core file for ${PID_FILE%.pid} process number $PID into ${FILE}
@@ -663,7 +660,7 @@ else
     echo ======== Backtrace of all sipX processes > ${Backtrace}
     for PID_FILE in @SIPX_RUNDIR@/*.pid
     do
-        PID=$( cat ${PID_FILE} )
+        PID=`cat ${PID_FILE}`
         echo
         echo Process ${PID_FILE%.pid} number ${PID}
         echo
@@ -688,7 +685,7 @@ cat /dev/null >${Work}.core-related-files
 for Core in ${CoreFiles}
 do
   # Point the core file name to SIPX_LOGDIR if it has no /.
-  Core=$( make_absolute ${Core} @SIPX_LOGDIR@ )
+  Core=`make_absolute ${Core} @SIPX_LOGDIR@`
 
   # Check that the file exists.
   if [ ! -e ${Core} ]
@@ -698,7 +695,7 @@ do
   fi
 
   # Run 'file' on it.
-  file_output="$( file ${Core} )"
+  file_output="`file ${Core}`"
 
   # Verify that it is a core file.
   if [[ "${file_output}" != *" core file "* ]]
@@ -713,7 +710,7 @@ do
       Executable="${file_output##*\ from\ \'}"
       Executable="${Executable%\'}"
       # Point the executable file name to SIPX_BINDIR if it has no /.
-      Executable=$( make_absolute ${Executable} @SIPX_BINDIR@ )
+      Executable=`make_absolute ${Executable} @SIPX_BINDIR@`
   else
       Executable='(unknown)'
   fi
@@ -808,7 +805,9 @@ done
 echo ======== END DNS LOOKUPS >> ${SystemConfig}
 
 # Get configuration information on sipX components
-for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
+for component in `@SIPX_BINDIR@/sipxecs-config --components |
+	          tr A-Z a-z |
+		  sort `
 do
   echo "" >> ${SystemConfig}
   if test -x @bindir@/sipx${component}-config

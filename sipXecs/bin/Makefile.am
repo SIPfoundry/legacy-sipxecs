@@ -1,20 +1,15 @@
 include $(top_srcdir)/config/subdir.am
 
-TESTS = sipx-upgrade-testsuite
-
 bin_SCRIPTS = \
    ${PACKAGE}-config \
-   sipx-upgrade
-
-check_SCRIPTS = sipx-upgrade-testsuite
+   sipxecs-config-ext 
 
 EXTRA_DIST = \
-    $(bin_SCRIPTS) \
-    sipx-upgrade-testsuite \
-    shell-unit
+    $(bin_SCRIPTS)
 
-$(top_builddir)/BUILDSTAMP:
-	${MAKE} -C $(top_builddir) BUILDSTAMP
+install-exec-hook :
+
+DISTCLEANFILES = Makefile.in config.h.in
 
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
@@ -22,3 +17,7 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	    $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
+
+# sipxecs-config-ext is generated from sipxecs-config-ext.in by the
+# top-level configure.ac, as it is the only one that knows the names
+# of all the components, and so can substitute "subdirs".

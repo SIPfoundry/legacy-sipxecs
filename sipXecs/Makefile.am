@@ -2,6 +2,10 @@ include config/project.am
 
 RPMS = $(DEFAULT_RPMS)
 
+SUBDIRS = \
+	. \
+	bin
+
 EXTRA_DIST = \
 	BUILDSTAMP \
 	SVN-VERSION \

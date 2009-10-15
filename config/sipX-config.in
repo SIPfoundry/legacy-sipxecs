@@ -3,18 +3,33 @@
 ## @PACKAGE@-config
 ##
 ## Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+## Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 ## Contributors retain copyright to elements licensed under a Contributor Agreement.
 ## Licensed to the User under the LGPL license.
 ##
 ##
 
+# Print configuration information about sipXecs.
+# Configuration information about the underlying platform, used by sipXecs,
+# is printed by sipx-config.
+
+# The default operation is PRINT, with ${Info} being the line of words to print.
 Action=PRINT
 Info=""
 
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-includedir=@includedir@
-libdir=@libdir@
+# Check to see if there is an extension for this package, and if so,
+# read it.
+ExtensionExists=no
+[ -r @SIPX_BINDIR@/@PACKAGE@-config-ext ] &&
+    ExtensionExists=yes
+if [ ${ExtensionExists} = yes ]
+then
+    # The extension file should define three shell functions:
+    # @PACKAGE@_config_extension_usage - print additional usage information
+    # @PACKAGE@_config_extension_operations - perform additional operations
+    # @PACKAGE@_config_extension_options - process an extension option
+    source @SIPX_BINDIR@/@PACKAGE@-config-ext
+fi
 
 while [ $# -ne 0 ]
 do
@@ -81,12 +96,28 @@ do
         ## handle an unknown switch
         ##
         -*)
-            echo "Unknown switch '${1}'" 1>&2
-            Action=USAGE
+	    # If an extension exists for this package, call its option function.
+	    # If the option function thinks the option is valid, it returns
+	    # success; otherwise it returns failure.
+	    # This script's current arguments are given to it as arguments
+	    # The returned value of ${AdditionalShift} is given to
+	    # "shift" to allow the function to shift additional arguments.
+	    if  [ ${ExtensionExists} = yes ] &&
+		@PACKAGE@_config_extension_options "$@"
+	    then
+		:
+	    else
+		# If the option was not valid, give an error message and print
+		# the usage message.
+		echo "Unknown switch '${1}'" 1>&2
+		Action=USAGE
+		AdditionalShift=0
+	    fi
+	    shift ${AdditionalShift}
             ;;
     esac
 
-    shift # always consume 1
+    shift # always consume 1 argument
 done
 
 if [ "${Action}" = "PRINT" -a "${Info}" = "" ]
@@ -119,7 +150,17 @@ Usage: @PACKAGE@-config [OPTIONS]
 
     --help        this message
 EOF
-        exit
+
+	# If an extension exists for this package, append its usage message.
+	if [ ${ExtensionExists} = yes ]
+	then
+	    @PACKAGE@_config_extension_usage
+	fi
+
+	# Give success exit, as did earlier versions of this script.
+	# (Without the '0', exit would return the exit status of the previous
+	# command.)
+        exit 0
         ;;
 
     PRINT)
@@ -142,6 +183,12 @@ EOF
 @PACKAGE@ cfgopts  @CONFIGURE_OPTIONS@
 EOF
         ;;
+
+    *)
+	# Other values of ${Action} can invoke addtional operations that
+	# are defined in the extension file.
+	@PACKAGE@_config_extension_operations
+	;;
 
 esac
 
