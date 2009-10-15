@@ -15,11 +15,13 @@
    <description>Standard sipXpbx PBX</description>
    <packagelist>
      <packagereq type="mandatory">sipxacd</packagereq>
+     <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxpresence</packagereq>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxproxy-cdr</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
-     <packagereq type="mandatory">sipxvxml</packagereq>
+     <packagereq type="mandatory">sipxrls</packagereq>
      <packagereq type="mandatory">sipxtools</packagereq>
      <packagereq type="mandatory">sipxconfig</packagereq>
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
@@ -37,11 +39,13 @@
    <packagelist>
      <!-- START: copy of sipxecs packages -->
      <packagereq type="mandatory">sipxacd</packagereq>
+     <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxpresence</packagereq>
      <packagereq type="mandatory">sipxproxy</packagereq>
      <packagereq type="mandatory">sipxproxy-cdr</packagereq>
      <packagereq type="mandatory">sipxpublisher</packagereq>
      <packagereq type="mandatory">sipxregistry</packagereq>
-     <packagereq type="mandatory">sipxvxml</packagereq>
+     <packagereq type="mandatory">sipxrls</packagereq>
      <packagereq type="mandatory">sipxtools</packagereq>
      <packagereq type="mandatory">sipxconfig</packagereq>
      <packagereq type="mandatory">sipxconfig-ftp</packagereq>
@@ -51,17 +55,19 @@
      <packagereq type="mandatory">sipxconfig-agent</packagereq>
      <!-- END: copy of sipxecs packages -->
      <packagereq type="mandatory">gdb</packagereq>
-     <packagereq type="mandatory">sipxportlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxacd-debuginfo</packagereq>
      <packagereq type="mandatory">sipxcalllib-debuginfo</packagereq>
-     <packagereq type="mandatory">sipxtacklib-debuginfo</packagereq>
-     <packagereq type="mandatory">sipxmedialib-debuginfo</packagereq>
      <packagereq type="mandatory">sipxcommserverlib-debuginfo</packagereq>
      <packagereq type="mandatory">sipxmediaadapterlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxmedialib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpark-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxportlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpresence-debuginfo</packagereq>
      <packagereq type="mandatory">sipxproxy-debuginfo</packagereq>
-     <packagereq type="mandatory">sipxregistry-debuginfo</packagereq>
      <packagereq type="mandatory">sipxpublisher-debuginfo</packagereq>
-     <packagereq type="mandatory">sipxvxml-debuginfo</packagereq>
-     <packagereq type="mandatory">sipxacd-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxregistry-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxrls-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxtacklib-debuginfo</packagereq>
    </packagelist>
   </group>
 </comps>

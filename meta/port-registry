@@ -26,9 +26,6 @@ Port    Component         Use
 5090    sipXbridge	  SIP LAN-Facing port
 5091    sipXbridge        SIP/TLS LAN-Facing port
 
-5100    sipXvxml          SIP
-5101    sipXvxml          SIP/TLS
-
 5110    sipXpublisher     SIP
 5111    sipXpublisher     SIP/TLS
 
