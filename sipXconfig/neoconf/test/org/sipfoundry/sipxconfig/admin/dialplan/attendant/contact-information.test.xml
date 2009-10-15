@@ -40,16 +40,28 @@
   </user>
   <user>
     <userName>201</userName>
+    <imId>201</imId>
+    <imDisplayName>201</imDisplayName>
     <homeAddress/>
     <officeAddress/>
     <conferences/>
   </user>
   <user>
     <userName>202</userName>
+    <imId>202</imId>
+    <imDisplayName>202</imDisplayName>
     <homeAddress/>
     <officeAddress>
       <street>1, Branch Street</street>
     </officeAddress>
+    <conferences/>
+  </user>
+  <user>
+    <userName>Jagr</userName>
+    <imId>Jagr</imId>
+    <imDisplayName>Jagr</imDisplayName>
+    <homeAddress/>
+    <officeAddress/>
     <conferences/>
   </user>
 </contact-info>

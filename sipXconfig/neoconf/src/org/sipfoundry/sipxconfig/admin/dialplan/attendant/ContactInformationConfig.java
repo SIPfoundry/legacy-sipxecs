@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
@@ -59,11 +60,15 @@ public class ContactInformationConfig extends XmlFile {
     private void generateUser(User user, Element element) {
         Element userEl = element.addElement("user");
         userEl.addElement("userName").setText(user.getUserName());
+
+        ImAccount imAccount = new ImAccount(user);
+        addElements(userEl, imAccount, "imId", "imDisplayName");
+
         AddressBookEntry abe = user.getAddressBookEntry();
         if (abe != null) {
-            addElements(userEl, abe, "imId", "imDisplayName", "alternateImId", "jobTitle", "jobDept", "companyName",
-                    "assistantName", "assistantPhoneNumber", "faxNumber", "location", "homePhoneNumber",
-                    "cellPhoneNumber");
+
+            addElements(userEl, abe, "alternateImId", "jobTitle", "jobDept", "companyName", "assistantName",
+                    "assistantPhoneNumber", "faxNumber", "location", "homePhoneNumber", "cellPhoneNumber");
 
             Element homeAddressEl = userEl.addElement("homeAddress");
             addAddressInfo(homeAddressEl, abe.getHomeAddress());

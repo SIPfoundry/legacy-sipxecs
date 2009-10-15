@@ -95,13 +95,19 @@ public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
         u3.setBranch(branch);
         u3.setAddressBookEntry(abe3);
 
+        User u4 = new User();
+        u4.setUserName("Jagr");
+        u4.addAlias("nhlPlayer");
+        AddressBookEntry abe4 = new AddressBookEntry();
+        u4.setAddressBookEntry(abe4);
+
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Arrays.asList(u1, u2, u3));
+        expectLastCall().andReturn(Arrays.asList(u1, u2, u3, u4));
 
         ConferenceBridgeContext bridgeContext = createMock(ConferenceBridgeContext.class);
         bridgeContext.findConferencesByOwner(u1);
-        expectLastCall().andReturn(Arrays.asList(m_conf)).once().andReturn(new ArrayList<Conference>()).times(2);
+        expectLastCall().andReturn(Arrays.asList(m_conf)).once().andReturn(new ArrayList<Conference>()).times(3);
         replay(bridgeContext);
         replay(coreContext);
 
