@@ -386,6 +386,14 @@ class CallControlManager implements SymmitronResetHandler {
                 response.setHeader(contactHeader);
 
                 DialogContext dialogContext = DialogContext.get(serverTransaction.getDialog());
+                /*
+                 * Request was seen from the WAN side.
+                 */
+                if ( provider != Gateway.getLanProvider()) {
+                    if ( dialogContext.getItspInfo() == null || dialogContext.getItspInfo().isGlobalAddressingUsed()) {
+                        SipUtilities.setGlobalAddress(response);
+                    }
+                }
 
                 dialogContext.setSessionTimerResponseSent();
 
