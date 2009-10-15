@@ -296,7 +296,7 @@
     <property name="vxmlDir" value="${sysdir.vxml}" />
     <property name="bundles">
       <set>
-        <ref bean="primarySipRouterBundle" />
+        <ref bean="voicemailBundle" />
       </set>
     </property>
   </bean>
@@ -488,7 +488,7 @@
     <property name="docDir" value="${sysdir.doc}" />
     <property name="bundles">
       <set>
-        <ref bean="primarySipRouterBundle" />
+        <ref bean="voicemailBundle" />
         <ref bean="conferenceBundle" />
       </set>
     </property>
