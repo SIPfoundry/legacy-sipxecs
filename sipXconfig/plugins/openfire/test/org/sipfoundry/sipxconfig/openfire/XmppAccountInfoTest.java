@@ -60,16 +60,12 @@ public class XmppAccountInfoTest extends TestCase {
         m_userOne.setSettingTypedValue("im/im-account", true);
         m_userOne.setSettingTypedValue("im/on-the-phone-message", "testing phone message");
         m_userOne.setSettingTypedValue("im/advertise-sip-presence", true);
-        m_userOne.setSettingTypedValue("im/include-call-info", false);
         m_userOne.setUserName("One");
         m_userOne.setImId("One_IM");
         m_userOne.setImDisplayName("One_IM_DisplayName");
 
         m_userTwo = new User();
         m_userTwo.setPermissionManager(m_pm);
-        m_userTwo.setSettingTypedValue("im/on-the-phone-message", "On the phone");
-        m_userTwo.setSettingTypedValue("im/advertise-sip-presence", true);
-        m_userTwo.setSettingTypedValue("im/include-call-info", false);
         m_userTwo.setUserName("Two");
         m_userTwo.setImDisplayName("Two_IM_DisplayName");
 
@@ -78,7 +74,7 @@ public class XmppAccountInfoTest extends TestCase {
         userThree.setSettingTypedValue("im/im-account", true);
         userThree.setSettingTypedValue("im/on-the-phone-message", "");
         userThree.setSettingTypedValue("im/advertise-sip-presence", true);
-        userThree.setSettingTypedValue("im/include-call-info", false);
+        userThree.setSettingTypedValue("im/include-call-info", true);
         userThree.setUserName("Three");
         userThree.setImPassword("bongoImPassword");
 

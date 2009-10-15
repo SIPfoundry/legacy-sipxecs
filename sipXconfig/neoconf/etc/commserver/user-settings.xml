@@ -163,7 +163,7 @@
       <type>
         <boolean />
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
     <setting name="on-the-phone-message" advanced="yes">
       <type>

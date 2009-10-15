@@ -17,7 +17,7 @@
     <password>bongoImPassword</password>
     <on-the-phone-message></on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
-    <show-on-call-details>false</show-on-call-details>
+    <show-on-call-details>true</show-on-call-details>
   </user>
   <user>
     <user-name>MyAssistant</user-name>
@@ -26,7 +26,7 @@
     <password>password</password>
     <on-the-phone-message>On the phone</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
-    <show-on-call-details>true</show-on-call-details>
+    <show-on-call-details>false</show-on-call-details>
   </user>
   <group>
     <group-name>group1</group-name>
