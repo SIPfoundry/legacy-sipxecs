@@ -1910,23 +1910,24 @@ public class BackToBackUserAgent {
                     }
                 }
 
-                Request byeRequest = replacedDialog.createRequest(Request.BYE);
-                SipProvider provider = ((DialogExt) replacedDialog)
-                        .getSipProvider();
-                ClientTransaction byeCtx = provider
-                        .getNewClientTransaction(byeRequest);
+                if ( replacedDialog.getState() == DialogState.CONFIRMED ) {
+                    Request byeRequest = replacedDialog.createRequest(Request.BYE);
+                    SipProvider provider = ((DialogExt) replacedDialog).getSipProvider();
+                    ClientTransaction byeCtx = provider.getNewClientTransaction(byeRequest);
 
-                /*
-                 * Create a little transaction context to identify the operator
-                 * in our state machine. when we see a response to the BYE.
-                 */
-                TransactionContext.attach(byeCtx,
-                        Operation.SEND_BYE_TO_REPLACED_DIALOG);
-
-                /*
-                 * bid adeu to the replaced dialog.
-                 */
-                replacedDialog.sendRequest(byeCtx);
+                    /*
+                     * Create a little transaction context to identify the operator
+                     * in our state machine. when we see a response to the BYE.
+                     */
+                    TransactionContext.attach(byeCtx,
+                            Operation.SEND_BYE_TO_REPLACED_DIALOG);
+                    /*
+                     * bid adeu to the replaced dialog.
+                     */
+                    replacedDialog.sendRequest(byeCtx);
+                } else if ( replacedDialog.getState() != DialogState.TERMINATED ) {
+                    this.cleanupList.add(replacedDialog);
+                }
 
                 serverTransaction.sendResponse(okResponse);
 
@@ -2159,13 +2160,22 @@ public class BackToBackUserAgent {
             }
         }
         
-        for (Dialog dialog : this.dialogTable) {
-            Request byeRequest = dialog.createRequest(Request.BYE);
-            if (dialog.getState() != DialogState.TERMINATED) {
+        /*
+         * Garbage collect those dialogs that were supposed to be terminated during normal processing.
+         */
+        for (Dialog dialog : this.cleanupList) {
+            if (dialog.getState() != null && dialog.getState() != DialogState.TERMINATED
+                    && dialog.getState() != DialogState.EARLY ) {
+                Request byeRequest = dialog.createRequest(Request.BYE);
+                if (reason != null) {
+                    byeRequest.addHeader(reason);
+                }
                 logger.debug("Tear down call " + dialog);
                 ClientTransaction ctx = ((DialogExt)dialog).getSipProvider().getNewClientTransaction(byeRequest);
                 TransactionContext.attach(ctx, Operation.SEND_BYE_FOR_TEARDOWN);
                 dialog.sendRequest(ctx);
+            } else if ( dialog.getState() != DialogState.TERMINATED) {
+                dialog.delete();
             }
         }
 
