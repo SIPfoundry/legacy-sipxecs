@@ -25,6 +25,5 @@
     <file>@SIPX_CONFDIR@/sipxsaa-config</file>
     <imdb>credential</imdb>
     <imdb configAccess='read-only'>subscription</imdb>
-    <process>SIPRegistrar</process>
   </resources>
 </sipXecs-process>
