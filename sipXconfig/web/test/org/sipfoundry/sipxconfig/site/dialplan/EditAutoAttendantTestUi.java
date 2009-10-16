@@ -177,6 +177,48 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertTableRowCountEquals("attendant:menuItems", 4);
     }
 
+    public void testCheckDuplicateMenuItems() throws Exception {
+        seedAutoAttendant(tester);
+        SiteTestHelper.home(tester);
+
+        clickLink("NewAutoAttendant");
+        assertElementPresent("attendant:form");
+
+        setTextField("item:name", "New Attendant");
+        String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
+        File actualFile = new File(actualFilename);
+        assertTrue(actualFile.exists());
+        setTextField("promptUpload", actualFile.getAbsolutePath());
+
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        selectOption("addMenuItemAction", "Auto Attendant");
+        selectOption("addMenuItemKey", "9");
+        submit("attendant:addMenuItem");
+        SiteTestHelper.assertNoUserError(tester);
+
+        // add item action with an existing key
+        selectOption("addMenuItemAction", "Deposit Voicemail");
+        selectOption("addMenuItemKey", "9");
+        submit("attendant:addMenuItem");
+        SiteTestHelper.assertUserError(tester);
+
+        selectOption("addMenuItemAction", "Deposit Voicemail");
+        selectOption("addMenuItemKey", "8");
+        submit("attendant:addMenuItem");
+        SiteTestHelper.assertNoUserError(tester);
+
+        selectOption("menuItemKey", "8");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        selectOption("menuItemKey", "7");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+    }
+
     public static final String seedPromptFile(String dir) throws IOException {
         File promptsDir = getCleanPromptsDir(dir);
         copyFileToDirectory(PROMPT_TEST_FILE, promptsDir);

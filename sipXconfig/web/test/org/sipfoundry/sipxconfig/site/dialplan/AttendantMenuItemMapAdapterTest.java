@@ -14,18 +14,28 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.bean.EvenOdd;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.common.DialPad;
+import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.dialplan.AttendantMenuPanel.AttendantMenuItemMapAdapter;
 
 public class AttendantMenuItemMapAdapterTest extends TestCase {
 
-    AttendantMenuItem item1 = new AttendantMenuItem();
-    AttendantMenuItem item2 = new AttendantMenuItem();
-    AttendantMenuItem item3 = new AttendantMenuItem();
+    private AttendantMenuItem item1 = new AttendantMenuItem();
+    private AttendantMenuItem item2 = new AttendantMenuItem();
+    private AttendantMenuItem item3 = new AttendantMenuItem();
 
-    AttendantMenuItemMapAdapter adapter;
+    private AttendantMenuItemMapAdapter adapter;
+    private AttendantMenu menu = new AttendantMenu();
 
     protected void setUp() {
         // tree map ensure order is preserved and so unittests
@@ -34,16 +44,16 @@ public class AttendantMenuItemMapAdapterTest extends TestCase {
         map.put(DialPad.NUM_1, item1);
         map.put(DialPad.NUM_2, item2);
         map.put(DialPad.NUM_3, item3);
-        AttendantMenu menu = new AttendantMenu();
         menu.setMenuItems(map);
+
         adapter = new AttendantMenuItemMapAdapter(menu);
     }
 
     public void testSetCurrentEntry() {
         adapter.setCurrentDialPadKey(DialPad.NUM_1);
         adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_2);
-        assertSame(DialPad.NUM_2, adapter.getCurrentMenuItemDialPadKeyAssignment());
-        assertSame(DialPad.NUM_2, adapter.getCurrentDialPadKey());
+        assertSame(DialPad.NUM_1, adapter.getCurrentMenuItemDialPadKeyAssignment());
+        assertSame(DialPad.NUM_1, adapter.getCurrentDialPadKey());
         assertSame(item1, adapter.getCurrentMenuItem());
     }
 
@@ -53,5 +63,42 @@ public class AttendantMenuItemMapAdapterTest extends TestCase {
         assertSame(DialPad.NUM_1, adapter.getCurrentMenuItemDialPadKeyAssignment());
         assertSame(DialPad.NUM_1, adapter.getCurrentDialPadKey());
         assertSame(item1, adapter.getCurrentMenuItem());
+    }
+
+    public void testChangeDialPadKeys() {
+        // assign item 1 to dial pad 2
+        adapter.setCurrentDialPadKey(DialPad.NUM_1);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_2);
+
+        // assign item 2 to dial pad 3
+        adapter.setCurrentDialPadKey(DialPad.NUM_2);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_3);
+
+        // assign item 3 to dial pad 1
+        adapter.setCurrentDialPadKey(DialPad.NUM_3);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_1);
+
+        assertSame(item3, menu.getMenuItems().get(DialPad.NUM_1));
+        assertSame(item1, menu.getMenuItems().get(DialPad.NUM_2));
+        assertSame(item2, menu.getMenuItems().get(DialPad.NUM_3));
+    }
+
+    public void testDuplicateDialPadKey() {
+        // assign item 1 to dial pad 2
+        adapter.setCurrentDialPadKey(DialPad.NUM_1);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_2);
+
+        // assign item 2 to dial pad 2
+        adapter.setCurrentDialPadKey(DialPad.NUM_2);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_2);
+
+        // assign item 3 to dial pad 2
+        adapter.setCurrentDialPadKey(DialPad.NUM_3);
+        adapter.setCurrentMenuItemDialPadKeyAssignment(DialPad.NUM_2);
+
+        // should have same menu
+        assertSame(item1, menu.getMenuItems().get(DialPad.NUM_1));
+        assertSame(item2, menu.getMenuItems().get(DialPad.NUM_2));
+        assertSame(item3, menu.getMenuItems().get(DialPad.NUM_3));
     }
 }

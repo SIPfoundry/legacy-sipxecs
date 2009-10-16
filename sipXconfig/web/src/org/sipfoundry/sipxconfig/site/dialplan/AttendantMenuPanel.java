@@ -9,10 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
@@ -22,6 +28,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.validator.Pattern;
+import org.apache.tapestry.form.validator.Required;
+import org.apache.tapestry.form.validator.Validator;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
@@ -33,10 +44,12 @@ import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class AttendantMenuPanel extends BaseComponent {
 
     private static final String ACTION_PREFIX = "menuItemAction.";
+    private static final String KEY_IN_USE_ERROR = "msg.error.keyInUse";
 
     @InjectObject(value = "spring:autoAttendantManager")
     public abstract AutoAttendantManager getAutoAttendantManager();
@@ -88,8 +101,7 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
     public IPropertySelectionModel getAutoAttendants() {
         List<AutoAttendant> autoAttendants = getAutoAttendantManager().getAutoAttendants();
-        IPropertySelectionModel attendantSelectionModel = new AttendantSelectionModel(
-                autoAttendants);
+        IPropertySelectionModel attendantSelectionModel = new AttendantSelectionModel(autoAttendants);
         return getTapestry().instructUserToSelect(attendantSelectionModel, getMessages());
     }
 
@@ -126,8 +138,11 @@ public abstract class AttendantMenuPanel extends BaseComponent {
     }
 
     public void addMenuItem() {
-        AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.TRANSFER_OUT
-                : getAddMenuItemAction();
+        if (getMenu().getMenuItems().containsKey(getAddMenuItemDialPad())) {
+            addKeyInUseException(getAddMenuItemDialPad().getName());
+            return;
+        }
+        AttendantMenuAction action = getExtensionOnly() ? AttendantMenuAction.TRANSFER_OUT : getAddMenuItemAction();
         if (action != null) {
             getMenu().addMenuItem(getAddMenuItemDialPad(), action);
             selectNextAvailableDialpadKey();
@@ -162,6 +177,43 @@ public abstract class AttendantMenuPanel extends BaseComponent {
         return getMessages().getMessage(ACTION_PREFIX + action.getName());
     }
 
+    public List<Validator> getDialPadSelectionValidators() {
+        String [] regexMetaChars = {DialPad.STAR.getName()};
+
+        List<Validator> validators = new ArrayList<Validator>(2);
+        validators.add(new Required());
+
+        String dialPadRegex = StringUtils.EMPTY;
+        Collection<DialPad> freeDialPads = CollectionUtils.subtract(Arrays.asList(DialPad.KEYS), getMenuItems().
+                getCurrentMenuDialPads());
+
+        for (DialPad freeDialPad : freeDialPads) {
+            String dialPadNumber = freeDialPad.getName();
+            if (Arrays.asList(regexMetaChars).contains(dialPadNumber)) {
+                dialPadNumber = "\\" + dialPadNumber;
+            }
+
+            dialPadRegex += dialPadNumber;
+        }
+
+        Pattern pattern = new Pattern();
+        if (dialPadRegex.isEmpty()) {
+            pattern.setPattern("\\[\\]");
+        } else {
+            pattern.setPattern("[" + dialPadRegex + "]");
+        }
+        pattern.setMessage(getMessages().format(KEY_IN_USE_ERROR, ""));
+        validators.add(pattern);
+
+        return validators;
+    }
+
+    private void addKeyInUseException(String key) {
+        String msg = getMessages().format(KEY_IN_USE_ERROR, key);
+        IValidationDelegate validator = TapestryUtils.getValidator(this.getPage());
+        validator.record(new ValidatorException(msg));
+    }
+
     /**
      * Let's you set keys on map entries without losing your place in the iteration thru the map.
      * This is handy in tapestry when you iterate thru a list and your key values can change.
@@ -170,13 +222,20 @@ public abstract class AttendantMenuPanel extends BaseComponent {
 
         private final Map<DialPad, AttendantMenuItem> m_menuItems;
 
+        private final Map<DialPad, AttendantMenuItem> m_currentMenuItems;
+
         private final DialPad[] m_dialPadKeys;
 
         private DialPad m_currentDialPadKey;
 
         AttendantMenuItemMapAdapter(AttendantMenu menu) {
             m_menuItems = menu.getMenuItems();
+            m_currentMenuItems = new LinkedHashMap<DialPad, AttendantMenuItem>();
             m_dialPadKeys = m_menuItems.keySet().toArray(new DialPad[m_menuItems.size()]);
+        }
+
+        public  Set<DialPad> getCurrentMenuDialPads() {
+            return m_currentMenuItems.keySet();
         }
 
         public void setCurrentDialPadKey(DialPad dialPadKey) {
@@ -192,10 +251,18 @@ public abstract class AttendantMenuPanel extends BaseComponent {
         }
 
         public void setCurrentMenuItemDialPadKeyAssignment(DialPad dialPadKey) {
+            if (m_currentMenuItems.containsKey(dialPadKey)) {
+                return;
+            }
             AttendantMenuItem value = m_menuItems.get(m_currentDialPadKey);
-            m_menuItems.remove(m_currentDialPadKey);
-            m_menuItems.put(dialPadKey, value);
-            m_currentDialPadKey = dialPadKey;
+            m_currentMenuItems.put(dialPadKey, value);
+
+            // promote changes to menu items
+            if (m_currentMenuItems.size() == m_menuItems.size()) {
+                m_menuItems.clear();
+                m_menuItems.putAll(m_currentMenuItems);
+                m_currentDialPadKey = dialPadKey;
+            }
         }
 
         public DialPad getCurrentMenuItemDialPadKeyAssignment() {
@@ -205,10 +272,6 @@ public abstract class AttendantMenuPanel extends BaseComponent {
         public AttendantMenuItem getCurrentMenuItem() {
             AttendantMenuItem value = m_menuItems.get(m_currentDialPadKey);
             return value;
-        }
-
-        public void setCurrentMenuItem(AttendantMenuItem menuItem) {
-            m_menuItems.put(m_currentDialPadKey, menuItem);
         }
     }
 }

@@ -80,4 +80,9 @@ public final class DialPad extends Enum {
         }
         return result.toArray(new DialPad[result.size()]);
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
