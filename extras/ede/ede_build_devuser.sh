@@ -310,7 +310,7 @@ if [ $BUILD_DEPENDENCY_TARGET ]; then
    rpmdev-setuptree
    pushd $CODE/lib > /dev/null
    rm -rf cache-file
-   sudo make $DEPENDENCY_TARGET DESTDIR=$FULL_PATH_DIST LIBSRC=$FULL_PATH_DIST/libsrc &> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
+   make $DEPENDENCY_TARGET DESTDIR=$FULL_PATH_DIST LIBSRC=$FULL_PATH_DIST/libsrc &> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
    dep_make_result=$?
    echo DEPENDENCY_TARGET: $DEPENDENCY_TARGET >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
    echo $FULL_PATH_DIST/RPM contents: >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
