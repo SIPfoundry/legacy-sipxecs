@@ -1622,8 +1622,7 @@ public class BackToBackUserAgent {
                 RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
                         rtpSession, symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
-
-                rtpEndpoint.setSessionDescription(sessionDescription, true);
+            //    rtpEndpoint.setSessionDescription(sessionDescription, true);      
                 int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
                 KeepaliveMethod keepaliveMethod = tad.getItspAccountInfo()
                         .getRtpKeepaliveMethod();
@@ -1921,12 +1920,10 @@ public class BackToBackUserAgent {
                      */
                     TransactionContext.attach(byeCtx,
                             Operation.SEND_BYE_TO_REPLACED_DIALOG);
-                    /*
-                     * bid adeu to the replaced dialog.
-                     */
                     replacedDialog.sendRequest(byeCtx);
                 } else if ( replacedDialog.getState() != DialogState.TERMINATED ) {
                     this.cleanupList.add(replacedDialog);
+                    DialogContext.get(replacedDialog).setTerminateOnConfirm();
                 }
 
                 serverTransaction.sendResponse(okResponse);
