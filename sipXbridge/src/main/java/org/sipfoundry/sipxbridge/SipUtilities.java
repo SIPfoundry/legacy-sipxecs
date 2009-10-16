@@ -22,6 +22,8 @@ import gov.nist.javax.sip.message.MultipartMimeContent;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.text.ParseException;
 import java.util.Collection;
@@ -1814,6 +1816,14 @@ class SipUtilities {
             }
         }
         return noforward;
+    }
+    
+    static void printStackTrace() {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter writer = new PrintWriter(stringWriter);
+        new Exception().printStackTrace(writer);
+        logger.debug("stackTrace = " + stringWriter.getBuffer().toString());
+      
     }
     
 }

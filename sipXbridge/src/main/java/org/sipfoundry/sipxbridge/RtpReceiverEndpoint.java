@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Random;
 
 import javax.sdp.Origin;
@@ -131,7 +133,8 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
      */
 
     void setUseGlobalAddressing(boolean globalAddressingUsed) {
-            this.useGlobalAddressing = globalAddressingUsed;
+            logger.debug("setUseGlobalAddressing " + globalAddressingUsed);
+             this.useGlobalAddressing = globalAddressingUsed;
             if ( this.sessionDescription != null ) {
                 this.setSessionDescription(sessionDescription);
             }

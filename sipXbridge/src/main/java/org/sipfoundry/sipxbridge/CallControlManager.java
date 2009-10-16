@@ -18,6 +18,8 @@ import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.ListIterator;
@@ -201,21 +203,23 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void handleReInvite(RequestEvent requestEvent) throws Exception {
-        logger.debug("Re-INVITE proessing !! ");
+        logger.debug("Re-INVITE proessing.");
 
+        /*
+         * Grab context information from inbound request.
+         */
         ServerTransaction serverTransaction = requestEvent.getServerTransaction();
         Dialog dialog = serverTransaction.getDialog();
         Request request = requestEvent.getRequest();
         SipProvider provider = (SipProvider) requestEvent.getSource();
+        DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
 
-        DialogContext dat = (DialogContext) dialog.getApplicationData();
-
-        if ( dat == null ) {
+        if ( dialogContext == null ) {
             logger.error("Null Dialog Context detected on dialog " + dialog);
             return;
         }
 
-        Dialog peerDialog = dat.getPeerDialog();
+        Dialog peerDialog = dialogContext.getPeerDialog();
 
         /*
          * The peer dialog may not be found if our re-INVITE did not succeed.
@@ -228,16 +232,27 @@ class CallControlManager implements SymmitronResetHandler {
                     "Could not process re-INVITE : No peer!");
             response.setReasonPhrase("Peer dialog is null");
             serverTransaction.sendResponse(response);
-            if (dat.getBackToBackUserAgent() != null) {
-                dat.getBackToBackUserAgent().tearDown(reasonHeader);
+            if (dialogContext.getBackToBackUserAgent() != null) {
+                dialogContext.getBackToBackUserAgent().tearDown(reasonHeader);
             }
             return;
         }
 
+        /*
+         * We re-use the RTP session object. The useGlobalAddressing flag determines
+         * whether or not the SDP associated with the RTP session gets global (public)
+         * addresses assigned to it. In the case of call forwarding, it could be that 
+         * this RTP session was pointed to the global side. Hence we need to reset it
+         * to point to the private side if the request originated from the LAN.
+         */
+        if ( dialogContext.getRtpSession() != null && provider == Gateway.getLanProvider() ) {
+             dialogContext.getRtpSession().getReceiver().setUseGlobalAddressing(false);
+        }
         SipProvider peerDialogProvider = ((DialogExt) peerDialog).getSipProvider();
 
         /*
-         * Is he other side trying to solicit an offer?
+         * Is the other side trying to solicit an offer? This will be the case if the
+         * INVITE has no session description.
          */
        
         if (SipUtilities.isSdpOfferSolicitation(request)) {
@@ -262,6 +277,9 @@ class CallControlManager implements SymmitronResetHandler {
                 newRequest.setHeader(authHeader);
             }
 
+            /*
+             * Create a new client transaction with which to forward the request.
+             */
 
             ClientTransaction ctx = peerDialogProvider.getNewClientTransaction(newRequest);
 
@@ -271,6 +289,9 @@ class CallControlManager implements SymmitronResetHandler {
             TransactionContext tad = TransactionContext.attach(ctx,
                     Operation.FORWARD_SDP_SOLICITIATION);
 
+            /*
+             * Associate the client transaction with the inbound server transaction.
+             */
             tad.setServerTransaction(serverTransaction);
 
             /*
@@ -279,14 +300,14 @@ class CallControlManager implements SymmitronResetHandler {
             tad.setContinuationData(new ForwardSdpSolicitationContinuationData(requestEvent));
             serverTransaction.setApplicationData(tad);
 
-            DialogContext peerDat = DialogContext.get(peerDialog);
+            DialogContext peerDialogContext = DialogContext.get(peerDialog);
 
             /*
-             * Incoming rquest came in on the LAN side. Check if there is a record for the ITSP on
+             * Incoming request came in on the LAN side. Check if there is a record for the ITSP on
              * the wan side of the association.
              */
             if (provider == Gateway.getLanProvider()
-                    && (peerDat.getItspInfo() == null || peerDat.getItspInfo()
+                    && (peerDialogContext.getItspInfo() == null || peerDialogContext.getItspInfo()
                             .isGlobalAddressingUsed())) {
                 SipUtilities.setGlobalAddresses(newRequest);
             }
@@ -301,9 +322,9 @@ class CallControlManager implements SymmitronResetHandler {
              * Record in the corresponding dialog that that we solicited an offer so we can send
              * the Ack along with the SDP that is offered.
              */
-            peerDat.setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
-            if ( (peerDat.getItspInfo() == null ||
-                    peerDat.getItspInfo().getPassword() == null ) &&
+            peerDialogContext.setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
+            if ( (peerDialogContext.getItspInfo() == null ||
+                    peerDialogContext.getItspInfo().getPassword() == null ) &&
                    request.getHeader(AuthorizationHeader.NAME) != null ) {
                 /*
                  * We have no password information for the peer so just
@@ -314,12 +335,11 @@ class CallControlManager implements SymmitronResetHandler {
                         request.getHeader(AuthorizationHeader.NAME);
                 newRequest.setHeader(authHeader);
             }
-            peerDat.sendReInvite(ctx);
-            // peerDialog.sendRequest(ctx);
+            peerDialogContext.sendReInvite(ctx);
 
         } else {
 
-            RtpSession rtpSession = dat.getRtpSession();
+            RtpSession rtpSession = dialogContext.getRtpSession();
 
             /*
              * Associate the inbound session description with the TRANSMITTER side of the
@@ -331,16 +351,18 @@ class CallControlManager implements SymmitronResetHandler {
             logger.debug("Rtp Operation " + operation);
 
             /*
-             * The request originated from the LAN side. Otherwise, the request originated from
-             * WAN we sent it along to the phone on the previous step. If we handled the request
-             * locally then send an ok back. This happens when the provider does not support
-             * re-INVITE
+             * The other side sent us a media hold operation.
              */
             if (operation == RtpSessionOperation.PLACE_HOLD) {
+                /*
+                 * Does the bridge have MOH configured? If so, set up a continuation for when
+                 * we get the response from the MOH server and solicit an offer from it. When
+                 * the offer comes in, we will continue.
+                 */
                 if (Gateway.getMusicOnHoldUri() != null) {
                     SendInviteToMohServerContinuationData cdata = new SendInviteToMohServerContinuationData(
                             requestEvent);
-                    dat.solicitSdpOfferFromPeerDialog(cdata);
+                    dialogContext.solicitSdpOfferFromPeerDialog(cdata);
                 } else {
                     /*
                      * No MOH support on bridge so send OK right away.
@@ -385,7 +407,6 @@ class CallControlManager implements SymmitronResetHandler {
                         .createContactHeader(userName, provider);
                 response.setHeader(contactHeader);
 
-                DialogContext dialogContext = DialogContext.get(serverTransaction.getDialog());
                 /*
                  * Request was seen from the WAN side.
                  */
@@ -1537,7 +1558,6 @@ class CallControlManager implements SymmitronResetHandler {
                     rtpSession.getReceiver().setUseGlobalAddressing(false);
                 } else if (DialogContext.get(peerDialog).getItspInfo() == null
                         || DialogContext.get(peerDialog).getItspInfo().isGlobalAddressingUsed()) {
-                    rtpSession.getReceiver().setUseGlobalAddressing(true);
                     SipUtilities.setGlobalAddress(newResponse);
                 } else {
                     rtpSession.getReceiver().setUseGlobalAddressing(false);

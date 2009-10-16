@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.UnknownHostException;
 
 import javax.sdp.SessionDescription;
@@ -88,8 +90,10 @@ class RtpTransmitterEndpoint {
 
         this.keepAliveInterval = keepaliveInterval;
         this.keepAliveMethod = keepaliveMethod;
-        this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepaliveInterval,
+        if ( ipAddress != null ) {
+            this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepaliveInterval,
                 keepaliveMethod);
+        }
     }
 
     public void setKeepAliveMethod(KeepaliveMethod keepAliveMethod) {
@@ -145,7 +149,7 @@ class RtpTransmitterEndpoint {
 
             if (logger.isDebugEnabled()) {
                 logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress
-                        + " Setting port " + port);
+                        + " Setting port " + port +  " isOffer = " + isOffer);
             }
 
             if (this.sessionDescription == null || !this.ipAddress.equals(ipAddress)
@@ -154,7 +158,8 @@ class RtpTransmitterEndpoint {
                         keepAliveMethod);
                 this.ipAddress = ipAddress;
                 this.port = port;
-                this.symTransmitter.setOnHold(false);
+                this.symTransmitter.setOnHold(false);     
+                
             }
             this.sessionDescription = sessionDescription;
 
