@@ -231,11 +231,6 @@ public class RegistrationManager {
             }
       } else {
             if (response.getStatusCode() == Response.FORBIDDEN) {
-
-                itspAccount.setState(AccountState.AUTHENTICATION_FAILED);
-                if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
-                    itspAccount.stopCrLfTimerTask();
-                }
                 if (!itspAccount.isAlarmSent()) {
                     try {
                         Gateway.getAlarmClient().raiseAlarm(
@@ -246,11 +241,17 @@ public class RegistrationManager {
                         logger.debug("Could not send alarm", ex);
                     }
                 }
+                /*
+                 * Retry the server again after 60 seconds.
+                 */
+                if (itspAccount.registrationTimerTask == null) {
+                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
+                    Gateway.getTimer().schedule(ttask, 60 * 1000);
+                }
             } else if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
                 }
-
                 try {
                     if (!itspAccount.isAlarmSent()) {
                         Gateway.getAlarmClient().raiseAlarm(
