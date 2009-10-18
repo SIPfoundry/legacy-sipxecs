@@ -128,7 +128,7 @@ public class BackToBackUserAgentFactory {
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
 				dialogContext.setItspInfo(accountInfo);
-				dialogContext.setBackToBackUserAgent(b2bua);
+				dialogContext.setBackToBackUserAgent(b2bua);     
 			}
 
 		} catch (Exception ex) {

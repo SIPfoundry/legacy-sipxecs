@@ -108,6 +108,15 @@ class DialogContext {
      */
     boolean isOriginatedBySipxbridge;
     
+    /*
+     * Stack trace to keep track of where this was created.
+     */
+    private String creationPointStackTrace;
+
+    /*
+     * Stack trace where this was stored in the dialog table.
+     */
+    private String insertionPointStackTrace;
     
    
     
@@ -159,13 +168,7 @@ class DialogContext {
 
     private boolean terminateOnConfirm;
 
-    /*
-     * A private flag that is used to prevent re-entrant re-INVITEs ( some ITSPs do not react in
-     * accordance with the RFC when such a re-INVITE is seen ).
-     */
-
-    private AtomicBoolean waitingToSendReInvite = new AtomicBoolean(false);
-
+  
 
 
     // /////////////////////////////////////////////////////////////////
@@ -334,6 +337,7 @@ class DialogContext {
     private DialogContext(Dialog dialog) {
         this.sessionExpires = Gateway.getSessionExpires();
         this.dialog = dialog;  
+        this.creationPointStackTrace = SipUtilities.getStackTrace();
     }
 
    
@@ -396,7 +400,6 @@ class DialogContext {
         dialogContext.request = request;
         dialogContext.setBackToBackUserAgent(backToBackUserAgent);
         dialog.setApplicationData(dialogContext);
-        backToBackUserAgent.addDialog(dialog);
         return dialogContext;
     }
 
@@ -462,8 +465,6 @@ class DialogContext {
      */
     void setBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
         this.backToBackUserAgent = backToBackUserAgent;
-        // set the back pointer to our set of active dialogs.
-        this.backToBackUserAgent.addDialog(this.dialog);
     }
 
     /**
@@ -796,7 +797,6 @@ class DialogContext {
             public void run() {
                 if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
                     DialogContext.this.dialog.delete();
-                    DialogContext.this.backToBackUserAgent.removeDialog(dialog);
                 }
             }
         }, 8000);
@@ -851,6 +851,11 @@ class DialogContext {
         this.forwardByeToPeer = forwardByeToPeer;
     }
 
+    /**
+     * Retuns true if we should forward the BYE for the peer.
+     * 
+     * @return
+     */
     boolean isForwardByeToPeer() {
         return forwardByeToPeer;
     }
@@ -873,10 +878,22 @@ class DialogContext {
         return referRequest;
     }
 
+    /**
+     * Get the request that created the Dialog.
+     * 
+     * @return the dialog creating request.
+     */
     Request getRequest() {
         return request;
     }
 
+    /**
+     * Send ACK for the dialog.
+     * 
+     * @param response -- the 200 OK that we are ACKing.
+     * 
+     * @throws Exception
+     */
     public void sendAck(Response response) throws Exception {
 
         this.lastResponse = response;
@@ -887,6 +904,15 @@ class DialogContext {
         this.sendAck(ack);
 
     }
+    
+    
+    /**
+     * Send bye for this dialog. 
+     * 
+     * @param forward - whether or not to forward this BYE to the other side of the B2BUA.
+     * 
+     * @throws Exception
+     */
 
     void sendBye(boolean forward) throws Exception {
         Request bye = dialog.createRequest(Request.BYE);
@@ -896,32 +922,80 @@ class DialogContext {
         dialog.sendRequest(clientTransaction);
     }
 
+    /**
+     * Response sent to session timer so we can kill our own session timer.
+     */
     void setSessionTimerResponseSent() {
         if (this.sessionTimer != null) {
             logger.debug("setSessionTimerResponseSent()");
             this.cancelSessionTimer();
             this.startSessionTimer();
         }
-
     }
 
 
-   
+   /**
+    * Set the dialog pointer ( link this structure with a Dialog ).
+    * 
+    * @param dialog
+    */
 
     public void setDialog(Dialog dialog) {
       this.dialog = dialog;  
       dialog.setApplicationData(this);
     }
 
-    public void setDialogCreatingTransaction(ClientTransaction newTransaction) {
-        this.dialogCreatingTransaction = newTransaction;
-        this.request = newTransaction.getRequest();
+    /**
+     * Set the dialog creating transaction.
+     * 
+     * @param newTransaction
+     */
+    public void setDialogCreatingTransaction(ClientTransaction  dialogCreatingTransaction) {
+        this.dialogCreatingTransaction = dialogCreatingTransaction;
+        this.request = dialogCreatingTransaction.getRequest();
     }
 
+    /**
+     * Detach this structure from the associated dialog.
+     */
     public void detach() {
       this.dialog.setApplicationData(null);
       this.dialog = null;
       this.pendingAction = PendingDialogAction.NONE;          
+    }
+
+    /**
+     * Debugging method that returns the stack trace corresponding to where the dialog was
+     * created.
+     * 
+     * @return
+     */
+    public String getCreationPointStackTrace() {
+       return this.creationPointStackTrace;
+    }
+    
+    /**
+     * Debugging method that returns where the structure was originally stored into the 
+     * dialog table.
+     */
+    public String getInsertionPointStackTrace() {
+        return this.insertionPointStackTrace;
+    }
+    
+    /**
+     * Debugging method that records when this is inserted into the dialog table.
+     */
+    public void recordInsertionPoint() {
+        this.insertionPointStackTrace = SipUtilities.getStackTrace();
+    }
+
+    /**
+     * Get the associated dialog.
+     * 
+     * @return dialog associated with this dialog context.
+     */
+    public Dialog getDialog() {
+        return this.dialog;
     }
 
 
