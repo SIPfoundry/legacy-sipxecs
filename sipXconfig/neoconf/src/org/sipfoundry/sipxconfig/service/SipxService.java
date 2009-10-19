@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.service;
 
@@ -34,6 +34,7 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public abstract class SipxService extends BeanWithSettings implements Model {
     private static final Log LOG = LogFactory.getLog(SipxService.class);
+    private static final String NO_LOCATION_FOUND_ERROR = "No location found for service: ";
 
     private String m_processName;
     private String m_beanId;
@@ -221,7 +222,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     public String getAddress() {
         String address = (String) singleResult(getAddresses());
         if (address == null) {
-            LOG.error("No location found for service: " + getBeanId());
+            LOG.error(NO_LOCATION_FOUND_ERROR + getBeanId());
             // HACK: probably better to return null here
             address = StringUtils.EMPTY;
         }
@@ -238,10 +239,15 @@ public abstract class SipxService extends BeanWithSettings implements Model {
      */
     public String getFqdn() {
         List<Location> locations = m_locationsManager.getLocationsForService(this);
-        String fqdn = locations.get(0).getFqdn();
-        return fqdn;
+        if (locations.isEmpty()) {
+            LOG.error(NO_LOCATION_FOUND_ERROR + m_beanId);
+            return null;
+        }
+        if (locations.size() > 1) {
+            LOG.warn("Returning first location of the service running on multiple servers: " + m_beanId);
+        }
+        return locations.get(0).getFqdn();
     }
-
 
     @Required
     public void setDomainManager(DomainManager domainManager) {

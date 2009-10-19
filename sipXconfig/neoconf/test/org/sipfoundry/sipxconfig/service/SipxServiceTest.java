@@ -16,11 +16,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
-import junit.framework.TestCase;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class SipxServiceTest extends TestCase {
 
@@ -101,6 +106,33 @@ public class SipxServiceTest extends TestCase {
         assertEquals(1, proxyService.getConfigurations(true).size());
 
         assertSame(b, proxyService.getConfigurations(true).get(0));
+    }
+
+    public void testGetFqdn() {
+        SipxProxyService proxy = new SipxProxyService();
+        proxy.setBeanId(SipxProxyService.BEAN_ID);
+
+        Location l1 = new Location();
+        l1.setFqdn("l1.example.com");
+
+        Location l2 = new Location();
+        l2.setFqdn("l2.example.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getLocationsForService(proxy);
+        expectLastCall().andReturn(Collections.emptyList());
+        lm.getLocationsForService(proxy);
+        expectLastCall().andReturn(Arrays.asList(l2));
+        lm.getLocationsForService(proxy);
+        expectLastCall().andReturn(Arrays.asList(l1, l2));
+        replay(lm);
+
+        proxy.setLocationsManager(lm);
+        assertNull(proxy.getFqdn());
+        assertEquals("l2.example.com", proxy.getFqdn());
+        assertEquals("l1.example.com", proxy.getFqdn());
+
+        verify(lm);
     }
 
     static class DummyConfig extends AbstractConfigurationFile {

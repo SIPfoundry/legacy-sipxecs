@@ -58,14 +58,13 @@ import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Appender;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -114,8 +113,6 @@ public class SipStackBean {
 
     private AuthenticationHelper m_authenticationHelper;
 
-    private LocationsManager m_locationsManager;
-
     private SipxServiceManager m_sipxServiceManager;
 
     private final Timer m_timer = new Timer();
@@ -131,7 +128,6 @@ public class SipStackBean {
             m_properties = new Properties();
         }
         // add more properties here if needed
-        m_properties.setProperty("javax.sip.STACK_NAME", "sipxconfig");
         m_properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
         m_properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", Boolean.TRUE.toString());
         m_properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", Boolean.TRUE.toString());
@@ -223,21 +219,18 @@ public class SipStackBean {
     }
 
     @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
-    }
-
-    @Required
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
     }
 
     final String getHostName() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
+        SipxService sipXconfig = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        return sipXconfig.getFqdn();
     }
 
     final String getHostIpAddress() {
-        return m_locationsManager.getPrimaryLocation().getAddress();
+        SipxService sipXconfig = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        return sipXconfig.getAddress();
     }
 
     private SipURI createOurSipUri(String userName) throws ParseException {
@@ -306,10 +299,7 @@ public class SipStackBean {
             Request request = m_messageFactory.createRequest(requestURI, requestType, callIdHeader, cSeqHeader,
                     fromHeader, toHeader, Collections.singletonList(viaHeader), maxForwards);
 
-            // FIXME: we need to properly resolve address here. Primary host is not guaranteed to
-            // run proxy
-            String proxyHost = m_locationsManager.getPrimaryLocation().getFqdn();
-            SipURI sipUri = m_addressFactory.createSipURI(null, proxyHost);
+            SipURI sipUri = m_addressFactory.createSipURI(null, getProxyHost());
             sipUri.setPort(getProxyPort());
             sipUri.setLrParam();
             Address address = m_addressFactory.createAddress(sipUri);
@@ -321,6 +311,11 @@ public class SipStackBean {
         } catch (InvalidArgumentException e) {
             throw new SipxSipException(e);
         }
+    }
+
+    private String getProxyHost() {
+        SipxService proxy = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        return proxy.getFqdn();
     }
 
     final void addContent(Request request, String contentType, byte[] payload) throws ParseException {
