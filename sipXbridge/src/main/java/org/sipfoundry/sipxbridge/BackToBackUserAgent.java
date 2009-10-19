@@ -538,14 +538,18 @@ public class BackToBackUserAgent {
         if (count == 0) {
             Gateway.getTimer().schedule(new TimerTask() {
                 public void run() {
-                    logger.debug("Dialog table is empty -- tearing down bridge.");
-                    if ( rtpBridge != null && dialogTable.size() == 0 ) {
-                        rtpBridge.stop();
-                        dialogTable.clear();
-                        Gateway.getTimer().purge(); // Clean up all canceled timers
+                    try {
+                        logger.debug("Dialog table is empty -- tearing down bridge.");
+                        if ( rtpBridge != null && dialogTable.size() == 0 ) {
+                            rtpBridge.stop();
+                            dialogTable.clear();
+                            Gateway.getTimer().purge(); // Clean up all canceled timers
+                        }
+                    } catch (Exception ex) {
+                        logger.error("Problem stopping bridge",ex);
                     }
                 }
-            }, 32*1000);
+            }, 8*1000);
         }
 
         if (logger.isDebugEnabled()) {
