@@ -427,6 +427,7 @@ cat > $Work.copy-files <<EOF
 /etc/hosts
 /etc/crontab
 /etc/sendmail.cf
+/usr/lib/debug
 @SIPX_RUNDIR@
 @SIPX_VARDIR@/process-state
 @SIPX_VARDIR@/process-cfgver
