@@ -136,10 +136,6 @@ public class BackToBackUserAgent {
     private String symmitronServerHandle;
 
     private Dialog musicOnHoldDialog;
-    
-    /*
-     * Set to true if MOH is disabled ( no INIVTE will be sent to MOH ).
-     */
 
     private boolean mohDisabled;
 
