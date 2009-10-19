@@ -765,6 +765,7 @@ class SipUtilities {
             Iterator<Hop> hopIter = addresses.iterator();
             Hop hop = hopIter.next();
             hopIter.remove();
+            logger.debug("Addresses size = " + addresses.size());
          
            // This is the right way to do this after the following is fixed:
            RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);      

@@ -93,6 +93,10 @@ public class BackToBackUserAgent {
      */
     static final String ORIGINATOR = "originator";
 
+    /*
+     * Since we have only one media type we have only one bridge. If we handle multiple media types
+     * we will need to store a hashtable here indexed by media type.
+     */
     private RtpBridge rtpBridge;
 
     /*
@@ -115,7 +119,7 @@ public class BackToBackUserAgent {
 
     /*
      * Any call Id associated with this b2bua will be derived from this base
-     * call id. This is stored here for logging purposes.
+     * call id. This makes it easy to filter logs (you only need specify this prefix).
      */
     private String creatingCallId;
 
@@ -128,6 +132,9 @@ public class BackToBackUserAgent {
 
     private SymmitronClient symmitronClient;
 
+    /* 
+     * The server handle returned to us when we sign into the symmitron.
+     */
     private String symmitronServerHandle;
 
     /*
@@ -150,14 +157,24 @@ public class BackToBackUserAgent {
     private Hop proxyAddress;
 
     /*
-     * This is pending garbage collection.
+     * This structure is pending garbage collection.
      */
     private boolean pendingTermination;
 
+    /*
+     * List of Proxy servers that we have already tried.
+     */
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
+    
+    /*
+     * Gets incremented each time we see a proxy authorization or proxy auth header.
+     */
     
     private int baseCounter;
     
+    /*
+     * Dialogs that are not tracked for garbage collection. 
+     */
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
     
 
@@ -545,7 +562,7 @@ public class BackToBackUserAgent {
                         logger.error("Problem stopping bridge",ex);
                     }
                 }
-            }, 8*1000);
+            }, 1000);
         }
 
         if (logger.isDebugEnabled()) {
@@ -553,7 +570,7 @@ public class BackToBackUserAgent {
                     + this.dialogTable.size());
         }
         if (this.dialogTable.size() == 1) {
-            // This could be a stuck call
+            // This could be a stuck call. We can never have a situation
             Gateway.getTimer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -1522,7 +1539,13 @@ public class BackToBackUserAgent {
                     outgoingRequest.addHeader(header);
                 }
             }
+            /*
+             * Attach ALLOW headers that are only relevant for the LAN side.
+             */
             SipUtilities.addWanAllowHeaders(outgoingRequest);
+            /*
+             * Create Client tx to send the request.
+             */
             ClientTransaction ct = itspProvider
                     .getNewClientTransaction(outgoingRequest);
             Dialog outboundDialog = ct.getDialog();
@@ -1618,8 +1641,9 @@ public class BackToBackUserAgent {
             tad.setClientTransaction(ct);
             tad.setProxyAddresses(addresses);
             /*
-             * Set up for fast failover. If we dont get a 100 in 1 second we
-             * will get a timeout alert.
+             * Set up for fast failover. If we dont get a 100 in 2 second we
+             * will get a timeout alert. If the other side supports DNS SRV
+             * we will try the other hop.
              */
             ((ClientTransactionExt) ct).alertIfStillInCallingStateBy(2);
 
@@ -1748,6 +1772,7 @@ public class BackToBackUserAgent {
             Collection<Hop> hops = transactionContext.getProxyAddresses();
             Iterator<Hop> hopIter = hops.iterator();
             Hop nextHop = hopIter.next();
+            hopIter.remove();
             Request request = clientTransaction.getRequest();
             Request newRequest = (Request) request.clone();
             RouteHeader routeHeader = SipUtilities.createRouteHeader(nextHop);

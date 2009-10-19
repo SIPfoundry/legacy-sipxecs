@@ -533,6 +533,10 @@ public class SipListenerImpl implements SipListener {
                                     txContext.getServerTransaction().sendResponse(errorResponse);
                                 }
                             } else {
+                                /*
+                                 * We have another hop to try. OK send it to the 
+                                 * other side.
+                                 */
                                 b2bua.resendInviteToItsp(timeoutEvent
                                         .getClientTransaction());
                             }
