@@ -68,7 +68,6 @@ import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -127,15 +126,9 @@ public class SipStackBean {
         if (m_properties == null) {
             m_properties = new Properties();
         }
-        // add more properties here if needed
-        m_properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
-        m_properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", Boolean.TRUE.toString());
-        m_properties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", Boolean.TRUE.toString());
-        m_properties.setProperty("gov.nist.javax.sip.LOG_FACTORY", SipFoundryLogRecordFactory.class.getName());
+        // adjust properties here if needed - default set defined in sip.beans.xml
         if (LogFactory.getLog("javax.sip").isDebugEnabled()) {
             m_properties.setProperty(LEVEL, "INFO");
-        } else {
-            m_properties.setProperty(LEVEL, "ERROR");
         }
         String errorMsg = "Cannot initialize SIP stack";
         try {

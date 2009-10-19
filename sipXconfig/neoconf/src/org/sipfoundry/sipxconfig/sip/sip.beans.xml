@@ -27,8 +27,11 @@
       <value>
         javax.sip.STACK_NAME=sipXconfig
         gov.nist.javax.sip.TRACE_LEVEL=LOG4J
-        gov.nist.javax.sip.LOG_MESSAGE_CONTENT=false
+        gov.nist.javax.sip.LOG_MESSAGE_CONTENT=true
         gov.nist.javax.sip.LOG_FACTORY=org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory
+        gov.nist.javax.sip.THREAD_POOL_SIZE=1
+        gov.nist.javax.sip.REENTRANT_LISTENER=true
+        LEVEL=ERROR
       </value>
     </property>
     <property name="coreContext" ref="coreContext" />
