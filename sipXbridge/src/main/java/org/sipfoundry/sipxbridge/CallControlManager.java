@@ -2469,7 +2469,11 @@ class CallControlManager implements SymmitronResetHandler {
                                 .getHeader(CSeqHeader.NAME)).getSeqNumber());
                         dialogContext.recordLastAckTime();
                         dialogContext.sendAck(ack);
-
+                        SessionDescription sessionDescription = SipUtilities.getSessionDescription(response);
+                        if ( sessionDescription != null ) {
+                            dialogContext.getRtpSession().getTransmitter().setSessionDescription(sessionDescription,
+                                    false);
+                        }
                     }
                 } else if (tad.getOperation() == Operation.SEND_SDP_RE_OFFER) {
                     /*

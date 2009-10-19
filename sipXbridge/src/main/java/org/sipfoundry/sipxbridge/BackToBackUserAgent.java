@@ -523,7 +523,10 @@ public class BackToBackUserAgent {
      *            the terminated dialog.
      */
     synchronized void removeDialog(Dialog dialog) {
- 
+        
+        if (!this.dialogTable.contains(dialog)) {
+            return;
+        }
         this.dialogTable.remove(dialog);
 
         String callId = dialog.getCallId().getCallId();
@@ -532,21 +535,17 @@ public class BackToBackUserAgent {
 
         int count = this.dialogTable.size();
 
-        /* for (Dialog d : dialogTable) {
-            DialogContext dat = DialogContext.get(d);
-            if (dat != null && !dat.isOriginatedBySipxbridge) {
-                count++;
-            }
-        } */
-
         if (count == 0) {
-            logger.debug("Dialog table is empty -- tearing down bridge.");
-            for (Dialog d : dialogTable) {
-                d.delete();
-            }
-            this.rtpBridge.stop();
-            dialogTable.clear();
-            Gateway.getTimer().purge(); // Clean up all canceled timers
+            Gateway.getTimer().schedule(new TimerTask() {
+                public void run() {
+                    logger.debug("Dialog table is empty -- tearing down bridge.");
+                    if ( rtpBridge != null && dialogTable.size() == 0 ) {
+                        rtpBridge.stop();
+                        dialogTable.clear();
+                        Gateway.getTimer().purge(); // Clean up all canceled timers
+                    }
+                }
+            }, 32*1000);
         }
 
         if (logger.isDebugEnabled()) {
