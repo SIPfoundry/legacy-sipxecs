@@ -69,9 +69,9 @@ public class PhonebookDataSource extends DataSource {
         officeDesignation.setValueXPath("contact-information/officeAddress/officeDesignation");
 
         setFields(firstName, lastName, number, jobTitle, jobDept, companyName, assistantName, location,
-                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, imId, alternateImId, homeStreet,
-                homeCountry, homeState, homeZip, officeStreet, officeCity, officeCountry, officeState, officeZip,
-                officeDesignation);
+                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId, homeStreet,
+                homeCity, homeCountry, homeState, homeZip, officeStreet, officeCity, officeCountry, officeState,
+                officeZip, officeDesignation);
         setRecordXPath("/phonebook/entry");
         setDataURL("/sipxconfig/rest/my/phonebook");
         setClientOnly(true);
