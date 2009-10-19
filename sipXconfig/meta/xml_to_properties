@@ -1,6 +1,19 @@
 #!/usr/bin/env ruby
 
 require 'rexml/document'
+
+## Fix for entity expansion problem in REXML
+module REXML
+  class Entity < Child
+    def unnormalized
+      v = value()
+      return nil if v.nil?
+      @unnormalized = Text::unnormalize(v, parent)
+      @unnormalized
+    end
+  end
+end
+
 include REXML
 
 class XmlToProperies
