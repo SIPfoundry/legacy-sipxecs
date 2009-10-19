@@ -209,14 +209,18 @@ public class SipListenerImpl implements SipListener {
             BackToBackUserAgent b2bua = DialogContext
                     .getBackToBackUserAgent(responseEvent.getDialog());
             if (b2bua != null) {
+                /*
+                 * We will not get the dialog terminated event. There is no dialog
+                 */
                 b2bua.removeDialog(dialog);
-                b2bua.addDialog(newClientTransaction.getDialog());
                 DialogContext dialogApplicationData = (DialogContext) dialog
                 .getApplicationData();
                 DialogContext newDialogApplicationData = DialogContext
                 .attach(b2bua, newClientTransaction.getDialog(),
                         newClientTransaction, newClientTransaction
                         .getRequest());
+                b2bua.addDialog(newDialogApplicationData);
+                
                 if ( newDialogApplicationData != dialogApplicationData ) {
                     newDialogApplicationData.setPeerDialog(dialogApplicationData
                             .getPeerDialog());
@@ -276,21 +280,15 @@ public class SipListenerImpl implements SipListener {
      * @see javax.sip.SipListener#processDialogTerminated(javax.sip.DialogTerminatedEvent )
      */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
-
-        logger.debug("DialogTerminatedEvent " + dte.getDialog());
-
-        DialogContext dat = DialogContext.get(dte.getDialog());
-        if (dat != null) {
-            dat.cancelSessionTimer();
-        }
-
-        if (dat != null) {
-            BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
+        DialogContext dialogContext = DialogContext.get(dte.getDialog());
+        if ( dialogContext != null ) {
+            logger.debug("DialogTerminatedEvent:  dialog created at " + dialogContext.getCreationPointStackTrace());
+            logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
+            dialogContext.cancelSessionTimer();
+            BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
-
             }
-
         }
 
     }
@@ -551,8 +549,7 @@ public class SipListenerImpl implements SipListener {
                     BackToBackUserAgent b2bua = DialogContext.get(dialog)
                             .getBackToBackUserAgent();
                     dialog.delete();
-                    b2bua.removeDialog(dialog);
-                } else if (request.getMethod().equals(Request.INVITE)) {
+               } else if (request.getMethod().equals(Request.INVITE)) {
                     /*
                      * If this is a refer request -- grab the MOH Dialog and
                      * kill it. Otherwise we are stuck with the MOH dialog.

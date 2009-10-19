@@ -135,7 +135,7 @@ public class BackToBackUserAgentFactory {
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
 				dialogContext.setItspInfo(accountInfo);
-				dialogContext.setBackToBackUserAgent(b2bua);
+				dialogContext.setBackToBackUserAgent(b2bua);     
 			}
 		} catch (SipXbridgeException ex) {
 		    logger.error("Exception while trying to create B2BUA",ex);

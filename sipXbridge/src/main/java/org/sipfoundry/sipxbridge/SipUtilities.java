@@ -1819,10 +1819,21 @@ class SipUtilities {
     }
     
     static void printStackTrace() {
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(stringWriter);
-        new Exception().printStackTrace(writer);
-        logger.debug("stackTrace = " + stringWriter.getBuffer().toString());
+          logger.debug("stackTrace = " + getStackTrace());
+    }
+    
+    static String getStackTrace() {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        StackTraceElement[] ste = new Exception().getStackTrace();
+        // Skip the log writer frame and log all the other stack frames.
+        for (int i = 0; i < ste.length; i++) {
+            String callFrame = "[" + ste[i].getFileName() + ":"
+                    + ste[i].getLineNumber() + "]";
+            pw.print(callFrame);
+        }
+        pw.close();
+        return sw.getBuffer().toString();
       
     }
     

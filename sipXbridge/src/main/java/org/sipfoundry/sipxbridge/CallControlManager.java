@@ -1403,11 +1403,10 @@ class CallControlManager implements SymmitronResetHandler {
                     .getSessionDescription(response);
             /*
              * This is an inbound SDP offer. We record the last offer from the ITSP in the
-             * transmitter.
+             * transmitter. This potentially rebinds the ports to the new ports in the offer.
              */
             SessionDescription sdCloned = SipUtilities
                     .cloneSessionDescription(responseSessionDescription);
-
             /*
              * Fix up the session descriptions.
              */
@@ -1423,8 +1422,6 @@ class CallControlManager implements SymmitronResetHandler {
                     dialogContext.getItspInfo());
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
-
-            // SipUtilities.incrementSessionVersion(sd);
 
             newResponse.setContent(responseSessionDescription.toString(), cth);
             newResponse.setHeader(contactHeader);
@@ -1508,23 +1505,19 @@ class CallControlManager implements SymmitronResetHandler {
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
         ClientTransaction ctx = responseEvent.getClientTransaction();
-        TransactionContext tad = TransactionContext.get(ctx);
+        TransactionContext transasctionContext = TransactionContext.get(ctx);
         Response response = responseEvent.getResponse();
 
-        BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
-
+       
         /*
-         * Store away our incoming response - get ready for ACKL
+         * Store away our incoming response - get ready for sending ACK.
          */
         dialogContext.setLastResponse(response);
-        dialogContext.setBackToBackUserAgent(b2bua);
-
-        dialog.setApplicationData(dialogContext);
-
+   
         /*
          * Now send the respose to the server side of the transaction.
          */
-        ServerTransaction serverTransaction = tad.getServerTransaction();
+        ServerTransaction serverTransaction = transasctionContext.getServerTransaction();
 
         /*
          * If we have a server transaction associated with the response, we ack when the other
@@ -1535,7 +1528,7 @@ class CallControlManager implements SymmitronResetHandler {
             Response newResponse = SipUtilities.createResponse(serverTransaction, response
                     .getStatusCode());
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, tad.getServerTransactionProvider());
+                    Gateway.SIPXBRIDGE_USER, transasctionContext.getServerTransactionProvider());
             newResponse.setHeader(contactHeader);
             Dialog peerDialog = serverTransaction.getDialog();
             SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
@@ -1754,7 +1747,7 @@ class CallControlManager implements SymmitronResetHandler {
          * We directly send ACK.
          */
         if (response.getStatusCode() == Response.OK) {
-            b2bua.addDialog(dialog);
+            b2bua.addDialog(DialogContext.get(dialog));
             // Thread.sleep(100);
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
@@ -1903,7 +1896,7 @@ class CallControlManager implements SymmitronResetHandler {
          * We directly send ACK.
          */
         if (response.getStatusCode() == Response.OK) {
-            b2bua.addDialog(dialog);
+            b2bua.addDialog(DialogContext.get(dialog));
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
             DialogContext.get(dialog).sendAck(ackRequest);
@@ -2423,11 +2416,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             } else if (response.getStatusCode() > 100 && response.getStatusCode() <= 200) {
 
-                /*
-                 * Set our final dialog. Note that the 1xx Dialog may be different.
-                 */
-                b2bua.addDialog(dialog);
-
+              
                 /*
                  * We store away our outgoing sdp offer in the application data of the client tx.
                  */
@@ -2435,6 +2424,18 @@ class CallControlManager implements SymmitronResetHandler {
                         .getClientTransaction().getApplicationData();
 
                 logger.debug("Operation = " + tad.getOperation());
+                /*
+                 * Set our final dialog. Note that the 1xx Dialog may be different.
+                 */
+                if (tad.getOperation() != Operation.SEND_INVITE_TO_MOH_SERVER) {
+                    b2bua.addDialog(DialogContext.get(dialog));
+                } else {
+                    /*
+                     * We don't care about keeping references to the MOH dialog so we just put it into 
+                     * the cleanup list.
+                     */
+                    b2bua.addDialogToCleanup(dialog);
+                }
 
                 /*
                  * The TransactionApplicationData operator will indicate what the response is for.
@@ -2699,8 +2700,6 @@ class CallControlManager implements SymmitronResetHandler {
                     st.sendResponse(newResponse);
                     BackToBackUserAgent b2bua = DialogContext
                             .getBackToBackUserAgent(responseEvent.getDialog());
-                    b2bua.removeDialog(responseEvent.getDialog());
-                    b2bua.removeDialog(st.getDialog());
                 }
             }
 

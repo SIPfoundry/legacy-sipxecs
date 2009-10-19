@@ -18,10 +18,6 @@ import gov.nist.javax.sip.message.SIPMessage;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.Collection;
@@ -32,7 +28,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
 
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
@@ -147,13 +142,21 @@ public class BackToBackUserAgent {
      */
 
     private Dialog musicOnHoldDialog;
+    
+    /*
+     * Set to true if MOH is disabled ( no INIVTE will be sent to MOH ).
+     */
 
     private boolean mohDisabled;
 
-    private ClientTransaction musicOnHoldInviteTransaction;
-
+    /*
+     * The current best guess for proxy address.
+     */
     private Hop proxyAddress;
 
+    /*
+     * This is pending garbage collection.
+     */
     private boolean pendingTermination;
 
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
@@ -206,7 +209,6 @@ public class BackToBackUserAgent {
         BridgeInterface bridge = symmitronClient.createBridge();
         this.symmitronServerHandle = symmitronClient.getServerHandle();
         rtpBridge = new RtpBridge(request, bridge);
-        this.addDialog(dialog);
         if (itspAccountInfo == null || !itspAccountInfo.stripPrivateHeaders()) {
             /*
              * If privacy is not desired we use the incoming callid and generate
@@ -521,23 +523,24 @@ public class BackToBackUserAgent {
      *            the terminated dialog.
      */
     synchronized void removeDialog(Dialog dialog) {
-
+ 
         this.dialogTable.remove(dialog);
 
         String callId = dialog.getCallId().getCallId();
 
         this.myCallIds.remove(callId);
 
-        int count = 0;
+        int count = this.dialogTable.size();
 
-        for (Dialog d : dialogTable) {
+        /* for (Dialog d : dialogTable) {
             DialogContext dat = DialogContext.get(d);
             if (dat != null && !dat.isOriginatedBySipxbridge) {
                 count++;
             }
-        }
+        } */
 
         if (count == 0) {
+            logger.debug("Dialog table is empty -- tearing down bridge.");
             for (Dialog d : dialogTable) {
                 d.delete();
             }
@@ -581,11 +584,38 @@ public class BackToBackUserAgent {
      * @param provider
      * @param dialog
      */
-    synchronized void addDialog(Dialog dialog) {
-        logger.debug("addDialog dialogId = " + dialog);
+    synchronized void addDialog(DialogContext dialogContext) {
+        
+        Dialog dialog = dialogContext.getDialog();
+        if ( dialogTable.contains(dialog)) {
+            logger.debug("Dialog already in table");
+            return;
+        }
         this.dialogTable.add(dialog);
+        dialogContext.recordInsertionPoint();
         String callId = dialog.getCallId().getCallId();
         this.myCallIds.add(callId);
+        logger.debug("addDialog " + dialog + " dialogTableSize = " + this.dialogTable.size() +
+                " Dialog was created at: " + DialogContext.get(dialog).getCreationPointStackTrace() );
+        if ( this.cleanupList.contains(dialog)) {
+            logger.error("Cleanup list also contains dialog");
+        }
+    }
+    
+    /**
+     * Add a dialog to the cleanup list. This is the list we clean up after all 
+     * external dialog references are gone.
+     * 
+     * @param dialog
+     */
+    public void addDialogToCleanup(Dialog dialog) {
+        if ( dialogTable.contains(dialog)) {
+            logger.error("Dialog was also found in dialog table - should only be in one " + DialogContext.get(dialog).getCreationPointStackTrace());
+            logger.error("addDialogToCleanup Dialog was created at " + SipUtilities.getStackTrace());
+        }
+        logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size() + 
+                " Dialog was created at: " + DialogContext.get(dialog).getCreationPointStackTrace()); 
+        this.cleanupList.add(dialog);     
     }
 
     /**
@@ -834,7 +864,7 @@ public class BackToBackUserAgent {
 
             DialogContext newDialogContext = DialogContext.attach(this, ct
                     .getDialog(), ct, ct.getRequest());
-            this.addDialog(ct.getDialog());
+            this.addDialog(newDialogContext);
             DialogContext referDialogContext = (DialogContext) referRequestEventDialog
                     .getApplicationData();
 
@@ -864,12 +894,17 @@ public class BackToBackUserAgent {
              */
             this.referingDialog = referRequestEventDialog;
 
-            ct.getDialog().setApplicationData(newDialogContext);
             /*
              * Mark that when we get the OK we want to re-INVITE the other side.
+             * This drives the Dialog state machine when we get the OK response.
+             * We note that we need to send the other side an re-INVITE with SDP offer.
              */
             newDialogContext
                     .setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+            
+            /*
+             * Link this new dialog contex to the peer.
+             */
             newDialogContext.setPeerDialog(referDialogContext.getPeerDialog());
 
             TransactionContext tad = TransactionContext.attach(ct,
@@ -1031,7 +1066,7 @@ public class BackToBackUserAgent {
 
         logger.debug("sendInviteToSipXProxy "
                 + ((SIPMessage) request).getFirstLine());
-
+       
         try {
             /*
              * This is a request I got from the external provider. Route this
@@ -1041,6 +1076,11 @@ public class BackToBackUserAgent {
 
             SipURI incomingRequestURI = (SipURI) request.getRequestURI();
             Dialog inboundDialog = serverTransaction.getDialog();
+            logger.debug("inboundDialog  " + inboundDialog);
+            /*
+             * Add the dialog context to our table of managed dialogs.
+             */
+            this.addDialog(DialogContext.get(inboundDialog));
             ViaHeader inboundVia = ((ViaHeader) request
                     .getHeader(ViaHeader.NAME));
 
@@ -1189,13 +1229,16 @@ public class BackToBackUserAgent {
 
             Dialog outboundDialog = ct.getDialog();
 
-            DialogContext.attach(this, outboundDialog, ct, ct.getRequest());
+            DialogContext newDialogContext = DialogContext.attach(this, outboundDialog, ct, ct.getRequest());
             /*
              * Set the ITSP account info for the inbound INVITE to sipx proxy.
              */
-            DialogContext.get(outboundDialog).setItspInfo(itspAccountInfo);
+            newDialogContext.setItspInfo(itspAccountInfo);
             DialogContext.pairDialogs(inboundDialog, outboundDialog);
-
+            /*
+             * Put these in our dialog table.
+             */
+            this.addDialog(DialogContext.get(outboundDialog));
             /*
              * Apply the Session Description from the INBOUND invite to the
              * Receiver of the RTP session pointing towards the PBX side. This
@@ -1227,7 +1270,6 @@ public class BackToBackUserAgent {
             tad.setBackToBackUa(this);
             tad.setItspAccountInfo(itspAccountInfo);
 
-            this.addDialog(ct.getDialog());
             this.referingDialog = ct.getDialog();
 
             this.referingDialogPeer = serverTransaction.getDialog();
@@ -1344,11 +1386,12 @@ public class BackToBackUserAgent {
 
             tad.setBackToBackUa(this);
             DialogContext.attach(this, ct.getDialog(), ct, ct.getRequest());
-            this.addDialog(ct.getDialog());
-
+          
+            /*
+             * Store that dialog away for later use. This is managed separately.
+             */
             this.musicOnHoldDialog = ct.getDialog();
-            this.musicOnHoldInviteTransaction = ct;
-
+        
             retval = ct;
 
         } catch (InvalidArgumentException ex) {
@@ -1357,9 +1400,6 @@ public class BackToBackUserAgent {
                     ex);
         } catch (Exception ex) {
             logger.error("Unexpected parse exception", ex);
-            if (retval != null) {
-                this.dialogTable.remove(retval);
-            }
         }
         return retval;
     }
@@ -1665,7 +1705,6 @@ public class BackToBackUserAgent {
                 RtpTransmitterEndpoint rtpEndpoint = new RtpTransmitterEndpoint(
                         rtpSession, symmitronClient);
                 rtpSession.setTransmitter(rtpEndpoint);
-            //    rtpEndpoint.setSessionDescription(sessionDescription, true);      
                 int keepaliveInterval = Gateway.getMediaKeepaliveMilisec();
                 KeepaliveMethod keepaliveMethod = tad.getItspAccountInfo()
                         .getRtpKeepaliveMethod();
@@ -1688,10 +1727,17 @@ public class BackToBackUserAgent {
                 throw new SipXbridgeException("Case not covered");
             }
 
+            /*
+             * Set our transaction context pointer.
+             */
             ct.setApplicationData(tad);
-            this.addDialog(ct.getDialog());
-
-            logger.debug("Dialog table size = " + this.dialogTable.size());
+            /*
+             * Add this to the list of managed dialogs.
+             */
+            this.addDialog(DialogContext.get(ct.getDialog()));      
+            /*
+             * Send the request.
+             */
             ct.sendRequest();
             /*
              * Kick off our session timer.
@@ -1779,7 +1825,7 @@ public class BackToBackUserAgent {
 
             dialogContext.setDialog(newTransaction.getDialog());
             dialogContext.setDialogCreatingTransaction(newTransaction);
-            this.addDialog(newTransaction.getDialog());
+            this.addDialog(DialogContext.get(newTransaction.getDialog()));
             newTransaction.sendRequest();
         } catch (ParseException ex) {
             logger.error("Unexpected exception ", ex);
@@ -1971,7 +2017,7 @@ public class BackToBackUserAgent {
                             Operation.SEND_BYE_TO_REPLACED_DIALOG);
                     replacedDialog.sendRequest(byeCtx);
                 } else if ( replacedDialog.getState() != DialogState.TERMINATED ) {
-                    this.cleanupList.add(replacedDialog);
+                    this.addDialogToCleanup(replacedDialog);
                     DialogContext.get(replacedDialog).setTerminateOnConfirm();
                 }
 
@@ -2068,11 +2114,7 @@ public class BackToBackUserAgent {
                 logger.error("Unexpected exception", ex);
             }
         }
-        /*
-         * Saw a BYE on this dialog and processed it so we are done with it.
-         */
-        this.removeDialog(dialog);
-
+       
     }
 
     /**
@@ -2294,9 +2336,6 @@ public class BackToBackUserAgent {
         return (this.proxyAddress != null);
     }
 
-    public void addDialogToCleanup(Dialog dialog) {
-      this.cleanupList.add(dialog);
-        
-    }
+   
 
 }
