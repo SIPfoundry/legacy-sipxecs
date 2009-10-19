@@ -135,12 +135,6 @@ public class BackToBackUserAgent {
 
     private String symmitronServerHandle;
 
-    /*
-     * A given B2BUA has one pair of dialogs one for the WAN and one for the LAN
-     * and additionally possibly a MOH dialog which is signaled when the WAN
-     * side is put on hold.
-     */
-
     private Dialog musicOnHoldDialog;
     
     /*
@@ -149,9 +143,6 @@ public class BackToBackUserAgent {
 
     private boolean mohDisabled;
 
-    /*
-     * The current best guess for proxy address.
-     */
     private Hop proxyAddress;
 
     /*
@@ -160,7 +151,6 @@ public class BackToBackUserAgent {
     private boolean pendingTermination;
 
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
-    
     
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
     
@@ -1154,9 +1144,6 @@ public class BackToBackUserAgent {
                 toHeader.removeParameter("tag");
             }
        
-           
-       
-
             String transport = proxyAddress.getTransport().equalsIgnoreCase(
                     "TLS") ? "TLS" : "UDP";
 
@@ -1394,7 +1381,6 @@ public class BackToBackUserAgent {
              * Store that dialog away for later use. This is managed separately.
              */
             this.musicOnHoldDialog = ct.getDialog();
-        
             retval = ct;
 
         } catch (InvalidArgumentException ex) {
