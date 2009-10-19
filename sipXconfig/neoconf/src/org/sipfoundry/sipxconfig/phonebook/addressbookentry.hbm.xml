@@ -23,6 +23,8 @@
     <property name="alternateImId" />
     <property name="location" />
     <property name="useBranchAddress" />
+    <property name="emailAddress" />
+    <property name="alternateEmailAddress" />
     <component name="homeAddress" class="Address">
       <property name="street" column="home_address_street" />
       <property name="zip" column="home_address_zip" />

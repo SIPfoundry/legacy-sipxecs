@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
@@ -35,18 +35,13 @@ import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class UserGroupSettings extends GroupSettings {
     public static final String PAGE = "user/UserGroupSettings";
 
     private static final String SCHEDULES = "schedules";
     private static final String CONFERENCE = "conference";
-    private static final String HOST_SETTING = "unified-messaging/host";
-    private static final String PORT_SETTING = "unified-messaging/port";
-    private static final String TLS_SETTING = "unified-messaging/tls";
     private static final String SPEEDDIAL = "speeddial";
     private static final String CONFIGURE = "configure";
 
@@ -245,13 +240,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         super.apply();
         Collection<User> users = getCoreContext().getGroupMembers(getGroup());
         for (User user : users) {
-            Mailbox mailbox = getMailboxManager().getMailbox(user.getName());
-            MailboxPreferences preferences = getMailboxManager().loadMailboxPreferences(mailbox);
-            preferences.setEmailServerHost(user.getSettingValue(HOST_SETTING));
-            preferences.setEmailServerPort(user.getSettingValue(PORT_SETTING));
-            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue(TLS_SETTING));
-
-            getMailboxManager().saveMailboxPreferences(mailbox, preferences);
+            getMailboxManager().saveMailboxPreferences(user);
         }
     }
 }

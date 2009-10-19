@@ -26,13 +26,9 @@ public interface MailboxManager {
 
     void deleteMailbox(String userId);
 
-    void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences);
-
-    MailboxPreferences loadMailboxPreferences(Mailbox mailbox);
+    void saveMailboxPreferences(User user);
 
     void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
-
-    MailboxPreferences getMailboxPreferencesForUser(User user);
 
     DistributionList[] loadDistributionLists(Mailbox mailbox);
 

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin;
 
@@ -25,9 +25,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class ExportCsv {
     private static final int DEFAULT_PAGE_SIZE = 250;
@@ -35,8 +32,6 @@ public class ExportCsv {
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
-
-    private MailboxManager m_mailboxManager;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -46,12 +41,7 @@ public class ExportCsv {
         m_phoneContext = phoneContext;
     }
 
-    public void setMailboxManager(MailboxManager mailboxManager) {
-        m_mailboxManager = mailboxManager;
-    }
-
-    private Collection<String> exportPhoneAndUsers(CsvWriter csv, String realm)
-        throws IOException {
+    private Collection<String> exportPhoneAndUsers(CsvWriter csv, String realm) throws IOException {
         Set<String> usernames = new HashSet<String>();
         final String[] order = new String[] {
             "serialNumber"
@@ -59,8 +49,8 @@ public class ExportCsv {
         int phoneIndex = 0;
         int size = 0;
         do {
-            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, null, phoneIndex,
-                    DEFAULT_PAGE_SIZE, order, true);
+            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, null, phoneIndex, DEFAULT_PAGE_SIZE, order,
+                    true);
             size = phones.size();
             phoneIndex += size;
             for (Phone phone : phones) {
@@ -123,13 +113,8 @@ public class ExportCsv {
         Index.LAST_NAME.set(row, user.getLastName());
         Index.ALIAS.set(row, user.getAliasesString());
         Index.USER_GROUP.set(row, user.getGroupsNames());
+        Index.EMAIL.set(row, user.getEmailAddress());
 
-        // userEmail..
-        if (m_mailboxManager.isEnabled()) {
-            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
-            MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
-            Index.EMAIL.set(row, mboxPrefs.getEmailAddress());
-        }
         String userPinToken = user.getPintoken();
         Index.PIN.set(row, formatRealmAndHash(realm, userPinToken));
         // XMPP
@@ -141,13 +126,13 @@ public class ExportCsv {
         return String.format("%s#%s", realm, userPinToken);
     }
 
-    private void exportUsersNotAttachedToPhones(CsvWriter csv, Collection<String> usernames,
-            String realm) throws IOException {
+    private void exportUsersNotAttachedToPhones(CsvWriter csv, Collection<String> usernames, String realm)
+        throws IOException {
         int userIndex = 0;
         int size = 0;
         do {
-            List<User> users = m_coreContext.loadUsersByPage(null, null, null, userIndex,
-                    DEFAULT_PAGE_SIZE, "userName", true);
+            List<User> users = m_coreContext.loadUsersByPage(null, null, null, userIndex, DEFAULT_PAGE_SIZE,
+                    "userName", true);
             size = users.size();
             userIndex += size;
             for (User user : users) {

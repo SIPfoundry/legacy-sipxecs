@@ -21,9 +21,7 @@ import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
@@ -94,11 +92,6 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             if (newUser) {
                 m_mailboxManager.deleteMailbox(user.getUserName());
-            }
-            MailboxPreferences mboxPrefs = m_userMapper.getMailboxPreferences(attrs);
-            if (mboxPrefs != null) {
-                Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
-                m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);

@@ -9,10 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
-import java.io.File;
-
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -24,9 +21,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -274,27 +269,15 @@ public class CsvRowInserterTest extends TestCase {
     public void testUpdateMailboxPreferences() {
         User user = new User();
         user.setUserName("kuku");
-        Mailbox mailbox = new Mailbox(new File("."), "kuku");
-        MailboxPreferences expected = new MailboxPreferences();
 
         MailboxManager mailboxManager = createMock(MailboxManager.class);
 
         mailboxManager.isEnabled();
         expectLastCall().andReturn(true);
         mailboxManager.deleteMailbox("kuku");
-        mailboxManager.getMailbox("kuku");
-        expectLastCall().andReturn(mailbox);
-        mailboxManager.loadMailboxPreferences(mailbox);
-        expectLastCall().andReturn(expected);
-        mailboxManager.saveMailboxPreferences(mailbox, expected);
 
         mailboxManager.isEnabled();
         expectLastCall().andReturn(true);
-        mailboxManager.getMailbox("kuku");
-        expectLastCall().andReturn(mailbox);
-        mailboxManager.loadMailboxPreferences(mailbox);
-        expectLastCall().andReturn(expected);
-        mailboxManager.saveMailboxPreferences(mailbox, expected);
 
         mailboxManager.isEnabled();
         expectLastCall().andReturn(false);
@@ -303,11 +286,11 @@ public class CsvRowInserterTest extends TestCase {
         CsvRowInserter impl = new CsvRowInserter();
         impl.setMailboxManager(mailboxManager);
 
-        impl.updateMailboxPreferences(user, "jlennon@example.com", true);
+        impl.updateMailbox(user, true);
 
-        impl.updateMailboxPreferences(user, "jlennon@example.com", false);
+        impl.updateMailbox(user, false);
 
-        impl.updateMailboxPreferences(user, "jlennon@example.com", true);
+        impl.updateMailbox(user, true);
         verify(mailboxManager);
     }
 
@@ -336,12 +319,13 @@ public class CsvRowInserterTest extends TestCase {
     }
 
     private class TestUser extends User {
-        private Integer m_id;
+        private final Integer m_id;
 
         TestUser(Integer id) {
             m_id = id;
         }
 
+        @Override
         public Integer getId() {
             return m_id;
         }

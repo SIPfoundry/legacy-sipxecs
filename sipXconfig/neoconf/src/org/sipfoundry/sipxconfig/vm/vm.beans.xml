@@ -3,12 +3,9 @@
 <beans>
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="mailboxPreferencesReader">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader" />
-    </property>
     <property name="mailboxPreferencesWriter">
       <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine" />
+        <property name="velocityEngine" ref="velocityEngine"/>
       </bean>
     </property>
     <property name="distributionListsReader">
@@ -38,4 +35,19 @@
   </bean>
 
   <bean id="mailboxManagerUserDelete" factory-bean="mailboxManagerImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="mailboxPreferencesMigrationTask" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesMigrationTask">
+    <property name="mailboxPreferencesReader">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader" />
+    </property>
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="taskNames">
+      <list>
+        <value>mailbox_prefs_migration</value>
+      </list>
+    </property>
+  </bean>
+
 </beans>

@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.vm.DistributionList;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
@@ -163,10 +162,6 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             return null;
         }
 
-        public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
-            return null;
-        }
-
         public void markRead(Mailbox mailbox, Voicemail voicemail) {
         }
 
@@ -179,7 +174,7 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
         }
 
-        public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
+        public void saveMailboxPreferences(User user) {
         }
 
         /* The methods below this comment are the only ones relevant for this test */
@@ -193,10 +188,6 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         public void clearPersonalAttendants() {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
-        }
-
-        public MailboxPreferences getMailboxPreferencesForUser(User user) {
-            return null;
         }
     }
 }

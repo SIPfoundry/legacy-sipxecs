@@ -32,15 +32,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.springframework.ldap.NameClassPairMapper;
 
 public class UserMapper implements NameClassPairMapper {
     private LdapManager m_ldapManager;
     private AttrMap m_attrMap;
-    private MailboxManager m_mailboxManager;
 
     /**
      * @return UserPreview
@@ -52,9 +48,8 @@ public class UserMapper implements NameClassPairMapper {
         List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));
 
         setUserProperties(user, attrs);
-        MailboxPreferences preferences = getMailboxPreferences(attrs);
 
-        UserPreview preview = new UserPreview(user, groupNames, preferences);
+        UserPreview preview = new UserPreview(user, groupNames);
         return preview;
     }
     /**
@@ -71,24 +66,12 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.LAST_NAME);
         setProperty(user, attrs, Index.SIP_PASSWORD);
         setProperty(user, attrs, Index.IM_ID);
+        setProperty(user, attrs, Index.EMAIL);
 
         Set<String> aliases = getValues(attrs, Index.ALIAS);
         if (aliases != null) {
             user.copyAliases(aliases);
         }
-    }
-
-    public MailboxPreferences getMailboxPreferences(Attributes attrs) throws NamingException {
-        String emailAddress = getValue(attrs, Index.EMAIL);
-        if (!m_mailboxManager.isEnabled() || StringUtils.isBlank(emailAddress)) {
-            return null;
-        }
-
-        String userId = getValue(attrs, Index.USERNAME);
-        Mailbox mailbox = m_mailboxManager.getMailbox(userId);
-        MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
-        mboxPrefs.setEmailAddress(emailAddress);
-        return mboxPrefs;
     }
 
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
@@ -224,10 +207,6 @@ public class UserMapper implements NameClassPairMapper {
      */
     public void setAttrMap(AttrMap attrMap) {
         m_attrMap = attrMap;
-    }
-
-    public void setMailboxManager(MailboxManager mailboxManager) {
-        m_mailboxManager = mailboxManager;
     }
 
     public void setLdapManager(LdapManager ldapManager) {

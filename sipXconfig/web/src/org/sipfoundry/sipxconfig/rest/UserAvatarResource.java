@@ -18,11 +18,8 @@ import org.restlet.resource.ResourceException;
 import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.phonebook.Gravatar;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.springframework.beans.factory.annotation.Required;
 
 public class UserAvatarResource extends UserResource {
-    private MailboxManager m_mailboxManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -33,12 +30,8 @@ public class UserAvatarResource extends UserResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         Gravatar gravatar = new Gravatar(getUser());
-        String gravatarUrl = gravatar.getUrl(m_mailboxManager);
+        String gravatarUrl = gravatar.getUrl();
         return new StringRepresentation(gravatarUrl);
     }
 
-    @Required
-    public void setMailboxManager(MailboxManager mailboxManager) {
-        m_mailboxManager = mailboxManager;
-    }
 }

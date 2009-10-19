@@ -5,50 +5,21 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.vm;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 
-/**
- * Final output format
- *
- * <pre>
- * &lt;prefs&gt;
- *   &lt;activegreeting&gt;outofoffice&lt;/activegreeting&gt;
- *   &lt;notification&gt;
- *       &lt;contact type=&quot;email&quot; attachments=&quot;no&quot;&gt;dhubler@pingtel.com&lt;/contact&gt;
- *   &lt;/notification&gt;
- * &lt;/prefs&gt;
- * </pre>
- */
 public class MailboxPreferences {
-    public static final String ATTACH_VOICEMAIL = "attachVoicemail";
-    public static final String DO_NOT_ATTACH_VOICEMAIL = "doNotAttachVoicemail";
-    public static final String SYNCHRONIZE_WITH_EMAIL_SERVER = "synchronizeWithEmailServer";
-    public static final String EMAIL_PROP = "emailAddress";
-    private User m_user;
-    private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
-    private String m_emailAddress;
-    private boolean m_attachVoicemailToEmail;
-    private String m_alternateEmailAddress;
-    private boolean m_attachVoicemailToAlternateEmail;
-    private boolean m_synchronizeWithEmailServer;
-    private String m_voicemailProperties;
-    private String m_emailServerHost;
-    private String m_emailServerPort;
-    private boolean m_emailServerUseTLS;
-    private String m_emailPassword;
-
-    public User getUser() {
-        return m_user;
-    }
-
-    public void setUser(User user) {
-        m_user = user;
-    }
+    public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
+    public static final String ATTACH_VOICEMAIL = "voicemail/mailbox/attach-voicemail";
+    public static final String ATTACH_VOICEMAIL_ALTERNATE = "voicemail/mailbox/attach-voicemail-to-additional-email";
+    public static final String IMAP_PASSWORD = "voicemail/imap/password";
+    public static final String IMAP_TLS = "voicemail/imap/tls";
+    public static final String IMAP_PORT = "voicemail/imap/port";
+    public static final String IMAP_HOST = "voicemail/imap/host";
 
     public enum ActiveGreeting {
         NONE("none"), STANDARD("standard"), OUT_OF_OFFICE("outofoffice"), EXTENDED_ABSENCE("extendedabsence");
@@ -63,7 +34,7 @@ public class MailboxPreferences {
             return m_id;
         }
 
-        public static ActiveGreeting valueOfById(String id) {
+        public static ActiveGreeting fromId(String id) {
             for (ActiveGreeting greeting : ActiveGreeting.values()) {
                 if (greeting.getId().equals(id)) {
                     return greeting;
@@ -71,6 +42,70 @@ public class MailboxPreferences {
             }
             throw new IllegalArgumentException("id not recognized " + id);
         }
+    }
+
+    public enum AttachType {
+        NO("0"), YES("1"), IMAP("2");
+
+        private String m_value;
+
+        AttachType(String value) {
+            m_value = value;
+        }
+
+        public String getValue() {
+            return m_value;
+        }
+
+        public static AttachType fromValue(String value) {
+            for (AttachType e : values()) {
+                if (e.m_value.equals(value)) {
+                    return e;
+                }
+            }
+            return NO;
+        }
+    }
+
+    private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
+
+    private String m_emailAddress;
+    private AttachType m_attachVoicemailToEmail = AttachType.NO;
+
+    private String m_alternateEmailAddress;
+    private boolean m_attachVoicemailToAlternateEmail;
+
+    private boolean m_synchronizeWithImapServer;
+    private String m_imapHost;
+    private String m_imapPort;
+    private boolean m_imapTLS;
+    private String m_imapPassword;
+
+    public MailboxPreferences() {
+        // empty
+    }
+
+    public MailboxPreferences(User user) {
+        m_emailAddress = user.getEmailAddress();
+        m_alternateEmailAddress = user.getAlternateEmailAddress();
+        m_activeGreeting = ActiveGreeting.fromId((user.getSettingValue(ACTIVE_GREETING)));
+        m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(ATTACH_VOICEMAIL));
+        m_attachVoicemailToAlternateEmail = (Boolean) user.getSettingTypedValue(ATTACH_VOICEMAIL_ALTERNATE);
+        m_imapHost = user.getSettingValue(IMAP_HOST);
+        m_imapPort = user.getSettingValue(IMAP_PORT);
+        m_imapTLS = (Boolean) user.getSettingTypedValue(IMAP_TLS);
+        m_imapPassword = user.getSettingValue(IMAP_PASSWORD);
+    }
+
+    public void updateUser(User user) {
+        user.setEmailAddress(m_emailAddress);
+        user.setAlternateEmailAddress(m_alternateEmailAddress);
+        user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
+        user.setSettingValue(ATTACH_VOICEMAIL, m_attachVoicemailToEmail.getValue());
+        user.setSettingValue(IMAP_HOST, m_imapHost);
+        user.setSettingValue(IMAP_PORT, m_imapPort);
+        user.setSettingTypedValue(IMAP_TLS, m_imapTLS);
+        user.setSettingValue(IMAP_PASSWORD, m_imapPassword);
     }
 
     public ActiveGreeting getActiveGreeting() {
@@ -81,11 +116,11 @@ public class MailboxPreferences {
         m_activeGreeting = activeGreeting;
     }
 
-    public boolean isAttachVoicemailToEmail() {
+    public AttachType getAttachVoicemailToEmail() {
         return m_attachVoicemailToEmail;
     }
 
-    public void setAttachVoicemailToEmail(boolean attachVoicemailToEmail) {
+    public void setAttachVoicemailToEmail(AttachType attachVoicemailToEmail) {
         m_attachVoicemailToEmail = attachVoicemailToEmail;
     }
 
@@ -114,67 +149,55 @@ public class MailboxPreferences {
     }
 
     public boolean isSynchronizeWithEmailServer() {
-        return m_synchronizeWithEmailServer;
+        return m_synchronizeWithImapServer;
     }
 
-    public void setSynchronizeWithEmailServer(boolean synchronizeWithEmailServer) {
-        m_synchronizeWithEmailServer = synchronizeWithEmailServer;
+    public void setSynchronizeWithImapServer(boolean synchronizeWithImapServer) {
+        m_synchronizeWithImapServer = synchronizeWithImapServer;
     }
 
-    public String getVoicemailProperties() {
-        return m_voicemailProperties;
+    public String getImapHost() {
+        return m_imapHost;
     }
 
-    public void setVoicemailProperties(String voicemailProperties) {
-        m_voicemailProperties = voicemailProperties;
-        if (m_voicemailProperties != null && m_voicemailProperties.equals(SYNCHRONIZE_WITH_EMAIL_SERVER)) {
-            m_synchronizeWithEmailServer = true;
-            m_attachVoicemailToEmail = true;
-        } else if (m_voicemailProperties != null && m_voicemailProperties.equals(ATTACH_VOICEMAIL)) {
-            m_synchronizeWithEmailServer = false;
-            m_attachVoicemailToEmail = true;
-        } else if (m_voicemailProperties != null && m_voicemailProperties.equals(DO_NOT_ATTACH_VOICEMAIL)) {
-            m_synchronizeWithEmailServer = false;
-            m_attachVoicemailToEmail = false;
-        }
+    public void setImapHost(String imapHost) {
+        m_imapHost = imapHost;
     }
 
-    public String getEmailServerHost() {
-        return m_emailServerHost;
+    public String getImapPort() {
+        return m_imapPort;
     }
 
-    public void setEmailServerHost(String emailServerHost) {
-        m_emailServerHost = emailServerHost;
-    }
-
-    public String getEmailServerPort() {
-        return m_emailServerPort;
-    }
-
-    public void setEmailServerPort(String emailServerPort) {
-        m_emailServerPort = emailServerPort;
+    public void setImapPort(String imapPort) {
+        m_imapPort = imapPort;
     }
 
     public boolean getEmailServerUseTLS() {
-        return m_emailServerUseTLS;
+        return m_imapTLS;
     }
 
-    public void setEmailServerUseTLS(boolean emailServerUseTLS) {
-        m_emailServerUseTLS = emailServerUseTLS;
+    public void setImapTLS(boolean imapTls) {
+        m_imapTLS = imapTls;
     }
 
-    public String getEmailPassword() {
-        return m_emailPassword;
+    public String getImapPassword() {
+        return m_imapPassword;
     }
 
-    public void setEmailPassword(String emailPassword) {
-        m_emailPassword = emailPassword;
+    public void setImapPassword(String emailPassword) {
+        m_imapPassword = emailPassword;
     }
 
-    public boolean ifEmailServer() {
-        if (StringUtils.isNotEmpty(getEmailServerHost()) && getEmailServerPort() != null) {
-            return true;
+    public boolean hasImapServer() {
+        return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
+    }
+
+    public AttachType[] getAttachOptions() {
+        if (hasImapServer()) {
+            return AttachType.values();
         }
-        return false;
+        return new AttachType[] {
+            AttachType.YES, AttachType.NO
+        };
     }
 }

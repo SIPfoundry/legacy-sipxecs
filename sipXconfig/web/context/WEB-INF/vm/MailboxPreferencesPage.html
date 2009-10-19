@@ -1,4 +1,3 @@
-<!--div jwcid="@common/Border" restricted="false" useDojo="true"-->
 <div jwcid="@common/Border" restricted="false">
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
@@ -6,20 +5,13 @@
     <h2><span key="title">Mailbox Preferences</span></h2>
   </span>
   <span jwcid="@common/ErrorMsg"/>
-  <!--div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'table' : null)"-->
-    <form jwcid="mailboxPrefsForm@Form" delegate="bean:validator" listener="listener:onSubmit">
+    <form jwcid="mailboxPrefsForm@Form" delegate="bean:validator">
       <ul class="component-links">
         <li jwcid="@common/ToggleLink" toggle="ognl:advanced" />
       </ul>
       <table>
         <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" admin="ognl:userSession.admin"/>
-        <span jwcid="@If" condition="ognl:advanced">
-          <tr><td colspan="2">
-          <span jwcid="@setting/SettingsFieldset" settings="ognl:settings" renderGroupTitle="false"/>
-          </td></tr>
-        </span>
       </table>
       <span jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback"/>
     </form>
-  <!--/div-->
 </div>

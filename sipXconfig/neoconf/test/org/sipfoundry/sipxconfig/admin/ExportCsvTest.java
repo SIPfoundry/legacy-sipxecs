@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
@@ -23,15 +22,10 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.TestPhone;
 import org.sipfoundry.sipxconfig.phone.TestPhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class ExportCsvTest extends TestCase {
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
     }
@@ -54,13 +48,7 @@ public class ExportCsvTest extends TestCase {
     }
 
     public void testExportPhone() throws Exception {
-        MailboxManager mm = createMock(MailboxManager.class);
-        mm.isEnabled();
-        expectLastCall().andReturn(false);
-        replay(mm);
-
         ExportCsv exportCsv = new ExportCsv();
-        exportCsv.setMailboxManager(mm);
 
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
@@ -80,6 +68,7 @@ public class ExportCsvTest extends TestCase {
         user.setPin("1234", "example.org");
         user.setSipPassword("sip_pass");
         user.setUserName("jlennon");
+        user.setEmailAddress("jlennon@gmail.com");
         user.setImId("imId");
         user.setGroupsAsList(Arrays.asList(groups));
 
@@ -87,7 +76,8 @@ public class ExportCsvTest extends TestCase {
         line.setUser(user);
 
         // Add 4 phone Groups to test export of multiple groups
-        // Note: phonegroup3, has a comma in the name. This is to make sure the double quotes are around the field
+        // Note: phonegroup3, has a comma in the name. This is to make sure the double quotes are
+        // around the field
         // and the comma is not taken as a seperator for the csv file.
         Group[] phoneGroups = new Group[4];
         phoneGroups[0] = new Group();
@@ -109,9 +99,8 @@ public class ExportCsvTest extends TestCase {
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"\n",
                 writer.toString());
-        verify(mm);
     }
 
     public void testExportPhoneExternalLine() throws Exception {
@@ -142,13 +131,7 @@ public class ExportCsvTest extends TestCase {
     }
 
     public void testExportUserNoEmail() throws Exception {
-        MailboxManager mm = createMock(MailboxManager.class);
-        mm.isEnabled();
-        expectLastCall().andReturn(false);
-        replay(mm);
-
         ExportCsv exportCsv = new ExportCsv();
-        exportCsv.setMailboxManager(mm);
 
         StringWriter writer = new StringWriter();
         CsvWriter csv = new CsvWriter(writer);
@@ -165,6 +148,5 @@ public class ExportCsvTest extends TestCase {
         assertEquals(
                 "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
-        verify(mm);
     }
 }

@@ -23,9 +23,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
@@ -68,14 +66,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
             if (newUsername) {
                 mmgr.deleteMailbox(user.getUserName());
             }
-
-            Mailbox mailbox = mmgr.getMailbox(user.getUserName());
-            MailboxPreferences preferences = mmgr.loadMailboxPreferences(mailbox);
-            preferences.setEmailServerHost(user.getSettingValue("unified-messaging/host"));
-            preferences.setEmailServerPort(user.getSettingValue("unified-messaging/port"));
-            preferences.setEmailServerUseTLS((Boolean) user.getSettingTypedValue("unified-messaging/tls"));
-
-            mmgr.saveMailboxPreferences(mailbox, preferences);
+            mmgr.saveMailboxPreferences(user);
         }
 
         if (newUsername) {

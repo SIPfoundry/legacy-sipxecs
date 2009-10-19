@@ -56,6 +56,20 @@
       value="ognl:addressBookEntry.faxNumber"
       type="text" autocomplete="off"/>
     </tr>
+    <tr jwcid="@common/FieldPanel" for="emailAddress"
+      field="component:emailAddress"
+      label="message:label.emailAddress">
+    <span jwcid="emailAddress@TextField" id="emailAddress" maxlength="255"
+      value="ognl:addressBookEntry.emailAddress"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="alternateEmailAddress"
+      field="component:alternateEmailAddress"
+      label="message:label.alternateEmailAddress">
+    <span jwcid="alternateEmailAddress@TextField" id="alternateEmailAddress" maxlength="255"
+      value="ognl:addressBookEntry.alternateEmailAddress"
+      type="text" autocomplete="off"/>
+    </tr>
     <tr jwcid="@common/FieldPanel" for="alternateImId"
       field="component:alternateImId"
       label="message:label.alternateImId">

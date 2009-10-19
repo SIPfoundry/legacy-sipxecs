@@ -543,4 +543,26 @@ public class User extends BeanWithGroups implements NamedObject {
             return m_musicOnHoldManager.getDefaultMohUri();
         }
     }
+
+    public void setEmailAddress(String emailAddress) {
+        useAddressBookEntry().setEmailAddress(emailAddress);
+    }
+
+    public String getEmailAddress() {
+        if (m_addressBookEntry == null) {
+            return null;
+        }
+        return m_addressBookEntry.getEmailAddress();
+    }
+
+    public void setAlternateEmailAddress(String emailAddress) {
+        useAddressBookEntry().setAlternateEmailAddress(emailAddress);
+    }
+
+    public String getAlternateEmailAddress() {
+        if (m_addressBookEntry == null) {
+            return null;
+        }
+        return m_addressBookEntry.getAlternateEmailAddress();
+    }
 }

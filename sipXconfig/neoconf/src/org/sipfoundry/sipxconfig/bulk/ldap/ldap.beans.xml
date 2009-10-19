@@ -55,7 +55,6 @@
   </bean>
 
   <bean id="ldapUserMapper" class="org.sipfoundry.sipxconfig.bulk.ldap.UserMapper" singleton="false">
-    <property name="mailboxManager" ref="mailboxManager" />
     <property name="ldapManager">
       <ref local="ldapManager" />
     </property>

@@ -25,9 +25,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class CsvRowInserter extends RowInserter<String[]> {
     private DomainManager m_domainManager;
@@ -112,16 +110,11 @@ public class CsvRowInserter extends RowInserter<String[]> {
     @Override
     protected void insertRow(String[] row) {
         User user = userFromRow(row);
-        Collection<Group> userGroups;
-        String emailAddress;
+        Collection<Group> userGroups = null;
         if (user != null) {
             String userGroupName = Index.USER_GROUP.get(row);
             userGroups = m_settingDao.getGroupsByString(CoreContext.USER_GROUP_RESOURCE_ID,
                     userGroupName, true);
-            emailAddress = Index.EMAIL.get(row);
-        } else {
-            userGroups = null;
-            emailAddress = null;
         }
 
         Phone phone = phoneFromRow(row);
@@ -134,7 +127,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
             phoneGroups = null;
         }
 
-        insertData(user, userGroups, phone, phoneGroups, emailAddress);
+        insertData(user, userGroups, phone, phoneGroups);
     }
 
     /**
@@ -157,7 +150,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
             user = new User();
             user.setUserName(userName);
         }
-
         String localRealm = m_domainManager.getAuthorizationRealm();
         String pin = Index.PIN.get(row);
         if (pin.length() > 0) {
@@ -190,6 +182,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         Index.ALIAS.setProperty(user, row);
         Index.SIP_PASSWORD.setProperty(user, row);
         Index.IM_ID.setProperty(user, row);
+        Index.EMAIL.setProperty(user, row);
 
         return user;
     }
@@ -226,12 +219,12 @@ public class CsvRowInserter extends RowInserter<String[]> {
      * creates the line for a newly added group on newly added phone.
      *
      * @param user user to add or update
-     * @param userGroup user group to which user will be added
      * @param phone phone to add or update
+     * @param userGroup user group to which user will be added
      * @param phoneGroup phone group to which phone will be added
      */
     private void insertData(User user, Collection<Group> userGroups, Phone phone,
-            Collection<Group> phoneGroups, String emailAddress) {
+            Collection<Group> phoneGroups) {
 
         boolean newMailbox = false;
         if (user != null) {
@@ -253,11 +246,11 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         if (user != null) {
-            updateMailboxPreferences(user, emailAddress, newMailbox);
+            updateMailbox(user, newMailbox);
         }
     }
 
-    void updateMailboxPreferences(User user, String emailAddress, boolean newMailbox) {
+    void updateMailbox(User user, boolean newMailbox) {
         if (!m_mailboxManager.isEnabled()) {
             return;
         }
@@ -266,13 +259,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
             m_mailboxManager.deleteMailbox(userName);
         }
 
-        if (StringUtils.isNotBlank(emailAddress)) {
-            Mailbox mailbox = m_mailboxManager.getMailbox(userName);
-            MailboxPreferences mboxPrefs = m_mailboxManager.loadMailboxPreferences(mailbox);
-            mboxPrefs.setEmailAddress(emailAddress);
-
-            m_mailboxManager.saveMailboxPreferences(mailbox, mboxPrefs);
-        }
     }
 
     Line addLine(Phone phone, User user) {

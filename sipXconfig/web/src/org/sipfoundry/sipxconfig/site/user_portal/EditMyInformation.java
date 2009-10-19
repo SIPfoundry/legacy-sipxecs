@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
 import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
@@ -38,8 +37,7 @@ import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
     public static final String TAB_CONFERENCES = "conferences";
 
-    private static final String OPERATOR_SETTING =
-        "personal-attendant" + Setting.PATH_DELIM + "operator";
+    private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -54,6 +52,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract Conference getCurrentRow();
+
     public abstract void setCurrentRow(Conference currentRow);
 
     public abstract String getPin();
@@ -67,13 +66,16 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
     public abstract IPropertySelectionModel getLanguageList();
+
     public abstract void setLanguageList(IPropertySelectionModel languageList);
 
     @Persist
     public abstract PersonalAttendant getPersonalAttendant();
+
     public abstract void setPersonalAttendant(PersonalAttendant pa);
 
     public abstract Collection<String> getAvailableTabNames();
+
     public abstract void setAvailableTabNames(Collection<String> tabNames);
 
     @Persist
@@ -81,6 +83,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract String getTab();
 
     public abstract Block getActionBlockForConferencesTab();
+
     public abstract void setActionBlockForConferencesTab(Block b);
 
     public void save() {
@@ -97,8 +100,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     private void savePersonalAttendant(User user) {
         MailboxManager mailMgr = getMailboxManager();
         if (mailMgr.isEnabled()) {
-            Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
-            mailMgr.saveMailboxPreferences(mailbox, getMailboxPreferences());
+            mailMgr.saveMailboxPreferences(user);
         }
 
         mailMgr.storePersonalAttendant(getPersonalAttendant());
@@ -131,10 +133,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
-            Mailbox mailbox = mailMgr.getMailbox(user.getUserName());
-            MailboxPreferences prefs = mailMgr.loadMailboxPreferences(mailbox);
-            prefs.setUser(user);
-            setMailboxPreferences(prefs);
+            setMailboxPreferences(new MailboxPreferences(user));
         }
 
         PersonalAttendant personalAttendant = getPersonalAttendant();
@@ -153,8 +152,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     protected void initLanguageList() {
         String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
         getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
-        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(),
-                availableLanguages);
+        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(), availableLanguages);
         setLanguageList(model);
     }
 

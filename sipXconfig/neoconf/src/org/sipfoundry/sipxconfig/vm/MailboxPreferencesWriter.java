@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.vm;
 
@@ -20,16 +20,15 @@ public class MailboxPreferencesWriter extends XmlWriterImpl<MailboxPreferences> 
     }
 
     @Override
-    protected void addContext(VelocityContext context, MailboxPreferences object) {
-        boolean altEmail = (object != null && !StringUtils.isBlank(object.getAlternateEmailAddress()));
+    protected void addContext(VelocityContext context, MailboxPreferences prefs) {
+        boolean altEmail = StringUtils.isNotBlank(prefs.getAlternateEmailAddress());
         context.put("hasAlternateEmailAddress", altEmail);
-        context.put("preferences", object);
+        context.put("preferences", prefs);
         context.put("yesNo", new YesNo());
-        if (object != null) {
-            context.put("ifEmailServer", object.ifEmailServer());
-            String pwd = object.getEmailPassword() != null ? object.getEmailPassword() : "";
-            String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
-            context.put("pwd", encodedPwd);
-        }
+        context.put("ifEmailServer", prefs.hasImapServer());
+        // FIXME: this code is using default platform encoding - not safe
+        String pwd = StringUtils.defaultString(prefs.getImapPassword());
+        String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
+        context.put("pwd", encodedPwd);
     }
 }

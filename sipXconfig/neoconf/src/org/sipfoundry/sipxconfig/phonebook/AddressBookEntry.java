@@ -28,6 +28,8 @@ public class AddressBookEntry extends BeanWithId {
     private String m_imPassword;
     private String m_imDisplayName;
     private String m_alternateImId;
+    private String m_emailAddress;
+    private String m_alternateEmailAddress;
     private boolean m_useBranchAddress = true;
 
     public String getJobTitle() {
@@ -165,5 +167,21 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setUseBranchAddress(boolean useBranchAddress) {
         m_useBranchAddress = useBranchAddress;
+    }
+
+    public String getEmailAddress() {
+        return m_emailAddress;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        m_emailAddress = emailAddress;
+    }
+
+    public String getAlternateEmailAddress() {
+        return m_alternateEmailAddress;
+    }
+
+    public void setAlternateEmailAddress(String alternateEmailAddress) {
+        m_alternateEmailAddress = alternateEmailAddress;
     }
 }

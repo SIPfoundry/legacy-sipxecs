@@ -33,7 +33,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private File m_mailstoreDirectory;
-    private MailboxPreferencesReader m_mailboxPreferencesReader;
     private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
@@ -147,28 +146,16 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         mailbox.deleteUserDirectory();
     }
 
-    public void saveMailboxPreferences(Mailbox mailbox, MailboxPreferences preferences) {
+    public void saveMailboxPreferences(User user) {
+        Mailbox mailbox = getMailbox(user.getName());
         File file = mailbox.getVoicemailPreferencesFile();
-        m_mailboxPreferencesWriter.writeObject(preferences, file);
-    }
-
-    public MailboxPreferences loadMailboxPreferences(Mailbox mailbox) {
-        File prefsFile = mailbox.getVoicemailPreferencesFile();
-        MailboxPreferences preferences = m_mailboxPreferencesReader.readObject(prefsFile);
-        if (preferences == null) {
-            preferences = new MailboxPreferences();
-        }
-        return preferences;
+        m_mailboxPreferencesWriter.writeObject(new MailboxPreferences(user), file);
     }
 
     public static class YesNo {
         public String encode(Object o) {
             return Boolean.TRUE.equals(o) ? "yes" : "no";
         }
-    }
-
-    public void setMailboxPreferencesReader(MailboxPreferencesReader mailboxReader) {
-        m_mailboxPreferencesReader = mailboxReader;
     }
 
     public void setMailboxPreferencesWriter(MailboxPreferencesWriter mailboxWriter) {
@@ -245,11 +232,5 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         protected void onUserDelete(User user) {
             removePersonalAttendantForUser(user);
         }
-    }
-
-    @Override
-    public MailboxPreferences getMailboxPreferencesForUser(User user) {
-        Mailbox mailbox = getMailbox(user.getUserName());
-        return loadMailboxPreferences(mailbox);
     }
 }

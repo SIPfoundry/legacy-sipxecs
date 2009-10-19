@@ -20,9 +20,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public class UserServiceImpl implements UserService {
 
@@ -78,22 +76,10 @@ public class UserServiceImpl implements UserService {
         UserSearch search = (findUser == null ? null : findUser.getSearch());
         org.sipfoundry.sipxconfig.common.User[] users = search(search);
         User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users, User.class);
-        loadEmailAddresses(arrayOfUsers);
 
         response.setUsers(arrayOfUsers);
 
         return response;
-    }
-
-    void loadEmailAddresses(User[] users) {
-        if (!m_mailboxManager.isEnabled()) {
-            return;
-        }
-        for (User user : users) {
-            Mailbox mailbox = m_mailboxManager.getMailbox(user.getUserName());
-            MailboxPreferences preferences = m_mailboxManager.loadMailboxPreferences(mailbox);
-            user.setEmailAddress(preferences.getEmailAddress());
-        }
     }
 
     org.sipfoundry.sipxconfig.common.User[] search(UserSearch search) {
@@ -156,9 +142,9 @@ public class UserServiceImpl implements UserService {
 
             boolean newUsername = m_coreContext.saveUser(myUsers[i]);
             if (edit != null) {
-                Property emailProperty = ApiBeanUtil.findProperty(edit, MailboxPreferences.EMAIL_PROP);
-                if (emailProperty != null) {
-                    updateMailbox(myUsers[i].getUserName(), emailProperty.getValue(), newUsername);
+                String emailAddress = myUsers[i].getEmailAddress();
+                if (emailAddress != null) {
+                    updateMailbox(myUsers[i].getUserName(), emailAddress, newUsername);
                 }
             }
         }
@@ -174,9 +160,5 @@ public class UserServiceImpl implements UserService {
         if (newUsername) {
             m_mailboxManager.deleteMailbox(userName);
         }
-        Mailbox mailbox = m_mailboxManager.getMailbox(userName);
-        MailboxPreferences mailboxPreferences = m_mailboxManager.loadMailboxPreferences(mailbox);
-        mailboxPreferences.setEmailAddress(emailAddress);
-        m_mailboxManager.saveMailboxPreferences(mailbox, mailboxPreferences);
     }
 }

@@ -127,24 +127,74 @@
       </type>
     </setting>
   </group>
-  <group name="unified-messaging">
-    <setting name="host">
-      <type>
-        <string />
-      </type>
-    </setting>
-    <setting name="port">
-      <type>
-        <integer min="0" required="yes"/>
-      </type>
-      <value>143</value>
-    </setting>
-    <setting name="tls">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
+  <group name="voicemail">
+    <group name="mailbox" hidden="yes">
+      <setting name="active-greeting">
+        <type>
+          <enum>
+            <option>
+              <value>none</value>
+            </option>
+            <option>
+              <value>standard</value>
+            </option>
+            <option>
+              <value>outofoffice</value>
+            </option>
+            <option>
+              <value>extendedabsence</value>
+            </option>
+          </enum>
+        </type>
+        <value>standard</value>
+      </setting>
+      <setting name="attach-voicemail">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="attach-voicemail-to-additional-email">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="imap">
+      <setting name="host">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="port" advanced="yes">
+        <type>
+          <integer min="0" required="yes" />
+        </type>
+        <value>143</value>
+      </setting>
+      <setting name="tls" advanced="yes">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="password" hidden="yes">
+        <type>
+          <string password="yes" />
+        </type>
+      </setting>
+    </group>
   </group>
   <group name="im">
     <setting name="im-account">
@@ -175,14 +225,14 @@
   <group name="callfwd">
     <setting name="timer">
       <type>
-        <integer min="1" max="999" required="yes"/>
+        <integer min="1" max="999" required="yes" />
       </type>
       <value>20</value>
     </setting>
   </group>
   <group name="moh">
     <setting name="audio-source">
-       <type>
+      <type>
         <enum>
           <option>
             <value>FILES_SRC</value>

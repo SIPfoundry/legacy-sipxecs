@@ -10,9 +10,14 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.io.StringWriter;
 
 import junit.framework.TestCase;
+
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.restlet.data.ChallengeResponse;
@@ -23,13 +28,6 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class UserGravatarResourceTest extends TestCase {
 
@@ -41,6 +39,7 @@ public class UserGravatarResourceTest extends TestCase {
         m_user = new User();
         m_user.setUniqueId();
         m_user.setUserName("200");
+        m_user.setEmailAddress("iHaveAn@email.com");
 
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
@@ -59,17 +58,8 @@ public class UserGravatarResourceTest extends TestCase {
     }
 
     public void testGetGravatar() throws Exception {
-        MailboxPreferences mailboxPreferences = new MailboxPreferences();
-        mailboxPreferences.setEmailAddress("iHaveAn@email.com");
-
-        MailboxManager mailboxManager = createMock(MailboxManager.class);
-        mailboxManager.getMailboxPreferencesForUser(m_user);
-        expectLastCall().andReturn(mailboxPreferences);
-        replay(mailboxManager);
-
         UserAvatarResource resource = new UserAvatarResource();
         resource.setCoreContext(m_coreContext);
-        resource.setMailboxManager(mailboxManager);
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
 
         Request request = new Request();
@@ -81,8 +71,6 @@ public class UserGravatarResourceTest extends TestCase {
         StringWriter writer = new StringWriter();
         representation.write(writer);
         String generated = writer.toString();
-
         assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", generated);
-        verify(mailboxManager);
     }
 }

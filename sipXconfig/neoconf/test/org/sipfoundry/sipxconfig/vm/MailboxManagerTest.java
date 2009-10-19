@@ -16,19 +16,68 @@ import java.util.List;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.test.TestUtil;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class MailboxManagerTest extends TestCase {
     private MailboxManagerImpl m_mgr;
-
+    private User user = new User();
+    private static final String FILE_SEPARATOR = "file.separator";
     public static final File READONLY_MAILSTORE = new File(TestUtil.getTestSourceDirectory(MailboxManagerTest.class));
 
     @Override
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
+        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
+        writer.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_mgr.setMailboxPreferencesWriter(writer);
+
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+
+        AddressBookEntry abe = new AddressBookEntry();
+        abe.setEmailAddress("myemail@gmail.com");
+        abe.setAlternateEmailAddress("myotheremail@gmail.com");
+        user = new User();
+        user.setUserName("300");
+        user.setAddressBookEntry(abe);
+        user.setPermissionManager(pManager);
+
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.loadUserByUserName("300");
+        expectLastCall().andReturn(user).anyTimes();
+        coreContext.saveUser(user);
+        expectLastCall().andReturn(true);
+        replay(pManager, coreContext);
+        m_mgr.setCoreContext(coreContext);
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        File mailstore300 = new File(new StringBuilder(TestUtil.getTestSourceDirectory(MailboxManagerTest.class))
+                .append(System.getProperty(FILE_SEPARATOR)).append("300").toString());
+        File mailboxprefs300 = new File(new StringBuilder(TestUtil.getTestSourceDirectory(MailboxManagerTest.class))
+                .append(System.getProperty(FILE_SEPARATOR)).append("300").append(System.getProperty(FILE_SEPARATOR))
+                .append("mailboxprefs.xml").toString());
+        if (mailboxprefs300.exists()) {
+            mailboxprefs300.delete();
+        }
+        if (mailstore300.exists()) {
+            mailstore300.delete();
+        }
     }
 
     public static File createTestMailStore() throws IOException {
@@ -111,31 +160,5 @@ public class MailboxManagerTest extends TestCase {
         List<Voicemail> deleted = m_mgr.getVoicemail(m_mgr.getMailbox("200"), "deleted");
         assertEquals(1, deleted.size());
         assertEquals("00000002", deleted.get(0).getMessageId());
-    }
-
-    public void testLoadPreferencesWhenEmpty() {
-        Mailbox mailbox = m_mgr.getMailbox("300");
-        MailboxPreferencesReader reader = new MailboxPreferencesReader();
-        m_mgr.setMailboxPreferencesReader(reader);
-        MailboxPreferences preferences = m_mgr.loadMailboxPreferences(mailbox);
-        assertNotNull(preferences);
-    }
-
-    public void testSavePreferencesWhenEmpty() {
-        m_mgr.setMailstoreDirectory(TestHelper.getTestDirectory());
-        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
-        writer.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_mgr.setMailboxPreferencesWriter(writer);
-        Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
-        m_mgr.saveMailboxPreferences(mailbox, new MailboxPreferences());
-    }
-
-    public void testSavePreferencesWhenNullPreferences() {
-        m_mgr.setMailstoreDirectory(TestHelper.getTestDirectory());
-        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
-        writer.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_mgr.setMailboxPreferencesWriter(writer);
-        Mailbox mailbox = m_mgr.getMailbox("save-prefs-" + System.currentTimeMillis());
-        m_mgr.saveMailboxPreferences(mailbox, null);
     }
 }

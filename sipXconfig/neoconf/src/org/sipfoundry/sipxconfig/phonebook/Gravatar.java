@@ -13,9 +13,6 @@ package org.sipfoundry.sipxconfig.phonebook;
 import static java.lang.String.format;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
-
 import static org.apache.commons.codec.digest.DigestUtils.md5Hex;
 import static org.apache.commons.lang.StringUtils.defaultString;
 
@@ -46,12 +43,10 @@ public class Gravatar {
     /**
      * Calculates URL for the users avatar provided by gravatar.com service
      *
-     * @param mailboxManager until we have independent source of mailbox preferences we need to
-     *        pass mailbox manager around
      * @return URL that can be used to retrieve gravatar
      */
-    public String getUrl(MailboxManager mailboxManager) {
-        String email = getEmail(mailboxManager);
+    public String getUrl() {
+        String email = m_user.getEmailAddress();
         if (email == null) {
             return null;
         }
@@ -66,13 +61,8 @@ public class Gravatar {
      * @param mailboxManager until we have independent source of mailbox preferences we need to
      *        pass mailbox manager around
      */
-    public String getSignupUrl(MailboxManager mailboxManager) {
-        String email = defaultString(getEmail(mailboxManager)).toLowerCase();
+    public String getSignupUrl() {
+        String email = defaultString(m_user.getEmailAddress()).toLowerCase();
         return format("http://en.gravatar.com/site/signup/%s", email);
-    }
-
-    private String getEmail(MailboxManager mailboxManager) {
-        MailboxPreferences mailboxPreferences = mailboxManager.getMailboxPreferencesForUser(m_user);
-        return mailboxPreferences.getEmailAddress();
     }
 }

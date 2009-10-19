@@ -21,7 +21,6 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="alarms/alarm-groups.vm" />
     <property name="name" value="alarm-groups.xml" />
-    <property name="mailboxManager" ref="mailboxManager" />
   </bean>
 
   <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManagerImpl">

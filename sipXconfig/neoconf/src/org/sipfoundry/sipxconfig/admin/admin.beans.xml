@@ -78,7 +78,6 @@
   <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
     <property name="coreContext" ref="coreContext" />
     <property name="phoneContext" ref="phoneContext" />
-    <property name="mailboxManager" ref="mailboxManager" />
   </bean>
 
   <bean id="defaultConfigurationFile" abstract="true">
