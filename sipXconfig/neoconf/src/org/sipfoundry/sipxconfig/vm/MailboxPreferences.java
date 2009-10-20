@@ -102,6 +102,7 @@ public class MailboxPreferences {
         user.setAlternateEmailAddress(m_alternateEmailAddress);
         user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
         user.setSettingValue(ATTACH_VOICEMAIL, m_attachVoicemailToEmail.getValue());
+        user.setSettingTypedValue(ATTACH_VOICEMAIL_ALTERNATE, m_attachVoicemailToAlternateEmail);
         user.setSettingValue(IMAP_HOST, m_imapHost);
         user.setSettingValue(IMAP_PORT, m_imapPort);
         user.setSettingTypedValue(IMAP_TLS, m_imapTLS);
