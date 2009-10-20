@@ -8,9 +8,7 @@
     </file>
   </type>
   <group name="firmware">
-    <label>Firmware</label>
     <setting name="file.cmp">
-      <label>Firmware (*.cmp)</label>
       <type refid="binary"/>
     </setting>
   </group>

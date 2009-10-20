@@ -1,7 +1,6 @@
-<?xml version="1.0"?>
-<!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="upload-file">
     <file variable="yes">
@@ -11,15 +10,12 @@
   <type id="number-plan">
     <enum>
       <option>
-        <label>Unknown</label>
         <value>0</value>
       </option>
       <option>
-        <label>E.164 Public</label>
         <value>1</value>
       </option>
       <option>
-        <label>Private</label>
         <value>9</value>
       </option>
     </enum>
@@ -27,19 +23,15 @@
   <type id="modem-transport-type">
     <enum>
       <option>
-        <label>Disable (Transparent)</label>
         <value>0</value>
       </option>
       <option>
-        <label>Enable Relay</label>
         <value>1</value>
       </option>
       <option>
-        <label>Enable Bypass</label>
         <value>2</value>
       </option>
       <option>
-        <label>Events Only (Transparent with Events)</label>
         <value>3</value>
       </option>
     </enum>
@@ -64,87 +56,62 @@
     </multi-enum>
   </type>
   <group name="SIP_general">
-    <label>SIP</label>
-    <setting name='SOURCENUMBERMAPIP2TEL' advanced="yes" if="digital">
-      <label>Source Number Map from IP to Tel</label>
-      <value></value>
-      <description>
-        Manipulate the source number for IP to Tel calls (see Audicodes documentation for details). When certain NI-2
-        protocol configured central offices require calling name to be disabled. Set this to: *,0,$$,$$,$$,$$,*,1,*
-      </description>
+    <setting name="SOURCENUMBERMAPIP2TEL" advanced="yes" if="digital">
+      <value/>
     </setting>
-    <setting name='REMOVECLIWHENRESTRICTED' advanced="yes" if="digital">
-      <label>Remove CLI when restricted</label>
+    <setting name="REMOVECLIWHENRESTRICTED" advanced="yes" if="digital">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        The Remove CLI when restricted (for IP to Tel calls) determines whether the Calling Number IE and Calling Name
-        IE are removed from the outgoing ISDN Setup message if the presentation is set to Restricted. Typically used in
-        certain NI-2 protocol enabled carriers.
-      </description>
     </setting>
-    <setting name='PRACKMode' advanced="yes">
-      <label>PRACK Mode</label>
+    <setting name="PRACKMode" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>Disabled</label>
             <value>0</value>
           </option>
           <option>
-            <label>Supported</label>
             <value>1</value>
           </option>
           <option>
-            <label>Required</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>1</value>
     </setting>
-    <setting name='ChannelSelectMode' advanced="yes">
-      <label>Channel Select Mode</label>
+    <setting name="ChannelSelectMode" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>By phone number</label>
             <value>0</value>
           </option>
           <option>
-            <label>Cyclic Ascending</label>
             <value>1</value>
           </option>
           <option>
-            <label>Ascending</label>
             <value>2</value>
           </option>
           <option>
-            <label>Cyclic Descending</label>
             <value>3</value>
           </option>
           <option>
-            <label>Descending</label>
             <value>4</value>
           </option>
           <option>
-            <label>Number + cyclic Ascending</label>
             <value>5</value>
           </option>
           <option>
-            <label>Calling Party Number</label>
             <value>6</value>
           </option>
         </enum>
       </type>
       <value>1</value>
     </setting>
-    <setting name='EnableEarlyMedia' advanced="yes">
-      <label>Enable Early Media</label>
+    <setting name="EnableEarlyMedia" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
@@ -157,55 +124,41 @@
     <setting name="SessionExpiresMethod" hidden="yes">
       <value>0</value>
     </setting>
-    <setting name='AssertedIDMode' advanced='yes'>
-      <label>Asserted ID Mode</label>
+    <setting name="AssertedIDMode" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>Disabled</label>
             <value>0</value>
           </option>
           <option>
-            <label>P-Asserted</label>
             <value>1</value>
           </option>
           <option>
-            <label>P-Preferred</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>0</value>
-      <description>
-        The Asserted ID mode defines the header that is used in the generated INVITE request. The header also depends on
-        the calling Privacy: allowed or restricted.
-      </description>
     </setting>
     <setting name="UseTelURIForAssertedID" advanced="yes">
-      <label>Tel URI for Asserted Identity</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
-    <setting name='IsFaxUsed'>
-      <label>Fax Signaling</label>
+    <setting name="IsFaxUsed">
       <type>
         <enum>
           <option>
-            <label>No SIP signaling for fax</label>
             <value>0</value>
           </option>
           <option>
-            <label>T.38</label>
             <value>1</value>
           </option>
           <option>
-            <label>Passthru (G711)</label>
             <value>2</value>
           </option>
           <option>
-            <label>T.38 + Passthru</label>
             <value>3</value>
           </option>
         </enum>
@@ -213,15 +166,12 @@
       <value>1</value>
     </setting>
     <setting name="DetFaxOnAnswerTone" advanced="yes">
-      <label>Detect Fax on Answer Tone</label>
       <type>
         <enum>
           <option>
-            <label>T.38 on Preamble</label>
             <value>0</value>
           </option>
           <option>
-            <label>T.38 on CED</label>
             <value>1</value>
           </option>
         </enum>
@@ -229,50 +179,39 @@
       <value>0</value>
     </setting>
     <setting name="SIPTransportType" advanced="yes">
-      <label>SIP Transport Type</label>
       <type>
         <enum>
           <option>
-            <label>UDP</label>
             <value>0</value>
           </option>
           <option>
-            <label>TCP</label>
             <value>1</value>
           </option>
           <option>
-            <label>TLS</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>0</value>
     </setting>
-    <setting name='LocalSIPPort' advanced='yes'>
-      <label>UDP SIP Port</label>
+    <setting name="LocalSIPPort" advanced="yes">
       <value>5060</value>
-      <description>UDP Port for SIP signaling</description>
     </setting>
-    <setting name='TCPLocalSIPPort' advanced='yes'>
-      <label>TCP SIP Port</label>
+    <setting name="TCPLocalSIPPort" advanced="yes">
       <value>5060</value>
-      <description>TCP Port for SIP signaling</description>
     </setting>
-    <setting name='TLSLocalSIPPort' advanced='yes'>
-      <label>TLS SIP Port</label>
+    <setting name="TLSLocalSIPPort" advanced="yes">
       <value>5061</value>
-      <description>TLS Port for SIP signaling</description>
     </setting>
     <setting name="EnableSIPS" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="EnableTCPConnectionReuse" advanced="yes">
-      <label>TCP Connection Reuse</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
@@ -280,29 +219,24 @@
       <value>5060</value>
     </setting>
     <setting name="IPAlertTimeout" advanced="yes">
-      <label>Tel to IP No Answer Timeout</label>
       <type>
-        <integer min="0" max="3600" />
+        <integer min="0" max="3600"/>
       </type>
       <value>180</value>
     </setting>
     <setting name="EnableRPIheader" advanced="yes">
-      <label>Remote Party ID</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="AddTON2RPI" advanced="yes">
-      <label>RPI Header Content</label>
       <type>
         <enum>
           <option>
-            <label>Include Number Plan and Type</label>
             <value>0</value>
           </option>
           <option>
-            <label>Don't Include Number Plan and Type</label>
             <value>1</value>
           </option>
         </enum>
@@ -310,26 +244,21 @@
       <value>0</value>
     </setting>
     <setting name="EnableHistoryInfo" advanced="yes">
-      <label>History-Info Header</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="UseSourceNumberAsDisplayName" advanced="yes">
-      <label>Use Source Number as Display Name</label>
       <type>
         <enum>
           <option>
-            <label>No</label>
             <value>0</value>
           </option>
           <option>
-            <label>Yes</label>
             <value>1</value>
           </option>
           <option>
-            <label>Overwrite</label>
             <value>2</value>
           </option>
         </enum>
@@ -337,37 +266,30 @@
       <value>0</value>
     </setting>
     <setting name="UseDisplayNameAsSourceNumber" advanced="yes">
-      <label>Use Display Name as Source Number</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="PlayRBTone2IP" advanced="yes">
-      <label>Play Ringback Tone to IP</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="PlayRBTone2Tel" advanced="yes">
-      <label>Play Ringback Tone to Tel</label>
       <type>
         <enum>
           <option>
-            <label>Don't Play</label>
             <value>0</value>
           </option>
           <option>
-            <label>Always Play</label>
             <value>1</value>
           </option>
           <option>
-            <label>Play According to 180/183</label>
             <value>2</value>
           </option>
           <option>
-            <label>Play According to PI</label>
             <value>3</value>
           </option>
         </enum>
@@ -375,151 +297,107 @@
       <value>3</value>
     </setting>
     <setting name="EnableGRUU" advanced="yes">
-      <label>Enable GRUU</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="UserAgentDisplayInfo" advanced="yes">
-      <label>User-Agent Information</label>
       <type>
-        <string maxLen="50" />
+        <string maxLen="50"/>
       </type>
     </setting>
     <setting name="SIPSDPSessionOwner" advanced="yes" unless="5.0">
-      <label>SDP Session Owner</label>
       <type>
-        <string maxLen="39" />
+        <string maxLen="39"/>
       </type>
       <value>AudiocodesGW</value>
-      <description>
-        The value of the Session Owner line ("o" field) in outgoing SDP bodies. May be up to 39 characters.
-      </description>
     </setting>
     <setting name="SIPSubject" advanced="yes">
-      <label>Subject</label>
       <type>
-        <string maxLen="50" />
+        <string maxLen="50"/>
       </type>
     </setting>
     <setting name="MultiPtimeFormat" advanced="yes">
-      <label>Multiple Packetization Time Format</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="EnableReasonHeader" advanced="yes">
-      <label>Reason Header</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
     <setting name="3xxBehavior" advanced="yes">
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        Determines the gateway’s behavior when a 3xx response is received for an outgoing INVITE request. The gateway
-        can either use the same call identifiers (CallID, branch, to and from tags) or change them in the new initiated
-        INVITE. When enabled gateway will use the same call identifiers.
-      </description>
     </setting>
-    <setting name='SIPReroutingMode' if="5.6orLater" advanced="yes">
-      <label>SIP Rerouting Mode</label>
+    <setting name="SIPReroutingMode" if="5.6orLater" advanced="yes">
       <type>
-         <integer min="0" max="2" />
+        <integer min="0" max="2"/>
       </type>
       <value>0</value>
-      <description>Determines the routing mode after a call redirection or transfer.
-[0]: Standard = INVITE messages that are generated as a result
-of Transfer or Redirect are sent directly to the URI, according to
-the Refer-To header in the REFER message or Contact header
-in the 3xx response (default).
-[1]: Proxy = Sends a new INVITE to the Proxy. Note: Applicable
-only if a Proxy server is used and the parameter
-AlwaysSendtoProxy is set to 0.
-[2]: Routing Table = Uses the Routing table to locate the
-destination and then sends a new INVITE to this destination</description>
     </setting>
     <setting name="EnablePChargingVector" advanced="yes" unless="5.0">
-      <label>Enable P-Charging-Vector</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>If checked, adds a P-Charging-Vector header to outgoing INVITE messages.</description>
     </setting>
     <setting name="EnableVMURI" advanced="yes" unless="5.0">
-      <label>Enable Voicemail URI</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        Enables or disables the interworking of target and cause for redirection from Tel to IP and vice versa,
-        according to RFC 4468.
-      </description>
     </setting>
     <setting name="SipT1Rtx" advanced="yes">
-      <label>SIP T1 Retransmission Timer [msec]</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>500</value>
     </setting>
     <setting name="SipT2Rtx" advanced="yes">
-      <label>SIP T2 Retransmission Timer [msec]</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>4000</value>
     </setting>
     <setting name="SipMaxRtx" advanced="yes">
-      <label>SIP Maximum RTX</label>
       <type>
-        <integer min="1" max="7" />
+        <integer min="1" max="7"/>
       </type>
       <value>7</value>
     </setting>
   </group>
   <group name="SIP_coders">
-    <label>Voice Codecs</label>
     <setting name="CoderName">
       <type refid="preffered-codecs-type"/>
       <value>g711Ulaw64k</value>
     </setting>
   </group>
   <group name="SIP_Proxy_Registration">
-    <label>Proxy and Registration</label>
-    <setting name='IsProxyUsed' hidden="yes">
-      <label>Enable Proxy Interaction</label>
+    <setting name="IsProxyUsed" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
     <!-- do not specify ProxyName, instead specify ProxyIP as FQDN -->
-    <setting name='ProxyIP' advanced="yes">
-      <label>Proxy IP Address</label>
-    </setting>
-    <setting name='EnableProxyKeepAlive' advanced='yes'>
-      <label>Proxy Keepalive Mode</label>
+    <setting name="ProxyIP" advanced="yes"/>
+    <setting name="EnableProxyKeepAlive" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>Disable</label>
             <value>0</value>
           </option>
           <option>
-            <label>Use OPTIONS</label>
             <value>1</value>
           </option>
           <option>
-            <label>Use REGISTER</label>
             <value>2</value>
           </option>
         </enum>
@@ -527,162 +405,109 @@ destination and then sends a new INVITE to this destination</description>
       <value>0</value>
     </setting>
     <setting name="ProxyKeepAliveTime">
-      <label>Proxy Keep Alive Time</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>5</value>
     </setting>
-    <setting name='IsFallbackUsed' hidden='yes'>
-      <label>Enable Fallback to Internal Routing Table</label>
+    <setting name="IsFallbackUsed" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>0: Disable, 1: Enable fallback to internal routing tables</description>
     </setting>
-    <setting name='PreferRouteTable' hidden='yes'>
-      <label>Prefer Internal Routing Table</label>
+    <setting name="PreferRouteTable" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        0: Disable, 1: Gateway checks the internal routing tables first. If not match, call is sent to Proxy.
-      </description>
     </setting>
-    <setting name='AlwaysSendToProxy' hidden='yes'>
-      <label>Force All Messages to Proxy</label>
+    <setting name="AlwaysSendToProxy" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>0: Standard SIP call flow, 1: All messages and responses sent to proxy.</description>
     </setting>
     <setting name="SendInviteToProxy" advanced="yes" unless="5.6">
-      <label>Send All INVITE to Proxy</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>1</value>
-      <description>
-        If disabled, INVITE messages resulting from redirect or transfer will be sent directrly to destination URI.
-      </description>
     </setting>
-    <setting name='IsRegisterNeeded' hidden="yes" if="fxs">
-      <label>Enable Registration</label>
+    <setting name="IsRegisterNeeded" hidden="yes" if="fxs">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
-      <description>0: Don&apos;t register, 1: Register with proxy</description>
     </setting>
     <!-- do not set 'RegistrarName' - set 'RegistrarIP' to FQDN instead -->
-    <setting name='RegistrarIP' advanced="yes" if="fxs">
-      <label>Registrar IP Address</label>
-      <description>Registrar&apos;s IP address</description>
-    </setting>
+    <setting name="RegistrarIP" advanced="yes" if="fxs"/>
     <setting name="RegistrationTime" advanced="yes" if="fxs">
-      <label>Registration Time</label>
       <type>
-        <integer min="10" max="2000000" />
+        <integer min="10" max="2000000"/>
       </type>
       <value>3600</value>
     </setting>
     <setting name="RegistrationTimeDivider" advanced="yes" if="fxs">
-      <label>Re-registration Timing [%]</label>
       <type>
-        <integer min="1" max="100" />
+        <integer min="1" max="100"/>
       </type>
       <value>50</value>
     </setting>
     <setting name="RegistrationRetryTime" advanced="yes" if="fxs">
-      <label>Registration Retry Time</label>
       <type>
-        <integer min="10" max="3600" />
+        <integer min="10" max="3600"/>
       </type>
       <value>20</value>
     </setting>
-    <setting name='SIPGatewayName' advanced="yes">
-      <label>Gateway Name</label>
-      <description>
-        Assign a name to the gateway. Ensure that the name you choose is the one that the Proxy is configured with to
-        identify your media gateway.
-      </description>
-    </setting>
-    <setting name='DNSQueryType' advanced="yes">
-      <label>DNS Query Type</label>
+    <setting name="SIPGatewayName" advanced="yes"/>
+    <setting name="DNSQueryType" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>A-Record</label>
             <value>0</value>
           </option>
           <option>
-            <label>SRV</label>
             <value>1</value>
           </option>
           <option>
-            <label>NAPTR</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>1</value>
     </setting>
-    <setting name='SubscriptionMode' hidden='yes' if='fxs'>
-      <label>Subscription Mode</label>
+    <setting name="SubscriptionMode" hidden="yes" if="fxs">
       <value>0</value>
     </setting>
-    <setting name='UseGatewayNameForOptions' advanced='yes'>
-      <label>Gateway Name for OPTIONS</label>
+    <setting name="UseGatewayNameForOptions" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
-      <description>
-        The OPTIONS Request-URI host part contains either the gateway’s IP address or a string defined by the parameter
-        ‘Gateway Name’.
-      </description>
     </setting>
     <setting name="isProxyHotSwap" unless="5.0">
-      <label>Hot-Swap Redundancy Mode</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        Enable or disable proxy hot-swap redundancy mode. This allows SIP INVITE/REGISTER messages to be routed to a
-        redundant Proxy/Registrar server if the primary Proxy/Registrar server does not respond.
-      </description>
     </setting>
     <setting name="HotSwapRtx" advanced="yes" unless="5.0">
-      <label>Number of RTX before Hot-Swap</label>
       <type>
-        <integer min="1" max="30" />
+        <integer min="1" max="30"/>
       </type>
       <value>3</value>
-      <description>
-        The number of retransmitted INVITE messages before a call is routed (hot-swapped) to the next option. The valid
-        range is 1 to 30.
-      </description>
     </setting>
-
-    <setting name='Cnonce' if='fxs' advanced='yes'>
-      <label>CNONCE</label>
+    <setting name="Cnonce" if="fxs" advanced="yes">
       <value>Default_Cnonce</value>
-      <description>CNONCE</description>
     </setting>
-    <setting name='AuthenticationMode' if="fxs" hidden="yes">
-      <label>Authentication Mode</label>
+    <setting name="AuthenticationMode" if="fxs" hidden="yes">
       <type>
         <enum>
           <option>
-            <label>Per endpoint (channel)</label>
             <value>0</value>
           </option>
           <option>
-            <label>Per gateway</label>
             <value>1</value>
           </option>
         </enum>
@@ -690,180 +515,127 @@ destination and then sends a new INVITE to this destination</description>
       <value>0</value>
     </setting>
     <setting name="SIPChallengeCachingMode" advanced="yes" unless="5.0">
-      <label>Challenge Caching Mode</label>
       <type>
         <enum>
           <option>
-            <label>None (challenges are not cached)</label>
             <value>0</value>
           </option>
           <option>
-            <label>INVITE Only (challenges for INVITE requests are cached)</label>
             <value>1</value>
           </option>
           <option>
-            <label>Full (Cache all challenges)</label>
             <value>2</value>
           </option>
         </enum>
       </type>
       <value>0</value>
-      <description>
-        To reduce the number of SIP messages, challenges can be cached. Select the desired level of challenge caching to
-        use with SIP proxies.
-      </description>
     </setting>
     <setting name="MutualAuthenticationMode" advanced="yes" unless="5.0">
-      <label>Mutual Authentication Mode</label>
       <type>
         <enum>
           <option>
-            <label>Optional</label>
             <value>0</value>
           </option>
           <option>
-            <label>Mandatory</label>
             <value>1</value>
           </option>
         </enum>
       </type>
       <value>0</value>
-      <description>
-        Select whether Authentication and Key Agreement (AKA) Digest Authentication information are optional or
-        mandatory for incoming requests. If set to Mandatory, incoming requests without AKA information will be
-        rejected.
-      </description>
     </setting>
   </group>
   <group name="SIP_DTMF">
-    <label>DTMF &amp; Dialing</label>
-    <setting name='MaxDigits'>
-      <label>Dialed Digits Max. Length</label>
+    <setting name="MaxDigits">
       <type>
-        <integer max='49' min='1' />
+        <integer max="49" min="1"/>
       </type>
       <value>14</value>
-      <description>Maximum number of digits that can be dialed</description>
     </setting>
-    <setting name='TimeBetweenDigits' advanced='yes'>
-      <label>Inter-Digit Timeout</label>
+    <setting name="TimeBetweenDigits" advanced="yes">
       <type>
-        <integer max='10' min='1' />
+        <integer max="10" min="1"/>
       </type>
       <value>4</value>
-      <description>Dial time out before end-of-dial recognized.</description>
     </setting>
-    <setting name='RxDTMFOption'>
-      <label>Declare RFC2833 in SDP</label>
+    <setting name="RxDTMFOption">
       <type>
         <enum>
           <option>
-            <label>No declaration of RFC2833 in SDP</label>
             <value>0</value>
           </option>
           <option>
-            <label>Declare RFC2833 in SDP</label>
             <value>3</value>
           </option>
         </enum>
       </type>
       <value>3</value>
     </setting>
-    <collection name='TxDTMFOption' size="5">
-      <label>Transmit DTMF Signaling Options</label>
-      <setting name='TxDTMFOption'>
+    <collection name="TxDTMFOption" size="5">
+      <setting name="TxDTMFOption">
         <type>
           <enum>
             <option>
-              <label>No negotiation</label>
               <value>0</value>
             </option>
             <option>
-              <label>DTMF via INFO Nortel style</label>
               <value>1</value>
             </option>
             <option>
-              <label>DTMF via NOTIFY</label>
               <value>2</value>
             </option>
             <option>
-              <label>DTMF via INFO Cisco style</label>
               <value>3</value>
             </option>
             <option>
-              <label>RFC 2833</label>
               <value>4</value>
             </option>
             <option>
-              <label>INFO (Korea)</label>
               <value>5</value>
             </option>
           </enum>
         </type>
         <value>0</value>
       </setting>
-      <description>Transmit DTMF options in order of priority</description>
     </collection>
-    <setting name='RFC2833PayloadType'>
-      <label>RFC2833 DTMF Payload Type</label>
+    <setting name="RFC2833PayloadType">
       <type>
-        <integer min="96" max="127" />
+        <integer min="96" max="127"/>
       </type>
       <value>96</value>
-      <description>RFC 2833 DTMF Relay dynamic payload type. Allowed ranges are: 96 - 99 and 106 - 127</description>
     </setting>
-    <setting name='DigitMapping' if="fxs">
-      <label>Digit Map</label>
+    <setting name="DigitMapping" if="fxs">
       <type>
-        <string maxLen="152" />
+        <string maxLen="152"/>
       </type>
-      <description>
-        Digit map pattern. If the digit string (dialed number) has matched one of the patterns in the digit map, the
-        gateway stops collecting digits and starts the call with the collected number. The digit map pattern contains up
-        to 52 options separated by a vertical bar (|) and enclosed in parenthesis. The maximum length of the entire
-        digit pattern is limited to 152 characters. Available notations: [n-m] represents a range of numbers ‘.’ single
-        dot represents repetition ‘x’ represents any single digit ‘T’ represents a dial timer (configured by
-        TimeBetweenDigits parameter) ‘S’ should be used when a specific rule, that is part of a general rule, is to be
-        applied immediately. For example, if you enter the general rule x.T and the specific rule 11x, you should append
-        ‘S’ to the specific rule 11xS. For example: (11xS|00T|[1-7]xxx|8xxxxxxx|#xxxxxxx|*xx|91xxxxxxxxxx|9011x.T)
-      </description>
     </setting>
     <setting name="TimeForDialTone" if="fxs">
-      <label>Dial Tone Duration [sec]</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>16</value>
     </setting>
     <setting name="HotLineToneDuration" if="fxs">
-      <label>Hotline Dial Tone Duration [sec]</label>
       <type>
-        <integer min="0" max="60" />
+        <integer min="0" max="60"/>
       </type>
       <value>16</value>
     </setting>
-    <setting name='IsSpecialDigits' advanced='yes' if="fxs">
-      <label>Enable Special Digits</label>
+    <setting name="IsSpecialDigits" advanced="yes" if="fxs">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
-      <description>Enable or disable the use of * and #</description>
     </setting>
-    <setting name='HookFlashOption' advanced='yes' if="fxs">
-      <label>Hookflash Signaling</label>
+    <setting name="HookFlashOption" advanced="yes" if="fxs">
       <type>
         <enum>
           <option>
-            <label>Not supported</label>
             <value>0</value>
           </option>
           <option>
-            <label>INFO with HF indication (proprietary)</label>
             <value>1</value>
           </option>
           <option>
-            <label>RFC2833</label>
             <value>4</value>
           </option>
         </enum>
@@ -871,219 +643,152 @@ destination and then sends a new INVITE to this destination</description>
       <value>0</value>
     </setting>
     <group name="FlashHook" advanced="yes" unless="digital">
-      <label>Flash-Hook Detection</label>
       <setting name="MinFlashHookTime" if="fxs">
-        <label>Minimal Period</label>
         <type>
-          <integer min="25" max="300" />
+          <integer min="25" max="300"/>
         </type>
         <value>300</value>
-        <description>Minimal time (in milliseconds) for detection of a flash-hook event.</description>
       </setting>
       <setting name="FlashHookPeriod" if="fxs">
-        <label>Maximal Period</label>
         <type>
-          <integer min="25" max="1500" />
+          <integer min="25" max="1500"/>
         </type>
         <value>700</value>
-        <description>
-          The maximal hook-flash detection period (for FXS gateways). A longer signal is considered offhook / onhook
-          event.
-        </description>
       </setting>
       <setting name="FlashHookPeriod" if="fxo">
-        <label>Reported Period</label>
         <type>
-          <integer min="25" max="1500" />
+          <integer min="25" max="1500"/>
         </type>
         <value>790</value>
-        <description>Flash-hook period (in milliseconds) that is reported to FXO port.</description>
       </setting>
     </group>
   </group>
   <group name="advanced_general" advanced="yes">
-    <label>Advanced Parameters</label>
     <setting name="SecureCallsFromIP" advanced="yes" unless="fxs">
-      <label>Secure SIP Calls</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>If enabled, gateways will only accept SIP calls from IP addresses listed below.</description>
     </setting>
     <setting name="AllowedIPs" advanced="yes" unless="fxs">
-      <label>Accepted IP Addresses</label>
       <profileName>$$</profileName>
       <type>
-        <string></string>
+        <string/>
       </type>
-      <description>
-        Space separated list of IP addresses from which gateway will accept the calls. It is taken into account only if
-        Secure SIP Calls is enabled.
-      </description>
     </setting>
-    <setting name='EnableDigitDelivery' advanced='yes'>
-      <label>Digit Delivery to Telephony Port</label>
+    <setting name="EnableDigitDelivery" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Enables digit string to be played to the port at the far end, after off-hook.</description>
     </setting>
     <setting name="EnableDigitDelivery2IP" advanced="yes">
-      <label>Digit Delivery to IP</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
-    <setting name='EnableDIDWink' advanced='yes' unless="digital">
-      <label>DID Wink Support</label>
+    <setting name="EnableDIDWink" advanced="yes" unless="digital">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        When enabled, the gateway can connect to EIA/TIA 464B Loop Start DID lines. Both generation and detection
-        supported.
-      </description>
     </setting>
     <setting name="RegretTime" advanced="yes" if="fxs">
-      <label>Reanswer time</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>0</value>
-      <description>
-        The time period (in seconds) after user hangs up the phone and before call is disconnected. Also called regret
-        time.
-      </description>
     </setting>
     <setting name="DelayBeforeDIDWink" if="fxs">
-      <label>Delay Before DID Wink</label>
       <type>
-        <integer min="0" max="1000" />
+        <integer min="0" max="1000"/>
       </type>
       <value>0</value>
-      <description>
-        Defines the time interval (in seconds) between detection of offhook and generation of DID Wink.
-      </description>
     </setting>
     <group name="Disconnect" advanced="yes">
-      <label>Disconnect and Answer Supervision</label>
-      <setting name='EnableReversalPolarity' unless="digital">
-        <label>Enable Call Disconnect on Polarity Reversal</label>
+      <setting name="EnableReversalPolarity" unless="digital">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>If checked, enable port disconnect (on-hook) based on polarity reversal.</description>
       </setting>
-      <setting name='EnableCurrentDisconnect' unless="digital">
-        <label>Enable Call Disconnect on Current Drop</label>
+      <setting name="EnableCurrentDisconnect" unless="digital">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>If checked, enable port disconnect (on-hook) based on current drop.</description>
       </setting>
-      <setting name='DisconnectOnBrokenConnection'>
-        <label>Enable Call Disconnect on Broken Connection</label>
+      <setting name="DisconnectOnBrokenConnection">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>If checked, call is released if gateways stops receiving RTP for a period of time</description>
       </setting>
-      <setting name='BrokenConnectionEventTimeout'>
-        <label>Broken Connection Timeout</label>
+      <setting name="BrokenConnectionEventTimeout">
         <type>
-          <integer max='1000' min='1' />
+          <integer max="1000" min="1"/>
         </type>
         <value>100</value>
-        <description>Amount of time RTP is not received, after which call is cleared. In 100ms steps.</description>
       </setting>
-      <setting name='EnableSilenceDisconnect'>
-        <label>Enable Call Disconnect on Far End Silence</label>
+      <setting name="EnableSilenceDisconnect">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>If checked, enable disconnection of call based on silence</description>
       </setting>
-      <setting name='FarEndDisconnectSilencePeriod'>
-        <label>Silence Period for Disconnect</label>
+      <setting name="FarEndDisconnectSilencePeriod">
         <type>
-          <integer max='28800' min='10' />
+          <integer max="28800" min="10"/>
         </type>
         <value>120</value>
-        <description>Detection period, in seconds, before call is released based on silence</description>
       </setting>
-      <setting name='FarEndDisconnectSilenceMethod'>
-        <label>Silence Detection Method</label>
+      <setting name="FarEndDisconnectSilenceMethod">
         <type>
           <enum>
             <option>
-              <label>None</label>
               <value>0</value>
             </option>
             <option>
-              <label>Packet Count</label>
               <value>1</value>
             </option>
             <option>
-              <label>Voice/Energy Level</label>
               <value>2</value>
             </option>
             <option>
-              <label>All</label>
               <value>3</value>
             </option>
           </enum>
         </type>
         <value>2</value>
       </setting>
-      <setting name='FarEndDisconnectSilenceThreshold'>
-        <label>Silence Threshold</label>
+      <setting name="FarEndDisconnectSilenceThreshold">
         <type>
-          <integer max='100' min='1' />
+          <integer max="100" min="1"/>
         </type>
         <value>8</value>
-        <description>Threshold of packet count, in percentage, below which is considered as silence.</description>
       </setting>
     </group>
     <group name="CDR" advanced="yes">
-      <label>CDR and Debug</label>
-      <setting name='GwDebugLevel' advanced='yes'>
-        <label>Detail Level in Debug Log</label>
+      <setting name="GwDebugLevel" advanced="yes">
         <type>
-          <integer max='6' min='0' />
+          <integer max="6" min="0"/>
         </type>
         <value>0</value>
-        <description>Detail level of the log messages in syslog. Default is 0 (off), max is 5 (full)</description>
       </setting>
-      <setting name='CDRSyslogServerIP'>
-        <label>CDR Server IP Address</label>
+      <setting name="CDRSyslogServerIP">
         <value>0.0.0.0</value>
-        <description>
-          Optional separate Syslog server to collect CDRs only. If null and CDR is enabled, the output is mixed with the
-          log messages and is routed to the Syslog server IP.
-        </description>
       </setting>
-      <setting name='CDRReportLevel'>
-        <label>CDR Report Level</label>
+      <setting name="CDRReportLevel">
         <type>
           <enum>
             <option>
-              <label>None</label>
               <value>0</value>
             </option>
             <option>
-              <label>End-call</label>
               <value>1</value>
             </option>
             <option>
-              <label>Start and End Call</label>
               <value>2</value>
             </option>
           </enum>
@@ -1091,388 +796,290 @@ destination and then sends a new INVITE to this destination</description>
         <value>0</value>
       </setting>
     </group>
-    <setting name='EnableBusyOut' advanced='yes'>
-      <label>Port Busy-Out Method</label>
+    <setting name="EnableBusyOut" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        0: Disabled, 1: Telephony ports are busied out (special tone) in case of LAN failure, or Proxy communication
-        failure.
-      </description>
     </setting>
-    <setting name='DefaultReleaseCause' hidden='yes'>
-      <label>Default SIP Release Cause</label>
+    <setting name="DefaultReleaseCause" hidden="yes">
       <value>3</value>
-      <description>Default SIP release code.</description>
     </setting>
     <setting name="GWAppDelayTime" advanced="yes">
-      <label>Delay After Reset [sec]</label>
       <type>
-        <integer min="0" max="45" />
+        <integer min="0" max="45"/>
       </type>
       <value>7</value>
     </setting>
     <setting name="MaxActiveCalls" advanced="yes">
-      <label>Max Number of Active Calls</label>
       <type>
-        <integer required="yes" />
+        <integer required="yes"/>
       </type>
       <value>4</value>
     </setting>
     <setting name="MaxCallDuration" advanced="yes">
-      <label>Max Call Duration [min]</label>
       <type>
-        <integer required="yes" />
+        <integer required="yes"/>
       </type>
       <value>0</value>
     </setting>
     <setting name="EnableLanWatchDog" advanced="yes">
-      <label>Enable LAN Watchdog</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="EnableUserInfoUsage" hidden="yes">
-      <label>Enable User-Information Usage</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="CutThrough" advanced="yes" if="fxs">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <group name="SAS" unless="fxs">
-      <label>Stand-Alone Survivability</label>
       <profileName>Stand-Alone Survivability</profileName>
-      <setting name='EnableSAS'>
-        <label>Enable SAS</label>
+      <setting name="EnableSAS">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>Enable/disable Stand-Alone Survivability</description>
       </setting>
-      <setting name='SASBindingMode' if="5.4orLater">
-        <label>SAS Binding Mode</label>
+      <setting name="SASBindingMode" if="5.4orLater">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>1</value>
-        <description>Determines the SAS application database binding mode.
-[0]: URI = If the incoming AoR in the INVITE requests is using a
-tel: URI or user=phone is defined, the binding is performed
-according to the user part of the URI only. Otherwise, the
-binding is according to the entire URI, i.e., User@Host (default).
-[1]: User Part only = The binding is always performed according
-to the User Part only.</description>
       </setting>
-      <setting name='SASSurvivabilityMode' if="5.6orLater">
-        <label>SAS Survivability Mode</label>
+      <setting name="SASSurvivabilityMode" if="5.6orLater">
         <type>
-          <integer min="0" max="2" />
+          <integer min="0" max="2"/>
         </type>
         <value>0</value>
-        <description>The Survivability mode used by the SAS application. 0:standard; 1:Always Emergency; 2:Ignore Register</description>
       </setting>
-      <setting name='SASEnableENUM' if="5.6orLater">
-        <label>SAS Enable ENUM</label>
+      <setting name="SASEnableENUM" if="5.6orLater">
         <type>
-           <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>Determines whether the SAS application uses ENUM queries to
-route incoming INVITE requests when in Emergency mode.</description>
       </setting>
-      <setting name='SASRegistrationTime' if="5.4orLater">
-        <label>SAS Registration Time</label>
+      <setting name="SASRegistrationTime" if="5.4orLater">
         <type>
-          <integer min="0" max="2000000" />
+          <integer min="0" max="2000000"/>
         </type>
         <value>20</value>
-        <description>SAS Registration Time</description>
       </setting>
-      <setting name='SASLocalSIPUDPPort'>
-        <label>SAS Local SIP UDP port</label>
+      <setting name="SASLocalSIPUDPPort">
         <value>5080</value>
-        <description>UDP Port for SAS SIP signaling</description>
       </setting>
-      <setting name='SASLocalSIPTCPPort' if="5.4orLater">
-        <label>SAS Local SIP TCP port</label>
+      <setting name="SASLocalSIPTCPPort" if="5.4orLater">
         <value>5080</value>
-        <description>TCP Port for SAS SIP signaling</description>
       </setting>
-      <setting name='SASLocalSIPTLSPort' if="5.4orLater">
-        <label>SAS Local SIP TLS port</label>
+      <setting name="SASLocalSIPTLSPort" if="5.4orLater">
         <value>5081</value>
-        <description>TLS Port for SAS SIP signaling</description>
       </setting>
-      <setting name='SASDefaultGatewayIP'>
-        <label>SAS Default Gateway</label>
-        <value></value>
-        <description>SAS Default Gateway</description>
+      <setting name="SASDefaultGatewayIP">
+        <value/>
       </setting>
-      <setting name='SASProxySet' if="5.6orLater">
-        <label>SAS Proxy Set</label>
+      <setting name="SASProxySet" if="5.6orLater">
         <type>
-          <integer min="0" max="5" />
+          <integer min="0" max="5"/>
         </type>
         <value>0</value>
-        <description>Determines the Proxy Set (index number) used in SAS Normal
-mode to forward REGISTER and INVITE requests from the users
-that are served by the SAS application.</description>
       </setting>
-      <setting name='RedundantSASProxySet' if="5.6orLater" advanced="yes">
-        <label>Redundant SAS Proxy Set</label>
+      <setting name="RedundantSASProxySet" if="5.6orLater" advanced="yes">
         <type>
-          <integer min="-1" max="5" />
+          <integer min="-1" max="5"/>
         </type>
         <value>-1</value>
-        <description>Determines the Proxy Set (index number) used in SAS Emergency
-mode for fallback when the user is not found in the Registered
-Users database.</description>
       </setting>
-      <setting name='SASShortNumberLength' if="5.4">
-        <label>SAS Short Number Length</label>
-        <value></value>
-      <description></description>
+      <setting name="SASShortNumberLength" if="5.4">
+        <value/>
       </setting>
     </group>
   </group>
-  <group name='advanced-supplementary-services'>
-    <label>Supplementary Services</label>
-    <setting name='EnableHold'>
-      <label>Enable Call Hold</label>
+  <group name="advanced-supplementary-services">
+    <setting name="EnableHold">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
-    <setting name='HoldFormat' advanced='yes'>
-      <label>Call Hold Signaling Method</label>
+    <setting name="HoldFormat" advanced="yes">
       <type>
         <enum>
           <option>
-            <label>0.0.0.0</label>
             <value>0</value>
           </option>
           <option>
-            <label>sendonly</label>
             <value>1</value>
           </option>
         </enum>
       </type>
       <value>0</value>
     </setting>
-    <setting name='EnableTransfer'>
-      <label>Enable Transfer</label>
+    <setting name="EnableTransfer">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
-    <setting name='EnableForward' hidden="yes">
-      <label>Enable Forward</label>
+    <setting name="EnableForward" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
-    <setting name='EnableCallWaiting'>
-      <label>Enable Call Waiting</label>
+    <setting name="EnableCallWaiting">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="NumberOfWaitingIndications" if="fxs" advanced="yes">
-      <label>Number of Call Waiting Indications</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>2</value>
     </setting>
     <setting name="TimeBetweenWaitingIndications" if="fxs" advanced="yes">
-      <label>Time Between Call Waiting Indications</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>10</value>
     </setting>
     <setting name="TimeBeforeWaitingIndications" if="fxs" advanced="yes">
-      <label>Time Before Call Waiting Indications</label>
       <type>
-        <integer min="0" max="100" />
+        <integer min="0" max="100"/>
       </type>
       <value>0</value>
     </setting>
     <setting name="WaitingBeepDuration" if="fxs" advanced="yes">
-      <label>Waiting Beep Duration</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>300</value>
     </setting>
     <setting name="HookFlashCode" advanced="yes">
-      <label>Hook-Flash Code</label>
       <type>
-        <string maxLen="25"></string>
+        <string maxLen="25"/>
       </type>
     </setting>
     <group name="MWI" if="fxs">
-      <setting name='EnableMWI'>
-        <label>Enable Message Waiting Indicator</label>
+      <setting name="EnableMWI">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>Enable/Disable Message Waiting Indication</description>
       </setting>
-      <setting name='MWIAnalogLamp' advanced="yes">
-        <label>Enable analog MWI Lamp (!: high voltage)</label>
+      <setting name="MWIAnalogLamp" advanced="yes">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>When enabled, the fxs gateway supplies 100Vdc to turn on the MWI lamp</description>
       </setting>
-      <setting name='MWIDisplay' advanced="yes">
-        <label>Enable MWI Display</label>
+      <setting name="MWIDisplay" advanced="yes">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>When enabled, the fxs gateway generates FSK MSI message for telephone display</description>
       </setting>
-      <setting name='EnableMWISubscription'>
-        <label>Enable MWI Subscription</label>
+      <setting name="EnableMWISubscription">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>1</value>
-        <description>Disable/Enable SUBSCRIBE to MWI server.</description>
       </setting>
-      <setting name='MWIServerIP' advanced="yes">
-        <label>MWI subscription Server IP Address</label>
-        <description>
-          MWI server IP address. If provided, the gateway subscribes to this IP address. Can be configured as a
-          numerical IP address or as a domain name. If not configured, the Proxy IP address is used instead.
-        </description>
-      </setting>
+      <setting name="MWIServerIP" advanced="yes"/>
       <setting name="MWIExpirationTime" advanced="yes">
-        <label>MWI Subscribe Expiration Time</label>
         <type>
-          <integer min="10" max="72000" />
+          <integer min="10" max="72000"/>
         </type>
         <value>7200</value>
       </setting>
       <setting name="SubscribeRetryTime" advanced="yes">
-        <label>MWI Subscribe Expiration Time</label>
         <type>
-          <integer min="10" max="7200" />
+          <integer min="10" max="7200"/>
         </type>
         <value>120</value>
       </setting>
       <setting name="StutterToneDuration" advanced="yes">
-        <label> Stutter Tone Duration</label>
         <type>
-          <integer min="1000" max="6000" />
+          <integer min="1000" max="6000"/>
         </type>
         <value>2000</value>
       </setting>
     </group>
   </group>
   <group name="keypad" if="fxs">
-    <label>Keypad</label>
     <group name="dnd">
-      <label>Do Not Disturb</label>
       <setting name="KeyCFDoNotDisturb">
-        <label>Activate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
       <setting name="KeyCFDeact">
-        <label>Deactivate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
     </group>
     <group name="clid">
-      <label>Call ID Restriction</label>
       <setting name="KeyCLIR">
-        <label>Activate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
       <setting name="KeyCLIRDeact">
-        <label>Deactivate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
     </group>
     <group name="hotline">
       <setting name="KeyHotLine">
-        <label>Activate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
       <setting name="KeyHotLineDeact">
-        <label>Deactivate</label>
         <type>
-          <string></string>
+          <string/>
         </type>
       </setting>
     </group>
   </group>
   <group name="digital-trunk" if="digital" unless="bri">
-    <label>E1/T1</label>
-    <description>E1/T1 trunk parameters shared by all trunks.</description>
     <setting name="PCMLawSelect">
-      <label>PCM Law Select</label>
       <type>
         <enum>
           <option>
-            <label>A-law</label>
             <value>1</value>
           </option>
           <option>
-            <label>µ-Law</label>
             <value>3</value>
           </option>
         </enum>
       </type>
       <value>3</value>
-      <description>Usually A-Law is used for E1 spans and µ-Law for T1 and J1 spans</description>
     </setting>
     <setting name="LineBuildOutLoss">
-      <label>Line Build Out Loss</label>
       <type>
         <enum>
           <option>
-            <label>0 dB</label>
             <value>0</value>
           </option>
           <option>
-            <label>-7.5 dB</label>
             <value>1</value>
           </option>
           <option>
-            <label>-15 dB</label>
             <value>2</value>
           </option>
           <option>
-            <label>-22.5 dB</label>
             <value>3</value>
           </option>
         </enum>
@@ -1480,27 +1087,21 @@ Users database.</description>
       <value>0</value>
     </setting>
     <setting name="TraceLevel">
-      <label>Trace Level</label>
       <type>
         <enum>
           <option>
-            <label>No trace</label>
             <value>0</value>
           </option>
           <option>
-            <label>Full ISDN trace</label>
             <value>1</value>
           </option>
           <option>
-            <label>Layer 3 ISDN trace</label>
             <value>2</value>
           </option>
           <option>
-            <label>Only ISDN Q.931 messages trace</label>
             <value>3</value>
           </option>
           <option>
-            <label>Layer 3 ISDN no duplication trace</label>
             <value>4</value>
           </option>
         </enum>
@@ -1509,15 +1110,12 @@ Users database.</description>
     </setting>
     <group name="TDM" advanced="yes">
       <setting name="TDMBusClockSource">
-        <label>TDM Bus Clock Source</label>
         <type>
           <enum>
             <option>
-              <label>Generate from Local Source</label>
               <value>1</value>
             </option>
             <option>
-              <label>Recover from PSTN</label>
               <value>4</value>
             </option>
           </enum>
@@ -1525,97 +1123,74 @@ Users database.</description>
         <value>4</value>
       </setting>
       <setting name="TDMBusLocalReference">
-        <label>TDM Bus Local Reference</label>
         <type>
-          <integer />
+          <integer/>
         </type>
         <value>0</value>
-        <description>Trunk from which clock will be recovered.</description>
       </setting>
       <setting name="TDMBusPSTNAutoClockEnable">
-        <label>TDM Bus PSTN Auto Clock</label>
         <type>
           <enum>
             <option>
-              <label>Recover clock from Local Reference Only</label>
               <value>0</value>
             </option>
             <option>
-              <label>Recover clock from any synchronized trunk</label>
               <value>1</value>
             </option>
           </enum>
         </type>
         <value>0</value>
-        <description></description>
       </setting>
     </group>
   </group>
   <group name="bri" if="bri">
-    <label>BRI Settings</label>
-    <description>BRI parameters</description>
     <setting name="PCMLawSelect">
-      <label>PCM Law Select</label>
       <type>
         <enum>
           <option>
-            <label>A-law</label>
             <value>1</value>
           </option>
           <option>
-            <label>µ-Law</label>
             <value>3</value>
           </option>
         </enum>
       </type>
       <value>1</value>
-      <description>Usually A-Law is used for BRI</description>
     </setting>
     <setting name="LineBuildOutLoss">
-      <label>Line Build Out Loss</label>
       <type>
         <enum>
           <option>
-            <label>0 dB</label>
             <value>0</value>
           </option>
           <option>
-            <label>-7.5 dB</label>
             <value>1</value>
           </option>
           <option>
-            <label>-15 dB</label>
             <value>2</value>
           </option>
           <option>
-            <label>-22.5 dB</label>
             <value>3</value>
           </option>
         </enum>
       </type>
     </setting>
     <setting name="TraceLevel">
-      <label>Trace Level</label>
       <type>
         <enum>
           <option>
-            <label>No trace</label>
             <value>0</value>
           </option>
           <option>
-            <label>Full ISDN trace</label>
             <value>1</value>
           </option>
           <option>
-            <label>Layer 3 ISDN trace</label>
             <value>2</value>
           </option>
           <option>
-            <label>Only ISDN Q.931 messages trace</label>
             <value>3</value>
           </option>
           <option>
-            <label>Layer 3 ISDN no duplication trace</label>
             <value>4</value>
           </option>
         </enum>
@@ -1624,15 +1199,12 @@ Users database.</description>
     </setting>
     <group name="TDM" advanced="yes">
       <setting name="TDMBusClockSource">
-        <label>TDM Bus Clock Source</label>
         <type>
           <enum>
             <option>
-              <label>Generate from Local Source</label>
               <value>1</value>
             </option>
             <option>
-              <label>Recover from PSTN</label>
               <value>4</value>
             </option>
           </enum>
@@ -1640,77 +1212,64 @@ Users database.</description>
         <value>4</value>
       </setting>
       <setting name="TDMBusLocalReference">
-        <label>TDM Bus Local Reference</label>
         <type>
-          <integer />
+          <integer/>
         </type>
         <value>0</value>
-        <description>Trunk from which clock will be recovered.</description>
       </setting>
       <setting name="TDMBusPSTNAutoClockEnable">
-        <label>TDM Bus PSTN Auto Clock</label>
         <type>
           <enum>
             <option>
-              <label>Recover clock from Local Reference Only</label>
               <value>0</value>
             </option>
             <option>
-              <label>Recover clock from any synchronized trunk</label>
               <value>1</value>
             </option>
           </enum>
         </type>
         <value>0</value>
-        <description></description>
       </setting>
     </group>
   </group>
   <group name="applications-advanced-fxo" if="fxo">
-    <label>FXO</label>
     <setting name="IsTwoStageDial" hidden="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="IsWaitForDialTone" advanced="yes">
-      <label>Waiting for Dial Tone</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
     <setting name="WaitForDialTime" advanced="yes">
-      <label>Time to Wait before Dialing [msec]</label>
       <type>
-        <integer min="0" max="2000" />
+        <integer min="0" max="2000"/>
       </type>
       <value>1000</value>
     </setting>
     <setting name="FXOBetweenRingTime" advanced="yes">
-      <label>Ring Detection Timeout [sec]</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>8</value>
     </setting>
     <setting name="TimeForReorderTone" advanced="yes">
-      <label>Reorder Tone Duration [sec]</label>
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>0</value>
     </setting>
     <setting name="EnableVoiceDetection" advanced="yes">
-      <label>Answer Supervision</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="RingsBeforeCallerID" advanced="yes">
-      <label>Rings before Detecting Caller ID</label>
       <type>
         <enum>
           <option>
@@ -1727,209 +1286,145 @@ Users database.</description>
       <value>1</value>
     </setting>
     <setting name="SendMetering2IP" advanced="yes">
-      <label>Send Metering Message to IP</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
     <setting name="DisconnectOnBusyTone">
-      <label>Disconnect on Busy Tone</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
-    <setting name='DisconnectOnDialTone' advanced='yes'>
-      <label>Enable Call Disconnect on Dial Tone</label>
+    <setting name="DisconnectOnDialTone" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
     </setting>
     <setting name="GuardTimeBetweenCalls" advanced="yes">
-      <label>Guard Time Between Calls</label>
       <type>
-        <integer min="0" max="10" />
+        <integer min="0" max="10"/>
       </type>
       <value>1</value>
     </setting>
     <setting name="TrunkGroup_1_FirstPhoneNumber" advanced="yes" unless="fxs">
-      <label>First Default Caller ID</label>
       <profileName>$ignore$</profileName>
       <type>
         <string/>
       </type>
       <value>Unknown00</value>
-      <description>
-      Displayed for incoming calls when no Caller ID information is available. The gateway will add a port identification suffix.
-      </description>
     </setting>
   </group>
-  <group name='Network'>
-    <label>Network</label>
-    <setting name='DHCPEnable' advanced="yes">
-      <label>DHCP Enabled</label>
+  <group name="Network">
+    <setting name="DHCPEnable" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Disable/enable DHCP</description>
     </setting>
-    <setting name='DisableNAT' advanced='yes'>
-      <label>Static NAT Traversal Enabled</label>
+    <setting name="DisableNAT" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>1</value>
-      <description>Disable/enable static NAT traversal feature</description>
     </setting>
-    <setting name='STATICNATIP' advanced='yes'>
-      <label>Public Address for NAT</label>
+    <setting name="STATICNATIP" advanced="yes">
       <value>0.0.0.0</value>
-      <description>IP address of the gateway as seen from the outside of NAT</description>
     </setting>
-    <setting name='DNSPriServerIP'>
-      <label>Primary DNS Server</label>
+    <setting name="DNSPriServerIP">
       <value>0.0.0.0</value>
-      <description>Primary DNS server</description>
     </setting>
-    <setting name='DNSSecServerIP'>
-      <label>Secondary DNS Server</label>
+    <setting name="DNSSecServerIP">
       <value>0.0.0.0</value>
-      <description>Secondary DNS server</description>
     </setting>
-    <setting name='NTPServerIP'>
-      <label>NTP Server IP Address</label>
-      <description>NTP Server to sync time/date with</description>
-    </setting>
-    <setting name='NTPServerUTCOffset'>
-      <label>NTP UTC Offset (hours)</label>
+    <setting name="NTPServerIP"/>
+    <setting name="NTPServerUTCOffset">
       <type>
-        <integer min="0" max="24" />
+        <integer min="0" max="24"/>
       </type>
       <value>0</value>
-      <description>Offset from UTC</description>
     </setting>
-    <setting name='NTPUpdateInterval'>
-      <label>NTP Update Interval (sec)</label>
+    <setting name="NTPUpdateInterval">
       <type>
-        <integer max='214783647' min='0' />
+        <integer max="214783647" min="0"/>
       </type>
       <value>86400</value>
-      <description>NTP update interval, in seconds</description>
     </setting>
-    <setting name='ENABLESTUN' advanced='yes'>
-      <label>STUN Enabled</label>
+    <setting name="ENABLESTUN" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Enable/disable STUN</description>
     </setting>
-    <setting name='STUNSERVERPRIMARYIP' advanced='yes'>
-      <label>Primary STUN Server IP Address</label>
+    <setting name="STUNSERVERPRIMARYIP" advanced="yes">
       <value>0.0.0.0</value>
-      <description>IP address of the primary STUN server</description>
     </setting>
-    <setting name='STUNSERVERSECONDARYIP' advanced='yes'>
-      <label>Secondary STUN Server IP Address</label>
+    <setting name="STUNSERVERSECONDARYIP" advanced="yes">
       <value>0.0.0.0</value>
-      <description>IP address of the secondary STUN server</description>
     </setting>
-    <setting name='EnablePPPoE' unless="5.4orLater">
-      <label>PPPoE Enabled</label>
+    <setting name="EnablePPPoE" unless="5.4orLater">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Enable/disable PPPoE</description>
     </setting>
-    <setting name='PPPoEUserName' unless="5.4orLater">
-      <label>PPPoE User Name</label>
-      <description>PPPoE user name</description>
-    </setting>
-    <setting name='PPPoEPassword' unless="5.4orLater">
-      <label>PPPoE Password</label>
-      <description>PPPoE password</description>
-    </setting>
-    <setting name='PPPoEServerName' unless="5.4orLater">
-      <label>PPPoE Server Name</label>
-      <description>PPPoE server name</description>
-    </setting>
-    <setting name='PPPoEStaticIPAddress' unless="5.4orLater">
-      <label>PPPoE Requested IP Address</label>
+    <setting name="PPPoEUserName" unless="5.4orLater"/>
+    <setting name="PPPoEPassword" unless="5.4orLater"/>
+    <setting name="PPPoEServerName" unless="5.4orLater"/>
+    <setting name="PPPoEStaticIPAddress" unless="5.4orLater">
       <value>0.0.0.0</value>
-      <description>PPPoE Static IP address to be requested from PPPoE server</description>
     </setting>
-    <setting name='PPPoERecoverIPAddress' advanced='yes' unless="5.4orLater">
-      <label>PPPoE Recovery IP Address</label>
+    <setting name="PPPoERecoverIPAddress" advanced="yes" unless="5.4orLater">
       <value>10.4.10.4</value>
-      <description>IP address to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverSubnetMask' advanced='yes' unless="5.4orLater">
-      <label>PPPoE Recovery Subnet Mask</label>
+    <setting name="PPPoERecoverSubnetMask" advanced="yes" unless="5.4orLater">
       <value>255.255.0.0</value>
-      <description>Subnet mask to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='PPPoERecoverDfgwAddress' advanced='yes' unless="5.4orLater">
-      <label>PPPoE Recovery Default Gateway</label>
+    <setting name="PPPoERecoverDfgwAddress" advanced="yes" unless="5.4orLater">
       <value>10.4.10.1</value>
-      <description>Default gateway to use when IP address negotiation/assignment fails in PPPoE mode.</description>
     </setting>
-    <setting name='EnableSyslog' advanced='yes'>
-      <label>Syslog Output Enabled</label>
+    <setting name="EnableSyslog" advanced="yes">
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Enable/disable Syslog facility for diagnostics</description>
     </setting>
-    <setting name='SyslogServerIP' advanced='yes'>
-      <label>Syslog Server IP address</label>
+    <setting name="SyslogServerIP" advanced="yes">
       <value>0.0.0.0</value>
-      <description>The IP address of the Syslog server</description>
     </setting>
-    <setting name='SyslogServerPort' advanced='yes'>
-      <label>Syslog Server Port</label>
+    <setting name="SyslogServerPort" advanced="yes">
       <type>
-        <integer />
+        <integer/>
       </type>
       <value>514</value>
-      <description>Default syslog port</description>
     </setting>
   </group>
   <group name="Media">
     <group name="Voice" advanced="yes">
       <setting name="VoiceVolume">
-        <label>Voice Volume</label>
         <type>
-          <integer min="-32" max="31" />
+          <integer min="-32" max="31"/>
         </type>
         <value>0</value>
       </setting>
-      <setting name='InputGain' advanced='yes'>
-        <label>PCM Input Gain Control</label>
+      <setting name="InputGain" advanced="yes">
         <type>
-          <integer min="-32" max="31" />
+          <integer min="-32" max="31"/>
         </type>
         <value>0</value>
-        <description>Voice gain control Tel-to-IP direction</description>
       </setting>
       <setting name="EnableSilenceCompression">
-        <label>Silence Suppression</label>
         <type>
           <enum>
             <option>
-              <label>Disabled</label>
               <value>0</value>
             </option>
             <option>
-              <label>Enabled</label>
               <value>1</value>
             </option>
             <option>
-              <label>Enabled with Adaptation</label>
               <value>2</value>
             </option>
           </enum>
@@ -1937,26 +1432,21 @@ Users database.</description>
         <value>0</value>
       </setting>
       <setting name="EnableEchoCanceller">
-        <label>Echo Cancellation</label>
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>1</value>
       </setting>
-      <setting name='DTMFTransportType'>
-        <label>DTMF Transport Options</label>
+      <setting name="DTMFTransportType">
         <type>
           <enum>
             <option>
-              <label>Erase digit from voice stream</label>
               <value>0</value>
             </option>
             <option>
-              <label>Leave digit in voice stream</label>
               <value>2</value>
             </option>
             <option>
-              <label>Erase digit from voice stream, realy as RFC2833</label>
               <value>3</value>
             </option>
           </enum>
@@ -1964,27 +1454,21 @@ Users database.</description>
         <value>3</value>
       </setting>
       <setting name="DTMFVolume">
-        <label>DTMF Volume</label>
         <type>
-          <integer min="-31" max="0" />
+          <integer min="-31" max="0"/>
         </type>
         <value>-11</value>
-        <description>DTMF gain control value in dB (to the analog side)</description>
       </setting>
       <setting name="AnswerDetectorSensitivity">
-        <label>Answer Detector Sensitivity</label>
         <type>
           <enum>
             <option>
-              <label>most sensitive</label>
               <value>0</value>
             </option>
             <option>
-              <label>normal</label>
               <value>1</value>
             </option>
             <option>
-              <label>least sensitive</label>
               <value>2</value>
             </option>
           </enum>
@@ -1993,191 +1477,142 @@ Users database.</description>
       </setting>
     </group>
     <group name="Fax">
-      <label>Fax</label>
-      <setting name='FaxTransportMode'>
-        <label>Fax Transport Mode</label>
+      <setting name="FaxTransportMode">
         <type>
           <enum>
             <option>
-              <label>Disable</label>
               <value>0</value>
             </option>
             <option>
-              <label>T.38</label>
               <value>1</value>
             </option>
             <option>
-              <label>Bypass</label>
               <value>2</value>
             </option>
             <option>
-              <label>Events-Only</label>
               <value>3</value>
             </option>
           </enum>
         </type>
         <value>1</value>
       </setting>
-      <setting name='FaxModemBypassCoderType'>
-        <label>Fax Transport Codec in By-Pass Mode</label>
+      <setting name="FaxModemBypassCoderType">
         <type>
           <enum>
             <option>
-              <label>G711 A-law</label>
               <value>0</value>
             </option>
             <option>
-              <label>G711 u-Law</label>
               <value>1</value>
             </option>
           </enum>
         </type>
         <value>1</value>
       </setting>
-      <setting name='FaxBypassPayloadType' advanced='yes'>
-        <label>Fax Transport Payload ID in By-Pass Mode</label>
+      <setting name="FaxBypassPayloadType" advanced="yes">
         <type>
-          <integer min="96" max="120" />
+          <integer min="96" max="120"/>
         </type>
         <value>102</value>
-        <description>Payload type for by-pass fax transport, 96 thru 120</description>
       </setting>
       <setting name="FaxRelayRedundancyDepth" advanced="yes">
-        <label>Fax Relay Redundancy Depth</label>
         <type>
-          <integer min="0" max="2" />
+          <integer min="0" max="2"/>
         </type>
         <value>0</value>
-        <description>Number of times that each fax relay payload is retransmitted to the network</description>
       </setting>
       <setting name="FaxRelayEnhancedRedundancyDepth" advanced="yes">
-        <label>Fax Relay Enhanced Redundancy Depth</label>
         <type>
-          <integer min="0" max="4" />
+          <integer min="0" max="4"/>
         </type>
         <value>2</value>
-        <description>Number of times that control packets are retransmitted when using the T.38 standard</description>
       </setting>
       <setting name="FaxRelayECMEnable" advanced="yes">
-        <label>Fax Relay ECM</label>
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>1</value>
       </setting>
       <setting name="FaxRelayMaxRate" advanced="yes">
-        <label>Fax Relay Max Rate</label>
         <type>
           <enum>
             <option>
-              <label>2.4 kbps</label>
               <value>0</value>
             </option>
             <option>
-              <label>4.8 kbps</label>
               <value>1</value>
             </option>
             <option>
-              <label>7.2 kbps</label>
               <value>2</value>
             </option>
             <option>
-              <label>9.6 kbps</label>
               <value>3</value>
             </option>
             <option>
-              <label>12.0 kbps</label>
               <value>4</value>
             </option>
             <option>
-              <label>14.4 kbps</label>
               <value>5</value>
             </option>
           </enum>
         </type>
         <value>5</value>
-        <description>Maximum rate at which fax relay messages are transmitted (outgoing calls)</description>
       </setting>
       <setting name="FaxModemBypassM" advanced="yes">
-        <label>Fax/Modem Bypass Packing Factor</label>
         <type>
-          <integer min="1" max="3" />
+          <integer min="1" max="3"/>
         </type>
         <value>1</value>
-        <description>
-          Number of (20 msec) coder payloads that are used to generate a fax/modem bypass packet.
-        </description>
       </setting>
       <setting name="CNGDetectorMode">
-        <label>CNG Detector Mode</label>
         <type>
           <enum>
             <option>
-              <label>Disable</label>
               <value>0</value>
             </option>
             <option>
-              <label>Relay</label>
               <value>1</value>
             </option>
             <option>
-              <label>Events Only</label>
               <value>2</value>
             </option>
           </enum>
         </type>
         <value>0</value>
-        <description>
-          In Relay mode, CNG is detected on the originating side. CNG packets are sent to the remote side according to
-          T.38 and the fax session is started. In Events Only mode, CNG is detected on the originating side. The CNG
-          signal passes transparently to the remote side and fax session is started.
-        </description>
       </setting>
     </group>
     <group name="CID">
-      <label>Caller ID</label>
-      <setting name='EnableCallerID'>
-        <label>Enable Caller ID</label>
+      <setting name="EnableCallerID">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>1</value>
-        <description>Enable generation (FXS) and detection (FXO) of Caller ID on the telephony ports</description>
       </setting>
-      <setting name='CallerIDType'>
-        <label>Caller ID Display Type</label>
+      <setting name="CallerIDType">
         <type>
           <enum>
             <option>
-              <label>Bellcore</label>
               <value>0</value>
             </option>
             <option>
-              <label>ETSI</label>
               <value>1</value>
             </option>
             <option>
-              <label>NTT</label>
               <value>2</value>
             </option>
             <option>
-              <label>British</label>
               <value>4</value>
             </option>
             <option>
-              <label>DTMF ETSI</label>
               <value>16</value>
             </option>
             <option>
-              <label>Denmark</label>
               <value>17</value>
             </option>
             <option>
-              <label>India</label>
               <value>18</value>
             </option>
             <option>
-              <label>Brazil</label>
               <value>19</value>
             </option>
           </enum>
@@ -2186,145 +1621,108 @@ Users database.</description>
       </setting>
     </group>
     <group name="Modem" advanced="yes">
-      <label>Modem</label>
       <setting name="V21ModemTransportType">
-        <label>V.21 Modem Transport Type</label>
-        <type refid="modem-transport-type" />
+        <type refid="modem-transport-type"/>
         <value>0</value>
       </setting>
       <setting name="V22ModemTransportType">
-        <label>V.22 Modem Transport Type</label>
-        <type refid="modem-transport-type" />
+        <type refid="modem-transport-type"/>
         <value>0</value>
       </setting>
       <setting name="V23ModemTransportType">
-        <label>V.23 Modem Transport Type</label>
-        <type refid="modem-transport-type" />
+        <type refid="modem-transport-type"/>
         <value>0</value>
       </setting>
       <setting name="V32ModemTransportType">
-        <label>V.32 Modem Transport Type</label>
-        <type refid="modem-transport-type" />
+        <type refid="modem-transport-type"/>
         <value>0</value>
       </setting>
       <setting name="V34ModemTransportType">
-        <label>V.34 Modem Transport Type</label>
-        <type refid="modem-transport-type" />
+        <type refid="modem-transport-type"/>
         <value>0</value>
       </setting>
     </group>
   </group>
   <group name="Media_RTP_RTPC" advanced="yes">
-    <label>RTP/RTPC</label>
-    <setting name='DJBufMinDelay' advanced='yes'>
-      <label>Jitter Buffer Minimum Delay</label>
+    <setting name="DJBufMinDelay" advanced="yes">
       <type>
-        <integer min="0" max="150" />
+        <integer min="0" max="150"/>
       </type>
       <value>10</value>
-      <description>Jitter buffer minimum delay, in milliseconds</description>
     </setting>
-    <setting name='DJBufOptFactor' advanced='yes'>
-      <label>Jitter Buffer Optimization Factor</label>
+    <setting name="DJBufOptFactor" advanced="yes">
       <type>
-        <integer max='13' min='0' />
+        <integer max="13" min="0"/>
       </type>
       <value>10</value>
-      <description>Jitter buffer optimization factor.</description>
     </setting>
     <setting name="RTPRedundancyDepth" advanced="yes">
-      <label>RTP Redundancy Depth</label>
       <type>
-        <boolean></boolean>
+        <boolean/>
       </type>
       <value>0</value>
-      <description>Generation of RFC 2198 redundancy packets.</description>
     </setting>
-    <setting name='RFC2198PayloadType' advanced="yes">
-      <label>RFC 2198 Payload</label>
+    <setting name="RFC2198PayloadType" advanced="yes">
       <type>
-        <integer min="96" max="127" />
+        <integer min="96" max="127"/>
       </type>
       <value>104</value>
-      <description>Applicable only if RTP Redundancy Depth is enabled</description>
     </setting>
     <setting name="EnableStandardSIDPayloadType" advanced="yes">
-      <label>RFC 3389 CN Payload</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
-      <description>
-        If Enabled SID (comfort noise) packets are sent with the RTP SID payload type according to RFC 3389. Applicable
-        to G.711 and G.726 coders. Otherwise proprietaty method is used.
-      </description>
     </setting>
-    <setting name='BaseUDPPort' advanced='yes'>
-      <label>Base UDP/RTP Port</label>
+    <setting name="BaseUDPPort" advanced="yes">
       <value>6000</value>
-      <description>Base UDP port for RTP</description>
     </setting>
     <setting name="RemoteBaseUDPPort">
-      <label>Remote RTP Base UDP Port</label>
       <type>
-        <integer max="64000" />
+        <integer max="64000"/>
       </type>
       <value>0</value>
     </setting>
     <setting name="L1L1ComplexTxUDPPort">
-      <label>RTP Multiplexing Local UDP Port</label>
       <type>
-        <integer max="64000" />
+        <integer max="64000"/>
       </type>
       <value>0</value>
     </setting>
     <setting name="L1L1ComplexRxUDPPort">
-      <label>RTP Multiplexing Remote UDP Port</label>
       <type>
-        <integer max="64000" />
+        <integer max="64000"/>
       </type>
       <value>0</value>
     </setting>
     <setting name="ComfortNoiseNegotiation">
-      <label>Comfort Noise Generation Negotiation</label>
       <type>
-        <boolean />
+        <boolean/>
       </type>
       <value>0</value>
     </setting>
-    <group name='Telephony'>
-      <label>Telephony Interface Parameters</label>
-      <setting name="CallProgressTonesFilename" advanced='yes'>
-        <label>Call Progress Tones Filename</label>
-        <type refid="upload-file" />
+    <group name="Telephony">
+      <setting name="CallProgressTonesFilename" advanced="yes">
+        <type refid="upload-file"/>
         <value>usa_tones_12.dat</value>
-        <description>Call progress tones definition filename, to be TFTP-loaded during boot</description>
       </setting>
-      <setting name="FXSLoopCharacteristicsFilename" advanced='yes'>
-        <label>FXS Loop Characteristics Filename</label>
-        <type refid="upload-file" />
+      <setting name="FXSLoopCharacteristicsFilename" advanced="yes">
+        <type refid="upload-file"/>
         <value>MP11x-02-1-FXS_16KHZ.dat</value>
-        <description>FXS loop characteristics definition filename, to be TFTP-loaded during boot</description>
       </setting>
-      <setting name='CountryCoefficients' advanced='yes'>
-        <label>Country Variant</label>
+      <setting name="CountryCoefficients" advanced="yes">
         <value>70</value>
-        <description>country variant for line characteristics. North America = 70</description>
       </setting>
-      <setting name='LifeLineType'>
-        <label>LifeLine Type</label>
+      <setting name="LifeLineType">
         <type>
           <enum>
             <option>
-              <label>Power down</label>
               <value>0</value>
             </option>
             <option>
-              <label>Power down or ethernet link down</label>
               <value>1</value>
             </option>
             <option>
-              <label>Power down or ethernet link down or network down</label>
               <value>2</value>
             </option>
           </enum>
@@ -2333,67 +1731,47 @@ Users database.</description>
       </setting>
     </group>
   </group>
-  <group name='Management_Interface'>
-    <label>Management</label>
+  <group name="Management_Interface">
     <group name="SNMP">
-      <setting name='SNMPManagerIsUsed_0'>
-        <label>Enable SNMP</label>
+      <setting name="SNMPManagerIsUsed_0">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>Enable/disable external SNMP manager to receive alarms/traps</description>
       </setting>
-      <setting name='SNMPManagerTableIP_0'>
-        <label>SNMP Manager IP Address</label>
-        <description>External SNMP Manager IP address</description>
-      </setting>
-      <setting name='SNMPPort' advanced='yes'>
-        <label>SNMP Port</label>
+      <setting name="SNMPManagerTableIP_0"/>
+      <setting name="SNMPPort" advanced="yes">
         <!--number -->
         <value>161</value>
-        <description>Default port</description>
       </setting>
-      <setting name='SNMPManagerTrapPort' advanced='yes'>
-        <label>SNMP Trap Port</label>
+      <setting name="SNMPManagerTrapPort" advanced="yes">
         <!--number -->
         <value>162</value>
-        <description>Default trap port</description>
       </setting>
-      <setting name='SNMPManagerTrapSendingEnable'>
-        <label>Enable SNMP Trap Sending</label>
+      <setting name="SNMPManagerTrapSendingEnable">
         <type>
-          <boolean />
+          <boolean/>
         </type>
         <value>0</value>
-        <description>Enable/disable sending traps to external SNMP manager</description>
       </setting>
-      <setting name='SNMPTRUSTEDMGR_0' advanced='yes'>
-        <label>SNMP Trusted Manager for Configuration</label>
+      <setting name="SNMPTRUSTEDMGR_0" advanced="yes">
         <value>0.0.0.0</value>
-        <description>Enable/disable SNMP-based configuration control, and manager IP</description>
       </setting>
-      <setting name='SNMPREADONLYCOMMUNITYSTRING_0'>
-        <label>Read-Only Community String</label>
+      <setting name="SNMPREADONLYCOMMUNITYSTRING_0">
         <type>
-          <string password="yes" />
+          <string password="yes"/>
         </type>
-        <description>Read-Only Community String</description>
       </setting>
-      <setting name='SNMPREADWRITECOMMUNITYSTRING_0'>
-        <label>Read-Write Community String</label>
+      <setting name="SNMPREADWRITECOMMUNITYSTRING_0">
         <type>
-          <string password="yes" />
+          <string password="yes"/>
         </type>
-        <description>Read-Write Community String</description>
       </setting>
-      <setting name='SNMPTRAPCOMMUNITYSTRING'>
-        <label>Trap Community string</label>
+      <setting name="SNMPTRAPCOMMUNITYSTRING">
         <type>
-          <string password="yes" />
+          <string password="yes"/>
         </type>
         <value>trapuser</value>
-        <description>Trap community string</description>
       </setting>
     </group>
   </group>
