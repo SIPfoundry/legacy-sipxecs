@@ -120,6 +120,13 @@
         target="1.5"
         encoding="utf8"
         excludes="src/test/**"/>
+
+    <!-- Copy any properties files to the appropriate place -->
+    <copy todir="${classes.dir}">
+       <fileset dir="main/java"> 
+          <include name="**/*.properties"/>
+       </fileset>
+    </copy>
   </target>
 
 
@@ -186,6 +193,15 @@
         <pathelement path="${classes.dir}"/>
       </classpath>
     </javac>
+
+    <!-- Copy any properties files to the appropriate place -->
+    <copy todir="${test.classes.dir}">
+       <fileset dir="test/java"> 
+          <include name="**/*.properties"/>
+       </fileset>
+    </copy>
+
+
   </target>
 
 

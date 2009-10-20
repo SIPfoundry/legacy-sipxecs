@@ -46,7 +46,6 @@ public class Emailer {
     /**
      * Queue up sending the VmMessage as an e-mail to the addresses specified in the mailbox
      * 
-     * @param loc
      * @param mailbox
      * @param vmessage
      */
@@ -71,82 +70,96 @@ public class Emailer {
      * The Runnable class that builds and sends the e-mail
      */
     class BackgroundMailer implements Runnable {
-        Mailbox m_mailbox;
         VmMessage m_vmessage;
+        Mailbox m_mailbox;
 
         BackgroundMailer(Mailbox mailbox, VmMessage vmessage) {
-            m_mailbox = mailbox;
             m_vmessage = vmessage;
+            m_mailbox = mailbox;
         }
         
         /**
          * Build up the MIME multipart formatted e-mail
          * 
-         * @param attachWav Attach the wav file as part of the message
+         * @param attachAudio Attach the audio file as part of the message
          * @return
          * @throws AddressException
          * @throws MessagingException
          */
-        MimeMessage buildMessage(boolean attachWav) throws AddressException, MessagingException {
-            EmailFormatter emf = new EmailFormatter(m_ivrConfig, m_mailbox, m_vmessage);
+        javax.mail.Message buildMessage(EmailFormatter emf, boolean attachAudio) throws AddressException, MessagingException {
             MimeMessage message = new MimeMessage(m_session);
             message.setFrom(new InternetAddress(emf.getSender()));  
 
-            message.setSubject(emf.getSubject());
+            message.setSubject(emf.getSubject(), "UTF-8");
             
             message.addHeader("X-SIPX-MSGID", m_vmessage.getMessageId());
             message.addHeader("X-SIPX-MBXID", m_mailbox.getUser().getUserName());
             message.addHeader("X-SIPX-MSG", "yes");
             
-            // Create an "mulipart/alternative" part with text and html alternatives
-            Multipart mpalt = new MimeMultipart("alternative");
-
-            // Add the text part of the message first
-            MimeBodyPart textPart = new MimeBodyPart();
-            textPart.setText(emf.getTextBody());
-            mpalt.addBodyPart(textPart);
-
-            // Add the HTML part of the message
-            MimeBodyPart htmlpart = new MimeBodyPart();
-            htmlpart.setContent(emf.getHtmlBody(), "text/html");
-            mpalt.addBodyPart(htmlpart);              
-
+            String htmlBody = emf.getHtmlBody();
+            String textBody = emf.getTextBody();
             
-            // Add the .wav file as an attachment
-            if(attachWav) {
-                MimeBodyPart wavBodyPart = new MimeBodyPart();                 
-            
-                File file = m_vmessage.getAudioFile();  
-               
-                DataSource dataSource = new FileDataSource(file)  
-                {  
-                    public String getContentType()  
-                    {  
-                        return "audio/x-wav";  
-                    }  
-                };  
-               
-                wavBodyPart.setDataHandler(new DataHandler(dataSource));  
-                wavBodyPart.setFileName(file.getName());  
-                wavBodyPart.setHeader("Content-Transfer-Encoding", "base64");  
-                wavBodyPart.setDisposition(Part.ATTACHMENT);  
-
-                // Create a top level multipart/mixed part
-                Multipart mpmixed = new MimeMultipart();
-                // Make a new part to wrap the multipart/alternative part
-                MimeBodyPart altpart = new MimeBodyPart();
-                altpart.setContent(mpalt);
+            // Use multipart/alternative if we are attaching audio or there is an html body part
+            if (attachAudio || htmlBody != null && htmlBody.length() > 0) {
+                // Create an "mulipart/alternative" part with text and html alternatives
+                Multipart mpalt = new MimeMultipart("alternative");
+    
+                if (textBody != null && textBody.length() > 0) {
+                    // Add the text part of the message first
+                    MimeBodyPart textPart = new MimeBodyPart();
+                    textPart.setText(textBody, "UTF-8"); // UTF-8 in case there's Unicode in there
+                    mpalt.addBodyPart(textPart);
+                }
+    
+                if (htmlBody != null && htmlBody.length() > 0) {
+                    // Add the HTML part of the message
+                    MimeBodyPart htmlpart = new MimeBodyPart();
+                    htmlpart.setContent(htmlBody, "text/html");
+                    mpalt.addBodyPart(htmlpart);              
+                }
+    
+                // Add the audio file as an attachment
+                if(attachAudio) {
+                    MimeBodyPart audioBodyPart = new MimeBodyPart();                 
                 
-                // Add the alt part to the mixed part
-                mpmixed.addBodyPart(altpart);
-                // Add the wav part to the mixed part
-                mpmixed.addBodyPart(wavBodyPart);
-                // Use the mixed part as the content
-                message.setContent(mpmixed);
+                    File file = m_vmessage.getAudioFile();  
+                   
+                    DataSource dataSource = new FileDataSource(file)  
+                    {  
+                        public String getContentType()  
+                        {  
+                            return "audio/x-wav";  
+                        }  
+                    };  
+                   
+                    audioBodyPart.setDataHandler(new DataHandler(dataSource));  
+                    audioBodyPart.setFileName(file.getName());  
+                    audioBodyPart.setHeader("Content-Transfer-Encoding", "base64");  
+                    audioBodyPart.setDisposition(Part.ATTACHMENT);  
+    
+                    // Create a top level multipart/mixed part
+                    Multipart mpmixed = new MimeMultipart();
+                    // Make a new part to wrap the multipart/alternative part
+                    MimeBodyPart altpart = new MimeBodyPart();
+                    altpart.setContent(mpalt);
+                    
+                    // Add the alt part to the mixed part
+                    mpmixed.addBodyPart(altpart);
+                    // Add the wav part to the mixed part
+                    mpmixed.addBodyPart(audioBodyPart);
+                    // Use the mixed part as the content
+                    message.setContent(mpmixed);
+                } else {
+                    // Use the alt part as the content
+                    message.setContent(mpalt); // JavaMail guesses content type
+                }
             } else {
-                // Use the alt part as the content
-                message.setContent(mpalt);
+                if (textBody != null && textBody.length() > 0) {
+                    // Just a text part, use a simple message
+                    message.setText(textBody, "UTF-8");
+                }
             }
+            
             //TODO message.setHeader("X-Priority", "1"); when we support priority
             return message;
         }
@@ -165,9 +178,10 @@ public class Emailer {
                 try {
                     LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
                             m_vmessage.getMessageId(), to));
-                    boolean attachWav = m_mailbox.getMailboxPreferences().isAttachVoicemailToEmail();
-                    MimeMessage message;
-                    message = buildMessage(attachWav);
+                    boolean attachAudio = m_mailbox.getMailboxPreferences().isAttachVoicemailToEmail();
+                    EmailFormatter emf = EmailFormatter.getEmailFormatter(m_mailbox.getUser().getEmailFormat(), 
+                            m_ivrConfig, m_mailbox, m_vmessage);
+                    javax.mail.Message message = buildMessage(emf, attachAudio);
                     message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(to));
                     Transport.send(message);
                 } catch (Exception e) {
@@ -183,8 +197,11 @@ public class Emailer {
                 try {
                     LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
                             m_vmessage.getMessageId(), alt));
-                    boolean attachWav = m_mailbox.getMailboxPreferences().isAttachVoicemailToAlternateEmail();
-                    MimeMessage message = buildMessage(attachWav);
+                    boolean attachAudio = m_mailbox.getMailboxPreferences().isAttachVoicemailToAlternateEmail();
+                    EmailFormatter emf = EmailFormatter.getEmailFormatter(m_mailbox.getUser().getAltEmailFormat(), 
+                            m_ivrConfig, m_mailbox, m_vmessage);
+                    javax.mail.Message message = buildMessage(emf, attachAudio);
+
                     message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(alt));
                     Transport.send(message);
                 } catch (Exception e) {

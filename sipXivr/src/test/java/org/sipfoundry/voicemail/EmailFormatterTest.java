@@ -3,21 +3,25 @@ package org.sipfoundry.voicemail;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.Date;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
-import junit.framework.TestCase;
-
 public class EmailFormatterTest extends TestCase {
+    
     User m_user;
     File m_testdir;
     File m_mailstore;
@@ -71,13 +75,26 @@ public class EmailFormatterTest extends TestCase {
 
     public void testFormats() throws IOException {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
-        makeWaves(wavFile, (byte)0, 8000*60*2);  // two minutes
+        makeWaves(wavFile, (byte)0, 8000*(60*2+42));  // two minutes, 42 seconds
         Message message = Message.newMessage(m_mailbox, wavFile, 
-                "\"Me\" <woof@pingtel.com>", Priority.NORMAL);
+                "\"El Niño\" <sip:5551212@pingtel.com>", Priority.NORMAL);
+        Date stamp = new Date(message.getTimestamp());
         message.storeInInbox();
-        EmailFormatter eft = new EmailFormatter(m_ivrConfig, m_mailbox, message.getVmMessage());
-        assertEquals("2:00 Voice Message from woof", eft.getSubject());
+        if (!Emailer.isJustTesting()) {
+            try {
+                Thread.sleep(2000); // Need to allow e-mail to be sent
+            } catch (InterruptedException e) {}
+        }
+        EmailFormatter eft = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_FULL, 
+                m_ivrConfig, m_mailbox, message.getVmMessage());
+        assertEquals("2:42 Voice Message from 5551212 (El Niño)", eft.getSubject());
         assertEquals("Voicemail Notification Service <postmaster@localhost>", eft.getSender());
+        
+        EmailFormatter smsFt = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, 
+                m_ivrConfig, m_mailbox, message.getVmMessage());
+        assertEquals("Voice Message: El Niño", smsFt.getSubject());
+        assertEquals("Msg from 5551212 duration 2:42 at "+ MessageFormat.format("{0,date,short}", stamp), 
+                smsFt.getTextBody());
     }
 
 }

@@ -17,23 +17,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.ActiveGreeting;
-import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.MailboxPreferences;
 
 /**
  * A RESTful interface to the mailbox messages
  * 
- * Only two services at the moment:
+ * Only three services at the moment:
  *    Mark a message read
  *    Update the MWI status
+ *    Get/Set a user's active greeting type
  *    
  * Prefix is /mailbox/*
  * Paths are

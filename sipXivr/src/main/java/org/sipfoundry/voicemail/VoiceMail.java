@@ -160,6 +160,9 @@ public class VoiceMail {
         Mailbox mailbox = null;
         if (user != null) {
            mailbox = new Mailbox(user);
+           if (user.getLocale() == null) {
+               user.setLocale(m_loc.getLocale()); // Set the locale for this user to be that passed with the call
+           }
         }
         
         m_mailbox = mailbox;

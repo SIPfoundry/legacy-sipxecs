@@ -9,6 +9,7 @@
 package org.sipfoundry.commons.userdb;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Vector;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -27,7 +28,12 @@ public class User {
     private Vector<String> m_dialPatterns;
     private Vector<String> m_aliases;
     private HashMap<String, DistributionList> m_distributionLists;
-
+    private Locale m_locale; // The locale for the UI to present to this user
+    
+    public enum EmailFormats {FORMAT_FULL, FORMAT_MEDIUM, FORMAT_BRIEF};
+    private EmailFormats m_emailFormat = EmailFormats.FORMAT_FULL;
+    private EmailFormats m_altEmailFormat = EmailFormats.FORMAT_BRIEF;
+    
     public String getIdentity() {
         return m_identity;
     }
@@ -142,7 +148,31 @@ public class User {
     public boolean isPinCorrect(String pin, String realm) {
         return m_pintoken.equals(hashPin(pin, realm));
     }
+    
+    public Locale getLocale() {
+        return m_locale;
+    }
+    
+    public void setLocale(Locale locale) {
+        m_locale = locale;
+    }
 
+    public EmailFormats getEmailFormat() {
+        return m_emailFormat;
+    }
+    
+    public void setEmailFormat(EmailFormats emailFormat) {
+        m_emailFormat = emailFormat;
+    }
+    
+    public EmailFormats getAltEmailFormat() {
+        return m_altEmailFormat;
+    }
+    
+    public void setAltEmailFormat(EmailFormats emailFormat) {
+        m_altEmailFormat = emailFormat;
+    }
+    
     /*
     public void addDistributionList(String digits, DistributionList dl) {
         m_distributionLists.put(digits, dl);
