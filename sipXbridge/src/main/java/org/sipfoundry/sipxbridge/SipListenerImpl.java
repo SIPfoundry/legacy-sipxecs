@@ -209,19 +209,15 @@ public class SipListenerImpl implements SipListener {
             BackToBackUserAgent b2bua = DialogContext
                     .getBackToBackUserAgent(responseEvent.getDialog());
             if (b2bua != null) {
-                /*
-                 * We will not get the dialog terminated event. There is no dialog
-                 */
-                b2bua.removeDialog(dialog);
-                DialogContext dialogApplicationData = (DialogContext) dialog
-                .getApplicationData();
-                DialogContext newDialogApplicationData = DialogContext
-                .attach(b2bua, newClientTransaction.getDialog(),
+                 DialogContext dialogApplicationData = (DialogContext) dialog.getApplicationData();
+                 DialogContext newDialogApplicationData = DialogContext.attach(b2bua, newClientTransaction.getDialog(),
                         newClientTransaction, newClientTransaction
                         .getRequest());
                 b2bua.addDialog(newDialogApplicationData);
+             
                 
                 if ( newDialogApplicationData != dialogApplicationData ) {
+                    b2bua.removeDialog(dialog);
                     newDialogApplicationData.setPeerDialog(dialogApplicationData
                             .getPeerDialog());
                     newClientTransaction.getDialog().setApplicationData(
@@ -242,8 +238,9 @@ public class SipListenerImpl implements SipListener {
                         logger.debug("SipListenerImpl: New Dialog = "
                                 + newClientTransaction.getDialog());
                     }
+                    
                 }
-
+               
 
             }
 
@@ -427,34 +424,14 @@ public class SipListenerImpl implements SipListener {
 
                 SipProvider provider = (SipProvider) responseEvent.getSource();
                 logger.debug("Forked dialog response detected.");
+                String callId = SipUtilities.getCallId(response);
+                BackToBackUserAgent b2bua = Gateway.getBackToBackUserAgentFactory().getBackToBackUserAgent(callId);
+                
+                
                 /*
-                 * This is a forked dialog response. Look through and pick up a
-                 * dialog context for this dialog.
+                 * Kill off the dialog if we cannot find a dialog context.
                  */
-                SipStackExt sipStack = (SipStackExt) ProtocolObjects
-                        .getSipStack();
-                boolean attached = false;
-                for (Dialog dialogExt : sipStack.getDialogs()) {
-                    DialogContext dialogContext = (DialogContext) dialogExt
-                            .getApplicationData();
-                    /*
-                     * Grab the dialog context of the other fork.
-                     */
-                    if (dialogContext != null
-                            && SipUtilities.getCallLegId(response).equals(
-                                    dialogContext.getCallLegId())) {
-                        dialogContext.detach();
-                        dialogContext.setDialog(dialog);
-                        dialogContext.setLastResponse(responseEvent
-                                .getResponse());
-                        dialog.setApplicationData(dialogContext);
-                        attached = true;
-                    }
-                }
-                /*
-                 * Kill off the dialog if we cannot file a dialog context.
-                 */
-                if (!attached && response.getStatusCode() == Response.OK) {
+                if (b2bua == null && response.getStatusCode() == Response.OK) {
                         Request ackRequest = dialog.createAck(cseqHeader
                                 .getSeqNumber());
                         /* Cannot access the dialogContext here */
@@ -464,6 +441,38 @@ public class SipListenerImpl implements SipListener {
                         .getNewClientTransaction(byeRequest);
                         dialog.sendRequest(byeClientTransaction);
                         return;
+                }
+                /*
+                 * This is a forked response. We need to find the original call
+                 * leg and retrieve the original RTP session from that call leg.
+                 */
+                String callLegId = SipUtilities.getCallLegId(response);
+                for ( Dialog sipDialog : b2bua.dialogTable) {
+                    if ( DialogContext.get(sipDialog).getCallLegId().equals(callLegId)) {
+                        DialogContext context = DialogContext.get(sipDialog);
+                        Request request = context.getRequest();
+                        DialogContext newContext = DialogContext.attach(b2bua, dialog,context.getDialogCreatingTransaction() , request);
+                        newContext.setRtpSession(context.getRtpSession());
+                        /*
+                         * At this point we only do one half of the association
+                         * with the peer dialog. When the ACK is sent, the other
+                         * half of the association is established.
+                         */
+                        newContext.setPeerDialog(context.getPeerDialog());
+                        dialog.setApplicationData(newContext);  
+                        
+                        break;
+                    }
+                }
+                /*
+                 * Could not find the original dialog context.
+                 * This means the fork response came in too late. Send BYE
+                 * to that leg.
+                 */
+                if ( dialog.getApplicationData() == null ) {
+                    logger.debug("callLegId = " + callLegId);
+                    logger.debug("dialogTable = " + b2bua.dialogTable);
+                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.FORK_TIMED_OUT, "Fork timed out");       
                 }
             }
 
@@ -587,6 +596,10 @@ public class SipListenerImpl implements SipListener {
                                     txContext.getServerTransaction().sendResponse(errorResponse);
                                 }
                             } else {
+                                /*
+                                 * We have another hop to try. OK send it to the 
+                                 * other side.
+                                 */
                                 b2bua.resendInviteToItsp(timeoutEvent
                                         .getClientTransaction());
                             }

@@ -440,6 +440,10 @@ class DialogContext {
      * @param rtpSession the rtpSession to set
      */
     void setRtpSession(RtpSession rtpSession) {
+        if (rtpSession == null && this.rtpSession != null ) {
+            logger.warn("Setting a Null RTP session!");
+        }
+        
         this.rtpSession = rtpSession;
     }
 

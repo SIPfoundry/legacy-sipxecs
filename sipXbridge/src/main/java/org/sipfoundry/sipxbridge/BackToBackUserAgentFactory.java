@@ -150,5 +150,30 @@ public class BackToBackUserAgentFactory {
 		return b2bua;
 
 	}
+	
+	
+	public BackToBackUserAgent getBackToBackUserAgent(String callId) {
+	    Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
+        .getDialogs();
+	    /*
+         * Linear search here but avoids having to keep a reference to 
+         * the b2bua here. Keeping a reference can lead to reference management
+         * problems ( leaks ) and hence this quick search is worthwhile.
+         */
+	    BackToBackUserAgent b2bua = null;
+        for (Dialog sipDialog : dialogs) {
+            if (sipDialog.getApplicationData() != null) {
+                BackToBackUserAgent btobua = DialogContext
+                        .getBackToBackUserAgent(sipDialog);
+                if (btobua.managesCallId(callId)) {
+                    logger.debug("found existing mapping for B2BuA");
+                    b2bua = btobua;
+                    break;
+                }
+
+            }
+        }
+        return b2bua;
+	}
 
 }

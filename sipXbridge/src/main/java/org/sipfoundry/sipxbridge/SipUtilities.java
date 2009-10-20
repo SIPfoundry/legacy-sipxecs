@@ -775,6 +775,7 @@ class SipUtilities {
             Iterator<Hop> hopIter = addresses.iterator();
             Hop hop = hopIter.next();
             hopIter.remove();
+            logger.debug("Addresses size = " + addresses.size());
 
            // sipxbridge router will strip maddr before forwarding.
            // maddr parameter is obsolete but some ITSP do not like
