@@ -178,6 +178,29 @@ public class BackToBackUserAgent {
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
     
 
+    //////////////////////////////////////////////////////////////////////////
+    // Inner classes.
+    //////////////////////////////////////////////////////////////////////////
+    
+    public class DelayedByeSender extends TimerTask {
+        Dialog dialog;
+        ServerTransaction serverTransaction;
+        
+        public DelayedByeSender(Dialog dialog, ServerTransaction serverTransaction) {
+            this.dialog = dialog;
+            this.serverTransaction = serverTransaction;
+        }
+        
+        public void run() {
+            try {
+                if ( dialog.getState() == DialogState.CONFIRMED ) {
+                    CallControlUtilities.forwardByeToPeer(dialog, serverTransaction);
+                }
+            } catch( Exception ex) {
+                logger.error("Exception forwarding BYE.");
+            }
+        }
+    }
     // ///////////////////////////////////////////////////////////////////////
     // Constructor.
     // ///////////////////////////////////////////////////////////////////////
@@ -185,6 +208,7 @@ public class BackToBackUserAgent {
     private BackToBackUserAgent() {
 
     }
+    
 
     BackToBackUserAgent(SipProvider provider, Request request, Dialog dialog,
             ItspAccountInfo itspAccountInfo) throws IOException {
@@ -267,7 +291,7 @@ public class BackToBackUserAgent {
                     if (rtpSession != null) {
                         dialogContext.setRtpSession(rtpSession);
                         return rtpSession;
-                    }
+                    } 
                 }
             }
 
@@ -288,7 +312,7 @@ public class BackToBackUserAgent {
                         dialogContext.getItspInfo() == null
                                 || dialogContext.getItspInfo()
                                         .isGlobalAddressingUsed());
-                DialogContext.get(dialog).setRtpSession(rtpSession);
+                dialogContext.setRtpSession(rtpSession);
                 this.rtpBridge.addSym(rtpSession);
             }
         }
@@ -1245,6 +1269,9 @@ public class BackToBackUserAgent {
             SessionDescription sd = SipUtilities.getSessionDescription(request);
 
             RtpSession outboundSession = this.createRtpSession(outboundDialog);
+            
+            logger.debug("outboundSession = " + outboundSession);
+            logger.debug("outboundDialogContext = " + DialogContext.get(outboundDialog));
 
             outboundSession.getReceiver().setSessionDescription(sd);
 
@@ -2060,22 +2087,12 @@ public class BackToBackUserAgent {
                 dialogContext.isForwardByeToPeer() && peer != null
                 && peer.getState() != DialogState.TERMINATED
                 && peer.getState() != null) {
-            SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer)
-                    .getSipProvider();
-
-            Request bye = peer.createRequest(Request.BYE);
-
-            ClientTransaction ct = provider.getNewClientTransaction(bye);
-
-            TransactionContext transactionContext = TransactionContext.attach(
-                    st, Operation.PROCESS_BYE);
-
-            transactionContext.setClientTransaction(ct);
-            transactionContext.setItspAccountInfo(DialogContext.get(peer)
-                    .getItspInfo());
-            ct.setApplicationData(transactionContext);
-
-            peer.sendRequest(ct);
+            if ( peer.getState() == DialogState.EARLY ) {
+                Gateway.getTimer().schedule(new DelayedByeSender(peer,st), 8*1000);
+            } else {
+                CallControlUtilities.forwardByeToPeer(peer,st);
+            }
+         
         } else {
             /*
              * Peer dialog is not yet established or is terminated.
@@ -2172,7 +2189,7 @@ public class BackToBackUserAgent {
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
                 SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
-                if (dialogCtx.getDialogCreatingTransaction() != null
+                if (dialogCtx != null && dialogCtx.getDialogCreatingTransaction() != null
                         && dialogCtx.getDialogCreatingTransaction().getState() != TransactionState.TERMINATED
                         && dialogCtx.getDialogCreatingTransaction() instanceof ClientTransaction) {
                     ClientTransaction ctx = (ClientTransaction) dialogCtx

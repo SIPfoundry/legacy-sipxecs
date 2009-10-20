@@ -1220,8 +1220,6 @@ class CallControlManager implements SymmitronResetHandler {
         } else {
             ctx = responseEvent.getClientTransaction();
         }
-        TransactionContext tad = TransactionContext.get(ctx);
-        ClientTransaction mohCtx = TransactionContext.get(ctx).getMohClientTransaction();
         Response response = responseEvent.getResponse();
         TransactionContext transactionContext = TransactionContext.get(ctx);     
         BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
@@ -1230,6 +1228,7 @@ class CallControlManager implements SymmitronResetHandler {
             logger.debug("dialogContext = " + dialogContext);
             logger.debug("dialogPeer = " + DialogContext.getPeerDialog(dialog));
             logger.debug("dialog  = " + dialog);
+            logger.debug("b2bua = " + b2bua);
         }
         /*
          * Store away our incoming response - get ready for ACKL
@@ -1293,6 +1292,7 @@ class CallControlManager implements SymmitronResetHandler {
                 hisEndpoint = rtpSession.getTransmitter();
             } else {
                 logger.debug("CallControlManager: inviteToItspOrProxyResponse: null rtpSession");
+                logger.debug("DialogContext " + dialogContext);
             }
 
             if (hisEndpoint == null) {
@@ -2378,9 +2378,6 @@ class CallControlManager implements SymmitronResetHandler {
                     + response);
         }
        
-        /*
-         * At this point we have weeded out the
-         */
         try {
 
             if (response.getStatusCode() == Response.TRYING) {

@@ -13,8 +13,11 @@ package org.sipfoundry.sipxbridge;
 import java.util.Set;
 
 import javax.sdp.SessionDescription;
+import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
+import javax.sip.SipException;
+import javax.sip.SipProvider;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -319,6 +322,31 @@ public class CallControlUtilities {
         dialogContext.sendAck(ackRequest);
 
 
+    }
+    
+    /**
+     * Forward an inbound BYE to the given Peer dialog.
+     * 
+     * @param peer -- the peer
+     * @param st 
+     * @throws SipException
+     */
+    public static void forwardByeToPeer(Dialog peer, ServerTransaction st) throws SipException {
+        SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer).getSipProvider();
+
+        Request bye = peer.createRequest(Request.BYE);
+
+        ClientTransaction ct = provider.getNewClientTransaction(bye);
+
+        TransactionContext transactionContext = TransactionContext.attach(
+                st, Operation.PROCESS_BYE);
+
+        transactionContext.setClientTransaction(ct);
+        transactionContext.setItspAccountInfo(DialogContext.get(peer)
+                .getItspInfo());
+        ct.setApplicationData(transactionContext);
+
+        peer.sendRequest(ct);
     }
 
 	
