@@ -111,17 +111,12 @@ MediaRelay::MediaRelay() :
    mGenericTimerTickCounter( 0 ),
    mbPollForSymmitronRecovery( false )
 {
-   // create our handle which is our 'common name':'pid'.  This handle will be used to identify
-   // this media relay instance to the Symmitron.
-   PID pid = OsProcess::getCurrentPID();
-   char ourHandle[200];
-   sprintf( ourHandle, "%s:%u", COMMON_HANDLE_NAME, pid );
-   mOurInstanceHandle = ourHandle;
-
    // start the timer that will periodically ping the symmitron and query bridge stats
    OsTime genericTimerPeriod( GENERIC_TIMER_IN_SECS, 0 );
    mGenericTimer.periodicEvery( genericTimerPeriod, genericTimerPeriod );
 
+   // seed random number generator
+   srand( (unsigned)time(NULL) );   
 }
 
 bool MediaRelay::initialize( const  UtlString& publicAddress,
@@ -162,6 +157,15 @@ bool MediaRelay::preAllocateSymmitronResources( void )
    UtlString tempSymmitronInstanceHandle;
    UtlString errorDescription;
    int errorCode;
+
+   // create our handle which is our 'common name':'random number'.  This handle will be used to identify
+   // this media relay instance to the Symmitron.  We generate a new one on every signIn ahs a defensive
+   // coding measure in case our signOut() gets lost.
+   PID pid = OsProcess::getCurrentPID();
+   char ourHandle[200];
+   sprintf( ourHandle, "%s:%u", COMMON_HANDLE_NAME, rand() );
+   mOurInstanceHandle = ourHandle;
+
 
    // Create the SignIn request for the symmitron
    XmlRpcRequest signInRequest( mSymmitronUrl, SIGN_IN_METHOD );
