@@ -349,7 +349,7 @@ struct SIPX_VIDEO_DISPLAY
 typedef int SIPX_CONTACT_ID;
 
 /**
- * The CONTACT_ADDRESS structure includes contact information (ip and port),
+ * The ContactAddress structure includes contact information (ip and port),
  * address source type, and interface.
  */
 struct SIPX_CONTACT_ADDRESS

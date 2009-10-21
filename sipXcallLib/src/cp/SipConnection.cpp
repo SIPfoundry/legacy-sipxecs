@@ -417,9 +417,9 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
 }
 
 // Select a compatible contact type given the request URL
-CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& request)
+ContactType SipConnection::selectCompatibleContactType(const SipMessage& request)
 {
-    CONTACT_TYPE contactType = mContactType ;
+    ContactType contactType = mContactType ;
     char szAdapter[256];
     UtlString localAddress;
     getLocalAddress(&localAddress);
@@ -439,45 +439,47 @@ CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& reques
         requestUriPort = 5060 ;
     }
 
-    CONTACT_ADDRESS config_contact;
-    CONTACT_ADDRESS stun_contact;
-    CONTACT_ADDRESS local_contact;
+    ContactAddress config_contact;
+    ContactAddress stun_contact;
+    ContactAddress local_contact;
 
-    if (sipUserAgent->getContactDb().getRecordForAdapter(config_contact, szAdapter, CONFIG) &&
+    if (sipUserAgent->getContactDb().getRecordForAdapter(config_contact,
+                                                         szAdapter,
+                                                         ContactAddress::CONFIG) &&
         (strcmp(config_contact.cIpAddress, requestUriHost) == 0) &&
         (requestUriPort == (!portIsValid(config_contact.iPort) ? 5060 : config_contact.iPort)))
     {
         mContactId = config_contact.id;
-        contactType = CONFIG ;
+        contactType = ContactAddress::CONFIG;
     }
-    else if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, szAdapter, NAT_MAPPED) &&
+    else if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, szAdapter, ContactAddress::NAT_MAPPED) &&
         (strcmp(stun_contact.cIpAddress, requestUriHost) == 0) &&
         (requestUriPort == (!portIsValid(stun_contact.iPort) ? 5060 : stun_contact.iPort)))
 
     {
         mContactId = stun_contact.id;
-        contactType = NAT_MAPPED ;
+        contactType = ContactAddress::NAT_MAPPED;
     }
-    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, LOCAL) &&
+    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, ContactAddress::LOCAL) &&
         (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
         (requestUriPort == (!portIsValid(local_contact.iPort) ? 5060 : local_contact.iPort)))
 
     {
         mContactId = local_contact.id;
-        contactType = LOCAL ;
+        contactType = ContactAddress::LOCAL;
     }
 
     return contactType ;
 }
 
 
-void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
+void SipConnection::updateContact(Url* pContactUrl, ContactType eType)
 {
     UtlString useIp ;
 
     if ((mContactId == 0) && mInviteMsg)
     {
-        CONTACT_TYPE cType;
+        ContactType cType;
 
         cType = selectCompatibleContactType(*mInviteMsg);
         mContactType = cType;
@@ -485,24 +487,28 @@ void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
 
     // get the Contact DB id that was set during
     // selectCompatibleContacts
-    CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId);
+    ContactAddress* pContact = sipUserAgent->getContactDb().find(mContactId);
     if (pContact == NULL)
     {
-        if ((eType == AUTO) || (eType == NAT_MAPPED) || (eType == RELAY))
+        if (eType == ContactAddress::AUTO ||
+            eType == ContactAddress::NAT_MAPPED ||
+            eType == ContactAddress::RELAY)
         {
-            pContact = sipUserAgent->getContactDb().findByType(NAT_MAPPED);
+            pContact =
+               sipUserAgent->getContactDb().findByType(ContactAddress::NAT_MAPPED);
         }
 
         if (pContact == NULL)
         {
-            pContact = sipUserAgent->getContactDb().findByType(LOCAL);
+            pContact =
+               sipUserAgent->getContactDb().findByType(ContactAddress::LOCAL);
         }
     }
 
     if (pContact)
     {
-        pContactUrl->setHostAddress(pContact->cIpAddress) ;
-        pContactUrl->setHostPort(pContact->iPort) ;
+        pContactUrl->setHostAddress(pContact->cIpAddress);
+        pContactUrl->setHostPort(pContact->iPort);
     }
 }
 
@@ -601,7 +607,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
     if(getState() == CONNECTION_IDLE && mpMediaInterface != NULL)
     {
         UtlString localAddress ;
-        CONTACT_ADDRESS* pAddress = sipUserAgent->getContactDb().getLocalContact(mContactId) ;
+        ContactAddress* pAddress = sipUserAgent->getContactDb().getLocalContact(mContactId) ;
         if (pAddress != NULL)
         {
             localAddress = pAddress->cIpAddress ;
@@ -5621,7 +5627,7 @@ UtlBoolean SipConnection::processNewFinalMessage(SipUserAgent* sipUa,
 }
 
 
-void SipConnection::setContactType(CONTACT_TYPE eType)
+void SipConnection::setContactType(ContactType eType)
 {
     mContactType = eType ;
     if (mpMediaInterface != NULL)

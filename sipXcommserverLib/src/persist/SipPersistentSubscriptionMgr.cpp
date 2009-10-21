@@ -614,6 +614,7 @@ int SipPersistentSubscriptionMgr::getNextAllowedVersion(const UtlString& resourc
 // Constructor
 SipPersistentSubscriptionMgrTask::SipPersistentSubscriptionMgrTask(
    SubscriptionDB* subscriptionDBInstance) :
+   OsServerTask("SipPersistentSubscriptionMgrTask-%d"),
    mSubscriptionDBInstance(subscriptionDBInstance)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,

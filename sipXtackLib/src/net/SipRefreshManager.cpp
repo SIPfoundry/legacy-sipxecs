@@ -759,6 +759,11 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
             // subscribeOrRegisterRequest.
             initialRequestSendFailed =
                !mpUserAgent->send(*subscribeOrRegisterRequest);
+            if (initialRequestSendFailed)
+            {
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             "SipRefreshManager::initiateRefresh SipUserAgent::send() returned false");
+            }
 
             // Note that 'state' may now be invalid, as another thread may have
             // terminated the refresh while we weren't holding the locks.

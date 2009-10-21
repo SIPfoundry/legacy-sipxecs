@@ -53,9 +53,7 @@ class OsQueuedEvent;
 class OsTimer;
 class SipSession;
 class SipTcpServer;
-#ifdef SIP_TLS
 class SipTlsServer;
-#endif
 class SipLineMgr;
 
 //! Transaction and Transport manager for SIP stack
@@ -641,10 +639,10 @@ public:
     SipContactDb& getContactDb() { return mContactDb; }
 
     //! Adds a contact record to the contact db
-    const bool addContactAddress(CONTACT_ADDRESS& contactAddress);
+    const bool addContactAddress(ContactAddress& contactAddress);
 
     //! Gets all contact addresses for this user agent
-    void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
+    void getContactAddresses(ContactAddress* pContacts[], int &numContacts);
 
     //! SPECIAL CASE ONLY -
     // This is used only to forward in-dialog ACKs which the proxy
@@ -733,9 +731,7 @@ private:
 
     SipTcpServer* mSipTcpServer;
     SipUdpServer* mSipUdpServer;
-#ifdef SIP_TLS
     SipTlsServer* mSipTlsServer;
-#endif
     SipTransactionList mSipTransactions;
     UtlString defaultSipUser;
     UtlString defaultSipAddress;

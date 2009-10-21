@@ -172,7 +172,7 @@ SipClient::SipClient(OsSocket* socket,
                      const char* taskNameString,
                      UtlBoolean bIsSharedSocket ) :
    OsServerTaskWaitable(taskNameString),
-   clientSocket(socket),
+   mClientSocket(socket),
    mSocketType(socket ? socket->getIpProtocol() : OsSocket::UNKNOWN),
    mpSipUserAgent(sipUA),
    mpSipServer(pSipServer),
@@ -186,10 +186,10 @@ SipClient::SipClient(OsSocket* socket,
 {
    touch();
 
-   if (clientSocket)
+   if (mClientSocket)
    {
-       clientSocket->getRemoteHostName(&mRemoteHostName);
-       clientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
+       mClientSocket->getRemoteHostName(&mRemoteHostName);
+       mClientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
 
        OsSysLog::add(FAC_SIP, PRI_INFO,
                      "SipClient[%s]::_ created %s %s socket %d: host '%s' '%s' port %d, local IP '%s'",
@@ -198,7 +198,7 @@ SipClient::SipClient(OsSocket* socket,
                      mbSharedSocket ? "shared" : "unshared",
                      socket->getSocketDescriptor(),
                      mRemoteHostName.data(), mRemoteSocketAddress.data(), mRemoteHostPort,
-                     clientSocket->getLocalIp().data()
+                     mClientSocket->getLocalIp().data()
                      );
    }
 }
@@ -216,18 +216,18 @@ SipClient::~SipClient()
     // Do not delete the event listers, as they are not subordinate.
 
     // Free the socket
-    if(clientSocket)
+    if(mClientSocket)
     {
         // Close the socket to unblock the run method
         // in case it is blocked in a waitForReadyToRead or
-        // a read on the clientSocket.  This should also
+        // a read on the mClientSocket.  This should also
         // cause the run method to exit.
         if (!mbSharedSocket)
         {
            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipClient[%s]::~ %p socket %p closing %s socket",
                          mName.data(), this,
-                         clientSocket, OsSocket::ipProtocolString(mSocketType));
-           clientSocket->close();
+                         mClientSocket, OsSocket::ipProtocolString(mSocketType));
+           mClientSocket->close();
         }
 
         // Wait for the task to exit so that it does not
@@ -240,9 +240,9 @@ SipClient::~SipClient()
 
         if (!mbSharedSocket)
         {
-            delete clientSocket;
+            delete mClientSocket;
         }
-        clientSocket = NULL;
+        mClientSocket = NULL;
     }
     else if(isStarted() || isShuttingDown())
     {
@@ -287,7 +287,7 @@ UtlBoolean SipClient::sendTo(SipMessage& message,
 {
    UtlBoolean sendOk;
 
-   if (clientSocket)
+   if (mClientSocket)
    {
       // If port == PORT_NONE, get the correct default port for this
       // transport method.
@@ -400,7 +400,7 @@ long SipClient::getLastTouchedTime() const
 
 UtlBoolean SipClient::isOk()
 {
-   return OsServerTaskWaitable::isOk() && clientSocket->isOk() && isNotShut();
+   return OsServerTaskWaitable::isOk() && mClientSocket->isOk() && isNotShut();
 }
 
 UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int hostPort, const UtlString& localIp )
@@ -468,7 +468,7 @@ UtlBoolean SipClient::isAcceptableForDestination( const UtlString& hostName, int
 
 const UtlString& SipClient::getLocalIp()
 {
-    return clientSocket->getLocalIp();
+    return mClientSocket->getLocalIp();
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -503,7 +503,7 @@ int SipClient::run(void* runArg)
       assert(repeatedEOFs < 20);
       // The file descriptor for the socket may change, as OsSocket's
       // can be re-opened.
-      fds[1].fd = clientSocket->getSocketDescriptor();
+      fds[1].fd = mClientSocket->getSocketDescriptor();
 
       // Initialize the revents members.
       // This may not be necessary (the man page is not clear), but
@@ -640,7 +640,7 @@ int SipClient::run(void* runArg)
          // Must allocate a new message because SipUserAgent::dispatch will
          // take ownership of it.
          SipMessage* msg = new SipMessage;
-         int res = msg->read(clientSocket,
+         int res = msg->read(mClientSocket,
                              HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
                              &readBuffer);
          // Use readBuffer to hold any unparsed data after the message
@@ -722,10 +722,10 @@ int SipClient::run(void* runArg)
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipClient[%s]::run send UDP keep-alive CR-LF response, ",
                               mName.data());
-               (dynamic_cast <OsDatagramSocket*> (clientSocket))->write(buffer.data(),
-                                                                        bufferLen,
-                                                                        fromIpAddress,
-                                                                        fromPort);
+               (dynamic_cast <OsDatagramSocket*> (mClientSocket))->write(buffer.data(),
+                                                                         bufferLen,
+                                                                         fromIpAddress,
+                                                                         fromPort);
             }
                break;
             default:
@@ -778,8 +778,8 @@ int SipClient::run(void* runArg)
                           mName.data(),
                           tcpOnErrWaitForSend, waitingToReportErr,
                           mbTcpOnErrWaitForSend, repeatedEOFs,
-                          clientSocket->getIpProtocol(),
-                          OsSocket::isFramed(clientSocket->getIpProtocol()));
+                          mClientSocket->getIpProtocol(),
+                          OsSocket::isFramed(mClientSocket->getIpProtocol()));
 
             // If the socket is not framed (is connection-oriented),
             // we need to abort the connection and post a message
@@ -788,7 +788,7 @@ int SipClient::run(void* runArg)
             // method -- we need to close all connection-oriented
             // sockets as well in case it was an EOF.
             // Define a virtual function that returns the correct bit.
-            if (!OsSocket::isFramed(clientSocket->getIpProtocol()))
+            if (!OsSocket::isFramed(mClientSocket->getIpProtocol()))
             {
                 // On non-blocking connect failures, we need to get the first send message
                 // in order to successfully trigger the protocol fallback mechanism
@@ -816,7 +816,7 @@ int SipClient::run(void* runArg)
                         "SipMessage::poll error(%d) ",
                         mName.data(), errno);
 
-          if (OsSocket::isFramed(clientSocket->getIpProtocol()))
+          if (OsSocket::isFramed(mClientSocket->getIpProtocol()))
           {
               OsSysLog::add(FAC_SIP, PRI_ERR,
                             "SipClient[%s]::run "
@@ -911,7 +911,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
 
    // Keep track of the interface on which this message was
    // received.
-   msg.setInterfaceIpPort(clientSocket->getLocalIp(), clientSocket->getLocalHostPort());
+   msg.setInterfaceIpPort(mClientSocket->getLocalIp(), mClientSocket->getLocalHostPort());
 
    if (mReceivedAddress.isNull())
    {
@@ -941,7 +941,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
                     &receivedPort, &receivedSet, &maddrSet,
                     &receivedPortSet);
 
-      // :QUERY: Should this test be clientSocket->isConnected()?
+      // :QUERY: Should this test be mClientSocket->isConnected()?
       if (   (   mSocketType == OsSocket::TCP
                  || mSocketType == OsSocket::SSL_SOCKET
                 )
@@ -970,13 +970,13 @@ void SipClient::preprocessMessage(SipMessage& msg,
 // Test whether the socket is ready to read. (Does not block.)
 UtlBoolean SipClient::isReadyToRead()
 {
-   return clientSocket->isReadyToRead(0);
+   return mClientSocket->isReadyToRead(0);
 }
 
 // Wait until the socket is ready to read (or has an error).
 UtlBoolean SipClient::waitForReadyToRead()
 {
-   return clientSocket->isReadyToRead(-1);
+   return mClientSocket->isReadyToRead(-1);
 }
 
 // Called by the thread to shut the SipClient down and signal its

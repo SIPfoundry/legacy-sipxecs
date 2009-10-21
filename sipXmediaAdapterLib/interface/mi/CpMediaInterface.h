@@ -353,7 +353,7 @@ public:
    virtual OsStatus stopRecording() = 0;
 
    //! Set the preferred contact type for this media connection
-   virtual void setContactType(int connectionId, CONTACT_TYPE eType) = 0 ;
+   virtual void setContactType(int connectionId, ContactType eType) = 0 ;
 
 /* ============================ ACCESSORS ================================= */
 

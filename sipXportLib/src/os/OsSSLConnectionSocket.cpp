@@ -60,7 +60,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs) :
+OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor,
+                                             long timeoutInSecs) :
    OsConnectionSocket(NULL, connectedSocketDescriptor),
    mSSL(NULL),
    mPeerIdentity(NOT_IDENTIFIED)

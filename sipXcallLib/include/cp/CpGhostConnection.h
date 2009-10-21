@@ -126,7 +126,7 @@ public:
     /**
      * Enumerate possible contact addresses
      */
-    virtual void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    virtual void getLocalContactAddresses( ContactAddress contacts[],
                                            size_t nMaxContacts,
                                            size_t& nActualContacts) ;
 

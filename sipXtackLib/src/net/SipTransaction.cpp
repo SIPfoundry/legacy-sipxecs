@@ -2677,6 +2677,19 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             }
         }   // end while
     }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     "SipTransaction::recurseDnsSrvChildren "
+                     "Returning false:  mIsServerTransaction = %d, "
+                     "mIsDnsSrvChild = %d, mpDnsDestinations = %p, "
+                     "mpDnsDestinations[0].isValidServerT() = %d, "
+                     "mpRequest = %p",
+                     mIsServerTransaction, mIsDnsSrvChild,
+                     mpDnsDestinations, 
+                     mpDnsDestinations[0].isValidServerT(),
+                     mpRequest);
+    }
 
     if(childRecursed) mIsRecursing = TRUE;
     return(childRecursed);
@@ -3468,8 +3481,23 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     {
         if (numTries < SIP_TCP_RESEND_TIMES)
         {
-            // Try TCP again
-            if (userAgent.sendTcp(&resendMessage, sendAddress.data(), sendPort))
+            bool r;
+            // Try sending again.
+            if (protocol == OsSocket::TCP)
+            {
+               r = userAgent.sendTcp(&resendMessage,
+                                     sendAddress.data(),
+                                     sendPort);
+            }
+#ifdef SIP_TLS
+            else if (protocol == OsSocket::SSL_SOCKET)
+            {
+               r = userAgent.sendTls(&resendMessage,
+                                     sendAddress.data(),
+                                     sendPort);
+            }
+#endif
+            if (r)
             {
                 // Do this after the send so that the log message is correct
                 resendMessage.incrementTimesSent();

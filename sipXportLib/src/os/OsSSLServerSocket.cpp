@@ -115,7 +115,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          {
             SSL_set_fd (pSSL, clientSocket);
 
-            newSocket = new OsSSLConnectionSocket(pSSL,clientSocket);
+            newSocket = new OsSSLConnectionSocket(pSSL, clientSocket);
             if (newSocket)
             {
                int result = SSL_accept(pSSL);

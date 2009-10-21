@@ -38,11 +38,14 @@ public:
 /* ============================ CREATORS ================================== */
 
    SipTcpServer(int sipPort,
+                ///< Set to PORT_NONE when using as base for TLS server.
                 SipUserAgent* userAgent,
-                const char* protocolString = SIP_TRANSPORT_TCP,
                 const char* taskName  = "SipTcpServer-%d",
                 UtlBoolean bUseNextAvailablePort = FALSE,
-                const char* szBindAddr = NULL);
+                const char* szBindAddr = NULL,
+                const char* protocolString = SIP_TRANSPORT_TCP
+                ///< SIP_TRANSPORT_TLS when using as base for TLS server.
+      );
      //:Default constructor
 
    virtual

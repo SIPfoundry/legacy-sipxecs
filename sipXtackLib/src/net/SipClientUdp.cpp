@@ -26,8 +26,6 @@
 
 #include <utl/XmlContent.h>
 
-#define SIP_DEFAULT_RTT 500
-
 #define LOG_TIME
 
 // EXTERNAL FUNCTIONS
@@ -90,7 +88,7 @@ void SipClientUdp::sendMessage(const SipMessage& message,
    // port will not be PORT_NONE, because it would have been replaced by
    // the default port in ::sendTo().
    bytesWritten =
-      (dynamic_cast <OsDatagramSocket*> (clientSocket))->
+      (dynamic_cast <OsDatagramSocket*> (mClientSocket))->
       write(buffer.data(), bufferLen, address, port);
 
    if (bufferLen == bytesWritten)

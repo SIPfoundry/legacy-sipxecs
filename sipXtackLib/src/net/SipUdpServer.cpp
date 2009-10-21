@@ -127,10 +127,10 @@ void SipUdpServer::createServerSocket(const char* szBindAddr,
       if (mSipUserAgent)
       {
          port = pSocket->getLocalHostPort();
-         CONTACT_ADDRESS contact;
+         ContactAddress contact;
          strcpy(contact.cIpAddress, szBindAddr);
          contact.iPort = port;
-         contact.eContactType = LOCAL;
+         contact.eContactType = ContactAddress::LOCAL;
          char szAdapterName[16];
          memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
 

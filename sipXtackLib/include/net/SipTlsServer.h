@@ -38,8 +38,8 @@ public:
 
    SipTlsServer(int sipPort,
                 SipUserAgent* userAgent,
-                SipProtocolServerBase* pSipServer,
-                UtlBoolean bUseNextAvailablePort = FALSE);
+                UtlBoolean bUseNextAvailablePort = FALSE,
+                const char* szBindAddr = NULL);
      //:Default constructor
 
    virtual
@@ -50,17 +50,20 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-    int getServerPort() const;
-    //: The the local server port for this server
-
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    virtual OsSocket* buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused);
+    // Caller must hold mClientLock.
+    UtlBoolean createServerSocket(const char* szBindAddr,
+                                  int& port,
+                                  const UtlBoolean& bUseNextAvailablePort);
 
-    int mServerPort;
+    virtual OsSocket* buildClientSocket(int hostPort,
+                                        const char* hostAddress,
+                                        const char* localIp,
+                                        bool& existingSocketReused);
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

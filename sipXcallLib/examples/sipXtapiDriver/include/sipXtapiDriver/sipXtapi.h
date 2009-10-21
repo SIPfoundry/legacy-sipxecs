@@ -212,7 +212,7 @@ typedef enum
 
 
 /**
- * The CONTACT_ADDRESS structure includes contact information (ip and port),
+ * The ContactAddress structure includes contact information (ip and port),
  * address source type, and interface.
  */
 typedef struct

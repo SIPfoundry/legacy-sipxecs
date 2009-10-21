@@ -65,7 +65,7 @@ public:
         mRtpReceiving = FALSE;
         mpCodecFactory = NULL;
         mpPrimaryCodec = NULL;
-        meContactType = AUTO ;
+        meContactType = ContactAddress::AUTO;
     };
 
     virtual ~CpPhoneMediaConnection()
@@ -121,7 +121,7 @@ public:
     UtlBoolean mRtpReceiving;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE meContactType ;
+    ContactType meContactType ;
 };
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -411,12 +411,13 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
     {
         bool bSet = FALSE ;
 
-        if ((pMediaConn->meContactType == AUTO) || (pMediaConn->meContactType == NAT_MAPPED))
+        if (pMediaConn->meContactType == ContactAddress::AUTO ||
+            pMediaConn->meContactType == ContactAddress::NAT_MAPPED)
         {
             if (    pMediaConn->mpRtpSocket->getExternalIp(&rtpHostAddress, &rtpAudioPort) &&
                     pMediaConn->mpRtcpSocket->getExternalIp(NULL, &rtcpAudioPort))
             {
-                bSet = TRUE ;
+                bSet = TRUE;
             }
         }
 
@@ -1116,7 +1117,7 @@ void CpPhoneMediaInterface::removeToneListener(int connectionId)
     }
 }
 
-void  CpPhoneMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType)
+void  CpPhoneMediaInterface::setContactType(int connectionId, ContactType eType)
 {
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
 

@@ -195,16 +195,16 @@ class ResourceListServer : public UtlContainableAtomic
    const OsTime& getPublishingDelay() const;
 
    //! Get the maximum number of reg subscriptions allwed for a resource.
-   int getMaxRegSubscInResource() const;
+   unsigned getMaxRegSubscInResource() const;
 
    //! Get the maximum number of contacts allowed for a reg subscription.
-   int getMaxContInRegSubsc() const;
+   unsigned getMaxContInRegSubsc() const;
 
    //! Get the maximum number of resource instances (subscriptions) allowed for a contact.
-   int getMaxResInstInCont() const;
+   unsigned getMaxResInstInCont() const;
 
    //! Get the maximum number of dialogs allowed for a resource instance.
-   int getMaxDialogsInResInst() const;
+   unsigned getMaxDialogsInResInst() const;
 
    //! Get the server user agent.
    SipUserAgent& getServerUserAgent();
@@ -248,13 +248,13 @@ class ResourceListServer : public UtlContainableAtomic
    //! Interval to delay after a content change before publishing, in msec.
    OsTime mPublishingDelay;
    //! The maximum number of reg subscriptions allwed for a resource.
-   int mMaxRegSubscInResource;
+   unsigned mMaxRegSubscInResource;
    //! The maximum number of contacts allowed for a reg subscription.
-   int mMaxContInRegSubsc;
+   unsigned mMaxContInRegSubsc;
    //! The maximum number of resource instances (subscriptions) allowed for a contact.
-   int mMaxResInstInCont;
+   unsigned mMaxResInstInCont;
    //! The maximum number of dialogs allowed for a resource instance.
-   int mMaxDialogsInResInst;
+   unsigned mMaxDialogsInResInst;
 
    // The call processing objects.
 
@@ -439,26 +439,26 @@ inline const OsTime& ResourceListServer::getPublishingDelay() const
 }
 
 // Get the maximum number of reg subscriptions allwed for a resource.
-inline int ResourceListServer::getMaxRegSubscInResource() const
+inline unsigned ResourceListServer::getMaxRegSubscInResource() const
 {
    return mMaxRegSubscInResource;
 }
 
 // Get the maximum number of contacts allowed for a reg subscription.
-inline int ResourceListServer::getMaxContInRegSubsc() const
+inline unsigned ResourceListServer::getMaxContInRegSubsc() const
 {
    return mMaxContInRegSubsc;
 }
 
 // Get the maximum number of resource instances (subscriptions)
 // allowed for a contact.
-inline int ResourceListServer::getMaxResInstInCont() const
+inline unsigned ResourceListServer::getMaxResInstInCont() const
 {
    return mMaxResInstInCont;
 }
 
 // Get the maximum number of dialogs allowed for a resource instance.
-inline int ResourceListServer::getMaxDialogsInResInst() const
+inline unsigned ResourceListServer::getMaxDialogsInResInst() const
 {
    return mMaxDialogsInResInst;
 }

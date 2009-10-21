@@ -32,33 +32,33 @@ public:
         SipContactDb pDb;
 
         // test the inserting of records
-        CONTACT_ADDRESS contact1;
-        memset((void*)&contact1, 0, sizeof(CONTACT_ADDRESS));
+        ContactAddress contact1;
+        memset((void*)&contact1, 0, sizeof(ContactAddress));
         strcpy(contact1.cInterface, "eth0");
         strcpy(contact1.cIpAddress, "9.9.9.1");
-        contact1.eContactType = NAT_MAPPED;
+        contact1.eContactType = ContactAddress::NAT_MAPPED;
         contact1.iPort = 9991;
         CPPUNIT_ASSERT(pDb.addContact(contact1));
         CPPUNIT_ASSERT(contact1.id == 1);
 
         // test the addition of a duplicate (same IP and port)
         // (should fail)
-        CONTACT_ADDRESS contact2;
-        memset((void*)&contact2, 0, sizeof(CONTACT_ADDRESS));
+        ContactAddress contact2;
+        memset((void*)&contact2, 0, sizeof(ContactAddress));
         strcpy(contact2.cInterface, "eth0");
         strcpy(contact2.cIpAddress, "9.9.9.1");
-        contact2.eContactType = LOCAL;
+        contact2.eContactType = ContactAddress::LOCAL;
         contact2.iPort = 9991;
         CPPUNIT_ASSERT(pDb.addContact(contact2) == false);
         CPPUNIT_ASSERT(contact2.id == 1);
 
         // test the addition of same IP, different port
         // (should succeed)
-        CONTACT_ADDRESS contact3;
-        memset((void*)&contact3, 0, sizeof(CONTACT_ADDRESS));
+        ContactAddress contact3;
+        memset((void*)&contact3, 0, sizeof(ContactAddress));
         strcpy(contact3.cInterface, "eth0");
         strcpy(contact3.cIpAddress, "9.9.9.1");
-        contact3.eContactType = LOCAL;
+        contact3.eContactType = ContactAddress::LOCAL;
         contact3.iPort = 9992;
         CPPUNIT_ASSERT(pDb.addContact(contact3) == true);
         CPPUNIT_ASSERT(contact3.id == 2);
@@ -66,11 +66,11 @@ public:
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
-        CONTACT_ADDRESS contact4;
-        memset((void*)&contact4, 0, sizeof(CONTACT_ADDRESS));
+        ContactAddress contact4;
+        memset((void*)&contact4, 0, sizeof(ContactAddress));
         strcpy(contact4.cInterface, "eth0");
         strcpy(contact4.cIpAddress, "9.9.9.2");
-        contact4.eContactType = RELAY;
+        contact4.eContactType = ContactAddress::RELAY;
         contact4.iPort = 9993;
         CPPUNIT_ASSERT(pDb.addContact(contact4) == true);
         CPPUNIT_ASSERT(contact4.id == 3);
@@ -78,17 +78,17 @@ public:
         // test the addition of differnt IP
         // same adapter
         // (should succeed)
-        CONTACT_ADDRESS contact5;
-        memset((void*)&contact5, 0, sizeof(CONTACT_ADDRESS));
+        ContactAddress contact5;
+        memset((void*)&contact5, 0, sizeof(ContactAddress));
         strcpy(contact5.cInterface, "eth1");
         strcpy(contact5.cIpAddress, "10.10.10.5");
-        contact5.eContactType = LOCAL;
+        contact5.eContactType = ContactAddress::LOCAL;
         contact5.iPort = 9991;
         CPPUNIT_ASSERT(pDb.addContact(contact5) == true);
         CPPUNIT_ASSERT(contact5.id == 4);
 
         // now test the finding of the records
-        CONTACT_ADDRESS* pFound = NULL;
+        ContactAddress* pFound = NULL;
         // search by ID - positive
         pFound = pDb.find(4);
         CPPUNIT_ASSERT(pFound != NULL);
@@ -117,7 +117,7 @@ public:
         CPPUNIT_ASSERT(pFound == NULL);
 
         // get All records
-        CONTACT_ADDRESS* addresses[MAX_IP_ADDRESSES];
+        ContactAddress* addresses[MAX_IP_ADDRESSES];
         int num = 0;
         pDb.getAll(addresses, num);
         CPPUNIT_ASSERT(4 == num);

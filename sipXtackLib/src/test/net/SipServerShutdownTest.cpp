@@ -53,8 +53,7 @@ public:
 
       for (int i=0; i<SIP_SHUTDOWN_ITERATIONS; ++i)
       {
-         SipTcpServer pSipTcpServer(5090, &sipUA, SIP_TRANSPORT_TCP,
-                                    "SipTcpServer-%d", false);
+         SipTcpServer pSipTcpServer(5090, &sipUA, "SipTcpServer-%d", false);
          pSipTcpServer.startListener();
 
          OsTask::delay(1000);

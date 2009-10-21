@@ -43,7 +43,6 @@ SipServerBroker::SipServerBroker(OsServerTask* pTask, OsServerSocket* pSocket) :
 
 int SipServerBroker::run(void *pNotUsed)
 {
-
     OsConnectionSocket* clientSocket = NULL;
 
     while(!isShuttingDown() && mpSocket && mpSocket->isOk())

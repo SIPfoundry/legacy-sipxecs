@@ -137,22 +137,22 @@ protected:
      */
     void clientStopSelf();
 
-    OsSocket* clientSocket;
+    OsSocket* mClientSocket;
     OsSocket::IpProtocolSocketType mSocketType;
     SipUserAgentBase* mpSipUserAgent;
     SipProtocolServerBase* mpSipServer;
 
-    /** The name of the remote end of clientSocket, as obtained from
-     *  clientSocket.  Null if clientSocket is un-connected.
+    /** The name of the remote end of mClientSocket, as obtained from
+     *  mClientSocket.  Null if mClientSocket is un-connected.
      */
     UtlString mRemoteHostName;
-    /** The address/port of the remote end of clientSocket, as obtained
-     *  from clientSocket, which obtains it from the network layer.
+    /** The address/port of the remote end of mClientSocket, as obtained
+     *  from mClientSocket, which obtains it from the network layer.
      */
     UtlString mRemoteSocketAddress;
     int mRemoteHostPort;
 
-    /** The address/port of the remote end of clientSocket, as obtained
+    /** The address/port of the remote end of mClientSocket, as obtained
      *  from the Via of an incoming message.  Note that this cannot
      *  be trusted unless the connection is authenticated.
      */

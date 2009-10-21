@@ -593,10 +593,6 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                                 localAddress = sipMsg->getInterfaceIp();
                                 getContactAdapterName(szAdapter, localAddress.data());
 
-                                CONTACT_ADDRESS contact;
-                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, LOCAL);
-                                port = contact.iPort;
-
                                 pMediaInterface = mpMediaFactory->createMediaInterface(
                                     NULL,
                                     localAddress, numCodecs, codecArray,
@@ -897,12 +893,12 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 UtlString callId;
                 UtlString addressUrl;
                 UtlString desiredConnectionCallId ;
-                CONTACT_ID contactId;
+                ContactId contactId;
                 bool sendPAIheader = FALSE;
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
                 ((CpMultiStringMessage&)eventMessage).getString2Data(addressUrl);
                 ((CpMultiStringMessage&)eventMessage).getString4Data(desiredConnectionCallId);
-                contactId = (CONTACT_ID) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+                contactId = (ContactId) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 void* pDisplay = (void*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 sendPAIheader = (bool) ((CpMultiStringMessage&)eventMessage).getInt3Data();
 
@@ -1399,7 +1395,7 @@ PtStatus CallManager::connect(const char* callId,
                               const char* toAddressString,
                               const char* fromAddressString,
                               const char* desiredCallIdString,
-                              CONTACT_ID contactId,
+                              ContactId contactId,
                               const void* pDisplay,
                               const bool sendPAIheader)
 {
@@ -1961,7 +1957,7 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
 }
 #endif
 
-void CallManager::setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType)
+void CallManager::setOutboundLineForCall(const char* callId, const char* address, ContactType eType)
 {
     CpMultiStringMessage outboundLineMessage(CP_SET_OUTBOUND_LINE, 
                                              callId, address,
@@ -1972,7 +1968,7 @@ void CallManager::setOutboundLineForCall(const char* callId, const char* address
 
 void CallManager::acceptConnection(const char* callId,
                                    const char* address,
-                                   CONTACT_TYPE contactType,
+                                   ContactType contactType,
                                    const void* hWnd)
 {
     CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, NULL, (int) contactType, (intptr_t) hWnd);
@@ -3805,7 +3801,7 @@ void CallManager::getCalls(int& currentCalls, int& maxCalls)
 
 // The available local contact addresses
 OsStatus CallManager::getLocalContactAddresses(const char* callId,
-                                               CONTACT_ADDRESS addresses[],
+                                               ContactAddress addresses[],
                                                size_t  nMaxAddresses,
                                                size_t& nActaulAddresses)
 {
@@ -4032,7 +4028,7 @@ void CallManager::doCreateCall(const char* callId,
 void CallManager::doConnect(const char* callId,
                             const char* addressUrl,
                             const char* desiredConnectionCallId,
-                            CONTACT_ID contactId,
+                            ContactId contactId,
                             const void* pDisplay,
                             const bool sendPAIheader )
 {

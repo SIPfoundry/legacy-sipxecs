@@ -231,7 +231,7 @@ public:
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
-   virtual void setContactType(int connectionId, CONTACT_TYPE eType) ;
+   virtual void setContactType(int connectionId, ContactType eType) ;
 
    GipsVoiceEngineLib* const getVoiceEnginePtr();
 
@@ -304,7 +304,7 @@ private:
     UtlString mStunServer ;
     int mStunOptions ;
     int mStunRefreshPeriodSecs ;
-    CONTACT_TYPE mContactType;
+    ContactType mContactType;
     UtlBoolean mbFocus ;
     UtlBoolean mbDTMFOutOfBand;
     GipsVoiceEngineLib* mpVoiceEngine ;

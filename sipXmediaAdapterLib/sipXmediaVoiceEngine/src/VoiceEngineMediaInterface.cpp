@@ -180,7 +180,7 @@ public:
     UtlBoolean mRtpReceivingVideo;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE meContactType ;
+    ContactType meContactType ;
     UtlString mRtpSendHostAddress;
 };
 
@@ -1715,7 +1715,7 @@ void VoiceEngineMediaInterface::removeToneListener(int connectionId)
 {
 }
 
-void  VoiceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType)
+void  VoiceEngineMediaInterface::setContactType(int connectionId, ContactType eType)
 {
     mContactType = eType;
 }

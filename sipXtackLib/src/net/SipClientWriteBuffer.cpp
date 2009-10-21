@@ -33,7 +33,11 @@ SipClientWriteBuffer::SipClientWriteBuffer(OsSocket* socket,
                                            SipUserAgentBase* sipUA,
                                            const char* taskNameString,
                                            UtlBoolean bIsSharedSocket) :
-   SipClient(socket, pSipServer, sipUA, taskNameString, bIsSharedSocket)
+   SipClient(socket,
+             pSipServer,
+             sipUA,
+             taskNameString,
+             bIsSharedSocket)
 {
    mWriteQueued = FALSE;
 
@@ -85,14 +89,16 @@ UtlBoolean SipClientWriteBuffer::handleMessage(OsMsg& eventMessage)
           }
           else
           {
-             OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::handleMessage "
-                           "message is not a SipClientSendMsg", mName.data());
+             OsSysLog::add(FAC_SIP, PRI_CRIT,
+                           "SipClientWriteBuffer[%s]::handleMessage "
+                           "message is not a SipClientSendMsg",
+                           mName.data());
           }
       }
       else // send Keep Alive
       {
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response, ",
+                        "SipClientWriteBuffer[%s]::handleMessage send TCP keep-alive CR-LF response",
                         mName.data());
           UtlString* pKeepAlive;
           pKeepAlive = new UtlString("\r\n");
@@ -115,8 +121,10 @@ void SipClientWriteBuffer::sendMessage(const SipMessage& message,
                                        const char* address,
                                        int port)
 {
-   OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::sendMessage "
-                 "should not be called", mName.data());
+   OsSysLog::add(FAC_SIP, PRI_CRIT,
+                 "SipClientWriteBuffer[%s]::sendMessage "
+                 "should not be called",
+                 mName.data());
    assert(false);
 }
 
@@ -215,8 +223,10 @@ void SipClientWriteBuffer::writeMore()
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_CRIT, "SipClientWriteBuffer[%s]::writeMore "
-                             "unrecognized message type in queue", mName.data());
+               OsSysLog::add(FAC_SIP, PRI_CRIT,
+                             "SipClientWriteBuffer[%s]::writeMore "
+                             "unrecognized message type in queue",
+                             mName.data());
                assert(false);
                delete mWriteBuffer.get();
                mWriteQueued = mWriteBuffer.isEmpty();
@@ -229,9 +239,9 @@ void SipClientWriteBuffer::writeMore()
 
          // If the socket has failed, attempt to reconnect it.
          // :NOTE: OsConnectionSocket::reconnect isn't implemented.
-         if (!clientSocket->isOk())
+         if (!mClientSocket->isOk())
          {
-            clientSocket->reconnect();
+            mClientSocket->reconnect();
          }
 
          // Calculate the length to write.
@@ -240,11 +250,11 @@ void SipClientWriteBuffer::writeMore()
          // ret is the value returned from write attempt.
          // -1 means an error was seen.
          int ret;
-         if (clientSocket->isOk())
+         if (mClientSocket->isOk())
          {
             // Write what we can.
-            ret = clientSocket->write(mWriteString.data() + mWritePointer,
-                                      length, 0L /* nonblocking */);
+            ret = mClientSocket->write(mWriteString.data() + mWritePointer,
+                                       length, 0L /* nonblocking */);
             // Theoretically, ret > 0, since the socket is ready for writing,
             // but it appears that that ret can be 0.
          }

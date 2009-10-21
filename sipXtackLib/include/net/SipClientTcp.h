@@ -16,6 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include <net/SipClient.h>
 #include <net/SipClientWriteBuffer.h>
 #include <os/OsSocket.h>
 

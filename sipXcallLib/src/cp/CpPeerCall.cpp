@@ -244,12 +244,12 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     UtlString desiredCallId;
     UtlString paiAddress;
     UtlString remoteHostName;
-    CONTACT_ID contactId ;
+    ContactId contactId ;
 
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(dialString);
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(desiredCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(paiAddress);
-    contactId = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    contactId = (ContactType) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* pDisplay = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
 
 
@@ -904,7 +904,7 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     UtlString remoteAddress;
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
-    CONTACT_TYPE eType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    ContactType eType = (ContactType) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
 
     if (hWnd && mpMediaInterface)
@@ -1911,7 +1911,7 @@ UtlBoolean CpPeerCall::handleGetNextCseq(OsMsg* pEventMessage)
 }
 
 // Enumerate possible contact addresses
-void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+void CpPeerCall::getLocalContactAddresses( ContactAddress contacts[],
                                           size_t nMaxContacts,
                                           size_t& nActualContacts)
 {
@@ -1924,28 +1924,28 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
     if (    (nActualContacts < nMaxContacts) &&
         (sipUserAgent->getLocalAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = LOCAL ;
-        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
-        contacts[nActualContacts].iPort = port ;
-        nActualContacts++ ;
+        contacts[nActualContacts].eContactType = ContactAddress::LOCAL;
+        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32);
+        contacts[nActualContacts].iPort = port;
+        nActualContacts++;
     }
 
     if (    (nActualContacts < nMaxContacts) &&
         (sipUserAgent->getNatMappedAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = NAT_MAPPED ;
-        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
-        contacts[nActualContacts].iPort = port ;
-        nActualContacts++ ;
+        contacts[nActualContacts].eContactType = ContactAddress::NAT_MAPPED;
+        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32);
+        contacts[nActualContacts].iPort = port;
+        nActualContacts++;
     }
 
     if (    (nActualContacts < nMaxContacts) &&
         (sipUserAgent->getConfiguredPublicAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = CONFIG ;
-        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
-        contacts[nActualContacts].iPort = port ;
-        nActualContacts++ ;
+        contacts[nActualContacts].eContactType = ContactAddress::CONFIG;
+        strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32);
+        contacts[nActualContacts].iPort = port;
+        nActualContacts++;
     }
 }
 
@@ -1955,7 +1955,7 @@ UtlBoolean CpPeerCall::handleGetLocalContacts(OsMsg* pEventMessage)
     OsProtectedEvent* pProtectedEvent = (OsProtectedEvent*)
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
-    CONTACT_ADDRESS* addresses = (CONTACT_ADDRESS*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+    ContactAddress* addresses = (ContactAddress*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     size_t nMaxAddresses = (size_t) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     size_t* nActualAddresses = (size_t*) ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
 
@@ -2821,7 +2821,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* callController,
                                  const char* originalCallConnectionAddress,
                                  const char* newCallId,
-                                 CONTACT_ID contactId,
+                                 ContactId contactId,
                                  const void* pDisplay,
                                  const char* originalCallId,
                                  const char* paiAddress)
@@ -2846,7 +2846,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                    mSipSessionReinviteTimer);
 
     connection->setContactId(contactId);
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
 
     pContact = sipUserAgent->getContactDb().find(contactId);
 
@@ -2856,7 +2856,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     }
     else
     {
-        connection->setContactType(AUTO);
+        connection->setContactType(ContactAddress::AUTO);
     }
     addConnection(connection);
 

@@ -116,7 +116,9 @@ public:
     virtual void requestShutdown(void);
 
     virtual void setOutboundLine(const char* lineUrl);
-    virtual void setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType = AUTO);
+    virtual void setOutboundLineForCall(const char* callId,
+                                        const char* address,
+                                        ContactType eType = ContactAddress::AUTO);
 
     // Operations for calls
     virtual void createCall(UtlString* callId,
@@ -131,7 +133,7 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0,
+                             ContactId contactId = 0,
                              const void* pDisplay = NULL,
                              const bool sendPAIheader = 0) ;
 
@@ -188,7 +190,7 @@ public:
     // Operations for calls & connections
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO,
+                                  ContactType contactType = ContactAddress::AUTO,
                                   const void* hWnd = NULL);
 
     virtual void rejectConnection(const char* callId,
@@ -390,7 +392,7 @@ public:
      //:calls to be admitted to the system.
 
    virtual OsStatus getLocalContactAddresses(const char* callid,
-                                             CONTACT_ADDRESS addresses[],
+                                             ContactAddress addresses[],
                                              size_t  nMaxAddresses,
                                              size_t& nActaulAddresses) ;
      //:The available local contact addresses
@@ -495,7 +497,7 @@ private:
     void doConnect(const char* callId,
                    const char* addressUrl,
                    const char* szDesiredConnectionCallId,
-                   CONTACT_ID contactId = 0,
+                   ContactId contactId = 0,
                    const void* pDisplay = NULL,
                    const bool sendPAIheader = 0 );
 

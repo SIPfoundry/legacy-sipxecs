@@ -249,7 +249,7 @@ UtlBoolean CpGhostConnection::getSession(SipSession& session)
 
 
 // Enumerate possible contact addresses
-void CpGhostConnection::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+void CpGhostConnection::getLocalContactAddresses( ContactAddress contacts[],
                                                   size_t nMaxContacts,
                                                   size_t& nActualContacts)
 {

@@ -162,7 +162,10 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 #ifdef SIP_TLS
     if (mTlsPort != PORT_NONE)
     {
-        mSipTlsServer = new SipTlsServer(mTlsPort, this, bUseNextAvailablePort);
+        mSipTlsServer = new SipTlsServer(mTlsPort,
+                                         this,
+                                         bUseNextAvailablePort,
+                                         defaultAddress);
         mSipTlsServer->startListener();
         mTlsPort = mSipTlsServer->getServerPort();
 
@@ -176,9 +179,11 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 #endif
     if (mTcpPort != PORT_NONE)
     {
-        mSipTcpServer = new SipTcpServer(mTcpPort, this, SIP_TRANSPORT_TCP,
+        mSipTcpServer = new SipTcpServer(mTcpPort,
+                                         this,
                                          "SipTcpServer-%d",
-                                         bUseNextAvailablePort, defaultAddress);
+                                         bUseNextAvailablePort,
+                                         defaultAddress);
         mSipTcpServer->startListener();
         mTcpPort = mSipTcpServer->getServerPort();
 
@@ -192,7 +197,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     if (mUdpPort != PORT_NONE)
     {
-        mSipUdpServer = new SipUdpServer(mUdpPort, this,
+        mSipUdpServer = new SipUdpServer(mUdpPort,
+                                         this,
                                          readBufferSize,
                                          bUseNextAvailablePort,
                                          defaultAddress);
@@ -334,8 +340,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
         // make a config CONTACT entry
         char szAdapter[256];
-        CONTACT_ADDRESS contact;
-        contact.eContactType = CONFIG;
+        ContactAddress contact;
+        contact.eContactType = ContactAddress::CONFIG;
         strcpy(contact.cIpAddress, publicAddress);
 
         if (getContactAdapterName(szAdapter, defaultSipAddress))
@@ -427,7 +433,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
        {
           // Unknown.
           OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipUserAgent::send neither TCP, UDP, nor TLS in use -- can't construct Contact");
+                        "SipUserAgent:: neither TCP, UDP, nor TLS in use -- can't construct Contact");
           // Make a guess, it might work.
           port = PORT_NONE;
           protocol = NULL;
@@ -849,17 +855,17 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
    //mSipTransactions.lock();
 
-#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
-   OsSysLog::add(FAC_SIP, PRI_DEBUG
-                 ,"SipUserAgent[%s]::send "
-                  "searching for existing transaction",
-                 getName().data());
-#endif
    // verify that the transaction does not already exist
    SipTransaction* transaction = mSipTransactions.findTransactionFor(
       message,
       TRUE, // outgoing
       relationship);
+#ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
+   OsSysLog::add(FAC_SIP, PRI_DEBUG
+                 ,"SipUserAgent[%s]::send "
+                  "searched for existing transaction, relationship = %d",
+                 getName().data(), relationship);
+#endif
 
    // for forwarding 2xx ACK's, we need to ignore the Invite transaction
    SipTransaction* sav2xxAckTxValue = NULL;
@@ -1120,6 +1126,11 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
                     "SipUserAgent::send failed to construct new transaction");
    }
 
+   if (!sendSucceeded)
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipUserAgent::send returning false");
+   }
    return (sendSucceeded);
 }
 
@@ -1484,7 +1495,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    int sendSucceeded = FALSE;
    int len;
    UtlString msgBytes;
-   UtlString messageStatusString;
+   UtlString messageStatusString = "SipUserAgent::sendTls ";
 
    // Disallow an address begining with * as it gets broadcasted on NT
    if(!strchr(serverAddress,'*') && *serverAddress)
@@ -2601,7 +2612,7 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                   }
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "SipUserAgent[%s]::handleMessage "
-                                "resend Timeout of message for %d protocol, callId: \"%s\"",
+                                "resend Timeout of message for protocol %d, callId: \"%s\"",
                                 getName().data(), protocolType, callId.data());
                }
 
@@ -4027,12 +4038,12 @@ void SipUserAgent::setIncludePlatformInUserAgentName(const bool bInclude)
     mbIncludePlatformInUserAgentName = bInclude;
 }
 
-const bool SipUserAgent::addContactAddress(CONTACT_ADDRESS& contactAddress)
+const bool SipUserAgent::addContactAddress(ContactAddress& contactAddress)
 {
     return mContactDb.addContact(contactAddress);
 }
 
-void SipUserAgent::getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts)
+void SipUserAgent::getContactAddresses(ContactAddress* pContacts[], int &numContacts)
 {
     mContactDb.getAll(pContacts, numContacts);
 }

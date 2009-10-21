@@ -19,7 +19,6 @@
 #include "os/OsProtectEvent.h"
 #include "utl/UtlContainableAtomic.h"
 
-class OsNotification;
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -28,7 +27,9 @@ class OsNotification;
 // STRUCTS
 
 class OsConnectionSocket;
+class OsNotification;
 class OsServerSocket;
+class OsServerTask;
 class OsSocket;
 
 class SipServerBroker : public OsTask, public UtlContainableAtomic

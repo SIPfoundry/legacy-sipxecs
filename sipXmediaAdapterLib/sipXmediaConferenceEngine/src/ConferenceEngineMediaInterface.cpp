@@ -102,7 +102,7 @@ public:
     UtlBoolean mRtpReceiving;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE meContactType ;
+    ContactType meContactType ;
     OsNotification* mpDTMFNotify;  // Object to signal on key-down/key-up events
     OsNotification* mpPlayNotify;  // Object to signal on play done event
 };
@@ -1092,7 +1092,7 @@ void ConferenceEngineMediaInterface::removeToneListener(int connectionId)
     mLock.release();
 }
 
-void  ConferenceEngineMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType)
+void  ConferenceEngineMediaInterface::setContactType(int connectionId, ContactType eType)
 {
     mLock.acquire();
 

@@ -169,7 +169,7 @@ void OutputProcessorFixture::handleOutputMessage( SipMessage& message,
    }
    UtlContainable* pCallbackTrace = new CallbackTrace( message, address, port );
    mCallbackTraceList.append( pCallbackTrace );
-   mEvent.signal(NULL);
+   mEvent.signal(0);
 
 }
 
@@ -177,7 +177,6 @@ void OutputProcessorFixture::handleOutputMessage( SipMessage& message,
 // 'numberOfMessages' received by the processor
 bool OutputProcessorFixture::waitForMessage(long maxWaitInSecs )
 {
-   int index;
    bool bMessagesReceived = false;
 
    {

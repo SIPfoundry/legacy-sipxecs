@@ -100,7 +100,7 @@ public:
 
     Connection* addParty(const char* partyAddress, const char* callController,
                          const char* originalCallConnectionAddress, const char* pNewCallId,
-                         CONTACT_ID contactId = 0, const void* pDisplay = NULL,
+                         ContactId contactId = 0, const void* pDisplay = NULL,
                          const char* originalCallId = NULL,
                          const char* paiAddress = NULL);
 
@@ -319,7 +319,7 @@ protected:
     void handleGetTermConnections(OsMsg* pEventMessage);
     void handleSetOutboundLine(OsMsg* pEventMessage);
 
-    void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    void getLocalContactAddresses( ContactAddress contacts[],
         size_t nMaxContacts,
         size_t& nActualContacts) ;
 

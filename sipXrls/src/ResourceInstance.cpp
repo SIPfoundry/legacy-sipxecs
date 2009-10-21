@@ -222,7 +222,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
             else
             {
                // Check that we don't have too many dialogs.
-               if ((int)mXmlDialogs.entries() <
+               if (mXmlDialogs.entries() <
                    getResourceListServer()->getMaxDialogsInResInst())
                {
                   mXmlDialogs.insertKeyAndValue(new UtlString(id),

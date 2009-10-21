@@ -143,8 +143,8 @@ public:
     static UtlBoolean processNewFinalMessage(SipUserAgent* sipUa,
         OsMsg* eventMessage);
 
-    void setContactType(CONTACT_TYPE eType) ;
-    void setContactId(CONTACT_ID contactId) { mContactId = contactId; }
+    void setContactType(ContactType eType) ;
+    void setContactId(ContactId contactId) { mContactId = contactId; }
 
 
     /* ============================ ACCESSORS ================================= */
@@ -179,10 +179,10 @@ public:
     /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    CONTACT_TYPE selectCompatibleContactType(const SipMessage& request) ;
+    ContactType selectCompatibleContactType(const SipMessage& request) ;
     //: Select a compatible contact given the URI
 
-    void updateContact(Url* pContactUrl, CONTACT_TYPE eType) ;
+    void updateContact(Url* pContactUrl, ContactType eType) ;
 
     static UtlBoolean requestShouldCreateConnection(const SipMessage* sipMsg,
         SipUserAgent& sipUa,
@@ -259,8 +259,8 @@ private:
     UtlBoolean mIsEarlyMediaFor180;
     UtlString mLineId; //line identifier for incoming calls.
     UtlString mLocalContact;    ///< The local Contact: field value - a URI in name-addr format.
-    CONTACT_TYPE mContactType ;
-    CONTACT_ID mContactId;
+    ContactType mContactType ;
+    ContactId mContactId;
     UtlBoolean mDropping ;
 
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,

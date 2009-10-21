@@ -48,7 +48,8 @@ public:
                          long        timeoutInSecs = 0
                          );
 
-   OsSSLConnectionSocket(int connectedSocketDescriptor, long timeoutInSecs = 0);
+   OsSSLConnectionSocket(int connectedSocketDescriptor,
+                         long timeoutInSecs = 0);
 
    OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor);
 

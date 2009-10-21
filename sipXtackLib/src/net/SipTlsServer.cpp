@@ -1,5 +1,6 @@
 //
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -17,9 +18,11 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
+#include <net/SipServerBroker.h>
 #include <net/SipTlsServer.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
+#include <os/HostAdapterAddress.h>
 #include <os/OsSSLServerSocket.h>
 #include <os/OsSSLConnectionSocket.h>
 
@@ -27,6 +30,9 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 //#define TEST_PRINT
+// Number of connection requests to allow in queue.
+#define ACCEPT_QUEUE_SIZE 64
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -36,48 +42,116 @@
 // Constructor
 SipTlsServer::SipTlsServer(int port,
                            SipUserAgent* userAgent,
-                           UtlBoolean bUseNextAvailablePort) :
+                           UtlBoolean bUseNextAvailablePort,
+                           const char* szBindAddr) :
+   // Use PORT_NONE here to prevent SipTcpServer from opening a socket.
    SipTcpServer(PORT_NONE,
                 userAgent,
-                SIP_TRANSPORT_TLS,
-                "SipTlsServer-%d")
+                "SipTlsServer-%d",
+                FALSE,
+                NULL,
+                SIP_TRANSPORT_TLS)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipTlsServer[%s]::_ port = %d, bUseNextAvailablePort = %d",
-                 getName().data(), port, bUseNextAvailablePort);
+                 "SipTlsServer[%s]::_  '%s' %s port %d szBindAddr = '%s'",
+                 getName().data(), mName.data(),
+                 bUseNextAvailablePort ? "use next available" : "specific",
+                 port, szBindAddr);
 
-   mServerPort = PORT_NONE;
+   // mServerPort is set to PORT_NONE by SipTcpServer::SipTcpServer.
+   mServerPort = port;
+   mpServerBrokerListener = new SipServerBrokerListener(this);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipTlsServer[%s]::_ port %d",
-                 getName().data(), port);
+                 getName().data(), mServerPort);
 
-   if (portIsValid(port))
+   if (szBindAddr && 0 != strcmp(szBindAddr, "0.0.0.0"))
    {
-      OsServerSocket* pServerSocket = new OsSSLServerSocket(64, port);
+      mDefaultIp = szBindAddr;
+      createServerSocket(szBindAddr, mServerPort, bUseNextAvailablePort);
+   }
+   else
+   {
+      int numAddresses = 0;
+      const HostAdapterAddress* adapterAddresses[MAX_IP_ADDRESSES];
+      getAllLocalHostIps(adapterAddresses, numAddresses);
 
-      // If the socket is busy or unbindable and the user requested using the
-      // next available port, try the next SIP_MAX_PORT_RANGE ports.
-      if (bUseNextAvailablePort && !pServerSocket->isOk())
+      for (int i = 0; i < numAddresses; i++)
       {
-         for (int i=1; i<=SIP_MAX_PORT_RANGE; i++)
+         createServerSocket(adapterAddresses[i]->mAddress.data(),
+                            mServerPort,
+                            bUseNextAvailablePort);
+         if (0 == i)
          {
-            delete pServerSocket ;
-            pServerSocket = new OsSSLServerSocket(64, port+i);
-            if (pServerSocket->isOk())
-            {
-               break ;
-            }
+            // use the first IP address in the array
+            // for the 'default ip'
+            mDefaultIp = adapterAddresses[i]->mAddress.data();
          }
-      }
-
-      if (pServerSocket->isOk())
-      {
-         mServerPort = pServerSocket->getLocalHostPort() ;
+         delete adapterAddresses[i];
       }
    }
 
+   // Correct mDefaultPort, which is set to SIP_PORT in SipProtocolServerBase.
    mDefaultPort = SIP_TLS_PORT;
+}
+
+UtlBoolean SipTlsServer::createServerSocket(const char* szBindAddr,
+                                            int& port,
+                                            const UtlBoolean& bUseNextAvailablePort)
+{
+   UtlBoolean bSuccess = TRUE;
+
+   OsServerSocket* pSocket =
+      new OsSSLServerSocket(ACCEPT_QUEUE_SIZE, port, szBindAddr);
+
+   // If the socket is busy or unbindable and the user requested using the
+   // next available port, try the next SIP_MAX_PORT_RANGE ports.
+   if (bUseNextAvailablePort)
+   {
+      for (int i=1; !pSocket->isOk() && i<=SIP_MAX_PORT_RANGE; i++)
+      {
+         delete pSocket;
+         pSocket = new OsSSLServerSocket(ACCEPT_QUEUE_SIZE, port+i, szBindAddr);
+      }
+   }
+
+   // If we opened the socket.
+   if (pSocket->isOk())
+   {
+      // Inform the SipUserAgent of the contact address.
+      if (mSipUserAgent)
+      {
+         port = pSocket->getLocalHostPort();
+         ContactAddress contact;
+         strcpy(contact.cIpAddress, szBindAddr);
+         contact.iPort = port;
+         contact.eContactType = ContactAddress::LOCAL;
+         char szAdapterName[16];
+         memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
+
+         getContactAdapterName(szAdapterName, contact.cIpAddress);
+
+         strcpy(contact.cInterface, szAdapterName);
+         mSipUserAgent->addContactAddress(contact);
+      }
+
+      // Add address and port to the maps.
+      UtlString* address = new UtlString(szBindAddr);
+      mServerSocketMap.insertKeyAndValue(address, pSocket);
+      mServerPortMap.insertKeyAndValue(address,
+                                       new UtlInt(pSocket->getLocalHostPort()));
+      // pSocket is owned by the SipServerBroker.
+      mServerBrokers.insertKeyAndValue(new UtlString(szBindAddr),
+                                       new SipServerBroker(mpServerBrokerListener,
+                                                           pSocket));
+   }
+   else
+   {
+      bSuccess = false;
+   }
+
+   return bSuccess;
 }
 
 // Destructor
@@ -88,7 +162,10 @@ SipTlsServer::~SipTlsServer()
 
 /* ============================ MANIPULATORS ============================== */
 
-OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress, const char* localIp, bool& existingSocketReused)
+OsSocket* SipTlsServer::buildClientSocket(int hostPort,
+                                          const char* hostAddress,
+                                          const char* localIp,
+                                          bool& existingSocketReused)
 {
    OsSocket* socket;
    socket = new OsSSLConnectionSocket(hostPort, hostAddress);
@@ -99,12 +176,6 @@ OsSocket* SipTlsServer::buildClientSocket(int hostPort, const char* hostAddress,
 }
 
 /* ============================ ACCESSORS ================================= */
-
-// The local server port for this server
-int SipTlsServer::getServerPort() const
-{
-    return mServerPort;
-}
 
 /* ============================ INQUIRY =================================== */
 

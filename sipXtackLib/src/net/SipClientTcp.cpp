@@ -13,20 +13,8 @@
 #include <stdio.h>
 
 // APPLICATION INCLUDES
-#include <net/SipMessage.h>
 #include <net/SipClientTcp.h>
-#include <net/SipMessageEvent.h>
 #include <net/SipUserAgentBase.h>
-
-#include <os/OsDateTime.h>
-#include <os/OsDatagramSocket.h>
-#include <os/OsStatus.h>
-#include <os/OsSysLog.h>
-#include <os/OsEvent.h>
-
-#include <utl/XmlContent.h>
-
-#define SIP_DEFAULT_RTT 500
 
 #define LOG_TIME
 
@@ -64,7 +52,11 @@ SipClientTcp::SipClientTcp(OsSocket* socket,
                            SipProtocolServerBase* pSipServer,
                            SipUserAgentBase* sipUA,
                            UtlBoolean bIsSharedSocket) :
-   SipClientWriteBuffer(socket, pSipServer, sipUA, "SipClientTcp-%d", bIsSharedSocket)
+   SipClientWriteBuffer(socket,
+                        pSipServer,
+                        sipUA,
+                        "SipClientTcp-%d",
+                        bIsSharedSocket)
 {
 }
 

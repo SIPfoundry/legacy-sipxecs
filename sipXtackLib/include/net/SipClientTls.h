@@ -16,13 +16,9 @@
 //#include <...>
 
 // APPLICATION INCLUDES
-#include <os/OsSocket.h>
-#include <os/OsTask.h>
-#include <os/OsServerTask.h>
-#include <os/OsBSem.h>
 #include <net/SipClient.h>
-#include <net/SipMessage.h>
-#include <utl/UtlContainableAtomic.h>
+#include <net/SipClientWriteBuffer.h>
+#include <os/OsSocket.h>
 
 // DEFINES
 // MACROS
@@ -37,7 +33,7 @@ class OsEvent;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
-class SipClientTls : public SipClient
+class SipClientTls : public SipClientWriteBuffer
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -53,11 +49,6 @@ public:
    virtual ~SipClientTls();
 
 /* ============================ MANIPULATORS ============================== */
-
-   // Send a message.  Executed by the thread.
-   virtual void sendMessage(const SipMessage& message,
-                            const char* address,
-                            int port);
 
 /* ============================ ACCESSORS ================================= */
 

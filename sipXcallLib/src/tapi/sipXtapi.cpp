@@ -685,9 +685,9 @@ SIPXTAPI_API SIPX_RESULT sipxCallAccept(const SIPX_CALL   hCall,
                 pInst->pCallManager->unholdLocalTerminalConnection(callId.data()) ;
             }
             pInst->pCallManager->acceptConnection(callId.data(),
-                    remoteAddress.data(),
-                    AUTO,
-                    (void*)pDisplay) ;
+                                                  remoteAddress.data(),
+                                                  ContactAddress::AUTO,
+                                                  (void*) pDisplay);
         }
         sr = SIPX_RESULT_SUCCESS ;
     }
@@ -950,8 +950,8 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
 
     if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
     {
-        CONTACT_ADDRESS* pContact = NULL;
-        CONTACT_TYPE contactType;
+        ContactAddress* pContact = NULL;
+        ContactType contactType;
 
         if (contactId > 0)
         {
@@ -961,7 +961,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
         }
         else
         {
-            contactType = AUTO;
+            contactType = ContactAddress::AUTO;
         }
 
         if (szAddress)
@@ -1015,14 +1015,14 @@ SIPXTAPI_API SIPX_RESULT sipxCallConnect(SIPX_CALL hCall,
             {
                 status = pInst->pCallManager->connect(callId.data(), szAddress,
                                                       NULL, sessionId.data(),
-                                                      (CONTACT_ID) contactId, &pData->display,
+                                                      (ContactId) contactId, &pData->display,
                                                       sendPAIheader) ;
             }
             else
             {
                 status = pInst->pCallManager->connect(callId.data(), szAddress,
                                                       NULL, sessionId.data(),
-                                                      (CONTACT_ID) contactId, NULL,
+                                                      (ContactId) contactId, NULL,
                                                       sendPAIheader) ;
             }
             if (status == PT_SUCCESS)
@@ -2551,7 +2551,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     // Issue connect
                     PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(),
                                                                           szAddress, NULL, sessionId.data(),
-                                                                          (CONTACT_ID) contactId, &pCallData->display, 0) ;
+                                                                          (ContactId) contactId, &pCallData->display, 0) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -2604,7 +2604,7 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
 
                     PtStatus status = pData->pInst->pCallManager->connect(pData->strCallId->data(), szAddress,
                                                                           NULL, sessionId.data(),
-                                                                          (CONTACT_ID) contactId, pDisplay, 0) ;
+                                                                          (ContactId) contactId, pDisplay, 0) ;
                     if (status == PT_SUCCESS)
                     {
                         rc = SIPX_RESULT_SUCCESS ;
@@ -3684,8 +3684,8 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
 
             // Set the preferred contact
             Url uriPreferredContact ;
-            CONTACT_ADDRESS* pContact = NULL;
-            CONTACT_TYPE contactType = AUTO;
+            ContactAddress* pContact = NULL;
+            ContactType contactType = ContactAddress::AUTO;
 
             pContact = pInst->pSipUserAgent->getContactDb().find(contactId);
             if (pContact)
@@ -5105,11 +5105,11 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
     nActualAddresses = 0 ;
     if (pInst && pInst->pSipUserAgent && nMaxAddresses > 0)
     {
-        CONTACT_ADDRESS* contacts[MAX_IP_ADDRESSES];
+        ContactAddress* contacts[MAX_IP_ADDRESSES];
         int numContacts = 0;
         pInst->pSipUserAgent->getContactAddresses(contacts, numContacts);
 
-        // translate from CONTACT_ADDRESSes to SIPX_CONTACT_ADDRESSes
+        // translate from ContactAddresses to SIPX_CONTACT_ADDRESSes
         for (unsigned int i = 0; (i < (unsigned int)numContacts) && (i < nMaxAddresses); i++)
         {
             strcpy(addresses[i].cInterface, contacts[i]->cInterface);

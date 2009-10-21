@@ -235,7 +235,7 @@ public:
                               OsProtectedEvent* ev = NULL);
 
     /// Set the preferred contact type for this media connection
-    virtual void setContactType(int connectionId, CONTACT_TYPE eType) ;
+    virtual void setContactType(int connectionId, ContactType eType) ;
 
     /// Return the pointer of ConferenceEngine object
     ConferenceEngine* const getConferenceEnginePtr();

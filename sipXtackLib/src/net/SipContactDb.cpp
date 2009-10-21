@@ -50,7 +50,7 @@ SipContactDb::~SipContactDb()
         UtlVoidPtr* pValue = dynamic_cast<UtlVoidPtr*>(iterator.value());
         if (pValue)
         {
-           delete (CONTACT_ADDRESS*) pValue->getValue();
+           delete (ContactAddress*) pValue->getValue();
         }
     }
     mContacts.destroyAll();
@@ -68,7 +68,7 @@ SipContactDb::operator=(const SipContactDb& rhs)
    return *this;
 }
 
-const bool SipContactDb::addContact(CONTACT_ADDRESS& contact)
+const bool SipContactDb::addContact(ContactAddress& contact)
 {
     OsLock lock(mLock);
     bool bRet = false;
@@ -79,8 +79,9 @@ const bool SipContactDb::addContact(CONTACT_ADDRESS& contact)
     {
         assignContactId(contact);
 
-        CONTACT_ADDRESS* pContactCopy = new CONTACT_ADDRESS(contact);
-        mContacts.insertKeyAndValue(new UtlInt(pContactCopy->id), new UtlVoidPtr(pContactCopy));
+        ContactAddress* pContactCopy = new ContactAddress(contact);
+        mContacts.insertKeyAndValue(new UtlInt(pContactCopy->id),
+                                    new UtlVoidPtr(pContactCopy));
         bRet = true;
     }
     else
@@ -92,23 +93,23 @@ const bool SipContactDb::addContact(CONTACT_ADDRESS& contact)
     return bRet;
 }
 
-const bool SipContactDb::deleteContact(const CONTACT_ID id)
+const bool SipContactDb::deleteContact(const ContactId id)
 {
     OsLock lock(mLock);
     UtlInt idKey(id);
     return mContacts.destroy(&idKey);
 }
 
-CONTACT_ADDRESS* SipContactDb::find(CONTACT_ID id)
+ContactAddress* SipContactDb::find(ContactId id)
 {
     OsLock lock(mLock);
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt idKey(id);
 
     UtlVoidPtr* pValue = (UtlVoidPtr*)mContacts.findValue(&idKey);
     if (pValue)
     {
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
     }
 
     return pContact;
@@ -116,21 +117,21 @@ CONTACT_ADDRESS* SipContactDb::find(CONTACT_ID id)
 
 
 // Finds the first contact by a given contact type
-CONTACT_ADDRESS* SipContactDb::findByType(CONTACT_TYPE type)
+ContactAddress* SipContactDb::findByType(ContactType type)
 {
     OsLock lock(mLock);
     UtlHashMapIterator iterator(mContacts);
-    CONTACT_ADDRESS* pRC = NULL ;
+    ContactAddress* pRC = NULL ;
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
         assert(pContact) ;
         if (pContact->eContactType == type)
         {
@@ -143,33 +144,33 @@ CONTACT_ADDRESS* SipContactDb::findByType(CONTACT_TYPE type)
 }
 
 // Find the local contact from a contact id
-CONTACT_ADDRESS* SipContactDb::getLocalContact(CONTACT_ID id)
+ContactAddress* SipContactDb::getLocalContact(ContactId id)
 {
     OsLock lock(mLock);
 
-    CONTACT_ADDRESS* pRC = NULL ;
-    CONTACT_ADDRESS* pOriginal = find(id) ;
+    ContactAddress* pRC = NULL;
+    ContactAddress* pOriginal = find(id);
     if (pOriginal)
     {
-        if (pOriginal->eContactType == LOCAL)
+        if (pOriginal->eContactType == ContactAddress::LOCAL)
         {
-            pRC = pOriginal ;
+            pRC = pOriginal;
         }
         else
         {
             UtlHashMapIterator iterator(mContacts);
             UtlVoidPtr* pValue = NULL;
-            CONTACT_ADDRESS* pContact = NULL;
+            ContactAddress* pContact = NULL;
             UtlInt* pKey;
             while ((pKey = dynamic_cast<UtlInt*>(iterator())))
             {
 	        pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
                 assert(pValue);
 
-                pContact = (CONTACT_ADDRESS*)pValue->getValue();
+                pContact = (ContactAddress*)pValue->getValue();
                 assert(pContact) ;
                 if ((strcmp(pContact->cInterface, pOriginal->cInterface) == 0) &&
-                    (pContact->eContactType == LOCAL))
+                    (pContact->eContactType == ContactAddress::LOCAL))
                 {
                     pRC = pContact ;
                     break ;
@@ -182,21 +183,21 @@ CONTACT_ADDRESS* SipContactDb::getLocalContact(CONTACT_ID id)
 }
 
 
-CONTACT_ADDRESS* SipContactDb::find(const UtlString ipAddress, const int port)
+ContactAddress* SipContactDb::find(const UtlString ipAddress, const int port)
 {
     OsLock lock(mLock);
     bool bFound = false;
     UtlHashMapIterator iterator(mContacts);
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
         if (strcmp(pContact->cIpAddress, ipAddress.data()) == 0)
         {
             if (port < 0 || port == pContact->iPort)
@@ -215,14 +216,14 @@ CONTACT_ADDRESS* SipContactDb::find(const UtlString ipAddress, const int port)
     return pContact;
 }
 
-void SipContactDb::getAll(CONTACT_ADDRESS* contacts[], int& actualNum) const
+void SipContactDb::getAll(ContactAddress* contacts[], int& actualNum) const
 {
 
     OsLock lock(mLock);
     UtlHashMapIterator iterator(mContacts);
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     actualNum = 0; // array index
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
@@ -230,16 +231,16 @@ void SipContactDb::getAll(CONTACT_ADDRESS* contacts[], int& actualNum) const
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
         contacts[actualNum] = pContact;
         actualNum++;
     }
 
     return;
 }
-const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
+const bool SipContactDb::getRecordForAdapter(ContactAddress& contact,
                                              const char* szAdapter,
-                                             const CONTACT_TYPE typeFilter) const
+                                             const ContactType typeFilter) const
 {
     bool bRet = false;
 
@@ -247,14 +248,14 @@ const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
     UtlHashMapIterator iterator(mContacts);
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
 
         if (0 != strcmp(pContact->cInterface, szAdapter))
         {
@@ -272,17 +273,17 @@ const bool SipContactDb::getRecordForAdapter(CONTACT_ADDRESS& contact,
     return bRet;
 }
 
-void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
+void SipContactDb::getAllForAdapter(const ContactAddress* contacts[],
                                     const char* szAdapter,
                                     int& actualNum,
-                                    const CONTACT_TYPE typeFilter) const
+                                    const ContactType typeFilter) const
 {
 
     OsLock lock(mLock);
     UtlHashMapIterator iterator(mContacts);
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     actualNum = 0; // array index
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
@@ -290,13 +291,14 @@ void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
 
         if (0 != strcmp(pContact->cInterface, szAdapter))
         {
             continue;
         }
-        if (typeFilter != ALL && pContact->eContactType != typeFilter)
+        if (typeFilter != ContactAddress::ALL &&
+            pContact->eContactType != typeFilter)
         {
             continue;
         }
@@ -320,7 +322,7 @@ void SipContactDb::getAllForAdapter(const CONTACT_ADDRESS* contacts[],
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-const bool SipContactDb::isDuplicate(const CONTACT_ID id)
+const bool SipContactDb::isDuplicate(const ContactId id)
 {
     OsLock lock(mLock);
     bool bRet = false;
@@ -341,14 +343,14 @@ const bool SipContactDb::isDuplicate(const UtlString& ipAddress, const int port)
     UtlHashMapIterator iterator(mContacts);
 
     UtlVoidPtr* pValue = NULL;
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     UtlInt* pKey;
     while ((pKey = dynamic_cast<UtlInt*>(iterator())))
     {
         pValue = dynamic_cast<UtlVoidPtr*>(mContacts.findValue(pKey));
         assert(pValue);
 
-        pContact = (CONTACT_ADDRESS*)pValue->getValue();
+        pContact = (ContactAddress*)pValue->getValue();
         if (strcmp(pContact->cIpAddress, ipAddress.data()) == 0)
         {
             if (port < 0 || port == pContact->iPort)
@@ -361,7 +363,7 @@ const bool SipContactDb::isDuplicate(const UtlString& ipAddress, const int port)
     return bRet;
 }
 
-const bool SipContactDb::assignContactId(CONTACT_ADDRESS& contact)
+const bool SipContactDb::assignContactId(ContactAddress& contact)
 {
     OsLock lock(mLock);
 

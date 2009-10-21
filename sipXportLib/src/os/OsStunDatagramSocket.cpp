@@ -586,7 +586,7 @@ void OsStunDatagramSocket::markStunSuccess()
     // to due error
     if (mCurrentKeepAlivePeriod != mKeepAlivePeriod)
     {
-        setKeepAlivePeriod(mKeepAlivePeriod) ;
+        setKeepAlivePeriod(mKeepAlivePeriod);
     }
 
     // Signal external identities interested in the STUN outcome.
@@ -597,15 +597,15 @@ void OsStunDatagramSocket::markStunSuccess()
 
         getContactAdapterName(szAdapterName, mLocalIp.data());
 
-        CONTACT_ADDRESS* pContact = new CONTACT_ADDRESS();
+        ContactAddress* pContact = new ContactAddress();
 
         strcpy(pContact->cIpAddress, mStunAddress);
         strcpy(pContact->cInterface, szAdapterName);
-        pContact->eContactType = NAT_MAPPED;
+        pContact->eContactType = ContactAddress::NAT_MAPPED;
         pContact->iPort = mStunPort;
 
-        mpNotification->signal((intptr_t)pContact) ;
-        mpNotification = NULL ;
+        mpNotification->signal((intptr_t) pContact);
+        mpNotification = NULL;
     }
 }
 

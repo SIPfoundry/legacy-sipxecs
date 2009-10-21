@@ -53,35 +53,36 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
-/**
- * CONTACT_TYPE is an enumeration of possible address types for use with
- * SIP contacts and SDP connection information.
- */
-typedef enum
-{
-    LOCAL,      /**< Local address for a particular interface */
-    NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
-    RELAY,      /**< Relay address (e.g. TURN)                */
-    CONFIG,     /**< Manually configured address              */
-
-    AUTO = -1,  /**< Automatic contact selection; used for API
-                     parameters */
-    ALL  = -2   /**< Filter value for the SipContactDb, for looking
-                     up records of all types. */
-
-} CONTACT_TYPE ;
-
 
 /** Type for storing Contact Record identifiers */
-typedef int CONTACT_ID;
+typedef int ContactId;
 
 /**
- * The CONTACT_ADDRESS struct includes contact information (ip and port),
+ * The ContactAddress class includes contact information (ip and port),
  * address source type, and interface.
  */
-struct CONTACT_ADDRESS
+class ContactAddress
 {
-    CONTACT_ADDRESS()
+  public:
+
+    /**
+     * ContactType is an enumeration of possible address types for use with
+     * SIP contacts and SDP connection information.
+     */
+    enum ContactType_e
+    {
+        LOCAL,      /**< Local address for a particular interface */
+        NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
+        RELAY,      /**< Relay address (e.g. TURN)                */
+        CONFIG,     /**< Manually configured address              */
+
+        AUTO = -1,  /**< Automatic contact selection; used for API
+                         parameters */
+        ALL  = -2   /**< Filter value for the SipContactDb, for looking
+                         up records of all types. */
+    };
+
+    ContactAddress()
     {
         memset((void*)cInterface, 0, sizeof(cInterface));
         memset((void*)cIpAddress, 0, sizeof(cIpAddress));
@@ -91,7 +92,7 @@ struct CONTACT_ADDRESS
     }
 
     // copy contstructor
-    CONTACT_ADDRESS(const CONTACT_ADDRESS& ref)
+    ContactAddress(const ContactAddress& ref)
     {
         strcpy(this->cInterface, ref.cInterface);
         strcpy(this->cIpAddress, ref.cIpAddress);
@@ -101,7 +102,7 @@ struct CONTACT_ADDRESS
     }
 
     // assignment operator
-    CONTACT_ADDRESS& operator=(const CONTACT_ADDRESS& ref)
+    ContactAddress& operator=(const ContactAddress& ref)
     {
         // check for assignment to self
         if (this == &ref) return *this;
@@ -115,12 +116,19 @@ struct CONTACT_ADDRESS
         return *this;
     }
 
-    CONTACT_ID   id;              /**< Contact record Id */
-    CONTACT_TYPE eContactType ;   /**< Address type/source */
-    char              cInterface[32] ; /**< Source interface    */
-    char              cIpAddress[32] ; /**< IP Address          */
-    int               iPort ;          /**< Port                */
+    ContactId          id;              /**< Contact record Id */
+    enum ContactType_e eContactType;    /**< Address type/source */
+    char               cInterface[32];  /**< Source interface    */
+    char               cIpAddress[32];  /**< IP Address          */
+    int                iPort;           /**< Port                */
 };
+
+/**
+ * ContactType is an enumeration of possible address types for use with
+ * SIP contacts and SDP connection information.
+ */
+typedef enum ContactAddress::ContactType_e ContactType;
+
 
 // TYPEDEFS
 

@@ -269,7 +269,7 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
 {
     SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
                                        // sipxtapi event listeners
-    CONTACT_ADDRESS* pContact = NULL;
+    ContactAddress* pContact = NULL;
     pMsg->getEventData((intptr_t&)pContact) ;
 
     SIPX_CONFIG_INFO eventInfo ;

@@ -310,7 +310,7 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0,
+                             ContactId contactId = 0,
                              const void* pDisplay = NULL,
                              const bool sendPAIheader = 0) = 0;
 
@@ -452,12 +452,12 @@ public:
      */
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO,
+                                  ContactType contactType = ContactAddress::AUTO,
                                   const void* hWnd = NULL) = 0;
 
     virtual void setOutboundLineForCall(const char* callId,
                                         const char* address,
-                                        CONTACT_TYPE eType = AUTO) = 0;
+                                        ContactType eType = ContactAddress::AUTO) = 0;
 
 
     //! Reject the incoming connection

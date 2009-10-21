@@ -170,7 +170,7 @@ public:
            int& dtmfterm,
            OsProtectedEvent* ev = NULL);
 
-   virtual void setContactType(int connectionId, CONTACT_TYPE eType) ;
+   virtual void setContactType(int connectionId, ContactType eType) ;
      //: Set the contact type for this Phone media interface.
      //  It is important to set the contact type BEFORE creating the
      //  connection -- setting after the connection has been created
