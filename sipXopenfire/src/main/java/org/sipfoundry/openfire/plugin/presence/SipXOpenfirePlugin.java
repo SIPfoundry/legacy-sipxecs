@@ -50,6 +50,9 @@ import org.xmpp.component.ComponentManagerFactory;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.Presence;
+import org.jivesoftware.openfire.muc.HistoryStrategy;
+import org.jivesoftware.openfire.muc.cluster.UpdateHistoryStrategy;
+
 
 public class SipXOpenfirePlugin implements Plugin, Component {
 
@@ -675,7 +678,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 .getMultiUserChatService(subdomain);
         if (mucService == null) {
             mucService = XMPPServer.getInstance().getMultiUserChatManager()
-                    .createMultiUserChatService(subdomain, description, false);
+                    .createMultiUserChatService(subdomain, "default MUC service", false);
             Collection<JID> admins = XMPPServer.getInstance().getAdmins();
             JID admin = admins.iterator().next();
             mucService.addUserAllowedToCreate(admin.toBareJID());
@@ -684,6 +687,13 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucService.setLogConversationsTimeout(60);
             mucService.setLogConversationBatchSize(100);
             mucService.setRoomCreationRestricted(true);
+            HistoryStrategy historyStrategy = new HistoryStrategy(null);
+            historyStrategy.setType(HistoryStrategy.Type.none);
+            new UpdateHistoryStrategy(subdomain, historyStrategy).run();
+        }
+        else{
+            mucService.removeUserAllowedToCreate(ownerJid);  //remove first to avoid duplicated entries
+            mucService.addUserAllowedToCreate(ownerJid);
         }
 
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));

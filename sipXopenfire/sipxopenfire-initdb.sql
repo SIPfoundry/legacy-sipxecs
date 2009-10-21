@@ -406,3 +406,16 @@ INSERT INTO ofProperty (name, propValue)
 
 INSERT INTO ofProperty (name, propValue)
  VALUES('provider.vcard.className','org.jivesoftware.openfire.vcard.DefaultVCardProvider');
+
+INSERT INTO ofProperty (name, propValue)
+ VALUES('update.notify-admins','false');
+
+INSERT INTO ofProperty (name, propValue)
+ VALUES('update.service-enabled','false');
+
+INSERT INTO ofProperty (name, propValue)
+ VALUES('register.inband','false');
+
+INSERT INTO ofProperty (name, propValue)
+ VALUES('register.password','false');
+
