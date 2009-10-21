@@ -786,7 +786,11 @@ SipRegistrarServer::applyUpdatesToDirectory(
    // Set to true if an error is found in the updates list.
    bool error_found = false;
    // Record the peer that is the primary for these updates.
-   RegistrarPeer* peer;
+   // (The initialization is to keep the compiler from complaining.
+   // The only way that 'peer' can not be assigned a value in the following
+   // loop is if 'updates' is empty, in which case, the value of 'peer'
+   // will not be used.)
+   RegistrarPeer* peer = NULL;
 
    {
       // Loop over the updates and check that they are all for the same primary registrar.
@@ -1105,7 +1109,11 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 #endif
                         bool allExpirationsEqual = false;
                         bool firstConsideredContact = true;
-                        int  commonExpirationTime;
+                        // commonExpirationTime is used only if allExpirationsEqual
+                        // is true, and when the latter is set, commonExpirationTime
+                        // is set.  But we must initialize it to stop the compiler
+                        // from complaining.
+                        int commonExpirationTime = 0;
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
                         {
