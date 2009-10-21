@@ -1383,11 +1383,8 @@ class CallControlManager implements SymmitronResetHandler {
          DialogContext dialogContext = DialogContext.get(dialog);
          Response response = responseEvent.getResponse();
          long seqno = SipUtilities.getSeqNumber(response);
-    	/*
-         * We sent the other side a re-OFFER.
-         */
-    	PendingDialogAction pendingOperation = dialogContext.getPendingAction();
-        if (response.getStatusCode() == Response.OK) {
+      	 PendingDialogAction pendingOperation = dialogContext.getPendingAction();
+         if (response.getStatusCode() == Response.OK) {
             RtpSession rtpSession = DialogContext.getRtpSession(dialog);
             SessionDescription inboundSessionDescription = SipUtilities
                     .getSessionDescription(response);
@@ -1397,19 +1394,7 @@ class CallControlManager implements SymmitronResetHandler {
             Request ack = dialog.createAck(seqno);
             DialogContext.get(dialog).sendAck(ack);
         }
-        if (pendingOperation == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
-        	dialogContext.setPendingAction(PendingDialogAction.NONE);
-        	DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog); 
-        	SessionDescription inboundSessionDescription = SipUtilities.getSessionDescription(response);
-        	RtpSession rtpSession = peerDialogContext.getRtpSession();
-        	rtpSession.getReceiver().setSessionDescription(inboundSessionDescription);
-        	SipProvider sipProvider = ((DialogExt)dialog).getSipProvider();
-        	Request reInvite = peerDialogContext.getDialog().createRequest(Request.INVITE);
-        	SipUtilities.setSessionDescription(reInvite,inboundSessionDescription);
-        	ClientTransaction clientTransaction = sipProvider.getNewClientTransaction(reInvite);
-        	TransactionContext.attach(clientTransaction, Operation.SEND_REINVITE_TO_PHONE);
-        	peerDialogContext.sendReInvite(clientTransaction);
-        }
+        
         return;
     }
 

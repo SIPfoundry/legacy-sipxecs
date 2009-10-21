@@ -130,14 +130,7 @@ public class CallControlUtilities {
             DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);
             
             
-            
-            if ( SipUtilities.getNonTelephoneEventMediaFormats(sdpOffer).size() > 1 ) {
-            	DialogContext.get(reOfferDialog).setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-            }
-            
-            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer);
-
-          
+            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer);   
 
         } else {
             dialogContext.getBackToBackUserAgent().tearDown(
