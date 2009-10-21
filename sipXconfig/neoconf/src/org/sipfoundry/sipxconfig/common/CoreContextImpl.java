@@ -465,6 +465,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public boolean isImIdUnique(User user) {
+        if (user.getImId() == null) {
+            return true;
+        }
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds", new String[] {
             QUERY_IM_ID, QUERY_USER_ID
         }, new Object[] {

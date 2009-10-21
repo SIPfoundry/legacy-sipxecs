@@ -24,11 +24,14 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testIsImIdUnique() throws Exception {
-        loadDataSetXml("common/Users.xml");
+        loadDataSet("common/users-im-ids.db.xml");
         // check im id uniqueness for a new user
         User user = new User();
         user.setUniqueId();
+        assertTrue("ImId unique when no IM ID configured", m_coreContext.isImIdUnique(user));
         user.setImId("openfire1");
+        assertFalse(m_coreContext.isImIdUnique(user));
+        user.setImId("OpenFire1");
         assertFalse(m_coreContext.isImIdUnique(user));
         user.setImId("openfire22");
         assertTrue(m_coreContext.isImIdUnique(user));
