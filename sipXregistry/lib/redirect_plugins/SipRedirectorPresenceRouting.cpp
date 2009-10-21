@@ -450,6 +450,13 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
              }
              else
              {
+                keyName = INSTANCE_HANDLE;
+                UtlString* pInstanceHandle = dynamic_cast<UtlString*>( pMap->findValue( &keyName ) );
+                if( pInstanceHandle )
+                {
+                   // set openfire instance value 
+                   mOpenfireInstanceHandle = *pInstanceHandle;
+                }
                 rc = OS_SUCCESS;
              }
           }

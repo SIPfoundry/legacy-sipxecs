@@ -29,6 +29,7 @@ import javax.sip.SipException;
 import javax.sip.SipFactory;
 import javax.sip.SipListener;
 import javax.sip.SipProvider;
+import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
@@ -54,6 +55,7 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.openfire.config.WatcherConfig;
+import org.sipfoundry.sipcallwatcher.SubscribeDialog.SubscribeDialog;
 
 /**
  * Class implementing the SipListener interface and is responsible for creating and refreshing its
@@ -74,228 +76,12 @@ public class Subscriber implements SipListener {
     // ////////////////// //
     private ContactHeader contactHeader;
     private String transport;
-    private int count;
-    private Dialog subscriberDialog;
-    private Dialog forkedDialog;
-    private ClientTransaction subscribeTransaction;
     private WatcherConfig watcherConfig;
-    private Timer refreshTimer; // tracks the time when a re-subscribe is required to refresh the
-    // subscription
-    private Timer subscribeRetryTimer; // used to provoke retries when dialog-forming SUBSCRIBEs
-    // fail to establish a dialog
-    private Timer subscriptionExpiryTimer; // tracks the expiration of the subsctiption
     private ResourcesDialogInformation resourcesDialogInformation = new ResourcesDialogInformation();
-    private boolean bSubscriptionActive;
-    private int rlmiVersion;
-
+    private SubscribeDialog activeSubscribeDialog = new SubscribeDialog( this );
     private ResourceStateChangeListener resourceStateChangeListener;
     private SipStackBean stackBean;
     private SipProvider sipProvider;
-
-    // ////////////////
-    // inner classes //
-    // ///////////// //
-
-    /**
-     * Encapsulates information about the active dialogs of a specific resource.
-     * 
-     */
-    class DialogInformation {
-        /*
-         * maps active dialog Ids to their state (confirmed, trying, early, proceeding or
-         * terminated) according to RFC 4235
-         */
-        private Map<String, String> activeDialogStates = new HashMap<String, String>();
-        /* state of a resource considering all its dialogs */
-        private SipResourceState compoundState = SipResourceState.UNDETERMINED;
-        /* internal Id used to track entries that have been updated */
-        private int updateId = -1;
-        private String resourceName;
-
-        public DialogInformation(String resourceName) {
-            logger.debug("creating dialog Information for " + resourceName);
-            this.resourceName = resourceName;
-
-        }
-
-        public boolean updateDialogStates(boolean isFullState,
-                Collection<DialogInfoMessagePart.DialogInfo> updatedDialogs, int updateId) {
-            boolean hasStateChanged = false;
-            this.updateId = updateId;
-            if (updatedDialogs.size() == 0) {
-                if (isFullState) {
-                    // Full state of the resource is an empty list of dialogs...
-                    // There are no dialogs associated with this resource so it
-                    // is clearly idle.
-                    activeDialogStates.clear();
-                    if (!this.compoundState.equals(SipResourceState.IDLE)) {
-                        hasStateChanged = true;
-                        this.compoundState = SipResourceState.IDLE;
-                    }
-                }
-            } else {
-                if (isFullState) {
-                    /*
-                     * the list of dialogs is complete. We can replace all the dialogs we had with
-                     * the ones supplied if any.
-                     */
-                    activeDialogStates.clear();
-                }
-                // update the dialogs we have with the ones supplied.
-                for (DialogInfoMessagePart.DialogInfo dialogInfo : updatedDialogs) {
-                    // we only track 'active' dialogs
-                    if (!dialogInfo.getState().equals("terminated")) {
-                        activeDialogStates.put(dialogInfo.getId(), dialogInfo.getState());
-                    } else {
-                        // dialog is terminated - discontinue its tracking
-                        activeDialogStates.remove(dialogInfo.getId());
-                    }
-                }
-                hasStateChanged = computeCompoundState();
-            }
-
-            logger.debug("resource " + this.resourceName + " hasStateChanged = "
-                    + hasStateChanged);
-            return hasStateChanged;
-        }
-
-        /**
-         * Computes the state of a resource considering all its dialogs. This method sets the
-         * value of instance variable 'compoundState' to either BUSY or IDLE accordingly.
-         * 
-         * @return - true if compoundState got changed
-         */
-        private boolean computeCompoundState() {
-            boolean hasStateChanged = false;
-            SipResourceState newCompoundState;
-            if (activeDialogStates.size() > 0) {
-                // at least one active dialog - that makes the resource busy.
-                newCompoundState = SipResourceState.BUSY;
-            } else {
-                // no active dialogs - that makes the resource idle.
-                newCompoundState = SipResourceState.IDLE;
-            }
-            // Set hasStateChanged flag to true and update the compound state
-            // if a state change was detected.
-            if (!this.compoundState.equals(newCompoundState)) {
-
-                hasStateChanged = true;
-                this.compoundState = newCompoundState;
-                logger.debug("resource " + this.resourceName + " stateChanged ");
-            }
-            return hasStateChanged;
-        }
-
-        public SipResourceState getCompoundState() {
-            return compoundState;
-        }
-
-        public int getUpdateId() {
-            return updateId;
-        }
-    }
-
-    /**
-     * Encapsulates the dialog information for all the resources being monitored.
-     * 
-     */
-    private class ResourcesDialogInformation {
-        /* update counter - will be used to track the resources that have been updated */
-        private int updateId = 1;
-        /*
-         * maps a resource name to DialogInformation object storing that resource's active dialogs
-         * and overall state.
-         */
-        private Map<String, DialogInformation> resourcesDialogInfoMap = new HashMap<String, DialogInformation>();
-
-        /**
-         * Updates the state of all the resources based on the supplied dialog updates.
-         * 
-         * @param isFullState - was RLMI a full report or not?
-         * @param dialogsUpdate - list of dialog info updates
-         * @return - map for resources names that experienced a state change as the result of the
-         *         update along with their new state.
-         */
-        public Map<String, SipResourceState> update(boolean isFullState,
-                Collection<RlmiMultipartMessage.ResourceDialogsDescriptor> dialogsUpdate) {
-            logger.debug("update : isFullState " + isFullState + " ndescriptors "
-                    + dialogsUpdate.size());
-            Map<String, SipResourceState> updatedResources = new HashMap<String, SipResourceState>();
-
-            // update the resources one-by-one
-            for (RlmiMultipartMessage.ResourceDialogsDescriptor dialogsDesc : dialogsUpdate) {
-                SipResourceState newCompoundState;
-                if ((newCompoundState = update(dialogsDesc)) != null) {
-                    updatedResources.put(dialogsDesc.getResourceName(), newCompoundState);
-
-                } else {
-                    logger.debug("newCompoundState is null");
-                }
-            }
-
-            // check whether this is a full state report or not.
-            if (isFullState) {
-                // now, discover all the resources that did not get updated. These represent
-                // the resources that are no longer part of the full report which suggests that
-                // they are no longer part of the set of resources that we need to worry about.
-                // Find them and take them out and report their state to be changed to
-                // 'undetermined'
-                // if it is not already that.
-
-                final Iterator<String> mapIter = resourcesDialogInfoMap.keySet().iterator();
-                // do not use enhanced for-loop since we remove elements from the map while
-                // ierating through it
-                while (mapIter.hasNext()) {
-                    String resourceName = mapIter.next();
-                    DialogInformation dialogInfo = resourcesDialogInfoMap.get(resourceName);
-                    if (dialogInfo.getUpdateId() < updateId) {
-                        // this record did not get updated by the full report, remove it.
-                        if (!dialogInfo.getCompoundState().equals(SipResourceState.UNDETERMINED)) {
-                            updatedResources.put(resourceName, SipResourceState.UNDETERMINED);
-
-                        }
-                        mapIter.remove();
-                    }
-                }
-            }
-            updateId++;
-
-            logger.debug("updatedResources = " + updatedResources);
-            return updatedResources;
-        }
-
-        /**
-         * Updates the state of a specific resource based on the supplied information
-         * 
-         * @param dialogsDesc - describes the dialog(s) for a specific resource. Note: a dialog
-         *        descriptor with an empty set indicates that no dialogs are associated with the
-         *        resource.
-         * @return - if update caused a state change then a ResourceState representing the
-         *         resource's new state is returned, otherwise null.
-         */
-        public SipResourceState update(RlmiMultipartMessage.ResourceDialogsDescriptor dialogsDesc) {
-            try {
-                SipResourceState newState = null;
-
-                // locate the record for that resource in our resourcesDialogInfoMap
-                DialogInformation dialogInfo = resourcesDialogInfoMap.get(dialogsDesc
-                        .getResourceName());
-                if (dialogInfo == null) {
-                    dialogInfo = new DialogInformation(dialogsDesc.getResourceName());
-                    resourcesDialogInfoMap.put(dialogsDesc.getResourceName(), dialogInfo);
-                }
-
-                if (dialogInfo.updateDialogStates(dialogsDesc.isFullState(), dialogsDesc
-                        .getDialogsList(), updateId)) {
-                    newState = dialogInfo.getCompoundState();
-                }
-                return newState;
-            } catch (RuntimeException ex) {
-                logger.error("Unexpected exception ", ex);
-                throw ex;
-            }
-        }
-    }
 
     /**
      * Object responsible for initiating and maintaining a resource list registration with a
@@ -314,124 +100,106 @@ public class Subscriber implements SipListener {
 
         this.watcherConfig = CallWatcher.getConfig();
         this.transport = "udp";
-        this.bSubscriptionActive = false;
         this.stackBean = stackBean;
 
         headerFactory = this.stackBean.getHeaderFactory();
         addressFactory = this.stackBean.getAddressFactory();
         messageFactory = this.stackBean.getMessageFactory();
-
     }
 
     public void setProvider(SipProvider provider) {
         this.sipProvider = provider;
     }
 
+    public SipProvider getProvider() {
+        return this.sipProvider;
+    }
+    
+    public SipStackBean getSipStackBean() {
+        return this.stackBean;
+    }
+    
     public void start() {
-        sendDialogFormingSubscribe();
+        activeSubscribeDialog.start();        
     }
 
     public void processRequest(RequestEvent requestReceivedEvent) {
-        Request request = requestReceivedEvent.getRequest();
-        ServerTransaction serverTransactionId = requestReceivedEvent.getServerTransaction();
-        if (request.getMethod().equals(Request.NOTIFY)) {
-            processNotify(requestReceivedEvent, serverTransactionId);
+        if (requestReceivedEvent.getRequest().getMethod().equals(Request.NOTIFY)) {
+            activeSubscribeDialog.processNotifyRequest(requestReceivedEvent);
         }
-
+    }
+                
+    public void processResponse(ResponseEvent responseReceivedEvent) { 
+        activeSubscribeDialog.processResponse(responseReceivedEvent);
+    }
+    
+    public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
+        activeSubscribeDialog.processDialogTerminated(dialogTerminatedEvent);
     }
 
-    public void processNotify(RequestEvent requestEvent,
-                                           ServerTransaction serverTransactionId) {
-        SipProvider provider = (SipProvider) requestEvent.getSource();
-        Request notify = requestEvent.getRequest();
-        try {
-            logger.info("subscriber:  Received NOTIFY #" + this.count++);
-            //TODO: Why would the server transaction ever be null for an incoming request?        
-            if (serverTransactionId == null) {
-                logger.info("subscriber:  null TID.");
-                serverTransactionId = provider.getNewServerTransaction(notify);
+    public void processTransactionTerminated( TransactionTerminatedEvent transactionTerminatedEvent ){
+        activeSubscribeDialog.processTransactionTerminated(transactionTerminatedEvent);
+    }
+
+    public int processNotifyBody( Request notify, int expectedRlmiVersion ) throws CallWatcherException{
+        Map<String, SipResourceState> updatedSipUsersStates = null;
+        // check if this is the NOTIFY carries the content type we are expecting...
+        ContentTypeHeader contentType = (ContentTypeHeader) notify.getHeader(ContentTypeHeader.NAME);
+        if (contentType.getContentType().equals("multipart") && 
+            contentType.getContentSubType().equals("related") && 
+            contentType.getParameter("type").equals("application/rlmi+xml")) 
+        {
+            
+            RlmiMultipartMessage rlmiMultipartMessage;
+            try
+            {
+                rlmiMultipartMessage = new RlmiMultipartMessage(new String(notify.getRawContent()), contentType.getParameter("boundary"));
             }
-            Dialog dialog = serverTransactionId.getDialog();
-            logger.info("Dialog = " + dialog);
-            if (dialog != null) {
-                logger.info("Dialog State = " + dialog.getState());
+            catch (Exception e)
+            {
+                logger.info(e);
+                return expectedRlmiVersion;
             }
-
-            if (dialog != null && dialog == subscriberDialog) {
-                Response response = messageFactory.createResponse(200, notify);
-                ContactHeader contact = (ContactHeader) contactHeader.clone();
-                ((SipURI) contact.getAddress().getURI()).setParameter("id", "sub");
-                response.addHeader(contact);
-                logger.info("Transaction State = " + serverTransactionId.getState());
-                logger.info("Dialog State = " + dialog.getState());
-                serverTransactionId.sendResponse(response);
-
-                SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) notify
-                        .getHeader(SubscriptionStateHeader.NAME);
-                // Subscription is terminated?
-                String state = subscriptionState.getState();
-                Map<String, SipResourceState> updatedSipUsersStates = null;
-                if (state.equalsIgnoreCase(SubscriptionStateHeader.TERMINATED)) {
-                    logger.warn("Subscription in 'terminated' state - dropping dialog and resubscribing");
-                    dialog.delete();
-                } else {
-                    logger.info("Subscriber: state now " + state);
-                    // check if this is the notification we are expecting...
-                    ContentTypeHeader contentType = (ContentTypeHeader) notify
-                            .getHeader(ContentTypeHeader.NAME);
-                    if (contentType.getContentType().equals("multipart")
-                            && contentType.getContentSubType().equals("related")
-                            && contentType.getParameter("type").equals("application/rlmi+xml")) {
-                        RlmiMultipartMessage rlmiMultipartMessage = new RlmiMultipartMessage(
-                                new String(notify.getRawContent()), contentType
-                                        .getParameter("boundary"));
-                        // seed RLMI messages version number if not done already
-                        if (rlmiVersion == -1) {
-                            rlmiVersion = rlmiMultipartMessage.getVersion();
-                            logger.debug("Synchronizing version to " + rlmiVersion);
-                        } else {
-                            // check if we have received the next version we were expecting
-                            if (++rlmiVersion != rlmiMultipartMessage.getVersion()) {
-                                // there is a hole in the versions which means that we
-                                // missed an update. If this is not a full state report
-                                // then terminate the dialog to force a re-subscription to
-                                // resync the state.  A new subscription will automatically
-                                // be re-attempted by the processDialogTerminated() handler 
-                                if (!rlmiMultipartMessage.isFullState()) {
-                                    logger.error("Detected missing RLMI report -> resubscribing");
-                                    terminateDialog(dialog);
-                                    return;
-                                }
-                            }
-                        }
-                        updatedSipUsersStates = resourcesDialogInformation.update(
-                                rlmiMultipartMessage.isFullState(), rlmiMultipartMessage
-                                        .getUpdatedEntitiesStates());
-                        for (String user : updatedSipUsersStates.keySet()) {
-                            SipResourceState resourceState = updatedSipUsersStates.get(user);
-                            // notify state change listener of change
-                            if (Subscriber.this.resourceStateChangeListener != null) {
-                                ResourceStateEvent resourceStateEvent = new ResourceStateEvent(
-                                        Subscriber.this, user, resourceState);
-                                Subscriber.this.resourceStateChangeListener
-                                        .handleResourceStateChange(resourceStateEvent);
-                            } else {
-                                logger.debug("No listener registered " + user + " state "
-                                        + resourceState);
-                            }
-                        }
-
+            
+            // seed RLMI messages version number if not done already
+            if (expectedRlmiVersion == -1) {
+                expectedRlmiVersion = rlmiMultipartMessage.getVersion();
+                logger.debug("Synchronizing version to " + expectedRlmiVersion);
+             } 
+            else {
+                // check if we have received the next version we were expecting
+                if (expectedRlmiVersion != rlmiMultipartMessage.getVersion()) {
+                    // there is a hole in the versions which means that we
+                    // missed an update. If this is not a full state report
+                    // then throw an exception as some information will be missing
+                    if (!rlmiMultipartMessage.isFullState()) {
+                        logger.error("Detected missing RLMI report: expected " + expectedRlmiVersion + " but received " + rlmiMultipartMessage.getVersion());
+                        throw new CallWatcherException( "Detected missing RLMI report: expected " + expectedRlmiVersion + " but received " + rlmiMultipartMessage.getVersion() );
+                    }
+                    else{
+                        // no loss of information - simply resync number
+                        expectedRlmiVersion = rlmiMultipartMessage.getVersion();
                     }
                 }
-                dumpResourceStates(updatedSipUsersStates);
             }
-            else{
-                logger.error("Notify received on dialog " + dialog + " what is different from expected subscription dialog" + this.subscriberDialog); 
+            updatedSipUsersStates = resourcesDialogInformation.update(
+                    rlmiMultipartMessage.isFullState(), rlmiMultipartMessage.getUpdatedEntitiesStates());
+            for (String user : updatedSipUsersStates.keySet()) {
+                SipResourceState resourceState = updatedSipUsersStates.get(user);
+                // notify state change listener of change
+                if (Subscriber.this.resourceStateChangeListener != null) {
+                    ResourceStateEvent resourceStateEvent = new ResourceStateEvent(
+                            Subscriber.this, user, resourceState);
+                    Subscriber.this.resourceStateChangeListener
+                            .handleResourceStateChange(resourceStateEvent);
+                } else {
+                    logger.debug("No listener registered " + user + " state "
+                            + resourceState);
+                }
             }
-
-        } catch (Exception ex) {
-            logger.error("Unexpected exception", ex);
+            dumpResourceStates(updatedSipUsersStates);
         }
+        return expectedRlmiVersion;
     }
 
     private void dumpResourceStates(Map<String, SipResourceState> updatedSipUsersStates) {
@@ -443,160 +211,28 @@ public class Subscriber implements SipListener {
         logger.debug("</StateDump>");
     }
 
-    public void processResponse(ResponseEvent responseReceivedEvent) {
+    public ClientTransaction sendDialogFormingSubscribe() throws CallWatcherException{
+        ClientTransaction clientTransaction = null;
         try {
-            Response response = (Response) responseReceivedEvent.getResponse();
-            ClientTransaction tid = responseReceivedEvent.getClientTransaction();
-
-            // test the response and act accordingly
-            logger.info("Response received with client transaction id " + tid + ": "
-                    + response.getStatusCode());
-            if (tid == null) {
-                logger.info("Stray response -- dropping ");
-                return;
-            }
-
-            logger.info("transaction state is " + tid.getState());
-            logger.info("Dialog = " + tid.getDialog());
-            if (tid.getDialog() != null)
-                logger.info("Dialog State is " + tid.getDialog().getState());
-
-            if (tid == subscribeTransaction) {
-                logger.debug("dialog and tid match: " + subscriberDialog.getDialogId());
-                if (response.getStatusCode() == Response.UNAUTHORIZED) {
-                    subscribeTransaction = stackBean.handleChallenge(response, tid);                   
-                } else if (response.getStatusCode() == Response.ACCEPTED
-                        || response.getStatusCode() == Response.OK) {
-                    // update dialog
-                    subscriberDialog = tid.getDialog();
-
-                    // subscription is accepted - kick off timer task that will
-                    // refresh it before it expires and another that will
-                    // warn us if it ever does.
-                    ExpiresHeader expires = response.getExpires();
-                    this.bSubscriptionActive = true;
-                    if (subscribeRetryTimer != null)
-                        subscribeRetryTimer.cancel(); // dialog formed - no need to retry now...
-                    scheduleSubscriptionRefreshTimer(expires.getExpires() / 2);
-                    scheduleSubscriptionExpiryTimer(expires.getExpires());
-                }
-            } else {
-                logger.warn("response received on unknown transaction: " + tid.toString() + "\n"
-                        + "                 expected on transaction: "
-                        + subscribeTransaction.toString());
-            }
-        } catch (Exception ex) {
-            logger.error("Caught exception: " + ex);
-            ex.printStackTrace();
-        }
-    }
-
-    private void scheduleSubscriptionRefreshTimer(int delayInSecs) {
-        if (refreshTimer != null) {
-            refreshTimer.cancel();
-        }
-        refreshTimer = new Timer();
-        TimerTask task = new TimerTask() {
-            public void run() {
-                refreshSubscription();
-            }
-        };
-        logger.debug("arming refreshTimer for " + delayInSecs);
-        refreshTimer.schedule(task, delayInSecs * 1000);
-    }
-
-    private void scheduleSubscriptionExpiryTimer(int delayInSecs) {
-        if (subscriptionExpiryTimer != null) {
-            subscriptionExpiryTimer.cancel();
-        }
-        subscriptionExpiryTimer = new Timer();
-        TimerTask task = new TimerTask() {
-            public void run() {
-                processSubscriptionExpired();
-            }
-        };
-        logger.debug("arming subscriptionExpiryTimer for " + delayInSecs);
-        subscriptionExpiryTimer.schedule(task, delayInSecs * 1000);
-    }
-
-    private void scheduleSubscribeRetryTimer(int delayInSecs) {
-        if (subscribeRetryTimer != null) {
-            subscribeRetryTimer.cancel();
-        }
-        subscribeRetryTimer = new Timer();
-        TimerTask task = new TimerTask() {
-            public void run() {
-                reAttemptSubscription();
-            }
-        };
-        logger.debug("arming subscribeRetryTimer " + delayInSecs);
-        subscribeRetryTimer.schedule(task, delayInSecs * 1000);
-    }
-
-    private void refreshSubscription() {
-        logger.debug("refresh timer fired");
-        // send a new subscription to refresh it and kick off a shorter
-        // refresh timer in case it refresh fails
-        try {
-            logger.info("refreshing subscription");
-            sendInDialogSubscribe(3600);
-
-            // kick off another refresh time in case this refresh attempt fails
-            scheduleSubscriptionRefreshTimer(20);
-        } catch (Exception ex) {
-            logger.error("Caught: ", ex);
-        }
-    }
-
-    private void reAttemptSubscription() {
-        if (this.bSubscriptionActive == false) {
-            logger.warn("retrying subscribe");
-            sendDialogFormingSubscribe();
-        }
-    }
-
-    private void processSubscriptionExpired() {
-        // subscription expired - no point in refreshing it now. Cancel refresh timer
-        if (refreshTimer != null)
-            refreshTimer.cancel();
-        this.bSubscriptionActive = false;
-        logger.warn("subscription expired");
-        sendDialogFormingSubscribe();
-    }
-
-    public void sendDialogFormingSubscribe() {
-        try {
-            // this will initiate a new subscription that will
-            // come it with its own RLMI version number - reset
-            // our RLMI version tracker count to force a resync
-            // once the subscription gets re-established
-            rlmiVersion = -1;
-
             // create >From Header
             String fromName = watcherConfig.getUserName();
             String fromSipAddress = watcherConfig.getProxyDomain();
-            String fromDisplayName = "Call Watcher";
-
             SipURI fromAddress = addressFactory.createSipURI(fromName, fromSipAddress);
-
             Address fromNameAddress = addressFactory.createAddress(fromAddress);
-            fromNameAddress.setDisplayName(fromDisplayName);
+            fromNameAddress.setDisplayName("Call Watcher");
             FromHeader fromHeader = headerFactory.createFromHeader(fromNameAddress, new Long(Math
                     .abs(new java.util.Random().nextLong())).toString());
 
             // create To Header
             // Typically this will be ~~rl~F~fromName
-
             String toUser = watcherConfig.getResourceList();
             String toSipAddress = watcherConfig.getProxyDomain();
-
             SipURI toAddress = addressFactory.createSipURI(toUser, toSipAddress);
             Address toNameAddress = addressFactory.createAddress(toAddress);
             ToHeader toHeader = headerFactory.createToHeader(toNameAddress, null);
 
             // create Request URI
             SipURI requestURI = addressFactory.createSipURI(toUser, toSipAddress);
-           
 
             // Create ViaHeaders
             // TODO: do this right
@@ -643,37 +279,50 @@ public class Subscriber implements SipListener {
             addDialogEventHeaders(request, 3600);
 
             // Create the client transaction.
-            this.subscribeTransaction = sipProvider.getNewClientTransaction(request);
-            logger.info("Subscribe Dialog = " + subscribeTransaction.getDialog());
-
-            this.subscriberDialog = subscribeTransaction.getDialog();
+            clientTransaction = sipProvider.getNewClientTransaction(request);
             // send the request out.
-            TransactionContext.attach(subscribeTransaction, Operator.SEND_SUBSCRIBE);
-            subscribeTransaction.sendRequest();
-            scheduleSubscribeRetryTimer(32);
-        } catch (SipException e) {
+            TransactionContext.attach(clientTransaction, Operator.SEND_SUBSCRIBE);
+            clientTransaction.sendRequest();
+        } catch (SipException ex) {
             logger.error("Error sending Subscribe -- tearing down dialog");
-            if (this.subscribeTransaction != null) {
-                this.subscribeTransaction.getDialog().delete();
+            if (clientTransaction != null) {
+                clientTransaction.getDialog().delete();
             }
+            throw new CallWatcherException(ex);
         } catch (ParseException ex) {
-            logger.fatal("Unexpected exception", ex);
+            logger.fatal("Unexpected parse exception", ex);
             throw new CallWatcherException(ex);
         } catch (InvalidArgumentException ex) {
-            logger.fatal("Unexpected exception", ex);
+            logger.fatal("Unexpected argument exception", ex);
             throw new CallWatcherException(ex);
+        }
+        return clientTransaction;
+    }
+    
+    public void constructAndSendResponseForRequest( Request request, int statusCode, ServerTransaction serverTransaction ) throws CallWatcherException{
+        try{
+            Response response = messageFactory.createResponse(statusCode, request);
+            ContactHeader contact = (ContactHeader) contactHeader.clone();
+            response.addHeader(contact);
+            serverTransaction.sendResponse(response);
+        }
+        catch( Exception e){
+            throw new CallWatcherException(e);
         }
     }
 
-    public void sendInDialogSubscribe(int expiresValueInSecs) {
+    public ClientTransaction sendInDialogSubscribe( Dialog dialog, int expiresValueInSecs) throws CallWatcherException{
+        ClientTransaction clientTransaction = null;
         try {
-            Request request = subscriberDialog.createRequest(Request.SUBSCRIBE);
+            Request request = dialog.createRequest(Request.SUBSCRIBE);
             addDialogEventHeaders(request, expiresValueInSecs);
-            this.subscribeTransaction = sipProvider.getNewClientTransaction(request);
-            this.subscriberDialog.sendRequest(subscribeTransaction);
-        } catch (SipException ex) {
-            this.subscriberDialog.delete();
+            clientTransaction = sipProvider.getNewClientTransaction(request);
+            dialog.sendRequest(clientTransaction);
+        } catch (Exception ex) {
+            logger.debug("Subscriber::sendInDialogSubscribe caught exception:" + ex );
+            throw new CallWatcherException("Failed to send in-dialog Subscribe:" + ex );
         }
+        return clientTransaction;
     }
 
     private static void addDialogEventHeaders(Request request, int expiresValueInSecs) {
@@ -704,49 +353,6 @@ public class Subscriber implements SipListener {
         }
     }
 
-    public void processIOException(IOExceptionEvent exceptionEvent) {
-        logger.info("io exception event recieved");
-        this.subscriberDialog.delete();
-        this.subscribeRetryTimer.cancel();
-    }
-
-    public void processTransactionTerminated(TransactionTerminatedEvent transactionTerminatedEvent) {
-
-    }
-
-    public void processDialogTerminated(DialogTerminatedEvent dialogTerminatedEvent) {
-        if (dialogTerminatedEvent.getDialog() == this.subscriberDialog) {
-            logger.info("dialog terminated event received: "
-                    + dialogTerminatedEvent.getDialog().getDialogId());
-            if (refreshTimer != null)
-                refreshTimer.cancel();
-            if (subscribeRetryTimer != null)
-                subscribeRetryTimer.cancel();
-            if (subscriptionExpiryTimer != null)
-                subscriptionExpiryTimer.cancel();
-
-            // we just lost our subscription dialog - all bets are off
-            // WRT the state of the resources we were monitoring.
-            // Force an update that will put all the monitored resources
-            // in an undetermined state;
-            Map<String, SipResourceState> updatedSipUsersStates = null;
-            updatedSipUsersStates = resourcesDialogInformation.update(true, emptyCollection);
-            dumpResourceStates(updatedSipUsersStates);
-
-            // initiate a new subscription to replace the dialog we just lost.
-            sendDialogFormingSubscribe();
-        }
-    }
-
-    public void processTimeout(javax.sip.TimeoutEvent timeoutEvent) {
-
-        /*
-         * We should do something here - maybe tear down the subscription
-         */
-        logger.info("Transaction Time out");
-        this.subscriberDialog.delete();
-
-    }
 
     /**
      * @param resourceStateChangeListener the resourceStateChangeListener to set
@@ -756,8 +362,37 @@ public class Subscriber implements SipListener {
         this.resourceStateChangeListener = resourceStateChangeListener;
     }
 
-    private void terminateDialog(Dialog dialog) {
-        sendInDialogSubscribe(0); //expires = 0 to terminate the subscription
-        dialog.delete();
+    public void notifySubscriptionDialogTerminated( SubscribeDialog subscribeDialog )
+    {
+        if( subscribeDialog == this.activeSubscribeDialog ){
+            // state of all resources is unknown at this point, update accordingly.
+            Map<String, SipResourceState> updatedSipUsersStates = null;
+            updatedSipUsersStates = resourcesDialogInformation.update(true, emptyCollection);
+            dumpResourceStates(updatedSipUsersStates);
+            scheduleNewSubscribeDialogCreation();
+        }
+        else{
+            logger.info("Subscriber::notifySubscriptionDialogTerminated received from SubscribeDialog that wasn't active: " + subscribeDialog +
+                        " (currently active SubscribeDialog = " + this.activeSubscribeDialog + ")" );
+        }
     }
+
+    private void scheduleNewSubscribeDialogCreation()
+    {
+        Timer subscribeDialogCreator = new Timer();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                logger.info("subscribeDialogCreator timer fired");
+                activeSubscribeDialog = new SubscribeDialog(Subscriber.this);
+                activeSubscribeDialog.start();
+            }
+        };
+        logger.info("arming subscribeDialogCreator");
+        subscribeDialogCreator.schedule(task, 10000);
+    }
+
+    public void processIOException( IOExceptionEvent arg0 ){}
+
+    public void processTimeout( TimeoutEvent arg0 ){}
+
 }

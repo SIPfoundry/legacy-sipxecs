@@ -252,9 +252,14 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         } else {
             this.accountsParser = new AccountsParser(accountConfigurationFile);
             this.accountsParser.startScanner();
+            try{
+                Thread.sleep(10000);  //leave enough time to allow configuration enforcement
+            }
+            catch( Exception ex ){
+            }
         }
-        // config and instantiate and the presence unifier used to gather all presence info
 
+        // config and instantiate and the presence unifier used to gather all presence info
         PresenceUnifier.setPlugin(this);
         PresenceUnifier.getInstance();
         // add packet interceptor

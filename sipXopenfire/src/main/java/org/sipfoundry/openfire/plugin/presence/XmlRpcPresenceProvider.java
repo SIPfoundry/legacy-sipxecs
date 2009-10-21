@@ -135,6 +135,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         log.info("registerPresenceMonitor " + protocol + " " + serverUrl );            
         PresenceUnifier.getInstance().addUnifiedPresenceChangeListener( protocol, serverUrl );
         Map retval = createSuccessMap();
+        retval.put(INSTANCE_HANDLE, myHandle);
         return retval;
     }
      
