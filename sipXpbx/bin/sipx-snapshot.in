@@ -427,7 +427,6 @@ cat > $Work.copy-files <<EOF
 /etc/hosts
 /etc/crontab
 /etc/sendmail.cf
-/usr/lib/debug
 @SIPX_RUNDIR@
 @SIPX_VARDIR@/process-state
 @SIPX_VARDIR@/process-cfgver
@@ -683,6 +682,11 @@ fi >> ${Backtrace} 2>&1
 
 # If core files were specified, determine the files to be copied.
 cat /dev/null >${Work}.core-related-files
+if [ -n "${CoreFiles}" ]
+then
+  # Add /usr/lib/debug, which contains the separated symbol tables.
+  echo /usr/lib/debug >>${Work}.core-related-files
+fi
 for Core in ${CoreFiles}
 do
   # Point the core file name to SIPX_LOGDIR if it has no /.
