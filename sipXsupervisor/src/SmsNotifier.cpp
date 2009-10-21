@@ -109,7 +109,6 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
 OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
 {
    OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created SmsNotifier");
-   UtlString contactList;
    TiXmlElement* element;
 
    // Extract the "From" contact from the alarm configuration file
@@ -121,6 +120,7 @@ OsStatus SmsNotifier::init(TiXmlElement* smsElement, TiXmlElement* groupElement)
    for (; element; element=element->NextSiblingElement("group") )
    {
       UtlString groupName = element->Attribute("id");
+      UtlString contactList;
 
       if (!groupName.isNull())
       {

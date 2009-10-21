@@ -139,7 +139,6 @@ OsStatus EmailNotifier::handleAlarm(const OsTime alarmTime,
 OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElement)
 {
    OsSysLog::add(FAC_ALARM, PRI_DEBUG, "Created EmailNotifier");
-   UtlString contactList;
    TiXmlElement* element;
 
    // Extract the "From" contact from the alarm configuration file
@@ -151,6 +150,7 @@ OsStatus EmailNotifier::init(TiXmlElement* emailElement, TiXmlElement* groupElem
    for (; element; element=element->NextSiblingElement("group") )
    {
       UtlString groupName = element->Attribute("id");
+      UtlString contactList;
 
       if (!groupName.isNull())
       {
