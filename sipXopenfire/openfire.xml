@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
     This file stores bootstrap properties needed by Openfire.
     Property names must be in the format: "prop.name.is.blah=value"
@@ -31,6 +32,11 @@
       <username>postgres</username>  
       <password>postgres</password> 
     </defaultProvider> 
-  </database> 
-  <setup>true</setup>
+  </database>  
+  <setup>true</setup>  
+  <log> 
+    <debug> 
+      <enabled>false</enabled> 
+    </debug> 
+  </log> 
 </jive>
