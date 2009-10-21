@@ -44,7 +44,7 @@ then
   HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
 
 else
-  # Other distos
+  # Other distros
   echo_success()
   {
       echo success
@@ -67,7 +67,7 @@ sipx_config_exists() { # ( CONFIG-FILE )
     local exists=0
     if ! test -f "$1"
     then
-        echo "Configuration file not found: '$1'"
+        echo "Configuration file not found: '$1'" >&2
         exists=1
     fi
     return ${exists}
