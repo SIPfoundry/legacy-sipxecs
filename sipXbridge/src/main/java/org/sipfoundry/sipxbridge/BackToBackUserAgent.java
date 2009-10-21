@@ -599,7 +599,7 @@ public class BackToBackUserAgent {
                         }
                     }
                 }
-            }, 1000);
+            }, 8000);
 
         }
         if (dialogTable.size() == 0) {
@@ -639,7 +639,7 @@ public class BackToBackUserAgent {
      * 
      * @param dialog
      */
-    public void addDialogToCleanup(Dialog dialog) {
+    void addDialogToCleanup(Dialog dialog) {
         if ( dialogTable.contains(dialog)) {
             logger.error("Dialog was also found in dialog table - should only be in one " + DialogContext.get(dialog).getCreationPointStackTrace());
             logger.error("addDialogToCleanup Dialog was created at " + SipUtilities.getStackTrace());
@@ -1679,6 +1679,8 @@ public class BackToBackUserAgent {
                 DialogContext.pairDialogs(this.referingDialogPeer,
                         outboundDialog);
             }
+            
+            this.addDialog(DialogContext.get(incomingDialog));
 
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(incomingRequest);
@@ -1812,7 +1814,7 @@ public class BackToBackUserAgent {
      * @param request
      * @param hops
      */
-    public void resendInviteToItsp(ClientTransaction clientTransaction) {
+    void resendInviteToItsp(ClientTransaction clientTransaction) {
         TransactionContext transactionContext = TransactionContext
                 .get(clientTransaction);
         ServerTransaction serverTransaction = transactionContext
@@ -2300,25 +2302,25 @@ public class BackToBackUserAgent {
     /**
      * @return the musicOnHoldDialog
      */
-    public Dialog getMusicOnHoldDialog() {
+    Dialog getMusicOnHoldDialog() {
         return musicOnHoldDialog;
     }
 
     /**
      * Return true if MOH is disabled.
      */
-    public boolean isMohDisabled() {
+    boolean isMohDisabled() {
         return this.mohDisabled;
     }
 
     /**
      * Return true if this structure manages a given call Id
      */
-    public boolean managesCallId(String callId) {
+    boolean managesCallId(String callId) {
         return myCallIds.contains(callId);
     }
 
-    public void setPendingTermination(boolean pendingTermination) {
+    void setPendingTermination(boolean pendingTermination) {
         this.pendingTermination = pendingTermination;
     }
 
@@ -2327,11 +2329,11 @@ public class BackToBackUserAgent {
      *
      * @return
      */
-    public boolean isPendingTermination() {
+    boolean isPendingTermination() {
         return this.pendingTermination;
     }
 
-    public boolean findNextSipXProxy() throws IOException, SymmitronException,
+    boolean findNextSipXProxy() throws IOException, SymmitronException,
             SipXbridgeException {
 
         if (this.proxyAddress != null) {

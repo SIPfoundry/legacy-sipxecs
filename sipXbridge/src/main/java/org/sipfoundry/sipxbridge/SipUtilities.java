@@ -879,6 +879,39 @@ class SipUtilities {
     }
 
     /**
+     * Extract the Media formats that are not Telephone events.
+     * 
+     * @param sessionDescription
+     * @return a set of media formats.
+     */
+    static Set<Integer> getNonTelephoneEventMediaFormats(SessionDescription sessionDescription) {
+        try {
+            Vector mediaDescriptions = sessionDescription
+                    .getMediaDescriptions(true);
+
+            HashSet<Integer> retval = new HashSet<Integer>();
+            for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+                MediaDescription mediaDescription = (MediaDescription) it
+                        .next();
+                Vector formats = mediaDescription.getMedia().getMediaFormats(
+                        true);
+                for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+                    Object format = it1.next();
+                    int fmt = new Integer(format.toString());
+                    if (fmt != 100 && fmt != 101) {
+                    	retval.add(fmt);
+                    }
+                }
+            }
+            return retval;
+        } catch (Exception ex) {
+            logger.fatal("Unexpected exception!", ex);
+            throw new SipXbridgeException(
+                    "Unexpected exception getting media formats", ex);
+        }
+    }
+    
+    /**
      * Remove the Crypto parameters from the request.
      *
      * @param sessionDescription - the session description to clean.

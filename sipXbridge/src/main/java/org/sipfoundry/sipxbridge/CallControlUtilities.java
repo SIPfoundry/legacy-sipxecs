@@ -129,9 +129,8 @@ public class CallControlUtilities {
 
             DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);
             
-            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer);
-
-          
+            
+            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer);   
 
         } else {
             dialogContext.getBackToBackUserAgent().tearDown(

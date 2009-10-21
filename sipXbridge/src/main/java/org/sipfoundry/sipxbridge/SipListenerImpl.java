@@ -259,6 +259,8 @@ public class SipListenerImpl implements SipListener {
                 }
 
             } else {
+                DialogContext dialogContext  = DialogContext.get(newClientTransaction.getDialog());
+                b2bua.addDialog(dialogContext);  
                 newClientTransaction.sendRequest();
             }
            

@@ -1222,6 +1222,12 @@ class CallControlManager implements SymmitronResetHandler {
     }
 
 
+    /**
+     * Response handling for response received from ITSP or sipx proxy.
+     * 
+     * @param responseEvent
+     * @throws Exception
+     */
 
     private void inviteToItspOrProxyResponse(ResponseEvent responseEvent) throws Exception {
 
@@ -1378,6 +1384,32 @@ class CallControlManager implements SymmitronResetHandler {
         }
         serverTransaction.sendResponse(newResponse);
     }
+    
+    /**
+     * Response processing for sendSdpReOffer
+     * 
+     * @param responseEvent
+     * @throws Exception
+     */
+    private void sendSdpReofferResponse(ResponseEvent responseEvent ) throws Exception {
+    	 Dialog dialog = responseEvent.getDialog();
+         DialogContext dialogContext = DialogContext.get(dialog);
+         Response response = responseEvent.getResponse();
+         long seqno = SipUtilities.getSeqNumber(response);
+      	 PendingDialogAction pendingOperation = dialogContext.getPendingAction();
+         if (response.getStatusCode() == Response.OK) {
+            RtpSession rtpSession = DialogContext.getRtpSession(dialog);
+            SessionDescription inboundSessionDescription = SipUtilities
+                    .getSessionDescription(response);
+            rtpSession.getTransmitter().setSessionDescription(
+                    inboundSessionDescription, false);
+            rtpSession.getTransmitter().setOnHold(false);
+            Request ack = dialog.createAck(seqno);
+            DialogContext.get(dialog).sendAck(ack);
+        }
+        
+        return;
+    }
 
     /**
      * Handle the response for the sdp solicitation. This method handles the response to the sdp
@@ -1436,6 +1468,12 @@ class CallControlManager implements SymmitronResetHandler {
         }
     }
 
+    /**
+     * INVITE with Replaces response handling.
+     * 
+     * @param responseEvent
+     * @throws Exception
+     */
     private void handleInviteWithReplacesResponse(ResponseEvent responseEvent) throws Exception {
 
         Dialog dialog = responseEvent.getDialog();
@@ -1593,11 +1631,6 @@ class CallControlManager implements SymmitronResetHandler {
         TransactionContext tad = TransactionContext.get(ctx);
         ClientTransaction mohCtx = TransactionContext.get(ctx).getMohClientTransaction();
         Response response = responseEvent.getResponse();
-
-
-
-
-
         BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(dialog);
 
         /*
@@ -1605,6 +1638,7 @@ class CallControlManager implements SymmitronResetHandler {
          * leg with transfer agent. We already have a RTP session established with the transfer
          * agent. We need to redirect the outbound RTP stream to the transfer target. To do this,
          * we fix up the media session using the port in the incoming sdp answer.
+         * We do not expect that phones will send us multipart Mime.
          */
         ContentTypeHeader cth = (ContentTypeHeader) response.getHeader(ContentTypeHeader.NAME);
         Dialog referDialog = tad.getReferingDialog();
@@ -1732,11 +1766,10 @@ class CallControlManager implements SymmitronResetHandler {
             if (mohCtx != null) {
                 /*
                  * Already sent a response or a re-offer back. Alert the delayed MOH timer not to
-                 * do anything.
+                 * do anything. When the MOH dialog completes it will immediately Terminate.
                  */
 
                 DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
-
                 mohDialogContext.setTerminateOnConfirm();
 
             }
@@ -1744,9 +1777,10 @@ class CallControlManager implements SymmitronResetHandler {
         }
 
         /*
-         * We directly send ACK.
+         * We directly send ACK unless the sending of ACK is deferred till OK is received.
          */
-        if (response.getStatusCode() == Response.OK) {
+        if (response.getStatusCode() == Response.OK && 
+        		DialogContext.get(dialog).getPendingAction() != PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
             b2bua.addDialog(DialogContext.get(dialog));
             // Thread.sleep(100);
             Request ackRequest = dialog.createAck(((CSeqHeader) response
@@ -2344,13 +2378,7 @@ class CallControlManager implements SymmitronResetHandler {
             logger.debug("processInviteResponse : " + ((SIPResponse) response).getFirstLine()
                     + " dialog = " + dialog);
         }
-
-        /*
-         * Sequence Number for the response.
-         */
-        long seqno = SipUtilities.getSeqNumber(response);
-
-
+  
         /*
          * The dialog context associated with this dialog.
          */
@@ -2473,21 +2501,7 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                     }
                 } else if (tad.getOperation() == Operation.SEND_SDP_RE_OFFER) {
-                    /*
-                     * We sent the other side a re-OFFER.
-                     */
-
-                    if (response.getStatusCode() == Response.OK) {
-                        RtpSession rtpSession = DialogContext.getRtpSession(dialog);
-                        SessionDescription inboundSessionDescription = SipUtilities
-                                .getSessionDescription(response);
-                        rtpSession.getTransmitter().setSessionDescription(
-                                inboundSessionDescription, false);
-                        rtpSession.getTransmitter().setOnHold(false);
-                        Request ack = dialog.createAck(seqno);
-                        DialogContext.get(dialog).sendAck(ack);
-                    }
-                    return;
+                    this.sendSdpReofferResponse(responseEvent);
                 } else if (tad.getOperation() == Operation.FORWARD_SDP_SOLICITIATION) {
                     this.forwardSdpSolicitationResponse(responseEvent);
                 } else if (tad.getOperation() == Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG
