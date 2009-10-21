@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
@@ -75,7 +75,6 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
     @InjectObject(value = "spring:acdProvisioningContext")
     public abstract AcdProvisioningContext getAcdProvisioningContext();
 
-    @Persist
     public abstract Collection<LoggingEntity> getLoggingEntities();
 
     public abstract void setLoggingEntities(Collection<LoggingEntity> entities);
@@ -104,7 +103,7 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
         m_generalLevel = generalLevel;
     }
 
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         if (getLoggingEntities() == null) {
             Collection<LoggingEntity> entities = getLoggingManager().getLoggingEntities();
             setLoggingEntities(entities);
@@ -112,7 +111,7 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
         // just to make sure the general log level will not remain on some value and to override
         // the individual log levels
         setGeneralLevel(null);
-        if (event_.getRequestCycle().isRewinding()) {
+        if (event.getRequestCycle().isRewinding()) {
             getLoggingManager().setEntitiesToProcess(new ArrayList<LoggingEntity>());
         }
     }
