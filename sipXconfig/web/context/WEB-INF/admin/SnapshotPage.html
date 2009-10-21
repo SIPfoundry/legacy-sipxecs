@@ -13,13 +13,13 @@
 	    </div>
         <div jwcid="ifResultsPresent@Else" renderTag="false">
           <table>
-            <tr jwcid="@If" condition="ognl:snapshot.success">
+            <tr jwcid="ifSnapshotSuccess@If" condition="ognl:snapshot.success">
               <td class="user-success">
                 <span jwcid="@Insert" value="ognl:generationSuccessMsg"/>
               </td>
             </tr>
             <tr jwcid="@For" source="ognl:snapshot.results" value="ognl:result">
-              <td jwcid="@If" condition="ognl:result.success">
+              <td jwcid="ifResultSuccess@If" condition="ognl:result.success">
                 <a jwcid="snapshotLink@common/DownloadLink"
                   fileName="ognl:result.file.name"
                   dirName="ognl:result.dir"

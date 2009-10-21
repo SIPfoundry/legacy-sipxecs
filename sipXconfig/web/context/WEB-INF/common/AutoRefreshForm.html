@@ -34,7 +34,7 @@
     </div>
     <ul class="component-submit">
       <li jwcid="@RenderBlock" block="ognl:actionBlock"/>
-      <li jwcid="@If" condition="ognl:showRefresh">
+      <li jwcid="ifShowRefreshId@If" condition="ognl:showRefresh">
         <input jwcid="refresh@Submit"
           value="message:button.refresh"
           updateComponents="ognl:componentsToUpdate"/>
