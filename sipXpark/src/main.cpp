@@ -375,11 +375,8 @@ int main(int argc, char* argv[])
         MaxSessions = DEFAULT_MAX_SESSIONS;
     }
 
-    UtlBoolean OneButtonBLF;
-    if (configDb.getBoolean(CONFIG_SETTING_ONE_BUTTON_BLF, OneButtonBLF) != OS_SUCCESS)
-    {
-        OneButtonBLF = DEFAULT_ONE_BUTTON_BLF;
-    }
+    UtlBoolean OneButtonBLF =
+       configDb.getBoolean(CONFIG_SETTING_ONE_BUTTON_BLF, DEFAULT_ONE_BUTTON_BLF);
 
     UtlString   domain;
     UtlString   realm;
