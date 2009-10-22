@@ -149,17 +149,6 @@ SipRedirectServer::initialize(OsConfigDb& configDb
 }
 
 /**
- * Report a response that we are about to send.
- */
-static void logResponse(UtlString& messageStr)
-{
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "----------------------------------"
-                 "Sending final response\n%s", messageStr.data());
-}
-
-
-/**
  * Cancel a suspended redirection.
  *
  * Caller must hold mRedirectorMutex.
