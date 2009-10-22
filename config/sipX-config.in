@@ -28,6 +28,8 @@ then
     # @PACKAGE@_config_extension_usage - print additional usage information
     # @PACKAGE@_config_extension_operations - perform additional operations
     # @PACKAGE@_config_extension_options - process an extension option
+    # Currently, there are no extensions used.  An example extension
+    # is in sipXpbx/doc/developer/sipxecs-config-ext.in.
     source @SIPX_BINDIR@/@PACKAGE@-config-ext
 fi
 

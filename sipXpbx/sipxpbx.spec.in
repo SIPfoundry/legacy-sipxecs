@@ -112,6 +112,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore
+%attr(755,root,root) %{_bindir}/sipxecs-config
 %attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_bindir}/sipxecs-upgrade
 %attr(755,root,root) %{_bindir}/sipxecs-setup-system

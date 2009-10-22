@@ -2,6 +2,7 @@ include $(top_srcdir)/config/subdir.am
 
 bin_SCRIPTS = \
 	 ${PACKAGE}-config \
+	 sipxecs-config \
 	 sipxecs-setup \
 	 sipxecs-upgrade \
 	 sipxecs-setup-system \
@@ -163,3 +164,7 @@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/012_sipx-config-vxml-domain: $(DESTDIR)@SIPX
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
 	$(INSTALL) -d $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
+
+# sipxecs-config is generated from sipxecs-config.in by the
+# top-level configure.ac, as it is the only one that knows the names
+# of all the components, and so can substitute "@subdirs@".

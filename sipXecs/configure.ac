@@ -5,16 +5,13 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AC_CONFIG_AUX_DIR(config)
 
-SFAC_SIPX_INSTALL_PREFIX
-SFAC_INIT_FLAGS
-#AC_PROG_LIBTOOL
-AC_CANONICAL_HOST
-
 AM_INIT_AUTOMAKE(foreign)
+
+SFAC_DIST_DIR
+SFAC_CONFIGURE_OPTIONS
 
 AC_CONFIG_FILES([
     Makefile
-    bin/Makefile
 ])
 
 AC_OUTPUT

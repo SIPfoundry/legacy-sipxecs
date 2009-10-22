@@ -1,3 +1,5 @@
+# This is an example extension file for config/sipX-config.in.
+
 # Extension functions for sipxecs-config, which is constructed from
 # sipX-config.in.  The substitution is done by the top-level
 # configure.ac, as it is the only one that knows the names of all the
