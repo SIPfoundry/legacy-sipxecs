@@ -24,8 +24,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxSaaService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -69,8 +67,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         // replication valid users when aliases are replicated
         if (DataSet.ALIAS.equals(dataSet)) {
             replicate(m_validUsersConfig);
-            SipxService sipxSaaService = m_sipxServiceManager.getServiceByBeanId(SipxSaaService.BEAN_ID);
-            getServiceConfigurator().replicateServiceConfig(sipxSaaService);
         }
     }
 

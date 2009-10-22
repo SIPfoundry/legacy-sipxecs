@@ -618,9 +618,13 @@
   </bean>
 
   <bean id="sipxSaaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSaaConfiguration" parent="serviceConfigurationFile">
-    <property name="restartRequired" value="false" />
     <property name="name" value="sipxsaa-config" />
     <property name="template" value="sipxsaa/sipxsaa-config.vm" />
+  </bean>
+
+  <bean id="sipxSaaDaoListener" class="org.sipfoundry.sipxconfig.service.SipxSaaDaoListener">
+    <property name="configurationFile" ref="appearanceGroupsConfiguration" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="sipxRestService" class="org.sipfoundry.sipxconfig.service.SipxRestService" scope="prototype" parent="sipxService">
