@@ -710,37 +710,59 @@ do
       exit 1
   fi
 
+  # Look for the executable in the known binary directories.
+  ReportedExec='(none)'
+  AbsoluteExec='(unknown)'
+  BindirList=" \
+	  @SIPX_BINDIR@ \
+	  @SIPX_LIBEXECDIR@ \
+	  @FREESWITCH_PREFIX@/bin \
+	  @OPENFIRE_HOME@/bin \
+	  @bindir@ \
+	  @sbindir@"
   if [[ "${file_output}" = *" from "* ]]
   then
-      Executable="${file_output##*\ from\ \'}"
-      Executable="${Executable%\'}"
-      # Point the executable file name to SIPX_BINDIR if it has no /.
-      Executable=`make_absolute ${Executable} @SIPX_BINDIR@`
-  else
-      Executable='(unknown)'
+      ReportedExec="${file_output##*\ from\ \'}"
+      ReportedExec="${ReportedExec%\'}"
+
+      # (If ${ReportedExec} is already absolute, every iteration of this loop
+      # will do the same thing.)
+      for Bindir in ${BindirList}
+      do
+	  F=`make_absolute ${ReportedExec} ${Bindir}`
+	  if [ -x "${F}" ]
+	  then
+	      AbsoluteExec="${F}"
+	      break
+	  fi
+      done
   fi
 
-  echo ""                               >> ${SystemConfig}
-  echo "Core file: ${Core}"             >> ${SystemConfig}
-  echo "${file_output}"                 >> ${SystemConfig}
-  echo "from executable: ${Executable}" >> ${SystemConfig}
+  echo ""                                 >> ${SystemConfig}
+  echo "Core file: ${Core}"               >> ${SystemConfig}
+  echo "${file_output}"                   >> ${SystemConfig}
+  echo "from executable: ${AbsoluteExec}" >> ${SystemConfig}
 
-  # Accumulate the list of files to be added to the snapshot in
+  # Accumulate the list of files to be added to the snapshot.
   echo "${Core}" >>${Work}.core-related-files
 
   # Check that the executable file exists.
-  if [ "${Executable}" = '(unknown)' ]
+  if [ "${ReportedExec}" = '(none)' -o "${ReportedExec}" = '' ]
   then
       : Do nothing
-  elif [ ! -e ${Executable} ]
+  elif [ "${AbsoluteExec}" = '(unknown)' ]
   then
-      echo File ${Executable}, the apparent executable for ${Core}, does not exist. 1>&2
-      echo "Warning: ${Executable} does not exist." >> ${SystemConfig}
+      echo "File '${ReportedExec}', the reported executable for ${Core}, " \
+           "cannot be found in:" ${BindirList} \
+	   1>&2
+      echo "Warning: '${ReportedExec}' cannot be found in:" ${BindirList} >> ${SystemConfig}
   else
-      echo "${Executable}" >>${Work}.core-related-files
+      echo "${AbsoluteExec}" >>${Work}.core-related-files
 
       # Get the dynamic libraries this executable needs.
-      ldd ${Executable} | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||' >>${Work}.core-related-files
+      ldd ${AbsoluteExec} |
+      perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||' \
+	  >>${Work}.core-related-files
   fi
 
 done
