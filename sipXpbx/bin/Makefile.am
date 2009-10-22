@@ -81,6 +81,7 @@ EXTRA_DIST = \
 	voicemail_clean.in \
 	sipx-chkspace.in \
 	${PACKAGE}-config \
+	sipxecs-config \
 	analyze_483s \
 	ipcclean.pl \
 	sipxecs_setup_common.py.in \
