@@ -143,7 +143,7 @@ void NatMaintainer::sendKeepAliveToContactList( UtlSList& contactList )
       Url url( *pString );
       PublicTransportData publicTransport( url );
 
-      if( publicTransport.isInitialized() && publicTransport.getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) )
+      if( publicTransport.isInitialized() && publicTransport.getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) == 0 )
       {
          sendKeepAliveToEndpoint( publicTransport.getAddress(), publicTransport.getPort() );
       }
