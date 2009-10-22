@@ -31,6 +31,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import static java.util.Arrays.asList;
+
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,6 +63,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
 
@@ -191,7 +194,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Map<String, PhonebookEntry> entries = new TreeMap();
         for (Phonebook phonebook : phonebooks) {
             for (PhonebookEntry entry : getEntries(phonebook)) {
-                entries.put(entry.getNumber(), entry);
+                entries.put(getEntryKey(entry), entry);
             }
         }
 
@@ -199,7 +202,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
             for (PhonebookFileEntry privateEntry : privatePhonebook.getEntries()) {
-                entries.put(privateEntry.getNumber(), privateEntry);
+                entries.put(getEntryKey(privateEntry), privateEntry);
             }
         }
 
@@ -213,13 +216,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             for (Group group : members) {
                 for (User user : m_coreContext.getGroupMembers(group)) {
                     PhonebookEntry entry = new UserPhonebookEntry(user);
-                    entries.put(entry.getNumber(), entry);
+                    entries.put(getEntryKey(entry), entry);
                 }
             }
         }
 
         for (PhonebookFileEntry fileEntry : phonebook.getEntries()) {
-            entries.put(fileEntry.getNumber(), fileEntry);
+            entries.put(getEntryKey(fileEntry), fileEntry);
         }
 
         List<PhonebookEntry> finalList = new ArrayList(entries.values());
@@ -366,7 +369,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             } else {
                 String[] row = (String[]) input;
                 PhonebookEntry entry = new StringArrayPhonebookEntry(m_header, row);
-                m_entries.put(entry.getNumber(), entry);
+                m_entries.put(getEntryKey(entry), entry);
             }
         }
 
@@ -610,5 +613,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         } catch (IOException e) {
             return false;
         }
+    }
+
+    private static String getEntryKey(PhonebookEntry entry) {
+        return join(asList(entry.getNumber(), entry.getFirstName(), entry.getLastName()), '_');
     }
 }

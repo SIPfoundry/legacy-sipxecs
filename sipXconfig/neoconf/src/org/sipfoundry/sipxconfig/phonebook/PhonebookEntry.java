@@ -9,11 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-
 public interface PhonebookEntry {
-    public String getFirstName();
-    public String getLastName();
-    public String getNumber();
+    String getFirstName();
 
-    public AddressBookEntry getAddressBookEntry();
+    String getLastName();
+
+    String getNumber();
+
+    AddressBookEntry getAddressBookEntry();
 }
