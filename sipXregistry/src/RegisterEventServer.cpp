@@ -397,25 +397,25 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
 
       // Add the path header, gruu and sip instance id info
 
-      if(NULL != pathVector &&
-         !pathVector->isNull() &&
-         0 != pathVector->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (NULL != pathVector &&
+          !pathVector->isNull() &&
+          0 != pathVector->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
          content.append("      <unknown-param name=\"path\">");
          XmlEscape(content, *pathVector);
          content.append("</unknown-param>\r\n");
       }
-      if(NULL != instanceId &&
-         !instanceId->isNull() &&
-         0 != instanceId->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (NULL != instanceId &&
+          !instanceId->isNull() &&
+          0 != instanceId->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
          content.append("      <unknown-param name=\"+sip.instance\">");
          XmlEscape(content, *instanceId);
          content.append("</unknown-param>\r\n");
       }
-      if(NULL != gruu &&
-         !gruu->isNull() &&
-         0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (NULL != gruu &&
+          !gruu->isNull() &&
+          0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
       {
          content.append("      <gr:pub-gruu uri=\"");
          // It is a bit clunky to just prepend "sip:" onto the GRUU identity.
