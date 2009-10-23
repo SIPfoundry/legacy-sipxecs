@@ -42,7 +42,11 @@ public class Permissions extends DataSetGenerator {
     protected void addItems(final List<Map<String, String>> items) {
         final String domain = getSipDomain();
         for (SpecialUserType sut : SpecialUserType.values()) {
-            addSpecialUser(sut.getUserName(), items, domain);
+
+            // As PHONE_PROVISION does NOT require any permissions, skip it.
+            if (!sut.equals(SpecialUserType.PHONE_PROVISION)) {
+                addSpecialUser(sut.getUserName(), items, domain);
+            }
         }
 
         List<CallGroup> callGroups = m_callGroupContext.getCallGroups();

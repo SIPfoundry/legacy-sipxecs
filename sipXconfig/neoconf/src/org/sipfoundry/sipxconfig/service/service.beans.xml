@@ -667,6 +667,7 @@
     <property name="modelName" value="sipprovision.xml" />
     <property name="modelDir" value="sipxprovision" />
     <property name="editable" value="true" />
+    <property name="coreContext" ref="coreContext" />
     <property name="tftproot" value="${upload.destinationDirectory}" />
     <property name="bundles">
       <set>

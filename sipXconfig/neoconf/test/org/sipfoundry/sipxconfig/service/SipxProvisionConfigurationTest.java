@@ -14,6 +14,9 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -50,14 +53,18 @@ public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
 
         EasyMock.replay(locationsManager);
 
+        CoreContext coreContext = EasyMock.createMock(CoreContext.class);
+        provisionService.setCoreContext(coreContext);
+        SpecialUser phoneProvisionUser = new SpecialUser(SpecialUserType.PHONE_PROVISION);
+        phoneProvisionUser.setSipPassword("1234Password");
+        coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
+        EasyMock.expectLastCall().andReturn(phoneProvisionUser).anyTimes();
+
         Setting logSetting = provisionService.getSettings().getSetting("provision-config/SIPX_PROV_LOG_LEVEL");
         logSetting.setValue("CRIT");
 
         Setting servletPortSetting = provisionService.getSettings().getSetting("provision-config/servletPort");
         servletPortSetting.setValue("6050");
-
-        Setting password = provisionService.getSettings().getSetting("provision-config/password");
-        password.setValue("1234Password");
 
         SipxProvisionConfiguration out = new SipxProvisionConfiguration();
 

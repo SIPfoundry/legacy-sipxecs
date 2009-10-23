@@ -38,12 +38,6 @@
       </type>
       <value>8185</value>
     </setting>
-    <setting name="password" advanced="yes">
-      <type>
-        <string />
-      </type>
-      <value></value>
-    </setting>
     <setting name="SIPX_PROV_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />
       <value>NOTICE</value>
