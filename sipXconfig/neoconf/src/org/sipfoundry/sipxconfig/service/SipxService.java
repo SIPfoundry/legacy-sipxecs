@@ -167,6 +167,9 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_domainManager.getDomain().getName();
     }
 
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
     public void setLogDir(String logDir) {
         m_logDir = logDir;
     }

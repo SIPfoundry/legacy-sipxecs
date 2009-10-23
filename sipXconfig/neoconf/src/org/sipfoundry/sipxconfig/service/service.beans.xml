@@ -661,4 +661,28 @@
     <property name="serviceBeanId" value="sipxRlsService" />
   </bean>
 
+  <bean id="sipxProvisionService" class="org.sipfoundry.sipxconfig.service.SipxProvisionService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="sipXprovision"/>
+    <property name="modelName" value="sipprovision.xml" />
+    <property name="modelDir" value="sipxprovision" />
+    <property name="editable" value="true" />
+    <property name="tftproot" value="${upload.destinationDirectory}" />
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxProvisionConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProvisionConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="sipxprovision-config" />
+    <property name="template" value="sipxprovision/sipxprovision-config.vm" />
+  </bean>
+
 </beans>
