@@ -1,6 +1,5 @@
 log.level=$!{provisionService.logLevel}
 log.file=$!{provisionService.logDir}/sipxprovision.log
-provision.profile.tftproot=$!{provisionService.tftproot}
 provision.servlet.port=$!{settings.getSetting('servletPort').Value}
 provision.sipxchangeDomainName=$!{provisionService.domainName}
 provision.username=$!{provisionService.userName}

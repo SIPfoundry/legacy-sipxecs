@@ -664,7 +664,7 @@
   <bean id="sipxProvisionService" class="org.sipfoundry.sipxconfig.service.SipxProvisionService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="sipXprovision"/>
-    <property name="modelName" value="sipprovision.xml" />
+    <property name="modelName" value="sipxprovision.xml" />
     <property name="modelDir" value="sipxprovision" />
     <property name="editable" value="true" />
     <property name="coreContext" ref="coreContext" />

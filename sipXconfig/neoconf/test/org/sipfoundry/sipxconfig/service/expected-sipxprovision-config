@@ -1,6 +1,5 @@
 log.level=CRIT
 log.file=/var/log/sipxpbx/sipxprovision.log
-provision.profile.tftproot=/home/sipx/WORKING/BUILD/sipXconfig/neoconf/test-results/tftproot
 provision.servlet.port=6050
 provision.sipxchangeDomainName=example.org
 provision.username=~~id~sipXprovision
