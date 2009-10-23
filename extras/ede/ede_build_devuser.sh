@@ -118,6 +118,15 @@ DISTRO_EXIT_ERROR=3
 
 ### END - This section is duplicated in both ede_base_root.sh and ede_build_devuser.sh ###
 
+echo ""
+echo "Start   : $START_DATE"
+echo ""
+
+function add_ftp_user { # username, password
+   sudo /usr/sbin/useradd -d /tftpboot -G `whoami` -s /sbin/nologin -M $1
+   echo -e "$2" | sudo passwd --stdin $1
+}
+
 function sudo_wget_retry {
    P_OPT=""
    if [ $# == 2 ]; then
@@ -473,7 +482,7 @@ else
    ACTUAL_BUILD_DIR=$WORKING_DIR/$BUILD
    mkdir -p $ACTUAL_BUILD_DIR
    pushd $ACTUAL_BUILD_DIR > /dev/null
-   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_OPTIMIZED=off JAVAC_DEBUG=on --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr"
+   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_OPTIMIZED=off JAVAC_DEBUG=on SIPX_BUILD_LABEL=$WORKING_DIR --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr"
    ${CONFIGURE_COMMAND} &> $FULL_PATH_EDE_LOGS/designer_configure_output.log
    config_result=$?
    cp config.log $FULL_PATH_EDE_LOGS
@@ -520,6 +529,10 @@ else
    # Undo damage that might have been done by a previous RPM build.
    sudo sed -i -e 's/-s \/var\/sipxdata\/configserver\/phone\/profile\/tftproot/-s \/tftpboot/g' /etc/xinetd.d/tftp
    sudo /sbin/service xinetd restart
+
+   # Enable the FTP users, also using the /tftpboot directory.
+   add_ftp_user PlcmSpIp PlcmSpIp
+   add_ftp_user lvp2890 28904all
 fi
 
 # Finish the scripts.

@@ -355,15 +355,7 @@ sed -i -e "s/\/var\/lib\/tftpboot/\/tftpboot/g" /etc/xinetd.d/tftp
 /sbin/service xinetd stop > /dev/null
 /sbin/service xinetd start
 
-function add_ftp_user { # username, password
-   /usr/sbin/useradd -d /tftpboot -G $DEVEL_USER -s /sbin/nologin -M $1
-   echo -e "$2" | sudo passwd --stdin $1
-}
-
-# Enable the FTP users, also using the /tftpboot directory.
-add_ftp_user PlcmSpIp PlcmSpIp
-add_ftp_user lvp2890 28904all
-#Uncomment this line to disable directory listing# echo "dirlist_enable=NO" >> /etc/vsftpd/vsftpd.conf
+# Enable FTP.
 /sbin/chkconfig vsftpd on
 /sbin/service vsftpd stop > /dev/null
 /sbin/service vsftpd start
