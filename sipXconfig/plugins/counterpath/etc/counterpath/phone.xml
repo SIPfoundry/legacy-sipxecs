@@ -498,9 +498,14 @@
       <setting name="h263">
         <profileName>codec_name</profileName>
         <type refid="codec-preference"/>
-        <value>0.0</value>
+        <value>1.0</value>
       </setting>
       <setting name="h263_1998">
+        <profileName>codec_name</profileName>
+        <type refid="codec-preference"/>
+        <value>0.0</value>
+      </setting>
+      <setting name="h264_unified">
         <profileName>codec_name</profileName>
         <type refid="codec-preference"/>
         <value>0.0</value>
