@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
@@ -13,30 +13,21 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import junit.framework.TestCase;
-
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.bean.EvenOdd;
-import org.apache.tapestry.valid.IValidationDelegate;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu;
-import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.common.DialPad;
-import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.dialplan.AttendantMenuPanel.AttendantMenuItemMapAdapter;
 
 public class AttendantMenuItemMapAdapterTest extends TestCase {
 
-    private AttendantMenuItem item1 = new AttendantMenuItem();
-    private AttendantMenuItem item2 = new AttendantMenuItem();
-    private AttendantMenuItem item3 = new AttendantMenuItem();
+    private final AttendantMenuItem item1 = new AttendantMenuItem();
+    private final AttendantMenuItem item2 = new AttendantMenuItem();
+    private final AttendantMenuItem item3 = new AttendantMenuItem();
 
     private AttendantMenuItemMapAdapter adapter;
-    private AttendantMenu menu = new AttendantMenu();
+    private final AttendantMenu menu = new AttendantMenu();
 
+    @Override
     protected void setUp() {
         // tree map ensure order is preserved and so unittests
         // can make some assumptions so writing is a little easier

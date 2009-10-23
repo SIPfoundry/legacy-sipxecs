@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,7 +45,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     private LocationsManager m_locationsManager;
     // should be replicated every time aliases are replicated
     private ConfigurationFile m_validUsersConfig;
-    private SipxServiceManager m_sipxServiceManager;
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
@@ -180,11 +178,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     @Required
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         m_applicationEventPublisher = applicationEventPublisher;
-    }
-
-    @Required
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
     }
 
     public void publishEvent(ApplicationEvent event) {

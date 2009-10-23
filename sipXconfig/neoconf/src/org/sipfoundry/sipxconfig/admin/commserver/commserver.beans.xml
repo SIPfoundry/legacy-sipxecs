@@ -81,7 +81,6 @@
     <property name="jobContext" ref="jobContext" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="validUsersConfig" ref="validUsersConfig" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
   </bean>
 
