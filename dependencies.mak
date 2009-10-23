@@ -53,6 +53,10 @@ sipXpublisher : sipXcommserverLib
 sipXregistry : sipXcommserverLib
 	@echo sipXregistry
 
+.PHONY: sipXprovision
+sipXprovision : sipXcommons
+	@echo sipXprovision
+
 .PHONY: sipXproxy
 sipXproxy : sipXcommserverLib
 	@echo sipXproxy
@@ -78,7 +82,7 @@ sipXrls : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
 	@echo sipXrls
 
 .PHONY: sipXpbx
-sipXpbx : sipXproxy sipXregistry sipXpublisher sipXconfig sipXpark sipXpresence sipXrls
+sipXpbx : sipXproxy sipXprovision sipXregistry sipXpublisher sipXconfig sipXpark sipXpresence sipXrls
 	@echo sipXpbx
 
 .PHONY: sipXsupervisor
@@ -129,6 +133,7 @@ sipXecs : \
 	sipXpark \
 	sipXpbx \
 	sipXpresence \
+	sipXprovision \
 	sipXproxy \
 	sipXpublisher \
 	sipXregistry \

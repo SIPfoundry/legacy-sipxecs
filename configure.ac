@@ -45,6 +45,7 @@ then
   AC_CONFIG_SUBDIRS(sipXpark)
   AC_CONFIG_SUBDIRS(sipXpbx)
   AC_CONFIG_SUBDIRS(sipXpresence)
+  AC_CONFIG_SUBDIRS(sipXprovision)
   AC_CONFIG_SUBDIRS(sipXproxy)
   AC_CONFIG_SUBDIRS(sipXpublisher)
   AC_CONFIG_SUBDIRS(sipXregistry)
