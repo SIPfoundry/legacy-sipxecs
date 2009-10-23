@@ -40,6 +40,9 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     public abstract void setRenderGroupTitle(boolean render);
 
+    @Parameter(required = false)
+    public abstract String getSettingsToHide();
+
     @Parameter(defaultValue = "true")
     public abstract void setEnabled(boolean enabled);
 
@@ -55,6 +58,7 @@ public abstract class SettingsFieldset extends BaseComponent {
 
     @Parameter(defaultValue = "true")
     public abstract void setShowAdvancedToggle(boolean showAdvancedToggle);
+
     public abstract boolean getShowAdvancedToggle();
 
     public abstract Collection<Setting> getFlattenedSettings();
@@ -131,6 +135,7 @@ public abstract class SettingsFieldset extends BaseComponent {
         return !SettingUtil.isAdvancedIncludingParents(getSettings(), setting);
     }
 
+    @Override
     protected void prepareForRender(IRequestCycle cycle) {
         if (getSettings() == null) {
             return;
@@ -144,6 +149,7 @@ public abstract class SettingsFieldset extends BaseComponent {
         // compute flattened settings
         if (getFlattenedSettings() == null) {
             SettingsIron iron = new SettingsIron();
+            iron.setSettingsToHide(getSettingsToHide());
             getSettings().acceptVisitor(iron);
             setFlattenedSettings(iron.getFlat());
             setRenderAdvancedToggle(iron.isAdvanced());
