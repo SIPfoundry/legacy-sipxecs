@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SpecialUser;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -55,10 +55,12 @@ public class SipxProvisionConfigurationTest extends SipxServiceTestBase {
 
         CoreContext coreContext = EasyMock.createMock(CoreContext.class);
         provisionService.setCoreContext(coreContext);
-        SpecialUser phoneProvisionUser = new SpecialUser(SpecialUserType.PHONE_PROVISION);
+        User phoneProvisionUser = new User();
         phoneProvisionUser.setSipPassword("1234Password");
         coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
         EasyMock.expectLastCall().andReturn(phoneProvisionUser).anyTimes();
+
+        EasyMock.replay(coreContext);
 
         Setting logSetting = provisionService.getSettings().getSetting("provision-config/SIPX_PROV_LOG_LEVEL");
         logSetting.setValue("CRIT");

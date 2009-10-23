@@ -63,15 +63,18 @@ public class PermissionsTest extends TestCase {
         permissions.setCallGroupContext(callGroupContext);
 
         List<Map<String, String>> items = permissions.generate();
-        assertEquals(SPEC_COUNT * PERM_COUNT, items.size());
+        // As PHONE_PROVISION does NOT require any permissions, don't count it.
+        assertEquals((SPEC_COUNT -1) * PERM_COUNT, items.size());
         // 5 permissions per special user
 
         for (SpecialUserType su : SpecialUserType.values()) {
             int i = su.ordinal();
-
-            String name = "sip:" + su.getUserName() + "@host.company.com";
-            assertEquals(name, items.get(i * PERM_COUNT).get("identity"));
-            assertEquals(name, items.get((i + 1) * PERM_COUNT - 1).get("identity"));
+            // As PHONE_PROVISION does NOT require any permissions, skip it.
+            if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
+                String name = "sip:" + su.getUserName() + "@host.company.com";
+                assertEquals(name, items.get(i * PERM_COUNT).get("identity"));
+                assertEquals(name, items.get((i + 1) * PERM_COUNT - 1).get("identity"));
+            }
         }
         verify(coreContext, callGroupContext);
     }
@@ -112,7 +115,8 @@ public class PermissionsTest extends TestCase {
 
         List<Map<String, String>> items = permissions.generate();
 
-        int start = SPEC_COUNT * PERM_COUNT;
+        // As PHONE_PROVISION does NOT require any permissions, don't count it.
+        int start = (SPEC_COUNT - 1) * PERM_COUNT;
 
         assertEquals(start + 10, items.size());
 

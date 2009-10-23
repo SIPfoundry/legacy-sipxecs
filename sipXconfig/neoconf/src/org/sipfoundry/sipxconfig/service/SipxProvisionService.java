@@ -10,7 +10,6 @@
 
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.springframework.beans.factory.annotation.Required;
@@ -60,9 +59,7 @@ public class SipxProvisionService extends SipxService implements LoggingEntity {
         return m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION).getSipPassword();
     }
 
-    public String getProvisionUserName() {
+    public String getUserName() {
         return SpecialUserType.PHONE_PROVISION.getUserName();
     }
-
-
 }
