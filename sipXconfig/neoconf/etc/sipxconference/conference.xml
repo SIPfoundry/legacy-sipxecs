@@ -87,7 +87,7 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="members-only">
+    <setting name="members-only" hidden="yes">
       <type>
         <boolean />
       </type>
