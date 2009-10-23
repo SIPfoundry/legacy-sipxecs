@@ -11,8 +11,11 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
@@ -28,7 +31,6 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
-import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
@@ -42,9 +44,13 @@ public class XmppAccountInfoTest extends TestCase {
     private List<Conference> m_conferences;
     private User m_userOne;
     private User m_userTwo;
+    private User m_userThree;
+    private User m_userFour;
+    private User m_userFive;
     private Group m_group1;
     private Group m_group2;
     private Group m_group3;
+    private Group m_group4;
     private ModelFilesContext m_neoconfModelFilesContext;
     private PermissionManagerImpl m_pm;
 
@@ -55,9 +61,29 @@ public class XmppAccountInfoTest extends TestCase {
         m_pm = new PermissionManagerImpl();
         m_pm.setModelFilesContext(m_neoconfModelFilesContext);
 
+        m_group1 = new ImGroup(true, true);
+        m_group1.setName("group1");
+        m_group1.setDescription("my group");
+
+        // m_group2 im-group is enabled, im-account is disabled
+        m_group2 = new ImGroup(true, false);
+        m_group2.setName("group2");
+        m_group2.setDescription("empty IM group");
+
+        // the following group won't be replicated
+        m_group3 = new Group();
+
+        // m_group4 im-group is disabled, im-account is enabled
+        m_group4 = new ImGroup(false, true);
+        m_group4.setName("group4");
+        m_group4.setDescription("NO IM group");
+
+        m_groups = asList(m_group1, m_group2, m_group3, m_group4);
+
         m_userOne = new User();
         m_userOne.setPermissionManager(m_pm);
-        m_userOne.setSettingTypedValue("im/im-account", true);
+        m_userOne.addGroup(m_group1);
+        m_userOne.addGroup(m_group3);
         m_userOne.setSettingTypedValue("im/on-the-phone-message", "testing phone message");
         m_userOne.setSettingTypedValue("im/advertise-sip-presence", true);
         m_userOne.setUserName("One");
@@ -66,50 +92,34 @@ public class XmppAccountInfoTest extends TestCase {
 
         m_userTwo = new User();
         m_userTwo.setPermissionManager(m_pm);
+        m_userTwo.addGroup(m_group2);
         m_userTwo.setUserName("Two");
         m_userTwo.setImDisplayName("Two_IM_DisplayName");
 
-        User userThree = new User();
-        userThree.setPermissionManager(m_pm);
-        userThree.setSettingTypedValue("im/im-account", true);
-        userThree.setSettingTypedValue("im/on-the-phone-message", "");
-        userThree.setSettingTypedValue("im/advertise-sip-presence", true);
-        userThree.setSettingTypedValue("im/include-call-info", true);
-        userThree.setUserName("Three");
-        userThree.setImPassword("bongoImPassword");
+        m_userThree = new User();
+        m_userThree.setPermissionManager(m_pm);
+        m_userThree.setSettingTypedValue("im/im-account", true);
+        m_userThree.setSettingTypedValue("im/on-the-phone-message", "");
+        m_userThree.setSettingTypedValue("im/advertise-sip-presence", true);
+        m_userThree.setSettingTypedValue("im/include-call-info", true);
+        m_userThree.setUserName("Three");
+        m_userThree.setImPassword("bongoImPassword");
+
+        m_userFour = new User();
+        m_userFour.setPermissionManager(m_pm);
+        m_userFour.addGroup(m_group1);
+        m_userFour.addGroup(m_group4);
+        m_userFour.setUserName("Four");
+        m_userFour.setImDisplayName("Four_IM_DisplayName");
+
+        m_userFive = new User();
+        m_userFive.setPermissionManager(m_pm);
+        m_userFive.addGroup(m_group4);
+        m_userFive.setUserName("Five");
+        m_userFive.setFirstName("Five_DisplayName");
 
         m_users = new ArrayList<User>();
-        m_users.addAll(Arrays.asList(m_userOne, m_userTwo, userThree));
-
-        m_group1 = new Group() {
-            @Override
-            public Object getSettingTypedValue(SettingType type, String path) {
-                if (path.equals("im/im-account")) {
-                    return true;
-                }
-                return false;
-            }
-        };
-        m_group1.setName("group1");
-        m_group1.setDescription("my group");
-        m_userOne.addGroup(m_group1);
-        m_userTwo.addGroup(m_group1);
-
-        m_group2 = new Group() {
-            @Override
-            public Object getSettingTypedValue(SettingType type, String path) {
-                if (path.equals("im/im-account")) {
-                    return true;
-                }
-                return false;
-            }
-        };
-        m_group2.setName("group2");
-        m_group2.setDescription("empty group");
-
-        // the following group won't be replicated
-        m_group3 = new Group();
-        m_groups = Arrays.asList(m_group1, m_group2, m_group3);
+        m_users.addAll(asList(m_userOne, m_userTwo, m_userThree, m_userFour, m_userFive));
 
         Bridge mockBridge = new Bridge() {
             @Override
@@ -141,9 +151,9 @@ public class XmppAccountInfoTest extends TestCase {
         conf3.setExtension("300");
         conf3.setSettingTypedValue("chat-meeting/moderated", false);
         conf3.setSettingTypedValue("chat-meeting/log-conversations", true);
-        conf3.setOwner(userThree);
+        conf3.setOwner(m_userThree);
 
-        m_conferences = Arrays.asList(conf1, conf2, conf3);
+        m_conferences = asList(conf1, conf2, conf3);
 
     }
 
@@ -155,9 +165,13 @@ public class XmppAccountInfoTest extends TestCase {
         coreContext.getGroups();
         expectLastCall().andReturn(m_groups);
         coreContext.getGroupMembers(m_group1);
-        expectLastCall().andReturn(Arrays.asList(m_userOne, m_userTwo)).once();
+        expectLastCall().andReturn(asList(m_userOne, m_userTwo, m_userFour)).once();
         coreContext.getGroupMembers(m_group2);
-        expectLastCall().andReturn(null).once();
+        expectLastCall().andReturn(asList(m_userTwo)).once();
+        coreContext.getGroupMembers(m_group3);
+        expectLastCall().andReturn(emptyList()).once();
+        coreContext.getGroupMembers(m_group4);
+        expectLastCall().andReturn(asList(m_userFour, m_userFive)).once();
         User paUser = new User();
         paUser.setPermissionManager(m_pm);
         coreContext.newUser();
@@ -187,5 +201,18 @@ public class XmppAccountInfoTest extends TestCase {
 
         InputStream referenceXml = XmppAccountInfoTest.class.getResourceAsStream("xmpp-account-info.test.xml");
         assertEquals(IOUtils.toString(referenceXml), domDoc);
+    }
+
+    private class ImGroup extends Group {
+        public ImGroup(boolean imGroup, boolean imAccount) {
+            HashMap<String, String> values = new HashMap<String, String>();
+            if (imGroup) {
+                values.put("im/im-group", "1");
+            }
+            if (imAccount) {
+                values.put("im/im-account", "1");
+            }
+            setDatabaseValues(values);
+        }
     }
 }

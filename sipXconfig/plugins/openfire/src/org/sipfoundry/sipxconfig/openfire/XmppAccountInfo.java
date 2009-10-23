@@ -148,23 +148,24 @@ public class XmppAccountInfo extends XmlFile {
 
     private void createXmmpGroup(Group group, Element accountInfos) {
         // HACK: we assume that 'replicate-group' is a standard boolean setting
-        Boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-account");
+        Boolean replicate = (Boolean) group.getSettingTypedValue(new BooleanSetting(), "im/im-group");
         if (replicate == null || !replicate) {
             return;
         }
+
         Element xmmpGroup = accountInfos.addElement("group");
         xmmpGroup.addElement("group-name").setText(group.getName());
         String groupDescription = group.getDescription();
         if (groupDescription != null) {
             xmmpGroup.addElement(DESCRIPTION).setText(groupDescription);
         }
+
         Collection<User> groupMembers = m_coreContext.getGroupMembers(group);
-        if (groupMembers != null && groupMembers.size() > 0) {
-            for (User user : groupMembers) {
-                if (user.getImId() != null) {
-                    Element userElement = xmmpGroup.addElement(USER);
-                    userElement.addElement(USER_NAME).setText(user.getImId());
-                }
+        for (User user : groupMembers) {
+            ImAccount imAccount = new ImAccount(user);
+            if (imAccount.isEnabled()) {
+                Element userElement = xmmpGroup.addElement(USER);
+                userElement.addElement(USER_NAME).setText(imAccount.getImId());
             }
         }
     }

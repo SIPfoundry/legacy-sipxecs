@@ -203,6 +203,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="im-group">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="advertise-sip-presence" advanced="yes">
       <type>
         <boolean />
