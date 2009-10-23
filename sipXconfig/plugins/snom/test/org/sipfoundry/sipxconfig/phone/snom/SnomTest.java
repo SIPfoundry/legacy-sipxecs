@@ -1,3 +1,12 @@
+/*
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the LGPL license.
+ *
+ */
+
 package org.sipfoundry.sipxconfig.phone.snom;
 
 import java.util.ArrayList;
@@ -6,37 +15,39 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.phone.snom.SnomPhone.SnomContext;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
+
+import static org.easymock.EasyMock.createNiceControl;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 public class SnomTest extends TestCase {
     private final Collection<PhonebookEntry> m_emptyPhonebook = Collections.<PhonebookEntry> emptyList();
 
-    public void testGenerateProfiles() throws Exception {
-        SnomPhone phone = new SnomPhone();
-        phone.setSerialNumber("abc123");
+    public void testGenerateProfiles360() throws Exception {
         PhoneModel model = new PhoneModel("snom");
+        model.setModelId("snom360");
         model.setLabel("Snom 360");
         model.setModelDir("snom");
+        model.setSupportedFeatures(Collections.singleton("blf"));
         model.setProfileTemplate("snom/snom.vm");
 
-        phone.setModel(model);
-        PhoneTestDriver.supplyTestData(phone);
+        SnomPhone phone = preparePhone(model);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
@@ -44,6 +55,51 @@ public class SnomTest extends TestCase {
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-360.xml"));
 
         assertEquals(expected, location.toString());
+    }
+
+    public void testGenerateProfiles320() throws Exception {
+        PhoneModel model = new PhoneModel("snom");
+        model.setModelId("snom320");
+        model.setLabel("Snom 320");
+        model.setModelDir("snom");
+        model.setProfileTemplate("snom/snom.vm");
+
+        SnomPhone phone = preparePhone(model);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        phone.generateProfiles(location);
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-snom-320.xml"));
+
+        assertEquals(expected, location.toString());
+    }
+
+    private SnomPhone preparePhone(PhoneModel model) {
+        User user = new User();
+        user.setUserName("juser");
+        user.setFirstName("Joe");
+        user.setLastName("User");
+        user.setSipPassword("1234");
+        user.setIsShared(false);
+
+        SpeedDial sp = new SpeedDial();
+        sp.setUser(user);
+        Button button = new Button("Yogi", "yogi@example.com");
+        button.setBlf(true);
+        sp.setButtons(Collections.singletonList(button));
+
+        SpeedDialManager speedDialManager = createNiceMock(SpeedDialManager.class);
+        speedDialManager.getSpeedDialForUserId(user.getId(), false);
+        expectLastCall().andReturn(sp);
+        replay(speedDialManager);
+
+        SnomPhone phone = new SnomPhone();
+        phone.setSerialNumber("abc123");
+
+        phone.setModel(model);
+        phone.setSpeedDialManager(speedDialManager);
+        PhoneTestDriver.supplyTestData(phone, Arrays.asList(user));
+        return phone;
     }
 
     public void testGenerateProfilesWithSpeedDial() throws Exception {
@@ -59,7 +115,7 @@ public class SnomTest extends TestCase {
 
         phone.setModel(model);
 
-        IMocksControl phoneContextControl = EasyMock.createNiceControl();
+        IMocksControl phoneContextControl = createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
         PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
         phoneContext.getSpeedDial(phone);
@@ -94,7 +150,7 @@ public class SnomTest extends TestCase {
 
         phone.setModel(model);
 
-        IMocksControl phoneContextControl = EasyMock.createNiceControl();
+        IMocksControl phoneContextControl = createNiceControl();
         PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
         PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
         phoneContext.getPhonebookEntries(phone);
@@ -130,7 +186,7 @@ public class SnomTest extends TestCase {
     public void testSnomContextEmpty() {
         SnomPhone phone = new SnomPhone();
 
-        SnomContext sc = new SnomPhone.SnomContext(phone, null, m_emptyPhonebook, null);
+        SnomProfileContext sc = new SnomProfileContext(phone, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDial");
 
         assertEquals(0, numbers.length);
@@ -142,14 +198,14 @@ public class SnomTest extends TestCase {
 
         SnomPhone phone = new SnomPhone();
 
-        SnomContext sc = new SnomPhone.SnomContext(phone, smallSd, m_emptyPhonebook, null);
+        SnomProfileContext sc = new SnomProfileContext(phone, smallSd, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDial");
         assertEquals(5, numbers.length);
         for (int i = 0; i < numbers.length; i++) {
             assertEquals(Integer.toString(i), numbers[i]);
         }
 
-        sc = new SnomPhone.SnomContext(phone, largeSd, m_emptyPhonebook, null);
+        sc = new SnomProfileContext(phone, largeSd, m_emptyPhonebook, null);
         numbers = (String[]) sc.getContext().get("speedDial");
         assertEquals(33, numbers.length);
         for (int i = 0; i < numbers.length; i++) {
@@ -164,7 +220,7 @@ public class SnomTest extends TestCase {
         }
         SnomPhone phone = new SnomPhone();
 
-        SnomContext sc = new SnomPhone.SnomContext(phone, null, phonebook, null);
+        SnomProfileContext sc = new SnomProfileContext(phone, null, phonebook, null);
         Collection< ? > trimmed = (Collection< ? >) sc.getContext().get("phoneBook");
         assertEquals(100, trimmed.size());
     }

@@ -164,7 +164,7 @@
           </option>
         </enum>
       </type>
-      <value>off</value>
+      <value>5</value>
     </setting>
     <setting name="block_url_dialing">
       <type refid="on-off" />
@@ -246,9 +246,54 @@
           <option>
             <value>15</value>
           </option>
+          <option>
+            <value>16</value>
+          </option>
+          <option>
+            <value>17</value>
+          </option>
+          <option>
+            <value>18</value>
+          </option>
+          <option>
+            <value>19</value>
+          </option>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>21</value>
+          </option>
+          <option>
+            <value>22</value>
+          </option>
+          <option>
+            <value>23</value>
+          </option>
+          <option>
+            <value>24</value>
+          </option>
+          <option>
+            <value>25</value>
+          </option>
+          <option>
+            <value>26</value>
+          </option>
+          <option>
+            <value>27</value>
+          </option>
+          <option>
+            <value>28</value>
+          </option>
+          <option>
+            <value>29</value>
+          </option>
+          <option>
+            <value>30</value>
+          </option>
         </enum>
       </type>
-      <value>8</value>
+      <value>15</value>
     </setting>
     <setting name="use_backlight">
       <profileName>use_backlight$</profileName>
@@ -313,15 +358,15 @@
       </type>
       <value>500</value>
     </setting>
-    <setting name="enable_timer_support" advanced="yes">
-      <type refid="on-off" />
-      <value>on</value>
-    </setting>
     <setting name="session_timer" advanced="yes">
       <type>
         <integer />
       </type>
       <value>3600</value>
+    </setting>
+    <setting name="timer_support" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
     </setting>
     <setting name="dirty_host_ttl" advanced="yes">
       <type>
@@ -362,7 +407,11 @@
     </setting>
     <setting name="require_prack" advanced="yes">
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
+    </setting>
+    <setting name="send_prack" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
     </setting>
     <setting name="offer_gruu" advanced="yes">
       <type refid="on-off" />
