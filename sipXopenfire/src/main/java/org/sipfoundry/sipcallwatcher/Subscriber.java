@@ -56,6 +56,8 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.sipcallwatcher.SubscribeDialog.SubscribeDialog;
+import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
+
 
 /**
  * Class implementing the SipListener interface and is responsible for creating and refreshing its
@@ -188,8 +190,10 @@ public class Subscriber implements SipListener {
                 SipResourceState resourceState = updatedSipUsersStates.get(user);
                 // notify state change listener of change
                 if (Subscriber.this.resourceStateChangeListener != null) {
+                    EndpointInfo remote = resourceState.equals( SipResourceState.BUSY ) ? 
+                            resourcesDialogInformation.getRemoteInfoForActiveDialog(user) : null;            
                     ResourceStateEvent resourceStateEvent = new ResourceStateEvent(
-                            Subscriber.this, user, resourceState);
+                            Subscriber.this, user, resourceState, remote);
                     Subscriber.this.resourceStateChangeListener
                             .handleResourceStateChange(resourceStateEvent);
                 } else {

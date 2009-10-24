@@ -1,20 +1,23 @@
 package org.sipfoundry.sipcallwatcher;
 
 import java.util.EventObject;
+import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
 
 public class ResourceStateEvent extends EventObject {
     private static final long serialVersionUID = -7228675062866489237L;
     private SipResourceState state;
     private String user ;
+    private EndpointInfo remoteEndpoint;
     
     public ResourceStateEvent(Object source) {
         super(source);
     }
     
-    public ResourceStateEvent (Subscriber subscriber, String user, SipResourceState newState) {
+    public ResourceStateEvent (Subscriber subscriber, String user, SipResourceState newState, EndpointInfo remoteEndpoint) {
         this(subscriber);
         this.state = newState;
         this.user = user;
+        this.remoteEndpoint = remoteEndpoint;
     }
 
     /**
@@ -37,6 +40,17 @@ public class ResourceStateEvent extends EventObject {
     public String getUser() {
         return user;
     }
+
+    public EndpointInfo getRemoteEndpoint()
+    {
+        return remoteEndpoint;
+    }
+
+    public void setRemoteEndpoint( EndpointInfo remoteEndpoint )
+    {
+        this.remoteEndpoint = remoteEndpoint;
+    }
+
 
 
 

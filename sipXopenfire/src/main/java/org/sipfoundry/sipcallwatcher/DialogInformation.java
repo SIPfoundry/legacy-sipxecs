@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
 
 /**
  * Encapsulates information about the active dialogs of a specific resource.
@@ -19,6 +20,7 @@ class DialogInformation {
     private Map<String, String> activeDialogStates = new HashMap<String, String>();
     /* state of a resource considering all its dialogs */
     private SipResourceState compoundState = SipResourceState.UNDETERMINED;
+    private EndpointInfo remoteForLastActiveDialog; // information about the far-end of the last active dialog
     /* internal Id used to track entries that have been updated */
     private int updateId = -1;
     private String resourceName;
@@ -56,7 +58,8 @@ class DialogInformation {
             for (DialogInfoMessagePart.DialogInfo dialogInfo : updatedDialogs) {
                 // we only track 'active' dialogs
                 if (!dialogInfo.getState().equals("terminated")) {
-                    activeDialogStates.put(dialogInfo.getId(), dialogInfo.getState());
+                    activeDialogStates.put(dialogInfo.getId(), dialogInfo.getState() );
+                    remoteForLastActiveDialog = dialogInfo.getRemoteInfo();
                 } else {
                     // dialog is terminated - discontinue its tracking
                     activeDialogStates.remove(dialogInfo.getId());
@@ -101,6 +104,10 @@ class DialogInformation {
         return compoundState;
     }
 
+    public EndpointInfo getActiveDialogRemoteInfo() {
+        return this.remoteForLastActiveDialog;
+    }
+    
     public int getUpdateId() {
         return updateId;
     }

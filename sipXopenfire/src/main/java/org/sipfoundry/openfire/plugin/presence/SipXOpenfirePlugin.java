@@ -91,6 +91,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     private Map<String, ConferenceInformation> roomNameToConferenceInfoMap = new HashMap<String, ConferenceInformation>();
 
+    private Map<String, XmppUserPreferences> xmppUserPreferencesMap = new HashMap<String, XmppUserPreferences>(); // key is username part of JID
+
     private AccountsParser accountsParser;
 
     public class ConferenceInformation {
@@ -139,6 +141,33 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
+    public class XmppUserPreferences {
+        private boolean advertiseOnCallStatus;
+        private boolean showOnCallDetails;
+        
+        public XmppUserPreferences(boolean advertiseOnCallStatus, boolean showOnCallDetails)
+        {
+            this.advertiseOnCallStatus = advertiseOnCallStatus;
+            this.showOnCallDetails = showOnCallDetails;
+        }
+        public boolean getAdvertiseOnCallStatus()
+        {
+            return advertiseOnCallStatus;
+        }
+        public void setAdvertiseOnCallStatus( boolean advertiseOnCallStatus )
+        {
+            this.advertiseOnCallStatus = advertiseOnCallStatus;
+        }
+        public boolean getShowOnCallDetails()
+        {
+            return showOnCallDetails;
+        }
+        public void setShowOnCallDetails( boolean showOnCallDetails )
+        {
+            this.showOnCallDetails = showOnCallDetails;
+        }
+    }
+    
     static void parseConfigurationFile() {
         String configurationFile = configurationPath + "/sipxopenfire.xml";
 
@@ -447,7 +476,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
     public void createUserAccount(String userName, String password, String displayName,
-            String email) {
+            String email, boolean advertiseOnCall, boolean showOnCallDetail) {
 
         try {
             User user = userManager.getUser(userName);
@@ -463,7 +492,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         }
-        
+        this.xmppUserPreferencesMap.put(userName,
+                new XmppUserPreferences( advertiseOnCall, showOnCallDetail ));
     }
 
     public void destroyUser(String jid) throws UserNotFoundException {
@@ -638,8 +668,24 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
     // returns the JID given a sip user part.
-    public String getXmppId(String sipId) {
-        return this.sipIdToXmppIdMap.get(sipId);
+    public String getXmppId(String sipUserPart) {
+        return this.sipIdToXmppIdMap.get(sipUserPart);
+    }
+
+    // returns the node part of the JID given a sip user part.
+    public String getXmppNode(String sipUserPart) throws UserNotFoundException {
+        String jidAsString = this.sipIdToXmppIdMap.get(sipUserPart);
+        if( jidAsString == null ){
+            throw new UserNotFoundException("cannot map SIP User part " + sipUserPart + " to XMPP node" );
+        }
+        JID jid = new JID(jidAsString);
+        return jid.getNode();
+    }
+
+    // returns the XMPP display name for given jid supplied as text.
+    // returns null if not found
+    public String getXmppDisplayName(String xmppUserPart) throws UserNotFoundException{
+        return userManager.getUser(xmppUserPart).getName();
     }
 
     /**
@@ -650,6 +696,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
     public String getXmppDomain() {
+        return this.server.getServerInfo().getXMPPDomain();
+    }
+
+    public String getSipDomain() {
+        // in current implementation, SIP domain is the same as XMPP domain 
         return this.server.getServerInfo().getXMPPDomain();
     }
 
@@ -924,6 +975,23 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new NotFoundException("Room not found " + domain + " roomName " + roomName);
         }
         return confInfo.extension;
+    }
+    
+    public boolean shouldDisplayUserOnThePhoneStatus(String xmppUserName) throws NotFoundException {
+        XmppUserPreferences prefs = this.xmppUserPreferencesMap.get(xmppUserName);
+        ;
+        if (prefs == null) {
+            throw new NotFoundException("User not found " + xmppUserName);
+        }
+        return prefs.getAdvertiseOnCallStatus();
+    }
+
+    public boolean shouldDisplayCallDetails(String xmppUserName) throws NotFoundException {
+        XmppUserPreferences prefs = this.xmppUserPreferencesMap.get(xmppUserName);
+        if (prefs == null) {
+            throw new NotFoundException("User not found " + xmppUserName);
+        }
+        return prefs.getShowOnCallDetails();
     }
 
     public String getConferencePin(String domain, String roomName) throws NotFoundException {

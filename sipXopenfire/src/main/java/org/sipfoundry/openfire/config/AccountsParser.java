@@ -195,6 +195,8 @@ public class AccountsParser {
         addCallMethod("display-name", "setDisplayName");
         addCallMethod("on-the-phone-message", "setOnThePhoneMessage");
         addCallMethod("conference-extension", "setConferenceExtension");
+        addCallMethod("advertise-on-call-status", "setAdvertiseOnCallPreference");
+        addCallMethod("show-on-call-details", "setShowOnCallDetailsPreference");
         currentTag = groupTag;
         addCallMethod("group-name", "setGroupName");
         addCallMethod("description", "setDescription");
@@ -209,6 +211,7 @@ public class AccountsParser {
         addCallMethod("description", "setDescription");
         addCallMethod("password", "setPassword");
         addCallMethod("room-owner", "setOwner");
+        addCallMethod("moderated", "setModerated");
         addCallMethod("log-room-conversations", "setLogRoomConversations");
         addCallMethod("is-public-room", "setIsPublicRoom");
         addCallMethod("is-members-only", "setMembersOnly");

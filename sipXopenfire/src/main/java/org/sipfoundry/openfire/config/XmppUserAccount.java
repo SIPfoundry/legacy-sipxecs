@@ -13,8 +13,10 @@ public class XmppUserAccount  {
     
     private String onThePhoneMessage;
     
-    
-    
+    private boolean bAdvertiseOnCallStatus;
+
+    private boolean bShowOnCallDetails;
+ 
     public XmppUserAccount () {
     }
     public String getEmail() {
@@ -81,6 +83,21 @@ public class XmppUserAccount  {
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
+
+    public void setAdvertiseOnCallPreference(String flag){
+        this.bAdvertiseOnCallStatus = Boolean.parseBoolean(flag);
+    }        
     
+    public boolean getAdvertiseOnCallPreference(){
+        return this.bAdvertiseOnCallStatus;
+    }
+
+    public void setShowOnCallDetailsPreference(String flag){
+        this.bShowOnCallDetails = Boolean.parseBoolean(flag);
+    }
+
+    public boolean getShowOnCallDetailsPreference(){
+        return this.bShowOnCallDetails;
+    }
 
 }

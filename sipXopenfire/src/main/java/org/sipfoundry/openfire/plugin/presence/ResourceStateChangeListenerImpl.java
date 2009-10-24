@@ -29,10 +29,10 @@ public class ResourceStateChangeListenerImpl implements ResourceStateChangeListe
             String sipUserId = sipUri.getUser();
             SipResourceState resourceState = resourceStateEvent.getState();
             logger.info("handleResourceStateChange " + sipUserId + " resourceState = "
-                    + resourceState);
+                    + resourceState + "; remote endpoint:" + resourceStateEvent.getRemoteEndpoint());
             String xmppId = plugin.getXmppId(sipUserId);
             JID jid = new JID(xmppId);
-            PresenceUnifier.getInstance().sipStateChanged( jid.getNode(), resourceState );
+            PresenceUnifier.getInstance().sipStateChanged( jid.getNode(), resourceState, resourceStateEvent.getRemoteEndpoint() );
         } catch (Exception ex) {
             logger.error("Exception processing resource change event", ex);
         }

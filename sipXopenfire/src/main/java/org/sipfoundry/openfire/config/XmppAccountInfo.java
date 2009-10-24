@@ -39,7 +39,8 @@ public class XmppAccountInfo {
         logger.debug("createUserAccount " + xmppUserAccount.getUserName() + " password = "
                 + xmppUserAccount.getPassword());
         plugin.createUserAccount(xmppUserAccount.getUserName(), xmppUserAccount.getPassword(),
-                xmppUserAccount.getDisplayName(), xmppUserAccount.getEmail());
+                xmppUserAccount.getDisplayName(), xmppUserAccount.getEmail(),
+                xmppUserAccount.getAdvertiseOnCallPreference(), xmppUserAccount.getShowOnCallDetailsPreference());
         String jid = appendDomain(xmppUserAccount.getUserName());
         String sipUserName = xmppUserAccount.getSipUserName();
         logger.debug("setSipId " + jid + " sipUserName " + sipUserName);
@@ -83,7 +84,6 @@ public class XmppAccountInfo {
     }
 
     public void addChatRoom(XmppChatRoom xmppChatRoom) throws Exception {
-        boolean moderated = false;
         boolean allowInvite = false;
         logger.info(String.format("createChatRoom %s\n %s\n %s\n %s",
                 xmppChatRoom.getSubdomain(), xmppChatRoom.getRoomName(), xmppChatRoom
@@ -93,7 +93,7 @@ public class XmppAccountInfo {
             return;
         }
         plugin.createChatRoom(xmppChatRoom.getSubdomain(), xmppChatRoom.getOwner(), xmppChatRoom
-                .getRoomName(), moderated, xmppChatRoom
+                .getRoomName(), xmppChatRoom.isModerated(), xmppChatRoom
                 .isMembersOnly(), allowInvite, xmppChatRoom.isPublicRoom(), xmppChatRoom
                 .isLogRoomConversations(), xmppChatRoom.isPersistent(), xmppChatRoom
                 .getPassword(), xmppChatRoom.getDescription(), xmppChatRoom

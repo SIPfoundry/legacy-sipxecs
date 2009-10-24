@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
 
 /**
  * Encapsulates the dialog information for all the resources being monitored.
@@ -108,5 +109,18 @@ class ResourcesDialogInformation {
             logger.error("Unexpected exception ", ex);
             throw ex;
         }
+    }
+    
+    public EndpointInfo getRemoteInfoForActiveDialog( String resourceName )
+    {
+        EndpointInfo remoteInfo = null;
+
+        // locate the record for that resource in our resourcesDialogInfoMap
+        DialogInformation dialogInfo = resourcesDialogInfoMap.get(resourceName);
+        if (dialogInfo != null) {
+            remoteInfo = dialogInfo.getActiveDialogRemoteInfo();
+        }
+        return remoteInfo;
+        
     }
 }

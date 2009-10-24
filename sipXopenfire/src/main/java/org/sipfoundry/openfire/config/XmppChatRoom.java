@@ -13,6 +13,7 @@ public class XmppChatRoom {
     private boolean isPublicRoom = true;
     private boolean membersOnly;
     private boolean isPersistent;
+    private boolean isModerated;
     
     public XmppChatRoom() {
         
@@ -147,5 +148,13 @@ public class XmppChatRoom {
    
    public boolean isPersistent() {
        return this.isPersistent;
+   }
+
+   public void setModerated(String flag) {
+       this.isModerated = Boolean.parseBoolean(flag);
+   }
+   
+   public boolean isModerated() {
+       return this.isModerated;
    }
 }

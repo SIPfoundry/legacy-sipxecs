@@ -45,6 +45,25 @@
     				</documentation>
     			</annotation>
     		</element>
+    		<element name="advertise-on-call-status" type="boolean"
+    			minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    				   	Dictates whether or not the sipXopenfire plugin will make available the 
+    				   	SIP status information about the user
+       				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="show-on-call-details" type="boolean"
+    			minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    				   	When user is on the phone and advertise-on-call-status is true, this dictates
+    				   	whether or not the sipXopenfire plugin will make available the 
+    				   	information about the other call party
+       				</documentation>
+    			</annotation>
+    		</element>
     	</sequence>
     </complexType>
 
@@ -167,7 +186,7 @@
     			<annotation>
     				<documentation>
     					PIN required to enter conference and IM Chatroom.
-    				</documentation>
+       				</documentation>
     			</annotation>
     		</element>
     	</sequence>

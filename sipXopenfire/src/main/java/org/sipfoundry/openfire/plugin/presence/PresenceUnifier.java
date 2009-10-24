@@ -1,5 +1,9 @@
 package org.sipfoundry.openfire.plugin.presence;
 
+import gov.nist.javax.sip.address.SipUri;
+import gov.nist.javax.sip.parser.URLParser;
+
+import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +17,7 @@ import org.jivesoftware.openfire.user.PresenceEventListener;
 import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.Presence;
-
+import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
 
 /**
  * Singleton object that is meant to collect all the presence-related
@@ -64,7 +68,7 @@ public class PresenceUnifier implements PresenceEventListener
     }
     
     // Notification that SIP state changed (idle, on-call, ...)
-    public void sipStateChanged( String xmppUsername, SipResourceState newState )
+    public void sipStateChanged( String xmppUsername, SipResourceState newState, EndpointInfo remoteEndpoint )
     {
         UnifiedPresence unifiedPresence;
         unifiedPresence = unifiedPresenceMap.get( xmppUsername );
@@ -72,13 +76,16 @@ public class PresenceUnifier implements PresenceEventListener
             unifiedPresence = new UnifiedPresence( xmppUsername );
             unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
         }
+        
+        String remoteEndpointAsString = getRemoteEndpointAsString( remoteEndpoint );
+        unifiedPresence.setRemoteSipEndpoint( remoteEndpointAsString );
         unifiedPresence.setSipState( newState );
         log.debug("SipStateChanged for " + xmppUsername + " new state: " + newState + " new unified presence: " + unifiedPresence.getUnifiedPresence() );
         // generate new status message that contains SIP state information
         if (newState == SipResourceState.BUSY){
             // on the phone - craft new XMPP status message that represents that.
             String newXmppStatusMessageWithSipState = 
-                generateXmppStatusMessageWithSipState( unifiedPresence.getJidAsString(), unifiedPresence );
+                generateXmppStatusMessageWithSipState( unifiedPresence );
             if( newXmppStatusMessageWithSipState != null ){
                 unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessageWithSipState);
                 // make plug-in aware of change so that it gets broadcasted to all watchers.
@@ -197,7 +204,7 @@ public class PresenceUnifier implements PresenceEventListener
         unifiedPresence.setXmppStatusMessage( newXmppStatusMessage );
         if ( unifiedPresence.getSipState() == SipResourceState.BUSY ){
             String newXmppStatusMessageWithSipState = 
-                generateXmppStatusMessageWithSipState( unifiedPresence.getJidAsString(), unifiedPresence );
+                generateXmppStatusMessageWithSipState( unifiedPresence );
             if( newXmppStatusMessageWithSipState != null ){
                 unifiedPresence.setXmppStatusMessageWithSipState(newXmppStatusMessageWithSipState);
             }
@@ -280,13 +287,20 @@ public class PresenceUnifier implements PresenceEventListener
     }
 
   //@returns: null if the user does not have an 'on the phone' message
-    private String generateXmppStatusMessageWithSipState( String jid, UnifiedPresence unifiedPresence ){
+    private String generateXmppStatusMessageWithSipState( UnifiedPresence unifiedPresence ){
         String xmppStatusMessageWithSipState = null;
         try{
-            xmppStatusMessageWithSipState = sipXopenfirePlugin.getOnThePhoneMessage(unifiedPresence.getJidAsString());
-            if (xmppStatusMessageWithSipState != null){
-                if (unifiedPresence.getXmppStatusMessage().length() != 0 ){
-                    xmppStatusMessageWithSipState = xmppStatusMessageWithSipState + " - " + unifiedPresence.getXmppStatusMessage();
+            if( sipXopenfirePlugin.shouldDisplayUserOnThePhoneStatus( unifiedPresence.getXmppUsername() ) == true ){
+                xmppStatusMessageWithSipState = sipXopenfirePlugin.getOnThePhoneMessage(unifiedPresence.getJidAsString());
+                if (xmppStatusMessageWithSipState != null){
+                    if (unifiedPresence.getXmppStatusMessage().length() != 0 ){
+                        if( sipXopenfirePlugin.shouldDisplayCallDetails( unifiedPresence.getXmppUsername() ) == true && 
+                            unifiedPresence.getRemoteSipEndpoint() != null )
+                        {
+                            xmppStatusMessageWithSipState += " (" + unifiedPresence.getRemoteSipEndpoint() + ") ";
+                        }
+                        xmppStatusMessageWithSipState += " - " + unifiedPresence.getXmppStatusMessage();
+                    }
                 }
             }
         }
@@ -294,6 +308,55 @@ public class PresenceUnifier implements PresenceEventListener
             log.error("PresenceUnifier::generateXmppStatusMessageWithSipState() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
         }            
         return xmppStatusMessageWithSipState;
+    }
+
+    // generates a string representing the remote endpoint.  There are four possible
+    // ways that this string can be generated.
+    // 1- if the remote identity domain is ours and the remote identity userpart
+    //    maps to an XMPP user then the remote endpoint string will be the XMPP username
+    //    for that user;
+    // 2- if the remote identity domain is ours and the remote identity SIP userpart
+    //    does not map to an XMPP user then:
+    //   2a- if Display name is available use it as remote endpoint string
+    //   2b- else use SIP userpart as remote endpoint string
+    // 3- if none of the above match, use the username@domain part of the identity as
+    //    the remote endpoint string.
+    String getRemoteEndpointAsString( EndpointInfo remoteEndpoint ){
+        String remoteEndpointAsString = null;
+        if( remoteEndpoint != null && remoteEndpoint.getIdentity() != null ){
+            try{
+                URLParser parser = new URLParser( remoteEndpoint.getIdentity() );
+                SipUri sipURI = parser.sipURL();
+                if( sipURI.getHost().equals( sipXopenfirePlugin.getSipDomain() ) ){
+                    // identity of the remote endpoint belongs to our domain
+                    try{
+                        String xmppNode = sipXopenfirePlugin.getXmppNode(sipURI.getUser());
+                        remoteEndpointAsString = sipXopenfirePlugin.getXmppDisplayName( xmppNode );
+                    }
+                    catch( UserNotFoundException ex ){
+                        log.info("getRemoteEndpointAsString could not resolve the SIP user part to an XMPP display name :" + ex );
+                        // could not resolve the SIP user part to an XMPP display name, look
+                        // for option 2a or 2b (see comments above).
+                        if( remoteEndpoint.getDisplayName() != null && remoteEndpoint.getDisplayName().length() != 0 ){
+                            remoteEndpointAsString = remoteEndpoint.getDisplayName();
+                        }
+                        else{
+                            remoteEndpointAsString = sipURI.getUser();
+                        }
+                    }
+                }
+                else{
+                    // remote endpoint is not to our domain, use the user@domain part of the 
+                    // identity as the remote endpoint string
+                    remoteEndpointAsString = sipURI.getUserAtHost();
+                }
+            }
+            catch( ParseException ex ){
+                log.error("getRemoteEndpointAsString caught '" + ex + "' while parsing identity " + remoteEndpoint.getIdentity() );                
+            }
+        }
+        log.debug("remote endpoint string is '" + remoteEndpointAsString + "'");
+        return remoteEndpointAsString;
     }
 }
 

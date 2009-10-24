@@ -40,7 +40,8 @@ public class UnifiedPresence {
     private String xmppStatusMessage = ""; 
     private String xmppStatusMessageWithSipState = ""; 
     private String xmppUsername; // XMPP username that presence info relates to
-    private String jidAsString;   
+    private String jidAsString;
+    private String remoteSipEndpoint;   
     
     UnifiedPresence( String xmppUsername )
     {
@@ -60,6 +61,16 @@ public class UnifiedPresence {
         computeUnifiedPresence();
     }
     
+    public String getRemoteSipEndpoint()
+    {
+        return remoteSipEndpoint;
+    }
+
+    public void setRemoteSipEndpoint( String remoteSipEndpoint )
+    {
+        this.remoteSipEndpoint = remoteSipEndpoint;
+    }
+
     public XmppPresence getXmppPresence()
     {
         return xmppPresence;
@@ -192,4 +203,6 @@ public class UnifiedPresence {
     {
         return jidAsString;
     }
+
+
 }
