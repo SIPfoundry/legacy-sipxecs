@@ -5,6 +5,7 @@ public class XmppGroupMember {
     
     public void setUserName(String userName) {
         this.userName = XmppAccountInfo.appendDomain(userName);
+        this.userName = userName.toLowerCase();  // openfire fails to add users with mixed case
     }
     /**
      * @return the userName

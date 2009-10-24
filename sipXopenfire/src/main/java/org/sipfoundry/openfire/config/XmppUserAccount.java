@@ -43,7 +43,7 @@ public class XmppUserAccount  {
      */
     public void setUserName(String userName) {
         this.userName = userName.toLowerCase();  // Necessary because openfire stores usernames in lowercase.  
-                                                 // We force username to lowercase to ensure that copares
+                                                 // We force username to lowercase to ensure that compares
                                                  // between this username and ones taken from the openfire DB
                                                  // work as expected.
     }
