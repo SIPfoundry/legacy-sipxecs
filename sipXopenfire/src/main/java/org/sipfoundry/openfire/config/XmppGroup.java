@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
+
 public class XmppGroup {
-    
+    private static Logger logger = Logger.getLogger(XmppGroup.class);
+
     private String groupName;
     
     private String description;
@@ -47,8 +50,8 @@ public class XmppGroup {
         return this.members.values();
     }
     
-    public void addMember(XmppGroupMember member) {
-        this.members.put(member.getUserName(),member);
+    public void addMember(XmppGroupMember member) {        
+        this.members.put(member.getJid(),member);
     }
 
     
@@ -67,8 +70,8 @@ public class XmppGroup {
         return administrator;
     }
 
-    public boolean hasMember(String xmppUsername) {
-        return this.members.containsKey(xmppUsername);
+    public boolean hasMember(String jid) {
+        return this.members.containsKey(jid);
     }
     
     

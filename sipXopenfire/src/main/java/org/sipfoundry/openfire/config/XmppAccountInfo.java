@@ -72,7 +72,7 @@ public class XmppAccountInfo {
         plugin.createGroup(group.getGroupName(), adminJID, group.getDescription());
 
         for (XmppGroupMember member : group.getMembers()) {
-            String userJid = appendDomain(member.getUserName());
+            String userJid = appendDomain(member.getJid());
             JID userJID = new JID(userJid);
             if (SipXOpenfirePlugin.getInstance().isValidUser(userJID)) {
                 SipXOpenfirePlugin.getInstance().addUserToGroup(userJID, group.getGroupName(),

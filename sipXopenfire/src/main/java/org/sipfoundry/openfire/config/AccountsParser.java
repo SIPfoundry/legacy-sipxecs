@@ -94,7 +94,7 @@ public class AccountsParser {
                              * Make sure we have a record for this member in our sipxconfig generated
                              * group.
                              */
-                            if (!xmppGroup.hasMember(member.getNode())) {
+                            if (!xmppGroup.hasMember(member.toBareJID())) {
                                 group.getMembers().remove(member);
                             }
     

@@ -1,17 +1,20 @@
 package org.sipfoundry.openfire.config;
 
+import org.apache.log4j.Logger;
+
 public class XmppGroupMember {
-    private String userName; // XMPP username (JID node)
+    private static Logger logger = Logger.getLogger(XmppGroupMember.class);    
+    private String jid; 
     
-    public void setUserName(String userName) {
-        this.userName = XmppAccountInfo.appendDomain(userName);
-        this.userName = userName.toLowerCase();  // openfire fails to add users with mixed case
+    public void setUserName(String xmppUserName) {
+        this.jid = XmppAccountInfo.appendDomain(xmppUserName);
+        this.jid = this.jid.toLowerCase();  // openfire fails to add users with mixed case
     }
     /**
      * @return the userName
      */
-    public String getUserName() {
-        return userName;
+    public String getJid() {
+        return jid;
     }
     
 }
