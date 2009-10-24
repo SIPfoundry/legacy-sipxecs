@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.rest;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.restlet.Context;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
@@ -17,6 +19,7 @@ import org.restlet.resource.FileRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
@@ -26,6 +29,8 @@ import static org.restlet.data.MediaType.AUDIO_WAV;
 
 
 public class VoicemailResourceDownload extends UserResource {
+
+    private static final Log LOG = LogFactory.getLog(PhonesResource.class);
 
     private String m_folder;
     private String m_messsageId;
@@ -65,7 +70,11 @@ public class VoicemailResourceDownload extends UserResource {
             if (voicemail.getMessageId().equals(m_messsageId)) {
                 representation = new FileRepresentation(voicemail.getMediaFile(), AUDIO_WAV);
                 representation.setDownloadable(true);
-                m_mailboxManager.markRead(mailbox, voicemail);
+                try {
+                    m_mailboxManager.markRead(mailbox, voicemail);
+                } catch (UserException ex) {
+                    LOG.error("Failed to mark voicemail as read", ex);
+                }
             }
         }
         return representation;

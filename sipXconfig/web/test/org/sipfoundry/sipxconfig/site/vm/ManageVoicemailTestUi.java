@@ -207,7 +207,18 @@ public class ManageVoicemailTestUi extends WebTestCase {
 
         verify(sipService);
     }
-
+    /**
+     *Verify that both <audio and <img tag are present in ManageVoicemail.html
+     *The browser will display either <audio tag (if supported) or <a and <img tag
+     *(if HTML5 audio tag is not supported)
+     */
+    public void testPlay() {
+        gotoManageVoicemail();
+        assertElementPresentByXPath("//input[@type = 'image' and @id='ImageSubmit']");
+        clickElementByXPath("//input[@type = 'image' and @id='ImageSubmit']");
+        assertElementPresentByXPath("//audio[@autoplay = 'true']");
+        assertElementPresentByXPath("//img[@src = '/sipxconfig/images/play.png']");
+    }
 
     private void login(String username, String password) {
         assertElementPresent("loginForm");

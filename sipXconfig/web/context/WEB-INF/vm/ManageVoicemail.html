@@ -16,7 +16,7 @@
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
-      <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="ognl:selections"
+       <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="ognl:selections"
         columns="* !subject,!from,!timestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
         usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
         <span jwcid="subjectColumnValue@Block">
@@ -57,13 +57,10 @@
           </span>
         </span>
         <span jwcid="playColumnValue@Block">
-          <audio jwcid="@Any" src="ognl:voicemailLink" controls="true" tabindex="0">
-            <a jwcid="@Any" href="ognl:voicemailLink">
-              <img jwcid="@Image" image="asset:playVoicemailAsset" alt="play"/>
-            </a>
-          </audio>
+			<span jwcid="@common/AudioPlayer" playerId="ognl:voicemail.messageId" autoplay="ognl:true"
+			      url="ognl:voicemailLink"/>
         </span>
-      </table>
+       </table>
       <ul class="component-submit">
         <li>
           <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected"/>

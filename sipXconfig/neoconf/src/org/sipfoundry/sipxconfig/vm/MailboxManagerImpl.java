@@ -18,16 +18,25 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
@@ -38,6 +47,8 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
     private CoreContext m_coreContext;
+    private SipxServiceManager m_sipxServiceManager;
+    private LocationsManager m_locationsManager;
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
@@ -74,12 +85,41 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         }
         return vms;
     }
-
+    private String getMailboxServerUrl(String fqdn, int port) {
+        return String.format("http://%s:%d", fqdn, port);
+    }
     /**
      * Mark voicemail as read
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
-        // FIXME: need to have a way of marking voicemail as read
+        PutMethod httpPut = null;
+        String host = null;
+        String port = null;
+        SipxIvrService ivrService = (SipxIvrService) m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+
+        Location ivrLocation = (Location) singleResult(m_locationsManager.getLocationsForService(ivrService));
+        if (ivrLocation == null) {
+            throw new UserException("&voicemail.install.error");
+        }
+        try {
+            HttpClient client = new HttpClient();
+            host = ivrLocation.getFqdn();
+            port = ivrService.getHttpsPort();
+            httpPut = new PutMethod(getMailboxServerUrl(host, Integer.parseInt(port)) + "/mailbox/"
+                    + mailbox.getUserDirectory().getName() + "/message/" + voicemail.getMessageId() + "/heard");
+            int statusCode = client.executeMethod(httpPut);
+            if (statusCode != 200) {
+                throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
+            }
+        } catch (HttpException ex) {
+            throw new UserException("&error.https.server", host, ex.getMessage());
+        } catch (IOException ex) {
+            throw new UserException("&error.io.exception", host, ex.getMessage());
+        } finally {
+            if (httpPut != null) {
+                httpPut.releaseConnection();
+            }
+        }
     }
 
     public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
@@ -172,6 +212,14 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     public void setPersonalAttendantWriter(PersonalAttendantWriter personalAttendantWriter) {

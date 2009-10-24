@@ -24,6 +24,7 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
@@ -38,6 +39,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.RowInfo;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
@@ -117,6 +119,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
     public abstract MailboxOperation getMailboxOperation();
 
     public abstract void setMailboxOperation(MailboxOperation operation);
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public boolean getHasVoicemailPermission() {
         return getUser().hasPermission(PermissionName.VOICEMAIL);
