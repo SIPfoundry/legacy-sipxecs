@@ -67,8 +67,8 @@ public class XmppGroup {
         return administrator;
     }
 
-    public boolean hasMember(String bareJID) {
-        return this.members.containsKey(bareJID);
+    public boolean hasMember(String xmppUsername) {
+        return this.members.containsKey(xmppUsername);
     }
     
     

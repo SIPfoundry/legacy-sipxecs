@@ -63,6 +63,7 @@ public class AccountsParser {
         public void run() {
             try {
                 if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
+                    logger.info("XMPP account configuration changes detected - reparsing file");
                     AccountsParser.this.lastModified = accountDbFile.lastModified(); 
                     String fileUrl = "file://" + accountDbFileName;
                     XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
@@ -93,7 +94,7 @@ public class AccountsParser {
                              * Make sure we have a record for this member in our sipxconfig generated
                              * group.
                              */
-                            if (!xmppGroup.hasMember(member.toBareJID())) {
+                            if (!xmppGroup.hasMember(member.getNode())) {
                                 group.getMembers().remove(member);
                             }
     
