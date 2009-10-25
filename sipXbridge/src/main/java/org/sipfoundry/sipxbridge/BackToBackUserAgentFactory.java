@@ -13,6 +13,10 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.SipStackImpl;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
@@ -33,6 +37,30 @@ public class BackToBackUserAgentFactory {
 
 	private static final Logger logger = Logger
 			.getLogger(BackToBackUserAgentFactory.class);
+	
+	private ConcurrentSkipListSet<BackToBackUserAgent> backToBackUserAgentTable = new ConcurrentSkipListSet<BackToBackUserAgent> ();
+	
+	class Scanner extends TimerTask {
+
+        @Override
+        public void run() {
+            Iterator<BackToBackUserAgent> iter = backToBackUserAgentTable.iterator();
+            
+            while( iter.hasNext() ) {
+                BackToBackUserAgent b2bua = iter.next();
+                if ( b2bua.isPendingTermination() ) {
+                    b2bua.cleanUp();
+                    logger.debug("Removing BackToBackUserAgent");
+                    iter.remove();
+                }
+            }
+        }
+	    
+	}
+	
+	public BackToBackUserAgentFactory() {
+	    Gateway.getTimer().schedule(new Scanner(), 10*1000, 10*1000);
+	}
 
 	/**
 	 * Get a new B2bua instance or return an existing one for a call Id.
@@ -105,17 +133,10 @@ public class BackToBackUserAgentFactory {
 				 * the b2bua here. Keeping a reference can lead to reference management
 				 * problems ( leaks ) and hence this quick search is worthwhile.
 				 */
-				for (Dialog sipDialog : dialogs) {
-					if (sipDialog.getApplicationData() != null) {
-						BackToBackUserAgent btobua = DialogContext
-								.getBackToBackUserAgent(sipDialog);
-						if (btobua.managesCallId(callId)) {
-							logger.debug("found existing mapping for B2BuA");
-							b2bua = btobua;
-							break;
-						}
-
-					}
+				for (BackToBackUserAgent backtobackua : backToBackUserAgentTable) {
+				    if (backtobackua.managesCallId(callId)) {
+				        b2bua = backtobackua;
+				    }
 				}
 
 				/*
@@ -124,6 +145,7 @@ public class BackToBackUserAgentFactory {
 				if (b2bua == null) {
 					b2bua = new BackToBackUserAgent(provider, request, dialog,
 							accountInfo);
+					this.backToBackUserAgentTable.add(b2bua);
 				}
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
@@ -144,27 +166,16 @@ public class BackToBackUserAgentFactory {
 	
 	
 	public BackToBackUserAgent getBackToBackUserAgent(String callId) {
-	    Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
-        .getDialogs();
-	    /*
+	     /*
          * Linear search here but avoids having to keep a reference to 
          * the b2bua here. Keeping a reference can lead to reference management
          * problems ( leaks ) and hence this quick search is worthwhile.
          */
-	    BackToBackUserAgent b2bua = null;
-        for (Dialog sipDialog : dialogs) {
-            if (sipDialog.getApplicationData() != null) {
-                BackToBackUserAgent btobua = DialogContext
-                        .getBackToBackUserAgent(sipDialog);
-                if (btobua.managesCallId(callId)) {
-                    logger.debug("found existing mapping for B2BuA");
-                    b2bua = btobua;
-                    break;
-                }
-
-            }
-        }
-        return b2bua;
+	    for(BackToBackUserAgent b2bua : this.backToBackUserAgentTable ) {
+	        if ( b2bua.managesCallId(callId)) return b2bua;
+	    }
+	    
+        return null;
 	}
 
 }

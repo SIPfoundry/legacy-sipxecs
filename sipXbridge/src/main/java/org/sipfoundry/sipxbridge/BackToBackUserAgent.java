@@ -86,7 +86,7 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
  * @author M. Ranganathan
  * 
  */
-public class BackToBackUserAgent {
+public class BackToBackUserAgent implements Comparable {
 
     /*
      * Constants that we stick into the VIA header to detect spirals.
@@ -193,8 +193,9 @@ public class BackToBackUserAgent {
         
         public void run() {
             try {
-                if ( dialog.getState() == DialogState.CONFIRMED ) {
-                    CallControlUtilities.forwardByeToPeer(dialog, serverTransaction);
+                if ( dialog.getState() == DialogState.CONFIRMED && serverTransaction != null ) {
+                  TransactionContext.attach(serverTransaction, Operation.PROCESS_BYE);                   
+                  DialogContext.get(dialog).forwardBye(serverTransaction);
                 }
             } catch( Exception ex) {
                 logger.error("Exception forwarding BYE.");
@@ -564,30 +565,11 @@ public class BackToBackUserAgent {
         if (!this.dialogTable.contains(dialog)) {
             return;
         }
+        
+        logger.debug("removeDialog " + dialog  + " dialogTableSize = " + this.dialogTable.size());
+        
         this.dialogTable.remove(dialog);
-
-        String callId = dialog.getCallId().getCallId();
-
-        this.myCallIds.remove(callId);
-
-        int count = this.dialogTable.size();
-
-        if (count == 0) {
-            Gateway.getTimer().schedule(new TimerTask() {
-                public void run() {
-                    try {
-                        logger.debug("Dialog table is empty -- tearing down bridge.");
-                        if ( rtpBridge != null && dialogTable.size() == 0 ) {
-                            rtpBridge.stop();
-                            dialogTable.clear();
-                            Gateway.getTimer().purge(); // Clean up all canceled timers
-                        }
-                    } catch (Exception ex) {
-                        logger.error("Problem stopping bridge",ex);
-                    }
-                }
-            }, 1000);
-        }
+       
 
         if (logger.isDebugEnabled()) {
             logger.debug("Remove Dialog " + dialog + " Dialog table size = "
@@ -595,6 +577,7 @@ public class BackToBackUserAgent {
         }
         if (this.dialogTable.size() == 1) {
             // This could be a stuck call. We can never have a situation
+            // Wait for 8 seconds. If we still have no dialogs, we are done.
             Gateway.getTimer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -611,10 +594,18 @@ public class BackToBackUserAgent {
             }, 8000);
 
         }
+        
         if (dialogTable.size() == 0) {
             this.sendByeToMohServer();
+            this.pendingTermination = true;          
         }
-
+    }
+    
+    
+    public void cleanUp() {
+        if (this.rtpBridge != null ) {
+            rtpBridge.stop();
+        }
     }
 
     /**
@@ -635,6 +626,7 @@ public class BackToBackUserAgent {
         dialogContext.recordInsertionPoint();
         String callId = dialog.getCallId().getCallId();
         this.myCallIds.add(callId);
+        dialogContext.setBackToBackUserAgent(this);
         logger.debug("addDialog " + dialog + " dialogTableSize = " + this.dialogTable.size() +
                 " Dialog was created at: " + DialogContext.get(dialog).getCreationPointStackTrace() );
         if ( this.cleanupList.contains(dialog)) {
@@ -1474,6 +1466,8 @@ public class BackToBackUserAgent {
             throws SipException {
 
         logger.debug("sendInviteToItsp: " + this);
+        logger.debug("referringDialog = " + this.referingDialog);
+        logger.debug("referringDialogPeer = " + this.referingDialogPeer);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         ItspAccountInfo itspAccountInfo = Gateway.getAccountManager()
@@ -1894,15 +1888,15 @@ public class BackToBackUserAgent {
 
             logger.debug("replacedDialog.getState() : "
                     + replacedDialog.getState());
+            
+            DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
 
-            if (replacedDialog.getState() == DialogState.CONFIRMED) {
-                DialogContext replacedDialogApplicationData = DialogContext
-                        .get(replacedDialog);
+            Dialog peerDialog = replacedDialogApplicationData
+            .getPeerDialog();
+            DialogContext peerDat = DialogContext.get(peerDialog);
 
-                Dialog peerDialog = replacedDialogApplicationData
-                        .getPeerDialog();
-                DialogContext peerDat = DialogContext.get(peerDialog);
-
+            if (peerDat.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+               
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 SipUtilities.addWanAllowHeaders(reInvite);
 
@@ -2030,13 +2024,6 @@ public class BackToBackUserAgent {
                 }
 
                 serverTransaction.sendResponse(okResponse);
-
-                DialogContext replacedDialogApplicationData = DialogContext
-                        .get(dialog);
-
-                Dialog peerDialog = replacedDialogApplicationData
-                        .getPeerDialog();
-                DialogContext peerDat = DialogContext.get(peerDialog);
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 SipProvider wanProvider = ((DialogExt) peerDialog)
                         .getSipProvider();
@@ -2084,6 +2071,7 @@ public class BackToBackUserAgent {
         DialogContext dialogContext = (DialogContext) dialog
                 .getApplicationData();
         Dialog peer = dialogContext.getPeerDialog();
+        
 
         if (!SipUtilities.isRequestNotForwarded(st.getRequest()) &&
                 dialogContext.isForwardByeToPeer() && peer != null
@@ -2092,7 +2080,10 @@ public class BackToBackUserAgent {
             if ( peer.getState() == DialogState.EARLY ) {
                 Gateway.getTimer().schedule(new DelayedByeSender(peer,st), 8*1000);
             } else {
-                CallControlUtilities.forwardByeToPeer(peer,st);
+                if ( requestEvent.getServerTransaction() != null ) {
+                    TransactionContext.attach(requestEvent.getServerTransaction(), Operation.PROCESS_BYE);
+                    DialogContext.getPeerDialogContext(dialog).forwardBye(requestEvent.getServerTransaction());
+                }
             }
          
         } else {
@@ -2332,6 +2323,19 @@ public class BackToBackUserAgent {
         }
 
         return (this.proxyAddress != null);
+    }
+
+
+    @Override
+    public int compareTo(Object obj) {
+        if (obj instanceof BackToBackUserAgent) {
+            BackToBackUserAgent b2bua = (BackToBackUserAgent) obj;
+            if ( this.creatingCallId.equals(b2bua.creatingCallId)) return 0;
+            else if ( this.creatingCallId.hashCode() < b2bua.creatingCallId.hashCode() ) return -1;
+            else return 1;
+        } else {
+            throw new UnsupportedOperationException("Cannot compare");
+        }
     }
 
    
