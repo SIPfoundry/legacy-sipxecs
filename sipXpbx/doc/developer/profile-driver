@@ -10,13 +10,15 @@ set -e
 # Configuration parameters.
 TIME=$(( 5 * 60 ))
 HOST=$( hostname )
+# Directory prefix for non-standard installation locations.
+PREFIX_DIR=
 
 # Clean up from previous runs.
 
 # Stop sipX if it is running.
-dir-local/etc/init.d/sipxecs stop
+$PREFIX_DIR/etc/init.d/sipxecs stop
 # Remove the mediaserver.log
-rm -f dir-local/var/log/sipxpbx/mediaserver.log
+rm -f $PREFIX_DIR/var/log/sipxpbx/mediaserver.log
 
 # Loop through the various loads to present.
 #for JOBS in 1 3 10 20 25 30
@@ -24,7 +26,7 @@ for JOBS in 25 30
 do
 
     # Start sipX.
-    dir-local/etc/init.d/sipxecs start
+    $PREFIX_DIR/etc/init.d/sipxecs start
 
     # Wait 2 minutes
     sleep 120
@@ -46,14 +48,14 @@ do
     kill %+
 
     # Stop sipX.
-    dir-local/etc/init.d/sipxecs stop
+    $PREFIX_DIR/etc/init.d/sipxecs stop
 
     # Save the mediaserver.log.
-    mv dir-local/var/log/sipxpbx/mediaserver.log{,.$JOBS}
+    mv $PREFIX_DIR/var/log/sipxpbx/mediaserver.log{,.$JOBS}
 
     # Process it.
     sipXpbx/doc/developer/profile-format \
-	    <dir-local/var/log/sipxpbx/mediaserver.log.$JOBS \
-	    >dir-local/var/log/sipxpbx/mediaserver.timing.$JOBS
+	    <$PREFIX_DIR/var/log/sipxpbx/mediaserver.log.$JOBS \
+	    >$PREFIX_DIR/var/log/sipxpbx/mediaserver.timing.$JOBS
 
 done
