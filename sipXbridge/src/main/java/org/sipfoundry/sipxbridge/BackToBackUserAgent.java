@@ -77,16 +77,23 @@ import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
 import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
 
 /**
- * A class that represents an ongoing call. Each call Id points at one of these
- * structures. It can be a many to one mapping. When we receive an incoming
- * request we retrieve the corresponding backtobackuseragent and route the
- * request to it. It keeps the necessary state to handle subsequent requests
- * that are related to this call.
+ * A class that represents an ongoing call. An ongoing call maps to exactly one instance
+ * of this structure. Creation and destruction of instances of this
+ * class is managed by the BackToBackUserAgentFactory. 
+ * When we receive an incoming call we retrieve the corresponding instance of this 
+ * structure  and route the request to it. This structure
+ * keeps the necessary state to handle subsequent requests  
+ * that are related to this call. This structure manages a collection of dialogs.
+ * The dialogs may be paired with each other to form back to back user agents.
+ * At any given time there is a single pair of dialogs that is the actual active B2BUA.
+ * As transfers take place, the pairing may change. Eventually when the call is 
+ * torn down, all the dialogs managed by this structure are destroyed.
  * 
  * @author M. Ranganathan
  * 
  */
 public class BackToBackUserAgent implements Comparable {
+    private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
 
     /*
      * Constants that we stick into the VIA header to detect spirals.
@@ -108,8 +115,11 @@ public class BackToBackUserAgent implements Comparable {
     /*
      * The REFER dialog currently in progress.
      */
-    Dialog referingDialog;
+    private Dialog referingDialog;
 
+    /*
+     * The peer of the Refer dialog.
+     */
     private Dialog referingDialogPeer;
 
     /*
@@ -125,11 +135,15 @@ public class BackToBackUserAgent implements Comparable {
 
     /*
      * The call IDs that are associated with this b2bua.
+     * This is the pool that is consulted when we associate inbound
+     * dialog forming requests with an instance of this class.
      */
     private HashSet<String> myCallIds = new HashSet<String>();
 
-    private static Logger logger = Logger.getLogger(BackToBackUserAgent.class);
-
+ 
+    /*
+     * Handle to the relay.
+     */
     private SymmitronClient symmitronClient;
 
     /* 
@@ -157,7 +171,9 @@ public class BackToBackUserAgent implements Comparable {
     private Hop proxyAddress;
 
     /*
-     * This structure is pending garbage collection.
+     * This structure is pending garbage collection. There is a scanning thread
+     * that runs in the BackToBackUserAgentFactory that will garbage collect this
+     * structure when it is marked "pendingTermination".
      */
     private boolean pendingTermination;
 
@@ -1906,9 +1922,8 @@ public class BackToBackUserAgent implements Comparable {
             
             DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
 
-            Dialog peerDialog = replacedDialogApplicationData
-            .getPeerDialog();
-            DialogContext peerDat = DialogContext.get(peerDialog);
+            Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
+            DialogContext peerDat =  DialogContext.get(peerDialog);
 
             if (peerDat.getDialogCreatingTransaction() instanceof ClientTransaction ) {
                

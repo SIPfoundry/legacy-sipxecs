@@ -496,9 +496,9 @@ class CallControlManager implements SymmitronResetHandler {
 
                 Dialog peerDialog = dat.getPeerDialog();
                 logger.debug("replacesDialogState = " + replacesDialog.getState());
-                if (replacesDialog.getState() != DialogState.CONFIRMED) {
-                    dat.setPeerDialog(null);
-                }
+               // if (replacesDialog.getState() != DialogState.CONFIRMED) {
+               //     dat.setPeerDialog(null);
+               // }
 
                 DialogContext.pairDialogs(dialog, peerDialog);
 

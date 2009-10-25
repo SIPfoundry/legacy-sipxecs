@@ -20,6 +20,7 @@ import java.util.TimerTask;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.sip.Dialog;
+import javax.sip.DialogState;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.header.ViaHeader;
@@ -62,7 +63,10 @@ public class BackToBackUserAgentFactory {
             if ( logger.isDebugEnabled() && removed ) {
                 logger.debug("Dialog Table : ");
                 for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
-                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() );                
+                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
+                    if ( dialog.getState() != DialogState.TERMINATED ) {
+                        logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+                    }
                 }
             }
         }
@@ -161,7 +165,8 @@ public class BackToBackUserAgentFactory {
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
 				dialogContext.setItspInfo(accountInfo);
-				dialogContext.setBackToBackUserAgent(b2bua);     
+				dialogContext.setBackToBackUserAgent(b2bua);
+				b2bua.addDialog(dialogContext);
 			}
 
 		} catch (Exception ex) {

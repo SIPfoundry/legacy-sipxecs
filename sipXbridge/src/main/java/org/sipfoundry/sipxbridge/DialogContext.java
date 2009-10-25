@@ -837,8 +837,14 @@ class DialogContext {
      * Set the peer dialog of this dialog.
      */
     void setPeerDialog(Dialog peerDialog) {
-        logger.debug("DialogContext.setPeerDialog: " + peerDialog);
+        logger.debug("DialogContext.setPeerDialog: " + this.dialog + " peer = " + peerDialog);
+        
         this.peerDialog = peerDialog;
+        
+        if (logger.isDebugEnabled() && peerDialog == null ) {
+            SipUtilities.printStackTrace();
+        }
+        
     }
 
     /**
