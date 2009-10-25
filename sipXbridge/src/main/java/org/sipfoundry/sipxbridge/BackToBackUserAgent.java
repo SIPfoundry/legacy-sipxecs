@@ -691,7 +691,7 @@ public class BackToBackUserAgent implements Comparable {
              * XECS-2480. We do not want to set the transport here either.
              */
             SipURI uri = (SipURI) referToHeader.getAddress().getURI().clone();
-
+          
             CSeqHeader cseq = ProtocolObjects.headerFactory.createCSeqHeader(
                     1L, Request.INVITE);
             ViaHeader viaHeader = null;
@@ -719,9 +719,13 @@ public class BackToBackUserAgent implements Comparable {
              * it to the SAME proxy server. See XX-5792. Dont do this if we are
              * sending the request directly to a phone!
              */
-            if (uri.getHost().equals(Gateway.getSipxProxyDomain())) {
+            RouteHeader proxyRoute = SipUtilities.createRouteHeader(this.proxyAddress);
+            newRequest.setHeader(proxyRoute);
+            
+            
+            /* if (uri.getHost().equals(Gateway.getSipxProxyDomain())) {
                 uri.setMAddrParam(this.proxyAddress.getHost());
-            }
+            }*/
 
             /*
              * Does the refer to header contain a Replaces? ( attended transfer )
