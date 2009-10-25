@@ -10,6 +10,7 @@
 
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 
 import java.util.Collection;
@@ -45,13 +46,23 @@ public class BackToBackUserAgentFactory {
         @Override
         public void run() {
             Iterator<BackToBackUserAgent> iter = backToBackUserAgentTable.iterator();
-            
+            boolean removed = false;
             while( iter.hasNext() ) {
                 BackToBackUserAgent b2bua = iter.next();
                 if ( b2bua.isPendingTermination() ) {
                     b2bua.cleanUp();
                     logger.debug("Removing BackToBackUserAgent");
                     iter.remove();
+                    removed = true;
+                }
+            }
+            /*
+             * Check for dialog leaks. This us useful for unit testing.
+             */
+            if ( logger.isDebugEnabled() && removed ) {
+                logger.debug("Dialog Table : ");
+                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
+                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() );                
                 }
             }
         }

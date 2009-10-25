@@ -596,8 +596,16 @@ public class BackToBackUserAgent implements Comparable {
         }
         
         if (dialogTable.size() == 0) {
-            this.sendByeToMohServer();
-            this.pendingTermination = true;          
+            try {
+                logger.debug("Terminating all calls on B2BUA " + this);
+                this.tearDown(Gateway.SIPXBRIDGE_USER,
+                        ReasonCode.CALL_TERMINATED,
+                "Call Termination Detected");
+                this.sendByeToMohServer();
+                this.pendingTermination = true;  
+            } catch (Exception ex) {
+                logger.error("Problem tearing down backToBackUserAgent.");
+            }
         }
     }
     
@@ -645,6 +653,7 @@ public class BackToBackUserAgent implements Comparable {
             logger.error("Dialog was also found in dialog table - should only be in one " + DialogContext.get(dialog).getCreationPointStackTrace());
             logger.error("addDialogToCleanup Dialog was created at " + SipUtilities.getStackTrace());
         }
+      
         logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size() + 
                 " Dialog was created at: " + DialogContext.get(dialog).getCreationPointStackTrace()); 
         this.cleanupList.add(dialog);     
@@ -1647,13 +1656,15 @@ public class BackToBackUserAgent implements Comparable {
              */
             if (!spiral) {
                 DialogContext.pairDialogs(incomingDialog, outboundDialog);
+                this.addDialog(DialogContext.get(incomingDialog));
+
             } else {
                 DialogContext.pairDialogs(this.referingDialogPeer,
                         outboundDialog);
+                this.addDialogToCleanup(incomingDialog);
             }
             
-            this.addDialog(DialogContext.get(incomingDialog));
-
+           
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(incomingRequest);
 
