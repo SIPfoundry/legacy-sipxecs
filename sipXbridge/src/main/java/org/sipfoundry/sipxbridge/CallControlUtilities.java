@@ -323,31 +323,6 @@ public class CallControlUtilities {
 
     }
     
-    /**
-     * Forward an inbound BYE to the given Peer dialog.
-     * 
-     * @param peer -- the peer
-     * @param st 
-     * @throws SipException
-     */
-    public static void forwardByeToPeer(Dialog peer, ServerTransaction st) throws SipException {
-        SipProvider provider = ((gov.nist.javax.sip.DialogExt) peer).getSipProvider();
-
-        Request bye = peer.createRequest(Request.BYE);
-
-        ClientTransaction ct = provider.getNewClientTransaction(bye);
-
-        TransactionContext transactionContext = TransactionContext.attach(
-                st, Operation.PROCESS_BYE);
-
-        transactionContext.setClientTransaction(ct);
-        transactionContext.setItspAccountInfo(DialogContext.get(peer)
-                .getItspInfo());
-        ct.setApplicationData(transactionContext);
-
-        peer.sendRequest(ct);
-    }
-
 	
 
 }

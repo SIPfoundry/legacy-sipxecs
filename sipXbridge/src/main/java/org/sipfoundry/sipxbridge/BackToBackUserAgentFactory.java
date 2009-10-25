@@ -10,11 +10,17 @@
 
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.sip.Dialog;
+import javax.sip.DialogState;
 import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.header.ViaHeader;
@@ -33,6 +39,43 @@ public class BackToBackUserAgentFactory {
 
 	private static final Logger logger = Logger
 			.getLogger(BackToBackUserAgentFactory.class);
+	
+	private ConcurrentSkipListSet<BackToBackUserAgent> backToBackUserAgentTable = new ConcurrentSkipListSet<BackToBackUserAgent> ();
+	
+	class Scanner extends TimerTask {
+
+        @Override
+        public void run() {
+            Iterator<BackToBackUserAgent> iter = backToBackUserAgentTable.iterator();
+            boolean removed = false;
+            while( iter.hasNext() ) {
+                BackToBackUserAgent b2bua = iter.next();
+                if ( b2bua.isPendingTermination() ) {
+                    b2bua.cleanUp();
+                    logger.debug("Removing BackToBackUserAgent");
+                    iter.remove();
+                    removed = true;
+                }
+            }
+            /*
+             * Check for dialog leaks. This us useful for unit testing.
+             */
+            if ( logger.isDebugEnabled() && removed ) {
+                logger.debug("Dialog Table : ");
+                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
+                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
+                    if ( dialog.getState() != DialogState.TERMINATED ) {
+                        logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+                    }
+                }
+            }
+        }
+	    
+	}
+	
+	public BackToBackUserAgentFactory() {
+	    Gateway.getTimer().schedule(new Scanner(), 10*1000, 10*1000);
+	}
 
 	/**
 	 * Get a new B2bua instance or return an existing one for a call Id.
@@ -105,37 +148,36 @@ public class BackToBackUserAgentFactory {
 				 * the b2bua here. Keeping a reference can lead to reference management
 				 * problems ( leaks ) and hence this quick search is worthwhile.
 				 */
-				int counter = 0;
-				for (Dialog sipDialog : dialogs) {
-					if (sipDialog.getApplicationData() != null && 
-					    sipDialog.getApplicationData() instanceof DialogContext ) {
-						BackToBackUserAgent btobua = DialogContext
-								.getBackToBackUserAgent(sipDialog);
-						counter++;
-						if (b2bua == null && btobua.managesCallId(callId)) {
-							logger.debug("found existing mapping for B2BuA");
-							b2bua = btobua;
-						}
-
-					}
+				for (BackToBackUserAgent backtobackua : backToBackUserAgentTable) {
+				    if (backtobackua.managesCallId(callId)) {
+				        b2bua = backtobackua;
+				    }
 				}
 
 				/*
 				 * Could not find an existing call so go ahead and create one.
+				 * If we exceed the call limit then fail to add one. This will
+				 * result in throwing an exception which will, in turn be reported
+				 * as a Server Failure to the calling party.
 				 */
 				if (b2bua == null && 
 				        (Gateway.getBridgeConfiguration().getCallLimit() == -1 ||
-				        counter < Gateway.getBridgeConfiguration().getCallLimit()) ) {
+                                        backToBackUserAgentTable.size() < Gateway.getBridgeConfiguration().getCallLimit())) {
 					b2bua = new BackToBackUserAgent(provider, request, dialog,
 							accountInfo);
+					this.backToBackUserAgentTable.add(b2bua);
 				}
+                                /*
+                                 * Could not allocate a back to back user agent. So fail the call.
+                                 */
 				if ( b2bua == null ) {
 				    throw new SipXbridgeException ("Call limit exceeded");
 				}
 				
 				dialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
 				dialogContext.setItspInfo(accountInfo);
-				dialogContext.setBackToBackUserAgent(b2bua);     
+				dialogContext.setBackToBackUserAgent(b2bua);
+				b2bua.addDialog(dialogContext);
 			}
 		} catch (SipXbridgeException ex) {
 		    logger.error("Exception while trying to create B2BUA",ex);
@@ -153,27 +195,16 @@ public class BackToBackUserAgentFactory {
 	
 	
 	public BackToBackUserAgent getBackToBackUserAgent(String callId) {
-	    Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
-        .getDialogs();
-	    /*
+	     /*
          * Linear search here but avoids having to keep a reference to 
          * the b2bua here. Keeping a reference can lead to reference management
          * problems ( leaks ) and hence this quick search is worthwhile.
          */
-	    BackToBackUserAgent b2bua = null;
-        for (Dialog sipDialog : dialogs) {
-            if (sipDialog.getApplicationData() != null) {
-                BackToBackUserAgent btobua = DialogContext
-                        .getBackToBackUserAgent(sipDialog);
-                if (btobua.managesCallId(callId)) {
-                    logger.debug("found existing mapping for B2BuA");
-                    b2bua = btobua;
-                    break;
-                }
-
-            }
-        }
-        return b2bua;
+	    for(BackToBackUserAgent b2bua : this.backToBackUserAgentTable ) {
+	        if ( b2bua.managesCallId(callId)) return b2bua;
+	    }
+	    
+        return null;
 	}
 
 }

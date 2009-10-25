@@ -447,10 +447,13 @@ public class SipListenerImpl implements SipListener {
                 /*
                  * This is a forked response. We need to find the original call
                  * leg and retrieve the original RTP session from that call leg.
+                 * TODO : Each call leg must get its own RTP bridge so this code
+                 * needs to be rewritten. For now, they all share the same bridge.
                  */
+                boolean found = false;
                 String callLegId = SipUtilities.getCallLegId(response);
                 for ( Dialog sipDialog : b2bua.dialogTable) {
-                    if ( DialogContext.get(sipDialog).getCallLegId().equals(callLegId)) {
+                    if ( DialogContext.get(sipDialog).getCallLegId().equals(callLegId) && DialogContext.get(sipDialog).rtpSession != null ) {
                         DialogContext context = DialogContext.get(sipDialog);
                         Request request = context.getRequest();
                         DialogContext newContext = DialogContext.attach(b2bua, dialog,context.getDialogCreatingTransaction() , request);
@@ -462,20 +465,23 @@ public class SipListenerImpl implements SipListener {
                          */
                         newContext.setPeerDialog(context.getPeerDialog());
                         dialog.setApplicationData(newContext);  
-                        
+                        found = true;
                         break;
                     }
                 }
+                
+                
                 /*
                  * Could not find the original dialog context.
                  * This means the fork response came in too late. Send BYE
                  * to that leg.
                  */
-                if ( dialog.getApplicationData() == null ) {
+                if ( dialog.getApplicationData() == null  ) {
                     logger.debug("callLegId = " + callLegId);
                     logger.debug("dialogTable = " + b2bua.dialogTable);
-                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.FORK_TIMED_OUT, "Fork timed out");       
-                }
+                    b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.FORK_TIMED_OUT, "Fork timed out"); 
+                    return;
+                } 
             }
 
             /*

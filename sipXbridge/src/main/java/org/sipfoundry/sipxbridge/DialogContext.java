@@ -14,6 +14,7 @@ import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
+import java.text.ParseException;
 import java.util.ListIterator;
 import java.util.TimerTask;
 import java.util.concurrent.Semaphore;
@@ -836,8 +837,14 @@ class DialogContext {
      * Set the peer dialog of this dialog.
      */
     void setPeerDialog(Dialog peerDialog) {
-        logger.debug("DialogContext.setPeerDialog: " + peerDialog);
+        logger.debug("DialogContext.setPeerDialog: " + this.dialog + " peer = " + peerDialog);
+        
         this.peerDialog = peerDialog;
+        
+        if (logger.isDebugEnabled() && peerDialog == null ) {
+            SipUtilities.printStackTrace();
+        }
+        
     }
 
     /**
@@ -918,12 +925,51 @@ class DialogContext {
      * @throws Exception
      */
 
-    void sendBye(boolean forward) throws Exception {
-        Request bye = dialog.createRequest(Request.BYE);
-        ViaHeader via  = ((ViaHeader) bye.getHeader(ViaHeader.NAME));
-        if ( !forward ) via.setParameter("noforward", "true");
-        ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);
-        dialog.sendRequest(clientTransaction);
+    void sendBye(boolean forward) throws SipException {
+        try {
+            Request bye = dialog.createRequest(Request.BYE);
+            if ( getSipProvider() != Gateway.getLanProvider() ) {
+                if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
+                    SipUtilities.setGlobalAddresses(bye);
+                }
+            }
+            ViaHeader via  = ((ViaHeader) bye.getHeader(ViaHeader.NAME));
+            if ( !forward ) via.setParameter("noforward", "true");
+
+            ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);       
+
+            TransactionContext transactionContext = TransactionContext.attach(
+                    clientTransaction, Operation.PROCESS_BYE);
+
+            transactionContext.setItspAccountInfo(this.itspInfo);
+
+            dialog.sendRequest(clientTransaction);
+        } catch (ParseException ex) {
+            new SipXbridgeException("Unexpected exception",ex);
+        }
+    }
+    
+    /**
+     * Forward BYE.
+     * 
+     * @throws SipException 
+     */
+    void forwardBye(ServerTransaction serverTransaction) throws SipException {
+             Request bye = dialog.createRequest(Request.BYE);
+            if ( getSipProvider() != Gateway.getLanProvider() ) {
+                if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
+                    SipUtilities.setGlobalAddresses(bye);
+                }
+            }
+          
+            ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);       
+
+            TransactionContext transactionContext = TransactionContext.attach(
+                    clientTransaction, Operation.PROCESS_BYE);
+
+            transactionContext.setItspAccountInfo(this.itspInfo);
+            TransactionContext.get(serverTransaction).setClientTransaction(clientTransaction);
+            dialog.sendRequest(clientTransaction);     
     }
 
     /**

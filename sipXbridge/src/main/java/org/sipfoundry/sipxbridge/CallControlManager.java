@@ -510,9 +510,9 @@ class CallControlManager implements SymmitronResetHandler {
 
                 Dialog peerDialog = dat.getPeerDialog();
                 logger.debug("replacesDialogState = " + replacesDialog.getState());
-                if (replacesDialog.getState() != DialogState.CONFIRMED) {
-                    dat.setPeerDialog(null);
-                }
+               // if (replacesDialog.getState() != DialogState.CONFIRMED) {
+               //     dat.setPeerDialog(null);
+               // }
 
                 DialogContext.pairDialogs(dialog, peerDialog);
 
@@ -1937,6 +1937,13 @@ class CallControlManager implements SymmitronResetHandler {
             logger.debug("peerDialog : " + DialogContext.getPeerDialog(dialog));
             DialogContext.pairDialogs(DialogContext.getPeerDialog(dialog), dialog);
             b2bua.sendByeToMohServer();
+        } else {
+            ServerTransaction stx = tad.getServerTransaction();
+            if ( stx.getState() != TransactionState.TERMINATED ) {
+               Response newResponse = SipUtilities.createResponse(stx, response.getStatusCode() );
+               SipUtilities.copyHeaders(response, newResponse);
+               stx.sendResponse(newResponse);         
+            }
         }
 
     }
@@ -2499,6 +2506,8 @@ class CallControlManager implements SymmitronResetHandler {
                             dialogContext.getRtpSession().getTransmitter().setSessionDescription(sessionDescription,
                                     false);
                         }
+                    } else if (response.getStatusCode() != 100 ) {
+                        dialogContext.sendBye(false);
                     }
                 } else if (tad.getOperation() == Operation.SEND_SDP_RE_OFFER) {
                     this.sendSdpReofferResponse(responseEvent);

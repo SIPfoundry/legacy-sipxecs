@@ -1287,7 +1287,9 @@ class SipUtilities {
 
             ContactHeader contactHeader = (ContactHeader) request
                     .getHeader(ContactHeader.NAME);
-            contactHeader.getAddress().setURI(sipUri);
+            if ( contactHeader != null ) {
+                contactHeader.getAddress().setURI(sipUri);
+            }
             ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
             viaHeader.setHost(Gateway.getGlobalAddress());
             viaHeader.setPort(Gateway.getGlobalPort());
