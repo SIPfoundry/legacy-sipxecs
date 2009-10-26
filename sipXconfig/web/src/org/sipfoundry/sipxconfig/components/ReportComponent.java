@@ -15,7 +15,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import net.sf.jasperreports.engine.JRParameter;
 import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 import net.sf.jasperreports.j2ee.servlets.BaseHttpServlet;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
@@ -105,13 +107,25 @@ public abstract class ReportComponent extends BaseComponent {
 
     public void generateReports() {
         JasperPrint jasperPrint = null;
-        jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
-                getReportParameters(), getReportData());
+        JRFileVirtualizer virtualizer = null;
+        virtualizer = new JRFileVirtualizer(20, getJasperReportContext().getTmpDirectory());
+        Map parameters = getReportParameters();
+        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+        // Exceptions will be caught at a higher layer but ensure we clean up the
+        // files(if any) generated from the virtualizer.
+        try {
+            jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
+                    getReportParameters(), getReportData());
 
-        generateHtmlReport(jasperPrint);
-        generatePdfReport(jasperPrint);
-        generateCsvReport(jasperPrint);
-        generateXlsReport(jasperPrint);
+            generateHtmlReport(jasperPrint);
+            generatePdfReport(jasperPrint);
+            generateCsvReport(jasperPrint);
+            generateXlsReport(jasperPrint);
+        } finally {
+            if (virtualizer != null) {
+                virtualizer.cleanup();
+            }
+        }
     }
 
     private void generateHtmlReport(JasperPrint jasperPrint) {

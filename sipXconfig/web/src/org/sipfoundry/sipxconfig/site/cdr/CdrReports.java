@@ -114,7 +114,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
     private static final String PIECHART_SECTIONLABEL_FORMAT = "{0} = {1} ({2})";
 
     @InjectObject(value = "spring:jasperReportContextImpl")
-    public abstract JasperReportContext getJaperReportContext();
+    public abstract JasperReportContext getJasperReportContext();
 
     @InjectObject(value = "spring:cdrManagerImpl")
     public abstract CdrManagerImpl getCdrManager();
