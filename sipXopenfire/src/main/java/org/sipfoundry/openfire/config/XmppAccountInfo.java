@@ -6,9 +6,11 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.jivesoftware.openfire.group.Group;
 import org.jivesoftware.openfire.group.GroupNotFoundException;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
+import org.sipfoundry.openfire.plugin.presence.UserAccount;
 import org.xmpp.packet.JID;
 
 public class XmppAccountInfo {
@@ -53,8 +55,8 @@ public class XmppAccountInfo {
     public void addGroup(XmppGroup group) throws Exception {
         logger.info("createGroup " + group.getGroupName() + " description "
                 + group.getDescription());
-        if (group.getMembers().isEmpty() && group.getMembers().isEmpty()) {
-            logger.info("No administrator and no users defined -- not adding group ");
+        if (group.getMembers().isEmpty()) {
+            logger.info("no users defined -- not adding group ");
             return;
         }
         boolean isAllAdminGroup = false;
@@ -68,19 +70,51 @@ public class XmppAccountInfo {
 
         }
 
+        // check if group already exists in openfire
+        try{
+            Group openfireGroup = plugin.getGroupByName(group.getGroupName());
 
-        plugin.createGroup(group.getGroupName(), adminJID, group.getDescription());
+            // group already exists, make sure that it contains the correct set of members.
+            // This is achieved in two operations:
+            //  1- Add all members that are currently not in the group but are found in the group from configuration file
+            //  2- Remove all members that are currently in the group but not found in the group from configuration file
+            logger.info("XmppAccountInfo::addGroup: " + group.getGroupName() + " already exists - enforce members list");
+            Collection<String> currentGroupMembers = new HashSet<String>();
+            for( JID jid : openfireGroup.getMembers() ){
+                currentGroupMembers.add(jid.toBareJID());
+            }
+            
+            Collection<String> desiredGroupMembers = new HashSet<String>();
+            Collection<String> desiredGroupMembersBackup = new HashSet<String>();
+            for( XmppGroupMember member :group.getMembers() ){
+                desiredGroupMembers.add(member.getJid());
+                desiredGroupMembersBackup.add(member.getJid());
+            }
 
-        for (XmppGroupMember member : group.getMembers()) {
-            String userJid = appendDomain(member.getJid());
-            JID userJID = new JID(userJid);
-            if (SipXOpenfirePlugin.getInstance().isValidUser(userJID)) {
-                SipXOpenfirePlugin.getInstance().addUserToGroup(userJID, group.getGroupName(),
-                        isAllAdminGroup);
+            //  1- Add all members that are currently not in the group but are found in the group from configuration file
+            desiredGroupMembers.removeAll(currentGroupMembers);
+            logger.info("Need to add the following members to group '" + group.getGroupName() + "': " + desiredGroupMembers);
+            for( String jid : desiredGroupMembers){
+                SipXOpenfirePlugin.getInstance().addUserToGroup(jid, group.getGroupName(), isAllAdminGroup);
+            }
+
+            //  2- Remove all members that are currently in the group but not found in the group from configuration file
+            currentGroupMembers.removeAll(desiredGroupMembersBackup);
+            logger.info("Need to remove the following members to group '" + group.getGroupName() + "': " + currentGroupMembers);
+            for( String jid : currentGroupMembers){
+                SipXOpenfirePlugin.getInstance().removeUserFromGroup(jid, group.getGroupName());
             }
         }
-        this.groups.put(group.getGroupName(), group);
+        catch( GroupNotFoundException ex ){
+            logger.info("XmppAccountInfo::addGroup: " + group.getGroupName() + " does not exist - create it");
+            plugin.createGroup(group.getGroupName(), adminJID, group.getDescription());
 
+            for (XmppGroupMember member : group.getMembers()) {
+                String userJid = appendDomain(member.getJid());
+                SipXOpenfirePlugin.getInstance().addUserToGroup(userJid, group.getGroupName(), isAllAdminGroup);
+            }
+        }
+        this.groups.put(group.getGroupName(), group);       
     }
 
     public void addChatRoom(XmppChatRoom xmppChatRoom) throws Exception {

@@ -572,21 +572,29 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         group.getProperties().put("sharedRoster.displayName", groupName);
     }
 
-    public void addUserToGroup(JID jid, String groupName, boolean isAdmin)
-            throws GroupNotFoundException {
-        log.debug("addUserToGroup " + jid + " GroupName " + groupName);
+    public void addUserToGroup(String jidAsString, String groupName, boolean isAdmin) throws GroupNotFoundException{
+        JID userJID = new JID(jidAsString);
+        addUserToGroup(userJID, groupName, isAdmin);
+    }
 
-        Group group = groupManager.getGroup(groupName, true);
-        if (group.getAdmins().contains(jid)) {
-            log.debug("Admins already has " + jid);
-            group.getMembers().add(jid);
-        } else {
-            if (isAdmin) {
-                if (jid.getDomain().equals(this.getXmppDomain())) {
-                    group.getAdmins().add(jid);
+    public void addUserToGroup(JID jid, String groupName, boolean isAdmin) throws GroupNotFoundException {
+        if (isValidUser(jid)) {
+            log.debug("addUserToGroup " + jid + " GroupName " + groupName);
+            Group group = groupManager.getGroup(groupName, true);
+            if (group.getAdmins().contains(jid)) {
+                log.debug("Admins already has " + jid);
+                group.getMembers().add(jid);
+            } else {
+                if (isAdmin) {
+                    if (jid.getDomain().equals(this.getXmppDomain())) {
+                        group.getAdmins().add(jid);
+                    }
                 }
+                group.getMembers().add(jid);
             }
-            group.getMembers().add(jid);
+        }
+        else{
+            log.debug("addUserToGroup " + jid + " GroupName " + groupName + " failed because user is invalid");
         }
 
     }
@@ -1029,7 +1037,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     public Collection<Group> getGroups() {
         return this.groupManager.getGroups();
     }
-
+    
+    public Group getGroupByName(String groupName) throws GroupNotFoundException{
+        return this.groupManager.getGroup(groupName);
+    }
+   
     public Collection<MUCRoom> getMUCRooms() {
         HashSet<MUCRoom> retval = new HashSet<MUCRoom>();
         for (MultiUserChatService mucService : this.multiUserChatManager

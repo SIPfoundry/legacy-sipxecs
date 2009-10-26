@@ -87,18 +87,6 @@ public class AccountsParser {
                             plugin.deleteGroup(group.getName());
                             continue;
                         }
-                        XmppGroup xmppGroup = accountInfo.getXmppGroup(group.getName());
-                        Collection<JID> members = group.getMembers();
-                        for (JID member : members) {
-                            /*
-                             * Make sure we have a record for this member in our sipxconfig generated
-                             * group.
-                             */
-                            if (!xmppGroup.hasMember(member.toBareJID())) {
-                                group.getMembers().remove(member);
-                            }
-    
-                        }
                     }
                     Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
                     /*
