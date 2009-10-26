@@ -20,6 +20,7 @@
   <property name="compiler" value="${cc}"/>
 
   <path id="base.path" >
+    <pathelement location="${src.dir}/lib/Stun4J.jar"/>
     <pathelement location="${src.dir}/lib/jain-sip-sdp.jar"/>
     <pathelement location="${src.dir}/lib/jibx-run.jar"/>
     <pathelement location="${src.dir}/lib/xpp3.jar"/>
@@ -181,6 +182,7 @@
       <fileset file="${src.dir}/lib/cpptasks.jar"/>
       <fileset file="${src.dir}/lib/dom4j.jar"/>
       <fileset file="${src.dir}/lib/dnsjava.jar"/>
+      <fileset file="${src.dir}/lib/Stun4J.jar"/>
       <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
       <fileset file="${src.dir}/lib/javamail.jar"/>
       <fileset file="${src.dir}/lib/jaxen.jar"/>

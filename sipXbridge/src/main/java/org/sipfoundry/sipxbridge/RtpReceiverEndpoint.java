@@ -15,7 +15,7 @@ import javax.sdp.SdpFactory;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.SymEndpointInterface;
+import org.sipfoundry.sipxrelay.SymEndpointInterface;
 
 class RtpReceiverEndpoint implements SymEndpointInterface {
 

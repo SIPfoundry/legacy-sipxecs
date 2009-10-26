@@ -14,8 +14,8 @@ import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.message.Request;
 
-import org.sipfoundry.sipxbridge.symmitron.BridgeInterface;
-import org.sipfoundry.sipxbridge.symmitron.BridgeState;
+import org.sipfoundry.sipxrelay.BridgeInterface;
+import org.sipfoundry.sipxrelay.BridgeState;
 
 class RtpBridge  {
     

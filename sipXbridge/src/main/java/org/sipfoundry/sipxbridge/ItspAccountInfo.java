@@ -19,7 +19,7 @@ import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.FindSipServer;
-import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
+import org.sipfoundry.sipxrelay.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 
 /**

@@ -13,10 +13,10 @@ import java.net.UnknownHostException;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
-import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpointImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymTransmitterEndpointInterface;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
+import org.sipfoundry.sipxrelay.KeepaliveMethod;
+import org.sipfoundry.sipxrelay.SymTransmitterEndpointImpl;
+import org.sipfoundry.sipxrelay.SymTransmitterEndpointInterface;
+import org.sipfoundry.sipxrelay.SymmitronClient;
 
 class RtpTransmitterEndpoint {
 

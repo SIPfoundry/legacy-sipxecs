@@ -72,12 +72,12 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.ProxyHop;
-import org.sipfoundry.sipxbridge.symmitron.BridgeInterface;
-import org.sipfoundry.sipxbridge.symmitron.BridgeState;
-import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
-import org.sipfoundry.sipxbridge.symmitron.SymImpl;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
+import org.sipfoundry.sipxrelay.BridgeInterface;
+import org.sipfoundry.sipxrelay.BridgeState;
+import org.sipfoundry.sipxrelay.KeepaliveMethod;
+import org.sipfoundry.sipxrelay.SymImpl;
+import org.sipfoundry.sipxrelay.SymmitronClient;
+import org.sipfoundry.sipxrelay.SymmitronException;
 
 /**
  * A class that represents an ongoing call. An ongoing call maps to exactly one instance

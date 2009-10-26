@@ -14,7 +14,7 @@ import javax.sip.header.ServerHeader;
 import javax.sip.header.UserAgentHeader;
 
 import org.cafesip.sipunit.SipTestCase;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronServer;
+import org.sipfoundry.sipxrelay.SymmitronServer;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 public abstract class AbstractSipSignalingTest extends SipTestCase {

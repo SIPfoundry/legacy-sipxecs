@@ -1,4 +1,3 @@
-
 This package uses the following packages:
 
 The Stun4J package developed by Emil Ivov.
@@ -14,7 +13,5 @@ The NIST JAIN-SIP Reference Implementation from the National Institute
 of Standards and Technology (Advanced Networking Technologies Division).
 http://jain-sip.dev.java.net
 
-The help of the following sipx community members in testing this code
+The help of the sipx user community members in testing this code
 is gratefully acknowledged.
-
-Alberto Gasparotto

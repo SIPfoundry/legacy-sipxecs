@@ -49,6 +49,7 @@
 		<pathelement location="${commons-digester}" />
 		<pathelement location="${commons-collections}" />
 		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${sipxrelay-jar}" />
 		<pathelement location="${xml-rpc-common}" />
 		<pathelement location="${xml-rpc-server}" />
 		<pathelement location="${xml-rpc-client}" />
@@ -69,18 +70,12 @@
 		<pathelement location="${commons-digester}" />
 		<pathelement location="${commons-collections}" />
 		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${sipxrelay-jar}" />
 		<pathelement location="${xml-rpc-common}" />
 		<pathelement location="${xml-rpc-server}" />
 		<pathelement location="${xml-rpc-client}" />
 		<pathelement location="${ws-commons-util}" />
 	</path>
- 	<patternset id="test.classes">
-  		<include name="**/symmitron/SymmitronTest.class"/>
-	</patternset>
-
- 	<patternset id="regression.classes">
-  		<include name="**/symmitron/SymmitronTest.class"/>
-	</patternset>
 
   	<!--
     	- I N I T
@@ -155,14 +150,10 @@
      <target name="install">
     	<mkdir dir="${dest.dir}${sipxbridge.dir}"/>
     	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.dir}"/>
-	<!-- NOTE : Remove these aftr jetty-jar and servlet-jar are migrated to sipxcommons -->
-    	<copy todir="${dest.dir}${sipxbridge.dir}">
-		<fileset file="${stun4j}" />
-    	</copy>
     </target>
 
     <target name = "javadoc" >
-		<javadoc packagenames="org.sipfoundry.sipxbridge.symmitron,org.sipfoundry.sipxbridge.xmlrpc" sourcepath="./src/main/java" destdir="design/javadoc" use="true" splitindex="true" windowtitle="SipXbridge and SipXRelay external Interface" doctitle="SipXbridge: The Sipx ITSP Bridge" public="true" author="true" version="true" defaultexcludes="yes" additionalparam="-breakiterator">
+		<javadoc packagenames="org.sipfoundry.sipxbridge.symmitron,org.sipfoundry.sipxbridge.xmlrpc" sourcepath="./src/main/java" destdir="design/javadoc" use="true" splitindex="true" windowtitle="SipXbridge External Interface" doctitle="SipXbridge: The Sipx ITSP Bridge" public="true" author="true" version="true" defaultexcludes="yes" additionalparam="-breakiterator">
 			<link href="${j2se_api}" />
 			<header>
 				<![CDATA[
@@ -232,43 +223,6 @@
 
      </java>
 </target>
-
-
-<!-- These targets are for testing only -->
-
-<target name="symserver" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
-	     <java fork="yes" classname="org.sipfoundry.sipxbridge.TransReceiver">
-	     	   <arg value="true"/>
-		        <classpath>
-			  <pathelement location="${classes}" />
-	                  <fileset dir="lib">
-	                         <include name="**/*.jar" />
-	                  </fileset>
-	           		  <fileset dir="tools">
-	           		         <include name="**/*.jar" />
-	           	      </fileset>
-	           </classpath>
-	     </java>
-</target>
-
-<!-- These targets are for testing only -->
-
-<target name="symclient" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
-	     <java fork="yes" classname="org.sipfoundry.sipxbridge.TransReceiver">
-	     	   <arg value="false"/>
-	     	   <arg value="50"/>
-		        <classpath>
-			  <pathelement location="${classes}" />
-	                  <fileset dir="lib">
-	                         <include name="**/*.jar" />
-	                  </fileset>
-	           		  <fileset dir="tools">
-	           		         <include name="**/*.jar" />
-	           	      </fileset>
-	           </classpath>
-	     </java>
-</target>
-
 
 
 

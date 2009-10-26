@@ -47,7 +47,7 @@ import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronClient;
+import org.sipfoundry.sipxrelay.SymmitronClient;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
 /**

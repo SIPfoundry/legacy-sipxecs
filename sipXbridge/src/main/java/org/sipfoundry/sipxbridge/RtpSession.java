@@ -10,7 +10,7 @@ package org.sipfoundry.sipxbridge;
 import javax.sdp.SessionDescription;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.SymImpl;
+import org.sipfoundry.sipxrelay.SymImpl;
 
 /**
  * An RTP session consists of a transmitter and receiver endpoint. 

@@ -31,6 +31,7 @@ AC_ARG_ENABLE(server,
 if test x$server = xyes
 then
   AC_CONFIG_SUBDIRS(sipXacd)
+  AC_CONFIG_SUBDIRS(sipXrelay)
   AC_CONFIG_SUBDIRS(sipXbridge)
   AC_CONFIG_SUBDIRS(sipXcallController)
   AC_CONFIG_SUBDIRS(sipXcdrLog)

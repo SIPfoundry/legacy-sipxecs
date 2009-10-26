@@ -89,9 +89,15 @@ sipXpbx : sipXproxy sipXprovision sipXregistry sipXpublisher sipXconfig sipXpark
 sipXsupervisor : sipXcommserverLib sipXpbx
 	@echo sipXsupervisor
 
-.PHONY: sipXbridge
-sipXbridge : sipXcommons
+.PHONY: sipXrelay
+sipXrelay : sipXcommons
+	@echo sipXrelay
+
 	@echo sipXbridge
+.PHONY: sipXbridge
+sipXbridge : sipXcommons sipXrelay
+	@echo sipXbridge
+
 
 .PHONY: sipXpage
 sipXpage : sipXcommons

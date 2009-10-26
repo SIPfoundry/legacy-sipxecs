@@ -59,9 +59,9 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.sipxbridge.symmitron.KeepaliveMethod;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronException;
-import org.sipfoundry.sipxbridge.symmitron.SymmitronResetHandler;
+import org.sipfoundry.sipxrelay.KeepaliveMethod;
+import org.sipfoundry.sipxrelay.SymmitronException;
+import org.sipfoundry.sipxrelay.SymmitronResetHandler;
 
 /**
  * This class does some pre-processing of requests and then acts as a high level router for
