@@ -268,14 +268,19 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                     // has an associated SIP ID.
                                     String conferencePin = plugin.getConferencePin(subdomain, roomName);
                                     for (MUCRole occupant : chatRoom.getOccupants()) {
-                                        if (occupant.getRole() != MUCRole.Role.none) {
-                                            String occupantJID = occupant.getUserAddress().toBareJID();
-                                            String occupantSipId = plugin.getSipId(occupantJID);
-                                            if ( occupantSipId != null) {
-                                                String restCallCommand = buildRestConferenceCommand(
-                                                        commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
-                                                sendRestRequest(restCallCommand);                                                    
+                                        try{
+                                            if (occupant.getRole() != MUCRole.Role.none) {
+                                                String occupantJID = occupant.getUserAddress().toBareJID();
+                                                String occupantSipId = plugin.getSipId(occupantJID);
+                                                if ( occupantSipId != null) {
+                                                    String restCallCommand = buildRestConferenceCommand(
+                                                            commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
+                                                    sendRestRequest(restCallCommand);                                                    
+                                                }
                                             }
+                                        }
+                                        catch( Exception ex ){
+                                            log.warn( "processGroupChatMessage " + ex + ": skipping user");
                                         }
                                     }
                                 }
