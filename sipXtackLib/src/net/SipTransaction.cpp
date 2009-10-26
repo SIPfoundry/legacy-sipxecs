@@ -3608,7 +3608,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             }
 
 #ifdef TEST_PRINT
-            if (response)
+            if (!response)
             {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipTransaction::handleIncoming duplicate request, no response");
