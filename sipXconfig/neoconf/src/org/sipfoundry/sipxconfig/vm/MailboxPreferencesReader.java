@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.vm;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -23,9 +24,6 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
  * It only imports preferences compatible with sipXconfig 4.0 format.
  */
 public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> {
-    private static final String YES = "yes";
-    private static final String ATTACHMENTS_ATTR_VALUE = "attachments";
-
     @Override
     public MailboxPreferences readObject(Document doc) {
         MailboxPreferences prefs = new MailboxPreferences();
@@ -36,13 +34,18 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
         prefs.setActiveGreeting(greeting);
 
         List<Element> contacts = root.selectNodes("notification/contact");
-        prefs.setEmailAddress(getEmailAddress(0, contacts));
-        prefs.setAlternateEmailAddress(getEmailAddress(1, contacts));
-
-        prefs.setAttachVoicemailToEmail(getAttachVoicemail(0, contacts));
-
-        prefs.setAttachVoicemailToAlternateEmail(getAttachVoicemailAlternate(1, contacts));
-
+        String emailAddress = getEmailAddress(0, contacts);
+        if (StringUtils.isNotBlank(emailAddress)) {
+            prefs.setEmailAddress(emailAddress);
+            prefs.setAttachVoicemailToEmail(AttachType.YES);
+            prefs.setIncludeAudioAttachment(getAttachVoicemail(0, contacts));
+        }
+        String alternateEmailAdress = getEmailAddress(1, contacts);
+        if (StringUtils.isNotBlank(alternateEmailAdress)) {
+            prefs.setAlternateEmailAddress(alternateEmailAdress);
+            prefs.setVoicemailToAlternateEmailNotification(AttachType.YES);
+            prefs.setIncludeAudioAttachmentAlternateEmail(getAttachVoicemail(1, contacts));
+        }
         return prefs;
     }
 
@@ -53,19 +56,11 @@ public class MailboxPreferencesReader extends XmlReaderImpl<MailboxPreferences> 
         return contacts.get(index).getText();
     }
 
-    private AttachType getAttachVoicemail(int index, List<Element> contacts) {
-        if (contacts.size() <= index) {
-            return AttachType.NO;
-        }
-        String sAttachVm = contacts.get(index).attributeValue(ATTACHMENTS_ATTR_VALUE);
-        return YES.equals(sAttachVm) ? AttachType.YES : AttachType.NO;
-    }
-
-    private boolean getAttachVoicemailAlternate(int index, List<Element> contacts) {
+    private boolean getAttachVoicemail(int index, List<Element> contacts) {
         if (contacts.size() <= index) {
             return false;
         }
-        String sAttachVm = contacts.get(index).attributeValue(ATTACHMENTS_ATTR_VALUE);
-        return YES.equals(sAttachVm);
+        String sAttachVm = contacts.get(index).attributeValue("attachments");
+        return "yes".equals(sAttachVm);
     }
 }

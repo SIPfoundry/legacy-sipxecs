@@ -21,8 +21,9 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
-
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 public abstract class MailboxPreferencesForm extends BaseComponent implements PageBeginRenderListener {
+    private static final String ATTACH_TYPE = "attachType.";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -34,6 +35,14 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     public abstract void setVoicemailPropertiesModel(IPropertySelectionModel model);
 
     public abstract IPropertySelectionModel getVoicemailPropertiesModel();
+
+    public abstract void setMailFormatModel(IPropertySelectionModel model);
+
+    public abstract IPropertySelectionModel getMailFormatModel();
+
+    public abstract void setAlternateEmailNotifyModel(IPropertySelectionModel model);
+
+    public abstract IPropertySelectionModel getAlternateEmailNotifyModel();
 
     @Parameter(required = true)
     public abstract MailboxPreferences getPreferences();
@@ -48,9 +57,19 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
             setActiveGreetingModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), "activeGreeting."));
         }
         if (getVoicemailPropertiesModel() == null) {
-            NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel();
-            rawModel.setOptions(getPreferences().getAttachOptions());
-            setVoicemailPropertiesModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), "attachType."));
+            NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel<AttachType>();
+            rawModel.setOptions(getPreferences().getAttachOptions(isAdmin()));
+            setVoicemailPropertiesModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), ATTACH_TYPE));
+        }
+        if (getMailFormatModel() == null) {
+            NewEnumPropertySelectionModel<MailFormat> rawModel = new NewEnumPropertySelectionModel<MailFormat>();
+            rawModel.setEnumType(MailFormat.class);
+            setMailFormatModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), "mailFormat."));
+        }
+        if (getAlternateEmailNotifyModel() == null) {
+            NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel<AttachType>();
+            rawModel.setOptions(getPreferences().getAttachOptionsForAlternateEmail());
+            setAlternateEmailNotifyModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), ATTACH_TYPE));
         }
     }
 }

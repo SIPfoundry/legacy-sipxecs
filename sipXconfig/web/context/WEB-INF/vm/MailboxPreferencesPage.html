@@ -6,9 +6,6 @@
   </span>
   <span jwcid="@common/ErrorMsg"/>
     <form jwcid="mailboxPrefsForm@Form" delegate="bean:validator">
-      <ul class="component-links">
-        <li jwcid="@common/ToggleLink" toggle="ognl:advanced" />
-      </ul>
       <table>
         <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" admin="ognl:userSession.admin"/>
       </table>

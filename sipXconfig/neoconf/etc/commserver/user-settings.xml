@@ -21,6 +21,19 @@
       </false>
     </boolean>
   </type>
+  <type id="email-notification-format">
+    <enum>
+      <option>
+        <value>FULL</value>
+      </option>
+      <option>
+        <value>MEDIUM</value>
+      </option>
+      <option>
+        <value>BRIEF</value>
+      </option>
+    </enum>
+  </type>
   <group name="permission">
     <group name="application">
       <setting name="superadmin">
@@ -148,7 +161,7 @@
         </type>
         <value>standard</value>
       </setting>
-      <setting name="attach-voicemail">
+      <setting name="primary-email-voicemail-notification">
         <type>
           <enum>
             <option>
@@ -164,7 +177,34 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="attach-voicemail-to-additional-email">
+      <setting name="primary-email-format">
+        <type refid="email-notification-format" />
+        <value>FULL</value>
+      </setting>
+      <setting name="primary-email-attach-audio">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alternate-email-voicemail-notification">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alternate-email-format">
+        <type refid="email-notification-format" />
+        <value>FULL</value>
+      </setting>
+      <setting name="alternate-email-attach-audio">
         <type>
           <boolean />
         </type>
@@ -177,17 +217,22 @@
           <string />
         </type>
       </setting>
-      <setting name="port" advanced="yes">
+      <setting name="port">
         <type>
           <integer min="0" required="yes" />
         </type>
         <value>143</value>
       </setting>
-      <setting name="tls" advanced="yes">
+      <setting name="tls">
         <type>
           <boolean />
         </type>
         <value>0</value>
+      </setting>
+      <setting name="account" hidden="yes">
+        <type>
+          <string />
+        </type>
       </setting>
       <setting name="password" hidden="yes">
         <type>

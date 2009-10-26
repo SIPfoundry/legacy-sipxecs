@@ -14,8 +14,16 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class MailboxPreferences {
     public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
-    public static final String ATTACH_VOICEMAIL = "voicemail/mailbox/attach-voicemail";
-    public static final String ATTACH_VOICEMAIL_ALTERNATE = "voicemail/mailbox/attach-voicemail-to-additional-email";
+
+    public static final String PRIMARY_EMAIL_NOTIFICATION = "voicemail/mailbox/primary-email-voicemail-notification";
+    public static final String PRIMARY_EMAIL_FORMAT = "voicemail/mailbox/primary-email-format";
+    public static final String PRIMARY_EMAIL_ATTACH_AUDIO = "voicemail/mailbox/primary-email-attach-audio";
+
+    public static final String ALT_EMAIL_NOTIFICATION = "voicemail/mailbox/alternate-email-voicemail-notification";
+    public static final String ALT_EMAIL_FORMAT = "voicemail/mailbox/alternate-email-format";
+    public static final String ALT_EMAIL_ATTACH_AUDIO = "voicemail/mailbox/alternate-email-attach-audio";
+
+    public static final String IMAP_ACCOUNT = "voicemail/imap/account";
     public static final String IMAP_PASSWORD = "voicemail/imap/password";
     public static final String IMAP_TLS = "voicemail/imap/tls";
     public static final String IMAP_PORT = "voicemail/imap/port";
@@ -67,18 +75,26 @@ public class MailboxPreferences {
         }
     }
 
+    public enum MailFormat {
+        FULL, MEDIUM, BRIEF;
+    }
+
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
 
     private String m_emailAddress;
+    private MailFormat m_emailFormat = MailFormat.FULL;
     private AttachType m_attachVoicemailToEmail = AttachType.NO;
+    private boolean m_includeAudioAttachment;
 
     private String m_alternateEmailAddress;
-    private boolean m_attachVoicemailToAlternateEmail;
+    private MailFormat m_alternateEmailFormat = MailFormat.FULL;
+    private AttachType m_voicemailToAlternateEmailNotification = AttachType.NO;
+    private boolean m_includeAudioAttachmentAlternateEmail;
 
-    private boolean m_synchronizeWithImapServer;
     private String m_imapHost;
     private String m_imapPort;
     private boolean m_imapTLS;
+    private String m_imapAccount;
     private String m_imapPassword;
 
     public MailboxPreferences() {
@@ -89,24 +105,34 @@ public class MailboxPreferences {
         m_emailAddress = user.getEmailAddress();
         m_alternateEmailAddress = user.getAlternateEmailAddress();
         m_activeGreeting = ActiveGreeting.fromId((user.getSettingValue(ACTIVE_GREETING)));
-        m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(ATTACH_VOICEMAIL));
-        m_attachVoicemailToAlternateEmail = (Boolean) user.getSettingTypedValue(ATTACH_VOICEMAIL_ALTERNATE);
+        m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
+        m_emailFormat = MailFormat.valueOf(user.getSettingValue(PRIMARY_EMAIL_FORMAT));
+        m_alternateEmailFormat = MailFormat.valueOf(user.getSettingValue(ALT_EMAIL_FORMAT));
+        m_voicemailToAlternateEmailNotification = AttachType.fromValue(user.getSettingValue(ALT_EMAIL_NOTIFICATION));
         m_imapHost = user.getSettingValue(IMAP_HOST);
         m_imapPort = user.getSettingValue(IMAP_PORT);
         m_imapTLS = (Boolean) user.getSettingTypedValue(IMAP_TLS);
         m_imapPassword = user.getSettingValue(IMAP_PASSWORD);
+        m_imapAccount = user.getSettingValue(IMAP_ACCOUNT);
+        m_includeAudioAttachment = (Boolean) user.getSettingTypedValue(PRIMARY_EMAIL_ATTACH_AUDIO);
+        m_includeAudioAttachmentAlternateEmail = (Boolean) user.getSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO);
     }
 
     public void updateUser(User user) {
         user.setEmailAddress(m_emailAddress);
         user.setAlternateEmailAddress(m_alternateEmailAddress);
         user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
-        user.setSettingValue(ATTACH_VOICEMAIL, m_attachVoicemailToEmail.getValue());
-        user.setSettingTypedValue(ATTACH_VOICEMAIL_ALTERNATE, m_attachVoicemailToAlternateEmail);
+        user.setSettingValue(PRIMARY_EMAIL_NOTIFICATION, m_attachVoicemailToEmail.getValue());
+        user.setSettingValue(PRIMARY_EMAIL_FORMAT, m_emailFormat.name());
+        user.setSettingValue(ALT_EMAIL_FORMAT, m_alternateEmailFormat.name());
+        user.setSettingValue(ALT_EMAIL_NOTIFICATION, m_voicemailToAlternateEmailNotification.getValue());
         user.setSettingValue(IMAP_HOST, m_imapHost);
         user.setSettingValue(IMAP_PORT, m_imapPort);
         user.setSettingTypedValue(IMAP_TLS, m_imapTLS);
         user.setSettingValue(IMAP_PASSWORD, m_imapPassword);
+        user.setSettingValue(IMAP_ACCOUNT, m_imapAccount);
+        user.setSettingTypedValue(PRIMARY_EMAIL_ATTACH_AUDIO, m_includeAudioAttachment);
+        user.setSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO, m_includeAudioAttachmentAlternateEmail);
     }
 
     public ActiveGreeting getActiveGreeting() {
@@ -125,6 +151,14 @@ public class MailboxPreferences {
         m_attachVoicemailToEmail = attachVoicemailToEmail;
     }
 
+    public MailFormat getEmailFormat() {
+        return m_emailFormat;
+    }
+
+    public void setEmailFormat(MailFormat emailFormat) {
+        m_emailFormat = emailFormat;
+    }
+
     public String getEmailAddress() {
         return m_emailAddress;
     }
@@ -141,20 +175,48 @@ public class MailboxPreferences {
         m_alternateEmailAddress = alternateEmailAddress;
     }
 
-    public boolean isAttachVoicemailToAlternateEmail() {
-        return m_attachVoicemailToAlternateEmail;
+    public AttachType getVoicemailToAlternateEmailNotification() {
+        return m_voicemailToAlternateEmailNotification;
     }
 
-    public void setAttachVoicemailToAlternateEmail(boolean attachVoicemailToAlternateEmail) {
-        m_attachVoicemailToAlternateEmail = attachVoicemailToAlternateEmail;
+    public void setVoicemailToAlternateEmailNotification(AttachType voicemailToAlternateEmailNotification) {
+        m_voicemailToAlternateEmailNotification = voicemailToAlternateEmailNotification;
     }
 
-    public boolean isSynchronizeWithEmailServer() {
-        return m_synchronizeWithImapServer;
+    public boolean isSynchronizeWithImapServer() {
+        return m_attachVoicemailToEmail == AttachType.IMAP;
     }
 
-    public void setSynchronizeWithImapServer(boolean synchronizeWithImapServer) {
-        m_synchronizeWithImapServer = synchronizeWithImapServer;
+    public boolean isEmailNotificationEnabled() {
+        return m_attachVoicemailToEmail == AttachType.YES;
+    }
+
+    public boolean isEmailNotificationAlternateEnabled() {
+        return m_voicemailToAlternateEmailNotification == AttachType.YES;
+    }
+
+    public boolean isIncludeAudioAttachment() {
+        return m_includeAudioAttachment;
+    }
+
+    public void setIncludeAudioAttachment(boolean includeAudioAttachment) {
+        m_includeAudioAttachment = includeAudioAttachment;
+    }
+
+    public MailFormat getAlternateEmailFormat() {
+        return m_alternateEmailFormat;
+    }
+
+    public void setAlternateEmailFormat(MailFormat emailFormat) {
+        m_alternateEmailFormat = emailFormat;
+    }
+
+    public boolean isIncludeAudioAttachmentAlternateEmail() {
+        return m_includeAudioAttachmentAlternateEmail;
+    }
+
+    public void setIncludeAudioAttachmentAlternateEmail(boolean audioAttachmentAlternateEmail) {
+        m_includeAudioAttachmentAlternateEmail = audioAttachmentAlternateEmail;
     }
 
     public String getImapHost() {
@@ -189,16 +251,31 @@ public class MailboxPreferences {
         m_imapPassword = emailPassword;
     }
 
-    public boolean hasImapServer() {
+    public String getImapAccount() {
+        return m_imapAccount;
+    }
+
+    public void setImapAccount(String imapAccount) {
+        m_imapAccount = imapAccount;
+    }
+
+    public boolean isImapServerConfigured() {
         return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
     }
 
-    public AttachType[] getAttachOptions() {
-        if (hasImapServer()) {
+    public AttachType[] getAttachOptions(boolean isAdmin) {
+        if (isImapServerConfigured() || isAdmin) {
             return AttachType.values();
         }
         return new AttachType[] {
-            AttachType.YES, AttachType.NO
+            AttachType.NO, AttachType.YES
+        };
+
+    }
+
+    public AttachType[] getAttachOptionsForAlternateEmail() {
+        return new AttachType[] {
+            AttachType.NO, AttachType.YES
         };
     }
 }

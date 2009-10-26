@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 public class MailboxPreferencesPageTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditVoicemailTestUi.class);
+        return SiteTestHelper.webTestSuite(MailboxPreferencesPageTestUi.class);
     }
 
     @Override
@@ -25,19 +25,29 @@ public class MailboxPreferencesPageTestUi extends WebTestCase {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        clickLink("UnifiedMessaging");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.setScriptingEnabled(tester, true);
     }
 
-    public void testDisabledVoicemail() {
-        clickLink("disableVoicemail");
-        clickLink("loginFirstTestUser");
-        assertElementPresent("mailbox:disabled");
-    }
+    public void testEmailNotification() {
+        assertElementPresent("user:activeGreeting");
+        assertElementPresent("user:emailAddress");
+        assertElementPresent("user:voicemailProperties");
 
-    public void testEnabledVoicemail() {
-        clickLink("resetVoicemail");
-        clickLink("loginFirstTestUser");
-        SiteTestHelper.assertNoException(tester);
-        assertElementNotPresent("mailbox:disabled");
+        assertElementNotPresent("user:emailFormat");
+        assertElementNotPresent("user:includeAudioAttachment");
+        assertElementNotPresent("user:imapHost");
+        assertElementNotPresent("user:imapPort");
+        assertElementNotPresent("user:imapTLS");
+        assertElementNotPresent("user:imapAccount");
+        assertElementNotPresent("user:imapPassword");
+
+        assertElementPresent("user:alternateEmailAddress");
+        assertElementPresent("user:voicemailToAlternateEmailNotification");
+        assertElementNotPresent("user:alternateEmailFormat");
+        assertElementNotPresent("user:includeAudioAttachmentAlternateEmail");
+
     }
 }

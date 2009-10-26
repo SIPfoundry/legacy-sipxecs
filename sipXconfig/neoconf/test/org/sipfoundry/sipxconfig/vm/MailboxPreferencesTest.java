@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ACTIVE_GREETING;
-import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ATTACH_VOICEMAIL;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
@@ -86,7 +86,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
 
         assertEquals("first@example.com", user.getEmailAddress());
         assertEquals("second@example.com", user.getAlternateEmailAddress());
-        assertEquals(MailboxPreferences.AttachType.NO.getValue(), user.getSettingValue(ATTACH_VOICEMAIL));
+        assertEquals(MailboxPreferences.AttachType.NO.getValue(), user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
         assertEquals("imap.host.exampl.com", user.getSettingValue(IMAP_HOST));
         assertEquals("143", user.getSettingValue(IMAP_PORT));
         assertTrue((Boolean) user.getSettingTypedValue(IMAP_TLS));

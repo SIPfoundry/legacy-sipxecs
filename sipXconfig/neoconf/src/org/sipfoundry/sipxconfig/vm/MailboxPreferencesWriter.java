@@ -25,7 +25,7 @@ public class MailboxPreferencesWriter extends XmlWriterImpl<MailboxPreferences> 
         context.put("hasAlternateEmailAddress", altEmail);
         context.put("preferences", prefs);
         context.put("yesNo", new YesNo());
-        context.put("ifEmailServer", prefs.hasImapServer());
+        context.put("ifEmailServer", prefs.isImapServerConfigured());
         // FIXME: this code is using default platform encoding - not safe
         String pwd = StringUtils.defaultString(prefs.getImapPassword());
         String encodedPwd = new String(Base64.encodeBase64(pwd.getBytes()));
