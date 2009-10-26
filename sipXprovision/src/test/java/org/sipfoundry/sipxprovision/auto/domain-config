@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME :      fun.pm
+SIP_DOMAIN_ALIASES :    192.168.1.202    dhcp-202.fun.pm
+SIP_REALM : fun.pm
+SHARED_SECRET :          HideMe_during_dumpConfiguration
+DEFAULT_LANGUAGE : en
+SUPERVISOR_PORT :    8092
+CONFIG_HOSTS : dhcp-202.fun.pm

@@ -1,0 +1,8 @@
+log.level=DEBUG
+log.file=   /home/sipxchange/WORKING/INSTALL/var/log/sipxpbx/sipxprovision.log
+provision.profile.tftproot=  /tftp
+provision.servlet.port=   5440
+provision.username=   ~~id~sipXprovision
+provision.password=HideMe_during_dumpConfiguration
+provision.configUrl=https://dhcp-202.fun.pm:8443
+

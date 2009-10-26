@@ -83,6 +83,9 @@ Port    Component         Use
 8111    sipXpresence      HTTP
 
 8130    sipXconfig        call resolver remote data
+
+8185    sipXprovision     HTTP Auto-Provisioning Servlet
+
 8443    sipXconfig        SSL web UI
 
 8500... sipXpage          RTP/RTCP ports

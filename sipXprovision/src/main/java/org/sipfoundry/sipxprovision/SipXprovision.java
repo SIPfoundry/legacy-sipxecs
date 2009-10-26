@@ -8,6 +8,9 @@
  */
 package org.sipfoundry.sipxprovision;
 
+import org.sipfoundry.sipxprovision.auto.Servlet;
+
+// TODO javadoc
 public class SipXprovision {
 
     /**
@@ -18,6 +21,10 @@ public class SipXprovision {
         try {
 
             System.out.println("Hello world!");
+
+            Servlet.start();
+
+            // TODO: addShutdownHook
 
             for (;;){
                 try { Thread.sleep(1000); } catch (InterruptedException e) { }
