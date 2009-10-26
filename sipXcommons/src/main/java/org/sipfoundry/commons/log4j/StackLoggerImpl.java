@@ -145,4 +145,12 @@ public class StackLoggerImpl implements StackLogger {
         return logger.getName();
     }
 
+    @Override
+    public void logTrace(String message) {
+        if ( this.isLoggingEnabled(TRACE_TRACE)) {
+             logger.debug(message);
+        }
+    }
+
+
 }
