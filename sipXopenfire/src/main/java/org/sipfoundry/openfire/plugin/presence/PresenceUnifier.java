@@ -1,7 +1,8 @@
 package org.sipfoundry.openfire.plugin.presence;
 
-import gov.nist.javax.sip.address.SipUri;
-import gov.nist.javax.sip.parser.URLParser;
+import javax.sip.address.URI; 
+import javax.sip.address.SipURI; 
+import javax.sip.SipFactory;
 
 import java.text.ParseException;
 import java.util.Collection;
@@ -325,33 +326,35 @@ public class PresenceUnifier implements PresenceEventListener
         String remoteEndpointAsString = null;
         if( remoteEndpoint != null && remoteEndpoint.getIdentity() != null ){
             try{
-                URLParser parser = new URLParser( remoteEndpoint.getIdentity() );
-                SipUri sipURI = parser.sipURL();
-                if( sipURI.getHost().equals( sipXopenfirePlugin.getSipDomain() ) ){
-                    // identity of the remote endpoint belongs to our domain
-                    try{
-                        String xmppNode = sipXopenfirePlugin.getXmppNode(sipURI.getUser());
-                        remoteEndpointAsString = sipXopenfirePlugin.getXmppDisplayName( xmppNode );
-                    }
-                    catch( UserNotFoundException ex ){
-                        log.info("getRemoteEndpointAsString could not resolve the SIP user part to an XMPP display name :" + ex );
-                        // could not resolve the SIP user part to an XMPP display name, look
-                        // for option 2a or 2b (see comments above).
-                        if( remoteEndpoint.getDisplayName() != null && remoteEndpoint.getDisplayName().length() != 0 ){
-                            remoteEndpointAsString = remoteEndpoint.getDisplayName();
+                URI uri = SipFactory.getInstance().createAddressFactory().createURI( remoteEndpoint.getIdentity() );
+                if( uri instanceof SipURI ){
+                    SipURI sipURI = (SipURI)uri;
+                    if( sipURI.getHost().equals( sipXopenfirePlugin.getSipDomain() ) ){
+                        // identity of the remote endpoint belongs to our domain
+                        try{
+                            String xmppNode = sipXopenfirePlugin.getXmppNode(sipURI.getUser());
+                            remoteEndpointAsString = sipXopenfirePlugin.getXmppDisplayName( xmppNode );
                         }
-                        else{
-                            remoteEndpointAsString = sipURI.getUser();
+                        catch( UserNotFoundException ex ){
+                            log.info("getRemoteEndpointAsString could not resolve the SIP user part to an XMPP display name :" + ex );
+                            // could not resolve the SIP user part to an XMPP display name, look
+                            // for option 2a or 2b (see comments above).
+                            if( remoteEndpoint.getDisplayName() != null && remoteEndpoint.getDisplayName().length() != 0 ){
+                                remoteEndpointAsString = remoteEndpoint.getDisplayName();
+                            }
+                            else{
+                                remoteEndpointAsString = sipURI.getUser();
+                            }
                         }
                     }
-                }
-                else{
-                    // remote endpoint is not to our domain, use the user@domain part of the 
-                    // identity as the remote endpoint string
-                    remoteEndpointAsString = sipURI.getUserAtHost();
+                    else{
+                        // remote endpoint is not to our domain, use the user@domain part of the 
+                        // identity as the remote endpoint string
+                        remoteEndpointAsString = sipURI.getUser() + "@" + sipURI.getHost();
+                    }
                 }
             }
-            catch( ParseException ex ){
+            catch( Exception ex ){
                 log.error("getRemoteEndpointAsString caught '" + ex + "' while parsing identity " + remoteEndpoint.getIdentity() );                
             }
         }
