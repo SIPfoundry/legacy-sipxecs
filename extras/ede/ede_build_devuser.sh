@@ -268,15 +268,19 @@ if [ $yum_remove_result != 0 ]; then
 fi
 
 # This file can be source'd by a shell (using '.' or 'source'.)
-echo INSTALL=\"`pwd`/$INSTALL\" > env
-echo BUILD=\"`pwd`/$BUILD\" >> env
-echo CODE=\"`pwd`/$CODE\" >> env
-echo LINKS=\"`pwd`/$LINKS\" >> env
-echo DIST=\"`pwd`/$DIST\" >> env
-# Note: More content is added below in the Eclipse readiness section.)
+EDE_ENV_FILE=env-ede
+echo WORKING_DIR=\"`pwd`\" > $EDE_ENV_FILE
+echo INSTALL=\"`pwd`/$INSTALL\" >> $EDE_ENV_FILE
+echo BUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
+echo CODE=\"`pwd`/$CODE\" >> $EDE_ENV_FILE
+echo LINKS=\"`pwd`/$LINKS\" >> $EDE_ENV_FILE
+echo DIST=\"`pwd`/$DIST\" >> $EDE_ENV_FILE
+# Note: More content is added below in the Eclipse readiness section.
 
 # Start removing the old and creating the new.
-sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR $ECLIPSE_WORKSPACE $EDE_BIN
+sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR $ECLIPSE_WORKSPACE $EDE_BIN 
+mv env env.DELETE_ME 2> /dev/null
+mv eclipse-windowprefs.txt eclipse-windowprefs.txt.DELETE_ME 2> /dev/null
 for lib_comp in $(ls $CODE/lib);
 do
    sudo rm -rf $CODE/lib/$lib_comp/build 2> /dev/null
@@ -452,7 +456,7 @@ if [ $BUILD_RPMS ]; then
    fi
 
    echo "Running RPM make..."
-   MAKE_COMMAND="sudo make rpm"
+   MAKE_COMMAND="make rpm"
    ${MAKE_COMMAND} &> $FULL_PATH_EDE_LOGS/rpm_make_output.log
    if [ $? != 0 ]; then
       echo "ERROR: sipXecs RPM make failed, see $EDE_LOGS/rpm_make_output.log" >&2
@@ -595,9 +599,9 @@ sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/fr
 
 # Eclipse readiness.
 mkdir -p $FULL_PATH_ECLIPSE_WORKSPACE
-echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> env
-echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> env
-echo SIPX_MYBUILD_OUT=\"`pwd`/$BUILD\" >> env
+echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> $EDE_ENV_FILE 
+echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
+echo SIPX_MYBUILD_OUT=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
 FULL_PATH_ECLIPSE_SETTINGS=$FULL_PATH_ECLIPSE_WORKSPACE/.metadata/.plugins/org.eclipse.core.runtime/.settings
 mkdir -p $FULL_PATH_ECLIPSE_SETTINGS
 cat <<EOF > $FULL_PATH_ECLIPSE_SETTINGS/org.eclipse.core.resources.prefs
@@ -653,7 +657,7 @@ fi
 echo ""
 echo "DONE!"
 echo ""
-echo "(Don't forget to run 'source ./env'!)"
+echo "(Don't forget to run 'source $EDE_ENV_FILE'!)"
 echo ""
 
 
