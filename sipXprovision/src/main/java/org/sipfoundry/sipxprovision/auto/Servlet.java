@@ -8,8 +8,14 @@
  */
 package org.sipfoundry.sipxprovision.auto;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.lang.Double;
 import java.lang.Long;
@@ -24,6 +30,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import org.mortbay.http.HttpContext;
@@ -32,6 +39,7 @@ import org.mortbay.jetty.servlet.ServletHandler;
 
 import org.sipfoundry.sipxprovision.auto.Configuration;
 import org.sipfoundry.sipxprovision.auto.Queue;
+
 
 /**
  * A Jetty servlet that auto-provisions phones based on their HTTP requests.
@@ -312,7 +320,7 @@ public class Servlet extends HttpServlet {
             HttpContext httpContext = new HttpContext();
             httpContext.setContextPath("/");
 
-            // Setup the servlet to call the  class when the URL is fetched.
+            // Setup the servlet to call the class when the URL is fetched.
             ServletHandler servletHandler = new ServletHandler();
             servletHandler.addServlet(Servlet.class.getCanonicalName(), m_config.getServletUriPath()
             		+ "/*", Servlet.class.getName());
@@ -335,9 +343,9 @@ public class Servlet extends HttpServlet {
     private static void initializeStaticConfig(Configuration config) {
 
         // Polycom SoundPoint IP family.
-        String polycom_path = config.getTftpPath() + "/000000000000.cfg";
+        File polycom_default_file = new File(config.getTftpPath(), "/000000000000.cfg");
         try {
-            java.io.FileOutputStream fos = new java.io.FileOutputStream(polycom_path);
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(polycom_default_file);
             java.io.PrintStream ps = new java.io.PrintStream(fos);
 
             /* TODO - try using the Velocity template instead.....  (Velocity template would need update....)
@@ -377,13 +385,58 @@ This may or may not work for all files, since we'll end up with a lot of "empty"
                     ", polycom_phone1_3.1.X.cfg, polycom_sip_3.1.X.cfg\" />");
             ps.println("</APPLICATION>");
             fos.close();
+            LOG.info(String.format("Wrote Polycom default file %s.", polycom_default_file.getName()));
         }
-        catch(java.io.IOException e ) {
-            LOG.error("Failed to write " + polycom_path + ":", e);
+        catch(IOException e ) {
+            LOG.error("Failed to write " + polycom_default_file + ":", e);
         }
 
-        // TODO: Also Polycom - conf.dir/polycom/polycom_* --> TFTP dir... (/home/sipxchange/WORKING/INSTALL/etc/sipxpbx)
-        // See: http://list.sipfoundry.org/archive/sipx-dev/msg20157.html: [sipX-dev] Static profile files into TFTP dir before Phone profile is generated?
+        // Copy the Polycom static files.  (See: http://list.sipfoundry.org/archive/sipx-dev/msg20157.html)
+        File polycom_src_dir = new File(System.getProperty("conf.dir") + "/polycom");
+        try {
+	        
+	        FilenameFilter cfg_filter = new FilenameFilter() {
+	        	public boolean accept(File dir, String name) {
+	                return name.startsWith("polycom_") && name.endsWith(".cfg");
+	            }
+	        };
+
+	        File[] files = polycom_src_dir.listFiles(cfg_filter);
+	        if (null == files) {
+	           LOG.error(String.format("No Polycom static files found at %s.", polycom_src_dir.getAbsolutePath()));
+	        }
+	        else {
+	        	int copy_count = 0;
+		        for (File file : files) {
+		        	
+		        	File dest_file = new File(config.getTftpPath(), file.getName());
+		        	if (!dest_file.exists()) {
+		        		
+			        	OutputStream output = new BufferedOutputStream(new FileOutputStream(dest_file));
+			        	FileInputStream input = null;
+			        	try {
+			        		input = new FileInputStream(file);
+			        	    IOUtils.copy(input, output);
+			        	    copy_count++;
+			        	} 
+			        	catch (IOException e) {
+			        		LOG.error(String.format("Failed to copy Polycom static file %s.", file.getName()), e);
+			        	}
+			        	finally {
+			        	   IOUtils.closeQuietly(input);
+			        	   IOUtils.closeQuietly(output);
+			        	}
+		        	}
+		        }
+	        	
+	        	LOG.info(String.format("Copied %d (of %d) Polycom static files from %s.", copy_count, files.length,
+	        			polycom_src_dir.getAbsolutePath()));
+	        }
+        }
+        catch(Exception e ) {
+            LOG.error("Failed to copy Polycom static files from " + polycom_src_dir.getAbsolutePath() + ":", e);
+        }
+        
     }
 
     private void logAndOut(String msg, PrintWriter out) {
