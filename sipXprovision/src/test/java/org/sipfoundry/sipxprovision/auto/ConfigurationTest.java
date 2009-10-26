@@ -25,7 +25,7 @@ public class ConfigurationTest extends TestCase {
 
     private void useDefaultConfigFileDirectory() {
 
-        System.setProperty("conf.dir", System.getProperty("basedir") + "/test/java/org.sipfoundry.sipxprovision.auto");
+        System.setProperty("conf.dir", System.getProperty("basedir") + "/test/java/org/sipfoundry/sipxprovision/auto");
     }
 
     protected void tearDown() {
@@ -108,7 +108,6 @@ public class ConfigurationTest extends TestCase {
         assertEquals("DEBUG", apc.getLog4jLevel());
         assertEquals("/home/sipxchange/WORKING/INSTALL/var/log/sipxpbx/sipxprovision.log", apc.getLogfile());
         assertEquals(false, apc.isDebugOn());
-        assertEquals("/tftp", apc.getTftpPath());
         assertEquals(5440, apc.getServletPort());
         assertEquals("~~id~sipXprovision", apc.getProvisionSipUsername());
         assertEquals("HideMe_during_dumpConfiguration", apc.getProvisionSipPassword());
