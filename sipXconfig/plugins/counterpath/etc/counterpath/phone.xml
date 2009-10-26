@@ -430,6 +430,7 @@
   </group>
   <group name="codecs">
     <group name="codec_preference">
+      <group name="audio_codecs"/>
       <setting name="broadvoice32">
         <profileName>codec_name</profileName>
         <type refid="codec-preference"/>
@@ -495,21 +496,6 @@
         <type refid="codec-preference"/>
         <value>0.0</value>
       </setting>
-      <setting name="h263">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>1.0</value>
-      </setting>
-      <setting name="h263_1998">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="h264_unified">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
       <setting name="ilbc">
         <profileName>codec_name</profileName>
         <type refid="codec-preference"/>
@@ -540,7 +526,24 @@
         <type refid="codec-preference"/>
         <value>0.0</value>
       </setting>
+     <group name="video_codecs"/>
+      <setting name="h263">
+        <profileName>codec_name</profileName>
+        <type refid="codec-preference"/>
+        <value>1.0</value>
+      </setting>
+      <setting name="h263_1998">
+        <profileName>codec_name</profileName>
+        <type refid="codec-preference"/>
+        <value>0.0</value>
+      </setting>
+      <setting name="h264_unified">
+        <profileName>codec_name</profileName>
+        <type refid="codec-preference"/>
+        <value>0.0</value>
+      </setting>
     </group>
+    <group name="general_settings"/>
     <setting name="codecs:h263:enable_CIF">
       <type refid="true-false"/>
       <value>false</value>
