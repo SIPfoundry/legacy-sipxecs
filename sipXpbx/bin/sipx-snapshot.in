@@ -713,13 +713,24 @@ do
   # Look for the executable in the known binary directories.
   ReportedExec='(none)'
   AbsoluteExec='(unknown)'
+  # Calculate the directory containing the Java executable.
+  # In some Java systems, the official Java executable is a symbolic link to
+  # a script that exec's the Java binary executable, and the Java binary
+  # executable is in the same directory as that script.
+  # So to find the executable for a Java core file, we may have to look in the
+  # real directory containing the official Java executable, rather than
+  # the directory containing its official name (which may be a symbolic link).
+  JAVA_BIN=`sipx-config --java`
+  JAVA_REAL=`readlink -f $JAVA_BIN`
+  JAVA_BINDIR=${JAVA_REAL%/*}
   BindirList=" \
 	  @SIPX_BINDIR@ \
 	  @SIPX_LIBEXECDIR@ \
 	  @FREESWITCH_PREFIX@/bin \
 	  @OPENFIRE_HOME@/bin \
 	  @bindir@ \
-	  @sbindir@"
+	  @sbindir@ \
+          ${JAVA_BINDIR}"
   if [[ "${file_output}" = *" from "* ]]
   then
       ReportedExec="${file_output##*\ from\ \'}"
