@@ -62,11 +62,8 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
         boolean newUsername = getCoreContext().saveUser(user);
 
         MailboxManager mmgr = getMailboxManager();
-        if (mmgr.isEnabled()) {
-            if (newUsername) {
-                mmgr.deleteMailbox(user.getUserName());
-            }
-            mmgr.saveMailboxPreferences(user);
+        if (mmgr.isEnabled() && newUsername) {
+            mmgr.deleteMailbox(user.getUserName());
         }
 
         if (newUsername) {

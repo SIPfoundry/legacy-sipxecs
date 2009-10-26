@@ -234,13 +234,4 @@ public abstract class UserGroupSettings extends GroupSettings {
             getProfileManager().generateProfiles(ids, true, null);
         }
     }
-
-    @Override
-    public void apply() {
-        super.apply();
-        Collection<User> users = getCoreContext().getGroupMembers(getGroup());
-        for (User user : users) {
-            getMailboxManager().saveMailboxPreferences(user);
-        }
-    }
 }

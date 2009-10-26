@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validusers xmlns='http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00'>
+<validusers xmlns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
   <user>
     <identity>301@example.com</identity>
     <userName>301</userName>
@@ -16,11 +16,21 @@
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>false</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
+    <email>
+      <address>301@sipx.org</address>
+      <imap synchronize="true">
+        <host>imap.host.exampl.com</host>
+        <port>143</port>
+        <useTLS>false</useTLS>
+        <account>jdoe</account>
+        <password>cGFzc3dvcmQ=</password>
+      </imap>
+    </email>
   </user>
   <user>
     <identity>302@example.com</identity>
     <userName>302</userName>
-    <aliases></aliases>
+    <aliases/>
     <displayName>George Washington</displayName>
     <contact>"George Washington"&lt;sip:302@example.com&gt;</contact>
     <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>
@@ -29,6 +39,14 @@
     <hasVoicemail>true</hasVoicemail>
     <canRecordPrompts>true</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
+    <email>
+      <address>302@sipx.org</address>
+      <notification attachAudio="false">FULL</notification>
+    </email>
+    <email>
+      <address>302@sipxecs.org</address>
+      <notification attachAudio="true">BRIEF</notification>
+    </email>
   </user>
   <user>
     <identity>500@example.com</identity>

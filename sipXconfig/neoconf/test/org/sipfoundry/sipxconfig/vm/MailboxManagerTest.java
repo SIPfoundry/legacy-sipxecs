@@ -36,9 +36,6 @@ public class MailboxManagerTest extends TestCase {
     @Override
     protected void setUp() {
         m_mgr = new MailboxManagerImpl();
-        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
-        writer.setVelocityEngine(TestHelper.getVelocityEngine());
-        m_mgr.setMailboxPreferencesWriter(writer);
 
         String thisDir = TestUtil.getTestSourceDirectory(getClass());
         m_mgr.setMailstoreDirectory(thisDir);

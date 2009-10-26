@@ -8,23 +8,22 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
 import java.util.Arrays;
 
-import org.sipfoundry.sipxconfig.common.DaoUtils;
-
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -32,13 +31,13 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 import static org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile.getFileContent;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_ATTACH_AUDIO;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_FORMAT;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ALT_EMAIL_NOTIFICATION;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.*;
 
-public class ValidUsersConfigTest extends XMLTestCase {
-
-    @Override
-    protected void setUp() throws Exception {
-        XMLUnit.setIgnoreWhitespace(true);
-    }
+public class ValidUsersConfigTest extends TestCase {
 
     public void testGenerate() throws Exception {
         PermissionManagerImpl pm = new PermissionManagerImpl();
@@ -55,6 +54,10 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u1.setPermission(PermissionName.VOICEMAIL, true);
         u1.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, false);
         u1.setAliasesString("jdoe 18003010000");
+        u1.setEmailAddress("301@sipx.org");
+        u1.setSettingValue(IMAP_HOST, "imap.host.exampl.com");
+        u1.setSettingValue(IMAP_ACCOUNT, "jdoe");
+        u1.setSettingValue(IMAP_PASSWORD, "password");
 
         User u2 = new User();
         u2.setPermissionManager(pm);
@@ -66,6 +69,12 @@ public class ValidUsersConfigTest extends XMLTestCase {
         u2.setPermission(PermissionName.AUTO_ATTENDANT_DIALING, false);
         u2.setPermission(PermissionName.VOICEMAIL, true);
         u2.setPermission(PermissionName.RECORD_SYSTEM_PROMPTS, true);
+        u2.setEmailAddress("302@sipx.org");
+        u2.setAlternateEmailAddress("302@sipxecs.org");
+        u2.setSettingValue(PRIMARY_EMAIL_NOTIFICATION, AttachType.YES.getValue());
+        u2.setSettingValue(ALT_EMAIL_NOTIFICATION, AttachType.YES.getValue());
+        u2.setSettingValue(ALT_EMAIL_FORMAT, MailFormat.BRIEF.name());
+        u2.setSettingTypedValue(ALT_EMAIL_ATTACH_AUDIO, true);
 
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
@@ -93,7 +102,7 @@ public class ValidUsersConfigTest extends XMLTestCase {
 
         String generatedXml = getFileContent(vu, null);
         InputStream referenceXml = getClass().getResourceAsStream("validusers.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        assertEquals(IOUtils.toString(referenceXml), generatedXml);
 
         verify(coreContext, domainManager, aliasProvider);
     }

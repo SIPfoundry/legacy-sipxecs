@@ -3,11 +3,6 @@
 <beans>
   <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="mailboxPreferencesWriter">
-      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
-        <property name="velocityEngine" ref="velocityEngine"/>
-      </bean>
-    </property>
     <property name="distributionListsReader">
       <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
     </property>

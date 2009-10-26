@@ -42,7 +42,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private File m_mailstoreDirectory;
-    private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
@@ -186,20 +185,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         mailbox.deleteUserDirectory();
     }
 
-    public void saveMailboxPreferences(User user) {
-        Mailbox mailbox = getMailbox(user.getName());
-        File file = mailbox.getVoicemailPreferencesFile();
-        m_mailboxPreferencesWriter.writeObject(new MailboxPreferences(user), file);
-    }
-
     public static class YesNo {
         public String encode(Object o) {
             return Boolean.TRUE.equals(o) ? "yes" : "no";
         }
-    }
-
-    public void setMailboxPreferencesWriter(MailboxPreferencesWriter mailboxWriter) {
-        m_mailboxPreferencesWriter = mailboxWriter;
     }
 
     public void setDistributionListsReader(DistributionListsReader distributionListsReader) {

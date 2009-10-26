@@ -98,12 +98,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     }
 
     private void savePersonalAttendant(User user) {
+        getMailboxPreferences().updateUser(user);
         MailboxManager mailMgr = getMailboxManager();
-        if (mailMgr.isEnabled()) {
-            getMailboxPreferences().updateUser(user);
-            mailMgr.saveMailboxPreferences(user);
-        }
-
         mailMgr.storePersonalAttendant(getPersonalAttendant());
 
         user.getSettings().getSetting(OPERATOR_SETTING).setValue(getPersonalAttendant().getOperator());

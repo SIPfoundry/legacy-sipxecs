@@ -10,10 +10,6 @@
 
 package org.sipfoundry.sipxconfig.vm;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,28 +17,16 @@ import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ACTIVE_GREETING;
-import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_TLS;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
 
 public class MailboxPreferencesTest extends XMLTestCase {
     public void testGetValueOfById() {
         MailboxPreferences.ActiveGreeting actual = MailboxPreferences.ActiveGreeting.fromId("none");
         assertSame(MailboxPreferences.ActiveGreeting.NONE, actual);
-    }
-
-    public void testWritePreferences() throws Exception {
-        MailboxPreferencesWriter writer = new MailboxPreferencesWriter();
-        writer.setVelocityEngine(TestHelper.getVelocityEngine());
-        StringWriter actual = new StringWriter();
-        MailboxPreferences prefs = new MailboxPreferences();
-        prefs.setEmailAddress("dhubler@pingtel.com");
-        prefs.setActiveGreeting(MailboxPreferences.ActiveGreeting.OUT_OF_OFFICE);
-        writer.writeObject(prefs, actual);
-        InputStream expectedIn = getClass().getResourceAsStream("expected-mailboxprefs.xml");
-        compareXML(new InputStreamReader(expectedIn), actual.toString());
     }
 
     public void testFromUser() {

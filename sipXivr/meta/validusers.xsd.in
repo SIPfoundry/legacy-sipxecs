@@ -2,7 +2,8 @@
 <schema
    targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
    xmlns="http://www.w3.org/2001/XMLSchema"
-   xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
+   xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
+   elementFormDefault="qualified">
 
    <element name="displayName" type="normalizedString">
       <annotation>
@@ -170,9 +171,41 @@
       </complexType>
    </element>
 
+   <element name="email">
+      <annotation>
+         <documentation>Voicemail preferences for user</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element name="address" type="normalizedString" minOccurs="0"/>
+            <element name="notification" minOccurs="0">
+               <complexType>
+                  <simpleContent>
+                     <extension base="normalizedString">
+                        <attribute name="attachAudio" type="boolean" use="optional"/>
+                     </extension>
+                  </simpleContent>
+               </complexType>
+            </element>
+            <element name="imap" minOccurs="0" maxOccurs="1">
+               <complexType>
+                  <sequence>
+                     <element name="host" type="normalizedString" minOccurs="0"/>
+                     <element name="port" type="normalizedString" minOccurs="0"/>
+                     <element name="useTLS" type="boolean" minOccurs="0"/>
+                     <element name="account" type="normalizedString" minOccurs="0"/>
+                     <element name="password" type="normalizedString" minOccurs="0"/>
+                  </sequence>
+                  <attribute name="synchronize" type="boolean" use="optional"/>
+               </complexType>
+            </element>
+         </sequence>
+      </complexType>
+   </element>
+
    <element name="user">
       <complexType mixed="false">
-         <all  minOccurs="1" maxOccurs="1">
+         <sequence>
             <element ref="tns:identity" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:userName" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:aliases" maxOccurs="1" minOccurs="0"/>
@@ -185,7 +218,8 @@
             <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canTuiChangePin" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:distributions" maxOccurs="1" minOccurs="0"/>
-         </all>
+            <element ref="tns:email" maxOccurs="2" minOccurs="0"/>
+         </sequence>
       </complexType>
    </element>
 
