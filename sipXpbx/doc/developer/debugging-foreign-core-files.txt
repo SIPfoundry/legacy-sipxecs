@@ -35,7 +35,7 @@ To run GDB:
 - start GDB without arguments
 
 - execute "set solib-absolute-prefix <absolute path of virtual root
-for dyanmic libraries>' Be careful that there are no trailing spaces
+for dyanmic libraries>".  Be careful that there are no trailing spaces
 after the absolute path, as they will be incorporated into the path!
 (Emacs' file-name completion will leave trailing spaces.)
 
