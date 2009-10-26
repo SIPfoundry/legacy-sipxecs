@@ -124,6 +124,10 @@ public class AccountsParser {
                         allowedDomains.add(chatRoom.getSubdomain());
                     }
                     plugin.pruneChatServices(allowedDomains);
+                    /*
+                     * Make sure that all user accounts can create multi-user chatrooms
+                     */
+                    plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
                 }
             } catch (Exception ex) {
                 logger.error("Exception caught while parsing accountsdb ", ex);

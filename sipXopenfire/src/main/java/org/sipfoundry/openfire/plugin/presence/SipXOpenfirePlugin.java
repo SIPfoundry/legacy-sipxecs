@@ -1064,6 +1064,26 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             }
         }
     }
+    
+    public void setAllowedUsersForChatServices(Collection<UserAccount> accounts ){
+        HashSet<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
+        chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
+
+        for (MultiUserChatService service : chatServices) {
+            // start from scratch - clear out set of users allowed to create
+            Collection<String> usersCurrentlyAllowedToCreate = service.getUsersAllowedToCreate();
+            for( String user : usersCurrentlyAllowedToCreate){
+                service.removeUserAllowedToCreate(user);
+            }
+
+            // add in all the users who have accounts on the system
+            for( UserAccount user : accounts){
+                String userJID =  user.getXmppUserName() + "@" + getXmppDomain();
+                service.addUserAllowedToCreate(userJID);
+            }           
+        }
+    }
+    
 
     public void kickOccupant(String subdomain, String roomName, String password,
             String memberJid, String reason) throws NotAllowedException {
