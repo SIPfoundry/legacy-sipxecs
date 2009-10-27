@@ -680,6 +680,7 @@ fi >> ${Backtrace} 2>&1
 # Process the core file specifications (if any) into the list of files to save
 # and include details in SystemConfig.
 
+Cores_Backtrace=${Work}/Cores_Backtrace
 # If core files were specified, determine the files to be copied.
 cat /dev/null >${Work}.core-related-files
 if [ -n "${CoreFiles}" ]
@@ -753,6 +754,18 @@ do
   echo "Core file: ${Core}"               >> ${SystemConfig}
   echo "${file_output}"                   >> ${SystemConfig}
   echo "from executable: ${AbsoluteExec}" >> ${SystemConfig}
+
+  # Get a backtrace of the core file.
+  # (The user could do this based on the files we are saving, but
+  # it's easier if this script does it.)
+  (
+      echo ======== Backtrace of ${Core}
+      echo
+      gdb -core=${Core} < /dev/null \
+	  -eval-command 'thread apply all backtrace' \
+	  -eval-command quit
+      echo
+   ) >> ${Cores_Backtrace} 2>&1
 
   # Accumulate the list of files to be added to the snapshot.
   echo "${Core}" >>${Work}.core-related-files
