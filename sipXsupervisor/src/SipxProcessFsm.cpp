@@ -428,7 +428,7 @@ void Failed::evStartProcess( SipxProcess& impl ) const
 
 void Failed::evTimeout( SipxProcess& impl ) const
 {
-   ChangeState( impl, impl.pConfigurationMismatch );
+   ChangeState( impl, impl.pStopping );
 }
 
 void Failed::DoExitAction( SipxProcess& impl ) const
