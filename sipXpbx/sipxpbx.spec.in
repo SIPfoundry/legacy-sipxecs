@@ -35,6 +35,9 @@ Requires: sipxrls >= %version
 
 Requires: httpd >= 2.0
 Requires: rsyslog
+# sipx-snapshot uses gdb to get backtraces and simulated core files
+# from sipXecs processes.
+Requires: gdb
 %if %{_vendor} == redhat
 Requires: glibc-common
 %endif
