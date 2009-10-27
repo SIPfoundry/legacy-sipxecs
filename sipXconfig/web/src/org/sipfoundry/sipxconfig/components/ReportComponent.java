@@ -81,23 +81,19 @@ public abstract class ReportComponent extends BaseComponent {
     }
 
     public String getHtmlReportPath() {
-        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName()
-                + REPORT_HTML_TYPE;
+        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName() + REPORT_HTML_TYPE;
     }
 
     public String getPdfReportPath() {
-        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName()
-                + REPORT_PDF_TYPE;
+        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName() + REPORT_PDF_TYPE;
     }
 
     public String getCsvReportPath() {
-        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName()
-                + REPORT_CSV_TYPE;
+        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName() + REPORT_CSV_TYPE;
     }
 
     public String getXlsReportPath() {
-        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName()
-                + REPORT_XLS_TYPE;
+        return getJasperReportContext().getTmpDirectory() + File.separator + getReportName() + REPORT_XLS_TYPE;
     }
 
     private String getJasperPath() {
@@ -106,15 +102,11 @@ public abstract class ReportComponent extends BaseComponent {
     }
 
     public void generateReports() {
-        JasperPrint jasperPrint = null;
-        JRFileVirtualizer virtualizer = null;
-        virtualizer = new JRFileVirtualizer(20, getJasperReportContext().getTmpDirectory());
-        Map parameters = getReportParameters();
-        parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-        // Exceptions will be caught at a higher layer but ensure we clean up the
-        // files(if any) generated from the virtualizer.
+        JRFileVirtualizer virtualizer = new JRFileVirtualizer(20, getJasperReportContext().getTmpDirectory());
         try {
-            jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
+            Map parameters = getReportParameters();
+            parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+            JasperPrint jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
                     getReportParameters(), getReportData());
 
             generateHtmlReport(jasperPrint);
@@ -122,9 +114,9 @@ public abstract class ReportComponent extends BaseComponent {
             generateCsvReport(jasperPrint);
             generateXlsReport(jasperPrint);
         } finally {
-            if (virtualizer != null) {
-                virtualizer.cleanup();
-            }
+            // Exceptions will be caught at a higher layer but ensure we clean up the files (if
+            // any) generated from the virtualizer.
+            virtualizer.cleanup();
         }
     }
 

@@ -174,9 +174,6 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void saveDistributionLists(Mailbox mailbox, DistributionList[] lists) {
         }
 
-        public void saveMailboxPreferences(User user) {
-        }
-
         /* The methods below this comment are the only ones relevant for this test */
         public PersonalAttendant loadPersonalAttendantForUser(User user) {
             return m_attendantMap.get(user);
