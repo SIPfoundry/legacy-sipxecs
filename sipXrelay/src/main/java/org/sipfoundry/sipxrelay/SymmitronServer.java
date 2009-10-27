@@ -90,6 +90,10 @@ public class SymmitronServer implements Symmitron {
      * A map of component name to instance handle.
      */
     private static Map<String, String> instanceTable = new ConcurrentHashMap<String, String>();
+    
+    /*
+     * Ptr to our port range manager.
+     */
 
     private static PortRangeManager portRangeManager;
 
@@ -103,20 +107,44 @@ public class SymmitronServer implements Symmitron {
     private static String myHandle = "sipxbridge:"
             + Math.abs(new Random().nextLong());
 
+    /*
+     * True if our web server is running ( the one that handles xml rpc requests ).
+     */
     private static boolean isWebServerRunning;
 
+    /*
+     * Pointer to our web server.
+     */
     private static HttpServer webServer;
 
+    /*
+     * Local address by name.
+     */
     private static InetAddress localAddressByName;
 
+    /*
+     * Public IP address.
+     */
     private static InetAddress publicAddress;
 
+    /*
+     * Pointer to our configuration.
+     */
     static SymmitronConfig symmitronConfig;
 
+    /*
+     * The standard STUN port.
+     */
     private static final int STUN_PORT = 3478;
 
+    /*
+     * Pointer to sipx alarm client.
+     */
     static SipXAlarmClient alarmClient;
 
+    /*
+     * Dir where config file is stored.
+     */
     private static String configDir;
 
     private static final String STUN_FAILURE_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
@@ -132,6 +160,8 @@ public class SymmitronServer implements Symmitron {
     static CRLFReceiver crlfReceiver;
 
     static boolean filterStrayPackets = true;
+    
+    private static ConcurrentHashMap<String,Semaphore> semaphoreLockTable = new ConcurrentHashMap<String,Semaphore>();x
     
     static {
         try {
