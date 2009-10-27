@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jetty.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-logging.jar"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-digester.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/Stun4J.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-collections.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-beanutils.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-server.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
+	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXrelay/dist/sipXrelay.jar"/>
+	<classpathentry kind="output" path="classes"/>
+</classpath>
