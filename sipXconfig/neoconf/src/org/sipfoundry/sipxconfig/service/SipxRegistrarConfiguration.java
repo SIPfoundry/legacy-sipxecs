@@ -27,6 +27,7 @@ public class SipxRegistrarConfiguration extends SipxServiceConfiguration {
         context.put("proxyService", getService(SipxProxyService.BEAN_ID));
         context.put("parkService", getService(SipxParkService.BEAN_ID));
         context.put("registrarSyncHosts", getRegistrarSyncHosts(location));
+        context.put("sipxServiceManager", getSipxServiceManager());
         context.put(OPENFIRE_HOST, getSipxServiceManager().getServiceParam(OPENFIRE_HOST));
         context.put(OPENFIRE_XML_RPCPORT, getSipxServiceManager().getServiceParam(OPENFIRE_XML_RPCPORT));
         return context;
