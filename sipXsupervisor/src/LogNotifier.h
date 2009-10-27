@@ -79,6 +79,9 @@ private:
    /// no copy constructor
    LogNotifier(const LogNotifier& nocopy);
 
+   /// Escape newlines, tabs, quotes, etc for saving in log format
+   UtlString escape(const UtlString& source);
+
 };
 
 /* ============================ INLINE METHODS ============================ */

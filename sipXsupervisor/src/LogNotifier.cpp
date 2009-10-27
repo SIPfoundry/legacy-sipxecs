@@ -73,7 +73,7 @@ OsStatus LogNotifier::handleAlarm(
    UtlString   strTime ;
    logTime.getIsoTimeStringZus(strTime);
 
-   char tempMsg[1024];
+   char tempMsg[500 + alarmMsg.length()];
    snprintf(tempMsg, sizeof(tempMsg), "\"%s\":%zd:%s:%s:%s:%s::%s:\"%s\"",
              strTime.data(),
              ++mEventCount,
@@ -82,7 +82,9 @@ OsStatus LogNotifier::handleAlarm(
              callingHost.data(),
              alarmData->getComponent().data(),
              alarmData->getCode().data(),
-             alarmMsg.data());
+             escape(alarmMsg).data());
+   tempMsg[sizeof(tempMsg)-2]='"';
+   tempMsg[sizeof(tempMsg)-1]=0;
 
    char* szPtr = strdup(tempMsg);
    OsSysLogMsg msg(OsSysLogMsg::LOG, szPtr);
@@ -130,6 +132,80 @@ OsStatus LogNotifier::initLogfile(UtlString &alarmFile)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+UtlString LogNotifier::escape(const UtlString& source)
+{
+   UtlString    results;
+   const char* pStart = source.data() ;
+   const char* pTraverse = pStart ;
+   const char* pLast = pStart ;
+
+   results.capacity(source.length() + 100);
+   while (*pTraverse)
+   {
+      switch (*pTraverse)
+      {
+         case '\\':
+            // Copy old data
+            if (pLast < pTraverse)
+            {
+               results.append(pLast, pTraverse-pLast);
+            }
+            pLast = pTraverse + 1 ;
+
+            // Add escaped Text
+            results.append("\\\\") ;
+            break ;
+         case '\r':
+            // Copy old data
+            if (pLast < pTraverse)
+            {
+               results.append(pLast, pTraverse-pLast);
+            }
+            pLast = pTraverse + 1 ;
+
+            // Add escaped Text
+            results.append("\\r") ;
+            break ;
+         case '\n':
+            // Copy old data
+            if (pLast < pTraverse)
+            {
+               results.append(pLast, pTraverse-pLast);
+            }
+            pLast = pTraverse + 1 ;
+
+            // Add escaped Text
+            results.append("\\n") ;
+            break ;
+         case '\"':
+            // Copy old data
+            if (pLast < pTraverse)
+            {
+               results.append(pLast, pTraverse-pLast);
+            }
+            pLast = pTraverse + 1 ;
+
+            // Add escaped Text
+            results.append("\\\"") ;
+            break ;
+         default:
+            break ;
+      }
+      pTraverse++ ;
+   }
+
+   // if nothing to escape, short-circuit
+   if (pLast == pStart)
+   {
+      return source ;
+   }
+   else if (pLast < pTraverse)
+   {
+      results.append(pLast, pTraverse-pLast);
+   }
+
+   return results ;
+}
 
 /* ============================ TESTING =================================== */
 
