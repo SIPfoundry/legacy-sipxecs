@@ -7,7 +7,7 @@
 #              XML based communication, such as chat.
 # config: /opt/openfire/conf/openfire.xml
 # config: /etc/sysconfig/openfire
-# pidfile: /var/run/openfire.pid
+# pidfile: @SIPX_RUNDIR@/sipxopenfire.pid
 # 
 # This script has currently been tested on Redhat, CentOS, and Fedora  based
 # systems.
@@ -59,11 +59,11 @@ start() {
         # Start daemons.
         echo -n "Starting openfire: "
 	PWD=`pwd`
-	#write out the confi directory so the plugin can read it
+	# Write out the config information so the plugin can read it.
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
 	exec ${OPENFIRE_HOME}/${OPENFIRE} start
-	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
+	ps aux | grep openfire | grep 'startup\.jar' | awk '{print $2}' > ${PIDFILE}
 }
 
 stop() {
@@ -71,7 +71,7 @@ stop() {
 	echo -n "Shutting down openfire: "
 	exec ${OPENFIRE_HOME}/${OPENFIRE} stop
         # failsafe.
-	ps aux | grep openfire | grep startup.jar | awk '{print $2}' > ${PIDFILE}
+	ps aux | grep openfire | grep 'startup\.jar' | awk '{print $2}' > ${PIDFILE}
         kill  -9 `cat ${PIDFILE}`
 }
 
@@ -110,7 +110,7 @@ echo  "                   admin user password is admin."
 
 
 status() {
-	pid=`ps ax --width=1000 | grep openfire | grep startup.jar | awk '{print $1}'`
+	pid=`ps ax --width=1000 | grep openfire | grep 'startup\.jar' | awk '{print $1}'`
 	if [ $pid = "" ]; then
 		echo "openfire is not running"
 		RETVAL=0
@@ -172,7 +172,7 @@ databaseCommand() {
         $@`
 
     if [ $? != "0" ]; then
-       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
+       echo "$CmdOut" | grep -v '^Unable to locate tools\.jar' >&2
     fi       
 }
 
