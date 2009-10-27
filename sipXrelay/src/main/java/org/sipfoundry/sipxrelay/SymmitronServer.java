@@ -161,7 +161,7 @@ public class SymmitronServer implements Symmitron {
 
     static boolean filterStrayPackets = true;
     
-    private static ConcurrentHashMap<String,Semaphore> semaphoreLockTable = new ConcurrentHashMap<String,Semaphore>();x
+    private static ConcurrentHashMap<String,Semaphore> semaphoreLockTable = new ConcurrentHashMap<String,Semaphore>();
     
     static {
         try {
@@ -632,13 +632,14 @@ public class SymmitronServer implements Symmitron {
             throw new IllegalArgumentException("Illegal handle format");
         }
         String componentName = handleParts[0];
-
+       
         String previousInstance = instanceTable.get(componentName);
         if (previousInstance == null) {
             instanceTable.put(componentName, controllerHandle);
+            semaphoreLockTable.put(controllerHandle, new Semaphore(1));
         } else if (!previousInstance.equals(controllerHandle)) {
             HashSet<Bridge> rtpBridges = bridgeResourceMap
-                    .get(previousInstance);
+            .get(previousInstance);
             if (rtpBridges != null) {
                 for (Bridge rtpBridge : rtpBridges) {
                     rtpBridge.stop();
@@ -652,11 +653,30 @@ public class SymmitronServer implements Symmitron {
                     rtpSession.close();
                 }
             }
+
+            semaphoreLockTable.remove(previousInstance);
             sessionResourceMap.remove(previousInstance);
             sessionResourceMap.put(controllerHandle, new HashSet<Sym>());
+            semaphoreLockTable.put(controllerHandle, new Semaphore(1));
 
             instanceTable.put(componentName, controllerHandle);
         }
+       
+        try {
+           if (! this.semaphoreLockTable.get(controllerHandle).tryAcquire(10,TimeUnit.SECONDS) ) {
+               logger.error("Error occured during lock acquire for controller handle " + controllerHandle);
+               throw new RuntimeException("Could not successfully acquire handle lock for 10 seconds, giving up");
+           } else {
+               logger.debug("Acquired handle lock for " + controllerHandle);
+           }
+        } catch (InterruptedException ex) {
+            throw new RuntimeException("Interrupted while trying to aquire lock", ex);
+        }
+        
+    }
+    
+    private void release(String handle) {
+        this.semaphoreLockTable.get(handle).release();
     }
 
     /**
@@ -671,6 +691,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Error occured during processing ", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        } finally {
+            release(remoteHandle);
         }
 
     }
@@ -691,6 +713,8 @@ public class SymmitronServer implements Symmitron {
             }
         } catch (Exception ex) {
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        } finally {
+            release(controllerHandle);
         }
     }
 
@@ -733,6 +757,8 @@ public class SymmitronServer implements Symmitron {
             logger.error("error creating syms", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
 
+        } finally {
+            release(controllerHandle);
         }
 
     }
@@ -763,6 +789,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Error processing request " + symId);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        } finally {
+            release(controllerHandle);
         }
     }
 
@@ -827,6 +855,8 @@ public class SymmitronServer implements Symmitron {
             logger.error("Processing Error", ex);
 
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        } finally {
+            release(controllerHandle);
         }
 
     }
@@ -847,6 +877,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -871,6 +903,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -905,6 +939,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -938,6 +974,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -970,6 +1008,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
 
     }
@@ -989,6 +1029,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1007,6 +1049,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1031,15 +1075,19 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
     public Map<String, Object> getSymStatistics(String controllerHandle,
             String symId) {
         try {
+            
             logger.info("getSymStatistics : " + controllerHandle + " symId = "
                     + symId);
             Sym sym = sessionMap.get(symId);
+            this.checkForControllerReboot(controllerHandle);
             if (sym == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND,
                         "Specified sym was not found " + symId);
@@ -1053,6 +1101,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1092,11 +1142,14 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
     public Map<String, Object> signOut(String controllerHandle) {
         try {
+            this.checkForControllerReboot(controllerHandle);
             logger.info("signOut " + controllerHandle);
             HashSet<Bridge> rtpBridges = bridgeResourceMap
                     .get(controllerHandle);
@@ -1119,6 +1172,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1148,6 +1203,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1178,6 +1235,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
 
     }
@@ -1205,6 +1264,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1225,6 +1286,8 @@ public class SymmitronServer implements Symmitron {
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1238,7 +1301,7 @@ public class SymmitronServer implements Symmitron {
             if (bridge != null) {
                 bridgeMap.remove(bridgeId);
                 HashSet<Bridge> bridges = bridgeResourceMap
-                        .get(controllerHandle);
+                .get(controllerHandle);
                 bridges.remove(bridge);
                 if (bridges.isEmpty()) {
                     bridgeResourceMap.remove(controllerHandle);
@@ -1247,7 +1310,7 @@ public class SymmitronServer implements Symmitron {
                     sym.close();
                     sessionMap.remove(sym.getId());
                     HashSet<Sym> syms = sessionResourceMap
-                            .get(controllerHandle);
+                    .get(controllerHandle);
                     if ( syms != null ) {
                         syms.remove(sym);
                         if (syms.isEmpty()) {
@@ -1262,7 +1325,7 @@ public class SymmitronServer implements Symmitron {
                     logger.error("Bridge with the given ID was not found "
                             + bridgeId);
                     return this.createErrorMap(SESSION_NOT_FOUND,
-                            "Bridge with the given ID was not found");
+                    "Bridge with the given ID was not found");
                 } else {
                     return this.createSuccessMap();
                 }
@@ -1272,6 +1335,8 @@ public class SymmitronServer implements Symmitron {
                     + bridgeId);
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
@@ -1296,11 +1361,13 @@ public class SymmitronServer implements Symmitron {
                 return retval;
             } else {
                 return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Requested SYM Session was not found");
+                "Requested SYM Session was not found");
             }
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+        }finally {
+            release(controllerHandle);
         }
     }
 
