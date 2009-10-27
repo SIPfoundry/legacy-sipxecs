@@ -394,7 +394,8 @@ void HttpServer::processRequest(const HttpMessage& request,
         if (uriFileName.contains(".."))
         {
             OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processRequest "
-                          "Disallowing URI: '%s'", uriFileName.data());
+                          "Disallowing URI: '%s' because it contains '..'",
+                          uriFileName.data());
 
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
