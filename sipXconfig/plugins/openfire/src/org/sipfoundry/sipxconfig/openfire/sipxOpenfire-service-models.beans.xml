@@ -26,6 +26,12 @@
         <ref bean="sipxRegistrarConfiguration" />
       </list>
     </property>
+    <property name="affectedServices">
+      <list>
+        <ref bean="sipxRegistrarService" />
+        <ref bean="sipxIvrService" />
+      </list>
+    </property>
     <property name="bundles">
       <set>
         <ref bean="imBundle" />

@@ -41,6 +41,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     private String m_modelName;
     private String m_modelDir;
     private List< ? extends ConfigurationFile> m_configurations;
+    private List<SipxService> m_affectedServices;
     private String m_sipPort;
     private String m_logDir;
     private String m_confDir;
@@ -131,6 +132,16 @@ public abstract class SipxService extends BeanWithSettings implements Model {
         return m_configurations;
     }
 
+    public void setAffectedServices(List<SipxService> affectedServices) {
+        m_affectedServices = affectedServices;
+    }
+
+    public void appendAffectedServices(Collection<SipxService> services) {
+        if (m_affectedServices != null) {
+            services.addAll(m_affectedServices);
+        }
+    }
+
     /**
      * Returns a subset of configuration files for a service.
      *
@@ -170,6 +181,7 @@ public abstract class SipxService extends BeanWithSettings implements Model {
     public LocationsManager getLocationsManager() {
         return m_locationsManager;
     }
+
     public void setLogDir(String logDir) {
         m_logDir = logDir;
     }

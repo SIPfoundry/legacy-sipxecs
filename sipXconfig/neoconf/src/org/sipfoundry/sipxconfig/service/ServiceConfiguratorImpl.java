@@ -162,7 +162,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStopped(), STOP);
         try {
-            Collection<SipxService> services = locationStatus.getToBeStarted();
+            Collection<SipxService> services = locationStatus.getToBeReplicated();
             ExecutorService executorService = Executors.newFixedThreadPool(services.size());
             ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(services.size());
             for (SipxService service : services) {

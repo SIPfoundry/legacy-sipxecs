@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.LinkedHashSet;
+
+import static java.util.Collections.unmodifiableCollection;
 
 import org.sipfoundry.sipxconfig.service.SipxService;
 
@@ -32,10 +34,32 @@ public class LocationStatus {
     }
 
     public Collection<SipxService> getToBeStarted() {
-        return Collections.unmodifiableCollection(m_toBeStarted);
+        return unmodifiableCollection(m_toBeStarted);
     }
 
     public Collection<SipxService> getToBeStopped() {
-        return m_toBeStopped;
+        return unmodifiableCollection(m_toBeStopped);
+    }
+
+    /**
+     * Calculates the set of services that need to be replicated.
+     *
+     * The resulting collection contains all services that are started and all services that are
+     * affected by them. It does not contain any of the services that are stopped (no need to
+     * replicate service that is stopped).
+     */
+    public Collection<SipxService> getToBeReplicated() {
+        // using set to remove duplicates, linked version to maintain the ordering
+        Collection<SipxService> services = new LinkedHashSet<SipxService>(m_toBeStarted);
+        // add all affected services
+        for (SipxService service : m_toBeStarted) {
+            service.appendAffectedServices(services);
+        }
+        for (SipxService service : m_toBeStopped) {
+            service.appendAffectedServices(services);
+        }
+        // and then remove services than we are stopping anyway
+        services.removeAll(m_toBeStopped);
+        return unmodifiableCollection(services);
     }
 }
