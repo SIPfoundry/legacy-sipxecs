@@ -93,7 +93,6 @@ sipXsupervisor : sipXcommserverLib sipXpbx
 sipXrelay : sipXcommons
 	@echo sipXrelay
 
-	@echo sipXbridge
 .PHONY: sipXbridge
 sipXbridge : sipXcommons sipXrelay
 	@echo sipXbridge
