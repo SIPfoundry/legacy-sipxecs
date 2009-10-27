@@ -48,16 +48,20 @@ public class CsvParserImpl implements BulkParser {
         return result;
     }
 
+    /**
+     * This method reads the Reader line by line and gets rid of the unwanted line breaks that
+     * outlook might introduce
+     */
     public void parse(Reader csv, Closure closure) {
         try {
             BufferedReader reader = new BufferedReader(csv);
-            String line;
+            CharSequence line;
             if (m_skipHeaderLine) {
                 // skip header
                 line = reader.readLine();
             }
             // read remaining file
-            while ((line = reader.readLine()) != null) {
+            while ((line = readLine(reader)) != null) {
                 String[] row = parseLine(line);
                 closure.execute(row);
             }
@@ -66,7 +70,7 @@ public class CsvParserImpl implements BulkParser {
         }
     }
 
-    protected String[] parseLine(String line) {
+    protected String[] parseLine(CharSequence line) {
         ArrayList row = new ArrayList(DEFAULT_FIELD_COUNT);
 
         boolean inQuotedField = false;
@@ -107,8 +111,60 @@ public class CsvParserImpl implements BulkParser {
         return (String[]) row.toArray(new String[row.size()]);
     }
 
-    private void addField(List row, String line, int startIndex, int endIndex) {
-        String field = line.substring(startIndex, endIndex);
+
+    /**
+     * Special version of readLine - it takes into account the fact that CSV fields can contain /n
+     * characters. It read lines until all the CSV fields are closed.
+     *
+     * @param reader CSV content
+     * @return line or null if no more, line can have multiple \n characters in it
+     */
+    protected CharSequence readLine(BufferedReader reader) throws IOException {
+        String line;
+        StringBuilder sb = new StringBuilder();
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+            if (!hasUnmatchedFieldQuotes(sb)) {
+                break;
+            }
+            sb.append('\n');
+        }
+        if (line == null && sb.length() == 0) {
+            return null;
+        }
+        return sb;
+    }
+
+    /**
+     * Checks if the line has contains full CSV fields only.
+     *
+     * @return true if String contains unmatched quote characters
+     */
+    boolean hasUnmatchedFieldQuotes(CharSequence line) {
+        boolean inQuotedField = false;
+        boolean possibleEndQuote = false;
+        for (int i = 0; i < line.length(); i++) {
+            if (FIELD_QUOTE == line.charAt(i)) {
+                if (inQuotedField) {
+                    possibleEndQuote = true;
+                } else {
+                    inQuotedField = true;
+                }
+            } else if (possibleEndQuote) {
+                if (FIELD_SEPARATOR == line.charAt(i)) {
+                    inQuotedField = false;
+                }
+                possibleEndQuote = false;
+            }
+        }
+        if (possibleEndQuote) {
+            inQuotedField = false;
+        }
+        return inQuotedField;
+    }
+
+    private void addField(List row, CharSequence line, int startIndex, int endIndex) {
+        String field = line.subSequence(startIndex, endIndex).toString();
         row.add(field);
     }
 

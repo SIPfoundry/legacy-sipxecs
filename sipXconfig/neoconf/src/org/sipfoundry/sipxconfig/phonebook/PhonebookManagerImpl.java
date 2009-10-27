@@ -390,6 +390,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             // outlook header
             Set<String> keySet = header.keySet();
             for (String key : keySet) {
+                if (key.contains("\n")) {
+                    throw new InvalidPhonebookFormat();
+                }
                 if (key.toLowerCase().contains("yomi")) {
                     return new GmailPhonebookCsvHeader(header);
                 }
@@ -423,7 +426,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         StringArrayPhonebookEntry(PhonebookFileEntryHelper helper, String... row) {
             if (row.length < 3) {
-                throw new UserException("&msg.invalidPhonebookFormat");
+                throw new InvalidPhonebookFormat();
             }
             m_row = row;
             m_helper = helper;
@@ -443,6 +446,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         public AddressBookEntry getAddressBookEntry() {
             return m_helper.getAddressBookEntry(m_row);
+        }
+    }
+
+    private static class InvalidPhonebookFormat extends UserException {
+        public InvalidPhonebookFormat() {
+            super("&msg.invalidPhonebookFormat");
         }
     }
 

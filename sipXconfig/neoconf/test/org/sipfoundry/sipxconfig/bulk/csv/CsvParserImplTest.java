@@ -9,13 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.collections.Closure;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 
@@ -113,5 +114,24 @@ public class CsvParserImplTest extends TestCase {
             assertEquals(DESCRIPTIONS[i], row[11]);
             assertEquals(NAMES[i], row[3]);
         }
+    }
+
+    public void testReadLineWithNewLines() throws Exception {
+        String csv = "\"a\ncc\",\"b\n\"b\nbb\",c";
+        BufferedReader reader = new BufferedReader(new StringReader(csv));
+
+        CsvParserImpl parser = new CsvParserImpl();
+        CharSequence s1 = parser.readLine(reader);
+        assertEquals(csv, s1.toString());
+        assertNull(parser.readLine(reader));
+    }
+
+    public void testHasUnmatchedFieldQuotes() {
+        CsvParserImpl parser = new CsvParserImpl();
+        assertFalse("No quotes", parser.hasUnmatchedFieldQuotes("aaa,bbb,ccc"));
+        assertFalse("No quotes", parser.hasUnmatchedFieldQuotes("aaa,bbb,ccc"));
+        assertFalse("Some quotes", parser.hasUnmatchedFieldQuotes("aaa,\"bbb\",ccc"));
+        assertFalse("Quoted quotes", parser.hasUnmatchedFieldQuotes("aaa,\"b\"bb\",ccc"));
+        assertTrue("Extra quotes", parser.hasUnmatchedFieldQuotes("aaa,\"bbb\",\"ccc"));
     }
 }
