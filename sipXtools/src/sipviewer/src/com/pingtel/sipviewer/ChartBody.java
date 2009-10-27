@@ -9,7 +9,7 @@ import java.awt.event.* ;
 import java.util.* ;
 
 
-public class ChartBody extends JComponent implements Scrollable
+public class ChartBody extends JComponent implements Scrollable, ActionListener
 {
 //////////////////////////////////////////////////////////////////////////////
 // Constants
@@ -23,14 +23,19 @@ public class ChartBody extends JComponent implements Scrollable
 //////////////////////////////////////////////////////////////////////////////
 // Attributes
 ////
-    protected SIPChartModel m_model ;
-    protected SIPInfoPanel  m_infoPanel ;
-    protected int           m_iMouseOver ;
-    protected String        m_strMatchBranchId ;
-    protected String        m_strMatchTransactionId ;
-    protected String        m_strMatchCSeqCallId ;
-    protected String        m_strMatchDialogId ;
-    protected String        m_strMatchCallId ;
+    
+    protected SIPViewerFrame m_frame;
+    protected SIPChartModel  m_model ;
+    protected SIPInfoPanel   m_infoPanel ;
+    protected int            m_iMouseOver ;
+    protected String         m_strMatchBranchId ;
+    protected String         m_strMatchTransactionId ;
+    protected String         m_strMatchCSeqCallId ;
+    protected String         m_strMatchDialogId ;
+    protected String         m_strMatchCallId ;
+    
+    // popup menu used for taking screen shots and other future operations
+    protected JPopupMenu m_toolsPopUp;
 
     // Colors for messages
 
@@ -54,8 +59,9 @@ public class ChartBody extends JComponent implements Scrollable
 //////////////////////////////////////////////////////////////////////////////
 // Construction
 ////
-    public ChartBody(SIPChartModel model, SIPInfoPanel infoPanel)
+    public ChartBody(SIPViewerFrame frame, SIPChartModel model, SIPInfoPanel infoPanel)
     {
+        m_frame = frame;
         m_model = model ;
         m_iMouseOver = -1 ;
         m_infoPanel = infoPanel ;
@@ -92,6 +98,9 @@ public class ChartBody extends JComponent implements Scrollable
 
         // Unrelated messages are white.
         m_unhighlighted_color = Color.white;
+        
+        // initalize the popup menu
+        initPopUp();
 
         m_model.addChartModelListener(new icChartModelListener());
         addMouseListener(new icMouseListener());
@@ -568,20 +577,41 @@ public class ChartBody extends JComponent implements Scrollable
 
         public void mouseClicked(MouseEvent e)
         {
-            SIPMessageWindow window = new SIPMessageWindow() ;
-            int iPos = PointToIndex(e.getPoint());
-            String strText = getDisplayHeader(iPos) + getMessageText(iPos);
-            window.setUp(getFrameId(iPos), strText);
+  
+            if (e.isPopupTrigger())
+            {
+                // if user invokes PopupTrigger (usually a right click)
+                // show the popup menu
+                m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
+            }
+            else
+            {
+                SIPMessageWindow window = new SIPMessageWindow() ;
+                int iPos = PointToIndex(e.getPoint());
+                String strText = getDisplayHeader(iPos) + getMessageText(iPos);
+                window.setUp(getFrameId(iPos), strText);
+            }
         }
 
         public void mousePressed(MouseEvent e)
         {
-
+            // on different OSes popup triggers are different, that is
+            // why we much check for popup trigger on mouseClicked and also
+            // on mousePressed and mouseRelease, to cover all possibilities
+            if (e.isPopupTrigger())
+            {
+                // show popup menu
+                m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
+            }
         }
 
         public void mouseReleased(MouseEvent e)
         {
-
+            if (e.isPopupTrigger())
+            {
+                // show popup menu
+                m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
+            }
         }
 
         public void mouseEntered(MouseEvent e)
@@ -641,5 +671,42 @@ public class ChartBody extends JComponent implements Scrollable
         {
             repaint() ;
         }
+    }
+    
+    // initalize the popup menu for this panel
+    protected void initPopUp ()
+    {       
+        JMenuItem menuItem;
+    
+        m_toolsPopUp = new JPopupMenu();
+        menuItem = new JMenuItem("Capture Screen (2 sec delay)");
+        menuItem.addActionListener(this);
+        m_toolsPopUp.add(menuItem);
+    }
+    
+    
+    @Override
+    public void actionPerformed(ActionEvent arg0) 
+    {   
+        // thread that will do the actual screenshot
+        Thread popupThread;
+    
+        popupThread = new Thread ( new Runnable() {        
+        public void run () 
+        {               
+            try 
+            {
+                // wait for 2 seconds before taking snapshot
+                Thread.sleep(2000);
+       
+                // calling our popup menu utilities to 
+                // capture the screen
+                PopUpUtils.captureScreen(m_frame);
+            }
+            catch (InterruptedException ie) {}
+        }});
+    
+        popupThread.start();
+          
     }
 }

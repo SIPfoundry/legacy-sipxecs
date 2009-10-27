@@ -178,7 +178,7 @@ public class SIPViewerFrame extends JFrame {
         m_infoPanel = new SIPInfoPanel();
 
         m_header = new ChartHeader(m_model, m_infoPanel);
-        m_body = new ChartBody(m_model, m_infoPanel);
+        m_body = new ChartBody(this, m_model, m_infoPanel);
 
         m_scrollPane = new JScrollPane(m_body, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
