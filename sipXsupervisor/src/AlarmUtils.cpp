@@ -11,6 +11,7 @@
 #include "AlarmUtils.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlSListIterator.h"
+#include "utl/XmlContent.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -33,19 +34,20 @@ void assembleMsg(const UtlString& formatStr,   //< input string with placeholder
    outMsg = formatStr;
    while ( (pParam = dynamic_cast<UtlString*> (paramListIterator())) )
    {
-
+      UtlString tempStr;
+      XmlUnEscape(tempStr, *pParam);
       sprintf(placeHolder, "{%d}", paramNum);
       ssize_t pos = outMsg.index(placeHolder);
       if (pos != UTL_NOT_FOUND)
       {
          // replace placeholder with the n'th parameter.
-         outMsg = outMsg.replace(pos, strlen(placeHolder), *pParam);
+         outMsg = outMsg.replace(pos, strlen(placeHolder), tempStr);
       }
       else
       {
          OsSysLog::add(FAC_ALARM, PRI_DEBUG, "placeholder not found for parameter %d; appending", paramNum);
          outMsg += separator;
-         outMsg += *pParam;
+         outMsg += tempStr;
       }
       paramNum++;
    }

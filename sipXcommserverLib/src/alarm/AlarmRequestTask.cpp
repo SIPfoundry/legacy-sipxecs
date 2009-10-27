@@ -11,6 +11,7 @@
 #include "net/XmlRpcRequest.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlSListIterator.h"
+#include "utl/XmlContent.h"
 #include "sipXecsService/SipXecsService.h"
 
 // STATIC INITIALIZATIONS
@@ -160,6 +161,28 @@ OsStatus AlarmRequestTask::initXMLRPCsettings()
 }
 
 
+void replaceEach(UtlString& value, const UtlString& replaceWhat, const UtlString& replaceWith)
+{
+   UtlString modifiedString;
+   size_t lastIndex;
+   ssize_t index;
+   for (index = 0, lastIndex = 0;
+        (index = value.index(replaceWhat, lastIndex, UtlString::ignoreCase)) != UTL_NOT_FOUND;
+        lastIndex = index+replaceWhat.length() )
+   {
+      modifiedString.append(value, lastIndex, index-lastIndex);
+      modifiedString.append(replaceWith);
+   }
+
+   if (lastIndex < value.length())
+   {
+      modifiedString.append(value, lastIndex, UtlString::UTLSTRING_TO_END);
+   }
+
+   value = modifiedString;
+}
+
+
 UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
 {
    UtlBoolean handled = FALSE;
@@ -171,9 +194,17 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
    UtlSListIterator iterator(pAlarmMsg->getAlarmParams());
    UtlString* pObject;
    UtlSList  alarmParams;
+   UtlString newline="\n";
+   UtlString tab="\t";
    while ( (pObject = dynamic_cast<UtlString*>(iterator())))
    {
-      alarmParams.append(pObject);
+      UtlString tempStr;
+      XmlEscape(tempStr, *pObject);
+      // newlines and tabs are not normally preserved in xml,
+      // but we want them to survive - so manually escape them.
+      replaceEach(tempStr, newline, "&#xA;");
+      replaceEach(tempStr, tab, "&#x9;");
+      alarmParams.append(new UtlString(tempStr));
    }
    
    switch ( rMsg.getMsgType() )
@@ -228,6 +259,7 @@ UtlBoolean AlarmRequestTask::handleMessage( OsMsg& rMsg )
       }
    }
    delete pXmlRpcRequestToSend;
+   alarmParams.destroyAll();
    return handled;
 }
 

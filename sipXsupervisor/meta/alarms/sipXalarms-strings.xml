@@ -124,7 +124,7 @@
       </alarm>
       <alarm id="SOFTWARE_UPDATE_AVAILABLE">
          <shorttitle>Software Updates Available.</shorttitle>
-         <description>Software Updates Available. </description>
+         <description>Software Updates Available: &#xA;</description>
          <resolution>Software Updates Available. Install the available software updates. </resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
@@ -164,7 +164,7 @@
       </alarm>
       <alarm id="PROCESS_RESOURCE_REQUIRED">
          <shorttitle>Process resource required</shorttitle>
-         <description>Process '{0}' is missing one or more required resources (list follows).</description>
+         <description>Process '{0}' is missing one or more required resources: </description>
          <resolution>Wait for a few minutes to see if this is just a normal startup sequence.  If problem persists, select the server and Send Profiles to refresh the configuration.</resolution>
       </alarm>
       <alarm id="PROCESS_CONFIG_MISMATCH">
@@ -189,8 +189,10 @@
             'shorttitle'  contains a short title to be used in email subject headers.
             'description' contains text to be sent in alarm notifications.  Parameters may be
                           inserted at runtime by using placeholders of the format {0}, {1}, etc.
-                          XML reserved characters (&lt;, &gt;, &amp;) should be escaped as in
+                          XML reserved characters (&lt;, &gt;, &amp; &quot; &apos;) should be escaped as in
                           this example.
+                          Newlines may also be included, escaped as &#xA;
+                          Tabs are escaped as &#x9;
             'resolution'  contains text to be sent in alarm notifications.  It should provide any
                           steps the customer could follow to solve or debug the problem.
       -->

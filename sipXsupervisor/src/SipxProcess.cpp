@@ -1572,7 +1572,7 @@ void SipxProcess::processBlocked(const char* alarmId)
          NameValueTokenizer paramPair(*message);
          if (paramPair.getNextPair(':', &junk, &resource))
          {
-            alarmParams.append(new UtlString(resource));
+            alarmParams.append(new UtlString("\n\t" + resource));
          }
       }
       messages.destroyAll();

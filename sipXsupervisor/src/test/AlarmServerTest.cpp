@@ -153,6 +153,30 @@ alarmRowData expectedResult[] =
       { true, true, true, false },
       INT_MAX,
       0
+   },
+   {
+      "MESSAGE_WITH_NEWLINES",
+      "SCF09378",
+      "sipXsupervisor",
+      PRI_ERR,
+      "Short title for MESSAGE_WITH_NEWLINES",
+      "The description or parameters\nmay contain newlines.",
+      "The resolution also\nmay contain newlines.",
+      { true, true, true, false },
+      INT_MAX,
+      0
+   },
+   {
+      "PARAMETER_WITH_RESERVED_CHARS",
+      "SCF00128",
+      "sipXsupervisor",
+      PRI_WARNING,
+      "Short title for PARAMETER_WITH_RESERVED_CHARS",
+      "Parameters may contain xml reserved characters e.g. '{0}'",
+      "Parameters may be xml-escaped before sending, and will be unescaped before rendering.",
+      { true, true, true, false },
+      INT_MAX,
+      0
    }
 };
 
@@ -163,6 +187,8 @@ class AlarmServerTest : public CppUnit::TestCase
    CPPUNIT_TEST(testHandleAlarm);
    CPPUNIT_TEST(testReloadAlarms);
    CPPUNIT_TEST(testParameterSubstitution);
+   CPPUNIT_TEST(testNewlinesInStrings);
+   CPPUNIT_TEST(testReservedCharsInParameters);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -179,7 +205,7 @@ public:
       OsSysLog::initialize(0, "alarm");
       mLogFile = "alarmTest.log";
       mAlarmFile = "sipXalarms.log";
-      OsSysLog::setOutputFile(0, mLogFile);
+//      OsSysLog::setOutputFile(0, mLogFile);
       OsSysLog::setLoggingPriority(PRI_DEBUG);
 
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::setUp");
@@ -358,6 +384,44 @@ public:
       OsTask::delay(DELAY);
       UtlString actualString;
       UtlString expectedString = "Parameter 2, then parameter 1";
+      tail(mAlarmFile, actualString);
+      char msg[1000];
+      sprintf(msg, "incorrect message was logged: actualString '%s'  expected '%s'", actualString.data(), expectedString.data());
+      CPPUNIT_ASSERT_MESSAGE(msg, actualString.contains(expectedString));
+   }
+
+   void testNewlinesInStrings()
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testNewlinesInStrings");
+      UtlString localhost("localhost");
+      UtlString alarmId("MESSAGE_WITH_NEWLINES");
+      UtlSList alarmParams;
+      UtlString alarmParam("1");
+      alarmParams.append(&alarmParam);
+      UtlString alarmParam2 = "\nparam on new line";
+      alarmParams.append(&alarmParam2);
+      cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
+      OsTask::delay(DELAY);
+      UtlString actualString;
+      UtlString expectedString = "param on new line";
+      tail(mAlarmFile, actualString);
+      char msg[1000];
+      sprintf(msg, "incorrect message was logged: actualString '%s'  expected '%s'", actualString.data(), expectedString.data());
+      CPPUNIT_ASSERT_MESSAGE(msg, actualString.contains(expectedString));
+   }
+
+   void testReservedCharsInParameters()
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "AlarmServerTest::testReservedCharsInParameters");
+      UtlString localhost("localhost");
+      UtlString alarmId("PARAMETER_WITH_RESERVED_CHARS");
+      UtlSList alarmParams;
+      UtlString alarmParam("<sample>; \"x=y\"");
+      alarmParams.append(&alarmParam);
+      cAlarmServer::getInstance()->handleAlarm(localhost, alarmId, alarmParams);
+      OsTask::delay(DELAY);
+      UtlString actualString;
+      UtlString expectedString = "Parameters may contain xml reserved characters e.g. '<sample>; \\\"x=y\\\"'";
       tail(mAlarmFile, actualString);
       char msg[1000];
       sprintf(msg, "incorrect message was logged: actualString '%s'  expected '%s'", actualString.data(), expectedString.data());

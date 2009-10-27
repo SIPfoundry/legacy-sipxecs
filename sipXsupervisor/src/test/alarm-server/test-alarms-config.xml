@@ -71,5 +71,15 @@
          <component>sipXsupervisor</component>
          <filter min_threshold="2"/>
       </alarm>
+      <alarm id="MESSAGE_WITH_NEWLINES">
+         <code>SCF09378</code>
+         <severity>error</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="PARAMETER_WITH_RESERVED_CHARS">
+         <code>SCF00128</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
    </definitions>
 </alarm_server>
