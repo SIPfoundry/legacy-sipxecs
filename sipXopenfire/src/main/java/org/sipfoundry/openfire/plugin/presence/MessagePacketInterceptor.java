@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
+import org.dom4j.Element;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.interceptor.PacketInterceptor;
 import org.jivesoftware.openfire.interceptor.PacketRejectedException;
@@ -21,7 +22,8 @@ import org.restlet.resource.Representation;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.JID;
-
+import org.xmpp.packet.PacketExtension;
+import org.jivesoftware.openfire.user.UserNotFoundException;
 
 public class MessagePacketInterceptor implements PacketInterceptor {
     private static Logger log = Logger.getLogger("org.sipfoundry");
@@ -31,6 +33,10 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         this.plugin = plugin;
     }
  
+    private final static String CALL_DIRECTIVE = "@call";
+    private final static String CONF_DIRECTIVE = "@conf";
+    private final static String TRANSFER_DIRECTIVE = "@xfer";
+    
     public void interceptPacket(Packet packet, Session session, boolean incoming,
             boolean processed) throws PacketRejectedException {
         try {
@@ -106,9 +112,9 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     private void processChatMessage(Message message, boolean incoming, boolean processed) throws Exception{
         String chatText = message.getBody();
         if (chatText != null) {
-            if (incoming && processed) {
+            if (incoming && !processed) {
                 log.debug("message is: " + chatText);
-                if (chatText.startsWith("@call") || chatText.startsWith("@xfer")) {
+                if (chatText.startsWith(CALL_DIRECTIVE) || chatText.startsWith(TRANSFER_DIRECTIVE)) {
                     // build the URI.
                     // First find out who is sending the message. This will be the
                     // caller
@@ -123,47 +129,26 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                     String toSipId = plugin.getSipId(message.getTo().toBareJID());
                     log.debug(fromSipId + ":" + toSipId);
 
-                    if (chatText.startsWith("@call")) {
+                    if (chatText.startsWith(CALL_DIRECTIVE)) {
 
-                        // check if there is a phone number after @call
-                        String[] result = chatText.split("\\s");
+                        // check if there is an expression after @call
+                        String expression = chatText.substring( CALL_DIRECTIVE.length() );
+                        expression = expression.trim();
                         String numberToCall;
-                        if (result.length >= 2) {
-                            // TODO: turn this next block of code into a function
-                            String username = null;
-                            if ( result[1].indexOf("@") == -1 ) {
-                                username = result[1]
-                                    + "@"
-                                    + XMPPServer.getInstance().getServerInfo()
-                                            .getXMPPDomain();
-                            } else {
-                                username = result[1];
-                            }
-                            log.debug("call username is " + username);
-
-                            // Assume that the target of the call is an XMPP id.
-                            // Try to resolve this to a sip id.
-                            String calledSipId = null;
-                            try {
-                                calledSipId = plugin.getSipId(username);
-                            } catch (Exception e) {
-                                log.debug("caught: " + e.getMessage());
-                            }
-                            log.debug("calledSipId " + calledSipId);
-
-                            // The called ID is not an XMPP id. Then this must be
-                            // a SIP id directly specified.
-                            if (calledSipId != null) {
-                                numberToCall = calledSipId;
-                            } else {
-                                numberToCall = username;
-                            }
+                        if (expression.length() > 0) {
+                            // a name was specified - try to map it to a SIP ID that we can call
+                            numberToCall = mapArbitraryNameToSipEndpoint( expression );                            
+                            reply( message, "Attempting to call " + numberToCall);
                         } else {
+                            // number to call was not specified, assume that the other 
+                            // end of the chat session is the party to call.
                             if ( toSipId != null ) {
                                 numberToCall = toSipId;
+                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " wants to talk to you - your phone will ring shortly" );
                             } else {
                                 log.debug("no SIP ID associated with user " + 
                                         message.getTo().toBareJID());
+                                reply( message, "[COMMAND FAILED] - " + message.getTo().getNode() + " is not associated with a SIP user");
                                 return;
                             }
                         }
@@ -171,61 +156,26 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         String restCallCommand = buildRestCallCommand(fromSipId,
                                 numberToCall);
                         sendRestRequest(restCallCommand);
-
-                    } else if (chatText.startsWith("@xfer")) {
+                    } else if (chatText.startsWith(TRANSFER_DIRECTIVE)) {
                         if (toSipId != null) {
-                            // check if there is a phone number after @call
-                            String[] result = chatText.split("\\s");
+                            // check if there is an expression after @xfer
+                            String expression = chatText.substring( TRANSFER_DIRECTIVE.length() );
+                            expression = expression.trim();
                             String numberToCall;
-                            if (result.length >= 2) {
-                                // figure out what that number is...
-                                // First, check if it is the name part of a JID on the
-                                // system
-                                // that is mapped to a SIP ID.
-                                String username = null;
-                                if ( result[1].indexOf("@") == -1 ) {
-                                    username = result[1]
-                                        + "@"
-                                        + XMPPServer.getInstance().getServerInfo()
-                                                .getXMPPDomain();
-                                } else {
-                                    username = result[1];
-                                }
-                                
-                               
-                                log.debug("xfer username is " + username);
-                                String calledSipId = null;
-                                // Assume that the target of the call is an XMPP id.
-                                // Try to resolve this to a sip id.
-                                try {
-                                    calledSipId = plugin.getSipId(username);
-                                } catch (Exception e) {
-                                    log.debug("caught: " + e.getMessage());
-                                }
-                                log.debug("calledSipId " + calledSipId);
-
-                                // The called ID is not an XMPP id. Then this must be
-                                // a SIP id directly specified.
-                                if (calledSipId != null) {
-                                    numberToCall = calledSipId;
-                                } else {
-                                    numberToCall = username;
-                                }
-                                
-                                
-                            } else {
-                                if ( toSipId != null ) {
-                                    numberToCall = toSipId;
-                                } else {
-                                    log.debug("no SIP ID associated with user " + 
-                                            message.getTo().toBareJID());
-                                    return;
-                                }
+                            if (expression.length() > 0) {
+                                numberToCall = mapArbitraryNameToSipEndpoint( expression );  
+                                log.debug("xfer username is " + numberToCall);
+                                String restCallCommand = buildRestCallCommand(fromSipId,
+                                        toSipId, numberToCall);
+                                sendRestRequest(restCallCommand);
+                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " is referring you to another person - your phone will ring shortly" );
+                            }    
+                            else{
+                                reply( message, "[COMMAND FAILED] - A transfer request must be specified.");                                
                             }
-                           
-                            String restCallCommand = buildRestCallCommand(fromSipId,
-                                    toSipId, numberToCall);
-                            sendRestRequest(restCallCommand);
+                        }
+                        else{
+                            reply( message, "[COMMAND FAILED] - " + message.getTo().getNode() + " is not associated with a SIP user");                            
                         }
                     }
                 }
@@ -240,7 +190,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String chatText = message.getBody();
         if (chatText != null) {
             if (incoming && !processed) {
-                if (chatText.startsWith("@conf")) {
+                if (chatText.startsWith(CONF_DIRECTIVE) ) { 
                     // check if the message is in the user->chat room direction.
                     log.debug("conference command detected: " + chatText);
                     log.debug("from : " + message.getFrom());
@@ -264,34 +214,47 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                 Collection<String> owners = chatRoom.getOwners();
                                 String commandRequesterSipId = plugin.getSipId(commandRequester); 
                                 if (commandRequesterSipId != null && owners.contains(commandRequester)) {
-                                    // INVITE into the conference every room occupant that 
-                                    // has an associated SIP ID.
                                     String conferencePin = plugin.getConferencePin(subdomain, roomName);
-                                    for (MUCRole occupant : chatRoom.getOccupants()) {
-                                        try{
-                                            if (occupant.getRole() != MUCRole.Role.none) {
-                                                String occupantJID = occupant.getUserAddress().toBareJID();
-                                                String occupantSipId = plugin.getSipId(occupantJID);
-                                                if ( occupantSipId != null) {
-                                                    String restCallCommand = buildRestConferenceCommand(
-                                                            commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
-                                                    sendRestRequest(restCallCommand);                                                    
+                                    // Check who is to be invited to the conference.  If the @conf directive 
+                                    // is not followed by anything then everyone in the room will get invited.
+                                    // If the directive is followed by an expression, only the SIP user mapping to that
+                                    // expression will be invited.
+                                    String expression = chatText.substring( CONF_DIRECTIVE.length() );
+                                    expression = expression.trim();
+                                    if (expression.length() > 0) {
+                                        String numberToCall;
+                                        numberToCall = mapArbitraryNameToSipEndpoint( chatRoom, expression );  
+                                        log.debug("@conf username is " + numberToCall);
+                                        String restCallCommand = buildRestConferenceCommand(
+                                                commandRequesterSipId, numberToCall, conferenceName, conferencePin);
+                                        sendRestRequest(restCallCommand);                                                    
+                                        reply( message, "Trying to invite " + numberToCall + " to the " + roomName + " audio conference" );
+                                        throw new PacketRejectedException();
+                                    }    
+                                    else{
+                                        for (MUCRole occupant : chatRoom.getOccupants()) {
+                                            try{
+                                                if (occupant.getRole() != MUCRole.Role.none) {
+                                                    String occupantJID = occupant.getUserAddress().toBareJID();
+                                                    String occupantSipId = plugin.getSipId(occupantJID);
+                                                    if ( occupantSipId != null) {
+                                                        String restCallCommand = buildRestConferenceCommand(
+                                                                commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
+                                                        sendRestRequest(restCallCommand);                                                    
+                                                    }
                                                 }
                                             }
+                                            catch( Exception ex ){
+                                                log.warn( "processGroupChatMessage " + ex + ": skipping user");
+                                            }
                                         }
-                                        catch( Exception ex ){
-                                            log.warn( "processGroupChatMessage " + ex + ": skipping user");
-                                        }
+                                        changeMessageBody( message, "You are invited to join the " + roomName + " audio conference - your phone will ring shortly" );
                                     }
                                 }
                                 else{
                                     // Not an owner; send back a message saying that command is not allowed
                                     log.debug(commandRequesterSipId + "is not the owner of MUC room " + subdomain + ":" + roomName);
-                                    JID from = message.getFrom();
-                                    JID to   = message.getTo();
-                                    message.setTo(from);
-                                    message.setFrom(to);
-                                    message.setBody("NOT ALLOWED: Only the owners of the " + roomName + " chatroom are allowed to perform this operation");
+                                    reply( message, "[NOT ALLOWED] - Only the owners of the " + roomName + " chatroom are allowed to perform this operation" );
                                     throw new PacketRejectedException(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
                                 }
                             }
@@ -308,4 +271,84 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         }
     }    
 
+    /*
+     * Tries to convert a supplied name to a dialable SIP URI.  The conversion routine will look for the following:
+     * #1- routine assumes that the name is the node of a JID and tries to map it to a SIP Id; if that fails
+     * #2- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails 
+     * #3- assume that the name is the userpart of the SIP URI.  Append the SIP domain to it
+     */
+    private String mapArbitraryNameToSipEndpoint( String name )
+    {
+        String sipEndpoint = null;
+        // check if the supplied name has a domain part
+        String[] result = name.split("@");
+        if ( result.length == 1 ){
+            // no domain name specified - try to map name to something we know how to dial
+            // First, check if the name is an XMPP Display Name name that we can map to a SIP ID
+            try{
+                sipEndpoint = plugin.getSipIdFromXmppDisplayName(name);
+            }
+            catch( UserNotFoundException ex ){
+                try{
+                    // name was not an XMPP display name - check if it was an XMPP name
+                    sipEndpoint = plugin.getSipId(name);
+                }
+                catch( UserNotFoundException ex2 ){
+                    // name was not an XMPP username either - assume it is a SIP Id
+                    sipEndpoint = name;
+                }                
+            }
+        }
+        else{
+            // the name contains a domain - if the user went through the trouble of typing
+            // in a domain, chances are that this is a dialable URI from sipXecs.  Use the name as is.
+            sipEndpoint = name;
+        }
+        log.debug("mapArbitraryNameToSipEndpoint " + name + " to " + sipEndpoint);
+        return sipEndpoint;
+    }
+
+    /*
+     * Tries to convert a supplied name to a dialable SIP URI.  The conversion routine will look for the following:
+     * #1- routine assumes that the name is chatroom nickname (aka nick, alias or handle ) and tries to map it to a SIP Id; if that fails
+     * #2- routine assumes that the name is the node of a JID and tries to map it to a SIP Id; if that fails
+     * #3- routine assumes that the name is an XMPP display name and tries to map it to a JID then #1 is attempted; if that fails 
+     * #4- assume that the name is the userpart of the SIP URI.  Append the SIP domain to it
+     */
+    private String mapArbitraryNameToSipEndpoint( MUCRoom room, String name ){
+        String sipEndpoint;
+        try{
+            MUCRole occupant = room.getOccupant( name );
+            String occupantJID = occupant.getUserAddress().toBareJID();
+            sipEndpoint = plugin.getSipId(occupantJID);
+        }
+        catch( Exception ex ){
+            sipEndpoint = mapArbitraryNameToSipEndpoint( name );
+        }
+        return sipEndpoint;
+    }
+    
+    // turns a message into a reply.  Note that this operation destroys the original message (i.e. the original
+    // message will never be delivered to the original destination).
+    private void reply( Message message, String replyText ){
+        JID from = message.getFrom();
+        JID to   = message.getTo();
+        message.setTo(from);
+        message.setFrom(to);   
+        changeMessageBody(message, replyText);     
+    }
+    
+    private void changeMessageBody( Message message, String newBodyText ){
+        // the message can carry the chat text in two places: 
+        // #1 -[mandatory]- the message's body element carries the vanilla version of the chat text
+        // #2 -[mandatory]- the message's html extension carries a style-enhanced version of the chat text
+        // IM Clients that can handle html will render #2 in priority if present so both need to be modified.
+        // Given that we do not want to fully parse and recreate the HTML, we simply remove the extension from the message.
+        // This means that the message bodies generated by this message will not be formatted (i.e. will be plaintext)
+
+        // address #1
+        message.setBody(newBodyText);
+        // address #2
+        message.deleteExtension( "html", "http://jabber.org/protocol/xhtml-im");
+    }
 }

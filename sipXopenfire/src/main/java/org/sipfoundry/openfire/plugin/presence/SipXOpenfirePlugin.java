@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.log4j.ConsoleAppender;
@@ -515,17 +516,41 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public String getSipId(String userName) throws UserNotFoundException {
-        User user = userManager.getUser(userName);
+    // gets a the sip username (without the SIP domain part) corresponding to the supplied XMPP display name
+    // @throws a UserNotFoundException if the user is not found
+    public String getSipIdFromXmppDisplayName(String displayName) throws UserNotFoundException {
+        String sipUser = null;
+        try{
+            Collection<User> matchingUsers;
+            Set<String> matchingCriteria = new HashSet<String>();
+            matchingCriteria.add("Name");
+            matchingUsers = userManager.findUsers(matchingCriteria, displayName);
+            if( matchingUsers.size() == 1 ){
+                User matchingUser = matchingUsers.iterator().next();
+                sipUser = getSipId( matchingUser.getUsername() + "@" + getXmppDomain() );
+            }
+            if( sipUser == null ){
+                throw new UserNotFoundException("cannot find user for display name " + displayName );
+            }
+        }
+        catch( Exception ex ){
+            throw new UserNotFoundException(ex + ": cannot find user for display name " + displayName );
+        }
+        return sipUser;
+    }
+
+    // gets a the sip username (without the SIP domain part) corresponding to the supplied JID 
+    public String getSipId(String jid) throws UserNotFoundException {
+        User user = userManager.getUser(jid);
         return user.getProperties().get(SIP_UID);
     }
 
     // associates a jid with a sip username (without the SIP domain part) 
-    public void setSipId(String userName, String sipUserName) throws UserNotFoundException {
-        User user = userManager.getUser(userName);
+    public void setSipId(String jid, String sipUserName) throws UserNotFoundException {
+        User user = userManager.getUser(jid);
         user.getProperties().put(SIP_UID, sipUserName);
         user.getProperties().put(ON_THE_PHONE_MESSAGE, "I am on the phone");
-        this.sipIdToXmppIdMap.put(sipUserName, userName);
+        this.sipIdToXmppIdMap.put(sipUserName, jid);
     }
 
     public String getSipPassword(String userName) throws UserNotFoundException {
@@ -1177,3 +1202,4 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
 
 }
+
