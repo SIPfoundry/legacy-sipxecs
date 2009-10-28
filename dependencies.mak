@@ -143,6 +143,8 @@ sipXecs : \
 	sipXpublisher \
 	sipXregistry \
 	sipXrest \
+        sipXrelay \
+        sipXbridge \
 	sipXrls \
 	sipXsaa \
 	sipXsupervisor \
