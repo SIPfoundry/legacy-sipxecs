@@ -37,6 +37,7 @@ import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -402,19 +403,7 @@ public class SymmitronServer implements Symmitron {
             publicAddress = InetAddress.getByName(symmitronConfig
                     .getPublicAddress());
         }
-        String logFileName = symmitronConfig.getLogFileName();
-        if (logFileName != null) {
-            String dirName = symmitronConfig.getLogFileDirectory()
-                    + "/sipxrelay.log";
-            Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
-                    .getName());
-
-            SipFoundryAppender sfa = new SipFoundryAppender(
-                    new SipFoundryLayout(), dirName);
-            logger.addAppender(sfa);
-
-            logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
-        }
+       
         portRangeManager = new PortRangeManager(symmitronConfig
                 .getPortRangeLowerBound(), symmitronConfig
                 .getPortRangeUpperBound());
@@ -1009,6 +998,7 @@ public class SymmitronServer implements Symmitron {
         try {
             logger.info("getSymStatistics : " + controllerHandle + " symId = "
                     + symId);
+            this.checkForControllerReboot(controllerHandle);
             Sym sym = sessionMap.get(symId);
             if (sym == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND,
@@ -1478,25 +1468,33 @@ public class SymmitronServer implements Symmitron {
                     .indexOf("/etc/sipxpbx"));
             config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
         }
-        config.setLogFileName("sipxrelay.log");
+       SymmitronServer.setSymmitronConfig(config);
+       String logFileName = symmitronConfig.getLogFileName();
+       if (logFileName != null) {
+           String dirName = symmitronConfig.getLogFileDirectory()
+                   + "/" + logFileName;
+           Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
+                   .getName());
 
+           SipFoundryAppender sfa = new SipFoundryAppender(
+                   new SipFoundryLayout(), dirName);
+           logger.addAppender(sfa);
+
+           logger.setLevel(SipFoundryLayout.mapSipFoundry2log4j(config.getLogLevel()));
+       }
+      
         String log4jProps = configDir + "/log4j.properties";
-        /*
-         * Allow override if a log4j properties file exists.
-         */
         if (new File(log4jProps).exists()) {
-            /*
-             * Override the file configuration setting.
-             */
-            Properties props = new Properties();
-            props.load(new FileInputStream(log4jProps));
-            String level = props
-                    .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-            if (level != null) {
-                config.setLogLevel(level);
+            Properties fileProps = new Properties();
+            fileProps.load(new FileInputStream(log4jProps));
+            String level = fileProps
+                    .getProperty("log4j.logger.org.sipfoundry.sipxbridge.sipxrelay");
+            if ( level != null ) {
+                logger.setLevel(Level.toLevel(level));
             }
         }
-        SymmitronServer.setSymmitronConfig(config);
+      
+       
 
         logger.info("Checking port range " + config.getPortRangeLowerBound()
                 + ":" + config.getPortRangeUpperBound());
