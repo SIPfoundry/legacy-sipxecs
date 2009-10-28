@@ -15,6 +15,7 @@ Url: http://www.sipfoundry.org
 %define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
 Requires: sipxacd >= %version
+Requires: sipxrelay >= %version
 Requires: sipxbridge >= %version
 Requires: sipxconfig >= %version
 Requires: sipxconfig-agent >= %version
