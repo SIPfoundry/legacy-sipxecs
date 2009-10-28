@@ -21,5 +21,5 @@
 		path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar" />
 	<classpathentry kind="var"
 		path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar" />
-	<classpathentry kind="output" path="classes" />
+	<classpathentry kind="output" path="bin.eclipse" />
 </classpath>
