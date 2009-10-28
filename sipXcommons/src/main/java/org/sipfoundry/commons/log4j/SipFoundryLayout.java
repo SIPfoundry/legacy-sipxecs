@@ -58,6 +58,7 @@ public class SipFoundryLayout extends Layout {
             return l.toString();
         }
     }
+    
 
     /**
      * Map the SipFoundry text to the log4j Priority number
@@ -68,22 +69,27 @@ public class SipFoundryLayout extends Layout {
     public static Level mapSipFoundry2log4j(String level) {
         if (level == null)
             return Level.DEBUG;
-
-        if (level.equalsIgnoreCase("DEBUG"))
+       
+        if (level.equalsIgnoreCase("DEBUG")) {
             return Level.DEBUG;
-        if (level.equalsIgnoreCase("INFO"))
+        } else if (level.equalsIgnoreCase("INFO")) {
             return Level.INFO;
-        if (level.equalsIgnoreCase("NOTICE"))
+        } else if (level.equalsIgnoreCase("NOTICE")) {
             return Level.INFO;
-        if (level.equalsIgnoreCase("WARNING"))
+        } else if (level.equalsIgnoreCase("WARNING")) {
             return Level.WARN;
-        if (level.equalsIgnoreCase("ERR"))
+        } else if (level.equalsIgnoreCase("ERR")) {
             return Level.ERROR;
-        if (level.equalsIgnoreCase("ERROR"))
+        } else if (level.equalsIgnoreCase("ERROR")) {
             return Level.ERROR;
-
-        Level l = Level.toLevel(level);
-        return l == null ? Level.DEBUG : l;
+        } else if (level.equalsIgnoreCase("CRIT")) { 
+            return Level.FATAL;
+        } else if (level.equalsIgnoreCase("EMERG")) {
+            return Level.FATAL;
+        } else if (level.equalsIgnoreCase("ALERT")) {
+             return Level.WARN;
+        } else return Level.INFO;
+       
     }
 
     /**

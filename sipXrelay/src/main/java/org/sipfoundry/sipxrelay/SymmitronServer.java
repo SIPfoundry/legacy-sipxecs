@@ -1571,10 +1571,21 @@ public class SymmitronServer implements Symmitron {
         props.setProperty("log4j.rootLogger", "warn, file");
         props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",
                 SipFoundryLayout.mapSipFoundry2log4j(config.getLogLevel()).toString());
-        props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
-        props.setProperty("log4j.appender.file.File", config.getLogFileName());
-        props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
-        props.setProperty("log4j.appender.file.layout.facility", "sipXrelay");
+        props.setProperty("log4j.appender.file", SipFoundryAppender.class.getName());
+        props.setProperty("log4j.appender.file.File", config.getLogFileDirectory() + "/" + config.getLogFileName());
+        props.setProperty("log4j.appender.file.layout", SipFoundryLayout.class.getName());
+        props.setProperty("log4j.appender.file.layout.facility", "JAVA");
+        String log4jProps = configDir + "/log4j.properties";
+        if (new File(log4jProps).exists()) {
+            Properties fileProps = new Properties();
+            fileProps.load(new FileInputStream(log4jProps));
+            String level = fileProps
+                    .getProperty("log4j.logger.org.sipfoundry.sipxrelay");
+            if (level != null) {
+                props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",level);
+            }
+        }
+      
         PropertyConfigurator.configure(props);
 
         SymmitronServer.setSymmitronConfig(config);
