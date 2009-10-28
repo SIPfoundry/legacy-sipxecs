@@ -231,7 +231,15 @@ done
 # Since the destination location may not be able to hold the uncompressed
 # data, place it in a recognized temporary location.
 Work=`mktemp -d -t sipx-snapshot.XXXXXX`
-trap "rm -rf $Work* 2>/dev/null" 0
+
+# Arrange to capture any error output.
+# At the bottom of this script, we will echo this file to the current stderr.
+StderrFile=${Work}/stderr
+exec 3>&2			# Save stderr as fd 3.
+exec 2>${StderrFile}		# Redirect stderr to ${StderrFile}.
+
+# On exit, echo the captured stderr output and delete the work directory.
+trap "cat ${StderrFile} >&3 ; rm -rf $Work* 2>/dev/null" 0
 
 if [ ${Tar} = YES ]
 then
@@ -341,7 +349,6 @@ Usage:
 USAGE
     exit
 fi
-
 
 # File into which to record random system configuration information.
 SystemConfig=${Work}/SystemConfig
@@ -542,6 +549,7 @@ do
 done
 
 # Copy the --comment files to $Work.
+CommentFileSeqNo=1
 for File in ${CommentFiles}
 do
   # Point the file name to $PWD if it has no /.
@@ -554,8 +562,9 @@ do
       exit 1
   fi
 
-  # Copy the file into the work directory.
-  cp -pR --dereference ${File} ${Work}/`basename ${File}`
+  # Copy the file into the work directory, giving it a name that is unique.
+  cp -pR --dereference ${File} ${Work}/Comment:`basename ${File}`:${CommentFileSeqNo}
+  (( CommentFileSeqNo++ ))
 done
 
 # Record miscellaneous information about the host.
@@ -1028,6 +1037,12 @@ then
       rm -rf ${cutDir}
   fi
 fi
+
+# Restore stderr and output the saved error output.
+exec 2>&3			# Restore stderr from fd 3.
+cat ${StderrFile} >&2		# Write ${StderrFile} to stderr.
+# Reset the trap to not output stderr.
+trap "rm -rf $Work* 2>/dev/null" 0
 
 if [ ${Tar} = YES ]
 then
