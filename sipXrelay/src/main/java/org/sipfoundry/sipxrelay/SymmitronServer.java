@@ -37,6 +37,7 @@ import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -432,19 +433,7 @@ public class SymmitronServer implements Symmitron {
             publicAddress = InetAddress.getByName(symmitronConfig
                     .getPublicAddress());
         }
-        String logFileName = symmitronConfig.getLogFileName();
-        if (logFileName != null) {
-            String dirName = symmitronConfig.getLogFileDirectory()
-                    + "/sipxrelay.log";
-            Logger logger = Logger.getLogger(SymmitronServer.class.getPackage()
-                    .getName());
 
-            SipFoundryAppender sfa = new SipFoundryAppender(
-                    new SipFoundryLayout(), dirName);
-            logger.addAppender(sfa);
-
-            logger.setLevel(Level.toLevel(symmitronConfig.getLogLevel()));
-        }
         portRangeManager = new PortRangeManager(symmitronConfig
                 .getPortRangeLowerBound(), symmitronConfig
                 .getPortRangeUpperBound());
@@ -1577,22 +1566,17 @@ public class SymmitronServer implements Symmitron {
         }
         config.setLogFileName("sipxrelay.log");
 
-        String log4jProps = configDir + "/log4j.properties";
-        /*
-         * Allow override if a log4j properties file exists.
-         */
-        if (new File(log4jProps).exists()) {
-            /*
-             * Override the file configuration setting.
-             */
-            Properties props = new Properties();
-            props.load(new FileInputStream(log4jProps));
-            String level = props
-                    .getProperty("log4j.category.org.sipfoundry.sipxbridge.sipxrelay");
-            if (level != null) {
-                config.setLogLevel(level);
-            }
-        }
+        // Configure log4j
+        Properties props = new Properties();
+        props.setProperty("log4j.rootLogger", "warn, file");
+        props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",
+                SipFoundryLayout.mapSipFoundry2log4j(config.getLogLevel()).toString());
+        props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
+        props.setProperty("log4j.appender.file.File", config.getLogFileName());
+        props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
+        props.setProperty("log4j.appender.file.layout.facility", "sipXrelay");
+        PropertyConfigurator.configure(props);
+
         SymmitronServer.setSymmitronConfig(config);
 
         logger.info("Checking port range " + config.getPortRangeLowerBound()
