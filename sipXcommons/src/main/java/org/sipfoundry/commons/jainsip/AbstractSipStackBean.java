@@ -72,6 +72,7 @@ public abstract class AbstractSipStackBean {
         // add more properties here if needed
         m_properties.setProperty("javax.sip.STACK_NAME", getStackName() );
         m_properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "1");
+        m_properties.setProperty("gov.nist.javax.sip.RECEIVE_UDP_BUFFER_SIZE", "65536");
         m_properties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", Boolean.TRUE.toString());
         m_properties.setProperty("javax.sip.ROUTER_PATH",
                 org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
