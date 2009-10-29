@@ -88,7 +88,7 @@ class SipxProcessCmd : public UtlString, OsServerTask
    UtlString   mUser;             ///< User that commands must be run as.
    UtlString   mExecutable;       ///< Fully qualified path to the command to be executed.
    UtlSList    mParameters;       ///< UtlStrings to be passed as arguments
-   OsProcess*  mProcess;          ///< Pointer to the process object
+   OsProcess   mProcess;          ///< Pointer to the process object
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.

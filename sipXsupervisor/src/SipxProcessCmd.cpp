@@ -225,20 +225,15 @@ bool SipxProcessCmd::isRunning()
 {
    UtlBoolean status = false;
 
-   if ( mProcess != NULL )
-   {
-      status = mProcess->isRunning();
-   }
+   status = mProcess.isRunning();
+
    return status;
 }
 
 /// Kill the command.
 void SipxProcessCmd::kill()
 {
-   if ( mProcess != NULL )
-   {
-      mProcess->kill();
-   }
+   mProcess.kill();
 }
 
 UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
@@ -297,26 +292,21 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
    OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE, "SipxProcessCmd::execute %s %s",
                  mExecutable.data(), argString.data());
 
-   if (!mProcess)
-   {
-      mProcess = new OsProcess();
-   }
-
    int rc;
 
-   if ( (rc=mProcess->launch(mExecutable, &args[0], mWorkingDirectory,
-                             mProcess->NormalPriorityClass, FALSE,
+   if ( (rc=mProcess.launch(mExecutable, &args[0], mWorkingDirectory,
+                             mProcess.NormalPriorityClass, FALSE,
                              FALSE /*don't automatically reap children*/))
        == OS_SUCCESS )
    {
       owner->evCommandStarted(this);
       OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,"'%s: process running, pid %ld",
-                    mExecutable.data(), (long)mProcess->getPID());
+                    mExecutable.data(), (long)mProcess.getPID());
 
       //now wait around for the thing to finish
       UtlString stdoutMsg;
       UtlString stderrMsg;
-      while ( (rc = mProcess->getOutput(&stdoutMsg, &stderrMsg)) > 0)
+      while ( (rc = mProcess.getOutput(&stdoutMsg, &stderrMsg)) > 0)
       {
          if (stdoutMsg.length() > 0)
          {
@@ -329,7 +319,7 @@ void SipxProcessCmd::executeInTask(SipxProcessCmdOwner* owner)
       }
 
       //0 means wait until it's finished
-      rc = mProcess->wait(0);
+      rc = mProcess.wait(0);
       owner->evCommandStopped(this, rc);
    }
    else
@@ -351,16 +341,11 @@ UtlContainableType SipxProcessCmd::getContainableType() const
 /// destructor
 SipxProcessCmd::~SipxProcessCmd()
 {
-   if (mProcess)
+   if (mProcess.isRunning())
    {
-      if (mProcess->isRunning())
-      {
-         mProcess->kill();
-      }
-
-      delete mProcess;
-      mProcess = NULL;
+      mProcess.kill();
    }
+
    mParameters.destroyAll();
 
    waitUntilShutDown();
@@ -374,8 +359,7 @@ SipxProcessCmd::SipxProcessCmd(const UtlString& execute,
    OsServerTask("SipxProcessCmd-%d"),
    mWorkingDirectory(workingDirectory),
    mUser(user),
-   mExecutable(execute),
-   mProcess(NULL)
+   mExecutable(execute)
 {
    mParameters.removeAll();
    // start the task which will listen for messages and launch programs in the background
