@@ -114,21 +114,16 @@ OsDirBase::operator=(const OsDirBase& rhs)
 
   OsStatus OsDirBase::getFileInfo(OsFileInfoBase& fileinfo)
   {
-    OsStatus ret = OS_INVALID;
+     OsStatus ret = OS_INVALID;
 
-    struct stat stats;
-    if (stat((char *)mDirName.data(),&stats) == 0)
-    {
+     struct stat stats;
+     if (stat((char *)mDirName.data(), &stats) == 0)
+     {
         ret = OS_SUCCESS;
-        if (stats.st_mode & S_DIR)
-            fileinfo.mbIsDirectory = TRUE;
-        else
-            fileinfo.mbIsDirectory = FALSE;
 
-                if (stats.st_mode & S_READONLY)
-            fileinfo.mbIsReadOnly = FALSE;
-        else
-            fileinfo.mbIsReadOnly = TRUE;
+        fileinfo.mbIsDirectory = (stats.st_mode & S_DIR) != 0;
+
+        fileinfo.mbIsReadOnly = (stats.st_mode & S_READONLY) != 0;
 
         OsTime createTime(stats.st_ctime,0);
         fileinfo.mCreateTime = createTime;
@@ -137,12 +132,9 @@ OsDirBase::operator=(const OsDirBase& rhs)
         fileinfo.mCreateTime = modifiedTime;
 
         fileinfo.mSize = stats.st_size;
+     }
 
-    }
-
-
-
-    return ret;
+     return ret;
   }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */

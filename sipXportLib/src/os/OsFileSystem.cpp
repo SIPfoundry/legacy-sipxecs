@@ -107,26 +107,28 @@ OsStatus OsFileSystem::remove(const OsPath& path, UtlBoolean bRecursive, UtlBool
     OsStatus retval = OS_INVALID;
     OsFileInfo info;
     OsPath testpath = path;
-    getFileInfo(testpath,info);
 
-    if (info.isDir())
+    if (getFileInfo(testpath, info) == OS_SUCCESS)
     {
-        if (bRecursive)
-        {
-            retval = removeTree(path,bForce);
-        }
-        else
-        {
-            if (rmdir((char *)path.data()) != -1)
+       if (info.isDir())
+       {
+          if (bRecursive)
+          {
+             retval = removeTree(path,bForce);
+          }
+          else
+          {
+             if (rmdir((char *)path.data()) != -1)
                 retval = OS_SUCCESS;
-        }
-    }
-    else
-    {
-       if (bForce)
-           setReadOnly(path,FALSE);
-       if (::remove(path.data()) != -1)
-           retval = OS_SUCCESS;
+          }
+       }
+       else
+       {
+          if (bForce)
+             setReadOnly(path,FALSE);
+          if (::remove(path.data()) != -1)
+             retval = OS_SUCCESS;
+       }
     }
 
     return retval;

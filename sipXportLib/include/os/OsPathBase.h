@@ -31,6 +31,7 @@
 
 //:OS generic path class.  Will massage any input string so separators are correct.
 //:Also provided functions to
+// Base UtlString is the path as a character string.
 class OsPathBase : public UtlString
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -74,7 +75,7 @@ public:
       //: Returns the path separator for this object
 
     void Split();
-    //: breaks path into it's parts
+    //: breaks path into its parts
 
 /* ============================ ACCESSORS ================================= */
     UtlString getVolume() const;
