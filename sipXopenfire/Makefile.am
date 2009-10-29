@@ -49,6 +49,7 @@ EXTRA_DIST = \
   plugin.xml \
   openfire.xml \
   web/WEB-INF/web.xml \
+  etc/sipxopenfire-prompts.properties \
   src
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make

@@ -61,6 +61,7 @@ start() {
 	PWD=`pwd`
 	# Write out the config information so the plugin can read it.
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
+	echo "localization.file=@SIPX_CONFDIR@/openfire/sipxopenfire-prompts.properties" >> ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
 	${OPENFIRE_HOME}/${OPENFIRE} start
 	sleep 10

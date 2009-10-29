@@ -2,6 +2,7 @@ package org.sipfoundry.openfire.plugin.presence;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
@@ -67,6 +68,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private Map<String, Presence> probedPresence;
     private JID componentJID;
     private XMPPServer server;
+    private Localizer localizer;
 
     private static String configurationPath = "/etc/sipxpbx";
 
@@ -257,6 +259,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         classLoader.setPackageAssertionStatus("org.sipfoundry", true);
         Thread.currentThread().setContextClassLoader(classLoader);
         configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
+        this.localizer = instantiateLocalizer();
+        
         parseConfigurationFile();
         initializeLogging();
         server = XMPPServer.getInstance();
@@ -1201,5 +1205,24 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         return true;
     }
 
+    private Localizer instantiateLocalizer(){
+        String localizationFile = System.getProperty("localization.file", "/etc/sipxpbx/openfire/sipxopenfire-prompts.properties");
+        Properties props = new Properties();
+        try
+        {
+            props.load(new FileInputStream(localizationFile));
+        } 
+        catch (FileNotFoundException e){
+            log.warn("Localizer cannot find localization file '" + localizationFile + "'");
+        } catch (IOException e)
+        {
+            log.error("Localizer caught " + e );
+        }
+        return new Localizer( props );
+    }
+    
+    Localizer getLocalizer(){
+        return this.localizer;
+    }
 }
 

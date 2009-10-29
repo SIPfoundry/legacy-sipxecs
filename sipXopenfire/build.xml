@@ -94,6 +94,7 @@
                 <copy file="${root}/dist/sipx-openfire-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
+		<copy file="${src.dir}/etc/sipxopenfire-prompts.properties" todir="${dest.dir}${sipxpbx.conf.dir}/openfire" />
                 <chmod file="${dest.dir}${sipxpbx.libexec.dir}/setup.d/sipxopenfire-setup.sh" perm="ugo+rx" />
                 <copy file="${src.dir}/sipxopenfire-database.xml" todir="${dest.dir}${sipxpbx.conf.dir}" />
                 <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxopenfire-database.xml"

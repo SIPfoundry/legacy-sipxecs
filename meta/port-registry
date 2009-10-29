@@ -47,7 +47,8 @@ Port    Component         Use
 
 5170    sipXsaa           Shared Appearance Agent
 
-5223    sipXopenfire  	  The port used for clients to connect to the server using the old SSL method. 
+5222    sipXopenfire      The standard port for clients to connect to the server. Connections may or may not be encrypted.
+5223    sipXopenfire      The port used for clients to connect to the server using the old SSL method. 
 5229    sipXopenfire      Flash Cross Domain.
 
 6050    sipXcallController SIP TCP/UDP port for SIP Signaling.

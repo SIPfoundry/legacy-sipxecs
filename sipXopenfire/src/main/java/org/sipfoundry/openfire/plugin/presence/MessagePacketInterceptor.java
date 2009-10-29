@@ -60,7 +60,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     String buildRestCallCommand(String callerNumber, String calledNumber) {
         String restCallCommand =  "https://"+ plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
-                + callerNumber + "/" + calledNumber;
+                + callerNumber + "/" + calledNumber + "?timeout=30";
         log.debug("rest call command is: " + restCallCommand);
         return restCallCommand;
     }
@@ -69,7 +69,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
-                + "?agent=" + agentId;
+                + "?agent=" + agentId + "&timeout=30";
         return restCallCommand;
     }
 
@@ -77,7 +77,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
-                + "?agent=" + agentId;
+                + "?agent=" + agentId + "&timeout=30";
         if (conferencePin != null && conferencePin.length() > 0 ){
             restCallCommand += "&confpin=" + conferencePin;
         }
@@ -138,17 +138,21 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         if (expression.length() > 0) {
                             // a name was specified - try to map it to a SIP ID that we can call
                             numberToCall = mapArbitraryNameToSipEndpoint( expression );                            
-                            reply( message, "Attempting to call " + numberToCall);
+                            reply( message, plugin.getLocalizer().localize("attemptingcall.prompt") + " " + numberToCall);
                         } else {
                             // number to call was not specified, assume that the other 
                             // end of the chat session is the party to call.
                             if ( toSipId != null ) {
                                 numberToCall = toSipId;
-                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " wants to talk to you - your phone will ring shortly" );
+                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " " + plugin.getLocalizer().localize("callingyou.prompt") );
                             } else {
                                 log.debug("no SIP ID associated with user " + 
                                         message.getTo().toBareJID());
-                                reply( message, "[COMMAND FAILED] - " + message.getTo().getNode() + " is not associated with a SIP user");
+                                reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
+                                                " - " +
+                                                message.getTo().getNode() + 
+                                                " " +
+                                                plugin.getLocalizer().localize("notassociatedwithsip.prompt") );
                                 return;
                             }
                         }
@@ -168,14 +172,22 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                 String restCallCommand = buildRestCallCommand(fromSipId,
                                         toSipId, numberToCall);
                                 sendRestRequest(restCallCommand);
-                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) + " is referring you to another person - your phone will ring shortly" );
+                                changeMessageBody( message, plugin.getXmppDisplayName(message.getFrom().getNode()) +
+                                                            " " +
+                                                            plugin.getLocalizer().localize("isreferring.prompt") );
                             }    
                             else{
-                                reply( message, "[COMMAND FAILED] - A transfer request must be specified.");                                
+                                reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
+                                                " - " +
+                                                plugin.getLocalizer().localize("xfertargetreq.prompt") );                                
                             }
                         }
                         else{
-                            reply( message, "[COMMAND FAILED] - " + message.getTo().getNode() + " is not associated with a SIP user");                            
+                            reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
+                                            " - " +
+                                            message.getTo().getNode() + 
+                                            " " +
+                                            plugin.getLocalizer().localize("notassociatedwithsip.prompt"));                            
                         }
                     }
                 }
@@ -228,7 +240,15 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                         String restCallCommand = buildRestConferenceCommand(
                                                 commandRequesterSipId, numberToCall, conferenceName, conferencePin);
                                         sendRestRequest(restCallCommand);                                                    
-                                        reply( message, "Trying to invite " + numberToCall + " to the " + roomName + " audio conference" );
+                                        reply( message, plugin.getLocalizer().localize("tryingtoinvite.prompt") +
+                                                		" " +
+                                                		numberToCall +
+                                                		" " +
+                                                		plugin.getLocalizer().localize("tothe.prompt") +
+                                                        " " +
+                                                        roomName +
+                                                        " " +
+                                                        plugin.getLocalizer().localize("audioconference.prompt"));
                                         throw new PacketRejectedException();
                                     }    
                                     else{
@@ -248,13 +268,25 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                                 log.warn( "processGroupChatMessage " + ex + ": skipping user");
                                             }
                                         }
-                                        changeMessageBody( message, "You are invited to join the " + roomName + " audio conference - your phone will ring shortly" );
+                                        changeMessageBody( message, plugin.getLocalizer().localize("invitetojoin.prompt") +
+                                                     	            " " +
+                                                     	            roomName + 
+                                                     	            " " +
+                                                     	            plugin.getLocalizer().localize("audioconference.prompt") +
+                                                     	            " - " + 
+                                                                    plugin.getLocalizer().localize("willringshortly.prompt") );
                                     }
                                 }
                                 else{
                                     // Not an owner; send back a message saying that command is not allowed
                                     log.debug(commandRequesterSipId + "is not the owner of MUC room " + subdomain + ":" + roomName);
-                                    reply( message, "[NOT ALLOWED] - Only the owners of the " + roomName + " chatroom are allowed to perform this operation" );
+                                    reply( message, plugin.getLocalizer().localize("notallowed.prompt") +
+                                                    " - " +
+                                                    plugin.getLocalizer().localize("onlyowners.prompt") +
+                                                    " " +
+                                                    roomName + 
+                                                    " " +
+                                                    plugin.getLocalizer().localize("allowedtoperformoperation.prompt") );
                                     throw new PacketRejectedException(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
                                 }
                             }
