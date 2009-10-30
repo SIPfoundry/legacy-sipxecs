@@ -50,6 +50,20 @@ public class ImAccount {
         return getDefaultImId();
     }
 
+    /**
+     * Update user IM ID name.
+     *
+     * If the new value happens to be the same as default, we are removing user set value.
+     * Otherwise we update to a new value.
+     */
+    public void setImId(String imId) {
+        if (getDefaultImId().equals(imId)) {
+            m_user.setImId(null);
+        } else {
+            m_user.setImId(imId);
+        }
+    }
+
     public String getDefaultImId() {
         String userName = m_user.getUserName();
         if (!User.isNumeric(userName)) {
@@ -69,6 +83,20 @@ public class ImAccount {
             return displayName;
         }
         return getDefaultImDisplayName();
+    }
+
+    /**
+     * Update user IM Display name.
+     *
+     * If the new value happens to be the same as default, we are removing user set value.
+     * Otherwise we update to a new value.
+     */
+    public void setImDisplayName(String imDisplayName) {
+        if (getDefaultImDisplayName().equals(imDisplayName)) {
+            m_user.setImDisplayName(null);
+        } else {
+            m_user.setImDisplayName(imDisplayName);
+        }
     }
 
     public String getDefaultImDisplayName() {

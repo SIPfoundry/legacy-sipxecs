@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends PageWithCallback implements PageBeginRenderListener {
@@ -65,6 +66,14 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
     }
 
     public void apply() {
+        ImAccount imAccount = new ImAccount(getUser());
+        if (imAccount.getDefaultImId().equals(getUser().getImId())) {
+            getUser().setImId(null);
+        }
+        if (imAccount.getDefaultImDisplayName().equals(getUser().getImDisplayName())) {
+            getUser().setImDisplayName(null);
+        }
+
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
     }

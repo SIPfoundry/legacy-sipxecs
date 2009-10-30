@@ -38,6 +38,22 @@ public class ImAccountTest extends TestCase {
         assertEquals("im", imAccount.getImId());
     }
 
+    public void testSetImId() throws Exception {
+        User user = new User();
+        ImAccount imAccount = new ImAccount(user);
+
+        user.setUserName("555");
+        assertEquals("555", imAccount.getImId());
+
+        imAccount.setImId("777");
+        assertEquals("777", imAccount.getImId());
+        assertEquals("777", user.getImId());
+
+        imAccount.setImId("555");
+        assertEquals("555", imAccount.getImId());
+        assertNull(user.getImId());
+    }
+
     public void testGetImDisplayName() throws Exception {
         User user = new User();
         ImAccount imAccount = new ImAccount(user);
@@ -51,6 +67,23 @@ public class ImAccountTest extends TestCase {
 
         user.setImDisplayName("joe im");
         assertEquals("joe im", imAccount.getImDisplayName());
+    }
+
+    public void testSetImDisplayName() throws Exception {
+        User user = new User();
+        ImAccount imAccount = new ImAccount(user);
+
+        user.setUserName("jane");
+        assertEquals("jane", imAccount.getImDisplayName());
+        assertNull(user.getImDisplayName());
+
+        imAccount.setImDisplayName("Jane User");
+        assertEquals("Jane User", imAccount.getImDisplayName());
+        assertEquals("Jane User", user.getImDisplayName());
+
+        imAccount.setImDisplayName("jane");
+        assertEquals("jane", imAccount.getImDisplayName());
+        assertNull(user.getImDisplayName());
     }
 
     public void testGeImPassword() {

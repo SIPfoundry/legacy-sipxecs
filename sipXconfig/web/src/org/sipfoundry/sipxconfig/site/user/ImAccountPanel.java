@@ -17,25 +17,29 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-@ComponentClass
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ImAccountPanel extends BaseComponent {
-
     @Parameter(required = true)
     public abstract User getUser();
-    @Parameter
-    public abstract Setting getActiveSetting();
-    @Parameter(defaultValue = "false")
-    public abstract boolean isImIdDisabled();
 
-    public abstract String getDefaultImId();
-    public abstract void setDefaultImId(String imId);
-    public abstract String getDefaultImDisplayName();
-    public abstract void setDefaultImDisplayName(String imDisplayName);
+    @Parameter(defaultValue = "true")
+    public abstract boolean isAdminMode();
+
+    public abstract ImAccount getImAccount();
+
+    public abstract void setImAccount(ImAccount imAccount);
+
+    public abstract Setting getImSettings();
+
+    public abstract void setImSettings(Setting imSetting);
 
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
-        ImAccount imAccount = new ImAccount(getUser());
-        setDefaultImId(imAccount.getDefaultImId());
-        setDefaultImDisplayName(imAccount.getDefaultImDisplayName());
+        if (getImAccount() == null) {
+            setImAccount(new ImAccount(getUser()));
+        }
+        if (getImSettings() == null) {
+            setImSettings(getUser().getSettings().getSetting("im"));
+        }
     }
 }
