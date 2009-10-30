@@ -82,7 +82,7 @@ public class ProtocolObjects {
                 /*
                  * At TRACE level you get a LOT of logging.
                  */
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
                         .toString());
             }
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");

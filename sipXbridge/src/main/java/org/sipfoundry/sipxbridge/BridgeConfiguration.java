@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 /**
  * A class that represents the configuration of the SipxBridge. IMPORTANT -- the methods of this
@@ -208,8 +209,8 @@ public class BridgeConfiguration {
     /**
      * @param logLevel the logLevel to set
      */
-    public void setLogLevel(String logLevel) {
-        this.logLevel = logLevel;
+    public void setLogLevel(String level) {
+        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();
         if (logLevel.equals("DEBUG")) {
             /*
              * Check if the TRACE debug override is turned on.
@@ -224,9 +225,9 @@ public class BridgeConfiguration {
                      */
                     Properties props = new Properties();
                     props.load(new FileInputStream(log4jProps));
-                    String level = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
+                    String newLevel = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
                     if (level != null) {
-                        setLogLevel(level.toUpperCase());
+                        setLogLevel(newLevel.toUpperCase());
                     }
                 }
             } catch (Exception ex) {

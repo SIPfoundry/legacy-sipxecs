@@ -711,6 +711,7 @@ class CallControlManager implements SymmitronResetHandler {
                         Response.SERVER_INTERNAL_ERROR);
                 response.setReasonPhrase("Received REFER on TERMINATED Dialog");
                 stx.sendResponse(response);
+                return;
             }
 
             /*
