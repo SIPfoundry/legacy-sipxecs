@@ -113,6 +113,10 @@ public class TapestryContext {
         m_skinControl = skinControl;
     }
 
+    public SkinControl getSkinControl() {
+        return m_skinControl;
+    }
+
     public boolean isLicenseRequired() {
         return null != m_skinControl.getAsset(SkinControl.ASSET_LICENSE);
     }

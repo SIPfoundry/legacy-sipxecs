@@ -62,7 +62,9 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
         try {
             exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
             exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, htmlFile);
+            exporter.setParameter(JRHtmlExporterParameter.IS_OUTPUT_IMAGES_TO_DIR, true);
             exporter.setParameter(JRHtmlExporterParameter.IMAGES_URI, "image?image=");
+
             exporter.exportReport();
         } catch (JRException jrEx) {
             LOG.error(ERROR_GENERATING + jasperPrint.getName(), jrEx);

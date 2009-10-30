@@ -12,6 +12,8 @@
 	<parameter name="title" class="java.lang.String"/>
 	<parameter name="start" class="java.lang.String"/>
 	<parameter name="end" class="java.lang.String"/>
+	<parameter name="logopath" class="java.lang.String"/>
+	<parameter name="bannerpath" class="java.lang.String"/>
 
 	<field name="caller" class="java.lang.String"/>
 	<field name="callee" class="java.lang.String"/>
@@ -56,11 +58,20 @@
 		<band height="70">
                         <frame>
                                 <reportElement mode="Opaque" x="0" y="-20" width="555" height="70" backcolor="#3FD8E3"/>
-
 			<line>
 				<reportElement x="0" y="0" width="555" height="1"/>
 				<graphicElement/>
 			</line>
+			<image isLazy="false" isUsingCache="false" scaleImage="FillFrame">
+                               <reportElement x="0" y="0" width="555" height="70"/>
+                               <imageExpression class="java.lang.String"><![CDATA[$P{bannerpath}]]>
+                               </imageExpression>
+			</image>
+			<image isLazy="false" isUsingCache="false" scaleImage="RetainShape">
+                               <reportElement x="0" y="10" width="100" height="30"/>
+                               <imageExpression class="java.lang.String"><![CDATA[$P{logopath}]]>
+                               </imageExpression>
+			</image>
 			<textField isBlankWhenNull="true">
 				<reportElement x="120" y="10" width="305" height="30"/>
 				<textElement textAlignment="Center">

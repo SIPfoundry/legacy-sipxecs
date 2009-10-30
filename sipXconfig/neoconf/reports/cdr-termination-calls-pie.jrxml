@@ -11,6 +11,9 @@
 	<parameter name="start" class="java.lang.String"/>
 	<parameter name="end" class="java.lang.String"/>
 	<parameter name="terminationCallsPieImage" isForPrompting="false" class="java.awt.Image"/>
+	<parameter name="logopath" class="java.lang.String"/>
+	<parameter name="bannerpath" class="java.lang.String"/>
+
 	<field name="key" class="java.lang.String"/>
 	<field name="count" class="java.lang.Integer"/>
 
@@ -22,6 +25,16 @@
 				<reportElement x="0" y="0" width="555" height="1"/>
 				<graphicElement/>
 			</line>
+                        <image isLazy="false" isUsingCache="false" scaleImage="FillFrame">
+                                <reportElement x="0" y="0" width="555" height="70"/>
+                                <imageExpression class="java.lang.String"><![CDATA[$P{bannerpath}]]>
+                                </imageExpression>
+                        </image>
+                        <image isLazy="false" isUsingCache="false" scaleImage="RetainShape">
+                                <reportElement x="0" y="10" width="100" height="30"/>
+                                <imageExpression class="java.lang.String"><![CDATA[$P{logopath}]]>
+                                </imageExpression>
+                        </image>
 			<textField  isBlankWhenNull="true">
 				<reportElement x="125" y="10" width="300" height="30"/>
 				<textElement textAlignment="Center">

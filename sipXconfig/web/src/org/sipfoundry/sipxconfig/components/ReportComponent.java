@@ -20,6 +20,7 @@ import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.fill.JRFileVirtualizer;
 import net.sf.jasperreports.j2ee.servlets.BaseHttpServlet;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
@@ -45,6 +46,9 @@ public abstract class ReportComponent extends BaseComponent {
 
     @InjectObject(value = "spring:jasperReportContextImpl")
     public abstract JasperReportContext getJasperReportContext();
+
+    @InjectObject(value = "spring:tapestry")
+    public abstract TapestryContext getTapestry();
 
     @Parameter(name = "reportLabel", required = true)
     public abstract String getReportLabel();
@@ -103,9 +107,13 @@ public abstract class ReportComponent extends BaseComponent {
 
     public void generateReports() {
         JRFileVirtualizer virtualizer = new JRFileVirtualizer(20, getJasperReportContext().getTmpDirectory());
+        IAsset logoAsset = getTapestry().getSkinControl().getAsset("logo.png");
+        IAsset backgroundAsset = getTapestry().getSkinControl().getAsset("banner-background.png");
         try {
             Map parameters = getReportParameters();
             parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
+            parameters.put("logopath", logoAsset.getResourceLocation().getResourceURL().getPath());
+            parameters.put("bannerpath", backgroundAsset.getResourceLocation().getResourceURL().getPath());
             JasperPrint jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
                     getReportParameters(), getReportData());
 
