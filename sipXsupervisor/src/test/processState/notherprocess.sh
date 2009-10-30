@@ -108,8 +108,11 @@ pidfile=/tmp/$Args.pid
 case ${Action} in
    RUN)
      echo $$ > ${pidfile}
-     echo faking start for $Args...
-     sleep 50
+     echo "faking start for $Args"
+     for ticks in `seq 49 -1 0`
+     do
+        sleep 1;
+     done;
      ;;
 
    STOP)
