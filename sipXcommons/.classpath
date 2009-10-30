@@ -4,7 +4,7 @@
 	<classpathentry kind="src" output="bin.eclipse/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar" sourcepath="/JAIN_SRC"/>
 	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>
 	<classpathentry kind="lib" path="lib/log4j.jar"/>
@@ -17,5 +17,5 @@
 	<classpathentry kind="lib" path="lib/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/ws-commons-util.jar"/>
 	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
-	<classpathentry kind="output" path="bin.eclipse"/>
+	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

@@ -16,7 +16,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-beanutils.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-digester.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/ws-commons-util.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar" sourcepath="/JAIN_SRC"/>
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dnsjava.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/junit.jar"/>
