@@ -1,4 +1,4 @@
-//
+
 //
 // Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
@@ -11,6 +11,7 @@
 
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
+#include <utl/UtlBool.h>
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcDispatch.h"
@@ -26,6 +27,7 @@
 // DEFINES
 #define CONFIG_SETTING_REALM "REALM"
 #define CONFIG_SETTING_VOICEMAIL_ON_BUSY "VOICEMAIL_ON_BUSY"
+#define CONFIG_SETTING_USER_PREFS_FILE "USER_PREFS_FILE"
 #define CONFIG_OPENFIRE_PRESENCE_SERVER_URL "OPENFIRE_PRESENCE_SERVER_URL"
 #define CONFIG_PRESENCE_MONITOR_SERVER_URL  "LOCAL_PRESENCE_MONITOR_SERVER_URL"
 #define UNIFIED_PRESENCE_CHANGED_REQUEST_NAME "UnifiedPresenceChangeListener.unifiedPresenceChanged"
@@ -202,11 +204,19 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
                     mLogName.data(), mRealm.data() );
    }
 
-    mbForwardToVmOnBusy = configDb.getBoolean(CONFIG_SETTING_VOICEMAIL_ON_BUSY, TRUE);
+    mbForwardToVmOnBusy = configDb.getBoolean(CONFIG_SETTING_VOICEMAIL_ON_BUSY, FALSE);
     OsSysLog::add(FAC_SIP, PRI_INFO,
                  "%s::readConfig mbForwardToVmOnBusy = %d",
                  mLogName.data(), mbForwardToVmOnBusy);
 
+    
+    UtlString prefsFilename;
+    configDb.get(CONFIG_SETTING_USER_PREFS_FILE, prefsFilename);
+    OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig prefsFilename = %s",
+                 mLogName.data(), prefsFilename.data());
+    mUserPrefs.loadPrefs( prefsFilename );
+    
     UtlString openFirePresenceServerUrlAsString;
     if ((configDb.get(CONFIG_OPENFIRE_PRESENCE_SERVER_URL, openFirePresenceServerUrlAsString) != OS_SUCCESS) ||
           openFirePresenceServerUrlAsString.isNull())
@@ -320,7 +330,9 @@ SipRedirectorPresenceRouting::doLookUp(
    // check if we have unified presence info for this user
    const UnifiedPresence* pUp;
    UtlString to;
+   UtlString username;
    toUrl.getIdentity( to );
+   toUrl.getUserId( username );
    OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus is looking up '%s'",
                                     mLogName.data(),to.data() );
    pUp = UnifiedPresenceContainer::getInstance()->lookup( &to );
@@ -354,7 +366,7 @@ SipRedirectorPresenceRouting::doLookUp(
       {
          // If user is busy then call goes directly to voicemail.
          if( ( pUp->getSipState().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mbForwardToVmOnBusy ) ||
-               pUp->getXmppPresence().compareTo("BUSY", UtlString::ignoreCase ) == 0 )
+             ( pUp->getXmppPresence().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mUserPrefs.forwardToVoicemailOnDnd( username ) ) )
          {
             // prune all non-voicemail contacts from the list
             removeNonVoicemailContacts( contactList );
@@ -630,3 +642,70 @@ XmlRpcMethod* UnifiedPresenceChangedMethod::get()
     return true;
 }
 
+OsStatus PresenceRoutingUserPreferences::loadPrefs(const UtlString& configFileName )
+{
+   OsStatus currentStatus = OS_SUCCESS;
+   TiXmlDocument* pDoc = new TiXmlDocument( configFileName.data() );
+
+   if( !pDoc->LoadFile() )
+   {
+      UtlString parseError = pDoc->ErrorDesc();
+      OsSysLog::add( FAC_NAT, PRI_ERR, "PresenceRoutingFileReader: ERROR parsing  '%s': %s"
+                    ,configFileName.data(), parseError.data());
+      currentStatus = OS_NOT_FOUND;
+   }
+   else
+   {
+      currentStatus = parseDocument( pDoc );
+   }
+   return currentStatus;
+}
+
+OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
+{
+   TiXmlNode* presenceRoutingNode;
+   
+   if( (presenceRoutingNode = pDoc->FirstChild("presenceRoutingPrefs")) != NULL &&
+         presenceRoutingNode->Type() == TiXmlNode::ELEMENT)
+   {
+      // Find all the <user> elements.
+      for( TiXmlNode* userNode = 0;
+      (userNode = presenceRoutingNode->IterateChildren( "user", userNode )); ) 
+      {
+         if (userNode->Type() == TiXmlNode::ELEMENT)
+         {
+            TiXmlNode* pChildNode;
+            if( ( pChildNode = userNode->FirstChild( "userName" ) ) && pChildNode->FirstChild() )
+            {
+               UtlString* pUsername = new UtlString( pChildNode->FirstChild()->Value() );
+               if( ( pChildNode = userNode->FirstChild( "vmOnDnd" ) ) && pChildNode->FirstChild() )
+               {
+                  UtlString vmOnDndAsString = pChildNode->FirstChild()->Value();
+                  UtlBool* pbVmOnDnd = new UtlBool( FALSE );
+                  if( vmOnDndAsString.compareTo("true", UtlString::ignoreCase) == 0 )
+                  {
+                     pbVmOnDnd->setValue(TRUE);
+                  }
+                  mUserVmOnDndPreferences.insertKeyAndValue( pUsername, pbVmOnDnd );
+                  OsSysLog::add( FAC_NAT, PRI_DEBUG, "PresenceRoutingUserPreferences::parseDocument added %s %d"
+                                ,pUsername->data(), pbVmOnDnd->getValue());
+               }
+            }
+         }
+      }
+   }
+}
+
+bool PresenceRoutingUserPreferences::forwardToVoicemailOnDnd(const UtlString& sipUsername )
+{
+   UtlBool* pForwardToVoicemailOnDnd = 
+                (UtlBool*)(mUserVmOnDndPreferences.findValue( &sipUsername ));
+   if( pForwardToVoicemailOnDnd != NULL )
+   {
+      return pForwardToVoicemailOnDnd->getValue();
+   }
+   else
+   {
+      return false;
+   }
+}

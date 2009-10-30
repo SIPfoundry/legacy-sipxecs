@@ -27,6 +27,17 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+class PresenceRoutingUserPreferences
+{
+public:
+   OsStatus loadPrefs(const UtlString& configFileName );
+   bool forwardToVoicemailOnDnd(const UtlString& sipUsername );
+   
+private:
+   UtlHashMap mUserVmOnDndPreferences;
+   OsStatus parseDocument( TiXmlDocument* pDoc );
+};
+
 class UnifiedPresence : public UtlString
 {
 public:
@@ -124,6 +135,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    OsStatus pingOpenfire( void );
    static UtlString  sLocalDomain;
    UtlString mOpenfireInstanceHandle;
+   PresenceRoutingUserPreferences mUserPrefs;   
 };
 
 class UnifiedPresenceChangedMethod : public XmlRpcMethod
