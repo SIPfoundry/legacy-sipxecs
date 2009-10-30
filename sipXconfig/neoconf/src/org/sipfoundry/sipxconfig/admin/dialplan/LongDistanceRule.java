@@ -149,6 +149,7 @@ public class LongDistanceRule extends DialingRule {
         rule.setGateways(getGateways());
         rule.setCallPattern(calculateCallPattern(areaCode));
         rule.setDialPatterns(calculateDialPatterns(areaCode));
+        rule.setPermissionManager(getPermissionManager());
         List<String> permNames = new ArrayList<String>(1);
         if (m_permissionName != null) {
             permNames.add(m_permissionName);

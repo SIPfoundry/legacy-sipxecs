@@ -233,6 +233,10 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         m_permissionManager = permissionManager;
     }
 
+    public PermissionManager getPermissionManager() {
+        return m_permissionManager;
+    }
+
     protected Permission getPermission(String name) {
         if (name == null) {
             return null;

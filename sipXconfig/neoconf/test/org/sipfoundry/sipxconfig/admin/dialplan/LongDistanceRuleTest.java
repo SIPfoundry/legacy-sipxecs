@@ -15,8 +15,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
+import org.sipfoundry.sipxconfig.TestHelper;
+
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
@@ -35,6 +38,7 @@ public class LongDistanceRuleTest extends TestCase {
     private LongDistanceRule m_rule;
     private Schedule m_schedule;
 
+    @Override
     protected void setUp() throws Exception {
         m_schedule = new GeneralSchedule();
         m_schedule.setName("Custom schedule");
@@ -281,5 +285,19 @@ public class LongDistanceRuleTest extends TestCase {
         DialingRule generationRule = getGenerationRule(m_rule);
         List<String> permissions = generationRule.getPermissionNames();
         assertEquals(PermissionName.TOLL_FREE_DIALING.getName(), permissions.get(0));
+    }
+
+    public void testAppendToGenerationRules() {
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
+        m_rule.setPermissionManager(pm);
+        m_rule.setPermissionName(PermissionName.LOCAL_DIALING.getName());
+
+        ArrayList<DialingRule> rules = new ArrayList<DialingRule>();
+        m_rule.appendToGenerationRules(rules);
+        assertEquals(1, rules.size());
+        DialingRule rule = rules.get(0);
+        assertEquals(PermissionName.LOCAL_DIALING.getName(), rule.getPermissions().get(0).getName());
     }
 }
