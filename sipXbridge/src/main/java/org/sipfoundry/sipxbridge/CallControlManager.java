@@ -492,7 +492,9 @@ class CallControlManager implements SymmitronResetHandler {
                 }
                 BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(replacesDialog);
                 DialogContext dat = DialogContext.get(replacesDialog);
-                DialogContext.attach(b2bua, dialog, serverTransaction, request);
+                DialogContext newDialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
+                
+                b2bua.addDialog(newDialogContext);
 
                 Dialog peerDialog = dat.getPeerDialog();
                 logger.debug("replacesDialogState = " + replacesDialog.getState());
