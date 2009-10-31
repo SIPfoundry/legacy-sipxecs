@@ -283,6 +283,7 @@ public class SipListenerImpl implements SipListener {
         if ( dialogContext != null ) {
             logger.debug("DialogTerminatedEvent:  dialog created at " + dialogContext.getCreationPointStackTrace());
             logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
+            logger.debug("DialogCreated by request: " + dialogContext.getRequest());
             dialogContext.cancelSessionTimer();
             BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
