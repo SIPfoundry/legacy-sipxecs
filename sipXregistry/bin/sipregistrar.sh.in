@@ -84,7 +84,7 @@ EOF
              correct set of registrars.  The recommended configuration is to always
              run a registrar on each host that runs a proxy.
 EOF
-                   Status=1
+                   # that's a warning, so let it go
                fi
              done
          fi
