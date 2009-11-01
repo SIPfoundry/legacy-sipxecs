@@ -845,7 +845,7 @@ void SipxProcess::restartInTask()
 void SipxProcess::shutdownInTask()
 {
    //This does not affect the persistent state of the service.
-   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::shutdown in state %s",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "SipxProcess[%s]::shutdownInTask in state %s",
                  data(), mpCurrentState->name());
 
    mpCurrentState->evShutdown(*this);

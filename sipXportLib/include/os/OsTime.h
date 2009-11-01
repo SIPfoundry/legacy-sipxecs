@@ -118,12 +118,9 @@ public:
    // Method inlined as it is called about 40000 times per call.
    inline UtlBoolean isInfinite(void) const
    {
-      if (this == &OS_INFINITY ||
-          (seconds() == OS_INFINITY.seconds() &&
-           usecs()   == OS_INFINITY.usecs()))
-         return TRUE;
-      else
-         return FALSE;
+      return (this == &OS_INFINITY ||
+              (seconds() == OS_INFINITY.seconds() &&
+               usecs()   == OS_INFINITY.usecs()));
    }
 
    virtual UtlBoolean isNoWait(void) const;
