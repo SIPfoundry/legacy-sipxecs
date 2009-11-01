@@ -176,13 +176,16 @@ public:
     //: waits for a process to complete before returning
     //: or exits when WaitInSecs has completed
 
-    /// Read messages from the child process on stdout or stderr.
+    /// Read some text from the child process on stdout or stderr.
+    /// Blocks until some text is available, then returns what text
+    /// can be read at the moment.
+    /// Does not wait for a newline before returning text, nor does it
+    /// segment output based on newlines.
     /// Returns the total number of bytes read.
     /// When it returns 0, the child has exited and the parent should call wait(0)
     /// to remove zombies.
     /// If either parameter is NULL, the associated stream will not be read from
     /// (note however that this may cause buffers to fill and the process to hang).
-    /// No attempt is made to read until newline.
     virtual int getOutput(UtlString* stdoutMsg, ///< message read from stdout
                           UtlString* stderrMsg  ///< message read from stderr
          ) = 0;

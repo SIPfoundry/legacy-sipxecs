@@ -128,17 +128,21 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
    int fds = 0;
    struct pollfd outputFds[2] = { {-1, 0, 0}, {-1, 0, 0} };
 
+   int stdoutFd = -1;           // The element of outputFds for stdout, or -1.
    if ( stdoutMsg != NULL )
    {
       stdoutMsg->remove(0);
+      stdoutFd = fds;
       outputFds[fds].fd = m_fdout[0];
       outputFds[fds].events = POLLIN;
       outputFds[fds].revents = 0;
       fds++;
    }
+   int stderrFd = -1;           // The element of outputFds for stderr, or -1.
    if ( stderrMsg != NULL )
    {
       stderrMsg->remove(0);
+      stderrFd = fds;
       outputFds[fds].fd = m_fderr[0];
       outputFds[fds].events = POLLIN;
       outputFds[fds].revents = 0;
@@ -146,20 +150,21 @@ int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
    }
 
    // We want to read everything available on the given fds before returning.
-   int rc = poll(outputFds, fds, -1);
+   // Call poll() until it returns for some reason other than EINTR.
+   int rc;
+   do {
+      rc = poll(outputFds, fds, -1);
+   } while (rc < 0 && errno == EINTR);
    if ( rc > 0 )
    {
-      if ((outputFds[0].fd == m_fdout[0]) && (outputFds[0].revents & POLLIN))
+      if (stdoutFd >= 0 && (outputFds[stdoutFd].revents & POLLIN) != 0)
       {
          if ( (rc=readAll( m_fdout[0], stdoutMsg )) > 0)
          {
             bytesRead = rc;
          }
       }
-      // For stderr, we need to check both elements of the outputFds array because
-      // its position depends on whether or not we've been asked for stdout.
-      if (((outputFds[1].fd == m_fderr[0]) && (outputFds[1].revents & POLLIN)) ||
-          ((outputFds[0].fd == m_fderr[0]) && (outputFds[0].revents & POLLIN)))
+      if (stderrFd >= 0 && (outputFds[stderrFd].revents & POLLIN) != 0)
       {
          if ( (rc=readAll( m_fderr[0], stderrMsg )) > 0)
          {
@@ -187,10 +192,10 @@ int OsProcessLinux::wait(int WaitInSecs)
     {
         while (bStillRunning && secs_waited <= WaitInSecs)
         {
-            pid_t pid;
-            if ((pid=waitpid(mPID,&status,WNOHANG|WUNTRACED)) == 0)
+            pid_t pid = waitpid(mPID, &status, WNOHANG|WUNTRACED);
+            if (pid == 0 || (pid == -1 && errno == EINTR))
             {
-                // process has not changed status so it still running.
+                // Process has not changed status so it is still running.
                 bStillRunning = TRUE;
                 OsTask::delay(1000);
 
@@ -199,7 +204,7 @@ int OsProcessLinux::wait(int WaitInSecs)
             }
             else
             {
-               // parent closes the reading end of the pipes
+               // Parent closes the reading end of the pipes.
                close(m_fdout[0]);
                close(m_fderr[0]);
 
