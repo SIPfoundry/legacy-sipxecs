@@ -37,14 +37,14 @@ public class DialogContext {
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">";
     public static String FOOTER = "\n</status-lines>\n";
     
-    private int timeout;
+    private int cacheTimeout;
     private long creationTime = System.currentTimeMillis();
 
     public DialogContext(String key, int timeout, int cachetimeout) {
         this.key = key;
-        logger.debug("DialogContext : " + timeout);
+        logger.debug("DialogContext : " + timeout + " cachetimeout " + cachetimeout);
         status.append(HEADER);
-        this.timeout = cachetimeout;
+        this.cacheTimeout = cachetimeout;
        
         RestServer.timer.schedule(new TimerTask() {
 
@@ -108,10 +108,10 @@ public class DialogContext {
         logger.debug("removeMe " + dialog);
         this.dialogs.remove(dialog);
         if (dialogs.isEmpty()) {
-            if (  System.currentTimeMillis() - this.creationTime >= timeout*1000 ) {
+            if (  System.currentTimeMillis() - this.creationTime >= cacheTimeout*1000 ) {
                 SipUtils.removeDialogContext(key, this);
             } else {
-                long delta = timeout*1000 - (System.currentTimeMillis() - this.creationTime) ;
+                long delta = cacheTimeout*1000 - (System.currentTimeMillis() - this.creationTime) ;
                 RestServer.timer.schedule( new TimerTask() {
 
                     @Override

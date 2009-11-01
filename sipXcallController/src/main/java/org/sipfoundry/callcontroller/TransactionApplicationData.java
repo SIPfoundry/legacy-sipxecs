@@ -171,6 +171,10 @@ class TransactionApplicationData {
                         ctx.setApplicationData(tad);
                         dialog.sendRequest(ctx);
                     }
+                } else if (response.getStatusCode()/100 > 2){
+                    DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+                    dialogContext.removeMe(dialog);
+                   
                 }
             } else if (method.equals(Request.REFER)) {
                 LOG.debug("Got REFER Response " + response.getStatusCode());

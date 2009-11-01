@@ -55,6 +55,9 @@ public class CallControllerRestlet extends Restlet {
                     CallControllerParams.CALLED_PARTY);
 
             if (callingParty == null || calledParty == null) {
+                response.setEntity(ResultFormatter.formatError(Status.CLIENT_ERROR_BAD_REQUEST, 
+                        "Missing a required parameter - need both callingParty and calledParty URL Parameters"), 
+                        MediaType.TEXT_XML);
                 response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                 return;
             }
@@ -70,6 +73,8 @@ public class CallControllerRestlet extends Restlet {
             if (credentials == null) {
                 logger.error("could not find credentials for agent " + agentName);
                 response.setStatus(Status.CLIENT_ERROR_FORBIDDEN);
+                response.setEntity(ResultFormatter.formatError(Status.CLIENT_ERROR_FORBIDDEN,
+                        "could not find credentials for " + agentName), MediaType.TEXT_XML);
                 return;
             }
 
@@ -108,26 +113,40 @@ public class CallControllerRestlet extends Restlet {
                     timeout = Integer.parseInt((String) request.getAttributes().get(
                             CallControllerParams.TIMEOUT));
                 }
-                
+                if ( timeout < 0 ) {
+                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_BAD_REQUEST.getCode(), 
+                            "Bad parameter timeout = " + timeout  );
+                    response.setEntity(result, MediaType.TEXT_XML);
+                    response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                    return;   
+                }
                 int cachetimeout = 180;
                 
                 if ((String) request.getAttributes().get(CallControllerParams.RESULTCACHETIME) != null) {
-                    timeout = Integer.parseInt((String) request.getAttributes().get(
+                    cachetimeout = Integer.parseInt((String) request.getAttributes().get(
                             CallControllerParams.RESULTCACHETIME));
                 }
 
+                logger.debug("cachetimeout = " + cachetimeout);
+                if ( cachetimeout < 0 ) {
+                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_BAD_REQUEST.getCode(), 
+                            "Bad parameter resultCacheTime = " + cachetimeout  );
+                    response.setEntity(result, MediaType.TEXT_XML);
+                    response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                    return;   
+                }
+                
                 if (method.equals(CallControllerParams.REFER)) {
                     DialogContext dialogContext = SipUtils.createDialogContext(key, timeout, cachetimeout);
                     Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
                             agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
                             isForwardingAllowed, dialogContext, timeout);
-
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
-
                 } else {
-                    response.setEntity("Method not supported " + key, MediaType.TEXT_PLAIN);
+                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_NOT_ACCEPTABLE.getCode(), 
+                            "Call Setup Method " + method + " not supported" );
+                    response.setEntity(result, MediaType.TEXT_XML);
                     response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
-
                     return;
                 }
 
