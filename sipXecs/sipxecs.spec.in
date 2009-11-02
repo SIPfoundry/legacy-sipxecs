@@ -45,6 +45,7 @@ Requires: sipxtools >= %version
 Requires: sipxrest >= %version
 Requires: sipxcallcontroller >= %version
 Requires: sipxcdrlog >= %version
+Requires: sipxprovision >= %version
 
 Source: %name-%version.tar.gz
 
