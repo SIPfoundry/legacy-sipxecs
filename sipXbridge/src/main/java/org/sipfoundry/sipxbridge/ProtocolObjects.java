@@ -23,7 +23,12 @@ import javax.sip.message.MessageFactory;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.log4j.ServerLoggerImpl;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
+import org.sipfoundry.commons.log4j.StackLoggerImpl;
+
 
 /**
  * Sip Protocol objects.
@@ -64,26 +69,20 @@ public class ProtocolObjects {
             stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
-                    /*
-                     * Debug level turns off stack level debug logging.
-                     */
-                    stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO
-                            .toString());
-                    stackProperties.setProperty(
+                     stackProperties.setProperty(
                             "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
                 } else {
-                    stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Gateway
-                            .getLogLevel());
-                    stackProperties.setProperty(
+                     stackProperties.setProperty(
                             "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
                 }
-
-            } else {
-                /*
-                 * At TRACE level you get a LOT of logging.
-                 */
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
-                        .toString());
+                Logger.getLogger(StackLoggerImpl.class).setLevel(Level.INFO);
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO.toString());
+            } else {  
+                stackProperties.setProperty(
+                        "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE.toString());
+                Logger.getLogger(StackLoggerImpl.class).setLevel(Level.DEBUG);
+                
             }
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
@@ -95,12 +94,17 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_SERVER_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.REJECT_STRAY_RESPONSES","true");
             stackProperties.setProperty("gov.nist.javax.sip.IS_BACK_TO_BACK_USER_AGENT", "true");
+            stackProperties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
+            stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOGGER",ServerLoggerImpl.class.getName());
+            Logger.getLogger(StackLoggerImpl.class).addAppender(new SipFoundryAppender(new SipFoundryLayout(),
+                    Gateway.getBridgeConfiguration().getLogFileDirectory()
+                    +"/sipxbridge.log"));
             /*
              * Break up the via encoding.
              */
             ViaList.setPrettyEncode(true);
+            
             sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
-            ((SipStackImpl) getSipStack()).addLogAppender(Gateway.logAppender);
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error("Error loading factories ", ex);

@@ -266,24 +266,7 @@ public class Gateway {
      */
     static void initializeLogging() throws SipXbridgeException {
         try {
-            String log4jPropertiesFile = Gateway.configurationPath
-                    + "/log4j.properties";
-
-            if (new File(log4jPropertiesFile).exists()) {
-                /*
-                 * Override the file configuration setting.
-                 */
-                Properties props = new Properties();
-                props.load(new FileInputStream(log4jPropertiesFile));
-                BridgeConfiguration configuration = Gateway.accountManager
-                        .getBridgeConfiguration();
-                String level = props
-                        .getProperty("log4j.category.org.sipfoundry.sipxbridge");
-                if (level != null) {
-                    configuration.setLogLevel(level);
-                }
-
-            }
+           
             BridgeConfiguration bridgeConfiguration = Gateway
                     .getBridgeConfiguration();
             Level level = Level.OFF;

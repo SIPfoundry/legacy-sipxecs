@@ -211,13 +211,9 @@ public class BridgeConfiguration {
      * @param logLevel the logLevel to set
      */
     public void setLogLevel(String level) {
-        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();
+        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();  
         if (logLevel.equals("DEBUG")) {
-            /*
-             * Check if the TRACE debug override is turned on.
-             * If so, enable tracing.
-             */
-            try {
+             try {
                 String log4jProps = Gateway.configurationPath + "/log4j.properties";
 
                 if (new File(log4jProps).exists()) {
@@ -227,9 +223,7 @@ public class BridgeConfiguration {
                     Properties props = new Properties();
                     props.load(new FileInputStream(log4jProps));
                     String newLevel = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
-                    if (level != null) {
-                        setLogLevel(newLevel.toUpperCase());
-                    }
+                    this.logLevel = newLevel;
                 }
             } catch (Exception ex) {
                 /* Ignore */
