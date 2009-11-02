@@ -70,6 +70,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private XMPPServer server;
     private Localizer localizer;
 
+    private static String DEFAULT_MUC_SERVICE = "room";
+    
     private static String configurationPath = "/etc/sipxpbx";
 
     private static WatcherConfig watcherConfig;
@@ -277,6 +279,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         multiUserChatManager = server.getMultiUserChatManager();
 
+        /*
+         * create default multi-user chat service (see XX-6913)
+         */
+        createChatRoomService(DEFAULT_MUC_SERVICE);
+        
         /*
          * Load up the database.
          */
@@ -762,28 +769,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             boolean logRoomConversations, boolean isPersistent, String password,
             String description, String conferenceExtension, String conferenceName, String conferenceReachabilityInfo)
             throws Exception {
-        MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
-                .getMultiUserChatService(subdomain);
-        if (mucService == null) {
-            mucService = XMPPServer.getInstance().getMultiUserChatManager()
-                    .createMultiUserChatService(subdomain, "default MUC service", false);
-            Collection<JID> admins = XMPPServer.getInstance().getAdmins();
-            JID admin = admins.iterator().next();
-            mucService.addUserAllowedToCreate(admin.toBareJID());
-            mucService.addUserAllowedToCreate(ownerJid);
-            mucService.addSysadmin(admin.toBareJID());
-            mucService.setLogConversationsTimeout(60);
-            mucService.setLogConversationBatchSize(100);
-            mucService.setRoomCreationRestricted(true);
-            HistoryStrategy historyStrategy = new HistoryStrategy(null);
-            historyStrategy.setType(HistoryStrategy.Type.none);
-            new UpdateHistoryStrategy(subdomain, historyStrategy).run();
-        }
-        else{
-            mucService.removeUserAllowedToCreate(ownerJid);  //remove first to avoid duplicated entries
-            mucService.addUserAllowedToCreate(ownerJid);
-        }
-
+        MultiUserChatService mucService = createChatRoomService(subdomain);
         MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
 
         mucRoom.unlock(mucRoom.getRole());
@@ -873,6 +859,31 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     }
 
+    public MultiUserChatService createChatRoomService(String subdomain) 
+    {
+        MultiUserChatService mucService = XMPPServer.getInstance().getMultiUserChatManager()
+                .getMultiUserChatService(subdomain);
+        if (mucService == null) {
+            try{
+                mucService = XMPPServer.getInstance().getMultiUserChatManager()
+                        .createMultiUserChatService(subdomain, "default MUC service", false);
+                Collection<JID> admins = XMPPServer.getInstance().getAdmins();
+                JID admin = admins.iterator().next();
+                mucService.addSysadmin(admin.toBareJID());
+                mucService.setLogConversationsTimeout(60);
+                mucService.setLogConversationBatchSize(100);
+                mucService.setRoomCreationRestricted(true);
+                HistoryStrategy historyStrategy = new HistoryStrategy(null);
+                historyStrategy.setType(HistoryStrategy.Type.none);
+                new UpdateHistoryStrategy(subdomain, historyStrategy).run();
+            }
+            catch( Exception ex ){
+                log.error("createChatRoomService caught " + ex );
+            }
+        }
+        return mucService;
+    }
+    
     /**
      * Delete a chat room from the domain.
      * 
@@ -1088,7 +1099,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         for (MultiUserChatService service : pruneSet) {
             String subdomain = service.getServiceDomain().split("\\.")[0];
-            if (!subdomains.contains(subdomain)) {
+            if (!subdomains.contains(subdomain) && !subdomain.equals(DEFAULT_MUC_SERVICE) ) {
                 this.multiUserChatManager.removeMultiUserChatService(subdomain);
             }
         }
