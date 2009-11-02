@@ -112,8 +112,8 @@ public abstract class ReportComponent extends BaseComponent {
         try {
             Map parameters = getReportParameters();
             parameters.put(JRParameter.REPORT_VIRTUALIZER, virtualizer);
-            parameters.put("logopath", logoAsset.getResourceLocation().getResourceURL().getPath());
-            parameters.put("bannerpath", backgroundAsset.getResourceLocation().getResourceURL().getPath());
+            parameters.put("logopath", logoAsset.getResourceLocation().getResourceURL().toString());
+            parameters.put("bannerpath", backgroundAsset.getResourceLocation().getResourceURL().toString());
             JasperPrint jasperPrint = getJasperReportContext().getJasperPrint(getJasperPath(),
                     getReportParameters(), getReportData());
 
