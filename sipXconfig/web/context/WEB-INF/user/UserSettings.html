@@ -2,9 +2,6 @@
   <span jwcid="@user/UserNavigation" bean="ognl:user" activeSetting="ognl:parentSetting">
     <span jwcid="@Insert" value="ognl:parentSettingDescription"/>
   </span>
-  <h3>
-    <label jwcid="@Insert" value="ognl:parentSettingLabel"/>
-  </h3>
   <span jwcid="@common/ErrorMsg"></span>
   <form jwcid="userSettings@Form" delegate="bean:validator">
 	<fieldset>
@@ -13,7 +10,7 @@
 	</span>
 	<span jwcid="@Else" renderTag="false">
 	<span jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting"
-		requiredEnabled="requiredEnabled" renderGroupTitle="ognl:false"/>
+		requiredEnabled="requiredEnabled" />
 	</span>
     </fieldset>
       <ul jwcid="@common/FormActions"
