@@ -1234,11 +1234,11 @@ public:
     // specific to SIP authorization (i.e. authentication and authorize
     // fields may be in either requests or responses
     UtlBoolean verifyMd5Authorization(const char* userId,
-                                                 const char* password,
-                                                 const char* nonce,
-                                                 const char* realm,
-                                                 const char* uri = NULL,
-                                                 enum HttpEndpointEnum authEntity = SERVER) const;
+                                      const char* password,
+                                      const char* nonce,
+                                      const char* realm,
+                                      const char* uri = NULL,
+                                      enum HttpEndpointEnum authEntity = SERVER) const;
 
     //! @name DNS SRV state accessors
     /*! \note this will be deprecated

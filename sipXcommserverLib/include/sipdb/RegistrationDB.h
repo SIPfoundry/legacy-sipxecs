@@ -98,10 +98,25 @@ public:
 
     /// Return all contacts for 'uri' whose expirations are >= 'timeNow'.
     //  Used to generate lookup responses.
-    void getUnexpiredContacts ( const Url& uri
-                               ,const int& timeNow
-                               ,ResultSet& rResultSet
-                               ) const;
+    void getUnexpiredContactsUser ( const Url& uri
+                                   ,const int& timeNow
+                                   ,ResultSet& rResultSet
+                                   ) const;
+
+    /// Return all contacts for 'instrument' whose expirations are >= 'timeNow'.
+    //  Used to generate lookup responses.
+    void getUnexpiredContactsInstrument ( const char* instrument
+                                         ,const int& timeNow
+                                         ,ResultSet& rResultSet
+                                         ) const;
+
+    /// Return all contacts for 'uri' and 'instrument' whose expirations are >= 'timeNow'.
+    //  Used to generate lookup responses.
+    void getUnexpiredContactsUserInstrument ( const Url& uri
+                                             ,const char* instrument
+                                             ,const int& timeNow
+                                             ,ResultSet& rResultSet
+                                             ) const;
 
     /// Return a list of contact fields that are unexpired and contain a specified substring.
     /// The caller is responsible for de-allocating the memory for the entries contained in the
@@ -125,6 +140,7 @@ public:
                        ,const UtlString& path
                        ,const UtlString& primary
                        ,const Int64& update_number
+                       ,const UtlString& instrument
                        );
 
     /// expireAllBindings for this URI as of 1 second before timeNow
@@ -146,10 +162,14 @@ public:
                            );
 
     /// Get all bindings expiring before newerThanTime.
-    void getAllOldBindings (/// Get bindings expiring before newerThanTime
-                            int newerThanTime,
-                            /// Return their AORs (name-addrs) in rAors.
-                            UtlHashBag& rAors) const;
+    void getAllOldBindings(/// Get bindings expiring before newerThanTime
+                           int newerThanTime,
+                           /** Return their AORs (as name-addr UtlString's) and
+                            *  their instrument values (as UtlString's)
+                            *  as pairs of elements in a list.
+                            *  The UtlString's are owned by rAors.
+                            */
+                           UtlSList& rAors) const;
 
     void removeAllRows ();
 
@@ -202,6 +222,9 @@ public:
 
     // The DbUpdateNumber of the last modification to this entry
     static const UtlString gUpdateNumberKey;
+
+    // The instrument identification token of this registration
+    static const UtlString gInstrumentKey;
 
     //==========================================================================
 

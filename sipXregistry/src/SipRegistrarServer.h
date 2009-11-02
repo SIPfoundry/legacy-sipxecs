@@ -156,6 +156,8 @@ protected:
     RegisterStatus applyRegisterToDirectory(
         const Url& toUrl,  /**< To header name-addr from the message,
                             *   which contains the AOR to register to. */
+        const UtlString& instrument,
+                           ///< instrument value to add to bindings
         const int timeNow, ///< base time for all expiration calculations
         const SipMessage& registerMessage, ///< message containing bindings
         RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration
@@ -178,6 +180,8 @@ protected:
 
     /// Check authentication for REGISTER request
     UtlBoolean isAuthorized(const Url& toUri, ///< AOR from the message
+                            UtlString& instrument,
+                            ///< (out) the instrument value found in the authentication header
                             const SipMessage& message, ///< REGISTER message
                             SipMessage& responseMessage /// response for challenge
                             );

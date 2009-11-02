@@ -60,7 +60,7 @@ public abstract class RegistrationsTable extends BaseComponent {
 
     public String getColumnNames() {
         IBinding displayPrimary = getBinding("displayPrimary");
-        StringBuilder columnNames = new StringBuilder("uri,contact,expires");
+        StringBuilder columnNames = new StringBuilder("uri,contact,expires,instrument");
         if (displayPrimary != null && displayPrimary.getObject().equals(Boolean.TRUE)) {
             columnNames.append(",primary");
         }

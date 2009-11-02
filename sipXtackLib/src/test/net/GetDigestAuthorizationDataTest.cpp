@@ -13,6 +13,7 @@
 
 #include <net/HttpMessage.h>
 #include <net/NameValuePair.h>
+#include <net/SipMessage.h>
 
 class GetDigestAuthorizationDataTest : public CppUnit::TestCase
 {
@@ -26,10 +27,15 @@ class GetDigestAuthorizationDataTest : public CppUnit::TestCase
     CPPUNIT_TEST(testServerOneHeader);
     CPPUNIT_TEST(testServerTwoHeaders);
     CPPUNIT_TEST(testServerOneHeaderWithAuthorizationHeader);
+    CPPUNIT_TEST(testServerWithInstrument);
     CPPUNIT_TEST_SUITE_END();
 
    #define AUTHVALUE1 "Digest username=\"111\", realm=\"example.com\", nonce=\"606a7e9c58258179f966b0987a1bf38d1114527548\", uri=\"sip:111@example.com\", response=\"feaa478e10ee7d3ef6037746696bace6\", opaque=\"change4\""
    #define AUTHVALUE2 "Digest username=\"222\", realm=\"example.com\", nonce=\"606a7e9c58258279f966b0987a2bf38d2224527548\", uri=\"sip:222@example.com\", response=\"feaa478e20ee7d3ef6037746696bace6\", opaque=\"change4\""
+   // username contains instrument indicator.
+   #define AUTHVALUE3 "Digest username=\"111/foobar\", realm=\"example.com\", nonce=\"606a7e9c58258179f966b0987a1bf38d1114527548\", uri=\"sip:111@example.com\", response=\"feaa478e10ee7d3ef6037746696bace6\", opaque=\"change4\""
+   // base user name contains '/'.
+   #define AUTHVALUE4 "Digest username=\"Joe/111/foobar\", realm=\"example.com\", nonce=\"606a7e9c58258179f966b0987a1bf38d1114527548\", uri=\"sip:111@example.com\", response=\"feaa478e10ee7d3ef6037746696bace6\", opaque=\"change4\""
 
    UtlBoolean result;
    UtlString user;
@@ -38,6 +44,7 @@ class GetDigestAuthorizationDataTest : public CppUnit::TestCase
    UtlString opaque;
    UtlString response;
    UtlString uri;
+   UtlString instrument;
 
 public:
     void testMissingValues()
@@ -386,6 +393,77 @@ public:
                                                       HttpMessage::SERVER,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
+      }
+   void testServerWithInstrument()
+      {
+         const char* msg;
+         HttpMessage *message;
+         UtlString user;
+         UtlString user_base;
+         UtlString instrument;
+
+         // Instrument value is not present.
+         msg = 
+            "INVITE sip:14@example.com SIP/2.0\r\n"
+            "Content-Type: application/sdp\r\n"
+            "Content-Length : 0\r\n"
+            "Authorization: " AUTHVALUE1 "\r\n"
+            "\r\n";
+         message = new HttpMessage(msg);
+         result = message->getDigestAuthorizationData(&user,
+                                                      NULL, 
+                                                      NULL, 
+                                                      NULL,
+                                                      NULL,
+                                                      NULL,
+                                                      HttpMessage::SERVER,
+                                                      0,
+                                                      &user_base,
+                                                      &instrument);
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for user_base", user_base.data(), "111");
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for instrument", instrument.data(), "");
+         
+         // Instrument value is present.
+         msg = 
+            "INVITE sip:14@example.com SIP/2.0\r\n"
+            "Content-Type: application/sdp\r\n"
+            "Content-Length : 0\r\n"
+            "Authorization: " AUTHVALUE3 "\r\n"
+            "\r\n";
+         message = new HttpMessage(msg);
+         result = message->getDigestAuthorizationData(&user,
+                                                      NULL, 
+                                                      NULL, 
+                                                      NULL,
+                                                      NULL,
+                                                      NULL,
+                                                      HttpMessage::SERVER,
+                                                      0,
+                                                      &user_base,
+                                                      &instrument);
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for user_base", user_base.data(), "111");
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for instrument", instrument.data(), "foobar");
+
+         // User base value contains '/'.
+         msg = 
+            "INVITE sip:14@example.com SIP/2.0\r\n"
+            "Content-Type: application/sdp\r\n"
+            "Content-Length : 0\r\n"
+            "Authorization: " AUTHVALUE4 "\r\n"
+            "\r\n";
+         message = new HttpMessage(msg);
+         result = message->getDigestAuthorizationData(&user,
+                                                      NULL, 
+                                                      NULL, 
+                                                      NULL,
+                                                      NULL,
+                                                      NULL,
+                                                      HttpMessage::SERVER,
+                                                      0,
+                                                      &user_base,
+                                                      &instrument);
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for user_base", user_base.data(), "Joe/111");
+         ASSERT_STR_EQUAL_MESSAGE("wrong value for instrument", instrument.data(), "foobar");
       }
 };
 

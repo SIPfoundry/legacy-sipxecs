@@ -981,6 +981,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
 {
    UtlBoolean authenticated = FALSE;
    UtlString requestUser;
+   UtlString requestUserBase;
    UtlString requestRealm;
    UtlString requestNonce;
    UtlString requestUri;
@@ -1008,7 +1009,8 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                                                    NULL,
                                                    &requestUri,
                                                    HttpMessage::PROXY,
-                                                   requestAuthIndex)
+                                                   requestAuthIndex,
+                                                   &requestUserBase)
           );
          requestAuthIndex++
         )
@@ -1028,7 +1030,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
             UtlString passTokenDB;
 
             // then get the credentials for this user and realm
-            if(CredentialDB::getInstance()->getCredential(requestUser,
+            if(CredentialDB::getInstance()->getCredential(requestUserBase,
                                                           mRealm,
                                                           userUrl,
                                                           passTokenDB,

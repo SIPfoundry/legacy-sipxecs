@@ -38,7 +38,8 @@ RegistrationBinding::RegistrationBinding() :
    mCseq(0),
    mExpires(0),
    mPrimary(NULL),
-   mUpdateNumber(0)
+   mUpdateNumber(0),
+   mInstrument(NULL)
 {
 }
 
@@ -55,7 +56,8 @@ RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
    mCseq(0),
    mExpires(0),
    mPrimary(NULL),
-   mUpdateNumber(0)
+   mUpdateNumber(0),
+   mInstrument(NULL)
 {
    UtlString* identityStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gIdentityKey));
    if (identityStr)
@@ -117,6 +119,11 @@ RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
    {
       setUpdateNumber(updateNumber->getValue());
    }
+   UtlString* instrumentStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gInstrumentKey));
+   if (instrumentStr)
+   {
+      setInstrument(*instrumentStr);
+   }
 }
 
 RegistrationBinding::~RegistrationBinding()
@@ -130,6 +137,7 @@ RegistrationBinding::~RegistrationBinding()
    delete mGruu;
    delete mPath;
    delete mPrimary;
+   delete mInstrument;
 }
 
 void RegistrationBinding::copy(UtlHashMap& map) const
@@ -211,6 +219,13 @@ void RegistrationBinding::copy(UtlHashMap& map) const
       UtlString* gruuKey = new UtlString(RegistrationDB::gGruuKey);
       UtlString* gruuValue = new UtlString(*mGruu);
       map.insertKeyAndValue(gruuKey, gruuValue);
+   }
+
+   if (mInstrument)
+   {
+      UtlString* instrumentKey = new UtlString(RegistrationDB::gInstrumentKey);
+      UtlString* instrumentValue = new UtlString(*mInstrument);
+      map.insertKeyAndValue(instrumentKey, instrumentValue);
    }
 
    UtlString* updateNumberKey = new UtlString(RegistrationDB::gUpdateNumberKey);
@@ -413,6 +428,22 @@ void RegistrationBinding::setUpdateNumber(Int64 updateNumber)
 void RegistrationBinding::setUpdateNumber(const UtlString& updateNumber)
 {
    mUpdateNumber = strtoll(updateNumber, 0, 0);
+}
+
+const UtlString* RegistrationBinding::getInstrument() const
+{
+   return mInstrument;
+}
+void RegistrationBinding::setInstrument(const UtlString& instrument)
+{
+   if (mInstrument)
+   {
+      *mInstrument = instrument;
+   }
+   else
+   {
+      mInstrument = new UtlString(instrument);
+   }
 }
 
 UtlContainableType RegistrationBinding::getContainableType() const

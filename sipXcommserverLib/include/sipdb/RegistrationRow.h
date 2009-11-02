@@ -42,6 +42,7 @@ public:
     int4 expires;             // Absolute expiration time, seconds since 1/1/1970
     const char* primary;      // The name of the Primary Registrar for this registration
     db_int8 update_number;    // The DbUpdateNumber of the last modification to this entry
+    const char* instrument;
     TYPE_DESCRIPTOR (
       ( KEY(np_identity, INDEXED),
         KEY(callid, HASHED),
@@ -58,7 +59,8 @@ public:
         FIELD(instance_id),
         FIELD(gruu),
         FIELD(path),
-        FIELD(update_number)
+        FIELD(update_number),
+        FIELD(instrument)
       )
     );
 };

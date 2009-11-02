@@ -393,6 +393,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
    // We need the user credentials, and a signed nonce like the one
    //    the status server would have generated to challenge this phone.
    UtlString user;
+   UtlString userBase;
    UtlString realm;
    UtlString registrationNonce;
    UtlString opaque;
@@ -405,6 +406,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
                                                    ,&opaque // passed through to aid debugging
                                                    ,NULL, NULL // response & authUri not used
                                                    ,HttpMessage::SERVER, 0
+                                                   ,&userBase
                                                    )
        )
    {
@@ -412,7 +414,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
       UtlString passToken;
       UtlString authType;
 
-      if (CredentialDB::getInstance()->getCredential( user, realm, subscribeUser
+      if (CredentialDB::getInstance()->getCredential( userBase, realm, subscribeUser
                                                      ,passToken, authType
                                                      )
           )
@@ -432,9 +434,19 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
          //                                               ,clientNonce
          //                               );
 
+         // Construct A1
+         UtlString a1Buffer;
+         UtlString encodedA1;
+         a1Buffer.append(user);
+         a1Buffer.append(':');
+         a1Buffer.append(realm);
+         a1Buffer.append(':');
+         a1Buffer.append(passToken);
+         NetMd5Codec::encode(a1Buffer.data(), encodedA1);
+
          // Sign the message
          UtlString responseHash;
-         HttpMessage::buildMd5Digest(passToken.data(),
+         HttpMessage::buildMd5Digest(encodedA1.data(),
                                      HTTP_MD5_ALGORITHM,
                                      serverNonce.data(),
                                      NULL, // client nonce
@@ -447,7 +459,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
                                      );
 
          subscribeRequest.removeHeader( HTTP_AUTHORIZATION_FIELD, 0);
-         subscribeRequest.setDigestAuthorizationData(user.data(),
+         subscribeRequest.setDigestAuthorizationData(userBase.data(),
                                                      realm.data(),
                                                      serverNonce.data(),
                                                      fromUri.data(),
@@ -466,7 +478,7 @@ void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
          OsSysLog::add( FAC_SIP, PRI_WARNING,
                        "%s implied subscription request not authenticated:\n"
                        "   no credentials found for \"%s\"",
-                       mLogName.data(), user.data());
+                       mLogName.data(), userBase.data());
       }
    }
    else

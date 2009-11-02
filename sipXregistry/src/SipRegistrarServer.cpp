@@ -19,7 +19,8 @@
 #include "os/OsEventMsg.h"
 #include "utl/UtlRegex.h"
 #include "utl/PluginHooks.h"
-#include "utl/UtlHashBagIterator.h"
+#include "utl/UtlSList.h"
+#include "utl/UtlSListIterator.h"
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
@@ -286,6 +287,7 @@ void SipRegistrarServer::setDbUpdateNumber(Int64 dbUpdateNumber)
 /// those checks, applies the requested changes.
 SipRegistrarServer::RegisterStatus
 SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
+                                             ,const UtlString& instrument
                                              ,const int timeNow
                                              ,const SipMessage& registerMessage
                                              ,RegistrationExpiryIntervals*& pExpiryIntervals
@@ -691,6 +693,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,pathValue
                                                 ,primaryName()
                                                 ,mDbUpdateNumber
+                                                ,instrument
                                                 );
 
                         } // iterate over good contact entries
@@ -725,7 +728,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                        // registerToStr is only the identity part.
                        UtlString aorString;
                        toUrl.getUri(aorString);
-                       s->generateAndPublishContent(aorString, toUrl);
+                       s->generateAndPublishContent(aorString, toUrl, instrument);
                     }
 
                     // something changed - garbage collect and persist the database
@@ -970,7 +973,7 @@ Int64 SipRegistrarServer::updateOneBinding(
          const Url* aor = reg->getUri();
          UtlString aor_string;
          aor->getUri(aor_string);
-         s->generateAndPublishContent(aor_string, *aor);
+         s->generateAndPublishContent(aor_string, *aor, *reg->getInstrument());
       }
    }
 
@@ -1059,7 +1062,8 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            }
 
            // check in credential database if authentication needed
-           if ( isAuthorized( toUri, message, finalResponse ) )
+           UtlString instrument; // the instrument value from the authentication user name
+           if ( isAuthorized( toUri, instrument, message, finalResponse ) )
             {
                 int port;
                 int tagNum = 0;
@@ -1075,7 +1079,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                 int timeNow = (int)OsDateTime::getSecsSinceEpoch();
                 RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
                 RegisterStatus applyStatus
-                   = applyRegisterToDirectory( toUri, timeNow, message, pExpiryIntervalsUsed );
+                   = applyRegisterToDirectory( toUri, instrument,
+                                               timeNow, message,
+                                               pExpiryIntervalsUsed );
 
                 switch (applyStatus)
                 {
@@ -1095,10 +1101,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         //get all current contacts now for the response
                         ResultSet registrations;
 
-                        mRegistrar.getRegistrationDB()->getUnexpiredContacts(toUri,
-                                                                             timeNow,
-                                                                             registrations
-                           );
+                        mRegistrar.getRegistrationDB()->
+                           getUnexpiredContactsUser(toUri,
+                                                    timeNow,
+                                                    registrations);
 
                         bool requestSupportsGruu =
                            message.isInSupportedField("gruu");
@@ -1394,6 +1400,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 UtlBoolean
 SipRegistrarServer::isAuthorized(
     const Url&  toUri,
+    UtlString& instrument,
     const SipMessage& message,
     SipMessage& responseMessage )
 {
@@ -1422,10 +1429,11 @@ SipRegistrarServer::isAuthorized(
                        fromNameAddr.toString().data(), toUri.toString().data(),
                        mRealm.data() );
 
-        UtlString requestNonce, requestRealm, requestUser, uriParam;
+        UtlString requestNonce, requestRealm, requestUser, requestUserBase, uriParam;
         int requestAuthIndex = 0;
         UtlString callId;
         UtlString fromTag;
+        // 'instrument' is a parameter of this method.
 
         message.getCallIdField(&callId);
         fromNameAddr.getFieldParameter("tag", fromTag);
@@ -1434,11 +1442,14 @@ SipRegistrarServer::isAuthorized(
                && message.getDigestAuthorizationData(
                    &requestUser, &requestRealm, &requestNonce,
                    NULL, NULL, &uriParam,
-                   HttpMessage::SERVER, requestAuthIndex)
+                   HttpMessage::SERVER, requestAuthIndex,
+                   &requestUserBase, &instrument)
                )
         {
            OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
-                    "reqRealm='%s', reqUser='%s'", requestRealm.data() , requestUser.data());
+                    "reqRealm='%s', reqUser='%s', reqUserBase='%s', instrument='%s'",
+                          requestRealm.data() , requestUser.data(),
+                          requestUserBase.data(), instrument.data());
 
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
@@ -1460,7 +1471,7 @@ SipRegistrarServer::isAuthorized(
                     // then get the credentials for this user & realm
                     if (CredentialDB::getInstance()->getCredential( toUri
                                                                    ,requestRealm
-                                                                   ,requestUser
+                                                                   ,requestUserBase
                                                                    ,passTokenDB
                                                                    ,authTypeDB
                                                                    ))
@@ -1481,8 +1492,11 @@ SipRegistrarServer::isAuthorized(
                         {
                           OsSysLog::add(FAC_AUTH, PRI_ERR,
                                         "Response auth hash does not match (bad password?)"
-                                        " toUri='%s' requestUser='%s'",
-                                        toUri.toString().data(), requestUser.data());
+                                        " toUri='%s' requestUser='%s' requestNonce='%s' uriParam='%s'",
+                                        toUri.toString().data(),
+                                        requestUser.data(),
+                                        requestNonce.data(),
+                                        uriParam.data());
                         }
                     }
                     else // failed to get credentials
@@ -1518,6 +1532,8 @@ SipRegistrarServer::isAuthorized(
                                                     newNonce, NULL // opaque
                                                     );
 
+            // Clear instrument, which may have been set.
+            instrument.remove(0);
         }
     }
     return isAuthorized;
@@ -1587,35 +1603,40 @@ void SipRegistrarServer::scheduleCleanAndPersist()
 /// Garbage-collect and persist the registration database
 void SipRegistrarServer::cleanAndPersist()
 {
-   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+   RegistrationDB* regDb = mRegistrar.getRegistrationDB();
    int timeNow = (int)OsDateTime::getSecsSinceEpoch();
    int oldestTimeToKeep = timeNow - (  mNormalExpiryIntervals.mMaxExpiresTime < MAX_RETENTION_TIME
                                      ? mNormalExpiryIntervals.mMaxExpiresTime : MAX_RETENTION_TIME );
 
-   // Send reg event notices any expired rows, including the rows we
+   // Send reg event notices for any expired rows, including the rows we
    // are about to delete.  It's possible that there hasn't been a
    // notify telling that they're terminated yet, and we have to make
    // sure to generate one before the row is deleted.
    RegisterEventServer* s = mRegistrar.getRegisterEventServer();
    if (s)
    {
-      UtlHashBag aors;          // AOR name-addrs of the expired bindings.
-      imdb->getAllOldBindings(timeNow, aors);
-      UtlHashBagIterator itor(aors);
+      UtlSList aors;          // AOR name-addrs of the expired bindings.
+      regDb->getAllOldBindings(timeNow, aors);
+      UtlSListIterator itor(aors);
       UtlString* aor;
+      UtlString* instrument;
       while ((aor = dynamic_cast <UtlString*> (itor())))
       {
          Url aor_uri(*aor, FALSE); // Parse name-addr format.
          UtlString aor_addr;
          aor_uri.getUri(aor_addr); // Generate addr-spec (URI) format.
-         s->generateAndPublishContent(aor_addr, aor_uri);
+         instrument = dynamic_cast <UtlString*> (itor());
+         s->generateAndPublishContent(aor_addr, aor_uri, *instrument);
       }
+
+      // Free the strings.
+      aors.destroyAll();
    }
 
-   // Critical Section here
+   // Critical section here
    OsLock lock(sLockMutex);
 
-   imdb->cleanAndPersist(oldestTimeToKeep);
+   regDb->cleanAndPersist(oldestTimeToKeep);
 }
 
 /// Get the largest update number in the local database for this registrar as primary

@@ -101,6 +101,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/fallbackrules.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/reg-instrument.xsd
 
 %files devel
 %defattr(644,root,root,755)

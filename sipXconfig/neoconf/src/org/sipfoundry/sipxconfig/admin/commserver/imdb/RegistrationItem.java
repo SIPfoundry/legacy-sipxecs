@@ -16,6 +16,7 @@ public class RegistrationItem implements Comparable {
     private String m_contact;
     private long m_expires;
     private String m_primary;
+    private String m_instrument;
 
     public String getContact() {
         return m_contact;
@@ -47,6 +48,14 @@ public class RegistrationItem implements Comparable {
 
     public void setPrimary(String primary) {
         m_primary = primary;
+    }
+
+    public String getInstrument() {
+        return m_instrument;
+    }
+
+    public void setInstrument(String instrument) {
+        m_instrument = instrument;
     }
 
     public int compareTo(Object other) {

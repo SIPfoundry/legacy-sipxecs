@@ -81,6 +81,7 @@ const UtlString RegistrationDB::gCseqKey("cseq");
 const UtlString RegistrationDB::gExpiresKey("expires");
 const UtlString RegistrationDB::gPrimaryKey("primary");
 const UtlString RegistrationDB::gUpdateNumberKey("update_number");
+const UtlString RegistrationDB::gInstrumentKey("instrument");
 
 const UtlString RegistrationDB::nullString("");
 const UtlString RegistrationDB::percent("%");
@@ -443,6 +444,8 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
     UtlString* path = (UtlString*) nvPairs.findValue(&gPathKey);
     UtlString* primary = (UtlString*) nvPairs.findValue(&gPrimaryKey);
 
+    UtlString* instrument = (UtlString*) nvPairs.findValue(&gInstrumentKey);
+
     // Note: identity inferred from the uri
     updateBinding(
        Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
@@ -455,7 +458,8 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
        gruu ? *gruu : nullString,
        path ? *path : nullString,
        primary ? *primary : nullString,
-       updateNumber
+       updateNumber,
+       instrument ? *instrument : nullString
        );
 }
 
@@ -473,7 +477,8 @@ RegistrationDB::updateBinding(const RegistrationBinding& reg)
                  *(reg.getGruu() ? reg.getGruu() : &nullString),
                  *(reg.getPath() ? reg.getPath() : &nullString),
                  *(reg.getPrimary() ? reg.getPrimary() : &nullString),
-                 reg.getUpdateNumber());
+                 reg.getUpdateNumber(),
+                 *(reg.getInstrument() ? reg.getInstrument() : &nullString));
 }
 
 
@@ -489,6 +494,7 @@ RegistrationDB::updateBinding( const Url& uri
                               ,const UtlString& path
                               ,const UtlString& primary
                               ,const Int64& update_number
+                              ,const UtlString& instrument
                               )
 {
     UtlString identity;
@@ -533,6 +539,7 @@ RegistrationDB::updateBinding( const Url& uri
                 row.path          = path;
                 row.primary       = primary;
                 row.update_number = update_number;
+                row.instrument    = instrument;
                 insert (row);
                 break;
 
@@ -548,6 +555,7 @@ RegistrationDB::updateBinding( const Url& uri
                 cursor->path          = path;
                 cursor->primary       = primary;
                 cursor->update_number = update_number;
+                cursor->instrument    = instrument;
                 cursor.update();
                 break;
         }
@@ -718,6 +726,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
                 UtlString* qvalueValue = new UtlString(cursor->qvalue);
                 UtlString* primaryValue = new UtlString(cursor->primary);
                 UtlLongLongInt* updateNumberValue = new UtlLongLongInt(cursor->update_number);
+                UtlString* instrumentValue = new UtlString(cursor->instrument);
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey = new UtlString(gUriKey);
@@ -728,6 +737,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
                 UtlString* qvalueKey = new UtlString(gQvalueKey);
                 UtlString* primaryKey = new UtlString(gPrimaryKey);
                 UtlString* updateNumberKey = new UtlString(gUpdateNumberKey);
+                UtlString* instrumentKey = new UtlString(gInstrumentKey);
 
                 record.insertKeyAndValue(uriKey, uriValue);
                 record.insertKeyAndValue(callidKey, callidValue);
@@ -737,6 +747,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
                 record.insertKeyAndValue(qvalueKey, qvalueValue);
                 record.insertKeyAndValue(primaryKey, primaryValue);
                 record.insertKeyAndValue(updateNumberKey, updateNumberValue);
+                record.insertKeyAndValue(instrumentKey, instrumentValue);
 
                 rResultSet.addValue(record);
             } while (cursor.next());
@@ -879,7 +890,7 @@ RegistrationDB::getUpdatesForRegistrar(dbQuery&  query,
 }
 
 void
-RegistrationDB::getUnexpiredContacts (
+RegistrationDB::getUnexpiredContactsUser (
    const Url& uri,
    const int& timeNow,
    ResultSet& rResultSet) const
@@ -896,7 +907,7 @@ RegistrationDB::getUnexpiredContacts (
         dbCursor< RegistrationRow > cursor;
         dbQuery query;
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "RegistrationDB::getUnexpiredContacts "
+                      "RegistrationDB::getUnexpiredContactsUser "
                       "identity = '%s'",
                       identity.data());
         if (strncmp(identity.data(), GRUU_PREFIX,
@@ -907,7 +918,7 @@ RegistrationDB::getUnexpiredContacts (
            search_string.append(";" SIP_GRUU_URI_PARAM);
            query="gruu=",search_string," and expires>",timeNow;
            OsSysLog::add(FAC_DB, PRI_DEBUG,
-                         "RegistrationDB::getUnexpiredContacts "
+                         "RegistrationDB::getUnexpiredContactsUser "
                          "recognized GRUU, searching for '%s'",
                          search_string.data());
         }
@@ -935,12 +946,14 @@ RegistrationDB::getUnexpiredContacts (
                 UtlString* instanceIdValue = new UtlString(cursor->instance_id);
                 UtlString* gruuValue = new UtlString(cursor->gruu);
                 UtlString* pathValue = new UtlString(cursor->path);
+                UtlString* instrumentValue = new UtlString(cursor->instrument);
                 OsSysLog::add(FAC_DB, PRI_DEBUG,
-                              "RegistrationDB::getUnexpiredContacts Record found "
+                              "RegistrationDB::getUnexpiredContactsUser Record found "
                               "uri = '%s', contact = '%s', instance_id = '%s', "
-                              "gruu = '%s', path = '%s'",
+                              "gruu = '%s', path = '%s', instrument = '%s'",
                               uriValue->data(), contactValue->data(),
-                              instanceIdValue->data(), gruuValue->data(), pathValue->data());
+                              instanceIdValue->data(), gruuValue->data(),
+                              pathValue->data(), instrumentValue->data());
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey = new UtlString(gUriKey);
@@ -955,6 +968,7 @@ RegistrationDB::getUnexpiredContacts (
                 UtlString* instanceIdKey = new UtlString(gInstanceIdKey);
                 UtlString* gruuKey = new UtlString(gGruuKey);
                 UtlString* pathKey = new UtlString(gPathKey);
+                UtlString* instrumentKey = new UtlString(gInstrumentKey);
 
                 record.insertKeyAndValue(uriKey, uriValue);
                 record.insertKeyAndValue(callidKey, callidValue);
@@ -964,10 +978,10 @@ RegistrationDB::getUnexpiredContacts (
                 record.insertKeyAndValue(qvalueKey, qvalueValue);
                 record.insertKeyAndValue(primaryKey, primaryValue);
                 record.insertKeyAndValue(updateNumberKey, updateNumberValue);
-
                 record.insertKeyAndValue(instanceIdKey, instanceIdValue);
                 record.insertKeyAndValue(gruuKey, gruuValue);
                 record.insertKeyAndValue(pathKey, pathValue);
+                record.insertKeyAndValue(instrumentKey, instrumentValue);
 
                 rResultSet.addValue(record);
 
@@ -976,7 +990,191 @@ RegistrationDB::getUnexpiredContacts (
     }
     else
     {
-       OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getUnexpiredContacts failed - no DB");
+       OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getUnexpiredContactsUser failed - no DB");
+    }
+}
+
+void
+RegistrationDB::getUnexpiredContactsInstrument (
+   const char* instrument,
+   const int& timeNow,
+   ResultSet& rResultSet) const
+{
+    // Clear the results
+    rResultSet.destroyAll();
+
+    // An empty instrument specification has no contacts, by specification.
+    if ( instrument && instrument[0] != '\0' && ( m_pFastDB != NULL) )
+    {
+        SMART_DB_ACCESS;
+        dbCursor< RegistrationRow > cursor;
+        dbQuery query;
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "RegistrationDB::getUnexpiredContactsInstrument "
+                      "instrument = '%s'",
+                      instrument);
+
+        // Search for contacts using the instrument column.
+        query="instrument=",instrument," and expires>",timeNow;
+
+        if ( cursor.select(query) > 0 )
+        {
+            // Copy all the unexpired contacts into the result hash
+            do
+            {
+                UtlHashMap record;
+                UtlString* uriValue = new UtlString(cursor->uri);
+                UtlString* callidValue = new UtlString(cursor->callid);
+                UtlString* contactValue = new UtlString(cursor->contact);
+                UtlInt* expiresValue = new UtlInt(cursor->expires);
+                UtlInt* cseqValue = new UtlInt(cursor->cseq);
+                UtlString* qvalueValue = new UtlString(cursor->qvalue);
+                UtlString* primaryValue = new UtlString(cursor->primary);
+                UtlLongLongInt* updateNumberValue = new UtlLongLongInt(cursor->update_number);
+
+                UtlString* instanceIdValue = new UtlString(cursor->instance_id);
+                UtlString* gruuValue = new UtlString(cursor->gruu);
+                UtlString* pathValue = new UtlString(cursor->path);
+                UtlString* instrumentValue = new UtlString(cursor->instrument);
+                OsSysLog::add(FAC_DB, PRI_DEBUG,
+                              "RegistrationDB::getUnexpiredContactsInstrument Record found "
+                              "uri = '%s', contact = '%s', instance_id = '%s', "
+                              "gruu = '%s', path = '%s', instrument = '%s'",
+                              uriValue->data(), contactValue->data(),
+                              instanceIdValue->data(), gruuValue->data(),
+                              pathValue->data(), instrumentValue->data());
+
+                // Memory Leak fixes, make shallow copies of static keys
+                UtlString* uriKey = new UtlString(gUriKey);
+                UtlString* callidKey = new UtlString(gCallidKey);
+                UtlString* contactKey = new UtlString(gContactKey);
+                UtlString* expiresKey = new UtlString(gExpiresKey);
+                UtlString* cseqKey = new UtlString(gCseqKey);
+                UtlString* qvalueKey = new UtlString(gQvalueKey);
+                UtlString* primaryKey = new UtlString(gPrimaryKey);
+                UtlString* updateNumberKey = new UtlString(gUpdateNumberKey);
+
+                UtlString* instanceIdKey = new UtlString(gInstanceIdKey);
+                UtlString* gruuKey = new UtlString(gGruuKey);
+                UtlString* pathKey = new UtlString(gPathKey);
+                UtlString* instrumentKey = new UtlString(gInstrumentKey);
+
+                record.insertKeyAndValue(uriKey, uriValue);
+                record.insertKeyAndValue(callidKey, callidValue);
+                record.insertKeyAndValue(contactKey, contactValue);
+                record.insertKeyAndValue(expiresKey, expiresValue);
+                record.insertKeyAndValue(cseqKey, cseqValue);
+                record.insertKeyAndValue(qvalueKey, qvalueValue);
+                record.insertKeyAndValue(primaryKey, primaryValue);
+                record.insertKeyAndValue(updateNumberKey, updateNumberValue);
+                record.insertKeyAndValue(instanceIdKey, instanceIdValue);
+                record.insertKeyAndValue(gruuKey, gruuValue);
+                record.insertKeyAndValue(pathKey, pathValue);
+                record.insertKeyAndValue(instrumentKey, instrumentValue);
+
+                rResultSet.addValue(record);
+
+            } while ( cursor.next() );
+        }
+    }
+    else
+    {
+       OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getUnexpiredContactsInstrument failed - no DB");
+    }
+}
+
+void
+RegistrationDB::getUnexpiredContactsUserInstrument (
+   const Url& uri,
+   const char* instrument,
+   const int& timeNow,
+   ResultSet& rResultSet) const
+{
+    // Clear the results
+    rResultSet.destroyAll();
+
+    UtlString identity;
+    uri.getIdentity( identity );
+
+    if ( !identity.isNull() &&
+         // An empty instrument specification has no contacts, by specification.
+         instrument && instrument[0] != '\0' &&
+         ( m_pFastDB != NULL) )
+    {
+        SMART_DB_ACCESS;
+        dbCursor< RegistrationRow > cursor;
+        dbQuery query;
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                      "RegistrationDB::getUnexpiredContactsUserInstrument "
+                      "identity = '%s' instrument = '%s'",
+                      identity.data(), instrument);
+
+        // Search for contacts using the instrument column.
+        query="np_identity=",identity," and instrument=",instrument," and expires>",timeNow;
+
+        if ( cursor.select(query) > 0 )
+        {
+            // Copy all the unexpired contacts into the result hash
+            do
+            {
+                UtlHashMap record;
+                UtlString* uriValue = new UtlString(cursor->uri);
+                UtlString* callidValue = new UtlString(cursor->callid);
+                UtlString* contactValue = new UtlString(cursor->contact);
+                UtlInt* expiresValue = new UtlInt(cursor->expires);
+                UtlInt* cseqValue = new UtlInt(cursor->cseq);
+                UtlString* qvalueValue = new UtlString(cursor->qvalue);
+                UtlString* primaryValue = new UtlString(cursor->primary);
+                UtlLongLongInt* updateNumberValue = new UtlLongLongInt(cursor->update_number);
+
+                UtlString* instanceIdValue = new UtlString(cursor->instance_id);
+                UtlString* gruuValue = new UtlString(cursor->gruu);
+                UtlString* pathValue = new UtlString(cursor->path);
+                UtlString* instrumentValue = new UtlString(cursor->instrument);
+                OsSysLog::add(FAC_DB, PRI_DEBUG,
+                              "RegistrationDB::getUnexpiredContactsUserInstrument Record found "
+                              "uri = '%s', contact = '%s', instance_id = '%s', "
+                              "gruu = '%s', path = '%s', instrument = '%s'",
+                              uriValue->data(), contactValue->data(),
+                              instanceIdValue->data(), gruuValue->data(),
+                              pathValue->data(), instrumentValue->data());
+
+                // Memory Leak fixes, make shallow copies of static keys
+                UtlString* uriKey = new UtlString(gUriKey);
+                UtlString* callidKey = new UtlString(gCallidKey);
+                UtlString* contactKey = new UtlString(gContactKey);
+                UtlString* expiresKey = new UtlString(gExpiresKey);
+                UtlString* cseqKey = new UtlString(gCseqKey);
+                UtlString* qvalueKey = new UtlString(gQvalueKey);
+                UtlString* primaryKey = new UtlString(gPrimaryKey);
+                UtlString* updateNumberKey = new UtlString(gUpdateNumberKey);
+
+                UtlString* instanceIdKey = new UtlString(gInstanceIdKey);
+                UtlString* gruuKey = new UtlString(gGruuKey);
+                UtlString* pathKey = new UtlString(gPathKey);
+                UtlString* instrumentKey = new UtlString(gInstrumentKey);
+
+                record.insertKeyAndValue(uriKey, uriValue);
+                record.insertKeyAndValue(callidKey, callidValue);
+                record.insertKeyAndValue(contactKey, contactValue);
+                record.insertKeyAndValue(expiresKey, expiresValue);
+                record.insertKeyAndValue(cseqKey, cseqValue);
+                record.insertKeyAndValue(qvalueKey, qvalueValue);
+                record.insertKeyAndValue(primaryKey, primaryValue);
+                record.insertKeyAndValue(updateNumberKey, updateNumberValue);
+                record.insertKeyAndValue(instanceIdKey, instanceIdValue);
+                record.insertKeyAndValue(gruuKey, gruuValue);
+                record.insertKeyAndValue(pathKey, pathValue);
+                record.insertKeyAndValue(instrumentKey, instrumentValue);
+
+                rResultSet.addValue(record);
+
+            } while ( cursor.next() );
+        }
+    }
+    else
+    {
+       OsSysLog::add(FAC_DB, PRI_CRIT, "RegistrationDB::getUnexpiredContactsUserInstrument failed - no DB");
     }
 }
 
@@ -1050,13 +1248,14 @@ RegistrationDB::copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) 
    reg->setExpires( cursor->expires );
    reg->setPrimary( cursor->primary );
    reg->setUpdateNumber( cursor->update_number );
+   reg->setInstrument( cursor->instrument );
    return reg;
 }
 
 // Get all bindings expiring before newerThanTime.
 void
 RegistrationDB::getAllOldBindings(int newerThanTime,
-                                  UtlHashBag& rAors) const
+                                  UtlSList& rAors) const
 {
    // Empty the return value.
    rAors.destroyAll();
@@ -1073,10 +1272,9 @@ RegistrationDB::getAllOldBindings(int newerThanTime,
       int rows = cursor.select( query );
       if (rows > 0)
       {
-         // Create UtlString containing the AOR name-addr from the "uri" column.
-         UtlString* uri = new UtlString(cursor->uri);
-         // Add it to the result set.
-         rAors.insert(uri);
+         // Add the data to rAors.
+         rAors.append(new UtlString(cursor->uri));
+         rAors.append(new UtlString(cursor->instrument));
       } while ( cursor.next() );
    }
    else

@@ -62,18 +62,57 @@ class RegisterEventServer
 
    virtual ~RegisterEventServer();
 
-   //! Generate and publish content for reg events for an AOR.
-   //  Note the content will be published under the AOR.
+   //! Generate and publish content for reg events for an AOR/instrument.
+   //  Note that content will be published under the AOR, and if
+   //  instrument is non-empty, under the appropriate ~~in~ URIs.
    void generateAndPublishContent(/// AOR as a string
                                   const UtlString& aorString,
                                   /// AOR as a Uri
-                                  const Url& aorUri);
+                                  const Url& aorUri,
+                                  /// instrument tag value
+                                  const UtlString& instrument);
 
    //! Generate (but not publish) content for reg events for an AOR.
-   void generateContent(/// AOR as a string
-                        const UtlString& aorString,
-                        /// AOR as a Uri
-                        const Url& aorUri,
+   void generateContentUser(/// The entity URI string to incorporate into the body.
+                            const char* entity,
+                            /// AOR as a string
+                            const UtlString& aorString,
+                            /// AOR as a Uri
+                            const Url& aorUri,
+                            /// Returned pointer to HttpBody to publish.
+                            HttpBody*& body,
+                            /// Returned XML version number.
+                            int& version);
+
+   //! Generate (but not publish) content for reg events for an instrument URI.
+   void generateContentInstrument(/// The entity URI string to incorporate into the body.
+                                  const char* entity,
+                                  /// instrument tag value
+                                  const UtlString& instrument,
+                                  /// Returned pointer to HttpBody to publish.
+                                  HttpBody*& body,
+                                  /// Returned XML version number.
+                                  int& version);
+
+   //! Generate (but not publish) content for reg events for a user/instrument URI.
+   void generateContentUserInstrument(/// The entity URI string to incorporate into the body.
+                                      const char* entity,
+                                      /// AOR as a string
+                                      const UtlString& aorString,
+                                      /// AOR as a Uri
+                                      const Url& aorUri,
+                                      /// instrument tag value
+                                      const UtlString& instrument,
+                                      /// Returned pointer to HttpBody to publish.
+                                      HttpBody*& body,
+                                      /// Returned XML version number.
+                                      int& version);
+
+   //! Generate (but not publish) content for reg events based on a ResultSet.
+   void generateContent(/// The entity URI string to incorporate into the body.
+                        const char* entityString,
+                        /// The ResultSet containing the registrations to show
+                        ResultSet& rs,
                         /// Returned pointer to HttpBody to publish.
                         HttpBody*& body,
                         /// Returned XML version number.

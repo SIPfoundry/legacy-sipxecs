@@ -23,6 +23,9 @@
 #include <net/SipRegEvent.h>
 
 // DEFINES
+
+#define URI_IN_PREFIX "~~in~"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -90,19 +93,63 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
                  "RegEventDefaultConstructor::generateDefaultContent resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
                  resourceId, eventTypeKey, eventType);
 
-   // Construct the AOR.
-   Url request_uri(resourceId, TRUE);
-   UtlString aor;
-   request_uri.getUserId(aor);
-   aor.insert(0, "sip:");
-   aor.append("@");
-   aor.append(*mpRegisterEventServer->getDomainName());
-   Url aor_uri(aor, TRUE);
-
-   // Construct the content.
+   // Outputs of the following processing.
    HttpBody* body;
    int version;
-   mpRegisterEventServer->generateContent(aor, aor_uri, body, version);
+
+   // Extract the user-part.
+   Url request_uri(resourceId, TRUE);
+   UtlString user;
+   request_uri.getUserId(user);
+
+   if (user.index(URI_IN_PREFIX) == 0)
+   {
+      // This is a ~~in~ URI.
+      // Check for a '/' separator.
+      ssize_t s = user.last('/');
+      if (s != UTL_NOT_FOUND)
+      {
+         // This is a ~~in~[user]/[instrument] URI.
+         const char* instrumentp = user.data() + s + 1;
+         UtlString u;
+         u.append(user,
+                  sizeof (URI_IN_PREFIX) - 1,
+                  s - (sizeof (URI_IN_PREFIX) - 1));
+
+         // Construct the registration AOR.
+         UtlString aor;
+         Url aor_uri;
+         aor.append("sip:");
+         aor.append(u);
+         aor.append("@");
+         aor.append(*mpRegisterEventServer->getDomainName());
+         aor_uri.fromString(aor, Url::AddrSpec);
+
+         mpRegisterEventServer->
+            generateContentUserInstrument(resourceId, aor, aor_uri, instrumentp, body, version);
+      }
+      else
+      {
+         // This is a ~~in~[instrument] URI.
+         const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
+         mpRegisterEventServer->
+            generateContentInstrument(resourceId, instrumentp, body, version);
+      }         
+   }
+   else
+   {
+      // Construct the AOR.
+      UtlString aor;
+      Url aor_uri;
+      aor.append("sip:");
+      aor.append(user);
+      aor.append("@");
+      aor.append(*mpRegisterEventServer->getDomainName());
+      aor_uri.fromString(aor, Url::AddrSpec);
+
+      // Construct the content.
+      mpRegisterEventServer->generateContentUser(resourceId, aor, aor_uri, body, version);
+   }
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
@@ -256,38 +303,125 @@ RegisterEventServer::~RegisterEventServer()
    RegistrationDB::releaseInstance();
 }
 
-// Generate and publish content for reg events for an AOR.
+// Generate and publish content for reg events for an AOR/instrument.
 void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
-                                                    const Url& aorUri)
+                                                    const Url& aorUri,
+                                                    const UtlString& instrument)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "RegisterEventServer::generateAndPublishContent aorString = '%s'",
-                 aorString.data());
+                 "RegisterEventServer::generateAndPublishContent aorString = '%s', instrument = '%s'",
+                 aorString.data(), instrument.data());
 
    HttpBody* body;
    int version;
 
-   generateContent(aorString, aorUri, body, version);
+   // Publish content for the AOR.
+   generateContentUser(aorString.data(), aorString, aorUri, body, version);
    mEventPublisher.publish(aorString, mEventType.data(), mEventType.data(),
                            1, &body, &version, FALSE);
+
+   if (!instrument.isNull())
+   {
+      // Publish content for ~~in~[instrument]@[domain].
+
+      UtlString instrumentEntity;
+      instrumentEntity.append("sip:" URI_IN_PREFIX);
+      instrumentEntity.append(instrument);
+      instrumentEntity.append("@");
+      instrumentEntity.append(*getDomainName());
+
+      generateContentInstrument(instrumentEntity.data(), instrument, body, version);
+      mEventPublisher.publish(instrumentEntity, mEventType.data(), mEventType.data(),
+                              1, &body, &version, FALSE);
+      
+      // Publish content for ~~in~[user]/[instrument]@[domain].
+
+      UtlString userInstrumentEntity;
+      userInstrumentEntity.append("sip:" URI_IN_PREFIX);
+      UtlString user;
+      aorUri.getUserId(user);
+      userInstrumentEntity.append(user);
+      userInstrumentEntity.append("/");
+      userInstrumentEntity.append(instrument);
+      userInstrumentEntity.append("@");
+      userInstrumentEntity.append(*getDomainName());
+
+      generateContentUserInstrument(aorString.data(), aorString, aorUri, instrument, body, version);
+      mEventPublisher.publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
+                              1, &body, &version, FALSE);
+   }
 }
 
 // Generate (but not publish) content for reg events for an AOR.
-void RegisterEventServer::generateContent(const UtlString& aorString,
-                                          const Url& aorUri,
-                                          HttpBody*& body,
-                                          int& version)
+void RegisterEventServer::generateContentUser(const char* entity,
+                                              const UtlString& aorString,
+                                              const Url& aorUri,
+                                              HttpBody*& body,
+                                              int& version)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "RegisterEventServer::generateContent aorString = '%s'",
+                 "RegisterEventServer::generateContentUser aorString = '%s'",
                  aorString.data());
 
    // Use an expiraton time of 0 to get all the registrations for the
    // AOR, including the ones that have expired but not been purged.
    ResultSet rs;
-   getRegistrationDBInstance()->getUnexpiredContacts(aorUri,
-                                                     0,
-                                                     rs);
+   getRegistrationDBInstance()->getUnexpiredContactsUser(aorUri,
+                                                         0,
+                                                         rs);
+
+   generateContent(entity, rs, body, version);
+}
+
+// Generate (but not publish) content for reg events for an instrument
+void RegisterEventServer::generateContentInstrument(const char* entity,
+                                                    const UtlString& instrument,
+                                                    HttpBody*& body,
+                                                    int& version)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "RegisterEventServer::generateContentInstrument instrument = '%s'",
+                 instrument.data());
+
+   // Use an expiraton time of 0 to get all the registrations for the
+   // AOR, including the ones that have expired but not been purged.
+   ResultSet rs;
+   getRegistrationDBInstance()->getUnexpiredContactsInstrument(instrument.data(),
+                                                               0,
+                                                               rs);
+
+   generateContent(entity, rs, body, version);
+}
+
+// Generate (but not publish) content for reg events for an AOR and instrument
+void RegisterEventServer::generateContentUserInstrument(const char* entity,
+                                                        const UtlString& aorString,
+                                                        const Url& aorUri,
+                                                        const UtlString& instrument,
+                                                        HttpBody*& body,
+                                                        int& version)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "RegisterEventServer::generateContentUserInstrument aorString = '%s', instrument = '%s'",
+                 aorString.data(), instrument.data());
+
+   // Use an expiraton time of 0 to get all the registrations for the
+   // AOR, including the ones that have expired but not been purged.
+   ResultSet rs;
+   getRegistrationDBInstance()->getUnexpiredContactsUserInstrument(aorUri,
+                                                                   instrument.data(),
+                                                                   0,
+                                                                   rs);
+
+   generateContent(entity, rs, body, version);
+}
+
+// Generate (but not publish) content for reg events.
+void RegisterEventServer::generateContent(const char* entityString,
+                                          ResultSet& rs,
+                                          HttpBody*& body,
+                                          int& version)
+{
    unsigned long now = OsDateTime::getSecsSinceEpoch();
 
    // Construct the body, an empty notice for the user.
@@ -301,13 +435,14 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<reginfo xmlns=\"urn:ietf:params:xml:ns:reginfo\" "
                   "xmlns:gr=\"urn:ietf:params:xml:ns:gruuinfo\" "
+                  "xmlns:in=\"'http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00\" "
                   "version=\"");
    content.appendNumber(version);
    content.append("\" state=\"full\">\r\n");
    content.append("  <registration aor=\"");
-   XmlEscape(content, aorString);
+   XmlEscape(content, entityString);
    content.append("\" id=\"");
-   XmlEscape(content, aorString);
+   XmlEscape(content, entityString);
    // If there are no unexpired contacts, the state is "init", otherwise
    // "active".
    UtlSListIterator rs_itor(rs);
@@ -352,13 +487,15 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
       UtlString* pathVector = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gPathKey));
       UtlString* gruu = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gGruuKey));
       UtlString* instanceId = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstanceIdKey));
+      UtlString* instrument =
+         dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstrumentKey));
 
       content.append("    <contact id=\"");
       // We key the registrations table on identity and contact URI, so
       // for the id of the <content> element, we use the concatenation of
       // AOR and contact.  We could hash these together and take 64 bits
       // if we wanted the id's to be smaller and opaque.
-      XmlEscape(content, aorString);
+      XmlEscape(content, entityString);
       content.append("@@");
       XmlEscape(content, *contact_string);
       // If the contact has expired, it should be terminated/expired.
@@ -425,6 +562,14 @@ void RegisterEventServer::generateContent(const UtlString& aorString,
          tmp.append(*gruu);
          XmlEscape(content, tmp);
          content.append("\"/>\r\n");
+      }
+      if(NULL != instrument &&
+         !instrument->isNull() &&
+         0 != instrument->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      {
+         content.append("      <in:instrument>");
+         XmlEscape(content, *instrument);
+         content.append("</in:instrument>\r\n");
       }
 
       content.append("    </contact>\r\n");

@@ -615,6 +615,7 @@ SubscribeServerThread::isAuthenticated (
         UtlString requestNonce;
         UtlString requestRealm;
         UtlString requestUser;
+        UtlString requestUserBase;
         UtlString requestUriParam;
         int requestAuthIndex = 0;
         // can have multiphe authorization / authorization-proxy headers
@@ -627,11 +628,14 @@ SubscribeServerThread::isAuthenticated (
                 NULL,
                 &requestUriParam,
                 HttpMessage::SERVER,
-                requestAuthIndex) )
+                requestAuthIndex,
+                &requestUserBase) )
         {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                    "- Authorization header set in message, validate it.\n"
-                   "- reqRealm=\"%s\", reqUser=\"%s\"", requestRealm.data(), requestUser.data());
+                   "- reqRealm=\"%s\", reqUser=\"%s\", reqUserBase=\"%s\"",
+                          requestRealm.data(), requestUser.data(),
+                          requestUserBase.data());
 
             // case sensitive comparison of realm
             if ( mRealm.compareTo( requestRealm ) == 0 )
@@ -642,7 +646,7 @@ SubscribeServerThread::isAuthenticated (
                 // See if the nonce is valid - see net/SipNonceDb.cpp
                 UtlString reqUri;
                 message->getRequestUri(&reqUri);
-                Url mailboxUrl (reqUri);
+                Url mailboxUrl(reqUri);
 
                 UtlString authTypeDB;
                 UtlString passTokenDB;
@@ -660,20 +664,23 @@ SubscribeServerThread::isAuthenticated (
                                           mRealm, nonceExpires))
                 {
                     // then get the credentials for this realm
-                    if ( CredentialDB::getInstance()->
-                        getCredentialByUserid (
-                        mailboxUrl,
-                        mRealm,
-                        requestUser,
-                        passTokenDB,
-                        authTypeDB) )
+                    if (CredentialDB::getInstance()->
+                        getCredentialByUserid(
+                           mailboxUrl,
+                           mRealm,
+                           requestUserBase,
+                           passTokenDB,
+                           authTypeDB))
                     {
                         // the Digest Password is calculated from the request
                         // user, passtoken, nonce and request URI
 
-                        isAuthorized = message->verifyMd5Authorization(requestUser.data(),
-                            passTokenDB.data(), requestNonce, requestRealm.data(),
-                            requestUriParam.data());
+                        isAuthorized =
+                           message->verifyMd5Authorization(requestUser.data(),
+                                                           passTokenDB.data(),
+                                                           requestNonce,
+                                                           requestRealm.data(),
+                                                           requestUriParam.data());
                         if (isAuthorized)
                         {
                             // can have multiple credentials for same realm so only break out

@@ -456,14 +456,7 @@ UtlBoolean SipLine::IsDuplicateRealm(const UtlString realm, const UtlString sche
 {
    UtlString userID;
    UtlString passToken;
-   if (getCredentials(scheme, realm, &userID, &passToken))
-   {
-          return TRUE;
-   }
-   else
-   {
-          return FALSE;
-   }
+   return getCredentials(scheme, realm, &userID, &passToken);
 }
 
 

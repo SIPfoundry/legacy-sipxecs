@@ -2816,48 +2816,68 @@ bool HttpMessage::parseAuthenticationData(const UtlString& authenticationField,
 }
 
 
-UtlBoolean HttpMessage::getAuthorizationUser(UtlString* userId) const
+UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
+                                             UtlString* userBase) const
 {
-    UtlBoolean foundUserId = FALSE;
-    UtlString scheme;
-    UtlString dummy;
+   UtlBoolean foundUserId = FALSE;
+   UtlString scheme;
+   UtlString dummy;
 
-    getAuthorizationScheme(&scheme);
+   getAuthorizationScheme(&scheme);
 #ifdef TEST
-    osPrintf("HttpMessage::getAuthorizationUser authorization scheme: \"%s\"\n",
-        scheme.data());
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "HttpMessage::getAuthorizationUser authorization scheme: \"%s\"",
+                 scheme.data());
 #endif
 
-    // Basic
-    if(scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
-    {
-        foundUserId = getBasicAuthorizationData(userId, &dummy);
+   // Basic
+   if (scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
+   {
+      foundUserId = getBasicAuthorizationData(user, &dummy);
+      // Set *userBase to *user, as we do not process instrument indicators
+      // in basic authentication.
+      if (userBase)
+      {
+         *userBase = *user;
+      }
 #ifdef TEST_PRINT
-        if(foundUserId)
-        {
-            osPrintf("HttpMessage::getAuthorizationUser userId: \"%s\" from message\n",
-                userId->data());
-        }
-        else
-        {
-            osPrintf("HttpMessage::getAuthorizationUser failed to get userId from message\n");
-        }
+      if (foundUserId)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "HttpMessage::getAuthorizationUser userId: \"%s\" from message",
+                       user->data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "HttpMessage::getAuthorizationUser failed to get userId from message");
+      }
 #endif
-    }
+   }
 
-    // Digest
-    else if(scheme.compareTo(HTTP_DIGEST_AUTHENTICATION, UtlString::ignoreCase) == 0)
-    {
-        getDigestAuthorizationData(userId);
-    }
+   // Digest
+   else if (scheme.compareTo(HTTP_DIGEST_AUTHENTICATION, UtlString::ignoreCase) == 0)
+   {
+      getDigestAuthorizationData(user,
+                                 NULL, // default most arguments
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 NULL,
+                                 HttpMessage::PROXY,
+                                 0,
+                                 userBase, // provide user base argument
+                                 NULL);
+   }
 
-    // scheme not supported
-    else
-    {
-        userId->remove(0);
-    }
+   // scheme not supported
+   else
+   {
+      user->remove(0);
+      userBase->remove(0);
+   }
 
-    return(foundUserId);
+   return foundUserId;
 }
 
 UtlBoolean HttpMessage::getAuthorizationField(UtlString* authenticationField,
@@ -2891,7 +2911,9 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
                                                    UtlString* response,
                                                    UtlString* uri,
                                                    HttpMessage::HttpEndpointEnum authorizationEntity,
-                                                   int index) const
+                                                   int index,
+                                                   UtlString* user_base,
+                                                   UtlString* instrument) const
 {
    // Empty the output arguments.
    if (realm) realm->remove(0);
@@ -2900,6 +2922,8 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
    if (user) user->remove(0);
    if (uri) uri->remove(0);
    if (response) response->remove(0);
+   if (user_base) user_base->remove(0);
+   if (instrument) instrument->remove(0);
 
    const char* value = NULL;
    if (authorizationEntity == SERVER)
@@ -2911,7 +2935,7 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
       value = getHeaderValue(index, HTTP_PROXY_AUTHORIZATION_FIELD);
    }
 
-   if(value)
+   if (value)
    {
       NetAttributeTokenizer tokenizer(value);
       UtlString name;
@@ -2931,27 +2955,62 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
             name.toUpper();
             if(realm && name.compareTo(HTTP_AUTHENTICATION_REALM_TOKEN, UtlString::ignoreCase) == 0)
             {
-               realm->append(value.data());
+               realm->append(value);
             }
             else if(nonce && name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
             {
-               nonce->append(value.data());
+               nonce->append(value);
             }
             else if(opaque && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
             {
-               opaque->append(value.data());
+               opaque->append(value);
             }
-            else if(user && name.compareTo(HTTP_AUTHENTICATION_USERNAME_TOKEN, UtlString::ignoreCase) == 0)
+            else if (user &&
+                     name.compareTo(HTTP_AUTHENTICATION_USERNAME_TOKEN,
+                                    UtlString::ignoreCase) == 0)
             {
-               user->append(value.data());
+               user->append(value);
+               if (user_base || instrument)
+               {
+                  /** Separate the 'user' presented in an authorization
+                   *  header into the real user part (user_base) and the
+                   *  phone instrument identification part (instrument).
+                   */
+
+                  // Check to see if user contains '/'.  If so, find
+                  // the last occurrence, because the instrument part,
+                  // being a token, cannot contain '/'.
+                  ssize_t index = value.last('/');
+                  if (index != UTL_NOT_FOUND)
+                  {
+                     // Assign the first part to user_base and the
+                     // last part to instrument.
+                     if (user_base)
+                     {
+                        user_base->append(value, 0, index);
+                     }
+                     if (instrument)
+                     {
+                        instrument->append(value, index+1, value.length()-index-1);
+                     }
+                  }
+                  else
+                  {
+                     // Assign the entire value to user_base.
+                     if (user_base)
+                     {
+                        user_base->append(value);
+                     }
+                  }
+               }
             }
             else if(response && name.compareTo(HTTP_AUTHENTICATION_RESPONSE_TOKEN, UtlString::ignoreCase) == 0)
             {
-               response->append(value.data());
+               response->append(value);
             }
             else if(uri && name.compareTo(HTTP_AUTHENTICATION_URI_TOKEN, UtlString::ignoreCase) == 0)
             {
-               uri->append(value.data());
+               uri->append(value);
             }
          }
       }
@@ -3161,27 +3220,6 @@ void HttpMessage::buildMd5UserPasswordDigest(const char* user,
     NetMd5Codec::encode(a1Buffer.data(), userPasswordDigest);
 }
 
-/*void HttpMessage::buildMd5Digest(const char* user, const char* password,
-                                  const char* realm, const char* nonce,
-                                  const char* uri, const char* method,
-                                  UtlString* responseToken)
-{
-    UtlString encodedA1;
-    buildMd5UserPasswordDigest(user, realm, password, encodedA1);
-
-
-    buildMd5Digest(encodedA1.data(),
-        NULL, //algorithm
-        nonce,
-        NULL, // cnonce
-        0, // nonceCount
-        NULL, // qop
-        method,
-        uri,
-        NULL, // bodyDigest
-        responseToken);
-}*/
-
 void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
                                  const char* algorithm,
                                  const char* nonce,
@@ -3204,7 +3242,6 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
         a1Buffer.append(':');
         if(cnonce) a1Buffer.append(cnonce);
         NetMd5Codec::encode(a1Buffer.data(), encodedA1);
-
     }
     else
     {
@@ -3269,12 +3306,12 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
 }
 
 UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
-                                             const char* password,
-                                             const char* nonce,
-                                             const char* realm,
-                                             const char* thisMessageMethod,
-                                             const char* thisMessageUri,
-                                             enum HttpEndpointEnum authEntity) const
+                                               const char* password,
+                                               const char* nonce,
+                                               const char* realm,
+                                               const char* thisMessageMethod,
+                                               const char* thisMessageUri,
+                                               enum HttpEndpointEnum authEntity) const
 {
     UtlBoolean allowed = FALSE;
     UtlString uri;
@@ -3304,8 +3341,18 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
         getRequestMethod(&method);
     }
 
-        // Build a digest hash for the reference
-    buildMd5Digest(password,
+    // Construct A1
+    UtlString a1Buffer;
+    UtlString encodedA1;
+    a1Buffer.append(userId);
+    a1Buffer.append(':');
+    a1Buffer.append(realm);
+    a1Buffer.append(':');
+    a1Buffer.append(password);
+    NetMd5Codec::encode(a1Buffer.data(), encodedA1);
+
+    // Build a digest hash for the reference
+    buildMd5Digest(encodedA1,
                    NULL, // algorithm
                    nonce,
                    NULL, // cnonce
@@ -3315,11 +3362,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
                    uri.data(),
                    NULL, // body digest
                    &referenceHash);
-
-
-    // Build a digest hash for the reference
-   /* buildMd5Digest(password,"",nonce,"", uri.data(),
-                   method.data(), &referenceHash);*/
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                  "HttpMessage::verifyMd5Authorization password = '%s', nonce = '%s', method = '%s', uri = '%s', referenceHash = '%s'",
+                  encodedA1.data(), nonce, method.data(), uri.data(), referenceHash.data());
 
     // Get the digest hash given in the message
     int authIndex = 0;
@@ -3332,6 +3377,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
                                      authEntity,
                                      authIndex))
     {
+        OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                      "HttpMessage::verifyMd5Authorization msgDigestHash = '%s'",
+                      msgDigestHash.data());
         if((referenceHash.compareTo(msgDigestHash) == 0))
         {
             allowed = TRUE;
@@ -3348,9 +3396,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
 }
 
 UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
-                                             const char* nonce,
-                                             const char* thisMessageMethod,
-                                             const char* thisMessageUri) const
+                                               const char* nonce,
+                                               const char* thisMessageMethod,
+                                               const char* thisMessageUri) const
 {
     UtlBoolean allowed;
     UtlString uri;

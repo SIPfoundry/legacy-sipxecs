@@ -640,7 +640,12 @@ public:
                             const char* authenticationOpaque = NULL,
                             const char* authenticationDomain = NULL);
 
-    UtlBoolean getAuthorizationUser(UtlString* userId) const;
+    
+    // Extract the authorization user and the user base (authorization user
+    // field less the instrument indicator), as described for
+    // HttpMessage::getDigestAuthorizationData.
+    UtlBoolean getAuthorizationUser(UtlString* user,
+                                    UtlString* userBase) const;
 
     UtlBoolean getAuthorizationScheme(UtlString* scheme) const;
 
@@ -678,14 +683,24 @@ public:
     // Return TRUE if the index-th value exists -- But it may not contain
     // the mandatory fields, and if it is not Digest type, all returned
     // strings will be empty.
+    // Separate the 'user' presented in an authorization header into
+    // the real user part (user_base) and the phone instrument identification
+    // part (instrument).
+    // The header's user value is examined to see if it is of the form
+    // "xxx/yyy" (where yyy does not contain '/').  If not, user_base
+    // is set to the entire value and instrument is set to NULL.  If
+    // it is of that form, user_base is set to xxx, and instrument is
+    // set to yyy.
     UtlBoolean getDigestAuthorizationData(UtlString* user,
                                           UtlString* realm = NULL,
                                           UtlString* nonce = NULL,
                                           UtlString* opaque = NULL,
                                           UtlString* response = NULL,
                                           UtlString* uri = NULL,
-                                          HttpEndpointEnum authorizationEntity = HttpMessage::PROXY ,
-                                          int index = 0) const;
+                                          HttpEndpointEnum authorizationEntity = HttpMessage::PROXY,
+                                          int index = 0,
+                                          UtlString* user_base = NULL,
+                                          UtlString* instrument = NULL) const;
 
     static void buildMd5UserPasswordDigest(const char* user,
                                            const char* realm,
@@ -704,17 +719,17 @@ public:
                                UtlString* responseToken);
 
     UtlBoolean verifyMd5Authorization(const char* userId,
-                                     const char* password,
-                                     const char* nonce,
-                                     const char* realm,
-                                     const char* thisMessageMethod = NULL,
-                                     const char* thisMessageUri = NULL,
-                                     enum HttpEndpointEnum authEntity = SERVER) const;
+                                      const char* password,
+                                      const char* nonce,
+                                      const char* realm,
+                                      const char* thisMessageMethod = NULL,
+                                      const char* thisMessageUri = NULL,
+                                      enum HttpEndpointEnum authEntity = SERVER) const;
 
     UtlBoolean verifyMd5Authorization(const char* userPasswordDigest,
-                                     const char* nonce,
-                                     const char* thisMessageMethod = NULL,
-                                     const char* thisMessageUri = NULL) const;
+                                      const char* nonce,
+                                      const char* thisMessageMethod = NULL,
+                                      const char* thisMessageUri = NULL) const;
 
     //@}
 

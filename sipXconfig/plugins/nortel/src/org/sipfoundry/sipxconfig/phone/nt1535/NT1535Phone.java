@@ -137,13 +137,14 @@ public class NT1535Phone extends Phone {
             return null;
         }
 
-        @SettingEntry(paths = { VOIP_NAME, VOIP_AUTHNAME })
+        @SettingEntry(path = VOIP_NAME)
         public String getUserName() {
-            User user = m_line.getUser();
-            if (user != null) {
-                return user.getUserName();
-            }
-            return null;
+            return m_line.getUserName();
+        }
+
+        @SettingEntry(path = VOIP_AUTHNAME)
+        public String getAuthorizationUserName() {
+            return m_line.getAuthenticationUserName();
         }
 
         @SettingEntry(path = VOIP_PASSWORD)

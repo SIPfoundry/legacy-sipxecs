@@ -312,10 +312,10 @@ SipRedirectorPresenceRouting::lookUp(
    // identity column of the credentials database, then a request
    // is to a local user, find out its presence state...
    if(CredentialDB::getInstance()->getCredential(toUrl,
-                                                mRealm,
-                                                userId,
-                                                passTokenDB,
-                                                authTypeDB))
+                                                 mRealm,
+                                                 userId,
+                                                 passTokenDB,
+                                                 authTypeDB))
    {
       rc = doLookUp( toUrl, contactList );
    }

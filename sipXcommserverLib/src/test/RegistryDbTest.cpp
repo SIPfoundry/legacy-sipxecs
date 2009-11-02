@@ -241,7 +241,7 @@ public:
          uri.setHostAddress("testdomain.example.com");
 
 
-         regDb->getUnexpiredContacts(uri, timeNow, results);
+         regDb->getUnexpiredContactsUser(uri, timeNow, results);
          int numResults = results.getSize();
          CPPUNIT_ASSERT_EQUAL(2, numResults);
 
@@ -478,7 +478,7 @@ public:
          uri.setUserId("900");
          uri.setHostAddress("testdomain.example.com");
 
-         regDb->getUnexpiredContacts(uri, timeNow, results);
+         regDb->getUnexpiredContactsUser(uri, timeNow, results);
          int numResults = results.getSize();
          CPPUNIT_ASSERT_EQUAL(2, numResults);
 
@@ -486,7 +486,7 @@ public:
 
          regDb->expireAllBindings(uri, "ID9", 900, timeNow, "seqOne", 7);
 
-         regDb->getUnexpiredContacts(uri, timeNow, results);
+         regDb->getUnexpiredContactsUser(uri, timeNow, results);
          numResults = results.getSize();
          CPPUNIT_ASSERT_EQUAL(0, numResults);
       }
@@ -510,7 +510,7 @@ public:
          uri.setUserId("900");
          uri.setHostAddress("testdomain.example.com");
 
-         regDb->getUnexpiredContacts(uri, timeNow, results);
+         regDb->getUnexpiredContactsUser(uri, timeNow, results);
          int numResults = results.getSize();
          CPPUNIT_ASSERT_EQUAL(2, numResults);
 
@@ -518,7 +518,7 @@ public:
 
          regDb->expireOldBindings(uri, "ID9", 900, timeNow, "seqOne", 7);
 
-         regDb->getUnexpiredContacts(uri, timeNow, results);
+         regDb->getUnexpiredContactsUser(uri, timeNow, results);
          numResults = results.getSize();
          CPPUNIT_ASSERT_EQUAL(1, numResults);
       }

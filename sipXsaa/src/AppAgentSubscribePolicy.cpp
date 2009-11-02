@@ -94,7 +94,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
    subscribeRequest.getFromUrl(fromNameAddr);
    fromNameAddr.getFieldParameter("tag", fromTag);
 
-   UtlString authNonce, authRealm, authUser, uriParam;
+   UtlString authNonce, authRealm, authUser, authUserBase, uriParam;
 
    // Iterate through Authorization and Proxy-Authorization credentials,
    // looking for one that shows this request is authenticated.
@@ -103,12 +103,14 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
         && subscribeRequest.getDigestAuthorizationData(
            &authUser, &authRealm, &authNonce,
            NULL, NULL, &uriParam,
-           HttpMessage::SERVER, authIndex);
+           HttpMessage::SERVER, authIndex,
+           &authUserBase);
         authIndex++
       )
    {
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
-                    "reqRealm='%s', reqUser='%s'", authRealm.data() , authUser.data());
+                    "reqRealm='%s', reqUser='%s', reqUserBase='%s'",
+                    authRealm.data(), authUser.data(), authUserBase.data());
 
       if (mRealm.compareTo(authRealm) == 0) // case sensitive check that realm is correct
       {
@@ -126,11 +128,12 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
             Url authIdentity;
 
             // then get the credentials for this user & realm
-            if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUser
-                                                            ,authRealm
-                                                            ,authIdentity
-                                                            ,passTokenDB
-                                                            ,authTypeDB
+            if (CredentialDB::getInstance(mCredentialDbName)->
+                getCredential( authUserBase
+                              ,authRealm
+                              ,authIdentity
+                              ,passTokenDB
+                              ,authTypeDB
                    ))
             {
                // only DIGEST is used, so the authTypeDB above is ignored
@@ -152,8 +155,8 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
                   authIdentity.getIdentity(identity);
                   OsSysLog::add(FAC_AUTH, PRI_ERR,
                                 "Response auth hash does not match (bad password?)"
-                                " authIdentity='%s' authUser='%s'",
-                                identity.data(), authUser.data());
+                                " authIdentity='%s' authUser='%s' authUserBase='%s'",
+                                identity.data(), authUser.data(), authUserBase.data());
                }
             }
             else // failed to get credentials
@@ -161,8 +164,8 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
                UtlString identity;
                authIdentity.getIdentity(identity);
                OsSysLog::add(FAC_AUTH, PRI_ERR,
-                             "Unable to get credentials for realm='%s', user='%s'",
-                             mRealm.data(), authUser.data());
+                             "Unable to get credentials for realm='%s', user='%s', userBase = '%s'",
+                             mRealm.data(), authUser.data(), authUserBase.data());
             }
          }
          else // nonce is not valid

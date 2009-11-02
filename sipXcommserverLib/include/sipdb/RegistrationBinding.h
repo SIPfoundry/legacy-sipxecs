@@ -89,6 +89,9 @@ public:
    void       setUpdateNumber(Int64 updateNumber);
    void       setUpdateNumber(const UtlString& updateNumber);
 
+   const UtlString* getInstrument() const;
+   void       setInstrument(const UtlString& qvalue);
+
 /* ========================= UtlContainable interface======================== */
     /**
      * Get the ContainableType for the RegistrationBinding as a contained object.
@@ -113,6 +116,7 @@ private:
    int        mExpires;
    UtlString* mPrimary;
    Int64      mUpdateNumber;
+   UtlString* mInstrument;
 
    /// no copy constructor
    RegistrationBinding(const RegistrationBinding& nocopy);

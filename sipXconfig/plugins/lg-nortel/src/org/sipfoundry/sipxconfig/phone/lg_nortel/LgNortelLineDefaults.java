@@ -23,9 +23,10 @@ public class LgNortelLineDefaults {
     private static final String VOIP_PASSWORD = "VOIP/password";
     private static final String VOIP_NAME = "VOIP/name";
     private static final String VOIP_DISPLAYNAME = "VOIP/displayname";
+    private static final String VOIP_TYPE = "VOIP/type";
 
-    private Line m_line;
-    private DeviceDefaults m_defaults;
+    private final Line m_line;
+    private final DeviceDefaults m_defaults;
 
     public LgNortelLineDefaults(DeviceDefaults defaults, Line line) {
         m_line = line;
@@ -43,14 +44,18 @@ public class LgNortelLineDefaults {
         return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(paths = { VOIP_NAME, VOIP_AUTHNAME })
+    @SettingEntry(path = VOIP_NAME)
     public String getUserName() {
-        User user = m_line.getUser();
-        if (user == null) {
+        return m_line.getUserName();
+    }
+
+    @SettingEntry(path = VOIP_AUTHNAME)
+    public String getAuthUserName() {
+        if (m_line.getSettingValue(VOIP_TYPE) == "dss") {
             return null;
         }
 
-        return user.getUserName();
+        return m_line.getAuthenticationUserName();
     }
 
     @SettingEntry(path = VOIP_DISPLAYNAME)

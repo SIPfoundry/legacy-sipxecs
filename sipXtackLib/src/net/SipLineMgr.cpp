@@ -1127,7 +1127,17 @@ SipLineMgr::addCredentialForLine(
         return false;
     }
 
-    if (!line->addCredentials(strRealm, strUserID, md5Token, type))
+    // Construct A1
+    UtlString a1Buffer;
+    UtlString encodedA1;
+    a1Buffer.append(strUserID);
+    a1Buffer.append(':');
+    a1Buffer.append(strRealm);
+    a1Buffer.append(':');
+    a1Buffer.append(md5Token);
+    NetMd5Codec::encode(a1Buffer.data(), encodedA1);
+
+    if (!line->addCredentials(strRealm, strUserID, encodedA1, type))
     {
         line = NULL;
         OsSysLog::add(FAC_LINE_MGR, PRI_ERR,

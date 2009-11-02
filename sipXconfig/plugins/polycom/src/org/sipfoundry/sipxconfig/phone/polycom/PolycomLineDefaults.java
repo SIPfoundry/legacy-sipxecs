@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
@@ -16,16 +16,10 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class PolycomLineDefaults {
 
-    /**
-     *
-     */
     private static final String TYPE_PRIVATE = "private";
-    /**
-     *
-     */
     private static final String TYPE_SHARED = "shared";
-    private DeviceDefaults m_defaults;
-    private Line m_line;
+    private final DeviceDefaults m_defaults;
+    private final Line m_line;
 
     PolycomLineDefaults(DeviceDefaults defaults, Line line) {
         m_defaults = defaults;
@@ -67,16 +61,12 @@ public class PolycomLineDefaults {
 
     @SettingEntry(path = PolycomPhone.AUTHORIZATION_ID_PATH)
     public String getAuthorizationId() {
-        return getAddress();
+        return m_line.getAuthenticationUserName();
     }
 
     @SettingEntry(path = PolycomPhone.USER_ID_PATH)
     public String getAddress() {
-        User u = m_line.getUser();
-        if (u != null) {
-            return u.getUserName();
-        }
-        return null;
+        return m_line.getUserName();
     }
 
     @SettingEntry(path = PolycomPhone.PASSWORD_PATH)

@@ -67,6 +67,7 @@
         <element ref='dmp:gruu'/>
         <element ref='dmp:path'/>
         <element ref='dmp:update_number'/>
+	<element ref='dmp:instrument'/>
       </sequence>
     </complexType>
   </element>
@@ -214,6 +215,20 @@
     <simpleType>
       <restriction base='string'>
 	<pattern value='[0-9]+|0[xX][0-9A-Fa-f]+'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='instrument'>
+    <annotation>
+      <documentation>
+        The token identifying the instrument which is registering this contact,
+	or the null string if no instrument is identified.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='string'>
+	<pattern value="[-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.!%*_+`'~]*"/>
       </restriction>
     </simpleType>
   </element>

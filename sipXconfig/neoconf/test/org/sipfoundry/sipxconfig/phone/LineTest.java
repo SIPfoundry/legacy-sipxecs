@@ -5,17 +5,17 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone;
-
-import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.setting.Group;
+
+import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createNiceMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -124,5 +124,41 @@ public class LineTest extends TestCase {
         u.setUserName("joe");
         line.setUser(u);
         assertEquals("joe", line.getDisplayLabel());
+    }
+
+    public void testNoUserGetAuthorizationName() {
+        PhoneModel model = new PhoneModel("acmePhone");
+        model.setModelFilePath("acmePhone");
+
+        Phone phone = new AcmePhone();
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
+        phone.setModel(model);
+        phone.setSerialNumber("0000DEADBEEF");
+
+        Line line = phone.createLine();
+        line.setModelFilesContext(TestHelper.getModelFilesContext());
+        phone.addLine(line);
+
+        assertNull(line.getAuthenticationUserName());
+    }
+
+    public void testUserGetAuthorizationName() {
+        PhoneModel model = new PhoneModel("acmePhone");
+        model.setModelFilePath("acmePhone");
+
+        Phone phone = new AcmePhone();
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
+        phone.setModel(model);
+        phone.setSerialNumber("0000DEADBEEF");
+
+        Line line = phone.createLine();
+        line.setModelFilesContext(TestHelper.getModelFilesContext());
+        phone.addLine(line);
+
+        User u = new User();
+        u.setUserName("user_id");
+        line.setUser(u);
+
+        assertEquals("user_id/0000DEADBEEF", line.getAuthenticationUserName());
     }
 }

@@ -1438,11 +1438,11 @@ void SipMessage::setRequestUnauthorized(const SipMessage* request,
 // specific to SIP authorization (i.e. authentication and authorize
 // fields may be in either requests or responses
 UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
-                                             const char* password,
-                                             const char* nonce,
-                                             const char* realm,
-                                             const char* uri,
-                                             enum HttpEndpointEnum authEntity) const
+                                              const char* password,
+                                              const char* nonce,
+                                              const char* realm,
+                                              const char* uri,
+                                              enum HttpEndpointEnum authEntity) const
 {
     UtlString uriString;
     UtlString method;
@@ -1491,12 +1491,12 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
 
     UtlBoolean isAllowed = FALSE;
     isAllowed = HttpMessage::verifyMd5Authorization(userId,
-                                        password,
-                                        nonce,
-                                        realm,
-                                        method.data(),
-                                        uriString.data(),
-                                        authEntity);
+                                                    password,
+                                                    nonce,
+                                                    realm,
+                                                    method.data(),
+                                                    uriString.data(),
+                                                    authEntity);
     return isAllowed;
 }
 

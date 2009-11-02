@@ -3889,7 +3889,7 @@ UtlBoolean SipUserAgent::shouldAuthenticate(SipMessage* message) const
 UtlBoolean SipUserAgent::authorized(SipMessage* request, const char* uri) const
 {
     UtlBoolean allowed = FALSE;
-    // Need to create a nonce database for nonce's created
+    // Need to create a nonce database for nonces created
     // for each message (or find the message for the previous
     // sequence number containing the authentication response
     // and nonce for this request)
@@ -3903,12 +3903,14 @@ UtlBoolean SipUserAgent::authorized(SipMessage* request, const char* uri) const
     else
     {
         UtlString user;
+        UtlString userBase;
         UtlString password;
+        UtlString instrument;
 
         // Get the user id
-        request->getAuthorizationUser(&user);
+        request->getAuthorizationUser(&user, &userBase);
         // Look up the password
-        mpAuthenticationDb->get(user.data(), password);
+        mpAuthenticationDb->get(userBase.data(), password);
 
         // If basic is set allow basic or digest
         if(mAuthenticationScheme.compareTo(HTTP_BASIC_AUTHENTICATION,
@@ -3917,17 +3919,16 @@ UtlBoolean SipUserAgent::authorized(SipMessage* request, const char* uri) const
            )
         {
             allowed = request->verifyBasicAuthorization(user.data(),
-                password.data());
-
+                                                        password.data());
 
             // Try Digest if basic failed
             if(! allowed)
             {
                 allowed = request->verifyMd5Authorization(user.data(),
-                                                password.data(),
-                                                nonce,
-                                                mAuthenticationRealm.data(),
-                                                uri);
+                                                          password.data(),
+                                                          nonce,
+                                                          mAuthenticationRealm.data(),
+                                                          uri);
             }
         }
 
@@ -3938,16 +3939,14 @@ UtlBoolean SipUserAgent::authorized(SipMessage* request, const char* uri) const
                 )
         {
             allowed = request->verifyMd5Authorization(user.data(),
-                                                password.data(),
-                                                nonce,
-                                                mAuthenticationRealm.data(),
-                                                uri);
+                                                      password.data(),
+                                                      nonce,
+                                                      mAuthenticationRealm.data(),
+                                                      uri);
         }
-        user.remove(0);
-        password.remove(0);
     }
 
-    return(allowed);
+    return allowed;
 }
 
 void SipUserAgent::addAuthentication(SipMessage* message) const

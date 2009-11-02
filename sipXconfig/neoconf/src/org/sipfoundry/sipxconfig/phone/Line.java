@@ -39,6 +39,28 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         m_user = user;
     }
 
+    public String getUserName() {
+        if (m_user == null) {
+            // for external lines user name is stored in DB already
+            return null;
+        }
+        return m_user.getUserName();
+    }
+
+    /**
+     * Get the string to be used as the "authentication user"
+     *
+     * For internal lines it looks like this: [user]/[phone-serial-no] For external lines it's the
+     * same as username.
+     */
+    public String getAuthenticationUserName() {
+        if (m_user == null) {
+            // no user -- external line - use default value stored in DB
+            return null;
+        }
+        return String.format("%s/%s", getUserName(), getPhone().getSerialNumber());
+    }
+
     public String getDisplayLabel() {
         User u = getUser();
         if (u != null) {
@@ -55,6 +77,7 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         m_position = position;
     }
 
+    @Override
     protected Setting loadSettings() {
         Phone phone = getPhone();
         Setting settings = phone.loadLineSettings();
@@ -64,6 +87,7 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         return settings;
     }
 
+    @Override
     public Set getGroups() {
         // Use phone groups until we can justify lines
         // having their own groups and work out a reasonable UI

@@ -213,7 +213,7 @@ public:
      *         content types are published if the server wants to deliver
      *         different content types based upon the SUBSCRIBE Accepts
      *         header content types listed.
-     *  \param eventContent - the SIP Event state content which was provided
+     *  \param eventContent - the SIP Event state content which is provided
      *         via a PUBLISH or requested via a SUBSCRIBE to be delivered
      *         via a NOTIFY.  If multiple bodies are provided and the content
      *         types match more than one of the mime types provided in the

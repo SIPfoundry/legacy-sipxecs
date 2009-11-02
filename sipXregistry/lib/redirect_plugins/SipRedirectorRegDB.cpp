@@ -21,6 +21,9 @@
 #include "SipRedirectorRegDB.h"
 
 // DEFINES
+
+#define URI_IN_PREFIX "~~in~"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -100,13 +103,47 @@ SipRedirectorRegDB::lookUp(
                     temp.data());
    }
 
-   // Note that getUnexpiredContacts will reduce the requestUri to its
-   // identity (user/host/port) part before searching in the
-   // database.  The requestUri identity is matched against the
-   // "identity" column of the database, which is the identity part of
-   // the "uri" column which is stored in registration.xml.
-   RegistrationDB::getInstance()-> // TODO - change to SipRegistrar::getRegistrationDB (see Scott Lawrence)
-      getUnexpiredContacts(requestUriCopy, timeNow, registrations);
+   RegistrationDB* regDB =
+      RegistrationDB::getInstance(); // TODO - change to SipRegistrar::getRegistrationDB (see Scott Lawrence)
+
+   // Give the ~~in~ URIs separate processing.
+   UtlString user;
+   requestUriCopy.getUserId(user);
+   if (user.index(URI_IN_PREFIX) == 0)
+   {
+      // This is a ~~in~ URI.
+      // Check for a '/' separator.
+      ssize_t s = user.last('/');
+      if (s != UTL_NOT_FOUND)
+      {
+         // This is a ~~in~[user]/[instrument] URI.
+         const char* instrumentp = user.data() + s + 1;
+         UtlString u;
+         u.append(user,
+                  sizeof (URI_IN_PREFIX) - 1,
+                  s - (sizeof (URI_IN_PREFIX) - 1));
+         requestUriCopy.setUserId(u);
+         regDB->
+            getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
+      }
+      else
+      {
+         // This is a ~~in~[instrument] URI.
+         const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
+         regDB->
+            getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
+      }         
+   }
+   else
+   {
+      // Note that getUnexpiredContactsUser will reduce the requestUri to its
+      // identity (user/host/port) part before searching in the
+      // database.  The requestUri identity is matched against the
+      // "identity" column of the database, which is the identity part of
+      // the "uri" column which is stored in registration.xml.
+      regDB->
+         getUnexpiredContactsUser(requestUriCopy, timeNow, registrations);
+   }
 
    int numUnexpiredContacts = registrations.getSize();
 

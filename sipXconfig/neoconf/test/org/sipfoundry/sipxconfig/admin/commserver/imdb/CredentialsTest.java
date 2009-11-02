@@ -84,7 +84,7 @@ public class CredentialsTest extends TestCase {
         Map<String, String> item = items.get(0);
         assertEquals("sip:sales@sipx.sipfoundry.org", item.get("uri"));
         assertEquals(digest, item.get("pintoken"));
-        assertEquals(digest, item.get("passtoken"));
+        assertEquals("pass4321", item.get("passtoken"));
         assertEquals("sipfoundry.org", item.get("realm"));
         assertEquals("DIGEST", item.get("authtype"));
     }
@@ -105,7 +105,7 @@ public class CredentialsTest extends TestCase {
 
         assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
         assertEquals(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", PIN), item.get("pintoken"));
-        assertEquals(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "pass4321"), item.get("passtoken"));
+        assertEquals("pass4321", item.get("passtoken"));
         assertEquals("sipfoundry.org", item.get("realm"));
         assertEquals("DIGEST", item.get("authtype"));
     }
@@ -126,7 +126,7 @@ public class CredentialsTest extends TestCase {
         assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
         String emptyHash = Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "");
         assertEquals(emptyHash, item.get("pintoken"));
-        assertEquals(emptyHash, item.get("passtoken"));
+        assertEquals("", item.get("passtoken"));
         assertEquals("sipfoundry.org", item.get("realm"));
         assertEquals("DIGEST", item.get("authtype"));
     }

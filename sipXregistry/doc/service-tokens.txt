@@ -44,6 +44,22 @@ The assigned facility codes are:
 			send SUBSCRIBEs)
       ~~id~sipXsaa -> the Shared Appearance Agent
 
+*** in => URIs to identify specific line appearances, or the group
+    of all line appearances, on a particular instrument.
+
+   ~~in~[token]
+      The group of line appearances on the instrument identified by
+      the token "token".  For hard phones, "token" is usually the MAC
+      address.  Note "token" is case-sensitive.  (Some registrations will
+      not have instrument identification; they are not accessible via
+      this mechanism, as "token" must be non-empty.)
+   ~~in~[user name]/[token]
+      The line appearance of [user name] on the instrument identified
+      by "token".  Or really, the set of such appearances of [user name]
+      on the instrument.  "user name" must not be an alias.
+
+   ~~in~ URIs are supported for 'reg' events as well as for forking.
+
 *** mh => The music-on-hold source.
 
    ~~mh~

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class Credentials extends DataSetGenerator {
@@ -57,9 +58,10 @@ public class Credentials extends DataSetGenerator {
     }
 
     void addCallGroup(List<Map<String, String>> items, CallGroup callGroup, String domainName, String realm) {
-        String sipPasswordHash = callGroup.getSipPasswordHash(realm);
         String uri = SipUri.format(null, callGroup.getName(), domainName);
-        addCredentialsItem(items, uri, callGroup.getName(), sipPasswordHash, sipPasswordHash, realm);
+        String sipPassword = callGroup.getSipPassword();
+        String sipPasswordHash = callGroup.getSipPasswordHash(realm);
+        addCredentialsItem(items, uri, callGroup.getName(), sipPassword, sipPasswordHash, realm);
     }
 
     private void addSpecialUser(List<Map<String, String>> items, SpecialUserType specialUserType, String domainName,
@@ -72,17 +74,16 @@ public class Credentials extends DataSetGenerator {
 
     protected void addUser(List<Map<String, String>> items, User user, String domainName, String realm) {
         String uri = user.getUri(domainName);
-        String sipPasswordHash = user.getSipPasswordHash(realm);
-        addCredentialsItem(items, uri, user.getUserName(), sipPasswordHash, user.getPintoken(), realm);
+        addCredentialsItem(items, uri, user.getUserName(), user.getSipPassword(), user.getPintoken(), realm);
     }
 
-    private void addCredentialsItem(List<Map<String, String>> items, String uri, String name,
-            String sipPasswordHash, String pintoken, String realm) {
+    private void addCredentialsItem(List<Map<String, String>> items, String uri, String name, String sipPassword,
+            String pintoken, String realm) {
         Map<String, String> item = addItem(items);
         item.put("uri", uri);
         item.put("realm", realm);
         item.put("userid", name);
-        item.put("passtoken", sipPasswordHash);
+        item.put("passtoken", defaultString(sipPassword));
         item.put("pintoken", pintoken);
         item.put("authtype", "DIGEST");
     }

@@ -105,12 +105,14 @@ public class CounterpathPhone extends Phone {
             }
         }
 
-        @SettingEntry(paths = { REG_USERNAME, REG_AUTH_USERNAME })
+        @SettingEntry(path = REG_USERNAME)
         public String getUserName() {
-            if (m_user == null) {
-                return null;
-            }
-            return m_user.getUserName();
+            return m_line.getUserName();
+        }
+
+        @SettingEntry(path = REG_AUTH_USERNAME)
+        public String getAuthenticationUserName() {
+            return m_line.getAuthenticationUserName();
         }
 
         @SettingEntry(path = "xmpp-config/username")

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX extension to reginfo to give instrument identifier.
+  -->
+<schema
+    xmlns:a='http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00'
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Defines the extension element 'instrument' of the reg-info XML schema.
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='instrument' type='token'>
+    <annotation>
+      <documentation>
+        The token which is the "instrument identifier" of the UA making
+        the registration.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

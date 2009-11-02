@@ -170,10 +170,8 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
         UtlString requestUser;
         UtlString requestRealm;
         UtlString requestNonce;
-        UtlString authUser;
         UtlString uriParam;
 
-        message.getAuthorizationUser(&authUser);
         message.getDigestAuthorizationData(
                    &requestUser, &requestRealm, &requestNonce,
                    NULL, NULL, &uriParam,
