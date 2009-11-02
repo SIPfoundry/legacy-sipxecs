@@ -25,9 +25,10 @@ $SipVersion = '2.0';
 $SipPort = 5060;
 $Method = '';
 $UserAgent = '';
-$MaxForwards = 20;
+$DefaultMaxForwards = 20;
 $UseViaName = 0;
 $SymmetricPort = 0;
+$UseColor = 1;
 
 $DefaultUserAgent = "sipsend/$VERSION";
 
@@ -38,6 +39,8 @@ $HELP = <<HELP;
         --verbose
            Prints the message it is sending before sending it.
            Also prints authentication responses and requests.
+        --[no]color
+          Controls colorization of output (default is on).
         --timeout <seconds> (not implemented yet)
         --show1xx|-1
            Also output provisional responses.
@@ -57,7 +60,7 @@ $HELP = <<HELP;
         --max-forwards <hop-count>
            'Max-Forwards' header value.
            Limits the number of proxies which may forward the request.
-           Defaults to $MaxForwards.
+           Defaults to $DefaultMaxForwards.
         --user-agent <user-agent>
            'User-Agent' header value
         --cseq <cseq>
@@ -76,9 +79,9 @@ $HELP = <<HELP;
         --transport
            Use specified transport, (valid: tcp, udp; default: tcp)
 
-    (Options with one dash set the SIP short-form header with the same name.
-    Options with two dashes set the SIP long-form header with the same name,
-    or are specific to $0.)
+        --tracehops 
+          Send the request with Max-Forwards of 0, then resend increasing
+          by 1 each time, repeating until some response other than 483 is received.
 
     <server>
       The server (host name) to which the request is sent.  This may include
@@ -102,9 +105,10 @@ HELP
 
 ## Process arguments.
 
-$result = GetOptions(# First argument must be all word chars.
+&GetOptions(# First argument must be all word chars.
 		     'help'              => \$help,
-		     'verbose'           => \$ShowRequest,
+           'verbose+'          => \$Verbosity,
+           'color!'            => \$UseColor,
 		     'timeout=i'         => \$Timeout,
 		     '1|show1xx'         => \$Show1xx,
 		     'symmetric=i'       => \$SymmetricPort,
@@ -116,12 +120,14 @@ $result = GetOptions(# First argument must be all word chars.
 		     'max-forwards=i'    => \$MaxForwards,
 		     'user-agent=s'      => \$UserAgent,
 		     'cseq=i'            => \$Cseq,
-		     'route=s'           => \$Route,
+           'require=s'         => \$Require,
+           'route=s'           => \$Route,
 		     'expires=i'         => \$Expires,
 		     'event=s'           => \$Event,
 		     'header=s'          => \@Header,
 		     'use-via-name'      => \$UseViaName,
-		     'transport=s'       => \$TransportIn,
+           'transport=s'       => \$TransportIn,
+           'tracehops'         => \$TraceHops,
     )
     || do { print STDERR $mini_HELP; exit 1; };
 
@@ -195,6 +201,8 @@ connect( SIP, $serverAddr )
 
 select(SIP); $| = 1; select(STDOUT);
 
+select(STDERR); $| = 1; select(STDOUT);
+
 ## Request Line
 $Method = uc($Method);
 
@@ -208,6 +216,12 @@ if ( ! $To )
 die "Invalid hop count '$MaxForwards';\n   must be numeric\n"
     if defined( $MaxForwards ) && $MaxForwards !~ m/^\d+/;
 
+warn "Specifying max-forwards with tracehops is invalid: max-forwards ignored"
+    if $MaxForwards and $TraceHops;
+
+$MaxForwards = $DefaultMaxForwards 
+    unless $MaxForwards;
+
 $MyAddr = inet_ntoa($myAddr);
 
 if ( $UseViaName )
@@ -219,10 +233,6 @@ else
 {
   $MySystem = $MyAddr;
 }
-$Branch = "z9hG4bK-".&RandHash;
-$UCTransport = uc($Transport);
-$Via = "SIP/$SipVersion/$UCTransport $MySystem:$myPort;branch=$Branch";
-
 
 if ( ! $From )
 {
@@ -234,129 +244,248 @@ if ( ! $Contact )
     $Contact = "<sip:sipsend\@$MySystem:$myPort;transport=$Transport>";
 }
 
-if ( ! $CallId )
-{
-    $CallId = &RandHash;
-}
-
 $Cseq = 1 unless $Cseq;
 
 $UserAgent = $DefaultUserAgent unless $UserAgent;
 
-# Construct initial request
-
-$Request = &SipRequest;
-
-
-print STDERR "Sending to $Server:$Port:\n$Request\n" if $ShowRequest;
-
-print SIP $Request;
-
 $| = 1;
 
-$StatusClass=0;
-$AuthState = 'None';
-
-while ( $StatusClass < 2 )
+if ( $TraceHops )
 {
-    $Rsp = '';
-    $RspState = 'None';
-    $RspContentLength = 0;
+    $StatusCode = '';
+    $MaxForwards = 0;
+    $StatusCode = 483;
 
-    while( <SIP> ) # see also conditional 'last' at bottom
+    while ( ( $StatusCode == 483 
+              or ( $StatusCode >= 300 and $StatusCode < 400 )
+            ) 
+            and $MaxForwards < 71 )
     {
-        #print STDERR "trace: xxxx\n$_\nxxxx\n";
-        if ( $RspState eq 'None' )
+        $CallId = &RandHash;
+        
+        print STDERR &Blue()."Sending Max-Forwards: $MaxForwards".&Black()."\n";
+
+        ($StatusCode, $Rsp) = &RequestAndResponse;
+
+        if ( $Verbosity < 1 )
         {
-            next if /^\s*$/;
-            if ( m|^SIP/(\d+\.\d+)\s+(([1-6])[0-9][0-9])\s+(.+)$| )
+            my ( $shortRsp, $line, @rspLines, $inHeader, $seenTopVia );
+            @rspLines = split( /\r\n/, $Rsp );
+            $shortRsp = $rspLines[0]."\r\n";
+            $inHeader = 1;
+            $seenTopVia = 0;
+            $bodyLine = 0;
+            foreach $line ( @rspLines[1 .. $#rspLines] )
             {
-                $StatusClass = $3;
-                $StatusCode = $2;
+                if ( $inHeader )
+                {
+                    $shortRsp .= "$line\r\n" if ( $line =~ m/\A(Server|User-Agent|Reason|Warning):/i );
+                    if ( $line eq '' )
+                    {
+                        $shortRsp .= "\r\n";
+                        $inHeader = 0;
+                        $bodyLine = 1;
+                    }
+                }
+                elsif ( $bodyLine == 1 )
+                {
+                    $shortRsp .= "$line\r\n";
+                    $bodyLine++;
+                }
+                elsif ( ! $seenTopVia and $line =~ m/\AVia:/i )
+                {
+                    $shortRsp .= "$line\r\n";
+                    $seenTopVia = 1;
+                }
+                elsif ( $line =~ m/\A(Record-)?Route:/i )
+                {
+                    $shortRsp .= "$line\r\n";
+                }
+            }
+            if ( $StatusCode == 483 and $MaxForwards < 71 )
+            {
+                printIntermediate( $shortRsp );
             }
             else
             {
-                die "Invalid response line: $_\n";
+                printReceived( $Rsp );
             }
-
-            $RspState = 'Headers';
         }
-        elsif ( $RspState eq 'Headers' )
+        else
         {
-            if ( m|^Content-Length\s*:\s*(\d+)|i )
-            {
-                $RspContentLength = $1;
-            }
-            if ( m|^WWW-Authenticate\s*:\s*Digest\s+(.+)|i )
-            {
-                $Challenge = $1;
-            }
-            if ( m|^Proxy-Authenticate\s*:\s*Digest\s+(.+)|i )
-            {
-                $ProxyChallenge = $1;
-            }
-            elsif ( $_ eq $CRLF )
-            {
-                $RspState = $RspContentLength ? 'Body' : 'Done';
-            }
-        }
-        elsif ( $RspState eq 'Body' )
-        {
-            $RspContentLength -= length;
-            if ( $RspContentLength == 0 )
-            {
-                $RspState = 'Done';
-            }
-            elsif ( $RspContentLength < 0 )
-            {
-                $Rsp .= $_;
-                print STDERR $Rsp, "\n";
-                die "Lost stream syncronization\n";
-            }
+            printReceived( $Rsp )
+                unless $Show1xx;
         }
 
-        $Rsp .= $_ unless ( $StatusClass == 1 && ! $Show1xx );
-
-        last if $RspState eq 'Done';
+        $MaxForwards++;
     }
-    # A response has been accumulated, or the connection was closed.
+}
+else
+{
+    $CallId = &RandHash if ( ! $CallId );
+    ($StatusCode, $Rsp) = &RequestAndResponse;
+    # Show the final response unless it was already shown 
+    &printReceived( $Rsp ) 
+        unless $Show1xx;
+}
 
-    if ( $RspState ne 'Done' )
+#
+# ANSI color sequences for nice color output
+sub Black
+{
+    return $UseColor ? "\033[0m" : '';;
+}
+
+sub Magenta
+{
+    return $UseColor ? "\033[35m" : '';
+}
+
+sub Blue
+{
+    return $UseColor ? "\033[34m" : '';
+}
+
+sub printSending
+{
+    my ( $server, $port, $msg, $note ) = @_;
+    print STDERR "+++++++++++++++++++++++++++\n";
+    print STDERR "$note\n" if $note;
+    print STDERR "Sending:".&Blue()."\n$msg".&Black()."\n";
+    print STDERR "+++++++++++++++++++++++++++\n";
+}
+
+sub printIntermediate
+{
+    my ( $msg, $note ) = @_;
+    print STDERR "+++++++++++++++++++++++++++\n";
+    print STDERR "$note\n" if $note;
+    print STDERR "Received:".&Magenta()."\n$msg".&Black()."\n";
+    print STDERR "+++++++++++++++++++++++++++\n";
+}
+
+sub printReceived
+{
+    my ( $msg, $note ) = @_;
+    print STDERR "$note\n" if $note;
+    print STDERR &Magenta()."Received:".&Black()."\n";
+    print "$msg\n";
+}
+
+sub RequestAndResponse
+{
+    $Request = &SipRequest;
+
+    printSending( $Server, $Port, $Request )
+        if $Verbosity;
+
+    print SIP $Request;
+
+    $StatusClass=0;
+    $AuthState = 'None';
+
+    while ( $StatusClass < 2 )
     {
-        die "[premature connection close; state=$RspState]\n";
-    }
+        $Rsp = '';
+        $RspState = 'None';
+        $RspContentLength = 0;
 
-    if ( $AuthState eq 'None'
-         && ( $StatusCode == 401 || $StatusCode == 407 )
-         )
-    {
-        if ( @Credentials )
+        while( <SIP> ) # see also conditional 'last' at bottom
         {
-            print STDERR "Challenge:\n$Rsp\n" if $ShowRequest || $Show1xx;
+            if ( $RspState eq 'None' )
+            {
+                next if /^\s*$/;
+                if ( m|^SIP/(\d+\.\d+)\s+(([1-6])[0-9][0-9])\s+(.+)$| )
+                {
+                    $StatusClass = $3;
+                    $StatusCode = $2;
+                }
+                else
+                {
+                    die "Invalid response line: $_\n";
+                }
 
-            &AuthenticateRequest;
-            $Cseq++;
-            $Request = &SipRequest;
+                $RspState = 'Headers';
+            }
+            elsif ( $RspState eq 'Headers' )
+            {
+                if ( m|^Content-Length\s*:\s*(\d+)|i )
+                {
+                    $RspContentLength = $1;
+                }
+                if ( m|^WWW-Authenticate\s*:\s*Digest\s+(.+)|i )
+                {
+                    $Challenge = $1;
+                }
+                if ( m|^Proxy-Authenticate\s*:\s*Digest\s+(.+)|i )
+                {
+                    $ProxyChallenge = $1;
+                }
+                elsif ( $_ eq $CRLF )
+                {
+                    $RspState = $RspContentLength ? 'Body' : 'Done';
+                }
+            }
+            elsif ( $RspState eq 'Body' )
+            {
+                $RspContentLength -= length;
+                if ( $RspContentLength == 0 )
+                {
+                    $RspState = 'Done';
+                }
+                elsif ( $RspContentLength < 0 )
+                {
+                    $Rsp .= $_;
+                    &printReceived( $Rsp );
+                    die "Lost stream syncronization\n";
+                }
+            }
 
-            print STDERR "Authenticated request:\n$Request\n" if $ShowRequest || $Show1xx;
-            print SIP $Request;
+            $Rsp .= $_ unless ( $StatusClass == 1 && ! $Show1xx );
 
-            $AuthState = 'Attempted';
+            last if $RspState eq 'Done';
+        }
+        # A response has been accumulated, or the connection was closed.
 
-	    # Go to the top of the loop to get the response.
-	    # (Skip the print below.)
-	    redo;
-       }
+        if ( $RspState ne 'Done' )
+        {
+            die "[premature connection close; state=$RspState]\n";
+        }
+
+        if ( $AuthState eq 'None'
+             && ( $StatusCode == 401 || $StatusCode == 407 )
+            )
+        {
+            if ( @Credentials )
+            {
+                &printIntermediate( $Rsp, "Challenge" )
+                    if $Verbosity || $Show1xx;
+
+                &AuthenticateRequest;
+                $Cseq++;
+                $Request = &SipRequest;
+
+                printSending( $Server, $Port, $Request, "Authenticated request" )
+                    if $Verbosity || $Show1xx;
+                print SIP $Request;
+
+                $AuthState = 'Attempted';
+
+                # Go to the top of the loop to get the response.
+                # (Skip the print below.)
+                redo;
+            }
+        }
+
+        # Show responses.
+        &printReceived( $Rsp )
+            if $Show1xx;
     }
 
-    # Show responses.
-    print $Rsp, "\n" if $Show1xx;
+    return ( $StatusCode, $Rsp );
 }
 
 close SIP;
-
-# Show the final response unless it was shown above.
-print $Rsp, "\n" unless $Show1xx;
 
 exit 0;
 
@@ -374,6 +503,10 @@ sub SipRequest
                         $year+1900, $hour, $min, $sec
                         );
 
+    $Branch = "z9hG4bK-".&RandHash;
+    $UCTransport = uc($Transport);
+    $Via = "SIP/$SipVersion/$UCTransport $MySystem:$myPort;branch=$Branch";
+
     $request  = "$Method $Target SIP/$SipVersion" . $CRLF;
     $request .= "Route: $Route" . $CRLF if $Route;
     $request .= "Via: $Via" . $CRLF;
@@ -381,11 +514,12 @@ sub SipRequest
     $request .= "Proxy-Authorization: $ProxyAuthorization" . $CRLF if $ProxyAuthorization;
     $request .= "To: $To" . $CRLF if $To;
     $request .= "From: $From" . $CRLF;
+    $request .= "Contact: $Contact" . $CRLF;
     $request .= "Call-ID: $CallId" . $CRLF;
     $request .= "Cseq: $Cseq $Method" . $CRLF;
     $request .= "Max-Forwards: $MaxForwards" . $CRLF;
     $request .= "User-Agent: $UserAgent" . $CRLF;
-    $request .= "Contact: $Contact" . $CRLF;
+    $request .= "Require: $Require" . $CRLF if $Require;
     $request .= "Expires: $Expires" . $CRLF if $Expires;
     $request .= "Event: $Event" . $CRLF if $Event;
     $request .= "Date: $Date" . $CRLF;
