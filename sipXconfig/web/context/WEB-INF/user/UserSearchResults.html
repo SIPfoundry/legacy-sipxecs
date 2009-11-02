@@ -1,6 +1,7 @@
 <span jwcid="$content$">
 	<fieldset>
-		<table jwcid="userTable" id="user:list">
+		<table jwcid="userTable@common/Table" id="user:list" source="ognl:users" columns="ognl:columns"
+		  initialSortColumn="lastName" row="ognl:currentUser" selections="ognl:selections">
 		  <span jwcid="userNameColumnValue@Block">
               <img jwcid="@Image" image="ognl:getUserIcon(currentUser)" align="absmiddle"
                    title="ognl:getUserIconTitle(currentUser)" />

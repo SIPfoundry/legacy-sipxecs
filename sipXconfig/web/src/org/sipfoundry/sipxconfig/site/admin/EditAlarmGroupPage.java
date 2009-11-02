@@ -102,6 +102,7 @@ public abstract class EditAlarmGroupPage extends UserBasePage {
         SelectUsersCallback callback = new SelectUsersCallback(this.getPage());
         callback.setIdsPropertyName("addedUsers");
         editUsers.setCallback(callback);
+        editUsers.setUseEmailAddress(true);
         return editUsers;
     }
 

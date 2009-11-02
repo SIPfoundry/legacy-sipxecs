@@ -27,7 +27,7 @@
         <a jwcid="addExtensions@LinkSubmit" listener="listener:addUsers"><span key="link.addEmailUser" /></a>
       </li>
     </ul>
-    <span jwcid="extensionsTable@user/UserSearchResults" users="ognl:group.users" />
+    <span jwcid="extensionsTable@user/UserSearchResults" users="ognl:group.users" useEmailAddress="ognl:true" />
     <span jwcid="@Submit" listener="listener:delete" value="message:label.delete" />
 
     <ul jwcid="formActions@common/FormActions" listener="listener:commitGroup" callback="ognl:callback" />

@@ -10,15 +10,20 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class SelectUsers extends BasePage {
     public static final String PAGE = "user/SelectUsers";
 
-    public abstract CoreContext getCoreContext();
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
+    @Persist
     public abstract SelectUsersCallback getCallback();
 
     public abstract void setCallback(SelectUsersCallback callback);
@@ -26,6 +31,12 @@ public abstract class SelectUsers extends BasePage {
     public abstract void setTitle(String title);
 
     public abstract void setPrompt(String title);
+
+    @InitialValue(value = "true")
+    public abstract void setSimpleSearch(boolean simpleSearch);
+
+    @InitialValue(value = "false")
+    public abstract void setUseEmailAddress(boolean useEmailAddress);
 
     public void select(IRequestCycle cycle) {
         UserTable table = (UserTable) getComponent("searchResults");
