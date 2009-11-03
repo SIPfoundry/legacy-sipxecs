@@ -14,6 +14,7 @@
    <name>sipXecs PBX</name>
    <description>Standard sipXpbx PBX</description>
    <packagelist>
+     <packagereq type="mandatory">sipxrelay</packagereq>
      <packagereq type="mandatory">sipxacd</packagereq>
      <packagereq type="mandatory">sipxpark</packagereq>
      <packagereq type="mandatory">sipxpresence</packagereq>
@@ -38,6 +39,7 @@
    <description>sipXpbx plus debug info</description>
    <packagelist>
      <!-- START: copy of sipxecs packages -->
+     <packagereq type="mandatory">sipxrelay</packagereq>
      <packagereq type="mandatory">sipxacd</packagereq>
      <packagereq type="mandatory">sipxpark</packagereq>
      <packagereq type="mandatory">sipxpresence</packagereq>
