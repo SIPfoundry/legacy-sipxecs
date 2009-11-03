@@ -122,4 +122,12 @@
       <value>5269</value>
     </setting>
   </group>
+  <group name="message-logging">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
 </model>

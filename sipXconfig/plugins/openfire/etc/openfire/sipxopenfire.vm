@@ -32,4 +32,6 @@
 #generate_severs_list($allowedServers, 'allowed-servers')
 #generate_severs_list($disallowedServers, 'disallowed-servers')
 	</server-to-server>
+	<IM-message-logging>$settings.getSetting('message-logging/enabled').Value</IM-message-logging>
+	<IM-message-logging-directory>$service.logDir</IM-message-logging-directory>
 </sipxopenfire-config>

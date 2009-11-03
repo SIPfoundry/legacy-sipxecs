@@ -37,4 +37,6 @@
 			<port>1111</port>
 		</disallowed-servers>
 	</server-to-server>
+	<IM-message-logging>0</IM-message-logging>
+	<IM-message-logging-directory>LogDirTest</IM-message-logging-directory>
 </sipxopenfire-config>
