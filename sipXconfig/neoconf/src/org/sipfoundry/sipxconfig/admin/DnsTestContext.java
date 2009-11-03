@@ -9,13 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import org.sipfoundry.sipxconfig.admin.configdiag.ExternalCommand;
-
 public interface DnsTestContext {
-    public String getResult();
-    public boolean isValid();
-    public void execute(boolean provideDns);
-    public ExternalCommand getCommand();
-    public boolean isRunTestNeeded();
+    String getResult();
 
+    boolean isValid();
+
+    void execute(boolean provideDns);
+
+    boolean isRunTestNeeded();
 }

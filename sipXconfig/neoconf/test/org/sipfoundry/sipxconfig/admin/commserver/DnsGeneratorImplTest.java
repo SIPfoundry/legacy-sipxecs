@@ -10,11 +10,10 @@
 
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import static org.easymock.EasyMock.*;
-
 import java.util.ArrayList;
 import java.util.Collection;
 
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
@@ -23,9 +22,11 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 
-import junit.framework.TestCase;
-
-import static org.sipfoundry.sipxconfig.test.TestUtil.getMockSipxServiceManager;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createStrictMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
 
 public class DnsGeneratorImplTest extends TestCase {
     public void testGenerate() {
@@ -42,9 +43,20 @@ public class DnsGeneratorImplTest extends TestCase {
         SipxService registrarService = new SipxRegistrarService();
         registrarService.setBeanName(SipxRegistrarService.BEAN_ID);
         sipxServices.add(registrarService);
+        Collection<SipxService> sipxIMServices = new ArrayList<SipxService>();
+        SipxService openFireService = new SipxService() {
+        };
+        openFireService.setBeanName("sipxOpenfireService");
+        sipxIMServices.add(openFireService);
 
         // This provides the proxy service bean name
-        SipxServiceManager sm = getMockSipxServiceManager(true, proxyService);
+        SipxServiceManager sm = createMock(SipxServiceManager.class);
+        sm.getServiceByBeanId("sipxOpenfireService");
+        expectLastCall().andReturn(openFireService).anyTimes();
+        sm.getServiceByBeanId(proxyService.getBeanId());
+        expectLastCall().andReturn(proxyService).anyTimes();
+        sm.getServiceByName(proxyService.getProcessName());
+        expectLastCall().andReturn(proxyService).anyTimes();
 
         Location l1 = new Location();
         l1.setUniqueId();
@@ -57,6 +69,7 @@ public class DnsGeneratorImplTest extends TestCase {
         l2.setUniqueId();
         l2.setAddress("10.1.1.2");
         l2.setFqdn("s2.ex.org");
+        l2.setServiceDefinitions(sipxIMServices);
 
         Location l3 = new Location();
         l3.setUniqueId();
@@ -69,16 +82,16 @@ public class DnsGeneratorImplTest extends TestCase {
         l4.setFqdn("redund.ex.org");
         l4.setServiceDefinitions(sipxServices);
 
-        // DNS generator calls getLocations twice each time it's called.
+        // DNS generator calls getLocations three times each time it's called.
         LocationsManager lm = createMock(LocationsManager.class);
         lm.getPrimaryLocation();
         expectLastCall().andReturn(l1).anyTimes();
         lm.getLocations();
-        expectLastCall().andReturn(array(l1)).times(2);
+        expectLastCall().andReturn(array(l1));
         lm.getLocations();
-        expectLastCall().andReturn(array(l1, l2, l3)).times(4);
+        expectLastCall().andReturn(array(l1, l2, l3)).times(2);
         lm.getLocations();
-        expectLastCall().andReturn(array(l1, l3, l4)).times(2);
+        expectLastCall().andReturn(array(l1, l3, l4));
 
         final ZoneAdminApi api = createStrictMock(ZoneAdminApi.class);
 
@@ -87,7 +100,7 @@ public class DnsGeneratorImplTest extends TestCase {
 
         // all 3 locations
         api.generateDns("primary.ex.org",
-           "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061");
+            "primary.ex.org/10.1.1.1 -o s2.ex.org/10.1.1.2 -o s3.ex.org/10.1.1.3 -x s2.ex.org/10.1.1.2 --zone --serial 2 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
         // deleting 2nd...
         api.generateDns("primary.ex.org",
@@ -97,7 +110,7 @@ public class DnsGeneratorImplTest extends TestCase {
         api.generateDns("primary.ex.org",
             "primary.ex.org/10.1.1.1 redund.ex.org/10.1.1.4 -o s3.ex.org/10.1.1.3 --zone --serial 4 --provide-dns --port-TCP 5061 --port-UDP 5061");
 
-        replay(lm, api);
+        replay(sm, lm, api);
 
         ApiProvider<ZoneAdminApi> apiProvider = new ApiProvider<ZoneAdminApi>() {
             public ZoneAdminApi getApi(String serviceUrl) {
@@ -122,7 +135,7 @@ public class DnsGeneratorImplTest extends TestCase {
         // primary and redundant locations
         impl.generate();
 
-        verify(lm, api);
+        verify(sm, lm, api);
     }
 
     private static <T> T[] array(T... items) {

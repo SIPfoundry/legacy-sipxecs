@@ -7,6 +7,8 @@ ExitStatus=0
 SerialNumber=00
 PortTCP=5060
 PortUDP=5060
+XMPPClientPort=5222
+XMPPServerPort=5269
 ProvideDNS=EXTERNAL
 Feedback=QUIET
 
@@ -23,6 +25,7 @@ Usage:
 
     sipx-dns <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -x | --xmpp } <system-name>[/<ipaddr] ] ...
              [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
              [ { -T | --port-TCP } ]
              [ { -U | --port-UDP } ]
@@ -39,6 +42,7 @@ Usage:
     sipx-dns { -t | --test }
              <sip-domain> <callserver-name>[/<ipaddr>]...
              [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -x | --xmpp } <system-name>[/<ipaddr>] ] ...
              [ { -T | --port-TCP } ]
              [ { -U | --port-UDP } ]
              [ { -p | --provide-dns } ]
@@ -71,6 +75,10 @@ Usage:
     --other | -o system-name/ipaddr
 
         Specifies a name/address pair that is not a callserver.
+
+    --xmpp | -x system-name/ipaddr
+
+        Specifies a name/address pair that identifies the location(s) of the xmpp server(s).
 
     --provide-dns | -p 
 
@@ -207,6 +215,20 @@ do
             fi
             ;;
 
+        -x|--xmpp)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name/ip-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ClusterHosts[${HostMax}]=${2}
+                Type[${HostMax}]="XMPP"
+                HostMax=$((${HostMax} + 1))
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
         -s|--serial)
             if [ $# -lt 2 ]
             then
@@ -219,7 +241,7 @@ do
             fi
             ;;
 
-	-T|--port-TCP)
+        -T|--port-TCP)
             if [ $# -lt 2 ]
             then
                 echo "Must specify <sipx-listening-TCP-port> with ${1}" 1>&2
@@ -229,9 +251,9 @@ do
                 PortTCP=$2
                 shift # consume the switch ( for n values, consume n-1 )
             fi
-	    ;;
+            ;;
 
-	 -U|--port-UDP)
+        -U|--port-UDP)
             if [ $# -lt 2 ]
             then
                 echo "Must specify <Must specify <sipx-listening-UDP-port> with ${1}" 1>&2
@@ -241,7 +263,7 @@ do
                 PortUDP=$2
                 shift # consume the switch ( for n values, consume n-1 )
             fi
-	    ;;
+            ;;
 
         ##
         ## handle an unknown switch
@@ -262,7 +284,7 @@ do
                 HostMax=$((${HostMax} + 1))
             fi
             ;;
-    esac           
+    esac
 
     shift # always consume 1
 done
@@ -318,6 +340,7 @@ done
 
 test ${ExitStatus} -eq 0 || exit ${ExitStatus}
 
+
 verbose () {
     test "${Feedback}" = "VERBOSE"
 }
@@ -354,15 +377,42 @@ EOF
 generate_a_records() {
     for host in `seq 0 ${HostMax}`
     do
-      if [ -n "${Addr[${host}]}" ]
+      if [ -n "${Addr[${host}]}" ] && [ "${Type[${host}]}" != "XMPP" ]
       then
           cat <<EOF
 
 ; A record for ${Host[${host}]}
-;   
-${Host[${host}]}.	IN	A	${Addr[${host}]}
+;
+${Host[${host}]}.       IN      A       ${Addr[${host}]}
 EOF
       fi
+    done
+
+    ### See if there are any XMPP hosts which need A records generated
+    for xmpphost in `seq 0 ${HostMax}`
+    do
+       if [ "${Type[${xmpphost}]}" = "XMPP" ]
+       then
+          xmppfound=NO
+          for host in `seq 0 ${HostMax}`
+          do
+             if [ "${Type[${host}]}" != "XMPP" ] && [ "${ClusterHosts[${xmpphost}]}" = "${ClusterHosts[${host}]}" ]
+             then
+                 xmppfound=OK
+                 break
+             fi
+          done
+
+          if [ ${xmppfound} = NO ]
+          then
+             cat <<EOF
+
+; A record for ${Host[${xmpphost}]}
+;
+${Host[${xmpphost}]}.   IN      A       ${Addr[${xmpphost}]}
+EOF
+          fi
+       fi
     done
 }
 
@@ -374,13 +424,13 @@ cat <<EOF
 ;     priority: 2  weight: 0
 ;     protocol: "SIP+D2T"  regex: ""  uri: _sip._tcp.${SipDomain}
 ;
-${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.${SipDomain}.
+${SipDomain}.           IN      NAPTR   2 0 "s" "SIP+D2T" "" _sip._tcp.${SipDomain}.
 
 ; NAPTR record for SIP UDP ${SipDomain}
 ;     priority: 2  weight: 0
 ;     protocol: "SIP+D2U"  regex: ""  uri: _sip._udp.${SipDomain}
 ;
-${SipDomain}.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.${SipDomain}.
+${SipDomain}.           IN      NAPTR   2 0 "s" "SIP+D2U" "" _sip._udp.${SipDomain}.
 EOF
 
 }
@@ -397,12 +447,12 @@ generate_domain_srv_records () {
 ; SRV record for domain SIP TCP ${SipDomain} 
 ;     priority: 1  weight: 0  port: ${PortTCP}  server: ${server}
 ;
-_sip._tcp.${SipDomain}.	IN	SRV	1 0 ${PortTCP} ${server}.
+_sip._tcp.${SipDomain}. IN      SRV     1 0 ${PortTCP} ${server}.
 
 ; SRV record for domain SIP UDP ${SipDomain} 
 ;     priority: 1  weight: 0  port: ${PortUDP}  server: ${server}
 ;
-_sip._udp.${SipDomain}.	IN	SRV	1 0 ${PortUDP} ${server}.
+_sip._udp.${SipDomain}. IN      SRV     1 0 ${PortUDP} ${server}.
 EOF
         fi
     done
@@ -420,7 +470,7 @@ generate_service_srv_records () {
 ; SRV record for service SIP TCP rr.${server}
 ;     priority: 1  weight: 0  port: 5070  server: ${server}
 ;
-_sip._tcp.rr.${server}.	IN	SRV	1   0 5070 ${server}.
+_sip._tcp.rr.${server}. IN      SRV     1   0 5070 ${server}.
 EOF
             for backuphost in `seq 0 ${HostMax}`
             do
@@ -434,11 +484,35 @@ EOF
 ; SRV record for service failover SIP TCP rr.${backup}
 ;     priority: 2  weight: 100  port: 5070  server: ${backup}
 ;
-_sip._tcp.rr.${server}.	IN	SRV	2 100 5070 ${backup}.
+_sip._tcp.rr.${server}. IN      SRV     2 100 5070 ${backup}.
 EOF
                     fi
                 fi
             done
+        fi
+    done
+}
+
+
+generate_xmpp_srv_records () {
+
+    for xmpphost in `seq 0 ${HostMax}`
+    do
+        if [ "${Type[${xmpphost}]}" = "XMPP" ]
+        then
+            server=${Host[${xmpphost}]}
+            cat <<EOF
+
+; SRV record for XMPP SERVER TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5269  server: ${server}
+;
+_xmpp-server._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
+
+; SRV record for XMPP CLIENT TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;
+_xmpp-client._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+EOF
         fi
     done
 }
@@ -468,6 +542,8 @@ EOF
     generate_domain_srv_records
 
     generate_service_srv_records
+
+    generate_xmpp_srv_records
 
     cat <<EOF
 
@@ -642,7 +718,7 @@ validate_domain_naptr_records () {
             perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
 
 ; NAPTR record for ${name}
-;     priority: ${priority}  weight: ${weight}  
+;     priority: ${priority}  weight: ${weight}
 ;     protocol: ${protocode}  regex:  ${regex}  uri: ${fulltarget}
 ;
 ${fullname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${naptrtype}\t${protocode}\t${regex}\t${fulltarget}
@@ -818,6 +894,61 @@ EOF
 }
 
 
+validate_xmpp_srv_records () {
+    local protoname
+    local name
+    local intag
+    local rectype
+    local priority
+    local weight
+    local port
+    local fulltarget
+    local target
+    local extrajunk
+    local resolves=NO
+
+    verbose && echo -e "\nChecking XMPP 'SRV' Records:"
+    generate_xmpp_srv_records \
+    | strip_space_and_comments \
+    | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
+    do
+        name=` \
+            normName ${protoname} \
+            | sed -e 's/_xmpp-server\._tcp\./XMPP SERVER TCP /' \
+            | sed -e 's/_xmpp-client\._tcp\./XMPP CLIENT TCP /' \
+            `
+        target=`normName ${fulltarget}`
+
+        # look for an SRV record that points to the target server
+        for server in \
+            `dig  -t srv ${digOpts} ${protoname} \
+            | tr A-Z a-z \
+            `; \
+        do
+            if [ "${server}" = "${fulltarget}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
+        fi
+    done
+}
+
+
 validate_bind_records () {
 
     ErrorOut=`mktemp -t sipx-dns.XXXXXX`
@@ -835,6 +966,8 @@ validate_bind_records () {
     validate_domain_srv_records
 
     validate_service_srv_records
+
+    validate_xmpp_srv_records
 
     validate_a_records
 

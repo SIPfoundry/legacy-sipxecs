@@ -10,7 +10,9 @@
 
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -53,27 +55,33 @@ public class DnsGeneratorImpl implements DnsGenerator, DaoEventListener {
 
         Formatter cmd = new Formatter();
         SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        List<Location> locations = new ArrayList<Location>();
+        for (Location location : m_locationsManager.getLocations()) {
+            if (!location.equals(locationToSkip)) {
+                locations.add(location);
+            }
+        }
 
         // First list the servers that have a SIP Router role
-        for (Location location : m_locationsManager.getLocations()) {
-            if (!location.isServiceInstalled(proxyService)) {
-                continue;
+        for (Location location : locations) {
+            if (location.isServiceInstalled(proxyService)) {
+                cmd.format("%s/%s ", location.getFqdn(), location.getAddress());
             }
-            if (location.equals(locationToSkip)) {
-                continue;
-            }
-            cmd.format("%s/%s ", location.getFqdn(), location.getAddress());
         }
 
         // Next list the servers that do not have a SIP Router role
-        for (Location location : m_locationsManager.getLocations()) {
-            if (location.isServiceInstalled(proxyService)) {
-                continue;
+        for (Location location : locations) {
+            if (!location.isServiceInstalled(proxyService)) {
+                cmd.format("-o %s/%s ", location.getFqdn(), location.getAddress());
             }
-            if (location.equals(locationToSkip)) {
-                continue;
+        }
+
+        // Next add the server that is running the Instant Messaging Role
+        SipxService instantMessagingService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
+        for (Location location : locations) {
+            if (location.isServiceInstalled(instantMessagingService)) {
+                cmd.format("-x %s/%s ", location.getFqdn(), location.getAddress());
             }
-            cmd.format("-o %s/%s ", location.getFqdn(), location.getAddress());
         }
 
         String portTCP = ((SipxProxyService) proxyService).getSipTCPPort();

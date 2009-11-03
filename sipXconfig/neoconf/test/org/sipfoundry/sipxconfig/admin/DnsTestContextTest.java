@@ -63,6 +63,8 @@ public class DnsTestContextTest extends TestCase {
         SipxServiceManager serviceManager = createMock(SipxServiceManager.class);
         serviceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
         expectLastCall().andReturn(proxyService).anyTimes();
+        serviceManager.getServiceByBeanId("sipxOpenfireService");
+        expectLastCall().andReturn(null).anyTimes();
 
         replay(coreContext,locationsManager, serviceManager);
 
@@ -80,5 +82,4 @@ public class DnsTestContextTest extends TestCase {
         m_dnsTestContext.execute(true);
         assertEquals("DNS Configuration ERROR", m_dnsTestContext.getResult());
     }
-
 }
