@@ -134,7 +134,7 @@ function return_superadmin_password {
 
 # @SIPX_DBDIR@/credential.xml - Generate from scratch (pull special & superadmin passwords from the DB)
 echo "<?xml version=\"1.0\" standalone=\"yes\" ?>" > @SIPX_DBDIR@/credential.xml
-echo "<items type=\"credential\" xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/credential-00-00\">" >> @SIPX_DBDIR@/credential.xml
+echo "<items type=\"credential\" xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/credential-01-00\">" >> @SIPX_DBDIR@/credential.xml
 generate_credential_user "superadmin" $SIPXCHANGE_DOMAIN_NAME $(return_superadmin_password) DOESNOTMATTER @SIPX_DBDIR@/credential.xml
 for gg in {10..99}; do # The 89 Groups
    for y in {1..9}; do # The 9 Users per Group

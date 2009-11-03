@@ -151,7 +151,9 @@ fi
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init
 %{_datadir}/sipxecs/schema/xml.xsd
 %{_datadir}/sipxecs/schema/authrules.xsd
+%{_datadir}/sipxecs/schema/credential.xsd
 %{_datadir}/sipxecs/schema/registration.xsd
+%{_datadir}/sipxecs/schema/subscription.xsd
 %{_datadir}/sipxecs/schema/urlmap.xsd
 
 # These should match sipXlib.m4 or at least sent

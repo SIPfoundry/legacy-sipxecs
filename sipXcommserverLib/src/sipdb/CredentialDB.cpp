@@ -52,7 +52,7 @@ UtlString CredentialDB::gAuthtypeKey("authtype");
 const UtlString CredentialDB::sType("credential");
 
 // The XML namespace of the top-level 'items' element.
-const UtlString CredentialDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/credential-00-00");
+const UtlString CredentialDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/credential-01-00");
 
 /* ============================ CREATORS ================================== */
 

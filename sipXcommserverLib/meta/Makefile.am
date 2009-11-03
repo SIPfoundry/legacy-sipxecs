@@ -5,7 +5,9 @@ schemas = \
 	urlmap.xsd
 
 processed_schemas = \
-	registration.xsd
+	credential.xsd \
+	registration.xsd \
+	subscription.xsd
 
 EXTRA_DATA = \
 	$(schemas) \
