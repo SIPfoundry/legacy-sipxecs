@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
 import org.jivesoftware.openfire.PacketRouter;
 import org.jivesoftware.openfire.PresenceManager;
 import org.jivesoftware.openfire.XMPPServer;
@@ -195,39 +196,28 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome
                     + "/lib/sipxcommons.jar");
             System.setProperty("java.class.path", sb.toString());
-            String log4jPropertiesFile = configurationPath + "/log4j.properties";
 
-            if (new File(log4jPropertiesFile).exists()) {
-                /*
-                 * Override the file configuration setting.
-                 */
-                Properties props = new Properties();
-                props.load(new FileInputStream(log4jPropertiesFile));
-                String level = props.getProperty("log4j.category.org.sipfoundry.openfire");
+            // Configure log4j
+            Properties props = new Properties();
+            props.setProperty("log4j.rootLogger", "warn, file");
+            props.setProperty("log4j.logger.org.sipfoundry.openfire",
+                    SipFoundryLayout.mapSipFoundry2log4j(watcherConfig.getLogLevel()).toString());
+            props.setProperty("log4j.appender.file", SipFoundryAppender.class.getName());
+            props.setProperty("log4j.appender.file.File", logFile);
+            props.setProperty("log4j.appender.file.layout", SipFoundryLayout.class.getName());
+            props.setProperty("log4j.appender.file.layout.facility", "JAVA");
+            String log4jProps = configurationPath + "/log4j.properties";
+            if (new File(log4jProps).exists()) {
+                Properties fileProps = new Properties();
+                fileProps.load(new FileInputStream(log4jProps));
+                String level = fileProps
+                        .getProperty("log4j.logger.org.sipfoundry.openfire");
                 if (level != null) {
-                    watcherConfig.setLogLevel(level);
+                    props.setProperty("log4j.logger.org.sipfoundry.openfire",level);
                 }
             }
-            setLogAppender(new SipFoundryAppender(new SipFoundryLayout(), logFile));
-            // TODO -- this should be org.sipfoundry.openfire.
-            Logger applicationLogger = Logger.getLogger("org.sipfoundry");
+            PropertyConfigurator.configure(props);
 
-            /*
-             * Set the log level.
-             */
-            if (watcherConfig.getLogLevel().equals("TRACE")) {
-                applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
-            } else {
-                applicationLogger.setLevel(org.apache.log4j.Level.toLevel(watcherConfig
-                        .getLogLevel()));
-            }
-
-            applicationLogger.addAppender(getLogAppender());
-            if (System.getProperty("output.console") != null) {
-                applicationLogger.addAppender(new ConsoleAppender(new PatternLayout()));
-            }
-
-            
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         }

@@ -65,7 +65,7 @@ public class CallWatcher
 
     /**
      * Entry point for initialization when it is called from a plugin.
-     * Logging initialization is done in the plugin so we dont call it here.
+     * Logging initialization is done in the plugin so we don't call it here.
      * NOTE : the main init method should be removed later.
      * 
      * @throws Exception

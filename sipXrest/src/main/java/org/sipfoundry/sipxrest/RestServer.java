@@ -209,12 +209,12 @@ public class RestServer {
 
         restServerConfig = new RestServerConfigFileParser().parse("file://"
                 + configFileName);
-        Logger.getLogger(PACKAGE).setLevel(Level.toLevel(restServerConfig.getLogLevel()));
+        Logger.getLogger(PACKAGE).setLevel(
+                SipFoundryLayout.mapSipFoundry2log4j(restServerConfig.getLogLevel()));
         setAppender(new SipFoundryAppender(new SipFoundryLayout(),
                 RestServer.getRestServerConfig().getLogDirectory()
                 +"/sipxrest.log"));
         Logger.getLogger(PACKAGE).addAppender(getAppender());
-        
         
         accountManager = new AccountManagerImpl();
         sipStackBean = new SipStackBean();
