@@ -1,10 +1,15 @@
 package org.sipfoundry.openfire.plugin.presence;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
+import java.util.Properties;
 
+import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
 import org.dom4j.Element;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.interceptor.PacketInterceptor;
@@ -19,6 +24,8 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
+import org.sipfoundry.commons.log4j.SipFoundryAppender;
+import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.JID;
@@ -27,10 +34,31 @@ import org.jivesoftware.openfire.user.UserNotFoundException;
 
 public class MessagePacketInterceptor implements PacketInterceptor {
     private static Logger log = Logger.getLogger("org.sipfoundry");
+    private static Logger imLogger; 
     private SipXOpenfirePlugin plugin;
+    private boolean logImMessages;
+    private String imMessagesLogDirectory;
 
-    MessagePacketInterceptor(SipXOpenfirePlugin plugin) {
+    MessagePacketInterceptor(SipXOpenfirePlugin plugin,
+                             boolean logImMessages,
+                             String  imMessagesLogDirectory) {
         this.plugin = plugin;
+        this.logImMessages = logImMessages;
+        this.imMessagesLogDirectory = imMessagesLogDirectory;
+        
+        if(logImMessages)
+        {
+            try{
+                String logFile = this.imMessagesLogDirectory + "/sipxopenfire-im.log";
+                imLogger = Logger.getLogger("ImLogger");
+                imLogger.addAppender(new SipFoundryAppender(new SipFoundryLayout(), logFile));
+                imLogger.setLevel(org.apache.log4j.Level.INFO);
+                imLogger.info(">>>>>>starting<<<<<<");
+            }
+            catch( Exception ex ){
+                log.info("caught " + ex);
+            }
+        }
     }
  
     private final static String CALL_DIRECTIVE = "@call";
@@ -42,6 +70,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         try {
             if (packet instanceof Message) {
                 Message message = (Message) packet;
+                logIm( message, incoming, processed );
                 if (message.getType() == Message.Type.chat) {
                     processChatMessage(message, incoming, processed);
                 }
@@ -382,5 +411,33 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         message.setBody(newBodyText);
         // address #2
         message.deleteExtension( "html", "http://jabber.org/protocol/xhtml-im");
+    }
+
+    private void logIm( Message message, boolean incoming, boolean processed )
+    {
+        if( imLogger != null ){
+            // we only log chat and multichat messages - get out
+            // if we have anything different.
+            if (message.getType() == Message.Type.chat ||
+                message.getType() == Message.Type.groupchat)
+            {
+                // check if the message has a text body
+                if( message.getBody() != null ){
+                    // we log messages that arrive before we process them
+                    // and messages that leave after when have processed them.
+                    String direction;
+                    if( incoming && !processed ){
+                        direction = ":------->INCOMING<----------:";
+                    }
+                    else if( !incoming && processed ){
+                        direction = ":------->OUTGOING<----------:";
+                    }
+                    else{
+                        return;
+                    }
+                    imLogger.info( direction + message );
+                }
+            }
+        }
     }
 }

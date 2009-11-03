@@ -308,7 +308,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         PresenceUnifier.getInstance();
         // add packet interceptor
 
-        InterceptorManager.getInstance().addInterceptor(new MessagePacketInterceptor(this));
+        InterceptorManager.getInstance().addInterceptor(new MessagePacketInterceptor(this, watcherConfig.isImMessageLoggingEnabled(),
+                                                                                           watcherConfig.getImMessageLoggingDirectory()));
         log.info("plugin initializaton completed");
         log.info("DONE");
 

@@ -74,6 +74,13 @@ public class ConfigurationParser {
                "setSipXrestHttpPort", 0, new Class[] {
                    Integer.class
                });
+       
+       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "IM-message-logging"),
+               "setImMessageLogging", 0);
+       
+       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "IM-message-logging-directory"),
+               "setImMessageLoggingDirectory", 0);
+       
     }
    
    public WatcherConfig parse(String url) {

@@ -16,6 +16,8 @@ public class WatcherConfig {
     private String sipXrestIpAddress;
     private int sipXrestHttpPort;
     private int sipXrestHttpsPort;
+    private boolean bImMessageLogging = false;
+    private String imMessageLoggingDirectory;
     
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
@@ -189,6 +191,26 @@ public class WatcherConfig {
     public void setSipXrestHttpsPort( int sipXrestHttpsPort )
     {
         this.sipXrestHttpsPort = sipXrestHttpsPort;
+    }
+
+    public boolean isImMessageLoggingEnabled()
+    {
+        return this.bImMessageLogging;
+    }
+
+    public void setImMessageLogging( String imMessageLogging ) throws IllegalArgumentException 
+    {
+        this.bImMessageLogging = Boolean.parseBoolean(imMessageLogging);
+    }
+
+    public String getImMessageLoggingDirectory()
+    {
+        return this.imMessageLoggingDirectory;
+    }
+
+    public void setImMessageLoggingDirectory( String imMessageLoggingDirectory )
+    {
+        this.imMessageLoggingDirectory = imMessageLoggingDirectory;
     }
     
     
