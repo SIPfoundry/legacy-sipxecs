@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" output="bin.eclipse/test-classes" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar" sourcepath="/JAIN_SRC"/>
 	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
 	<classpathentry kind="lib" path="lib/junit.jar"/>

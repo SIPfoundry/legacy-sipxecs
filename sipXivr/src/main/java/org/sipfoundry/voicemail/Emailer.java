@@ -29,9 +29,10 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.MailboxPreferences;
 
 public class Emailer {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -53,14 +54,11 @@ public class Emailer {
         if (isJustTesting()) {
             return;
         }
-        
-        MailboxPreferences mbPrefs = mailbox.getMailboxPreferences();
-        String to = mbPrefs.getEmailAddress();
-        if (to == null) {
-            to = mbPrefs.getAlternateEmailAddress();
-        }
-        if (to != null) {
-            LOG.info("Emailer::queueVm2Email queuing e-mail for "+to);
+
+        User u = mailbox.getUser();
+        if (u.getEmailFormat() != EmailFormats.FORMAT_NONE ||
+            u.getAltEmailFormat() != EmailFormats.FORMAT_NONE) {
+            LOG.info("Emailer::queueVm2Email queuing e-mail for "+u.getIdentity());
             BackgroundMailer bm = getEmailer().new BackgroundMailer(mailbox, vmessage);
             submit(bm);
         }
@@ -168,37 +166,39 @@ public class Emailer {
          * Build and send the message as e-mails to the recipients
          */
         public void run() {
-            String to = m_mailbox.getMailboxPreferences().getEmailAddress();
-            String alt = m_mailbox.getMailboxPreferences().getAlternateEmailAddress();
+            User u = m_mailbox.getUser();
+            String to = u.getEmailAddress();
+            String alt = u.getAltEmailAddress();
             
             LOG.debug("Emailer::run started");
 
+            EmailFormats fmt = u.getEmailFormat();
             // Send to the main e-mail address
-            if (to != null && to.length() > 0) {
+            if (fmt != EmailFormats.FORMAT_NONE) {
                 try {
-                    LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
-                            m_vmessage.getMessageId(), to));
-                    boolean attachAudio = m_mailbox.getMailboxPreferences().isAttachVoicemailToEmail();
-                    EmailFormatter emf = EmailFormatter.getEmailFormatter(m_mailbox.getUser().getEmailFormat(), 
+                    boolean attachAudio = u.isAttachAudioToEmail();
+                    LOG.info(String.format("Emailer::run sending message %s as %s email to %s %s audio",
+                            m_vmessage.getMessageId(), fmt.toString(), to, attachAudio?"with":"without"));
+                    EmailFormatter emf = EmailFormatter.getEmailFormatter(fmt, 
                             m_ivrConfig, m_mailbox, m_vmessage);
                     javax.mail.Message message = buildMessage(emf, attachAudio);
                     message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(to));
                     Transport.send(message);
                 } catch (Exception e) {
                     LOG.error("Emailer::run problem sending email.", e) ;
-                    e.printStackTrace();
                 }
             }
             
             // Send to the alternate e-mail address
             // (this could be a bit better: if both main and alternative have the same value for 
-            //  isAttachVoicemailxxx, one could create the message once and send it with two recipients)
-            if(alt != null && alt.length() > 0) {
+            //  fmt and isAttachVoicemailxxx, one could create the message once and send it with two recipients)
+            fmt = u.getAltEmailFormat();
+            if(fmt != EmailFormats.FORMAT_NONE) {
                 try {
-                    LOG.info(String.format("Emailer::run sending message %s as e-mail to %s",
-                            m_vmessage.getMessageId(), alt));
-                    boolean attachAudio = m_mailbox.getMailboxPreferences().isAttachVoicemailToAlternateEmail();
-                    EmailFormatter emf = EmailFormatter.getEmailFormatter(m_mailbox.getUser().getAltEmailFormat(), 
+                    boolean attachAudio = u.isAltAttachAudioToEmail();
+                    LOG.info(String.format("Emailer::run sending message %s as %s email to %s %s audio",
+                            m_vmessage.getMessageId(), fmt.toString(), to, attachAudio?"with":"without"));
+                    EmailFormatter emf = EmailFormatter.getEmailFormatter(fmt, 
                             m_ivrConfig, m_mailbox, m_vmessage);
                     javax.mail.Message message = buildMessage(emf, attachAudio);
 
@@ -206,7 +206,6 @@ public class Emailer {
                     Transport.send(message);
                 } catch (Exception e) {
                     LOG.error("Emailer::run problem sending alternate email.", e) ;
-                    e.printStackTrace();
                 }
             }
             LOG.debug("Emailer::run finished");

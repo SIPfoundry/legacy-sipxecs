@@ -17,6 +17,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -116,6 +117,7 @@ public class ValidUsersXML {
                 User u = new User() ;
                 Vector<String> aliases = new Vector<String>();
                 HashMap<String, DistributionList> distributionLists = new HashMap<String, DistributionList>();
+                int emailCount = 0;
                 while (next != null) {
                     if (next.getNodeType() == Node.ELEMENT_NODE) {
                         String name = next.getNodeName();
@@ -154,6 +156,34 @@ public class ValidUsersXML {
                         	}
                         } else if (name.contentEquals("distributions")) {
                             loadDistributionLists(distributionLists, next);
+                        } else if (name.contentEquals("email")) {
+                            Node emailChild = next.getFirstChild();
+                            emailCount++;
+                            while(emailChild != null) {
+                                if (emailChild.getNodeType() == Node.ELEMENT_NODE) {
+                                    String name2 = emailChild.getNodeName();
+                                    String text2 = emailChild.getTextContent().trim();
+                                    if (name2.contentEquals("address")) {
+                                        if (emailCount == 1) {
+                                            u.setEmailAddress(text2);
+                                        } else {
+                                            u.setAltEmailAddress(text2);
+                                        }
+                                    } else if (name2.contentEquals("notification")) {
+                                        String attachAudio = getAttribute(emailChild, "attachAudio", "false");
+                                        if (emailCount == 1) {
+                                            u.setEmailFormat(text2);
+                                            u.setAttachAudioToEmail(Boolean.parseBoolean(attachAudio));
+                                        } else {
+                                            u.setAltEmailFormat(text2);
+                                            u.setAltAttachAudioToEmail(Boolean.parseBoolean(attachAudio));
+                                        }
+                                    } else if (name2.contentEquals("imap")) {
+                                        loadImapInfo(u, emailChild);
+                                    }
+                                }
+                                emailChild = emailChild.getNextSibling();
+                            }
                         }
                     } 
                     next = next.getNextSibling();
@@ -189,6 +219,36 @@ public class ValidUsersXML {
         return value;
     }
 
+    private void loadImapInfo(User u, Node imapNode) {
+        Node imapChild = imapNode.getFirstChild();
+        ImapInfo i = new ImapInfo();
+        i.setSynchronize(Boolean.parseBoolean(getAttribute(imapNode, "synchronize", "false")));
+        while (imapChild != null) {
+            if (imapChild.getNodeType() == Node.ELEMENT_NODE) {
+                String name2 = imapChild.getNodeName();
+                String text2 = imapChild.getTextContent().trim();
+                if (name2.contentEquals("host")) {
+                    i.setHost(text2);
+                } else if (name2.contentEquals("port")) {
+                    i.setPort(text2);
+                } else if (name2.contentEquals("useTLS")) {
+                    i.setUseTLS(Boolean.parseBoolean(text2));
+                } else if (name2.contentEquals("account")) {
+                    i.setAccount(text2);
+                } else if (name2.contentEquals("password")) {
+                    i.setPassword(text2);
+                }
+            }
+            imapChild = imapChild.getNextSibling();
+        }
+        // If account isn't set, use the e-mail username
+        if (i.getAccount() == null || i.getAccount().length() == 0) {
+                i.setAccount(u.getEmailAddress().split("@")[0]);
+
+        }
+        u.setImapInfo(i);
+    }
+    
     private void loadDistributionLists(HashMap<String, DistributionList> distributionLists, Node distributionNode) {
         Node lists = distributionNode.getFirstChild() ;
         while (lists != null) {

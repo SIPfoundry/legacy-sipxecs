@@ -51,8 +51,9 @@ public class EmailFormatterTest extends TestCase {
             // Test actually sending e-mail.  Don't use normally, as I don't want to get flooded with mail!
             Emailer.init(m_ivrConfig);
             Emailer.setJustTesting(false);
-            m_mailbox.getMailboxPreferences().setAttachVoicemailToEmail(true);
-            m_mailbox.getMailboxPreferences().setEmailAddress("woof@iwoof.org");
+            m_mailbox.getUser().setEmailFormat(EmailFormats.FORMAT_FULL);
+            m_mailbox.getUser().setAttachAudioToEmail(true);
+            m_mailbox.getUser().setEmailAddress("woof@iwoof.org");
         }
     }
 

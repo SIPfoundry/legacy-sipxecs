@@ -16,6 +16,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -47,6 +48,13 @@ public class ValidUsersXMLTest extends TestCase {
             "   <inDirectory>false</inDirectory>" +
             "   <hasVoicemail>true</hasVoicemail>" +
             "   <canRecordPrompts>false</canRecordPrompts>" +
+            "   <email>" +
+            "      <address>woofdogg@us.nortel.com</address>" +
+            "      <notification attachAudio=\"true\">BRIEF</notification>" +
+            "   </email>" +
+            "   <email>" +
+            "      <address>woofdogg@elsewhere</address>" +
+            "   </email>" +
             "   <distributions>" +
             "      <list digits=\"1\">" +
             "         <mailbox>+9663</mailbox>" +
@@ -67,6 +75,15 @@ public class ValidUsersXMLTest extends TestCase {
 		    "   <inDirectory>false</inDirectory>" +
             "   <hasVoicemail>true</hasVoicemail>" +
             "   <canRecordPrompts>false</canRecordPrompts>" +
+            "   <email>" +
+            "      <address>lab@woof.us.nortel.com</address>" +
+            "      <imap synchronize=\"true\">" +
+            "         <host>woof.us.nortel.com</host>" +
+            "         <port>143</port>" +
+            "         <useTLS>false</useTLS>" +
+            "         <password>42</password>" +
+            "      </imap>" +
+            "   </email>" +
 		    "  </user>" +
 		    "</validusers>";
 		
@@ -90,6 +107,12 @@ public class ValidUsersXMLTest extends TestCase {
 		assertNotNull(u);
         assertNotNull(u.getDistributionLists());
         assertTrue(u.getDistributionLists().get("1").getList(null).contains("+9663"));
+        assertEquals("woofdogg@us.nortel.com", u.getEmailAddress());
+        assertEquals(EmailFormats.FORMAT_BRIEF, u.getEmailFormat());
+        assertTrue("isAttachAudioToEmail", u.isAttachAudioToEmail());
+        assertEquals("woofdogg@elsewhere", u.getAltEmailAddress());
+        assertEquals(EmailFormats.FORMAT_NONE, u.getAltEmailFormat());
+        assertFalse("isAltAttachAudioToEmail", u.isAltAttachAudioToEmail());
 		u = vu.getUser("lab");  // primary user name
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
@@ -102,6 +125,13 @@ public class ValidUsersXMLTest extends TestCase {
 		assertNotNull(u);
 		assertEquals("lab", u.getUserName());
 		assertTrue("hasVoicemail", u.hasVoicemail());
+		ImapInfo i = u.getImapInfo();
+		assertNotNull(i);
+		assertTrue(i.isSynchronize());
+		assertEquals("woof.us.nortel.com", i.getHost());
+        assertEquals("143", i.getPort());
+        assertFalse(i.isUseTLS());
+		assertEquals("42", i.getPassword());
 	}
     public void testCompress() {
         assertEquals("WOOF", ValidUsersXML.compress("Woof!")); 

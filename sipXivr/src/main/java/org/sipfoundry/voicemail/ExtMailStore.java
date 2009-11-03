@@ -61,6 +61,7 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.GreetingType;
@@ -91,7 +92,6 @@ public class ExtMailStore {
     private static class IMAPConnection {
         public Session m_session;
         public User m_user;
-        public MailboxPreferences m_prefs;
         public Folder m_infolder;
         public Store m_store;
         public boolean m_synching;
@@ -556,7 +556,7 @@ public class ExtMailStore {
             String from = "postmaster" + ident.substring(ident.indexOf('@'));
             message.setFrom(new InternetAddress(from, "Voicemail"));
 
-            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(mbx.getMailboxPreferences()
+            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(mbx.getUser()
                     .getEmailAddress()));
 
             Multipart mp = new MimeMultipart();
@@ -620,8 +620,6 @@ public class ExtMailStore {
             }
         }                           
         
-        MailboxPreferences prefs = mbox.getMailboxPreferences();
-        
         try {           
             MimeMessage message = new MimeMessage(conn.m_session);
 
@@ -629,7 +627,7 @@ public class ExtMailStore {
             String from = "postmaster" + ident.substring(ident.indexOf('@'));
             message.setFrom(new InternetAddress(from, "Voicemail"));
 
-            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(prefs.getEmailAddress()));
+            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(conn.m_user.getEmailAddress()));
 
             message.setSubject("e-mail password change required");
             message.setText("You must change your e-mail password by logging in at " + "http://"
@@ -759,32 +757,20 @@ public class ExtMailStore {
         conn.m_synching = false;
         final String mbxid = user.getUserName();
         Mailbox mbx = new Mailbox(user);
-        conn.m_prefs = mbx.getMailboxPreferences();        
         
         // should we even try to make a connection? 
-        if(conn.m_prefs.getIMAPServer() == null)
+        ImapInfo imapInfo = conn.m_user.getImapInfo();
+        if(imapInfo == null && !imapInfo.isSynchronize())
             return;
-        
-        if(conn.m_prefs.getIMAPServer() == "")
-            return;
-        
-        if(conn.m_prefs.getEmailAddress() == null)
-            return;
-        
-        if(conn.m_prefs.getEmailAddress() == "")
-            return;
-        
-        if(!conn.m_prefs.synchronize()) {
-            return;
-        }
-        
+                
         class ConnectAction implements java.security.PrivilegedAction {
             public Object run() {
                
                 try {     
                     conn.m_user = user;
-                    conn.m_store.connect(conn.m_prefs.getIMAPServer(), conn.m_prefs.getIMAPPortNum(), 
-                                         conn.m_prefs.getEmailUserName(), conn.m_prefs.getemailPassword());
+                    ImapInfo imapInfo = user.getImapInfo();
+                    conn.m_store.connect(imapInfo.getHost(), Integer.parseInt(imapInfo.getPort()), 
+                                         imapInfo.getAccount(), imapInfo.getDecodedPassword());
                     
                     conn.m_infolder = conn.m_store.getFolder("inbox");
                     OpenFolder(conn.m_infolder);
@@ -819,7 +805,7 @@ public class ExtMailStore {
             props.setProperty("mail.imap.sasl.enable", "true");
             props.setProperty("mail.imap.starttls.enable", "true");
             
-            if(conn.m_prefs.useTLS()) {
+            if(imapInfo.isUseTLS()) {
                 props.setProperty("mail.imap.ssl.enable", "true");
                 
                 MailSSLSocketFactory sf = new MailSSLSocketFactory();
@@ -845,10 +831,10 @@ public class ExtMailStore {
                     for (int i = 0; i < callbacks.length; i++) {
                         if (callbacks[i] instanceof NameCallback) {
                             NameCallback ncb = (NameCallback) callbacks[i];
-                            ncb.setName(conn.m_prefs.getEmailUserName());
+                            ncb.setName(conn.m_user.getImapInfo().getAccount());
                         } else if (callbacks[i] instanceof PasswordCallback) {
                             PasswordCallback pcb = (PasswordCallback) callbacks[i];
-                            pcb.setPassword(conn.m_prefs.getemailPassword().toCharArray());
+                            pcb.setPassword(conn.m_user.getImapInfo().getDecodedPassword().toCharArray());
                         }
                     }
                 }

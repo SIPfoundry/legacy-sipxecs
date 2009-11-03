@@ -26,7 +26,6 @@ public class MailboxPreferencesTest extends TestCase {
             "\n" +
             "<prefs>\n" +
             "  <activegreeting>none</activegreeting>\n" +
-            "  <notification/>\n" +
             "</prefs>\n";
 
         MailboxPreferencesWriter mpw = new MailboxPreferencesWriter();
@@ -43,7 +42,6 @@ public class MailboxPreferencesTest extends TestCase {
             "\n" +
             "<prefs>\n" +
             "  <activegreeting>standard</activegreeting>\n" +
-            "  <notification/>\n" +
             "</prefs>\n";
 
         prefs.getActiveGreeting().setGreetingType(GreetingType.STANDARD);
@@ -53,58 +51,15 @@ public class MailboxPreferencesTest extends TestCase {
         contents = org.apache.commons.io.FileUtils.readFileToString(tempFile);
         assertEquals(standardXml, contents);
 
-        // Now add an email address
-        String emailXml = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<prefs>\n" +
-            "  <activegreeting>extendedabsence</activegreeting>\n" +
-            "  <notification>\n" +
-            "    <contact type=\"email\" attachments=\"yes\">woof@dog</contact>\n" +
-            "  </notification>\n" +
-            "</prefs>\n";
-
-        prefs.getActiveGreeting().setGreetingType(GreetingType.EXTENDED_ABSENCE);
-        prefs.setEmailAddress("woof@dog");
-        prefs.setAttachVoicemailToEmail(true);
-        tempFile.delete();
-        mpw.writeObject(prefs, tempFile);
-        assertTrue(tempFile.exists());
-        contents = org.apache.commons.io.FileUtils.readFileToString(tempFile);
-        assertEquals(emailXml, contents);
-
-        // Now add a second email address
-        String email2Xml = 
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-            "\n" +
-            "<prefs>\n" +
-            "  <activegreeting>extendedabsence</activegreeting>\n" +
-            "  <notification>\n" +
-            "    <contact type=\"email\" attachments=\"yes\">woof@dog</contact>\n" +
-            "    <contact type=\"email\" attachments=\"no\">dog@woof</contact>\n" +
-            "  </notification>\n" +
-            "</prefs>\n";
-
-        prefs.getActiveGreeting().setGreetingType(GreetingType.EXTENDED_ABSENCE);
-        prefs.setEmailAddress("woof@dog");
-        prefs.setAttachVoicemailToEmail(true);
-        prefs.setAlternateEmailAddress("dog@woof");
-        prefs.setAttachVoicemailToAlternateEmail(false);
-        tempFile.delete();
-        mpw.writeObject(prefs, tempFile);
-        assertTrue(tempFile.exists());
-        contents = org.apache.commons.io.FileUtils.readFileToString(tempFile);
-        assertEquals(email2Xml, contents);
-
         tempFile.delete();
     }
+    
     public void testMailboxPreferencesReader() throws IOException {
         String xml = 
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<prefs>\n" +
             "  <activegreeting>none</activegreeting>\n" +
-            "  <notification/>\n" +
             "</prefs>\n";
 
         File tempFile;
@@ -113,7 +68,6 @@ public class MailboxPreferencesTest extends TestCase {
         
         MailboxPreferencesReader mpr = new MailboxPreferencesReader();
         MailboxPreferences newPrefs = mpr.readObject(tempFile) ;
-        assertNull(newPrefs.getEmailAddress());
         assertEquals(GreetingType.NONE, newPrefs.getActiveGreeting().getGreetingType());
 
         xml = 
@@ -121,34 +75,20 @@ public class MailboxPreferencesTest extends TestCase {
             "\n" +
             "<prefs>\n" +
             "  <activegreeting>standard</activegreeting>\n" +
-            "  <notification>\n" +
-            "    <contact>puppy@creature</contact>\n" +
-            "  </notification>\n" +
             "</prefs>\n";
         org.apache.commons.io.FileUtils.writeStringToFile(tempFile, xml);
         newPrefs = mpr.readObject(tempFile) ;
         assertEquals(GreetingType.STANDARD, newPrefs.getActiveGreeting().getGreetingType());
-        assertEquals("puppy@creature", newPrefs.getEmailAddress());
-        assertFalse(newPrefs.isAttachVoicemailToEmail());
-
 
         xml = 
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
             "\n" +
             "<prefs>\n" +
             "  <activegreeting>outofoffice</activegreeting>\n" +
-            "  <notification>\n" +
-            "    <contact>puppy@creature</contact>\n" +
-            "    <contact attachments=\"yes\">dog@creature</contact>\n" +
-            "  </notification>\n" +
             "</prefs>\n";
         org.apache.commons.io.FileUtils.writeStringToFile(tempFile, xml);
         newPrefs = mpr.readObject(tempFile) ;
         assertEquals(GreetingType.OUT_OF_OFFICE, newPrefs.getActiveGreeting().getGreetingType());
-        assertEquals("puppy@creature", newPrefs.getEmailAddress());
-        assertFalse(newPrefs.isAttachVoicemailToEmail());
-        assertEquals("dog@creature", newPrefs.getAlternateEmailAddress());
-        assertTrue(newPrefs.isAttachVoicemailToAlternateEmail());
         
         tempFile.delete();
     }

@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2008-2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -29,10 +29,36 @@ public class User {
     private Vector<String> m_aliases;
     private HashMap<String, DistributionList> m_distributionLists;
     private Locale m_locale; // The locale for the UI to present to this user
+    private String m_emailAddress;
+    private String m_altEmailAddress;
+    private boolean m_attachAudioToEmail;
+    private boolean m_altAttachAudioToEmail;
+    private ImapInfo m_imapInfo;
     
-    public enum EmailFormats {FORMAT_FULL, FORMAT_MEDIUM, FORMAT_BRIEF};
-    private EmailFormats m_emailFormat = EmailFormats.FORMAT_FULL;
-    private EmailFormats m_altEmailFormat = EmailFormats.FORMAT_BRIEF;
+    public enum EmailFormats {
+        FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF");
+        private String m_id;
+        
+        EmailFormats(String id) {
+            m_id = id;
+        }
+    
+        public String getId() {
+            return m_id;
+        }
+        
+        public static EmailFormats valueOfById(String id) {
+            for (EmailFormats ef : EmailFormats.values()) {
+                if (ef.getId().equals(id)) {
+                    return ef;
+                }
+            }
+            throw new IllegalArgumentException("id not recognized " + id);
+        }
+    };
+    
+    private EmailFormats m_emailFormat = EmailFormats.FORMAT_NONE;
+    private EmailFormats m_altEmailFormat = EmailFormats.FORMAT_NONE;
     
     public String getIdentity() {
         return m_identity;
@@ -157,12 +183,48 @@ public class User {
         m_locale = locale;
     }
 
+    public String getEmailAddress() {
+        return m_emailAddress;
+    }
+    
+    public void setEmailAddress(String emailAddress) {
+        m_emailAddress = emailAddress;
+    }
+    
+    public String getAltEmailAddress() {
+        return m_altEmailAddress;
+    }
+    
+    public void setAltEmailAddress(String emailAddress) {
+        m_altEmailAddress = emailAddress;
+    }
+    
+    public boolean isAttachAudioToEmail() {
+        return m_attachAudioToEmail;
+    }
+
+    public void setAttachAudioToEmail(boolean attachAudioToEmail) {
+        m_attachAudioToEmail = attachAudioToEmail;
+    }
+
+    public boolean isAltAttachAudioToEmail() {
+        return m_altAttachAudioToEmail;
+    }
+
+    public void setAltAttachAudioToEmail(boolean altAttachAudioToEmail) {
+        m_altAttachAudioToEmail = altAttachAudioToEmail;
+    }
+
     public EmailFormats getEmailFormat() {
         return m_emailFormat;
     }
     
     public void setEmailFormat(EmailFormats emailFormat) {
         m_emailFormat = emailFormat;
+    }
+    
+    public void setEmailFormat(String emailFormat) {
+        m_emailFormat = EmailFormats.valueOfById(emailFormat);
     }
     
     public EmailFormats getAltEmailFormat() {
@@ -172,7 +234,20 @@ public class User {
     public void setAltEmailFormat(EmailFormats emailFormat) {
         m_altEmailFormat = emailFormat;
     }
+
+    public void setAltEmailFormat(String emailFormat) {
+        m_altEmailFormat = EmailFormats.valueOfById(emailFormat);
+    }
     
+    public ImapInfo getImapInfo() {
+        return m_imapInfo;
+    }
+
+    public void setImapInfo(ImapInfo imapInfo) {
+        m_imapInfo = imapInfo;
+    }
+
+
     /*
     public void addDistributionList(String digits, DistributionList dl) {
         m_distributionLists.put(digits, dl);

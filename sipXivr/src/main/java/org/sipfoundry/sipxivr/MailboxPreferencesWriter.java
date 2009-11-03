@@ -47,26 +47,6 @@ public class MailboxPreferencesWriter extends XmlWriterImpl<MailboxPreferences> 
         QName prefsQ = FACTORY.createQName("prefs");
         Element prefsEl = document.addElement(prefsQ);
         prefsEl.addElement("activegreeting").setText(m_prefs.getActiveGreeting().getGreetingType().getId());
-        addNotification(prefsEl);
         return document ;
-    }
-    
-    private void addNotification(Element prefsEl) {
-        Element notificationEl = prefsEl.addElement("notification");
-        if (m_prefs.getEmailAddress() != null) {
-            addEmailContact(notificationEl, m_prefs.getEmailAddress(), 
-                    m_prefs.isAttachVoicemailToEmail());
-        }
-        if (m_prefs.getAlternateEmailAddress() != null) {
-            addEmailContact(notificationEl, m_prefs.getAlternateEmailAddress(), 
-                    m_prefs.isAttachVoicemailToAlternateEmail());
-        }
-    }
-    
-    private void addEmailContact(Element notificationEl, String emailAddr, boolean attach) {
-        Element contactEl = notificationEl.addElement("contact");
-        contactEl.setText(emailAddr);
-        contactEl.add(FACTORY.createAttribute(contactEl, "type", "email"));
-        contactEl.add(FACTORY.createAttribute(contactEl, "attachments", attach?"yes":"no"));
     }
 }
