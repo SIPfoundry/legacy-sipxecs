@@ -18,6 +18,7 @@ EXTRA_DIST = \
   sipxrelay.spec.in \
   sipxrelay.spec \
   sipxrelay-process.xml.in \
+  sipxrelay-process.xml \
   sipxrelay.sh.in \
   CONTRIBUTORS \
   BUILDSTAMP \
@@ -41,5 +42,9 @@ sipxrelay.sh : sipxrelay.sh.in
 	@$(LocalizeSipXconfig) $< > $@
 
 sipxrelay.spec : sipxrelay.spec.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+
+sipxrelay-process.xml : sipxrelay-process.xml.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
