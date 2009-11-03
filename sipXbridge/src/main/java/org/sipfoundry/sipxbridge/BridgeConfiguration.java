@@ -223,7 +223,9 @@ public class BridgeConfiguration {
                     Properties props = new Properties();
                     props.load(new FileInputStream(log4jProps));
                     String newLevel = props.getProperty("log4j.category.org.sipfoundry.sipxbridge");
-                    this.logLevel = newLevel;
+                    if (newLevel != null) {
+                        this.logLevel = newLevel;
+                    }
                 }
             } catch (Exception ex) {
                 /* Ignore */
