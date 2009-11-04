@@ -69,6 +69,7 @@
     <pathelement path="${saxpath.jar}"/>
     <pathelement path="${servlet.jsp.jar}"/>
     <pathelement path="${velocity.jar}"/>
+    <pathelement path="${velocity-tools-generic.jar}"/>
     <pathelement path="${xerces.jar}"/>
     <pathelement path="${xml-apis.jar}"/>
     <pathelement path="${xmlrpc.jar}"/>
