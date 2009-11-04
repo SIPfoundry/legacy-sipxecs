@@ -269,10 +269,15 @@ MwiPlugin::handleEvent (
                )
            {
               pBody->getBytes(&buffer, &charsRead);
-              int contentLength = request.getContentLength();
+              ssize_t start = buffer.index("messages-waiting:", 0, UtlString::ignoreCase);
 
-              if ( buffer.index("messages-waiting:", 0, UtlString::ignoreCase) != UTL_NOT_FOUND )
+              if ( start != UTL_NOT_FOUND )
               {
+                 // Remove anything before the start
+                 buffer.remove(0, start);
+                 int contentLength = buffer.length();
+                
+
                  // create a simple message summary body for
                  // each subscription and send it via the user
                  // agent to the device
