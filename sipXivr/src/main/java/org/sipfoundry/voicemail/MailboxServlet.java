@@ -124,8 +124,12 @@ public class MailboxServlet extends HttpServlet {
                             }
                             else if (method.equals(METHOD_GET)) {
                                 VmMessage msg = messages.getMessage(messageId);
-                                response.setContentType("text/xml");
-                                pw.format("<heard>%s</heard>\n", msg.isUnHeard() ? "false" : "true" );
+                                if (msg != null) {
+                                    response.setContentType("text/xml");
+                                    pw.format("<heard>%s</heard>\n", msg.isUnHeard() ? "false" : "true" );
+                                } else {
+                                    response.sendError(404, "messageId not found");
+                                }
                             }
                         }
                     } else {
