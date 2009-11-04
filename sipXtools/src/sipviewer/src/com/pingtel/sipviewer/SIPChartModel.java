@@ -24,6 +24,7 @@ public class SIPChartModel
 // Attributes
 ////
     protected String    m_trackableKeys[] ;
+    protected double    m_trackableKeyPositions[];
     protected int       m_iNumKeys ;
     protected Hashtable m_htAliases ;
     protected ChartDescriptor   m_entries[] ;
@@ -38,7 +39,8 @@ public class SIPChartModel
     {
         m_iNumKeys = 0 ;
         m_trackableKeys = new String[MAX_KEYS] ;
-
+        m_trackableKeyPositions = new double[MAX_KEYS];
+        
         m_iNumEntries = 0 ;
         m_entries = new ChartDescriptor[MAX_ENTRIES] ;
         m_htBranchIndex = new Hashtable(MAX_ENTRIES + 10) ;
@@ -188,6 +190,14 @@ public class SIPChartModel
         }
 
         return strRC ;
+    }
+    
+    // return the array that holds the positions of all the vertical
+    // columns, the positions are not absolute but rather a relative
+    // % value from the left side of the main frame
+    public double[] getKeyPositions()
+    {
+        return m_trackableKeyPositions;
     }
 
 

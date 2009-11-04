@@ -52,12 +52,17 @@ public class SIPInfoPanel extends Container
 // Public Methods
 ////
     public void setMessage(String strMessage)
-    {
+    {    	    
         m_taMessage.setText(strMessage) ;
         m_taMessage.setCaretPosition(0) ;
     }
 
-
+    public void appendMessage(String strMessage)
+    {
+    	m_taMessage.append(strMessage) ;
+        m_taMessage.setCaretPosition(0) ;
+    }
+    
     public void setTransactionID(String strTransactionID)
     {
         m_lblTransactionID.setText(strTransactionID) ;

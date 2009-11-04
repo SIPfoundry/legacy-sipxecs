@@ -33,6 +33,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     protected String         m_strMatchCSeqCallId ;
     protected String         m_strMatchDialogId ;
     protected String         m_strMatchCallId ;
+    protected double []      m_key_positions ;
     
     // popup menu used for taking screen shots and other future operations
     protected JPopupMenu m_toolsPopUp;
@@ -105,6 +106,11 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         m_model.addChartModelListener(new icChartModelListener());
         addMouseListener(new icMouseListener());
         addMouseMotionListener(new icMouseMotionListener()) ;
+        
+        // initialize the local key position array to the one initialized in
+        // the SIPChartModel class, this array is just used here, it is updated
+        // in the ChartHeader class whenever a new key is added
+        m_key_positions = m_model.getKeyPositions();
     }
 
 
@@ -116,7 +122,6 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         Dimension dimSize = getSize() ;             // TODO: Only get once
         Dimension dimRowSize = getMinimumSize() ;   // TODO: Only get once
 
-        int ixOffset = dimSize.width / m_model.getNumKeys() ;
         if ((index >= 0) && (index < m_model.getSize()))
         {
             ChartDescriptor entry = (ChartDescriptor) m_model.getEntryAt(index) ;
@@ -128,15 +133,17 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             boolean bEast = true ;
 
             Rectangle rectAreaText = new Rectangle(
-                    ixOffset*entry.sourceColumn + ixOffset/2,
+                    (int) (m_key_positions[entry.sourceColumn] * dimSize.width),
                     (dimRowSize.height)*(index+1),
-                    (entry.targetColumn-entry.sourceColumn)*ixOffset,
+                    ((int) (m_key_positions[entry.targetColumn] * dimSize.width) -
+                     (int) (m_key_positions[entry.sourceColumn] * dimSize.width)),
                     dimRowSize.height-(ARROW_HEIGHT+2)) ;
 
             Rectangle rectAreaArrow = new Rectangle(
-                    ixOffset*entry.sourceColumn + ixOffset/2,
+                    (int) (m_key_positions[entry.sourceColumn] * dimSize.width),
                     (dimRowSize.height)*(index+1),
-                    (entry.targetColumn-entry.sourceColumn)*ixOffset,
+                    ((int) (m_key_positions[entry.targetColumn] * dimSize.width) -
+                     (int) (m_key_positions[entry.sourceColumn] * dimSize.width)),
                     ARROW_HEIGHT) ;
 
             if (rectAreaArrow.width < 0)
@@ -216,6 +223,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                 g.setColor(m_unhighlighted_color) ;
             }
 
+            // draw call flow arrows (solid, dotted or dashed)
             if (entry.dataSource.isRequest())
             {
                 GUIUtils.drawArrow(g, rectAreaArrow, bEast, null,
@@ -275,9 +283,9 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             for (int i=0; i<iNumKeys; i++)
             {
                 g.setColor(Color.yellow);
-                g.drawLine((iOffset*i) + iOffset / 2,
+                g.drawLine((int) (m_key_positions[i] * dimSize.width),
                 0,
-                (iOffset*i) + iOffset / 2,
+                (int) (m_key_positions[i] * dimSize.width),
                 dimSize.height) ;
             }
         }
