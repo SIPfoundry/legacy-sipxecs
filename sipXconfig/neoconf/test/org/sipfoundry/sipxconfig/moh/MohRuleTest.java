@@ -37,7 +37,7 @@ public class MohRuleTest extends XMLTestCase {
         StringWriter xml = new StringWriter();
         doc.write(xml);
         assertXMLEqual("<test><transform><user>IVR</user><host>example.org</host>"
-                + "<urlparams>action=moh</urlparams><urlparams>moh={vdigits}</urlparams>"
+                + "<urlparams>action=moh</urlparams><urlparams>moh=u{vdigits}</urlparams>"
                 + "</transform></test>", xml.toString());
     }
 }

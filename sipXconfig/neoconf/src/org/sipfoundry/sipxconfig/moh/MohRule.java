@@ -31,7 +31,7 @@ public class MohRule extends InternalForwardRule {
         public MohTransform(String hostNameAndPort) {
             setUser("IVR");
             setHost(hostNameAndPort);
-            setUrlParams("action=moh", "moh={vdigits}");
+            setUrlParams("action=moh", "moh=u{vdigits}");
         }
     }
 }

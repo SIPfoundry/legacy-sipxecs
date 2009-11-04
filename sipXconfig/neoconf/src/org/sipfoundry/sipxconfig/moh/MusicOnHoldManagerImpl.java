@@ -40,6 +40,10 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener {
 
+    public static final String LOCAL_FILES_SOURCE_SUFFIX = "l";
+    public static final String PORT_AUDIO_SOURCE_SUFFIX = "p";
+    public static final String USER_FILES_SOURCE_SUFFIX = "u";
+
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
 
     private SipxServiceManager m_sipxServiceManager;
@@ -48,18 +52,13 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     private ServiceConfigurator m_serviceConfigurator;
 
     private String m_mohUser;
-    private String m_localFilesMohUser;
-    private String m_portAudioMohUser;
-    private String m_personalMohFilesPrefix;
 
     /**
-     * Music on hold implementation requires that ~~mh~ calls are forwarded to Media Server. We
+     * Music on hold implementation requires that ~~mh~u calls are forwarded to Media Server. We
      * are adding the rule here.
      */
     public List<DialingRule> getDialingRules() {
-        SipxFreeswitchService service = getSipxFreeswitchService();
-        String hostNameAndPort = service.getAddress() + ":" + String.valueOf(service.getFreeswitchSipPort());
-        DialingRule rule = new MohRule(hostNameAndPort, m_mohUser);
+        DialingRule rule = new MohRule(getSipxFreeswitchAddressAndPort(), m_mohUser + USER_FILES_SOURCE_SUFFIX);
         return Collections.singletonList(rule);
     }
 
@@ -122,24 +121,24 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
         switch (SystemMohSetting.parseSetting(mohSetting)) {
         case FILES_SRC:
-            contact = getLocalFilesMohUri();
+            contact = getLocalFilesMohUriMapping();
             break;
         case SOUNDCARD_SRC:
-            contact = getPortAudioMohUri();
+            contact = getPortAudioMohUriMapping();
             break;
         case LEGACY_PARK_MUSIC:
-            break;
         default:
+            contact = getParkserverMohUriMapping();
+            break;
         }
 
-        if (null != contact) {
-            List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
-            aliasMappings.add(new AliasMapping(identity, contact));
+        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
+        aliasMappings.add(new AliasMapping(identity, contact));
 
-            return aliasMappings;
-        }
+        aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping()));
+        aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping()));
 
-        return CollectionUtils.EMPTY_COLLECTION;
+        return aliasMappings;
     }
 
     public void onDelete(Object entity) {
@@ -159,19 +158,26 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     }
 
     public String getPersonalMohFilesUri(String userName) {
-        return SipUri.format(m_personalMohFilesPrefix + userName, getSipxFreeswitchService().getDomainName(), false);
+        return getMohUri(m_mohUser + USER_FILES_SOURCE_SUFFIX + userName);
     }
 
     public String getPortAudioMohUri() {
-        return SipUri.format(m_portAudioMohUser, getSipxFreeswitchService().getDomainName(), false);
+        return getMohUri(m_mohUser + PORT_AUDIO_SOURCE_SUFFIX);
     }
 
     public String getLocalFilesMohUri() {
-        return SipUri.format(m_localFilesMohUser, getSipxFreeswitchService().getDomainName(), false);
+        return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
     }
 
+    public String getParkserverMohUri() {
+        return getMohUri(null);
+    }
+
+    /**
+     * The Moh URI used by the system
+     */
     public String getDefaultMohUri() {
-        return SipUri.format(m_mohUser, getSipxFreeswitchService().getDomainName(), false);
+        return getMohUri(m_mohUser);
     }
 
     @Required
@@ -199,20 +205,6 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         m_mohUser = mohUser;
     }
 
-    @Required
-    public void setLocalFilesMohUser(String localFilesMohUser) {
-        m_localFilesMohUser = localFilesMohUser;
-    }
-
-    @Required
-    public void setPortAudioMohUser(String portAudioMohUser) {
-        m_portAudioMohUser = portAudioMohUser;
-    }
-
-    @Required
-    public void setPersonalMohFilesPrefix(String personalMohFilesPrefix) {
-        m_personalMohFilesPrefix = personalMohFilesPrefix;
-    }
 
     private SipxFreeswitchService getSipxFreeswitchService() {
         return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
@@ -234,5 +226,45 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
             LOG.error("Cannot create directory: " + path);
             throw new RuntimeException(e);
         }
+    }
+
+    private String getPortAudioMohUriMapping() {
+        return getMohUriMapping(PORT_AUDIO_SOURCE_SUFFIX);
+    }
+
+    private String getLocalFilesMohUriMapping() {
+        return getMohUriMapping(LOCAL_FILES_SOURCE_SUFFIX);
+    }
+
+    private String getParkserverMohUriMapping() {
+        return getMohUriMapping(null);
+    }
+
+    /**
+     * Build an alias which maps directly to the MOH server
+     *    IVR@{FS}:{FSPort};action=moh;
+     *      add "moh=l" for localstream files
+     *      add "moh=p" for portaudio (sound card)
+     *      add "moh=u{username} for personal audio files
+     *      add nothing for default "parkserver" music
+     * @param mohParam
+     * @return
+     */
+    private String getMohUriMapping(String mohParam) {
+        StringBuilder uri = new StringBuilder(String.format("sip:IVR@%s;action=moh",
+                getSipxFreeswitchAddressAndPort()));
+        if (mohParam != null) {
+            uri.append(String.format(";moh=%s", mohParam));
+        }
+        return String.format("<%s>", uri.toString()); // Must wrap uri in <> to keep params inside
+    }
+
+    private String getMohUri(String mohParam) {
+        return SipUri.format(mohParam, getSipxFreeswitchService().getDomainName(), false);
+    }
+
+    private String getSipxFreeswitchAddressAndPort() {
+        SipxFreeswitchService service = getSipxFreeswitchService();
+        return service.getAddress() + ":" + String.valueOf(service.getFreeswitchSipPort());
     }
 }

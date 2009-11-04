@@ -17,9 +17,6 @@
     <property name="replicationContext" ref="sipxReplicationContextDao" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
-    <property name="localFilesMohUser" value="~~mh~l" />
-    <property name="portAudioMohUser" value="~~mh~p" />
-    <property name="personalMohFilesPrefix" value="~~mh~u" />
   </bean>
 
 </beans>

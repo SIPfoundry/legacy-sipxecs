@@ -16,13 +16,13 @@ import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
@@ -141,6 +141,14 @@ public class MusicOnHoldManagerTest extends TestCase {
             public String getDomainName() {
                 return "randomAddress.test";
             }
+            @Override
+            public int getFreeswitchSipPort() {
+                return 42;
+            }
+            @Override
+            public String getAddress() {
+                return "FSaddr";
+            }
         };
 
         service.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
@@ -153,56 +161,44 @@ public class MusicOnHoldManagerTest extends TestCase {
         replay(sipxServiceManager);
 
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
-        m_musicOnHoldManager.setLocalFilesMohUser("~~testMohUser~localFiles");
-        m_musicOnHoldManager.setPortAudioMohUser("~~testMohUser~portAudio");
 
         Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 1);
+        assertTrue(aliasMappings.size() == 3);
 
         for (AliasMapping alias : aliasMappings) {
-            assertEquals("sip:~~testMohUser~localFiles@randomAddress.test", alias.getContact());
-            assertEquals("sip:~~testMohUser~@randomAddress.test", alias.getIdentity());
+            assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=l>"));
         }
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
         aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 1);
+        assertTrue(aliasMappings.size() == 3);
 
         for (AliasMapping alias : aliasMappings) {
-            assertEquals("sip:~~testMohUser~portAudio@randomAddress.test", alias.getContact());
-            assertEquals("sip:~~testMohUser~@randomAddress.test", alias.getIdentity());
+            assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=p>"));
         }
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.LEGACY_PARK_MUSIC.toString());
         aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 0);
+        assertTrue(aliasMappings.size() == 3);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh>"));
+        }
     }
 
-    public void testDialingRulesProvider() {
+    public boolean checkAliasMappings(AliasMapping alias, String contactToTest) {
+        if ("sip:~~testMohUser~@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals(contactToTest, alias.getContact());
+        } else if ("sip:~~testMohUser~l@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=l>", alias.getContact());
+        } else if ("sip:~~testMohUser~p@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=p>", alias.getContact());
+        } else {
+            return false;
+        }
 
-        SipxFreeswitchService service = new SipxFreeswitchService() {
-            @Override
-            public int getFreeswitchSipPort() {
-                return 9989;
-            }
-
-            @Override
-            public String getAddress() {
-                return "randomAddress.test";
-            }
-        };
-
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        expectLastCall().andReturn(service).atLeastOnce();
-        replay(sipxServiceManager);
-
-        m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
-
-        List< ? extends DialingRule> rules = m_musicOnHoldManager.getDialingRules();
-        assertEquals(1, rules.size());
-        assertTrue(rules.get(0) instanceof MohRule);
+        return true;
     }
 }
