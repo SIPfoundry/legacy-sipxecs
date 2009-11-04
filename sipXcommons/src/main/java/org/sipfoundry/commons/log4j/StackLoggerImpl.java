@@ -140,6 +140,7 @@ public class StackLoggerImpl implements StackLogger {
         logger.info("StackProperties " + properties);
     }
 
+    
     @Override
     public String getLoggerName() {
         return logger.getName();

@@ -67,6 +67,8 @@ public class ProtocolObjects {
 
             Properties stackProperties = new Properties();
             stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
+            Logger logger = Logger.getLogger("org.sipfoundry.sipxbridge");
+            
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                      stackProperties.setProperty(
@@ -75,7 +77,8 @@ public class ProtocolObjects {
                      stackProperties.setProperty(
                             "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
                 }
-                Logger.getLogger(StackLoggerImpl.class).setLevel(Level.INFO);
+                 StackLoggerImpl.setLogger(logger);
+                logger.setLevel(Level.INFO);
                 stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO.toString());
             } else {  
                 stackProperties.setProperty(
@@ -96,8 +99,8 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.IS_BACK_TO_BACK_USER_AGENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOGGER",ServerLoggerImpl.class.getName());
-            Logger.getLogger(StackLoggerImpl.class).addAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                    Gateway.getBridgeConfiguration().getLogFileDirectory()
+            logger.addAppender(new SipFoundryAppender(new SipFoundryLayout(),
+            Gateway.getBridgeConfiguration().getLogFileDirectory()
                     +"/sipxbridge.log"));
             /*
              * Break up the via encoding.
