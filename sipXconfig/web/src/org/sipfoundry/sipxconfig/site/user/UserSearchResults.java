@@ -21,15 +21,6 @@ public abstract class UserSearchResults extends UserTable {
     @Parameter(required = true)
     public abstract List<User> getUsers();
 
-    @Parameter
-    public abstract String getSearchString();
-
-    @Parameter
-    public abstract Integer getGroupId();
-
-    @Parameter(defaultValue = "false")
-    public abstract boolean getSearchMode();
-
     @Parameter(defaultValue = "false")
     public abstract boolean getUseEmailAddress();
 

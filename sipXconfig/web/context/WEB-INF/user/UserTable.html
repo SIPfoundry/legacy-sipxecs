@@ -1,14 +1,24 @@
-<span jwcid="$content$">
-	<table jwcid="userTable" id="user:list">
-        <span jwcid="userNameColumnValue">
-            <img jwcid="@Image" image="ognl:getUserIcon(currentUser)" align="absmiddle"
-                 title="ognl:getUserIconTitle(currentUser)" />
-            <span jwcid="userNameAsLinkConditional">
-                <a href="#" jwcid="userNameLink"><span jwcid="userName"/></a>
-            </span>
-            <span jwcid="userNameAsTextConditional">
-                <span jwcid="userNameAsText"/>
-            </span>
-        </span>
-	</table>
-</span>
+<table jwcid="userTable@common/Table" id="user:list"
+  columns="* userName,firstName,lastName,!imId,!aliases:aliasesString"
+  usePager="true"
+  source="ognl:tableModel"
+  row="ognl:currentUser"
+  selections="ognl:selections"
+  initialSortColumn="userName">
+  <div jwcid="userNameColumnValue@Block">
+    <img jwcid="@Image" image="ognl:userIcon" align="absmiddle" title="ognl:userIconTitle" />
+    <span jwcid="@If" condition="ognl:userListener != null" renderTag="false">
+      <a href="#" jwcid="userNameLink@DirectLink"
+        listener="ognl:userListener"
+        parameters="ognl:currentUser.id">
+        <span jwcid="@Insert" value="ognl:currentUser.userName" />
+      </a>
+    </span>
+    <span jwcid="@Else" renderTag="false">
+      <span jwcid="@Insert" value="ognl:currentUser.userName" />
+    </span>
+  </div>
+  <div jwcid="imIdColumnValue@Block">
+    <span jwcid="@Insert" value="ognl:userImID" />
+  </div>
+</table>

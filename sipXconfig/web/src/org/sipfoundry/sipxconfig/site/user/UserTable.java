@@ -5,21 +5,28 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class UserTable extends BaseComponent implements PageBeginRenderListener {
 
     public static final String COMPONENT = "UserTable";
@@ -37,27 +44,25 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
 
     public abstract void setSelections(SelectMap selected);
 
+    @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @Parameter
     public abstract Integer getGroupId();
+
+    @Parameter
+    public abstract String getSearchString();
+
+    @Parameter(defaultValue = "false")
+    public abstract boolean getSearchMode();
+
+    @Parameter
+    public abstract IActionListener getUserListener();
 
     public abstract Integer getBranchId();
 
-    public abstract String getSearchString();
-
-    public abstract boolean getSearchMode();
-
-    public IAsset getUserIcon(User user) {
-        return user.isAdmin() ? getAdminUserIcon() : getNormalUserIcon();
-    }
-
-    public String getUserIconTitle(User user) {
-        Messages messages = getMessages();
-        return user.isAdmin() ? messages.getMessage("adminUser") : messages.getMessage("normalUser");
-    }
-
     public IBasicTableModel getTableModel() {
-        String searchQuery = getSearchMode() ? getSearchString() : null;
+        String searchQuery = getSearchMode() ? trimToNull(getSearchString()) : null;
         return new UserTableModel(getCoreContext(), getGroupId(), getBranchId(), searchQuery);
     }
 
@@ -65,5 +70,18 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }
+    }
+
+    public String getUserImId() {
+        return new ImAccount(getCurrentUser()).getImId();
+    }
+
+    public IAsset getUserIcon() {
+        return getCurrentUser().isAdmin() ? getAdminUserIcon() : getNormalUserIcon();
+    }
+
+    public String getUserIconTitle() {
+        String key = getCurrentUser().isAdmin() ? "adminUser" : "normalUser";
+        return getMessages().getMessage(key);
     }
 }

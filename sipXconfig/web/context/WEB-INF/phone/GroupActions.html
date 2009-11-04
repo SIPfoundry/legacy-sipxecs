@@ -1,12 +1,7 @@
-<html>
-<head>
-    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
-</head>
-<body>
-<span jwcid="$content$">
-    <span jwcid="ifRenderActions">
-	    <span jwcid="actionSelection"/>
-    </span>
+<span jwcid="ifRenderActions@If" condition="ognl:actionModel.optionCount > 0" renderTag="false">
+  <span jwcid="actionSelection@common/FlexiblePropertySelection"
+    model="ognl:decoratedModel"
+    onchange="javascript:this.form.submit();"
+    value="ognl:selectedAction"
+    renderer="bean:propertyRenderer" />
 </span>
-</body>
-</html>

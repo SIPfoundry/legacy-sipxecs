@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
@@ -15,20 +15,36 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
+@ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class GroupActions extends BaseComponent {
+
+    @InjectObject("spring:tapestry")
+    public abstract TapestryContext getTapestry();
+
+    @Bean
+    public abstract OptGroupPropertySelectionRenderer getPropertyRenderer();
+
+    @Parameter(required = true)
+    public abstract IPropertySelectionModel getActionModel();
+
+    @Parameter
     public abstract Collection getSelectedIds();
 
     public abstract IActionListener getSelectedAction();
 
     public abstract void setSelectedAction(IActionListener action);
 
-    public abstract TapestryContext getTapestry();
-
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         setSelectedAction(null);
         super.renderComponent(writer, cycle);
@@ -37,8 +53,8 @@ public abstract class GroupActions extends BaseComponent {
         }
     }
 
-    public IPropertySelectionModel decorateModel(IPropertySelectionModel model) {
-        return getTapestry().addExtraOption(model, getMessages(), "label.moreActions");
+    public IPropertySelectionModel getDecoratedModel() {
+        return getTapestry().addExtraOption(getActionModel(), getMessages(), "label.moreActions");
     }
 
     private void triggerAction(IRequestCycle cycle) {
