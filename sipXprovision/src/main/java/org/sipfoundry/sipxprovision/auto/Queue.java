@@ -32,6 +32,8 @@ public class Queue implements Runnable {
 
     protected static final short MAX_PHONES_PER_REST_CALL = 10; 
     
+    public static final String ID_PREFIX = "ID: ";
+    
     private Configuration m_config = null;
 
     protected Thread m_thread = null;
@@ -230,8 +232,8 @@ public class Queue implements Runnable {
      */
     private static String getPhoneDescription(DetectedPhone phone, Date date) {
         return String.format(
-                "Auto-provisioned\n  ID: %s\n  MAC: %s\n  Model: %s\n  Version: %s\n  Date: %s", 
-                phone.id, phone.mac, phone.model.full_label, phone.version, date);
+                "Auto-provisioned\n  %s%s\n  MAC: %s\n  Model: %s\n  Version: %s\n  Date: %s", 
+                ID_PREFIX, phone.id, phone.mac, phone.model.full_label, phone.version, date);
     }
 
     public void run() {
