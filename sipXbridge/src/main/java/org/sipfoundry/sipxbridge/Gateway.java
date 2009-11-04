@@ -58,7 +58,7 @@ import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
  */
 public class Gateway {
 
-    private static Logger logger = Logger.getLogger(Gateway.class);
+    private static Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
 
     private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
 
@@ -306,20 +306,10 @@ public class Gateway {
 
             Gateway.logAppender = new SipFoundryAppender(
                     new SipFoundryLayout(), Gateway.getLogFile(),true);
-            Logger applicationLogger = Logger.getLogger(Gateway.class
-                    .getPackage().getName());
+            
+            logger.setLevel(SipFoundryLayout.mapSipFoundry2log4j(bridgeConfiguration.getLogLevel()));
 
-            /*
-             * Set the log level.
-             */
-            if (Gateway.getLogLevel().equals("TRACE")) {
-                applicationLogger.setLevel(org.apache.log4j.Level.DEBUG);
-            } else {
-                applicationLogger.setLevel(org.apache.log4j.Level
-                        .toLevel(Gateway.getLogLevel()));
-            }
-
-            applicationLogger.addAppender(logAppender);
+            logger.addAppender(logAppender);
         } catch (Exception ex) {
             throw new SipXbridgeException("Error initializing logging", ex);
         }
