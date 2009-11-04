@@ -18,6 +18,7 @@
     <pathelement location="${spring.jar}" />
     <pathelement location="${hibernate.jar}" />
     <pathelement location="${velocity.jar}" />
+    <pathelement location="${velocity-tools-generic.jar}" />
     <pathelement location="${commons-digester.jar}" />
     <pathelement location="${commons-collections.jar}" />
     <pathelement location="${commons-codec.jar}" />

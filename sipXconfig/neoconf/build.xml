@@ -21,6 +21,7 @@
     <pathelement location="${hibernate.jar}" />
     <pathelement location="${servlet.jar}" />
     <pathelement location="${velocity.jar}" />
+    <pathelement location="${velocity-tools-generic.jar}" />
     <pathelement location="${commons-digester.jar}" />
     <pathelement location="${commons-beanutils.jar}" />
     <pathelement location="${commons-collections.jar}" />
@@ -206,6 +207,7 @@
       <fileset file="${jdbc-driver.jar}" />
       <fileset file="${logkit.jar}" />
       <fileset file="${velocity.jar}" />
+      <fileset file="${velocity-tools-generic.jar}" />
       <fileset file="${commons-logging.jar}" />
       <fileset file="${servlet.jsp.jar}" />
       <fileset file="${jasper-compiler.jar}" />

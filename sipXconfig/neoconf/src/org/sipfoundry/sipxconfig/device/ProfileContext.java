@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.velocity.tools.generic.MathTool;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -55,6 +56,7 @@ public class ProfileContext<T extends Device> {
         context.put("gateway", m_device);
         context.put("sbc", m_device);
         context.put("cfg", this);
+        context.put("math", new MathTool());
         return context;
     }
 
