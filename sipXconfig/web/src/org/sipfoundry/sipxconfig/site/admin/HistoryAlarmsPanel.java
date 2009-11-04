@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
@@ -73,7 +74,6 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
     public abstract void setAlarmEvents(List<AlarmEvent> alarmEvents);
 
-    @Persist
     public abstract HistoryAlarmsTableModel getHistoryAlarmsTableModel();
 
     public abstract void setHistoryAlarmsTableModel(HistoryAlarmsTableModel tableModel);
@@ -111,12 +111,24 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
         if (getAlarmEvents() == null) {
             setAlarmEvents(new ArrayList<AlarmEvent>());
         }
+    }
 
+    @Override
+    protected void prepareForRender(IRequestCycle cycle) {
+        //initialize model data when history tab is rendered
         if (getHistoryAlarmsTableModel() == null) {
             HistoryAlarmsTableModel tableModel = new HistoryAlarmsTableModel();
             tableModel.setAlarmHistoryManager(getAlarmHistoryManager());
             setHistoryAlarmsTableModel(tableModel);
         }
+    }
+    /**
+     * Populate History Alarms Table Model with required data
+     */
+    private void populateHistoryAlarmsTableModel() {
+        HistoryAlarmsTableModel model = getHistoryAlarmsTableModel();
+        List<AlarmEvent> alarmEvents = getAlarmHistoryManager().getAlarmEvents(getHost(), getStartDate(), getEndDate());
+        model.setAlarmEvents(alarmEvents);
     }
 
     public void retrieveLogs() {
@@ -131,10 +143,6 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
         }
 
         getAlarmContext().reloadAlarms();
-
-        HistoryAlarmsTableModel model = getHistoryAlarmsTableModel();
-        model.setHost(getHost());
-        model.setStartDate(getStartDate());
-        model.setEndDate(getEndDate());
+        populateHistoryAlarmsTableModel();
     }
 }

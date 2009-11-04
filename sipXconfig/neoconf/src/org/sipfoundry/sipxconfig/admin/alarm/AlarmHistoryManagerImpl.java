@@ -103,13 +103,16 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
             int first, int pageSize) throws IOException {
         List<AlarmEvent> contents = parseEventsStream(responseStream, startDate, endDate);
 
+        return getAlarmEventsByPage(contents, first, pageSize);
+    }
+
+    public List<AlarmEvent> getAlarmEventsByPage(List<AlarmEvent> contents, int first, int pageSize) {
         int last = first + pageSize;
         if (last > contents.size()) {
             last = first + contents.size() % pageSize;
         }
 
         List<AlarmEvent> pageContents = contents.subList(first, last);
-
         return pageContents;
     }
 }

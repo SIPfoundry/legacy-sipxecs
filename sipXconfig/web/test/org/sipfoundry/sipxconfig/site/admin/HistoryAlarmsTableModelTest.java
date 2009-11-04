@@ -45,9 +45,8 @@ public class HistoryAlarmsTableModelTest {
         calendar.add(Calendar.DAY_OF_MONTH, 3);
         Date endDate = calendar.getTime();
 
-        m_out.setHost("localhost");
-        m_out.setStartDate(startDate);
-        m_out.setEndDate(endDate);
+        List<AlarmEvent> list = m_historyManager.getAlarmEvents("localhost", startDate, endDate);
+        m_out.setAlarmEvents(list);
     }
 
     @Test

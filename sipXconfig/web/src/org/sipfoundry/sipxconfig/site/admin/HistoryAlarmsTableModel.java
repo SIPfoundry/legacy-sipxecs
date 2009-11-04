@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,46 +21,32 @@ import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
 public class HistoryAlarmsTableModel implements IBasicTableModel {
 
     private AlarmHistoryManager m_alarmHistoryManager;
-    private String m_host;
-    private Date m_startDate;
-    private Date m_endDate;
+    private List<AlarmEvent> m_alarmEvents;
 
     @Override
     public Iterator getCurrentPageRows(int first, int pageSize, ITableColumn sortColumn, boolean sortOrder) {
-        if (!isValidConfig()) {
+        if (m_alarmEvents == null) {
             return Collections.emptyList().iterator();
         }
 
-        List<AlarmEvent> alarms = m_alarmHistoryManager.getAlarmEventsByPage(m_host, m_startDate, m_endDate, first,
-                pageSize);
+        List<AlarmEvent> alarms = m_alarmHistoryManager.getAlarmEventsByPage(m_alarmEvents, first, pageSize);
         return alarms.iterator();
     }
 
     @Override
     public int getRowCount() {
-        if (!isValidConfig()) {
+        if (m_alarmEvents == null) {
             return 0;
         }
-        return m_alarmHistoryManager.getAlarmEvents(m_host, m_startDate, m_endDate).size();
-    }
-
-    private boolean isValidConfig() {
-        return m_host != null && m_startDate != null && m_endDate != null;
-    }
-
-    public void setHost(String host) {
-        m_host = host;
-    }
-
-    public void setStartDate(Date startDate) {
-        m_startDate = startDate;
-    }
-
-    public void setEndDate(Date endDate) {
-        m_endDate = endDate;
+        return m_alarmEvents.size();
     }
 
     public void setAlarmHistoryManager(AlarmHistoryManager alarmHistoryManager) {
         m_alarmHistoryManager = alarmHistoryManager;
     }
+
+    public void setAlarmEvents(List<AlarmEvent> alarmEvents) {
+        m_alarmEvents = alarmEvents;
+    }
+
 }
