@@ -7,6 +7,7 @@ AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 
+SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
 SFAC_SIPX_INSTALL_PREFIX
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
