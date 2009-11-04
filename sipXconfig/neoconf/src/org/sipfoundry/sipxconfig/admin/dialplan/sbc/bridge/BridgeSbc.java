@@ -10,9 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.Collections.singleton;
 
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -143,7 +145,10 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
             return m_location;
         }
         Integer id = (Integer) getSettings().getSetting(LOCATION_ID_SETTING).getTypedValue();
-        return null == id ? m_locationsManager.getLocationByAddress(getAddress()) : m_locationsManager.getLocation(id);
+        if (id == null) {
+            return m_locationsManager.getLocationByAddress(getAddress());
+        }
+        return m_locationsManager.getLocation(id);
     }
 
     public void updateBridgeLocationId() {
@@ -178,7 +183,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
             m_natLocation = location.getNat();
         }
 
-        @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address"  })
+        @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address" })
         public String getExternalAddress() {
             return m_location.getAddress();
         }
@@ -221,10 +226,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     @Override
     public void restart() {
-        SipxBridgeService sipxBridgeService = (SipxBridgeService) m_sipxServiceManager
-                .getServiceByBeanId(SipxBridgeService.BEAN_ID);
-        m_processContext.manageServices(getLocation(), Collections.singleton(sipxBridgeService),
-                SipxProcessContext.Command.RESTART);
+        SipxService sipxBridgeService = m_sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID);
+        m_processContext.markServicesForRestart(getLocation(), singleton(sipxBridgeService));
     }
 
     public void setLoggingManager(LoggingManager loggingManager) {
@@ -257,8 +260,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
     }
 
     public boolean isBridgeSbcRunning() {
-        Status bridgeStatus = m_processContext.getStatus(getLocation(),
-                m_sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID));
+        Status bridgeStatus = m_processContext.getStatus(getLocation(), m_sipxServiceManager
+                .getServiceByBeanId(SipxBridgeService.BEAN_ID));
         return (bridgeStatus == Status.Running);
     }
 }

@@ -55,6 +55,8 @@ public interface SipxProcessContext {
      */
     LocationStatus getLocationStatus(Location location);
 
+    void markServicesForRestart(Location location, Collection< ? extends SipxService> processes);
+
     void markServicesForRestart(Collection< ? extends SipxService> processes);
 
     /**

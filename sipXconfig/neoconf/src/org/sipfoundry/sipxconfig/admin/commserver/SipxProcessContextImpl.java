@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
+
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
 
 public class SipxProcessContextImpl implements SipxProcessContext {
@@ -165,10 +166,14 @@ public class SipxProcessContextImpl implements SipxProcessContext {
      */
     public void markServicesForRestart(Collection< ? extends SipxService> processes) {
         for (Location location : m_locationsManager.getLocations()) {
-            for (SipxService service : processes) {
-                if (location.isServiceInstalled(service) && location.isRegistered()) {
-                    m_servicesToRestart.mark(location, service);
-                }
+            markServicesForRestart(location, processes);
+        }
+    }
+
+    public void markServicesForRestart(Location location, Collection< ? extends SipxService> processes) {
+        for (SipxService service : processes) {
+            if (location.isServiceInstalled(service) && location.isRegistered()) {
+                m_servicesToRestart.mark(location, service);
             }
         }
     }
