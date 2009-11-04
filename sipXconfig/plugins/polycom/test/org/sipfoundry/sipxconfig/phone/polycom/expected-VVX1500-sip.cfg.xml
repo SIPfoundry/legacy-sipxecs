@@ -1,5 +1,5 @@
 <?xml version="1.0" standalone="yes"?>
-<!-- 
+<!--
     XML comments are ignored by assertXMLEqual().
  -->
 <sip>
@@ -15,7 +15,6 @@
     <SIP
       voIpProt.SIP.csta="0"
       voIpProt.SIP.useRFC2543hold="0"
-      voIpProt.SIP.use486forReject="1"
       voIpProt.SIP.useContactInReferTo="1"
       voIpProt.SIP.lcs="0"
       voIpProt.SIP.useSendonlyHold="1"
@@ -28,6 +27,9 @@
       voIpProt.SIP.serverFeatureControl.cf="0"
       voIpProt.SIP.serverFeatureControl.dnd="0"
     >
+<!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
+          voIpProt.SIP.use486forReject="1"
+-->
       <outboundProxy
         voIpProt.SIP.outboundProxy.address=""
         voIpProt.SIP.outboundProxy.port="5060"
@@ -420,7 +422,6 @@
         log.level.change.net="4"
         log.level.change.cfg="4"
         log.level.change.cdp="4"
-        log.level.change.lldp="4"
         log.level.change.pmt="4"
         log.level.change.ftp="4"
         log.level.change.ares="4"
@@ -441,6 +442,9 @@
         log.level.change.ttrs="4"
         log.level.change.usb="4"
         log.level.change.srtp="4"
+      />
+<!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
+        log.level.change.lldp="4"
         log.level.change.clink="4"
         log.level.change.pnetm="4"
         log.level.change.peer="4"
@@ -451,7 +455,7 @@
         log.level.change.usbio="4"
         log.level.change.pres="4"
         log.level.change.pwrsv="4"
-      />
+-->
     </level>
     <render
       log.render.level="1"
@@ -517,7 +521,7 @@
     feature.15.name="acd-agent-availability"
     feature.15.enabled="0"
     feature.16.name="nway-conference"
-    feature.16.enabled="0"
+    feature.16.enabled="1"
     feature.17.name="call-recording"
     feature.17.enabled="1"
     feature.18.name="enhanced-feature-keys"

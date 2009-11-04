@@ -15,8 +15,6 @@ import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -24,7 +22,7 @@ import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
-public class SipConfigurationTest extends XMLTestCase {
+public class SipConfigurationTest extends PolycomXmlTestCase {
 
     private PolycomPhone phone;
 
@@ -49,10 +47,11 @@ public class SipConfigurationTest extends XMLTestCase {
         model.setMaxLineCount(6);
         model.setModelId("polycom600");
         Set<String> features = new HashSet<String>();
+        features.add("disableCallList");
+        features.add("intercom");
         features.add("voiceQualityMonitoring");
-        features.add("G711Mu_CodecPref");
-        features.add("G711A_CodecPref");
-        features.add("G729AB_CodecPref");
+        features.add("OTHERS_CodecPref");
+        features.add("pre_3.2.0_model");
         model.setSupportedFeatures(features);
         phone.setModel(model);
 
@@ -75,8 +74,7 @@ public class SipConfigurationTest extends XMLTestCase {
 
         Reader expectedXml = new InputStreamReader(expected);
 
-        Diff phoneDiff = new Diff(expectedXml, m_location.getReader());
-        assertXMLEqual(phoneDiff, true);
+        assertPolycomXmlEquals(expectedXml, m_location.getReader());
         expected.close();
     }
 
@@ -85,14 +83,17 @@ public class SipConfigurationTest extends XMLTestCase {
         model.setMaxLineCount(6);
         model.setModelId("polycomVVX1500");
         Set<String> features = new HashSet<String>();
+        features.add("disableCallList");
+        features.add("intercom");
         features.add("voiceQualityMonitoring");
+        features.add("nway-conference");
+        features.add("localConferenceCallHold");
+        features.add("singleKeyPressConference");
         features.add("VVX_1500_CodecPref");
         features.add("video");
-        features.add("Lin16");
-        features.add("G722");
-        features.add("G7221");
-        features.add("G7221C");
-        features.add("Siren14");
+        // Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
+        features.add("pre_3.2.0_model");
+        // Temporary.
         model.setSupportedFeatures(features);
         phone.setModel(model);
 
@@ -114,8 +115,8 @@ public class SipConfigurationTest extends XMLTestCase {
 
         Reader expectedXml = new InputStreamReader(expected);
 
-        Diff phoneDiff = new Diff(expectedXml, m_location.getReader());
-        assertXMLEqual(phoneDiff, true);
+        assertPolycomXmlEquals(expectedXml, m_location.getReader());
+
         expected.close();
     }
 

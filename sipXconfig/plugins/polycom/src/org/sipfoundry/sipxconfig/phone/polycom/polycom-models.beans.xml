@@ -37,9 +37,7 @@
       <set>
         <value>voiceQualityMonitoring</value>
         <value>intercom</value>
-        <value>G711Mu_CodecPref</value>
-        <value>G711A_CodecPref</value>
-        <value>G729AB_CodecPref</value>
+        <value>OTHERS_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -51,9 +49,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>G711Mu_CodecPref</value>
-        <value>G711A_CodecPref</value>
-        <value>G729AB_CodecPref</value>
+        <value>OTHERS_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -65,9 +61,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>G711Mu_CodecPref</value>
-        <value>G711A_CodecPref</value>
-        <value>G729AB_CodecPref</value>
+        <value>IP_650_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -80,6 +74,7 @@
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
         <value>pre_3.2.0_model</value>
+        <value>OTHERS_CodecPref</value>
       </set>
     </property>
   </bean>
@@ -106,9 +101,7 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>voiceQualityMonitoring</value>
-        <value>G711Mu_CodecPref</value>
-        <value>G711A_CodecPref</value>
-        <value>G729AB_CodecPref</value>
+        <value>OTHERS_CodecPref</value>
         <value>pre_3.2.0_model</value>
       </set>
     </property>
@@ -124,7 +117,6 @@
         <value>nway-conference</value>
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
-        <value>G722</value>
         <value>IP_650_CodecPref</value>
       </set>
     </property>
@@ -141,11 +133,6 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>VVX_1500_CodecPref</value>
-        <value>Lin16</value>
-        <value>G722</value>
-        <value>G7221</value>
-        <value>G7221C</value>
-        <value>Siren14</value>
         <value>video</value>
 
         <!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500. -->
@@ -176,8 +163,6 @@
         <value>disableCallList</value>
         <value>intercom</value>
         <value>IP_6000_CodecPref</value>
-        <value>G722</value>
-        <value>Siren14</value>
       </set>
     </property>
   </bean>
@@ -191,9 +176,6 @@
         <value>localConferenceCallHold</value>
         <value>singleKeyPressConference</value>
         <value>IP_7000_CodecPref</value>
-        <value>Lin16</value>
-        <value>G722</value>
-        <value>Siren14</value>
       </set>
     </property>
   </bean>

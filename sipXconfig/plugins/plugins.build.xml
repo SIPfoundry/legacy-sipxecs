@@ -37,6 +37,7 @@
     <pathelement location="${xmlunit.jar}" />
     <pathelement location="${xerces.jar}" />
     <pathelement location="${xmlunit.jar}" />
+    <pathelement location="${jaxen.jar}" />
     
     <!-- required by neoconf -->    
     <pathelement location="${aopalliance.jar}" />

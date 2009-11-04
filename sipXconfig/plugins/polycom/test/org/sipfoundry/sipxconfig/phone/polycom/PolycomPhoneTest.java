@@ -48,10 +48,11 @@ public class PolycomPhoneTest extends TestCase {
         m_phone.setModel(model);
         model.setModelId("polycom600");
         Set<String> features = new HashSet<String>();
+        features.add("disableCallList");
+        features.add("intercom");
         features.add("voiceQualityMonitoring");
-        features.add("G711Mu_CodecPref");
-        features.add("G711A_CodecPref");
-        features.add("G729AB_CodecPref");
+        features.add("OTHERS_CodecPref");
+        features.add("pre_3.2.0_model");
         model.setSupportedFeatures(features);
         m_tester = PhoneTestDriver.supplyTestData(m_phone);
 

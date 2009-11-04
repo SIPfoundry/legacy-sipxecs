@@ -5,71 +5,11 @@
   ]>
 <model>
   &types;
-  <type id="preffered-codecs-type">
+  <type id="basic-three-codecs-type">
     <multi-enum labelKeyPrefix="codec">
-      <option>
-        <value>G711Mu</value>
-      </option>
-      <option>
-        <value>G711A</value>
-      </option>
-      <option>
-        <value>G729AB</value>
-      </option>
-      <option>
-        <value>G722</value>
-      </option>
-      <option>
-        <value>G7221.16kbps</value>
-      </option>
-      <option>
-        <value>G7221.24kbps</value>
-      </option>
-      <option>
-        <value>G7221.32kbps</value>
-      </option>
-      <option>
-        <value>G7221C.24kbps</value>
-      </option>
-      <option>
-        <value>G7221C.32kbps</value>
-      </option>
-      <option>
-        <value>G7221C.48kbps</value>
-      </option>
-      <option>
-        <value>Lin16.8ksps</value>
-      </option>
-      <option>
-        <value>Lin16.16ksps</value>
-      </option>
-      <option>
-        <value>Lin16.32ksps</value>
-      </option>
-      <option>
-        <value>Lin16.44ksps</value>
-      </option>
-      <option>
-        <value>Lin16.48ksps</value>
-      </option>
-      <option>
-        <value>Siren14.24kbps</value>
-      </option>
-      <option>
-        <value>Siren14.32kbps</value>
-      </option>
-      <option>
-        <value>Siren14.48kbps</value>
-      </option>
-      <option>
-        <value>Siren22.32kbps</value>
-      </option>
-      <option>
-        <value>Siren22.48kbps</value>
-      </option>
-      <option>
-        <value>Siren22.64kbps</value>
-      </option>
+      <option><value>G711Mu</value></option>
+      <option><value>G711A</value></option>
+      <option><value>G729AB</value></option>
     </multi-enum>
   </type>
   <group name="lcl">
@@ -337,24 +277,98 @@
     </setting>
     <group name="codecPref">
       <setting name="IP_300" if="IP_300_CodecPref">
-        <type refid="preffered-codecs-type"/>
+        <type refid="basic-three-codecs-type"/>
+        <value>G711Mu|G711A|G729AB</value>
+      </setting>
+      <setting name="OTHERS" if="OTHERS_CodecPref">
+        <type refid="basic-three-codecs-type"/>
         <value>G711Mu|G711A|G729AB</value>
       </setting>
       <setting name="IP_4000" if="IP_4000_CodecPref">
-        <type refid="preffered-codecs-type"/>
+        <type refid="basic-three-codecs-type"/>
         <value>G711Mu|G711A</value>
       </setting>
       <setting name="IP_650" if="IP_650_CodecPref">
-        <type refid="preffered-codecs-type"/>
+		  <type>
+		    <multi-enum labelKeyPrefix="codec">
+            <option><value>G722</value></option>
+		      <option><value>G711Mu</value></option>
+		      <option><value>G711A</value></option>
+		      <option><value>G729AB</value></option>
+		    </multi-enum>
+		  </type>
         <value>G722|G711Mu|G711A|G729AB</value>
       </setting>
-      <setting name="VVX_1500" if="VVX_1500_CodecPref">
-        <type refid="preffered-codecs-type"/>
-        <value>G7221C.48kbps|G7221.32kbps|G722|G711Mu|G711A|G729AB</value>
+      <setting name="IP_6000" if="IP_6000_CodecPref">
+        <type>
+          <multi-enum labelKeyPrefix="codec">
+            <option><value>G711Mu</value></option>
+            <option><value>G711A</value></option>
+            <option><value>G729AB</value></option>
+            <option><value>G722</value></option>
+            <option><value>G7221.16kbps</value></option>
+            <option><value>G7221.24kbps</value></option>
+            <option><value>G7221.32kbps</value></option>
+            <option><value>G7221C.24kbps</value></option>
+            <option><value>G7221C.32kbps</value></option>
+            <option><value>G7221C.48kbps</value></option>
+            <option><value>Siren14.24kbps</value></option>
+            <option><value>Siren14.32kbps</value></option>
+            <option><value>Siren14.48kbps</value></option>
+          </multi-enum>
+        </type>
+        <value>G7221C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711Mu|G711A|G729AB</value>
       </setting>
-      <setting name="OTHERS" unless="IP_300_CodecPref||IP_4000_CodecPref||IP_650_CodecPref||VVX_1500_CodecPref">
-        <type refid="preffered-codecs-type"/>
-        <value>G711Mu|G711A|G729AB</value>
+      <setting name="IP_7000" if="IP_7000_CodecPref">
+        <type>
+          <multi-enum labelKeyPrefix="codec">
+            <option><value>G711Mu</value></option>
+            <option><value>G711A</value></option>
+            <option><value>G729AB</value></option>
+            <option><value>G722</value></option>
+            <option><value>G7221.16kbps</value></option>
+            <option><value>G7221.24kbps</value></option>
+            <option><value>G7221.32kbps</value></option>
+            <option><value>G7221C.24kbps</value></option>
+            <option><value>G7221C.32kbps</value></option>
+            <option><value>G7221C.48kbps</value></option>
+            <option><value>Lin16.16ksps</value></option>
+            <option><value>Lin16.32ksps</value></option>
+            <option><value>Lin16.48ksps</value></option>
+            <option><value>Siren14.24kbps</value></option>
+            <option><value>Siren14.32kbps</value></option>
+            <option><value>Siren14.48kbps</value></option>
+            <option><value>Siren22.32kbps</value></option>
+            <option><value>Siren22.48kbps</value></option>
+            <option><value>Siren22.64kbps</value></option>
+          </multi-enum>
+        </type>
+        <value>Siren22.64kbps|G7221C.48kbps|Siren14.48kbps|G722|G7221.32kbps|G711Mu|G711A|G729AB</value>
+      </setting>
+      <setting name="VVX_1500" if="VVX_1500_CodecPref">
+        <type>
+          <multi-enum labelKeyPrefix="codec">
+            <option><value>G711Mu</value></option>
+            <option><value>G711A</value></option>
+            <option><value>G729AB</value></option>
+            <option><value>G722</value></option>
+            <option><value>G7221.16kbps</value></option>
+            <option><value>G7221.24kbps</value></option>
+            <option><value>G7221.32kbps</value></option>
+            <option><value>G7221C.24kbps</value></option>
+            <option><value>G7221C.32kbps</value></option>
+            <option><value>G7221C.48kbps</value></option>
+            <option><value>Lin16.8ksps</value></option>
+            <option><value>Lin16.16ksps</value></option>
+            <option><value>Lin16.32ksps</value></option>
+            <option><value>Lin16.44ksps</value></option>
+            <option><value>Lin16.48ksps</value></option>
+            <option><value>Siren14.24kbps</value></option>
+            <option><value>Siren14.32kbps</value></option>
+            <option><value>Siren14.48kbps</value></option>
+          </multi-enum>
+        </type>
+        <value>G7221C.48kbps|G7221.32kbps|G722|G711Mu|G711A|G729AB</value>
       </setting>
     </group>
     <group name="audioProfile">
@@ -451,7 +465,7 @@
           <value>160</value>
         </setting>
       </group>
-      <group name="G722" if="G722">
+      <group name="G722" if="IP_650_CodecPref||IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -482,7 +496,7 @@
           <value>200</value>
         </setting>
       </group>
-      <group name="G7221" if="G7221">
+      <group name="G7221" if="IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -513,7 +527,7 @@
           <value>200</value>
         </setting>
       </group>
-      <group name="G7221C" if="G7221C">
+      <group name="G7221C" if="IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -544,7 +558,7 @@
           <value>200</value>
         </setting>
       </group>
-      <group name="Lin16" if="Lin16">
+      <group name="Lin16" if="IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -575,7 +589,7 @@
           <value>100</value>
         </setting>
       </group>
-      <group name="Siren14" if="Siren14">
+      <group name="Siren14" if="IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->
@@ -604,6 +618,37 @@
             <integer min="10" max="500" />
           </type>
           <value>100</value>
+        </setting>
+      </group>
+      <group name="Siren22" if="IP_7000_CodecPref">
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80" />
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="20" />
+          </type>
+          <value>40</value>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10" />
+          </type>
+          <value>1500</value>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+            160 for IP 300 -->
+          <type>
+            <integer min="10" max="500" />
+          </type>
+          <value>200</value>
         </setting>
       </group>
     </group>
@@ -692,7 +737,7 @@
       <setting name="H263">
         <type refid="codecPref" />
         <value>3</value>
-      </setting> 
+      </setting>
       <setting name="H2631998">
         <type refid="codecPref" />
         <value>2</value>
@@ -701,7 +746,7 @@
         <type refid="codecPref" />
         <value>1</value>
       </setting>
-    </group> 
+    </group>
     <group name="profile"  advanced="yes">
       <setting name="H264.jitterBufferMax">
         <type>
@@ -845,7 +890,7 @@
         </type>
         <value/>
       </setting>
-    </group> 
+    </group>
     <group name="camera">
       <setting name="flickerAvoidance">
         <type>
@@ -1571,7 +1616,7 @@
       <setting name="pwrsv" copy-of="so" unless="pre_3.2.0_model"/>
     </group>
     <group name="device.syslog" advanced="yes">
-      <setting name="serverName.set" hidden="yes"> 
+      <setting name="serverName.set" hidden="yes">
         <type>
           <boolean />
         </type>
@@ -1630,7 +1675,7 @@
         </type>
         <value>1</value>
       </setting>
-      <setting name="renderLevel"> 
+      <setting name="renderLevel">
         <type>
           <enum labelKeyPrefix="render_level.label">
             <option>
@@ -1679,7 +1724,7 @@
       </setting>
     </group>
     <group name="render" advanced="yes">
-      <setting name="level"> 
+      <setting name="level">
         <type>
           <enum labelKeyPrefix="log_level.label">
             <option>
