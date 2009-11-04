@@ -27,6 +27,7 @@ import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.CompositeMessages;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -95,8 +96,10 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     protected void initLanguages() {
         String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
-        getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
-        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(), availableLanguages);
+        LocalizedLanguageMessages languageMessages = getLocalizedLanguageMessages();
+        languageMessages.setAvailableLanguages(availableLanguages);
+        CompositeMessages messages = new CompositeMessages(languageMessages, getMessages());
+        IPropertySelectionModel model = new ModelWithDefaults(messages, availableLanguages);
         setLanguageList(model);
     }
 
