@@ -261,9 +261,9 @@ public class Servlet extends HttpServlet {
         out.println("<phone1>");
         out.println("   <reg");
         out.println("      reg.1.displayName=\"" + phone.id + " " + phone.mac + "\"");
-        out.println("      reg.1.address=\"" + m_config.getProvisionSipUsername() + "@" + m_config.getSipDomainName() + "\"");
+        out.println("      reg.1.address=\"" + m_config.getProvisionSipUsername() + "\"");
         out.println("      reg.1.label=\"" + Queue.ID_PREFIX + phone.id + "\"");
-        out.println("      reg.1.auth.userId=\"" + m_config.getProvisionSipUsername() + "\"");
+        out.println("      reg.1.auth.userId=\"" + m_config.getProvisionSipUsername() + "/" + phone.mac + "\"");
         out.println("      reg.1.auth.password=\"" + m_config.getProvisionSipPassword() + "\"");
         out.println("      reg.1.ringType=\"9\""); // Highest Double Trill
         out.println("      reg.1.server.1.address=\"" + m_config.getSipDomainName() + "\"");
