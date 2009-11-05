@@ -5,12 +5,14 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.openfire;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -20,8 +22,8 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-
-public abstract class ServerToServerPanel extends BaseComponent implements PageBeginRenderListener {
+@ComponentClass(allowBody = false, allowInformalParameters = false)
+public abstract class InstantMessagingPanel extends BaseComponent implements PageBeginRenderListener {
     private static final String SIPX_OPENFIRE_BEAN_ID = "sipxOpenfireService";
 
     @InjectObject("spring:sipxServiceManager")
@@ -30,28 +32,32 @@ public abstract class ServerToServerPanel extends BaseComponent implements PageB
     @InjectObject("spring:serviceConfigurator")
     public abstract ServiceConfigurator getServiceConfigurator();
 
-    @InjectObject(value = "spring:coreContext")
+    @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
-    public abstract SipxService getSipxOpenfireService();
+    @Parameter(required = true)
+    public abstract String getSettingGroup();
 
-    public abstract void setSipxOpenfireService(SipxService sipxService);
+    public abstract SipxService getSipxService();
+
+    public abstract void setSipxService(SipxService sipxService);
 
     public void pageBeginRender(PageEvent event) {
-        if (getSipxOpenfireService() == null) {
-            setSipxOpenfireService(getSipxServiceManager().getServiceByBeanId(SIPX_OPENFIRE_BEAN_ID));
+        if (getSipxService() == null) {
+            setSipxService(getSipxServiceManager().getServiceByBeanId(SIPX_OPENFIRE_BEAN_ID));
         }
-    }
-    public void apply() {
-        if (TapestryUtils.isValid(this)) {
-            SipxService sipxOpenfireService = getSipxOpenfireService();
-            sipxOpenfireService.validate();
-            getSipxServiceManager().storeService(sipxOpenfireService);
-            getServiceConfigurator().replicateServiceConfig(sipxOpenfireService);
-        }
-    }
-    public Setting getOpenfireSettings() {
-        return getSipxOpenfireService().getSettings().getSetting("openfire-server-to-server");
     }
 
+    public void apply() {
+        if (TapestryUtils.isValid(this)) {
+            SipxService service = getSipxService();
+            service.validate();
+            getSipxServiceManager().storeService(service);
+            getServiceConfigurator().replicateServiceConfig(service);
+        }
+    }
+
+    public Setting getSettings() {
+        return getSipxService().getSettings().getSetting(getSettingGroup());
+    }
 }

@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
@@ -22,6 +22,6 @@ public abstract class InstantMessaging extends BasePage {
     public abstract SipxValidationDelegate getValidator();
 
     @Persist
-    @InitialValue(value = "literal:certificates")
+    @InitialValue(value = "literal:serverToServer")
     public abstract String getTab();
 }

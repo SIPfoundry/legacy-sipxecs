@@ -92,7 +92,6 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
         public String getDomainAddress() {
             return m_domainName;
         }
-
     }
 
     @Override

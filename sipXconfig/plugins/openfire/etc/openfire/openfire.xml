@@ -30,19 +30,19 @@
       </option>
     </enum>
   </type>
-  <group name="settings">
-    <setting name="sipx-proxy-domain">
+  <group name="settings" advanced="yes">
+    <setting name="sipx-proxy-domain" hidden="yes">
       <type>
         <string required="yes"/>
       </type>
     </setting>
-    <setting name="sipx-proxy-port">
+    <setting name="sipx-proxy-port" hidden="yes">
       <type>
         <integer required="yes"/>
       </type>
       <value>5060</value>
     </setting>
-    <setting name="watcher-address">
+    <setting name="watcher-address" hidden="yes">
       <type>
         <string required="yes"/>
       </type>
@@ -64,7 +64,7 @@
       </type>
       <value>9094</value>
     </setting>
-    <setting name="openfire-host">
+    <setting name="openfire-host" hidden="yes">
       <type>
         <string required="yes"/>
       </type>
@@ -83,13 +83,13 @@
       </type>
       <value>5269</value>
     </setting>
-    <setting name="disconnect-on-idle">
+    <setting name="disconnect-on-idle" advanced="yes">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="idle-timeout">
+    <setting name="idle-timeout" advanced="yes">
       <type>
         <integer required="yes" />
       </type>

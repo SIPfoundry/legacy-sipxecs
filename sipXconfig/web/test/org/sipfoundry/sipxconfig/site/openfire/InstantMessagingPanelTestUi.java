@@ -14,7 +14,7 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class ServerToServerPanelTestUi extends WebTestCase {
+public class InstantMessagingPanelTestUi extends WebTestCase {
 
     /*
      * **************************** TESTS DISABLED ************************************
@@ -26,7 +26,7 @@ public class ServerToServerPanelTestUi extends WebTestCase {
      */
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(ServerToServerPanelTestUi.class);
+        return SiteTestHelper.webTestSuite(InstantMessagingPanelTestUi.class);
     }
 
 
@@ -36,10 +36,9 @@ public class ServerToServerPanelTestUi extends WebTestCase {
         clickLink("seedOpenfireService");
         clickLink("link:instantMessaging");
         SiteTestHelper.assertNoException(tester);
-        clickLink("link:serverToServer");
     }
 
-    public void disabled_testApplySettings() {
+    public void disabled_testServerToServerApplySettings() {
 
         SiteTestHelper.assertNoException(tester);
         assertButtonPresent("serverToServerForm:apply");
@@ -71,6 +70,16 @@ public class ServerToServerPanelTestUi extends WebTestCase {
         clickButton("serverToServerForm:apply");
         SiteTestHelper.assertNoUserError(tester);
         tester.assertTextFieldEquals("setting:allowed-servers", "http://server1.org:1234,server2address:12345");
+    }
+
+    public void disabled_testLoggingApplySettings() {
+        clickLink("link:logging");
+        SiteTestHelper.assertNoException(tester);
+        assertButtonPresent("loggingForm:apply");
+        assertCheckboxPresent("setting:enabled");
+        checkCheckbox("setting:enabled");
+        clickButton("loggingForm:apply");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testDisabled() {
