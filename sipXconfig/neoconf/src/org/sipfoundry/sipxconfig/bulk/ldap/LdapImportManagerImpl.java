@@ -76,7 +76,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
                 Index.LAST_NAME.set(row, preview.getUser().getLastName());
                 Index.ALIAS.set(row, preview.getUser().getAliasesString());
                 Index.SIP_PASSWORD.set(row, preview.getUser().getSipPassword());
-                Index.EMAIL.set(row, preview.getUser().getAddressBookEntry().getEmailAddress());
+                Index.EMAIL.set(row, preview.getUser().getEmailAddress());
                 Index.USER_GROUP.set(row, groupNamesString);
                 Index.IM_ID.set(row, preview.getUser().getImId());
 
