@@ -88,7 +88,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
    subscribeRequest.getFromUrl(fromNameAddr);
    fromNameAddr.getFieldParameter("tag", fromTag);
 
-   UtlString authNonce, authRealm, authUser, uriParam;
+   UtlString authNonce, authRealm, authUser, authUserBase, uriParam;
 
    // Iterate through Authorization and Proxy-Authorization credentials,
    // looking for one that shows this request is authenticated.
@@ -97,12 +97,14 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
         && subscribeRequest.getDigestAuthorizationData(
            &authUser, &authRealm, &authNonce,
            NULL, NULL, &uriParam,
-           HttpMessage::SERVER, authIndex);
+           HttpMessage::SERVER, authIndex,
+           &authUserBase);
         authIndex++
       )
    {
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
-                    "reqRealm='%s', reqUser='%s'", authRealm.data() , authUser.data());
+                    "authRealm='%s', authUser='%s', authUserBase='%s'",
+                    authRealm.data() , authUser.data(), authUserBase.data());
 
       if (mRealm.compareTo(authRealm) == 0) // case sensitive check that realm is correct
       {
@@ -120,7 +122,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
             Url authIdentity;
 
             // then get the credentials for this user & realm
-            if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUser
+            if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUserBase
                                                             ,authRealm
                                                             ,authIdentity
                                                             ,passTokenDB
@@ -146,17 +148,15 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
                   authIdentity.getIdentity(identity);
                   OsSysLog::add(FAC_AUTH, PRI_ERR,
                                 "Response auth hash does not match (bad password?)"
-                                " authIdentity='%s' authUser='%s'",
-                                identity.data(), authUser.data());
+                                " authIdentity='%s' authUserBase='%s'",
+                                identity.data(), authUserBase.data());
                }
             }
             else // failed to get credentials
             {
-               UtlString identity;
-               authIdentity.getIdentity(identity);
                OsSysLog::add(FAC_AUTH, PRI_ERR,
                              "Unable to get credentials for realm='%s', user='%s'",
-                             mRealm.data(), authUser.data());
+                             mRealm.data(), authUserBase.data());
             }
          }
          else // nonce is not valid
