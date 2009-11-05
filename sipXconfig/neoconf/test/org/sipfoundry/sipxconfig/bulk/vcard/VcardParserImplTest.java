@@ -35,7 +35,7 @@ public class VcardParserImplTest extends TestCase {
         };
 
         parser.parse(reader, add);
-        assertEquals(2, entriesList.size());
+        assertEquals(6, entriesList.size());
 
         String[] entry1 = entriesList.get(0);
         assertEquals(3, entry1.length);
@@ -48,5 +48,30 @@ public class VcardParserImplTest extends TestCase {
         assertEquals("Luke", entry2[0]);
         assertEquals("Skywalker", entry2[1]);
         assertEquals("1235", entry2[2]);
+
+        String[] entry3 = entriesList.get(2);
+        assertEquals(3, entry3.length);
+        assertEquals("Venus", entry3[0]);
+        assertEquals("Williams", entry3[1]);
+        assertEquals("(998) 678-5667", entry3[2]);
+
+        String[] entry4 = entriesList.get(3);
+        assertEquals(3, entry4.length);
+        assertEquals("Cindrella", entry4[0]);
+        assertEquals("", entry4[1]);
+        assertEquals("+1-213-555-1234", entry4[2]);
+
+        String[] entry5 = entriesList.get(4);
+        assertEquals(3, entry5.length);
+        assertEquals("Micha3l", entry5[0]);
+        assertEquals("Jackson", entry5[1]);
+        assertEquals("+40 (21)313 17 -98", entry5[2]);
+
+        String[] entry6 = entriesList.get(5);
+        assertEquals(3, entry6.length);
+        assertEquals("John", entry6[0]);
+        assertEquals("Mc'Donald", entry6[1]);
+        assertEquals("ESN-8776", entry6[2]);
+
     }
 }

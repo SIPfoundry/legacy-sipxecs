@@ -21,3 +21,34 @@ VERSION:3.0
 N:Vader;Darth;evil jedi;;
 TEL;mobile:1235
 END:vCard
+
+BEGIN:VCARD
+VERSION:2.1
+N;LANGUAGE=en-us:Williams;Venus
+FN:Venus Williams
+TEL;WORK;VOICE:(998) 678-5667
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:;Cindrella;;;
+TEL;TYPE=WORK:+1-213-555-1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:Jackson;Micha3l;;;
+TEL;TYPE=WORK:+40 (21)313 17 -98
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:Mc'Donald;John;;;
+TEL;TYPE=WORK:ESN-8776
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+N:Invalid;PhoneNumber;;;
+TEL;TYPE=WORK:+45 (123) --50
+END:vCard

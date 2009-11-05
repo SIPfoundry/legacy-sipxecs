@@ -23,17 +23,19 @@ import org.sipfoundry.sipxconfig.bulk.BulkParser;
 public class VcardParserImpl implements BulkParser {
     private static final String DEFAULT_VERSION = "3.0";
     private Pattern m_versionPattern = Pattern.compile("(?i)VERSION:((?:\\d)+(?:\\.\\d)*)");
-    private Pattern m_namePattern = Pattern
-            .compile("(?i)N:([\\p{L} ,\\.\\-, \\d]*)(?:;([\\p{L} ,\\.\\-, \\d]*))?(?:;[\\p{L} ,\\.\\-, \\d]*){0,3}");
+    private Pattern m_namePattern = Pattern.compile("(?i)(?:N(?:;[^:]+)*:)([\\p{L} ,\\.\\-', \\d]*)"
+            + "(?:;([\\p{L} ,\\.\\-', \\d]*))?(?:;[\\p{L} ,\\.\\-', \\d]*){0,3}");
     private Pattern m_phoneV21Pattern;
     private Pattern m_phoneV30Pattern;
 
     public void setTelType(String telType) {
         String phoneV21PatternString = "(?i)TEL;(?:[a-zA-Z]+;)*" + telType
-                + "(?:;[a-zA-Z]+)*:((?:\\+)?\\d+(?:-)?\\d*)";
+                + "(?:;[a-zA-Z]+)*:((?:[a-zA-Z]+)?(?:\\+(?:(?:\\(\\d+\\))|(?:\\d+)))?(?:(?:\\s*\\-?\\s*]*)?"
+                + "(?:(?:\\(\\d+\\))|(?:\\d+))+)+)(?:\\s*)";
         String phoneV30PatternString = "(?i)TEL;(?:(?:TYPE=[a-zA-Z]+;)*TYPE=" + telType
                 + "(?:;TYPE=[a-zA-Z]+)*|TYPE=(?:[a-zA-Z]+,)*" + telType
-                + "(?:,[a-zA-Z]+)*):((?:\\+)?\\d+(?:-)?\\d*)";
+                + "(?:,[a-zA-Z]+)*):((?:[a-zA-Z]+)?(?:\\+(?:(?:\\(\\d+\\))|(?:\\d+)))?"
+                + "(?:(?:\\s*\\-?\\s*]*)?(?:(?:\\(\\d+\\))|(?:\\d+))+)+)(?:\\s*)";
         m_phoneV21Pattern = Pattern.compile(phoneV21PatternString);
         m_phoneV30Pattern = Pattern.compile(phoneV30PatternString);
     }

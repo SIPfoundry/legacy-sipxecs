@@ -615,7 +615,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         try {
             is.mark(100);
             BufferedReader isr = new BufferedReader(new InputStreamReader(is, m_vcardEncoding));
-            String line = isr.readLine();
+            String line;
+            do {
+                line = isr.readLine();
+            } while (StringUtils.isBlank(line));
             boolean isVcard = "BEGIN:VCARD".equalsIgnoreCase(line);
             is.reset();
             return isVcard;

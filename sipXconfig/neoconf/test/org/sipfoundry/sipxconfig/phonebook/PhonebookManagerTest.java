@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -147,6 +149,20 @@ public class PhonebookManagerTest extends TestCase {
         } catch (UserException e) {
             assertEquals("&msg.invalidPhonebookFormat", e.getMessage());
         }
+    }
+
+    public void testIsVcard() throws Exception {
+        PhonebookManagerImpl context = new PhonebookManagerImpl();
+        context.setVcardEncoding("UTF-8");
+
+        assertTrue(context.isVcard(toInputStream("BEGIN:VCARD")));
+        assertTrue(context.isVcard(toInputStream("\n\nBEGIN:VCARD")));
+        assertFalse(context.isVcard(toInputStream("\nsomething\nBEGIN:VCARD")));
+        assertFalse(context.isVcard(toInputStream("something")));
+    }
+
+    private static BufferedInputStream toInputStream(String text) throws Exception {
+        return new BufferedInputStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
     }
 
     public void testGetCsvFile() throws Exception {
