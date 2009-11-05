@@ -13,7 +13,8 @@ setupbin_IN = $(foreach file,$(setupbin_SCRIPTS),$(file).in)
 
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \
-   $(setupbin_IN)
+   $(setupbin_IN) \
+   $(bin_SCRIPTS)
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP

@@ -16,6 +16,8 @@ DISTCLEANFILES = freeswitch-process.xml
 EXTRA_DIST = \
 	README \
 	CONTRIBUTORS \
+	BUILDSTAMP \
+	SVN-VERSION \
 	LICENSE	\
 	config/sipX-config.in \
 	config/sipX-buildstamp.cpp.in \
