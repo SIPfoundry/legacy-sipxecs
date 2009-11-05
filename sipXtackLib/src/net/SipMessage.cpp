@@ -1998,9 +1998,10 @@ void SipMessage::setCancelData(const char* fromField, const char* toField,
                      callId, sequenceNumber);
 }
 
-void SipMessage::setCancelData(const SipMessage* inviteRequest)
+void SipMessage::setCancelData(const SipMessage* inviteRequest,
+                               const UtlString* reasonValue)
 {
-    UtlString uri;
+   UtlString uri;
    UtlString fromField;
    UtlString toField;
    UtlString callId;
@@ -2013,14 +2014,19 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
    inviteRequest->getCSeqField(&sequenceNum, &sequenceMethod);
-    inviteRequest->getRequestUri(&uri);
+   inviteRequest->getRequestUri(&uri);
 
    //setCancelData(fromField.data(), toField.data(), callId, sequenceNum);
-    setRequestData(SIP_CANCEL_METHOD, uri,
+   setRequestData(SIP_CANCEL_METHOD, uri,
                   fromField, toField,
                   callId, sequenceNum);
-}
 
+   // Set the Reason header if a value was provided.
+   if (reasonValue && !reasonValue->isNull())
+   {
+      setReasonField(reasonValue->data());
+   }
+}
 
 void SipMessage::setPublishData(const char* uri,
                                 const char* fromField,
@@ -5491,4 +5497,9 @@ void SipMessage::setDiagnosticSipFragResponse(const SipMessage& message,
 
    // Set the content type of the body to be sipfrag
    setContentType(CONTENT_TYPE_MESSAGE_SIPFRAG);
+}
+
+void SipMessage::setReasonField(const char* reasonString)
+{
+    setHeaderValue(SIP_REASON_FIELD, reasonString);
 }

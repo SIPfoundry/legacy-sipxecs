@@ -279,6 +279,12 @@ public:
     // Has this URI been recursed anywhere at or below in this transaction tree already
     // Look at or below the current transaction in the transaction tree
 
+    void setCancelReasonValue(const char* protocol,
+                              int responseCode,
+                              const char* reasonText = NULL);
+    // Set the data to be used to generate a Reason header for any CANCEL
+    // generated for any child transaction.
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
     void handleChildTimeoutEvent(SipTransaction& child,
@@ -381,6 +387,7 @@ private:
     int mCseq;
     UtlBoolean mIsServerTransaction; ///< TRUE = server, FALSE = client
     UtlBoolean mIsUaTransaction;     ///< UA or proxy transaction
+    UtlString mCancelReasonValue;    ///< Value of Reason header to be sent in CANCEL of any children (or null)
 
     // Address and transport that have been established for this transaction.
     UtlString mSendToAddress;

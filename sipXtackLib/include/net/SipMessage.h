@@ -92,6 +92,7 @@ class SipUserAgent;
 #define SIP_REFERENCES_FIELD "REFERENCES"
 #define SIP_REFERRED_BY_FIELD "REFERRED-BY"
 #define SIP_SHORT_REFERRED_BY_FIELD "B"
+#define SIP_REASON_FIELD "REASON"
 #define SIP_REPLACES_FIELD "REPLACES"
 #define SIP_REQUEST_DISPOSITION_FIELD "REQUEST-DISPOSITION"
 #define SIP_REQUESTED_BY_FIELD "REQUESTED-BY"
@@ -325,6 +326,9 @@ class SipUserAgent;
 #define SIP_REFER_SUCCESS_STATUS "SIP/2.0 200 OK\r\n"
 #define SIP_REFER_FAILURE_STATUS "SIP/2.0 503 Service Unavailable\r\n"
 
+// Reason header text strings
+#define SIP_REASON_CALL_ANSWERED_ELSEWHERE "Call answered elsewhere"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -491,7 +495,8 @@ public:
                        const char* callId,
                        int sequenceNumber = 1);
 
-    void setCancelData(const SipMessage* inviteResponse);
+    void setCancelData(const SipMessage* inviteResponse,
+                       const UtlString* reasonValue = NULL);
 
     void setInviteData(const char* fromAddress,
                        const char* toAddress,
@@ -1255,6 +1260,7 @@ public:
     void clearDNSField();
     //@}
 
+    void setReasonField(const char* reasonString);
 
     //! Accessor to store transaction reference
     /*! \note the transaction may be NULL

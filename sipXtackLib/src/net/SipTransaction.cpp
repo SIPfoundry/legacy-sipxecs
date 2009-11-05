@@ -1773,6 +1773,11 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // Got a success
                 if(responseCode >= SIP_2XX_CLASS_CODE)
                 {
+                    // Set the Reason data to send in CANCEL 
+                    setCancelReasonValue("SIP",
+                                         responseCode,
+                                         SIP_REASON_CALL_ANSWERED_ELSEWHERE);
+
                     // We are done - cancel all the outstanding requests
                     cancelChildren(userAgent,
                                    transactionList);
@@ -3870,7 +3875,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
             {
                 SipMessage cancel;
 
-                cancel.setCancelData(mpRequest);
+                cancel.setCancelData(mpRequest, &mCancelReasonValue);
     #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipTransaction::handleIncoming "
@@ -3898,6 +3903,19 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                     // Proxy transaction
                     if(!mIsUaTransaction)
                     {
+                        // Append the Reason value of the incoming CANCEL
+                        // to any value we already have for outgoing CANCELs.
+                        UtlString reasonTxt;
+                        reasonTxt = incomingMessage.getHeaderValue(0, SIP_REASON_FIELD);
+                        if (!reasonTxt.isNull())
+                        {
+                           if (!mCancelReasonValue.isNull())
+                           {
+                              mCancelReasonValue.append(", ");
+                           }
+                           mCancelReasonValue.append(reasonTxt.data()); 
+                        }
+                        
                         cancelChildren(userAgent,
                                        transactionList);
                         shouldDispatch = FALSE;
@@ -4112,7 +4130,7 @@ void SipTransaction::cancel(SipUserAgent& userAgent,
                 // back a provisional response.  If we have a
                 // final response it is too late
                 SipMessage cancel;
-                cancel.setCancelData(mpRequest);
+                cancel.setCancelData(mpRequest, &mCancelReasonValue);
 #ifdef TEST_PRINT
                 OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipTransaction::cancel "
@@ -4157,8 +4175,18 @@ void SipTransaction::cancelChildren(SipUserAgent& userAgent,
     SipTransaction* childTransaction = NULL;
     while ((childTransaction = (SipTransaction*) iterator()))
     {
-        childTransaction->cancel(userAgent,
-                                 transactionList);
+       // Append the Reason value of this transaction to any value we
+       // already have for the child transaction.
+       if (!mCancelReasonValue.isNull())
+       {
+          if (!childTransaction->mCancelReasonValue.isNull())
+          {
+             childTransaction->mCancelReasonValue.append(", ");
+          }
+          childTransaction->mCancelReasonValue.append(mCancelReasonValue.data());
+       }
+       childTransaction->cancel(userAgent,
+                                transactionList);
     }
 }
 
@@ -4298,6 +4326,8 @@ void SipTransaction::toString(UtlString& dumpString,
     SipMessage::convertProtocolEnumToString(mSendToProtocol,
         protocolString);
     dumpString.append(protocolString);
+    dumpString.append("\n\tmCancelReasonValue: ");
+    dumpString.append(mCancelReasonValue.data());
     //sprintf(numBuffer, "%d", mSendToProtocol);
     //dumpString.append(numBuffer);
 
@@ -5449,6 +5479,21 @@ UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
     }
 
     return(childHasSameUri);
+}
+
+void SipTransaction::setCancelReasonValue(const char* protocol, 
+                                          int responseCode, 
+                                          const char* reasonText)
+{
+   mCancelReasonValue = protocol;
+   mCancelReasonValue.append(";cause=");
+   mCancelReasonValue.appendNumber(responseCode);
+   if (reasonText && reasonText[0])
+   {
+      mCancelReasonValue.append(";text=\"");
+      mCancelReasonValue.append(reasonText);
+      mCancelReasonValue.append("\"");
+   }
 }
 
 //: Determine best choice for protocol, based on message size
