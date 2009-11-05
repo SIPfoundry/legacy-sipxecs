@@ -207,4 +207,9 @@ public class BackToBackUserAgentFactory {
         return null;
 	}
 
+        // Provide the current active call count.
+        public int getBackToBackUserAgentCount() {
+            return  this.backToBackUserAgentTable.size();
+        }
+
 }

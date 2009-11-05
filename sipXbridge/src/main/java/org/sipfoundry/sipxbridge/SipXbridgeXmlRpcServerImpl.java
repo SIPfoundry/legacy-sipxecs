@@ -175,7 +175,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 	public Integer getCallCount() throws ServletException {
 	    int retval = 0;
 		try {
-			retval = Gateway.getCallCount();
+			retval = Gateway.getBackToBackUserAgentFactory().getBackToBackUserAgentCount();
 
 		} catch (Exception ex) {
 		    throw new ServletException(formatStackTrace(ex), ex);

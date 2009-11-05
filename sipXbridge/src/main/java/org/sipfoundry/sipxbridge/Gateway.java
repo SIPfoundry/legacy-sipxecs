@@ -164,8 +164,6 @@ public class Gateway {
 
     private static boolean isTlsSupportEnabled = false;
 
-    private static int callCount;
-
     private static ConcurrentHashMap<String, SymmitronClient> symmitronClients = new ConcurrentHashMap<String, SymmitronClient>();
 
     static String configurationPath;
@@ -1079,8 +1077,6 @@ public class Gateway {
                 }
             }
 
-            Gateway.callCount = 0;
-
             for (SymmitronClient client : Gateway.symmitronClients.values()) {
                 client.signOut();
             }
@@ -1180,31 +1176,6 @@ public class Gateway {
                 .getLogFileDirectory()
                 + "/sipxbridge.log";
     }
-
-    /**
-     * Get the call count.
-     *
-     * @return -- the call count of the gateway ( number of active calls )
-     *
-     */
-    static int getCallCount() {
-
-        return Gateway.callCount;
-    }
-
-    /**
-     * Decrement the call count.
-     */
-    static void decrementCallCount() {
-        if (Gateway.callCount > 0)
-            Gateway.callCount--;
-    }
-
-    static void incrementCallCount() {
-        Gateway.callCount++;
-    }
-
-
 
     /**
      * @return the timer

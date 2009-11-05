@@ -631,26 +631,7 @@ public class SipListenerImpl implements SipListener {
 
     public void processTransactionTerminated(TransactionTerminatedEvent tte) {
 
-        Transaction transaction = tte.getClientTransaction() != null ? tte
-                .getClientTransaction() : tte.getServerTransaction();
-        Dialog dialog = transaction.getDialog();
-        Request request = transaction.getRequest();
-        /*
-         * When the INVITE tx terminates and the associated dialog state is
-         * CONFIRMED, we increment the call count.
-         */
-        if (request.getMethod().equals(Request.INVITE)
-                && dialog.getState() == DialogState.CONFIRMED
-                && ((ToHeader) request.getHeader(ToHeader.NAME))
-                        .getParameter("tag") == null) {
-            TransactionContext txContext = TransactionContext.get(transaction);
-            if (txContext != null
-                    && (txContext.getOperation() == Operation.SEND_INVITE_TO_ITSP || txContext
-                            .getOperation() == Operation.SEND_INVITE_TO_ITSP)) {
-                Gateway.incrementCallCount();
-            }
-        }
-
+        logger.debug("Transaction terminated event");
     }
 
 }
