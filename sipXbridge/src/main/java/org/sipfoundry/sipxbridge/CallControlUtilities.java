@@ -255,7 +255,7 @@ public class CallControlUtilities {
 
         } else {
             logger.error("ERROR  0 contentLength  -- resend the old SDP answer");
-            sendSdpAnswerInAck(dialog);
+            sendSdpAnswerInAck(dialog,null);
         }
 
     }
@@ -268,7 +268,7 @@ public class CallControlUtilities {
      * @param dialog
      */
 
-    public static void sendSdpAnswerInAck(Dialog dialog) throws Exception {
+    static void sendSdpAnswerInAck(Dialog dialog, Set<Integer> codecs) throws Exception {
         
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         if (logger.isDebugEnabled()) {
@@ -284,7 +284,7 @@ public class CallControlUtilities {
         /*
          * Extract the codec numbers previously offered.
          */
-        Set<Integer> transmitterCodecs = SipUtilities.getMediaFormats(transmitterSd);
+        Set<Integer> transmitterCodecs = codecs == null ? SipUtilities.getMediaFormats(transmitterSd) : codecs;
 
         /*
          * We did a SDP query. So we need to put an SDP Answer in the response. Retrieve

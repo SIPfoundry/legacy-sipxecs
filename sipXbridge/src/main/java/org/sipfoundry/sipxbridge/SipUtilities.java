@@ -767,20 +767,15 @@ class SipUtilities {
                     itspAccount);
             request.addHeader(contactHeader);
 
-            String outboundProxy = itspAccount.getOutboundProxy();
-            if (outboundProxy == null) {
-                throw new SipException("No route to ITSP could be found "
-                        + itspAccount.getProxyDomain());
-            }
             Iterator<Hop> hopIter = addresses.iterator();
             Hop hop = hopIter.next();
             hopIter.remove();
             logger.debug("Addresses size = " + addresses.size());
 
-           // sipxbridge router will strip maddr before forwarding.
-           // maddr parameter is obsolete but some ITSP do not like
-           // Route param ( dont support loose routing on initial invite)
-           // so we use a maddr parameter to send the request
+           /*
+            * Does ITSP accept Lr routing? If so, use that. Otherwise use maddr
+            * parameter to set the route.
+            */
            if (itspAccount.isAddLrRoute()) {
                RouteHeader proxyRoute = SipUtilities.createRouteHeader(hop);
                request.setHeader(proxyRoute);
@@ -788,11 +783,10 @@ class SipUtilities {
                requestUri.setMAddrParam(hop.getHost());
                requestUri.setPort(hop.getPort());
            }
-
-
-            /*
-             * By default the UAC always refreshes the session.
-             */
+           
+           /*
+            * By default the UAC always refreshes the session.
+            */
 
             SessionExpires sessionExpires = (SessionExpires) ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                     .createSessionExpiresHeader(itspAccount.getSessionTimerInterval());
@@ -802,10 +796,6 @@ class SipUtilities {
 
             return request;
 
-        } catch (SipException e) {
-            String s = "Unexpected error creating INVITE ";
-            logger.error(s, e);
-            throw e;
         } catch (Exception ex) {
             String s = "Unexpected error creating INVITE ";
             logger.error(s, ex);

@@ -1207,7 +1207,7 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 DialogContext peerDialogContext = DialogContext.getPeerDialogContext(ct.getDialog());
                 if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-                    CallControlUtilities.sendSdpAnswerInAck(DialogContext.getPeerDialog(ct.getDialog()));
+                    CallControlUtilities.sendSdpAnswerInAck(DialogContext.getPeerDialog(ct.getDialog()),null);
                 }
                 /*
                  * Tear down the call if the response status code requires for Should this also
@@ -2130,45 +2130,18 @@ class CallControlManager implements SymmitronResetHandler {
                                 .getParkServerCodecs())
                         || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
                                 .getState() != DialogState.TERMINATED)) {
-
-                    Request ack = dialog.createAck(seqno);
-
-                    SessionDescription sessionDescription = SipUtilities
-                            .getSessionDescription(response);
-                    Set<Integer> codecs = SipUtilities.getMediaFormats(sessionDescription);
-
-                    SessionDescription ackSd = dialogContext.getRtpSession().getReceiver()
-                            .getSessionDescription();
-                    /*
-                     * Restrict the answer to the set of codecs in the offer.
-                     */
-                    SipUtilities.cleanSessionDescription(ackSd, codecs);
-
-                    SipUtilities.setSessionDescription(ack, ackSd);
-
-                    /*
-                     * Send an ACK back to the WAN side and replay the same Session description as
-                     * before. This completes the handshake so the Dialog will not time out.
-                     */
-                    DialogContext.get(dialog).setLastResponse(null);
-                    /*
-                     * We already ACKED him so we dont owe him an SDP Answer in the ACK
-                     */
-                    DialogContext.get(dialog).setPendingAction(PendingDialogAction.NONE);
-                    /*
-                     * Mark that we need to send a re-INVITE to the peer dialog when an SDP answer
-                     * comes in.
-                     */
-
+                    DialogContext.get(dialog).setLastResponse(response);
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-
-                    DialogContext.get(dialog).sendAck(ack);
+                    CallControlUtilities.sendSdpAnswerInAck(dialog,null);
+                                    
                 } else {
                     DialogContext.get(dialog).setLastResponse(response);
-
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+                    CallControlUtilities.sendSdpAnswerInAck(dialog,Gateway.getParkServerCodecs());
+              
+                    
                     DialogContext.getRtpSession(continuation.getDialog()).getReceiver()
                             .setSessionDescription(responseSessionDescription);
                     /*
