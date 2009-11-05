@@ -29,6 +29,7 @@ Arguments=
 DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
 PROFILES_PATH="@SIPX_VARDIR@/configserver/phone/profile/tftproot"
+PROFILES_SUBDIRS="Nortel/config"
 ProfileExtensions="cfg xml csv ini"
 
 # Define functions.
@@ -976,6 +977,19 @@ then
         do
             echo "${configfile}" >> $Work.copy-files
         done
+    done
+    for subdir in ${PROFILES_SUBDIRS}
+    do
+        if [ -d ${PROFILES_PATH}/${subdir} ]
+        then
+            for Extension in ${ProfileExtensions}
+            do
+                for configfile in `ls ${PROFILES_PATH}/${subdir}/*.${Extension} 2> /dev/null`
+                do
+                    echo "${configfile}" >> $Work.copy-files
+                done
+            done
+        fi
     done
   fi
 
