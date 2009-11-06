@@ -14,7 +14,7 @@ import java.util.ListIterator;
 
 public class Record extends CallCommand {
     private PromptList m_prompts;
-    private String m_digitMask = "0123456789#*";
+    private String m_digitMask = "0123456789#*i";
     private boolean m_stopped;
     private ListIterator<String> m_iter;
     private Break m_breaker;
