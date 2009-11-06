@@ -375,45 +375,26 @@ EOF
 }
 
 generate_a_records() {
-    for host in `seq 0 ${HostMax}`
+
+    for host in `seq 0 ${HostMax}`; do test -n "${Addr[${host}]}" && echo ${ClusterHosts[${host}]}; done \
+    | sort -u \
+    | while read hostname # iterate over all hosts for which we have addresses
     do
-      if [ -n "${Addr[${host}]}" ] && [ "${Type[${host}]}" != "XMPP" ]
-      then
-          cat <<EOF
+       for host in `seq 0 ${HostMax}`
+       do
+          if [ "$hostname" == "${ClusterHosts[${host}]}" ]
+          then
+             cat <<EOF
 
 ; A record for ${Host[${host}]}
 ;
 ${Host[${host}]}.       IN      A       ${Addr[${host}]}
 EOF
-      fi
-    done
+             break;
+         fi
+      done
+   done
 
-    ### See if there are any XMPP hosts which need A records generated
-    for xmpphost in `seq 0 ${HostMax}`
-    do
-       if [ "${Type[${xmpphost}]}" = "XMPP" ]
-       then
-          xmppfound=NO
-          for host in `seq 0 ${HostMax}`
-          do
-             if [ "${Type[${host}]}" != "XMPP" ] && [ "${ClusterHosts[${xmpphost}]}" = "${ClusterHosts[${host}]}" ]
-             then
-                 xmppfound=OK
-                 break
-             fi
-          done
-
-          if [ ${xmppfound} = NO ]
-          then
-             cat <<EOF
-
-; A record for ${Host[${xmpphost}]}
-;
-${Host[${xmpphost}]}.   IN      A       ${Addr[${xmpphost}]}
-EOF
-          fi
-       fi
-    done
 }
 
 generate_naptr_records () {
@@ -512,6 +493,11 @@ _xmpp-server._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}
 ;     priority: 1  weight: 0  port: 5222  server: ${server}
 ;
 _xmpp-client._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+
+; SRV record for XMPP SERVER CHAT ROOM TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5269  server: ${server}
+;
+_xmpp-server._tcp.room.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
 EOF
         fi
     done
