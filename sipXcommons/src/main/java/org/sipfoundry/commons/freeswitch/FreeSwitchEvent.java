@@ -90,6 +90,8 @@ public class FreeSwitchEvent {
      */
     public static HashMap<String, String> parseHeaders(Vector<String> heads) {
         HashMap<String, String> headers = new HashMap<String, String>();
+        boolean isInterruptEvt = false;
+
         for (String header : heads) {
             String name = null;
             String value = null;
@@ -110,8 +112,20 @@ public class FreeSwitchEvent {
                 name = header.toLowerCase();
                 value = "";
             }
+
+            if(name.equals("sipx_pickup")) {
+                isInterruptEvt = true;
+            }
+
             headers.put(name, value);
         }
+
+        if(isInterruptEvt) {
+            // modify event data to reflect a DTMF digit event with a digit of 'i'
+            headers.put("event-name", "DTMF");
+            headers.put("dtmf-digit", "i");
+        }
+
         return headers;
     }
 
