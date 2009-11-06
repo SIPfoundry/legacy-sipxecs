@@ -193,6 +193,8 @@
       <fileset file="${src.dir}/lib/jibx-run.jar"/>
       <fileset file="${src.dir}/lib/junit.jar"/>
       <fileset file="${src.dir}/lib/log4j.jar"/>
+      <fileset file="${src.dir}/lib/smack.jar"/>
+      <fileset file="${src.dir}/lib/smackx.jar"/>
       <fileset file="${src.dir}/lib/ws-commons-util.jar"/>
       <fileset file="${src.dir}/lib/xmlrpc-client.jar"/>
       <fileset file="${src.dir}/lib/xmlrpc-common.jar"/>
