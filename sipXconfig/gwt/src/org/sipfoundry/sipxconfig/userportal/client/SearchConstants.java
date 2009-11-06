@@ -23,7 +23,7 @@ public interface SearchConstants extends ConstantsWithLookup {
 
     String phoneNumber();
 
-    String contactInformation();
+    String emailAddress();
 
     String selectUser();
 
@@ -72,4 +72,10 @@ public interface SearchConstants extends ConstantsWithLookup {
     String officeZip();
 
     String officeDesignation();
+
+    String tabGeneral();
+
+    String tabHome();
+
+    String tabOffice();
 }

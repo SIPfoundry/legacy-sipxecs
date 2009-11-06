@@ -1,4 +1,4 @@
-.gwtGridHeaderTitle, .gwtGridHeaderTitleSelected
+.gwtGridHeaderTitle, .gwtGridHeaderTitleSelected, .gwtGridHeaderTitleOver, .gwtGridHeaderTitleSelectedOver
 {
 	border-width:1px;
 	border-style: solid;
@@ -18,6 +18,7 @@
 	background: #D3E2E8;
 	font-family:Verdana,Arial,Helvetica,sans-serif;
 	font-size:12px;
+	padding-left:3px;
 }
 
 .gwtGridBodyDark, .gwtGridBodyOverDark
@@ -25,22 +26,36 @@
 	background: #fff;
 	font-family:Verdana,Arial,Helvetica,sans-serif;
 	font-size:12px;
+	padding-left:3px;
 }
 
 .gwtGridBodySelected, .gwtGridBodySelectedDark
 {
 	color: #FFFFFF;
-	background: #000000;
+	background: #637E8B;
 	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:12px;
+	font-size:16px;
+	padding-left:3px;
+	height:40px;
 }
 
 .gwtGridBodySelectedOver, .gwtGridBodySelectedOverDark
 {
 	color: #FFFFFF;
-	background: #000000;
+	background: #637E8B;
 	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:12px;
+	font-size:16px;
+	padding-left:3px;
+	height:40px;
 }
 
+.detail, .detailLabel
+{
+	padding:3px;
+}
+
+fieldset td
+{
+	padding:0px;
+}
 

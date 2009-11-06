@@ -21,6 +21,8 @@ public class PhonebookDataSource extends DataSource {
         DataSourceTextField lastName = new DataSourceTextField("last-name");
         DataSourceTextField number = new DataSourceTextField("number");
 
+        DataSourceField emailAddress = new DataSourceTextField("emailAddress");
+        emailAddress.setValueXPath("contact-information/emailAddress");
         DataSourceField jobTitle = new DataSourceTextField("jobTitle");
         jobTitle.setValueXPath("contact-information/jobTitle");
         DataSourceField jobDept = new DataSourceTextField("jobDept");
@@ -68,7 +70,7 @@ public class PhonebookDataSource extends DataSource {
         DataSourceField officeDesignation = new DataSourceTextField("officeDesignation");
         officeDesignation.setValueXPath("contact-information/officeAddress/officeDesignation");
 
-        setFields(firstName, lastName, number, jobTitle, jobDept, companyName, assistantName, location,
+        setFields(firstName, lastName, number, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
                 cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId, homeStreet,
                 homeCity, homeCountry, homeState, homeZip, officeStreet, officeCity, officeCountry, officeState,
                 officeZip, officeDesignation);
