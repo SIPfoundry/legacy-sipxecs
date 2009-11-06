@@ -73,7 +73,7 @@ public class ProtocolObjects {
              */
             Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
             StackLoggerImpl.setLogger(logger);
-            
+               
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                      stackProperties.setProperty(
@@ -87,8 +87,8 @@ public class ProtocolObjects {
             } else {  
                 stackProperties.setProperty(
                         "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.TRACE.toString());
-                Logger.getLogger(StackLoggerImpl.class).setLevel(Level.DEBUG);
+                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG.toString());
+                logger.setLevel(Level.DEBUG);
                 
             }
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
