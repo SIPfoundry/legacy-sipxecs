@@ -15,7 +15,7 @@ public class Collect extends CallCommand {
     private boolean m_done;
     private Break m_breaker;
     private boolean m_stopped;
-    private String m_digitMask = "1234567890ABCD#*";
+    private String m_digitMask = "1234567890ABCD#*i";
     private String m_termChars = "#";
     private int m_firstDigitTimer;
     private int m_interDigitTimer;
