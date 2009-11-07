@@ -139,8 +139,6 @@ public class BackToBackUserAgentFactory {
 			 * with it.
 			 */
 			if (dialogContext == null) {
-				Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
-						.getDialogs();
 				String callId = SipUtilities.getCallId(request);
 
 				/*
@@ -194,8 +192,12 @@ public class BackToBackUserAgentFactory {
 	}
 	
 	
+
+        /**
+        * Get the structure corresponding to a given callId
+        */
 	public BackToBackUserAgent getBackToBackUserAgent(String callId) {
-	     /*
+	 /*
          * Linear search here but avoids having to keep a reference to 
          * the b2bua here. Keeping a reference can lead to reference management
          * problems ( leaks ) and hence this quick search is worthwhile.
@@ -207,9 +209,20 @@ public class BackToBackUserAgentFactory {
         return null;
 	}
 
-        // Provide the current active call count.
+        /**
+ 	* Provide the current active call count.
+ 	*/
         public int getBackToBackUserAgentCount() {
             return  this.backToBackUserAgentTable.size();
+        }
+
+	/**
+	 * Remove the B2BUA from the table of B2BUA.
+	 * 
+	 * @param backToBackUserAgent
+	 */
+        public void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+             this.backToBackUserAgentTable.remove(backToBackUserAgent);
         }
 
 }

@@ -8,7 +8,6 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
-import gov.nist.javax.sip.ServerTransactionExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
@@ -25,6 +24,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -84,7 +84,6 @@ import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.FindSipServer;
-import org.sipfoundry.commons.siprouter.ProxyRouter;
 
 /**
  *
@@ -1681,17 +1680,39 @@ class SipUtilities {
             Response newResponse = SipUtilities.createResponse(
                     serverTransaction, response.getStatusCode());
             /*
-             * If this is a 3xx response, we preserve the inbound contact information when forwarding the
-             * response.
+             * See where the server transaction originated from.
              */
-            if ( response.getStatusCode() / 100 == 3 && response.getHeader(ContactHeader.NAME) != null ) {
-                ContactHeader contactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME).clone();
-                newResponse.setHeader(contactHeader);
-            }
-
             SipProvider provider = ((TransactionExt) serverTransaction)
                     .getSipProvider();
+            
+            /*
+             * If this is a 3xx response, we preserve the inbound contact information when forwarding the
+             * response. We do not expect the PBX to send out redirect response so this is only applicable
+             * for responses coming back from the ITSP.
+             */
+            if (provider == Gateway.getLanProvider() &&  response.getStatusCode() / 100 == 3 && 
+                    response.getHeader(ContactHeader.NAME) != null ) {
+                /*
+                 * Remove any existing contact headers generated. We will add new contacts below.
+                 */
+                newResponse.removeHeader(ContactHeader.NAME);
 
+                ListIterator iterator = response.getHeaders(ContactHeader.NAME);
+                while ( iterator.hasNext()) {
+                    ContactHeader contactHeader = (ContactHeader)((ContactHeader) iterator.next()).clone();
+                    /*
+                     * Attach a route parameter to the contact sip uri so the request gets routed back to sipxbridge.
+                     */
+                    SipURI requestUri = (SipURI) contactHeader.getAddress().getURI();
+                    HopImpl hop = new HopImpl(Gateway.getLocalAddress(), Gateway.getBridgeConfiguration().getLocalPort(),
+                            "udp" );
+                    RouteHeader route = SipUtilities.createRouteHeader(hop);
+                    requestUri.setHeader("route", URLEncoder.encode(route.getAddress().toString(),"UTF-8"));
+                    newResponse.addHeader(contactHeader);
+                }
+            }
+
+         
             /*
              * Rewrite the Contact header of the ITSP bound error response.
              */
@@ -1861,6 +1882,15 @@ class SipUtilities {
         pw.close();
         return sw.getBuffer().toString();
       
+    }
+
+    public static Hop createHop(RouteHeader route) {
+       SipURI sipUri = (SipURI) route.getAddress().getURI();
+       String host = sipUri.getHost();
+       int port = sipUri.getPort();
+       if ( port <= 0 ) port = 5060;
+       String transport = sipUri.getTransportParam();
+       return new HopImpl(host,port,transport);
     }
     
 }

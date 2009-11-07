@@ -43,13 +43,7 @@ public class ProxyRouter extends DefaultRouter {
     	    
         if ( request.getHeader(RouteHeader.NAME) != null  || uri.getMAddrParam() != null ) {
             
-            Hop nextHop =  super.getNextHop(request);
-            /*
-             * If the inbound request had an maddr, then remove the maddr parameter. This has already
-             * been processed in the next hop computation.
-             */
-            uri.removeParameter("maddr");
-             
+            Hop nextHop =  super.getNextHop(request);   
             return nextHop;
         }
 

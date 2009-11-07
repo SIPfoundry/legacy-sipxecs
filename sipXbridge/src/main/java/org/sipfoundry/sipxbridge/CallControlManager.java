@@ -1148,36 +1148,49 @@ class CallControlManager implements SymmitronResetHandler {
 
         // Processing an error resonse.
         ClientTransaction ct = responseEvent.getClientTransaction();
-        TransactionContext tad = (TransactionContext) ct.getApplicationData();
-        if (tad != null) {
-            ServerTransaction serverTransaction = tad.getServerTransaction();
+        TransactionContext transactionContext = (TransactionContext) ct.getApplicationData();
+        if (transactionContext != null) {
+            ServerTransaction serverTransaction = transactionContext.getServerTransaction();
+            if ( transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP || 
+                    transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY) {
+                /*
+                 * This is a redirect response we want to get rid of this record
+                 * right now so we can retry with a new relay. Otherwise we 
+                 * find the same record cached and wind up with two relays and 
+                 * extraneous media which scares phones. TODO - clean up this code
+                 * by moving it into the block below.
+                 */
+                if ( response.getStatusCode() /100 == 3 ) {
+                    b2bua.tearDownNow();
+                }
+            } 
             /*
-             * We do not forward back error responses for requests such as REFER that we are
-             * handling locally.
-             */
-            Operation continuationOperation = tad.getContinuationOperation();
+            * The continuation operation is what determines what we have to do next after we
+            * get that response (i.e. the next state in the FSM ).
+            * If we have a continuation operation, we send the error down that path.
+            */
+            Operation continuationOperation = transactionContext.getContinuationOperation();
+              
             if (continuationOperation != Operation.NONE) {
-                ContinuationData cdata = (ContinuationData) tad.getContinuationData();
+                ContinuationData cdata = (ContinuationData) transactionContext.getContinuationData();
                 Response errorResponse = SipUtilities.createErrorResponse(cdata.getRequestEvent()
                         .getServerTransaction(), dialogContext.getItspInfo(), response);
-                if (cdata.getRequestEvent().getServerTransaction().getState() != TransactionState.TERMINATED) {
-                    cdata.getRequestEvent().getServerTransaction().sendResponse(errorResponse);
-                }
-            }
+                if (cdata.getRequestEvent().getServerTransaction().getState() != TransactionState.TERMINATED) {               
+                    cdata.getRequestEvent().getServerTransaction().sendResponse(errorResponse);             
+                }     
+            } 
 
-            if (tad.getOperation() == Operation.CANCEL_REPLACED_INVITE
-                    || tad.getOperation() == Operation.CANCEL_MOH_INVITE) {
-                logger.debug("ingoring 4xx response " + tad.getOperation());
-
-            } else if (tad.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
-                // Is the dialog marked as one that needs an SDP answer in ACK? If so replay the old SDP answer
-               
+            
+            if (transactionContext.getOperation() == Operation.CANCEL_REPLACED_INVITE
+                    || transactionContext.getOperation() == Operation.CANCEL_MOH_INVITE) {
+                logger.debug("ingoring 4xx response " + transactionContext.getOperation());
+            } else if (transactionContext.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
+                // Is the dialog marked as one that needs an SDP answer in ACK? If so replay the old SDP answer            
                 if (serverTransaction != null) {
                     if (serverTransaction.getState() != TransactionState.TERMINATED) {
-                        if ((tad.getOperation().equals(Operation.SEND_INVITE_TO_SIPX_PROXY) || tad
-                                .getOperation().equals(Operation.SEND_INVITE_TO_ITSP))
-                                && (response.getStatusCode() / 100 == 6 || response
-                                        .getStatusCode() / 100 == 5)) {
+                        if ((transactionContext.getOperation().equals(Operation.SEND_INVITE_TO_SIPX_PROXY)
+                                || transactionContext.getOperation().equals(Operation.SEND_INVITE_TO_ITSP))
+                                && (response.getStatusCode() / 100 == 6 || response.getStatusCode() / 100 == 5)) {
                             b2bua.setPendingTermination(true);
 
                         }
@@ -1194,8 +1207,8 @@ class CallControlManager implements SymmitronResetHandler {
                             "CallControlManager Call transfer error"));
                 }
             } else {
-                Dialog referDialog = tad.getReferingDialog();
-                Request referRequest = tad.getReferRequest();
+                Dialog referDialog = transactionContext.getReferingDialog();
+                Request referRequest = transactionContext.getReferRequest();
                 if (referDialog != null && referDialog.getState() == DialogState.CONFIRMED
                         && SipUtilities.isOriginatorSipXbridge(response)) {
                     this.notifyReferDialog(referRequest, referDialog, response);

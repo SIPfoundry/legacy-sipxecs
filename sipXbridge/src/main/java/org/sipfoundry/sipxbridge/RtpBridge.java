@@ -55,6 +55,11 @@ class RtpBridge  {
         bridge.addSym(rtpSession.getSym());
         this.syms.add(rtpSession);
     }
+    
+    public void removeSym(RtpSession rtpSession) {
+        bridge.removeSym(rtpSession.getSym());
+        this.syms.remove(rtpSession);
+    }
 
     public void resume() {
         bridge.resume();

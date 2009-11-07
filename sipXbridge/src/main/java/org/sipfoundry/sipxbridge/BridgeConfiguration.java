@@ -213,9 +213,8 @@ public class BridgeConfiguration {
     public void setLogLevel(String level) {
         this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();  
         if (logLevel.equals("DEBUG")) {
-             try {
+            try {
                 String log4jProps = Gateway.configurationPath + "/log4j.properties";
-
                 if (new File(log4jProps).exists()) {
                     /*
                      * Override the file configuration setting.

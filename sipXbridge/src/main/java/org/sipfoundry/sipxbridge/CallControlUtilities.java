@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
+import javax.sip.InvalidArgumentException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
@@ -321,6 +322,16 @@ public class CallControlUtilities {
         dialogContext.sendAck(ackRequest);
 
 
+    }
+
+    public static void sendTryingResponse(ServerTransaction st) throws SipException {
+        try {
+            Response response = SipUtilities.createResponse(st, Response.TRYING);
+            st.sendResponse(response);
+        } catch (InvalidArgumentException ex) {
+            logger.error("Unexpected exception",ex);
+            throw new SipXbridgeException("Unexpected ",ex);
+        }
     }
     
 	
