@@ -10,11 +10,17 @@ http://www.dnsjava.org
 The SipUnit package developed by Becky McElroy
 http://www.cafesip.org
 
+The Jetty web server
+http://www.mortbay.org
+
+Various libraries from the Apache project.
+
 The NIST JAIN-SIP Reference Implementation from the National Institute
-of Standards and Technology (Advanced Networking Technologies Division).
+of Standards and Technology, Advanced Networking Technologies Division.
 http://jain-sip.dev.java.net
 
-The help of the following sipx community members in testing this code
-is gratefully acknowledged.
+The help of the sipx user community members in testing this project
+in operational scenarios is gratefully acknowledged. In particular, we
+acknowledge the help of Alberto Gasprotto in testing an early version
+of this project well before it became production quality.
 
-Alberto Gasparotto

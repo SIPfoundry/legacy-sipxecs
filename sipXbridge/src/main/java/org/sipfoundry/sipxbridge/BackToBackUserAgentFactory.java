@@ -139,8 +139,6 @@ public class BackToBackUserAgentFactory {
 			 * with it.
 			 */
 			if (dialogContext == null) {
-				Collection<Dialog> dialogs = ((SipStackImpl) ProtocolObjects.getSipStack())
-						.getDialogs();
 				String callId = SipUtilities.getCallId(request);
 
 				/*
@@ -193,5 +191,15 @@ public class BackToBackUserAgentFactory {
 	    
         return null;
 	}
+
+	/**
+	 * Remove the B2BUA from the table of B2BUA.
+	 * 
+	 * @param backToBackUserAgent
+	 */
+    public void removeBackToBackUserAgent(BackToBackUserAgent backToBackUserAgent) {
+        this.backToBackUserAgentTable.remove(backToBackUserAgent);
+        
+    }
 
 }
