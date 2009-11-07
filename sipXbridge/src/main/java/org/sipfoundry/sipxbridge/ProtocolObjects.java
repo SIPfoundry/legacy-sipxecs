@@ -61,7 +61,7 @@ public class ProtocolObjects {
         try {
 
             Properties stackProperties = new Properties();
-            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
+            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipxbridge");
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                     /*
@@ -82,6 +82,8 @@ public class ProtocolObjects {
                 /*
                  * At TRACE level you get a LOT of logging.
                  */
+                stackProperties.setProperty(
+                        "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
                 stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG
                         .toString());
             }
