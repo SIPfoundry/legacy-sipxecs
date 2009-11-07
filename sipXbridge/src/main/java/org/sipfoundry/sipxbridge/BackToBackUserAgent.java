@@ -191,8 +191,7 @@ public class BackToBackUserAgent implements Comparable {
      */
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
 
-    private RtpSession pendingRtpSession;
-
+   
     // ////////////////////////////////////////////////////////////////////////
     // Inner classes.
     // ////////////////////////////////////////////////////////////////////////
@@ -310,30 +309,21 @@ public class BackToBackUserAgent implements Comparable {
 
             if (Gateway.getLanProvider() == provider) {
                 if (dialogContext.getRtpSession() == null) {
-                    if (this.pendingRtpSession == null) {
                         SymImpl symImpl = symmitronClient.createEvenSym();
                         rtpSession = new RtpSession(symImpl);
                         this.rtpBridge.addSym(rtpSession);
                         dialogContext.setRtpSession(rtpSession);
-                    } else {
-                        dialogContext.setRtpSession(pendingRtpSession);
-                        this.pendingRtpSession = null;
-                    }
+                   
                 }
             } else {
-                if (this.pendingRtpSession == null) {
-                    SymImpl symImpl = symmitronClient.createEvenSym();
-                    rtpSession = new RtpSession(symImpl);
-                    this.rtpBridge.addSym(rtpSession);
-                    rtpSession.getReceiver().setGlobalAddress(symmitronClient.getPublicAddress());
-                    rtpSession.getReceiver().setUseGlobalAddressing(
+                SymImpl symImpl = symmitronClient.createEvenSym();
+                rtpSession = new RtpSession(symImpl);
+                this.rtpBridge.addSym(rtpSession);
+                rtpSession.getReceiver().setGlobalAddress(symmitronClient.getPublicAddress());
+                rtpSession.getReceiver().setUseGlobalAddressing(
                             dialogContext.getItspInfo() == null
                                     || dialogContext.getItspInfo().isGlobalAddressingUsed());
-                    dialogContext.setRtpSession(rtpSession);
-                } else {
-                    dialogContext.setRtpSession(pendingRtpSession);
-                    this.pendingRtpSession = null;
-                }
+                dialogContext.setRtpSession(rtpSession);
             }
         }
         return dialogContext.getRtpSession();
