@@ -59,6 +59,10 @@ import org.apache.log4j.Logger;
 class DialogContext {
 
     private static Logger logger = Logger.getLogger(DialogContext.class);
+    
+    /*
+     * Drives what to do for this dialog when a response is seen for an in-dialog response.
+     */
 
     private PendingDialogAction pendingAction = PendingDialogAction.NONE;
 

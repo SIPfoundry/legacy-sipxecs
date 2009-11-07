@@ -1141,6 +1141,9 @@ class CallControlManager implements SymmitronResetHandler {
             /*
              * We do not forward back error responses for requests such as REFER that we are
              * handling locally.
+             * The continuation operation is what determines what we have to do next after we
+             * get that response (i.e. the next state in the FSM ).
+             * If we have a continuation operation, we send the error down that path.
              */
             Operation continuationOperation = tad.getContinuationOperation();
             if (continuationOperation != Operation.NONE) {

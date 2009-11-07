@@ -178,7 +178,9 @@ public class BackToBackUserAgent implements Comparable {
     private boolean pendingTermination;
 
     /*
-     * List of Proxy servers that we have already tried.
+     * List of Proxy servers that we have already tried. This is for DNS SRV handling.
+     * We do an initial lookup and try the next one on timeout. Once we have exhausted
+     * the list we can time out the operation.
      */
     private HashSet<Hop> blackListedProxyServers = new HashSet<Hop>();
     
@@ -250,6 +252,7 @@ public class BackToBackUserAgent implements Comparable {
             this.symmitronClient = Gateway.getSymmitronClient(address);
             this.proxyAddress = new ProxyHop(address, viaHeader.getPort(),
                     viaHeader.getTransport());
+            
         } else {
             this.findNextSipXProxy();
             if (this.proxyAddress == null) {
@@ -747,10 +750,6 @@ public class BackToBackUserAgent implements Comparable {
             RouteHeader proxyRoute = SipUtilities.createRouteHeader(this.proxyAddress);
             newRequest.setHeader(proxyRoute);
             
-            
-            /* if (uri.getHost().equals(Gateway.getSipxProxyDomain())) {
-                uri.setMAddrParam(this.proxyAddress.getHost());
-            }*/
 
             /*
              * Does the refer to header contain a Replaces? ( attended transfer )
@@ -814,6 +813,16 @@ public class BackToBackUserAgent implements Comparable {
             ContentTypeHeader cth = ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp");
             newRequest.setHeader(fromHeader);
+            
+            /*
+             * If we are routing this request to the Proxy server, better send
+             * it to the SAME proxy server. See XX-5792. Dont do this if we are
+             * sending the request directly to a phone!
+             */
+            if (uri.getHost().equals(Gateway.getSipxProxyDomain())) {
+                RouteHeader routeHeader = SipUtilities.createRouteHeader(this.proxyAddress);
+                newRequest.setHeader(routeHeader);
+            }
 
             RtpSession lanRtpSession = this.createRtpSession(dialog);
             SessionDescription sd = lanRtpSession.getReceiver()
@@ -1162,9 +1171,7 @@ public class BackToBackUserAgent implements Comparable {
                 }
             }
 
-            uri.setParameter("maddr", proxyAddress.getHost());
-            uri.setPort(proxyAddress.getPort());
-
+       
              
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader
                     (((CSeqHeader) request.getHeader(CSeqHeader.NAME)).getSeqNumber(), Request.INVITE);
@@ -1232,6 +1239,8 @@ public class BackToBackUserAgent implements Comparable {
             Request newRequest = ProtocolObjects.messageFactory.createRequest(
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
+            RouteHeader routeHeader = SipUtilities.createRouteHeader(this.proxyAddress);
+            newRequest.setHeader(routeHeader);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     incomingRequestURI.getUser(), Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
@@ -1300,9 +1309,7 @@ public class BackToBackUserAgent implements Comparable {
                     .getSessionDescription().toString(), cth);
 
             SipURI sipUri = (SipURI) newRequest.getRequestURI();
-            sipUri.setMAddrParam(proxyAddress.getHost());
-            sipUri.setPort(proxyAddress.getPort());
-            if (transport.equalsIgnoreCase("tls")) {
+             if (transport.equalsIgnoreCase("tls")) {
                 sipUri.setTransportParam(transport);
             }
 
@@ -1364,9 +1371,7 @@ public class BackToBackUserAgent implements Comparable {
         try {
 
             SipURI uri = Gateway.getMusicOnHoldUri();
-            uri.setMAddrParam(this.proxyAddress.getHost());
-            uri.setPort(this.proxyAddress.getPort());
-
+            
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
                     .createCallIdHeader(this.creatingCallId + "." + this.baseCounter + "."
                             + this.counter++);
@@ -1404,6 +1409,9 @@ public class BackToBackUserAgent implements Comparable {
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
             newRequest.setHeader(contactHeader);
+            
+            RouteHeader routeHeader = SipUtilities.createRouteHeader(this.proxyAddress);
+            newRequest.setHeader(routeHeader);
 
             /*
              * Create a new client transaction.
@@ -1551,10 +1559,97 @@ public class BackToBackUserAgent implements Comparable {
 
             FromHeader fromHeader = (FromHeader) incomingRequest.getHeader(
                     FromHeader.NAME).clone();
-            Collection<Hop> addresses = itspAccountInfo.getItspProxyAddresses();
+            /*
+             * If the proxy has sent us a maddr parameter or has inserted an LR
+             * parameter that does not correspond to us, we use that as the list
+             * of addresses to send to next.
+             */
+            Collection<Hop> addresses = new HashSet<Hop>();
+            SipURI outboundRequestUri = (SipURI)incomingRequestUri.clone();
+            /*
+             * Determine next hop information for the re-originated request.
+             * If the inbound request URI has a maddr param, use it. Otherwise
+             * look at the topmost Route header. If the route header matches 
+             * our address, pop it and use the next one. After popping the
+             * route header, we test to see if there exist other route headers.
+             * If they exist, use them. Else if a maddr exists, use it, otherwise use 
+             * the default route for the ITSP.
+             */
+            if ( incomingRequest.getHeader(RouteHeader.NAME) != null ) {
+                Iterator routes = incomingRequest.getHeaders(RouteHeader.NAME);
+                if ( routes != null && routes.hasNext() ) {
+                    RouteHeader route = (RouteHeader) routes.next();
+                    if ( ( (SipURI) route.getAddress().getURI()).getHost().equals(Gateway.getBridgeConfiguration().getLocalAddress()) &&
+                            routes.hasNext() ) {
+                        route = (RouteHeader) routes.next();
+                    } else {
+                        route = null;
+                    }
+
+                    if ( route != null ) {
+                        Hop hop = SipUtilities.createHop(route);
+                        addresses.add(hop);
+                    } else if (incomingRequestUri.getMAddrParam() == null || 
+                            incomingRequestUri.getMAddrParam().equals(Gateway.getBridgeConfiguration().getLocalAddress()) ) {
+                        /*
+                         * No Maddr seen on incoming requestURI. or maddr matches our
+                         * address. Use the OB proxy for the ITSP.
+                         */
+                         addresses = itspAccountInfo.getItspProxyAddresses();
+                    } else {
+                        String maddr = incomingRequestUri.getParameter("maddr");
+                        int port = incomingRequestUri.getPort() <= 0 ? 5060 : incomingRequestUri.getPort();
+                        String transport = incomingRequestUri.getParameter("transport");
+                        if (transport == null ) {
+                            transport = "udp";
+                        }
+                        if (!Gateway.getSupportedTransports().contains(transport.toLowerCase())) {
+                            Response response = SipUtilities.createResponse(
+                                    serverTransaction, Response.NOT_ACCEPTABLE);
+                            response.setReasonPhrase("Requested Transport is not supported");
+                            serverTransaction.sendResponse(response);
+                            return;
+                        }
+                        HopImpl hop = new HopImpl(maddr,port,transport);
+                        addresses.add(hop);
+                    }
+
+                } else {
+                    addresses = itspAccountInfo.getItspProxyAddresses();
+                }
+            } else if ( incomingRequestUri.getMAddrParam() != null ) {
+                /*
+                 * No Route header attached to the iB request.
+                 * If the inbound request has a maddr parameter that is not sipxbridge, then forward that.
+                 */
+                if (incomingRequestUri.getMAddrParam().equals(Gateway.getBridgeConfiguration().getLocalAddress())) {
+                    addresses = itspAccountInfo.getItspProxyAddresses();       
+                } else {
+                    String maddr = incomingRequestUri.getParameter("maddr");
+                    int port = incomingRequestUri.getPort() <= 0 ? 5060 : incomingRequestUri.getPort();
+                    String transport = incomingRequestUri.getParameter("transport");
+                    if (transport == null ) {
+                        transport = "udp";
+                    }
+                    if (!Gateway.getSupportedTransports().contains(transport.toLowerCase())) {
+                        Response response = SipUtilities.createResponse(
+                                serverTransaction, Response.NOT_ACCEPTABLE);
+                        response.setReasonPhrase("Requested Transport is not supported");
+                        serverTransaction.sendResponse(response);
+                        return;
+                    }
+                    HopImpl hop = new HopImpl(maddr,port,transport);
+                    addresses.add(hop);
+          
+                }
+
+            } else {
+                addresses = itspAccountInfo.getItspProxyAddresses();
+            }
+            
            
             Request outgoingRequest = SipUtilities.createInviteRequest(
-                    (SipURI) incomingRequestUri.clone(), itspProvider,
+                    (SipURI) outboundRequestUri, itspProvider,
                     itspAccountInfo, fromHeader, this.creatingCallId + "."
                            + baseCounter , addresses);
             /*
@@ -2097,6 +2192,7 @@ public class BackToBackUserAgent implements Comparable {
         Dialog dialog = requestEvent.getDialog();
         logger.debug("processBye : BYE received on dialog " + dialog);
         ServerTransaction st = requestEvent.getServerTransaction();
+        CallControlUtilities.sendTryingResponse(st);
 
         DialogContext dialogContext = (DialogContext) dialog
                 .getApplicationData();

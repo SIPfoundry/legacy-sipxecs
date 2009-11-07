@@ -209,6 +209,8 @@ public class Gateway {
     
     private static int oldStunPort = -1;
 
+    private static HashSet<String> supportedTransports = new HashSet<String>(); 
+
     // ///////////////////////////////////////////////////////////////////////
 
     /**
@@ -538,15 +540,18 @@ public class Gateway {
             ListeningPoint externalUdpListeningPoint = ProtocolObjects
                     .getSipStack().createListeningPoint(externalAddress,
                             externalPort, "udp");
+            Gateway.supportedTransports.add("udp");
             ListeningPoint externalTcpListeningPoint = ProtocolObjects
                     .getSipStack().createListeningPoint(externalAddress,
                             externalPort, "tcp");
+            Gateway.supportedTransports.add("tcp");
             if (Gateway.isTlsSupportEnabled) {
                 ListeningPoint externalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(externalAddress,
                                 externalPort + 1, "tls");
                 externalTlsProvider = ProtocolObjects.getSipStack()
                         .createSipProvider(externalTlsListeningPoint);
+                Gateway.supportedTransports.add("tls");
             }
             externalProvider = ProtocolObjects.getSipStack().createSipProvider(
                     externalUdpListeningPoint);
@@ -1271,7 +1276,10 @@ public class Gateway {
         }
         return symmitronClient;
     }
-
+    public static HashSet<String> getSupportedTransports() {
+       return Gateway.supportedTransports ;
+     }
+    
     /**
      * The set of codecs handled by the park server.
      * 
@@ -1362,5 +1370,7 @@ public class Gateway {
         }
 
     }
+
+   
 
 }
