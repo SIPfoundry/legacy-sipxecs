@@ -61,7 +61,7 @@ public class ProtocolObjects {
         try {
 
             Properties stackProperties = new Properties();
-            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipxbridge");
+            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
             if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
                 if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
                     /*
