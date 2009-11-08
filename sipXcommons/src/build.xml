@@ -22,6 +22,8 @@
   <path id="base.path" >
     <pathelement location="${src.dir}/lib/Stun4J.jar"/>
     <pathelement location="${src.dir}/lib/jain-sip-sdp.jar"/>
+    <pathelement location="${src.dir}/lib/smack.jar"/>
+    <pathelement location="${src.dir}/lib/smackx.jar"/>
     <pathelement location="${src.dir}/lib/jibx-run.jar"/>
     <pathelement location="${src.dir}/lib/xpp3.jar"/>
     <pathelement location="${src.dir}/lib/junit.jar"/>
