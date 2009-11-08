@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+import org.sipfoundry.sipxconfig.phonebook.Gravatar;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 
 import static org.easymock.EasyMock.expectLastCall;
@@ -42,6 +43,8 @@ public class ContactInformationResourceTest extends TestCase {
         m_user = new User();
         m_user.setUniqueId();
         m_user.setUserName("200");
+        m_user.setFirstName("John");
+        m_user.setLastName("Doe");
 
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
@@ -60,6 +63,7 @@ public class ContactInformationResourceTest extends TestCase {
         officeAddress.setState("MA");
         officeAddress.setZip("02114");
         addressBook.setOfficeAddress(officeAddress);
+        addressBook.setEmailAddress("john.doe@example.com");
         m_user.setAddressBookEntry(addressBook);
 
         m_coreContext = createMock(CoreContext.class);
@@ -178,6 +182,10 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("John", m_user.getFirstName());
+        assertEquals("Doe", m_user.getLastName());
+        assertEquals("http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar",
+                new Gravatar(m_user).getUrl());
     }
 
     public void testStoreJsonEmptyUser() throws Exception {
@@ -202,5 +210,9 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("John", m_user.getFirstName());
+        assertEquals("Doe", m_user.getLastName());
+        assertEquals("http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar",
+                new Gravatar(m_user).getUrl());
     }
 }
