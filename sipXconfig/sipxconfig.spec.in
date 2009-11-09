@@ -467,6 +467,14 @@ fi
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
 gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
 
+%if %{_vendor} == redhat
+# change default yum update daemon repo query to once every 24 hours
+if [ -f /etc/yum/yum-updatesd.conf ]; then
+  sed /etc/yum/yum-updatesd.conf -i -e 's|\W*run_interval\W*=\W*3600\W*|run_interval = 86400|'
+  /sbin/service yum-updatesd restart >/dev/null
+fi
+%endif
+
 %preun agent
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
