@@ -54,10 +54,16 @@ then
    rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar 2> /dev/null
    ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire.jar @OPENFIRE_HOME@/plugins 2> /dev/null
 
-   # Point to the sipXecs customized version of the base Openfire configuration folder.
-   rm -rf @OPENFIRE_HOME@/conf 2> /dev/null
-   ln -s ${SIPX_OPENFIRE_DIR}/conf @OPENFIRE_HOME@/conf 2> /dev/null
-   chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENFIRE_HOME@/conf 2> /dev/null
+   # If the openfire configuration directory is either a soft link or does not exist, then
+   # create a regular directory and copy the duplicate configuration file managed by sipXecs.
+   # Removing the soft link solves an inter-package file dependency with file openfire.xml.  
+   if [ -h @OPENFIRE_HOME@/conf ] || [ ! -e @OPENFIRE_HOME@/conf ]
+   then
+      rm -rf @OPENFIRE_HOME@/conf 2> /dev/null
+      mkdir @OPENFIRE_HOME@/conf 2> /dev/null
+      chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENFIRE_HOME@/conf 2> /dev/null
+      cp -pf "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" @OPENFIRE_HOME@/conf 2> /dev/null
+   fi
 
    mkdir -p @SIPX_LOGDIR@/openfire 2> /dev/null
    chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire 2> /dev/null
