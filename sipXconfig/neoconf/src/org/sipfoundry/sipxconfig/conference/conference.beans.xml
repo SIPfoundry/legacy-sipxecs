@@ -65,6 +65,15 @@
     <property name="portAudioUrl" value="portaudio_stream://" />
   </bean>
 
+  <bean id="conferenceBridgeConfig" class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeConfig"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="name" value="conferencebridge.xml" />
+    <property name="restartRequired" value="false" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning" />
     <property name="target">

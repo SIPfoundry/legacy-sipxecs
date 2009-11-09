@@ -29,7 +29,7 @@ public class Mailbox {
     public List<String> getFolderIds() {
         // to support custom folders, return these names and any additional
         // directories here
-        return Arrays.asList(new String[] {"inbox", "deleted", "saved"});
+        return Arrays.asList(new String[] {"inbox", "conference", "deleted", "saved"});
     }
 
     public File getMailstoreDirectory() {

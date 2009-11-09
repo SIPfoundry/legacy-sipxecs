@@ -39,6 +39,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String ORGANIZER_CODE = "fs-conf-conference/organizer-code";
     public static final String PARTICIPANT_CODE = "fs-conf-conference/participant-code";
     public static final String REMOTE_ADMIT_SECRET = "fs-conf-conference/remote-admin-secret";
+    public static final String AUTO_RECORDING = "fs-conf-conference/autorecord";
     public static final String AOR_RECORD = "fs-conf-conference/AOR";
     public static final String MAX_LEGS = "fs-conf-conference/MAX_LEGS";
     public static final String MOH = "fs-conf-conference/MOH";
@@ -111,6 +112,18 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     public void setOwner(User owner) {
         m_owner = owner;
+    }
+
+    public boolean isAutorecorded() {
+        if (m_owner == null) {
+            // Can't auto-record if we don't have a conference owner.
+            return false;
+        }
+        return (Boolean) getSettingTypedValue(AUTO_RECORDING);
+    }
+
+    public void setAutorecorded(boolean autorecord) {
+        setSettingTypedValue(AUTO_RECORDING, autorecord);
     }
 
     public String getExtension() {

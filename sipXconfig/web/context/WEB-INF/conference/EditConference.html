@@ -45,6 +45,14 @@
           <fieldset jwcid="@common/ItemCommon" item="ognl:conference"
 			useEnabled="ognl:true" useExtension="ognl:false" useName="ognl:false" />
       </span>
+      <fieldset jwcid="@If" condition="ognl:conference.hasOwner">
+        <table>
+          <tr jwcid="@common/FieldPanel" for="autorecord" field="component:autorecord"
+              label="message:label.autorecord" description="message:description.autorecord">
+            <input jwcid="autorecord@Checkbox" id="conference:autorecord" value="ognl:conference.autorecorded" />
+          </tr>
+        </table>
+      </fieldset>
       <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:conference.configSettings"
         renderGroupTitle="false" />

@@ -22,11 +22,19 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 public abstract class XmlFile extends AbstractConfigurationFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
-    public abstract Document getDocument();
+    @Deprecated
+    public Document getDocument() {
+        // getDocument(Location location) should be used instead
+        return null;
+    }
+
+    public Document getDocument(Location location) {
+        localizeDocument(location);
+        return getDocument();
+    }
 
     public void write(Writer writer, Location location) throws IOException {
-        localizeDocument(location);
-        Document document = getDocument();
+        Document document = getDocument(location);
         OutputFormat format = createFormat();
         XMLWriter xmlWriter = new XMLWriter(writer, format);
         xmlWriter.write(document);

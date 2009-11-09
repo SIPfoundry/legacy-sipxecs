@@ -50,6 +50,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickButton("user:search");
         checkCheckbox("checkbox");
         clickButton("user:select");
+        checkCheckbox("conference:autorecord");
 
         // Make sure we didn't lose all the settings
         assertTextFieldEquals("item:name", "OwnerTestConf");

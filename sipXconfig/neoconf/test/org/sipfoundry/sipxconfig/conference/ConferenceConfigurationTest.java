@@ -10,20 +10,18 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import junit.framework.TestCase;
+import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 
-public class ConferenceConfigurationTest extends XMLTestCase {
+public class ConferenceConfigurationTest extends TestCase {
 
     private DomainManager m_domainManager;
     private final Location m_location = new Location();
@@ -31,8 +29,6 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        XMLUnit.setIgnoreWhitespace(true);
-
         m_location.setFqdn("test.example.com");
 
         Domain domain = new Domain("example.com");
@@ -47,13 +43,10 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         m_config.setMohLocalStreamUrl("local_stream://moh");
         m_config.setPortAudioUrl("portaudio_stream://");
         m_config.setTemplate("sipxconference/conference.conf.xml.vm");
-
     }
 
     public void testGenerate() throws Exception {
-        Bridge bridge;
-
-        bridge = new Bridge();
+        Bridge bridge = new Bridge();
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         bridge.getSettings();
         bridge.setSettingValue(Bridge.CALL_CONTROL_MUTE, "1");
@@ -71,6 +64,8 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
         bridge.setAudioDirectory("/audioDirectory");
 
+        User owner = new User();
+
         Conference conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
@@ -83,9 +78,11 @@ public class ConferenceConfigurationTest extends XMLTestCase {
         conf = new Conference();
         conf.setModelFilesContext(TestHelper.getModelFilesContext());
         conf.initialize();
+        conf.setOwner(owner);
         conf.setExtension("234");
         conf.setSettingValue(Conference.MAX_LEGS, "4");
         conf.setUniqueId();
+        conf.setAutorecorded(true);
         bridge.addConference(conf);
 
         ConferenceBridgeContext confContext = EasyMock.createMock(ConferenceBridgeContext.class);
@@ -97,7 +94,7 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
         String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
         InputStream referenceXml = getClass().getResourceAsStream("conference_config.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        assertEquals(IOUtils.toString(referenceXml), generatedXml);
     }
 
     public void testGenerateNullBridge() throws Exception {
@@ -110,6 +107,6 @@ public class ConferenceConfigurationTest extends XMLTestCase {
 
         String generatedXml = AbstractConfigurationFile.getFileContent(m_config, m_location);
         InputStream referenceXml = getClass().getResourceAsStream("conference_config_null_bridge.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+        assertEquals(IOUtils.toString(referenceXml), generatedXml);
     }
 }

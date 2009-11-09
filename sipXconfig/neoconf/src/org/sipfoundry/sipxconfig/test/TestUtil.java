@@ -291,8 +291,13 @@ public final class TestUtil {
     public static SipxServiceManager getMockSipxServiceManager(boolean replay, SipxService... sipxServices) {
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         for (SipxService sipxService : sipxServices) {
-            sipxServiceManager.getServiceByBeanId(sipxService.getBeanId());
-            EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
+            String beanId = sipxService.getBeanId();
+            if (beanId != null) {
+                sipxServiceManager.getServiceByBeanId(beanId);
+                EasyMock.expectLastCall().andReturn(sipxService).anyTimes();
+                sipxServiceManager.isServiceInstalled(beanId);
+                EasyMock.expectLastCall().andReturn(true).anyTimes();
+            }
             String processName = sipxService.getProcessName();
             if (processName != null) {
                 sipxServiceManager.getServiceByName(processName);

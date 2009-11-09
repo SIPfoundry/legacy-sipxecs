@@ -26,6 +26,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="autorecord" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="AOR" hidden="yes">
       <value />
     </setting>

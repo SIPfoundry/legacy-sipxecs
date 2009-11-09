@@ -150,7 +150,7 @@ public class MailboxManagerTest extends TestCase {
 
     public void testGetFolders() {
         List<String> folderIds = m_mgr.getMailbox("200").getFolderIds();
-        assertEquals(3, folderIds.size());
+        assertEquals(4, folderIds.size());
     }
 
     public void testGetDeletedVoicemail() {

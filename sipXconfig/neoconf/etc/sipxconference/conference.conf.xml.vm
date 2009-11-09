@@ -1,22 +1,22 @@
 <configuration name="conference.conf" description="sipX MeetMe Audio Conference">
 #if(${bridge})
-<caller-controls>
-<group name="sipx-default">
-<control action="mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_MUTE}")"/>
-<control action="deaf mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_DEAF_MUTE}")"/>
-<control action="energy up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_UP}")"/>
-<control action="energy equ" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_RESET}")"/>
-<control action="energy dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_DOWN}")"/>
-<control action="vol talk up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_UP}")"/>
-<control action="vol talk zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_RESET}")"/>
-<control action="vol talk dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_DOWN}")"/>
-<control action="vol listen up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_UP}")"/>
-<control action="vol listen zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_RESET}")"/>
-<control action="vol listen dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_DOWN}")"/>
-<control action="hangup" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_HANGUP}")"/>
-</group>
-</caller-controls>
-<profiles>
+  <caller-controls>
+    <group name="sipx-default">
+      <control action="mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_MUTE}")"/>
+      <control action="deaf mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_DEAF_MUTE}")"/>
+      <control action="energy up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_UP}")"/>
+      <control action="energy equ" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_RESET}")"/>
+      <control action="energy dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_DOWN}")"/>
+      <control action="vol talk up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_UP}")"/>
+      <control action="vol talk zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_RESET}")"/>
+      <control action="vol talk dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_DOWN}")"/>
+      <control action="vol listen up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_UP}")"/>
+      <control action="vol listen zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_RESET}")"/>
+      <control action="vol listen dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_DOWN}")"/>
+      <control action="hangup" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_HANGUP}")"/>
+    </group>
+  </caller-controls>
+  <profiles>
     <profile name="default">
       <param name="domain" value="$domain.getName()"/>
       <param name="caller-controls" value="sipx-default"/>
@@ -70,17 +70,20 @@
       <param name="caller-id-name" value="$${outbound_caller_name}"/>
       <param name="caller-id-number" value="$${outbound_caller_id}"/>
       <param name="comfort-noise" value="0"/>
-      #set($conf_max_members = ${conference.getSettingTypedValue(${Conference.MAX_LEGS})})
-      #if($conf_max_members)
+#set($conf_max_members = ${conference.getSettingTypedValue(${Conference.MAX_LEGS})})
+#if($conf_max_members)
       <param name="max-members" value="$conf_max_members"/>
-      #end
-      #if($conference.isMohPortAudioEnabled())
-      <param name="moh-sound" value="$portAudioUrl"/>
-      #else
-      <param name="moh-sound" value="$mohLocalStreamUrl"/>
-      #end
-   </profile>
 #end
-</profiles>
+#if(${conference.mohPortAudioEnabled})
+      <param name="moh-sound" value="$portAudioUrl"/>
+#else
+      <param name="moh-sound" value="$mohLocalStreamUrl"/>
+#end
+#if(${conference.autorecorded})
+      <param name="auto-record" value="$${base_dir}/recordings/${conference_name}_${uuid}.wav"/>
+#end
+    </profile>
+#end
+  </profiles>
 #end
 </configuration>

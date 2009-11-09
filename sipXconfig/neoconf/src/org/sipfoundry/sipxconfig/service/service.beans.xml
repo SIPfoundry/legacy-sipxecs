@@ -307,6 +307,32 @@
     <property name="name" value="sipxivr.properties" />
   </bean>
 
+  <bean id="sipxRecordingService" class="org.sipfoundry.sipxconfig.service.SipxRecordingService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="sipXrecording" />
+    <property name="modelName" value="sipxrecording.xml" />
+    <property name="modelDir" value="sipxrecording" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRecordingConfiguration" />
+        <ref bean="conferenceBridgeConfig" />
+      </list>
+    </property>
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="bundles">
+      <set>
+        <ref bean="conferenceBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxRecordingConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRecordingConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="restartRequired" value="false" />
+    <property name="template" value="sipxrecording/sipxrecording.properties.vm" />
+    <property name="name" value="sipxrecording.properties" />
+  </bean>
+
   <bean id="sipxStatusService" class="org.sipfoundry.sipxconfig.service.SipxStatusService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="SIPStatus" />
@@ -651,19 +677,19 @@
     <property name="template" value="sipxrest/sipxrest-config.vm" />
   </bean>
 
-  <bean id="abstractConfigFilesActivator" abstract="true" >
+  <bean id="abstractConfigFilesActivator" abstract="true">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
   </bean>
 
-  <bean id="rlsConfigFilesActivator" class="org.sipfoundry.sipxconfig.service.LazyConfigFileActivationManager" parent="abstractConfigFilesActivator"
-    init-method="init">
+  <bean id="rlsConfigFilesActivator" class="org.sipfoundry.sipxconfig.service.LazyConfigFileActivationManager"
+    parent="abstractConfigFilesActivator" init-method="init">
     <property name="serviceBeanId" value="sipxRlsService" />
   </bean>
 
   <bean id="sipxProvisionService" class="org.sipfoundry.sipxconfig.service.SipxProvisionService" scope="prototype"
     parent="sipxService">
-    <property name="processName" value="sipXprovision"/>
+    <property name="processName" value="sipXprovision" />
     <property name="modelName" value="sipxprovision.xml" />
     <property name="modelDir" value="sipxprovision" />
     <property name="editable" value="true" />
@@ -681,7 +707,8 @@
     </property>
   </bean>
 
-  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProvisionConfiguration" parent="serviceConfigurationFile">
+  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProvisionConfiguration"
+    parent="serviceConfigurationFile">
     <property name="name" value="sipxprovision-config" />
     <property name="template" value="sipxprovision/sipxprovision-config.vm" />
   </bean>
