@@ -43,7 +43,13 @@ public class CallWatcher
         sipStackBean.init();
         sipStackBean.getSipStack().start();
     }
-	
+    
+    static void destroyJainSip(){
+        sipStackBean.getSipStack().stop();
+        sipStackBean.destroy();
+        CallWatcher.sipStackBean = null;
+    }
+    
     public static SipStackBean getSipStackBean() {
         return sipStackBean;
     }
@@ -77,6 +83,10 @@ public class CallWatcher
        
     }
     
+    public static void destroy(){
+        sipStackBean.getSubscriber().stop();
+        destroyJainSip();        
+    }
     
     public static void setConfigurationPath(String configurationPath) {
         CallWatcher.configurationPath = configurationPath;     

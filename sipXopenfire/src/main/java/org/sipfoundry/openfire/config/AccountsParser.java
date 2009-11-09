@@ -159,6 +159,10 @@ public class AccountsParser {
         timer.schedule(scanner, 0, 10000);
     }
 
+    public void stopScanner() {
+        timer.cancel();
+    }
+
     private static void addCallMethod(String elementName, String methodName) {
         digester.addCallMethod(String.format("%s/%s", currentTag, elementName), methodName, 0);
     }

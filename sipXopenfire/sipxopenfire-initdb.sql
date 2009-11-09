@@ -383,9 +383,6 @@ INSERT INTO ofID (idType, id) VALUES (26, 1);
 INSERT INTO ofVersion (name, version) VALUES ('openfire', 20);
 
 
--- Entry for default conference service
-INSERT INTO ofMucService (serviceID, subdomain, isHidden) VALUES (1, 'conference', 0);
-
 INSERT INTO ofProperty (name, propValue)
   VALUES('provider.admin.className','org.jivesoftware.openfire.admin.DefaultAdminProvider');
 
@@ -418,4 +415,11 @@ INSERT INTO ofProperty (name, propValue)
 
 INSERT INTO ofProperty (name, propValue)
  VALUES('register.password','false');
+
+-- Uncomment to enable file tranfer proxy
+-- INSERT INTO ofProperty (name, propValue)
+--  VALUES('xmpp.proxy.enabled','true');
+
+-- INSERT INTO ofProperty (name, propValue)
+--  VALUES('xmpp.proxy.port ','7777');
 

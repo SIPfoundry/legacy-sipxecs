@@ -12,10 +12,12 @@ import gov.nist.javax.sip.header.ViaList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Properties;
 
 import javax.sip.ClientTransaction;
 import javax.sip.ListeningPoint;
+import javax.sip.ObjectInUseException;
 import javax.sip.SipException;
 import javax.sip.SipFactory;
 import javax.sip.SipListener;
@@ -58,7 +60,8 @@ public abstract class AbstractSipStackBean {
     private AuthenticationHelper m_authenticationHelper = null;
 
     private HashMap<String,SipProvider> sipProviders = new HashMap<String,SipProvider>();
-
+    
+    private Logger m_serverLogger;
 
     /**
      * Initialized stack: binds to a port. It should be called before any other operation on the
@@ -81,9 +84,9 @@ public abstract class AbstractSipStackBean {
         m_properties.setProperty("gov.nist.javax.sip.SERVER_LOGGER", ServerLoggerImpl.class.getName());
 
         String logLevel =  SipFoundryLayout.mapSipFoundry2log4j(getLogLevel()).toString();
-        Logger serverLogger = Logger.getLogger(StackLoggerImpl.class);
-        serverLogger.addAppender(getStackAppender());
-        serverLogger.setLevel(Level.toLevel(logLevel));
+        m_serverLogger = Logger.getLogger(StackLoggerImpl.class);
+        m_serverLogger.addAppender(getStackAppender());
+        m_serverLogger.setLevel(Level.toLevel(logLevel));
 
         m_properties.setProperty("gov.nist.javax.sip.TRACE_LEVEL",logLevel);
 
@@ -135,7 +138,26 @@ public abstract class AbstractSipStackBean {
         }
     }
 
-
+    public void destroy(){
+        if( m_sipStack != null ){
+            try{
+                Iterator lpIter = m_sipStack.getListeningPoints();
+                while( lpIter.hasNext() ){
+                    m_sipStack.deleteListeningPoint((ListeningPoint)(lpIter.next()));
+                }
+                Iterator spIter = m_sipStack.getSipProviders();
+                while( spIter.hasNext() ){
+                    SipProvider sp = (SipProvider)(spIter.next());
+                    sp.removeSipListener(getSipListener(this));
+                    m_sipStack.deleteSipProvider(sp);
+                }
+            }
+            catch( ObjectInUseException ex ){
+                m_serverLogger.error("AbstractSipStackBean::destroy caught: " + ex );
+            }
+        }
+    }
+    
     public ClientTransaction handleChallenge(Response response, ClientTransaction tid) throws SipException    {
 
         SipProvider sipProvider = ((TransactionExt)tid).getSipProvider();

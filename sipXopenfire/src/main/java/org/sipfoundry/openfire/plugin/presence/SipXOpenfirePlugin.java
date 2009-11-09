@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,6 +101,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private Map<String, XmppUserPreferences> xmppUserPreferencesMap = new HashMap<String, XmppUserPreferences>(); // key is username part of JID
 
     private AccountsParser accountsParser;
+    
+    private MessagePacketInterceptor packetInterceptor;
 
     public class ConferenceInformation {
         private String extension;
@@ -270,10 +273,19 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         multiUserChatManager = server.getMultiUserChatManager();
 
         /*
-         * create default multi-user chat service (see XX-6913)
+         * create default multi-user chat service (see XX-6913) and remove others
          */
         createChatRoomService(DEFAULT_MUC_SERVICE);
         
+        Collection<String> defaultSubdomain = new ArrayList<String>();
+        defaultSubdomain.add(DEFAULT_MUC_SERVICE);
+        try{
+            pruneChatServices(defaultSubdomain);
+        }
+        catch( Exception ex ){
+            log.error("initializePlugin caught exception while pruning chat services list " + ex );
+        }
+
         /*
          * Load up the database.
          */
@@ -297,9 +309,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         PresenceUnifier.setPlugin(this);
         PresenceUnifier.getInstance();
         // add packet interceptor
-
-        InterceptorManager.getInstance().addInterceptor(new MessagePacketInterceptor(this, watcherConfig.isImMessageLoggingEnabled(),
-                                                                                           watcherConfig.getImMessageLoggingDirectory()));
+        packetInterceptor = new MessagePacketInterceptor(this, watcherConfig.isImMessageLoggingEnabled(),
+                                                         watcherConfig.getImMessageLoggingDirectory() );
+        InterceptorManager.getInstance().addInterceptor(packetInterceptor);
         log.info("plugin initializaton completed");
         log.info("DONE");
 
@@ -323,6 +335,28 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public void destroyPlugin() {
         log.debug("DestroyPlugin");
+        if( accountsParser != null ){
+            accountsParser.stopScanner();
+        }
+        if( packetInterceptor != null ){
+            InterceptorManager.getInstance().removeInterceptor(packetInterceptor);
+        }
+        CallWatcher.destroy();
+        
+        multiUserChatManager = null;
+        groupManager = null;
+        userManager = null;
+        presenceManager = null;
+        pluginManager = null;
+        componentManager = null;
+        server = null;
+        localizer = null;
+        log = null;
+        watcherConfig = null;
+        logAppender = null;
+        SipXOpenfirePlugin.instance = null;
+        accountsParser = null;
+        packetInterceptor = null;
     }
 
     public String getName() {
@@ -867,6 +901,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 HistoryStrategy historyStrategy = new HistoryStrategy(null);
                 historyStrategy.setType(HistoryStrategy.Type.none);
                 new UpdateHistoryStrategy(subdomain, historyStrategy).run();
+                mucService.enableService(true, true);
             }
             catch( Exception ex ){
                 log.error("createChatRoomService caught " + ex );
@@ -1096,25 +1131,34 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
     
-    public void setAllowedUsersForChatServices(Collection<UserAccount> accounts ){
+    public void setAllowedUsersForChatServices(Collection<UserAccount> accounts){
         HashSet<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
         chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
 
-        for (MultiUserChatService service : chatServices) {
+        for (MultiUserChatService service : chatServices) {          
             // start from scratch - clear out set of users allowed to create
             Collection<String> usersCurrentlyAllowedToCreate = service.getUsersAllowedToCreate();
-            for( String user : usersCurrentlyAllowedToCreate){
+            for( String user : usersCurrentlyAllowedToCreate){          
                 service.removeUserAllowedToCreate(user);
             }
 
             // add in all the users who have accounts on the system
             for( UserAccount user : accounts){
-                String userJID =  user.getXmppUserName() + "@" + getXmppDomain();
+                String userJID =  user.getXmppUserName() + "@" + getXmppDomain();         
                 service.addUserAllowedToCreate(userJID);
             }           
         }
     }
-    
+
+    public void setAllowedUserForChatServices(String jid){
+        HashSet<MultiUserChatService> chatServices = new HashSet<MultiUserChatService>();
+        chatServices.addAll(this.multiUserChatManager.getMultiUserChatServices());
+
+        for (MultiUserChatService service : chatServices) {            
+            // start from scratch - clear out set of users allowed to create           
+            service.addUserAllowedToCreate(jid);
+        }           
+    }
 
     public void kickOccupant(String subdomain, String roomName, String password,
             String memberJid, String reason) throws NotAllowedException {

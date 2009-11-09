@@ -49,7 +49,8 @@ public class XmppAccountInfo {
         plugin.setSipId(jid, sipUserName);
         plugin.setOnThePhoneMessage(sipUserName, xmppUserAccount.getOnThePhoneMessage());
         this.userAccounts.put(xmppUserAccount.getUserName(), xmppUserAccount);
-
+        // Make sure that user can create multi-user chatrooms
+        plugin.setAllowedUserForChatServices(jid);
     }
 
     public void addGroup(XmppGroup group) throws Exception {

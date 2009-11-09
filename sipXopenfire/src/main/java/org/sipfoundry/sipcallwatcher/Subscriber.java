@@ -125,6 +125,11 @@ public class Subscriber implements SipListener {
         activeSubscribeDialog.start();        
     }
 
+    public void stop() {
+        // no need to explicitly stop activeSubscribeDialog - no real resources consumed
+        activeSubscribeDialog = null;
+    }
+
     public void processRequest(RequestEvent requestReceivedEvent) {
         if (requestReceivedEvent.getRequest().getMethod().equals(Request.NOTIFY)) {
             activeSubscribeDialog.processNotifyRequest(requestReceivedEvent);
