@@ -13,7 +13,6 @@
     </boolean>
   </type>
   <group name="bridge-configuration">
-    <label>SIP</label>
     <setting name="global-address" hidden="yes">
       <label>Public address</label>
       <description>
@@ -77,18 +76,12 @@
       <!-- set from NAT location data -->
     </setting>
     <setting name="sip-keepalive-seconds" advanced="yes">
-      <label>Signaling keep-alive interval</label>
       <type>
         <integer required="yes" />
       </type>
       <value>20</value>
-      <description>
-        Keep-alive timer for SIP signaling in seconds. sipXbridge will periodically re-register with each ITSP to keep
-        the NAT pinhole open.
-      </description>
     </setting>
     <setting name="media-keepalive-seconds" advanced="yes">
-      <label>Media keep-alive interval</label>
       <type>
         <integer required="yes" />
       </type>
@@ -120,7 +113,6 @@
       </description>
     </setting>
     <setting name="music-on-hold-support-enabled">
-      <label>Music on hold</label>
       <type>
         <boolean>
           <true>
@@ -132,10 +124,6 @@
         </boolean>
       </type>
       <value>true</value>
-      <description>
-        If checked sipXbridge Music On Hold support (MoH) is enabled. Phones should disable their MoH support if
-        sipXbridge support for MOH is enabled.
-      </description>
     </setting>
 
     <setting name="music-on-hold-address" hidden="yes">
@@ -166,16 +154,7 @@
     </setting>
 
     <setting name="route-inbound-calls-to-extension">
-      <label>Incoming calls destination</label>
       <value>operator</value>
-      <description>
-        Determines where to send inbound calls. If empty, inbound calls are directly routed to the specified number in
-        the inbound request and have to be redirected by aliases or dial plan rules. This setting applies to all ITSPs
-        since it is not reliably possible to detect from which ITSP a call arrives if several ITSPs are configured. For
-        incoming calls the ITSP domain is mapped to the own domain (i.e. if a call arrives with sip:1234@myitsp.com,
-        then sipXbridge will map it to sip:1234@mydomain.com. An alias or user ID 1234 needs to exist or an alternative
-        value can be specified in this field.)
-      </description>
     </setting>
     <setting name="log-level" hidden="yes">
       <label>Logging level</label>
@@ -202,7 +181,6 @@
         </enum>
       </type>
       <value>INFO</value>
-      <description>Log configuration.</description>
     </setting>
 
     <setting name="log-directory" hidden="yes">
