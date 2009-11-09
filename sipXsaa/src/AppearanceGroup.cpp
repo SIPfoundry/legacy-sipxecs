@@ -188,7 +188,8 @@ AppearanceGroup::~AppearanceGroup()
    getAppearanceAgent()->getEventPublisher().unpublish(
          mSharedUser.data(),
          DIALOG_SLA_EVENT_TYPE, //eventTypeKey
-         DIALOG_EVENT_TYPE     //eventType
+         DIALOG_EVENT_TYPE,     //eventType
+         true                   // do not send NOTIFY
          );
 }
 

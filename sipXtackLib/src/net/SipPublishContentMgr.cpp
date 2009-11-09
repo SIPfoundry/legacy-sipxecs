@@ -310,7 +310,8 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
 
 void SipPublishContentMgr::unpublish(const char* resourceId,
                                      const char* eventTypeKey,
-                                     const char* eventType)
+                                     const char* eventType,
+                                     UtlBoolean noNotify)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s'",
@@ -365,9 +366,8 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        mDefaultContentConstructors.destroy(&key);
     }
 
-    // Call the observer for the content change, if any, unless this
-    // is default content.
-    if (resourceIdProvided)
+    // Don't call the observers if noNotify is set or if this is default content.
+    if (!noNotify && resourceIdProvided)
     {
        UtlString eventTypeString(eventType);
        PublishCallbackContainer* callbackContainer =

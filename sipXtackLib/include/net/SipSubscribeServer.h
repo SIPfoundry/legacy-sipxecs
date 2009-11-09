@@ -79,7 +79,38 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  "sip:user@hostport") stripped of any parameters.  When a SUBSCRIBE
  *  is received, it creates a subscription for the content of the
  *  resourceId which is derived from the request-URI of the incoming
- *  SUBSCRIBE.
+ *  SUBSCRIBE.  Since SipPublishContentMgr::publish() can be given a
+ *  list of bodies of varying media-type, SipSubscribeServer sends to
+ *  the subscriber the published body whose media-type appears first
+ *  in the Accept header of the SUBSCRIBE.  If no body is acceptable
+ *  (including if SipPublishContentMgr has no content for this
+ *  resourceId), then the NOTIFY has no body.
+ *
+ *  \par
+ *  Because the SipPublishContentMgr only models "what content is
+ *  available for a resourceId", it cannot record that a resource does
+ *  not exist vs. that it has no content.  Thus, a SUBSCRIBE to any
+ *  request-URI that arrives at the SipSubscribeServer generates a
+ *  success response, though it may yield a NOTIFY with no body.
+ *
+ *  Similarly, the application cannot signal that a resource has gone
+ *  out of existence.  It can only call
+ *  SipPublishContentMgr::unpublish(), removing the content for the
+ *  resource.  Depending on the arguments to unpublish(), it can
+ *  result in a NOTIFY with no body (which tells the subscriber that
+ *  there is no content for the resource), or no NOTIFY (suitable if
+ *  the subscription is persistent and will be continued by a later
+ *  incarnation of the application).
+ *
+ *  An improvement to the system would allow the SipPublishContentMgr
+ *  and/or SipSubscribeServer to distinguish resources that have no
+ *  content from resourceIds that have no resource, so that SUBSCRIBEs
+ *  to the latter could fail.  Similarly, ::unpublish() would allow
+ *  specification as to whether the resource has ceased to exist
+ *  (allowing a NOTIFY to be sent with reason=noresource) vs. the
+ *  resource is now being serviced by another element (allowing NOTIFY
+ *  with reason=deactivated) vs. the resource has not content at this
+ *  time (allowing NOTIFY with no body).
  *
  *  \par Subscription State
  *  The SipSubscriptionMgr is used by SipSubscribeServer to maintain

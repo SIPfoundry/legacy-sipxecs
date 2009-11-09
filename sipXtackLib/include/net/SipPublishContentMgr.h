@@ -250,6 +250,10 @@ public:
     /** Remove the content for the given resourceId and eventTypeKey
      *  The content bodies are deleted.
      *  Note that both the 'partial' and 'full' contents are deleted.
+     *  Unless 'noNotify' is true, a NOTIFY will be sent reflecting
+     *  this content change.  (See SipSubscribeServer.h for discussion
+     *  of how noNotify is used to correctly handle the termination
+     *  of subscriptions in various circumstances.)
      *  \param resourceId - a unique id for the resource, typically the
      *         identity or AOR for the event type content.  There is no
      *         semantics enforced.  This is an opaque string used as part
@@ -263,10 +267,13 @@ public:
      *         There is no semantics enforced.  This is an opaque string used
      *         as part of the key.
      *  \param eventType - SIP event type token
+     *  \param noNotify - if TRUE, do not generate any NOTIFYs for this content
+     *         change.
      */
     virtual void unpublish(const char* resourceId,
                            const char* eventTypeKey,
-                           const char* eventType);
+                           const char* eventType,
+                           UtlBoolean noNotify=FALSE);
 
     /** Fetch the published content for a given resourceId/eventTypeKey.
      *  The content body pointers point to copies of the stored
