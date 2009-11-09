@@ -11,18 +11,11 @@ Url: http://www.sipfoundry.org/sipXopenfire
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 4.1
-Requires: sipxcommons >= 4.1
+Requires: sipxcommserverlib >= %version
+Requires: sipxcommons >= %version
 
 Requires: sipx-openfire >= 3.6.4
 Requires: kraken >= 1.1.2
-
-%if %{use_ibm_jvm}
-Requires: java-ibm >= 1.6
-Requires: java-ibm-unrestricted
-%else
-Requires: java-sun >= 1.6
-%endif
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
