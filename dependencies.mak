@@ -114,6 +114,10 @@ sipXsaa : sipXcommserverLib
 sipXopenfire : sipXcommons
 	@echo sipXopenfire
 
+.PHONY: sipXrecording
+sipXrecording: sipXcommons sipXopenfire
+	@echo sipXrecording
+
 .PHONY: sipXrest
 sipXrest : sipXcommons 
 	@echo sipXrest

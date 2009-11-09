@@ -49,6 +49,7 @@ then
   AC_CONFIG_SUBDIRS(sipXprovision)
   AC_CONFIG_SUBDIRS(sipXproxy)
   AC_CONFIG_SUBDIRS(sipXpublisher)
+  AC_CONFIG_SUBDIRS(sipXrecording)
   AC_CONFIG_SUBDIRS(sipXregistry)
   AC_CONFIG_SUBDIRS(sipXrest)
   AC_CONFIG_SUBDIRS(sipXrls)

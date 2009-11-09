@@ -23,6 +23,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
@@ -148,9 +149,10 @@ public class SipXivr implements Runnable {
         // add MWI servlet on /mwi
         webServer.addServlet("mwistatus", "/mwi", Mwistatus.class.getName());
         webServer.addServlet("mailbox", "/mailbox/*", MailboxServlet.class.getName());
+        webServer.addServlet("recording", "/recording/*", ConfRecordStatus.class.getName());
         // Start it up
         webServer.start();
-        
+
         ExtMailStore.Initialize();
         
         // Set up emailer background threads

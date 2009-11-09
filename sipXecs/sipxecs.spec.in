@@ -37,6 +37,7 @@ Requires: sipxpresence >= %version
 Requires: sipxproxy >= %version
 Requires: sipxproxy-cdr >= %version
 Requires: sipxpublisher >= %version
+Requires: sipxrecording >= %version
 Requires: sipxregistry >= %version
 Requires: sipxrls >= %version
 Requires: sipxsaa >= %version
