@@ -110,19 +110,14 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
 ACDAgentManager::~ACDAgentManager()
 {
    // Clean all the agents in the list
-   UtlHashMapIterator iterator(mAcdAgentList);
-   UtlString* pAgentUriString;
-   UtlContainable *key;
-   UtlContainable *pAgent;
-   while ((pAgentUriString = (UtlString *) iterator()))
-   {
-      key = mAcdAgentList.removeKeyAndValue(pAgentUriString, pAgent);
-      delete pAgent;
-      delete key;
-   }
+   mLock.acquire();
 
+   mAcdAgentList.destroyAll();
    delete mpLinePresenceMonitor;
+
+   mLock.release();
 }
+
 
 /* ============================ MANIPULATORS ============================== */
 

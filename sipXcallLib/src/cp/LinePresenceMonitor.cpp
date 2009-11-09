@@ -97,6 +97,8 @@ LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
 // Destructor
 LinePresenceMonitor::~LinePresenceMonitor()
 {
+   OsLock lock(mLock);
+
    // Delete the SipSubscribeClient.
    if (mpSipSubscribeClient)
    {

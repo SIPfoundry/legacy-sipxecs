@@ -263,20 +263,20 @@ ACDServer::~ACDServer()
       delete mpAcdAudioManager;
    }
 
-   if (mpAcdQueueManager) {
-      delete mpAcdQueueManager;
+   if (mpAcdCallManager) {
+      delete mpAcdCallManager;
    }
 
    if (mpAcdAgentManager) {
       delete mpAcdAgentManager;
    }
 
-   if (mpAcdLineManager) {
-      delete mpAcdLineManager;
+   if (mpAcdQueueManager) {
+      delete mpAcdQueueManager;
    }
 
-   if (mpAcdCallManager) {
-      delete mpAcdCallManager;
+   if (mpAcdLineManager) {
+      delete mpAcdLineManager;
    }
 
    if (mpAcdRtRecord) {
