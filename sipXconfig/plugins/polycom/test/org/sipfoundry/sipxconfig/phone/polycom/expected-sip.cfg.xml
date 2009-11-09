@@ -170,9 +170,9 @@
   >
     <codecs>
       <preferences
-        voice.codecPref.G711Mu="1"
-        voice.codecPref.G711A="2"
-        voice.codecPref.G729AB="3"
+        voice.codecPref.G711Mu=""
+        voice.codecPref.G711A="1"
+        voice.codecPref.G729AB="2"
       />
       <profiles
         voice.audioProfile.G711Mu.payloadSize="20"

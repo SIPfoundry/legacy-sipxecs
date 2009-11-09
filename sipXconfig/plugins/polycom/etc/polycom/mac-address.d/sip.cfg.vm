@@ -9,16 +9,26 @@
       http://sipx-wiki.calivia.com/index.php/Adding_Polycom_SoundPoint_IP_New_Configuration_File_Content_into_sipXconfig
 
 -->
-#macro (computeCodecSettings $setting)
-#set ($codecs = $setting.getTypedValue())
-#foreach ($codec in $codecs)
-#if ($setting.ProfileName == "OTHERS")
-	voice.codecPref.${codec}="$velocityCount"
-#else
-	voice.codecPref.${setting.ProfileName}.${codec}="$velocityCount"
+#macro (computeCodecSettings $setting $prefix)
+
+   #set ($selected_codecs = $setting.getTypedValue())
+   #set ($codec_options = $setting.getType().getEnums().keySet())
+
+   ## Loop through each supported codec.
+   #foreach ($codec_option in $codec_options)
+
+      ## Determine the selected preference value of this codec.  (Blank if not selected.)
+      #if (${selected_codecs.contains(${codec_option})})
+         #set ($codec_value = $math.add($selected_codecs.indexOf($codec_option), "1"))
+      #else
+         #set ($codec_value = "")
+      #end
+
+      ## Generate the codec preference value.
+      ${prefix}.${codec_option}="${codec_value}"
+   #end
 #end
-#end
-#end
+
 <sip>
   <voIpProt>
     <local
@@ -255,8 +265,14 @@
     <codecs>
       <preferences
 #set ($group = $cfg.EndpointSettings.getSetting('voice').getSetting('codecPref'))
+## This is a loop, but there will only ever be one codec group per Polycom model.
 #foreach ($setting in $cfg.getSettings($group))
-#computeCodecSettings($setting)
+   #if ($setting.ProfileName == "OTHERS")
+      #set ($prefix = "voice.codecPref")
+   #else
+      #set ($prefix = "voice.codecPref.${setting.ProfileName}")
+   #end
+   #computeCodecSettings($setting $prefix)
 #end
       />
       <profiles
@@ -322,6 +338,9 @@
 #foreach ($setting in $cfg.getSettings($group))
       video.codecPref.${setting.ProfileName}="$!{setting.Value}"
 #end
+## As part of XX-6689, replace the above loop with: computeCodecSettings($group "video.codecPref")
+## Also update SipConfigurationTest testGenerateVVX1500Profile() so that not all video codecs
+## are selected.  (See XX-6875: Polycom offers and accepts codecs that are de-selected)
     />
     <profile
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile'))

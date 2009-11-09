@@ -65,6 +65,11 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
         phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
 
+        // XX-6875: Polycom offers and accepts codecs that are de-selected.  De-selected codecs must be
+        // explicitly generated with blank values.  Otherwise the default values from the polycom_sip.cfg
+        // file are used, some of which are non-blank.  The value below means G711Mu is de-selected.
+        phone.setSettingValue("voice/codecPref/OTHERS", "G711A|G729AB");
+
         phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 
