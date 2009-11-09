@@ -135,7 +135,9 @@
         </setting>
         <setting name="port">
           <profileName>server.1.port</profileName>
-          <type />
+          <type >
+          <integer min="0" max="65535" />
+          </type>
           <value />
         </setting>
         <setting name="transport">
@@ -145,8 +147,10 @@
         </setting>
         <setting name="expires">
           <profileName>server.1.expires</profileName>
-          <type />
-          <value />
+          <type>
+             <integer min="1" />
+         </type>
+         <value />
         </setting>
         <setting name="expires.overlap">
           <profileName>server.1.expires.overlap</profileName>
@@ -163,14 +167,14 @@
         <setting name="retryTimeOut">
           <profileName>server.1.retryTimeOut</profileName>
           <type>
-            <integer />
+            <integer min="0"/>
           </type>
           <value />
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.1.retryMaxCount</profileName>
           <type>
-            <integer />
+            <integer min="0"/>
           </type>
           <value />
         </setting>
@@ -226,17 +230,23 @@
         </setting>
         <setting name="retryTimeOut">
           <profileName>server.2.retryTimeOut</profileName>
-          <type />
+          <type>
+           <integer min="0"/>
+          </type>
           <value />
         </setting>
         <setting name="retryMaxCount">
           <profileName>server.2.retryMaxCount</profileName>
-          <type />
+          <type >
+          <integer min="0"/>
+          </type>
           <value />
         </setting>
         <setting name="expires.lineSeize">
           <profileName>server.2.expires.lineSeize</profileName>
-          <type />
+          <type >
+          <integer min="1" />
+          </type>
           <value />
         </setting>
         <setting name="lcs" hidden="yes">
