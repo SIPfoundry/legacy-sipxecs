@@ -14,9 +14,4 @@
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
   </class>
-
-  <query name="service-by-bean-id">
-    <![CDATA[from SipxService s where s.beanId = :beanId]]>
-  </query>
-
 </hibernate-mapping>

@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.beans.factory.annotation.Required;
@@ -38,9 +37,6 @@ import static org.apache.commons.collections.CollectionUtils.intersection;
 
 public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService> implements SipxServiceManager,
         ApplicationContextAware {
-
-    private static final String QUERY_BY_BEAN_ID = "service-by-bean-id";
-
     private static final Log LOG = LogFactory.getLog(SipxServiceManagerImpl.class);
 
     private ApplicationContext m_applicationContext;
@@ -52,15 +48,14 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     private ModelSource<SipxServiceBundle> m_bundleModelSource;
 
     public SipxService getServiceByBeanId(String beanId) {
-        String query = QUERY_BY_BEAN_ID;
-        Collection<SipxService> services = getHibernateTemplate().findByNamedQueryAndNamedParam(query, "beanId",
-                beanId);
-
-        for (SipxService sipxService : services) {
-            ensureBeanIsInitialized(sipxService);
+        Map<String, SipxService> beanId2Service = buildServiceDefinitionsMap();
+        SipxService service = beanId2Service.get(beanId);
+        if (service == null) {
+            LOG.error("Unknown service - cannot find definition for: " + beanId);
+            return null;
         }
-
-        return DaoUtils.requireOneOrZero(services, query);
+        ensureBeanIsInitialized(service);
+        return service;
     }
 
     public SipxService getServiceByName(String name) {
@@ -150,13 +145,18 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         saveBeanWithSettings(service);
     }
 
+    public Collection<SipxService> getServiceDefinitions() {
+        Map<String, SipxService> beanIdsToServices = buildServiceDefinitionsMap();
+        return beanIdsToServices.values();
+    }
+
     /**
      * Create collection of all known services.
      *
      * If service has been added to DB already a persisted version will be returned, if it's a
      * bran new service a Spring instantiated object will be returned.
      */
-    public Collection<SipxService> getServiceDefinitions() {
+    private Map<String, SipxService> buildServiceDefinitionsMap() {
         Map<String, SipxService> beanIdsToServices = new HashMap<String, SipxService>();
         for (SipxService sipxService : m_serviceModelSource.getModels()) {
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
@@ -170,7 +170,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
             }
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }
-        return beanIdsToServices.values();
+        return beanIdsToServices;
     }
 
     public Collection<SipxService> getServiceDefinitions(final Collection<SipxServiceBundle> bundles) {
