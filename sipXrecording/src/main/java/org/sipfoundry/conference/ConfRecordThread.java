@@ -74,6 +74,12 @@ public class ConfRecordThread extends ConfBasicThread {
         String wavName = conf.getWavName();
         LOG.info("ConfRecordThread::Finished conference recording of " + wavName);
 
+        try {
+            // Let FS finish any recording it may be doing
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+
         // Get the name of the completed WAV file on the conference server
         File file = new File("/usr/local/freeswitch/recordings/" + wavName);
 
