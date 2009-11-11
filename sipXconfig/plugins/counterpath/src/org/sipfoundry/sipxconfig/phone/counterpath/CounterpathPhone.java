@@ -115,6 +115,14 @@ public class CounterpathPhone extends Phone {
             return m_line.getAuthenticationUserName();
         }
 
+        @SettingEntry(path = "xmpp-config/enabled")
+        public boolean isEnabled() {
+            if (m_imAccount == null) {
+                return false;
+            }
+            return m_imAccount.isEnabled();
+        }
+
         @SettingEntry(path = "xmpp-config/username")
         public String getImId() {
             if (m_imAccount == null) {

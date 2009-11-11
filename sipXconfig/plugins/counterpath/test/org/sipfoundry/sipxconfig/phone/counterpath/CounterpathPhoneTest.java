@@ -50,11 +50,17 @@ public class CounterpathPhoneTest extends TestCase {
     }
 
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
-        PhoneTestDriver.supplyTestData(m_phone, true, true, false);
-        User user = m_phone.getLines().get(0).getUser();
-        user.setPermissionManager(m_permissionManager);
-        user.setImId("jsmit_id");
-        user.setImDisplayName("John Smith Id");
+        PhoneTestDriver.supplyTestData(m_phone, true, true, true);
+        User firstUser = m_phone.getLines().get(0).getUser();
+        firstUser.setPermissionManager(m_permissionManager);
+        firstUser.setImId("jsmit_id");
+        firstUser.setImDisplayName("John Smith Id");
+        firstUser.getSettings().getSetting("im/im-account").setValue("1");
+
+        User secondUser = m_phone.getLines().get(1).getUser();
+        secondUser.setPermissionManager(m_permissionManager);
+        secondUser.setImId("sharedUser_id");
+        secondUser.setImDisplayName("Shared User Id");
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
 

@@ -14,7 +14,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -40,12 +42,22 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
             LeafSettings ls = new LeafSettings();
             line.getSettings().acceptVisitor(ls);
             lineSipSettings.add(ls.getSip());
-            lineXmppSettings.add(ls.getXmpp());
+            if (isImEnabled(line)) {
+                lineXmppSettings.add(ls.getXmpp());
+            }
         }
         context.put("line_sip_settings", lineSipSettings);
         context.put("line_xmpp_settings", lineXmppSettings);
 
         return context;
+    }
+
+    private boolean isImEnabled(Line line) {
+        User user = line.getUser();
+        if (user == null) {
+            return false;
+        }
+        return new ImAccount(user).isEnabled();
     }
 
     /**
