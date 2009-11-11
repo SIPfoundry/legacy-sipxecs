@@ -8,9 +8,9 @@
     <param name="timer-name" value="soft"/>
   </directory>
 
-  <directory name="moh/8000" path="/test/moh/dir">
+  <directory name="moh" path="/test/moh/dir">
     <param name="rate" value="8000"/>
-    <param name="shuffle" value="true"/>
+    <param name="shuffle" value="false"/>
     <param name="channels" value="1"/>
     <param name="interval" value="20"/>
     <param name="timer-name" value="soft"/>

@@ -9,12 +9,12 @@
   </directory>
 
 #if(${moh.audioDirectoryEmpty})
-  <directory name="moh/8000" path="${service.docDir}/stdprompts/music/8000">
+  <directory name="moh" path="${service.docDir}/stdprompts/music/8000">
 #else
-  <directory name="moh/8000" path="${moh.audioDirectoryPath}">
+  <directory name="moh" path="${moh.audioDirectoryPath}">
 #end
     <param name="rate" value="8000"/>
-    <param name="shuffle" value="true"/>
+    <param name="shuffle" value="false"/>
     <param name="channels" value="1"/>
     <param name="interval" value="20"/>
     <param name="timer-name" value="soft"/>
