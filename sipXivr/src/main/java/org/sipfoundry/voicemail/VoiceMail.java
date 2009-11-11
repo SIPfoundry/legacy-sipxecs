@@ -308,7 +308,7 @@ public class VoiceMail {
         Record rec = new Record(m_fses, m_loc.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
         rec.setRecordTime(300); // TODO a better time here?
-        rec.setDigitMask("0123456789*#"); // Any digit can stop the recording
+        rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
         rec.go();
         return rec;
     }
