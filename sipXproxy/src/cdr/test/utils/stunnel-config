@@ -9,10 +9,7 @@ debug = 5
 output = /var/log/sipxpbx/sipxstunnel.log
 pid = /var/log/sipxpbx/sipxstunnel.pid
 
-[Postgres-0]
-accept = 5433
-connect = test.example.com:9300
-
 [Postgres-1]
 accept = 5434
+connect = test.example.com:9300
 connect = test2.example.com:9300
