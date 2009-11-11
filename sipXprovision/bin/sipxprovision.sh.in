@@ -37,7 +37,7 @@ done
 pidfile=@SIPX_RUNDIR@/sipxprovision.pid
 
 JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
-LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXprovision/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXprovision/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXconfig/*.jar`
 ClassPath=$LibPath:@SIPX_CONFDIR@/sipxprovision
 
 case ${Action} in

@@ -21,5 +21,7 @@
 		path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar" />
 	<classpathentry kind="var"
 		path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar" />
+	<classpathentry kind="var" 
+		path="SIPX_PREFIX/share/java/sipXecs/sipXconfig/velocity-1.5.jar"/>
 	<classpathentry kind="output" path="bin.eclipse" />
 </classpath>

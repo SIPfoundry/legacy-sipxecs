@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.apache.velocity.app.Velocity;
 
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
@@ -530,11 +531,15 @@ This may or may not work for all files, since we'll end up with a lot of "empty"
         out.println("</script></head><body></body></html>");
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         // Send log4j output to the console.
         org.apache.log4j.BasicConfigurator.configure();
 
         System.out.println("MAIN - " + Servlet.class.getCanonicalName().toString());
+
+        Velocity.init();
+
+        System.out.println("Velocity initialized...");
     }
 }

@@ -28,4 +28,6 @@ commons-codec.jar=${sipxcommons.dir}/commons-codec.jar
 commons-logging.jar=${sipxcommons.dir}/commons-logging.jar
 jetty.jar=${sipxcommons.dir}/jetty.jar
 javax.servlet.jar=${sipxcommons.dir}/javax.servlet.jar
+sipxconfig.dir=@SIPX_JAVADIR@/sipXconfig
+velocity.jar=${sipxconfig.dir}/velocity-1.5.jar
 
