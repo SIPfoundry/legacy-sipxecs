@@ -68,6 +68,9 @@ verify = 2
 debug = #{@config.stunnel_debug}
 output = #{log_file}
 pid = #{pid_file}
+
+[Postgres-1]
+accept = #{@config.cse_hosts[1].port}
 /
 
     config_file << header
@@ -77,10 +80,7 @@ pid = #{pid_file}
 
     @config.cse_hosts.each_with_index do |cse_host, i|
       next if cse_host.local
-      host_def = %Q/
-[Postgres-#{i}]
-accept = #{cse_host.port}
-connect = #{cse_host.host}:#{@config.cse_connect_port}
+      host_def = %Q/connect = #{cse_host.host}:#{@config.cse_connect_port}
 /
       config_file << host_def
       if log.debug?
