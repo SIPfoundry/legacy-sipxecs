@@ -321,7 +321,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
          * Everything else is ready.  Let the SIP side of the show begin...
          */
         try {
-            CallWatcher.pluginInit();
+            CallWatcher.init();
             log.info("completed init");
             ResourceStateChangeListener resourceStateChangeListener = new ResourceStateChangeListenerImpl(
                     this);
