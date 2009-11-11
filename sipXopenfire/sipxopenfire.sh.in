@@ -27,6 +27,7 @@ JAVACMD=`@SIPX_BINDIR@/sipx-config --java`
 LibPath=`perl -e 'print join(":", @ARGV);' ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar  @SIPX_JAVADIR@/sipXopenfire/*.jar `
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxopenfire.xml "
+SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
 
 OPENFIRE_USER="@SIPXPBXUSER@"
 ANT_DATABASE_DIR="@SIPX_CONFDIR@"
@@ -59,6 +60,16 @@ start() {
         # Start daemons.
         echo -n "Starting openfire: "
 	PWD=`pwd`
+
+   # Set the openfire debug level based on the sipxopenfire log level
+   SIPXOPENFIRE_LOGLEVEL=`grep "<log-level>.*<.log-level>" $CONFIG_FILES | cut -f2 -d">" | cut -f1 -d"<"`
+   if [ $SIPXOPENFIRE_LOGLEVEL == "DEBUG" ]
+   then
+      sed -e "s/<enabled>.*<\/enabled>/<enabled>true<\/enabled>/g" "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml 
+   else
+      sed -e "s/<enabled>.*<\/enabled>/<enabled>false<\/enabled>/g" "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml      
+   fi
+
 	# Write out the config information so the plugin can read it.
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "localization.file=@SIPX_CONFDIR@/openfire/sipxopenfire-prompts.properties" >> ${TMP_DIR}/sipx.properties
