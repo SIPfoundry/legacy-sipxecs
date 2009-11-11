@@ -38,7 +38,6 @@ public class ConfBasicThread extends Thread {
     private static FreeSwitchConfigurationInterface m_fsConfig;
     private static FreeSwitchEventSocket m_fsCmdSocket;
     private static FreeSwitchEventSocket m_fsListenSocket;
-    private static boolean m_freeSwitchIsAvail = false;
     
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
     
@@ -47,41 +46,40 @@ public class ConfBasicThread extends Thread {
     }
 
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
-        LOG.info("ConfBasicThread::processConfStart()");
+        LOG.debug("ConfBasicThread::processConfStart()");
     }
     
     public void ProcessConfEnd(FreeSwitchEvent event, ConferenceTask conf) {
-        LOG.info("ConfBasicThread::processConfEnd()");
+        LOG.debug("ConfBasicThread::processConfEnd()");
     }
 
     public void ProcessConfUserAdd(ConferenceTask conf, User user) {
-        LOG.info("ConfBasicThread::processConfUserAdd()");
+        LOG.debug("ConfBasicThread::processConfUserAdd()");
     }
 
     public void ProcessConfUserDel(ConferenceTask conf, User user) {
-        LOG.info("ConfBasicThread::processConfUserDel()");
+        LOG.debug("ConfBasicThread::processConfUserDel()");
     }
     
     private void processEvent(FreeSwitchEvent event) {
+        LOG.debug("ConfBasicThread::processEvent()");
         String confName = event.getEventValue("conference-name");
         String memberName = event.getEventValue("caller-caller-id-name");
         String memberNumber = event.getEventValue("caller-caller-id-number");
         String action = event.getEventValue("action");
         String confSize = event.getEventValue("conference-size");
         String memberId =  event.getEventValue("member-id");
-        Date date = new Date();
-        ValidUsersXML users = null;
-        try {
-            users = ValidUsersXML.update(LOG, true);
-        } catch (Exception e1) {
-            System.exit(1); // If you can't trust validUsers, who can you trust?
-        }
-        // TODO: also search by cell phone and home phone
-        User user = users.getUser(memberNumber);
-               
-        LOG.info("ConfBasicThread::processEvent()");
 
         if(action != null) {
+            ValidUsersXML users = null;
+            try {
+                users = ValidUsersXML.update(LOG, true);
+            } catch (Exception e1) {
+                System.exit(1); // If you can't trust validUsers, who can you trust?
+            }
+
+            User user = users.getUser(memberNumber);
+
             ConferenceTask conf = m_ConferenceMap.get(confName);
             
             if(action.equalsIgnoreCase("add-member")) {
@@ -229,9 +227,7 @@ public class ConfBasicThread extends Thread {
         Socket commandSocket = getSocket();
         Socket listenSocket = getSocket();
         
-        m_freeSwitchIsAvail = true;
-
-        LOG.info("ConfBasicThread::run()");
+        LOG.debug("ConfBasicThread::run()");
         
         try {
             m_fsCmdSocket.connect(commandSocket, fsPassword);
@@ -239,16 +235,18 @@ public class ConfBasicThread extends Thread {
             if (m_fsListenSocket.connect(listenSocket, fsPassword)) {                 
                 MonitorConf monConf = new MonitorConf(m_fsListenSocket);
                 monConf.go();
-            }
             
-            for(;;) {
-                event = m_fsListenSocket.awaitEvent();
-                processEvent(event);
-            }           
-            // fses.close();
+                for(;;) {
+                    event = m_fsListenSocket.awaitEvent();
+                    processEvent(event);
+                }           
+            }
+            else {
+                LOG.error("ConfBasicThread::run() failed to connect");
+            }
 
         } catch (IOException e) {
-            LOG.error("ConfBasicThread.run got IOException: " + e.getMessage());
+            LOG.error("ConfBasicThread::run() got IOException: " + e.getMessage());
         }     
     }
 }

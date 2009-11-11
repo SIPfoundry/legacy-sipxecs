@@ -40,8 +40,31 @@ import org.sipfoundry.sipxrecording.RecordingConfiguration;
 public class ConfRecordThread extends ConfBasicThread {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
 
+    static String sourceName = "/tmp/freeswitch/recordings";
+    static String destName = System.getProperty("var.dir") + "/mediaserver/data/recordings";
+
     public ConfRecordThread(RecordingConfiguration recordingConfig) {
-       setConfConfiguration(recordingConfig);
+        // Check that the freeswitch initial recording directory exists
+        File sourceDir = new File(sourceName);
+        if (!sourceDir.exists()) {
+           sourceDir.mkdirs();
+        }
+
+        // Create the distribution directory if it doesn't already exist.
+        File destDir = new File(destName);
+        if (!destDir.exists()) {
+            try {
+                Process process = Runtime.getRuntime().exec(new String[] {"ln", "-s", sourceName, destName});
+                process.waitFor();
+                process.destroy();
+            } catch (IOException e) {
+                LOG.error("ConfRecordThread::IOException error ", e);
+            } catch (InterruptedException e) {
+                LOG.error("ConfRecordThread::InterruptedException error ", e);
+            }
+        }
+
+        setConfConfiguration(recordingConfig);
     }
 
     private void AuditWavFiles(File dir) {
@@ -80,21 +103,7 @@ public class ConfRecordThread extends ConfBasicThread {
         } catch (InterruptedException e) {
         }
 
-        // Get the name of the completed WAV file on the conference server
-        File file = new File("/usr/local/freeswitch/recordings/" + wavName);
-
-        // Create the distribution directory if it doesn't already exist.
-        String destName = System.getProperty("var.dir") + "/mediaserver/data/recordings";
-        File destDir = new File(destName);
-        if (!destDir.exists()) {
-           destDir.mkdirs();
-        }
-
-        AuditWavFiles(destDir);
-
-        // Move the completed WAV file file from the freeswitch directory to the 
-        // distribution directory.
-        boolean success = file.renameTo(new File(destDir, file.getName()));
+        AuditWavFiles(new File(destName));
 
         // Use the conference name to find the conference mailbox server.
         ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
