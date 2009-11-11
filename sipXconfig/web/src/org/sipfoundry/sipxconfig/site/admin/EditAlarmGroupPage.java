@@ -103,6 +103,8 @@ public abstract class EditAlarmGroupPage extends UserBasePage {
         callback.setIdsPropertyName("addedUsers");
         editUsers.setCallback(callback);
         editUsers.setUseEmailAddress(true);
+        editUsers.setTitle(getMessages().getMessage("title.selectRings"));
+        editUsers.setPrompt(getMessages().getMessage("prompt.selectRings"));
         return editUsers;
     }
 

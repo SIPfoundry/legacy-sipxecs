@@ -104,6 +104,8 @@ public abstract class EditPagingGroupPage extends UserBasePage {
         SelectUsersCallback callback = new SelectUsersCallback(this.getPage());
         callback.setIdsPropertyName("addedUsers");
         editUsers.setCallback(callback);
+        editUsers.setTitle(getMessages().getMessage("title.selectRings"));
+        editUsers.setPrompt(getMessages().getMessage("prompt.selectRings"));
         return editUsers;
     }
 

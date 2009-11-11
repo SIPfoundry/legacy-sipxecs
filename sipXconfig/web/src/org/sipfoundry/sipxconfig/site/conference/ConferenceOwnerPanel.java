@@ -64,6 +64,8 @@ public abstract class ConferenceOwnerPanel extends BaseComponent {
         SelectUsersCallback callback = new SelectUsersCallback(getPage());
         callback.setIdsPropertyName(CALLBACK_PROPERTY_NAME);
         selectUsersPage.setCallback(callback);
+        selectUsersPage.setTitle(getMessages().getMessage("title.selectRings"));
+        selectUsersPage.setPrompt(getMessages().getMessage("prompt.selectRings"));
         return selectUsersPage;
     }
 
