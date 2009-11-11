@@ -80,7 +80,7 @@
       <param name="moh-sound" value="$mohLocalStreamUrl"/>
 #end
 #if(${conference.autorecorded})
-      <param name="auto-record" value="$${base_dir}/recordings/${conference_name}_${uuid}.wav"/>
+      <param name="auto-record" value="/tmp/freeswitch/recordings/${conference_name}_${uuid}.wav"/>
 #end
     </profile>
 #end
