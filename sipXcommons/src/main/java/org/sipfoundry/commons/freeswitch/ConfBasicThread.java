@@ -61,7 +61,7 @@ public class ConfBasicThread extends Thread {
         LOG.debug("ConfBasicThread::processConfUserDel()");
     }
     
-    private void processEvent(FreeSwitchEvent event) {
+    private boolean processEvent(FreeSwitchEvent event) {
         LOG.debug("ConfBasicThread::processEvent()");
         String confName = event.getEventValue("conference-name");
         String memberName = event.getEventValue("caller-caller-id-name");
@@ -105,7 +105,7 @@ public class ConfBasicThread extends Thread {
                 } 
             }
             
-            if(conf == null) return;
+            if(conf == null) return true;
         
             if(action.equalsIgnoreCase("del-member")) {                
                 conf.delete(memberId);
@@ -142,7 +142,9 @@ public class ConfBasicThread extends Thread {
             if(action.equalsIgnoreCase("lock") || action.equalsIgnoreCase("unlock")) {
                 conf.setLocked(action.equalsIgnoreCase("lock"));
             }           
+            return true;
         }    
+        return false;
     }
     
     // if user in a conference returns date when user entered conference otherwise
@@ -224,29 +226,46 @@ public class ConfBasicThread extends Thread {
         m_fsCmdSocket = new FreeSwitchEventSocket(m_fsConfig);
         FreeSwitchEvent event;
         
-        Socket commandSocket = getSocket();
-        Socket listenSocket = getSocket();
+        for (;;) {
+            Socket commandSocket = getSocket();
+            Socket listenSocket = getSocket();
         
-        LOG.debug("ConfBasicThread::run()");
+            LOG.info("ConfBasicThread::run() connecting");
         
-        try {
-            m_fsCmdSocket.connect(commandSocket, fsPassword);
+            try {
+                m_fsCmdSocket.connect(commandSocket, fsPassword);
                                 
-            if (m_fsListenSocket.connect(listenSocket, fsPassword)) {                 
-                MonitorConf monConf = new MonitorConf(m_fsListenSocket);
-                monConf.go();
+                if (m_fsListenSocket.connect(listenSocket, fsPassword)) {                 
+                    MonitorConf monConf = new MonitorConf(m_fsListenSocket);
+                    monConf.go();
             
-                for(;;) {
-                    event = m_fsListenSocket.awaitEvent();
-                    processEvent(event);
-                }           
-            }
-            else {
-                LOG.error("ConfBasicThread::run() failed to connect");
-            }
+                    for(;;) {
+                        event = m_fsListenSocket.awaitEvent();
+                        if (!processEvent(event)) {
+                            // This happens when FS is restarted
+                            LOG.info("ConfBasicThread::run() disconnecting");
+                            break;
+                        }
+                    }           
+                }
+                else {
+                    LOG.error("ConfBasicThread::run() failed to connect");
+                }
+            } catch (IOException e) {
+                LOG.error("ConfBasicThread::run() got IOException: " + e.getMessage());
+            }     
 
-        } catch (IOException e) {
-            LOG.error("ConfBasicThread::run() got IOException: " + e.getMessage());
+            // Close any open sockets
+            try {
+                m_fsCmdSocket.close();
+                m_fsListenSocket.close();
+            } catch (IOException e) {
+            }
+            // Delay before attempting to connect again.
+            try {
+                sleep(1000);
+            } catch (InterruptedException e1) {
+            }
         }     
     }
 }
