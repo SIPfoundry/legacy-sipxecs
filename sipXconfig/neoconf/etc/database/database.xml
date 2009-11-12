@@ -1021,7 +1021,7 @@
   <target name="add-addressbook-email" unless="add-addressbook-email">
     <db-patch patch="add-addressbook-email"/>
   </target>
-  <target name="gateway-enabled">
+  <target name="gateway-enabled" unless="gateway-enabled">
     <db-patch patch="gateway-enabled"/>
   </target>
   <!--
