@@ -20,15 +20,31 @@ public class SIPViewerFrame extends JFrame {
     // //////////////////////////////////////////////////////////////////////
     // Attributes
     // //
+	// m_modal is used to communicate events between the Frame and the header
+	// and body
+	// m_body is the main area where the columns and messages are displayed
+	// m_bodySecond is a duplicate of m_body to provide split screen functionality
+	// m_header is the top of the message chart and controls columns
+	// m_scrollPane is the container for m_body
+	// m_scrollPaneSecond is the container for m_bodySecond
+	// m_infoPanel is the bottom part of the sipviewer below the message chart
+	
     protected SIPChartModel m_model;
     protected ChartBody m_body;
+    protected ChartBody m_bodySecond;
     protected ChartHeader m_header;
     protected JScrollPane m_scrollPane;
+    protected JScrollPane m_scrollPaneSecond;
     protected SIPInfoPanel m_infoPanel;
     protected String m_fileChooserDir;
     protected boolean m_sortBranchNodes;
     // Initialize with a trivial reload object so Reload does nothing.
     protected Reload m_Reload = new Reload();
+    
+    // used to identify which pane (top or bottom) is being queried/
+    // operated on
+    protected static int topPaneID = 0;
+    protected static int bottomPaneID = 1;
    
     public SIPViewerFrame( boolean createMenu) {
         super("sipviewer");
@@ -178,7 +194,8 @@ public class SIPViewerFrame extends JFrame {
         m_infoPanel = new SIPInfoPanel();
 
         m_body = new ChartBody(this, m_model, m_infoPanel);
-        m_header = new ChartHeader(m_model, m_body, m_infoPanel);        
+        m_bodySecond = new ChartBody(this, m_model, m_infoPanel);
+        m_header = new ChartHeader(m_model, m_body, m_bodySecond, m_infoPanel);        
 
         m_scrollPane = new JScrollPane(m_body, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -186,6 +203,16 @@ public class SIPViewerFrame extends JFrame {
         // Make the viewport's background color black, in case the displayed
         // data panel is smaller than the viewport.
         m_scrollPane.getViewport().setBackground(Color.black);
+        
+        m_scrollPaneSecond = new JScrollPane(m_bodySecond, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+      
+        // Make the viewport's background color black, in case the displayed
+        // data panel is smaller than the viewport.
+        m_scrollPaneSecond.getViewport().setBackground(Color.black);
+        
+        // by default make the second pane invisible
+        m_scrollPaneSecond.setVisible(false);
     }
 
     protected void layoutComponents() {
@@ -200,7 +227,13 @@ public class SIPViewerFrame extends JFrame {
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         tempCont.add(m_scrollPane, gbc);
-
+        
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        tempCont.add(m_scrollPaneSecond, gbc);
+        
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.gridwidth = 1;
@@ -357,6 +390,8 @@ public class SIPViewerFrame extends JFrame {
                     System.err.println("Unexpected exception ");
                     ex.printStackTrace();
                 }
+                
+                SIPViewerFrame.this.validate();
             }
         }
     }
@@ -494,5 +529,36 @@ public class SIPViewerFrame extends JFrame {
         }
 
         return vData;
+    }
+    
+    // this is called from the popup menu whenever user toggles between
+    // single v.s. double scroll panes
+    public void setSecondPaneVisiblity (boolean visible)
+    {
+    	// set the visibility of the second pane
+    	m_scrollPaneSecond.setVisible(visible);
+    	
+    	// adjust the popup menus on both display screens
+    	m_body.splitScreenPopUpChange(visible);
+    	m_bodySecond.splitScreenPopUpChange(visible);
+    	
+    	// make the frame re-do its layout
+    	SIPViewerFrame.this.validate();
+    }
+    
+    // this returns weather the pane that ChartBody instance is
+    // interested in is visible or not
+    public boolean getPaneVisibility (int paneID)
+    {
+    	if (paneID == SIPViewerFrame.topPaneID)
+    	{
+    		return m_scrollPane.isVisible();
+    	}
+    	else if (paneID == SIPViewerFrame.bottomPaneID)
+    	{
+    		return m_scrollPaneSecond.isVisible();
+    	}
+    	
+    	return false;
     }
 }

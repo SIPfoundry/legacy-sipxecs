@@ -21,6 +21,7 @@ public class ChartHeader extends Component
 ////
     protected SIPChartModel m_model ;
     protected ChartBody     m_body ;
+    protected ChartBody     m_bodySecond ;
     protected String[]      m_keys ;
     protected double []     m_key_positions ;
     protected int           m_iNumKeys ;
@@ -32,10 +33,11 @@ public class ChartHeader extends Component
 //////////////////////////////////////////////////////////////////////////////
 // Constructors
 ////
-    public ChartHeader(SIPChartModel model, ChartBody body, SIPInfoPanel infoPanel)
+    public ChartHeader(SIPChartModel model, ChartBody body, ChartBody bodySecond, SIPInfoPanel infoPanel)
     {
         m_model = model ;
         m_body = body;
+        m_bodySecond = bodySecond;
         m_infoPanel = infoPanel ;
         m_iMouseOver = -1 ;
         m_movingKeyIndex = -1;
@@ -344,6 +346,10 @@ public class ChartHeader extends Component
                 // repaint the header components and also body components
                 repaint();
                 m_body.repaint();
+                
+                // repaint the second pane only if its visible
+                if (m_bodySecond.isVisible())
+                	m_bodySecond.repaint();
             }
         }
 
@@ -431,6 +437,10 @@ public class ChartHeader extends Component
                         // force repaint of the header and the body
                         repaint();
                         m_body.repaint();
+                        
+                        // repaint the second pane only if its visible
+                        if (m_bodySecond.isVisible())
+                        	m_bodySecond.repaint();
                     }                
                 }
             }

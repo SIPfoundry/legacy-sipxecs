@@ -37,6 +37,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     
     // popup menu used for taking screen shots and other future operations
     protected JPopupMenu m_toolsPopUp;
+    protected JMenuItem  menuItem2_1;
+    protected JMenuItem  menuItem2_2;
 
     // Colors for messages
 
@@ -56,6 +58,11 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     protected Color         m_dialog_forked_color;
     // Anything else.
     protected Color         m_unhighlighted_color;
+    
+    // these static variables keep track of both the top and bottom ChartBody
+    // object instances
+    protected static ChartBody topChart;
+    protected static ChartBody bottomChart;
 
 //////////////////////////////////////////////////////////////////////////////
 // Construction
@@ -100,7 +107,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         // Unrelated messages are white.
         m_unhighlighted_color = Color.white;
         
-        // initalize the popup menu
+        // initialize the popup menu
         initPopUp();
 
         m_model.addChartModelListener(new icChartModelListener());
@@ -111,6 +118,21 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         // the SIPChartModel class, this array is just used here, it is updated
         // in the ChartHeader class whenever a new key is added
         m_key_positions = m_model.getKeyPositions();
+        
+        // lets initialize our ChartBody variables, these are used to highlight the
+        // messages on both charts if they are visible, might also be used for
+        // other things in the future
+        if (topChart == null)
+        {
+        	// the top ChartBody always is instantiated first so if topChart is null
+        	// we know that it is being instantiated
+        	topChart = this;
+        }
+        else
+        {
+        	// top ChartBody is instantiated so we know that this is the second one
+        	bottomChart = this;
+        }
     }
 
 
@@ -629,7 +651,13 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         public void mouseExited(MouseEvent e)
         {
-            setMouseOver(-1);
+            topChart.setMouseOver(-1);
+            
+            // if the bottom chart is also visible (user is working in
+            // split screen mode) then also repaint messages on that
+            // ChartBody
+            if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
+            	bottomChart.setMouseOver(-1);
         }
     }
 
@@ -644,7 +672,17 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         public void mouseMoved(MouseEvent e)
         {
-            setMouseOver(PointToIndex(e.getPoint()));
+        	int verticalIndex = PointToIndex(e.getPoint());
+        	
+        	// call the setMouseOver for the top chart to repaint
+        	// the highlighted messages
+            topChart.setMouseOver(verticalIndex);
+            
+            // if the bottom chart is also visible (user is working in
+            // split screen mode) then also repaint messages on that
+            // ChartBody
+            if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
+            	bottomChart.setMouseOver(verticalIndex);
         }
     }
 
@@ -687,34 +725,78 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         JMenuItem menuItem;
     
         m_toolsPopUp = new JPopupMenu();
-        menuItem = new JMenuItem("Capture Screen (2 sec delay)");
+        menuItem = new JMenuItem(PopUpUtils.Item1);
         menuItem.addActionListener(this);
         m_toolsPopUp.add(menuItem);
+        
+        m_toolsPopUp.addSeparator();
+
+        // we keep track of the single and double screen
+        // modes so that we can make the popup menu choices
+        // different depending on which mode we're in
+        menuItem2_1 = new JMenuItem(PopUpUtils.Item2_1);
+        menuItem2_1.addActionListener(this);
+        m_toolsPopUp.add(menuItem2_1);
+        
+        menuItem2_2 = new JMenuItem(PopUpUtils.Item2_2);
+        menuItem2_2.addActionListener(this);
+        m_toolsPopUp.add(menuItem2_2);
+        menuItem2_2.setVisible(false);
     }
     
     
     @Override
     public void actionPerformed(ActionEvent arg0) 
     {   
-        // thread that will do the actual screenshot
-        Thread popupThread;
+    	// doing a screen capture
+    	if (arg0.getActionCommand().compareTo(PopUpUtils.Item1) == 0)
+    	{
+    		// thread that will do the actual screen-shot
+    		Thread popupThread;
     
-        popupThread = new Thread ( new Runnable() {        
-        public void run () 
-        {               
-            try 
-            {
-                // wait for 2 seconds before taking snapshot
-                Thread.sleep(2000);
+    		popupThread = new Thread ( new Runnable() {        
+    			public void run () 
+    			{               
+    				try 
+    				{
+    					// wait for 2 seconds before taking snapshot
+    					Thread.sleep(2000);
        
-                // calling our popup menu utilities to 
-                // capture the screen
-                PopUpUtils.captureScreen(m_frame);
-            }
-            catch (InterruptedException ie) {}
-        }});
+    					// calling our popup menu utilities to 
+    					// capture the screen
+    					PopUpUtils.captureScreen(m_frame);
+    				}
+    				catch (InterruptedException ie) {}
+    			}});
     
-        popupThread.start();
-          
+    		popupThread.start();
+    	}
+    	else if (arg0.getActionCommand().compareTo(PopUpUtils.Item2_1) == 0)
+    	{
+    		// switching to a double screen mode
+    		m_frame.setSecondPaneVisiblity(true);
+    	}
+    	else if (arg0.getActionCommand().compareTo(PopUpUtils.Item2_2) == 0)
+    	{
+    		// switching to a single screen mode
+    		m_frame.setSecondPaneVisiblity(false);
+    	}
+    }
+    
+    // used to adjust the popup menu after the screen is split/unsplit
+    public void splitScreenPopUpChange(boolean split)
+    {
+    	if (split)
+    	{
+    		// adjusting popup menu options
+    		menuItem2_1.setVisible(false);
+    		menuItem2_2.setVisible(true);
+    	}
+    	else
+    	{
+    		// adjusting popup menu options
+    		menuItem2_1.setVisible(true);
+    		menuItem2_2.setVisible(false);
+    	}
     }
 }
