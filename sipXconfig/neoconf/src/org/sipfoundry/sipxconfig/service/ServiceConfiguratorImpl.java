@@ -163,15 +163,17 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         m_sipxProcessContext.manageServices(location, locationStatus.getToBeStopped(), STOP);
         try {
             Collection<SipxService> services = locationStatus.getToBeReplicated();
-            ExecutorService executorService = Executors.newFixedThreadPool(services.size());
-            ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(services.size());
-            for (SipxService service : services) {
-                futures.add(executorService.submit(new ReplicateServiceConfigurations(location, service)));
-            }
-            executorService.shutdown();
+            if (!services.isEmpty()) {
+                ExecutorService executorService = Executors.newFixedThreadPool(services.size());
+                ArrayList<Future<Void>> futures = new ArrayList<Future<Void>>(services.size());
+                for (SipxService service : services) {
+                    futures.add(executorService.submit(new ReplicateServiceConfigurations(location, service)));
+                }
+                executorService.shutdown();
 
-            for (Future<Void> future : futures) {
-                future.get();
+                for (Future<Void> future : futures) {
+                    future.get();
+                }
             }
         } catch (InterruptedException exception) {
             LOG.error("Unexpected Interupt when replicating services", exception);
