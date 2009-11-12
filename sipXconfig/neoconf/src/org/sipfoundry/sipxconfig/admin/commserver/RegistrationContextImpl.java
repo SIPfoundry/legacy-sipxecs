@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
+import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
@@ -35,20 +36,25 @@ public class RegistrationContextImpl implements RegistrationContext {
      */
     public List<RegistrationItem> getRegistrations() {
         try {
-            Location primaryLocation = m_locationsManager.getPrimaryLocation();
-            if (primaryLocation == null) {
-                LOG.warn("No primary location configured");
-                return Collections.<RegistrationItem> emptyList();
+            Location primaryProxyLocation = m_locationsManager.getLocationByBundle("primarySipRouterBundle");
+            if (primaryProxyLocation == null) {
+                LOG.error("No primary proxy found.");
+                return Collections.emptyList();
             }
+            ImdbApi imdb = m_imdbApiProvider.getApi(primaryProxyLocation.getProcessMonitorUrl());
 
-            ImdbApi imdb = m_imdbApiProvider.getApi(primaryLocation.getProcessMonitorUrl());
-            List<Map<String, ? >> registrations = imdb.read(primaryLocation.getFqdn(), "registration");
+            Location managementLocation = m_locationsManager.getLocationByBundle("managementBundle");
+            if (managementLocation == null) {
+                LOG.error("No management bundle found");
+                return Collections.emptyList();
+            }
+            List<Map<String, ? >> registrations = imdb.read(managementLocation.getFqdn(), "registration");
             return getRegistrations(registrations);
         } catch (XmlRpcRemoteException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
             LOG.warn("Cannot retrieve registrations.", e);
-            return Collections.<RegistrationItem> emptyList();
+            return Collections.emptyList();
         }
     }
 
@@ -80,10 +86,12 @@ public class RegistrationContextImpl implements RegistrationContext {
         return result;
     }
 
+    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
 
+    @Required
     public void setImdbApiProvider(ApiProvider<ImdbApi> imdbApiProvider) {
         m_imdbApiProvider = imdbApiProvider;
     }

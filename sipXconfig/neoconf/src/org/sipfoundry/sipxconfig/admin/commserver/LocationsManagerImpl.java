@@ -104,6 +104,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         m_daoEventPublisher.publishDelete(location);
         getHibernateTemplate().delete(location);
     }
+
     public List<Location> getLocationsForService(SipxService service) {
         List<Location> locations = new ArrayList<Location>();
         for (Location location : getLocations()) {
@@ -112,5 +113,14 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
             }
         }
         return locations;
+    }
+
+    public Location getLocationByBundle(String bundleName) {
+        List<Location> locations = getHibernateTemplate().findByNamedQueryAndNamedParam("locationsByBundle",
+                "locationBundle", bundleName);
+        if (locations.isEmpty()) {
+            return null;
+        }
+        return locations.get(0);
     }
 }

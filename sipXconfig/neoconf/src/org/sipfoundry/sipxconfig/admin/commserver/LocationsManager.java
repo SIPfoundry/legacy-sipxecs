@@ -53,4 +53,13 @@ public interface LocationsManager {
      * @see TestPage.resetPrimaryLocation
      */
     public void deletePrimaryLocation();
+
+    /**
+     * Returning first location of the server which this bundle is installed on.
+     *
+     * @param bundleName - service bundle name
+     * @return single location of the server which this bundle is installed on. If the bundle
+     *         isn't installed on any server it will return null.
+     */
+    Location getLocationByBundle(String bundleName);
 }

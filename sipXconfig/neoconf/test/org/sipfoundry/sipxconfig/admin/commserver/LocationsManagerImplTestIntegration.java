@@ -9,10 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-
-import static java.util.Arrays.asList;
 
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
@@ -21,9 +20,16 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+
+import static java.util.Arrays.asList;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
@@ -31,6 +37,10 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private LocationsManagerImpl m_locationsManagerImpl;
     private DaoEventPublisher m_originalDaoEventPublisher;
+    private SipxServiceManager m_serviceManager;
+    private SipxServiceBundle m_managementBundle;
+    private SipxServiceBundle m_primarySipRouterBundle;
+    private SipxServiceBundle m_redundantSipRouterBundle;
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
@@ -234,6 +244,30 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(31000, natLocation.getStopRtpPort());
     }
 
+    public void testGetLocationByBundle() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        loadDataSetXml("service/clear-service.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndBundles.xml");
+
+        Location primaryLocation = m_out.getLocation(1001);
+        m_serviceManager.setBundlesForLocation(primaryLocation, Arrays.asList(m_managementBundle,
+                m_primarySipRouterBundle));
+        Location secondaryLocation = m_out.getLocation(1002);
+        m_serviceManager.setBundlesForLocation(secondaryLocation, Arrays.asList(m_redundantSipRouterBundle));
+
+        assertTrue(m_serviceManager.isServiceInstalled(primaryLocation.getId(), SipxConfigService.BEAN_ID));
+        assertTrue(m_serviceManager.isServiceInstalled(primaryLocation.getId(), SipxProxyService.BEAN_ID));
+        assertFalse(m_serviceManager.isServiceInstalled(primaryLocation.getId(), SipxAcdService.BEAN_ID));
+        assertTrue(m_serviceManager.isServiceInstalled(secondaryLocation.getId(), SipxProxyService.BEAN_ID));
+        assertFalse(m_serviceManager.isServiceInstalled(secondaryLocation.getId(), SipxConfigService.BEAN_ID));
+
+        Location location = m_out.getLocationByBundle("managementBundle");
+        assertEquals("primary.exampl.org", location.getFqdn());
+        assertNull(m_out.getLocationByBundle("voicemailBundle"));
+        location = m_out.getLocationByBundle("redundantSipRouterBundle");
+        assertEquals("secondary.example.org", location.getFqdn());
+    }
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_out = locationsManager;
     }
@@ -256,5 +290,21 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager serviceManager) {
+        m_serviceManager = serviceManager;
+    }
+
+    public void setManagementBundle(SipxServiceBundle managementBundle) {
+        m_managementBundle = managementBundle;
+    }
+
+    public void setPrimarySipRouterBundle(SipxServiceBundle primarySipRouterBundle) {
+        m_primarySipRouterBundle = primarySipRouterBundle;
+    }
+
+    public void setRedundantSipRouterBundle(SipxServiceBundle redundantSipRouterBundle) {
+        m_redundantSipRouterBundle = redundantSipRouterBundle;
     }
 }
