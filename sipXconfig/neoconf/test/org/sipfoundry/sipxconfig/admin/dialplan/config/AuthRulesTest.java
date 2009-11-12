@@ -88,7 +88,7 @@ public class AuthRulesTest {
         control.andReturn(Arrays.asList(new String[] {
             PermissionName.VOICEMAIL.getName()
         }));
-        rule.getGateways();
+        rule.getEnabledGateways();
         control.andReturn(gateways);
         control.replay();
 
@@ -132,7 +132,7 @@ public class AuthRulesTest {
         IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isAuthorizationChecked();
         control.andReturn(true);
-        rule.getGateways();
+        rule.getEnabledGateways();
         control.andReturn(Arrays.asList(gateways));
         rule.getName();
         control.andReturn("testrule").times(gateways.length);
@@ -216,7 +216,7 @@ public class AuthRulesTest {
         }
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {}));
-        rule.getGateways();
+        rule.getEnabledGateways();
         control.andReturn(Arrays.asList(gateways));
         control.replay();
 
@@ -271,7 +271,7 @@ public class AuthRulesTest {
         }
         rule.getPermissionNames();
         control.andReturn(Arrays.asList(new String[] {}));
-        rule.getGateways();
+        rule.getEnabledGateways();
         control.andReturn(Arrays.asList(gateways));
         control.replay();
 

@@ -106,6 +106,7 @@ public class BridgeSbcTest {
         // Use default asserted identity
         m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "true");
         m_sipTrunk.setSettingValue("itsp-account/is-user-phone", "true");
+        m_sipTrunk.setEnabled(true);
 
         Profile[] profileTypes = m_sbc.getProfileTypes();
         assertEquals(1, profileTypes.length);

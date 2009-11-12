@@ -29,7 +29,7 @@ public interface IDialingRule {
 
     public abstract CallTag getCallTag();
 
-    public abstract List<Gateway> getGateways();
+    public abstract List<Gateway> getEnabledGateways();
 
     public abstract String[] getPatterns();
 

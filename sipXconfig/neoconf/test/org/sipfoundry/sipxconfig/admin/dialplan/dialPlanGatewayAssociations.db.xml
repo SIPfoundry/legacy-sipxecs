@@ -5,7 +5,7 @@
 
   <gateway gateway_id="1001" bean_id="gwAudiocodesMediant" model_id="audiocodesMediant1X4_4_FXO" name="test gateway"
     anonymous="false" keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0"
-    address_transport="udp" enable_caller_id="false" shared="false" />
+    address_transport="udp" enable_caller_id="false" shared="false" enabled="true"/>
 
   <dialing_rule dialing_rule_id="0" name="CustomRule" position="0" enabled="true" dial_plan_id="0" />
   <custom_dialing_rule custom_dialing_rule_id="0" call_pattern_digits="1" call_pattern_prefix="1" />

@@ -7,8 +7,8 @@
 
   <gateway gateway_id="101" bean_id="gwSipTrunk" model_id="sipTrunkStandard" value_storage_id="30" name="sip trunk 1"
     address="10.1.1.1" anonymous="false" keep_digits="0" transform_user_extension="false" ignore_user_info="false"
-    address_port="0" address_transport="none" enable_caller_id="false" shared="false" />
+    address_port="0" address_transport="none" enable_caller_id="false" shared="false" enabled="true"/>
   <gateway gateway_id="102" bean_id="gwSipTrunk" model_id="sipTrunkStandard" name="sip trunk 2" address="10.1.1.2"
     anonymous="false" keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0"
-    address_transport="none" enable_caller_id="false" shared="false" />
+    address_transport="none" enable_caller_id="false" shared="false" enabled="true"/>
 </dataset>

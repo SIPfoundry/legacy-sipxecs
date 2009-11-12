@@ -141,6 +141,32 @@ public class DialingRuleTest extends TestCase {
         assertEquals(0, rule.getGateways().size());
     }
 
+    public void testGetEnabledGateways() {
+        Gateway g1 = new Gateway();
+        g1.setUniqueId();
+        Gateway g2 = new Gateway();
+        g2.setUniqueId();
+        Gateway g3 = new Gateway();
+        g3.setUniqueId();
+
+        DialingRule rule = new InternationalRule();
+        assertTrue(rule.getEnabledGateways().isEmpty());
+
+        rule.setGateways(Arrays.asList(g1, g2, g3));
+        List<Gateway> eg = rule.getEnabledGateways();
+        assertEquals(3, eg.size());
+        assertTrue(eg.contains(g1));
+        assertTrue(eg.contains(g2));
+        assertTrue(eg.contains(g3));
+
+        g2.setEnabled(false);
+        eg = rule.getEnabledGateways();
+        assertEquals(2, eg.size());
+        assertTrue(eg.contains(g1));
+        assertFalse(eg.contains(g2));
+        assertTrue(eg.contains(g3));
+    }
+
     public void testGetSiteTransforms() {
         Branch montrealSite = new Branch();
         montrealSite.setName("Montreal");

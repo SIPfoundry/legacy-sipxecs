@@ -81,7 +81,7 @@ public class AuthRules extends RulesXmlFile {
             // do not generate entries for rules that do not require authorization
             return;
         }
-        List<Gateway> gateways = rule.getGateways();
+        List<Gateway> gateways = rule.getEnabledGateways();
         List<String> permissions = rule.getPermissionNames();
         Element mappings = m_doc.getRootElement();
         for (Gateway gateway : gateways) {

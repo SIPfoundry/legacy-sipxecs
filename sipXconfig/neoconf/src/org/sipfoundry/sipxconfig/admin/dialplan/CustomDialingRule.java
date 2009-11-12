@@ -69,7 +69,7 @@ public class CustomDialingRule extends LocationBasedDialingRule {
     @Override
     public Transform[] getTransforms() {
         final String outPattern = getOutPattern();
-        List<Gateway> gateways = getGateways();
+        List<Gateway> gateways = getEnabledGateways();
         Transform[] transforms;
         if (gateways.isEmpty()) {
             FullTransform transform = new FullTransform();

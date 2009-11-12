@@ -63,7 +63,7 @@ public abstract class LocationBasedDialingRule extends DialingRule {
     }
 
     private void sortGateways(Map<String, List<Gateway>> sitesToGateways, List<Gateway> anywhereGateways) {
-        List<Gateway> gateways = getGateways();
+        List<Gateway> gateways = getEnabledGateways();
         for (Gateway g : gateways) {
             Branch site = g.getBranch();
             if (site == null) {

@@ -57,7 +57,7 @@ public class LocalRule extends DialingRule {
     public Transform[] getTransforms() {
         CallPattern patternNormal = new CallPattern(StringUtils.EMPTY, CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
-        List<Gateway> gateways = getGateways();
+        List<Gateway> gateways = getEnabledGateways();
         List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Gateway gateway : gateways) {

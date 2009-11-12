@@ -322,6 +322,7 @@
     display_name CDATA #IMPLIED
     url_parameters CDATA #IMPLIED
     shared CDATA #REQUIRED
+    enabled CDATA #REQUIRED
     branch_id CDATA #IMPLIED
 >
 

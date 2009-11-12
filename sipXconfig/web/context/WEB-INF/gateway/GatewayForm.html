@@ -1,10 +1,14 @@
 <ul class="component-links">
-  <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+  <li jwcid="@common/ToggleLink" toggle="ognl:advanced" />
 </ul>
 <h2><span key=title>Gateway</span></h2>
 <fieldset>
   <table>
     <tbody>
+      <tr jwcid="@common/FieldPanel" for="gateway:enabled" field="component:enabled"
+        label="message:enabled">
+         <input jwcid="enabled@Checkbox" id="gateway:enabled" value="ognl:gateway.enabled" />
+      </tr>
       <label jwcid="@common/FieldPanel" for="gateway:name"
         field="component:gatewayName"
         label="message:label.name">
@@ -31,7 +35,7 @@
           displayName="message:label.address"/>
       </label>
 
-      <span jwcid="@If" condition="ognl:advanced">
+      <div jwcid="@If" condition="ognl:advanced" renderTag="false">
         <label jwcid="@common/FieldPanel" for="gateway:addressPort"
           field="component:gatewayAddressPort"
           label="message:label.addressPort"
@@ -51,8 +55,8 @@
             value="ognl:gateway.addressTransport"
             model="ognl:addressTransportModel" />
         </label>
-      </span>
-      <span jwcid="@If" condition="ognl:gateway.model.hasSerialNumber">
+      </div>
+      <div jwcid="@If" condition="ognl:gateway.model.hasSerialNumber" renderTag="false">
         <label jwcid="@common/FieldPanel" for="gateway:serial"
           field="component:gatewaySerial"
           label="message:label.serial"
@@ -63,19 +67,18 @@
             translator="ognl:serialNumberTranslator"
             displayName="message:label.serial"/>
         </label>
-      </span>
-      <span jwcid="@If" condition="ognl:gateway.model.versions.length > 0">
+      </div>
+      <div jwcid="@If" condition="ognl:gateway.model.versions.length > 0" renderTag="false">
       <tr jwcid="@common/FieldPanel"
         for="gateway:version"
         label="message:label.firmwareVersion"
         field="component:selectVersion">
-
         <td jwcid="selectVersion@PropertySelection"
           model="ognl:versions"
           value="ognl:gateway.deviceVersion"
           displayName="message:label.firmwareVersion"/>
       </tr>
-      </span>
+      </div>
       <tr  jwcid="@common/FieldPanel" for="gateway:site" field="component:site"
         label="message:label.site"
         description="message:description.site">

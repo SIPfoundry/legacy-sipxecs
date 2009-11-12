@@ -21,6 +21,7 @@
     <property name="serialNumber" />
     <property name="beanId" column="bean_id" insert="false" update="false" />
     <property name="modelId" />
+    <property name="enabled" />
     <property name="deviceVersion" column="device_version_id" type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" />

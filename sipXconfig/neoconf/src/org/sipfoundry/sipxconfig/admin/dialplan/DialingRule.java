@@ -95,6 +95,19 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
         return m_gateways;
     }
 
+    /**
+     * Returns a sublist of enabled gateways for this dialing rule.
+     */
+    public List<Gateway> getEnabledGateways() {
+        ArrayList<Gateway> enabled = new ArrayList<Gateway>(m_gateways.size());
+        for (Gateway gateway : m_gateways) {
+            if (gateway.isEnabled()) {
+                enabled.add(gateway);
+            }
+        }
+        return enabled;
+    }
+
     public void setGateways(List<Gateway> gateways) {
         m_gateways = gateways;
     }

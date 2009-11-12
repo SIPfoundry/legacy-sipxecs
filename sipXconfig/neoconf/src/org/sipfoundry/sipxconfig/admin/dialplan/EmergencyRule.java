@@ -36,7 +36,7 @@ public class EmergencyRule extends LocationBasedDialingRule {
     }
 
     public Transform[] getStandardTransforms() {
-        List<Gateway> gateways = getGateways();
+        List<Gateway> gateways = getEnabledGateways();
         if (gateways.size() <= 0) {
             return new Transform[0];
         }

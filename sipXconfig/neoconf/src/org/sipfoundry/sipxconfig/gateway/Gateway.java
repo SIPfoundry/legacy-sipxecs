@@ -50,6 +50,7 @@ public class Gateway extends Device implements NamedObject {
 
     private boolean m_shared = true; // default enabled
 
+    private boolean m_enabled = true;
 
     public Gateway() {
     }
@@ -279,4 +280,13 @@ public class Gateway extends Device implements NamedObject {
     public void setShared(boolean shared) {
         m_shared = shared;
     }
+
+    public boolean isEnabled() {
+        return m_enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        m_enabled = enabled;
+    }
+
 }

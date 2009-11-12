@@ -353,7 +353,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
             if (!rule.isEnabled()) {
                 continue;
             }
-            for (Gateway candidate : rule.getGateways()) {
+            for (Gateway candidate : rule.getEnabledGateways()) {
                 // by default phones cannot support sending to emergency host through
                 // a gateway that has a route in between.
                 // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html

@@ -6,5 +6,5 @@
 
   <gateway gateway_id="1002" bean_id="gwSipTrunk" model_id="sipTrunkStandard" name="sip trunk" anonymous="false"
     keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0" address_transport="none"
-    sbc_device_id="102" enable_caller_id="false" shared="false" />
+    sbc_device_id="102" enable_caller_id="false" shared="false" enabled="true"/>
 </dataset>

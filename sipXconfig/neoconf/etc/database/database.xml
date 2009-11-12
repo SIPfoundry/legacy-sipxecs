@@ -335,6 +335,7 @@
     <antcall target="add_branch_office_designation" />
     <antcall target="add-im-password" />
     <antcall target="add-addressbook-email" />
+    <antcall target="gateway-enabled" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1019,6 +1020,9 @@
   </target>
   <target name="add-addressbook-email" unless="add-addressbook-email">
     <db-patch patch="add-addressbook-email"/>
+  </target>
+  <target name="gateway-enabled">
+    <db-patch patch="gateway-enabled"/>
   </target>
   <!--
     - SUPPORT UTILITIES

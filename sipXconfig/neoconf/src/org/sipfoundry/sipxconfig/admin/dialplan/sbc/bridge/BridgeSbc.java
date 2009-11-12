@@ -133,7 +133,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
     public List<SipTrunk> getMySipTrunks() {
         List<SipTrunk> trunks = new ArrayList<SipTrunk>();
         for (SipTrunk t : m_gatewayContext.getGatewayByType(SipTrunk.class)) {
-            if (equals(t.getSbcDevice())) {
+            if (equals(t.getSbcDevice()) && t.isEnabled()) {
                 trunks.add(t);
             }
         }

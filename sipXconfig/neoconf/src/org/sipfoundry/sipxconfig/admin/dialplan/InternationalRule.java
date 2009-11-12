@@ -43,7 +43,7 @@ public class InternationalRule extends DialingRule {
         CallPattern patternNormal = new CallPattern(m_internationalPrefix,
                 CallDigits.VARIABLE_DIGITS);
         String user = patternNormal.calculatePattern();
-        List<Gateway> gateways = getGateways();
+        List<Gateway> gateways = getEnabledGateways();
         List<Transform> transforms = new ArrayList<Transform>(gateways.size());
         ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Gateway gateway : gateways) {

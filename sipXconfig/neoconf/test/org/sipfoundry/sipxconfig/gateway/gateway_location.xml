@@ -6,5 +6,5 @@
 
   <gateway gateway_id="1003" bean_id="gwGeneric" model_id="genericGatewayStandard" name="unmanagedGtw"
     anonymous="false" ignore_user_info="false" transform_user_extension="false" keep_digits="0" address_port="0"
-    address_transport="none" enable_caller_id="false" shared="false" branch_id="1000" />
+    address_transport="none" enable_caller_id="false" shared="false" enabled="true" branch_id="1000" />
 </dataset>
