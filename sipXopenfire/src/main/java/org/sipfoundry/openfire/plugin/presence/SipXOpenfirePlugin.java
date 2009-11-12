@@ -807,14 +807,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             mucRoom.setPersistent(isPersistent);
         }
 
-        if (!mucRoom.getOwners().contains(ownerJid)) {
-            mucRoom.addOwner(ownerJid, mucRoom.getRole());
-
+        //add new owner and remove all others.
+        //Note: cannot remove all first then add as this throws ConflictException
+        mucRoom.addOwner(ownerJid, mucRoom.getRole());
+        for( String owner : mucRoom.getOwners() ){
+            mucRoom.addNone(owner, mucRoom.getRole());
         }
 
         for (JID admins : XMPPServer.getInstance().getAdmins()) {
             if (!mucRoom.getOwners().contains(admins.toBareJID())) {
-                mucRoom.addOwner(ownerJid, mucRoom.getRole());
+            mucRoom.addOwner(ownerJid, mucRoom.getRole());
             }
         }
 
