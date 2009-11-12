@@ -12,15 +12,16 @@ package org.sipfoundry.sipxconfig.moh;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -28,6 +29,7 @@ import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -146,8 +148,8 @@ public class MusicOnHoldManagerTest extends TestCase {
                 return 42;
             }
             @Override
-            public String getAddress() {
-                return "FSaddr";
+            public List<String> getAddresses() {
+                return Arrays.asList("FSaddr");
             }
         };
 
@@ -195,6 +197,78 @@ public class MusicOnHoldManagerTest extends TestCase {
             assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=l>", alias.getContact());
         } else if ("sip:~~testMohUser~p@randomAddress.test".equals(alias.getIdentity())) {
             assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=p>", alias.getContact());
+        } else {
+            return false;
+        }
+
+        return true;
+    }
+
+    public void testGetAliasMappingsHA() {
+
+        SipxFreeswitchService service = new SipxFreeswitchService() {
+            @Override
+            public String getDomainName() {
+                return "randomAddress.test";
+            }
+            @Override
+            public int getFreeswitchSipPort() {
+                return 42;
+            }
+            @Override
+            public List<String> getAddresses() {
+                return Arrays.asList("192.168.1.1", "192.168.1.2");
+            }
+            @Override
+            public LocationsManager getLocationsManager() {
+                return TestUtil.getMockLocationsManager();
+            }
+        };
+
+        service.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
+        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
+                SipxFreeswitchService.SystemMohSetting.FILES_SRC.toString());
+
+        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        expectLastCall().andReturn(service).atLeastOnce();
+        replay(sipxServiceManager);
+
+        m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
+
+        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        assertTrue(aliasMappings.size() == 3);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=l>"));
+        }
+
+        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
+                SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        assertTrue(aliasMappings.size() == 3);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=p>"));
+        }
+
+        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
+                SipxFreeswitchService.SystemMohSetting.LEGACY_PARK_MUSIC.toString());
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        assertTrue(aliasMappings.size() == 3);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh>"));
+        }
+    }
+
+    public boolean checkAliasMappingsHA(AliasMapping alias, String contactToTest) {
+        if ("sip:~~testMohUser~@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals(contactToTest, alias.getContact());
+        } else if ("sip:~~testMohUser~l@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@192.168.1.1:42;action=moh;moh=l>", alias.getContact());
+        } else if ("sip:~~testMohUser~p@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@192.168.1.1:42;action=moh;moh=p>", alias.getContact());
         } else {
             return false;
         }

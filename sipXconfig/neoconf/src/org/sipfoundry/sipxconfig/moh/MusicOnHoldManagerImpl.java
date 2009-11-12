@@ -14,13 +14,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
@@ -35,16 +36,16 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.SystemMohSetting;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
-
 import org.springframework.beans.factory.annotation.Required;
 
 public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListener {
-
     public static final String LOCAL_FILES_SOURCE_SUFFIX = "l";
     public static final String PORT_AUDIO_SOURCE_SUFFIX = "p";
     public static final String USER_FILES_SOURCE_SUFFIX = "u";
 
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
+
+    private static final String MOH = "moh";
 
     private SipxServiceManager m_sipxServiceManager;
     private String m_audioDirectory;
@@ -116,8 +117,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
         String identity = getDefaultMohUri();
         String contact = null;
-        String mohSetting = getSipxFreeswitchService().getSettings().getSetting(
-                SipxFreeswitchService.FREESWITCH_MOH_SOURCE).getValue();
+        String mohSetting = getSipxFreeswitchService().getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
 
         switch (SystemMohSetting.parseSetting(mohSetting)) {
         case FILES_SRC:
@@ -205,7 +205,6 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         m_mohUser = mohUser;
     }
 
-
     private SipxFreeswitchService getSipxFreeswitchService() {
         return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
     }
@@ -242,21 +241,19 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     /**
      * Build an alias which maps directly to the MOH server
-     *    IVR@{FS}:{FSPort};action=moh;
-     *      add "moh=l" for localstream files
-     *      add "moh=p" for portaudio (sound card)
-     *      add "moh=u{username} for personal audio files
-     *      add nothing for default "parkserver" music
-     * @param mohParam
-     * @return
+     *
+     * IVR@{FS}:{FSPort};action=moh; add "moh=l" for localstream files add "moh=p" for portaudio
+     * (sound card) add "moh=u{username} for personal audio files add nothing for default
+     * "parkserver" music.
+     *
      */
     private String getMohUriMapping(String mohParam) {
-        StringBuilder uri = new StringBuilder(String.format("sip:IVR@%s;action=moh",
-                getSipxFreeswitchAddressAndPort()));
+        Map<String, String> params = new LinkedHashMap<String, String>();
+        params.put("action", MOH);
         if (mohParam != null) {
-            uri.append(String.format(";moh=%s", mohParam));
+            params.put(MOH, mohParam);
         }
-        return String.format("<%s>", uri.toString()); // Must wrap uri in <> to keep params inside
+        return SipUri.format("IVR", getSipxFreeswitchAddressAndPort(), params);
     }
 
     private String getMohUri(String mohParam) {
@@ -265,6 +262,15 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     private String getSipxFreeswitchAddressAndPort() {
         SipxFreeswitchService service = getSipxFreeswitchService();
-        return service.getAddress() + ":" + String.valueOf(service.getFreeswitchSipPort());
+        String host;
+        if (service.getAddresses().size() > 1) {
+            // HACK: this assumes that one of the freeswitch instances runs on a primary location
+            // (but that neeeds to be true in order for MOH to work anyway)
+            host = service.getLocationsManager().getPrimaryLocation().getAddress();
+        } else {
+            host = service.getAddress();
+        }
+
+        return host + ":" + service.getFreeswitchSipPort();
     }
 }
