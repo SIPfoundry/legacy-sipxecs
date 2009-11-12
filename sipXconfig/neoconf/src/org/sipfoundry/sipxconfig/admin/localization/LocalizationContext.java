@@ -12,6 +12,9 @@ package org.sipfoundry.sipxconfig.admin.localization;
 import java.io.InputStream;
 
 public interface LocalizationContext {
+    static final String LANGUAGE_DEFAULT = "default";
+    static final String PROMPTS_DEFAULT = "stdprompts";
+
     public String getCurrentRegionId();
 
     public String getCurrentLanguage();

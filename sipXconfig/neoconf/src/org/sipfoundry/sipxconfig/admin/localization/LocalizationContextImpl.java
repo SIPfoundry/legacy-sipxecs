@@ -22,6 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
@@ -110,7 +111,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     }
 
     public String getCurrentLanguageDir() {
-        return PROMPTS_PREFIX + getLocalization().getLanguage();
+        String language = getLocalization().getLanguage();
+        if (StringUtils.endsWithIgnoreCase(language, LANGUAGE_DEFAULT)) {
+            return PROMPTS_DEFAULT;
+        }
+        return PROMPTS_PREFIX + language;
     }
 
     public String[] getInstalledRegions() {
@@ -195,8 +200,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
      *
      * @return positive value is success, negative if failure, 0 if there was no change
      */
-    public int updateLanguage(String languageDirectory) {
-        String language = Localization.getIdFromString(languageDirectory);
+    public int updateLanguage(String language) {
         if (language == null) {
             return -1;
         }

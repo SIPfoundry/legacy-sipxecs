@@ -38,18 +38,25 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
         EasyMock.verify(dpam);
     }
 
-    public void testUpdateLanguage() throws Exception {
+    private void updateLanguage(String language, String languageDirectory) throws Exception {
         ServiceConfigurator sc = createMock(ServiceConfigurator.class);
         sc.initLocations();
         replay(sc);
 
         modifyContext(m_localizationContextImpl, "serviceConfigurator", m_origServiceConfigurator, sc);
 
-        assertEquals(1, m_out.updateLanguage("stdprompts_pl"));
+        assertEquals(1, m_out.updateLanguage(language));
         flush();
-        assertEquals(1, getConnection().getRowCount("localization", "where language = 'pl'"));
+        assertEquals(1, getConnection().getRowCount("localization", "where language = '" + language + "'"));
+        assertEquals(languageDirectory, m_out.getCurrentLanguageDir()) ;
 
         verify(sc);
+    }
+
+    public void testUpdateLanguage() throws Exception {
+       updateLanguage("pl", "stdprompts_pl");
+        //update back to default
+       updateLanguage(LocalizationContext.LANGUAGE_DEFAULT, LocalizationContext.PROMPTS_DEFAULT);
     }
 
     public void testDefaults() {

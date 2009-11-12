@@ -21,13 +21,17 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContextImpl;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.CompositeMessages;
+import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -60,27 +64,24 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
 
     public abstract void setRegionList(IPropertySelectionModel regionList);
 
-    public abstract IPropertySelectionModel getLanguageList();
+    public abstract ExtraOptionModelDecorator getLanguagesSelectionModel();
 
-    public abstract void setLanguageList(IPropertySelectionModel languageList);
+    public abstract void setLanguagesSelectionModel(ExtraOptionModelDecorator languagesModel);
 
     public abstract String getRegion();
 
     public abstract String getLanguage();
 
-    public abstract void setRegion(String region);
-
     public abstract void setLanguage(String language);
 
+    public abstract void setRegion(String region);
+
     public abstract IUploadFile getUploadFile();
+
 
     public void pageBeginRender(PageEvent event_) {
         if (getRegionList() == null) {
             initRegions();
-        }
-
-        if (getLanguageList() == null) {
-            initLanguages();
         }
 
         if (getRegion() == null) {
@@ -92,6 +93,10 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             String defaultLanguage = getLocalizationContext().getCurrentLanguage();
             setLanguage(defaultLanguage);
         }
+
+        if (getLanguagesSelectionModel() == null) {
+            initLanguages();
+        }
     }
 
     protected void initLanguages() {
@@ -99,8 +104,13 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         LocalizedLanguageMessages languageMessages = getLocalizedLanguageMessages();
         languageMessages.setAvailableLanguages(availableLanguages);
         CompositeMessages messages = new CompositeMessages(languageMessages, getMessages());
-        IPropertySelectionModel model = new ModelWithDefaults(messages, availableLanguages);
-        setLanguageList(model);
+        IPropertySelectionModel model = new LocalizedOptionModelDecorator(
+                new StringPropertySelectionModel(availableLanguages), messages, "label.");
+        ExtraOptionModelDecorator decoratedModel = new ExtraOptionModelDecorator();
+        decoratedModel.setModel(model);
+        decoratedModel.setExtraLabel(getMessages().getMessage("label.default"));
+        decoratedModel.setExtraOption(LocalizationContextImpl.LANGUAGE_DEFAULT);
+        setLanguagesSelectionModel(decoratedModel);
     }
 
     private void initRegions() {
@@ -121,11 +131,8 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         return updatePage;
     }
 
-    public void setLanguage() {
+    public void changeLanguage() {
         String language = getLanguage();
-        if (ModelWithDefaults.DEFAULT.equals(language)) {
-            return;
-        }
         int exitCode = getLocalizationContext().updateLanguage(language);
 
         if (exitCode > 0) {
@@ -135,7 +142,7 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             getProcessContext().markServicesForRestart(processList);
             recordSuccess("message.label.languageChanged");
         } else if (exitCode < 0) {
-            recordFailure("message.label.lanuageFailed");
+            recordFailure("message.label.languageFailed");
         }
     }
 
@@ -176,4 +183,5 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
         ValidatorException validatorException = new ValidatorException(msg);
         getValidator().record(validatorException);
     }
+
 }
