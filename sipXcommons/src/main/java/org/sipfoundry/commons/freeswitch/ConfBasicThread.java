@@ -53,14 +53,18 @@ public class ConfBasicThread extends Thread {
         LOG.debug("ConfBasicThread::processConfEnd()");
     }
 
-    public void ProcessConfUserAdd(ConferenceTask conf, User user) {
+    public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
         LOG.debug("ConfBasicThread::processConfUserAdd()");
     }
 
-    public void ProcessConfUserDel(ConferenceTask conf, User user) {
+    public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
         LOG.debug("ConfBasicThread::processConfUserDel()");
     }
-    
+   
+    public static FreeSwitchEventSocket getCmdSocket() {
+        return m_fsCmdSocket;
+    }
+ 
     private boolean processEvent(FreeSwitchEvent event) {
         LOG.debug("ConfBasicThread::processEvent()");
         String confName = event.getEventValue("conference-name");
@@ -91,8 +95,6 @@ public class ConfBasicThread extends Thread {
                     ProcessConfStart(event, conf);
                 }
                 
-                ProcessConfUserAdd(conf, user);
-
                 // add member to conference object
                 ConferenceMember member = new ConferenceMember();
                 member.m_memberId = memberId;
@@ -100,6 +102,7 @@ public class ConfBasicThread extends Thread {
                 member.m_memberNumber = memberNumber;
                 member.m_memberName = memberName;
                 conf.add(member.m_memberId, member);
+                ProcessConfUserAdd(conf, member);
                 if(user != null) {
                     m_UserMap.put(user.getUserName(), new Date());
                 } 
@@ -108,11 +111,10 @@ public class ConfBasicThread extends Thread {
             if(conf == null) return true;
         
             if(action.equalsIgnoreCase("del-member")) {                
+                ProcessConfUserDel(conf, conf.get(memberId));
                 conf.delete(memberId);
                 
                 m_UserMap.remove(memberNumber);
-                
-                ProcessConfUserDel(conf, user);
                 
                 if(confSize.equals("0")) {
                     // last one to leave the conference
