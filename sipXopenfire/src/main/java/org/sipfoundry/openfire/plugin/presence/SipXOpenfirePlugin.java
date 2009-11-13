@@ -73,6 +73,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private Localizer localizer;
 
     private static String DEFAULT_MUC_SERVICE = "room";
+    private static String ALT_DEFAULT_MUC_SERVICE = "conference";
     
     private static String configurationPath = "/etc/sipxpbx";
 
@@ -276,9 +277,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
          * create default multi-user chat service (see XX-6913) and remove others
          */
         createChatRoomService(DEFAULT_MUC_SERVICE);
-        
+        createChatRoomService(ALT_DEFAULT_MUC_SERVICE);        
         Collection<String> defaultSubdomain = new ArrayList<String>();
         defaultSubdomain.add(DEFAULT_MUC_SERVICE);
+        defaultSubdomain.add(ALT_DEFAULT_MUC_SERVICE);
         try{
             pruneChatServices(defaultSubdomain);
         }
@@ -1131,7 +1133,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         for (MultiUserChatService service : pruneSet) {
             String subdomain = service.getServiceDomain().split("\\.")[0];
-            if (!subdomains.contains(subdomain) && !subdomain.equals(DEFAULT_MUC_SERVICE) ) {
+            if (!subdomains.contains(subdomain) && 
+                !subdomain.equals(DEFAULT_MUC_SERVICE) && 
+                !subdomain.equals(ALT_DEFAULT_MUC_SERVICE)) {
                 this.multiUserChatManager.removeMultiUserChatService(subdomain);
             }
         }
