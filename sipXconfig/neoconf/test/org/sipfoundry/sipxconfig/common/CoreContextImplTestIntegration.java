@@ -33,6 +33,10 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertFalse(m_coreContext.isImIdUnique(user));
         user.setImId("OpenFire1");
         assertFalse(m_coreContext.isImIdUnique(user));
+        user.setImId("userseed3");
+        assertFalse(m_coreContext.isImIdUnique(user));
+        user.setImId("alias1");
+        assertFalse(m_coreContext.isImIdUnique(user));
         user.setImId("openfire22");
         assertTrue(m_coreContext.isImIdUnique(user));
         // check im id uniqueness for an existing user

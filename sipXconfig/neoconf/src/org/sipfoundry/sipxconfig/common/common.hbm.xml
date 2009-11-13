@@ -115,4 +115,11 @@
   <query name="userImIds">
     <![CDATA[select count (*) from User u where lower(u.addressBookEntry.imId) = lower(:imId) and u.id != :userId]]>
   </query>
+
+  <query name="potentialImAccountsByUserNameOrAlias">
+    <![CDATA[select new org.sipfoundry.sipxconfig.im.ImAccount(u) from User u left outer join u.aliases alias
+      where (lower(u.userName) = lower(:imId) or lower(alias) = lower(:imId))
+      and u.id != :userId]]>
+  </query>
+
 </hibernate-mapping>

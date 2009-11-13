@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -229,7 +230,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     private void checkImIdUnique(User user) {
         if (!isImIdUnique(user)) {
-            throw new UserException("&duplicate.imid.error", user.getImId());
+            ImAccount accountToSave = new ImAccount(user);
+            throw new UserException("&duplicate.imid.error", accountToSave.getImId());
         }
     }
 
@@ -465,15 +467,32 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public boolean isImIdUnique(User user) {
-        if (user.getImId() == null) {
-            return true;
-        }
+        ImAccount accountToSave = new ImAccount(user);
+        // check ImId to save against persisted ImIds
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam("userImIds", new String[] {
             QUERY_IM_ID, QUERY_USER_ID
         }, new Object[] {
-            user.getImId(), user.getId()
+            accountToSave.getImId(), user.getId()
         });
-        return intResult(count) == 0;
+        if (intResult(count) != 0) {
+            return false;
+        }
+
+        // check ImId to save against potential default ImIds
+        List<ImAccount> imAccounts = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "potentialImAccountsByUserNameOrAlias", new String[] {
+                    QUERY_IM_ID, QUERY_USER_ID
+                }, new Object[] {
+                    accountToSave.getImId(), user.getId()
+                });
+
+        for (ImAccount imAccount : imAccounts) {
+            if (imAccount.getImId().equalsIgnoreCase(accountToSave.getImId())) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void onDelete(Object entity) {
