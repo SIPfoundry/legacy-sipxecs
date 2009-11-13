@@ -12,10 +12,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 
-import org.custommonkey.xmlunit.Diff;
-import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
@@ -23,7 +20,7 @@ import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
-public class ApplicationConfigurationTest extends XMLTestCase {
+public class ApplicationConfigurationTest extends PolycomXmlTestCase {
 
     private PolycomPhone phone;
     private ProfileGenerator m_pg;
@@ -53,10 +50,8 @@ public class ApplicationConfigurationTest extends XMLTestCase {
         InputStream expectedPhoneStream = getClass().getResourceAsStream(
                 "expected-macaddress.cfg");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        Reader generatedXml = new StringReader(m_location.toString());
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
+        
+        assertPolycomXmlEquals(expectedXml, m_location.getReader());
         expectedPhoneStream.close();
     }
 }

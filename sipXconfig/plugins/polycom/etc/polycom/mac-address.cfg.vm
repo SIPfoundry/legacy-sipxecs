@@ -13,22 +13,44 @@
 
 -->
 
+## Used only by sipXconfig.
 #if(${cfg.LicenseFileNames})
-   #set( $optional_license_file = "${cfg.LicenseFileNames}, " )
+   #set( $optional_license_files = "${cfg.LicenseFileNames}, " )
 #else
-   #set( $optional_license_file = "" )
+   #set( $optional_license_files = "" )
+#end
+
+## Used only by sipXprovision.
+#if(${cfg.RootUrlPath})
+   #set( $optional_root_url_path = "${cfg.RootUrlPath}" )
+#else
+   #set( $optional_root_url_path = "" )
+#end
+
+#macro( ModelSpecificAttributes $model $fw )
+   APP_FILE_PATH${model}="${cfg.SipBinaryFilename}"
+   CONFIG_FILES${model}="${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )
-   <APPLICATION_${model}
-      APP_FILE_PATH_${model}="${cfg.SipBinaryFilename}"
-      CONFIG_FILES_${model}="${optional_license_file}${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1_${fw}.cfg, polycom_sip_${fw}.cfg" />
+
+   #if($model != "")
+      #set( $model = "_${model}" )
+   #end
+   #if($fw != "")
+      #set( $fw = "_${fw}" )
+   #end
+
+   <APPLICATION${model}
+      #ModelSpecificAttributes( $model, $fw )
+   />
 #end
 
 <APPLICATION
-   APP_FILE_PATH="${cfg.SipBinaryFilename}"
-   CONFIG_FILES="${optional_license_file}${cfg.SipFilename}, ${cfg.PhoneFilename}, ${cfg.DeviceFilename}, polycom_phone1.cfg, polycom_sip.cfg"
+   #ModelSpecificAttributes( "", "" )
    MISC_FILES=""
+   OVERRIDES_DIRECTORY="${optional_root_url_path}"
+   CONTACTS_DIRECTORY="${optional_root_url_path}"
    LOG_FILE_DIRECTORY="">
 
 #ModelSpecificNode( "SPIP300", "2.1.X" )
