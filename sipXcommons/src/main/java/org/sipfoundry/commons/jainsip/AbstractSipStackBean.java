@@ -10,6 +10,7 @@ import gov.nist.javax.sip.header.RouteList;
 import gov.nist.javax.sip.header.ViaList;
 
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -96,6 +97,15 @@ public abstract class AbstractSipStackBean {
         } else {
             m_properties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND",
                     "false");
+        }
+        
+        Properties extraProperties = this.getExtraStackProperties();
+        
+        if ( extraProperties != null ) {
+            for (Enumeration keys = extraProperties.keys(); keys.hasMoreElements(); ) {
+                String key = (String) keys.nextElement();
+                m_properties.setProperty(key, extraProperties.getProperty(key));
+            }
         }
 
         try {
@@ -209,6 +219,7 @@ public abstract class AbstractSipStackBean {
     public abstract SipListener getSipListener(AbstractSipStackBean abstactSipStackBean);
     public abstract String getStackName() ;
     public abstract Appender getStackAppender() ;
-    public abstract Collection<ListeningPointAddress> getListeningPointAddresses();
+    public abstract Collection<ListeningPointAddress> getListeningPointAddresses();    
+    public abstract Properties getExtraStackProperties();
 
 }

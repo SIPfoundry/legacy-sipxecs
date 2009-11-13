@@ -9,6 +9,7 @@ import gov.nist.javax.sip.message.MessageExt;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Properties;
 
 import javax.sip.ListeningPoint;
 import javax.sip.SipListener;
@@ -28,18 +29,14 @@ public class SipStackBean extends AbstractSipStackBean {
     private Collection<ListeningPointAddress> listeningPoints = new HashSet<ListeningPointAddress>();
     public static Logger logger = Logger.getLogger(SipStackBean.class);
     public static final String COLON = ":";
-    
+
     SipListenerImpl sipListener;
-    
-   
-  
 
     public ListeningPointExt getListeningPoint(String transport) {
         SipProvider sipProvider = getSipProvider(transport);
         return (ListeningPointExt) sipProvider.getListeningPoint(transport);
     }
-    
-    
+
     public SipProvider getSipProvider(String transport) {
         for (ListeningPointAddress lpa : this.listeningPoints) {
             if (lpa.getTransport().equalsIgnoreCase(transport))
@@ -80,7 +77,7 @@ public class SipStackBean extends AbstractSipStackBean {
 
     @Override
     public SipListener getSipListener(AbstractSipStackBean abstactSipStackBean) {
-        if ( sipListener == null ) {
+        if (sipListener == null) {
             sipListener = new SipListenerImpl();
         }
         return sipListener;
@@ -95,5 +92,10 @@ public class SipStackBean extends AbstractSipStackBean {
     public String getStackName() {
         return "sipxrest";
     }
+
+    @Override
+    public Properties getExtraStackProperties() {
+        return null;
+    } 
 
 }

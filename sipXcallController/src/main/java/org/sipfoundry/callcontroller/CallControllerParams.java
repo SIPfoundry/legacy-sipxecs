@@ -10,7 +10,7 @@ public interface CallControllerParams {
     
     public static final String FORWARDING_ALLOWED = "isForwardingAllowed";
     
-    public static final String METHOD = "method";
+    public static final String METHOD = "sipMethod";
 
 	public static final String REFER = "refer";
 	

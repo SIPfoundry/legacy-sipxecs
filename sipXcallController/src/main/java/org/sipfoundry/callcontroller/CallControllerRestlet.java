@@ -49,15 +49,21 @@ public class CallControllerRestlet extends Restlet {
             String agentName = (String) request.getAttributes().get(CallControllerParams.AGENT);
 
             String method = (String) request.getAttributes().get(CallControllerParams.METHOD);
+            
+            logger.debug("sipMethod = " + method);
+
             String callingParty = (String) request.getAttributes().get(
                     CallControllerParams.CALLING_PARTY);
             String calledParty = (String) request.getAttributes().get(
                     CallControllerParams.CALLED_PARTY);
 
             if (callingParty == null || calledParty == null) {
-                response.setEntity(ResultFormatter.formatError(Status.CLIENT_ERROR_BAD_REQUEST, 
-                        "Missing a required parameter - need both callingParty and calledParty URL Parameters"), 
-                        MediaType.TEXT_XML);
+                response
+                        .setEntity(
+                                ResultFormatter
+                                        .formatError(Status.CLIENT_ERROR_BAD_REQUEST,
+                                                "Missing a required parameter - need both callingParty and calledParty URL Parameters"),
+                                MediaType.TEXT_XML);
                 response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
                 return;
             }
@@ -90,9 +96,10 @@ public class CallControllerRestlet extends Restlet {
             }
             String key = agentAddr + ":" + callingParty + ":" + calledParty;
 
-            logger.debug(String.format("method = %s key %s", httpMethod.toString(), key));
+            logger.debug(String.format("http method = %s key %s", httpMethod.toString(), key));
 
-            String conferencePin = (String) request.getAttributes().get(CallControllerParams.CONFERENCE_PIN);
+            String conferencePin = (String) request.getAttributes().get(
+                    CallControllerParams.CONFERENCE_PIN);
             if (conferencePin != null) {
                 calledParty += "?" + CONF_BRIDGE_PIN_PARAM + "=" + conferencePin;
             }
@@ -113,38 +120,51 @@ public class CallControllerRestlet extends Restlet {
                     timeout = Integer.parseInt((String) request.getAttributes().get(
                             CallControllerParams.TIMEOUT));
                 }
-                if ( timeout < 0 ) {
-                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_BAD_REQUEST.getCode(), 
-                            "Bad parameter timeout = " + timeout  );
+                if (timeout < 0) {
+                    String result = ResultFormatter.formatError(true,
+                            Status.CLIENT_ERROR_BAD_REQUEST.getCode(), "Bad parameter timeout = "
+                                    + timeout);
                     response.setEntity(result, MediaType.TEXT_XML);
                     response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                    return;   
+                    return;
                 }
                 int cachetimeout = 180;
-                
+
                 if ((String) request.getAttributes().get(CallControllerParams.RESULTCACHETIME) != null) {
                     cachetimeout = Integer.parseInt((String) request.getAttributes().get(
                             CallControllerParams.RESULTCACHETIME));
                 }
 
                 logger.debug("cachetimeout = " + cachetimeout);
-                if ( cachetimeout < 0 ) {
-                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_BAD_REQUEST.getCode(), 
-                            "Bad parameter resultCacheTime = " + cachetimeout  );
+                if (cachetimeout < 0) {
+                    String result = ResultFormatter.formatError(true,
+                            Status.CLIENT_ERROR_BAD_REQUEST.getCode(),
+                            "Bad parameter resultCacheTime = " + cachetimeout);
                     response.setEntity(result, MediaType.TEXT_XML);
                     response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-                    return;   
+                    return;
                 }
                 
-                if (method.equals(CallControllerParams.REFER)) {
-                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout, cachetimeout);
+             
+                if (method.equalsIgnoreCase(CallControllerParams.REFER)) {
+                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
+                            cachetimeout, credentials);
                     Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
                             agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
                             isForwardingAllowed, dialogContext, timeout);
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
+                } else if (method.equalsIgnoreCase(CallControllerParams.INVITE)) {
+                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
+                            cachetimeout, credentials);
+                    Dialog dialog = new SipServiceImpl().sendInvite(credentials, agentAddr,
+                            agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
+                            isForwardingAllowed, dialogContext, timeout);
+                    logger.debug("CallControllerRestlet : Dialog = " + dialog);
+              
                 } else {
-                    String result = ResultFormatter.formatError(true, Status.CLIENT_ERROR_NOT_ACCEPTABLE.getCode(), 
-                            "Call Setup Method " + method + " not supported" );
+                    String result = ResultFormatter.formatError(true,
+                            Status.CLIENT_ERROR_NOT_ACCEPTABLE.getCode(), "Call Setup Method "
+                                    + method + " not supported");
                     response.setEntity(result, MediaType.TEXT_XML);
                     response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
                     return;

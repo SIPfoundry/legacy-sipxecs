@@ -6,6 +6,7 @@ import gov.nist.javax.sip.clientauthutils.UserCredentials;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Properties;
 
 import javax.sip.ClientTransaction;
 import javax.sip.SipListener;
@@ -98,6 +99,16 @@ public class SipStackBean extends AbstractSipStackBean implements AccountManager
                 return CallWatcher.getConfig().getUserName();
             }
         };
+    }
+
+    @Override
+    public Properties getExtraStackProperties() {
+        /*
+         * Properties extraProperties = new Properties();
+         * extraProperties.setProperty("gov.nist.javax.sip.DELIVER_TERMINATED_EVENT_FOR_NULL_DIALOG",
+         * "true"); return extraProperties;
+         */
+        return null;
     }
 
 }

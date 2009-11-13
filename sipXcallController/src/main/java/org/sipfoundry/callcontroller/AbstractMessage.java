@@ -10,7 +10,9 @@
 package org.sipfoundry.callcontroller;
 
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
 
 public abstract class AbstractMessage {
-    public abstract ClientTransaction createAndSend(DialogContext dialogContext);
+    public abstract ClientTransaction createAndSend(DialogContext dialogContext,
+            String requestType, Operator operator, String body);
 }

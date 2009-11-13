@@ -14,6 +14,7 @@ import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.clientauthutils.AccountManager;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 import gov.nist.javax.sip.clientauthutils.SecureAccountManager;
+import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
@@ -76,13 +77,14 @@ public class SipUtils {
 
     private static HashMap<String, DialogContext> dialogContextTable = new HashMap<String, DialogContext>();
 
-    public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout) {
+    public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout, UserCredentialHash credentials) {
         logger.debug("createDialogCOntext " + key);
         DialogContext dialogContext = getDialogContext(key);
         if (dialogContext != null) {
             dialogContext.remove();
         }
         dialogContext = new DialogContext(key, timeout, cachetimeout);
+        dialogContext.setUserCredentials(credentials);
         dialogContextTable.put(key, dialogContext);
 
         return dialogContext;
