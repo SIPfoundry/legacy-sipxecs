@@ -28,7 +28,7 @@ public class ServletTest extends TestCase {
         String seed1 = "lower case seed";
 
         // The unique-ish ID is a constant length.
-        assert(Servlet.getUniqueId(seed1).length() == Servlet.UNIQUE_ID_LENGTH);
+        assertEquals(Servlet.UNIQUE_ID_LENGTH, Servlet.getUniqueId(seed1).length());
 
         // The same seed must result in the same unique-ish ID.
         assertEquals(Servlet.getUniqueId(seed1),
@@ -39,17 +39,35 @@ public class ServletTest extends TestCase {
                 Servlet.getUniqueId(seed1.toUpperCase()));
 
         // No need to choke.
-        assert(Servlet.getUniqueId(null).length() == Servlet.UNIQUE_ID_LENGTH);
-        assert(Servlet.getUniqueId("").length() == Servlet.UNIQUE_ID_LENGTH);
-    }
-
-    public void testTmp() {
-
-        Servlet servlet = new Servlet();
-        Servlet.m_config = new Configuration();
+        assertEquals(Servlet.UNIQUE_ID_LENGTH, Servlet.getUniqueId(null).length());
+        assertEquals(Servlet.UNIQUE_ID_LENGTH, Servlet.getUniqueId("").length());
     }
 
     // TODO: Parse Polycom UAs with AND without Serial #s!!  (Version is the tricky part...)
 
     // TODO: Parse Polycom UA with "UA/ "  and "UA/", which may do interesting things to Version
+    
+    
+    public void testExtractMac() {
+
+        assertEquals("c0ffee000000", Servlet.extractMac("/c0ffee000000", "/"));
+        assertEquals("c0ffee000000", Servlet.extractMac("/longer-c0ffee000000", "/longer-"));
+        
+        assertEquals(null, Servlet.extractMac("/c0ffee00000g", "/"));
+        assertEquals(null, Servlet.extractMac("fun", "/"));
+    }
+    
+    public void testDoProvisionPhone() {
+        
+        Servlet servlet = new Servlet();
+        Servlet.m_config = new Configuration();
+        
+        assertFalse(servlet.doProvisionPhone(null));
+    }
+
+    public void testLookupPhoneModelFailure() {
+
+        assertEquals(null, Servlet.lookupPhoneModel("nope"));
+    }
+    
 }

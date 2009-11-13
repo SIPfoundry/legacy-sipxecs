@@ -20,7 +20,7 @@
 	<property name="classes.dir" value="${build.dir}/classes" />
 	<property name="dist.dir" value="${build.dir}/dist" />
 	<property name="api.dir" value="${dist.dir}/api" />
-	<property name="test.results.dir" value="${build.dir}/test-results" />
+	<property name="test.results.dir" value="${build.dir}/junit" />
 	<property name="test.classes.dir" value="${build.dir}/tests" />
 
 	<!-- Default patterns for unittest naming schema -->
@@ -209,7 +209,6 @@
 			</batchtest>
 		</junit>
 	</target>
-
 
 	<!--
 		- R E G R E S S I O N U N I T T E S T - This is unittests that
