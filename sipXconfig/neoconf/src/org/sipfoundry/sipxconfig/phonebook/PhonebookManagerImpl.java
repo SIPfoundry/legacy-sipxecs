@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,6 +35,7 @@ import java.util.TreeMap;
 
 import static java.util.Arrays.asList;
 
+import com.glaforge.i18n.io.CharsetToolkit;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -84,7 +87,6 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BulkParser m_vcardParser;
     private VcardWriter m_vcardWriter;
     private String m_vcardEncoding;
-    private String m_csvEncoding;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -137,11 +139,6 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     @Required
     public void setCsvParser(BulkParser csvParser) {
         m_csvParser = csvParser;
-    }
-
-    @Required
-    public void setCvsEncoding(String cvsEncoding) {
-        m_csvEncoding = cvsEncoding;
     }
 
     @Required
@@ -533,10 +530,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
 
         BufferedInputStream in = new BufferedInputStream(is);
-        if (isVcard(in)) {
-            addEntriesFromFile(entries, in, m_vcardEncoding, m_vcardParser, false);
+        String encoding = getEncoding(in);
+
+        if (isVcard(in, encoding)) {
+            addEntriesFromFile(entries, in, encoding, m_vcardParser, false);
         } else {
-            addEntriesFromFile(entries, in, m_csvEncoding, m_csvParser, true);
+            addEntriesFromFile(entries, in, encoding, m_csvParser, true);
         }
 
         List<PhonebookEntry> entriesList = new ArrayList(entries.values());
@@ -611,10 +610,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /**
      * Trying to determine if the file is vCard file
      */
-    boolean isVcard(BufferedInputStream is) {
+    boolean isVcard(BufferedInputStream is, String encoding) {
         try {
             is.mark(100);
-            BufferedReader isr = new BufferedReader(new InputStreamReader(is, m_vcardEncoding));
+            BufferedReader isr = new BufferedReader(new InputStreamReader(is, encoding));
             String line;
             do {
                 line = isr.readLine();
@@ -629,5 +628,23 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     private static String getEntryKey(PhonebookEntry entry) {
         return join(asList(entry.getNumber(), entry.getFirstName(), entry.getLastName()), '_');
+    }
+
+    public String getEncoding(InputStream is) throws IOException {
+        byte[] buffer = new byte[4096];
+        is.mark(0);
+        is.read(buffer);
+        is.reset();
+
+        File tempFile = File.createTempFile("PhonebookFileEntryTemp", null);
+        FileOutputStream out = new FileOutputStream(tempFile);
+        out.write(buffer);
+        out.flush();
+        out.close();
+
+        String encoding = CharsetToolkit.guessEncoding(tempFile, buffer.length).displayName();
+        tempFile.delete();
+
+        return encoding;
     }
 }

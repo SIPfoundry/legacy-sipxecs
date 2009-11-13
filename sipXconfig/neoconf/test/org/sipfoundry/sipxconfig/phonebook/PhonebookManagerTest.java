@@ -138,7 +138,6 @@ public class PhonebookManagerTest extends TestCase {
         context.setCsvParser(new CsvParserImpl());
         impl.setTelType("work");
         context.setVcardParser(impl);
-        context.setCvsEncoding("UTF-8");
         context.setVcardEncoding("US-ASCII");
 
         try {
@@ -155,10 +154,10 @@ public class PhonebookManagerTest extends TestCase {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setVcardEncoding("UTF-8");
 
-        assertTrue(context.isVcard(toInputStream("BEGIN:VCARD")));
-        assertTrue(context.isVcard(toInputStream("\n\nBEGIN:VCARD")));
-        assertFalse(context.isVcard(toInputStream("\nsomething\nBEGIN:VCARD")));
-        assertFalse(context.isVcard(toInputStream("something")));
+        assertTrue(context.isVcard(toInputStream("BEGIN:VCARD"), "UTF-8"));
+        assertTrue(context.isVcard(toInputStream("\n\nBEGIN:VCARD"), "UTF-8"));
+        assertFalse(context.isVcard(toInputStream("\nsomething\nBEGIN:VCARD"), "UTF-8"));
+        assertFalse(context.isVcard(toInputStream("something"), "UTF-8"));
     }
 
     private static BufferedInputStream toInputStream(String text) throws Exception {
@@ -173,7 +172,6 @@ public class PhonebookManagerTest extends TestCase {
         context.setCsvParser(csvParser);
         impl.setTelType("work");
         context.setVcardParser(impl);
-        context.setCvsEncoding("UTF-8");
         context.setVcardEncoding("US-ASCII");
 
         Phonebook phonebook1 = new Phonebook();

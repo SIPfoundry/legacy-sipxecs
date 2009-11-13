@@ -37,6 +37,7 @@
     <pathelement location="${agent-bindings.jar}" />
     <pathelement location="${cdr-bindings.jar}" />
     <pathelement location="${jain-sip-sdp.jar}" />
+    <pathelement location="${guessencoding.jar}" />
   </path>
 
   <!-- 
@@ -238,6 +239,7 @@
       <fileset file="${cdr-bindings.jar}" />
       <fileset file="${xstream.jar}" />
       <fileset file="${jettison.jar}" />
+      <fileset file="${guessencoding.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />
