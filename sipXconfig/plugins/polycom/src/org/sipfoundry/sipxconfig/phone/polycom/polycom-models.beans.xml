@@ -134,10 +134,6 @@
         <value>singleKeyPressConference</value>
         <value>VVX_1500_CodecPref</value>
         <value>video</value>
-
-        <!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500. -->
-        <value>pre_3.2.0_model</value>
-        <!-- Temporary. -->
       </set>
     </property>
   </bean>

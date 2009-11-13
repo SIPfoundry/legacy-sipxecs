@@ -13,6 +13,7 @@
       voIpProt.server.dhcp.type=""
     />
     <SIP
+      voIpProt.SIP.local.port="5061"
       voIpProt.SIP.csta="0"
       voIpProt.SIP.useRFC2543hold="0"
       voIpProt.SIP.useContactInReferTo="1"
@@ -26,10 +27,8 @@
       voIpProt.SIP.musicOnHold.uri="~~mh~@sipfoundry.org"
       voIpProt.SIP.serverFeatureControl.cf="0"
       voIpProt.SIP.serverFeatureControl.dnd="0"
+      voIpProt.SIP.use486forReject="1"
     >
-<!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
-          voIpProt.SIP.use486forReject="1"
--->
       <outboundProxy
         voIpProt.SIP.outboundProxy.address=""
         voIpProt.SIP.outboundProxy.port="5060"
@@ -454,8 +453,6 @@
         log.level.change.ttrs="4"
         log.level.change.usb="4"
         log.level.change.srtp="4"
-      />
-<!-- Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
         log.level.change.lldp="4"
         log.level.change.clink="4"
         log.level.change.pnetm="4"
@@ -467,7 +464,7 @@
         log.level.change.usbio="4"
         log.level.change.pres="4"
         log.level.change.pwrsv="4"
--->
+      />
     </level>
     <render
       log.render.level="1"

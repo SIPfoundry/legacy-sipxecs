@@ -32,10 +32,9 @@
 <sip>
   <voIpProt>
     <local
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local'))
-#foreach ($setting in $cfg.getSettings($group))
-      voIpProt.local.${setting.ProfileName}="$!{setting.Value}"
-#end
+## XX-6959: Generate with voIpProt.local.port for compatibility with pre-3.2.2 firmware.
+#set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
+      voIpProt.local.port="$!{sip_local_port.Value}"
     />
     <server
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
@@ -47,6 +46,10 @@
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))
 #foreach ($setting in $cfg.getSettings($group))
       voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
+#end
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local'))
+#foreach ($setting in $cfg.getSettings($group))
+      voIpProt.SIP.local.${setting.ProfileName}="$!{setting.Value}"
 #end
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('serverFeatureControl'))
 #foreach ($setting in $cfg.getSettings($group))

@@ -96,9 +96,6 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         features.add("singleKeyPressConference");
         features.add("VVX_1500_CodecPref");
         features.add("video");
-        // Temporary.  Polycom 3.2.3 is expected to include support for the VVX 1500.
-        features.add("pre_3.2.0_model");
-        // Temporary.
         model.setSupportedFeatures(features);
         phone.setModel(model);
 

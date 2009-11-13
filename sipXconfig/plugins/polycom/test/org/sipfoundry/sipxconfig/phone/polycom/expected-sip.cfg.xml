@@ -13,6 +13,7 @@
       voIpProt.server.dhcp.type=""
     />
     <SIP
+      voIpProt.SIP.local.port="5061"
       voIpProt.SIP.csta="0"
       voIpProt.SIP.useRFC2543hold="0"
       voIpProt.SIP.useContactInReferTo="1"
