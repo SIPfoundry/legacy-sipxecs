@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -28,10 +29,15 @@ import static org.sipfoundry.sipxconfig.common.DataCollectionUtil.updatePosition
  * Base class for managed phone subclasses
  */
 public abstract class Phone extends Device {
+
+    public static final String URI_IN_PREFIX = "~~in~";
+
     // public because of checkstyle
     public static final String PHONE_CONSTANT = "phone";
 
     public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
+
+    private static final String PHONE_SIP_EXCEPTION = "&phone.sip.exception";
 
     private String m_description;
 
@@ -140,8 +146,22 @@ public abstract class Phone extends Device {
         try {
             m_sip.sendCheckSync(line.getAddrSpec());
         } catch (RuntimeException ex) {
-            throw new RestartException("&phone.sip.exception");
+            throw new RestartException(PHONE_SIP_EXCEPTION);
         }
+    }
+
+    // To send check-sync to the device that is authenticated with instrument id
+    protected void sendCheckSyncToMac() {
+        try {
+            m_sip.sendCheckSync(getInstrumentAddrSpec());
+        } catch (RuntimeException ex) {
+            throw new RestartException(PHONE_SIP_EXCEPTION);
+        }
+    }
+
+    public String getInstrumentAddrSpec() {
+        String domain = getPhoneContext().getPhoneDefaults().getDomainName();
+        return SipUri.format(URI_IN_PREFIX + getSerialNumber(), domain, false);
     }
 
     public String getDescription() {

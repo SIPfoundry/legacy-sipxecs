@@ -194,7 +194,7 @@ public class LgNortelPhone extends Phone {
 
     @Override
     public void restart() {
-        sendCheckSyncToFirstLine();
+        sendCheckSyncToMac();
     }
 
     public void setPhonebookFilename(String phonebookFilename) {

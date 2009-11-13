@@ -70,15 +70,19 @@ public class PhoneTestDriver {
     }
 
     public static PhoneTestDriver supplyTestData(Phone phone, boolean phonebookManagementEnabled) {
-        return supplyTestData(phone, phonebookManagementEnabled, false, false);
+        return supplyTestData(phone, phonebookManagementEnabled, false, false, false);
     }
 
     public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users) {
-        return new PhoneTestDriver(_phone, users, true, false);
+        return new PhoneTestDriver(_phone, users, true, false, false);
+    }
+
+    public static PhoneTestDriver supplyTestData(Phone _phone, List<User> users, boolean sendCheckSyncToMac) {
+        return new PhoneTestDriver(_phone, users, true, false, sendCheckSyncToMac);
     }
 
     public static PhoneTestDriver supplyTestData(Phone _phone, boolean phonebookManagementEnabled,
-            boolean speedDial, boolean includeSharedLine) {
+            boolean speedDial, boolean includeSharedLine, boolean sendCheckSyncToMac) {
         List<User> users = new ArrayList<User>();
 
         User firstUser = new User();
@@ -99,14 +103,15 @@ public class PhoneTestDriver {
             users.add(secondUser);
         }
 
-        return new PhoneTestDriver(_phone, users, phonebookManagementEnabled, speedDial);
+        return new PhoneTestDriver(_phone, users, phonebookManagementEnabled, speedDial, sendCheckSyncToMac);
     }
 
     public Line getPrimaryLine() {
         return m_lines.get(0);
     }
 
-    private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled, boolean speedDial) {
+    private PhoneTestDriver(Phone phone, List<User> users, boolean phonebookManagementEnabled,
+            boolean speedDial, boolean sendCheckSyncToMac) {
         m_phoneContextControl = createNiceControl();
         m_phoneContext = m_phoneContextControl.createMock(PhoneContext.class);
 
@@ -135,10 +140,13 @@ public class PhoneTestDriver {
         sipControl = createStrictControl();
         sip = sipControl.createMock(SipService.class);
 
-        if (users.size() > 0) {
+        if (sendCheckSyncToMac) {
+            sip.sendCheckSync(phone.getInstrumentAddrSpec());
+        } else if (users.size() > 0) {
             String uri = users.get(0).getAddrSpec("sipfoundry.org");
             sip.sendCheckSync(uri);
         }
+
         sipControl.replay();
         phone.setSipService(sip);
 

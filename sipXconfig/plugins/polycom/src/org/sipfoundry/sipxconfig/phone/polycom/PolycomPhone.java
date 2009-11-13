@@ -190,7 +190,7 @@ public class PolycomPhone extends Phone {
 
     @Override
     public void restart() {
-        sendCheckSyncToFirstLine();
+        sendCheckSyncToMac();
     }
 
     public String getAppFilename() {

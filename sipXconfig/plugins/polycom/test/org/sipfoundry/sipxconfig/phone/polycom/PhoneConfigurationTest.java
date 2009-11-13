@@ -40,7 +40,7 @@ public class PhoneConfigurationTest extends XMLTestCase {
         PolycomModel model = new PolycomModel();
         model.setMaxLineCount(6);
         phone.setModel(model);
-        m_testDriver = PhoneTestDriver.supplyTestData(phone, true, false, true);
+        m_testDriver = PhoneTestDriver.supplyTestData(phone, true, false, true, true);
         m_location = new MemoryProfileLocation();
         VelocityProfileGenerator pg = new VelocityProfileGenerator();
         pg.setVelocityEngine(TestHelper.getVelocityEngine());

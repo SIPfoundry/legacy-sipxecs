@@ -54,8 +54,7 @@ public class PolycomPhoneTest extends TestCase {
         features.add("OTHERS_CodecPref");
         features.add("pre_3.2.0_model");
         model.setSupportedFeatures(features);
-        m_tester = PhoneTestDriver.supplyTestData(m_phone);
-
+        m_tester = PhoneTestDriver.supplyTestData(m_phone,true,false,false,true);
         m_location = new FileSystemProfileLocation();
         m_location.setParentDir(m_root);
 
@@ -100,12 +99,8 @@ public class PolycomPhoneTest extends TestCase {
 
     public void testRestartFailureNoLine() throws Exception {
         m_phone.getLines().clear();
-        try {
-            m_phone.restart();
-            fail();
-        } catch (RestartException re) {
-            assertTrue(true);
-        }
+        m_phone.restart();
+        m_tester.sipControl.verify();
     }
 
     public void testRestart() throws Exception {

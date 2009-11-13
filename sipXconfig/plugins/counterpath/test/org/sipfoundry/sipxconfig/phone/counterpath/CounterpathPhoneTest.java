@@ -50,7 +50,7 @@ public class CounterpathPhoneTest extends TestCase {
     }
 
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
-        PhoneTestDriver.supplyTestData(m_phone, true, true, true);
+        PhoneTestDriver.supplyTestData(m_phone, true, true, true, true);
         User firstUser = m_phone.getLines().get(0).getUser();
         firstUser.setPermissionManager(m_permissionManager);
         firstUser.setImId("jsmit_id");

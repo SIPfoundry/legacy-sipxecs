@@ -46,7 +46,7 @@ public class NT1535PhoneTest extends TestCase {
         Phone phone = new NT1535Phone();
         phone.setModel(nortelModel);
 
-        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);;
         phone.restart();
 
         testDriver.sipControl.verify();
@@ -57,13 +57,10 @@ public class NT1535PhoneTest extends TestCase {
         Phone phone = new NT1535Phone();
         phone.setModel(nortelModel);
 
-        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
-        try {
-            phone.restart();
-            fail();
-        } catch (RestartException re) {
-            assertTrue(true);
-        }
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>(), true);
+        phone.restart();
+
+        testDriver.sipControl.verify();
     }
 
     public void testGenerateSystemProfile() throws Exception {

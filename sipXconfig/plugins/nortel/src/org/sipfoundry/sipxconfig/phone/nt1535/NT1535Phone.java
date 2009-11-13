@@ -60,7 +60,7 @@ public class NT1535Phone extends Phone {
 
     @Override
     public void restart() {
-        sendCheckSyncToFirstLine();
+        sendCheckSyncToMac();
     }
 
     static class NT1535ConfigProfile extends Profile {
