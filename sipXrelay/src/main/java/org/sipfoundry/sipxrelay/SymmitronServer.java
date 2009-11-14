@@ -1623,12 +1623,6 @@ public class SymmitronServer implements Symmitron {
 
         logger.info("Public address is " + config.getPublicAddress());
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            public void run() {
-                logger.fatal("RECEIVED SHUTDOWN SIGNAL");
-            }
-        });
-
         SymmitronServer.initHttpsClient();
 
         SymmitronServer.startWebServer();
