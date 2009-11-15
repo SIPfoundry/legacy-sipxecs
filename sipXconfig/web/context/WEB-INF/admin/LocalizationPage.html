@@ -4,13 +4,11 @@
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="languageForm@Form">
 	<fieldset>
-	  <table>
-		<tr>
-		  <td jwcid="languageLabel@common/FieldPanel" field="component:language" label="message:label.language" description="message:language.description" for="localization:language">
-			<input jwcid="language@PropertySelection" model="ognl:languagesSelectionModel" value="ognl:language" id="localization:language"/>
-		  </td>
-		</tr>
-	  </table>
+	    <table>
+	      <tr>
+			<td jwcid="@common/InstalledLanguages" language="ognl:language" />
+		  </tr>
+		</table>
 		<ul class="component-submit">
 		  <li>
 			<span jwcid="setLanguage@Submit" action="listener:changeLanguage" value="message:button.setLanguage"/>

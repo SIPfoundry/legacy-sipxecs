@@ -112,7 +112,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
 
     public String getCurrentLanguageDir() {
         String language = getLocalization().getLanguage();
-        if (StringUtils.equals(language, LANGUAGE_DEFAULT)) {
+        if (StringUtils.equals(language, DEFAULT)) {
             return PROMPTS_DEFAULT;
         }
         return PROMPTS_PREFIX + language;

@@ -47,15 +47,10 @@
           displayName="message:label.overrideLanguage"/>
       </tr>
       <tr>
-        <td jwcid="@common/FieldPanel" field="component:language"
-          for="personalAttendant:language"
-          label="message:label.language"
-          description="message:description.language">
-          <input jwcid="language@PropertySelection"
-            model="bean:languageSelectionModel"
-            value="ognl:personalAttendant.language"
-            id="personalAttendant:language" />
-        </td>
+		<td jwcid="@common/InstalledLanguages"
+		    language="ognl:personalAttendant.language"
+		    languageDescription="message:language.description"
+		    defaultLanguage="ognl:null"/>
       </tr>
       <tr jwcid="@common/FieldPanel"
         for="personalAttendant:operator"

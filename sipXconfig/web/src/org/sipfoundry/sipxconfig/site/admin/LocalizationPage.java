@@ -21,17 +21,12 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContextImpl;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.components.CompositeMessages;
-import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
-import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -51,9 +46,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     @InjectObject("spring:sipxProcessContext")
     public abstract SipxProcessContext getProcessContext();
 
-    @InjectObject("spring:localizedLanguageMessages")
-    public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
-
     @InjectObject("spring:sipxRegistrarService")
     public abstract SipxRegistrarService getSipxRegistrarService();
 
@@ -63,10 +55,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
     public abstract IPropertySelectionModel getRegionList();
 
     public abstract void setRegionList(IPropertySelectionModel regionList);
-
-    public abstract ExtraOptionModelDecorator getLanguagesSelectionModel();
-
-    public abstract void setLanguagesSelectionModel(ExtraOptionModelDecorator languagesModel);
 
     public abstract String getRegion();
 
@@ -93,24 +81,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
             String defaultLanguage = getLocalizationContext().getCurrentLanguage();
             setLanguage(defaultLanguage);
         }
-
-        if (getLanguagesSelectionModel() == null) {
-            initLanguages();
-        }
-    }
-
-    protected void initLanguages() {
-        String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
-        LocalizedLanguageMessages languageMessages = getLocalizedLanguageMessages();
-        languageMessages.setAvailableLanguages(availableLanguages);
-        CompositeMessages messages = new CompositeMessages(languageMessages, getMessages());
-        IPropertySelectionModel model = new LocalizedOptionModelDecorator(
-                new StringPropertySelectionModel(availableLanguages), messages, "label.");
-        ExtraOptionModelDecorator decoratedModel = new ExtraOptionModelDecorator();
-        decoratedModel.setModel(model);
-        decoratedModel.setExtraLabel(getMessages().getMessage("label.default"));
-        decoratedModel.setExtraOption(LocalizationContextImpl.LANGUAGE_DEFAULT);
-        setLanguagesSelectionModel(decoratedModel);
     }
 
     private void initRegions() {
@@ -162,7 +132,6 @@ public abstract class LocalizationPage extends BasePage implements PageBeginRend
                 lc.installLocalizationPackage(uploadFile.getStream(), fileName);
                 // Update the list of available regions/langauges and report success
                 initRegions();
-                initLanguages();
                 recordSuccess("message.installedOk");
             } else {
                 recordFailure("message.invalidPackage");

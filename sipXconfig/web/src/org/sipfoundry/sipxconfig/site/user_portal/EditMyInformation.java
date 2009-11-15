@@ -19,15 +19,12 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages;
-import org.sipfoundry.sipxconfig.site.admin.ModelWithDefaults;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
@@ -41,12 +38,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-
-    @InjectObject(value = "spring:localizationContext")
-    public abstract LocalizationContext getLocalizationContext();
-
-    @InjectObject(value = "spring:localizedLanguageMessages")
-    public abstract LocalizedLanguageMessages getLocalizedLanguageMessages();
 
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
@@ -110,10 +101,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
 
-        if (getLanguageList() == null) {
-            initLanguageList();
-        }
-
         if (getAvailableTabNames() == null) {
             initAvailableTabs();
         }
@@ -144,13 +131,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
                     "conferenceActions");
             setActionBlockForConferencesTab(b);
         }
-    }
-
-    protected void initLanguageList() {
-        String[] availableLanguages = getLocalizationContext().getInstalledLanguages();
-        getLocalizedLanguageMessages().setAvailableLanguages(availableLanguages);
-        IPropertySelectionModel model = new ModelWithDefaults(getLocalizedLanguageMessages(), availableLanguages);
-        setLanguageList(model);
     }
 
     private void initAvailableTabs() {

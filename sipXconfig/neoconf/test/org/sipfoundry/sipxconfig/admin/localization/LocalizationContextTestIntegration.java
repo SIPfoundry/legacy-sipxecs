@@ -56,7 +56,7 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     public void testUpdateLanguage() throws Exception {
        updateLanguage("pl", "stdprompts_pl");
         //update back to default
-       updateLanguage(LocalizationContext.LANGUAGE_DEFAULT, LocalizationContext.PROMPTS_DEFAULT);
+       updateLanguage(LocalizationContext.DEFAULT, LocalizationContext.PROMPTS_DEFAULT);
     }
 
     public void testDefaults() {
