@@ -148,14 +148,14 @@ public class CallControllerRestlet extends Restlet {
              
                 if (method.equalsIgnoreCase(CallControllerParams.REFER)) {
                     DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
-                            cachetimeout, credentials);
+                            cachetimeout, credentials,method);
                     Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
                             agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
                             isForwardingAllowed, dialogContext, timeout);
                     logger.debug("CallControllerRestlet : Dialog = " + dialog);
                 } else if (method.equalsIgnoreCase(CallControllerParams.INVITE)) {
                     DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
-                            cachetimeout, credentials);
+                            cachetimeout, credentials,method);
                     Dialog dialog = new SipServiceImpl().sendInvite(credentials, agentAddr,
                             agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
                             isForwardingAllowed, dialogContext, timeout);
@@ -173,7 +173,12 @@ public class CallControllerRestlet extends Restlet {
             } else {
                 DialogContext dialogContext = SipUtils.getDialogContext(key);
                 if (dialogContext == null) {
-                    String emptyResponse = DialogContext.HEADER + DialogContext.FOOTER;
+                	String emptyResponse = null;
+                	if ( method.equalsIgnoreCase("refer")) {
+                		emptyResponse = DialogContext.HEADER + DialogContext.FOOTER;
+                	} else {
+                		emptyResponse = DialogContext.DIALOGS + DialogContext.DIALOGS_FOOTER;
+                	}
                     response.setEntity(emptyResponse, MediaType.TEXT_XML);
                     response.setStatus(Status.SUCCESS_OK);
                     return;

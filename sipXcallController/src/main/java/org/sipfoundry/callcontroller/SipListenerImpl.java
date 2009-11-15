@@ -74,8 +74,7 @@ public class SipListenerImpl extends AbstractSipListener {
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
             SipProvider sipProvider = ((TransactionExt) serverTransaction).getSipProvider();
             Dialog dialog = serverTransaction.getDialog();
-            Dialog peerDialog = DialogContext.get(dialog).getPeer(dialog);
-            
+            DialogContext dialogContext = DialogContext.get(dialog);
             if (serverTransaction == null) {
                 LOG.debug("processRequest : NULL ServerTransaction -- dropping request");
                 return;
@@ -83,37 +82,21 @@ public class SipListenerImpl extends AbstractSipListener {
             LOG.debug("SipListenerImpl: processing incoming request "
                     + serverTransaction.getRequest().getMethod());
             Request request = requestEvent.getRequest();
-            Response response = getHelper().createResponse(request, Response.OK);
-            serverTransaction.sendResponse(response);
+            
+           
          
             if (request.getMethod().equals(Request.BYE)) {               
-               TransactionApplicationData.forwardRequest(requestEvent);
+                dialogContext.forwardRequest(requestEvent);
             } else if (request.getMethod().equals(Request.OPTIONS)) {
-                TransactionApplicationData.forwardRequest(requestEvent);
+                dialogContext.forwardRequest(requestEvent);
             } else if (request.getMethod().equals(Request.INVITE)) {
-                TransactionApplicationData.forwardRequest(requestEvent);
+                dialogContext.forwardRequest(requestEvent);
             } else if (request.getMethod().equals(Request.REFER)) {
-                TransactionApplicationData.forwardRequest(requestEvent);  
+                dialogContext.forwardRequest(requestEvent);
             } else if (request.getMethod().equals(Request.NOTIFY)) {
-                LOG.debug("got a NOTIFY");
-                SubscriptionStateHeader subscriptionState = (SubscriptionStateHeader) request
-                        .getHeader(SubscriptionStateHeader.NAME);
-                DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
-                if (request.getContentLength().getContentLength() != 0) {
-                    String statusLine = new String(request.getRawContent());
-                    LOG.debug("dialog = " + dialog);
-                    LOG.debug("status line = " + statusLine);
-
-                    if (!statusLine.equals("") && dialogContext != null) {
-                        dialogContext.setStatus(SipHelper.getCallId(request),
-                                request.getMethod(), statusLine);
-                    }
-                }
-
-                if (subscriptionState.getState().equalsIgnoreCase(
-                        SubscriptionStateHeader.TERMINATED)) {
-                    SipListenerImpl.getInstance().getHelper().tearDownDialog(dialog);
-                }
+                dialogContext.processNotify(requestEvent);         
+            } else if (request.getMethod().equals(Request.ACK)) {
+                dialogContext.processAck(requestEvent);
             }
         } catch (Exception ex) {
             LOG.error("Exception  " + requestEvent.getRequest(), ex);
@@ -132,13 +115,14 @@ public class SipListenerImpl extends AbstractSipListener {
             TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
                     .getApplicationData();
             Dialog dialog = responseEvent.getDialog();
-
+            Response response = responseEvent.getResponse();
+            String method = SipHelper.getCSeqMethod(response);
+            LOG.debug("processResponse : " + method + " statusCode " + response.getStatusCode());
             DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
 
             if (tad != null) {
 
-                String method = SipHelper.getCSeqMethod(responseEvent.getResponse());
-                if (method.equals(Request.INVITE)) {
+                 if (method.equals(Request.INVITE)) {
                     String callId = SipHelper.getCallId(responseEvent.getResponse());
                     String statusLine = ((SIPResponse) responseEvent.getResponse())
                             .getStatusLine().toString();

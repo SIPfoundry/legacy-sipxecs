@@ -77,13 +77,14 @@ public class SipUtils {
 
     private static HashMap<String, DialogContext> dialogContextTable = new HashMap<String, DialogContext>();
 
-    public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout, UserCredentialHash credentials) {
+    public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout, 
+    		UserCredentialHash credentials, String method) {
         logger.debug("createDialogCOntext " + key);
         DialogContext dialogContext = getDialogContext(key);
         if (dialogContext != null) {
             dialogContext.remove();
         }
-        dialogContext = new DialogContext(key, timeout, cachetimeout);
+        dialogContext = new DialogContext(key, timeout, cachetimeout,method);
         dialogContext.setUserCredentials(credentials);
         dialogContextTable.put(key, dialogContext);
 

@@ -240,13 +240,19 @@ class TransactionApplicationData {
                         seqno = SipHelper.getSequenceNumber(response);
                         ack = dialog.createAck(seqno);
                         dialog.sendAck(ack);
+                    } else if ( m_operator == Operator.FORWARD_REQUEST) {
+                        DialogContext dat = (DialogContext) dialog.getApplicationData();
+                        dat.setLastResponse(response);
+                        dat.setPendingOperation(PendingDialogOperation.PENDING_ACK);
+                        this.forwardResponse(response);
                     }
-
                 } else if (m_operator == Operator.FORWARD_REQUEST) {
                     DialogContext dat = (DialogContext) dialog.getApplicationData();
                     dat.setLastResponse(response);
+                    if (SipHelper.getCSeqMethod(response).equals(Request.INVITE)) {
+                        dat.setPendingOperation(PendingDialogOperation.PENDING_ACK);
+                    }
                     this.forwardResponse(response);
-
                 } else if (response.getStatusCode() / 100 > 2) {
                     DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
                     dialogContext.removeMe(dialog);
@@ -330,50 +336,7 @@ class TransactionApplicationData {
         this.m_serverTransaction = serverTransaction;
     }
 
-    public static void forwardRequest(RequestEvent requestEvent)
-            throws SipException, ParseException {
-
-        Dialog dialog = requestEvent.getDialog();
-        DialogContext dat = (DialogContext) dialog.getApplicationData();
-      
-        if (dat == null) {
-            LOG.debug("No DialogContext found -- not forwarding");
-            return;
-        }
-        Dialog peerDialog = dat.getPeer(dialog);
-        if (peerDialog == null) {
-            LOG.debug("No peer Dialog found -- not forwardng");
-            return;
-        }
-        Request request = requestEvent.getRequest();
-        Request newRequest = peerDialog.createRequest(request.getMethod());
-        byte[] content = request.getRawContent();
-        if (content != null) {
-            ContentTypeHeader cth = (ContentTypeHeader) request.getHeader(ContentTypeHeader.NAME);
-            newRequest.setContent(content, cth);
-        }
-        for (Iterator it = request.getHeaderNames(); it.hasNext();) {
-            String headerName = (String) it.next();
-            if (!headerName.equals(ContentLengthHeader.NAME)) {
-                if (newRequest.getHeader(headerName) == null) {
-                    for (Iterator headerIterator = request.getHeaders(headerName); headerIterator
-                            .hasNext();) {
-                        Header header = (Header) headerIterator.next();
-                        newRequest.addHeader((Header) header.clone());
-                    }
-                }
-            }
-        }
-
-        SipProvider provider = (SipProvider) requestEvent.getSource();
-        ClientTransaction ctx = provider.getNewClientTransaction(newRequest);
-        Operator operator = Operator.FORWARD_REQUEST;
-        TransactionApplicationData tad = new TransactionApplicationData(Operator.FORWARD_REQUEST, ctx);
-        ctx.setApplicationData(tad);
-        ServerTransaction st = requestEvent.getServerTransaction();
-        tad.setServerTransaction(st);
-        peerDialog.sendRequest(ctx);
-    }
+   
 
     public void setSipMessage(InviteMessage sipMessage) {
         this.m_sipMessage = sipMessage;

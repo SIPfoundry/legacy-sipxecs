@@ -159,7 +159,9 @@ public class SipHelper {
     }
 
     final public Response createResponse(Request request, int responseCode) throws ParseException {
-        return getStackBean().getMessageFactory().createResponse(responseCode, request);
+        Response response =  getStackBean().getMessageFactory().createResponse(responseCode, request);
+        response.setHeader(this.createContactHeader());
+        return response;
     }
 
     final public static String getCSeqMethod(Message response) {
