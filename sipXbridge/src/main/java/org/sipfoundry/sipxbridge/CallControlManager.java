@@ -50,6 +50,7 @@ import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.Header;
+import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.RequireHeader;
 import javax.sip.header.SubscriptionStateHeader;
@@ -463,7 +464,14 @@ class CallControlManager implements SymmitronResetHandler {
                 return;
 
             }
-
+            /*
+       	    * Patch up request for missing Max-Forwards header. See Issue XX-7007
+            */
+            if ( request.getHeader(MaxForwardsHeader.NAME) == null ) {
+            	logger.error("Inbound request is missing Max-Forwards. Adding one.");
+                MaxForwardsHeader maxForwardsHeader = ProtocolObjects.headerFactory.createMaxForwardsHeader(20);
+                request.setHeader(maxForwardsHeader);
+            }
             BackToBackUserAgent btobua;
 
             /*
