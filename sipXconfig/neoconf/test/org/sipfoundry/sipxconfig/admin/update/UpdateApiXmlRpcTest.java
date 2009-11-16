@@ -27,7 +27,39 @@ import static org.easymock.EasyMock.verify;
 
 public class UpdateApiXmlRpcTest extends TestCase {
 
-    public void testGetCurrentVersion() {
+    public void testGetCurrentVersionMaster() {
+
+        Location location = new Location();
+        location.setFqdn("sipx.example.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getPrimaryLocation();
+        expectLastCall().andReturn(location);
+
+        SoftwareAdminApi api = createMock(SoftwareAdminApi.class);
+        api.exec("sipx.example.com", "version");
+        expectLastCall().andReturn(Arrays.asList("/path/to/file"));
+        api.execStatus("sipx.example.com", "version");
+        expectLastCall().andReturn("DONE");
+
+        ApiProvider<SoftwareAdminApi> apiProvider = createMock(ApiProvider.class);
+        apiProvider.getApi("https://sipx.example.com:8092/RPC2");
+        expectLastCall().andReturn(api);
+
+        replay(lm, apiProvider, api);
+
+        // test output on master system
+        DummyUpdateApi out = new DummyUpdateApi();
+        out.setFileLines(Arrays.asList("version:sipxcommons 3.11.15"));
+        out.setLocationsManager(lm);
+        out.setSoftwareAdminApiProvider(apiProvider);
+
+        assertEquals("3.11.15", out.getCurrentVersion());
+
+        verify(lm, apiProvider, api);
+    }
+
+    public void testGetCurrentVersionDistributed() {
 
         Location location = new Location();
         location.setFqdn("sipx.example.com");
@@ -49,11 +81,42 @@ public class UpdateApiXmlRpcTest extends TestCase {
         replay(lm, apiProvider, api);
 
         DummyUpdateApi out = new DummyUpdateApi();
-        out.setFileLines(Arrays.asList("version:3.11.15"));
+        out.setFileLines(Arrays.asList("version:sipxcommserverlib 4.1.0-016788"));
         out.setLocationsManager(lm);
         out.setSoftwareAdminApiProvider(apiProvider);
 
-        assertEquals("3.11.15", out.getCurrentVersion());
+        assertEquals("4.1.0-016788", out.getCurrentVersion());
+
+        verify(lm, apiProvider, api);
+    }
+
+    public void testGetCurrentVersionSources() {
+
+        Location location = new Location();
+        location.setFqdn("sipx.example.com");
+
+        LocationsManager lm = createMock(LocationsManager.class);
+        lm.getPrimaryLocation();
+        expectLastCall().andReturn(location);
+
+        SoftwareAdminApi api = createMock(SoftwareAdminApi.class);
+        api.exec("sipx.example.com", "version");
+        expectLastCall().andReturn(Arrays.asList("/path/to/file"));
+        api.execStatus("sipx.example.com", "version");
+        expectLastCall().andReturn("DONE");
+
+        ApiProvider<SoftwareAdminApi> apiProvider = createMock(ApiProvider.class);
+        apiProvider.getApi("https://sipx.example.com:8092/RPC2");
+        expectLastCall().andReturn(api);
+
+        replay(lm, apiProvider, api);
+
+        DummyUpdateApi out = new DummyUpdateApi();
+        out.setFileLines(Arrays.asList("Could not determine version"));
+        out.setLocationsManager(lm);
+        out.setSoftwareAdminApiProvider(apiProvider);
+
+        assertEquals("Could not determine version", out.getCurrentVersion());
 
         verify(lm, apiProvider, api);
     }

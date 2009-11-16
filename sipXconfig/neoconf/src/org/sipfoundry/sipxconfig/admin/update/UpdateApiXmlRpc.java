@@ -31,6 +31,8 @@ import org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.apache.commons.lang.StringUtils.split;
+
 /**
  * Implementation of update API based on XML/RPC methods provided by sipXsupervisor
  */
@@ -57,6 +59,10 @@ public class UpdateApiXmlRpc implements UpdateApi {
     }
 
     public String getCurrentVersion() {
+        // sipx-swadmin.py returns either:
+        //    "Could not determine version" or
+        //    "version:" + sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
+        // We want to display only the version and release.
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         SoftwareAdminApi api = getApi(primaryLocation);
         List<String> streams = api.exec(primaryLocation.getFqdn(), GET_VERSION);
@@ -70,7 +76,10 @@ public class UpdateApiXmlRpc implements UpdateApi {
         }
         for (String line : remoteFileLines) {
             if (line != null && line.startsWith(VERSION_STRING)) {
-                return line.replace(VERSION_STRING, "");
+                String[] items = split(line);
+                if (items != null && items.length >= 2) {
+                    return items[1];
+                }
             }
         }
         return VERSION_NOT_DETERMINED;
