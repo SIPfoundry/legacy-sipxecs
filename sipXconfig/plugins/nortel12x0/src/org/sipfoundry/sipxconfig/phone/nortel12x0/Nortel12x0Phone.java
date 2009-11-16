@@ -39,6 +39,7 @@ public class Nortel12x0Phone extends Phone {
     public static final PhoneModel MODEL = new PhoneModel("nortel12x0", "Nortel IP Phone 1230");
     public static final String BEAN_ID = "nortel12x0PhoneStandard";
     public static final String USER_ID_SETTING = "registrationAndProxy/authname";
+    public static final String AUTH_ID_SETTING = "registrationAndProxy/authId";
     public static final String PASSWORD_SETTING = "registrationAndProxy/authPassword";
     public static final String DISPLAY_NAME = "registrationAndProxy/displayname";
     public static final String REGISTRATION_SERVER_SETTING = "registrationAndProxy/registrarAddress";
@@ -310,6 +311,11 @@ public class Nortel12x0Phone extends Phone {
             return userName;
         }
 
+        @SettingEntry(path = AUTH_ID_SETTING)
+        public String getAuthId() {
+            return m_line.getAuthenticationUserName();
+        }
+
         @SettingEntry(path = PASSWORD_SETTING)
         public String getPassword() {
             String password = null;
@@ -368,7 +374,7 @@ public class Nortel12x0Phone extends Phone {
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();
+        sendCheckSyncToMac();
     }
 
     static class Nortel12x0Context extends ProfileContext {

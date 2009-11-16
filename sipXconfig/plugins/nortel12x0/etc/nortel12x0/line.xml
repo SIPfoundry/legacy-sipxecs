@@ -27,7 +27,7 @@
       </type>
       <value/>
     </setting>
-    <setting name="authId">
+    <setting name="authId" hidden="yes">
       <type>
         <string/>
       </type>

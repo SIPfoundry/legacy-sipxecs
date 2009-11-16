@@ -11,7 +11,7 @@
     </setting>
     <setting name='displayname' />
     <setting name='name' />
-    <setting name='authname' advanced="yes" />
+    <setting name='authname' hidden="yes" />
     <setting name='password' advanced="yes" />
     <setting name='type'>
       <type>

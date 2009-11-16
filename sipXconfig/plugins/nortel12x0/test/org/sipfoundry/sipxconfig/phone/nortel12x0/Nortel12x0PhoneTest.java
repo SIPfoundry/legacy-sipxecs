@@ -102,7 +102,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
 
-        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone);
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
         phone.restart();
 
         testDriver.sipControl.verify();
@@ -117,13 +117,8 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
 
-        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
-        try {
-            phone.restart();
-            fail();
-        } catch (RestartException re) {
-            assertTrue(true);
-        }
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>(), true);
+        phone.restart();
     }
 
     public void testGenerateTypicalProfile() throws Exception {

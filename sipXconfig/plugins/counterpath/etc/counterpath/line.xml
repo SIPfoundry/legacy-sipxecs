@@ -42,7 +42,7 @@
       </type>
       <value />
     </setting>
-    <setting name="authorization_username" advanced="yes">
+    <setting name="authorization_username" hidden="yes">
       <value />
     </setting>
   </group>

@@ -7,7 +7,7 @@
   </type>
   <group name='VOIP'>
     <setting name='name' />
-    <setting name='authname' />
+    <setting name='authname' hidden="yes"/>
     <setting name='display_name' />
     <setting name='password' />
     <setting name='type'>

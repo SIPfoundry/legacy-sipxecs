@@ -71,6 +71,7 @@
 <account_L1>
 <authname><![CDATA[juser]]></authname>
 <authPassword><![CDATA[1234]]></authPassword>
+<authId><![CDATA[juser/0004f200e06b]]></authId>
 <displayname><![CDATA[Joe User]]></displayname>
 <registrar>
 <registrarAddress><![CDATA[sipfoundry.org]]></registrarAddress>
