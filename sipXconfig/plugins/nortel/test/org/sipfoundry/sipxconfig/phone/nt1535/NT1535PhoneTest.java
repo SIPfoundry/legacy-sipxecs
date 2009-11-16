@@ -19,7 +19,6 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
-import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -46,7 +45,7 @@ public class NT1535PhoneTest extends TestCase {
         Phone phone = new NT1535Phone();
         phone.setModel(nortelModel);
 
-        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);;
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,true);
         phone.restart();
 
         testDriver.sipControl.verify();

@@ -10,13 +10,11 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.IOException;
-import java.io.Reader;
 
 import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 
 public abstract class PolycomXmlTestCase extends XMLTestCase {
 
@@ -36,8 +34,9 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         try {
             do {
                 ch = test.read();
-              if (ch != -1)
+              if (ch != -1) {
                 System.out.print((char) ch);
+            }
             } while (ch != -1);
 
         } catch (IOException e) {

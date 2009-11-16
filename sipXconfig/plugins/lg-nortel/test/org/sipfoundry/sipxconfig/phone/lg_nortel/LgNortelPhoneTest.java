@@ -17,7 +17,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
@@ -27,7 +26,6 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
-import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -255,6 +253,7 @@ public class LgNortelPhoneTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
         User user1 = new User() {
+            @Override
             public Integer getId() {
                 return 115;
             }

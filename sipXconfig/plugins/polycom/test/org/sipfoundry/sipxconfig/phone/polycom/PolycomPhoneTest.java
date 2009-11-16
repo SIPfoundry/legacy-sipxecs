@@ -19,11 +19,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import junit.framework.TestCase;
-
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.FileSystemProfileLocation;
-import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
@@ -39,7 +37,7 @@ public class PolycomPhoneTest extends TestCase {
 
     private FileSystemProfileLocation m_location;
 
-    private String m_root = TestHelper.getTestDirectory() + "/testPolycom";
+    private final String m_root = TestHelper.getTestDirectory() + "/testPolycom";
 
     @Override
     protected void setUp() {
