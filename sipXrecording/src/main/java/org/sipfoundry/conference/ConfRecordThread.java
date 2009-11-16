@@ -77,7 +77,7 @@ public class ConfRecordThread extends ConfBasicThread {
                 if (filename.endsWith(".wav")) {
                    if ((System.currentTimeMillis() - child.lastModified())/1000 > 5*60) {
                        child.delete();
-                       LOG.info("ConfRecordThread::Audit deleting " + filename);
+                       LOG.debug("ConfRecordThread::Audit deleting " + filename);
                    }
                 }
             }
@@ -88,14 +88,14 @@ public class ConfRecordThread extends ConfBasicThread {
         String confName = event.getEventValue("conference-name");
         String uniqueId = event.getEventValue("Unique-ID");
         String wavName = new String(confName + "_" + uniqueId + ".wav");
-        LOG.info("ConfRecordThread::Creating conference recording " + wavName);
+        LOG.debug("ConfRecordThread::Creating conference recording " + wavName);
         conf.setWavName(wavName);
     }
 
     public void ProcessConfEnd(FreeSwitchEvent event, ConferenceTask conf) {
         String confName = event.getEventValue("conference-name");
         String wavName = conf.getWavName();
-        LOG.info("ConfRecordThread::Finished conference recording of " + wavName);
+        LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
 
         try {
             // Let FS finish any recording it may be doing

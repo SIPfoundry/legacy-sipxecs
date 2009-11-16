@@ -23,13 +23,13 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
  */
 public class RecordingConfiguration implements FreeSwitchConfigurationInterface {
 
-	private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
+    private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
     private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
-    private int m_eventSocketPort; // The Event Socket Listen port
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
+    private static final int PORT_NONE = -1;
     
     private static RecordingConfiguration s_current;
     private static File s_propertiesFile;
@@ -110,8 +110,6 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
         try {
             m_logLevel = props.getProperty(prop = "log.level");
             m_logFile = props.getProperty(prop = "log.file");
-            m_eventSocketPort = Integer.parseInt(props
-                .getProperty(prop = "freeswitch.eventSocketPort"));
             m_docDirectory = props.getProperty(prop = "recording.docDirectory") ;
             m_sipxchangeDomainName = props.getProperty(prop = "recording.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="recording.realm");
@@ -131,7 +129,7 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
     }
 
     public int getEventSocketPort() {
-        return m_eventSocketPort;
+        return PORT_NONE;
     }
 
     public String getDocDirectory() {

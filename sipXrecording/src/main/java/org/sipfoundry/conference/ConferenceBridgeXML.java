@@ -103,7 +103,6 @@ public class ConferenceBridgeXML {
                             if (child != null) {
                                 nodevalue = child.getNodeValue();
                             }
-                            // LOG.info("Element found : "  + name);
                             if (nodename.equals("bridgename")) {
                                 item.setBridgeName(nodevalue);
                             } else if (nodename.equals("bridgecontact")) {
@@ -120,7 +119,7 @@ public class ConferenceBridgeXML {
                         }
                     }
 
-                    LOG.info("Adding bridge: "  + item.getBridgeName());
+                    LOG.debug("Adding bridge: "  + item.getBridgeName());
                     m_confNameMap.put(item.getBridgeName(), item);
                     m_confs.add(item);
                 }
@@ -135,10 +134,10 @@ public class ConferenceBridgeXML {
         } catch (Exception ex) {
             return null;
         }
-        LOG.info("Looking for bridge: "  + confName);
+        LOG.debug("Looking for bridge: "  + confName);
         ConferenceBridgeItem item = m_confNameMap.get(confName);
-        LOG.info("Found bridge: "  + item.getBridgeName());
-        LOG.info("Found owner: "  + item.getOwnerName());
+        LOG.debug("Found bridge: "  + item.getBridgeName());
+        LOG.debug("Found owner: "  + item.getOwnerName());
         return item;
     }
 

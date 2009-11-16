@@ -49,14 +49,10 @@ public class SipXrecording implements Runnable {
     
     /**
      * Load the configuration from the sipxrecording.properties file.
-     * Wait for FreeSWITCH to make a TCP connection to s_eventSocketPort.
-     * Spawn off a thread to handle each connection.
      * 
      * @throws Throwable
      */
     static void init() throws Throwable {
-        int eventSocketPort;
-        
         // Load the configuration
         s_config = RecordingConfiguration.get();
 
