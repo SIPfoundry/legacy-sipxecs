@@ -23,6 +23,7 @@
 #include <os/OsTask.h>
 #include <os/OsTimerTask.h>
 #include <os/OsStunAgentTask.h>
+#include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
@@ -665,8 +666,8 @@ proxy( int argc, char* argv[] )
     { // scope the test stuff
         SipMessage foo;
         const char* uri = "sip:10.1.20.3:5100";
-        const char* method = "ACK"; //SIP_SUBSCRIBE_METHOD;
-        const char* eventType = "sip-config"; //SIP_EVENT_CONFIG;
+        const char* method = SIP_ACK_METHOD;
+        const char* eventType = SIP_EVENT_CONFIG;
         foo.setRequestData(method, 
                            uri, //uri, 
                            "sip:1234@doty.com", // fromField, 

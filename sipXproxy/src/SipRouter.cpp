@@ -520,6 +520,15 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          bForwardingRulesShouldBeEvaluated = true;
       }
 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRouter::proxyMessage A "
+                    "bRequestShouldBeAuthorized = %d, "
+                    "bForwardingRulesShouldBeEvaluated = %d, "
+                    "bMessageWillSpiral = %d",
+                    bRequestShouldBeAuthorized,
+                    bForwardingRulesShouldBeEvaluated,
+                    bMessageWillSpiral);
+
       if( bForwardingRulesShouldBeEvaluated )
       {
          UtlString topRouteValue;
@@ -595,6 +604,13 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
          }
       }
       
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRouter::proxyMessage B "
+                    "bRequestShouldBeAuthorized = %d, "
+                    "bMessageWillSpiral = %d",
+                    bRequestShouldBeAuthorized,
+                    bMessageWillSpiral);
+
       if( bRequestShouldBeAuthorized )
       {
           
