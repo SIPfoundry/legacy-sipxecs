@@ -73,24 +73,16 @@ public class ProtocolObjects {
              */
             Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
             StackLoggerImpl.setLogger(logger);
-               
-            if (!Gateway.getLogLevel().equalsIgnoreCase("TRACE")) {
-                if (Gateway.getLogLevel().equalsIgnoreCase("DEBUG")) {
-                     stackProperties.setProperty(
-                            "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
-                } else {
-                     stackProperties.setProperty(
-                            "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
-                }
-                logger.setLevel(Level.INFO);
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.INFO.toString());
-            } else {  
-                stackProperties.setProperty(
-                        "gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
-                stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", Level.DEBUG.toString());
-                logger.setLevel(Level.DEBUG);
-                
+
+            String logLevel =  SipFoundryLayout.mapSipFoundry2log4j(Gateway.getLogLevel()).toString();
+            stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", logLevel);
+
+            if (logLevel.equalsIgnoreCase("DEBUG")) {
+                stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
+            } else {
+                stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
             }
+
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_FACTORY",
