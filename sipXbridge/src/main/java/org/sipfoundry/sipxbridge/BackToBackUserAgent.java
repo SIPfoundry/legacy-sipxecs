@@ -1887,9 +1887,9 @@ public class BackToBackUserAgent implements Comparable {
 
             if (this.musicOnHoldDialog != null) {
                 this.sendByeToMohServer();
-                rtpSession.getTransmitter().setOnHold(false);
             }
-
+            rtpSession.getTransmitter().setOnHold(false);
+            
             logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
 
             DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
@@ -1903,6 +1903,7 @@ public class BackToBackUserAgent implements Comparable {
                 SipUtilities.addWanAllowHeaders(reInvite);
 
                 RtpSession wanRtpSession = peerDat.getRtpSession();
+                wanRtpSession.getTransmitter().setOnHold(false);
                 wanRtpSession.getReceiver().setSessionDescription(newOffer);
                 SipUtilities.incrementSessionVersion(newOffer);
                 ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory

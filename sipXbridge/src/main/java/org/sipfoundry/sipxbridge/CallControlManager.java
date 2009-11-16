@@ -2007,7 +2007,7 @@ class CallControlManager implements SymmitronResetHandler {
                     /*
                      * Send the Answer to the peer dialog.
                      */
-                    if (DialogContext.getPeerRtpSession(tad.getDialogPendingSdpAnswer())!= null) {
+                    if (DialogContext.getRtpSession(tad.getDialogPendingSdpAnswer())!= null) {
                         CallControlUtilities
                         .sendSdpAnswerInAck(response, tad.getDialogPendingSdpAnswer());
                     } else {
