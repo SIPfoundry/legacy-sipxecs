@@ -47,9 +47,9 @@ build folder on your system:
      (e.g. /home/sipx/src/main/MYBUILD) (must be an absolute path,
      i.e. no ~).
 
-Java variables are set under Java->Build Path->Classpath.  Set SIPX_CONFIG
-to point to the sipXconfig source directory, and SIPX_BUILD to point to
-the sipXconfig directory under your build dir.
+Java variables are set under Java->Build Path->Classpath.  Set SIPX_SRC_TOP
+to point to the top-level source directory, and SIPX_BUILD_TOP to point to
+your top-level build dir.
 
 You might want to adjust the settings for building, as I found that I
 prefer to tell Eclipse when to build, rather than it deciding it should
