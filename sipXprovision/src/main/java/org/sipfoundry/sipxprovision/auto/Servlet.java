@@ -449,8 +449,8 @@ public class Servlet extends HttpServlet {
      */
     protected static String getPhoneDescription(DetectedPhone phone, Date date) {
         return String.format(
-                "Auto-provisioned\n  %s%s\n  MAC: %s\n  Model: %s\n  Version: %s\n  Date: %s", 
-                ID_PREFIX, phone.id, phone.mac, phone.model.full_label, phone.version, date);
+                "Auto-provisioned\n  %s%s\n  MAC: %s\n  Model: %s\n  Version: %s\n", 
+                ID_PREFIX, phone.id, phone.mac, phone.model.full_label, phone.version);
     }
 
     protected boolean doProvisionPhone(DetectedPhone phone) {
