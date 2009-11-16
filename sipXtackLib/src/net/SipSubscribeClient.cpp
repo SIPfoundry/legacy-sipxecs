@@ -1974,7 +1974,7 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
 
          // Test whether reestablish is set.
          // It may be false because the subscription group is being ended.
-         if (groupState->mReestablish)
+         if (groupState && groupState->mReestablish)
          {
             // Prepare for the next starting attempt.
             groupState->resetStarting();
