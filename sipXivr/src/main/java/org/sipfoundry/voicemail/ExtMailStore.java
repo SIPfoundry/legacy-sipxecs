@@ -756,11 +756,10 @@ public class ExtMailStore {
         final IMAPConnection conn = new IMAPConnection();
         conn.m_synching = false;
         final String mbxid = user.getUserName();
-        Mailbox mbx = new Mailbox(user);
         
         // should we even try to make a connection? 
         ImapInfo imapInfo = conn.m_user.getImapInfo();
-        if(imapInfo == null && !imapInfo.isSynchronize())
+        if(imapInfo == null || !imapInfo.isSynchronize())
             return;
                 
         class ConnectAction implements java.security.PrivilegedAction {
