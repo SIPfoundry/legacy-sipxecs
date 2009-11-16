@@ -631,6 +631,20 @@ CONFIG_HOSTS : %s\n\
 
     log_printout (minimalDomainConfig)
 
+def DNS_Provider( configfile ):
+   if not os.path.isfile (configfile) :
+      # DNS Config file not found.  Assume that we will provide and be the master.
+      return True
+   else :
+      # Scan the config file for indication of being master or not.
+      fconfig=open(configfile,"r")
+      configstring = fconfig.read()
+      fconfig.close()
+      if configstring.find('DNS_MODE="Master"') == -1 :
+         return False
+      else :
+         return True
+
 def setup_DNS_zone( domain, hostname, ipaddress ):
    ''' Create zone files for the specified domain '''
 
@@ -640,17 +654,20 @@ def setup_DNS_zone( domain, hostname, ipaddress ):
    zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, domain)
    dnsConfigFile='/etc/named.conf'
 
-   # Create DNS entries using the sipx-dns script
-   sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
-                      % (domain, hostname, ipaddress)
+   if DNS_Provider( dnsConfigFile ) :
+      # We are a Master DNS server so generate a zone file.
 
-   log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
-   zoneConfig = commands.getoutput(sipxDNSCommand)
+      # Create DNS entries using the sipx-dns script
+      sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
+                         % (domain, hostname, ipaddress)
 
-   log_printout("======= %s:" % zoneConfigFile)
-   log_printout(zoneConfig)
+      log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
+      zoneConfig = commands.getoutput(sipxDNSCommand)
 
-   zoneRef = '\
+      log_printout("======= %s:" % zoneConfigFile)
+      log_printout(zoneConfig)
+
+      zoneRef = '\
 \n\
 zone "%s"  IN  {\n\
      type master;\n\
@@ -659,12 +676,12 @@ zone "%s"  IN  {\n\
 };\n\
 ' % ( domain, domain )
 
-   log_printout("======= %s (appended):" % dnsConfigFile)
-   log_printout(zoneRef)
+      log_printout("======= %s (appended):" % dnsConfigFile)
+      log_printout(zoneRef)
 
-   if runningAsRoot():
-      file ( zoneConfigFile, 'w').write( zoneConfig )
-      file ( dnsConfigFile, 'a').write( zoneRef )
+      if runningAsRoot():
+         file ( zoneConfigFile, 'w').write( zoneConfig )
+         file ( dnsConfigFile, 'a').write( zoneRef )
 
 
 def enable_sipXconfig () :
