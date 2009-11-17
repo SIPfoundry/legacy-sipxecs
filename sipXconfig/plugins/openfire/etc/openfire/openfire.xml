@@ -30,27 +30,37 @@
       </option>
     </enum>
   </type>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
   <group name="settings" advanced="yes">
     <setting name="sipx-proxy-domain" hidden="yes">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
     </setting>
     <setting name="sipx-proxy-port" hidden="yes">
       <type>
-        <integer required="yes"/>
+        <integer required="yes" />
       </type>
       <value>5060</value>
     </setting>
     <setting name="watcher-address" hidden="yes">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
       <value></value>
     </setting>
     <setting name="watcher-port">
       <type>
-        <integer required="yes"/>
+        <integer required="yes" />
       </type>
       <value>5064</value>
     </setting>
@@ -60,22 +70,20 @@
     </setting>
     <setting name="openfire-xml-rpc-port">
       <type>
-        <integer required="yes"/>
+        <integer required="yes" />
       </type>
       <value>9094</value>
     </setting>
     <setting name="openfire-host" hidden="yes">
       <type>
-        <string required="yes"/>
+        <string required="yes" />
       </type>
     </setting>
   </group>
   <group name="openfire-server-to-server">
     <setting name="enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
+      <type refid="switch" />
+      <value>false</value>
     </setting>
     <setting name="port">
       <type>
@@ -84,10 +92,8 @@
       <value>5269</value>
     </setting>
     <setting name="disconnect-on-idle" advanced="yes">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
+      <type refid="switch" />
+      <value>false</value>
     </setting>
     <setting name="idle-timeout" advanced="yes">
       <type>
@@ -96,10 +102,8 @@
       <value>3600</value>
     </setting>
     <setting name="any-can-connect">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
+      <type refid="switch" />
+      <value>false</value>
     </setting>
     <setting name="allowed-servers">
       <type>
@@ -117,17 +121,15 @@
     </setting>
     <setting name="default-remote-server-port" hidden="yes">
       <type>
-        <integer/>
+        <integer />
       </type>
       <value>5269</value>
     </setting>
   </group>
   <group name="message-logging">
     <setting name="enabled">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
+      <type refid="switch" />
+      <value>false</value>
     </setting>
   </group>
 </model>
