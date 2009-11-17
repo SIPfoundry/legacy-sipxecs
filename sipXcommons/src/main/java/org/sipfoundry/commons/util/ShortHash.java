@@ -7,6 +7,8 @@ package org.sipfoundry.commons.util;
 
 import java.util.Random;
 
+import org.apache.commons.lang.RandomStringUtils;
+
 /**
  * Returns a simple unique-ish ID string (hash) generated from the specified seed.
  * The string is intentionally easy to read and verbalize.
@@ -64,13 +66,6 @@ public class ShortHash {
 
         // A given seed string will generate the same ID across an Java implementation,
         // and on any platform.
-        Random random = new Random(seed_num);
-
-        StringBuffer hash = new StringBuffer();
-        for (short x = 0; x < ID_LENGTH; x++ ) {
-            hash.append(ID_CHARS[random.nextInt(ID_CHARS.length-1)]);
-        }
-
-        return hash.toString();
+        return RandomStringUtils.random(ID_LENGTH, 0, ID_CHARS.length - 1, false, false, ID_CHARS, new Random(seed_num));
     }
 }
