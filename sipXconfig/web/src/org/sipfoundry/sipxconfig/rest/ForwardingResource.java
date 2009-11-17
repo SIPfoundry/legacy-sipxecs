@@ -10,8 +10,6 @@
 
 package org.sipfoundry.sipxconfig.rest;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
@@ -63,13 +61,6 @@ public class ForwardingResource extends UserResource {
         CallSequence newCallSequence = representation.getObject();
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(getUser());
         final List<AbstractRing> rings = newCallSequence.getRings();
-        // need to resort the rings - since positions are lost when marshalling
-        Comparator<AbstractRing> comparePositions = new Comparator<AbstractRing>() {
-            public int compare(AbstractRing ring1, AbstractRing ring2) {
-                return ring1.getPosition() - ring2.getPosition();
-            }
-        };
-        Collections.sort(rings, comparePositions);
         callSequence.replaceRings(rings);
         callSequence.setWithVoicemail(newCallSequence.isWithVoicemail());
         m_forwardingContext.saveCallSequence(callSequence);
@@ -133,6 +124,5 @@ public class ForwardingResource extends UserResource {
         protected void configureImplicitCollections(XStream xstream) {
             xstream.addImplicitCollection(AbstractCallSequence.class, "m_rings", Ring.class);
         }
-
     }
 }

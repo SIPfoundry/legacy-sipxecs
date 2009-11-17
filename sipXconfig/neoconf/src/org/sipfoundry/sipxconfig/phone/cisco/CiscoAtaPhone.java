@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phone.cisco;
 
@@ -62,6 +62,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         m_isTextFormatEnabled = isTextFormatEnabled;
     }
 
+    @Override
     public String getProfileFilename() {
         String phoneFilename = getSerialNumber();
         return getModel().getCfgPrefix() + phoneFilename.toLowerCase();
@@ -85,7 +86,6 @@ public class CiscoAtaPhone extends CiscoPhone {
         for (int i = lines.size(); i < getMaxLineCount(); i++) {
             Line line = createLine();
             line.setPhone(this);
-            line.setPosition(i);
             lines.add(line);
             line.initialize();
             line.addDefaultBeanSettingHandler(new CiscoAtaLineDefaults.StubAtaLine());
@@ -95,7 +95,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     static class Evaluator implements SettingExpressionEvaluator {
-        private String m_model;
+        private final String m_model;
 
         public Evaluator(String model) {
             m_model = model;

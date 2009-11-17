@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.common;
 
@@ -41,9 +41,6 @@ public final class DataCollectionUtil {
         while (remove.hasNext()) {
             c.remove(remove.next());
         }
-
-        updatePositions(c);
-
         return removed;
     }
 
@@ -60,18 +57,6 @@ public final class DataCollectionUtil {
             list.add(((PrimaryKeySource) i.next()).getPrimaryKey());
         }
         return list;
-    }
-
-    /**
-     * Fixes position fields after a list manipulation.
-     */
-    public static void updatePositions(Collection c) {
-        // update positions
-        Iterator update = c.iterator();
-        for (int i = 0; update.hasNext(); i++) {
-            DataCollectionItem item = (DataCollectionItem) update.next();
-            item.setPosition(i);
-        }
     }
 
     /**
@@ -95,14 +80,6 @@ public final class DataCollectionUtil {
     }
 
     /**
-     * Version of moveByPrimary keys that only works on collections of objects implementing
-     * DataCollectionItem interface
-     */
-    public static void moveByPrimaryKey(List c, Object[] primaryKeys, int step) {
-        moveByPrimaryKey(c, primaryKeys, step, true);
-    }
-
-    /**
      * Moves items from collections by their primary key and updates the positions on the items.
      * Items that are attempted to move out of list bounds are quietly moved to beginning or end
      * of list.
@@ -110,8 +87,7 @@ public final class DataCollectionUtil {
      * @param step how many slots to move items, positive or negative
      * @param c items must implement DataCollectionItem
      */
-    public static void moveByPrimaryKey(List c, Object[] primaryKeys, int step,
-            boolean updatePositions) {
+    public static void moveByPrimaryKey(List c, Object[] primaryKeys, int step) {
         Set toBeMovedSet = new HashSet(primaryKeys.length);
         CollectionUtils.addAll(toBeMovedSet, primaryKeys);
 
@@ -139,10 +115,6 @@ public final class DataCollectionUtil {
                     maxPosition = newPosition - 1;
                 }
             }
-        }
-
-        if (updatePositions) {
-            updatePositions(c);
         }
     }
 

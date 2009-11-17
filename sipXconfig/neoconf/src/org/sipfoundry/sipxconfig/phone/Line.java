@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
@@ -21,13 +20,11 @@ import static org.sipfoundry.sipxconfig.common.SipUri.DEFAULT_SIP_PORT;
 import static org.sipfoundry.sipxconfig.common.SipUri.formatIgnoreDefaultPort;
 import static org.sipfoundry.sipxconfig.common.SipUri.parsePort;
 
-public class Line extends BeanWithGroups implements DataCollectionItem {
+public class Line extends BeanWithGroups {
 
     private Phone m_phone;
 
     private User m_user;
-
-    private int m_position;
 
     private boolean m_initialized;
 
@@ -67,14 +64,6 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
             return u.getUserName();
         }
         return getLineInfo().getUserId();
-    }
-
-    public int getPosition() {
-        return m_position;
-    }
-
-    public void setPosition(int position) {
-        m_position = position;
     }
 
     @Override

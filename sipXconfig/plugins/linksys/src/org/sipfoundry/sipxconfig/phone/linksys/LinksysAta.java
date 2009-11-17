@@ -53,7 +53,6 @@ public class LinksysAta extends Linksys {
         for (; i < lineCount; i++) {
             Line line = createLine();
             line.setPhone(this);
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
         }
 
@@ -61,7 +60,7 @@ public class LinksysAta extends Linksys {
     }
 
     public static class LinksysLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         LinksysLineDefaults(Line line) {
             m_line = line;

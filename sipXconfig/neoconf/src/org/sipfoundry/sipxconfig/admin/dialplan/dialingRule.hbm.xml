@@ -9,8 +9,8 @@
       </generator>
     </id>
     <list name="rules" cascade="all-delete-orphan">
-      <key column="dial_plan_id" />
-      <index column="position" />
+      <key column="dial_plan_id" not-null="true" />
+      <list-index column="position" />
       <one-to-many class="DialingRule" />
     </list>
   </class>
@@ -24,10 +24,9 @@
     <property name="name" not-null="true" />
     <property name="description" />
     <property name="enabled" />
-    <property name="position" />
     <list name="gateways" table="dialing_rule_gateway" cascade="save-update">
       <key column="dialing_rule_id" />
-      <index column="index" />
+      <list-index column="index" />
       <many-to-many class="org.sipfoundry.sipxconfig.gateway.Gateway" column="gateway_id" />
     </list>
 

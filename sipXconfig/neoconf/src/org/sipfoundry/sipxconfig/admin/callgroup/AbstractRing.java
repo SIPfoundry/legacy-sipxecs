@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
@@ -13,10 +13,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
-public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
+public abstract class AbstractRing extends BeanWithId {
     public static final String TYPE_PROP = "type";
 
     private static final int DEFAULT_EXPIRATION = 30;
@@ -27,7 +26,6 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     private int m_expiration = DEFAULT_EXPIRATION;
     private Type m_type = Type.DELAYED;
-    private int m_position;
     private boolean m_enabled = true;
 
     public int getExpiration() {
@@ -36,14 +34,6 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
     public void setExpiration(int expiration) {
         m_expiration = expiration;
-    }
-
-    public int getPosition() {
-        return m_position;
-    }
-
-    public void setPosition(int position) {
-        m_position = position;
     }
 
     public Type getType() {

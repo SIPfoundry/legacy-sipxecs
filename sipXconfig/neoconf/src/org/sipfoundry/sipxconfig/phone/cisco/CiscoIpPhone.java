@@ -223,7 +223,6 @@ public class CiscoIpPhone extends CiscoPhone {
         // copy in blank lines of all unused lines
         for (; i < getMaxLineCount(); i++) {
             Line line = createLine();
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
             line.addDefaultBeanSettingHandler(new CiscpIpStubbedLineDefaults());
         }

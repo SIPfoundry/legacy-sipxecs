@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.forwarding.Schedule;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -36,7 +35,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId implements DataCollectionItem, NamedObject, IDialingRule {
+public abstract class DialingRule extends BeanWithId implements NamedObject, IDialingRule {
 
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
@@ -45,7 +44,6 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
     private boolean m_enabled;
     private String m_name;
     private String m_description;
-    private int m_position;
     private List<Gateway> m_gateways = new ArrayList<Gateway>();
     private transient PermissionManager m_permissionManager;
     private Schedule m_schedule;
@@ -207,15 +205,7 @@ public abstract class DialingRule extends BeanWithId implements DataCollectionIt
     }
 
     public void moveGateways(Collection<Integer> ids, int step) {
-        DataCollectionUtil.moveByPrimaryKey(m_gateways, ids.toArray(), step, false);
-    }
-
-    public int getPosition() {
-        return m_position;
-    }
-
-    public void setPosition(int position) {
-        m_position = position;
+        DataCollectionUtil.moveByPrimaryKey(m_gateways, ids.toArray(), step);
     }
 
     @Override

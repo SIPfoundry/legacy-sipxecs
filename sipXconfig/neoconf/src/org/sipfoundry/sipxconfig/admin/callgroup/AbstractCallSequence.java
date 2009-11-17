@@ -46,12 +46,10 @@ public class AbstractCallSequence extends BeanWithId {
 
     protected void insertRing(AbstractRing ring) {
         m_rings.add(ring);
-        DataCollectionUtil.updatePositions(m_rings);
     }
 
     protected void insertRings(Collection< ? extends AbstractRing> rings) {
         m_rings.addAll(rings);
-        DataCollectionUtil.updatePositions(m_rings);
     }
 
     public void replaceRings(Collection< ? extends AbstractRing> rings) {

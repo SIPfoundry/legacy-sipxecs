@@ -23,8 +23,6 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.sip.SipService;
 
-import static org.sipfoundry.sipxconfig.common.DataCollectionUtil.updatePositions;
-
 /**
  * Base class for managed phone subclasses
  */
@@ -134,7 +132,6 @@ public abstract class Phone extends Device {
 
     public void removeLine(Line line) {
         getLines().remove(line);
-        updatePositions(getLines());
     }
 
     protected void sendCheckSyncToFirstLine() {
@@ -189,7 +186,6 @@ public abstract class Phone extends Device {
             throw new MaxLinesException("Maximum number of allowed lines is " + max);
         }
         line.setPhone(this);
-        line.setPosition(m_lines.size());
         m_lines.add(line);
         line.initialize();
     }

@@ -39,6 +39,7 @@ public class AcdAgent extends AcdComponent {
         super("sipxacd-agent.xml", OBJECT_CLASS);
     }
 
+    @Override
     public void initialize() {
         addDefaultBeanSettingHandler(new AcdAgentDefaults(this));
     }
@@ -51,16 +52,18 @@ public class AcdAgent extends AcdComponent {
         m_user = user;
     }
 
+    @Override
     public String getName() {
         return m_user.getUserName();
     }
 
+    @Override
     public void setName(String name_) {
         throw new UnsupportedOperationException("Cannot change name for AcdAgent");
     }
 
     public static class AcdAgentDefaults {
-        private AcdAgent m_agent;
+        private final AcdAgent m_agent;
         AcdAgentDefaults(AcdAgent agent) {
             m_agent = agent;
         }
@@ -104,7 +107,7 @@ public class AcdAgent extends AcdComponent {
     }
 
     public void moveQueues(Collection ids, int step) {
-        DataCollectionUtil.moveByPrimaryKey(getQueues(), ids.toArray(), step, false);
+        DataCollectionUtil.moveByPrimaryKey(getQueues(), ids.toArray(), step);
     }
 
     public void addToQueue(AcdQueue queue) {
@@ -140,6 +143,7 @@ public class AcdAgent extends AcdComponent {
         return m_acdServer;
     }
 
+    @Override
     public Serializable getAcdServerId() {
         return getAcdServer().getId();
     }

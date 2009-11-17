@@ -12,11 +12,11 @@
       </generator>
     </id>
     <property name="number" />
-    <property name="position" />
     <property name="expiration" />
     <property name="enabled" />
     <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
-    <many-to-one name="callSequence" column="user_id" class="CallSequence" not-null="true" />
+    <many-to-one name="callSequence" column="user_id" class="CallSequence" not-null="true" insert="false"
+      update="false" />
     <many-to-one name="schedule" column="schedule_id" class="Schedule" />
   </class>
 
@@ -30,9 +30,9 @@
       </generator>
     </id>
     <one-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" constrained="true" />
-    <list name="rings" inverse="true" cascade="all-delete-orphan">
-      <key column="user_id" />
-      <index column="position" />
+    <list name="rings" cascade="all-delete-orphan">
+      <key column="user_id" not-null="true" />
+      <list-index column="position" />
       <one-to-many class="Ring" />
     </list>
   </class>

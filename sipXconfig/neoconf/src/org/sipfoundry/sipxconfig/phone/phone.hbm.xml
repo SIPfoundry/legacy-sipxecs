@@ -21,9 +21,9 @@
       <key column="phone_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
-    <list name="lines" inverse="true" cascade="all-delete-orphan">
-      <key column="phone_id"/>
-      <index column="position"/>
+    <list name="lines" cascade="all-delete-orphan">
+      <key column="phone_id" not-null="true"/>
+      <list-index column="position"/>
       <one-to-many class="Line"/>
     </list>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
@@ -35,17 +35,10 @@
         <param name="sequence">line_seq</param>
       </generator>
     </id>
-    <many-to-one name="phone" column="phone_id" class="Phone" not-null="true"/>
-    <property name="position"/>
+    <many-to-one name="phone" column="phone_id" class="Phone" not-null="true" insert="false" update="false" />
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-    <!-- Groups are read from phone, lines cannot have their own
-       - group at this time, either too confusing to user -->
-  	<!-- set name="groups" table="line_group" sort="natural">
-      <key column="line_id"/>
-      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
-    </set -->
   </class>
 
   <query name="phoneIds">

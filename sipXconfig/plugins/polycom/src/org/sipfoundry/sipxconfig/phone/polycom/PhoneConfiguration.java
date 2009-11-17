@@ -57,7 +57,6 @@ public class PhoneConfiguration extends ProfileContext {
         for (int i = lines.size(); i < lineCount; i++) {
             Line line = phone.createLine();
             line.setPhone(phone);
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
         }
 

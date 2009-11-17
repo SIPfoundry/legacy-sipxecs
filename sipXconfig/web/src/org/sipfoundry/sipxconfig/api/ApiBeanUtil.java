@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.api;
 
@@ -13,26 +13,28 @@ import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
 public final class ApiBeanUtil {
+
+    private static final String INDEX_PROP = "position";
 
     private ApiBeanUtil() {
     }
 
     public static void toApiObject(ApiBeanBuilder builder, Object apiObject, Object myObject) {
         Set properties = getProperties(apiObject);
+        properties.remove(INDEX_PROP);
         builder.toApiObject(apiObject, myObject, properties);
     }
 
     public static void toMyObject(ApiBeanBuilder builder, Object myObject, Object apiObject) {
         Set properties = getProperties(apiObject);
+        properties.remove(INDEX_PROP);
         builder.toMyObject(myObject, apiObject, properties);
     }
 
@@ -72,8 +74,8 @@ public final class ApiBeanUtil {
     }
 
     /**
-     * Convert an array of server objects to an array of equivalent SOAP API objects (instances
-     * of apiClass), using the supplied bean builder.  Return the array of API objects.
+     * Convert an array of server objects to an array of equivalent SOAP API objects (instances of
+     * apiClass), using the supplied bean builder. Return the array of API objects.
      */
     public static Object[] toApiArray(ApiBeanBuilder builder, Object[] myObjects, Class apiClass) {
         int numObjects = myObjects != null ? myObjects.length : 0;
@@ -82,14 +84,21 @@ public final class ApiBeanUtil {
             return apiArray;
         }
         Set properties = ApiBeanUtil.getProperties(apiArray[0]);
+        boolean updatePosition = properties.remove(INDEX_PROP);
         for (int i = 0; i < numObjects; i++) {
             builder.toApiObject(apiArray[i], myObjects[i], properties);
+            if (updatePosition) {
+                setProperty(apiArray[0], INDEX_PROP, i);
+            }
         }
         return apiArray;
     }
 
     public static Object[] toApiArray(ApiBeanBuilder builder, Collection myObjects, Class apiClass) {
-        int numObjects = SipxCollectionUtils.safeSize(myObjects);
+        if (myObjects == null) {
+            return new Object[0];
+        }
+        int numObjects = myObjects.size();
         if (numObjects == 0) {
             return new Object[0];
         }
@@ -99,8 +108,8 @@ public final class ApiBeanUtil {
     }
 
     /**
-     * Convert an array of SOAP API objects to an array of equivalent server objects (instances
-     * of myClass), using the supplied bean builder.  Return the array of server objects.
+     * Convert an array of SOAP API objects to an array of equivalent server objects (instances of
+     * myClass), using the supplied bean builder. Return the array of server objects.
      */
     public static Object[] toMyArray(ApiBeanBuilder builder, Object[] apiObjects, Class myClass) {
         int numObjects = apiObjects != null ? apiObjects.length : 0;
@@ -117,7 +126,10 @@ public final class ApiBeanUtil {
     }
 
     public static Object[] toMyArray(ApiBeanBuilder builder, Collection apiObjects, Class myClass) {
-        int numObjects = SipxCollectionUtils.safeSize(apiObjects);
+        if (apiObjects == null) {
+            return new Object[0];
+        }
+        int numObjects = apiObjects.size();
         if (numObjects == 0) {
             return new Object[0];
         }
@@ -126,47 +138,34 @@ public final class ApiBeanUtil {
         return toMyArray(builder, apiArray, myClass);
     }
 
-    public static void wrapImpossibleException(Exception e) {
-        throw new RuntimeException("Unexpected bean error", e);
-    }
-
-    public static void wrapPropertyException(String property, Exception e) {
-        throw new RuntimeException("Error accessing property " + property, e);
-    }
-
     public static Set getProperties(Object o) {
-        Set properties = null;
         try {
-            Map desciption = BeanUtils.describe(o);
-            desciption.remove("class");
-            properties = desciption.keySet();
+            Map description = BeanUtils.describe(o);
+            description.remove("class");
+            return description.keySet();
         } catch (IllegalAccessException e) {
-            wrapImpossibleException(e);
+            throw new UnexpectedException(e);
         } catch (InvocationTargetException e) {
-            wrapImpossibleException(e);
+            throw new UnexpectedException(e);
         } catch (NoSuchMethodException e) {
-            wrapImpossibleException(e);
+            throw new UnexpectedException(e);
         }
-        return properties;
     }
 
-    public static void copyProperties(Object to, Object from, Set properties, Set ignoreList) {
-        Iterator i = SipxCollectionUtils.safeIterator(properties);
-        while (i.hasNext()) {
-            String name = (String) i.next();
+    public static void copyProperties(Object to, Object from, Set<String> properties, Set ignoreList) {
+        for (String name : properties) {
             if (ignoreList != null && ignoreList.contains(name)) {
                 continue;
             }
             try {
                 Object value = PropertyUtils.getSimpleProperty(from, name);
                 BeanUtils.copyProperty(to, name, value);
-            } catch (IllegalAccessException iae) {
-                wrapPropertyException(name, iae);
-                throw new RuntimeException(iae);
-            } catch (InvocationTargetException ite) {
-                wrapPropertyException(name, ite);
-            } catch (NoSuchMethodException nsme) {
-                wrapPropertyException(name, nsme);
+            } catch (IllegalAccessException e) {
+                throw new PropertyException(name, e);
+            } catch (InvocationTargetException e) {
+                throw new PropertyException(name, e);
+            } catch (NoSuchMethodException e) {
+                throw new PropertyException(name, e);
             }
         }
     }
@@ -174,23 +173,33 @@ public final class ApiBeanUtil {
     public static void setProperty(Object o, String property, Object value) {
         try {
             BeanUtils.copyProperty(o, property, value);
-        } catch (IllegalAccessException iae) {
-            ApiBeanUtil.wrapPropertyException(property, iae);
-        } catch (InvocationTargetException ite) {
-            ApiBeanUtil.wrapPropertyException(property, ite);
+        } catch (IllegalAccessException e) {
+            throw new PropertyException(property, e);
+        } catch (InvocationTargetException e) {
+            throw new PropertyException(property, e);
         }
     }
 
     /** Like Class.newInstance, but convert checked exceptions to runtime exceptions */
     public static Object newInstance(Class klass) {
-        Object obj = null;
         try {
-            obj = klass.newInstance();
-        } catch (InstantiationException impossible1) {
-            wrapImpossibleException(impossible1);
-        } catch (IllegalAccessException impossible2) {
-            wrapImpossibleException(impossible2);
+            return klass.newInstance();
+        } catch (InstantiationException e) {
+            throw new UnexpectedException(e);
+        } catch (IllegalAccessException e) {
+            throw new UnexpectedException(e);
         }
-        return obj;
+    }
+
+    private static class UnexpectedException extends RuntimeException {
+        public UnexpectedException(Exception e) {
+            super("Unexpected bean error", e);
+        }
+    }
+
+    private static class PropertyException extends RuntimeException {
+        public PropertyException(String property, Exception e) {
+            super("Error accessing property " + property, e);
+        }
     }
 }

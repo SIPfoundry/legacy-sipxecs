@@ -21,6 +21,7 @@ import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -67,6 +68,16 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         checkDuplicates(group);
         assignWeightToNewGroups(group);
         getHibernateTemplate().saveOrUpdate(group);
+    }
+
+    @Override
+    public void moveGroups(List<Group> groups, Collection<Integer> groupIds, int step) {
+        DataCollectionUtil.moveByPrimaryKey(groups, groupIds.toArray(), step);
+        for (int i = 0; i < groups.size(); i++) {
+            // weight is position + 1 - for compatibility with old code
+            groups.get(i).setWeight(i + 1);
+        }
+        getHibernateTemplate().saveOrUpdateAll(groups);
     }
 
     void assignWeightToNewGroups(Group group) {

@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
@@ -25,7 +24,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  * @author dhubler
  *
  */
-public class Group extends ValueStorage implements Comparable, DataCollectionItem, NamedObject {
+public class Group extends ValueStorage implements Comparable, NamedObject {
     private String m_name;
     private String m_description;
     private String m_resource;
@@ -92,21 +91,6 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     private int defaultWeight(Integer weight) {
         return weight != null ? weight : -1;
-    }
-
-    /**
-     * byproduct of DataCollectionItem interface, returns weight - 1
-     */
-    public int getPosition() {
-        int w = (m_weight != null ? m_weight.intValue() : -1);
-        return w - 1;
-    }
-
-    /**
-     * byproduct of DataCollectionItem interface, sets weight to position + 1
-     */
-    public void setPosition(int position) {
-        m_weight = new Integer(position + 1);
     }
 
     /**

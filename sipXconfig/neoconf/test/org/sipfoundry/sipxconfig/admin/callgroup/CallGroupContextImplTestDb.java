@@ -30,6 +30,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
     private CoreContext m_coreContext;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
@@ -79,7 +80,6 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertSame(ring.getCallGroup(), callGroup);
         assertEquals(45, ring.getExpiration());
         assertEquals(AbstractRing.Type.DELAYED, ring.getType());
-        assertEquals(0, ring.getPosition());
         assertEquals("testuser", ring.getUser().getUserName());
 
     }

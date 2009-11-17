@@ -26,15 +26,16 @@
         </li>
       </ul>
       <table jwcid="lineTableView@common/Table" id="line:list"
-    source="ognl:lines"
-    columns="* !line:displayLabel"
-    row="ognl:currentRow"
-      selections="ognl:selections">
+        source="ognl:lines"
+        columns="* !line:displayLabel"
+        row="ognl:currentRow"
+        index="ognl:currentIndex"
+        selections="ognl:selections">
         <span jwcid="lineColumnValue@Block">
           <a jwcid="editLineLink@DirectLink"
-      listener="listener:editLine"
-      parameters="ognl:currentRow.id"
-      id="ognl:'link:line' + currentRow.position">
+            listener="listener:editLine"
+            parameters="ognl:currentRow.id"
+            id="ognl:'link:line' + currentIndex">
             <span jwcid="@Insert" value="ognl:currentRow.uri"/>
           </a>
         </span>

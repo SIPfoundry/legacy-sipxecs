@@ -25,9 +25,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class GrandstreamProfileWriter extends AbstractSettingVisitor {
     protected static final char LF = 0x0a;
     private OutputStream m_wtr;
-    private GrandstreamPhone m_phone;
+    private final GrandstreamPhone m_phone;
     private int m_lineIndex;
-    private Set m_ignore = new HashSet();
+    private final Set m_ignore = new HashSet();
 
     GrandstreamProfileWriter(GrandstreamPhone phone) {
         m_phone = phone;
@@ -64,6 +64,7 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
         return m_phone;
     }
 
+    @Override
     public void visitSetting(Setting setting) {
         writeProfileEntry(setting.getProfileName(), setting.getValue());
     }
@@ -122,7 +123,6 @@ public class GrandstreamProfileWriter extends AbstractSettingVisitor {
         // copy in blank lines of all unused lines
         for (int i = lines.size(); i < lineCount; i++) {
             Line line = getPhone().createLine();
-            line.setPosition(i);
             lines.add(line);
         }
 

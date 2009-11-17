@@ -72,6 +72,8 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public abstract void setCurrentRow(Line line);
 
+    public abstract int getCurrentIndex();
+
     @InitialValue(value = "new org.sipfoundry.sipxconfig.components.SelectMap()")
     public abstract SelectMap getSelections();
 

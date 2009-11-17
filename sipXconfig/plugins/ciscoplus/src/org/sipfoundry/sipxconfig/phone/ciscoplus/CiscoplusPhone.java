@@ -46,6 +46,7 @@ public class CiscoplusPhone extends Ciscoplus {
         return "SEP" + getSerialNumber().toUpperCase() + ".cnf.xml";
     }
 
+    @Override
     public int getMaxLineCount() {
         return getModel().getMaxLineCount();
     }
@@ -64,7 +65,6 @@ public class CiscoplusPhone extends Ciscoplus {
         for (; i < lineCount; i++) {
             Line line = createLine();
             line.setPhone(this);
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
         }
 
@@ -72,7 +72,7 @@ public class CiscoplusPhone extends Ciscoplus {
     }
 
     public static class CiscoplusLineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         CiscoplusLineDefaults(Line line) {
             m_line = line;

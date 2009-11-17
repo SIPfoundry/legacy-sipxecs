@@ -119,7 +119,6 @@ public class ForwardingResourceTest extends TestCase {
 
         for (int i = 0; i < 5; i++) {
             AbstractRing ring = savedCallSequence.getRings().get(i);
-            assertEquals(i, ring.getPosition());
             assertEquals(25 + i, ring.getExpiration());
             if (i % 2 == 0) {
                 assertEquals(Type.DELAYED, ring.getType());
@@ -157,7 +156,6 @@ public class ForwardingResourceTest extends TestCase {
 
         for (int i = 0; i < 5; i++) {
             AbstractRing ring = savedCallSequence.getRings().get(i);
-            assertEquals(i, ring.getPosition());
             assertEquals(25 + i, ring.getExpiration());
             if (i % 2 == 0) {
                 assertEquals(Type.DELAYED, ring.getType());

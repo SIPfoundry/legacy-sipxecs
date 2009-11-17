@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
@@ -49,21 +49,12 @@ public class DialPlanTest extends TestCase {
         plan.addRule(a);
         plan.addRule(b);
         assertEquals(2, plan.getRules().size());
-        assertEquals(0, a.getPosition());
-        assertEquals(1, b.getPosition());
 
         plan.addRule(0, c);
         assertEquals(3, plan.getRules().size());
-        assertEquals(0, c.getPosition());
-        assertEquals(1, a.getPosition());
-        assertEquals(2, b.getPosition());
 
         plan.addRule(-1, d);
         assertEquals(4, plan.getRules().size());
-        assertEquals(0, c.getPosition());
-        assertEquals(1, a.getPosition());
-        assertEquals(2, b.getPosition());
-        assertEquals(3, d.getPosition());
     }
 
     public void testGetAttendantRules() {
@@ -100,12 +91,8 @@ public class DialPlanTest extends TestCase {
         List<DialingRule> rules = out.getRules();
         assertEquals(4, out.getRules().size());
         assertSame(a, rules.get(0));
-        assertEquals(0, rules.get(0).getPosition());
         assertSame(b, rules.get(1));
-        assertEquals(1, rules.get(1).getPosition());
         assertSame(c, rules.get(2));
-        assertEquals(2, rules.get(2).getPosition());
         assertSame(d, rules.get(3));
-        assertEquals(3, rules.get(3).getPosition());
     }
 }

@@ -31,6 +31,7 @@ public class CallGroupBuilderTest extends TestCase {
     private IMocksControl m_control;
     private CoreContext m_coreContext;
 
+    @Override
     protected void setUp() {
         m_control = EasyMock.createControl();
         m_coreContext = m_control.createMock(CoreContext.class);
@@ -71,7 +72,6 @@ public class CallGroupBuilderTest extends TestCase {
         org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing =
             (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myRings.get(0);
         assertEquals(19, myRing.getExpiration());
-        assertEquals(0, myRing.getPosition());
         assertEquals(org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.IMMEDIATE, myRing.getType());
     }
 
@@ -86,7 +86,6 @@ public class CallGroupBuilderTest extends TestCase {
             new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
         myRing.setCallGroup(m_myCallGroup);
         myRing.setExpiration(19);
-        myRing.setPosition(5);
         myRing.setType(org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.IMMEDIATE);
         myRing.setUser(USER);
         List myRings = new ArrayList(1);
@@ -102,7 +101,7 @@ public class CallGroupBuilderTest extends TestCase {
         assertEquals(1, apiRings.length);
         UserRing apiRing = apiRings[0];
         assertEquals(19, apiRing.getExpiration());
-        assertEquals(5, apiRing.getPosition());
+        assertEquals(0, apiRing.getPosition());
         assertEquals(AbstractRingBuilder.TYPE_IMMEDIATE, apiRing.getType());
     }
 }

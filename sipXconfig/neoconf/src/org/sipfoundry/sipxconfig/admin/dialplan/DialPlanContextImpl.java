@@ -226,7 +226,6 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
             rules.add(ruleDup);
         }
-        DataCollectionUtil.updatePositions(rules);
         getHibernateTemplate().saveOrUpdate(dialPlan);
         getDialPlanActivationManager().replicateDialPlan(true);
     }

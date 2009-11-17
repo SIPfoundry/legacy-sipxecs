@@ -185,12 +185,13 @@ public class AcdQueue extends AcdComponent {
     }
 
     private static class AudioDirectorySetter extends AbstractSettingVisitor {
-        private String m_audioDirectory;
+        private final String m_audioDirectory;
 
         public AudioDirectorySetter(String directory) {
             m_audioDirectory = directory;
         }
 
+        @Override
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
@@ -201,7 +202,7 @@ public class AcdQueue extends AcdComponent {
     }
 
     public static class AcdQueueDefaults {
-        private AcdQueue m_queue;
+        private final AcdQueue m_queue;
 
         AcdQueueDefaults(AcdQueue queue) {
             m_queue = queue;
@@ -276,9 +277,10 @@ public class AcdQueue extends AcdComponent {
     }
 
     public void moveAgents(Collection ids, int step) {
-        DataCollectionUtil.moveByPrimaryKey(getAgents(), ids.toArray(), step, false);
+        DataCollectionUtil.moveByPrimaryKey(getAgents(), ids.toArray(), step);
     }
 
+    @Override
     public Serializable getAcdServerId() {
         return getAcdServer().getId();
     }

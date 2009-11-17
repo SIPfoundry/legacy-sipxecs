@@ -249,7 +249,6 @@ public class GrandstreamPhone extends Phone {
         // copy in blank lines of all unused lines
         for (; i < lineCount; i++) {
             Line line = createLine();
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
         }
 

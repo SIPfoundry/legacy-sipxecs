@@ -105,7 +105,6 @@ public class SnomPhone extends Phone {
         for (; i < lineCount; i++) {
             Line line = createLine();
             line.setPhone(this);
-            line.setPosition(i);
             linesSettings.add(line.getSettings());
         }
 

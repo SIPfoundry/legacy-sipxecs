@@ -45,7 +45,6 @@ public class DialPlan extends BeanWithId {
 
     public void addRule(DialingRule rule) {
         m_rules.add(rule);
-        DataCollectionUtil.updatePositions(m_rules);
     }
 
     public void addRule(int position, DialingRule rule) {
@@ -54,7 +53,6 @@ public class DialPlan extends BeanWithId {
         } else {
             m_rules.add(0, rule);
         }
-        DataCollectionUtil.updatePositions(m_rules);
     }
 
     public void removeAllRules() {
@@ -75,9 +73,6 @@ public class DialPlan extends BeanWithId {
                 i.remove();
                 changed = true;
             }
-        }
-        if (changed) {
-            DataCollectionUtil.updatePositions(m_rules);
         }
         return changed;
     }

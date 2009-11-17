@@ -11,10 +11,9 @@
         <param name="sequence">ring_seq</param>
       </generator>
     </id>
-    <property name="position" />
     <property name="expiration" />
     <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
-    <many-to-one name="callGroup" column="call_group_id" not-null="true" />
+    <many-to-one name="callGroup" column="call_group_id" not-null="true" insert="false" update="false" />
     <many-to-one name="user" column="user_id" not-null="true" cascade="none" />
   </class>
 
@@ -35,9 +34,9 @@
     <property name="voicemailFallback" />
     <property name="userForward" />
     <property name="sipPassword" />
-    <list name="rings" inverse="true" cascade="all-delete-orphan">
-      <key column="call_group_id" />
-      <index column="position" />
+    <list name="rings" cascade="all-delete-orphan">
+      <key column="call_group_id" not-null="true" />
+      <list-index column="position" />
       <one-to-many class="UserRing" />
     </list>
   </class>
