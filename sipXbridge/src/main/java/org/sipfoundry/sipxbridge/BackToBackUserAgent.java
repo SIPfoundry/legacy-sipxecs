@@ -2025,10 +2025,18 @@ public class BackToBackUserAgent implements Comparable {
                 wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
-                Response peerOk = SipUtilities.createResponse(peerSt, Response.OK);
-                peerOk.setHeader(contact);
-                peerOk.setContent(answerSdes, cth);
-                peerSt.sendResponse(peerOk);
+                if ( peerSt != null && peerSt.getState() != TransactionState.TERMINATED ) {
+                	Response peerOk = SipUtilities.createResponse(peerSt,
+							Response.OK);
+					peerOk.setHeader(contact);
+					peerOk.setContent(answerSdes, cth);
+					peerSt.sendResponse(peerOk);
+                } else {
+                	logger.debug("peerSt = " + peerSt);
+                	if ( peerSt != null ) {
+                		logger.debug("peerSt.getState() : " + peerSt.getState());
+                	}
+                }
                 this.getRtpBridge().start();
 
             }
