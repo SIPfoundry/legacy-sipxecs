@@ -442,13 +442,6 @@ class CallControlManager implements SymmitronResetHandler {
         ServerTransaction serverTransaction = requestEvent.getServerTransaction();
 
         try {
-        	/*
-             * Patch up request for missing Max-Forwards header. See Issue XX-7007
-             */
-            if ( request.getHeader(MaxForwardsHeader.NAME) == null ) {
-            	MaxForwardsHeader maxForwardsHeader = ProtocolObjects.headerFactory.createMaxForwardsHeader(20);
-            	request.setHeader(maxForwardsHeader);
-            }
             if (serverTransaction == null) {
                 try {
                     serverTransaction = provider.getNewServerTransaction(request);
@@ -487,6 +480,13 @@ class CallControlManager implements SymmitronResetHandler {
             }
 
             BackToBackUserAgent btobua;
+       	    /*
+             * Patch up request for missing Max-Forwards header. See Issue XX-7007
+             */
+            if ( request.getHeader(MaxForwardsHeader.NAME) == null ) {
+            	MaxForwardsHeader maxForwardsHeader = ProtocolObjects.headerFactory.createMaxForwardsHeader(20);
+            	request.setHeader(maxForwardsHeader);
+            }
 
             /*
              * Look at the Dialog context. The B2BUA structure tracks the call and is pointed to
