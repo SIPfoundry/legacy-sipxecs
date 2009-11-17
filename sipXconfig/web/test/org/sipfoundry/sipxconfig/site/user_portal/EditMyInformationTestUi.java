@@ -65,6 +65,20 @@ public class EditMyInformationTestUi extends WebTestCase {
         assertLinkNotPresent("link:menu");
     }
 
+    public void testMoHTabDisplay() {
+        SiteTestHelper.home(getTester());
+        clickLink("loginTestUserWithMoHPermission");
+        clickLink("toggleNavigation");
+        clickLink("menu.myInformation");
+        assertLinkPresent("link:moh");
+
+        SiteTestHelper.home(getTester());
+        clickLink("loginTestUserWithoutMoHPermission");
+        clickLink("toggleNavigation");
+        clickLink("menu.myInformation");
+        assertLinkNotPresent("link:moh");
+    }
+
     public void testTabConferencesDisplay() {
         clickLink("menu.myInformation");
         clickLink("link:conferences");

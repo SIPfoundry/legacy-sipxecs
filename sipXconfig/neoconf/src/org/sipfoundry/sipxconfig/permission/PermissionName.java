@@ -21,6 +21,8 @@ public enum PermissionName {
 
     PERSONAL_AUTO_ATTENDANT(Type.APPLICATION, "personal-auto-attendant"),
 
+    MUSIC_ON_HOLD(Type.APPLICATION, "music-on-hold"),
+
     /** call handling */
     NINEHUNDERED_DIALING(Type.CALL, "900Dialing", CallTag.REST),
 

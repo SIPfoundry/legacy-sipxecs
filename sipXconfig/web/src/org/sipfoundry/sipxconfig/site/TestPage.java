@@ -91,6 +91,7 @@ import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
+import static org.sipfoundry.sipxconfig.permission.PermissionName.MUSIC_ON_HOLD;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.PERSONAL_AUTO_ATTENDANT;
 import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
 
@@ -123,6 +124,8 @@ public abstract class TestPage extends BasePage {
     public static final String USER_WITHOUT_PA_PERMISSION = "testUserWithoutAutoAttendantPermission";
     public static final String USER_WITH_PA_PERMISSION = "testUserWithAutoAttendantPermission";
     public static final String USER_WITHOUT_VM_PERMISSION = "testUserWithoutVoicemailPermission";
+    public static final String USER_WITH_MOH_PERMISSION = "testUserWithMoHPermission";
+    public static final String USER_WITHOUT_MOH_PERMISSION = "testUserWithoutMoHPermission";
 
     public static final String SIPX_BRIDGE_MODEL = "sipXbridgeSbcModel";
 
@@ -489,13 +492,15 @@ public abstract class TestPage extends BasePage {
         login(user, false, true);
     }
 
-    public void loginTestUserWithAutoAttendantPermission() {
-        User user = createUserIfMissing(USER_WITH_PA_PERMISSION, PERSONAL_AUTO_ATTENDANT, true);
+    public void loginTestUserAutoAttendantPermission(boolean enabled) {
+        String name = enabled ? USER_WITH_PA_PERMISSION : USER_WITHOUT_PA_PERMISSION;
+        User user = createUserIfMissing(name, PERSONAL_AUTO_ATTENDANT, enabled);
         login(user, false, true);
     }
 
-    public void loginTestUserWithoutAutoAttendantPermission() {
-        User user = createUserIfMissing(USER_WITHOUT_PA_PERMISSION, PERSONAL_AUTO_ATTENDANT, false);
+    public void loginTestUserMoHPermission(boolean enabled) {
+        String name = enabled ? USER_WITH_MOH_PERMISSION : USER_WITHOUT_MOH_PERMISSION;
+        User user = createUserIfMissing(name, MUSIC_ON_HOLD, enabled);
         login(user, false, true);
     }
 

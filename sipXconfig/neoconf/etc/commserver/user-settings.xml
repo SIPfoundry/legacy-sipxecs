@@ -48,6 +48,10 @@
         <type refid="enable-disable" />
         <value>ENABLE</value>
       </setting>
+      <setting name="music-on-hold">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
     </group>
     <group name="call-handling">
       <setting name="900Dialing">
