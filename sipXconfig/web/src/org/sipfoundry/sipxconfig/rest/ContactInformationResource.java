@@ -116,6 +116,7 @@ public class ContactInformationResource extends UserResource {
             xstream.omitField(BeanWithId.class, "m_id");
             xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
             xstream.alias("contact-information", Representable.class);
+            xstream.aliasField("avatar", Representable.class, "gravatarUrl");
         }
     }
 }
