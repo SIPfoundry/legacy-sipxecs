@@ -16,12 +16,10 @@ import java.io.FileInputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.PriorityQueue;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
@@ -40,6 +38,7 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.apache.xmlrpc.XmlRpcException;
@@ -269,22 +268,22 @@ public class Gateway {
            
             BridgeConfiguration bridgeConfiguration = Gateway
                     .getBridgeConfiguration();
-            Level level = Level.OFF;
             String logLevel = bridgeConfiguration.getLogLevel();
 
+            java.util.logging.Level level = java.util.logging.Level.OFF;
             if (logLevel.equals("INFO"))
-                level = Level.INFO;
+                level = java.util.logging.Level.INFO;
             else if (logLevel.equals("DEBUG"))
-                level = Level.FINE;
+                level = java.util.logging.Level.FINE;
             else if (logLevel.equals("TRACE"))
-                level = Level.FINER;
+                level = java.util.logging.Level.FINER;
             else if (logLevel.equals("WARN"))
-                level = Level.WARNING;
+                level = java.util.logging.Level.WARNING;
 
             /*
              * BUGBUG For now turn off Logging on STUN4j. It writes to stdout.
              */
-            level = Level.OFF;
+            level = java.util.logging.Level.OFF;
 
             java.util.logging.Logger log = java.util.logging.Logger
                     .getLogger("net.java.stun4j");
@@ -307,7 +306,7 @@ public class Gateway {
             Gateway.logAppender = new SipFoundryAppender(
                     new SipFoundryLayout(), Gateway.getLogFile(),true);
             
-            logger.setLevel(SipFoundryLayout.mapSipFoundry2log4j(bridgeConfiguration.getLogLevel()));
+            logger.setLevel(Level.toLevel(logLevel));
 
             logger.addAppender(logAppender);
         } catch (Exception ex) {

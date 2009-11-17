@@ -208,7 +208,9 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @param logLevel the logLevel to set
+     * Set the logLevel to reflect the sipXecs-defined level requested,
+     * unless overridden in the log4j.properties file.
+     * @param logLevel the logLevel to set (one of the sipXecs-defined levels)
      */
     public void setLogLevel(String level) {
         this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();  
@@ -233,7 +235,7 @@ public class BridgeConfiguration {
     }
 
     /**
-     * @return the logLevel
+     * @return the logLevel (a log4j level)
      */
     public String getLogLevel() {
         return logLevel;

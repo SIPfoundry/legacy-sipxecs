@@ -74,14 +74,21 @@ public class ProtocolObjects {
             Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
             StackLoggerImpl.setLogger(logger);
 
-            String logLevel =  SipFoundryLayout.mapSipFoundry2log4j(Gateway.getLogLevel()).toString();
-            stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", logLevel);
-
-            if (logLevel.equalsIgnoreCase("DEBUG")) {
+            String logLevel = Gateway.getLogLevel();
+            if (logLevel.equalsIgnoreCase("DEBUG") || logLevel.equalsIgnoreCase("TRACE")) {
                 stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
             } else {
                 stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "false");
             }
+
+            // stack log levels are "off by one": otherwise too much logging at DEBUG level
+            if (logLevel.equalsIgnoreCase("TRACE")) {
+                logLevel = "DEBUG";
+            }
+            else if (logLevel.equalsIgnoreCase("DEBUG")) {
+                logLevel = "INFO";
+            }
+            stackProperties.setProperty("gov.nist.javax.sip.TRACE_LEVEL", logLevel);
 
             stackProperties.setProperty("gov.nist.javax.sip.REENTRANT_LISTENER", "true");
             stackProperties.setProperty("gov.nist.javax.sip.LOG_MESSAGE_CONTENT", "true");
