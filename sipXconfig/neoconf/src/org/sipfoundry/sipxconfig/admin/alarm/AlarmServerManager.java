@@ -35,9 +35,9 @@ public interface AlarmServerManager {
 
     void clear();
 
-    void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms, List<AlarmGroup> alarmGroups);
+    void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
-    void replicateAlarmServer(SipxReplicationContext replicationContext, Location location);
+    void replicateAlarms(SipxReplicationContext replicationContext, Location location);
 
     List<Alarm> getAlarmTypes();
 }

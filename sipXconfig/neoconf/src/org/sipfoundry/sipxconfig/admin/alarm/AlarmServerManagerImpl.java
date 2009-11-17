@@ -120,7 +120,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_alarmsStringsDirectory = alarmsStringsDirectory;
     }
 
-    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms, List<AlarmGroup> groups) {
+    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
         // save alarm server configuration
         saveAlarmServer(server);
         // replicate new alarm server configuration
@@ -128,7 +128,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
         // replicate new alarm groups configuration
-        replicateAlarmGroupsConfiguration(groups);
+        replicateAlarmGroupsConfiguration(getAlarmGroups());
 
         m_replicationContext.publishEvent(new AlarmServerActivatedEvent(this));
     }
@@ -172,7 +172,16 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         template.flush();
     }
 
-    public void replicateAlarmServer(SipxReplicationContext replicationContext, Location location) {
+    public void replicateAlarms(SipxReplicationContext replicationContext, Location location) {
+        // replicate new alarm server configuration
+        replicateAlarmServer(m_replicationContext, location);
+        // replicate new alarm types configuration
+        replicateAlarmsConfiguration(getAlarmTypes());
+        // replicate new alarm groups configuration
+        replicateAlarmGroupsConfiguration(getAlarmGroups());
+    }
+
+    private void replicateAlarmServer(SipxReplicationContext replicationContext, Location location) {
         AlarmServer alarmServer = getAlarmServer();
         m_alarmServerConfiguration.generate(alarmServer, m_logDirectory, getHost());
 

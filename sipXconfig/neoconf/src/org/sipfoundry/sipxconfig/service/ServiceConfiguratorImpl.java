@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -54,6 +55,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private DomainManager m_domainManager;
 
     private AlarmServerManager m_alarmServerManager;
+
+    private AlarmContext m_alarmContext;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -217,8 +220,10 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
             replicateServiceConfig(location, supervisorService);
 
-            // replicate alarm server. alarm server should be re-implemented as a sipx service
-            m_alarmServerManager.replicateAlarmServer(m_replicationContext, location);
+            // replicate alarm server stuff. alarm server should be re-implemented as a sipx service
+            m_alarmServerManager.replicateAlarms(m_replicationContext, location);
+            // send "reloadAlarms" command to the supervisor
+            m_alarmContext.reloadAlarms();
         }
 
         generateDataSets();
@@ -286,6 +291,11 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     @Required
     public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
         m_alarmServerManager = alarmServerManager;
+    }
+
+    @Required
+    public void setAlarmContext(AlarmContext alarmContext) {
+        m_alarmContext = alarmContext;
     }
 
     public void markServiceForRestart(SipxService service) {

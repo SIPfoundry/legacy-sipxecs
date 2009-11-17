@@ -72,6 +72,7 @@
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="alarmServerManager" ref="alarmServerManager" />
+    <property name="alarmContext" ref="alarmContext" />
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
