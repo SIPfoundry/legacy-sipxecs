@@ -33,6 +33,7 @@
     <pathelement location="${src.dir}/lib/dnsjava.jar"/>
     <pathelement location="${src.dir}/lib/commons-codec.jar"/>
     <pathelement location="${src.dir}/lib/commons-digester.jar"/>
+    <pathelement location="${src.dir}/lib/commons-lang.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -178,6 +179,7 @@
       <fileset file="${src.dir}/lib/commons-collections.jar"/>
       <fileset file="${src.dir}/lib/commons-digester.jar"/>
       <fileset file="${src.dir}/lib/commons-io.jar"/>
+      <fileset file="${src.dir}/lib/commons-lang.jar"/>
       <fileset file="${src.dir}/lib/commons-logging.jar"/>
       <fileset file="${src.dir}/lib/commons-logging-api.jar"/>
       <fileset file="${src.dir}/lib/commons-net.jar"/>

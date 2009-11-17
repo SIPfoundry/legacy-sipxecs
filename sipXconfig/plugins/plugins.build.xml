@@ -13,8 +13,9 @@
    -->
   <path id="compile.dependencies">
     <pathelement path="${classpath.build}" />
+    <pathelement path="${commons-lang.jar}" />
+    <pathelement path="${sipxcommons.jar}" />
     <pathelement location="${sipxconfig.jar}" />
-    <pathelement location="${commons-lang.jar}" />
     <pathelement location="${spring.jar}" />
     <pathelement location="${hibernate.jar}" />
     <pathelement location="${velocity.jar}" />

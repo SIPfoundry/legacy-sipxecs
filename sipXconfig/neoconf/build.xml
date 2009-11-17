@@ -12,9 +12,10 @@
 	    -->
   <path id="compile.dependencies">
     <pathelement path="${classpath.build}" />
+    <pathelement path="${sipxcommons.jar}" />
     <pathelement location="${saxpath.jar}" />
     <pathelement location="${jaxen.jar}" />
-    <pathelement location="${commons-lang.jar}" />
+    <pathelement path="${commons-lang.jar}" />
     <pathelement location="${spring.jar}" />
     <pathelement location="${spring-ldap.jar}" />
     <pathelement location="${ldap.jar}" />
@@ -218,7 +219,6 @@
       <fileset file="${commons-digester.jar}" />
       <fileset file="${commons-collections.jar}" />
       <fileset file="${commons-beanutils.jar}" />
-      <fileset file="${commons-lang.jar}" />
       <fileset file="${commons-codec.jar}" />
       <fileset file="${commons-fileupload.jar}" />
       <fileset file="${commons-io.jar}" />

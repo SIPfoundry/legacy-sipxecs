@@ -10,7 +10,6 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-collections-3.2.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-discovery-0.4.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-lang-2.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-logging-1.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-pool-1.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/easymock-2.2.jar"/>
@@ -62,5 +61,6 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/rome-1.0.jar" sourcepath="/LIB_SRC/rome/rome-1.0-sources.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jdom-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-lang.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
