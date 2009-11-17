@@ -6,7 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 
@@ -21,11 +20,8 @@ import javax.sip.header.ServerHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.message.MessageFactory;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.log4j.ServerLoggerImpl;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
 import org.sipfoundry.commons.log4j.StackLoggerImpl;
 
@@ -66,7 +62,7 @@ public class ProtocolObjects {
         try {
 
             Properties stackProperties = new Properties();
-            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipxbridge");
+            stackProperties.setProperty("javax.sip.STACK_NAME", "org.sipfoundry.sipXbridge");
             /*
              * At this point we have already added an appender to this logger.
              * Just get the logger for the gateway and give it to the stack.
