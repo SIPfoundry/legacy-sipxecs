@@ -630,10 +630,11 @@ public class BackToBackUserAgent implements Comparable {
      */
     void addDialogToCleanup(Dialog dialog) {
         if (dialogTable.contains(dialog)) {
-            logger.error("Dialog was also found in dialog table - should only be in one "
+            logger.warn("Dialog was also found in dialog table - should only be in one "
                     + DialogContext.get(dialog).getCreationPointStackTrace());
-            logger.error("addDialogToCleanup Dialog was created at "
+            logger.warn("addDialogToCleanup Dialog added to cleanup list at "
                     + SipUtilities.getStackTrace());
+            this.dialogTable.remove(dialog);
         }
 
         logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size()
@@ -1629,7 +1630,7 @@ public class BackToBackUserAgent implements Comparable {
                         .setUseGlobalAddressing(globalAddressing);
                 outboundSessionDescription = DialogContext.getRtpSession(this.referingDialog)
                         .getReceiver().getSessionDescription();
-            } else {
+           } else {
                 RtpSession wanRtpSession = this.createRtpSession(outboundDialog);
                 wanRtpSession.getReceiver().setUseGlobalAddressing(globalAddressing);
                 outboundSessionDescription = SipUtilities.getSessionDescription(incomingRequest);
