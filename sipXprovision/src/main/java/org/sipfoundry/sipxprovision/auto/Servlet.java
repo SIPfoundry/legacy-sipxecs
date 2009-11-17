@@ -18,6 +18,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.Double;
@@ -262,7 +263,6 @@ public class Servlet extends HttpServlet {
         // Generate the Polycom 000000000000.cfg, which will cause un-provisioned phones to send
         // HTTP requests to this servlet.
         File polycom_src_dir = new File(System.getProperty("conf.dir") + "/polycom");
-        LOG.error("polycom_src_dir: " + polycom_src_dir.toString());
         try {
             
             Properties p = new Properties();
@@ -281,10 +281,12 @@ public class Servlet extends HttpServlet {
             template.merge(context, writer);
             writer.flush();
             
+            LOG.info(String.format("Generated Polycom 000000000000.cfg from %s.", polycom_src_dir.getAbsolutePath()));
+            
         } catch (ResourceNotFoundException e) {
-            LOG.error("", e);
+            LOG.error("Failed to generate Polycom 000000000000.cfg: ", e);
         } catch (ParseErrorException e) {
-            LOG.error("", e);
+            LOG.error("Failed to generate Polycom 000000000000.cfg: ", e);
         } catch (Exception e) {
             LOG.error("Velocity initialization error:", e);
         }
@@ -334,6 +336,28 @@ public class Servlet extends HttpServlet {
             LOG.error("Failed to copy Polycom static files from " + polycom_src_dir.getAbsolutePath() + ":", e);
         }
         
+        // Generate the Nortel IP 12x0 SIPdefault.xml, which will cause un-provisioned phones to send
+        // an HTTP request to this servlet.
+        try {
+            File dir = new File(config.getTftpPath() + "/Nortel/config");
+            if (!dir.mkdirs()) {
+                LOG.error("Failed to create directory: " + dir);
+            }
+                
+            File file = new File(dir + "/SIPdefault.xml");
+
+            FileOutputStream fos = new java.io.FileOutputStream(file);
+            java.io.PrintStream ps = new java.io.PrintStream(fos);
+            ps.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
+            ps.println(String.format("<redirect>http://%s:%d%s</redirect>", m_config.getHostname(), 
+                    m_config.getServletPort(), m_config.getServletUriPath()));
+            fos.close();
+            
+            LOG.info("Generated Nortel IP 12x0 SIPdefault.xml.");
+        }
+        catch(Exception e ) {
+            LOG.error("Failed to generate Nortel IP 12x0 SIPdefault.xml: ", e);
+        }
     }
 
     private void logAndOut(String msg, PrintWriter out) {
@@ -361,10 +385,7 @@ public class Servlet extends HttpServlet {
 
         logAndOut("request: " + request, out);
         m_config.dumpConfiguration(out);
-
     }
-
-
     
     /**
      * Creates a (single-use) HTTPS connection to the sipXconfig REST Phones resource
