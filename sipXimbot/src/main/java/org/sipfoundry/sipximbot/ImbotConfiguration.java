@@ -28,7 +28,6 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 	private static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
     private String m_logLevel; // The desired logging level in SipFoundry format (not log4j!)
     private String m_logFile; // The file to log into
-    private int m_eventSocketPort; // The Event Socket Listen port
     private String m_docDirectory; // File path to DOC Directory (usually /usr/share/www/doc)
     private String m_sipxchangeDomainName; // The domain name of this system
     private String m_realm;
@@ -125,8 +124,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         try {
             m_logLevel = props.getProperty(prop = "log.level");
             m_logFile = props.getProperty(prop = "log.file");
-            m_eventSocketPort = Integer.parseInt(props
-                .getProperty(prop = "freeswitch.eventSocketPort"));
+
             m_docDirectory = props.getProperty(prop = "imbot.docDirectory") ;
             m_sipxchangeDomainName = props.getProperty(prop = "imbot.sipxchangeDomainName");
             m_realm = props.getProperty(prop ="imbot.realm");
@@ -191,9 +189,6 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
         return m_logFile;
     }
 
-    public int getEventSocketPort() {
-        return m_eventSocketPort;
-    }
 
     public int getHttpPort() {
         return m_httpPort;
@@ -264,4 +259,9 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 	public Logger getLogger() {
 		return LOG;
 	}
+
+    @Override
+    public int getEventSocketPort() {
+        return 0;
+    }
 }
