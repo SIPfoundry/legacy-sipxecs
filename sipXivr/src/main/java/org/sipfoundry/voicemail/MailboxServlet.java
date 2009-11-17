@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
@@ -29,9 +28,10 @@ import org.sipfoundry.sipxivr.MailboxPreferences;
 /**
  * A RESTful interface to the mailbox messages
  * 
- * Only three services at the moment:
+ * three services at the moment:
  *    Mark a message read
  *    Update the MWI status
+ *    Get the FS channel UID for the current call answering session for the mailbox
  *    Get/Set a user's active greeting type
  *    
  * Prefix is /mailbox/*
@@ -39,6 +39,7 @@ import org.sipfoundry.sipxivr.MailboxPreferences;
  * /{mailbox}/
  *      /mwi   PUT (no data) updates the MWI for this mailbox (i.e. tells the status server to update the MWI status of devices
  *             GET returns the MWI status for this mailbox
+ *      /uuid  GET returns the FS channel UUID for a current call answering session for the mailbox       
  *      /messages/
  *          /{messageId}
  *              /heard   PUT (no data) Marks the message heard (and updates MWI)
@@ -143,6 +144,14 @@ public class MailboxServlet extends HttpServlet {
                         pw.write(Mwi.formatRFC3842(messages));
                     } else {
                         response.sendError(405);
+                    }
+                } else if (context.equals("uuid")) {
+                    response.setContentType("text/xml");
+                    String uuid = Deposit.getChannelUUID(user);
+                    if(uuid == null) {
+                        pw.write("<uuid></uuid>\n") ;
+                    } else {
+                        pw.format("<uuid>%s</uuid>\n", uuid);
                     }
                 } else if (context.equals("preferences")) {
                     if (subDirs.length >= 4) {
