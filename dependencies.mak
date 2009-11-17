@@ -130,6 +130,10 @@ sipXcallController : sipXrest
 sipXcdrLog : sipXrest 
 	@echo sipXcdrLog
 
+.PHONY: sipXimbot
+sipXimbot : sipXrest
+        @echo sipXimbot
+
 .PHONY: sipXecs
 sipXecs : \
 	sipXcallController \
@@ -153,5 +157,6 @@ sipXecs : \
 	sipXsaa \
 	sipXsupervisor \
 	sipXtools \
+        sipXimbot \
 	doc
 	@echo sipXecs
