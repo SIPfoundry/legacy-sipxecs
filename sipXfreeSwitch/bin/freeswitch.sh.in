@@ -75,12 +75,10 @@ case ${Action} in
          proc_alive "$PID" && echo -n "." || break
      done
 
-     if proc_alive "$PID"
-     then
-         # Still alive, kill it the hard way
-         sipx_stop freeswitch $pidFile
-     fi
-
+     # If still alive, kill it the hard way,
+     # else just do the normal cleanup
+     sipx_stop freeswitch $pidFile
+     
      exit $?
      ;;
 
