@@ -46,6 +46,7 @@ class CallLeg
   
   def accept_end(cse)
     @refcount -= 1
+
     if @end_time.nil? || @end_time < cse.event_time
       @end_time = cse.event_time
     end
@@ -54,7 +55,11 @@ class CallLeg
     else 
       @failure_reason = cse.failure_reason
       @failure_status = cse.failure_status
-      Cdr::CALL_FAILED_TERM 
+      if @failure_status == Cdr::SIP_REQUEST_CANCELLED
+         Cdr::CALL_ABANDONED_TERM 
+      else
+         Cdr::CALL_FAILED_TERM 
+      end
     end
     @to_tag ||= cse.to_tag
   end  
@@ -176,16 +181,19 @@ class Cdr
   CALL_TRANSFERRED_TERM = 'T'
   CALL_UNKNOWN_COMPLETED_TERM = 'U'
   CALL_FAILED_TERM      = 'F'
+  CALL_ABANDONED_TERM   = 'A'
   
   SIP_UNAUTHORIZED_CODE = 401
   SIP_PROXY_AUTH_REQUIRED_CODE = 407
   SIP_REQUEST_TIMEOUT_CODE = 408
   SIP_BAD_TRANSACTION_CODE = 481
+  SIP_REQUEST_CANCELLED = 487
 
   SIP_UNAUTHORIZED_STR = 'Unauthorized'
   SIP_PROXY_AUTH_REQUIRED_STR = 'Proxy Authentication Required'
   SIP_REQUEST_TIMEOUT_STR = 'Request Timeout'
   SIP_BAD_TRANSACTION_STR = 'Call Leg/Transaction Does Not Exist'
+  SIP_REQUEST_CANCELLED_STR = 'Call Request Abandoned'
 
   def initialize(call_id, log=nil)
     @call_id = call_id
@@ -220,11 +228,11 @@ class Cdr
   
 # Return true if the CDR is complete, false otherwise.
   def complete?
-    @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM
+    @termination == CALL_COMPLETED_TERM || @termination == CALL_FAILED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM || @termination == CALL_ABANDONED_TERM
   end
   
   def terminated?
-    @termination == CALL_COMPLETED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM || @termination == CALL_TRANSFERRED_TERM
+    @termination == CALL_COMPLETED_TERM || @termination == CALL_UNKNOWN_COMPLETED_TERM || @termination == CALL_TRANSFERRED_TERM || @termination == CALL_ABANDONED_TERM
   end
   
   # Return a text description of the termination status for this CDR.

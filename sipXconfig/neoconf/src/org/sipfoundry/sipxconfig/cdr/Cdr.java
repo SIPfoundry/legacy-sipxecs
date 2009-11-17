@@ -16,7 +16,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 
 public class Cdr {
     public enum Termination {
-        UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED, TRANSFER;
+        UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED, TRANSFER, ABANDONED;
 
         public static Termination fromString(String t) {
             switch (t.charAt(0)) {
@@ -32,6 +32,8 @@ public class Cdr {
                 return UNKNOWN;
             case 'T':
                 return TRANSFER;
+            case 'A':
+                return ABANDONED;
             default:
                 return UNKNOWN;
             }
@@ -43,7 +45,8 @@ public class Cdr {
     public static final String CALL_TANDEM = "TANDEM";
     public static final String CALL_INTERNAL = "INTERNAL";
     public static final String CALL_UNKNOWN = "UNKNOWN";
-    public static final String CALL_FAILED = "FAILED/ABANDONED";
+    public static final String CALL_FAILED = "FAILED";
+    public static final String CALL_ABANDONED = "ABANDONED";
 
     public static final String CALL_LOCAL = "LOCAL";
     public static final String CALL_MOBILE = "MOBILE";
@@ -179,6 +182,8 @@ public class Cdr {
         String direction = CALL_UNKNOWN;
         if (getTermination() == Termination.FAILED) {
             direction = CALL_FAILED;
+        } else if (getTermination() == Termination.ABANDONED) {
+            direction = CALL_ABANDONED;
         } else if (m_callerInternal) {
             direction = CALL_OUTGOING;
             if (m_calleeRoute != null) {
