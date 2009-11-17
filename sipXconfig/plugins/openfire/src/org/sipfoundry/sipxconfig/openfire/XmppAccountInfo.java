@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.im.ImAccount;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.springframework.beans.factory.annotation.Required;
@@ -38,7 +38,7 @@ public class XmppAccountInfo extends XmlFile {
     private static final String DESCRIPTION = "description";
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceContext;
-    private SipxIvrService m_sipxIvrService;
+    private SipxImbotService m_sipxImbotService;
 
     @Required
     public void setCoreContext(CoreContext coreContext) {
@@ -51,8 +51,8 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     @Required
-    public void setSipxIvrService(SipxIvrService service) {
-        m_sipxIvrService = service;
+    public void setSipxImbotService(SipxImbotService service) {
+        m_sipxImbotService = service;
     }
 
     @Override
@@ -82,8 +82,8 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     private void createPaUserAccount(Element accountInfos) {
-        String paUserName = m_sipxIvrService.getPersonalAssistantImId();
-        String paPassword = m_sipxIvrService.getPersonalAssistantImPassword();
+        String paUserName = m_sipxImbotService.getPersonalAssistantImId();
+        String paPassword = m_sipxImbotService.getPersonalAssistantImPassword();
 
         User paUser = m_coreContext.newUser();
         paUser.setUserName(paUserName);

@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -184,17 +184,17 @@ public class XmppAccountInfoTest extends TestCase {
         expectLastCall().andReturn(m_conferences).atLeastOnce();
         replay(m_conferenceContext);
 
-        SipxIvrService sipxIvrService = new SipxIvrService();
-        sipxIvrService.setBeanName(SipxIvrService.BEAN_ID);
-        sipxIvrService.setModelDir("sipxivr");
-        sipxIvrService.setModelName("sipxivr.xml");
-        sipxIvrService.setModelFilesContext(m_neoconfModelFilesContext);
-        sipxIvrService.setSettingValue("pa/imPassword", "password");
+        SipxImbotService sipxImbotService = new SipxImbotService();
+        sipxImbotService.setBeanName(SipxImbotService.BEAN_ID);
+        sipxImbotService.setModelDir("sipximbot");
+        sipxImbotService.setModelName("sipximbot.xml");
+        sipxImbotService.setModelFilesContext(m_neoconfModelFilesContext);
+        sipxImbotService.setSettingValue("imbot/imPassword", "password");
 
         XmppAccountInfo xmppAccountInfo = new XmppAccountInfo();
         xmppAccountInfo.setCoreContext(coreContext);
         xmppAccountInfo.setConferenceBridgeContext(m_conferenceContext);
-        xmppAccountInfo.setSipxIvrService(sipxIvrService);
+        xmppAccountInfo.setSipxImbotService(sipxImbotService);
 
         Document document = xmppAccountInfo.getDocument();
         String domDoc = TestUtil.asString(document);

@@ -333,6 +333,32 @@
     <property name="name" value="sipxrecording.properties" />
   </bean>
 
+  <bean id="sipxImbotService" class="org.sipfoundry.sipxconfig.service.SipxImbotService" parent="sipxService" scope="prototype">
+    <property name="processName" value="sipXimbot" />
+    <property name="modelName" value="sipximbot.xml" />
+    <property name="modelDir" value="sipximbot" />
+    <property name="editable" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxImbotConfiguration" />
+      </list>
+    </property>
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="bundles">
+      <set>
+        <ref bean="imBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxImbotConfiguration" class="org.sipfoundry.sipxconfig.service.SipxImbotConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="restartRequired" value="false" />
+    <property name="template" value="sipximbot/sipximbot.properties.vm" />
+    <property name="name" value="sipximbot.properties" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
   <bean id="sipxStatusService" class="org.sipfoundry.sipxconfig.service.SipxStatusService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="SIPStatus" />

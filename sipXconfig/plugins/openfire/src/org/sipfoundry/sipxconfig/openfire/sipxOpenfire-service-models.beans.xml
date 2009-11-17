@@ -6,11 +6,6 @@
     http://www.springframework.org/schema/util
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="imBundle" parent="abstractBundle">
-    <constructor-arg value="im" />
-    <property name="max" value="1" />
-  </bean>
-
   <bean id="sipxOpenfireService" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireService" scope="prototype"
     parent="sipxService">
     <property name="processName" value="SipXopenfire" />
@@ -59,7 +54,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
-    <property name="sipxIvrService" ref="sipxIvrService" />
+    <property name="sipxImbotService" ref="sipxImbotService" />
   </bean>
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">

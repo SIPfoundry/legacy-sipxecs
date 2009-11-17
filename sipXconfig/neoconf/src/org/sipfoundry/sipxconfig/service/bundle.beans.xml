@@ -52,4 +52,9 @@
     <constructor-arg value="conference" />
   </bean>
 
+  <bean id="imBundle" parent="abstractBundle">
+    <constructor-arg value="im" />
+    <property name="max" value="1" />
+  </bean>
+
 </beans>

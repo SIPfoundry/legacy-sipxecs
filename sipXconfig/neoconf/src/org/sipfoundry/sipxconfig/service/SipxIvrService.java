@@ -9,15 +9,11 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-
 public class SipxIvrService extends SipxService implements LoggingEntity {
     public static final String BEAN_ID = "sipxIvrService";
 
     public static final String LOG_SETTING = "ivr/log.level";
     public static final String HTTPS_PORT = "ivr/httpsPort";
-    public static final String PA_USER_NAME_SETTING = "pa/imId";
-    public static final String PA_PASSWORD_SETTING = "pa/imPassword";
 
     private String m_vxmlDir;
     private String m_mailstoreDir;
@@ -92,13 +88,5 @@ public class SipxIvrService extends SipxService implements LoggingEntity {
 
     public String getHttpsPort() {
         return getSettingValue(HTTPS_PORT);
-    }
-
-    public String getPersonalAssistantImId() {
-        return getSettingValue(PA_USER_NAME_SETTING);
-    }
-
-    public String getPersonalAssistantImPassword() {
-        return defaultIfEmpty(getSettingValue(PA_PASSWORD_SETTING), getPersonalAssistantImId());
     }
 }
