@@ -40,6 +40,7 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private String m_configUrl; // The url of the Config Server for PIN change requests
     private int m_httpsPort; // The port on which we listen for HTTPS services
     private String m_3pccSecureUrl; // The url of the third party call controller via HTTPS
+    private String m_sendIMUrl;
     private String m_openfireHost; // The host name where the Openfire service runs
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
     
@@ -136,6 +137,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_mwiUrl = props.getProperty(prop = "ivr.mwiUrl");
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
             m_configUrl = props.getProperty(prop = "ivr.configUrl");
+            m_sendIMUrl = props.getProperty("ivr.sendIMUrl");
+            if(m_sendIMUrl == null) {
+                m_sendIMUrl = "http://" + m_sipxchangeDomainName + ":8086/IM";
+            }
             
             // Make up the 3pcc REST server URL for now until it is provided by sipxconfig
             // For now assume that the REST service resides on the same system as this service
@@ -187,6 +192,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
 
     public String getDocDirectory() {
         return m_docDirectory;
+    }
+    
+    public String getSendIMUrl() {
+        return m_sendIMUrl;
     }
 
     public String getOperatorAddr() {
