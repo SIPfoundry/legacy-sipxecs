@@ -31,6 +31,7 @@
   <component id="consumerGroups" type="common/GroupMultiSelect">
     <binding name="value" value="consumerGroupsString"/>
     <binding name="source" value="userGroups"/>
+    <binding name="htmlId" value="literal:gms:consumerGroups"/>
   </component>
   <component id="phonebookCsvFilePanel" type="common/FieldPanel">
     <binding name="field" value="components.phonebookCsvFileX"/>
