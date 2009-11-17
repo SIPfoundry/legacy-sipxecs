@@ -132,7 +132,7 @@ sipXcdrLog : sipXrest
 
 .PHONY: sipXimbot
 sipXimbot : sipXrest
-        @echo sipXimbot
+	@echo sipXimbot
 
 .PHONY: sipXecs
 sipXecs : \
