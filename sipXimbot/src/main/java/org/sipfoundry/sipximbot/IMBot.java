@@ -286,7 +286,7 @@ public class IMBot {
                 
             Presence.Mode mode = pres.getMode();
             if(mode == null) 
-                mode = Presence.Mode.available;           
+                return UserPresence.AVAILABLE;           
                               
             if(mode == Presence.Mode.away) {
                 return UserPresence.AWAY;

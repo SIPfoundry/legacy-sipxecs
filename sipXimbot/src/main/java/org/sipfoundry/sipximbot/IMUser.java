@@ -466,7 +466,7 @@ public class IMUser {
                 
                 if(status != null) {
                     if(status.length() > 0) {
-                        presAndStatus = " - " + status;
+                        presAndStatus += " - " + status;
                     }
                 }
                 
