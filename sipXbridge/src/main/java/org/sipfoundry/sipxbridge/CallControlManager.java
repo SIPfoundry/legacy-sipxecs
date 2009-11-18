@@ -882,11 +882,16 @@ class CallControlManager implements SymmitronResetHandler {
             DialogContext peerDialogContext = (DialogContext) peerDialog.getApplicationData();
 
             if (logger.isDebugEnabled()) {
-                logger.debug("peerDialog = " + peerDialog);
-                logger.debug("peerDialogContext " + peerDialogContext);
-                if (peerDialogContext.getLastResponse() == null) {
-                    logger.debug("lastResponse " + peerDialogContext.getLastResponse());
-                }
+            	logger.debug("peerDialog = " + peerDialog);
+            	logger.debug("peerDialogContext " + peerDialogContext);
+            	if (peerDialogContext != null ) {
+            		if (peerDialogContext.getLastResponse() == null) {
+            			logger.debug("peerDialogContext.lastResponse " + peerDialogContext.getLastResponse());
+            		}
+            		logger.debug("peerDialogContext.pendingAction = " + peerDialogContext.getPendingAction());
+            	} else {
+            		logger.debug("peerDialogContext is null " );
+            	}
             }
 
             if (peerDialogContext != null

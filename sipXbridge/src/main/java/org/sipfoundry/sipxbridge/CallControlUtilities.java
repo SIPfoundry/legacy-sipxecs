@@ -241,11 +241,7 @@ public class CallControlUtilities {
              */
             dialogContext.setLastResponse(null);
 
-            /*
-             * Answer is no longer pending.
-             */
-            dialogContext.setPendingAction(PendingDialogAction.NONE);
-
+           
             /*
              * Send the SDP answer in an ACK.
              */
@@ -253,6 +249,11 @@ public class CallControlUtilities {
             ackRequest.setContent(ackSd.toString(), ProtocolObjects.headerFactory
                     .createContentTypeHeader("application", "sdp"));
             dialogContext.sendAck(ackRequest);
+            /*
+             * Answer is no longer pending.
+             */
+            dialogContext.setPendingAction(PendingDialogAction.NONE);
+
 
         } else {
             logger.error("ERROR  0 contentLength  -- resend the old SDP answer");
