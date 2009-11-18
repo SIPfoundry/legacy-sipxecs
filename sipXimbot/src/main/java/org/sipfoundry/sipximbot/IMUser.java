@@ -194,7 +194,7 @@ public class IMUser {
                     atUri = extensionToUrl(m_user.getHomeNum());
                 }
                 
-                if(fromPlace == Place.UNKNOWN && fromNumber != null) {
+                if(fromPlace == Place.UNKNOWN && fromNumber != null && fromNumber.length() > 0) {
                     atUri = extensionToUrl(fromNumber);    
                 }
                 
@@ -811,12 +811,13 @@ public class IMUser {
                     nameToCall = "home";
                 } 
                 
+                fromPlace = m_context.getFromPlace();
+                
                 if(m_context.getFromPlace() == Place.CELL) {
                     if(m_user.getCellNum() == null) {
                         cmdResult = "I don't know your cell number.";
                         break;
                     }
-                    fromPlace = Place.CELL;
                 }
                 
                 if(m_context.getFromPlace() == Place.HOME) {
@@ -824,7 +825,6 @@ public class IMUser {
                         cmdResult = "I don't know your home number.";
                         break;
                     }
-                    fromPlace = Place.HOME;
                 }
                 
                 if( fromPlace == Place.UNKNOWN) {
