@@ -27,7 +27,7 @@ import org.sipfoundry.sipximbot.ImbotConfiguration;
 // import org.apache.http.contrib.sip;
 
 public class CallHelper {
-	static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+	static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
 
 	public enum CallHelperReturnCode {
 		NO_ANSWER, ANSWER, BUSY, FORBIDDEN, INVALID, FAILURE

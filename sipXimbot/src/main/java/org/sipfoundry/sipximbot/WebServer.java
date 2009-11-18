@@ -14,7 +14,7 @@ import org.mortbay.http.HttpServer;
 import org.mortbay.jetty.servlet.ServletHandler;
 
 /**
- * Run a Jetty based web server to handle http/https requests for sipXivr
+ * Run a Jetty based web server to handle http/https requests for sipXimbot
  * 
  */
 public class WebServer  {
@@ -39,7 +39,7 @@ public class WebServer  {
     }
     
     /**
-     * Start the Web Server that handles sipXivr Web requests
+     * Start the Web Server that handles sipXimbot Web requests
      */
     public void start() {
         try {

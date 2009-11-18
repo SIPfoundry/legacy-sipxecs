@@ -18,7 +18,7 @@ import org.apache.log4j.Logger;
 
 
 public class RestfulRequest {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
     boolean m_justTesting;
     String m_testingResult;
     

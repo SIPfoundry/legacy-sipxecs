@@ -9,7 +9,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 
 public class ConfTask extends ConfBasicThread {
     
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
      
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
         FullUsers users = FullUsers.update();

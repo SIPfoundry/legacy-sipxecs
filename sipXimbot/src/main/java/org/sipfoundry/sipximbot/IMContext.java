@@ -92,7 +92,7 @@ public class IMContext {
     
     private static final long s_TIMEOUT = 15*1000; // ten second user response timeout 
     
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
         
     public IMContext(Chat chat, Command command, Localization loc) {
         clearContext();

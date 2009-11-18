@@ -37,7 +37,7 @@ import org.w3c.dom.Document;
 public class ImbotServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final String METHOD_POST = "POST";
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doIt(request, response);

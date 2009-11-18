@@ -67,7 +67,7 @@ public class IMUser {
         
         // collection of jabber ids to poke (let it be known) when this user becomes avaiable. 
         private Collection<IMUser>  m_usersToPoke;
-        static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+        static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
        
         
         IMUser(FullUser user, String jabberId, Presence presence, XMPPConnection con) {

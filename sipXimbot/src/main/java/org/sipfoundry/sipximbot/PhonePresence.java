@@ -20,7 +20,7 @@ import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 import org.sipfoundry.sipcallwatcher.SipResourceState;
 
 public class PhonePresence {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
 
     private OpenfireXmlRpcPresenceClient presenceClient;
 

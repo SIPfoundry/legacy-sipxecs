@@ -27,7 +27,7 @@ public class IMBot {
     private static Roster m_roster;
     private static FullUsers m_fullUsers;
     
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
             
     // key is Jabber Id, value is IMUser
     private static Map<String, IMUser> m_ChatsMap = Collections
@@ -89,7 +89,7 @@ public class IMBot {
                     // typically get this exception if server is unreachable or login info is wrong
                     // only thing do it is periodically retry just like any other IM client would
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        LOG.error("Could not login to XMPP server " + e.getMessage());     
+                    LOG.error("Could not login to XMPP server " + e.getMessage());     
                 }
                 try {
                     sleep(5000);
