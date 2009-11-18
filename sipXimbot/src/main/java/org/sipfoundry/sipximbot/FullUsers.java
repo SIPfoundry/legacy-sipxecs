@@ -176,7 +176,7 @@ public class FullUsers {
                         }
                         
                         if(next.getNodeName().trim().equals("imId")) {
-                            user.setjid(next.getTextContent().trim() + "@" + config.getOpenfireHost());
+                            user.setjid(next.getTextContent().trim() + "@" + config.getSipxchangeDomainName());
                             m_jidMap.put(user.getjid(), user);
                         }                                         
                         
