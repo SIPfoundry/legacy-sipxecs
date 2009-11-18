@@ -137,11 +137,19 @@ public class IMBot {
                             presPacket = new Presence(Presence.Type.subscribed); 
                         }                        
                         presPacket.setTo(presence.getFrom());
+                        presPacket.setFrom(presence.getTo()); 
+                        
                         m_con.sendPacket(presPacket);
+                        
+                        try {
+                            sleep(1000);
+                        } catch (InterruptedException e) {
+                        }
                         
                         if(user != null) {
                             // now subscribe the sender's presence
                             presPacket.setType(Presence.Type.subscribe);
+                           
                             m_con.sendPacket(presPacket);
                             
                             IMUser imuser = new IMUser(user, jid, null, m_con);
