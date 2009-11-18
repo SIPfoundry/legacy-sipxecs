@@ -683,6 +683,7 @@ class DialogContext {
      * @param pendingAction
      */
     void setPendingAction(PendingDialogAction pendingAction) {
+    	logger.debug("setPendingAction " + this + " pendingAction = " + pendingAction);
         /*
          * A dialog can have only a single outstanding action.
          */
