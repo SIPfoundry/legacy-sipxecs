@@ -22,7 +22,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jta.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/odmg-3.0.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ehcache-1.2.4.jar" sourcepath="/LIB_SRC/ehcache/ehcache-1.2.4-sources.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ehcache-1.6.2.jar" sourcepath="/LIB_SRC/ehcache/1.6.2/ehcache-1.6.2-sources.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/cglib-nodep-2.1_3.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/asm-2.2.3.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
