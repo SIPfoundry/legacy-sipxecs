@@ -155,6 +155,25 @@
   <type id="vlan_id">
     <integer required="yes" min="0" max="4094" />
   </type>
+  <type id="codecs">
+    <enum>
+      <option>
+        <value>G722 wideband codec</value>
+      </option>
+      <option>
+        <value>PCMA standard a-law</value>
+      </option>
+      <option>
+        <value>PCMU standard u-law</value>
+      </option>
+        <option>
+      <value>G729 729 codec</value>
+        </option>
+      <option>
+        <value>G723 high-compression</value>
+      </option>
+    </enum>
+  </type>
   <group name='NETWORK'>
     <setting name="DNS_DOMAIN"></setting>
   </group>
@@ -180,6 +199,14 @@
         <integer required="yes" min="1" max="5" />
       </type>
       <value>3</value>
+    </setting>
+    <setting name='SIP_PING' advanced="yes">
+      <type refid="yes-no" />
+      <value>NO</value>
+    </setting>
+    <setting name='PROXY_CHECKING' advanced="yes">
+      <type refid="yes-no" />
+      <value>NO</value>
     </setting>
   </group>
   <group name='VM'>
@@ -258,37 +285,25 @@
       </type>
       <value>English</value>
     </setting>
-    <setting name='DEF_AUDIO_QUALITY'>
-      <type>
-        <enum>
-          <option>
-            <value>High</value>
-          </option>
-          <option>
-            <value>Medium</value>
-          </option>
-          <option>
-            <value>Low</value>
-          </option>
-        </enum>
-      </type>
-      <value>High</value>
+    <setting name='AUDIO_CODEC1'>
+      <type refid="codecs" />
+      <value>G722 wideband codec</value>
     </setting>
-    <setting name='ENABLE_BT'>
-      <type refid="yes-no" />
-      <value>YES</value>
+    <setting name='AUDIO_CODEC2'>
+      <type refid="codecs" />
+      <value>PCMA standard a-law</value>
     </setting>
-    <setting name='ENABLE_3WAY_CALL'>
-      <type refid="yes-no" />
-      <value>YES</value>
+    <setting name='AUDIO_CODEC3'>
+      <type refid="codecs" />
+      <value>PCMU standard u-law</value>
     </setting>
-    <setting name='SIP_PING' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
+    <setting name='AUDIO_CODEC4'>
+      <type refid="codecs" />
+      <value>G729 729 codec</value>
     </setting>
-    <setting name='PROXY_CHECKING' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
+    <setting name='AUDIO_CODEC5'>
+      <type refid="codecs" />
+      <value>G723 high-compression</value>
     </setting>
   </group>
   <group name='QOS'>
@@ -657,6 +672,14 @@
         </enum>
       </type>
       <value>rfc3261</value>
+    </setting>
+     <setting name='ENABLE_BT' advanced="yes">
+      <type refid="yes-no" />
+      <value>YES</value>
+    </setting>
+    <setting name='INTERCOM_PAGING' advanced="yes">
+      <type refid="yes-no" />
+      <value>YES</value>
     </setting>
     <setting name='DEF_DISPLAY_IM' advanced="yes">
       <type refid="yes-no" />
