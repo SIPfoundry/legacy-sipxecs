@@ -283,6 +283,9 @@ public class IMBot {
 
             if (pres == null)
                 return UserPresence.UNKOWN;
+            
+            if(pres.getType() == Presence.Type.unavailable)
+                return UserPresence.UNKOWN;
                 
             Presence.Mode mode = pres.getMode();
             if(mode == null) 
