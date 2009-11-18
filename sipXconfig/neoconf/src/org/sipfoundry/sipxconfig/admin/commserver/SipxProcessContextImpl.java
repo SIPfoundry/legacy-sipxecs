@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Required;
 import static org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status.Running;
 
 public class SipxProcessContextImpl implements SipxProcessContext {
-
     private static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
 
     private LocationsManager m_locationsManager;
@@ -217,14 +216,29 @@ public class SipxProcessContextImpl implements SipxProcessContext {
             case RESTART:
                 api.restart(getHost(), processNames, true);
                 logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.RESTARTED);
+
+                for (SipxService process : processes) {
+                    process.onRestart();
+                }
+
                 break;
             case START:
                 api.start(getHost(), processNames, true);
                 logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STARTED);
+
+                for (SipxService process : processes) {
+                    process.onStart();
+                }
+
                 break;
             case STOP:
                 api.stop(getHost(), processNames, true);
                 logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.STOPPED);
+
+                for (SipxService process : processes) {
+                    process.onStop();
+                }
+
                 break;
             default:
                 break;

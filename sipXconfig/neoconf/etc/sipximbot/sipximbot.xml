@@ -51,7 +51,7 @@
       </type>
       <value>MyAssistant</value>
     </setting>
-    <setting name="imPassword">
+    <setting name="imPassword" hidden="yes">
       <type>
         <string password="yes" />
       </type>

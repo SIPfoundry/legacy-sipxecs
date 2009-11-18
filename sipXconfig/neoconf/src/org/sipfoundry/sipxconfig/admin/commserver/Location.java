@@ -195,6 +195,7 @@ public class Location extends BeanWithId {
         if (m_daoEventPublisher != null) {
             m_daoEventPublisher.publishDelete(service);
         }
+        service.getSipxService().onDestroy();
         m_services.remove(service);
     }
 
@@ -215,6 +216,7 @@ public class Location extends BeanWithId {
         }
         service.setLocation(this);
         m_services.add(service);
+        service.getSipxService().onInit();
     }
 
     public void addService(SipxService service) {
@@ -237,6 +239,7 @@ public class Location extends BeanWithId {
             LocationSpecificService locationSpecificService = iterator.next();
             SipxService service = locationSpecificService.getSipxService();
             if (services.contains(service)) {
+                service.onDestroy();
                 iterator.remove();
             }
         }

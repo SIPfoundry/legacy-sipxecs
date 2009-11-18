@@ -281,4 +281,53 @@ public class LocationTest extends TestCase {
 
         verify(sipxServiceManager);
     }
+
+    public void testNotifyOnAddRemoveService() {
+        Location out = new Location();
+        Collection<SipxService> sipxServices = new ArrayList<SipxService>();
+
+        MockSipxService service = new MockSipxService();
+        service.setBeanName("MockService1");
+        sipxServices.add(service);
+
+        out.setServiceDefinitions(sipxServices);
+        assertEquals("init", service.getTestString());
+
+        out.removeServiceByBeanId("MockService1");
+        assertEquals("destroy", service.getTestString());
+
+        out.addServices(sipxServices);
+        assertEquals("init", service.getTestString());
+
+        out.removeServices(sipxServices);
+        assertEquals("destroy", service.getTestString());
+
+        out.addService(new LocationSpecificService(service));
+        assertEquals("init", service.getTestString());
+
+        out.removeService(new LocationSpecificService(service));
+        assertEquals("destroy", service.getTestString());
+
+        out.addService(service);
+        assertEquals("init", service.getTestString());
+
+    }
+
+    private class MockSipxService extends SipxService {
+        private String m_test = "dummy";
+
+        @Override
+        public void onInit() {
+            m_test = "init";
+        }
+
+        @Override
+        public void onDestroy() {
+            m_test = "destroy";
+        }
+
+        public String getTestString() {
+            return m_test;
+        }
+    }
 }

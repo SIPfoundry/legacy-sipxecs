@@ -18,13 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.service.SipxParkService;
-
 import junit.framework.TestCase;
-
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
@@ -393,6 +391,73 @@ public class SipxProcessContextImplTest extends TestCase {
         // check for only one service remaining to be restarted
         restartNeededServices = m_processContextImpl.getRestartNeededServices();
         assertEquals(1, restartNeededServices.size());
+    }
+
+    public void testNotifyOnManageService() {
+        Location location = m_locationsManager.getLocations()[0];
+        ApiProvider<ProcessManagerApi> apiProvider = createMock(ApiProvider.class);
+        ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
+        api.stop(host(), asArray("service1", "service2"), block());
+        expectLastCall().andReturn(null);
+        api.start(host(), asArray("service1", "service2"), block());
+        expectLastCall().andReturn(null);
+        api.restart(host(), asArray("service1", "service2"), block());
+        expectLastCall().andReturn(null);
+
+        apiProvider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api).times(3);
+
+        m_processContextImpl.setProcessManagerApiProvider(apiProvider);
+        replay(apiProvider, api);
+
+        Collection<SipxService> services = new ArrayList<SipxService>();
+        MockSipxService service1 = new MockSipxService();
+        service1.setProcessName("service1");
+
+        MockSipxService service2 = new MockSipxService();
+        service2.setProcessName("service2");
+
+        services.add(service1);
+        services.add(service2);
+        m_processContextImpl.manageServices(location, services, Command.STOP);
+
+        assertEquals("stop", service1.getTestString());
+        assertEquals("stop", service2.getTestString());
+
+        m_processContextImpl.manageServices(location, services, Command.START);
+        assertEquals("start", service1.getTestString());
+        assertEquals("start", service2.getTestString());
+
+        m_processContextImpl.manageServices(location, services, Command.RESTART);
+        assertEquals("restart", service1.getTestString());
+        assertEquals("restart", service2.getTestString());
+
+    }
+
+    private class MockSipxService extends SipxService {
+        private String m_test = "dummy";
+
+        public MockSipxService() {
+        }
+
+        @Override
+        public void onStart() {
+            m_test = "start";
+        }
+
+        @Override
+        public void onStop() {
+            m_test = "stop";
+        }
+
+        @Override
+        public void onRestart() {
+            m_test = "restart";
+        }
+
+        public String getTestString() {
+            return m_test;
+        }
     }
 
     static String host() {
