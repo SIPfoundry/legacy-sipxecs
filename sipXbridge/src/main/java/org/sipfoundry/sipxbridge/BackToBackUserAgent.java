@@ -629,10 +629,11 @@ public class BackToBackUserAgent implements Comparable {
      */
     void addDialogToCleanup(Dialog dialog) {
         if (dialogTable.contains(dialog)) {
-            logger.error("Dialog was also found in dialog table - should only be in one "
+            logger.warn("Dialog was also found in dialog table - should only be in one "
                     + DialogContext.get(dialog).getCreationPointStackTrace());
-            logger.error("addDialogToCleanup Dialog was created at "
+            logger.warn("addDialogToCleanup Dialog was created at "
                     + SipUtilities.getStackTrace());
+            dialogTable.remove(dialog);
         }
 
         logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size()
