@@ -24,6 +24,5 @@
     <file>@SIPX_CONFDIR@/validusers.xml</file>
     <file>@SIPX_CONFDIR@/sipxivr.properties</file>
     <file>@SIPX_CONFDIR@/autoattendants.xml</file>
-    <file>@SIPX_CONFDIR@/contact-information.xml</file>
   </resources>
 </sipXecs-process>

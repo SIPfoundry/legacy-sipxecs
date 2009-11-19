@@ -286,7 +286,6 @@
         <ref bean="sipxIvrConfiguration" />
         <ref bean="autoAttendantsConfig" />
         <ref bean="statusPluginConfiguration" />
-        <ref bean="contactInformationConfig" />
       </list>
     </property>
     <property name="mailstoreDir" value="${sysdir.mailstore}" />
@@ -340,6 +339,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxImbotConfiguration" />
+        <ref bean="contactInformationConfig" />
       </list>
     </property>
     <property name="docDir" value="${sysdir.doc}" />

@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -137,6 +137,6 @@ public class ContactInformationConfig extends XmlFile {
 
     @Override
     public boolean isReplicable(Location location) {
-        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxIvrService.BEAN_ID);
+        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxImbotService.BEAN_ID);
     }
 }
