@@ -99,12 +99,6 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="persistent" advanced="yes">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
     <setting name="log-conversations" advanced="yes">
       <type>
         <boolean />

@@ -136,7 +136,7 @@ public class XmppAccountInfo extends XmlFile {
         addBooleanSetting(chatRoom, conference, "moderated", "chat-meeting/moderated");
         addBooleanSetting(chatRoom, conference, "is-public-room", "chat-meeting/public");
         addBooleanSetting(chatRoom, conference, "is-members-only", "chat-meeting/members-only");
-        addBooleanSetting(chatRoom, conference, "is-persistent", "chat-meeting/persistent");
+        chatRoom.addElement("is-persistent").setText(Boolean.TRUE.toString());
         addBooleanSetting(chatRoom, conference, "log-room-conversations", "chat-meeting/log-conversations");
         chatRoom.addElement("conference-extension").setText(conference.getExtension());
     }
