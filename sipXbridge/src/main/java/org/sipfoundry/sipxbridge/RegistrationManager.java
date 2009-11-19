@@ -20,15 +20,11 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
-import javax.sip.TransactionAlreadyExistsException;
 import javax.sip.TransactionState;
-import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.AuthorizationHeader;
-import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -44,17 +40,14 @@ public class RegistrationManager {
 
     private static Logger logger = Logger.getLogger(RegistrationManager.class);
 
-    private SipProvider provider;
-
-    public RegistrationManager(SipProvider sipProvider) {
-        this.provider = sipProvider;
-
+ 
+    public RegistrationManager() {
     }
 
     public void sendRegistrer(ItspAccountInfo itspAccount, String callId, long cseq) throws SipException {
-        Request request = SipUtilities.createRegistrationRequest(provider,
+        Request request = SipUtilities.createRegistrationRequest(itspAccount.getSipProvider(),
                 itspAccount,callId,cseq);
-        ClientTransaction ct = provider.getNewClientTransaction(request);
+        ClientTransaction ct = itspAccount.getSipProvider().getNewClientTransaction(request);
         TransactionContext tad = new TransactionContext(ct,
                 Operation.SEND_REGISTER);
         tad.setItspAccountInfo(itspAccount);
@@ -78,9 +71,8 @@ public class RegistrationManager {
      */
     public void sendDeregister(ItspAccountInfo itspAccount)
             throws SipXbridgeException, SipException {
-        Request request = SipUtilities.createDeregistrationRequest(provider,
-                itspAccount);
-        ClientTransaction ct = provider.getNewClientTransaction(request);
+        Request request = SipUtilities.createDeregistrationRequest( itspAccount);
+        ClientTransaction ct = itspAccount.getSipProvider().getNewClientTransaction(request);
         TransactionContext tad = TransactionContext.attach(ct,
                 Operation.SEND_DEREGISTER);
         tad.setItspAccountInfo(itspAccount);
@@ -100,9 +92,8 @@ public class RegistrationManager {
      */
     public void sendRegisterQuery(ItspAccountInfo itspAccount)
             throws SipXbridgeException, SipException {
-        Request request = SipUtilities.createRegisterQuery(provider,
-                itspAccount);
-        ClientTransaction ct = provider.getNewClientTransaction(request);
+        Request request = SipUtilities.createRegisterQuery(itspAccount);
+        ClientTransaction ct = itspAccount.getSipProvider().getNewClientTransaction(request);
         TransactionContext tad = new TransactionContext(ct,
                 Operation.SEND_REGISTER_QUERY);
         tad.setItspAccountInfo(itspAccount);
@@ -337,9 +328,10 @@ public class RegistrationManager {
         SipException, ParseException, InvalidArgumentException  {
 
         ServerTransaction st = requestEvent.getServerTransaction();
+       
 
         if (st == null) {
-            st = provider.getNewServerTransaction(requestEvent.getRequest());
+            st = itspAccount.getSipProvider().getNewServerTransaction(requestEvent.getRequest());
         }
 
         Request request = requestEvent.getRequest();

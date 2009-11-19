@@ -145,7 +145,8 @@ public class FindSipServer {
 	int pickPort(SipURI uri) {
 		int port = uri.getPort();
 		if (port == -1) {
-			if (uri.isSecure()) {
+			if (uri.isSecure() || 
+			   (uri.getTransportParam() != null && uri.getTransportParam().equals("tls"))) {
 				port = 5061;
 			} else {
 				port = 5060;

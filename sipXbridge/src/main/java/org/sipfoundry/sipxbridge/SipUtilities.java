@@ -248,7 +248,7 @@ class SipUtilities {
 
             } else {
                 return ProtocolObjects.headerFactory.createViaHeader(Gateway
-                        .getGlobalAddress(), Gateway.getGlobalPort(),
+                        .getGlobalAddress(), Gateway.getGlobalPort(outboundTransport),
                         outboundTransport, null);
 
             }
@@ -317,9 +317,9 @@ class SipUtilities {
                 }
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
                         userName, Gateway.getGlobalAddress());
-                sipUri.setPort(Gateway.getGlobalPort());
                 String transport = itspAccount != null ? itspAccount
                         .getOutboundTransport() : "udp";
+                sipUri.setPort(Gateway.getGlobalPort(transport));
                 sipUri.setTransportParam(transport);
                 Address address = ProtocolObjects.addressFactory
                         .createAddress(sipUri);
@@ -372,9 +372,14 @@ class SipUtilities {
      */
 
     static Request createRegistrationRequestTemplate(
-            ItspAccountInfo itspAccount, SipProvider sipProvider,String callId, long cseq)
+            ItspAccountInfo itspAccount, String callId, long cseq)
             throws ParseException, InvalidArgumentException, SipException {
 
+        SipProvider sipProvider = itspAccount.getSipProvider();
+        
+        if ( sipProvider == null ) {
+            throw new SipException ("Cannot find provider for ITSP ");
+        }
         String registrar = itspAccount.getProxyDomain();
 
         SipURI requestUri = ProtocolObjects.addressFactory.createSipURI(null,
@@ -443,8 +448,11 @@ class SipUtilities {
 
         if (hop == null ) {
 
+            logger.debug("outboundRegistrar = " + outboundRegistrar);
             SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundRegistrar);
+            
+            registrarUri.setTransportParam(itspAccount.getOutboundTransport());
 
             if (itspAccount.isInboundProxyPortSet()) {
                 registrarUri.setPort(itspAccount.getInboundProxyPort());
@@ -457,8 +465,11 @@ class SipUtilities {
             }
 
             hop = hops.iterator().next();
+            
 
         }
+        
+        
 
         RouteHeader routeHeader  = SipUtilities.createRouteHeader(hop);
         request.setHeader(routeHeader);
@@ -468,22 +479,15 @@ class SipUtilities {
     /**
      * Creates a deregistration request and sends it out to deregister ourselves
      * from the proxy server.
-     *
-     * @param sipProvider
      * @param itspAccount
      * @return
      * @throws SipXbridgeException
      */
-    static Request createDeregistrationRequest(SipProvider sipProvider,
-            ItspAccountInfo itspAccount) throws SipXbridgeException {
+    static Request createDeregistrationRequest(ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
 
-            Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider,null,1L);
-
-            ContactHeader contactHeader = createContactHeader(sipProvider,
-                    itspAccount);
-
+            Request request = createRegistrationRequestTemplate(itspAccount,null,1L);
+            ContactHeader contactHeader = createContactHeader(itspAccount.getSipProvider(),itspAccount);
             request.addHeader(contactHeader);
             ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
                     .createExpiresHeader(0);
@@ -568,8 +572,7 @@ class SipUtilities {
             SipXbridgeException {
 
         try {
-            Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider,callId,cseq);
+            Request request = createRegistrationRequestTemplate(itspAccount,callId,cseq);
 
             ContactHeader contactHeader = createContactHeader(sipProvider,
                     itspAccount);
@@ -598,17 +601,13 @@ class SipUtilities {
     /**
      * Create a registration query.
      *
-     * @param sipProvider
      * @param itspAccount
      * @return
      * @throws SipXbridgeException
      */
-    static Request createRegisterQuery(SipProvider sipProvider,
-            ItspAccountInfo itspAccount) throws SipXbridgeException {
+    static Request createRegisterQuery(ItspAccountInfo itspAccount) throws SipXbridgeException {
         try {
-            Request request = createRegistrationRequestTemplate(itspAccount,
-                    sipProvider,null,1L);
-
+            Request request = createRegistrationRequestTemplate(itspAccount,null,1L);
             return request;
         } catch (Exception ex) {
             String s = "Unexpected error creating register ";
@@ -1270,9 +1269,10 @@ class SipUtilities {
      */
     static void setGlobalAddresses(Request request) {
         try {
+            String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getTransport().toLowerCase();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     Gateway.getGlobalAddress());
-            sipUri.setPort(Gateway.getGlobalPort());
+            sipUri.setPort(Gateway.getGlobalPort(transport));
 
             ContactHeader contactHeader = (ContactHeader) request
                     .getHeader(ContactHeader.NAME);
@@ -1281,7 +1281,7 @@ class SipUtilities {
             }
             ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
             viaHeader.setHost(Gateway.getGlobalAddress());
-            viaHeader.setPort(Gateway.getGlobalPort());
+            viaHeader.setPort(Gateway.getGlobalPort(transport));
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);
             throw new SipXbridgeException("Unexepcted exception", ex);
@@ -1291,9 +1291,10 @@ class SipUtilities {
 
     static void setGlobalAddress(Response response) {
         try {
+            String transport = ((ViaHeader) response.getHeader(ViaHeader.NAME)).getTransport().toLowerCase();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     Gateway.getGlobalAddress());
-            sipUri.setPort(Gateway.getGlobalPort());
+            sipUri.setPort(Gateway.getGlobalPort(transport));
 
             ContactHeader contactHeader = (ContactHeader) response
                     .getHeader(ContactHeader.NAME);
@@ -1518,7 +1519,7 @@ class SipUtilities {
 
             int port = itspInfo == null || !itspInfo.isGlobalAddressingUsed() ? Gateway
                     .getBridgeConfiguration().getExternalPort()
-                    : Gateway.getGlobalPort();
+                    : Gateway.getGlobalPort(itspInfo.getOutboundTransport());
 
             retval.setPort(port);
 

@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.sip.SipProvider;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
@@ -31,7 +32,7 @@ import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
 public class ItspAccountInfo implements
         gov.nist.javax.sip.clientauthutils.UserCredentials {
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
-
+    
     /**
      * The outbound proxy for the account.
      */
@@ -264,7 +265,9 @@ public class ItspAccountInfo implements
             String outboundDomain = this.getSipDomain();
             SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
                     outboundDomain);
+            sipUri.setTransportParam(this.outboundTransport);
             Hop hop = new FindSipServer(logger).findServer(sipUri);
+           
             if ( this.outboundProxyPort != 5060 ) {
               this.setOutboundProxyPort(hop.getPort());
             }
@@ -701,4 +704,8 @@ public class ItspAccountInfo implements
         return this.hopToRegistrar;
     }
 
+    public SipProvider getSipProvider() {
+        logger.debug("Provider = " + Gateway.getWanProvider(this.outboundTransport.toLowerCase()) );
+        return Gateway.getWanProvider(this.outboundTransport.toLowerCase());
+    }
 }

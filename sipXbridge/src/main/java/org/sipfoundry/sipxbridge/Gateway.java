@@ -161,7 +161,7 @@ public class Gateway {
      * set to true to enable tls for sip signaling (untested).
      */
 
-    private static boolean isTlsSupportEnabled = false;
+    private static boolean isTlsSupportEnabled = true;
 
     private static ConcurrentHashMap<String, SymmitronClient> symmitronClients = new ConcurrentHashMap<String, SymmitronClient>();
 
@@ -526,6 +526,7 @@ public class Gateway {
                             externalPort, "tcp");
             Gateway.supportedTransports.add("tcp");
             if (Gateway.isTlsSupportEnabled) {
+                logger.debug("tlsSupport is enabled -- creating TLS Listening point and provider");
                 ListeningPoint externalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(externalAddress,
                                 externalPort + 1, "tls");
@@ -566,7 +567,7 @@ public class Gateway {
 
             internalProvider.addListeningPoint(internalTcpListeningPoint);
 
-            registrationManager = new RegistrationManager(getWanProvider("udp"));
+            registrationManager = new RegistrationManager();
 
             callControlManager = new CallControlManager();
 
@@ -869,8 +870,9 @@ public class Gateway {
         try {
             SipListenerImpl listener = new SipListenerImpl();
             getWanProvider("udp").addSipListener(listener);
-            if (Gateway.isTlsSupportEnabled)
+            if (Gateway.isTlsSupportEnabled) {
                 getWanProvider("tls").addSipListener(listener);
+            }
             getLanProvider().addSipListener(listener);
             ProtocolObjects.start();
         } catch (Exception ex) {
@@ -1144,11 +1146,18 @@ public class Gateway {
      *
      * @return
      */
-    static int getGlobalPort() {
-        return Gateway.accountManager.getBridgeConfiguration().getGlobalPort() != -1 ? Gateway.accountManager
+    static int getGlobalPort(String transport) {
+        
+        int port =  Gateway.accountManager.getBridgeConfiguration().getGlobalPort() != -1 ? Gateway.accountManager
                 .getBridgeConfiguration().getGlobalPort()
                 : Gateway.accountManager.getBridgeConfiguration()
                         .getExternalPort();
+                
+        if (transport.equalsIgnoreCase("tls")) {
+            return port +1;
+        } else {
+            return port;
+        }
     }
 
     /**
@@ -1317,8 +1326,6 @@ public class Gateway {
     public static void main(String[] args) throws Exception {
         try {
             String command = System.getProperty("sipxbridge.command", "start");
-            Gateway.isTlsSupportEnabled = System.getProperty(
-                    "sipxbridge.enableTls", "false").equals("true");
             Gateway.parseConfigurationFile();
             if (command.equals("start")) {
                 Gateway.start();
