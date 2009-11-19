@@ -98,6 +98,11 @@ public class SipxOpenfireConfiguration extends SipxServiceConfiguration {
         return serversList;
     }
 
+    @Override
+    public boolean isReplicable(Location location) {
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxOpenfireService.BEAN_ID);
+    }
+
     private SipxService getSipxOpenfireService() {
         return getService(SipxOpenfireService.BEAN_ID);
     }
