@@ -45,9 +45,7 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
     private static File s_propertiesFile;
     private static long s_lastModified;
     
-    // TODO: TEMP TEMP TEMP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    private static String s_sharedSecret = "1234";
-
+    private static String s_sharedSecret = null;
     
     private ImbotConfiguration() {
     }
