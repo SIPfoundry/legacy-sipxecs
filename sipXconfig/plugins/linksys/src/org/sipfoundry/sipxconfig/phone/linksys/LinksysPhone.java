@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -128,8 +129,14 @@ public class LinksysPhone extends Linksys {
 
         @SettingEntry(path = "Call_Feature_Settings/MOH_Server")
         public String getMohUrl() {
-            String mohUri = m_defaults.getMusicOnHoldUri();
-            return stripSipPrefix(mohUri);
+            String mohUri;
+            User u = m_line.getUser();
+            if (u != null) {
+                mohUri = u.getMusicOnHoldUri();
+            } else {
+                mohUri = m_defaults.getMusicOnHoldUri();
+            }
+            return  SipUri.stripSipPrefix(mohUri);
         }
 
         @SettingEntry(path = "Call_Feature_Settings/Voice_Mail_Server")

@@ -197,7 +197,7 @@
 		<record_missed_calls idx="1" perm="R">on</record_missed_calls>
 		<record_dialed_calls idx="1" perm="R">on</record_dialed_calls>
 		<record_received_calls idx="1" perm="R">on</record_received_calls>
-		<user_moh idx="1" perm="R">sip:~~mh~@sipfoundry.org</user_moh>
+		<user_moh idx="1" perm="R">sip:~~mh~juser@sipfoundry.org</user_moh>
 		<user_alert_info idx="1" perm="R"></user_alert_info>
 		<user_pic idx="1" perm="R"></user_pic>
 		<user_dp_str idx="1" perm="R"></user_dp_str>

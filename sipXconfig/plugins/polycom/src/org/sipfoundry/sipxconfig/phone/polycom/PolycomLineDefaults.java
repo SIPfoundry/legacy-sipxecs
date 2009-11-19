@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -57,6 +58,18 @@ public class PolycomLineDefaults {
         }
 
         return mode;
+    }
+
+    @SettingEntry(path = "reg/musicOnHold.uri")
+    public String getMusicOnHoldUri() {
+        String mohUri;
+        User u = m_line.getUser();
+        if (u != null) {
+            mohUri = u.getMusicOnHoldUri();
+        } else {
+            mohUri = m_defaults.getMusicOnHoldUri();
+        }
+        return  SipUri.stripSipPrefix(mohUri);
     }
 
     @SettingEntry(path = PolycomPhone.AUTHORIZATION_ID_PATH)

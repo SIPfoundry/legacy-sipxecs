@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phone.gtek;
 import java.util.Collection;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
@@ -29,6 +30,7 @@ public class GtekPhone extends Phone {
     private static final String DISPLAY_NAME_SETTING = "SIP_ACCOUNT/DISP_NAME";
     private static final String PASSWORD_SETTING = "SIP_ACCOUNT/REGIST_PASS";
     private static final String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
+    private static final String MOH = "SIP_ACCOUNT/MOH";
 
     @Override
     public void initializeLine(Line line) {
@@ -83,6 +85,18 @@ public class GtekPhone extends Phone {
         public String getRegistrationServer() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = MOH)
+        public String getMusicOnHoldUri() {
+            User u = m_line.getUser();
+            if (u != null) {
+                String mohUri = u.getMusicOnHoldUri();
+                return  SipUri.stripSipPrefix(mohUri);
+            }
+
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getMusicOnHoldUri();
         }
     }
 

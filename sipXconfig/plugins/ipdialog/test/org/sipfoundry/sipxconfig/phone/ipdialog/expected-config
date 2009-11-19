@@ -62,7 +62,7 @@
 <voiceMailServerAddress>101@sipfoundry.org</voiceMailServerAddress>
 <presenceServer>sipfoundry.org</presenceServer>
 <sipUsePublish>FALSE</sipUsePublish>
-<mohServer>sip:~~mh~@sipfoundry.org</mohServer>
+<mohServer>sip:~~mh~juser@sipfoundry.org</mohServer>
 <enableTlsSecurity>FALSE</enableTlsSecurity>
 <offhookOnRefer>FALSE</offhookOnRefer>
 <transmitDtmf>rfc2833</transmitDtmf>

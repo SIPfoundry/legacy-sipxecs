@@ -193,6 +193,11 @@ public class IpDialogPhone extends Phone {
 
         @SettingEntry(path = MOH_SETTING)
         public String getUserMoh() {
+            User u = m_line.getUser();
+            if (u != null) {
+                return u.getMusicOnHoldUri();
+            }
+
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getMusicOnHoldUri();
         }
@@ -202,7 +207,6 @@ public class IpDialogPhone extends Phone {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
         }
-
     }
 
     @Override

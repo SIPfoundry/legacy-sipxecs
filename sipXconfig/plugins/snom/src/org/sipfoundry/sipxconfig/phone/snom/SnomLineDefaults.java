@@ -112,6 +112,11 @@ public class SnomLineDefaults {
 
     @SettingEntry(path = USER_MOH)
     public String getUserMoh() {
+        User u = m_line.getUser();
+        if (u != null) {
+            return  u.getMusicOnHoldUri();
+        }
+
         return m_defaults.getMusicOnHoldUri();
     }
 

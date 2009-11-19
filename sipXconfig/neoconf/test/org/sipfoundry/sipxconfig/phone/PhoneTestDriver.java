@@ -28,6 +28,7 @@ import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
@@ -58,6 +59,8 @@ public class PhoneTestDriver {
     private final IMocksControl m_phoneContextControl;
 
     private final PhoneContext m_phoneContext;
+
+    private final MusicOnHoldManager m_musicOnHoldManager;
 
     public SipService sip;
 
@@ -129,13 +132,28 @@ public class PhoneTestDriver {
 
         phone.setSerialNumber(serialNumber);
 
+        m_musicOnHoldManager = createMock(MusicOnHoldManager.class);
+
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
         for (User user : users) {
             Line line = phone.createLine();
             line.setPhone(phone);
             line.setUser(user);
             phone.addLine(line);
             m_lines.add(line);
+
+            if (user != null) {
+                user.setPermissionManager(pm);
+                m_musicOnHoldManager.getPersonalMohFilesUri(user.getUserName());
+                expectLastCall().andReturn("sip:~~mh~" + user.getUserName() + "@sipfoundry.org").anyTimes();
+                user.setSettingTypedValue("moh/audio-source", "PERSONAL_FILES_SRC");
+                user.setMusicOnHoldManager(m_musicOnHoldManager);
+            }
         }
+
+        replay(m_musicOnHoldManager);
 
         sipControl = createStrictControl();
         sip = sipControl.createMock(SipService.class);
