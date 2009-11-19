@@ -247,6 +247,10 @@ public class ValidUsersXML {
 
         }
         u.setImapInfo(i);
+        if(i.isSynchronize()) {
+            u.setEmailFormat(EmailFormats.FORMAT_IMAP);
+            u.setAttachAudioToEmail(true);
+        }
     }
     
     private void loadDistributionLists(HashMap<String, DistributionList> distributionLists, Node distributionNode) {

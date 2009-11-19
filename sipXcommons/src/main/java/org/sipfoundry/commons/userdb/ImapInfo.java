@@ -55,7 +55,10 @@ public class ImapInfo {
     }
     
     public String getDecodedPassword() {
-        return Base64.decodeBase64(m_password.getBytes()).toString();
+        byte[] decoded = Base64.decodeBase64(m_password.getBytes());
+        String decodedStr = new String(decoded);
+
+        return decodedStr;
     }
     
     public void setPassword(String password) {

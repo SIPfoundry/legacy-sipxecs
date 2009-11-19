@@ -36,7 +36,7 @@ public class User {
     private ImapInfo m_imapInfo;
     
     public enum EmailFormats {
-        FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF");
+        FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF("BRIEF"), FORMAT_IMAP("IMAP");
         private String m_id;
         
         EmailFormats(String id) {
