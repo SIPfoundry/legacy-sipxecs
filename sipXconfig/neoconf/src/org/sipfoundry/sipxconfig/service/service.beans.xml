@@ -328,7 +328,6 @@
 
   <bean id="sipxRecordingConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRecordingConfiguration"
     scope="prototype" parent="serviceConfigurationFile">
-    <property name="restartRequired" value="false" />
     <property name="template" value="sipxrecording/sipxrecording.properties.vm" />
     <property name="name" value="sipxrecording.properties" />
   </bean>
@@ -353,7 +352,6 @@
 
   <bean id="sipxImbotConfiguration" class="org.sipfoundry.sipxconfig.service.SipxImbotConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
-    <property name="restartRequired" value="false" />
     <property name="template" value="sipximbot/sipximbot.properties.vm" />
     <property name="name" value="sipximbot.properties" />
     <property name="locationsManager" ref="locationsManager" />
