@@ -51,6 +51,9 @@ public class EmailFormatter {
         case FORMAT_BRIEF:
             emf = new EmailFormatterBrief();
             break;
+        case FORMAT_IMAP:
+            emf = new EmailFormatterImap();
+            break;
         default:
             return null;
         }

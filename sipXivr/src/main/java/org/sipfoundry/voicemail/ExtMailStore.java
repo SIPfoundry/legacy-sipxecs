@@ -60,6 +60,7 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
@@ -758,7 +759,7 @@ public class ExtMailStore {
         final String mbxid = user.getUserName();
         
         // should we even try to make a connection? 
-        ImapInfo imapInfo = conn.m_user.getImapInfo();
+        ImapInfo imapInfo = user.getImapInfo();
         if(imapInfo == null || !imapInfo.isSynchronize())
             return;
                 
@@ -768,6 +769,7 @@ public class ExtMailStore {
                 try {     
                     conn.m_user = user;
                     ImapInfo imapInfo = user.getImapInfo();
+ 
                     conn.m_store.connect(imapInfo.getHost(), Integer.parseInt(imapInfo.getPort()), 
                                          imapInfo.getAccount(), imapInfo.getDecodedPassword());
                     

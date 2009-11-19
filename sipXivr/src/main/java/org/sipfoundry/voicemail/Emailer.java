@@ -137,12 +137,15 @@ public class Emailer {
     
                     // Create a top level multipart/mixed part
                     Multipart mpmixed = new MimeMultipart();
-                    // Make a new part to wrap the multipart/alternative part
-                    MimeBodyPart altpart = new MimeBodyPart();
-                    altpart.setContent(mpalt);
                     
-                    // Add the alt part to the mixed part
-                    mpmixed.addBodyPart(altpart);
+                    // Make a new part to wrap the multipart/alternative part
+                    if(mpalt.getCount() > 0) {
+                        MimeBodyPart altpart = new MimeBodyPart();
+                        altpart.setContent(mpalt);
+                        // Add the alt part to the mixed part
+                        mpmixed.addBodyPart(altpart);
+                    }                 
+                    
                     // Add the wav part to the mixed part
                     mpmixed.addBodyPart(audioBodyPart);
                     // Use the mixed part as the content
