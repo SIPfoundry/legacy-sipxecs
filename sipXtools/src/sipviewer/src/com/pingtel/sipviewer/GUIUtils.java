@@ -176,7 +176,7 @@ public class GUIUtils
     private static final int LINE_DOTTED_SOLID_RUN  = 2 ;
     private static final int LINE_DOTTED_EMPTY_RUN  = 2 ;
 
-    public static void drawArrow(Graphics g, Rectangle rect, boolean bEast, Color color, int style)
+    public static void drawArrow(Graphics g, Rectangle rect, boolean bEast, Color color, Color backgroundColor, int style)
     {
         Color colorOld = null ;
 
@@ -185,9 +185,34 @@ public class GUIUtils
             colorOld = g.getColor() ;
             g.setColor(color) ;
         }
-
+        
         int diff = rect.height/2 ;
         int yOffset = rect.y + diff;
+        
+        // if the background color for this arrow is not black lets paint it
+        if (backgroundColor != Color.BLACK)
+        {
+        	// Temporarily store the current color
+        	Color colorTmp = g.getColor();
+        	
+        	// set the background color
+         	g.setColor(backgroundColor);
+          	
+         	// use magic numbers to adjust the dimensions of the rectangle,
+         	// these number were derived through experimentation and were
+         	// chosen to perfectly cover the arrow
+         	
+         	if (rect.width < 0)
+         	{
+         		g.fillRect(rect.x+rect.width-diff, rect.y, -rect.width + diff, rect.height + 2);
+         	}
+         	else
+         	{
+         		g.fillRect(rect.x - 3, rect.y, rect.width + 6, rect.height + 2);
+         	}
+         	
+         	g.setColor(colorTmp);
+        }
 
         switch (style)
         {
@@ -230,11 +255,13 @@ public class GUIUtils
 
         if (bEast)
         {
+        	// draw the arrow end for messages that are internal to a given dialog participant
             g.drawLine(rect.x+rect.width, yOffset, rect.x+rect.width-diff, rect.y+diff+diff) ;
             g.drawLine(rect.x+rect.width, yOffset, rect.x+rect.width-diff, rect.y) ;
         }
         else
         {
+        	// draw the end of the arrow, the pointy end
             g.drawLine(rect.x, yOffset, rect.x+diff, rect.y+diff+diff) ;
             g.drawLine(rect.x, yOffset, rect.x+diff, rect.y) ;
         }

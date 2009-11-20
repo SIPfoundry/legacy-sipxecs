@@ -28,6 +28,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     protected SIPChartModel  m_model ;
     protected SIPInfoPanel   m_infoPanel ;
     protected int            m_iMouseOver ;
+    protected int			 iOldIndex ;
     protected String         m_strMatchBranchId ;
     protected String         m_strMatchTransactionId ;
     protected String         m_strMatchCSeqCallId ;
@@ -63,6 +64,13 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     // object instances
     protected static ChartBody topChart;
     protected static ChartBody bottomChart;
+    
+    // used to display the dialog with the background colors when assigning a
+    // background color to a sip dialog, also the recorded location of the popup
+    // menu so that when user decides to set a background the color chooser dialog
+    // is displayed close by and not in the upper left corner (which is the default)
+    static PopUpUtils.ColorChooserDialog colorChooser = null;
+    protected Point						 popUpLocation = new Point();
 
 //////////////////////////////////////////////////////////////////////////////
 // Construction
@@ -141,8 +149,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 ////
     public void paintEntry(Graphics g, int index)
     {
-        Dimension dimSize = getSize() ;             // TODO: Only get once
-        Dimension dimRowSize = getMinimumSize() ;   // TODO: Only get once
+        Dimension dimSize = getSize() ;             
+        Dimension dimRowSize = getMinimumSize() ;   
 
         if ((index >= 0) && (index < m_model.getSize()))
         {
@@ -249,7 +257,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             if (entry.dataSource.isRequest())
             {
                 GUIUtils.drawArrow(g, rectAreaArrow, bEast, null,
-                                   GUIUtils.LINE_SOLID) ;
+                                   entry.backgroundColor, GUIUtils.LINE_SOLID) ;
             }
             else
             {
@@ -265,12 +273,12 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                 if (bIsProvision)
                 {
                     GUIUtils.drawArrow(g, rectAreaArrow, bEast, null,
-                                       GUIUtils.LINE_DOTTED) ;
+                                       entry.backgroundColor, GUIUtils.LINE_DOTTED) ;
                 }
                 else
                 {
                     GUIUtils.drawArrow(g, rectAreaArrow, bEast, null,
-                                       GUIUtils.LINE_DASHED) ;
+                                       entry.backgroundColor, GUIUtils.LINE_DASHED) ;
                 }
 
             }
@@ -278,7 +286,53 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             int xTextOffset = GUIUtils.calcXOffset(entry.label, g,
                                                    rectAreaText,
                                                    GUIUtils.ALIGN_CENTER) ;
-            g.drawString(entry.label, xTextOffset, rectAreaText.y) ;
+            
+            // if the background color is black do not paint the background since it
+            // will break the yellow vertical lines and since background is black by default
+            // there is no point painting it
+            if (entry.backgroundColor != Color.BLACK)
+            {
+            	// store current color for now
+            	Color colorTmp = g.getColor();
+            
+            	// setting background color set for this message
+            	g.setColor(entry.backgroundColor);
+            
+            	// get the width of the text area as well as the default x coordinate
+            	int width = rectAreaText.width;
+            	int xLocation = rectAreaText.x;
+            	
+            	// arrived through experimentation this is used to make the background fully cover the
+            	// label as well as make the label align with regular messages
+            	int offset_width = 3;
+            	
+            	// if we are dealing with messages communicated on the same key the width of the message
+            	// will be 0, in this case we want to calculate width of the background, also if the user
+            	// moves columns together so that the space between them is less then the length of the message
+            	// text we want to make sure that the background is painted behind the whole message label
+            	if ((width == 0) || (width < (g.getFontMetrics().charsWidth(entry.label.toCharArray(), 0, entry.label.length()) + offset_width)))
+            	{
+            		width = g.getFontMetrics().charsWidth(entry.label.toCharArray(), 0, entry.label.length()) + offset_width;
+            		xLocation += offset_width;
+            	}            
+            	else
+            	{
+            		// when a background is painted between two keys width has to be reduced twice 
+            		// the value to align with the arrow backgrounds, again this value was determined
+            		// through experimentation
+            		width -= (offset_width * 2);
+            		xLocation += offset_width;
+            	}
+            	
+            	// fill the background with the color
+            	g.fillRect(xLocation, rectAreaText.y - 12, width, rectAreaText.height);
+
+            	// restore original color
+            	g.setColor(colorTmp);
+            }
+            
+            // draw the actual text
+            g.drawString(entry.label, xTextOffset + 5, rectAreaText.y) ;
         }
     }
 
@@ -473,17 +527,27 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     }
 
 
+    // when user moves the mouse over a significant area
+    // this method is called
     protected void setMouseOver(int iIndex)
     {
-        int iOldIndex = m_iMouseOver ;
+        iOldIndex = m_iMouseOver ;
         m_iMouseOver = iIndex ;
+        
+        // do work only if the previous index
+        // is different from the current index
         if (iOldIndex != m_iMouseOver)
         {
             Graphics g = getGraphics() ;
             if (g != null)
             {
+            	// if the old index was not -1 that means
+            	// we had some messages painted, we know that
+            	// we are dealing with a new index now so the
+            	// previous painted messages have to be cleared
+            	// by repainting them white
                 if (iOldIndex != -1)
-                {
+                {               	
                     m_strMatchBranchId = null ;
                     m_strMatchTransactionId = null ;
                     m_strMatchCSeqCallId = null ;
@@ -492,13 +556,20 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                     repaintAllMatching(iOldIndex, false) ;
                 }
 
+                // if the new position is on a new index lets
+                // repaint the new messages that correspond to
+                // the new index
                 if (m_iMouseOver != -1)
                 {
+                	// repaint messages and set the info panel to the
+                	// currently selected message
                     repaintAllMatching(m_iMouseOver, true) ;
                     m_infoPanel.populate(getSipBranchData(m_iMouseOver)) ;
                 }
                 else
                 {
+                	// user moved mouse outside of the window so lets
+                	// clear out the info panel data
                     m_infoPanel.clear() ;
                 }
             }
@@ -553,6 +624,49 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         }
     }
 
+    // this method is called when user selects a background color for a sip dialog,
+    // it goes through all the messages in a sip dialog and sets their background color
+    // that was passed in, the background color is obtained from the color chooser dialog
+    protected void setAllMatchingBackgrounds(int iSourceIndex, Color backgroundColor)
+    {
+        String strCallId = null ;
+
+        if ((iSourceIndex >= 0) && (iSourceIndex < m_model.getSize()))
+        {
+            ChartDescriptor sourceDesc = m_model.getEntryAt(iSourceIndex) ;
+            strCallId = sourceDesc.dataSource.getCallId() ;
+
+            if ((strCallId != null) && (strCallId.length() > 0))
+            {
+                Graphics g = getGraphics() ;
+                if (g != null)
+                {
+                    for (int i=0; i<m_model.getSize(); i++)
+                    {
+                        ChartDescriptor desc = m_model.getEntryAt(i) ;
+                        
+                        // if a message descriptor belongs to sip dialog then
+                        // we set its background color
+                        if (strCallId.equals(desc.dataSource.getCallId()))
+                        {
+                            desc.backgroundColor = backgroundColor;
+                        }
+                    }
+                }
+            }
+            else
+            {
+            	// any messages that have 0 lenght strCallId we want to handle them
+            	// here
+                Graphics g = getGraphics() ;
+                if (g != null)
+                {
+                	sourceDesc.backgroundColor = backgroundColor;
+                }
+            }
+        }
+    }
+    
 //////////////////////////////////////////////////////////////////////////////
 // Nested classes
 ////
@@ -611,7 +725,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             if (e.isPopupTrigger())
             {
                 // if user invokes PopupTrigger (usually a right click)
-                // show the popup menu
+                // show the popup menu and store the click location
+            	popUpLocation.setLocation(e.getX(), e.getY());
                 m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
             }
             else
@@ -630,7 +745,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             // on mousePressed and mouseRelease, to cover all possibilities
             if (e.isPopupTrigger())
             {
-                // show popup menu
+                // show popup menu and store the click location
+            	popUpLocation.setLocation(e.getXOnScreen(), e.getYOnScreen());
                 m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
             }
         }
@@ -639,7 +755,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         {
             if (e.isPopupTrigger())
             {
-                // show popup menu
+                // show popup menu and store the click location
+            	popUpLocation.setLocation(e.getX(), e.getY());
                 m_toolsPopUp.show(e.getComponent(), e.getX(), e.getY());
             }
         }
@@ -651,13 +768,19 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         public void mouseExited(MouseEvent e)
         {
-            topChart.setMouseOver(-1);
+        	// repaint only if the popup menu is not displayed, if it is then we
+        	// don't want to repaint the background screen since it paints over the
+        	// popup menu
+        	if (!topChart.m_toolsPopUp.isShowing() && !bottomChart.m_toolsPopUp.isShowing())
+        	{
+        		topChart.setMouseOver(-1);
             
-            // if the bottom chart is also visible (user is working in
-            // split screen mode) then also repaint messages on that
-            // ChartBody
-            if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
-            	bottomChart.setMouseOver(-1);
+        		// if the bottom chart is also visible (user is working in
+        		// split screen mode) then also repaint messages on that
+        		// ChartBody
+        		if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
+        			bottomChart.setMouseOver(-1);
+        	}
         }
     }
 
@@ -672,17 +795,23 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         public void mouseMoved(MouseEvent e)
         {
-        	int verticalIndex = PointToIndex(e.getPoint());
+        	// repaint only if the popup menu is not displayed, if it is then we
+        	// don't want to repaint the background screen since it paints over the
+        	// popup menu
+        	if (!topChart.m_toolsPopUp.isShowing() && !bottomChart.m_toolsPopUp.isShowing())
+        	{
+        		int verticalIndex = PointToIndex(e.getPoint());
         	
-        	// call the setMouseOver for the top chart to repaint
-        	// the highlighted messages
-            topChart.setMouseOver(verticalIndex);
+        		// call the setMouseOver for the top chart to repaint
+        		// the highlighted messages
+        		topChart.setMouseOver(verticalIndex);
             
-            // if the bottom chart is also visible (user is working in
-            // split screen mode) then also repaint messages on that
-            // ChartBody
-            if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
-            	bottomChart.setMouseOver(verticalIndex);
+        		// if the bottom chart is also visible (user is working in
+        		// split screen mode) then also repaint messages on that
+        		// ChartBody
+        		if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
+        			bottomChart.setMouseOver(verticalIndex);
+        	}      
         }
     }
 
@@ -739,15 +868,21 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         m_toolsPopUp.add(menuItem2_1);
         
         menuItem2_2 = new JMenuItem(PopUpUtils.Item2_2);
-        menuItem2_2.addActionListener(this);
+        menuItem2_2.addActionListener(this);        
         m_toolsPopUp.add(menuItem2_2);
         menuItem2_2.setVisible(false);
+        
+        m_toolsPopUp.addSeparator();
+        
+        menuItem = new JMenuItem(PopUpUtils.Item3);
+        menuItem.addActionListener(this);
+        m_toolsPopUp.add(menuItem);
     }
     
     
     @Override
     public void actionPerformed(ActionEvent arg0) 
-    {   
+    {       	
     	// doing a screen capture
     	if (arg0.getActionCommand().compareTo(PopUpUtils.Item1) == 0)
     	{
@@ -780,6 +915,42 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     	{
     		// switching to a single screen mode
     		m_frame.setSecondPaneVisiblity(false);
+    	}
+    	else if (arg0.getActionCommand().compareTo(PopUpUtils.Item3) == 0)
+    	{        	
+    		// if the dialog has not yet been initialized then get an instance
+    		// we only do this once per execution of sipviewer and then reuse it
+    		// if user invokes it again
+    		if (colorChooser == null)    		
+    			colorChooser = new PopUpUtils.ColorChooserDialog(m_frame);
+    		
+    		// reset the selected color held by the dialog
+    		colorChooser.resetSelectedColor();
+    		
+    		// set the location of the colorChooser dialog
+    		colorChooser.setLocation(popUpLocation);
+    		
+    		// show the dialog to the user
+    		colorChooser.setVisible(true);
+    		    	    	
+    		// when dialog is dismissed we continue, if user picked a color we
+    		// use it to set all the backgrounds for messages that are part
+    		// of the immediate sip dialog
+    		if (colorChooser.getSelectedColor() != null)
+    		{
+    			// set the background for all the significant messages, each
+    			// descriptor has its background color value assigned
+    			setAllMatchingBackgrounds(iOldIndex, colorChooser.getSelectedColor());
+    		}
+        	        	
+        	// trigger a repaint of the top chart and bottom chart if it is visible
+        	topChart.repaint();
+        	
+        	// because the chart descriptors are shared between ChartBody instances
+        	// setting the color for each descriptor sets it automatically for both
+        	// ChartBody instances
+        	if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
+    			bottomChart.repaint();
     	}
     }
     

@@ -1,5 +1,6 @@
 package com.pingtel.sipviewer;
 
+import java.awt.Color;
 import java.util.* ;
 
 /**
@@ -245,6 +246,7 @@ public class SIPChartModel
         entry.targetColumn = findKeyColumn(objTrackableTargetKey) ;
         entry.label = strLabel ;
         entry.dataSource = data ;
+        entry.backgroundColor = Color.BLACK;
 
         if (entry.sourceColumn == -1)
         {
