@@ -159,13 +159,7 @@ public class ConfRecordStatus extends HttpServlet {
                     messageDescriptor.setPriority(Priority.NORMAL);
 
                     File descriptorFile = new File(baseName+".xml");
-                    File statusFile = new File(baseName+".sta");
-                    try {
-                        FileUtils.touch(statusFile);
-                        new MessageDescriptorWriter().writeObject(messageDescriptor, descriptorFile);
-                    } catch (IOException e) {
-                        LOG.error("ConfRecordStatus::newMessage error ", e);
-                    }
+                    new MessageDescriptorWriter().writeObject(messageDescriptor, descriptorFile);
                 }
                 else {
                     LOG.info(String.format("ConfRecordStatus::short WAV file received %d", audioFile.length()));
