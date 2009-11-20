@@ -15,7 +15,7 @@
         <parameter name="bannerpath" class="java.lang.String"/>
 
 	<field name="extension" class="java.lang.String"/>
-	<field name="minutes" class="java.lang.Long"/>
+	<field name="minutes" class="java.lang.Double"/>
 
 	<title>
 		<band height="300" isSplitAllowed="true" >
@@ -96,7 +96,7 @@
 			<textField>
 				<reportElement x="287" y="4" width="180" height="15"/>
 				<textElement textAlignment="Center"/>
-				<textFieldExpression class="java.lang.Long"><![CDATA[$F{minutes}/60000]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[(long)($F{minutes}/60000) + ":" + String.format("%02d",(long)(($F{minutes}%60000)/1000))]]></textFieldExpression>
 			</textField>
 			<line>
 				<reportElement positionType="Float" x="87" y="19" width="380" height="1" forecolor="#808080"/>

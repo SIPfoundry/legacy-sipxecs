@@ -14,9 +14,9 @@ import org.apache.commons.lang.StringUtils;
 public class CdrMinutesGraphBean implements Comparable<CdrMinutesGraphBean> {
     private String m_extension;
 
-    private Long m_minutes;
+    private Double m_minutes;
 
-    public CdrMinutesGraphBean(String extension, Long minutes) {
+    public CdrMinutesGraphBean(String extension, Double minutes) {
         this.m_extension = StringUtils.defaultString(extension);
         this.m_minutes = minutes;
     }
@@ -29,11 +29,11 @@ public class CdrMinutesGraphBean implements Comparable<CdrMinutesGraphBean> {
         m_extension = extension;
     }
 
-    public Long getMinutes() {
+    public Double getMinutes() {
         return m_minutes;
     }
 
-    public void setMinutes(Long minutes) {
+    public void setMinutes(Double minutes) {
         m_minutes = minutes;
     }
 
