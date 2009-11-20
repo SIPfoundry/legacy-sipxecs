@@ -393,7 +393,7 @@ public class IMUser {
                             line = callerDisplayPart + " (" + callerUserPart + "), " +
                                         todayStr + df.format(date) + ".  ";
 
-                            line += UserPresenceAndStatus(callerUserPart);    
+                            line += UserPresenceAndStatus(callerUserPart, true);    
                             
                             if(histStr.length() == 0) {
                                 if(daysOfHist == 1) {
@@ -430,7 +430,7 @@ public class IMUser {
             }
         }
         
-        private String UserPresenceAndStatus(String userId) {
+        private String UserPresenceAndStatus(String userId, boolean includeName) {
             // lets see if this corresponds to an end user and if so 
             // determine the user's presence info
             String presAndStatus = "";
@@ -474,9 +474,8 @@ public class IMUser {
                     }
                 }
                 
-                if(presAndStatus.length() > 0) {
+                if(includeName && presAndStatus.length() > 0) {
                     presAndStatus = user.getDisplayName() + presAndStatus;
-                    presAndStatus += ".";
                 }    
             }                     
  
@@ -524,8 +523,8 @@ public class IMUser {
                         dirUser.m_fullName = firstName + " " + lastName;
                         dirUser.m_number = number;
                     } else {   
-                        sendIM(firstName + " " + lastName + " (" + number + ").  " + 
-                               UserPresenceAndStatus(number));
+                        sendIM(firstName + " " + lastName + " (" + number + ") " + 
+                               UserPresenceAndStatus(number, false));
                     }
                 }
             }        
