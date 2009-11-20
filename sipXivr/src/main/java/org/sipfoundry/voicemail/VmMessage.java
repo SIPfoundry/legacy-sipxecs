@@ -287,7 +287,7 @@ public class VmMessage {
         
         LOG.info("VmMessage::copy created message "+me.m_descriptorFile.getPath());
         Mwi.sendMWI(mailbox);
-        sendToEmail(mailbox);
+        me.sendToEmail(mailbox);
 
         return me;
     }
@@ -368,7 +368,7 @@ public class VmMessage {
         }
         LOG.info("VmMessage::forward created message "+me.m_descriptorFile.getPath());
         Mwi.sendMWI(mailbox);
-        sendToEmail(mailbox);
+        me.sendToEmail(mailbox);
         
         return me;
 
