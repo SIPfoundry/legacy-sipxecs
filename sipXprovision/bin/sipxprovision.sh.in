@@ -61,7 +61,7 @@ case ${Action} in
      ;;
 
    MAIN)
-   	 Class=`echo $Args | tr -s " " | sed 's/^[ ]//g'`
+        Class=`echo $Args | tr -s " " | sed 's/^[ ]//g'`
      $JavaCmd -cp $ClassPath org.sipfoundry.sipxprovision.$Class
      ;;
 

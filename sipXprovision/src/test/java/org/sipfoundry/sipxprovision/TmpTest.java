@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 public class TmpTest extends TestCase {
 
-	public void testTmp() {
-		System.out.println("Good.");
-	}
+    public void testTmp() {
+        System.out.println("Good.");
+    }
 }

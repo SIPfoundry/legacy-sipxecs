@@ -54,13 +54,13 @@ public class Configuration {
 
     public Configuration() {
 
-    	// Passed on the command-line.
-    	String var_dir = System.getProperty("var.dir");
-    	if (null != var_dir) {
+        // Passed on the command-line.
+        String var_dir = System.getProperty("var.dir");
+        if (null != var_dir) {
 
-    		m_TftpRoot = var_dir + "/configserver/phone/profile/tftproot";
-    	}
-    	
+            m_TftpRoot = var_dir + "/configserver/phone/profile/tftproot";
+        }
+        
         // domain-config
         Properties domain_config = loadProperties("/domain-config");
         if (null != domain_config) {

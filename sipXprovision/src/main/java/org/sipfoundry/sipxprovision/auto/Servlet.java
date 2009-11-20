@@ -171,13 +171,13 @@ public class Servlet extends HttpServlet {
             // Setup the servlet to call the class when the URL is fetched.
             ServletHandler servletHandler = new ServletHandler();
             servletHandler.addServlet(Servlet.class.getCanonicalName(), m_config.getServletUriPath()
-            		+ "/*", Servlet.class.getName());
+                    + "/*", Servlet.class.getName());
             httpContext.addHandler(servletHandler);
             server.addContext(httpContext);
 
             // Start it up.
             LOG.info(String.format("Starting %s servlet on *:%d%s", Servlet.class.getCanonicalName(),
-            		m_config.getServletPort(), m_config.getServletUriPath()));
+                    m_config.getServletPort(), m_config.getServletUriPath()));
             server.start();
         } catch (Exception e) {
             LOG.error("Failed to start the servlet:", e);
@@ -244,44 +244,44 @@ public class Servlet extends HttpServlet {
 
         // Copy the Polycom static files.  (See: http://list.sipfoundry.org/archive/sipx-dev/msg20157.html)
         try {
-	
-	        FilenameFilter cfg_filter = new FilenameFilter() {
-	        	public boolean accept(File dir, String name) {
-	                return name.startsWith("polycom_") && name.endsWith(".cfg");
-	            }
-	        };
+    
+            FilenameFilter cfg_filter = new FilenameFilter() {
+                public boolean accept(File dir, String name) {
+                    return name.startsWith("polycom_") && name.endsWith(".cfg");
+                }
+            };
 
-	        File[] files = polycom_src_dir.listFiles(cfg_filter);
-	        if (null == files) {
-	           LOG.error(String.format("No Polycom static files found at %s.", polycom_src_dir.getAbsolutePath()));
-	        }
-	        else {
-	        	int copy_count = 0;
-		        for (File file : files) {
-		        	
-		        	File dest_file = new File(config.getTftpPath(), file.getName());
-		        	if (!dest_file.exists()) {
-		        		
-			        	OutputStream output = new BufferedOutputStream(new FileOutputStream(dest_file));
-			        	FileInputStream input = null;
-			        	try {
-			        		input = new FileInputStream(file);
-			        	    IOUtils.copy(input, output);
-			        	    copy_count++;
-			        	}
-			        	catch (IOException e) {
-			        		LOG.error(String.format("Failed to copy Polycom static file %s.", file.getName()), e);
-			        	}
-			        	finally {
-			        	   IOUtils.closeQuietly(input);
-			        	   IOUtils.closeQuietly(output);
-			        	}
-		        	}
-		        }
-	        	
-	        	LOG.info(String.format("Copied %d (of %d) Polycom static files from %s.", copy_count, files.length,
-	        			polycom_src_dir.getAbsolutePath()));
-	        }
+            File[] files = polycom_src_dir.listFiles(cfg_filter);
+            if (null == files) {
+               LOG.error(String.format("No Polycom static files found at %s.", polycom_src_dir.getAbsolutePath()));
+            }
+            else {
+                int copy_count = 0;
+                for (File file : files) {
+                    
+                    File dest_file = new File(config.getTftpPath(), file.getName());
+                    if (!dest_file.exists()) {
+                        
+                        OutputStream output = new BufferedOutputStream(new FileOutputStream(dest_file));
+                        FileInputStream input = null;
+                        try {
+                            input = new FileInputStream(file);
+                            IOUtils.copy(input, output);
+                            copy_count++;
+                        }
+                        catch (IOException e) {
+                            LOG.error(String.format("Failed to copy Polycom static file %s.", file.getName()), e);
+                        }
+                        finally {
+                           IOUtils.closeQuietly(input);
+                           IOUtils.closeQuietly(output);
+                        }
+                    }
+                }
+                
+                LOG.info(String.format("Copied %d (of %d) Polycom static files from %s.", copy_count, files.length,
+                        polycom_src_dir.getAbsolutePath()));
+            }
         }
         catch(Exception e ) {
             LOG.error("Failed to copy Polycom static files from " + polycom_src_dir.getAbsolutePath() + ":", e);
@@ -626,7 +626,7 @@ public class Servlet extends HttpServlet {
                 useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";
             }
 
-        	// MAC, Model, & Version
+            // MAC, Model, & Version
             phone.mac = extractMac(path, NORTEL_IP_12X0_PATH_PREFIX);
             if (null == phone.mac || !extractNortelIp12X0ModelAndVersion(phone, useragent)) {
                 writeUiForwardResponse(request, response);
