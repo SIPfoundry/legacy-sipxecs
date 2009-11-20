@@ -34,15 +34,18 @@
 
 #macro( ModelSpecificNode $model $fw )
 
+   #set( $actual_model = "" )
    #if($model != "")
-      #set( $model = "_${model}" )
-   #end
-   #if($fw != "")
-      #set( $fw = "_${fw}" )
+      #set( $actual_model = "_${model}" )
    #end
 
-   <APPLICATION${model}
-      #ModelSpecificAttributes( $model, $fw )
+   #set( $actual_fw = "" )
+   #if($fw != "")
+      #set( $actual_fw = "_${fw}" )
+   #end
+
+   <APPLICATION${actual_model}
+      #ModelSpecificAttributes( $actual_model, $actual_fw )
    />
 #end
 
