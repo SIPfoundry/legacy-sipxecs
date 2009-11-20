@@ -90,7 +90,14 @@ public class IMUser {
                         from = from.substring(0, from.indexOf('/'));
                     }       
 
-                    if(IMBot.findUser(from) != m_user) {
+                    FullUser fromUser = IMBot.findUser(from);
+                    
+                    boolean deleteRosterEntry = fromUser == null;
+                    if(fromUser != null) {
+                        deleteRosterEntry  = !fromUser.getUserName().equals(m_user.getUserName());     
+                    }
+                    
+                    if(deleteRosterEntry) {
                         // likely user has been deleted
                         m_chat.removeMessageListener(this);
                         RosterEntry entry = m_con.getRoster().getEntry(from);
@@ -101,6 +108,9 @@ public class IMUser {
                         }                  
                         return;
                     }
+                    
+                    // update our view of the user
+                    m_user = fromUser;
                     
                     LOG.debug("From " + from + " IM: " + message.getBody());
                     
