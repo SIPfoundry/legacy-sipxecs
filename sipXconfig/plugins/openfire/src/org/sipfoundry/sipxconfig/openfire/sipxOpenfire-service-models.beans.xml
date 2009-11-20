@@ -24,7 +24,7 @@
     <property name="affectedServices">
       <list>
         <ref bean="sipxRegistrarService" />
-        <ref bean="sipxIvrService" />
+        <ref bean="sipxImbotService" />
       </list>
     </property>
     <property name="bundles">
@@ -54,7 +54,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="restartRequired" value="false" />
-    <property name="sipxImbotService" ref="sipxImbotService" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
