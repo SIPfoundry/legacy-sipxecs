@@ -63,7 +63,6 @@ public class IMUser {
         private Date           m_atUntilTime;
         private Date           m_blockUntilTime;
         private String         m_callSubject;
-        private String         m_jabberId;
         
         // collection of jabber ids to poke (let it be known) when this user becomes avaiable. 
         private Collection<IMUser>  m_usersToPoke;
@@ -76,20 +75,19 @@ public class IMUser {
             m_user = user;
             // m_atPlace = Place.WORK;
    
-            
-            m_jabberId = jabberId;
-            m_chat = m_con.getChatManager().createChat(m_jabberId, new MessageListener() {
+            m_chat = m_con.getChatManager().createChat(jabberId, new MessageListener() {
                 public void processMessage(Chat chat, Message message) {
                     if(message.getType() == Message.Type.error) {
                         // ignore error IMs
                         return;
                     }
-                    
+                   
                     String from = chat.getParticipant();
                     if(from.indexOf('/') > 0) {
                         from = from.substring(0, from.indexOf('/'));
                     }       
 
+                    
                     FullUser fromUser = IMBot.findUser(from);
                     
                     boolean deleteRosterEntry = fromUser == null;
@@ -123,11 +121,11 @@ public class IMUser {
                         } 
 
                         m_context.clearContext();
-                    }                                  
+                    }                  
                 } 
             });  
 
-            LOG.debug("Created chat for " + m_jabberId);
+            LOG.debug("Created chat for " + jabberId);
             m_context = new IMContext(m_chat, Command.NONE, m_loc);
         }
         
@@ -453,7 +451,7 @@ public class IMUser {
                     case AWAY:
                         presAndStatus += " is away";    
                         break;
-                    
+                                 
                     case ONPHONE:
                         // if on the phone then OpenFire plugin will likely have
                         // set the status field
@@ -463,15 +461,11 @@ public class IMUser {
                             }
                         }
                         presAndStatus += " is on the phone";    
-                        break;
+                        break;                   
                         
                     case INCONFERENCE:
                         presAndStatus += " is on a conference call";    
                         break;              
-                }
-                
-                if(presAndStatus.length() > 0) {
-                    presAndStatus = user.getDisplayName() + presAndStatus;
                 }
                 
                 if(status != null) {
@@ -481,6 +475,7 @@ public class IMUser {
                 }
                 
                 if(presAndStatus.length() > 0) {
+                    presAndStatus = user.getDisplayName() + presAndStatus;
                     presAndStatus += ".";
                 }    
             }                     
