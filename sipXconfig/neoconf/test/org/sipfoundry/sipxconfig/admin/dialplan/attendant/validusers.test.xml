@@ -18,7 +18,7 @@
     <canTuiChangePin>true</canTuiChangePin>
     <email>
       <address>301@sipx.org</address>
-      <imap synchronize="true">
+      <imap synchronize="false">
         <host>imap.host.exampl.com</host>
         <port>143</port>
         <useTLS>false</useTLS>

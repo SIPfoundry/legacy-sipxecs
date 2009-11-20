@@ -235,7 +235,7 @@ public class MailboxPreferences {
         m_imapPort = imapPort;
     }
 
-    public boolean getEmailServerUseTLS() {
+    public boolean getImapTLS() {
         return m_imapTLS;
     }
 

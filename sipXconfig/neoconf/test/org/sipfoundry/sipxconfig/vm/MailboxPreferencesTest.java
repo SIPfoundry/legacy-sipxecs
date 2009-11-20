@@ -47,7 +47,7 @@ public class MailboxPreferencesTest extends XMLTestCase {
         assertEquals(MailboxPreferences.AttachType.NO, mailboxPrefs.getAttachVoicemailToEmail());
         assertEquals("imap.host.exampl.com", mailboxPrefs.getImapHost());
         assertEquals("143", mailboxPrefs.getImapPort());
-        assertFalse(mailboxPrefs.getEmailServerUseTLS());
+        assertFalse(mailboxPrefs.getImapTLS());
         assertEquals("4321", mailboxPrefs.getImapPassword());
     }
 

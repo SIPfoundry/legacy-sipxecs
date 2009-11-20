@@ -135,10 +135,10 @@ public class ValidUsersConfig extends XmlFile {
                 primaryEmailEl = usersEl.addElement(ELEMENT_NAME_EMAIL);
             }
             Element imapEl = primaryEmailEl.addElement(ELEMENT_NAME_IMAP);
-            imapEl.addAttribute(ELEMENT_NAME_SYNC, Boolean.TRUE.toString());
+            imapEl.addAttribute(ELEMENT_NAME_SYNC, Boolean.toString(mp.isSynchronizeWithImapServer()));
             imapEl.addElement(ELEMENT_NAME_HOST).setText(mp.getImapHost());
             imapEl.addElement(ELEMENT_NAME_PORT).setText(mp.getImapPort());
-            imapEl.addElement(ELEMENT_NAME_TLS).setText(Boolean.toString(mp.getEmailServerUseTLS()));
+            imapEl.addElement(ELEMENT_NAME_TLS).setText(Boolean.toString(mp.getImapTLS()));
             imapEl.addElement(ELEMENT_NAME_ACCOUNT).setText(StringUtils.defaultString(mp.getImapAccount()));
             // FIXME: this code is using default platform encoding - not safe
             String pwd = StringUtils.defaultString(mp.getImapPassword());
