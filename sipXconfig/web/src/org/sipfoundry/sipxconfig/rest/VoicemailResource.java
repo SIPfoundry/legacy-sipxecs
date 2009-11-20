@@ -32,6 +32,7 @@ import org.restlet.resource.OutputRepresentation;
 import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
+import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
@@ -46,23 +47,21 @@ public class VoicemailResource extends UserResource {
 
     private String m_folder;
     private String m_url;
-    /**
-     * URL to a mailbox service is offered by sipXconfig: https://{host}:{port}/sipxconfig/mailbox
-     *
-     * @see MailboxPageEncoder
-     */
-    private String m_mailboxServiceUrl;
+    private String m_folderUrl;
 
     private MailboxManager m_mailboxManager;
+
+    private PrivateUserKeyManager m_privateUserKeyManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
         m_folder = (String) getRequest().getAttributes().get("folder");
         m_url = request.getOriginalRef().getIdentifier();
-        // strip "rest" by taking parent reference and add "mailbox"
-        m_mailboxServiceUrl = request.getRootRef().getParentRef().getIdentifier() + "mailbox";
-
+        String rootUrl = request.getRootRef().getIdentifier();
+        String privateKeyForUser = m_privateUserKeyManager.getPrivateKeyForUser(getUser());
+        // URL /private/{securekey}/voicemail/{folder}/{messageId}
+        m_folderUrl = String.format("%s/private/%s/voicemail/%s", rootUrl, privateKeyForUser, m_folder);
         getVariants().add(new Variant(APPLICATION_RSS_XML));
     }
 
@@ -77,11 +76,10 @@ public class VoicemailResource extends UserResource {
 
         Mailbox mailbox = m_mailboxManager.getMailbox(getUser().getUserName());
         List<Voicemail> voicemails = m_mailboxManager.getVoicemail(mailbox, m_folder);
-        String folderUrl = joinUrl(m_mailboxServiceUrl, getUser().getUserName(), m_folder);
         List<SyndEntry> entries = new ArrayList<SyndEntry>(voicemails.size());
         for (Voicemail voicemail : voicemails) {
             MessageDescriptor md = voicemail.getDescriptor();
-            String messageUrl = joinUrl(folderUrl, voicemail.getMessageId());
+            String messageUrl = joinUrl(m_folderUrl, voicemail.getMessageId());
             SyndEntry entry = new SyndEntryImpl();
             entry.setTitle(String.format("%s from %s", md.getSubject(), md.getFromBrief()));
             entry.setPublishedDate(md.getTimestamp());
@@ -127,6 +125,11 @@ public class VoicemailResource extends UserResource {
     @Required
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
+    }
+
+    @Required
+    public void setPrivateUserKeyManager(PrivateUserKeyManager privateUserKeyManager) {
+        m_privateUserKeyManager = privateUserKeyManager;
     }
 
     private static String joinUrl(String... items) {

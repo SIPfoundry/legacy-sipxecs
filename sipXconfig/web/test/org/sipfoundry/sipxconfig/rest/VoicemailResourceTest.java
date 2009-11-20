@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
+
 import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
@@ -102,12 +104,18 @@ public class VoicemailResourceTest extends TestCase {
         expectLastCall().andReturn(mailbox);
         mailboxManager.getVoicemail(mailbox, "inbox");
         expectLastCall().andReturn(vmails);
-        replay(coreContext, mailboxManager);
+
+        PrivateUserKeyManager pukm = createMock(PrivateUserKeyManager.class);
+        pukm.getPrivateKeyForUser(user);
+        expectLastCall().andStubReturn("123456");
+
+        replay(coreContext, mailboxManager, pukm);
 
         VoicemailResource resource = new VoicemailResource();
 
         resource.setMailboxManager(mailboxManager);
         resource.setCoreContext(coreContext);
+        resource.setPrivateUserKeyManager(pukm);
 
         Request request = new Request();
         Map<String, Object> attributes = new HashMap();

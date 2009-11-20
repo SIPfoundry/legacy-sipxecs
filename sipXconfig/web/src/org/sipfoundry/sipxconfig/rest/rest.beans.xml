@@ -77,6 +77,7 @@
   <bean id="voicemailResource" class="org.sipfoundry.sipxconfig.rest.VoicemailResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="mailboxManager" ref="mailboxManager" />
+    <property name="privateUserKeyManager" ref="privateUserKeyManager" />
     <property name="available" value="true" />
     <property name="modifiable" value="false" />
   </bean>
