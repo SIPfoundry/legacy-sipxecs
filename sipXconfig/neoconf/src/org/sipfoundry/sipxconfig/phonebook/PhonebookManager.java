@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
@@ -27,45 +27,47 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
      * If phonebook management is disabled, no phonebook files will be generated for any phones
      * that use a separate phonebook file.
      */
-    public boolean getPhonebookManagementEnabled();
+    boolean getPhonebookManagementEnabled();
 
-    public Collection<Phonebook> getPhonebooks();
+    Collection<Phonebook> getPhonebooks();
 
-    public void deletePhonebooks(Collection<Integer> ids);
+    void deletePhonebooks(Collection<Integer> ids);
 
-    public Collection<Phonebook> getPhonebooksByUser(User user);
+    Collection<Phonebook> getPhonebooksByUser(User user);
 
-    public Phonebook getPhonebook(Integer phonebookId);
+    Phonebook getPhonebook(Integer phonebookId);
 
-    public Phonebook getPhonebookByName(String name);
+    Phonebook getPhonebookByName(String name);
 
-    public void savePhonebook(Phonebook phonebook);
+    void savePhonebook(Phonebook phonebook);
 
-    public String getExternalUsersDirectory();
+    String getExternalUsersDirectory();
 
-    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook, User user);
+    Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook, User user);
 
-    public Collection<PhonebookEntry> getEntries(Phonebook phonebook);
+    Collection<PhonebookEntry> getEntries(Phonebook phonebook);
 
-    public Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm, User user);
+    Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm, User user);
 
-    public void reset();
+    void reset();
 
-    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
+    void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
 
-    public void addEntriesFromFile(Integer phonebookId, InputStream in);
+    int addEntriesFromFile(Integer phonebookId, InputStream in);
 
-    public Phonebook getPrivatePhonebook(User user);
+    int addEntriesFromGmailAccount(Integer phonebookId, String account, String password);
 
-    public PhonebookFileEntry getPhonebookFileEntry(Integer phonebookFileEntryId);
+    Phonebook getPrivatePhonebook(User user);
 
-    public void savePhonebookFileEntry(PhonebookFileEntry entry);
+    PhonebookEntry getPhonebookEntry(Integer phonebookFileEntryId);
 
-    public void deletePhonebookFileEntry(PhonebookFileEntry entry);
+    void savePhonebookEntry(PhonebookEntry entry);
+
+    void deletePhonebookEntry(PhonebookEntry entry);
 
     // --> this methods will be removed after version update
-    public void removeTableColumns();
+    void removeTableColumns();
 
-    public Map<Integer, String[]> getPhonebookFilesName();
+    Map<Integer, String[]> getPhonebookFilesName();
     // <--
 }

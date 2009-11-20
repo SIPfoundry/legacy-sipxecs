@@ -21,7 +21,7 @@
     </set>
     <bag name="entries" table="phonebook_file_entry" cascade="all,delete-orphan" inverse="true">
       <key column="phonebook_id" />
-      <one-to-many class="PhonebookFileEntry" />
+      <one-to-many class="PhonebookEntry" />
     </bag>
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"
       unique="true" cascade="all" />

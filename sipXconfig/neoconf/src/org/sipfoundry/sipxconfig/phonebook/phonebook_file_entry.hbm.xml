@@ -3,7 +3,7 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
 
-  <class name="PhonebookFileEntry" table="phonebook_file_entry">
+  <class name="PhonebookEntry" table="phonebook_file_entry">
     <id name="id" column="phonebook_file_entry_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">phonebook_file_entry_seq</param>

@@ -24,7 +24,7 @@ public class Phonebook extends BeanWithId implements NamedObject {
     private String m_description;
     private Set<Group> m_members = new TreeSet<Group>();
     private Set<Group> m_consumers = new TreeSet<Group>();
-    private Collection<PhonebookFileEntry> m_entries = new ArrayList<PhonebookFileEntry>();
+    private Collection<PhonebookEntry> m_entries = new ArrayList<PhonebookEntry>();
     private User m_user;
 
     public Set<Group> getMembers() {
@@ -69,21 +69,21 @@ public class Phonebook extends BeanWithId implements NamedObject {
         m_description = description;
     }
 
-    public Collection<PhonebookFileEntry> getEntries() {
+    public Collection<PhonebookEntry> getEntries() {
         return m_entries;
     }
 
-    public void setEntries(Collection<PhonebookFileEntry> entries) {
+    public void setEntries(Collection<PhonebookEntry> entries) {
         m_entries = entries;
     }
 
-    public void addEntries(Collection<PhonebookFileEntry> entries) {
-        for (PhonebookFileEntry entry : entries) {
+    public void addEntries(Collection<PhonebookEntry> entries) {
+        for (PhonebookEntry entry : entries) {
             addEntry(entry);
         }
     }
 
-    public void addEntry(PhonebookFileEntry entry) {
+    public void addEntry(PhonebookEntry entry) {
         entry.setPhonebook(this);
         m_entries.add(entry);
     }

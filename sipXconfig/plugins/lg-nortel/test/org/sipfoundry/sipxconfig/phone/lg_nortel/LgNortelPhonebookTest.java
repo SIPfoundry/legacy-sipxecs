@@ -16,8 +16,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
@@ -36,13 +34,9 @@ public class LgNortelPhonebookTest extends TestCase {
     }
 
     public void testPhonebook() throws IOException {
-        IMocksControl phonebookEntryControl = EasyMock.createNiceControl();
-        PhonebookEntry phonebookEntry = phonebookEntryControl.createMock(PhonebookEntry.class);
-        phonebookEntry.getFirstName();
-        phonebookEntryControl.andReturn("Joe");
-        phonebookEntry.getNumber();
-        phonebookEntryControl.andReturn("1234");
-        phonebookEntryControl.replay();
+        PhonebookEntry phonebookEntry = new PhonebookEntry();
+        phonebookEntry.setFirstName("Joe");
+        phonebookEntry.setNumber("1234");
 
         LgNortelPhonebook book = new LgNortelPhonebook(Collections.singleton(phonebookEntry));
 
@@ -51,7 +45,6 @@ public class LgNortelPhonebookTest extends TestCase {
         assertEquals(2, list.size());
         assertEquals("1,\"Joe \",1234,", list.get(1));
 
-        phonebookEntryControl.verify();
     }
 
 }

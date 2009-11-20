@@ -122,6 +122,10 @@
     <pathelement path="${xalan.jar}"/>
     <pathelement path="${sl4j-api.jar}"/>
     <pathelement path="${slf4j-log4j12.jar}"/>
+    <pathelement path="${gdata-client.jar}" />
+    <pathelement path="${gdata-contacts.jar}" />
+    <pathelement path="${gdata-core.jar}" />
+    <pathelement path="${google-collect.jar}" />
   </path>
 
   <target name="init" depends="ant-targets.init">

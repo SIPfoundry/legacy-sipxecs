@@ -38,6 +38,7 @@ import static java.util.Arrays.asList;
 import com.glaforge.i18n.io.CharsetToolkit;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -65,7 +66,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
@@ -113,15 +113,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         getHibernateTemplate().saveOrUpdate(phonebook);
     }
 
-    public PhonebookFileEntry getPhonebookFileEntry(Integer id) {
-        return (PhonebookFileEntry) getHibernateTemplate().load(PhonebookFileEntry.class, id);
+    public PhonebookEntry getPhonebookEntry(Integer id) {
+        return (PhonebookEntry) getHibernateTemplate().load(PhonebookEntry.class, id);
     }
 
-    public void savePhonebookFileEntry(PhonebookFileEntry entry) {
+    public void savePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().saveOrUpdate(entry);
     }
 
-    public void deletePhonebookFileEntry(PhonebookFileEntry entry) {
+    public void deletePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().delete(entry);
     }
 
@@ -198,7 +198,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         // Add private phonebook
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
-            for (PhonebookFileEntry privateEntry : privatePhonebook.getEntries()) {
+            for (PhonebookEntry privateEntry : privatePhonebook.getEntries()) {
                 entries.put(getEntryKey(privateEntry), privateEntry);
             }
         }
@@ -218,7 +218,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             }
         }
 
-        for (PhonebookFileEntry fileEntry : phonebook.getEntries()) {
+        for (PhonebookEntry fileEntry : phonebook.getEntries()) {
             entries.put(getEntryKey(fileEntry), fileEntry);
         }
 
@@ -337,14 +337,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class PhoneEntryComparator implements Comparator<PhonebookEntry> {
         public int compare(PhonebookEntry a, PhonebookEntry b) {
-            int cmp = defaultString(a.getLastName()).compareTo(defaultString(b.getLastName()));
-            if (cmp == 0) {
-                cmp = defaultString(a.getFirstName()).compareTo(defaultString(b.getFirstName()));
-                if (cmp == 0) {
-                    cmp = a.getNumber().compareTo(b.getNumber());
-                }
-            }
-            return cmp;
+            CompareToBuilder compare = new CompareToBuilder();
+            compare.append(a.getLastName(), b.getLastName());
+            compare.append(a.getFirstName(), b.getFirstName());
+            compare.append(a.getNumber(), b.getNumber());
+            return compare.toComparison();
         }
     }
 
@@ -413,7 +410,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /**
      * public so that it works with Velocity
      */
-    public static class StringArrayPhonebookEntry implements PhonebookEntry {
+    public static class StringArrayPhonebookEntry extends PhonebookEntry {
         private final String[] m_row;
         private final PhonebookFileEntryHelper m_helper;
 
@@ -429,18 +426,22 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             m_helper = helper;
         }
 
+        @Override
         public String getFirstName() {
             return m_helper.getFirstName(m_row);
         }
 
+        @Override
         public String getLastName() {
             return m_helper.getLastName(m_row);
         }
 
+        @Override
         public String getNumber() {
             return m_helper.getNumber(m_row);
         }
 
+        @Override
         public AddressBookEntry getAddressBookEntry() {
             return m_helper.getAddressBookEntry(m_row);
         }
@@ -455,25 +456,29 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     /**
      * public so Velocity doesn't reject object
      */
-    public static class UserPhonebookEntry implements PhonebookEntry {
+    public static class UserPhonebookEntry extends PhonebookEntry {
         private final User m_user;
 
         UserPhonebookEntry(User user) {
             m_user = user;
         }
 
+        @Override
         public String getFirstName() {
             return m_user.getFirstName();
         }
 
+        @Override
         public String getLastName() {
             return m_user.getLastName();
         }
 
+        @Override
         public String getNumber() {
             return StringUtils.defaultIfEmpty(m_user.getExtension(true), m_user.getUserName());
         }
 
+        @Override
         public AddressBookEntry getAddressBookEntry() {
             return m_user.getAddressBookEntry();
         }
@@ -516,17 +521,28 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         writer.flush();
     }
 
-    public void addEntriesFromFile(Integer phonebookId, InputStream is) {
+    @Override
+    public int addEntriesFromFile(Integer phonebookId, InputStream is) {
         try {
             Phonebook phonebook = getPhonebook(phonebookId);
-            addEntries(phonebook, is);
+            int count = addEntries(phonebook, is);
             savePhonebook(phonebook);
+            return count;
         } catch (IOException e) {
             throw new UserException("&msg.phonebookUploadError");
         }
     }
 
-    void addEntries(Phonebook phonebook, InputStream is) throws IOException {
+    @Override
+    public int addEntriesFromGmailAccount(Integer phonebookId, String account, String password) {
+        Phonebook phonebook = getPhonebook(phonebookId);
+        GoogleImporter googleImporter = new GoogleImporter(account, password);
+        int count = googleImporter.addEntries(phonebook);
+        savePhonebook(phonebook);
+        return count;
+    }
+
+    int addEntries(Phonebook phonebook, InputStream is) throws IOException {
         Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
 
         BufferedInputStream in = new BufferedInputStream(is);
@@ -539,9 +555,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
 
         List<PhonebookEntry> entriesList = new ArrayList(entries.values());
-
         for (PhonebookEntry entry : entriesList) {
-            PhonebookFileEntry fileEntry = new PhonebookFileEntry();
+            PhonebookEntry fileEntry = new PhonebookEntry();
 
             fileEntry.setFirstName(entry.getFirstName());
             fileEntry.setLastName(entry.getLastName());
@@ -551,6 +566,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
             phonebook.addEntry(fileEntry);
         }
+        return entriesList.size();
     }
 
     @SuppressWarnings("deprecation")

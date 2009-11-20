@@ -7,7 +7,7 @@
   <parameter name="label" required="yes"/>
   <!-- for actually is required but it is usually specified on an HTML page, hence optional here -->
   <parameter name="for" required="no"/>
-  <parameter name="field" required="yes"/>
+  <parameter name="field" required="no"/>
   <parameter name="defaultValue" required="no"/>
   <parameter name="description" required="no"/>
   <parameter name="highlight" required="no"/>

@@ -56,4 +56,13 @@ public class EditPhonebookTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
     }
+
+    public void testImportGmailContacts() {
+        assertElementPresent("gmailAddress");
+        assertElementPresent("gmailPassword");
+        setTextField("item:name", "test-phonebook");
+        setTextField("gmailAddress", "test");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

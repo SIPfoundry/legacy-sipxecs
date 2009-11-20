@@ -89,27 +89,17 @@ public class UserPhonebookSearchResourceTest extends TestCase {
 
     protected Collection<PhonebookEntry> getMockPhonebookEntries() {
 
-        PhonebookEntry entry1 = createMock(PhonebookEntry.class);
-        PhonebookEntry entry2 = createMock(PhonebookEntry.class);
+        PhonebookEntry entry1 = new PhonebookEntry();
+        PhonebookEntry entry2 = new PhonebookEntry();
 
-        entry1.getFirstName();
-        expectLastCall().andReturn("FirstName1");
-        entry1.getLastName();
-        expectLastCall().andReturn("LastName1");
-        entry1.getNumber();
-        expectLastCall().andReturn("200");
-        entry1.getAddressBookEntry();
-        expectLastCall().andReturn(new AddressBookEntry()).anyTimes();
-        entry2.getFirstName();
-        expectLastCall().andReturn("FirstName2");
-        entry2.getLastName();
-        expectLastCall().andReturn("LastName2");
-        entry2.getNumber();
-        expectLastCall().andReturn("201");
-        entry2.getAddressBookEntry();
-        expectLastCall().andReturn(new AddressBookEntry()).anyTimes();
-
-        replay(entry1, entry2);
+        entry1.setFirstName("FirstName1");
+        entry1.setLastName("LastName1");
+        entry1.setNumber("200");
+        entry1.setAddressBookEntry(new AddressBookEntry());
+        entry2.setFirstName("FirstName2");
+        entry2.setLastName("LastName2");
+        entry2.setNumber("201");
+        entry2.setAddressBookEntry(new AddressBookEntry());
 
         return Arrays.asList(entry1, entry2);
     }

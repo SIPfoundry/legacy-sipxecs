@@ -235,7 +235,7 @@ public class SnomTest extends TestCase {
         return sd;
     }
 
-    static class DummyEntry implements PhonebookEntry {
+    static class DummyEntry extends PhonebookEntry {
         private final String m_id;
 
         public DummyEntry(String id) {

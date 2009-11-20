@@ -1,40 +1,86 @@
-<body jwcid="$content$">
-	<span jwcid="@common/Border" useDojo="true">
-		<h1>
-			<span key="title.phonebook"/>
-		</h1>
-		<span jwcid="@common/ErrorMsg"/>
-        <div jwcid="@common/QuickHelp" value="message:description.phonebook" />
-		<span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
-		<form jwcid="phonebookForm" id="phonebookForm">
-    		<span jwcid="nameDescription"/>
-			<fieldset>
-				<table>
-					<tbody>
-						<tr jwcid="memberGroupPanel">
-							<td>
-								<input jwcid="memberGroups" type="text"/>
-							</td>
-						</tr>
-						<tr jwcid="consumerGroupPanel">
-							<td>
-								<input jwcid="consumerGroups" type="text"/>
-							</td>
-						</tr>
-						<tr jwcid="@common/FieldPanel"
-							label="message:label.phonebookFile"
-					        field="component:phonebookFile"
-					        description="message:description.phonebookFile" >
-							<td>
-								<input type="file"
-								       jwcid="phonebookFile@Upload"
-									   file="ognl:uploadFile" />
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</fieldset>
-			<span jwcid="formActions"/>
-		</form>
-	</span>
-</body>
+<span jwcid="@common/Border" useDojo="true">
+  <h1>
+    <span key="title.phonebook" />
+  </h1>
+  <span jwcid="@common/ErrorMsg" />
+  <div jwcid="@common/QuickHelp" value="message:description.phonebook" />
+  <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups" />
+
+  <form jwcid="phonebookForm@Form" delegate="bean:validator" id="phonebookForm">
+    <div jwcid="nameDescription@common/ItemCommon"
+      useExtension="false"
+      useEnabled="false"
+      item="ognl:phonebook">
+      <tr jwcid="memberGroupPanel@common/FieldPanel"
+        label="message:label.memberGroups"
+        description="message:description.memberGroups"
+        for="gms:groups">
+        <td jwcid="memberGroups@common/GroupMultiSelect"
+          value="ognl:memberGroupsString"
+          source="ognl:userGroups"/>
+      </tr>
+      <tr jwcid="consumerGroupPanel@common/FieldPanel"
+        label="message:label.consumerGroups"
+        description="message:description.consumerGroups"
+        for="gms:consumerGroups">
+        <td jwcid="consumerGroups@common/GroupMultiSelect"
+          value="ognl:consumerGroupsString"
+          source="ognl:userGroups"
+          htmlId="literal:gms:consumerGroups" />
+      </tr>
+    </div>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+            label="message:label.phonebookFile"
+            field="component:phonebookFile"
+            description="message:description.phonebookFile" >
+            <td>
+              <input type="file" jwcid="phonebookFile@Upload" file="ognl:uploadFile" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li>
+        <input jwcid="@Submit" value="message:import.file" listener="listener:importFromFile" />
+      </li>
+    </ul>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+            label="message:label.phonebookGmailAddress"
+            field="component:gmailAddress"
+            description="message:description.phonebookGmailAddress">
+            <td>
+              <input jwcid="gmailAddress@TextField"
+                value="ognl:gmailAddress"
+                displayName="message:label.phonebookGmailAddress"
+                validators="validators:email"
+                autocomplete="off" />
+            </td>
+          </tr>
+          <tr jwcid="@common/FieldPanel"
+            label="message:label.phonebookGmailPassword"
+            field="component:gmailPassword">
+            <td>
+              <input jwcid="gmailPassword@TextField"
+                hidden="true"
+                autocomplete="off"
+                value="ognl:gmailPassword" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li>
+        <input jwcid="@Submit" value="message:import.gmail" listener="listener:importGmailAddressBook" />
+      </li>
+    </ul>
+    <span jwcid="formActions@common/FormActions" listener="listener:savePhonebook" callback="ognl:callback" />
+  </form>
+</span>

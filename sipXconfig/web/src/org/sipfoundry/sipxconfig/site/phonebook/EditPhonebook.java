@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.phonebook;
 
@@ -13,12 +13,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -26,14 +30,27 @@ import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 public abstract class EditPhonebook extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "phonebook/EditPhonebook";
 
+    @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
 
+    @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
 
+    @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
+
+    @Persist("client")
+    public abstract Integer getPhonebookId();
+
+    public abstract void setPhonebookId(Integer phonebookId);
 
     public abstract Phonebook getPhonebook();
 
@@ -47,11 +64,29 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
 
     public abstract void setConsumerGroupsString(String groups);
 
-    public abstract void setPhonebookId(Integer phonebookId);
-
-    public abstract Integer getPhonebookId();
-
     public abstract IUploadFile getUploadFile();
+
+    public abstract String getGmailAddress();
+
+    public abstract String getGmailPassword();
+
+    public void importGmailAddressBook() {
+        String gmailAddress = getGmailAddress();
+        if (isBlank(gmailAddress)) {
+            return;
+        }
+        String gmailPassword = getGmailPassword();
+        if (isBlank(gmailPassword)) {
+            return;
+        }
+        getPhonebookManager().addEntriesFromGmailAccount(getPhonebookId(), gmailAddress, gmailPassword);
+    }
+
+    public void importFromFile() {
+        if (getUploadFile() != null) {
+            getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
+        }
+    }
 
     public void savePhonebook() {
         if (!TapestryUtils.isValid(this)) {
@@ -60,9 +95,9 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
 
         Phonebook phonebook = getPhonebook();
 
-        String groupsString = getMemberGroupsString();
-        if (groupsString != null) {
-            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString, true);
+        String members = getMemberGroupsString();
+        if (members != null) {
+            List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, members, true);
             phonebook.replaceMembers(new HashSet<Group>(groups));
         }
         String comsumers = getConsumerGroupsString();
@@ -73,13 +108,9 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
 
         getPhonebookManager().savePhonebook(phonebook);
         setPhonebookId(phonebook.getId());
-
-        if (getUploadFile() != null) {
-            getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
-        }
     }
 
-    public void pageBeginRender(PageEvent arg0) {
+    public void pageBeginRender(PageEvent event) {
         Phonebook phonebook = getPhonebook();
         if (phonebook == null) {
             Integer phonebookId = getPhonebookId();
@@ -99,5 +130,4 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             setConsumerGroupsString(consumersString);
         }
     }
-
 }

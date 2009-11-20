@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
 
@@ -42,7 +42,7 @@ public class UserPhonebookEntryResourceTest extends TestCase {
     private CoreContext m_coreContext;
     private Phonebook m_phonebook;
     private PhonebookManager m_phonebookManager;
-    private PhonebookFileEntry m_entry;
+    private PhonebookEntry m_entry;
     private UserResource m_resource;
 
     @Override
@@ -59,7 +59,7 @@ public class UserPhonebookEntryResourceTest extends TestCase {
         expectLastCall().andReturn(false);
         replay(m_coreContext);
 
-        m_entry = new PhonebookFileEntry();
+        m_entry = new PhonebookEntry();
         m_entry.setUniqueId();
         m_entry.setFirstName("name");
         m_entry.setLastName("lastName");
@@ -78,13 +78,13 @@ public class UserPhonebookEntryResourceTest extends TestCase {
         m_phonebook = new Phonebook();
         m_phonebook.setName("privatePhonebook_200");
         m_phonebook.setUser(m_user);
-        Collection<PhonebookFileEntry> entries = new ArrayList<PhonebookFileEntry>();
+        Collection<PhonebookEntry> entries = new ArrayList<PhonebookEntry>();
         entries.add(m_entry);
         m_phonebook.setEntries(entries);
         m_phonebookManager = createMock(PhonebookManager.class);
         m_phonebookManager.getPrivatePhonebook(m_user);
         expectLastCall().andReturn(m_phonebook);
-        m_phonebookManager.getPhonebookFileEntry(m_entry.getId());
+        m_phonebookManager.getPhonebookEntry(m_entry.getId());
         expectLastCall().andReturn(m_entry);
         replay(m_phonebookManager);
 

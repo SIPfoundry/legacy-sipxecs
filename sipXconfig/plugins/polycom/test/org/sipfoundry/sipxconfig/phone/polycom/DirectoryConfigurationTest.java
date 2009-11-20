@@ -19,8 +19,6 @@ import java.util.Collections;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
@@ -45,15 +43,10 @@ public class DirectoryConfigurationTest extends XMLTestCase {
     }
 
     public void testTransformRows() throws Exception {
-        IMocksControl phonebookEntryControl = EasyMock.createControl();
-        PhonebookEntry phonebookEntry = phonebookEntryControl.createMock(PhonebookEntry.class);
-        phonebookEntry.getFirstName();
-        phonebookEntryControl.andReturn(null);
-        phonebookEntry.getLastName();
-        phonebookEntryControl.andReturn(null);
-        phonebookEntry.getNumber();
-        phonebookEntryControl.andReturn("1234");
-        phonebookEntryControl.replay();
+        PhonebookEntry phonebookEntry = new PhonebookEntry();
+        phonebookEntry.setFirstName(null);
+        phonebookEntry.setLastName(null);
+        phonebookEntry.setNumber("1234");
 
         DirectoryConfiguration dir = new DirectoryConfiguration(null, null);
         Collection<PolycomPhonebookEntry> collection = new ArrayList<PolycomPhonebookEntry>();
@@ -63,7 +56,6 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         assertNull(entry.getLastName());
         assertEquals("1234", entry.getContact());
 
-        phonebookEntryControl.verify();
     }
 
     public void testGenerateEmptyDirectory() throws Exception {
@@ -83,15 +75,10 @@ public class DirectoryConfigurationTest extends XMLTestCase {
 
     public void testGenerateDirectory() throws Exception {
 
-        IMocksControl phonebookEntryControl = EasyMock.createControl();
-        PhonebookEntry phonebookEntry = phonebookEntryControl.createMock(PhonebookEntry.class);
-        phonebookEntry.getFirstName();
-        phonebookEntryControl.andReturn("Dora");
-        phonebookEntry.getLastName();
-        phonebookEntryControl.andReturn("Explorer");
-        phonebookEntry.getNumber();
-        phonebookEntryControl.andReturn("210");
-        phonebookEntryControl.replay();
+        PhonebookEntry phonebookEntry = new PhonebookEntry();
+        phonebookEntry.setFirstName("Dora");
+        phonebookEntry.setLastName("Explorer");
+        phonebookEntry.setNumber("210");
 
         Collection<PhonebookEntry> entries = Collections.singleton(phonebookEntry);
         DirectoryConfiguration dir = new DirectoryConfiguration(entries, null);
@@ -106,7 +93,6 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         assertXMLEqual(phoneDiff, true);
         expectedPhoneStream.close();
 
-        phonebookEntryControl.verify();
     }
 
     public void testGenerateSpeedDialDirectory() throws Exception {

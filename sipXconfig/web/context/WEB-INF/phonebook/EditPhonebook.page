@@ -1,66 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<!DOCTYPE page-specification
+  PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phonebook.EditPhonebook">
-  <description>add a description</description>
   <property name="userGroups" initial-value="coreContext.groups"/>
-  <property name="memberGroupsString"/>
-  <property name="consumerGroupsString"/>
-  <property name="phonebook"/>
-  <property name="phonebookId" persist="client"/>
-  <inject property="phonebookManager" object="spring:phonebookManager" />
-  <inject property="coreContext" object="spring:coreContext" />
-  <inject property="settingDao" object="spring:settingDao" />
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <component id="phonebookForm" type="Form">
-    <binding name="delegate" value="bean:validator"/>
-  </component>
-  <component id="memberGroupPanel" type="common/FieldPanel">
-    <binding name="field" value="components.memberGroupsX"/>
-    <binding name="label" value="message:label.memberGroups"/>
-    <binding name="description" value="message:description.memberGroups"/>
-  </component>
-  <component id="memberGroups" type="common/GroupMultiSelect">
-    <binding name="value" value="memberGroupsString"/>
-    <binding name="source" value="userGroups"/>
-  </component>
-  <component id="consumerGroupPanel" type="common/FieldPanel">
-    <binding name="field" value="components.consumerGroupsX"/>
-    <binding name="label" value="message:label.consumerGroups"/>
-    <binding name="description" value="message:description.consumerGroups"/>
-  </component>
-  <component id="consumerGroups" type="common/GroupMultiSelect">
-    <binding name="value" value="consumerGroupsString"/>
-    <binding name="source" value="userGroups"/>
-    <binding name="htmlId" value="literal:gms:consumerGroups"/>
-  </component>
-  <component id="phonebookCsvFilePanel" type="common/FieldPanel">
-    <binding name="field" value="components.phonebookCsvFileX"/>
-    <binding name="label" value="message:label.phonebookCsvFile"/>
-    <binding name="description" value="message:description.phonebookCsvFile"/>
-  </component>
-  <component id="phonebookCsvFile" type="common/AssetSelectorSingle">
-    <binding name="asset" value="phonebook.membersCsvFilename" />
-    <binding name="assetDir" value="phonebookDirectory" />
-    <binding name="contentType" value="literal:text/csv" />
-  </component>
-  <component id="phonebookVcardFilePanel" type="common/FieldPanel">
-    <binding name="field" value="components.phonebookVcardFileX"/>
-    <binding name="label" value="message:label.phonebookVcardFile"/>
-    <binding name="description" value="message:description.phonebookVcardFile"/>
-  </component>
-  <component id="phonebookVcardFile" type="common/AssetSelectorSingle">
-    <binding name="asset" value="phonebook.membersVcardFilename" />
-    <binding name="assetDir" value="phonebookDirectory" />
-    <binding name="contentType" value="literal:text/vCard" />
-  </component>
-  <component id="nameDescription" type="common/ItemCommon">
-    <binding name="useExtension" value="literal:false"/>
-    <binding name="useEnabled" value="literal:false"/>
-    <binding name="useFieldset" value="literal:false"/>
-    <binding name="item" value="phonebook"/>
-  </component>
-  <component id="formActions" type="common/FormActions">
-    <binding name="listener" value="listener:savePhonebook" />
-    <binding name="callback" value="callback" />
-  </component>
 </page-specification>

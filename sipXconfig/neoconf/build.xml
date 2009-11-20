@@ -39,6 +39,9 @@
     <pathelement location="${cdr-bindings.jar}" />
     <pathelement location="${jain-sip-sdp.jar}" />
     <pathelement location="${guessencoding.jar}" />
+    <pathelement location="${gdata-client.jar}" />
+    <pathelement location="${gdata-contacts.jar}" />
+    <pathelement location="${gdata-core.jar}" />
   </path>
 
   <!-- 
@@ -65,6 +68,10 @@
     <pathelement location="${lucene.jar}" />
     <pathelement location="${jakarta-oro.jar}" />
     <pathelement location="${log4j.jar}" />
+    <pathelement location="${gdata-client.jar}" />
+    <pathelement location="${gdata-contacts.jar}" />
+    <pathelement location="${gdata-core.jar}" />
+    <pathelement location="${google-collect.jar}" />
   </path>
 
   <path id="base.path">
@@ -240,6 +247,10 @@
       <fileset file="${xstream.jar}" />
       <fileset file="${jettison.jar}" />
       <fileset file="${guessencoding.jar}" />
+      <fileset file="${gdata-client.jar}" />
+      <fileset file="${gdata-contacts.jar}" />
+      <fileset file="${gdata-core.jar}" />
+      <fileset file="${google-collect.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />

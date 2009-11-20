@@ -72,50 +72,30 @@ public class PhonebookManagerTest extends TestCase {
 
     public void testPhoneEntryComparator() {
         PhoneEntryComparator c = new PhoneEntryComparator();
-        IMocksControl phonebookEntryControl = EasyMock.createControl();
-        PhonebookEntry a = phonebookEntryControl.createMock(PhonebookEntry.class);
-        PhonebookEntry b = phonebookEntryControl.createMock(PhonebookEntry.class);
+        PhonebookEntry a = new PhonebookEntry();
+        PhonebookEntry b = new PhonebookEntry();
 
-        a.getLastName();
-        phonebookEntryControl.andReturn("Avocet");
-        b.getLastName();
-        phonebookEntryControl.andReturn("Vireo");
-        phonebookEntryControl.replay();
+        a.setLastName("Avocet");
+        b.setLastName("Vireo");
 
         assertTrue(c.compare(a, b) < 0);
 
-        phonebookEntryControl.reset();
-        a.getLastName();
-        phonebookEntryControl.andReturn("Avocet");
-        a.getFirstName();
-        phonebookEntryControl.andReturn("Southern");
-        b.getLastName();
-        phonebookEntryControl.andReturn("Avocet");
-        b.getFirstName();
-        phonebookEntryControl.andReturn("Northern");
-        phonebookEntryControl.replay();
+        a.setFirstName("Southern");
+        b.setLastName("Avocet");
+        b.setFirstName("Northern");
 
         assertTrue(c.compare(a, b) > 0);
 
-        phonebookEntryControl.reset();
-        a.getLastName();
-        phonebookEntryControl.andReturn("Avocet");
-        a.getFirstName();
-        phonebookEntryControl.andReturn("Northern");
-        a.getNumber();
-        phonebookEntryControl.andReturn("1234");
+        a.setLastName("Avocet");
+        a.setFirstName("Northern");
+        a.setNumber("1234");
 
-        b.getLastName();
-        phonebookEntryControl.andReturn("Avocet");
-        b.getFirstName();
-        phonebookEntryControl.andReturn("Northern");
-        b.getNumber();
-        phonebookEntryControl.andReturn("abc");
-        phonebookEntryControl.replay();
+        b.setLastName("Avocet");
+        b.setFirstName("Northern");
+        b.setNumber("abc");
 
         assertTrue(c.compare(a, b) < 0);
 
-        phonebookEntryControl.verify();
     }
 
     public void testStringArrayPhonebookEntry() {
@@ -322,11 +302,11 @@ public class PhonebookManagerTest extends TestCase {
         // check if get entries removes duplicates properly
         PhonebookManagerImpl impl = new PhonebookManagerImpl();
 
-        PhonebookFileEntry entry = new PhonebookFileEntry();
+        PhonebookEntry entry = new PhonebookEntry();
         entry.setNumber("1234");
         entry.setFirstName("Adam");
 
-        PhonebookFileEntry entry2 = new PhonebookFileEntry();
+        PhonebookEntry entry2 = new PhonebookEntry();
         entry2.setNumber("1234");
         entry2.setFirstName("Bob");
 

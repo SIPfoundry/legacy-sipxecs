@@ -319,7 +319,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         return sd;
     }
 
-    static class DummyEntry implements PhonebookEntry {
+    static class DummyEntry extends PhonebookEntry {
 
         private final String entry;
 

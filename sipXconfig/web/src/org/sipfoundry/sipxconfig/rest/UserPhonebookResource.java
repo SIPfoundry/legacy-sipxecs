@@ -21,7 +21,6 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
-import org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntry;
 
 public class UserPhonebookResource extends UserPhonebookSearchResource {
     @Override
@@ -34,7 +33,7 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
     @Override
     public void acceptRepresentation(Representation entity) throws ResourceException {
         PrivatePhonebookRepresentation representation = new PrivatePhonebookRepresentation(entity);
-        Collection<PhonebookFileEntry> newEntries = representation.getObject();
+        Collection<PhonebookEntry> newEntries = representation.getObject();
         if (newEntries.isEmpty()) {
             return;
         }
@@ -46,22 +45,22 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
             newPhonebook.setName("privatePhonebook_" + user.getUserName());
             newPhonebook.setUser(user);
             newPhonebook.setEntries(newEntries);
-            for (PhonebookFileEntry entry : newEntries) {
+            for (PhonebookEntry entry : newEntries) {
                 entry.setPhonebook(newPhonebook);
             }
             getPhonebookManager().savePhonebook(newPhonebook);
         } else {
-            Collection<PhonebookFileEntry> entries = privatePhonebook.getEntries();
+            Collection<PhonebookEntry> entries = privatePhonebook.getEntries();
             entries.addAll(newEntries);
-            for (PhonebookFileEntry entry : entries) {
+            for (PhonebookEntry entry : entries) {
                 entry.setPhonebook(privatePhonebook);
             }
             getPhonebookManager().savePhonebook(privatePhonebook);
         }
     }
 
-    static class PrivatePhonebookRepresentation extends XStreamRepresentation<Collection<PhonebookFileEntry>> {
-        public PrivatePhonebookRepresentation(MediaType mediaType, Collection<PhonebookFileEntry> object) {
+    static class PrivatePhonebookRepresentation extends XStreamRepresentation<Collection<PhonebookEntry>> {
+        public PrivatePhonebookRepresentation(MediaType mediaType, Collection<PhonebookEntry> object) {
             super(mediaType, object);
         }
 
@@ -72,10 +71,10 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
         @Override
         protected void configureXStream(XStream xstream) {
             xstream.alias("phonebook", List.class);
-            xstream.alias("entry", PhonebookFileEntry.class);
-            xstream.aliasField("first-name", PhonebookFileEntry.class, "firstName");
-            xstream.aliasField("last-name", PhonebookFileEntry.class, "lastName");
-            xstream.aliasField("contact-information", PhonebookFileEntry.class, "addressBookEntry");
+            xstream.alias("entry", PhonebookEntry.class);
+            xstream.aliasField("first-name", PhonebookEntry.class, "firstName");
+            xstream.aliasField("last-name", PhonebookEntry.class, "lastName");
+            xstream.aliasField("contact-information", PhonebookEntry.class, "addressBookEntry");
             xstream.omitField(Phonebook.class, "m_Phonebook");
         }
     }
