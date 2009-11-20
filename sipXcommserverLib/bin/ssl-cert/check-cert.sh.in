@@ -13,6 +13,7 @@ CAdir=@SIPX_CONFDIR@/ssl/authorities
 openssl=@OPENSSL@
 Certificates=""
 FailedCerts=""
+CheckAs=CLIENTSERVER
 
 while [ $# -ne 0 ]
 do
@@ -75,6 +76,10 @@ do
             fi
             ;;
 
+        -ca|--certificate-authority)
+            CheckAs=AUTHORITY
+            ;;
+
         ##
         ## handle the 'end of options' marker
         ##
@@ -108,6 +113,7 @@ Usage:
                [ {-f | --fail} <failure-days> ]
                [ {-n | --name} <name> ]...
                [ {-a | --authority} <authority-file> ]...
+               [ {-ca | --certificate-authority} ]
                <certificate-file> ...
 
     Checks signature validity, name, and expiration of each certificate.
@@ -130,6 +136,9 @@ Usage:
          ${CAdir}
     directory unless the --authority switch is used to point to an
     authority certificate.
+
+    The --certificate-authority option causes the certificate-file to be 
+    validated as a CA certificate (suitable for signing other certificates).
 USAGE
     exit
 fi
@@ -150,7 +159,7 @@ then
     AuthTarget=${Authority}
 fi
 
-if [ -z "${AuthSwitch}" ]
+if [ ${CheckAs} = "CLIENTSERVER" -a -z "${AuthSwitch}" ]
 then
     cat 1>&2 <<EOF
     No certificate authorities found - cannot validate certificate
@@ -186,6 +195,27 @@ cert_names () {
     fi
 }
 
+issuerName () {
+    local name
+    name=`${openssl} x509 -in "${1}" -noout -issuer | sed s/issuer=// 2> /dev/null`
+    echo "${name}"
+}
+
+subjectName () {
+    local name
+    name=`${openssl} x509 -in "${1}" -noout -subject | sed s/subject=// 2> /dev/null`
+    echo "${name}"
+}
+
+isSelfSigned () {
+    local issuer
+    issuer=`issuerName ${1}`
+    local subject
+    subject=`subjectName ${1}`
+
+    test -n "${issuer}" -a -n "${subject}" -a  "${issuer}" = "${subject}"
+}
+
 numCertsTested=0
 for Certificate in ${Certificates}
 do
@@ -197,32 +227,69 @@ do
     trap "rm -f ${CheckFile} > /dev/null 2>&1" 0
     cat /dev/null > ${CheckFile}
 
-    case ${Certificate} in
-        *-sip.*)
-            # do not check for web usages on a sip certificate
+    case ${CheckAs} in
+        CLIENTSERVER)
+            case ${Certificate} in
+                *-sip.*)
+                    # do not check for web usages on a sip certificate
+                    ;;
+                *)
+                    ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslclient \
+                        "${Certificate}" \
+                        > ${CheckFile} 2>&1
+                    if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                    then
+                        echo "SSL Certificate '${Certificate}' is invalid as client certificate." 1>&2
+                        sed 's/^/    /' ${CheckFile} 1>&2
+                        ExitStatus=1
+                        FailedCerts="${FailedCerts} ${Certificate}"
+                    fi
+                    cat /dev/null > ${CheckFile}
+                    ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslserver \
+                        "${Certificate}" \
+                        > ${CheckFile} 2>&1
+                    if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                    then
+                        echo "SSL Certificate '${Certificate}' is invalid as server certificate." 1>&2
+                        sed 's/^/    /' ${CheckFile} 1>&2
+                        ExitStatus=1
+                        FailedCerts="${FailedCerts} ${Certificate}"
+                    fi
+                    ;;
+            esac
             ;;
-        *)
-            ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslclient \
-                "${Certificate}" \
-                > ${CheckFile} 2>&1
-            if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+        
+        AUTHORITY)
+            if ${openssl} x509 -purpose -noout -in "${Certificate}" \
+                | grep -E '^SSL (client|server) CA : Yes$' > /dev/null 2>&1
             then
-                echo "SSL Certificate '${Certificate}' is invalid as client certificate." 1>&2
-                sed 's/^/    /' ${CheckFile} 1>&2
+                # figure out if this is self-signed
+                if isSelfSigned "${Certificate}"
+                then
+                    if [ "${Feedback}" = "VERBOSE" ]
+                    then
+                        echo "SSL Certificate '${Certificate}' is a root CA certificate." 1>&2
+                    fi
+                    AuthSwitch="-CAfile"
+                    AuthTarget="${Certificate}"
+                fi
+
+                # the certificate is meant to be a CA certificate - see if it is internally valid
+                ${openssl} verify ${AuthSwitch} "${AuthTarget}" "${Certificate}" \
+                    > ${CheckFile} 2>&1
+                if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                then
+                    echo "SSL Certificate '${Certificate}' is not valid." 1>&2
+                    sed 's/^/    /' ${CheckFile} 1>&2
+                    ExitStatus=1
+                    FailedCerts="${FailedCerts} ${Certificate}"
+                fi
+            else
+                echo "SSL Certificate '${Certificate}' is not a CA certificate." 1>&2
                 ExitStatus=1
                 FailedCerts="${FailedCerts} ${Certificate}"
-            fi
+            fi                
             cat /dev/null > ${CheckFile}
-            ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslserver \
-                "${Certificate}" \
-                > ${CheckFile} 2>&1
-            if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
-            then
-                echo "SSL Certificate '${Certificate}' is invalid as server certificate." 1>&2
-                sed 's/^/    /' ${CheckFile} 1>&2
-                ExitStatus=1
-                FailedCerts="${FailedCerts} ${Certificate}"
-            fi
             ;;
     esac
 
@@ -298,8 +365,8 @@ do
 
     if [ "${Feedback}" = "VERBOSE" ]
     then
-        caName=`${openssl} x509 -in "${Certificate}" -issuer -nameopt RFC2253,multiline -noout \
-            | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
+        cert_name=`subjectName "${Certificate}"`
+        caName=`issuerName "${Certificate}"`
 
         echo "SSL certificate '${Certificate}' name:    ${cert_name}"
         echo "SSL certificate '${Certificate}' issuer:  ${caName}"
