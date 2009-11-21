@@ -2,8 +2,8 @@
 <installation version="1.0">
  <info>
         <appname>SIPVIEWER</appname>
-        <appversion>3.11.9</appversion>
-        <url>http://www.sipfoundry.org/</url>
+        <appversion>@version@</appversion>
+        <url>http://sipxecs.sipfoundry.org/</url>
 	<javaversion>1.5</javaversion>
     </info>
     <guiprefs width="640" height="480" resizable="yes"/>

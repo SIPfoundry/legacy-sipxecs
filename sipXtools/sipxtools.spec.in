@@ -42,4 +42,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/preflight
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/sipviewer-install.jar
 %{_mandir}/man1
