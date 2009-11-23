@@ -108,7 +108,7 @@ expand_charstring(
         int     i;
         char    *ptr;
 
-        i = **cpp;      /* Extract length of string */
+        i = *(unsigned char*)*cpp;      /* Extract length of string */
         (*cpp)++;       /*  and move on */
 
         if ((ptr=(char *)malloc(i+1)) == NULL ) {
@@ -299,6 +299,11 @@ parse_rr(
 
         case T_NAPTR:                           /* Naming authority pointer */
         {
+                // In case we have to abort parsing later, clear all the pointer fields.
+                rd->naptr.flags = NULL;
+                rd->naptr.services = NULL;
+                rd->naptr.regexp = NULL;
+                rd->naptr.replacement = NULL;
                 // This is copied from the other cases, but I think that
                 // all cases should be setting *cpp += dlen, not
                 // cpp += dlen.

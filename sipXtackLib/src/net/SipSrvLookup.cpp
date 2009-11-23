@@ -891,19 +891,18 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       }
 
       // Use res_nquery, not res_search or res_query, so defaulting rules are not
-      // applied to the domain, and so that the query is thread safe
-      if (res_nquery(&res, name, C_IN, type,
-                    (unsigned char*) answer, sizeof (answer)) == -1)
+      // applied to the domain, and so that the query is thread-safe.
+      int r = res_nquery(&res, name, C_IN, type,
+                         (unsigned char*) answer, sizeof (answer));
+      // Done with res state struct, so cleanup.
+      // Must close once and only once per res_ninit, after res_nquery.
+      res_nclose(&res);
+
+      if (r == -1)
       {
-          // done with res state struct, so cleanup
-          // must close once and only once per res_ninit, after res_nquery
-          res_nclose(&res);
          // res_query failed, return.
          break;
       }
-      // done with res state struct, so cleanup
-      // must close once and only once per res_ninit, after res_nquery
-      res_nclose(&res);
 
       response = res_parse((char*) &answer);
       if (response == NULL)
