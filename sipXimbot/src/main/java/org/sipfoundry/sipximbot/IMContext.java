@@ -321,9 +321,9 @@ public class IMContext {
                 // "To receive calls, enter unblock\n" +
                 // "To receive calls at a specific number, enter at <number> until <time>  e.g. at cell until 3pm\n" +
                 "To see who is on your conference, enter who\n" +
-                "To mute a conference party, enter mute <party number>\n" +
-                "To unmute a conference party, enter unmute <party number>\n" +
-                "To disconnect a conference party, enter disconnect <party number>\n" +
+                "To mute a conference party, enter mute <participant number>\n" +
+                "To unmute a conference party, enter unmute <participant number>\n" +
+                "To disconnect a conference party, enter disconnect <participant number>\n" +
                 "To lock your conference, enter lock\n" +
                 "To unlock your conference, enter unlock\n" + 
                 "To listen to a caller leaving voicemail, enter listen\n" +
