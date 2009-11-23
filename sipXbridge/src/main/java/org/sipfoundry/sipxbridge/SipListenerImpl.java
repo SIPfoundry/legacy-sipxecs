@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.DialogTimeoutEvent;
+import gov.nist.javax.sip.SipListenerExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 
@@ -46,7 +48,7 @@ import org.apache.log4j.Logger;
  * @author M. Ranganathan
  *
  */
-public class SipListenerImpl implements SipListener {
+public class SipListenerImpl implements SipListenerExt {
 
     private static Logger logger = Logger.getLogger(SipListenerImpl.class);
 
@@ -632,6 +634,21 @@ public class SipListenerImpl implements SipListener {
     public void processTransactionTerminated(TransactionTerminatedEvent tte) {
 
         logger.debug("Transaction terminated event");
+    }
+
+    /**
+     * Dialog timed out (resending INVITE or sending BYE).
+     */
+    public void processDialogTimeout(DialogTimeoutEvent dialogTimeoutEvent) {
+        
+        DialogContext dialogContext = DialogContext.get(dialogTimeoutEvent.getDialog());
+        try {
+            String reason = dialogTimeoutEvent.getReason().toString();
+            dialogContext.sendBye(true,reason);
+        } catch (Exception ex) {
+            logger.error("Exception sending BYE on timed out Dialog",ex);
+        }
+    
     }
 
 }

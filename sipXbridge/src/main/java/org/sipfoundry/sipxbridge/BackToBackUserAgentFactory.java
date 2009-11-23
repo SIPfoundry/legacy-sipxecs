@@ -44,33 +44,38 @@ public class BackToBackUserAgentFactory {
 	
 	class Scanner extends TimerTask {
 
-        @Override
-        public void run() {
-            Iterator<BackToBackUserAgent> iter = backToBackUserAgentTable.iterator();
-            boolean removed = false;
-            while( iter.hasNext() ) {
-                BackToBackUserAgent b2bua = iter.next();
-                if ( b2bua.isPendingTermination() ) {
-                    b2bua.cleanUp();
-                    logger.debug("Removing BackToBackUserAgent");
-                    iter.remove();
-                    removed = true;
-                }
-            }
-            /*
-             * Check for dialog leaks. This us useful for unit testing.
-             */
-            if ( logger.isDebugEnabled() && removed ) {
-                logger.debug("Dialog Table : ");
-                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
-                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
-                    if ( dialog.getState() != DialogState.TERMINATED ) {
-                        logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
-                    }
-                }
-            }
-        }
-	    
+	    @Override
+	    public void run() {
+	        try {
+	            Iterator<BackToBackUserAgent> iter = backToBackUserAgentTable.iterator();
+	            boolean removed = false;
+	            while( iter.hasNext() ) {
+	                BackToBackUserAgent b2bua = iter.next();
+	                if ( b2bua.isPendingTermination() ) {
+	                    b2bua.cleanUp();
+	                    logger.debug("Removing BackToBackUserAgent");
+	                    iter.remove();
+	                    removed = true;
+	                }
+	            }
+	            /*
+	             * Check for dialog leaks. This us useful for unit testing.
+	             */
+	            if ( logger.isDebugEnabled() && removed ) {
+	                logger.debug("Dialog Table : ");
+	                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
+	                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
+	                    if ( dialog.getState() != DialogState.TERMINATED ) {
+	                        logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+	                    }
+	                }
+	            }
+	        } catch (Exception ex) {
+	            logger.error("Exception caught in Timer task",ex);
+	        }
+	    }
+
+
 	}
 	
 	public BackToBackUserAgentFactory() {

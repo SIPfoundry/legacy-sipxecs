@@ -183,13 +183,17 @@ public class ItspAccountInfo implements
         @Override
         public void run() {
 
-            for (Iterator<FailureCounter> it = failureCountTable.values()
-                    .iterator(); it.hasNext();) {
-                FailureCounter fc = it.next();
-                long now = System.currentTimeMillis();
-                if (now - fc.creationTime > 30000) {
-                    it.remove();
+            try {
+                for (Iterator<FailureCounter> it = failureCountTable.values()
+                        .iterator(); it.hasNext();) {
+                    FailureCounter fc = it.next();
+                    long now = System.currentTimeMillis();
+                    if (now - fc.creationTime > 30000) {
+                        it.remove();
+                    }
                 }
+            } catch (Exception ex) {
+                logger.error("An exception occured in the timer task ",ex);
             }
         }
 

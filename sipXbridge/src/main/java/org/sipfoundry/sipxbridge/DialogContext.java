@@ -25,6 +25,7 @@ import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
+import javax.sip.InvalidArgumentException;
 import javax.sip.ObjectInUseException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
@@ -39,6 +40,7 @@ import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
+import javax.sip.header.ReasonHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
@@ -805,8 +807,12 @@ class DialogContext {
         Gateway.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
-                    DialogContext.this.dialog.delete();
+                try {
+                    if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
+                        DialogContext.this.dialog.delete();
+                    }
+                } catch (Exception ex) {
+                    logger.error("Terminate On Confirm processing", ex);
                 }
             }
         }, 8000);
@@ -926,13 +932,18 @@ class DialogContext {
      * Send bye for this dialog. 
      * 
      * @param forward - whether or not to forward this BYE to the other side of the B2BUA.
+     * @param reason - text to place in the Reason header.
      * 
      * @throws Exception
      */
 
-    void sendBye(boolean forward) throws SipException {
+    void sendBye(boolean forward, String reason) throws SipException {
         try {
             Request bye = dialog.createRequest(Request.BYE);
+            if (reason != null) {
+                ReasonHeader reasonHeader = ProtocolObjects.headerFactory.createReasonHeader("sipXbridge", 
+                        ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE, reason);
+            }
             if ( getSipProvider() != Gateway.getLanProvider() ) {
                 if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(bye);
@@ -950,8 +961,22 @@ class DialogContext {
 
             dialog.sendRequest(clientTransaction);
         } catch (ParseException ex) {
-            new SipXbridgeException("Unexpected exception",ex);
+            logger.error("Unexpected exception",ex);
+            throw new SipXbridgeException("Unexpected exception",ex);
+        } catch (InvalidArgumentException ex) {
+            logger.error("Unexpected exception",ex);
+            throw new SipXbridgeException("Unexpected Exception",ex);
         }
+    }
+    
+    /**
+     * Send BYE for this dialog (no reason provided).
+     * 
+     * @param forward -- whether or not to forward the BYE.
+     */
+    
+    void sendBye(boolean forward) throws SipException {
+        sendBye(forward,null);
     }
     
     /**

@@ -212,7 +212,7 @@ public class BackToBackUserAgent implements Comparable {
                     DialogContext.get(dialog).forwardBye(serverTransaction);
                 }
             } catch (Exception ex) {
-                logger.error("Exception forwarding BYE.");
+                logger.error("Exception forwarding BYE.",ex);
             }
         }
     }
@@ -571,6 +571,7 @@ public class BackToBackUserAgent implements Comparable {
                             logger.error("Error tearing down call", ex);
                         }
                     }
+                   
                 }
             }, 8000);
 
