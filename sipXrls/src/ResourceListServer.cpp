@@ -254,7 +254,7 @@ void ResourceListServer::shutdown()
    // that their subscriptions are terminated.
 
    // Stop all the subscriptions so callbacks are no longer activated.
-//   mSubscribeClient.endAllSubscriptions();
+   mSubscribeClient.endAllSubscriptions();
 
    // Finalize ResourceListSet, so timers stop queueing messages to
    // ResourceList Task and there are no references to the
