@@ -654,20 +654,21 @@ def setup_DNS_zone( domain, hostname, ipaddress ):
    zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, domain)
    dnsConfigFile='/etc/named.conf'
 
-   if DNS_Provider( dnsConfigFile ) :
-      # We are a Master DNS server so generate a zone file.
+   if runningAsRoot():
+      if DNS_Provider( dnsConfigFile ) :
+         # We are a Master DNS server so generate a zone file.
 
-      # Create DNS entries using the sipx-dns script
-      sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
-                         % (domain, hostname, ipaddress)
+         # Create DNS entries using the sipx-dns script
+         sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
+                            % (domain, hostname, ipaddress)
 
-      log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
-      zoneConfig = commands.getoutput(sipxDNSCommand)
+         log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
+         zoneConfig = commands.getoutput(sipxDNSCommand)
 
-      log_printout("======= %s:" % zoneConfigFile)
-      log_printout(zoneConfig)
+         log_printout("======= %s:" % zoneConfigFile)
+         log_printout(zoneConfig)
 
-      zoneRef = '\
+         zoneRef = '\
 \n\
 zone "%s"  IN  {\n\
      type master;\n\
@@ -676,10 +677,9 @@ zone "%s"  IN  {\n\
 };\n\
 ' % ( domain, domain )
 
-      log_printout("======= %s (appended):" % dnsConfigFile)
-      log_printout(zoneRef)
+         log_printout("======= %s (appended):" % dnsConfigFile)
+         log_printout(zoneRef)
 
-      if runningAsRoot():
          file ( zoneConfigFile, 'w').write( zoneConfig )
          file ( dnsConfigFile, 'a').write( zoneRef )
 
