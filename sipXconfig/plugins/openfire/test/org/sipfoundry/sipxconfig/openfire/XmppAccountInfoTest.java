@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.test.TestUtil;
@@ -189,12 +190,18 @@ public class XmppAccountInfoTest extends TestCase {
         sipxImbotService.setModelDir("sipximbot");
         sipxImbotService.setModelName("sipximbot.xml");
         sipxImbotService.setModelFilesContext(m_neoconfModelFilesContext);
+        sipxImbotService.setSettingValue("imbot/imId", "MyAssistant");
         sipxImbotService.setSettingValue("imbot/imPassword", "password");
+
+        SipxServiceManager m_sipxServiceManager = createMock(SipxServiceManager.class);
+        m_sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+        expectLastCall().andReturn(sipxImbotService).atLeastOnce();
+        replay(m_sipxServiceManager);
 
         XmppAccountInfo xmppAccountInfo = new XmppAccountInfo();
         xmppAccountInfo.setCoreContext(coreContext);
         xmppAccountInfo.setConferenceBridgeContext(m_conferenceContext);
-        xmppAccountInfo.setSipxImbotService(sipxImbotService);
+        xmppAccountInfo.setSipxServiceManager(m_sipxServiceManager);
 
         Document document = xmppAccountInfo.getDocument();
         String domDoc = TestUtil.asString(document);
