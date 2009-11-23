@@ -112,7 +112,7 @@ public class SipListenerImpl extends AbstractSipListener {
                 LOG.debug("clientTransaction NULL -- dropping response ");
                 return;
             }
-            TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
+            TransactionContext tad = (TransactionContext) clientTransaction
                     .getApplicationData();
             Dialog dialog = responseEvent.getDialog();
             Response response = responseEvent.getResponse();
@@ -145,7 +145,7 @@ public class SipListenerImpl extends AbstractSipListener {
         if (!timeoutEvent.isServerTransaction()) {
             ClientTransaction clientTransaction = timeoutEvent.getClientTransaction();
 
-            TransactionApplicationData tad = (TransactionApplicationData) clientTransaction
+            TransactionContext tad = (TransactionContext) clientTransaction
                     .getApplicationData();
             if (tad != null) {
                 tad.timeout(timeoutEvent);

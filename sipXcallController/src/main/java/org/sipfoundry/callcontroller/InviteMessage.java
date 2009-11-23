@@ -98,7 +98,7 @@ public class InviteMessage extends JainSipMessage {
                     m_forwardingAllowed);
 
             ClientTransaction ctx = getSipProvider().getNewClientTransaction(m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(m_operator,
+            TransactionContext tad = new TransactionContext(m_operator,
                     m_timeout, ctx);
             ctx.setApplicationData(tad);
             setClientTransaction(ctx);
@@ -142,7 +142,7 @@ public class InviteMessage extends JainSipMessage {
             Dialog dialog = ctx.getDialog();
             dialog.setApplicationData(dialogContext);
             dialogContext.addDialog(dialog, m_request);
-            TransactionApplicationData tad = new TransactionApplicationData(operator, m_timeout,
+            TransactionContext tad = new TransactionContext(operator, m_timeout,
                     ctx);
             tad.setSipMessage(this);
             tad.setUserCredentials(m_userCredentials);
@@ -167,7 +167,7 @@ public class InviteMessage extends JainSipMessage {
         }
         SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
         ClientTransaction clientTransaction = provider.getNewClientTransaction(request);
-        new TransactionApplicationData(operator,clientTransaction);
+        new TransactionContext(operator,clientTransaction);
         peerDialog.sendRequest(clientTransaction);
     }
 

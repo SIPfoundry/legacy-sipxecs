@@ -23,5 +23,15 @@ public interface CallControllerParams {
     public static final String CONFERENCE_PIN = "confpin";
 
     public static final String RESULTCACHETIME = "resultCacheTime";
+    
+    public static final String ACTION = "action";
+    
+    public static final String TARGET="target";
+
+    public static final String CALL = "call";
+    
+    public static final String TRANFSFER = "transfer";
+    
+    
 
 }

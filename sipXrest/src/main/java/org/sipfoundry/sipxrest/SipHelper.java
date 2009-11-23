@@ -159,7 +159,8 @@ public class SipHelper {
     }
 
     final public Response createResponse(Request request, int responseCode) throws ParseException {
-        Response response =  getStackBean().getMessageFactory().createResponse(responseCode, request);
+        Response response = getStackBean().getMessageFactory().createResponse(responseCode,
+                request);
         response.setHeader(this.createContactHeader());
         return response;
     }
@@ -168,6 +169,16 @@ public class SipHelper {
         return ((CSeqHeader) response.getHeader(CSeqHeader.NAME)).getMethod();
     }
 
+    final public  void setSdpContent(Message message, String sdpContent) {
+       try {
+           ContentTypeHeader cth = this.createContentTypeHeader();
+           message.setContent(sdpContent, cth);
+       } catch (Exception ex) {
+           logger.error("Unexpected exception creating header", ex);
+           throw new SipxRestException(ex);  
+       }
+    }
+    
     final public ReferToHeader createReferToHeader(String referToAddrSpec) {
         try {
             String referToUri = "sip:" + referToAddrSpec;
@@ -181,6 +192,7 @@ public class SipHelper {
             throw new SipxRestException(ex);
         }
     }
+    
 
     final public void tearDownDialog(Dialog dialog) {
         logger.debug("Tearinging Down Dialog : " + dialog);
@@ -200,8 +212,13 @@ public class SipHelper {
         }
     }
 
-    final public ContentTypeHeader createContentTypeHeader() throws ParseException {
-        return getStackBean().getHeaderFactory().createContentTypeHeader(APPLICATION, SDP);
+    final public ContentTypeHeader createContentTypeHeader() {
+        try {
+            return getStackBean().getHeaderFactory().createContentTypeHeader(APPLICATION, SDP);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception creating header", ex);
+            throw new SipxRestException(ex);
+        }
     }
 
     final public ReferredByHeader createReferredByHeader(String addrSpec) throws ParseException {
@@ -407,7 +424,7 @@ public class SipHelper {
             throw new SipxRestException(ex);
         }
     }
-
+    
     /**
      * @return the m_stackBean
      */

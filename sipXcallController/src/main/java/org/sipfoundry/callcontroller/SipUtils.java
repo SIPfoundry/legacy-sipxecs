@@ -78,7 +78,7 @@ public class SipUtils {
     private static HashMap<String, DialogContext> dialogContextTable = new HashMap<String, DialogContext>();
 
     public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout, 
-    		UserCredentialHash credentials, String method) {
+    		UserCredentialHash credentials, String method,String agent, String callingParty, String calledParty) {
         logger.debug("createDialogCOntext " + key);
         DialogContext dialogContext = getDialogContext(key);
         if (dialogContext != null) {
@@ -86,6 +86,9 @@ public class SipUtils {
         }
         dialogContext = new DialogContext(key, timeout, cachetimeout,method);
         dialogContext.setUserCredentials(credentials);
+        dialogContext.setAgent(agent);
+        dialogContext.setCallingParty(callingParty);
+        dialogContext.setCalledParty(calledParty);
         dialogContextTable.put(key, dialogContext);
 
         return dialogContext;

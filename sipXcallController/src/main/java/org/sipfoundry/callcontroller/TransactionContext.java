@@ -9,19 +9,21 @@
  */
 package org.sipfoundry.callcontroller;
 
+import gov.nist.javax.sip.TransactionExt;
+import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
+import gov.nist.javax.sip.header.extensions.ReferredByHeader;
+
 import java.text.ParseException;
 import java.util.EventObject;
 import java.util.Iterator;
 import java.util.TimerTask;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.TimeUnit;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
-import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
@@ -30,17 +32,11 @@ import javax.sip.TimeoutEvent;
 import javax.sip.TransactionState;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.Header;
 import javax.sip.header.ReferToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
-
-import gov.nist.javax.sip.TransactionExt;
-import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
-import gov.nist.javax.sip.clientauthutils.UserCredentials;
-import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxrest.RestServer;
@@ -51,15 +47,13 @@ import org.sipfoundry.sipxrest.SipHelper;
  * to a transaction.
  * 
  */
-class TransactionApplicationData {
+class TransactionContext {
 
-    private static final Logger LOG = Logger.getLogger(TransactionApplicationData.class);
+    private static final Logger LOG = Logger.getLogger(TransactionContext.class);
 
     private final Operator m_operator;
 
     private final SynchronousQueue<EventObject> m_queue = new SynchronousQueue<EventObject>();
-
-    private final Request m_request;
 
     private final SipHelper m_helper;
 
@@ -75,10 +69,11 @@ class TransactionApplicationData {
 
     private InviteMessage m_sipMessage;
 
-    public TransactionApplicationData(Operator operator, int timeout,
+    private String target;
+
+    public TransactionContext(Operator operator, int timeout,
             ClientTransaction clientTransaction) {
         m_operator = operator;
-        m_request = clientTransaction.getRequest();
         m_timeout = timeout;
         m_clientTransaction = clientTransaction;
         m_helper = SipListenerImpl.getInstance().getHelper();
@@ -110,11 +105,10 @@ class TransactionApplicationData {
         }
     }
     
-    public TransactionApplicationData(Operator operator, ClientTransaction clientTransaction ) {
+    public TransactionContext(Operator operator, ClientTransaction clientTransaction ) {
         this.m_clientTransaction = clientTransaction;
         this.m_operator = operator;
         this.m_helper = SipListenerImpl.getInstance().getHelper();
-        this.m_request = clientTransaction.getRequest();
         clientTransaction.setApplicationData(this);
         this.m_timeout = 30;
     }
@@ -126,6 +120,9 @@ class TransactionApplicationData {
             ClientTransaction clientTransaction = responseEvent.getClientTransaction();
             Dialog dialog = responseEvent.getDialog();
             String method = SipHelper.getCSeqMethod(response);
+            DialogContext dialogContext = (DialogContext) clientTransaction.getDialog()
+            .getApplicationData();
+
             LOG.debug("method = " + method);
             LOG.debug("Operator = " + m_operator);
             LOG.debug("dialog = "  + dialog);
@@ -135,9 +132,7 @@ class TransactionApplicationData {
                     return;
                 }
                 ClientTransaction ctx = m_helper.handleChallenge(response, clientTransaction);
-                DialogContext dialogContext = (DialogContext) clientTransaction.getDialog()
-                        .getApplicationData();
-                /* The old dialog is terminated -- take him out */
+                 /* The old dialog is terminated -- take him out */
                 dialogContext.removeMe(dialog);
                 dialogContext.addDialog(ctx.getDialog(),ctx.getRequest());
                 ctx.getDialog().setApplicationData(dialogContext);
@@ -179,7 +174,7 @@ class TransactionApplicationData {
                                 .getNewClientTransaction(referRequest);
 
                         // And send it to the other side.
-                        TransactionApplicationData tad = new TransactionApplicationData(
+                        TransactionContext tad = new TransactionContext(
                                 Operator.SEND_REFER,  ctx);
                         tad.setUserCredentials(m_userCredentials);
                         ctx.setApplicationData(tad);
@@ -200,15 +195,12 @@ class TransactionApplicationData {
                         
                         // And send it to the other side
                         newMessage.createAndSend(DialogContext.get(dialog), method, 
-                                Operator.SEND_3PCC_CALL_SETUP2, null);
-                        
-                        
+                                Operator.SEND_3PCC_CALL_SETUP2, null);                      
                         
                     } else if (this.m_operator == Operator.SEND_3PCC_CALL_SETUP2) {
                         // Extract the SDP of the offer and increment the version
                         if (response.getContentLength().getContentLength() == 0) {
                             LOG.error("Response contains no SDP body");
-                            DialogContext dialogContext = DialogContext.get(dialog);
                             dialogContext.tearDownDialogs("Expecting SDP Body");
                             return;
                         }
@@ -243,19 +235,28 @@ class TransactionApplicationData {
                     } else if ( m_operator == Operator.FORWARD_REQUEST) {
                         DialogContext dat = (DialogContext) dialog.getApplicationData();
                         dat.setLastResponse(response);
-                        dat.setPendingOperation(PendingDialogOperation.PENDING_ACK);
+                        dat.setPendingOperation(PendingOperation.PENDING_ACK);
                         this.forwardResponse(response);
                     }
                 } else if (m_operator == Operator.FORWARD_REQUEST) {
-                    DialogContext dat = (DialogContext) dialog.getApplicationData();
-                    dat.setLastResponse(response);
+                    dialogContext.setLastResponse(response);
                     if (SipHelper.getCSeqMethod(response).equals(Request.INVITE)) {
-                        dat.setPendingOperation(PendingDialogOperation.PENDING_ACK);
+                        dialogContext.setPendingOperation(PendingOperation.PENDING_ACK);
                     }
                     this.forwardResponse(response);
+                } else if (m_operator == Operator.SOLICIT_SDP_OFFER) {
+                    dialogContext.sendSdpAnswerInAck(dialog, response);              
+                    dialogContext.sendSdpOffer(target, response);
+                } else if (m_operator == Operator.SEND_SDP_OFFER) {
+                    long ackSeqno = SipHelper.getSequenceNumber(response);
+                    Request ack = dialog.createAck(ackSeqno);
+                    dialog.sendAck(ack);
+                    if ( dialogContext.getPendingOperation() == PendingOperation.PENDING_RE_INVITE) {
+                        dialogContext.setPendingOperation(PendingOperation.NONE);
+                        dialogContext.sendSdpOfferToPeerDialog(dialog, response);
+                    }
                 } else if (response.getStatusCode() / 100 > 2) {
-                    DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
-                    dialogContext.removeMe(dialog);
+                     dialogContext.removeMe(dialog);
                 }
             } else if (method.equals(Request.REFER)) {
                 LOG.debug("Got REFER Response " + response.getStatusCode());
@@ -340,6 +341,15 @@ class TransactionApplicationData {
 
     public void setSipMessage(InviteMessage sipMessage) {
         this.m_sipMessage = sipMessage;
+    }
+
+    public static TransactionContext attach(ClientTransaction ctx, Operator operator) {
+       TransactionContext txc = new TransactionContext(operator,ctx);
+       return txc;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
     }
 
 }

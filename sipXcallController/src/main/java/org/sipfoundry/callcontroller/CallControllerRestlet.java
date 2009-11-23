@@ -145,29 +145,66 @@ public class CallControllerRestlet extends Restlet {
                     return;
                 }
                 
-             
-                if (method.equalsIgnoreCase(CallControllerParams.REFER)) {
-                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
-                            cachetimeout, credentials,method);
-                    Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
-                            agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
-                            isForwardingAllowed, dialogContext, timeout);
-                    logger.debug("CallControllerRestlet : Dialog = " + dialog);
-                } else if (method.equalsIgnoreCase(CallControllerParams.INVITE)) {
-                    DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
-                            cachetimeout, credentials,method);
-                    Dialog dialog = new SipServiceImpl().sendInvite(credentials, agentAddr,
-                            agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
-                            isForwardingAllowed, dialogContext, timeout);
-                    logger.debug("CallControllerRestlet : Dialog = " + dialog);
-              
-                } else {
-                    String result = ResultFormatter.formatError(true,
-                            Status.CLIENT_ERROR_NOT_ACCEPTABLE.getCode(), "Call Setup Method "
+                String action = (String) request.getAttributes().get(CallControllerParams.ACTION);
+                
+                if ( action == null ) {
+                    action = CallControllerParams.CALL;
+                }
+                
+                if ( action.equals(CallControllerParams.CALL)) {
+                    if (method.equalsIgnoreCase(CallControllerParams.REFER)) {
+                        DialogContext dialogContext = SipUtils.createDialogContext(key, timeout,
+                                cachetimeout, credentials,method,agentAddr,callingParty,calledParty);
+                        Dialog dialog = new SipServiceImpl().sendRefer(credentials, agentAddr,
+                                agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
+                                isForwardingAllowed, dialogContext, timeout);
+                        logger.debug("CallControllerRestlet : Dialog = " + dialog);
+                    } else if (method.equalsIgnoreCase(CallControllerParams.INVITE)) {
+                        DialogContext dialogContext = SipUtils.getDialogContext(key);
+                        if ( dialogContext != null  && dialogContext.isCallInProgress()) {
+                            String result = ResultFormatter.formatError(true,
+                                    Status.CLIENT_ERROR_FORBIDDEN.getCode(), "Call in progress "
                                     + method + " not supported");
-                    response.setEntity(result, MediaType.TEXT_XML);
-                    response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
-                    return;
+                            response.setEntity(result, MediaType.TEXT_XML);
+                            response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
+                            return;
+                        }
+                        dialogContext = SipUtils.createDialogContext(key, timeout,
+                                cachetimeout, credentials,method,agentAddr,callingParty,calledParty);
+                        Dialog dialog = new SipServiceImpl().sendInvite(credentials, agentAddr,
+                                agentUserRecord.getDisplayName(), callingParty, calledParty, subject,
+                                isForwardingAllowed, dialogContext, timeout);
+                        logger.debug("CallControllerRestlet : Dialog = " + dialog);
+
+                    } else {
+                        String result = ResultFormatter.formatError(true,
+                                Status.CLIENT_ERROR_NOT_ACCEPTABLE.getCode(), "Call Setup Method "
+                                + method + " not supported");
+                        response.setEntity(result, MediaType.TEXT_XML);
+                        response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
+                        return;
+                    }
+                } else if (action.equals(CallControllerParams.TRANFSFER)) {
+                    String target = (String) request.getAttributes().get(CallControllerParams.TARGET);
+                    if ( target == null ) {
+                        String result = ResultFormatter.formatError(true,
+                                Status.CLIENT_ERROR_BAD_REQUEST.getCode(), "Need a transfer target parameter");
+                        response.setEntity(result, MediaType.TEXT_XML);
+                        response.setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                        return; 
+                    }
+                    if ( target.indexOf("@") == -1) {
+                        target = target + "@" + RestServer.getRestServerConfig().getSipxProxyDomain();
+                    }
+                    DialogContext dialogContext = SipUtils.getDialogContext(key);
+                    if ( dialogContext == null || !dialogContext.isCallInProgress()) {
+                        String result = ResultFormatter.formatError(true,
+                                Status.CLIENT_ERROR_FORBIDDEN.getCode(), "Call not found.");
+                        response.setEntity(result, MediaType.TEXT_XML);
+                        response.setStatus(Status.CLIENT_ERROR_NOT_ACCEPTABLE);
+                        return;
+                    }
+                    dialogContext.transferCaller(target);
                 }
 
             } else {

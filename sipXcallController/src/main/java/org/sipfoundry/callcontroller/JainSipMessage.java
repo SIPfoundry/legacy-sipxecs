@@ -86,7 +86,7 @@ public abstract class JainSipMessage extends AbstractMessage {
             Request request = m_dialog.createRequest(method);
             ClientTransaction ctx = provider.getNewClientTransaction(request);
             dialogContext.addDialog(ctx.getDialog(),request);
-            TransactionApplicationData tad = new TransactionApplicationData(operator, ctx);
+            TransactionContext tad = new TransactionContext(operator, ctx);
             m_dialog.sendRequest(ctx);
             return ctx;
         } catch (Exception ex) {

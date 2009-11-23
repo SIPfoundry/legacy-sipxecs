@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TimerTask;
 
+import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
@@ -26,6 +27,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.Header;
@@ -56,8 +58,7 @@ public class DialogContext {
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">";
     public static String FOOTER = "\n</status-lines>\n";
 
-    public static String DIALOGS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "\n<dialogs "
+    public static String DIALOGS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n<dialogs "
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">\n";
     public static String DIALOGS_FOOTER = "</dialogs>\n";
 
@@ -65,7 +66,12 @@ public class DialogContext {
     private long creationTime = System.currentTimeMillis();
     private UserCredentialHash userCredentials;
     private String method;
-    private PendingDialogOperation pendingOperation;
+    private PendingOperation pendingOperation;
+    private Dialog firstDialog;
+    private int timeout;
+    private String agent;
+    private String callingParty;
+    private String calledParty;
 
     public DialogContext(String key, int timeout, int cachetimeout, String method) {
         this.key = key;
@@ -75,6 +81,7 @@ public class DialogContext {
         status.append(HEADER);
         this.cacheTimeout = cachetimeout;
         this.method = method;
+        this.timeout = timeout;
 
         RestServer.timer.schedule(new TimerTask() {
 
@@ -154,6 +161,9 @@ public class DialogContext {
         this.dialogs.add(dialog);
         dialog.setApplicationData(this);
         this.dialogTable.put(dialog, request);
+        if (firstDialog == null) {
+            this.firstDialog = dialog;
+        }
     }
 
     public Dialog getPeer(Dialog dialog) {
@@ -277,14 +287,14 @@ public class DialogContext {
     /**
      * @param pendingOperation the pendingOperation to set
      */
-    public void setPendingOperation(PendingDialogOperation pendingOperation) {
+    public void setPendingOperation(PendingOperation pendingOperation) {
         this.pendingOperation = pendingOperation;
     }
 
     /**
      * @return the pendingOperation
      */
-    public PendingDialogOperation getPendingOperation() {
+    public PendingOperation getPendingOperation() {
         return pendingOperation;
     }
 
@@ -294,8 +304,8 @@ public class DialogContext {
             Dialog peerDialog = this.getPeer(dialog);
             Request request = requestEvent.getRequest();
             if (request.getMethod().equals(Request.ACK)) {
-                if (this.pendingOperation == PendingDialogOperation.PENDING_ACK) {
-                    this.pendingOperation = PendingDialogOperation.NONE;
+                if (this.pendingOperation == PendingOperation.PENDING_ACK) {
+                    this.pendingOperation = PendingOperation.NONE;
                     long cseq = SipHelper.getSequenceNumber(this.lastResponse);
                     Request ack = peerDialog.createAck(cseq);
                     peerDialog.sendAck(ack);
@@ -358,8 +368,7 @@ public class DialogContext {
                 return;
             }
             Request request = requestEvent.getRequest();
-            logger.debug("dialogContext : forward Request " +
-                    request.getMethod());
+            logger.debug("dialogContext : forward Request " + request.getMethod());
             Request newRequest = peerDialog.createRequest(request.getMethod());
             byte[] content = request.getRawContent();
             if (content != null) {
@@ -382,8 +391,7 @@ public class DialogContext {
 
             SipProvider provider = (SipProvider) requestEvent.getSource();
             ClientTransaction ctx = provider.getNewClientTransaction(newRequest);
-            TransactionApplicationData tad = new TransactionApplicationData(
-                    Operator.FORWARD_REQUEST, ctx);
+            TransactionContext tad = new TransactionContext(Operator.FORWARD_REQUEST, ctx);
             ctx.setApplicationData(tad);
             ServerTransaction st = requestEvent.getServerTransaction();
             tad.setServerTransaction(st);
@@ -391,6 +399,119 @@ public class DialogContext {
         } catch (Exception ex) {
             this.tearDownDialogs("Problem in forwarding request");
         }
+    }
+
+    public boolean isCallInProgress() {
+        if (method.equalsIgnoreCase(Request.REFER)) {
+            throw new UnsupportedOperationException("Cannot query call state");
+        } else {
+            for (Dialog dialog : this.dialogs) {
+                if (dialog.getState() == DialogState.TERMINATED) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    /**
+     * Initiate a transfer.
+     * 
+     * @param target -- the transfer target.
+     * @throws SipException -- if the transfer request could not be sent.
+     */
+    public void transferCaller(String target) throws SipException {
+        try {
+            Dialog peerDialog = this.getPeer(this.firstDialog);
+            SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
+            Request inviteRequest = peerDialog.createRequest(Request.INVITE);
+            ContactHeader contact = SipListenerImpl.getInstance().getHelper()
+                    .createContactHeader();
+            inviteRequest.setHeader(contact);
+            ContentTypeHeader cth = sipHelper.createContentTypeHeader();
+            inviteRequest.setHeader(cth);
+            ClientTransaction clientTx = sipHelper.getNewClientTransaction(inviteRequest);
+            TransactionContext tad = new TransactionContext(Operator.SOLICIT_SDP_OFFER, clientTx);
+            tad.setTarget(target);
+            peerDialog.sendRequest(clientTx);
+        } catch (ParseException ex) {
+            this.tearDownDialogs("Unexpected exception");
+        }
+
+    }
+
+    public void sendSdpAnswerInAck(Dialog dialog, Response response) {
+        try {
+            this.pendingOperation = PendingOperation.PENDING_RE_INVITE;
+            Request request = this.dialogTable.get(dialog);
+            SessionDescription sd = SipHelper.getSessionDescription(request);
+            long cseq = SipHelper.getSequenceNumber(response);
+            Request ack = dialog.createAck(cseq);
+            SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
+            sipHelper.setSdpContent(ack, sd.toString());
+            dialog.sendAck(ack);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            this.tearDownDialogs("Unexpected exception");
+        }
+    }
+
+    public void sendSdpOfferToPeerDialog(Dialog dialog,  Response response) {
+        try {
+            Dialog peerDialog = this.getPeer(dialog);
+            Request request = peerDialog.createRequest(Request.INVITE);
+            SessionDescription sd = SipHelper.getSessionDescription(response);
+            SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
+            sipHelper.addSdpContent(request, sd.toString());
+            ClientTransaction ctx = sipHelper.getNewClientTransaction(request);
+            TransactionContext newContext = TransactionContext.attach(ctx,
+                    Operator.SEND_SDP_OFFER);
+            newContext.setUserCredentials(this.userCredentials);
+            peerDialog.sendRequest(ctx);
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            this.tearDownDialogs("Unexpected exception");
+        }
+    }
+
+    public void sendSdpOffer(String target,  Response response) {
+
+        try {
+            SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
+            String userName = userCredentials.getUserName();
+            String fromAddrSec = SipHelper.getFromAddrSpec(response);
+            String toAddrSpec = target;
+
+            Request request = sipHelper.createRequest(Request.INVITE, userName, null,
+                    fromAddrSec, toAddrSpec, false);
+            ClientTransaction ctx = sipHelper.getNewClientTransaction(request);        
+            TransactionContext context =  TransactionContext.attach(ctx, Operator.SEND_SDP_OFFER);
+            context.setUserCredentials(this.userCredentials);
+            Dialog peerDialog = this.getPeer(this.firstDialog);      
+            String key = agent + ":" + target + ":" + calledParty;
+            DialogContext dialogContext = SipUtils.createDialogContext(key, timeout, cacheTimeout, this.userCredentials, method,
+                    agent,target,calledParty);           
+            dialogContext.addDialog(ctx.getDialog(), request);
+            Request peerDialogRequest = this.getRequest(peerDialog);
+            dialogContext.addDialog(peerDialog, peerDialogRequest);
+            dialogContext.setPendingOperation(PendingOperation.PENDING_RE_INVITE);
+            ctx.sendRequest();
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            this.tearDownDialogs("Unexpected exception");
+        }
+    }
+
+    public void setAgent(String agent) {
+       this.agent = agent;
+    }
+    
+    public void setCallingParty(String callingParty) {
+        this.callingParty = callingParty;
+    }
+    
+    public void setCalledParty(String calledParty) {
+        this.calledParty = calledParty;
     }
 
 }
