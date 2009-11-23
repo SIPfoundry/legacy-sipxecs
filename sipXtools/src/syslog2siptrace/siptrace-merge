@@ -26,7 +26,8 @@
 # --exclude-method=method (*)
 # excludes all messages that are requests or responses with the
 # specified method (in the CSeq field).  The value 'I' or 'i' means
-# 'INVITE|CANCEL|ACK|BYE', which is suitable for tracing call setup/teardown.
+# 'INVITE|CANCEL|ACK|PRACK|BYE', which is suitable for tracing call
+# setup/teardown.
 #
 # --include-method=method (*)
 # includes only messages that are requests or responses with the

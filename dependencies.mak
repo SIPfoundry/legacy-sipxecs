@@ -135,28 +135,38 @@ sipXimbot : sipXrest
 	@echo sipXimbot
 
 .PHONY: sipXecs
+# List all components as dependencies of sipXecs, in alphabetical order.
 sipXecs : \
+	doc \
+	sipXacd \
+	sipXbridge \
 	sipXcallController \
+	sipXcallLib \
 	sipXcdrLog \
+	sipXcommons \
+	sipXcommserverLib \
 	sipXconfig \
 	sipXfreeSwitch \
+	sipXimbot \
 	sipXivr \
+	sipXmediaAdapterLib \
+	sipXmediaLib \
 	sipXopenfire \
 	sipXpage \
 	sipXpark \
 	sipXpbx \
+	sipXportLib \
 	sipXpresence \
 	sipXprovision \
 	sipXproxy \
 	sipXpublisher \
+	sipXrecording \
 	sipXregistry \
-	sipXrest \
         sipXrelay \
-        sipXbridge \
+	sipXrest \
 	sipXrls \
 	sipXsaa \
 	sipXsupervisor \
-	sipXtools \
-        sipXimbot \
-	doc
+	sipXtackLib \
+	sipXtools
 	@echo sipXecs

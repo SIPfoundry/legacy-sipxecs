@@ -16,7 +16,7 @@ set -e
 SYSLOG2SIPTRACE_OPTIONS=
 SIPTRACE_MERGE_OPTIONS=
 XML_PREFIX=
-OUTPUT=merged.xml
+OUTPUT='-'
 while [[ "$1" = -* && "$1" != -- ]]
 do
   if [[ "$1" = --after=* ]] || [[ "$1" = --before=* ]]
@@ -51,5 +51,12 @@ do
   syslog2siptrace $SYSLOG2SIPTRACE_OPTIONS <$LOG >$F
   XML="$XML $F"
 done
+
+ >$OUTPUT
+
+if [ "$OUTPUT" = '-' ]
+then
+    OUTPUT=/dev/stdout
+fi
 
 siptrace-merge $SIPTRACE_MERGE_OPTIONS -- $XML >$OUTPUT
