@@ -25,6 +25,7 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -106,6 +107,10 @@ public class SipHelper {
         return getStackBean().getHeaderFactory().createToHeader(toAddress, null);
     }
 
+    final public AcceptHeader createAcceptHeader(String type, String subType) throws ParseException {
+        return getStackBean().getHeaderFactory().createAcceptHeader(type, subType);
+    }
+    
     final public ViaHeader createViaHeader() throws ParseException, InvalidArgumentException {
 
         String host = RestServer.getRestServerConfig().getIpAddress();
@@ -261,7 +266,9 @@ public class SipHelper {
     }
 
     final CallIdHeader getNewCallId() {
-        return this.getSipProvider().getNewCallId();
+        CallIdHeader retval =  this.getSipProvider().getNewCallId();
+        this.abstractListener.addCallId(retval.getCallId());
+        return retval;
     }
 
     final public Request createRequest(String requestType, String userName,
@@ -407,7 +414,22 @@ public class SipHelper {
         }
 
     }
+    public static SessionDescription incrementSessionDescriptionVersionNumber(SessionDescription sd) {
+          try {
+            long versionNumber = sd.getOrigin().getSessionVersion();
+            SdpFactory sdpFactory = SdpFactory.getInstance();
 
+            SessionDescription newSd = sdpFactory.createSessionDescription(sd.toString());
+            Origin origin = newSd.getOrigin();
+            origin.setSessionVersion(versionNumber + 1);
+            return newSd;
+        } catch (SdpParseException ex) {
+            throw new SipxRestException(ex);
+        } catch (SdpException ex) {
+            throw new SipxRestException(ex);
+        }
+
+    }
     public static SessionDescription decrementSessionDescriptionVersionNumber(Response response) {
         SessionDescription sd = getSessionDescription(response);
         try {

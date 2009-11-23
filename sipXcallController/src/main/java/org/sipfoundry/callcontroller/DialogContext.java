@@ -27,6 +27,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.header.AcceptHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
@@ -62,6 +63,8 @@ public class DialogContext {
             + "xmlns=\"http://www.sipfoundry.org/sipX/schema/xml/call-status-00-00\">\n";
     public static String DIALOGS_FOOTER = "</dialogs>\n";
 
+    private HashMap<Dialog,String> lastOffer = new HashMap<Dialog,String>();
+    private HashMap<Dialog,String> lastAnswer = new HashMap<Dialog,String>();
     private int cacheTimeout;
     private long creationTime = System.currentTimeMillis();
     private UserCredentialHash userCredentials;
@@ -157,12 +160,14 @@ public class DialogContext {
     }
 
     public void addDialog(Dialog dialog, Request request) {
-        logger.debug("addDialog " + this.dialogs);
+        logger.debug("addDialog " + this + " dialogs = "+ this.dialogs);
         this.dialogs.add(dialog);
         dialog.setApplicationData(this);
         this.dialogTable.put(dialog, request);
         if (firstDialog == null) {
-            this.firstDialog = dialog;
+             this.firstDialog = dialog;
+             logger.debug("firstDialog = " + firstDialog);
+             
         }
     }
 
@@ -171,7 +176,13 @@ public class DialogContext {
         if (dialogs.length != 2)
             return null;
         assert (dialogs[0] == dialog || dialogs[1] == dialog);
-        return dialogs[0] == dialog ? (Dialog) dialogs[1] : (Dialog) dialogs[0];
+        if ( dialogs[0] == dialog ) {
+            return (Dialog) dialogs[1]; 
+        } else if (dialogs[1] == dialog) {
+            return (Dialog) dialogs[0];
+        } else {
+            return null;
+        }
     }
 
     public void setLastResponse(Response lastResponse) {
@@ -212,6 +223,17 @@ public class DialogContext {
         logger.debug("removeMe: dialogs = " + this.dialogs);
         this.dialogs.remove(dialog);
         this.dialogTable.remove(dialog);
+        /*
+         * Last dialog in the table. He now owns this structure.
+         */
+        if (this.firstDialog == dialog) {
+            if ( ! dialogs.isEmpty()) {
+                this.firstDialog = this.dialogs.iterator().next();
+                logger.debug("firstDialog = " + firstDialog);
+            }  else {
+                this.firstDialog = null;
+            }
+        }
         if (dialogs.isEmpty()) {
             if (System.currentTimeMillis() - this.creationTime >= cacheTimeout * 1000) {
                 SipUtils.removeDialogContext(key, this);
@@ -222,7 +244,9 @@ public class DialogContext {
                     RestServer.timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            SipUtils.removeDialogContext(key, DialogContext.this);
+                            if ( dialogs.isEmpty() ) {
+                                SipUtils.removeDialogContext(key, DialogContext.this);
+                            }
                         }
 
                     }, delta);
@@ -421,25 +445,34 @@ public class DialogContext {
      * @throws SipException -- if the transfer request could not be sent.
      */
     public void transferCaller(String target) throws SipException {
-        try {
+            logger.debug("transferCaller " +  target);
+            logger.debug("firstDialog " + this.firstDialog);
             Dialog peerDialog = this.getPeer(this.firstDialog);
+            String sdpAnswer = this.getLastSdpReceived(peerDialog);
+            this.sendSdpOffer(target, sdpAnswer);
+    }
+
+    public void solicitSdpOffer(Dialog dialog) throws SipException {
+        
+        try {
+            logger.debug("peerDialog " + dialog);
             SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
-            Request inviteRequest = peerDialog.createRequest(Request.INVITE);
+            Request inviteRequest = dialog.createRequest(Request.INVITE);
             ContactHeader contact = SipListenerImpl.getInstance().getHelper()
                     .createContactHeader();
             inviteRequest.setHeader(contact);
-            ContentTypeHeader cth = sipHelper.createContentTypeHeader();
-            inviteRequest.setHeader(cth);
+            AcceptHeader accept = sipHelper.createAcceptHeader("application", "sdp");
+            inviteRequest.setHeader(accept);
             ClientTransaction clientTx = sipHelper.getNewClientTransaction(inviteRequest);
             TransactionContext tad = new TransactionContext(Operator.SOLICIT_SDP_OFFER, clientTx);
-            tad.setTarget(target);
-            peerDialog.sendRequest(clientTx);
-        } catch (ParseException ex) {
+            dialog.sendRequest(clientTx);
+        } catch ( ParseException ex) {
+            logger.error("Unexpected exception",ex);
             this.tearDownDialogs("Unexpected exception");
         }
-
     }
-
+    
+    
     public void sendSdpAnswerInAck(Dialog dialog, Response response) {
         try {
             this.pendingOperation = PendingOperation.PENDING_RE_INVITE;
@@ -456,17 +489,20 @@ public class DialogContext {
         }
     }
 
-    public void sendSdpOfferToPeerDialog(Dialog dialog,  Response response) {
+    public void reSendSdpOffereToPeerDialog(Dialog dialog,  Response response, PendingOperation nextOperation) {
         try {
             Dialog peerDialog = this.getPeer(dialog);
             Request request = peerDialog.createRequest(Request.INVITE);
             SessionDescription sd = SipHelper.getSessionDescription(response);
+           
+            SipHelper.incrementSessionDescriptionVersionNumber(sd);
             SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
             sipHelper.addSdpContent(request, sd.toString());
             ClientTransaction ctx = sipHelper.getNewClientTransaction(request);
             TransactionContext newContext = TransactionContext.attach(ctx,
-                    Operator.SEND_SDP_OFFER);
+                    Operator.RESEND_SDP_OFFER_TO_PEER);
             newContext.setUserCredentials(this.userCredentials);
+            this.pendingOperation = nextOperation;
             peerDialog.sendRequest(ctx);
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
@@ -474,31 +510,59 @@ public class DialogContext {
         }
     }
 
-    public void sendSdpOffer(String target,  Response response) {
+    public DialogContext sendSdpOffer(String target,  String sessionDescription) {
 
         try {
             SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
             String userName = userCredentials.getUserName();
-            String fromAddrSec = SipHelper.getFromAddrSpec(response);
+            String fromAddrSec = SipHelper.getFromAddrSpec(this.lastResponse);
             String toAddrSpec = target;
 
             Request request = sipHelper.createRequest(Request.INVITE, userName, null,
                     fromAddrSec, toAddrSpec, false);
+            SipListenerImpl.getInstance().addCallId(SipHelper.getCallId(request));
+            sipHelper.addSdpContent(request, sessionDescription);
             ClientTransaction ctx = sipHelper.getNewClientTransaction(request);        
             TransactionContext context =  TransactionContext.attach(ctx, Operator.SEND_SDP_OFFER);
             context.setUserCredentials(this.userCredentials);
-            Dialog peerDialog = this.getPeer(this.firstDialog);      
+                
             String key = agent + ":" + target + ":" + calledParty;
             DialogContext dialogContext = SipUtils.createDialogContext(key, timeout, cacheTimeout, this.userCredentials, method,
-                    agent,target,calledParty);           
+                    agent,target,calledParty);       
+          
             dialogContext.addDialog(ctx.getDialog(), request);
-            Request peerDialogRequest = this.getRequest(peerDialog);
-            dialogContext.addDialog(peerDialog, peerDialogRequest);
+            dialogContext.setLastSdpSent(ctx.getDialog(), sessionDescription );
+            Dialog peerDialog = this.getPeer(this.firstDialog); 
+          
+            Request req = this.getRequest(peerDialog);
+            String sdpOffer = this.getLastSdpSent(peerDialog);
+            String sdpAnswer = this.getLastSdpReceived(peerDialog);
+            dialogContext.addDialog(peerDialog, req);
+            if ( sdpAnswer != null ) {
+                dialogContext.setLastSdpReceived(peerDialog, sdpAnswer);
+            }
+            if ( sdpOffer != null) {
+                dialogContext.setLastSdpSent(peerDialog,sdpOffer);
+            }
+                     
             dialogContext.setPendingOperation(PendingOperation.PENDING_RE_INVITE);
             ctx.sendRequest();
+            /*
+             * Hang up the call with the first one.
+             */
+            Request bye = this.firstDialog.createRequest(Request.BYE);
+            ClientTransaction byeCtx = sipHelper.getNewClientTransaction(bye);
+            this.dialogs.remove(firstDialog);
+            this.firstDialog.sendRequest(byeCtx);
+            SipUtils.removeDialogContext(this.key, this);
+            /*
+             * Return the newly created dialog context.
+             */
+            return dialogContext;
         } catch (Exception ex) {
             logger.error("Unexpected exception", ex);
             this.tearDownDialogs("Unexpected exception");
+            return null;
         }
     }
 
@@ -512,6 +576,43 @@ public class DialogContext {
     
     public void setCalledParty(String calledParty) {
         this.calledParty = calledParty;
+    }
+
+    public void setLastSdpSent(Dialog dialog, String sdp) {
+       this.lastOffer.put(dialog,sdp);
+    }
+    
+    public String getLastSdpSent(Dialog dialog) {
+        return this.lastOffer.get(dialog);
+    }
+
+    public void setLastSdpReceived(Dialog dialog , String sdpAnswer) {
+       this.lastAnswer.put(dialog,sdpAnswer);    
+    }
+    
+    public String getLastSdpReceived(Dialog dialog) {
+        return this.lastAnswer.get(dialog);
+    }
+
+    public void sendLastSdpSentInAck(Dialog dialog, Response response) {
+        logger.debug("sendLastSdpAnswerInAck " + dialog);
+       String sdp = this.getLastSdpSent(dialog);
+       if ( sdp == null ) {
+           throw new IllegalStateException("Cannot send SdpAnswer");
+       }
+       try {
+           this.pendingOperation = PendingOperation.PENDING_RE_INVITE;
+           long cseq = SipHelper.getSequenceNumber(response);
+           Request ack = dialog.createAck(cseq);
+           SipHelper sipHelper = SipListenerImpl.getInstance().getHelper();
+           String sd = this.getLastSdpReceived(dialog);
+           sipHelper.setSdpContent(ack, sd);
+           dialog.sendAck(ack);
+       } catch (Exception ex) {
+           logger.error("Unexpected exception", ex);
+           this.tearDownDialogs("Unexpected exception");
+       }
+      
     }
 
 }

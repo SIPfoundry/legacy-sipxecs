@@ -18,6 +18,7 @@ import javax.sip.Dialog;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.address.SipURI;
+import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.message.Request;
@@ -135,12 +136,13 @@ public class InviteMessage extends JainSipMessage {
 
             SipHelper helper = SipListenerImpl.getInstance().getHelper();
             SipListenerImpl.getInstance().getHelper().attachAllowHeader(m_request, METHODS);
+            AcceptHeader acceptHeader = helper.createAcceptHeader("application", "sdp");
             if (sdpBody != null) {
                 m_request.setContent(sdpBody, helper.createContentTypeHeader());
             }
+            m_request.setHeader(acceptHeader);
             ClientTransaction ctx = helper.getNewClientTransaction(m_request);
             Dialog dialog = ctx.getDialog();
-            dialog.setApplicationData(dialogContext);
             dialogContext.addDialog(dialog, m_request);
             TransactionContext tad = new TransactionContext(operator, m_timeout,
                     ctx);
@@ -164,11 +166,13 @@ public class InviteMessage extends JainSipMessage {
         Request request = peerDialog.createRequest(method);
         if (sdp != null) {
             SipListenerImpl.getInstance().getHelper().addSdpContent(request, sdp);
+            DialogContext.get(peerDialog).setLastSdpSent(peerDialog, sdp);
         }
         SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
         ClientTransaction clientTransaction = provider.getNewClientTransaction(request);
         new TransactionContext(operator,clientTransaction);
         peerDialog.sendRequest(clientTransaction);
+        
     }
 
     public String getCallingPartyAddrSpec() {

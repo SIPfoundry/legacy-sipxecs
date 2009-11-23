@@ -95,7 +95,9 @@ public class SipStackBean extends AbstractSipStackBean {
 
     @Override
     public Properties getExtraStackProperties() {
-        return null;
+       Properties properties = new Properties();
+       properties.setProperty("gov.nist.javax.sip.IS_BACK_TO_BACK_USER_AGENT", "true");
+       return properties;
     } 
 
 }
