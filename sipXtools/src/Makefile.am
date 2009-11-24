@@ -31,6 +31,7 @@ dist_bin_SCRIPTS = \
 	sipx-trace \
 	sipx-dialog-count \
 	sipx-log-cut \
+	sipx-response-correlator \
 	sipxcar \
 	sipdb-dump \
 	sipsend \
