@@ -168,7 +168,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
 
-        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
+        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[10]", generatedXml);
 
         verify(rule, sbcManager);
     }
@@ -199,7 +199,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
 
-        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
+        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[10]", generatedXml);
 
         verify(rule, sbcManager);
     }
@@ -246,7 +246,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         // assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
         assertEquals(generatedXml, IOUtils.toString(referenceXmlStream));
 
-        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[5]", generatedXml);
+        assertXpathEvaluatesTo("gander", "/routes/route/routeFrom[10]", generatedXml);
 
         verify(rule, sbcManager, m_locationsManager);
     }

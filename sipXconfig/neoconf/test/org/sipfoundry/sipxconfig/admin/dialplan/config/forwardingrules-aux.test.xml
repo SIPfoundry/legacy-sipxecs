@@ -10,9 +10,14 @@
     </description>
 
     <routeFrom>example.org:9901</routeFrom>
+    <routeFrom>example.org</routeFrom>
     <routeFrom>192.168.1.1:9901</routeFrom>
+    <routeFrom>192.168.1.1</routeFrom>
     <routeFrom>sipx.example.org:9901</routeFrom>
+    <routeFrom>sipx.example.org</routeFrom>
     <routeFrom>sipx:9901</routeFrom>
+    <routeFrom>sipx</routeFrom>
+    <routeFrom>gander:9901</routeFrom>
     <routeFrom>gander</routeFrom>
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>

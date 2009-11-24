@@ -10,10 +10,15 @@
     </description>
 
     <routeFrom>${proxyService.domainName}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${proxyService.domainName}</routeFrom>
     <routeFrom>${location.address}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${location.address}</routeFrom>
     <routeFrom>${location.fqdn}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${location.fqdn}</routeFrom>
     <routeFrom>${location.hostname}:${proxyService.sipPort}</routeFrom>
+    <routeFrom>${location.hostname}</routeFrom>
 #foreach ($route in ${routes})
+    <routeFrom>$route:${proxyService.sipPort}</routeFrom>
     <routeFrom>$route</routeFrom>
 #end	    
     <methodMatch>

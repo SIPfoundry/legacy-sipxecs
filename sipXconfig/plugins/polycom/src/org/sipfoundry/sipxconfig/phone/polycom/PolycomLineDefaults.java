@@ -145,4 +145,9 @@ public class PolycomLineDefaults {
     public String getProxyServer() {
         return m_defaults.getDomainName();
     }
+
+    @SettingEntry(path = "reg/outboundProxy.port")
+    public String getProxyPort() {
+        return m_defaults.getProxyServerSipPort();
+    }
 }
