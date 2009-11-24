@@ -801,6 +801,16 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
                                        res_response*& out_response
    )
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSrvLookup::res_query_and_parse in_name = '%s', "
+                 "type = %d (%s): returned error",
+                 in_name,type,
+                 type == T_CNAME ? "CNAME" :
+                 type == T_SRV ? "SRV" :
+                 type == T_A ? "A" :
+                 type == T_NAPTR ? "NAPTR" :
+                 "unknown");
+
    // The number of CNAMEs we have followed.
    int cname_count = 0;
    // The response currently being examined.
@@ -901,6 +911,15 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (r == -1)
       {
          // res_query failed, return.
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "DNS query for name '%s', "
+                       "type = %d (%s): returned error",
+                       name, type,
+                       type == T_CNAME ? "CNAME" :
+                       type == T_SRV ? "SRV" :
+                       type == T_A ? "A" :
+                       type == T_NAPTR ? "NAPTR" :
+                       "unknown");
          break;
       }
 
@@ -908,6 +927,15 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
       if (response == NULL)
       {
          // res_parse failed, return.
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "DNS query for name '%s', "
+                       "type = %d (%s): response could not be parsed",
+                       name, type,
+                       type == T_CNAME ? "CNAME" :
+                       type == T_SRV ? "SRV" :
+                       type == T_A ? "A" :
+                       type == T_NAPTR ? "NAPTR" :
+                       "unknown");
          break;
       }
       // If requested for testing purposes, sort the query and print it.
@@ -928,6 +956,10 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
    // variables.
    out_name = name;
    out_response = response;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSrvLookup::res_query_and_parse out_name = '%s', out_response = %p",
+                 out_name, out_response);
+
 }
 
 /// Set the nameserver address to a specific nameserver.
