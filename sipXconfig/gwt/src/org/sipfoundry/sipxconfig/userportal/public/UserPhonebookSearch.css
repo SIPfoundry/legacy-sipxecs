@@ -59,3 +59,13 @@ fieldset td
 	padding:0px;
 }
 
+a.gwtClickToCall
+{
+    cursor:pointer;
+}
+
+img.gwtClickToCallImg
+{
+	height:13px;
+	width:13px;
+}

@@ -78,4 +78,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String tabHome();
 
     String tabOffice();
+
+    String clickToCall();
 }
