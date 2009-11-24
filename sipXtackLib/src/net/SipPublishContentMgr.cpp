@@ -51,10 +51,6 @@ public:
     // UtlString value of HttpBody is its MIME-type.
     UtlSList mEventContent;
 
-    // List of UtlInt's which are the corresponding XML version numbers for
-    // the HttpBody's.
-    UtlSList mEventVersion;
-
     //! Dump the object's internal state.
     void dumpState();
 
@@ -100,15 +96,11 @@ void PublishContentContainer::dumpState()
 
    int index = 0;
    UtlSListIterator content_itor(mEventContent);
-   UtlSListIterator version_itor(mEventVersion);
    HttpBody* body;
    while ((body = dynamic_cast <HttpBody*> (content_itor())))
    {
-      UtlInt* version = dynamic_cast <UtlInt*> (version_itor());
       OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t          mEventVersion[%d] = %" PRIdPTR ", "
-                    "mEventContent[%d] = '%s':'%s'",
-                    index, version->getValue(),
+                    "\t          mEventContent[%d] = '%s':'%s'",
                     index, body->data(), body->getBytes());
       index++;
    }
@@ -157,7 +149,6 @@ void SipPublishContentMgr::publish(const char* resourceId,
                                    const char* eventType,
                                    int numContentTypes,
                                    HttpBody* eventContent[],
-                                   const int eventVersion[],
                                    UtlBoolean noNotify,
                                    UtlBoolean fullState)
 {
@@ -221,23 +212,20 @@ void SipPublishContentMgr::publish(const char* resourceId,
     {
         // Remove the old content
         container->mEventContent.destroyAll();
-        container->mEventVersion.destroyAll();
     }
 
     // Add the new content
     for (int index = 0; index < numContentTypes; index++)
     {
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-            "SipPublishContentMgr::publish eventContent[%d] = %p, key = '%s', content type = '%s', version = %d, getBytes() = %p '%s'",
+            "SipPublishContentMgr::publish eventContent[%d] = %p, key = '%s', content type = '%s', getBytes() = %p '%s'",
                       index,
                       eventContent[index],
                       key.data(),
                       eventContent[index]->data(),
-                      eventVersion[index],
                       eventContent[index]->getBytes(),
                       eventContent[index]->getBytes());
         container->mEventContent.append(eventContent[index]);
-        container->mEventVersion.append(new UtlInt(eventVersion[index]));
     }
 
     // Don't call the observers if noNotify is set or if this is default content.
@@ -263,15 +251,13 @@ void SipPublishContentMgr::publish(const char* resourceId,
 void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           int numContentTypes,
-                                          HttpBody* eventContent[],
-                                          const int eventVersion[])
+                                          HttpBody* eventContent[])
 {
     publish(NULL,
             eventTypeKey,
             eventType,
             numContentTypes,
-            eventContent,
-            eventVersion);
+            eventContent);
 }
 
 void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
@@ -340,7 +326,6 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        if (container)
        {
            container->mEventContent.destroyAll();
-           container->mEventVersion.destroyAll();
            mContentEntries.destroy(container);
        }
 
@@ -348,7 +333,6 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        if (container)
        {
            container->mEventContent.destroyAll();
-           container->mEventVersion.destroyAll();
            mPartialContentEntries.destroy(container);
        }
     }
@@ -358,7 +342,6 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        if (container)
        {
            container->mEventContent.destroyAll();
-           container->mEventVersion.destroyAll();
            mDefaultContentEntries.destroy(container);
        }
 
@@ -492,7 +475,6 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                             const char* eventType,
                                             const char* acceptHeaderValue,
                                             HttpBody*& content,
-                                            int& version,
                                             UtlBoolean& isDefaultContent,
                                             UtlBoolean fullState)
 {
@@ -579,11 +561,8 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            // MIME type is in the acceptable list.
            UtlSListIterator contentIterator(container->mEventContent);
            HttpBody* bodyPtr;
-           UtlSListIterator versionIterator(container->mEventVersion);
-           UtlInt* versionPtr;
            while (!foundContent &&
-                  (bodyPtr = dynamic_cast <HttpBody*> (contentIterator())) &&
-                  (versionPtr = dynamic_cast <UtlInt*> (versionIterator())))
+                  (bodyPtr = dynamic_cast <HttpBody*> (contentIterator())))
            {
               // Test if ';' is present in *bodyPtr's MIME type.
               // (Remember that an HttpBody considered as a UtlString has
@@ -601,7 +580,6 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                       &base_mime_type)))
               {
                  content = bodyPtr->copy();
-                 version = versionPtr->getValue();
                  foundContent = TRUE;
               }
            }
@@ -621,12 +599,9 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            // No MIME types were specified, take the first content in the list.
            HttpBody* bodyPtr =
               dynamic_cast <HttpBody*> (container->mEventContent.first());
-           UtlInt* versionPtr =
-              dynamic_cast <UtlInt*> (container->mEventVersion.first());
            if (bodyPtr)
            {
               content = bodyPtr->copy();
-              version = versionPtr->getValue();
               foundContent = TRUE;
            }
            else
@@ -678,7 +653,6 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
                                               int maxContentTypes,
                                               int& numContentTypes,
                                               HttpBody* eventContent[],
-                                              int eventVersion[],
                                               SipPublishContentMgrDefaultConstructor**
                                               pDefaultConstructor)
 {
@@ -728,9 +702,6 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
               eventContent[index] =
                  new HttpBody(*dynamic_cast <HttpBody*>
                                (container->mEventContent.at(index)));
-              eventVersion[index] =
-                 (dynamic_cast <UtlInt*>
-                                (container->mEventVersion.at(index)))->getValue();
            }
         }
     }

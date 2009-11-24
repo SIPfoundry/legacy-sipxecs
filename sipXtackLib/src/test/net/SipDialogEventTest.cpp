@@ -55,7 +55,7 @@ public:
          UtlString bodyString;
          ssize_t bodyLength;
 
-         body.getBytes(&bodyString, &bodyLength);
+         body.buildBodyGetBytes(&bodyString, &bodyLength);
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
@@ -103,7 +103,7 @@ public:
          UtlString bodyString;
          ssize_t bodyLength;
 
-         body.getBytes(&bodyString, &bodyLength);
+         body.buildBodyGetBytes(&bodyString, &bodyLength);
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
@@ -155,7 +155,7 @@ public:
          UtlString bodyString;
          ssize_t bodyLength;
 
-         body.getBytes(&bodyString, &bodyLength);
+         body.buildBodyGetBytes(&bodyString, &bodyLength);
 
          CPPUNIT_ASSERT(strcmp(bodyString.data(), package) == 0);
 
@@ -220,40 +220,53 @@ public:
             "</dialog>\n"
             "</dialog-info>\n"
             ;
-         const char *modifiedPackage =
-            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"1\" state=\"full\" entity=\"sip:moh@panther.pingtel.com:5120\">\n"
-            "<dialog id=\"2\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
-            "<state>confirmed</state>\n"
-            "<local>\n"
-            "<identity>moh@panther.pingtel.com:5120</identity>\n"
-            "<target uri=\"sip:moh@10.1.1.26:5120\">\n"
-            "<param pname=\"param1\" pval=\"0\"/>\n"
-            "<param pname=\"param2\" pval=\"something\"/>\n"
-            "</target>\n"
-            "</local>\n"
-            "<remote>\n"
-            "<identity>4444@10.1.1.153</identity>\n"
-            "</remote>\n"
-            "</dialog>\n"
-            "<dialog id=\"2a\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n"
-            "<state>confirmed</state>\n"
-            "<local>\n"
-            "<identity>moh@panther.pingtel.com:5120</identity>\n"
-            "<target uri=\"sip:moh@10.1.1.26:5120\">\n"
-            "<param pname=\"param1\" pval=\"0\"/>\n"
-            "<param pname=\"param2\" pval=\"something new\"/>\n"
-            "</target>\n"
-            "</local>\n"
-            "<remote>\n"
-            "<identity>4444@10.1.1.153</identity>\n"
-            "</remote>\n"
-            "</dialog>\n"
+
+         #define INITIAL_PART \
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" \
+            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" "
+         #define FINAL_PART  \
+            " state=\"full\" entity=\"sip:moh@panther.pingtel.com:5120\">\n" \
+ \
+            "<dialog id=\"2\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n" \
+            "<state>confirmed</state>\n" \
+            "<local>\n" \
+            "<identity>moh@panther.pingtel.com:5120</identity>\n" \
+            "<target uri=\"sip:moh@10.1.1.26:5120\">\n" \
+            "<param pname=\"param1\" pval=\"0\"/>\n" \
+            "<param pname=\"param2\" pval=\"something\"/>\n" \
+            "</target>\n" \
+            "</local>\n" \
+            "<remote>\n" \
+            "<identity>4444@10.1.1.153</identity>\n" \
+            "</remote>\n" \
+            "</dialog>\n" \
+            "<dialog id=\"2a\" call-id=\"call-1116603513-890@10.1.1.153\" local-tag=\"264460498\" remote-tag=\"1c10982\" direction=\"recipient\">\n" \
+            "<state>confirmed</state>\n" \
+            "<local>\n" \
+            "<identity>moh@panther.pingtel.com:5120</identity>\n" \
+            "<target uri=\"sip:moh@10.1.1.26:5120\">\n" \
+            "<param pname=\"param1\" pval=\"0\"/>\n" \
+            "<param pname=\"param2\" pval=\"something new\"/>\n" \
+            "</target>\n" \
+            "</local>\n" \
+            "<remote>\n" \
+            "<identity>4444@10.1.1.153</identity>\n" \
+            "</remote>\n" \
+            "</dialog>\n" \
             "</dialog-info>\n"
-            ;
+
+         const char *modifiedPackageVersion0 =
+            INITIAL_PART
+            "version=\"0\""
+            FINAL_PART;
+         const char *modifiedPackageVersionPlaceholder =
+            INITIAL_PART
+            "version=\"&version;\""
+            FINAL_PART;
 
          // Construct a SipDialogEvent from the XML.
          SipDialogEvent body(package);
+         CPPUNIT_ASSERT(body.getVersion() == 0);
 
          Dialog* pDialog;
          UtlString dialogId = "2";
@@ -266,6 +279,7 @@ public:
 
          // make a copy of the input dialog event
          SipDialogEvent copiedDialogEvent(body);
+         CPPUNIT_ASSERT(copiedDialogEvent.getVersion() == 0);
 
          dialogId = "3";
          pDialog = copiedDialogEvent.getDialogByDialogId(dialogId);
@@ -274,8 +288,7 @@ public:
          dialogId = "1";
          pDialog = copiedDialogEvent.getDialogByDialogId(dialogId);
          CPPUNIT_ASSERT(pDialog);
-         int version;
-         copiedDialogEvent.buildBody(version);
+
          pDialog->getLocalParameter("param2", pvalue);
          refPvalue = "something else";
          ASSERT_STR_EQUAL(refPvalue.data(), pvalue.data());
@@ -301,10 +314,22 @@ public:
          pDialog = copiedDialogEvent.getDialogByDialogId(uniqueDialogId);
          CPPUNIT_ASSERT(pDialog);
 
+         // Test building the body.
+
+         copiedDialogEvent.buildBody();
          UtlString bodyString;
          ssize_t bodyLength;
          copiedDialogEvent.getBytes(&bodyString, &bodyLength);
-         CPPUNIT_ASSERT(strcmp(bodyString.data(), modifiedPackage) == 0);
+         ASSERT_STR_EQUAL(modifiedPackageVersionPlaceholder, bodyString.data());
+
+         int version;
+         copiedDialogEvent.buildBody(&version);
+         CPPUNIT_ASSERT(version == 0);
+         copiedDialogEvent.getBytes(&bodyString, &bodyLength);
+         ASSERT_STR_EQUAL(modifiedPackageVersion0, bodyString.data());
+
+         copiedDialogEvent.buildBodyGetBytes(&bodyString, &bodyLength);
+         ASSERT_STR_EQUAL(modifiedPackageVersion0, bodyString.data());
       }
 };
 

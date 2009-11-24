@@ -160,9 +160,10 @@ public:
    /*  This routine retrieves the current content version number for the dialog
     *  of notifyRequest.  It then calls the application's substitution callback
     *  function (setContentInfo), which replaces the version number in the dialog message.
-    *  On a successful replacement, it then increments the dialog version number.
+    *  On a successful replacement, it then increments the dialog's version number.
     *  Returns the version number used via the 'version' parameter
-    *  and sets the eventTypeKey from the subscription.
+    *  and returns the eventTypeKey via the 'eventTypeKey' parameter.
+    *  (These are needed to index the IMDB table of persistent subscriptions.)
     */
    virtual void updateNotifyVersion(SipContentVersionCallback setContentInfo,
                                     SipMessage& notifyRequest,

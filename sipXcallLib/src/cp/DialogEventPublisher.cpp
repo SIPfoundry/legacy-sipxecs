@@ -67,12 +67,9 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
 {
    // Construct the body, an empty notice for the user.
    UtlString content;
-   // Use version 0 for this notice, because we've arranged in
-   // SipDialogEvent:: that the first real notice will have version 1.
-   int version = 0;
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" "
-                  "version=\"0\" state=\"full\" entity=\"");
+                  "version=\"&version;\" state=\"full\" entity=\"");
    XmlEscape(content, resourceId);
    content.append("\">\r\n"
                   "</dialog-info>\r\n");
@@ -83,7 +80,7 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
-   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, &version, TRUE);
+   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, TRUE);
 }
 
 // Make a copy of this object according to its real type.
@@ -278,8 +275,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                pThisCall->insertDialog(pDialog);
 
                // Insert it into the active call list
-               int version;
-               pThisCall->buildBody(version);
+               pThisCall->buildBody();
 
                // Send the content to the subscribe server.
                {
@@ -288,7 +284,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                           new HttpBody(*(HttpBody*) pThisCall);
                   mpSipPublishContentMgr->publish(entity.data(),
                           DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1,
-                          &pHttpBody, &version);
+                          &pHttpBody);
 
                }
             }
@@ -511,16 +507,15 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                }
 
                // Insert it into the active call list
-               int version;
-               pThisCall->buildBody(version);
+               pThisCall->buildBody();
 
                // Send the content to the subscribe server.
                {
                   // Make a copy, because mpSipPublishContentMgr will own it.
                   HttpBody* pHttpBody = new HttpBody(*(HttpBody*) pThisCall);
-                        mpSipPublishContentMgr->publish(entity.data(),
-                        DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1,
-                        &pHttpBody, &version);
+                  mpSipPublishContentMgr->publish(entity.data(),
+                                                  DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE, 1,
+                                                  &pHttpBody);
                }
             }
             break;
@@ -609,8 +604,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                pThisCall->insertDialog(pDialog);
 
                // Insert it into the active call list
-               int version;
-               pThisCall->buildBody(version);
+               pThisCall->buildBody();
 
                // Send the content to the subscribe server.
                {
@@ -619,7 +613,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   mpSipPublishContentMgr->publish(entity.data(),
                                                   DIALOG_EVENT_TYPE,
                                                   DIALOG_EVENT_TYPE,
-                                                  1, &pHttpBody, &version);
+                                                  1, &pHttpBody);
                }
             }
             break;
@@ -658,11 +652,9 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             {
                if (localConnection)
                {
-                  OsSysLog::add(
-                          FAC_SIP,
-                          PRI_WARNING,
-                          "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
-                          callId.data(), address.data());
+                  OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                "DialogEventPublisher::handleMessage Call arrived: callId '%s' address '%s' without requestUrl",
+                                callId.data(), address.data());
                   break;
                }
                else
@@ -681,13 +673,16 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             {
                if (!localConnection)
                {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "DialogEventPublisher::handleMessage No local connection");
                   break;
                }
             }
 
             if (entity.isNull())
             {
-               OsSysLog::add(FAC_SIP, PRI_WARNING, "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' without requestUrl",
+               OsSysLog::add(FAC_SIP, PRI_WARNING,
+                             "DialogEventPublisher::handleMessage Call connected: callId '%s' address '%s' without requestUrl",
                              callId.data(), address.data());
                break;
             }
@@ -802,15 +797,14 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                pThisCall->insertDialog(pDialog);
             }
 
-            int version;
-            pThisCall->buildBody(version);
+            pThisCall->buildBody();
 
             // Publish the content to the subscribe server.
             // Make a copy, because mpSipPublishContentMgr will own it.
             HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
             mpSipPublishContentMgr->publish(entity.data(),
                                             DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
-                                            1, &pHttpBody, &version);
+                                            1, &pHttpBody);
 
             if (!incomingCall)
             {
@@ -917,15 +911,14 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   {
                      pDialog->setState(STATE_TERMINATED, NULL, NULL);
 
-                     int version;
-                     pThisCall->buildBody(version);
+                     pThisCall->buildBody();
 
                      // Publish the content to the subscribe server.
                      // Make a copy, because mpSipPublishContentMgr will own it.
                      HttpBody* pHttpBody = new HttpBody(*(HttpBody*)pThisCall);
                      mpSipPublishContentMgr->publish(entity.data(),
                                                      DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
-                                                     1, &pHttpBody, &version);
+                                                     1, &pHttpBody);
 
                      // Remove the dialog from the dialog event package
                      pDialog = pThisCall->removeDialog(pDialog);

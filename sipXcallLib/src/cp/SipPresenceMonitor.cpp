@@ -116,13 +116,12 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    sipPresenceEvent->insertTuple(tuple);
 
    // Build its text version.
-   int version;
-   sipPresenceEvent->buildBody(version);
+   sipPresenceEvent->buildBody();
 
    // Publish the event (storing it for the resource), but set
    // noNotify to TRUE, because our caller will push the NOTIFYs.
    contentMgr->publish(resourceId, eventTypeKey, eventType, 1,
-                       &(HttpBody*&)sipPresenceEvent, &version, TRUE);
+                       &(HttpBody*&) sipPresenceEvent, TRUE);
 }
 
 // Make a copy of this object according to its real type.
@@ -322,7 +321,7 @@ bool SipPresenceMonitor::addExtension(UtlString& groupName, Url& contactUrl)
    }
 
    int dummy;
-   list->buildBody(dummy);
+   list->buildBody(&dummy);
 
    mLock.release();
    return result;
@@ -412,8 +411,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
    if (requiredPublish)
    {
       // Insert it into the presence event list.
-      int dummy;
-      presenceEvent->buildBody(dummy);
+      presenceEvent->buildBody();
       mPresenceEventList.insertKeyAndValue(new UtlString(contact), presenceEvent);
       if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
       {
@@ -578,8 +576,7 @@ void SipPresenceMonitor::readPersistentFile()
                tuple->setStatus(status);
                tuple->setContact(contact, 1.0);
                sipPresenceEvent->insertTuple(tuple);
-               int dummy;
-               sipPresenceEvent->buildBody(dummy);
+               sipPresenceEvent->buildBody();
                mPresenceEventList.insertKeyAndValue(new UtlString(contact),
                                                     sipPresenceEvent);
             }
@@ -696,7 +693,6 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
    while (listUri = dynamic_cast <UtlString *> (iterator()))
    {
       bool contentChanged = false;
-      int version;
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::publishContent listUri %s list %p",
@@ -731,7 +727,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
             }
          }
 
-         list->buildBody(version);
+         list->buildBody();
          contentChanged = true;
       }
 
@@ -742,7 +738,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
          HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
          mSipPublishContentMgr.publish(listUri->data(),
                                        PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                       1, &pHttpBody, &version);
+                                       1, &pHttpBody);
       }
    }
 #endif
@@ -750,10 +746,9 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
    // Publish the content to the subscribe server
    // Make a copy, because mpSipPublishContentMgr will own it.
    HttpBody* pHttpBody = new HttpBody(*(HttpBody*)presenceEvent);
-   int version = 0;             // Presence events do not have versions.
    mSipPublishContentMgr.publish(contact.data(),
                                  PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                 1, &pHttpBody, &version);
+                                 1, &pHttpBody);
 }
 
 

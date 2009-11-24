@@ -81,8 +81,7 @@ void TestDefaultConstructorClass::generateDefaultContent(SipPublishContentMgr* c
       HttpBody *body = new HttpBody(content, strlen(content), "text/plain");
 
       // Install it for the resource.
-      int version = 0;
-      contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, &version);
+      contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body);
    }
 }
 
@@ -167,19 +166,17 @@ public:
 
          int numOldContents;
          HttpBody *oldContents[2];
-         int oldVersion[2];
 
          publisher.getPublished(NULL, "dialog", 1,
-                                numOldContents, oldContents, oldVersion, NULL);
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
 
-         int version = 0;
-         publisher.publishDefault("dialog", "dialog", 1, &body, &version);
+         publisher.publishDefault("dialog", "dialog", 1, &body);
 
          publisher.getPublished(NULL, "dialog", 1,
-                                numOldContents, oldContents, oldVersion, NULL);
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
@@ -209,11 +206,10 @@ public:
 
          int numOldContents;
          HttpBody *oldContents[2];
-         int oldVersion[2];
          SipPublishContentMgrDefaultConstructor *constructor;
 
          publisher.getPublished(NULL, event_type, 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
                                 numOldContents == 0);
@@ -228,7 +224,7 @@ public:
          // See if getPublished can retrieve it.
 
          publisher.getPublished(NULL, event_type, 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
                                 numOldContents == 0);
@@ -238,7 +234,7 @@ public:
          // Ensure that it can't be retrieved for other event types.
 
          publisher.getPublished(NULL, "dialog", 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
                                 numOldContents == 0);
@@ -252,14 +248,13 @@ public:
             ssize_t bodyLength = strlen(default_content);
             HttpBody *body = new HttpBody(default_content, bodyLength,
                                           "text/plain");
-            int version = 0;
-            publisher.publishDefault(event_type, event_type, 1, &body, &version);
+            publisher.publishDefault(event_type, event_type, 1, &body);
          }
 
          // See if getPublished returns the string.
 
          publisher.getPublished(NULL, event_type, 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 1 old contents",
                                 numOldContents == 1);
@@ -269,7 +264,7 @@ public:
          // Make sure getPublished does not return the string for other events.
 
          publisher.getPublished(NULL, "dialog", 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
                                 numOldContents == 0);
@@ -289,45 +284,42 @@ public:
             ssize_t bodyLength = strlen(content_1b);
             HttpBody *body = new HttpBody(content_1b, bodyLength,
                                           "text/plain");
-            int version = 0;
-            publisher.publish("1b", event_type, event_type, 1, &body, &version);
+            publisher.publish("1b", event_type, event_type, 1, &body);
          }
          const char *content_2 = "This is content for 2.";
          {
             ssize_t bodyLength = strlen(content_2);
             HttpBody *body = new HttpBody(content_2, bodyLength, "text/plain");
-            int version = 0;
-            publisher.publish("2", event_type, event_type, 1, &body, &version);
+            publisher.publish("2", event_type, event_type, 1, &body);
          }
 
          HttpBody *b;
-         int v;
          UtlBoolean d;
          const char *s;
          ssize_t l;
 
-         publisher.getContent("0", event_type, event_type, "text/plain", b, v, d);
+         publisher.getContent("0", event_type, event_type, "text/plain", b, d);
          CPPUNIT_ASSERT_MESSAGE("Content for 0 should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 0 is incorrect",
                                 strcmp(s, default_content) == 0);
 
-         publisher.getContent("1a", event_type, event_type, "text/plain", b, v, d);
+         publisher.getContent("1a", event_type, event_type, "text/plain", b, d);
          CPPUNIT_ASSERT_MESSAGE("Content for 1a should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1a is incorrect",
                                 strcmp(s, "This is default content for the resource '1a'.") == 0);
 
-         publisher.getContent("1b", event_type, event_type, "text/plain", b, v, d);
+         publisher.getContent("1b", event_type, event_type, "text/plain", b, d);
          CPPUNIT_ASSERT_MESSAGE("Content for 1b should not be default",
                                 !d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1b is incorrect",
                                 strcmp(s, content_1b) == 0);
 
-         publisher.getContent("2", event_type, event_type, "text/plain", b, v, d);
+         publisher.getContent("2", event_type, event_type, "text/plain", b, d);
          CPPUNIT_ASSERT_MESSAGE("Content for 2 should not be default",
                                 !d);
          b->getBytes(&s, &l);
@@ -341,7 +333,7 @@ public:
          // See if getPublished now returns NULL.
 
          publisher.getPublished(NULL, event_type, 1,
-                                numOldContents, oldContents, oldVersion, &constructor);
+                                numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
                                 numOldContents == 0);
@@ -394,19 +386,17 @@ public:
 
          ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength, "text/xml");
-         int version = 0;
 
          int numOldContents;
          HttpBody *oldContents[2];
-         int oldVersion[2];
 
          publisher.getPublished(TEST_RESOURCE_ID, "dialog",
-                                1, numOldContents, oldContents, oldVersion, NULL);
+                                1, numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
 
-         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body, &version);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
 
          SipSubscribeServerEventHandler eventHandler;
          SipMessage notifyRequest;
@@ -416,7 +406,6 @@ public:
                                                       publisher,
                                                       "text/xml",
                                                       notifyRequest,
-                                                      version,
                                                       TRUE));
          const char* notifyBodyBytes = NULL;
          ssize_t notifyBodySize = 0;
@@ -426,7 +415,7 @@ public:
          CPPUNIT_ASSERT(strcmp(content, notifyBodyBytes) == 0);
 
          publisher.getPublished(TEST_RESOURCE_ID, "dialog",
-                                1, numOldContents, oldContents, oldVersion, NULL);
+                                1, numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
@@ -486,13 +475,11 @@ public:
          ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
-         int version = 0;
 
          int numOldContents;
          HttpBody *oldContents[2];
-         int oldVersion[2];
 
-         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body, &version);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
 
          UtlBoolean foundContent;
          UtlBoolean isDefaultContent;
@@ -504,7 +491,7 @@ public:
                                              // which is used everywhere in
                                              // sipX, is right.
                                              "application/dialog-info+xml",
-                                             oldContents[0], oldVersion[0], isDefaultContent);
+                                             oldContents[0], isDefaultContent);
 
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
 
@@ -522,12 +509,12 @@ public:
 
          foundContent = publisher.getContent("something-else@example.com", "dialog", "dialog",
                                              "application/dialog-info+xml",
-                                             oldContents[0], oldVersion[0], isDefaultContent);
+                                             oldContents[0], isDefaultContent);
 
          CPPUNIT_ASSERT(FALSE==foundContent);
 
          publisher.getPublished(TEST_RESOURCE_ID, "dialog", 1,
-                                numOldContents, oldContents, oldVersion, NULL);
+                                numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
@@ -560,9 +547,8 @@ public:
          ssize_t bodyLength = strlen(content);
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
-         int version = 0;
 
-         publisher.publish(resourceId, eventType, eventType, 1, &body, &version);
+         publisher.publish(resourceId, eventType, eventType, 1, &body);
 
          CPPUNIT_ASSERT_MESSAGE("bad app data pointer", appData == mAppData);
          ASSERT_STR_EQUAL_MESSAGE("incorrect resource Id", resourceId, mResourceId.data());
@@ -585,7 +571,6 @@ public:
          SipPublishContentMgr publisher;
 
          HttpBody *(bodies[2]);
-         int versions[2] = { 0, 0 };
 
          const char *content_text_plain = "text/plain content";
          ssize_t bodyLength_text_plain = strlen(content_text_plain);
@@ -597,10 +582,9 @@ public:
          bodies[1] = new HttpBody(content_text_xml, bodyLength_text_xml,
                                   "text/xml;charset=X");
 
-         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies, versions);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies);
 
          HttpBody *content;
-         int version;
          UtlBoolean foundContent;
          UtlBoolean isDefaultContent;
          ssize_t length;
@@ -611,7 +595,7 @@ public:
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              // Null pointer.
                                              NULL,
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -623,7 +607,7 @@ public:
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              // Null string.
                                              "",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -636,7 +620,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/plain",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -649,7 +633,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/xml",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -662,7 +646,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/plain,text/xml",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -675,7 +659,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/xml,text/plain",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -688,7 +672,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/nonexistent,text/plain",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -702,7 +686,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/plain",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -715,7 +699,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/nonexistent,text/xml",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -728,7 +712,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/xml",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);
 
@@ -741,7 +725,7 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog",
                                              "text/nonexistent",
-                                             content, version, isDefaultContent);
+                                             content, isDefaultContent);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(FALSE==foundContent);
       }

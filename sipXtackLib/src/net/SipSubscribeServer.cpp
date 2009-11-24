@@ -218,9 +218,6 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
             if (!callId.isNull())
             {
                // Fill in the NOTIFY request body/content
-               // Initialize 'version' to 0 since if getNotifyContent can't find
-               // content, it will not set 'version'.
-               int version = 0;
                eventData->mpEventSpecificHandler->
                   getNotifyContent(resourceId,
                                    eventTypeKey,
@@ -228,12 +225,12 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                    *(eventData->mpEventSpecificContentMgr),
                                    *(acceptHeaderValuesArray[notifyIndex]),
                                    *notify,
-                                   version,
                                    eventData->mEventSpecificFullState);
 
                // Call the application callback to edit the NOTIFY
                // content if that is required for this event type.
                // Sets 'version' and 'eventTypeKey'.
+               int version;
                UtlString savedEventTypeKey;
                eventData->mpEventSpecificSubscriptionMgr->
                   updateNotifyVersion(eventData->mpEventSpecificContentVersionCallback,
@@ -242,7 +239,10 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                                       savedEventTypeKey);
 
                // Update the saved record of the NOTIFY CSeq and the
-               // XML version number for the specified eventTypeKey.
+               // XML version number for the specified eventTypeKey,
+               // as needed by the subscription manager.
+               // In practice, this is only used by SipPersistentSubscriptionMgr
+               // to write the NOTIFY Cseq and XML version into the IMDB.
                eventData->mpEventSpecificSubscriptionMgr->
                   updateVersion(*notify, version, savedEventTypeKey);
 
@@ -601,13 +601,12 @@ UtlBoolean SipSubscribeServer::standardVersionCallback(SipMessage& notifyRequest
       const char* contentType = notifyRequest.getBody()->getContentType();
 
       // Look for the placeholder for the version number, "&version;".
-      #define PLACEHOLDER "&version;"
-      ssize_t msgIndex = msgBytes.index(PLACEHOLDER);
+      ssize_t msgIndex = msgBytes.index(VERSION_PLACEHOLDER);
       if (msgIndex != UTL_NOT_FOUND)
       {
          char buffer[20];
          sprintf(buffer, "%d", version);
-         msgBytes.replace(msgIndex, sizeof (PLACEHOLDER) - 1, buffer);
+         msgBytes.replace(msgIndex, sizeof (VERSION_PLACEHOLDER) - 1, buffer);
 
          HttpBody* tempBody =
             new HttpBody(msgBytes.data(), msgBytes.length(), contentType);
@@ -696,7 +695,6 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
 
                     // Set the NOTIFY content
                     UtlString acceptHeaderValue;
-                    int version;
                     subscribeRequest.getAcceptField(acceptHeaderValue);
                     // Note that since this NOTIFY is due to a SUBSCRIBE,
                     // it should contain 'full' content.  Hence,
@@ -709,19 +707,22 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                                                   *(eventPackageInfo->mpEventSpecificContentMgr),
                                                   acceptHeaderValue,
                                                   notifyRequest,
-                                                  version,
                                                   TRUE))
                     {
                        // Update the NOTIFY content if required for this event type.
-                       // Sets 'version'.
+                       // Sets 'version' and 'eventTypeKey'.
+                       int version;
                        eventPackageInfo->mpEventSpecificSubscriptionMgr->
                           updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback,
                                               notifyRequest,
                                               version,
                                               eventTypeKey);
 
-                       // Update the saved XML version number, if the content exists to
-                       // give us a version number.
+                       // Update the saved record of the NOTIFY CSeq and the
+                       // XML version number for the specified eventTypeKey,
+                       // as needed by the subscription manager.
+                       // In practice, this is only used by SipPersistentSubscriptionMgr
+                       // to write the NOTIFY Cseq and XML version into the IMDB.
                        eventPackageInfo->mpEventSpecificSubscriptionMgr->
                           updateVersion(notifyRequest, version, eventTypeKey);
 

@@ -123,7 +123,6 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
                                                             SipPublishContentMgr& contentMgr,
                                                             const char* acceptHeaderValue,
                                                             SipMessage& notifyRequest,
-                                                            int& version,
                                                             UtlBoolean fullState)
 {
     UtlBoolean gotBody = FALSE;
@@ -136,7 +135,6 @@ UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& res
                                     eventType,
                                     acceptHeaderValue,
                                     messageBody,
-                                    version,
                                     isDefaultEventContent,
                                     fullState);
 

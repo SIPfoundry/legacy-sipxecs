@@ -8,11 +8,12 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <net/NameValueTokenizer.h>
+#include <net/SipDialogEvent.h>
+#include <net/SipSubscribeServer.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlDListIterator.h>
 #include <utl/XmlContent.h>
-#include <net/SipDialogEvent.h>
-#include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS
@@ -561,12 +562,7 @@ const UtlContainableType Dialog::getContainableType() const
 
 // Constructor
 SipDialogEvent::SipDialogEvent(const char* state, const char* entity)
-     // Generate the initial report with version 1, so we can generate
-     // the default report with version 0 in
-     // DialogDefaultConstructor::generateDefaultContent (in
-     // DialogEventPublisher.cpp).
-   : mVersion(1),
-     mDialogState(state),
+   : mDialogState(state),
      mEntity(entity),
      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
@@ -950,12 +946,12 @@ UtlBoolean SipDialogEvent::isEmpty()
 }
 
 
-ssize_t SipDialogEvent::getLength() const
+ssize_t SipDialogEvent::buildBodyGetLength() const
 {
    ssize_t length;
    UtlString tempBody;
 
-   getBytes(&tempBody, &length);
+   buildBodyGetBytes(&tempBody, &length);
 
    return length;
 }
@@ -967,14 +963,10 @@ UtlSListIterator* SipDialogEvent::getDialogIterator()
 }
 
 
-void SipDialogEvent::buildBody(int& version) const
+void SipDialogEvent::buildBody(int* version) const
 {
    UtlString dialogEvent;
    UtlString singleLine;
-   char buffer[20];
-
-   // Return the XML version.
-   version = mVersion;
 
    // Construct the xml document of dialog event
    dialogEvent = UtlString(XML_VERSION_1_0);
@@ -982,17 +974,29 @@ void SipDialogEvent::buildBody(int& version) const
    // Dialog Information Structure
    dialogEvent.append(BEGIN_DIALOG_INFO);
 
-   Url entityUri(mEntity);
-   sprintf(buffer, "%d", mVersion);
-
-   dialogEvent.append(VERSION_EQUAL);
-   singleLine = DOUBLE_QUOTE + UtlString(buffer) + DOUBLE_QUOTE;
-   dialogEvent += singleLine;
+   if (version)
+   {
+      // Generate the body with the recorded version.
+      char buffer[20];
+      sprintf(buffer, "%d", mVersion);
+      dialogEvent.append(VERSION_EQUAL);
+      singleLine = DOUBLE_QUOTE + UtlString(buffer) + DOUBLE_QUOTE;
+      dialogEvent += singleLine;
+      // Return the XML version.
+      *version = mVersion;
+   }
+   else
+   {
+      // Generate the body with the substitution placeholder.
+      dialogEvent.append(VERSION_EQUAL
+                         DOUBLE_QUOTE VERSION_PLACEHOLDER DOUBLE_QUOTE);
+   }
 
    dialogEvent.append(STATE_EQUAL);
    singleLine = DOUBLE_QUOTE + mDialogState + DOUBLE_QUOTE;
    dialogEvent += singleLine;
 
+   Url entityUri(mEntity);
    dialogEvent.append(ENTITY_EQUAL);
    singleLine = DOUBLE_QUOTE + entityUri.toString() + DOUBLE_QUOTE;
    dialogEvent += singleLine;
@@ -1016,10 +1020,11 @@ void SipDialogEvent::buildBody(int& version) const
    // End of dialog-info element
    dialogEvent.append(END_DIALOG_INFO);
 
-   // Update body text and version number (even though 'this' is read-only).
+   // Update body text (even though 'this' is read-only).
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
-   ((SipDialogEvent*)this)->mVersion++;
+   // mVersion is not updated, as that is used only to record
+   // the version of parsed events.
 
    ((SipDialogEvent*)this)->mLock.release();
 
@@ -1037,8 +1042,15 @@ void SipDialogEvent::getBytes(const char** bytes, ssize_t* length) const
 
 void SipDialogEvent::getBytes(UtlString* bytes, ssize_t* length) const
 {
+   *bytes = mBody;
+   *length = bodyLength;
+}
+
+
+void SipDialogEvent::buildBodyGetBytes(UtlString* bytes, ssize_t* length) const
+{
    int dummy;
-   buildBody(dummy);
+   buildBody(&dummy);
 
    *bytes = mBody;
    *length = bodyLength;

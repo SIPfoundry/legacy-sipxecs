@@ -107,7 +107,6 @@ public:
                                         SipPublishContentMgr& contentMgr,
                                         const char* allowHeaderValue,
                                         SipMessage& notifyRequest,
-                                        int& version,
                                         UtlBoolean fullState);
 
 /* ============================ ACCESSORS ================================= */

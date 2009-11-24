@@ -49,7 +49,6 @@ ResourceList::ResourceList(ResourceListSet* resourceListSet,
                            const char* userPartCons) :
    mUserPart(userPart),
    mUserPartCons(userPartCons),
-   mVersion(0),
    mResourceListSet(resourceListSet)
 {
    // Compose the resource list names.
@@ -317,7 +316,7 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
    XmlEscape(rlmi,
              consolidated ? mResourceListNameCons : mResourceListName);
    // Placeholder for version from SIP stack.
-   rlmi += "\" version=\"&version;\" ";
+   rlmi += "\" version=\"" VERSION_PLACEHOLDER "\" ";
 
    // Generate either the full or the partial RLMI.
    if (fullRlmi)
@@ -449,7 +448,7 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
       publish(resourceListUri.data(),
               getResourceListServer()->getEventType(),
               getResourceListServer()->getEventType(),
-              1, &body, &mVersion,
+              1, &body,
               // Suppress generating notifications for this call of
               // SipPublishContentMgr::publish, because the call below
               // will generate notifications for the same subscribed-to
@@ -467,7 +466,7 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
          publish(resourceListUri.data(),
                  getResourceListServer()->getEventType(),
                  getResourceListServer()->getEventType(),
-                 1, &body, &mVersion,
+                 1, &body,
                  // This call to SipPublishContentMgr::publish triggers
                  // notification.
                  FALSE,

@@ -293,7 +293,7 @@ ssize_t SipPresenceEvent::getLength() const
    return length;
 }
 
-void SipPresenceEvent::buildBody(int& version) const
+void SipPresenceEvent::buildBody() const
 {
    mLock.acquire();
 
@@ -302,7 +302,6 @@ void SipPresenceEvent::buildBody(int& version) const
    UtlString singleLine;
 
    // Presence events have no version.
-   version = 0;
 
    // Construct the xml document of Tuple event
    mBodyMutable = XML_VERSION_1_0;
@@ -359,7 +358,7 @@ void SipPresenceEvent::buildBody(int& version) const
    const_cast <ssize_t&> (bodyLength) = mBodyMutable.length();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipTupleEvent::getBytes Tuple mBodyMutable = '%s'",
+                 "SipTupleEvent::buildBody Tuple mBodyMutable = '%s'",
                  mBodyMutable.data());
 
    mLock.release();
@@ -376,8 +375,7 @@ void SipPresenceEvent::getBytes(const char** bytes, ssize_t* length) const
 
 void SipPresenceEvent::getBytes(UtlString* bytes, ssize_t* length) const
 {
-   int dummy;
-   buildBody(dummy);
+   buildBody();
 
    *bytes = mBody;
    *length = bodyLength;

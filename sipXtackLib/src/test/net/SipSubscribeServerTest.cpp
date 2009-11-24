@@ -264,15 +264,13 @@ public:
             HttpBody* newMwiBodyPtr = new HttpBody(mwiStateString,
                                                    strlen(mwiStateString),
                                                    mwiMimeType);
-            const int version = 0;
             SipPublishContentMgr* publishMgr = subServerp->getPublishMgr(eventName);
             CPPUNIT_ASSERT(publishMgr);
             publishMgr->publish(notifier_resource_id,
                                 eventName,
                                 eventName,
                                 1,
-                                &newMwiBodyPtr,
-                                &version);
+                                &newMwiBodyPtr);
          }
 
          // Should get a NOTIFY queued up

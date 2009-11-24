@@ -95,7 +95,6 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 
    // Outputs of the following processing.
    HttpBody* body;
-   int version;
 
    // Extract the user-part.
    Url request_uri(resourceId, TRUE);
@@ -126,14 +125,14 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
          aor_uri.fromString(aor, Url::AddrSpec);
 
          mpRegisterEventServer->
-            generateContentUserInstrument(resourceId, aor, aor_uri, instrumentp, body, version);
+            generateContentUserInstrument(resourceId, aor, aor_uri, instrumentp, body);
       }
       else
       {
          // This is a ~~in~[instrument] URI.
          const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
          mpRegisterEventServer->
-            generateContentInstrument(resourceId, instrumentp, body, version);
+            generateContentInstrument(resourceId, instrumentp, body);
       }         
    }
    else
@@ -148,12 +147,12 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
       aor_uri.fromString(aor, Url::AddrSpec);
 
       // Construct the content.
-      mpRegisterEventServer->generateContentUser(resourceId, aor, aor_uri, body, version);
+      mpRegisterEventServer->generateContentUser(resourceId, aor, aor_uri, body);
    }
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
-   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, &version, TRUE);
+   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, TRUE);
 }
 
 // Make a copy of this object according to its real type.
@@ -223,49 +222,6 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
       mOutgoingAddress = buffer;
    }
 
-   // Search the subscription DB to initialize the version number
-   // to the largest recorded version for reg events.
-   mVersion = 0;
-   unsigned long now = OsDateTime::getSecsSinceEpoch();
-   ResultSet rs;
-   SubscriptionDB::getInstance()->getAllRows(rs);
-   UtlSListIterator itor(rs);
-   UtlHashMap* rowp;
-   while ((rowp = dynamic_cast <UtlHashMap*> (itor())))
-   {
-      // First, filter for rows that have the right component and have
-      // not yet expired.
-      UtlString* componentp =
-         dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gComponentKey));
-      assert(componentp);
-      unsigned long expires =
-         *(dynamic_cast <UtlInt*> (rowp->findValue(&SubscriptionDB::gExpiresKey)));
-      if (componentp->compareTo(SUBSCRIPTION_COMPONENT_REG) == 0 &&
-          expires - now >= 0)
-      {
-         // Extract the values from the row.
-         int version =
-            *(dynamic_cast <UtlInt*> (rowp->findValue(&SubscriptionDB::gVersionKey)));
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-         {
-            const UtlString* urip =
-               dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gUriKey));
-            const UtlString* contactp =
-               dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gContactKey));
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "RegisterEventServer:: AOR = '%s', contact = '%s', version = %d",
-                          urip->data(), contactp->data(), version);
-         }
-         if (version >= mVersion)
-         {
-            mVersion = version + 1;
-         }
-      }
-   }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "RegisterEventServer:: mVersion = %d",
-                 mVersion);
-
    // Initialize the SipUserAgent.
    // Set the user-agent string.
    mUserAgent.setUserAgentHeaderProperty("sipXecs/reg-event");
@@ -313,12 +269,11 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
                  aorString.data(), instrument.data());
 
    HttpBody* body;
-   int version;
 
    // Publish content for the AOR.
-   generateContentUser(aorString.data(), aorString, aorUri, body, version);
+   generateContentUser(aorString.data(), aorString, aorUri, body);
    mEventPublisher.publish(aorString, mEventType.data(), mEventType.data(),
-                           1, &body, &version, FALSE);
+                           1, &body, FALSE);
 
    if (!instrument.isNull())
    {
@@ -330,9 +285,9 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       instrumentEntity.append("@");
       instrumentEntity.append(*getDomainName());
 
-      generateContentInstrument(instrumentEntity.data(), instrument, body, version);
+      generateContentInstrument(instrumentEntity.data(), instrument, body);
       mEventPublisher.publish(instrumentEntity, mEventType.data(), mEventType.data(),
-                              1, &body, &version, FALSE);
+                              1, &body, FALSE);
       
       // Publish content for ~~in~[user]/[instrument]@[domain].
 
@@ -346,9 +301,9 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       userInstrumentEntity.append("@");
       userInstrumentEntity.append(*getDomainName());
 
-      generateContentUserInstrument(aorString.data(), aorString, aorUri, instrument, body, version);
+      generateContentUserInstrument(aorString.data(), aorString, aorUri, instrument, body);
       mEventPublisher.publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
-                              1, &body, &version, FALSE);
+                              1, &body, FALSE);
    }
 }
 
@@ -356,8 +311,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
 void RegisterEventServer::generateContentUser(const char* entity,
                                               const UtlString& aorString,
                                               const Url& aorUri,
-                                              HttpBody*& body,
-                                              int& version)
+                                              HttpBody*& body)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentUser aorString = '%s'",
@@ -370,14 +324,13 @@ void RegisterEventServer::generateContentUser(const char* entity,
                                                          0,
                                                          rs);
 
-   generateContent(entity, rs, body, version);
+   generateContent(entity, rs, body);
 }
 
 // Generate (but not publish) content for reg events for an instrument
 void RegisterEventServer::generateContentInstrument(const char* entity,
                                                     const UtlString& instrument,
-                                                    HttpBody*& body,
-                                                    int& version)
+                                                    HttpBody*& body)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentInstrument instrument = '%s'",
@@ -390,7 +343,7 @@ void RegisterEventServer::generateContentInstrument(const char* entity,
                                                                0,
                                                                rs);
 
-   generateContent(entity, rs, body, version);
+   generateContent(entity, rs, body);
 }
 
 // Generate (but not publish) content for reg events for an AOR and instrument
@@ -398,8 +351,7 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
                                                         const UtlString& aorString,
                                                         const Url& aorUri,
                                                         const UtlString& instrument,
-                                                        HttpBody*& body,
-                                                        int& version)
+                                                        HttpBody*& body)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "RegisterEventServer::generateContentUserInstrument aorString = '%s', instrument = '%s'",
@@ -413,32 +365,24 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
                                                                    0,
                                                                    rs);
 
-   generateContent(entity, rs, body, version);
+   generateContent(entity, rs, body);
 }
 
 // Generate (but not publish) content for reg events.
 void RegisterEventServer::generateContent(const char* entityString,
                                           ResultSet& rs,
-                                          HttpBody*& body,
-                                          int& version)
+                                          HttpBody*& body)
 {
    unsigned long now = OsDateTime::getSecsSinceEpoch();
 
    // Construct the body, an empty notice for the user.
    UtlString content;
-   // Currently, all versions for reg event content are based on one
-   // counter in the RegisterEventServer.  Since this counter persists,
-   // it will count up forever.  But this crude architecture will
-   // be fixed before the counter overflows for any of our users.
-   // (Ugh.)
-   version = mVersion++;
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<reginfo xmlns=\"urn:ietf:params:xml:ns:reginfo\" "
                   "xmlns:gr=\"urn:ietf:params:xml:ns:gruuinfo\" "
                   "xmlns:in=\"'http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00\" "
-                  "version=\"");
-   content.appendNumber(version);
-   content.append("\" state=\"full\">\r\n");
+                  "version=\"" VERSION_PLACEHOLDER "\" "
+                  "\" state=\"full\">\r\n");
    content.append("  <registration aor=\"");
    XmlEscape(content, entityString);
    content.append("\" id=\"");
@@ -578,9 +522,7 @@ void RegisterEventServer::generateContent(const char* entityString,
    content.append("  </registration>\r\n");
    content.append("</reginfo>\r\n");
 
-   // Build an HttpBody.
+   // Build an HttpBody -- returned in 'body'.
    body = new HttpBody(content, strlen(content),
                        REG_EVENT_CONTENT_TYPE);
-
-   // Returned values are in 'body' and 'version'.
 }

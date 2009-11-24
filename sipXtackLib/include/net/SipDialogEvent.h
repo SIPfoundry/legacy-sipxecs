@@ -141,7 +141,7 @@ class Dialog : public UtlContainable
  * @{
  */
 
-   /// Render the xml for the dialog into the provided UtlString.
+   /// Render the XML for the dialog into the provided UtlString.
    void getBytes(UtlString& b, ssize_t& l);
 
    void getDialog(UtlString& dialogId,
@@ -321,13 +321,22 @@ class SipDialogEvent : public HttpBody
  */
 
    //! Build the body of this object
-   void buildBody(int& version) const;
+   void buildBody(int* version = NULL) const;
+   /**< If version is non-NULL, then the body text will be built with
+    *   the recorded version number (mVersion), and that number will
+    *   be returned to the caller in *version.
+    *   If it is NULL, the body text will be built with the substitution
+    *   placeholder, '&version;'.
+    */
 
    //! Get the string length of this object
-   virtual ssize_t getLength() const;
+   //  Calls buildBody() (with a temporary argument).
+   virtual ssize_t buildBodyGetLength() const;
 
    //! Get the serialized char representation of this dialog event.
-   /*! \param bytes - pointer to the body text of the dialog event will
+   /*! Note that buildBody() must first be called to construct the character
+    *  representation.
+    *  \param bytes - pointer to the body text of the dialog event will
     *       be placed here.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
@@ -336,14 +345,19 @@ class SipDialogEvent : public HttpBody
                          ssize_t* length) const;
 
    //! Get the serialized string representation of this dialog event.
-   /*! \param bytes - UtlString into which the body text will be copied.
+   /*! Note that buildBody() must first be called to construct the character
+    *  representation.
+    *  \param bytes - UtlString into which the body text will be copied.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
     */
    virtual void getBytes(UtlString* bytes,
                          ssize_t* length) const;
-   // Import HttpBody's getBytes methods, except as overridden here.
-   using HttpBody::getBytes;
+
+   //! Construct and get serialized char representation of this dialog event.
+   //  Calls buildBody() (with a temporary argument) and then getBytes().
+   virtual void buildBodyGetBytes(UtlString* bytes,
+                                  ssize_t* length) const;
 
    void setEntity(const char* entity);
 

@@ -98,7 +98,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
    if (mPublishLinePresence) {
       mpDialogEventPackage = new SipDialogEvent(STATE, lineIdentity);
 
-      mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
+      mpDialogEventPackage->buildBodyGetBytes(&mDialogPDU, &mDialogPDULength);
 
       sipxPublisherCreate(mhAcdCallManagerHandle,
                           &mhPublisherHandle,
@@ -106,8 +106,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                           DIALOG_EVENT_TYPE,
                           DIALOG_EVENT_CONTENT_TYPE,
                           mDialogPDU.data(),
-                          mDialogPDULength,
-                          mpDialogEventPackage->getVersion());
+                          mDialogPDULength);
    }
 
    CredentialDB* credentialDb = mpAcdLineManager->getCredentialDb();
@@ -385,12 +384,11 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
          // Send the content to the subscribe server
          mLock.acquire();
-         mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
+         mpDialogEventPackage->buildBodyGetBytes(&mDialogPDU, &mDialogPDULength);
          sipxPublisherUpdate(mhPublisherHandle,
                              DIALOG_EVENT_CONTENT_TYPE,
                              mDialogPDU.data(),
-                             mDialogPDULength,
-                             mpDialogEventPackage->getVersion());
+                             mDialogPDULength);
 
          // Remember the call ID
          mCalls.insertKeyAndValue(new UtlInt(pCallRef->getCallHandle()), new UtlString(callId));
@@ -453,12 +451,11 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
          // Send the content to the subscribe server
          mLock.acquire();
-         mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
+         mpDialogEventPackage->buildBodyGetBytes(&mDialogPDU, &mDialogPDULength);
          sipxPublisherUpdate(mhPublisherHandle,
                              DIALOG_EVENT_CONTENT_TYPE,
                              mDialogPDU.data(),
-                             mDialogPDULength,
-                             mpDialogEventPackage->getVersion());
+                             mDialogPDULength);
          mLock.release();
          break;
 
@@ -486,12 +483,11 @@ OsStatus ACDLine::publishCallState(ACDCall* pCallRef, ACDCall::eCallState state)
 
                mLock.acquire();
                // Publish the content to the subscribe server
-               mpDialogEventPackage->getBytes(&mDialogPDU, &mDialogPDULength);
+               mpDialogEventPackage->buildBodyGetBytes(&mDialogPDU, &mDialogPDULength);
                sipxPublisherUpdate(mhPublisherHandle,
                                    DIALOG_EVENT_CONTENT_TYPE,
                                    mDialogPDU.data(),
-                                   mDialogPDULength,
-                                   mpDialogEventPackage->getVersion());
+                                   mDialogPDULength);
                mLock.release();
 
                // Remove the dialog from the dialog event package

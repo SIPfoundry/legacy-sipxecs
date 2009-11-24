@@ -157,13 +157,15 @@ class SipPresenceEvent : public HttpBody
  */
 
    //! Build the body of this object
-   void buildBody(int& version) const;
+   void buildBody() const;
 
    //! Get the string length of this object
+   //  Calls buildBody() to build the body.
    virtual ssize_t getLength() const;
 
    //! Get the serialized char representation of this presence event.
-   /*! \param bytes - buffer space where the presence event is written, null
+   /*! Calls buildBody() to build the body.
+    *  \param bytes - buffer space where the presence event is written, null
     *       terminated.
     *  \param length - the number of bytes written (not including the
     *       null terminator).
@@ -172,7 +174,8 @@ class SipPresenceEvent : public HttpBody
                          ssize_t* length) const;
 
    //! Get the serialized string representation of this presence event.
-   /*! \param bytes - buffer space where the presence event is written, null
+   /*! Calls buildBody() to build the body.
+    *  \param bytes - buffer space where the presence event is written, null
     *       terminated.
     *  \param length - the number of bytes written (not including the
     *       null terminator).

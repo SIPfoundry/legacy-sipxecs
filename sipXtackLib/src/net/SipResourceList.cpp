@@ -8,11 +8,12 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#include <net/NameValueTokenizer.h>
+#include <net/SipResourceList.h>
+#include <net/SipSubscribeServer.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlHashMapIterator.h>
 #include <utl/XmlContent.h>
-#include <net/SipResourceList.h>
-#include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
 
 // EXTERNAL FUNCTIONS
@@ -316,14 +317,10 @@ ssize_t SipResourceList::getLength() const
    return length;
 }
 
-void SipResourceList::buildBody(int& version) const
+void SipResourceList::buildBody(int* version) const
 {
    UtlString resourceList;
    UtlString singleLine;
-   char buffer[20];
-
-   // Return the version number.
-   version = mVersion;
 
    // Construct the xml document of resource list
    resourceList = UtlString(XML_VERSION_1_0);
@@ -336,11 +333,22 @@ void SipResourceList::buildBody(int& version) const
    singleLine = DOUBLE_QUOTE + listUri.toString() + DOUBLE_QUOTE;
    resourceList += singleLine;
 
-   sprintf(buffer, "%d", mVersion);
-
-   resourceList.append(VERSION_EQUAL);
-   singleLine = DOUBLE_QUOTE + UtlString(buffer) + DOUBLE_QUOTE;
-   resourceList += singleLine;
+   if (version)
+   {
+      // Generate the body with the recorded version.
+      char buffer[20];
+      sprintf(buffer, "%d", mVersion);
+      resourceList.append(VERSION_EQUAL);
+      singleLine = DOUBLE_QUOTE + UtlString(buffer) + DOUBLE_QUOTE;
+      resourceList += singleLine;
+      // Return the XML version.
+      *version = mVersion;
+   }
+   else
+   {
+      resourceList.append(VERSION_EQUAL
+                          DOUBLE_QUOTE VERSION_PLACEHOLDER DOUBLE_QUOTE);
+   }
 
    resourceList.append(FULL_STATE_EQUAL);
    singleLine = DOUBLE_QUOTE + mFullState + DOUBLE_QUOTE;
@@ -395,7 +403,8 @@ void SipResourceList::buildBody(int& version) const
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipResourceList::getBytes Resource list content = \n%s",
                  resourceList.data());
-   ((SipResourceList*)this)->mVersion++;
+   // mVersion is not updated, as that is used only to record
+   // the version of parsed events.
 }
 
 void SipResourceList::getBytes(const char** bytes, ssize_t* length) const
@@ -411,7 +420,7 @@ void SipResourceList::getBytes(const char** bytes, ssize_t* length) const
 void SipResourceList::getBytes(UtlString* bytes, ssize_t* length) const
 {
    int dummy;
-   buildBody(dummy);
+   buildBody(&dummy);
 
    *bytes = ((SipResourceList*)this)->mBody;
    *length = ((SipResourceList*)this)->bodyLength;

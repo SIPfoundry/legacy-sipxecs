@@ -1004,8 +1004,8 @@ void SipSubscriptionMgr::updateNotifyVersion(SipContentVersionCallback setConten
    UtlString dialogHandle;
    notifyRequest.getDialogHandleReverse(dialogHandle);
 
-   // Initialize the last version number to 0 and the found
-   // subscription state state to NULL.
+   // Initialize the 'last version number' to 0 and the 'found
+   // subscription state' to NULL.
    version = 0;
    SubscriptionServerState* state = NULL;
 

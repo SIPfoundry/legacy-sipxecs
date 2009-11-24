@@ -59,7 +59,7 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
       Appearance* inst = dynamic_cast <Appearance*> (appitor.value());
       inst->getDialogs(lFullContent);
    }
-   lFullContent->buildBody(mVersion);
+   lFullContent->buildBody();
 
   // Publish the content for this shared user to the Subscribe Server.
   // Make a copy, because mpSipPublishContentMgr will own it.
@@ -69,7 +69,7 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
         mSharedUser.data(),
         DIALOG_SLA_EVENT_TYPE, //eventTypeKey
         DIALOG_EVENT_TYPE,     //eventType
-        1, &pHttpBody, &mVersion,
+        1, &pHttpBody,
         TRUE, TRUE);
 
    startSubscription();
@@ -159,7 +159,7 @@ AppearanceGroup::~AppearanceGroup()
    }
    if (bContentChanged)
    {
-      lPartialContent->buildBody(mVersion);
+      lPartialContent->buildBody();
       publish(true, true, lPartialContent);
    }
    delete lPartialContent;
@@ -570,7 +570,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
          Appearance* inst = dynamic_cast <Appearance*> (appitor.value());
          inst->getDialogs(lFullContent);
       }
-      lFullContent->buildBody(mVersion);
+      lFullContent->buildBody();
 
       // Publish the content to the subscribe server.
       // Make a copy, because SipPublishContentMgr will own it.
@@ -582,7 +582,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
             mSharedUser.data(),
             DIALOG_SLA_EVENT_TYPE, //eventTypeKey
             DIALOG_EVENT_TYPE,     //eventType
-            1, &pHttpBody, &mVersion,
+            1, &pHttpBody,
             TRUE, TRUE);
       delete lFullContent;
    }
@@ -591,7 +591,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
    {
       // The Partial content is the incoming message, with unique dialog ids.
       lContent->setState(STATE_PARTIAL);
-      lContent->buildBody(mVersion);
+      lContent->buildBody();
       HttpBody* pPartialBody = new HttpBody(*(HttpBody*)lContent);
       OsSysLog::add(FAC_SAA, PRI_INFO,
             "AppearanceGroup::handleNotifyRequest outgoing NOTIFY body: %s", pPartialBody->getBytes());
@@ -599,7 +599,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
             mSharedUser.data(),
             DIALOG_SLA_EVENT_TYPE, //eventTypeKey
             DIALOG_EVENT_TYPE,     //eventType
-            1, &pPartialBody, &mVersion,
+            1, &pPartialBody,
             FALSE, FALSE);
    }
 
@@ -882,7 +882,7 @@ void AppearanceGroup::updateSubscriptions()
             inst->getDialogs(lPartialContent);
             if (bContentChanged)
             {
-               lPartialContent->buildBody(mVersion);
+               lPartialContent->buildBody();
                publish(true, true, lPartialContent);
                delete lPartialContent;
             }

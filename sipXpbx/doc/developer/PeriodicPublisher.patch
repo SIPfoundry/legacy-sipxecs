@@ -2,14 +2,12 @@ This patch adds a function to sipXrls to publish test content.
 The URI is <sip:-@[sip domain]>, the MIME type is text/plain, and the
 event is "dialog".
 The published content is updated every 15 seconds.
-Remember that PeriodicPublisherTask does not start until the main line
-of sipxrls does, 120 seconds after the process is started.
 
-Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
+Index: sipXrls/src/PeriodicPublisherTask.cpp
 ===================================================================
---- sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
-+++ sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
-@@ -0,0 +1,136 @@
+--- sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
++++ sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
+@@ -0,0 +1,132 @@
 +// 
 +// 
 +// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -78,8 +76,6 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +// is called.
 +int PeriodicPublisherTask::run(void* pArg)
 +{
-+   // Dummy array of integers for event versions.
-+   int dummyEventVersion[1] = { 0 };
 +   // Array for event content.
 +   HttpBody* eventContent[1];
 +   // Time value storage
@@ -106,7 +102,6 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +                          mEventType,
 +                          1,
 +                          eventContent,
-+                          dummyEventVersion,
 +                          FALSE, // noNotify
 +                          TRUE // fullState
 +         );
@@ -121,7 +116,6 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +                          mEventType,
 +                          1,
 +                          eventContent,
-+                          dummyEventVersion,
 +                          FALSE, // noNotify
 +                          FALSE // fullState
 +         );
@@ -147,17 +141,17 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
 +
 +/* ============================ FUNCTIONS ================================= */
 
-Property changes on: sipXpbx/sipXrls/src/PeriodicPublisherTask.cpp
+Property changes on: sipXrls/src/PeriodicPublisherTask.cpp
 ___________________________________________________________________
 Name: svn:mime-type
    + text/plain
 Name: svn:eol-style
    + native
 
-Index: sipXpbx/sipXrls/src/ResourceListServer.cpp
+Index: sipXrls/src/ResourceListServer.cpp
 ===================================================================
---- sipXpbx/sipXrls/src/ResourceListServer.cpp	(revision 15972)
-+++ sipXpbx/sipXrls/src/ResourceListServer.cpp	(working copy)
+--- sipXrls/src/ResourceListServer.cpp	(revision 17334)
++++ sipXrls/src/ResourceListServer.cpp	(working copy)
 @@ -32,6 +32,8 @@
  // to/from ResourceList's when doing bulk updating of ResourceList's.
  const int ResourceListServer::sChangeDelay = 10;
@@ -197,10 +191,10 @@ Index: sipXpbx/sipXrls/src/ResourceListServer.cpp
     // Probably best not to delete the resources in the resource lists so that
     // we do not send NOTIFYs to the clients showing the lists as empty.
     // Instead, we force the subscribe server to just tell the subscribers
-Index: sipXpbx/sipXrls/src/test/Makefile.am
+Index: sipXrls/src/test/Makefile.am
 ===================================================================
---- sipXpbx/sipXrls/src/test/Makefile.am	(revision 15972)
-+++ sipXpbx/sipXrls/src/test/Makefile.am	(working copy)
+--- sipXrls/src/test/Makefile.am	(revision 17334)
++++ sipXrls/src/test/Makefile.am	(working copy)
 @@ -35,6 +35,7 @@
      ../ResourceSubscriptionReceiver.cpp \
      ../RlsSubscribePolicy.cpp \
@@ -209,10 +203,10 @@ Index: sipXpbx/sipXrls/src/test/Makefile.am
      RlsTestFixtures.cpp \
      ResourceListServerTest.cpp
  
-Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.h
+Index: sipXrls/src/PeriodicPublisherTask.h
 ===================================================================
---- sipXpbx/sipXrls/src/PeriodicPublisherTask.h	(revision 0)
-+++ sipXpbx/sipXrls/src/PeriodicPublisherTask.h	(revision 0)
+--- sipXrls/src/PeriodicPublisherTask.h	(revision 0)
++++ sipXrls/src/PeriodicPublisherTask.h	(revision 0)
 @@ -0,0 +1,81 @@
 +// 
 +// 
@@ -296,17 +290,17 @@ Index: sipXpbx/sipXrls/src/PeriodicPublisherTask.h
 +
 +#endif  // _PeriodicPublisherTask_h_
 
-Property changes on: sipXpbx/sipXrls/src/PeriodicPublisherTask.h
+Property changes on: sipXrls/src/PeriodicPublisherTask.h
 ___________________________________________________________________
 Name: svn:mime-type
    + text/plain
 Name: svn:eol-style
    + native
 
-Index: sipXpbx/sipXrls/src/Makefile.am
+Index: sipXrls/src/Makefile.am
 ===================================================================
---- sipXpbx/sipXrls/src/Makefile.am	(revision 15972)
-+++ sipXpbx/sipXrls/src/Makefile.am	(working copy)
+--- sipXrls/src/Makefile.am	(revision 17334)
++++ sipXrls/src/Makefile.am	(working copy)
 @@ -37,7 +37,8 @@
  	ResourceReference.cpp \
  	ResourceSubscriptionReceiver.cpp \

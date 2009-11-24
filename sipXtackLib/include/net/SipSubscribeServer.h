@@ -21,6 +21,10 @@
 
 
 // DEFINES
+
+// The placeholder for the XML version number.
+#define VERSION_PLACEHOLDER "&version;"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

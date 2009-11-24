@@ -80,9 +80,7 @@ class RegisterEventServer
                             /// AOR as a Uri
                             const Url& aorUri,
                             /// Returned pointer to HttpBody to publish.
-                            HttpBody*& body,
-                            /// Returned XML version number.
-                            int& version);
+                            HttpBody*& body);
 
    //! Generate (but not publish) content for reg events for an instrument URI.
    void generateContentInstrument(/// The entity URI string to incorporate into the body.
@@ -90,9 +88,7 @@ class RegisterEventServer
                                   /// instrument tag value
                                   const UtlString& instrument,
                                   /// Returned pointer to HttpBody to publish.
-                                  HttpBody*& body,
-                                  /// Returned XML version number.
-                                  int& version);
+                                  HttpBody*& body);
 
    //! Generate (but not publish) content for reg events for a user/instrument URI.
    void generateContentUserInstrument(/// The entity URI string to incorporate into the body.
@@ -104,9 +100,7 @@ class RegisterEventServer
                                       /// instrument tag value
                                       const UtlString& instrument,
                                       /// Returned pointer to HttpBody to publish.
-                                      HttpBody*& body,
-                                      /// Returned XML version number.
-                                      int& version);
+                                      HttpBody*& body);
 
    //! Generate (but not publish) content for reg events based on a ResultSet.
    void generateContent(/// The entity URI string to incorporate into the body.
@@ -114,9 +108,7 @@ class RegisterEventServer
                         /// The ResultSet containing the registrations to show
                         ResultSet& rs,
                         /// Returned pointer to HttpBody to publish.
-                        HttpBody*& body,
-                        /// Returned XML version number.
-                        int& version);
+                        HttpBody*& body);
 
    //! Get the SIP domain name for the resources.
    const UtlString* getDomainName();
@@ -138,14 +130,6 @@ class RegisterEventServer
    UtlString mEventType;
    //! Outgoing address.
    UtlString mOutgoingAddress;
-   //! The next event notice version number to use.
-   //  Yes, this is global for all notices for all resource.
-   //  This is contrary to the spec, but it works in all known cases.
-   //  We need to rearchitect the SipSubscriptionMgr
-   //  to allow the version attribute for each subscriber to be
-   //  different.
-   int mVersion;
-
    //! Pointer to the Registration DB instance.
    RegistrationDB* mpRegistrationDBInstance;
 

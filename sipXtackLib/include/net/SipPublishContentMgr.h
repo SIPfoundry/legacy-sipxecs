@@ -153,15 +153,11 @@ public:
      *         NOT copied, but their memory becomes owned by the
      *         SipPublishContentMgr object and will be deleted by it when
      *         they are no longer needed.
-     *  \param eventVersion - the 'version' XML attribute values from
-     *         the corresponding bodies in eventContent.  Or 0 if the bodies
-     *         have no version number.
      */
     virtual void publishDefault(const char* eventTypeKey,
                                 const char* eventType,
                                 int numContentTypes,
-                                HttpBody* eventContent[],
-                                const int eventVersion[]);
+                                HttpBody* eventContent[]);
 
     /** Add a default content constructor function.
      *
@@ -222,9 +218,6 @@ public:
      *         NOT copied, but their memory becomes owned by the
      *         SipPublishContentMgr object and will be deleted by it when
      *         they are no longer needed.
-     *  \param eventVersion - the 'version' XML attribute values from
-     *         the corresponding bodies in eventContent.  Or 0 if the bodies
-     *         have no version number.
      *  \param noNotify - if TRUE, do not generate any NOTIFYs for this content
      *         change.  This should only be used in generateDefaultContent
      *         methods.
@@ -243,7 +236,6 @@ public:
                          const char* eventType,
                          int numContentTypes,
                          HttpBody* eventContent[],
-                         const int eventVersion[],
                          UtlBoolean noNotify = FALSE,
                          UtlBoolean fullState = TRUE);
 
@@ -290,7 +282,6 @@ public:
      *         to the number of bodies (each having a unique
      *         content type) set in the eventContent array.
      *  \param eventContent - the SIP Event state content.
-     *  \param eventVersion - the XML version of the state content
      *  \param pDefaultConstructor - if not NULL, *pDefaultConstructor
      *         is set to point to a copy of the defaultConstructor for
      *         eventTypeKey (if one is set), or NULL.
@@ -300,7 +291,6 @@ public:
                                     int maxContentTypes,
                                     int& numContentTypes,
                                     HttpBody* eventContent[],
-                                    int eventVersion[],
                                     SipPublishContentMgrDefaultConstructor**
                                     defaultConstructor);
 
@@ -326,7 +316,6 @@ public:
      *         This string has the same syntax/format as the SIP Accept header.
      *  \param content - the content body if a match was found, otherwise NULL.
      *         The content body is a copy that must be freed.
-     *  \param version - the XML 'version' attribute of the content body.
      *  \param isDefaultContent - if there was no content specific to the resourceId
      *         and default content was provided for the given eventTypeKey,
      *         then isDefaultContent is set to TRUE and 'content' contains
@@ -341,7 +330,6 @@ public:
                                   const char* eventType,
                                   const char* acceptHeaderValue,
                                   HttpBody*& content,
-                                  int& version,
                                   UtlBoolean& isDefaultContent,
                                   UtlBoolean fullState = TRUE);
 

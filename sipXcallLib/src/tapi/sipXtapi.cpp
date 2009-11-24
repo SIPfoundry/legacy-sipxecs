@@ -1969,18 +1969,16 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                                              const char* szEventType,
                                              const char* szContentType,
                                              const char* pContent,
-                                             const size_t nContentLength,
-                                             int version)
+                                             const size_t nContentLength)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxPublisherCreate hInst=%p szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu version=%d",
+        "sipxPublisherCreate hInst=%p szResourceId=\"%s\" szEventType=\"%s\" szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu",
         hInst,
         szResourceId ? szResourceId : "<null>",
         szEventType ? szEventType : "<null>",
         szContentType ? szContentType : "<null>",
         pContent ? pContent : "<null>",
-        nContentLength,
-        version);
+        nContentLength);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
 
@@ -2001,13 +1999,11 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                 pInst->pSubscribeServer->getPublishMgr(szEventType);
             if(publishMgr)
             {
-                int dummy;
                 publishMgr->getContent(szResourceId,
                                        szEventType,
                                        szEventType,
                                        szContentType,
                                        oldContentPtr,
-                                       dummy,
                                        isDefaultContent);
             }
             // Default content is ok, ignore it
@@ -2075,8 +2071,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                                             pData->pEventType->data(),
                                             pData->pEventType->data(),
                                             1, // one content type for event
-                                            &content,
-                                            &version);
+                                            &content);
                         sipXresult = SIPX_RESULT_SUCCESS;
                     }
                     else
@@ -2115,16 +2110,14 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                                              const char* szContentType,
                                              const char* pContent,
-                                             const size_t nContentLength,
-                                             int version)
+                                             const size_t nContentLength)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxPublisherUpdate hPub=%u szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu version=%d",
+        "sipxPublisherUpdate hPub=%u szContentType=\"%s\" pContent=\"%s\" nContentLength=%zu",
         hPub,
         szContentType ? szContentType : "<null>",
         pContent ? pContent : "<null>",
-        nContentLength,
-        version);
+        nContentLength);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
 
@@ -2148,7 +2141,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                                 pData->pEventType->data(),
                                 pData->pEventType->data(),
                                 1, // one content type for event
-                                &newContent, &version);
+                                &newContent);
             sipXresult = SIPX_RESULT_SUCCESS;
         }
         else
@@ -2194,10 +2187,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
             nContentLength > 0)
         {
             unPublish = TRUE;
-            // Use a dummy version of 0, because we are going to
-            // un-publish the content below, so it doesn't matter what
-            // version number we save here.
-            sipxPublisherUpdate(hPub, szContentType, pFinalContent, nContentLength, 0);
+            sipxPublisherUpdate(hPub, szContentType, pFinalContent, nContentLength);
         }
         else if(nContentLength > 0 &&
                 (szContentType == NULL || *szContentType == '\000' ||

@@ -152,9 +152,6 @@ class ResourceList : public UtlContainableAtomic
    //! Resource list URI, the URI of the SUBSCRIBE as it reaches us.
    UtlString mResourceListUriCons;
 
-   //! version number
-   mutable int mVersion;
-
    //! The containing ResourceListSet.
    ResourceListSet* mResourceListSet;
 

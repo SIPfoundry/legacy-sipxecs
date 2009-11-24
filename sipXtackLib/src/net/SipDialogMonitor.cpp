@@ -197,8 +197,7 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
                     resourceId.data());
    }
 
-   int dummy;
-   list->buildBody(dummy);
+   list->buildBody();
 
    mLock.release();
    return result;
@@ -313,8 +312,7 @@ void SipDialogMonitor::addDialogEvent(UtlString& contact,
    // dialog event.
    dialogEvent->setEntity(contact.data());
    // Rebuild the body.
-   int dummy;
-   dialogEvent->buildBody(dummy);
+   dialogEvent->buildBody();
 
    // Insert it into the dialog event list
    // :TODO: This does not merge partial dialogs with the previous state.
@@ -349,7 +347,6 @@ void SipDialogMonitor::publishContent(UtlString& contact,
    while ((listUri = dynamic_cast <UtlString *> (iterator())))
    {
       bool contentChanged = false;
-      int version;
 
       list = dynamic_cast <SipResourceList *> (mMonitoredLists.findValue(listUri));
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -378,7 +375,7 @@ void SipDialogMonitor::publishContent(UtlString& contact,
             resource->setInstance(id, STATE_ACTIVE);
          }
 
-         list->buildBody(version);
+         list->buildBody();
          contentChanged = true;
       }
 
@@ -389,7 +386,7 @@ void SipDialogMonitor::publishContent(UtlString& contact,
          HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
 	 mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE,
                                        DIALOG_EVENT_TYPE, 1,
-                                       &pHttpBody, &version);
+                                       &pHttpBody);
       }
    }
 }

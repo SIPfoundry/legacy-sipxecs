@@ -154,9 +154,6 @@ class AppearanceGroup : public UtlContainableAtomic,
     */
    UtlHashMap mAppearances;
 
-   /// The NOTIFY version for this appearance group.
-   int mVersion;
-
    //! Disabled copy constructor
    AppearanceGroup(const AppearanceGroup& rAppearanceGroup);
 

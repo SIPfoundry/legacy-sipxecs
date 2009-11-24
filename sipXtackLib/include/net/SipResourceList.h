@@ -166,7 +166,13 @@ class SipResourceList : public HttpBody
  */
 
    //! Build the body of this object
-   void buildBody(int& version) const;
+   void buildBody(int* version = NULL) const;
+   /**< If version is non-NULL, then the body text will be built with
+    *   the recorded version number (mVersion), and that version will
+    *   be returned to the caller.
+    *   If it is NULL, the body text will be built with the substitution
+    *   placeholder, '&version;'.
+    */
 
    //! Get the event type of this object
    void getEventType(UtlString& type) const;

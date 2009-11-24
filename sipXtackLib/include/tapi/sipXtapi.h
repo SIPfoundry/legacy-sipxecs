@@ -1056,7 +1056,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
  *        published.
  * @param pContent Pointer to the NOTIFY message's body content.
  * @param nContentLength Size of the content to be published.
- * @param version XML version attribute (if any), or 0 (if none)
  *
  * @return If the resource already has a a publisher created for the given
  *               event type, SIPX_RESULT_INVALID_ARGS is returned.
@@ -1067,8 +1066,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                                              const char* szEventType,
                                              const char* szContentType,
                                              const char* pContent,
-                                             const size_t nContentLength,
-                                             int version);
+                                             const size_t nContentLength);
 
 /**
  * Tears down the publishing context.  Any existing subscriptions
@@ -1097,13 +1095,11 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
  *        published
  * @param pContent Pointer to the NOTIFY message's body content
  * @param nContentLength Size of the content to be published
- * @param version XML version attribute (if any), or 0 (if none)
  */
 SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
                                              const char* szContentType,
                                              const char* pContent,
-                                             const size_t nContentLength,
-                                             int version);
+                                             const size_t nContentLength);
 
 //@}
 
