@@ -141,7 +141,8 @@ public class MailboxServlet extends HttpServlet {
                         Mwi.sendMWI(mailbox, messages);
                     } else if (method.equals(METHOD_GET)) {
                         response.setContentType(Mwi.MessageSummaryContentType);
-                        pw.write(Mwi.formatRFC3842(messages));
+                        String accountUrl = "sip:" + user.getIdentity();
+                        pw.write(Mwi.formatRFC3842(messages, accountUrl));
                     } else {
                         response.sendError(405);
                     }

@@ -44,12 +44,12 @@ public class Mwi {
      * @param numOldUrgent
      * @return
      */
-    public static String formatRFC3842(int numNew, int numOld, int numNewUrgent, int numOldUrgent) {
-        return String.format("Messages-Waiting: %s\r\nVoice-Message: %d/%d (%d/%d)\r\n\r\n",
-                numNew > 0 ? "yes":"no", numNew, numOld, numNewUrgent, numOldUrgent);
+    public static String formatRFC3842(int numNew, int numOld, int numNewUrgent, int numOldUrgent, String accountUrl) {
+        return String.format("Messages-Waiting: %s\r\nMessage-Account: %s\r\nVoice-Message: %d/%d (%d/%d)\r\n\r\n",
+                numNew > 0 ? "yes":"no", accountUrl, numNew, numOld, numNewUrgent, numOldUrgent);
     }
 
-    public static String formatRFC3842(Messages messages) {
+    public static String formatRFC3842(Messages messages, String accountUrl) {
         int heard = 0;
         int unheard = 0;
         int heardUrgent = 0;
@@ -60,7 +60,7 @@ public class Mwi {
             unheard = messages.getUnheardCount();
             // No support for urgent messages at this time
         }
-        return formatRFC3842(unheard, heard, unheardUrgent, heardUrgent);
+        return formatRFC3842(unheard, heard, unheardUrgent, heardUrgent, accountUrl);
     }
     
     /**
@@ -94,9 +94,10 @@ public class Mwi {
         URL mwiUrl;
         try {
             mwiUrl = new URL(mwiUrlString);
+            String accountUrl = "sip:" + idUri;
             String content = "eventType=message-summary&" + "identity=" + 
                 URLEncoder.encode(idUri, "UTF-8") + "\r\n" + 
-                formatRFC3842(messages);
+                formatRFC3842(messages, accountUrl);
             RemoteRequest rr = new RemoteRequest(mwiUrl, MessageSummaryContentType, content);
             if (!rr.http()) {
                 LOG.error("Mwi::sendMWI Trouble with RemoteRequest "+rr.getResponse());

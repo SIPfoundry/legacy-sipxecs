@@ -52,7 +52,7 @@ public class Mwistatus extends HttpServlet {
         // The status server doing this request.
         // The price is we aren't specifying the encoding of this message (sigh).
         OutputStream os = response.getOutputStream();
-        String rfc3842 = Mwi.formatRFC3842(0, 0, 0, 0); // Default to nothing
+        String rfc3842 = Mwi.formatRFC3842(0, 0, 0, 0, ""); // Default to nothing
 
         // read the query string
         String idUri = request.getParameter("identity");
@@ -71,7 +71,8 @@ public class Mwistatus extends HttpServlet {
             // determine the message counts for the mailbox
             // (Okay, worry about this one.  It walks the mailstore directories counting .xml and .sta files.)
             Messages messages = Messages.newMessages(new Mailbox(user));
-            rfc3842 = Mwi.formatRFC3842(messages);
+            String accountUrl = "sip:" + user.getIdentity();
+            rfc3842 = Mwi.formatRFC3842(messages, accountUrl);
             Messages.releaseMessages(messages);
             LOG.info(String.format("Mwistatus::doGet %s", idUri));
         } else {
