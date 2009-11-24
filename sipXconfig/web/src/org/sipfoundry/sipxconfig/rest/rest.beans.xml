@@ -127,4 +127,9 @@
     <property name="readable" value="true" />
   </bean>
   <alias name="specialAttendantResource" alias="/auto-attendant/specialmode" />
+
+  <bean id="profileResource" class="org.sipfoundry.sipxconfig.rest.ProfileResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+  </bean>
+  <alias name="profileResource" alias="/phone/{serialNumber}/profile/{name}" />
 </beans>
