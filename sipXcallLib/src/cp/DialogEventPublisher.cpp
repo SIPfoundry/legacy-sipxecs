@@ -17,6 +17,7 @@
 #include <net/SipDialog.h>
 #include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
+#include <net/SipSubscribeServer.h>
 #include <os/OsFS.h>
 #include <os/OsDateTime.h>
 #include <utl/XmlContent.h>
@@ -69,7 +70,7 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
    UtlString content;
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" "
-                  "version=\"&version;\" state=\"full\" entity=\"");
+                  "version=\"" VERSION_PLACEHOLDER "\" state=\"full\" entity=\"");
    XmlEscape(content, resourceId);
    content.append("\">\r\n"
                   "</dialog-info>\r\n");

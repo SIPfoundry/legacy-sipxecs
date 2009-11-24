@@ -259,6 +259,8 @@ public:
             INITIAL_PART
             "version=\"0\""
             FINAL_PART;
+         // Use "&version;" here rather than VERSION_PLACEHOLDER, so that this
+         // test verifies that VERSION_PLACEHOLDER has the expected value.
          const char *modifiedPackageVersionPlaceholder =
             INITIAL_PART
             "version=\"&version;\""

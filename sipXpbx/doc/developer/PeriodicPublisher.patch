@@ -7,7 +7,7 @@ Index: sipXrls/src/PeriodicPublisherTask.cpp
 ===================================================================
 --- sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
 +++ sipXrls/src/PeriodicPublisherTask.cpp	(revision 0)
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,133 @@
 +// 
 +// 
 +// Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
@@ -27,6 +27,7 @@ Index: sipXrls/src/PeriodicPublisherTask.cpp
 +#include <os/OsEventMsg.h>
 +#include <os/OsMsg.h>
 +#include <net/HttpBody.h>
++#include <net/SipSubscribeServer.h>
 +#include "PeriodicPublisherTask.h"
 +
 +// EXTERNAL FUNCTIONS
@@ -93,7 +94,7 @@ Index: sipXrls/src/PeriodicPublisherTask.cpp
 +      // enable sending of partial state.
 +      sprintf(buffer,
 +              "full\r\n"
-+              "version=&version;\r\n"
++              "version=" VERSION_PLACEHOLDER "\r\n"
 +              "%02d:%02d:%02d\r\n",
 +              tm.tm_hour, tm.tm_min, tm.tm_sec);
 +      eventContent[0] = new HttpBody(buffer, strlen(buffer), "text/plain");
@@ -107,7 +108,7 @@ Index: sipXrls/src/PeriodicPublisherTask.cpp
 +         );
 +      sprintf(buffer,
 +              "partial\r\n"
-+              "version=&version;\r\n"
++              "version=" VERSION_PLACEHOLDER "\r\n"
 +              "%02d:%02d:%02d\r\n",
 +              tm.tm_hour, tm.tm_min, tm.tm_sec);
 +      eventContent[0] = new HttpBody(buffer, strlen(buffer), "text/plain");
