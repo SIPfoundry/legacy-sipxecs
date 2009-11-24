@@ -131,7 +131,7 @@ sipXcdrLog : sipXrest
 	@echo sipXcdrLog
 
 .PHONY: sipXimbot
-sipXimbot : sipXrest
+sipXimbot : sipXrest sipXcommons sipXopenfire
 	@echo sipXimbot
 
 .PHONY: sipXecs
