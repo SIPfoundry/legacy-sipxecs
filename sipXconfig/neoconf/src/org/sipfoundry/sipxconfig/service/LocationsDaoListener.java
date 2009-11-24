@@ -13,13 +13,15 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 
 
-public class SipxSupervisorDaoListener implements DaoEventListener {
+public class LocationsDaoListener implements DaoEventListener {
 
     private SipxServiceManager m_sipxServiceManager;
     private ServiceConfigurator m_serviceConfigurator;
 
     public void onDelete(Object entity) {
-        // nothing to do on delete for sipx-supervisor
+        if (entity instanceof Location) {
+            m_serviceConfigurator.replicateAllServiceConfig();
+        }
     }
 
     public void onSave(Object entity) {

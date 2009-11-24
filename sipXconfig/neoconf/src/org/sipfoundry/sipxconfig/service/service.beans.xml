@@ -128,9 +128,9 @@
     <property name="name" value="sipxsupervisor-config" />
   </bean>
 
-  <bean id="sipxSupervisorDaoListener" class="org.sipfoundry.sipxconfig.service.SipxSupervisorDaoListener">
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  <bean id="locationsDaoListener" class="org.sipfoundry.sipxconfig.service.LocationsDaoListener">
     <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="sipxProxyService" class="org.sipfoundry.sipxconfig.service.SipxProxyService" parent="sipxService"

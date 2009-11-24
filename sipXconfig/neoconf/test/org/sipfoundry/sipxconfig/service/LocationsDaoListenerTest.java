@@ -14,10 +14,10 @@ import junit.framework.TestCase;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
-public class SipxSupervisorDaoListenerTest extends TestCase {
+public class LocationsDaoListenerTest extends TestCase {
 
     public void testOnSaveLocation() {
-        SipxSupervisorDaoListener out = new SipxSupervisorDaoListener();
+        LocationsDaoListener out = new LocationsDaoListener();
 
         Location location = new Location();
         SipxSupervisorService sipxSupervisorService = new SipxSupervisorService();
@@ -38,9 +38,30 @@ public class SipxSupervisorDaoListenerTest extends TestCase {
         EasyMock.verify(sipxServiceManager, serviceConfigurator);
     }
 
+    public void testOnDeleteLocation() {
+        LocationsDaoListener out = new LocationsDaoListener();
+
+        Location location = new Location();
+
+        ServiceConfigurator serviceConfigurator = EasyMock.createMock(ServiceConfigurator.class);
+        serviceConfigurator.replicateAllServiceConfig();
+        EasyMock.expectLastCall();
+        EasyMock.replay(serviceConfigurator);
+
+        out.setServiceConfigurator(serviceConfigurator);
+        out.onDelete(location);
+        EasyMock.verify(serviceConfigurator);
+    }
+
     public void testOnSaveNonLocation() {
         // no action expected
-        SipxSupervisorDaoListener out = new SipxSupervisorDaoListener();
+        LocationsDaoListener out = new LocationsDaoListener();
+
+        ServiceConfigurator serviceConfigurator = EasyMock.createMock(ServiceConfigurator.class);
+        EasyMock.replay(serviceConfigurator);
+
         out.onSave(new SipxProxyService());
+
+        EasyMock.verify(serviceConfigurator);
     }
 }
