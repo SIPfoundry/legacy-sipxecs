@@ -48,7 +48,7 @@ public class ConfCommand extends CallCommand {
            }
        
            if(content.startsWith("Conference") && content.endsWith("not found\n")) {
-               m_errString = "Your conference is not in use.";
+               m_errString = "No one is in your conference.";
                m_finished = true;
            }
            

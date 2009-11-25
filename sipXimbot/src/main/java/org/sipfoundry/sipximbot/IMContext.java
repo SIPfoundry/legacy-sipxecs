@@ -274,16 +274,22 @@ public class IMContext {
         boolean success = true;
         
         if(!st.hasMoreTokens()) {
-            sendMsg("Reply with: participant number, type who if you don't know it");
+            sendMsg("Reply with: all or participant number, type who if you don't know it");
             return false;
         } else {       
-            try {
-                m_confParty = st.nextToken();
-                Integer.parseInt(m_confParty);                
-            } catch (NumberFormatException nfe) {
-                sendErrMsg("that is not a valid participant number");
-                success = false;
-            }              
+            m_confParty = st.nextToken();
+            if(m_confParty.equals("all")) {
+              m_confParty = null;
+              
+            } else {
+            
+                try {
+                    Integer.parseInt(m_confParty);                
+                } catch (NumberFormatException nfe) {
+                    sendErrMsg("that is not a valid participant number");
+                    success = false;
+                }       
+            }
             return success;
         }
     }
@@ -321,9 +327,12 @@ public class IMContext {
                 // "To receive calls, enter unblock\n" +
                 // "To receive calls at a specific number, enter at <number> until <time>  e.g. at cell until 3pm\n" +
                 "To see who is on your conference, enter who\n" +
-                "To mute a conference party, enter mute <participant number>\n" +
-                "To unmute a conference party, enter unmute <participant number>\n" +
-                "To disconnect a conference party, enter disconnect <participant number>\n" +
+                "To mute a conference participant, enter mute <participant number>\n" +
+                "To mute all conference participants, enter mute all\n" +
+                "To unmute a conference participant, enter unmute <participant number>\n" +
+                "To unmute all conference participants, enter unmute all\n" +
+                "To disconnect a conference participant, enter disconnect <participant number>\n" +
+                "To disconnect all conference participants, enter disconnect all\n" +
                 "To lock your conference, enter lock\n" +
                 "To unlock your conference, enter unlock\n" + 
                 "To listen to a caller leaving voicemail, enter listen\n" +
