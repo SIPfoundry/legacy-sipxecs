@@ -153,7 +153,7 @@ public:
      *  created, but success of the attempted request can only be determined
      *  by monitoring the callbacks.
      *
-     *  The caller of this method must explictly call stopRefresh
+     *  The caller of this method must explicitly call stopRefresh
      *  to clean up the refresh state, even if the callback function
      *  has reported REFRESH_REQUEST_FAILED.
      *
@@ -176,7 +176,7 @@ public:
      *  Typically the application should use the established dialog
      *  handle.
      *  This method can be used to end one of the dialogs if multiple
-     *  subsription dialogs were created as a result of a single
+     *  subscription dialogs were created as a result of a single
      *  subscribe request.  The application will get multiple
      *  REFRESH_REQUEST_SUCCEEDED RefreshStateCallback events when
      *  multiple dialogs are created as a result of a single SUBSCRIBE.

@@ -141,7 +141,7 @@ public:
    /// If true, prevents event timer routines from doing anything.
    UtlBoolean mSuppressTimerEventRoutines;
 
-   /// Aplication data provided to ::initiateRefresh.
+   /// Application data provided to ::initiateRefresh.
    void* mpApplicationData;
    /// Callback function for changes in subscription state.
    SipRefreshManager::RefreshStateCallback mpStateCallback;
@@ -171,7 +171,7 @@ public:
    void dumpState();
 
 private:
-   //! DISALLOWED accendental copying
+   //! DISALLOWED accidental copying
    RefreshDialogState(const RefreshDialogState& rRefreshDialogState);
    RefreshDialogState& operator=(const RefreshDialogState& rhs);
 };
@@ -323,7 +323,7 @@ void RefreshDialogState::toString(UtlString& dumpString)
 
 // Methods for RefreshDialogStateNotification:
 
-// Constructur.
+// Constructor.
 RefreshDialogStateNotification::RefreshDialogStateNotification(RefreshDialogState* state,
                                                                SipRefreshManager* pRefMgr) :
    mpState(state),
@@ -1291,7 +1291,8 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                     || responseCode == SIP_LOOP_DETECTED_CODE)
                 && !(   method.compareTo(SIP_SUBSCRIBE_METHOD) == 0
                      && SipDialog::isEarlyDialog(dialogHandle))
-                && ++state->mTransientErrorCount <= sTransientErrorLimit)
+                && ++state->mTransientErrorCount <= sTransientErrorLimit
+                && (unsigned long)state->mExpiration > OsDateTime::getSecsSinceEpoch() )
             {
                // A transient failure to be retried.
 
