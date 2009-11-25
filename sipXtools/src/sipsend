@@ -29,6 +29,7 @@ $DefaultMaxForwards = 20;
 $UseViaName = 0;
 $SymmetricPort = 0;
 $UseColor = 1;
+$Expires = -1;
 
 $DefaultUserAgent = "sipsend/$VERSION";
 
@@ -520,7 +521,7 @@ sub SipRequest
     $request .= "Max-Forwards: $MaxForwards" . $CRLF;
     $request .= "User-Agent: $UserAgent" . $CRLF;
     $request .= "Require: $Require" . $CRLF if $Require;
-    $request .= "Expires: $Expires" . $CRLF if $Expires;
+    $request .= "Expires: $Expires" . $CRLF if ($Expires >= 0);
     $request .= "Event: $Event" . $CRLF if $Event;
     $request .= "Date: $Date" . $CRLF;
     $request .= "Content-Length: 0" . $CRLF; # TBD - body from stdin?
