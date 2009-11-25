@@ -299,7 +299,7 @@ then
     if [ -r "${Basename}${installQualifier}.p12" ]
     then
         echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        cp -v "$Basename${installQualifier}.crt" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
+        cp -v "$Basename${installQualifier}.p12" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
         chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
         chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
 
@@ -308,7 +308,7 @@ then
 	if [ "${installQualifier}" = "" ]
 	then
         	echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        	cp -v "$Basename.crt" "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
+        	cp -v "$Basename.p12" "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
         	chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
         	chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
 	fi
