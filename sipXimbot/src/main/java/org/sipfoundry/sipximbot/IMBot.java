@@ -72,13 +72,16 @@ public class IMBot {
             }           
         }
 
-        private boolean connectToXMPPServer(ImbotConfiguration config) {
-                        
+        private boolean connectToXMPPServer() {
+            
+            ImbotConfiguration config;
+            ConnectionConfiguration conf;
+            
             for(;;) {
                 try {
-                    
-                    ConnectionConfiguration conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
-                                    
+                    config = ImbotConfiguration.get();
+                    conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
+                             
                     Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
                     m_con = new XMPPConnection(conf);                                       
                     m_con.connect();
@@ -100,11 +103,10 @@ public class IMBot {
         }
         
         public void run() {           
-            ImbotConfiguration config = ImbotConfiguration.get();
             
             boolean running = true;
                                
-            if(!connectToXMPPServer(config)) {
+            if(!connectToXMPPServer()) {
                 return;
             }
             
@@ -212,7 +214,7 @@ public class IMBot {
                 }
             });
                   
-            updateAvatar(config);
+            updateAvatar(ImbotConfiguration.get());
             
             while (running) {
                 try {
