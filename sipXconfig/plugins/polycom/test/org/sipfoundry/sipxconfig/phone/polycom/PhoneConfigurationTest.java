@@ -26,9 +26,15 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 /**
  * Tests file phone.cfg generation
@@ -76,13 +82,12 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         dumpXml(m_location.getReader(), System.out);
 
-        assertPolycomXmlEquals(getClass().getResourceAsStream("expected-phone.cfg.xml"),
-                m_location.getReader());
+        assertPolycomXmlEquals(getClass().getResourceAsStream("expected-phone.cfg.xml"), m_location.getReader());
     }
 
     /**
-     * XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user credentials
-     * and MAC hash ID label
+     * XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user
+     * credentials and MAC hash ID label
      *
      * @throws Exception
      */
@@ -100,7 +105,16 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         // The phone has no lines configured.
         m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
 
+        MusicOnHoldManager mohManager = createMock(MusicOnHoldManager.class);
+        mohManager.getDefaultMohUri();
+        expectLastCall().andReturn("sip:~~mh@example.org");
+
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
         User special_user = new User();
+        special_user.setPermissionManager(pm);
+        special_user.setMusicOnHoldManager(mohManager);
         special_user.setSipPassword("the ~~id~sipXprovision password");
         special_user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
         String expected_label = "ID: YBU";
@@ -142,8 +156,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         assertEquals(special_user.getUserName(), attribute.getStringValue());
 
         attribute = (Attribute) reg_element.selectSingleNode("@reg.1.auth.userId");
-        assertEquals(special_user.getUserName() + "/" + phone.getSerialNumber(),
-                attribute.getStringValue());
+        assertEquals(special_user.getUserName() + "/" + phone.getSerialNumber(), attribute.getStringValue());
 
         attribute = (Attribute) reg_element.selectSingleNode("@reg.1.displayName");
         assertEquals(expected_label, attribute.getStringValue());
@@ -175,6 +188,5 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
             attribute = (Attribute) mwi_element.selectSingleNode("@msg.mwi." + x + ".callBackMode");
             assertEquals("disabled", attribute.getStringValue());
         }
-
     }
 }
