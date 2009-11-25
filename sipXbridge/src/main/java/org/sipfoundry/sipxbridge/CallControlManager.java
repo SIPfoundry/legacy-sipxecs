@@ -269,7 +269,8 @@ class CallControlManager implements SymmitronResetHandler {
              * Contact header for the re-INVITE we are about to send.
              */
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, peerDialogProvider);
+                    Gateway.SIPXBRIDGE_USER, peerDialogProvider,
+                    SipUtilities.getViaTransport(newRequest));
             newRequest.setHeader(contactHeader);
             
             if ( request.getHeader(AuthorizationHeader.NAME) != null ) {  
@@ -405,7 +406,7 @@ class CallControlManager implements SymmitronResetHandler {
                 ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
                 String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
                 ContactHeader contactHeader = SipUtilities
-                        .createContactHeader(userName, provider);
+                        .createContactHeader(userName, provider, SipUtilities.getViaTransport(response));
                 response.setHeader(contactHeader);
 
                 /*
@@ -635,7 +636,8 @@ class CallControlManager implements SymmitronResetHandler {
             }
 
             Response response = SipUtilities.createResponse(st, Response.OK);
-            ContactHeader contactHeader = SipUtilities.createContactHeader(null, provider);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(null, provider,
+                    SipUtilities.getViaTransport(response));
             AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                     "application", "sdp");
             response.setHeader(contactHeader);
@@ -1302,8 +1304,9 @@ class CallControlManager implements SymmitronResetHandler {
          * Set the contact address for the OK. Note that ITSP may want global addressing.
          */
         if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP) {
-            contactHeader = SipUtilities.createContactHeader(user, transactionContext
-                    .getServerTransactionProvider());
+            contactHeader = SipUtilities.createContactHeader(user,
+                    transactionContext.getServerTransactionProvider(),
+                    SipUtilities.getViaTransport(newResponse));
         } else {
             contactHeader = SipUtilities.createContactHeader(transactionContext
                     .getServerTransactionProvider(), transactionContext.getItspAccountInfo());
@@ -1515,13 +1518,14 @@ class CallControlManager implements SymmitronResetHandler {
         dialogContext.setLastResponse(response);
         ServerTransaction serverTransaction = tad.getServerTransaction();
         Dialog replacedDialog = tad.getReplacedDialog();
-        SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
-        ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
-                peerProvider);
 
+        SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
         Response serverResponse = SipUtilities.createResponse(serverTransaction, response
                 .getStatusCode());
+        ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
+                peerProvider, SipUtilities.getViaTransport(serverResponse));
         serverResponse.setHeader(contactHeader);
+
         if (response.getContentLength().getContentLength() != 0) {
             SessionDescription sdes = SipUtilities.getSessionDescription(response);
             SessionDescription sdesCloned = SipUtilities.getSessionDescription(response);
@@ -1596,7 +1600,8 @@ class CallControlManager implements SymmitronResetHandler {
             Response newResponse = SipUtilities.createResponse(serverTransaction, response
                     .getStatusCode());
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, transasctionContext.getServerTransactionProvider());
+                    Gateway.SIPXBRIDGE_USER, transasctionContext.getServerTransactionProvider(),
+                    SipUtilities.getViaTransport(newResponse));
             newResponse.setHeader(contactHeader);
             Dialog peerDialog = serverTransaction.getDialog();
             SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
@@ -2282,9 +2287,10 @@ class CallControlManager implements SymmitronResetHandler {
                 ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
                 String userName = ((SipURI) toHeader.getAddress().getURI()).getUser();
                 ContactHeader contactHeader = SipUtilities.createContactHeader(userName,
-                        ((DialogExt) continuation.getDialog()).getSipProvider());
+                        ((DialogExt) continuation.getDialog()).getSipProvider(),
+                        SipUtilities.getViaTransport(newResponse));
                 newResponse.setHeader(contactHeader);
-                response.setReasonPhrase("OK MOH Codec not supported by ITSP");
+                newResponse.setReasonPhrase("OK MOH Codec not supported by ITSP");
 
                 continuation.getServerTransaction().sendResponse(newResponse);
 
@@ -2333,8 +2339,9 @@ class CallControlManager implements SymmitronResetHandler {
                 Response newResponse = SipUtilities.createResponse(continuation
                         .getServerTransaction(), response.getStatusCode());
                 ContactHeader contactHeader = SipUtilities.createContactHeader(
-                        Gateway.SIPXBRIDGE_USER, ((DialogExt) continuation.getDialog())
-                                .getSipProvider());
+                        Gateway.SIPXBRIDGE_USER,
+                        ((DialogExt) continuation.getDialog()).getSipProvider(),
+                        SipUtilities.getViaTransport(newResponse));
                 newResponse.setHeader(contactHeader);
                 SipUtilities.setSessionDescription(newResponse, clonedSd);
                 continuation.getServerTransaction().sendResponse(newResponse);

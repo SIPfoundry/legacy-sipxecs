@@ -483,7 +483,7 @@ public class BackToBackUserAgent implements Comparable {
             Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, provider);
+                    Gateway.SIPXBRIDGE_USER, provider, SipUtilities.getViaTransport(response));
             response.setHeader(contactHeader);
 
             /*
@@ -764,8 +764,8 @@ public class BackToBackUserAgent implements Comparable {
             SipUtilities.addLanAllowHeaders(newRequest);
 
             String fromUser = ((SipURI) fromHeader.getAddress().getURI()).getUser();
-            ContactHeader contactHeader = SipUtilities.createContactHeader(fromUser, Gateway
-                    .getLanProvider());
+            ContactHeader contactHeader = SipUtilities.createContactHeader(fromUser,
+                    Gateway.getLanProvider(), Gateway.getSipxProxyTransport());
             newRequest.setHeader(contactHeader);
             /*
              * Create a new out of dialog request.
@@ -849,7 +849,8 @@ public class BackToBackUserAgent implements Comparable {
                         Gateway.SIPXBRIDGE_USER, WarningCode.OUT_OF_DIALOG_REFER,
                         "Out of dialog REFER");
                 response.setHeader(SipUtilities.createContactHeader(null,
-                        ((SipProvider) referRequestEvent.getSource())));
+                        ((SipProvider) referRequestEvent.getSource()),
+                        SipUtilities.getViaTransport(response)));
                 response.setHeader(warning);
                 if (stx != null) {
                     stx.sendResponse(response);
@@ -950,7 +951,8 @@ public class BackToBackUserAgent implements Comparable {
             Response response = ProtocolObjects.messageFactory.createResponse(Response.ACCEPTED,
                     referRequest);
             response.setHeader(SipUtilities.createContactHeader(null,
-                    ((SipProvider) referRequestEvent.getSource())));
+                    ((SipProvider) referRequestEvent.getSource()),
+                    SipUtilities.getViaTransport(response)));
             stx.sendResponse(response);
 
         } catch (ParseException ex) {
@@ -1073,7 +1075,8 @@ public class BackToBackUserAgent implements Comparable {
 
             String host = inboundVia.getReceived() != null ? inboundVia.getReceived()
                     : inboundVia.getHost();
-            int port = inboundVia.getRPort() != -1 ? inboundVia.getRPort() : inboundVia.getPort();
+            // do some ITSPs need the rport?  For TLS it is not correct...
+            int port = inboundVia.getPort();
 
             ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getItspAccount(host,
                     port);
@@ -1161,7 +1164,8 @@ public class BackToBackUserAgent implements Comparable {
             newRequest.addHeader(referencesHeader);
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    incomingRequestURI.getUser(), Gateway.getLanProvider());
+                    incomingRequestURI.getUser(), Gateway.getLanProvider(),
+                    SipUtilities.getViaTransport(newRequest));
             newRequest.setHeader(contactHeader);
             if (authorization != null) {
                 newRequest.addHeader(authorization);
@@ -1222,11 +1226,6 @@ public class BackToBackUserAgent implements Comparable {
 
             newRequest.setContent(outboundSession.getReceiver().getSessionDescription()
                     .toString(), cth);
-
-            SipURI sipUri = (SipURI) newRequest.getRequestURI();
-            if (transport.equalsIgnoreCase("tls")) {
-                sipUri.setTransportParam(transport);
-            }
 
             SipUtilities.addLanAllowHeaders(newRequest);
 
@@ -1321,7 +1320,8 @@ public class BackToBackUserAgent implements Comparable {
                         ReferencesHeader.SEQUEL);
             newRequest.setHeader(referencesHeader);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider());
+                    Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider(),
+                    Gateway.getSipxProxyTransport());
             newRequest.setHeader(contactHeader);
 
             RouteHeader routeHeader = SipUtilities.createRouteHeader(this.proxyAddress);
@@ -1975,7 +1975,8 @@ public class BackToBackUserAgent implements Comparable {
                         "application", "sdp");
                 SipProvider txProvider = ((TransactionExt) serverTransaction).getSipProvider();
                 ContactHeader contactHeader = SipUtilities.createContactHeader(
-                        Gateway.SIPXBRIDGE_USER, txProvider);
+                        Gateway.SIPXBRIDGE_USER, txProvider,
+                        SipUtilities.getViaTransport(okResponse));
                 okResponse.setHeader(contactHeader);
                 /*
                  * This call pickup can ONLY originate from pbx. We cannot handle call pickup

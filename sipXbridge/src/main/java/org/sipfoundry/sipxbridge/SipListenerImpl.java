@@ -95,7 +95,9 @@ public class SipListenerImpl implements SipListenerExt {
                 Response errorResponse = SipUtilities.createResponse(stx, statusCode);
                 SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
                 errorResponse.removeHeader(ContactHeader.NAME);
-                ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
+                ContactHeader cth = SipUtilities.createContactHeader(null,
+                        ((TransactionExt)stx).getSipProvider(),
+                        SipUtilities.getViaTransport(errorResponse));
                 errorResponse.setHeader(cth);
                 if ( TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo() == null ||
                         TransactionContext.get(responseEvent.getClientTransaction()).getItspAccountInfo().isGlobalAddressingUsed()) {
@@ -177,7 +179,9 @@ public class SipListenerImpl implements SipListenerExt {
                 Response errorResponse = SipUtilities.createResponse(stx, statusCode);
                 SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
                 errorResponse.removeHeader(ContactHeader.NAME);
-                ContactHeader cth = SipUtilities.createContactHeader(null, ((TransactionExt)stx).getSipProvider());
+                ContactHeader cth = SipUtilities.createContactHeader(null,
+                        ((TransactionExt)stx).getSipProvider(),
+                        SipUtilities.getViaTransport(errorResponse));
                 errorResponse.setHeader(cth);
                 stx.sendResponse(errorResponse);
                 return;

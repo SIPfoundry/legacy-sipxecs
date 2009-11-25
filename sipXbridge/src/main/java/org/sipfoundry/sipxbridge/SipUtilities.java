@@ -301,7 +301,8 @@ class SipUtilities {
                  * Creating contact header for LAN bound request.
                  */
                 return SipUtilities.createContactHeader(
-                        Gateway.SIPXBRIDGE_USER, provider);
+                        Gateway.SIPXBRIDGE_USER, provider,
+                        Gateway.getSipxProxyTransport());
             } else {
                 /*
                  * Creating contact header for WAN bound request. Nothing is
@@ -338,15 +339,8 @@ class SipUtilities {
     /**
      * Create a contact header for the given provider.
      */
-    static ContactHeader createContactHeader(String user, SipProvider provider) {
+    static ContactHeader createContactHeader(String user, SipProvider provider, String transport) {
         try {
-
-            /*
-             * The preferred transport of the sipx proxy server ( defaults to
-             * tcp ).
-             */
-            String transport = Gateway.getSipxProxyTransport();
-
             ListeningPoint lp = provider.getListeningPoint(transport);
             String ipAddress = lp.getIPAddress();
             int port = lp.getPort();
@@ -1142,7 +1136,8 @@ class SipUtilities {
         Response response = ProtocolObjects.messageFactory.createResponse(
                 statusCode, request);
         ContactHeader contactHeader = createContactHeader(
-                Gateway.SIPXBRIDGE_USER, provider);
+                Gateway.SIPXBRIDGE_USER, provider,
+                getViaTransport(request));
         response.addHeader(contactHeader);
         if (provider == Gateway.getLanProvider()) {
             SupportedHeader sh = ProtocolObjects.headerFactory
@@ -1893,5 +1888,10 @@ class SipUtilities {
        String transport = sipUri.getTransportParam();
        return new HopImpl(host,port,transport);
     }
-    
+
+    public static String getViaTransport(Message sipMessage) {
+        ViaHeader header = (ViaHeader)sipMessage.getHeader(ViaHeader.NAME);
+        return (header==null ? "udp" : header.getTransport());
+    }
+
 }
