@@ -15,6 +15,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -117,4 +118,6 @@ public interface PhoneContext extends DataObjectSource {
     SpeedDial getSpeedDial(Phone phone);
 
     Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId);
+
+    User createSpecialPhoneProvisionUser(String serialNumber);
 }

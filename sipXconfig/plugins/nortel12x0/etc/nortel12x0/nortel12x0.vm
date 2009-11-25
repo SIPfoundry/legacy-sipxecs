@@ -169,7 +169,7 @@
 #addPhoneBook()
 </phoneSettings>
 #set ($bAccountPresent = 0)
-#foreach ($line in $phone.lines)
+#foreach ($line in $lines)
 #set ($i = $velocityCount)
 #if($i == 1)
 <sipAccounts>

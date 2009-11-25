@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.nortel12x0;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -395,7 +396,23 @@ public class Nortel12x0Phone extends Phone {
             Map<String, Object> context = super.getContext();
             context.put("speedDialInfo", getSpeedDialEntries());
             context.put("phoneBook", m_phoneBook);
+            context.put("lines", getLines());
             return context;
+        }
+
+        public List<Line> getLines() {
+            Nortel12x0Phone phone = (Nortel12x0Phone) getDevice();
+            List<Line> lines = phone.getLines();
+
+            // Phones with no configured lines will register under the sipXprovision special user.
+            if (lines.isEmpty()) {
+                Line line = phone.createSpecialPhoneProvisionUserLine();
+                line.setSettingValue("registrationAndProxy/mwiSubscribe", "FALSE");
+                lines = new LinkedList<Line>();
+                lines.add(line);
+            }
+
+            return lines;
         }
 
         Collection<PhonebookEntry> trim(Collection<PhonebookEntry> phoneBook) {

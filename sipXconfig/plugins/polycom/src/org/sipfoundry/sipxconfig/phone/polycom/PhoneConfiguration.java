@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,10 +25,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
  */
 public class PhoneConfiguration extends ProfileContext {
-    private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
 
     // The number of blank lines in polycom_phone1.cfg.
-    private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
+    public static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
+
+    private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
 
     public PhoneConfiguration(Device device) {
         super(device, PHONE_TEMPLATE);
@@ -43,6 +45,16 @@ public class PhoneConfiguration extends ProfileContext {
     public Collection getLines() {
         PolycomPhone phone = (PolycomPhone) getDevice();
         List<Line> lines = phone.getLines();
+
+        // Phones with no configured lines will register under the sipXprovision special user.
+        if (lines.isEmpty()) {
+            Line line = phone.createSpecialPhoneProvisionUserLine();
+            line.setSettingValue("reg/label", line.getUser().getDisplayName());
+            line.setSettingValue("msg.mwi/subscribe", "");
+            line.setSettingValue("msg.mwi/callBackMode", "disabled");
+            lines = new LinkedList<Line>();
+            lines.add(line);
+        }
 
         int lineCount = Math.max(lines.size(), TEMPLATE_DEFAULT_LINE_COUNT);
         ArrayList linesSettings = new ArrayList(lineCount);

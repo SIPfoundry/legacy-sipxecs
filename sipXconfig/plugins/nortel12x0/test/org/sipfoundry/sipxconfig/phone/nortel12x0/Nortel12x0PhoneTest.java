@@ -23,13 +23,17 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 
 import org.apache.commons.io.IOUtils;
+import org.dom4j.Document;
+import org.dom4j.dom.DOMDocumentFactory;
+import org.dom4j.dom.DOMElement;
+import org.dom4j.io.SAXReader;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
-import org.sipfoundry.sipxconfig.device.RestartException;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -138,6 +142,84 @@ public class Nortel12x0PhoneTest extends TestCase {
         assertEquals(expected, location.toString());
     }
 
+    private static final String expected_label = "ID: YBU";
+
+    private static final User special_user;
+    static {
+        special_user = new User();
+        special_user.setSipPassword("the ~~id~sipXprovision password");
+        special_user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
+        special_user.setFirstName(expected_label.split(" ")[0]);
+        special_user.setLastName(expected_label.split(" ")[1]);
+    }
+
+    protected static IMocksControl setMockPhoneContextForSpecialUser(Nortel12x0Phone phone) {
+
+        IMocksControl phoneContextControl = EasyMock.createNiceControl();
+        PhoneContext phoneContext = phoneContextControl.createMock(PhoneContext.class);
+        PhoneTestDriver.supplyVitalTestData(phoneContextControl, phoneContext, phone);
+
+        phoneContext.createSpecialPhoneProvisionUser(phone.getSerialNumber());
+        phoneContextControl.andReturn(special_user).once();
+        phoneContextControl.replay();
+
+        phone.setPhoneContext(phoneContext);
+
+        return phoneContextControl;
+    }
+
+    protected static Nortel12x0Phone getPhoneWithMockPhoneContextForSpecialUser() {
+
+        Nortel12x0Phone phone = new Nortel12x0Phone();
+        phone.setModel(new PhoneModel("nortel12x0"));
+        setMockPhoneContextForSpecialUser(phone);
+
+        return phone;
+    }
+
+    /**
+     * XX-6976: Polycom/Nortel 12x0: Give User-less profiles the sipXprovision special user credentials
+     * and MAC hash ID label
+     *
+     * @throws Exception
+     */
+    public void testGenerateSpecialUserRegistrationWhenNoConfiguredLines() throws Exception {
+
+        Nortel12x0Phone phone = new Nortel12x0Phone();
+        PhoneModel model = new PhoneModel("nortel12x0");
+        model.setLabel("Nortel IP Phone 1230");
+        model.setModelDir("nortel12x0");
+        model.setProfileTemplate("nortel12x0/nortel12x0.vm");
+        phone.setModel(model);
+
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+
+        IMocksControl phoneContextControl = setMockPhoneContextForSpecialUser(phone);
+
+        phone.generateProfiles(location);
+
+        phoneContextControl.verify();
+
+        // Test only content from the sipAccounts node.
+        SAXReader reader = new SAXReader(new DOMDocumentFactory());
+        Document profile = reader.read(location.getReader());
+        reader.getDocumentFactory().createDocument();
+        DOMElement accounts_element = (DOMElement) profile.selectSingleNode("/configuration/sipAccounts");
+
+        assertNotNull("The <sipAccounts> node is missing.", accounts_element);
+
+        assertEquals("There should be exactly one account enabled.", 1, accounts_element.elements().size());
+
+        DOMElement l1 =  (DOMElement) accounts_element.selectSingleNode("account_L1");
+        assertEquals(special_user.getUserName(), l1.selectSingleNode("authname").getStringValue());
+        assertEquals(special_user.getSipPassword(), l1.selectSingleNode("authPassword").getStringValue());
+        assertEquals(special_user.getUserName() + "/" + phone.getSerialNumber(),
+                l1.selectSingleNode("authId").getStringValue());
+        assertEquals(expected_label, l1.selectSingleNode("displayname").getStringValue());
+        assertEquals("FALSE", l1.selectSingleNode("mwiSubscribe").getStringValue());
+    }
+
     public void testGenerateProfilesForWithBlfSpeedDial() throws Exception {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
@@ -242,7 +324,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
     public void testNortel12x0ContextEmpty() {
 
-        Nortel12x0Phone phone = new Nortel12x0Phone();
+        Nortel12x0Phone phone = getPhoneWithMockPhoneContextForSpecialUser();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
@@ -254,12 +336,11 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         SpeedDial maxSd = createSpeedDial(220);
 
-        Nortel12x0Phone phone = new Nortel12x0Phone();
+        Nortel12x0Phone phone = getPhoneWithMockPhoneContextForSpecialUser();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, maxSd, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
         assertEquals(200 * 3, numbers.length);
-
     }
 
     public void testNortel12x0ActualNumOfSpeedDialsGenerated() {
@@ -267,7 +348,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         SpeedDial smallSd = createSpeedDial(5);
         SpeedDial largeSd = createSpeedDial(100);
 
-        Nortel12x0Phone phone = new Nortel12x0Phone();
+        Nortel12x0Phone phone = getPhoneWithMockPhoneContextForSpecialUser();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, smallSd, null, m_emptyPhonebook, null);
         String[] numbers = (String[]) sc.getContext().get("speedDialInfo");
@@ -286,7 +367,7 @@ public class Nortel12x0PhoneTest extends TestCase {
             phonebook.add(new DummyEntry(Integer.toString(i)));
         }
 
-        Nortel12x0Phone phone = new Nortel12x0Phone();
+        Nortel12x0Phone phone = getPhoneWithMockPhoneContextForSpecialUser();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, phonebook, null);
         Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");
@@ -301,7 +382,7 @@ public class Nortel12x0PhoneTest extends TestCase {
             phonebook.add(new DummyEntry(Integer.toString(i)));
         }
 
-        Nortel12x0Phone phone = new Nortel12x0Phone();
+        Nortel12x0Phone phone = getPhoneWithMockPhoneContextForSpecialUser();
 
         Nortel12x0Context sc = new Nortel12x0Phone.Nortel12x0Context(phone, null, null, phonebook, null);
         Collection< ? > maxEntries = (Collection< ? >) sc.getContext().get("phoneBook");

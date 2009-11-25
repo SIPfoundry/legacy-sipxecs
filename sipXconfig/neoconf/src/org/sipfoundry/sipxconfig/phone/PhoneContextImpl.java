@@ -14,12 +14,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.commons.util.ShortHash;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -357,5 +359,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             ids.addAll(DataCollectionUtil.extractPrimaryKeys(phones));
         }
         return ids;
+    }
+
+    public User createSpecialPhoneProvisionUser(String serialNumber) {
+        User user = new User();
+
+        user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
+        user.setFirstName("ID:");
+        user.setLastName(ShortHash.get(serialNumber));
+        user.setSipPassword(m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION).getSipPassword());
+        return user;
     }
 }

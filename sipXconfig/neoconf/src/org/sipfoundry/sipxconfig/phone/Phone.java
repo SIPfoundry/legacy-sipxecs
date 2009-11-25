@@ -249,4 +249,11 @@ public abstract class Phone extends Device {
     public void setProfileDir(String profileDir) {
         m_profileDir = profileDir;
     }
+
+    public Line createSpecialPhoneProvisionUserLine() {
+        Line line = createLine();
+        line.setUser(m_phoneContext.createSpecialPhoneProvisionUser(getSerialNumber()));
+        line.setPhone(this);
+        return line;
+    }
 }
