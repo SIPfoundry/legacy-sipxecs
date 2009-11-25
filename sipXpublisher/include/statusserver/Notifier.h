@@ -36,14 +36,20 @@ public:
 
 	~Notifier();
 
+    /// Send a NOTIFY on each subscription for the specified key and event.
+    /** If a SUBSCRIBE message pointer is provided, then the NOTIFY is only sent
+     *  to the subscribing phone.  NOTIFY content must be provided in the notify message.
+     */
     void sendNotifyForeachSubscription (
         const char* key,
         const char* event,
-        SipMessage& notify );
+        SipMessage& notify,
+        const SipMessage* subscribe = NULL);
 
     void sendNotifyForSubscription (
         const char* key,
         const char* event,
+        const SipMessage& subscribe,
         SipMessage& notify );
 
     SipUserAgent* getUserAgent();

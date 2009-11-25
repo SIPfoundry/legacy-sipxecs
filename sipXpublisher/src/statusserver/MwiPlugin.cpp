@@ -190,10 +190,9 @@ MwiPlugin::handleSubscribeRequest (
                     notifyRequest.setContentLength( buffer.length() );
 
                     // Send a MWI state change to just this subscriber
-                    // @JC TODO update notifier code to ensure only single casting
-                    // the result to the subscribing phone
                     mNotifier->sendNotifyForSubscription( mailboxIdentity.data()
                                                          ,SIP_EVENT_MESSAGE_SUMMARY
+                                                         ,message
                                                          ,notifyRequest
                                                          );
                     result = OS_SUCCESS;

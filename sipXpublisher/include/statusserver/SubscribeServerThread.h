@@ -99,8 +99,10 @@ public:
        STATUS_FORBIDDEN,	// forbidden - 403 response
        STATUS_NOT_FOUND,        // target not found - 404 response
        STATUS_INTERNAL_ERROR,   // internal error - 500 response
-       STATUS_BAD_SUBSCRIPTION  // renewal of non-existent subscription -
+       STATUS_BAD_SUBSCRIPTION,  // renewal of non-existent subscription -
                                 // 481 response
+       STATUS_TO_BE_REMOVED,    // row exists but is to be removed once final NOTIFY sent
+       STATUS_REMOVED           // successfully removed
     } SubscribeStatus;
 
 protected:
@@ -150,6 +152,9 @@ protected:
                                     UtlString& newToTag,        ///< if not null, newly generated to-tag for response
                                     int& grantedExpiration      ///< if returns STATUS_SUCCESS, set to the granted expiration time
        );
+
+    /// Remove the subscription
+    SubscribeStatus removeSubscription(const SipMessage* subscribeMessage);
 
     /**
      *

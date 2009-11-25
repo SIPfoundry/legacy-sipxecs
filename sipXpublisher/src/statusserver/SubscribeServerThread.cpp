@@ -334,6 +334,32 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            }
                            break;
 
+                        case STATUS_TO_BE_REMOVED:
+                           // create response - 202 Accepted Response
+                           finalResponse.setResponseData( message,
+                                                          SIP_ACCEPTED_CODE,
+                                                          SIP_ACCEPTED_TEXT);
+                           // Set the granted subscription time.
+                           finalResponse.setExpiresField(grantedExpiration);
+
+                           plugin->handleSubscribeRequest( *message,
+                                                           finalResponse,
+                                                           authenticatedUser.data(),
+                                                           authenticatedRealm.data(),
+                                                           mDefaultDomain.data());
+
+                           // ensure that the contact returned will route back to here
+                           // (the default supplied by SipUserAgent will not).
+                           {
+                              UtlString requestUri;
+                              message->getRequestUri(&requestUri);
+                              finalResponse.setContactField(requestUri);
+                           }
+                           // Now that final NOTIFY has been sent, remove row
+                           removeSubscription(message);
+
+                           break;
+
                         case STATUS_LESS_THAN_MINEXPIRES:
                            // (already logged in addSubscription)
 
@@ -839,17 +865,10 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
             // remove subscription binding
             // remove all bindings  because one contact value is *
             OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
-                " Removing subscription for url %s and event %s",
+                " subscription for url %s and event %s to be removed after sending NOTIFY",
                 toUrl.toString().data(), eventType.data());
 
-            // note that the subscribe's csequence is used
-            // as a remove filter here
-            removeRow(to,
-                      from,
-                      callId,
-                      subscribeCseqInt);
-
-            returnStatus = STATUS_SUCCESS;
+            returnStatus = STATUS_TO_BE_REMOVED;
             return returnStatus;
         }
         else if( commonExpires == -1) // no expires value in request
@@ -1002,6 +1021,33 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     }
 
     return returnStatus;
+}
+
+SubscribeServerThread::SubscribeStatus SubscribeServerThread::removeSubscription(
+    const SipMessage* subscribeMessage)
+{
+    int subscribeCseqInt = 0;
+    UtlString callId;
+    UtlString to;
+    UtlString from;
+    UtlString method;
+
+    subscribeMessage->getToField(&to);
+    subscribeMessage->getFromField(&from);
+    subscribeMessage->getCallIdField(&callId);
+    subscribeMessage->getCSeqField(&subscribeCseqInt, &method);
+    Url toUrl;
+    subscribeMessage->getToUrl(toUrl);
+    // remove subscription binding
+    // remove all bindings  because one contact value is *
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SubscribeServerThread::removeSubscription -"
+      " Removing subscription for url %s and callid %s", toUrl.toString().data(), callId.data());
+
+    // note that the subscribe's csequence is used
+    // as a remove filter here (all rows with CSEQ < this are removed)
+    removeRow(to, from, callId, subscribeCseqInt);
+
+    return STATUS_REMOVED;
 }
 
 int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage )

@@ -72,27 +72,30 @@ void
 Notifier::sendNotifyForSubscription (
     const char* key,
     const char* event,
+    const SipMessage& subscribe,
     SipMessage& notify )
 {
-    // this is where we should send back a single notify
+    // this is where we send back a single notify
     // rather than notifying all phones
     sendNotifyForeachSubscription (
         key,
         event,
-        notify );
+        notify,
+        &subscribe);
 }
 
 void
 Notifier::sendNotifyForeachSubscription (
     const char* key,
     const char* event,
-    SipMessage& notify )
+    SipMessage& notify,
+    const SipMessage* subscribe)
 {
     ResultSet subscriptions;
 
     int timeNow = (int)OsDateTime::getSecsSinceEpoch();
 
-    // Get all subcriptions associated with this identity
+    // Get all subscriptions associated with this identity
     mpSubscriptionDB->
         getUnexpiredSubscriptions(
            SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
@@ -102,7 +105,15 @@ Notifier::sendNotifyForeachSubscription (
     if (  numSubscriptions > 0 )
     {
         OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
-                      " %d '%s' msgs for '%s'", numSubscriptions, event, key );
+                      " %d '%s' subscriptions for '%s'", numSubscriptions, event, key );
+
+        UtlString subscribeCallid;
+        if ( subscribe )
+        {
+           subscribe->getCallIdField(&subscribeCallid);
+           OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+                         " notify only '%s'", subscribeCallid.data() );
+        }
 
         // There may be any number of subscriptions
         // for the same identity and event type!
@@ -121,6 +132,12 @@ Notifier::sendNotifyForeachSubscription (
             UtlString id         = *((UtlString*)record.findValue(&sIdKey));
             UtlString to         = *((UtlString*)record.findValue(&sToKey));
             UtlString from       = *((UtlString*)record.findValue(&sFromKey));
+            if ( subscribe && subscribeCallid != callid  )
+            {
+               OsSysLog::add( FAC_SIP, PRI_DEBUG, "Notifier::sendNotifyForeachSubscription: "
+                             " skipping '%s'; notify only '%s'", callid.data(), subscribeCallid.data() );
+               continue;
+            }
             UtlString key        = *((UtlString*)record.findValue(&sKeyKey));
             UtlString recordroute= *((UtlString*)record.findValue(&sRecordrouteKey));
             int notifycseq      = ((UtlInt*)record.findValue(&sNotifycseqKey))->getValue();
@@ -139,10 +156,24 @@ Notifier::sendNotifyForeachSubscription (
 
             UtlString statusContact = uri;
 
-            UtlString subscriptionState(SIP_SUBSCRIPTION_ACTIVE ";expires=");
-            char expStr[10];
-            sprintf(expStr, "%d", expires);
-            subscriptionState.append(expStr);
+            UtlString subscriptionState;
+            int requestedExpires = -1;
+            if ( subscribe )
+            {
+               subscribe->getExpiresField(&requestedExpires);
+            }
+            if ( requestedExpires == 0 )
+            {
+               subscriptionState = SIP_SUBSCRIPTION_TERMINATED;
+               // the subscription should be removed from the database after this NOTIFY is sent
+            }
+            else
+            {
+               subscriptionState = SIP_SUBSCRIPTION_ACTIVE ";expires=";
+               char expStr[10];
+               sprintf(expStr, "%d", expires);
+               subscriptionState.append(expStr);
+            }
 
             // increment the outbound cseq sent with the notify
             // this will guarantee that duplicate messages are rejected
@@ -155,7 +186,7 @@ Notifier::sendNotifyForeachSubscription (
                 to,             // fromField
                 from,           // toField
                 callid,         // callId
-                notifycseq,     // already incremeted
+                notifycseq,     // already incremented
                 eventtype,      // eventtype
                 id,
                 subscriptionState.data(),
