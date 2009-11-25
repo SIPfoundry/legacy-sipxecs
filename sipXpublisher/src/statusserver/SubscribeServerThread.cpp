@@ -688,7 +688,7 @@ SubscribeServerThread::isAuthenticated (
                             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
                                 "- request is AUTHENTICATED");
                             // copy the authenticated user/realm for subsequent authorization
-                            authenticatedUser = requestUser;
+                            authenticatedUser = requestUserBase;
                             authenticatedRealm = requestRealm;
                             break;
                         }
