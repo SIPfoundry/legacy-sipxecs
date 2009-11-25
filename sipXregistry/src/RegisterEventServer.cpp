@@ -234,7 +234,8 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    // Start the SIP Subscribe Server after the initial content has
    // been published.  This ensures that early subscribers do not get
    // NOTIFYs with incomplete information.
-   mSubscribeServer.enableEventType(mEventType);
+   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL,
+         SipSubscribeServer::standardVersionCallback, FALSE);
    mSubscribeServer.start();
 }
 
@@ -380,9 +381,9 @@ void RegisterEventServer::generateContent(const char* entityString,
    content.append("<?xml version=\"1.0\"?>\r\n"
                   "<reginfo xmlns=\"urn:ietf:params:xml:ns:reginfo\" "
                   "xmlns:gr=\"urn:ietf:params:xml:ns:gruuinfo\" "
-                  "xmlns:in=\"'http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00\" "
+                  "xmlns:in=\"http://www.sipfoundry.org/sipX/schema/xml/reg-instrument-00-00\" "
                   "version=\"" VERSION_PLACEHOLDER "\" "
-                  "\" state=\"full\">\r\n");
+                  "state=\"full\">\r\n");
    content.append("  <registration aor=\"");
    XmlEscape(content, entityString);
    content.append("\" id=\"");
