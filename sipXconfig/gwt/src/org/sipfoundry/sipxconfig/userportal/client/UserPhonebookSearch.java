@@ -18,7 +18,7 @@ import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
-import com.smartgwt.client.widgets.Img;
+import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
@@ -248,7 +248,7 @@ public class UserPhonebookSearch implements EntryPoint {
                         @Override
                         public String format(Object value, DetailViewerRecord record, DetailViewerField field) {
 
-                            String img = Img.getImgURL("/sipxconfig/images/phone.png");
+                            String img = Canvas.getImgURL("/sipxconfig/images/phone.png");
 
                             if (value != null) {
                                 return value + "<a class=\"gwtClickToCall\" onclick=\"clickToCall('"

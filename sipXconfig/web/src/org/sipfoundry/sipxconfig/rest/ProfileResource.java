@@ -48,26 +48,21 @@ public class ProfileResource extends Resource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
         Integer phoneId = m_phoneContext.getPhoneIdBySerialNumber(m_serialNumber);
-        if (phoneId != null) {
-            Device device = m_phoneContext.loadPhone(phoneId);
-            Profile[] profiles = device.getProfileTypes();
-            Profile profile = null;
-            for (int i = 0; i < profiles.length; i++) {
-                if (profiles[i].getName().equals(m_name)) {
-                    profile = profiles[i];
-                    break;
-                }
-            }
-            if (profile != null) {
-                return new ProfileRepresentation(device, profile);
-            } else {
-                getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
-                return null;
-            }
-        } else {
+        if (phoneId == null) {
+            // no phone found
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             return null;
         }
+        Device device = m_phoneContext.loadPhone(phoneId);
+        Profile[] profiles = device.getProfileTypes();
+        for (int i = 0; i < profiles.length; i++) {
+            if (profiles[i].getName().equals(m_name)) {
+                return new ProfileRepresentation(device, profiles[i]);
+            }
+        }
+        // no profile found
+        getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+        return null;
     }
 
     public void setPhoneContext(PhoneContext phoneContext) {
@@ -75,8 +70,8 @@ public class ProfileResource extends Resource {
     }
 
     static final class ProfileRepresentation extends OutputRepresentation {
-        private Device m_device;
-        private Profile m_profile;
+        private final Device m_device;
+        private final Profile m_profile;
 
         ProfileRepresentation(Device device, Profile profile) {
             super(new MediaType(profile.getMimeType()));
