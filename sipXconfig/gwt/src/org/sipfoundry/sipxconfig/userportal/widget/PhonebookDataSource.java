@@ -45,6 +45,8 @@ public class PhonebookDataSource extends DataSource {
         imId.setValueXPath("contact-information/imId");
         DataSourceField alternateImId = new DataSourceTextField("alternateImId");
         alternateImId.setValueXPath("contact-information/alternateImId");
+        DataSourceField alternateEmailAddress = new DataSourceTextField("alternateEmailAddress");
+        alternateEmailAddress.setValueXPath("contact-information/alternateEmailAddress");
 
         DataSourceField homeStreet = new DataSourceTextField("homeStreet");
         homeStreet.setValueXPath("contact-information/homeAddress/street");
@@ -71,9 +73,9 @@ public class PhonebookDataSource extends DataSource {
         officeDesignation.setValueXPath("contact-information/officeAddress/officeDesignation");
 
         setFields(firstName, lastName, number, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
-                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId, homeStreet,
-                homeCity, homeCountry, homeState, homeZip, officeStreet, officeCity, officeCountry, officeState,
-                officeZip, officeDesignation);
+                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
+                alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet, officeCity,
+                officeCountry, officeState, officeZip, officeDesignation);
         setRecordXPath("/phonebook/entry");
         setDataURL("/sipxconfig/rest/my/phonebook");
         setClientOnly(true);

@@ -63,6 +63,15 @@
       value="ognl:addressBookEntry.emailAddress"
       type="text" autocomplete="off"/>
     </tr>
+    <tr jwcid="@common/FieldPanel" for="imId"
+      field="component:imId"
+      label="message:label.imId">
+      <input jwcid="imId@TextField" id="user:imId"
+        value="ognl:imAccount.imId"
+        validators="spring-validators:validImId,required"
+        maxlength="255"
+        autocomplete="off" />
+    </tr>
     <tr jwcid="@common/FieldPanel" for="alternateEmailAddress"
       field="component:alternateEmailAddress"
       label="message:label.alternateEmailAddress">

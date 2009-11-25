@@ -170,7 +170,8 @@ public class UserPhonebookSearch implements EntryPoint {
         private static final String PHONE_ASST = "assistantPhoneNumber";
 
         private static final String[] FIELDS_GENERAL = {
-            "jobTitle", "jobDept", "companyName", "location", PHONE_CELL, "faxNumber", "imId", "alternateImId"
+            "jobTitle", "jobDept", "companyName", "location", PHONE_CELL, "faxNumber", "imId", "alternateImId",
+            "alternateEmailAddress"
         };
 
         private static final String[] FIELDS_HOME = {
@@ -250,7 +251,7 @@ public class UserPhonebookSearch implements EntryPoint {
                             String img = Img.getImgURL("/sipxconfig/images/phone.png");
 
                             if (value != null) {
-                                return value +  "<a class=\"gwtClickToCall\" onclick=\"clickToCall('"
+                                return value + "<a class=\"gwtClickToCall\" onclick=\"clickToCall('"
                                         + formatPhoneNumber((String) value) + "')\"> <img class=\""
                                         + "gwtClickToCallImg\" align=\"right\" src=\"" + img + "\" title=\""
                                         + altText + "\"/> </a>";

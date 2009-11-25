@@ -10,20 +10,20 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = true)
-public abstract class ExtendedUserInfoComponent extends BaseComponent implements PageBeginRenderListener {
+public abstract class ExtendedUserInfoComponent extends BaseComponent {
 
     @InjectObject(value = "spring:tapestry")
     public abstract TapestryContext getTapestry();
@@ -41,13 +41,21 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent implements
 
     public abstract void setAddressBookEntry(AddressBookEntry abe);
 
-    public void pageBeginRender(PageEvent event) {
+    public abstract ImAccount getImAccount();
+
+    public abstract void setImAccount(ImAccount imAccount);
+
+    public void prepareForRender(IRequestCycle cycle) {
         if (null == getAddressBookEntry()) {
             AddressBookEntry abe = getUser().getAddressBookEntry();
             if (abe == null) {
                 abe = new AddressBookEntry();
             }
             setAddressBookEntry(abe);
+        }
+
+        if (getImAccount() == null) {
+            setImAccount(new ImAccount(getUser()));
         }
     }
 
@@ -58,6 +66,11 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent implements
 
         User user = getUser();
         user.setAddressBookEntry(getAddressBookEntry());
+
+        if (getImAccount().getDefaultImId().equals(user.getImId())) {
+            user.setImId(null);
+        }
+
         getCoreContext().saveUser(user);
     }
 }

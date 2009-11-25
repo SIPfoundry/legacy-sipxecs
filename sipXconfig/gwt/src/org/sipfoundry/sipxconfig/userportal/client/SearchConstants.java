@@ -25,6 +25,8 @@ public interface SearchConstants extends ConstantsWithLookup {
 
     String emailAddress();
 
+    String alternateEmailAddress();
+
     String selectUser();
 
     String noUserFound();
