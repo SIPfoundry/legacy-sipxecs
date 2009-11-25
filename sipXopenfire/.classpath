@@ -22,7 +22,7 @@
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/servlet.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/startup.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/plugins/kraken/lib/plugin-kraken.jar"/>
-	<classpathentry kind="var" path="INSTALL/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-beanutils.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-collections.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
