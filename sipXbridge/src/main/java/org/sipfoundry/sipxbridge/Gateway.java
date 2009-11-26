@@ -82,17 +82,20 @@ public class Gateway {
     private static RegistrationManager registrationManager;
 
     /*
-     * Internal SIp Provider
+     * Internal SIp Provider. If TLS is supported for internal
+     * connections then the bridge does not accept TCP and udp 
+     * packets from the proxy server. 
      */
     private static SipProvider internalProvider;
-
+    
+   
     /*
-     * External provider.
+     * External provider (UDP and TCP)
      */
     private static SipProvider externalProvider;
 
     /*
-     * External
+     * External provider (TLS)
      */
     private static SipProvider externalTlsProvider;
 
@@ -554,18 +557,28 @@ public class Gateway {
             logger.debug("Local Address:port " + localIpAddress + ":"
                     + localPort);
 
-            ListeningPoint internalUdpListeningPoint = ProtocolObjects
-                    .getSipStack().createListeningPoint(localIpAddress,
-                            localPort, "udp");
+            if ( !Gateway.getSipxProxyTransport().equalsIgnoreCase("tls")) {
+                ListeningPoint internalUdpListeningPoint = ProtocolObjects
+                .getSipStack().createListeningPoint(localIpAddress,
+                        localPort, "udp");
 
-            ListeningPoint internalTcpListeningPoint = ProtocolObjects
-                    .getSipStack().createListeningPoint(localIpAddress,
-                            localPort, "tcp");
+                ListeningPoint internalTcpListeningPoint = ProtocolObjects
+                .getSipStack().createListeningPoint(localIpAddress,
+                        localPort, "tcp");
 
-            internalProvider = ProtocolObjects.getSipStack().createSipProvider(
-                    internalUdpListeningPoint);
+                internalProvider = ProtocolObjects.getSipStack().createSipProvider(
+                        internalUdpListeningPoint);
 
-            internalProvider.addListeningPoint(internalTcpListeningPoint);
+                internalProvider.addListeningPoint(internalTcpListeningPoint);
+            } else {
+                logger.debug("tlsSupport is for proxy enabled -- creating TLS Listening point and provider");
+                ListeningPoint internalTlsListeningPoint = ProtocolObjects
+                        .getSipStack().createListeningPoint(localIpAddress,
+                                localPort, "tls");
+                internalProvider = ProtocolObjects.getSipStack()
+                        .createSipProvider(internalTlsListeningPoint);
+                internalProvider.addListeningPoint(internalTlsListeningPoint);        
+            }
 
             registrationManager = new RegistrationManager();
 
