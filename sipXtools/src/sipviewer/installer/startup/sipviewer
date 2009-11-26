@@ -1,3 +1,3 @@
 #!/bin/sh
 mydir=`dirname $0`
-java -jar $mydir/sipviewerall.jar 
+java -jar $mydir/sipviewer.jar 

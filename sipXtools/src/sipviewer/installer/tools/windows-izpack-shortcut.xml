@@ -5,7 +5,7 @@
   <shortcut
     name="sipviewer"
     target="javaw"
-    commandLine="-jar &quot;$INSTALL_PATH&quot;/sipviewerall.jar"
+    commandLine="-jar &quot;$INSTALL_PATH&quot;/sipviewer.jar"
     workingDirectory="$INSTALL_PATH"
     description="SIP Trace Viewer"
     iconIndex="0"
@@ -46,7 +46,7 @@
      startMenu="no"
      startup="no"
      target="java"
-     commandLine="-jar $INSTALL_PATH/sipviewerall.jar"
+     commandLine="-jar $INSTALL_PATH/sipviewer.jar"
      terminal=""
      initialState="noShow"
      iconIndex="0"
