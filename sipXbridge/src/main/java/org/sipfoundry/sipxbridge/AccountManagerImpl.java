@@ -182,6 +182,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         if ( port == -1) port = 5060; // set default.
         try {
             String viaHost = InetAddress.getByName(host).getHostAddress();
+            logger.debug("viaHost = " + viaHost + "viaPort = " + port);
             for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
                 if (accountInfo.isRegisterOnInitialization()) {
                     // Account needs registration.
@@ -200,14 +201,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         logger.error("Cannot resolve host address " + registrarHost);
                     }
                 } else {
-                    String inBoundProxyDomain = accountInfo.getInboundProxy();
-                    int inBoundProxyPort = accountInfo.getInboundProxyPort();
-                    SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, inBoundProxyDomain);
-                    if ( inBoundProxyPort != 5060) {
-                        sipUri.setPort(inBoundProxyPort);
-                    }
-                    Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
-                    for ( Hop hop : hops) {
+                    for ( Hop hop : accountInfo.getInboundProxies() ) {
                         logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
                         try {
                             if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())

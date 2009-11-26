@@ -782,7 +782,7 @@ public class Gateway {
                     .getItspAccounts()) {
 
                 if (itspAccount.isRegisterOnInitialization()
-                        && itspAccount.getState() != AccountState.INVALID) {
+                        && itspAccount.getState() != AccountState.INVALID && itspAccount.isEnabled()) {
                     try {
                         Gateway.registrationManager.sendRegistrer(itspAccount,null,1L);
                     } catch (SipException ex) {

@@ -161,19 +161,50 @@ public class ItspAccountInfo implements
      */
 
     protected RegistrationTimerTask registrationTimerTask;
+    
+    /*
+     * A flag that records whether alarm has been sent for this itsp.
+     */
 
     private boolean alarmSent;
+    
+    /*
+     * internal flag for whether or not to use outbound proxy.
+     */
 
     private boolean reUseOutboundProxySetting;
 
+    /*
+     * Internal flag (if true then inbound proxy port has been explicitly set).
+     */
     private boolean inboundProxyPortSet;
+    
+    /*
+     * If set to true then ITSP accepts Loose source routing.
+     */
 
     private boolean addRoute = true;
 
+    /*
+     * The session timer interval for the ITSP.
+     */
     private int sessionTimerInterval = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
 
+    /*
+     * The hop ( ip, port , transport ) to the ITSP registrar.
+     */
     private Hop hopToRegistrar ;
 
+    /*
+     * Whether or not this is enabled.
+     */
+    private boolean enabled = true;
+
+    private String configuredOutboundProxy;
+
+    /*
+     * This scans the failure counter table and removes records after a timeout period.
+     */
     class FailureCounterScanner extends TimerTask {
 
         public FailureCounterScanner() {
@@ -233,6 +264,11 @@ public class ItspAccountInfo implements
             return this.getSipDomain();
         }
     }
+    
+    private String getConfiguredOutboundProxy() {
+        return this.configuredOutboundProxy == null ? this.proxyDomain : configuredOutboundProxy;
+    }
+    
 
     public int getOutboundProxyPort() {
         return outboundProxyPort;
@@ -256,6 +292,7 @@ public class ItspAccountInfo implements
 
     public void setOutboundProxy(String resolvedName) {
         this.outboundProxy = resolvedName;
+        this.configuredOutboundProxy = resolvedName;
         this.reUseOutboundProxySetting = true;
 
     }
@@ -493,13 +530,39 @@ public class ItspAccountInfo implements
      */
     public void setInboundProxy(String inboundProxy) {
         this.inboundProxy = inboundProxy;
-    }
+     }
 
     /**
      * @return the inboundProxy
      */
     public String getInboundProxy() {
         return inboundProxy == null ? getOutboundProxy() : inboundProxy;
+    }
+    
+    /**
+     * @return the inboundProxy addresses
+     */
+    public Collection<Hop> getInboundProxies() {
+        try {
+            String inBoundProxyDomain = this.getConfiguredInboundProxy();
+            int inBoundProxyPort = this.getInboundProxyPort();
+            SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null, inBoundProxyDomain);
+            if ( inBoundProxyPort != 5060) {
+                sipUri.setPort(inBoundProxyPort);
+            }
+            Collection<Hop> hops = new org.sipfoundry.commons.siprouter.FindSipServer(logger).findSipServers(sipUri);
+            return hops;
+        } catch ( Exception ex) {
+            return null;
+        }
+
+    }
+    
+    /**
+     * @return the configured inboundProxy
+     */
+    private String getConfiguredInboundProxy() {
+        return this.inboundProxy == null ? getConfiguredOutboundProxy() : inboundProxy;
     }
 
     /**
@@ -700,12 +763,39 @@ public class ItspAccountInfo implements
         this.addRoute = addRoute;
     }
 
+    /**
+     * Set the hop to Registrar ( if account needs it )
+     * @param hop
+     */
     public void setHopToRegistrar(Hop hop) {
        this.hopToRegistrar = hop;
     }
 
+    /**
+     * Get hop to Registrar.
+     * 
+     * @return
+     */
     public Hop getHopToRegistrar() {
         return this.hopToRegistrar;
+    }
+    
+    /**
+     * Set the enabled flag.
+     * 
+     * @param flag
+     */
+    public void setEnabled(boolean flag) {
+        this.enabled = flag;       
+    }
+    
+    /**
+     * Get the enabled flag.
+     * 
+     * @return
+     */
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     public SipProvider getSipProvider() {

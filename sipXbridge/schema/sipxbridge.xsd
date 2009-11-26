@@ -307,6 +307,14 @@
 		</xs:annotation>
 		<xs:sequence>
 
+			<xs:element name="enabled"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not this accountis enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="registration-interval" type="xs:integer"
 				maxOccurs="1" minOccurs="0">
 				<xs:annotation>

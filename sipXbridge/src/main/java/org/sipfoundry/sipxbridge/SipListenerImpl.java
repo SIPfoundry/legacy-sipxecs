@@ -364,7 +364,34 @@ public class SipListenerImpl implements SipListenerExt {
                 return;
 
             }
-
+            
+            /*
+             * Find the ITSP account and check if enabled. If so, then proceed, otherwise
+             * send an error and bail out here.
+             */
+            ItspAccountInfo itspAccount = null;
+            if ( provider == Gateway.getLanProvider() ) {
+                itspAccount = Gateway.getAccountManager().getAccount(request);              
+            } else {
+                 String viaHost = SipUtilities.getViaHost(request);
+                 int viaPort = SipUtilities.getViaPort(request);
+                 if ( viaPort == -1 ) {
+                     viaPort = 5060;
+                 }
+                 itspAccount = Gateway.getAccountManager().getItspAccount(viaHost, viaPort);
+            }
+            
+            if ( !request.getMethod().equals(Request.ACK) && itspAccount != null && ! itspAccount.isEnabled() ) {
+                ServerTransaction st = requestEvent.getServerTransaction();
+                if ( st == null ) {
+                    st = provider.getNewServerTransaction(requestEvent.getRequest());
+                }
+                Response response = SipUtilities.createResponse(st, Response.SERVICE_UNAVAILABLE);
+                response.setReasonPhrase("ITSP account is disabled");
+                st.sendResponse(response);
+                return;               
+            }
+            
             if (method.equals(Request.INVITE)
                     || method.equals(Request.ACK)
                     || method.equals(Request.CANCEL)
@@ -373,10 +400,9 @@ public class SipListenerImpl implements SipListenerExt {
                     || method.equals(Request.REFER)
                     || method.equals(Request.PRACK)) {
                 Gateway.getCallControlManager().processRequest(requestEvent);
-            } else if ( method.equals(Request.REGISTER) && provider == Gateway.getLanProvider() ) {
-                ItspAccountInfo itspAccount = Gateway.getAccountManager().getAccount(request);
+            } else if ( method.equals(Request.REGISTER) && provider == Gateway.getLanProvider() ) {       
                 Gateway.getRegistrationManager().proxyRegisterRequest(requestEvent,itspAccount);
-          } else {
+           } else {
                 try {
                     Response response = ProtocolObjects.messageFactory
                     .createResponse(Response.METHOD_NOT_ALLOWED, request);
@@ -457,7 +483,6 @@ public class SipListenerImpl implements SipListenerExt {
                  * TODO : Each call leg must get its own RTP bridge so this code
                  * needs to be rewritten. For now, they all share the same bridge.
                  */
-                boolean found = false;
                 String callLegId = SipUtilities.getCallLegId(response);
                 for ( Dialog sipDialog : b2bua.dialogTable) {
                     if ( DialogContext.get(sipDialog).getCallLegId().equals(callLegId) && DialogContext.get(sipDialog).rtpSession != null ) {
@@ -472,7 +497,6 @@ public class SipListenerImpl implements SipListenerExt {
                          */
                         newContext.setPeerDialog(context.getPeerDialog());
                         dialog.setApplicationData(newContext);  
-                        found = true;
                         break;
                     }
                 }

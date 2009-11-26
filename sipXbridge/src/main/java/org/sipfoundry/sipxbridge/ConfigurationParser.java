@@ -223,6 +223,10 @@ public class ConfigurationParser {
                     Boolean.class
                 });
 
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "enabled"),
+                "setEnabled", 0, new Class[] {
+                    Boolean.class
+                });
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "register-on-initialization"),
                 "setRegisterOnInitialization", 0, new Class[] {
                     Boolean.class

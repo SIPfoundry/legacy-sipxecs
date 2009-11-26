@@ -1894,4 +1894,14 @@ class SipUtilities {
         return (header==null ? "udp" : header.getTransport());
     }
 
+    public static String getViaHost(Message sipMessage) {
+        ViaHeader header = (ViaHeader)sipMessage.getHeader(ViaHeader.NAME);
+        return header.getHost();
+    }
+    
+    public static int getViaPort(Message sipMessage) {
+        ViaHeader header = (ViaHeader)sipMessage.getHeader(ViaHeader.NAME);
+        return header.getPort();   
+    }
+
 }
