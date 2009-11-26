@@ -105,9 +105,12 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         // The phone has no lines configured.
         m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
 
-        MusicOnHoldManager mohManager = createMock(MusicOnHoldManager.class);
+        String expectedMohUri = "~~mh@example.org";
+        IMocksControl mohManagerControl = EasyMock.createNiceControl();
+        MusicOnHoldManager mohManager = mohManagerControl.createMock(MusicOnHoldManager.class);
         mohManager.getDefaultMohUri();
-        expectLastCall().andReturn("sip:~~mh@example.org");
+        expectLastCall().andReturn("sip:" + expectedMohUri).anyTimes();
+        mohManagerControl.replay();
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
         pm.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
@@ -166,6 +169,12 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         attribute = (Attribute) reg_element.selectSingleNode("@reg.1.server.1.address");
         assertEquals("sipfoundry.org", attribute.getStringValue());
+
+        attribute = (Attribute) reg_element.selectSingleNode("@reg.1.server.1.address");
+        assertEquals("sipfoundry.org", attribute.getStringValue());
+
+        attribute = (Attribute) reg_element.selectSingleNode("@reg.1.musicOnHold.uri");
+        assertEquals(expectedMohUri, attribute.getStringValue());
 
         // All others registrations are unused.
         for (int x = 2; x <= PhoneConfiguration.TEMPLATE_DEFAULT_LINE_COUNT; x++) {
