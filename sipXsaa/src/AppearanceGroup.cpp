@@ -302,6 +302,8 @@ void AppearanceGroup::subscriptionEventCallback(
 // of the state for that subscription.  Then, we must regenerate the list
 // of contacts and update the set of subscriptions to match the current
 // contacts.
+// This method MUST generate a response to the event, since SAA tells
+// the SubscribeClient not to.
 void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
                                      const SipMessage* msg)
 {
@@ -323,7 +325,10 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
                  "AppearanceGroup::notifyEventCallback mSharedUser = '%s', dialogHandle = '%s', content = '%s'",
                  mSharedUser.data(), dialogHandle->data(), content);
 
-   // Parse the XML and update the contact status.
+   // Acknowledge the NOTIFY.
+   SipMessage response;
+   response.setOkResponseData(msg, NULL);
+   getAppearanceAgent()->getServerUserAgent().send(response);
 
    // Find the UtlHashMap for this subscription.
    UtlHashMap* state_from_this_subscr =
@@ -355,6 +360,7 @@ void AppearanceGroup::notifyEventCallback(const UtlString* dialogHandle,
 
    // Perform the remainder of the processing if we obtained a hash map
    // from the above processing.
+   // Parse the XML and update the contact status.
    if (state_from_this_subscr)
    {
       // Initialize Tiny XML document object.

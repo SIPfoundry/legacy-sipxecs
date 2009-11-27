@@ -310,6 +310,7 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
 
    if (receiver)
    {
+      // the callback MUST respond to the NOTIFY
       receiver->notifyEventCallback(dialogHandle, msg);
    }
    else
@@ -317,6 +318,10 @@ void AppearanceGroupSet::notifyEventCallbackSync(const UtlString* dialogHandle,
       OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::notifyEventCallbackSync this = %p, no ResourceNotifyReceiver found for dialogHandle '%s'",
                     this, dialogHandle->data());
+      // Acknowledge the NOTIFY, even though we won't process it.
+      SipMessage response;
+      response.setOkResponseData(msg, NULL);
+      getAppearanceAgent()->getServerUserAgent().send(response);
    }
    delete msg;
 }
