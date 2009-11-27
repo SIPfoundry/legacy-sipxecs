@@ -33,8 +33,6 @@
     <property name="phonebookManager" ref="phonebookManager" />
     <property name="speedDialManager" ref="speedDialManager" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
-    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
-    <property name="permissionManager" ref="permissionManager" />
   </bean>
 
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

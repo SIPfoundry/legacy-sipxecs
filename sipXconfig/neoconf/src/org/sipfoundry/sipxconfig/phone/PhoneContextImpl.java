@@ -28,8 +28,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
-import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
-import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -72,10 +70,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private DaoEventPublisher m_daoEventPublisher;
 
-    private PermissionManager m_permissionManager;
-
-    private MusicOnHoldManager m_musicOnHoldManager;
-
     public PhonebookManager getPhonebookManager() {
         return m_phonebookManager;
     }
@@ -98,16 +92,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     @Required
     public void setIntercomManager(IntercomManager intercomManager) {
         m_intercomManager = intercomManager;
-    }
-
-    @Required
-    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
-        m_musicOnHoldManager = musicOnHoldManager;
-    }
-
-    @Required
-    public void setPermissionManager(PermissionManager permissionManager) {
-        m_permissionManager = permissionManager;
     }
 
     @Required
@@ -378,14 +362,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public User createSpecialPhoneProvisionUser(String serialNumber) {
-        User user = new User();
+        User user = m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
 
         user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
         user.setFirstName("ID:");
         user.setLastName(ShortHash.get(serialNumber));
-        user.setSipPassword(m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION).getSipPassword());
-        user.setPermissionManager(m_permissionManager);
-        user.setMusicOnHoldManager(m_musicOnHoldManager);
+
         return user;
     }
 }
