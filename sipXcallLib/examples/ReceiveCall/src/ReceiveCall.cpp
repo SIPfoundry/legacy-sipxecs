@@ -770,7 +770,12 @@ int main(int argc, char* argv[])
                                                         *pPublisher,
                                                         *pSubscriptionMgr,
                                                         *pPolicyHolder);
-              pSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
+              pSubscribeServer->enableEventType(DIALOG_EVENT_TYPE,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                NULL,
+                                                SipSubscribeServer::standardVersionCallback);
               pSubscribeServer->start();
 
               // Create the dialog event publisher

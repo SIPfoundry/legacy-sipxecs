@@ -2061,7 +2061,12 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         if(publishMgr == NULL)
                         {
                             // Enable the event type for the SUBSCRIBE Server
-                            pInst->pSubscribeServer->enableEventType(*pData->pEventType);
+                            pInst->pSubscribeServer->enableEventType(*pData->pEventType,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     NULL,
+                                                                     SipSubscribeServer::standardVersionCallback);
                             publishMgr =
                                 pInst->pSubscribeServer->getPublishMgr(*pData->pEventType);
                         }

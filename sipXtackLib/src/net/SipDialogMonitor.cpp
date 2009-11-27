@@ -69,7 +69,12 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
 
       mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
                                               *mpSubscriptionMgr, mPolicyHolder);
-      mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE);
+      mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         NULL,
+                                         SipSubscribeServer::standardVersionCallback);
       mpSubscribeServer->start();
    }
    else
