@@ -702,7 +702,7 @@ UtlBoolean SipSubscriptionMgr::getNotifyDialogInfo(const UtlString& subscribeDia
             notifyRequest.setEventField(eventHeader);
         }
 
-        // Set the subscription-state header.
+        // Set the Subscription-State header.
         long expires =
            state->mExpirationDate - OsDateTime::getSecsSinceEpoch();
         char buffer[30];
@@ -815,7 +815,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                 }
                 notifyArray[index]->setEventField(eventHeader);
 
-                // Set the subscription-state header.
+                // Set the Subscription-State header.
                 char buffer[30];
                 sprintf(buffer, "active;expires=%ld",
                         subscriptionIndex->mpState->mExpirationDate - now);

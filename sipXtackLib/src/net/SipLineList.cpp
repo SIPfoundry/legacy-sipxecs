@@ -273,14 +273,12 @@ SipLine* SipLineList::findLine(const char* lineId,
    SipLine* pLineMatchingUser    = NULL ;
    SipLine* pLineMatchingDefault = NULL ;
 
-#  ifdef TEST_PRINT
    OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
                  "SipLineList::findLine "
                  "searching for lineId '%s' realm '%s' toFromUrl '%s' userId '%s' defaultLine '%s'",
                  lineId, realm, toFromUrl.toString().data(),
                  userId, defaultLine.toString().data()
                  );
-#  endif
 
    int iteratorHandle = m_LineList.getIteratorHandle();
    SipLine* nextLine = NULL;

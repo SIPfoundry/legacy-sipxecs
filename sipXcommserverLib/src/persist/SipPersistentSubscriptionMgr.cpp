@@ -160,6 +160,9 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
          // Construct a fake SUBSCRIBE request to carry most of the data
          // that updateDialogInfo needs.
          SipMessage subscribeRequest;
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipPersistentSubscriptionMgr:: expires = %d, now = %d",
+                       (int) expires, (int) now);
          subscribeRequest.setSubscribeData(urip->data(),
                                            fromp->data(),
                                            top->data(),
