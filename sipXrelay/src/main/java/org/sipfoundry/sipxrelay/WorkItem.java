@@ -1,6 +1,5 @@
 package org.sipfoundry.sipxrelay;
 
-import java.util.concurrent.Semaphore;
 
 /**
  * A work item to be performed by the data shuffler thread (so we dont need any locking).
@@ -8,10 +7,19 @@ import java.util.concurrent.Semaphore;
  *
  */
 public abstract class WorkItem {
+    boolean error;
+    String reason;
+    int errorCode;
  
     protected WorkItem() {
        
     }
     
     public abstract void doWork();
+    
+    public void error(int errorCode, String reason) {
+        this.error = true;
+        this.reason = reason;
+        this.errorCode = errorCode;
+    }
 }

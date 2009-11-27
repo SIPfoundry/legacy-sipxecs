@@ -190,11 +190,8 @@ public class SymmitronServer implements Symmitron {
         int keepAliveTime;
         Sym sym;
         Semaphore workSem;
-        boolean error;
-
-        String errorMessage;
-
-
+    
+      
         public SetDestinationWorkItem() {
             super();
             this.workSem = new Semaphore(0);
@@ -227,16 +224,149 @@ public class SymmitronServer implements Symmitron {
                
             } catch (Exception ex) {
                 logger.error("Exception setting destination ", ex);
-                this.error = true;
-                this.errorMessage = ex.getMessage();
+                super.error(PROCESSING_ERROR,ex.getMessage());
+                
             } finally {
                 workSem.release();
             }
         }
     }
 
+    /**
+     * A work queue item to add a sym to a bridge. Dont want to add syms to a bridge when
+     * a packet is being processed.
+     * 
+     */ 
+    class AddSymWorkItem extends WorkItem {
 
-   
+        String bridgeId;
+        String symId;
+        Semaphore workSem;
+      
+        public AddSymWorkItem(String bridgeId, String symId) {
+            super();
+            this.bridgeId = bridgeId;
+            this.symId = symId;
+            this.workSem = new Semaphore(0);
+        }
+
+        public void doWork() {
+            try {
+                Bridge bridge = bridgeMap.get(bridgeId);
+                
+                if (bridge == null) {
+                    super.error(SESSION_NOT_FOUND,"Specified bridge was not found " + bridgeId);
+                    return;
+                }
+
+                Sym sym = sessionMap.get(symId);
+
+                if (sym == null) {
+                    super.error(SESSION_NOT_FOUND,
+                            "Specified sym was not found " + symId);
+                    return;
+                }
+
+                bridge.addSym(sym);
+            } catch (Exception ex) {
+                logger.error("Exception adding sym ", ex);
+                super.error(PROCESSING_ERROR,ex.getMessage());
+            } finally {
+                workSem.release();
+            }
+        }
+    }
+    /**
+     * A work queue item to add a sym to a bridge. Dont want to add syms to a bridge when
+     * a packet is being processed.
+     * 
+     */ 
+    class RemoveSymWorkItem extends WorkItem {
+
+        String bridgeId;
+        String symId;
+        Semaphore workSem;
+      
+        public RemoveSymWorkItem(String bridgeId, String symId) {
+            super();
+            this.bridgeId = bridgeId;
+            this.symId = symId;
+            this.workSem = new Semaphore(0);
+        }
+
+        public void doWork() {
+            try {
+                Bridge bridge = bridgeMap.get(bridgeId);
+                
+                if (bridge == null) {
+                    super.error(SESSION_NOT_FOUND,"Specified bridge was not found " + bridgeId);
+                    return;
+                }
+
+                Sym sym = sessionMap.get(symId);
+
+                if (sym == null) {
+                    super.error(SESSION_NOT_FOUND,
+                            "Specified sym was not found " + symId);
+                    return;
+                }
+
+                bridge.removeSym(sym);
+            } catch (Exception ex) {
+                logger.error("Exception adding sym ", ex);
+                super.error(PROCESSING_ERROR,ex.getMessage());
+            } finally {
+                workSem.release();
+            }
+        }
+    }
+    
+    class GetBridgeStatisticsWorkItem extends WorkItem {
+        
+        Semaphore workSem = new Semaphore(0);
+        
+        Map<String,Object> retval ;
+        
+        String bridgeId;
+        
+        public GetBridgeStatisticsWorkItem(String bridgeId) {
+            this.bridgeId = bridgeId;
+        }
+        
+        public void doWork() {
+            try {
+                Bridge bridge = bridgeMap.get(bridgeId);
+                if ( bridge == null ) {
+                    super.error(SESSION_NOT_FOUND,"Specified bridge " + bridgeId + " not found.");
+                    return;
+                }
+                retval = createSuccessMap();
+                retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
+                retval.put(Symmitron.CREATION_TIME, new Long(bridge
+                        .getCreationTime()).toString());
+                retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge
+                        .getLastPacketTime()).toString());
+                retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System
+                        .currentTimeMillis()).toString());
+                retval.put(Symmitron.PACKETS_RECEIVED, new Long(
+                        bridge.pakcetsReceived).toString());
+                retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent)
+                .toString());
+                Map[] symStats = new Map[bridge.getSyms().size()];
+                int i = 0;
+                for (Sym sym : bridge.getSyms()) {
+                    symStats[i++] = sym.getStats();
+                }
+                retval.put(Symmitron.SYM_SESSION_STATS, symStats);
+                logger.debug("bridgeStats = " + retval);
+            } catch (Exception ex) {
+               logger.error("Exception adding sym ", ex);
+               super.error(PROCESSING_ERROR,ex.getMessage());
+           } finally {
+               workSem.release();
+           }
+        }
+    }
     
     private static void restartCrLfReceiver() {
         try {
@@ -332,6 +462,8 @@ public class SymmitronServer implements Symmitron {
            logger.debug("public address = " + publicAddress);
         }
     }
+    
+    
 
     private Map<String, Object> createErrorMap(int errorCode, String reason) {
         Map<String, Object> retval = new HashMap<String, Object>();
@@ -835,7 +967,7 @@ public class SymmitronServer implements Symmitron {
             logger.debug("tryAquire returned with value " + retval);
             
             if ( workItem.error ) {
-                return createErrorMap(PROCESSING_ERROR, workItem.errorMessage);
+                return createErrorMap(PROCESSING_ERROR, workItem.reason);
             } else return createSuccessMap();
 
            
@@ -915,16 +1047,30 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND,
                         "Specified RTP Bridge was not found " + bridgeId);
             }
-
-            Sym rtpSession = sessionMap.get(symId);
-
-            if (rtpSession == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified RTP Session was not found " + symId);
+            
+            Bridge bridge = bridgeMap.get(bridgeId);
+            
+            if (bridge == null) {
+                return createErrorMap(SESSION_NOT_FOUND,"Specified bridge was not found " + bridgeId);
             }
 
-            rtpBridge.removeSym(rtpSession);
-            return this.createSuccessMap();
+            Sym sym = sessionMap.get(symId);
+
+            if (sym == null) {
+                return createErrorMap(SESSION_NOT_FOUND,
+                        "Specified sym was not found " + symId);
+            }
+            
+
+            RemoveSymWorkItem removeSym = new RemoveSymWorkItem(bridgeId,symId);
+            DataShuffler.addWorkItem(removeSym);
+            removeSym.workSem.acquire();
+            if ( removeSym.error ) {
+                return this.createErrorMap(removeSym.errorCode, removeSym.reason);
+            } else {
+                return this.createSuccessMap();
+            }
+           
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
@@ -943,23 +1089,29 @@ public class SymmitronServer implements Symmitron {
             String symId) {
         try {
             this.checkForControllerReboot(controllerHandle);
-            Bridge bridge = bridgeMap.get(bridgeId);
             logger.debug("addSym: " + controllerHandle + " bridgeId = "
                     + bridgeId + " symId = " + symId);
+            Bridge bridge = bridgeMap.get(bridgeId);
+
             if (bridge == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified Bridge was not found " + bridgeId);
+                return createErrorMap(SESSION_NOT_FOUND,"Specified bridge was not found " + bridgeId);
+
             }
 
-            Sym sym = sessionMap.get(symId);
-
-            if (sym == null) {
-                return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified sym was not found " + symId);
+            AddSymWorkItem workItem  = new AddSymWorkItem(bridgeId,symId);
+            DataShuffler.addWorkItem(workItem);
+            boolean acquired = workItem.workSem.tryAcquire(500,TimeUnit.MILLISECONDS);
+            if ( !acquired ) {
+                logger.warn("addSym: could not acquire sem");
+            } else {
+                logger.debug("addSym : acquired sem");
+            }
+            if ( workItem.error ) {
+                return this.createErrorMap(workItem.errorCode, workItem.reason);
+            } else {
+                return this.createSuccessMap();
             }
 
-            bridge.addSym(sym);
-            return this.createSuccessMap();
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
@@ -1108,26 +1260,22 @@ public class SymmitronServer implements Symmitron {
                 return this.createErrorMap(SESSION_NOT_FOUND,
                         "Specified bridge was not found " + bridgeId);
             }
-            Map<String, Object> retval = this.createSuccessMap();
-            retval.put(Symmitron.BRIDGE_STATE, bridge.getState().toString());
-            retval.put(Symmitron.CREATION_TIME, new Long(bridge
-                    .getCreationTime()).toString());
-            retval.put(Symmitron.LAST_PACKET_RECEIVED, new Long(bridge
-                    .getLastPacketTime()).toString());
-            retval.put(Symmitron.CURRENT_TIME_OF_DAY, new Long(System
-                    .currentTimeMillis()).toString());
-            retval.put(Symmitron.PACKETS_RECEIVED, new Long(
-                    bridge.pakcetsReceived).toString());
-            retval.put(Symmitron.PACKETS_SENT, new Long(bridge.packetsSent)
-                    .toString());
-            Map[] symStats = new Map[bridge.getSyms().size()];
-            int i = 0;
-            for (Sym sym : bridge.getSyms()) {
-                symStats[i++] = sym.getStats();
+            
+            GetBridgeStatisticsWorkItem workItem = new GetBridgeStatisticsWorkItem(bridgeId);
+            
+            boolean acquired = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
+            
+            if ( ! acquired ) {
+                logger.warn("Timed out acquiring workItem sem ");
+            } else {
+                logger.debug("Acquired workItem sem");
             }
-            retval.put(Symmitron.SYM_SESSION_STATS, symStats);
-            logger.debug("bridgeStats = " + retval);
-            return retval;
+            if ( workItem.error ) {
+                return createErrorMap(workItem.errorCode,workItem.reason);
+            } else {
+                return workItem.retval;
+            }
+            
         } catch (Exception ex) {
             logger.error("Processing Error", ex);
             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
