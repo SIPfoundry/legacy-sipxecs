@@ -962,9 +962,12 @@ public class SymmitronServer implements Symmitron {
             
             DataShuffler.addWorkItem(workItem);
             
-            boolean retval = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
+            boolean acquired = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
             
-            logger.debug("tryAquire returned with value " + retval);
+            logger.debug("tryAquire returned with value " + acquired);
+            if (!acquired ) {
+            	return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
+            }
             
             if ( workItem.error ) {
                 return createErrorMap(PROCESSING_ERROR, workItem.reason);
@@ -1064,7 +1067,10 @@ public class SymmitronServer implements Symmitron {
 
             RemoveSymWorkItem removeSym = new RemoveSymWorkItem(bridgeId,symId);
             DataShuffler.addWorkItem(removeSym);
-            removeSym.workSem.acquire();
+            boolean acquired = removeSym.workSem.tryAcquire(500,TimeUnit.MILLISECONDS);
+            if (!acquired) {
+            	return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
+            }
             if ( removeSym.error ) {
                 return this.createErrorMap(removeSym.errorCode, removeSym.reason);
             } else {
@@ -1102,7 +1108,8 @@ public class SymmitronServer implements Symmitron {
             DataShuffler.addWorkItem(workItem);
             boolean acquired = workItem.workSem.tryAcquire(500,TimeUnit.MILLISECONDS);
             if ( !acquired ) {
-                logger.warn("addSym: could not acquire sem");
+                logger.error("addSym: could not acquire sem");
+                return this.createErrorMap(PROCESSING_ERROR,"semaphore timed out");
             } else {
                 logger.debug("addSym : acquired sem");
             }
@@ -1262,11 +1269,12 @@ public class SymmitronServer implements Symmitron {
             }
             
             GetBridgeStatisticsWorkItem workItem = new GetBridgeStatisticsWorkItem(bridgeId);
-            
+            DataShuffler.addWorkItem(workItem);
             boolean acquired = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
             
             if ( ! acquired ) {
-                logger.warn("Timed out acquiring workItem sem ");
+                logger.error("Timed out acquiring workItem sem ");
+                return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
             } else {
                 logger.debug("Acquired workItem sem");
             }
