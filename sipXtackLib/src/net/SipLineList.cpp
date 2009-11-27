@@ -276,8 +276,9 @@ SipLine* SipLineList::findLine(const char* lineId,
 #  ifdef TEST_PRINT
    OsSysLog::add(FAC_LINE_MGR, PRI_DEBUG,
                  "SipLineList::findLine "
-                 "searching for lineid '%s' realm '%s' url '%s' default '%s'",
-                 lineId, realm, toFromUrl.toString().data(), defaultLine.toString().data()
+                 "searching for lineId '%s' realm '%s' toFromUrl '%s' userId '%s' defaultLine '%s'",
+                 lineId, realm, toFromUrl.toString().data(),
+                 userId, defaultLine.toString().data()
                  );
 #  endif
 

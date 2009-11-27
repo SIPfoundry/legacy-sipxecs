@@ -367,11 +367,7 @@ class SipDialogEvent : public HttpBody
 
    void getState(UtlString& state) const;
 
-   // This method is probably a bad idea -- it was put in so
-   // ACDLine.cpp could get the current version number to feed to
-   // sipxPublisherUpdate, whereas it should probably delegate all
-   // dialog state machinations to the callLib mechanism that
-   // sipXpark, etc. uses.
+   // Get the version number from the dialog event body.
    int getVersion() const;
 
 ///@}
