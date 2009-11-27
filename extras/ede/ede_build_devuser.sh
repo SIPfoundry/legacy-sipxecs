@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.  
+# Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.
 # Contributors retain copyright to elements licensed under a Contributor Agreement.
 # Licensed to the User under the LGPL license.
 #
@@ -104,7 +104,7 @@ DISTRO_EXIT_ERROR=3
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
       echo "Fedora 8 is no longer supported by EDE."
-      exit $DISTRO_EXIT_ERROR 
+      exit $DISTRO_EXIT_ERROR
    else
       echo -n "Unsupported Linux distribution: "
       uname -a | cut -d" " -f3
@@ -113,11 +113,11 @@ DISTRO_EXIT_ERROR=3
    echo ""
    sleep 3
 
-   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For 
+   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For
    # CentOS 5.2, they must be installed from SIPfoundry dependency RPMs.
    BASE_DEPS="xerces-c xerces-c-devel cppunit-devel w3c-libwww w3c-libwww-apps w3c-libwww-devel rrdtool rrdtool-perl rubygems"
 
-   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the  
+   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the
    # standard repository.
    if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
       BASE_DEPS="$BASE_DEPS nsis nsis-data"
@@ -141,19 +141,19 @@ function sudo_wget_retry {
    if [ $# == 2 ]; then
       P_OPT="-P $2 "
    fi
-   echo "  wget_retry for $P_OPT$1..." 
+   echo "  wget_retry for $P_OPT$1..."
    sudo wget $P_OPT$1
    if [ $? != 0 ]; then
       sudo wget $P_OPT$1
       if [ $? != 0 ]; then
          sudo wget $P_OPT$1
          if [ $? != 0 ]; then
-            echo "    FAILED!" 
+            echo "    FAILED!"
             exit 4
-         fi               
-      fi      
+         fi
+      fi
    fi
-   echo "    SUCCESS." 
+   echo "    SUCCESS."
 }
 
 function return_sipxecs_unstable_repo_name {
@@ -301,16 +301,37 @@ fi
 
 # This file can be source'd by a shell (using '.' or 'source'.)
 EDE_ENV_FILE=env-ede
-echo WORKING_DIR=\"`pwd`\" > $EDE_ENV_FILE
-echo INSTALL=\"`pwd`/$INSTALL\" >> $EDE_ENV_FILE
-echo BUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
-echo CODE=\"`pwd`/$CODE\" >> $EDE_ENV_FILE
-echo LINKS=\"`pwd`/$LINKS\" >> $EDE_ENV_FILE
-echo DIST=\"`pwd`/$DIST\" >> $EDE_ENV_FILE
+cat <<EOF > $EDE_ENV_FILE
+WORKING="`pwd`"
+WORKING_DIR="`pwd`"
+INSTALL="`pwd`/$INSTALL"
+BUILD="`pwd`/$BUILD"
+CODE="`pwd`/$CODE"
+LINKS="`pwd`/$LINKS"
+DIST="`pwd`/$DIST"
+# if you have non-git patch run this
+jira-apply() {
+    curl \$1 | git apply -p0 --whitespace=strip
+}
+# if you have git patch run this
+gjira-apply() {
+    curl \$1 | git am -3 --whitespace=strip
+}
+fisheye-links-filter() {
+    sed -e 's/^r\([0-9]*\).*/http:\/\/code.sipfoundry.org\/changelog\/sipXecs\/?cs=\1/'
+}
+# use gsl -3 to display last 3 commits
+gsl() {
+    git svn log \$1 --reverse | fisheye-links-filter
+}
+parse_git_branch() {
+  git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+}
+EOF
 # Note: More content is added below in the Eclipse readiness section.
 
 # Start removing the old and creating the new.
-sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR $ECLIPSE_WORKSPACE $EDE_BIN 
+sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR $ECLIPSE_WORKSPACE $EDE_BIN
 mv env env.DELETE_ME 2> /dev/null
 mv eclipse-windowprefs.txt eclipse-windowprefs.txt.DELETE_ME 2> /dev/null
 for lib_comp in $(ls $CODE/lib);
@@ -320,7 +341,7 @@ done
 sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
 sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
 sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
-mkdir $INSTALL 
+mkdir $INSTALL
 
 # Record useful info.
 echo BUILD_ALL_DEPENDENCIES - $BUILD_ALL_DEPENDENCIES >> $FULL_PATH_EDE_LOGS/info.log
@@ -328,7 +349,7 @@ echo BUILD_RPMS - $BUILD_RPMS >> $FULL_PATH_EDE_LOGS/info.log
 echo CODE - $CODE >> $FULL_PATH_EDE_LOGS/info.log
 echo Distribution - $(return_uname_distro_id) >> $FULL_PATH_EDE_LOGS/info.log
 
-# Build any dependency RPMs which may be specified and/or required. 
+# Build any dependency RPMs which may be specified and/or required.
 # http://sipx-wiki.calivia.com/index.php/Building_dependencies
 if [ $BUILD_ALL_DEPENDENCIES ]; then
    # Build all those required by the distribution.
@@ -342,7 +363,7 @@ if [ $BUILD_ALL_DEPENDENCIES ]; then
    BUILD_DEPENDENCY_TARGET="yup"
 else
    if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
-      # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install 
+      # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install
       # on Fedora 10/11, so we need to build them locally.
       DEPENDENCY_TARGET=freeswitch
       BUILD_DEPENDENCY_TARGET="yup"
@@ -365,8 +386,8 @@ if [ $BUILD_DEPENDENCY_TARGET ]; then
       echo "ERROR: Dependency RPM build failed, see $EDE_LOGS/dependency_rpm_build.log" >&2
       exit 9
    fi
-   
-   echo "Creating local repository..." 
+
+   echo "Creating local repository..."
    echo [sipxecs-dependencies-local] > $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
    echo name=sipXecs dependencies local >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
    echo baseurl=file://$FULL_PATH_DIST/RPM >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
@@ -417,7 +438,7 @@ if [ $? != 0 ]; then
 fi
 
 # The rubygems package may have been installed by the base script (Fedora 10/11 - standard repo) or
-# by this script (CentOS 5.2 - SIPfoundry dependency RPMs.)  For simplicity though, we always 
+# by this script (CentOS 5.2 - SIPfoundry dependency RPMs.)  For simplicity though, we always
 # attempt to update and install gems here in this script.
 sudo gem update --system
 GEM_PACKAGES="file-tail rake"
@@ -555,8 +576,8 @@ else
       exit 17
    fi
 
-   # This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxecs xxx", 
-   # and started automatically after reboot.  
+   # This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxecs xxx",
+   # and started automatically after reboot.
    sudo rm -rf /etc/init.d/sipxecs
    sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxecs /etc/init.d/sipxecs
 
@@ -644,7 +665,7 @@ sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/fr
 
 # Eclipse readiness.
 mkdir -p $FULL_PATH_ECLIPSE_WORKSPACE
-echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> $EDE_ENV_FILE 
+echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> $EDE_ENV_FILE
 echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
 echo SIPX_MYBUILD_OUT=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
 FULL_PATH_ECLIPSE_SETTINGS=$FULL_PATH_ECLIPSE_WORKSPACE/.metadata/.plugins/org.eclipse.core.runtime/.settings
