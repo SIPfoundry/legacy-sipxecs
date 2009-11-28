@@ -617,7 +617,8 @@ class DialogContext {
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
                 logger.debug("queryDialogFromPeer -- sending query to " + peerDialog
-                        + " continuationOperation = " + continuationData.getOperation());
+                        + " continuationOperation = " + 
+                        (continuationData != null ? continuationData.getOperation() : null));
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);    
                 reInvite.removeHeader(SupportedHeader.NAME);
@@ -653,8 +654,7 @@ class DialogContext {
                  * Mark what we should do when we see the 200 OK response. This is what this
                  * dialog expects to see. Mark this as the pending operation for this dialog.
                  */
-                DialogContext.get(peerDialog).setPendingAction(
-                        PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
+                DialogContext.get(peerDialog).setPendingAction(PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
 
                 /*
                  * The information we need to continue the operation when the Response comes in.
