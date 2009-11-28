@@ -2016,8 +2016,10 @@ public class BackToBackUserAgent implements Comparable {
                     this.addDialogToCleanup(replacedDialog);
                     DialogContext.get(replacedDialog).setTerminateOnConfirm();
                 }
-
+                
+                DialogContext.getPeerDialogContext(serverTransaction.getDialog()).setPendingAction(PendingDialogAction.PENDING_SOLICIT_SDP_OFFER_ON_ACK);        
                 serverTransaction.sendResponse(okResponse);
+                 
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
                 ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
@@ -2030,16 +2032,17 @@ public class BackToBackUserAgent implements Comparable {
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
                 if ( peerSt != null && peerSt.getState() != TransactionState.TERMINATED ) {
                 	Response peerOk = SipUtilities.createResponse(peerSt,
-							Response.OK);
+							Response.OK);   	
 					peerOk.setHeader(contact);
 					peerOk.setContent(answerSdes, cth);
 					peerSt.sendResponse(peerOk);
-                } else {
+		         } else {
                 	logger.debug("peerSt = " + peerSt);
                 	if ( peerSt != null ) {
                 		logger.debug("peerSt.getState() : " + peerSt.getState());
                 	}
                 }
+                
                 this.getRtpBridge().start();
 
             }

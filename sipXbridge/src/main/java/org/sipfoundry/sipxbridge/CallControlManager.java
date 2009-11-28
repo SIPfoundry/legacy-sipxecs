@@ -968,8 +968,9 @@ class CallControlManager implements SymmitronResetHandler {
                         return;
 
                     } else if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-                        logger.debug("Pending SDP Answer in ACK  -- not forwarding inbound ACK");
+                        logger.debug("Pending SDP Answer in ACK  -- not forwarding inbound ACK. Will forward later when OK comes in");
                         return;
+                    
                     } else {
                         /*
                          * There is no answer and no last response and the other side does NOT
@@ -992,6 +993,13 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 peerDialogContext.setPendingAction(PendingDialogAction.NONE);
 
+            } else if (peerDialogContext != null &&  peerDialog.getState() == DialogState.CONFIRMED) {
+                 if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SOLICIT_SDP_OFFER_ON_ACK) {
+                    dialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+                    peerDialogContext.setPendingAction(PendingDialogAction.NONE);
+                    dialogContext.solicitSdpOfferFromPeerDialog(null);
+                    return;
+                 }
             }
 
         } catch (Exception ex) {
@@ -1430,6 +1438,7 @@ class CallControlManager implements SymmitronResetHandler {
          Response response = responseEvent.getResponse();
          long seqno = SipUtilities.getSeqNumber(response);
       	 PendingDialogAction pendingOperation = dialogContext.getPendingAction();
+      	 logger.debug("sendSdpReOfferResponse pendingDialogAction " + pendingOperation);
          if (response.getStatusCode() == Response.OK) {
             RtpSession rtpSession = DialogContext.getRtpSession(dialog);
             SessionDescription inboundSessionDescription = SipUtilities
@@ -1439,6 +1448,14 @@ class CallControlManager implements SymmitronResetHandler {
             rtpSession.getTransmitter().setOnHold(false);
             Request ack = dialog.createAck(seqno);
             DialogContext.get(dialog).sendAck(ack);
+            Dialog peerDialog  = DialogContext.getPeerDialog(dialog);
+            /*
+             * If we need to send an SDP answer to the peer, then send it.
+             */
+            if ( DialogContext.getPendingAction(peerDialog) == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK ) {
+               CallControlUtilities.sendSdpAnswerInAck(response, peerDialog);
+            }
+           
         }
         
         return;
@@ -2108,9 +2125,7 @@ class CallControlManager implements SymmitronResetHandler {
          */
         Operation continuationOperation = transactionContext.getContinuationOperation();
 
-        RtpSession peerRtpSession = DialogContext.getPeerRtpSession(transactionContext
-                .getContinuationData().getDialog());
-
+     
         SessionDescription responseSessionDescription;
 
         if (response.getContentLength().getContentLength() != 0) {
@@ -2124,6 +2139,9 @@ class CallControlManager implements SymmitronResetHandler {
              * properly handle sdp offers solicitation. They return back a 0 length sdp answer. In
              * this case, we re-use the previously sent sdp answer.
              */
+            RtpSession peerRtpSession = DialogContext.getPeerRtpSession(transactionContext
+                    .getContinuationData().getDialog());
+
             responseSessionDescription = peerRtpSession.getReceiver().getSessionDescription();
 
         }
@@ -2346,8 +2364,15 @@ class CallControlManager implements SymmitronResetHandler {
                 SipUtilities.setSessionDescription(newResponse, clonedSd);
                 continuation.getServerTransaction().sendResponse(newResponse);
 
-            }
+            } 
 
+        } else {
+            DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
+            if ( peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
+                DialogContext.get(dialog).setPendingAction(PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
+                DialogContext.get(dialog).setLastResponse(response);
+                peerDialogContext.sendSdpReOffer(responseSessionDescription);
+            }
         }
     }
 
