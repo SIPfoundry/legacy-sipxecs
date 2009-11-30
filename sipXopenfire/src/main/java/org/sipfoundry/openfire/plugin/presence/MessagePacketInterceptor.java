@@ -31,9 +31,10 @@ import org.xmpp.packet.Packet;
 import org.xmpp.packet.JID;
 import org.xmpp.packet.PacketExtension;
 import org.jivesoftware.openfire.user.UserNotFoundException;
+import org.jivesoftware.util.NotFoundException;
 
 public class MessagePacketInterceptor implements PacketInterceptor {
-    private static Logger log = Logger.getLogger("org.sipfoundry");
+    private static Logger log = Logger.getLogger(MessagePacketInterceptor.class);
     private static Logger imLogger; 
     private SipXOpenfirePlugin plugin;
     private boolean logImMessages;
@@ -89,7 +90,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     String buildRestCallCommand(String callerNumber, String calledNumber) {
         String restCallCommand =  "https://"+ plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
-                + callerNumber + "/" + calledNumber + "?timeout=30";
+                + callerNumber + "/" + calledNumber + "?timeout=30&isForwardingAllowed=true";
         log.debug("rest call command is: " + restCallCommand);
         return restCallCommand;
     }
@@ -98,7 +99,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
-                + "?agent=" + agentId + "&timeout=30";
+                + "?agent=" + agentId + "&timeout=30&isForwardingAllowed=true";
         return restCallCommand;
     }
 
@@ -106,7 +107,7 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         String restCallCommand =  "https://" + plugin.getSipXopenfireConfig().getSipXrestIpAddress()
                 + ":" + plugin.getSipXopenfireConfig().getSipXrestHttpsPort() + "/callcontroller/"
                 + caller + "/" + calledNumber
-                + "?agent=" + agentId + "&timeout=30";
+                + "?agent=" + agentId + "&timeout=30&isForwardingAllowed=true";
         if (conferencePin != null && conferencePin.length() > 0 ){
             restCallCommand += "&confpin=" + conferencePin;
         }
@@ -226,8 +227,6 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     }    
 
     private void processGroupChatMessage(Message message, boolean incoming, boolean processed) throws Exception{
-        log.debug("Chat message in:" + message + " incoming=" + incoming + "; processed=" + processed);
-        
         String chatText = message.getBody();
         if (chatText != null) {
             if (incoming && !processed) {
@@ -248,7 +247,9 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         if ((chatRoom = plugin.getChatRoom(subdomain, roomName)) != null) {
                             // check if the chat room is associated with a conference bridge
                             String conferenceName;
-                            if ((conferenceName = plugin.getConferenceName(subdomain, roomName)) != null) {
+                            try
+                            {
+                                conferenceName = plugin.getConferenceName(subdomain, roomName);
                                 // verify that the command issuer has the privilege to start the conference and 
                                 // has a SIP ID.
                                 String commandRequester = message.getFrom().toBareJID();
@@ -319,7 +320,15 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                     throw new PacketRejectedException(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
                                 }
                             }
-                            log.debug("MUC room " + subdomain + ":" + roomName + " does not have an associated conference");
+                            catch( NotFoundException e )
+                            {
+                                // MUC not associated with audio conference room
+                                log.debug("MUC room " + subdomain + ":" + roomName + " does not have an associated conference");
+                                reply( message, plugin.getLocalizer().localize("commandfailed.prompt") +
+                                        " - " +
+                                        plugin.getLocalizer().localize("noaudioconf.prompt") );
+                                throw new PacketRejectedException("MUC room " + subdomain + ":" + roomName + " does not have an associated conference");
+                            }
                         }
                         else{
                             log.debug("MUC room " + subdomain + ":" + roomName + " not found");
