@@ -112,6 +112,5 @@ public class ConfigurationTest extends TestCase {
         assertEquals("~~id~sipXprovision", apc.getProvisionSipUsername());
         assertEquals("HideMe_during_dumpConfiguration", apc.getProvisionSipPassword());
         assertEquals("https://dhcp-202.fun.pm:8443/sipxconfig", apc.getConfigurationUri());
-        assertEquals("https://dhcp-202.fun.pm:8443/sipxconfig/rest/phone", apc.getConfigurationRestPhonesUri());
     }
 }

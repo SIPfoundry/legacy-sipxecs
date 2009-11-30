@@ -22,9 +22,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.lang.Double;
 import java.lang.Math;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Properties;
@@ -97,6 +99,9 @@ public class Servlet extends HttpServlet {
     private static final Pattern POLYCOM_CONTACTS_PATH_RE = Pattern.compile(
             String.format(POLYCOM_PATH_FORMAT_RE_STR, "directory.xml"));
 
+    private static final Pattern POLYCOM_000000000000_CONTACTS_PATH_RE = Pattern.compile(
+            "^" + POLYCOM_PATH_PREFIX + "000000000000-directory.xml$");
+
     private static final String POLYCOM_UA_DELIMITER = "UA/";
 
 
@@ -126,7 +131,7 @@ public class Servlet extends HttpServlet {
         try {
             String mac = path.substring(prefix.length(), prefix.length()+12);
             if (isMacAddress(mac)) {
-                return mac;
+                return mac.toLowerCase();
             }
         }
         catch (Exception e) {}
@@ -244,7 +249,7 @@ public class Servlet extends HttpServlet {
 
         // Copy the Polycom static files.  (See: http://list.sipfoundry.org/archive/sipx-dev/msg20157.html)
         try {
-    
+
             FilenameFilter cfg_filter = new FilenameFilter() {
                 public boolean accept(File dir, String name) {
                     return name.startsWith("polycom_") && name.endsWith(".cfg");
@@ -258,10 +263,10 @@ public class Servlet extends HttpServlet {
             else {
                 int copy_count = 0;
                 for (File file : files) {
-                    
+
                     File dest_file = new File(config.getTftpPath(), file.getName());
                     if (!dest_file.exists()) {
-                        
+
                         OutputStream output = new BufferedOutputStream(new FileOutputStream(dest_file));
                         FileInputStream input = null;
                         try {
@@ -278,7 +283,7 @@ public class Servlet extends HttpServlet {
                         }
                     }
                 }
-                
+
                 LOG.info(String.format("Copied %d (of %d) Polycom static files from %s.", copy_count, files.length,
                         polycom_src_dir.getAbsolutePath()));
             }
@@ -334,6 +339,7 @@ public class Servlet extends HttpServlet {
         logAndOut("getLocalAddr(): '" + request.getLocalAddr() + "'", out);
         logAndOut("getServerName(): '" + request.getServerName() + "'", out);
         logAndOut("getServerPort(): '" + request.getServerPort() + "'", out);
+        logAndOut("getHeader(\"User-Agent\"): '" + request.getHeader("User-Agent") + "'", out);
         logAndOut("", out);
 
         logAndOut("request: " + request, out);
@@ -346,12 +352,12 @@ public class Servlet extends HttpServlet {
      *
      *  @return the HTTPS connection, or null upon failure.
      */
-    protected HttpsURLConnection createRestConnection() {
-        LOG.debug("Creating connection: " + m_config.getConfigurationRestPhonesUri());
+    protected HttpsURLConnection createRestConnection(String method, String string_url) {
+        LOG.debug("Creating connection: " + method + " " + string_url);
 
         HttpsURLConnection connection = null;
         try {
-            URL url = new URL(m_config.getConfigurationRestPhonesUri());
+            URL url = new URL(string_url);
             connection = (HttpsURLConnection) url.openConnection();
 
             // TODO --> org.apache.http.auth.UsernamePasswordCredentials ?????
@@ -360,7 +366,7 @@ public class Servlet extends HttpServlet {
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setUseCaches(false);
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod(method);
             LOG.debug("Connection is good.");
 
         } catch (Exception e) {
@@ -394,7 +400,7 @@ public class Servlet extends HttpServlet {
             LOG.info("doProvisionPhone - " + phone);
 
             // Write the REST representation of the phone(s).
-            HttpsURLConnection connection = createRestConnection();
+            HttpsURLConnection connection = createRestConnection("POST", m_config.getConfigurationUri() + "/rest/phone");
             DataOutputStream dstream = new java.io.DataOutputStream(connection.getOutputStream());
             dstream.writeBytes("<phones>");
             dstream.writeBytes(String.format("<phone><serialNumber>%s</serialNumber>" +
@@ -422,164 +428,21 @@ public class Servlet extends HttpServlet {
         return success;
     }
 
-    protected void writePhoneConfigurationResponse(String mac, String path, HttpServletResponse response) throws IOException {
+    protected boolean isDebugTestUserAgent(String useragent) {
+        return (useragent.contains("Gecko") || useragent.contains("curl")) && m_config.isDebugOn();
+    }
 
-        // TODO - when this is removed.....  also remove getProvisionSipUsername / getProvisionSipPassword
-        // (including from sipXconfig...)
+    protected boolean isPolycomConfigurationFilePath(String path) {
+        return POLYCOM_SIP_PATH_RE.matcher(path).matches() ||
+            POLYCOM_PHONE1_PATH_RE.matcher(path).matches() ||
+            POLYCOM_DEVICE_PATH_RE.matcher(path).matches() ||
+            POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches() ||
+            POLYCOM_CONTACTS_PATH_RE.matcher(path).matches() ||
+            POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches();
+    }
 
-        LOG.debug("writePhoneConfigurationResponse: " + path);
-
-        // this will eventually become a REST request to sipXconfig......
-        response.setContentType("application/xml");
-        PrintWriter out = response.getWriter();
-
-        if (POLYCOM_SIP_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
-            out.println("<sip>");
-            out.println("  <TCP_IP>");
-            out.println("    <SNTP");
-            out.println("       tcpIpApp.sntp.address=\"ntp-carling-1.ca.nortel.com\"");
-            out.println("    />");
-            out.println("  </TCP_IP>");
-            out.println("</sip>");
-        }
-        else if (POLYCOM_PHONE1_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
-            out.println("<phone1>");
-            out.println("   <reg");
-            out.println("      reg.1.displayName=\"" + getUniqueId(mac) + " " + mac + "\"");
-            out.println("      reg.1.address=\"" + m_config.getProvisionSipUsername() + "\"");
-            out.println("      reg.1.label=\"" + ID_PREFIX + getUniqueId(mac) + "\"");
-            out.println("      reg.1.auth.userId=\"" + m_config.getProvisionSipUsername() + "/" + mac + "\"");
-            out.println("      reg.1.auth.password=\"" + m_config.getProvisionSipPassword() + "\"");
-            out.println("      reg.1.ringType=\"9\""); // Highest Double Trill
-            out.println("      reg.1.server.1.address=\"" + m_config.getSipDomainName() + "\"");
-            out.println("      reg.1.server.1.transport=\"UDPonly\"");
-            out.println("   />");
-            out.println("</phone1>");
-        }
-        else if (POLYCOM_DEVICE_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
-            out.println("<device device.set=\"1\"");
-            out.println("device.syslog.serverName.set=\"1\"");
-            out.println("device.syslog.serverName=\"\"");
-            out.println("device.syslog.transport.set=\"1\"");
-            out.println("device.syslog.transport=\"1\"");
-            out.println("device.syslog.facility.set=\"1\"");
-            out.println("device.syslog.facility=\"16\"");
-            out.println("device.syslog.renderLevel.set=\"1\"");
-            out.println("device.syslog.renderLevel=\"0\"");
-            out.println("device.syslog.prependMac.set=\"1\"");
-            out.println("device.syslog.prependMac=\"1\"");
-            out.println("/>");
-        }
-        else if (POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
-            out.println("<PHONE_CONFIG><OVERRIDES/></PHONE_CONFIG>");
-        }
-        else if (POLYCOM_CONTACTS_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
-            out.println("<directory><item_list/></directory>");
-        }
-        else if (NORTEL_IP_12X0_PATH_RE.matcher(path).matches()) {
-
-            out.println("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>");
-            out.println("<configuration>");
-            out.println("<networkSettings>");
-            out.println("<qosDscp><![CDATA[0x00]]></qosDscp>");
-            out.println("<qosVlanId><![CDATA[0]]></qosVlanId>");
-            out.println("</networkSettings>");
-            out.println("<phoneSettings>");
-            out.println("<dndControl><![CDATA[FALSE]]></dndControl>");
-            out.println("<blinkLightOnIncomingCall><![CDATA[TRUE]]></blinkLightOnIncomingCall>");
-            out.println("<flashLightOnMwi><![CDATA[TRUE]]></flashLightOnMwi>");
-            out.println("<imBeepAlert><![CDATA[TRUE]]></imBeepAlert>");
-            out.println("<enableAutoAnswer><![CDATA[FALSE]]></enableAutoAnswer>");
-            out.println("<enableSyslog><![CDATA[FALSE]]></enableSyslog>");
-            out.println("<enableSessionTimer><![CDATA[FALSE]]></enableSessionTimer>");
-            out.println("<sessionTimerInSec><![CDATA[30]]></sessionTimerInSec>");
-            out.println("<sessionRefresherFlag><![CDATA[FALSE]]></sessionRefresherFlag>");
-            out.println("<subscriptionExpires><![CDATA[86400]]></subscriptionExpires>");
-            out.println("<groupPagingPrefix><![CDATA[*77]]></groupPagingPrefix>");
-            out.println("<hotDeskingAutoLogin><![CDATA[TRUE]]></hotDeskingAutoLogin>");
-            out.println("<mohServer><![CDATA[sip:~~mh~@" + m_config.getSipDomainName() + "]]></mohServer>");
-            out.println("<autoCallbackTimeout><![CDATA[15]]></autoCallbackTimeout>");
-            out.println("<useRFC2543HoldScheme><![CDATA[FALSE]]></useRFC2543HoldScheme>");
-            out.println("<infoDTMFContentType><![CDATA[application/dtmf-relay]]></infoDTMFContentType>");
-            out.println("<onhookDefaultMode><![CDATA[handsfree]]></onhookDefaultMode>");
-            out.println("<natTraversal><![CDATA[none]]></natTraversal>");
-            out.println("<callParkMethod><![CDATA[none]]></callParkMethod>");
-            out.println("<callRtrvPrefix><![CDATA[*4]]></callRtrvPrefix>");
-            out.println("<serverAssistCallPickup><![CDATA[TRUE]]></serverAssistCallPickup>");
-            out.println("<callPickupPrefix><![CDATA[*78]]></callPickupPrefix>");
-            out.println("<sipPort><![CDATA[5060]]></sipPort>");
-            out.println("<offhookOnRefer><![CDATA[FALSE]]></offhookOnRefer>");
-            out.println("<usePreloadedRoute><![CDATA[FALSE]]></usePreloadedRoute>");
-            out.println("<callerIdBlocking><![CDATA[FALSE]]></callerIdBlocking>");
-            out.println("<callerNameSearchPrecedence>");
-            out.println("<![CDATA[PAId-From-Contact]]>");
-            out.println("<incomingInvite><![CDATA[PAId-From-Contact]]></incomingInvite>");
-            out.println("<okOfInvite><![CDATA[PAId-To-Contact]]></okOfInvite>");
-            out.println("</callerNameSearchPrecedence>");
-            out.println("<rtpPort><![CDATA[5012]]></rtpPort>");
-            out.println("<rfc2833DynamicPayloadType><![CDATA[101]]></rfc2833DynamicPayloadType>");
-            out.println("<preferredCodec><![CDATA[g711ulaw]]></preferredCodec>");
-            out.println("<enableRoutingTone><![CDATA[FALSE]]></enableRoutingTone>");
-            out.println("<toneSet><![CDATA[US/Canada]]></toneSet>");
-            out.println("<ringtoneSelected><![CDATA[Ringer1]]></ringtoneSelected>");
-            out.println("<disableCall1_2key><![CDATA[FALSE]]></disableCall1_2key>");
-            out.println("<sipAutoDial><![CDATA[FALSE]]></sipAutoDial>");
-            out.println("<disableCallWaiting><![CDATA[FALSE]]></disableCallWaiting>");
-            out.println("<disableStarCodes><![CDATA[TRUE]]></disableStarCodes>");
-            out.println("<useOnlyUdpSrv><![CDATA[FALSE]]></useOnlyUdpSrv>");
-            out.println("<disableWebUi><![CDATA[FALSE]]></disableWebUi>");
-            out.println("<enableCallPark><![CDATA[TRUE]]></enableCallPark>");
-            out.println("<enableConferencing><![CDATA[TRUE]]></enableConferencing>");
-            out.println("<timesettings>");
-            out.println("<manual>TRUE</manual>");
-            out.println("<ntpIp><![CDATA[ntp-carling-1.ca.nortel.com]]></ntpIp>");
-            out.println("<timezone><![CDATA[-05:00 Eastern]]></timezone>");
-            out.println("<dstAutoAdjust><![CDATA[TRUE]]></dstAutoAdjust>");
-            out.println("</timesettings> ");
-            out.println("<intercom>");
-            out.println("<callInfoHeader>TRUE</callInfoHeader>");
-            out.println("<intercomTimeout><![CDATA[15]]></intercomTimeout>");
-            out.println("</intercom>");
-            out.println("<sipProxy>");
-            out.println("<proxyAddress><![CDATA[" + m_config.getSipDomainName() + "]]></proxyAddress>");
-            out.println("<sipPingForServerRedundancy><![CDATA[FALSE]]></sipPingForServerRedundancy>");
-            out.println("<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>");
-            out.println("<registerThroughProxy><![CDATA[TRUE]]></registerThroughProxy>");
-            out.println("</sipProxy>");
-            out.println("</phoneSettings>");
-            out.println("<sipAccounts>");
-            out.println("<account_L1>");
-            out.println("<authname><![CDATA[" + m_config.getProvisionSipUsername() + "]]></authname>");
-            out.println("<authPassword><![CDATA[" + m_config.getProvisionSipPassword() + "]]></authPassword>");
-            out.println("<authId><![CDATA[" + m_config.getProvisionSipUsername() + "/" + mac + "]]></authId>");
-            out.println("<displayname><![CDATA[ID: " + getUniqueId(mac) + "]]></displayname>");
-            out.println("<registrar>");
-            out.println("<registrarAddress><![CDATA[" + m_config.getSipDomainName() + "]]></registrarAddress>");
-            out.println("<registrarUsedomainName><![CDATA[FALSE]]></registrarUsedomainName>");
-            out.println("<registertimer><![CDATA[3600]]></registertimer>");
-            out.println("</registrar>");
-            out.println("<mwiSubscribe><![CDATA[FALSE]]></mwiSubscribe>");
-            out.println("<numberofLinekeys><![CDATA[1]]></numberofLinekeys>");
-            out.println("<callForwardMode>");
-            out.println("<none>TRUE</none>");
-            out.println("<callForwardTimer><![CDATA[20]]></callForwardTimer>");
-            out.println("</callForwardMode>");
-            out.println("</account_L1>");
-            out.println("</sipAccounts>");
-            out.println("</configuration>");
-        }
-
-        out.flush();
+    protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
+        return NORTEL_IP_12X0_PATH_RE.matcher(path).matches();
     }
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
@@ -597,17 +460,22 @@ public class Servlet extends HttpServlet {
             return;
         }
 
+        // For debugging.
+        if (isDebugTestUserAgent(useragent)) {
+            if (isPolycomConfigurationFilePath(path)) {
+                useragent = "FileTransport PolycomSoundStationIP-SSIP_6000-UA/3.2.0.0157";
+            }
+            else if (isNortelIp12x0ConfigurationFilePath(path)) {
+                useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";                
+            }
+        }
+
         // Is this a path that triggers provisioning of a phone with sipXconfig?
         DetectedPhone phone = null;
         if (POLYCOM_SIP_PATH_RE.matcher(path).matches()) {
 
             // Polycom SoundPoint IP / SoundStation IP / VVX
             phone = new DetectedPhone();
-
-            // For debugging.
-            if (useragent.contains("Gecko") && m_config.isDebugOn()) {
-                useragent = "FileTransport PolycomSoundStationIP-SSIP_6000-UA/3.2.0.0157";
-            }
 
             // MAC, Model, & Version
             phone.mac = extractMac(path, POLYCOM_PATH_PREFIX);
@@ -620,11 +488,6 @@ public class Servlet extends HttpServlet {
 
             // Nortel IP 1210/1220/1230
             phone = new DetectedPhone();
-
-            // For debugging.
-            if (useragent.contains("Gecko") && m_config.isDebugOn()) {
-                useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";
-            }
 
             // MAC, Model, & Version
             phone.mac = extractMac(path, NORTEL_IP_12X0_PATH_PREFIX);
@@ -647,29 +510,70 @@ public class Servlet extends HttpServlet {
         // be null, which fails cleanly.)
         doProvisionPhone(phone);
 
-        // Extract the MAC.
-        String mac = null;
-        if (POLYCOM_SIP_PATH_RE.matcher(path).matches() ||
-            POLYCOM_PHONE1_PATH_RE.matcher(path).matches() ||
-            POLYCOM_DEVICE_PATH_RE.matcher(path).matches() ||
-            POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches() ||
-            POLYCOM_CONTACTS_PATH_RE.matcher(path).matches() ) {
+        // Return the appropriate actual profile content.
+        response.setContentType("application/text");
+        if (isPolycomConfigurationFilePath(path)) {
 
-            mac = extractMac(path, POLYCOM_PATH_PREFIX);
+            if (POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches()) {
+            
+                // This file won't be found, so save the REST request overhead.
+                response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
+            }
+            else if (POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()) {
+                
+                // sipXconfig doesn't currently generate this Polycom config file.  (See XX-5450)
+                PrintWriter out = response.getWriter();
+                out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
+                out.println("<PHONE_CONFIG><OVERRIDES/></PHONE_CONFIG>");
+            }
+            else {
+                writeProfileConfigurationResponse(path, extractMac(path, POLYCOM_PATH_PREFIX), response);
+            }
         }
-        else if (NORTEL_IP_12X0_PATH_RE.matcher(path).matches()) {
+        else if (isNortelIp12x0ConfigurationFilePath(path)) {
 
-            mac = extractMac(path, NORTEL_IP_12X0_PATH_PREFIX);
+            writeProfileConfigurationResponse(path, extractMac(path, NORTEL_IP_12X0_PATH_PREFIX), response);
         }
         else {
 
-            // Unknown config file.  (Don't know how to extract the MAC from the path.)
+            // Unknown configuration file path.  (Wouldn't know how to extract a MAC from the path.)
             writeUiForwardResponse(request, response);
             return;
         }
+    }
 
-        // Return the configuration content.
-        writePhoneConfigurationResponse(mac, path, response);
+    protected boolean writeProfileConfigurationResponse(String path, String mac, HttpServletResponse response) {
+
+        boolean success = false;
+        try {
+            LOG.info("writeConfigurationResponse - " + path);
+
+            String encoded_path = new String() + path.charAt(0) + URLEncoder.encode(path.substring(1), "UTF-8");
+
+            // Construct the REST request.
+            String uri = String.format("%s/rest/phone/%s/profile%s", m_config.getConfigurationUri(),
+                    mac, encoded_path);
+            HttpsURLConnection connection = createRestConnection("GET", uri);
+
+            // Do the HTTPS GET, and write the content.
+            connection.connect();
+            IOUtils.copy(connection.getInputStream(), response.getOutputStream());
+
+            // Record the result.  (Only transport, internal, etc. errors will be reported.
+            // Duplicate and/or invalid MACs for example will result in 200 OK.)
+            if (HttpsURLConnection.HTTP_OK == connection.getResponseCode()) {
+                success = true;
+                LOG.info("REST HTTPS GET success.");
+            } else {
+                LOG.error("REST HTTPS GET failed:" + connection.getResponseCode() + " - " +
+                        connection.getResponseMessage() );
+            }
+
+        } catch (Exception e) {
+            LOG.error("REST HTTPS GET failed:", e);
+        }
+
+        return success;
     }
 
     protected static boolean extractPolycomModelAndVersion(DetectedPhone phone, String useragent) {

@@ -60,7 +60,7 @@ public class Configuration {
 
             m_TftpRoot = var_dir + "/configserver/phone/profile/tftproot";
         }
-        
+
         // domain-config
         Properties domain_config = loadProperties("/domain-config");
         if (null != domain_config) {
@@ -152,10 +152,6 @@ public class Configuration {
     public String getConfigurationUri() {
         return m_ConfigurationUri + "/sipxconfig";
 
-    }
-
-    public String getConfigurationRestPhonesUri() {
-        return getConfigurationUri() + "/rest/phone";
     }
 
     public String getConfigurationRestCredentials() {
