@@ -82,7 +82,7 @@ public class PhonebookDataSource extends DataSource {
         /*
          * NOTE: ECLIPSE DEBUGGING
          * =======================
-         * The REST URL "/sipxconfig/rest/my/phonebook" is not accessible when debugging the project from inside eclipse.
+         * REST URL "/sipxconfig/rest/my/phonebook" is not accessible when debugging the project from inside eclipse
          * You can use the data URL "PhonebookTestData.xml" instead. It will give you a set of test data to work with.
          *
          * setDataURL("PhonebookTestData.xml");
