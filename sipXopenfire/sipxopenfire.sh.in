@@ -105,8 +105,8 @@ echo
 echo  " sipxopenfire.sh --restart "
 echo  "              restarts the daemon  "
 echo
-echo  " sipxopenfire.sh [-d | --database]"
-echo  "             This runs the following database subcommands "
+echo  " sipxopenfire.sh --database "
+echo  "             This runs the database following subcommands "
 echo  "	     drop  " 
 echo  "               drops the database"
 echo  "	     create "
@@ -117,12 +117,7 @@ echo  "	     setup -Ddomain=xmppdomain -DconfigDir=sipx_configdir"
 echo  "                   create admin user and set up the domain."
 echo  "                   xmppdomian is the DNS domain name for the xmpp server"
 echo  "                   admin user password is admin."
-echo  " sipxopenfire.sh [-a | --admin_console]"
-echo  "             This runs the following admin console subcommands "
-echo  "	     enable" 
-echo  "               Enable http and https access to the openfire admin console"
-echo  "	     disable" 
-echo  "               Disable http and https access to the openfire admin console"
+
 
 }
 
@@ -194,42 +189,6 @@ databaseCommand() {
     fi       
 }
 
-# Enable or disable the Openfire admin console so that administrators have
-# the choice to access the Openfire admin console directly via http or https 
-# therefore bypassing sipXconfig.
-updateAdminConsole() {
-    case $@ in
-        enable)
-
-            # Set the admin console ports to 9094 and 9095 in openfire.xml
-            sed -e "s/<port>.*<\/port>/<port>9094<\/port>/g" \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp" 
-            sed -e "s/<securePort>.*<\/securePort>/<securePort>9095<\/securePort>/g" \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp" > \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" 
-            rm -fr ${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp
-            echo "Admin console has been enabled. Change will take effect the next time openfire is restated."
-            echo "To access use http://<host>:9094 or https://<host>:9095."
-            ;;
-            
-        disable)
-            sed -e "s/<port>.*<\/port>/<port>-1<\/port>/g" \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp" 
-            sed -e "s/<securePort>.*<\/securePort>/<securePort>-1<\/securePort>/g" \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp" > \
-                "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" 
-            rm -fr ${SIPX_OPENFIRE_DIR}/conf/openfire.xml.temp
-            echo "Admin console has been disabled. Change will take effect the next time openfire is restated."
-            ;;
-            
-        *)
-            echo "Invalid parameter: $@ => expected enable or disable"
-            ;;
-    esac           
-}
-
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -255,13 +214,6 @@ do
 
          -d|--database)
             Action=DATABASE
-            shift
-            Args="${@}"
-            break 2
-            ;;
-
-         -a|--admin_console)
-            Action=ADMIN_CONSOLE
             shift
             Args="${@}"
             break 2
@@ -300,10 +252,6 @@ case "$Action" in
 
         DATABASE)
                databaseCommand $Args
-		;;
-
-        ADMIN_CONSOLE)
-               updateAdminConsole $Args
 		;;
 
         SETUP)
