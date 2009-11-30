@@ -1515,6 +1515,12 @@ class CallControlManager implements SymmitronResetHandler {
             dialogContext
                     .setPendingAction(PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER);
             st.sendResponse(newResponse);
+        } else if ( response.getContentLength().getContentLength() == 0 ) { 
+            /*
+             * The ITSP returned an error. Send a dummy SDP answer back to the 
+             * ITSP. This is an ITSP error.
+             */
+            CallControlUtilities.sendSdpAnswerInAck(response, dialog);
         }
     }
 
