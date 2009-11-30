@@ -65,9 +65,6 @@ public abstract class UserPhonebookPage extends UserBasePage {
 
     public abstract void setCurrentNumber(String number);
 
-    @Asset("context:/WEB-INF/user_portal/UserPhonebookPage.script")
-    public abstract IAsset getUserPhonebookPageScript();
-
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);

@@ -21,7 +21,7 @@ public interface SearchConstants extends ConstantsWithLookup {
 
     String lastName();
 
-    String phoneNumber();
+    String number();
 
     String emailAddress();
 
@@ -82,4 +82,12 @@ public interface SearchConstants extends ConstantsWithLookup {
     String tabOffice();
 
     String clickToCall();
+
+    String clickToDialHoverInfo();
+
+    String clickToCallHelp();
+
+    String call();
+
+    String requestFailed();
 }

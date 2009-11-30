@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.rest;
 
 import org.restlet.Context;
+import org.restlet.data.MediaType;
+import org.restlet.data.Method;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.resource.Representation;
@@ -31,6 +33,12 @@ public class CallResource extends UserResource {
         String to = (String) getRequest().getAttributes().get("to");
         m_from = getUser().getAddrSpec(domain);
         m_to = SipUri.fix(to, domain);
+
+        // NOTE: Due to the bug in Restlet, it requires PUT and POST request must have
+        // entity. The following hack is to workaround the bug.
+        if (request.getMethod().equals(Method.PUT) && !request.isEntityAvailable()) {
+            request.setEntity(" ", MediaType.APPLICATION_ATOM_XML);
+        }
     }
 
     @Override

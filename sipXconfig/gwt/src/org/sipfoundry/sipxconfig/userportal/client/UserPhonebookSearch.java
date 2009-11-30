@@ -8,34 +8,44 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.data.DataSource;
+import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
-import com.smartgwt.client.widgets.Canvas;
+import com.smartgwt.client.widgets.IButton;
+import com.smartgwt.client.widgets.Label;
+import com.smartgwt.client.widgets.Window;
+import com.smartgwt.client.widgets.events.ClickEvent;
+import com.smartgwt.client.widgets.events.ClickHandler;
+import com.smartgwt.client.widgets.events.CloseClickHandler;
+import com.smartgwt.client.widgets.events.CloseClientEvent;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.fields.FormItem;
+import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
+import com.smartgwt.client.widgets.grid.HoverCustomizer;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
 import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
+import com.smartgwt.client.widgets.grid.events.RecordDoubleClickEvent;
+import com.smartgwt.client.widgets.grid.events.RecordDoubleClickHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
-import com.smartgwt.client.widgets.viewer.DetailFormatter;
 import com.smartgwt.client.widgets.viewer.DetailViewer;
 import com.smartgwt.client.widgets.viewer.DetailViewerField;
-import com.smartgwt.client.widgets.viewer.DetailViewerRecord;
 
 import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
 
@@ -45,6 +55,14 @@ public class UserPhonebookSearch implements EntryPoint {
     private static final String LAST_NAME = "last-name";
     private static final String NUMBER = "number";
     private static final String EMAIL = "emailAddress";
+
+    private static final String PHONE_CELL = "cellPhoneNumber";
+    private static final String PHONE_HOME = "homePhoneNumber";
+    private static final String PHONE_ASST = "assistantPhoneNumber";
+
+    private static final String[] FIELDS_PHONENUMBERS = {
+        NUMBER, PHONE_CELL, PHONE_HOME, PHONE_ASST
+    };
 
     private static SearchConstants s_searchConstants = GWT.create(SearchConstants.class);
 
@@ -59,7 +77,7 @@ public class UserPhonebookSearch implements EntryPoint {
             @Override
             public void onRecordClick(RecordClickEvent event) {
                 topTabSet.setData(phonebookGrid.getSelection());
-                String number = event.getRecord().getAttribute(NUMBER);
+                String number = event.getRecord().getAttributeAsString(NUMBER);
                 RootPanel.get("call:number").getElement().setPropertyString("value", number);
             }
         });
@@ -89,7 +107,7 @@ public class UserPhonebookSearch implements EntryPoint {
         public PhonebookGrid(DataSource phonebookDS) {
             ListGridField firstNameField = new ListGridField(FIRST_NAME, s_searchConstants.firstName());
             ListGridField lastNameField = new ListGridField(LAST_NAME, s_searchConstants.lastName());
-            ListGridField numberField = new ListGridField(NUMBER, s_searchConstants.phoneNumber());
+            ListGridField numberField = new ListGridField(NUMBER, s_searchConstants.number());
             ListGridField emailField = new ListGridField(EMAIL, s_searchConstants.emailAddress());
 
             firstNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
@@ -111,6 +129,38 @@ public class UserPhonebookSearch implements EntryPoint {
             setCellHeight(25);
             setHeaderHeight(35);
             setFields(firstNameField, lastNameField, numberField, emailField);
+            setupClickToCallRowHover();
+
+            addRecordDoubleClickHandler(new RecordDoubleClickHandler() {
+                public void onRecordDoubleClick(RecordDoubleClickEvent event) {
+                    final LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
+
+                    for (String fieldName : FIELDS_PHONENUMBERS) {
+                        String numberToDial = event.getRecord().getAttributeAsString(fieldName);
+                        if (numberToDial != null) {
+                            map.put(fieldName + numberToDial, s_searchConstants.getString(fieldName));
+                        }
+                    }
+
+                    final ClickToCallModalWindow winModal = new ClickToCallModalWindow(map);
+                    winModal.show();
+                }
+            });
+        }
+
+        // Set ClickToCall hover prompt to all the fields in a row
+        private void setupClickToCallRowHover() {
+            ListGridField[] listGridFields = getFields();
+
+            for (ListGridField listGridField : listGridFields) {
+                listGridField.setShowHover(true);
+                listGridField.setHoverCustomizer(new HoverCustomizer() {
+                    @Override
+                    public String hoverHTML(Object value, ListGridRecord record, int rowNum, int colNum) {
+                        return s_searchConstants.clickToDialHoverInfo();
+                    }
+                });
+            }
         }
     }
 
@@ -165,9 +215,6 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class Details extends TabSet {
-        private static final String PHONE_CELL = "cellPhoneNumber";
-        private static final String PHONE_HOME = "homePhoneNumber";
-        private static final String PHONE_ASST = "assistantPhoneNumber";
 
         private static final String[] FIELDS_GENERAL = {
             "jobTitle", "jobDept", "companyName", "location", PHONE_CELL, "faxNumber", "imId", "alternateImId",
@@ -183,18 +230,14 @@ public class UserPhonebookSearch implements EntryPoint {
             "officeCountry", "officeZip"
         };
 
-        private static final String[] FIELDS_PHONENUMBERS = {
-            PHONE_CELL, PHONE_HOME, PHONE_ASST
-        };
-
         private final DetailViewer m_phonebookViewerGeneral;
         private final DetailViewer m_phonebookViewerHome;
         private final DetailViewer m_phonebookViewerOffice;
 
         public Details(SearchConstants constants) {
-            m_phonebookViewerGeneral = new PhonebookViewer(constants, FIELDS_GENERAL, FIELDS_PHONENUMBERS);
-            m_phonebookViewerHome = new PhonebookViewer(constants, FIELDS_HOME, FIELDS_PHONENUMBERS);
-            m_phonebookViewerOffice = new PhonebookViewer(constants, FIELDS_OFFICE, FIELDS_PHONENUMBERS);
+            m_phonebookViewerGeneral = new PhonebookViewer(constants, FIELDS_GENERAL);
+            m_phonebookViewerHome = new PhonebookViewer(constants, FIELDS_HOME);
+            m_phonebookViewerOffice = new PhonebookViewer(constants, FIELDS_OFFICE);
 
             Tab tabGeneral = new Tab(s_searchConstants.tabGeneral());
             Tab tabHome = new Tab(s_searchConstants.tabHome());
@@ -218,50 +261,104 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class PhonebookViewer extends DetailViewer {
-        private static final String EMPTY_STRING = "";
 
-        public PhonebookViewer(SearchConstants constants, String[] fieldNames, String[] fieldPhoneNumbers) {
+        public PhonebookViewer(SearchConstants constants, String[] fieldNames) {
             setEmptyMessage(constants.selectUser());
-            setFields(createFields(fieldNames, constants, fieldPhoneNumbers));
+            setFields(createFields(fieldNames, constants));
         }
 
-        /**
-         * This method strips the phone number of non-digit characters, except for + sign.
-         *
-         * @param phoneNumber the number to format
-         * @return the formatted number
-         */
-        public String formatPhoneNumber(String phoneNumber) {
-            return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
-        }
-
-        private DetailViewerField[] createFields(String[] fieldNames, ConstantsWithLookup constants,
-                String[] fieldsPhoneNumbers) {
+        private DetailViewerField[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
             DetailViewerField[] fields = new DetailViewerField[fieldNames.length];
             for (int i = 0; i < fields.length; i++) {
                 String title = constants.getString(fieldNames[i]);
                 fields[i] = new DetailViewerField(fieldNames[i], title);
-
-                if (Arrays.asList(fieldsPhoneNumbers).contains(fieldNames[i])) {
-                    final String altText = constants.getString("clickToCall");
-                    fields[i].setDetailFormatter(new DetailFormatter() {
-                        @Override
-                        public String format(Object value, DetailViewerRecord record, DetailViewerField field) {
-
-                            String img = Canvas.getImgURL("/sipxconfig/images/phone.png");
-
-                            if (value != null) {
-                                return value + "<a class=\"gwtClickToCall\" onclick=\"clickToCall('"
-                                        + formatPhoneNumber((String) value) + "')\"> <img class=\""
-                                        + "gwtClickToCallImg\" align=\"right\" src=\"" + img + "\" title=\""
-                                        + altText + "\"/> </a>";
-                            }
-                            return EMPTY_STRING;
-                        }
-                    });
-                }
             }
             return fields;
         }
+    }
+
+    private static class ClickToCallModalWindow extends Window {
+
+        public ClickToCallModalWindow(LinkedHashMap<String, String> phoneMap) {
+
+            setAutoSize(true);
+
+            setTitle(s_searchConstants.clickToCall());
+            setShowMinimizeButton(false);
+            setIsModal(true);
+            setShowModalMask(true);
+            centerInPage();
+            addCloseClickHandler(new CloseClickHandler() {
+                public void onCloseClick(CloseClientEvent event) {
+                    destroy();
+                }
+            });
+
+            final TextItem numberToDail = new TextItem();
+            numberToDail.setShowTitle(false);
+            if (0 < phoneMap.keySet().size()) {
+                numberToDail.setValue(formatPhoneNumber((String) phoneMap.keySet().toArray()[0]));
+            }
+
+            final Label helpText = new Label();
+            helpText.setContents(s_searchConstants.clickToCallHelp());
+            helpText.setWrap(false);
+            helpText.setStyleName("formHint");
+            helpText.setAutoFit(true);
+
+            final SelectItem selectNumber = new SelectItem();
+            selectNumber.setValueMap(phoneMap);
+            selectNumber.addChangedHandler(new ChangedHandler() {
+                @Override
+                public void onChanged(ChangedEvent event) {
+                    String number = (String) event.getValue();
+                    numberToDail.setValue(formatPhoneNumber(number));
+                }
+            });
+            selectNumber.setShowTitle(false);
+            selectNumber.setDefaultToFirstOption(true);
+
+
+            final DynamicForm form = new DynamicForm();
+            form.setFields(new FormItem[] {numberToDail, selectNumber});
+            form.setLayoutAlign(Alignment.CENTER);
+
+            IButton callButton = new IButton();
+            callButton.setTitle(s_searchConstants.call());
+            callButton.setLayoutAlign(Alignment.CENTER);
+            callButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (!((String) numberToDail.getValue()).isEmpty()) {
+                        clickToCallRestCall((String) numberToDail.getValue());
+                        destroy();
+                    }
+                }
+            });
+
+            final VLayout clickToCallLayout = new VLayout();
+            clickToCallLayout.addMember(helpText);
+            clickToCallLayout.addMember(form);
+            clickToCallLayout.addMember(callButton);
+            clickToCallLayout.setAutoHeight();
+            clickToCallLayout.setAutoWidth();
+            clickToCallLayout.setLayoutAlign(Alignment.CENTER);
+
+            addItem(clickToCallLayout);
+        }
+    }
+
+    private static void clickToCallRestCall(String number) {
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number);
+    }
+
+    /**
+     * This method strips the phone number of non-digit characters, except for + sign.
+     *
+     * @param phoneNumber the number to format
+     * @return the formatted number
+     */
+    private static String formatPhoneNumber(String phoneNumber) {
+        return phoneNumber.replaceAll("[^0-9+]", "");
     }
 }
