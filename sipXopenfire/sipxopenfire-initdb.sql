@@ -416,6 +416,9 @@ INSERT INTO ofProperty (name, propValue)
 INSERT INTO ofProperty (name, propValue)
  VALUES('register.password','false');
 
+INSERT INTO ofProperty (name, propValue)
+ VALUES('xmpp.client.idle','0');
+
 -- Uncomment to enable file tranfer proxy
 -- INSERT INTO ofProperty (name, propValue)
 --  VALUES('xmpp.proxy.enabled','true');
