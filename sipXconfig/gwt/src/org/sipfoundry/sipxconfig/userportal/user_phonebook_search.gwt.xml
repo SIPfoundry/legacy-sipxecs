@@ -4,7 +4,16 @@
 	<inherits name="com.google.gwt.user.User" />
 	<inherits name="com.google.gwt.json.JSON" />
 	<inherits name="com.google.gwt.i18n.I18N"/>
+
+    <!-- Inherit the debug GWT package SmartGwtDebug instead of     -->
+    <!-- SmartGwt when running the code in a dev. environment.      -->
+    <!-- This will output human readable JavaScript.                -->
+    <!-- Inherit SmartGwtTools if you need access to the            -->
+    <!-- SmartClient Developer Console                              -->
     <inherits name='com.smartgwt.SmartGwt'/>
+    <!-- <inherits name="com.smartgwt.debug.SmartGwtDebug"/>        -->
+    <!-- <inherits name="com.smartgwt.tools.SmartGwtTools"/>        -->
+
     <extend-property name="locale" values="it"/>
     <extend-property name="locale" values="en"/>
 	<source path="client" />

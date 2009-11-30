@@ -78,6 +78,16 @@ public class PhonebookDataSource extends DataSource {
                 officeCountry, officeState, officeZip, officeDesignation);
         setRecordXPath("/phonebook/entry");
         setDataURL("/sipxconfig/rest/my/phonebook");
+
+        /*
+         * NOTE: ECLIPSE DEBUGGING
+         * =======================
+         * The REST URL "/sipxconfig/rest/my/phonebook" is not accessible when debugging the project from inside eclipse.
+         * You can use the data URL "PhonebookTestData.xml" instead. It will give you a set of test data to work with.
+         *
+         * setDataURL("PhonebookTestData.xml");
+         */
+
         setClientOnly(true);
     }
 }
