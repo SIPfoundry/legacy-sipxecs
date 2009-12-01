@@ -85,7 +85,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     }
 
     public File getUserAudioDirectory(User user) {
-        File userAudioDirectory = new File(m_audioDirectory + user.getName());
+        File userAudioDirectory = new File(m_audioDirectory + System.getProperty("file.separator") + user.getName());
         ensureDirectoryExists(userAudioDirectory.getPath());
         return userAudioDirectory;
     }

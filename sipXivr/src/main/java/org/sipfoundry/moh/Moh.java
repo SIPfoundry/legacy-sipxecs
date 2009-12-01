@@ -132,7 +132,7 @@ public class Moh {
      * (empty)  use original park server music (/var/sipxdata/parkserver/music/)
      * l        use local_stream://moh (defined in local_stream.conf.xml)
      * p        use portaudio_stream:// (defined in portaudio.conf.xml)
-     * u{user}  use per user music (TBD defined somewhere--validusers.xml?  For now use {mailstore}/moh)
+     * u{user}  use per user music ({data}/moh/{username})
      *</pre>
      */
     void moh(String id){
@@ -148,9 +148,7 @@ public class Moh {
             String userName = id.substring(1);
             User user = m_validUsers.getUser(userName);
             if (user != null) {
-                Mailbox mbox = new Mailbox(user);
-                // TBD: where the per user music lives.  I'm making this one up for now
-                musicPath = mbox.getMailstoreDirectory()+"/moh";
+                musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
             } else {
                 // Use default FreeSWITCH MOH
                 musicPath = "local_stream://moh";
