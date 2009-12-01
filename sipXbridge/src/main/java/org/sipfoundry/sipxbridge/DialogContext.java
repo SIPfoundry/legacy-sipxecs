@@ -486,10 +486,10 @@ class DialogContext {
      * @param itspInfo the itspInfo to set
      */
     void setItspInfo(ItspAccountInfo itspInfo) {
-        if (this.itspInfo != null) {
-            logger.warn("Re-Setting ITSP info to null!!");
-        } else {
-            logger.warn("Setting ITSP info to NULL");
+        if (itspInfo == null ) {
+            logger.warn("Setting ITSP info to null!!");
+        } else if ( this.itspInfo != null && this.itspInfo != itspInfo ) {
+            logger.warn("Overriding ITSP info " + itspInfo + " This is probably a bug");
         }
         this.itspInfo = itspInfo;
         if ( itspInfo != null ) {

@@ -8,6 +8,7 @@ package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
+import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
@@ -92,8 +93,18 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                 if (accountInfo.getProxyDomain() != null
                         && sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
                     if (accountInfo.getCallerId() == null) {
-                        accountFound = accountInfo;
-                        return accountInfo;
+                        /*
+                         * A null override caller ID has been provided. This case occurs
+                         * when you override the default P-A-I to blank. (see XX-7159)
+                         */
+                        FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
+
+                        String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
+                      
+                        if ( userStr.equals(accountInfo.getUserName())) {
+                            accountFound = accountInfo;
+                            return accountInfo;
+                        } 
                     } else {
                         String callerId = accountInfo.getCallerId();
                         FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
@@ -101,17 +112,18 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
                         String domainStr = ((SipURI) fromHeader.getAddress().getURI()).getHost();
                         if (userStr.equals("anonymous") && domainStr.equals("invalid")) {
-                            PPreferredIdentityHeader pai = (PPreferredIdentityHeader) request
-                            .getHeader(PPreferredIdentityHeader.NAME);
+                            PAssertedIdentityHeader pai = (PAssertedIdentityHeader) request
+                            .getHeader(PAssertedIdentityHeader.NAME);
                             if (pai == null) {
-                                logger.warn("Anonymous call without P-Preferred-Identity ");
+                                logger.warn("Anonymous call without P-Asserted-Identity ");
                                 // BUGBUG - this is really a mistake we should reject
                                 // the call if the PAI header is missing
                                 accountFound = accountInfo;
                                 return accountInfo;
                             }
                             userStr = ((SipURI) pai.getAddress().getURI()).getUser();
-                        }
+                        } 
+                        
                         if (callerId.startsWith(userStr)) {
                             accountFound = accountInfo;
                             return accountInfo;
