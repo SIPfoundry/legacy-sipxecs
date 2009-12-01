@@ -114,26 +114,21 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     }
 
     public Collection<AliasMapping> getAliasMappings() {
-
-        String identity = getDefaultMohUri();
         String contact = null;
         String mohSetting = getSipxFreeswitchService().getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
 
         switch (SystemMohSetting.parseSetting(mohSetting)) {
-        case FILES_SRC:
-            contact = getLocalFilesMohUriMapping();
-            break;
         case SOUNDCARD_SRC:
             contact = getPortAudioMohUriMapping();
             break;
-        case LEGACY_PARK_MUSIC:
+        case FILES_SRC:
         default:
-            contact = getParkserverMohUriMapping();
+            contact = getLocalFilesMohUriMapping();
             break;
         }
 
         List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
-        aliasMappings.add(new AliasMapping(identity, contact));
+        aliasMappings.add(new AliasMapping(getDefaultMohUri(), contact));
 
         aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping()));
         aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping()));
@@ -167,10 +162,6 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     public String getLocalFilesMohUri() {
         return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
-    }
-
-    public String getParkserverMohUri() {
-        return getMohUri(null);
     }
 
     /**
@@ -235,16 +226,11 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         return getMohUriMapping(LOCAL_FILES_SOURCE_SUFFIX);
     }
 
-    private String getParkserverMohUriMapping() {
-        return getMohUriMapping(null);
-    }
-
     /**
      * Build an alias which maps directly to the MOH server
      *
      * IVR@{FS}:{FSPort};action=moh; add "moh=l" for localstream files add "moh=p" for portaudio
-     * (sound card) add "moh=u{username} for personal audio files add nothing for default
-     * "parkserver" music.
+     * (sound card) add "moh=u{username} for personal audio files
      *
      */
     private String getMohUriMapping(String mohParam) {

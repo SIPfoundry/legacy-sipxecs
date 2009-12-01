@@ -31,4 +31,14 @@
 
   <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl" factory-method="createGroupSaveListener">
   </bean>
+
+  <bean id="parkOrbitMigrationTask" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitMigrationTask">
+    <property name="orbitsGenerator" ref="orbitsGenerator" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="taskNames">
+      <list>
+        <value>legacy_park_server_migration</value>
+      </list>
+    </property>
+  </bean>
 </beans>

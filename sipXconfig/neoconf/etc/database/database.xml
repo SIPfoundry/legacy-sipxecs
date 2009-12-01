@@ -336,6 +336,7 @@
     <antcall target="add-im-password" />
     <antcall target="add-addressbook-email" />
     <antcall target="gateway-enabled" />
+    <antcall target="park-server-migration-task" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -861,7 +862,11 @@
     <db-patch patch="add-saa-service"/>
   </target>
 
-  <!--
+  <target name="park-server-migration-task" unless="park-server-migration-task">
+    <db-patch patch="park-server-migration-task"/>
+  </target>
+
+	<!--
     Migration Targets Legend
     
     migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release

@@ -180,14 +180,6 @@ public class MusicOnHoldManagerTest extends TestCase {
             assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=p>"));
         }
 
-        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
-                SipxFreeswitchService.SystemMohSetting.LEGACY_PARK_MUSIC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
-
-        for (AliasMapping alias : aliasMappings) {
-            assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh>"));
-        }
     }
 
     public boolean checkAliasMappings(AliasMapping alias, String contactToTest) {
@@ -252,14 +244,6 @@ public class MusicOnHoldManagerTest extends TestCase {
             assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=p>"));
         }
 
-        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
-                SipxFreeswitchService.SystemMohSetting.LEGACY_PARK_MUSIC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
-
-        for (AliasMapping alias : aliasMappings) {
-            assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh>"));
-        }
     }
 
     public boolean checkAliasMappingsHA(AliasMapping alias, String contactToTest) {

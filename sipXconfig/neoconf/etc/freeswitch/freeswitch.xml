@@ -40,12 +40,9 @@
           <option>
             <value>SOUNDCARD_SRC</value>
           </option>
-          <option>
-            <value>LEGACY_PARK_MUSIC</value>
-          </option>
         </enum>
       </type>
-      <value>LEGACY_PARK_MUSIC</value>
+      <value>FILES_SRC</value>
     </setting>
   </group>
 </model>
