@@ -45,8 +45,8 @@ public class ContactInformationResource extends UserResource {
         }
         Gravatar gravatar = new Gravatar(user);
 
-        Representable representable = new Representable(user.getFirstName(),
-                user.getLastName(), gravatar.getUrl(), reprAddressBook);
+        Representable representable = new Representable(user.getFirstName(), user.getLastName(), gravatar.getUrl(),
+                reprAddressBook);
         return new AddressBookRepresentation(variant.getMediaType(), representable);
     }
 
@@ -74,11 +74,8 @@ public class ContactInformationResource extends UserResource {
     }
 
     static class Representable extends AddressBookEntry implements Serializable {
-        @SuppressWarnings("unused")
         private final String m_firstName;
-        @SuppressWarnings("unused")
         private final String m_lastName;
-        @SuppressWarnings("unused")
         private final String m_gravatarUrl;
 
         public Representable(String firstName, String lastName, String gravatarUrl, AddressBookEntry addressBook) {
@@ -99,7 +96,6 @@ public class ContactInformationResource extends UserResource {
         public String getGravatarUrl() {
             return m_gravatarUrl;
         }
-
     }
 
     static class AddressBookRepresentation extends XStreamRepresentation<Representable> {

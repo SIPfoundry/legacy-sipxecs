@@ -19,12 +19,12 @@ import org.custommonkey.xmlunit.DetailedDiff;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.DocumentException;
-import org.dom4j.dom.DOMDocumentFactory;
-import org.dom4j.io.SAXReader;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.Element;
+import org.dom4j.dom.DOMDocumentFactory;
+import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
 
 public abstract class PolycomXmlTestCase extends XMLTestCase {
@@ -38,21 +38,20 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
-    protected void assertPolycomXmlEquals(InputStream controlStream, Reader testReader)
-        throws SAXException, IOException, DocumentException {
+    protected void assertPolycomXmlEquals(InputStream controlStream, Reader testReader) throws SAXException,
+            IOException, DocumentException {
 
         assertPolycomXmlEquals(controlStream, getDocument(testReader));
     }
 
-    protected void assertPolycomXmlEquals(InputStream controlStream, Document testDoc)
-        throws DocumentException {
+    protected void assertPolycomXmlEquals(InputStream controlStream, Document testDoc) throws DocumentException {
 
         assertPolycomXmlEquals(getDocument(controlStream), testDoc);
     }
 
     @Deprecated
-    protected void assertPolycomXmlEquals(Reader controlReader, Reader testReader)
-        throws IOException, SAXException, DocumentException {
+    protected void assertPolycomXmlEquals(Reader controlReader, Reader testReader) throws IOException, SAXException,
+            DocumentException {
 
         assertPolycomXmlEquals(getDocument(controlReader), getDocument(testReader));
     }
@@ -66,22 +65,21 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
     protected void dumpXml(Element element, PrintStream out, String indent) {
 
         out.print(indent + "<" + element.getName());
-        List<Attribute> attributes = (List<Attribute>) element.attributes();
-        for (Attribute attribute : attributes ) {
+        List<Attribute> attributes = element.attributes();
+        for (Attribute attribute : attributes) {
             out.println(indent);
             out.print(XML_INDENT + indent + attribute.getName() + "=\"" + attribute.getText() + "\"");
         }
 
         // Note: Polycom XML elements have no text, only attributes and child elements.
 
-        List<Element> children = (List<Element>) element.elements();
+        List<Element> children = element.elements();
         if (children.isEmpty()) {
             out.println("");
             out.println(indent + "/>");
-        }
-        else {
+        } else {
             out.println(">");
-            for (Element child : children ) {
+            for (Element child : children) {
                 out.println(indent);
                 dumpXml(child, out, indent + XML_INDENT + XML_INDENT);
             }
@@ -115,7 +113,8 @@ public abstract class PolycomXmlTestCase extends XMLTestCase {
         dumpXml(testDoc, System.out);
         System.out.println("*** END actual profile content. ***");
 
-        Diff phoneDiff = new DetailedDiff(new Diff((org.w3c.dom.Document) controlDoc, (org.w3c.dom.Document) testDoc));
+        Diff phoneDiff = new DetailedDiff(
+                new Diff((org.w3c.dom.Document) controlDoc, (org.w3c.dom.Document) testDoc));
         assertXMLEqual(phoneDiff, true);
     }
 

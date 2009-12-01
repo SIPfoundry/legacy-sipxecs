@@ -448,7 +448,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
                     outgoingCalls.put(extension,
                             new CdrMinutesGraphBean(extension, (double) cdr.getDuration()));
                 } else {
-                    bean.setMinutes((bean.getMinutes() + (double) cdr.getDuration()));
+                    bean.setMinutes((bean.getMinutes() + cdr.getDuration()));
                 }
             }
         }
