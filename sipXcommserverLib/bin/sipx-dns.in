@@ -497,7 +497,7 @@ _xmpp-client._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}
 ; SRV record for XMPP SERVER CHAT ROOM TCP ${SipDomain}
 ;     priority: 1  weight: 0  port: 5269  server: ${server}
 ;
-_xmpp-server._tcp.room.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
+_xmpp-server._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
 EOF
         fi
     done
