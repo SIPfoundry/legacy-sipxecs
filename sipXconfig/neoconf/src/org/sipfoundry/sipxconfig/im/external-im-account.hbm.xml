@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.im" default-lazy="false">
+  <class name="ExternalImAccount" table="user_external_im_account">
+    <id name="id" column="external_im_account_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">external_im_account_seq</param>
+      </generator>
+    </id>
+    <property name="type" />
+    <property name="username" />
+    <property name="password" />
+    <property name="displayName" />
+    <property name="enabled" />
+    <many-to-one name="user" column="user_id"
+      class="org.sipfoundry.sipxconfig.common.User" />
+  </class>
+</hibernate-mapping>

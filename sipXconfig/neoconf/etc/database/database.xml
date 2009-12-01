@@ -337,6 +337,7 @@
     <antcall target="add-addressbook-email" />
     <antcall target="gateway-enabled" />
     <antcall target="park-server-migration-task" />
+    <antcall target="user-external-im-account" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1029,6 +1030,10 @@
   <target name="gateway-enabled" unless="gateway-enabled">
     <db-patch patch="gateway-enabled"/>
   </target>
+  <target name="user-external-im-account" unless="user-external-im-account">
+    <db-patch patch="user-external-im-account"/>
+  </target>
+
   <!--
     - SUPPORT UTILITIES
   -->

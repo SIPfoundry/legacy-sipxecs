@@ -14,6 +14,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -160,4 +161,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     void checkForValidExtensions(Collection<String> aliases, PermissionName permission);
 
     boolean isImIdUnique(User user);
+
+    ExternalImAccount getExternalAccountById(Integer id);
+
+    void saveExternalAccount(ExternalImAccount account);
 }

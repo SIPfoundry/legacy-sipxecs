@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -95,6 +96,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private Branch m_branch;
 
     private MusicOnHoldManager m_musicOnHoldManager;
+
+    private Set<ExternalImAccount> m_externalImAccounts = new HashSet<ExternalImAccount>(0);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -564,5 +567,13 @@ public class User extends BeanWithGroups implements NamedObject {
             return null;
         }
         return m_addressBookEntry.getAlternateEmailAddress();
+    }
+
+    public Set<ExternalImAccount> getExternalImAccounts() {
+        return m_externalImAccounts;
+    }
+
+    public void setExternalImAccounts(Set<ExternalImAccount> externalImAccounts) {
+        m_externalImAccounts = externalImAccounts;
     }
 }

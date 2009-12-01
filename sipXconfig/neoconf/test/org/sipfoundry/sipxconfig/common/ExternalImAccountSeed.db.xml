@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <address_book_entry address_book_entry_id="1" im_id="openfire1" />
+  <users first_name="John" last_name="Doe" user_name="userseed1" pintoken="x" user_id="1001" address_book_entry_id="1"/>
+  <user_external_im_account user_id="1001" enabled="true" password="x" external_im_account_id="101" type="gtalk" username="john.doe" display_name="John"/>
+  <user_external_im_account user_id="1001" enabled="true" password="x" external_im_account_id="102" type="yahoo" username="john_doe"/>
+</dataset>

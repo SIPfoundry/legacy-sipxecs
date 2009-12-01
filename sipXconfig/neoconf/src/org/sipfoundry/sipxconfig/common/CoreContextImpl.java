@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
@@ -628,5 +629,13 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 getHibernateTemplate().saveOrUpdate(newSpecialUser);
             }
         }
+    }
+
+    public ExternalImAccount getExternalAccountById(Integer id) {
+        return (ExternalImAccount) getHibernateTemplate().load(ExternalImAccount.class, id);
+    }
+
+    public void saveExternalAccount(ExternalImAccount account) {
+        getHibernateTemplate().saveOrUpdate(account);
     }
 }

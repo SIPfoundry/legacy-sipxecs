@@ -820,6 +820,17 @@
     alias CDATA #REQUIRED
 >
 
+<!ELEMENT user_external_im_account EMPTY>
+<!ATTLIST user_external_im_account
+    external_im_account_id CDATA #REQUIRED
+    user_id CDATA #REQUIRED
+    type CDATA #REQUIRED
+    username CDATA #REQUIRED
+    password CDATA #REQUIRED
+    display_name CDATA #IMPLIED
+    enabled CDATA #REQUIRED
+>
+
 <!ELEMENT user_group EMPTY>
 <!ATTLIST user_group
     user_id CDATA #REQUIRED
