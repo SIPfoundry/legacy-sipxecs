@@ -1,0 +1,48 @@
+<div jwcid="@common/Border" restricted="false">
+  <h2><span key="title">External User Im Account</span></h2>
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="enableExternalImAccount"
+			field="component:enableExternalImAccount"
+			label="message:label.enableExternalImAccount">
+            <span jwcid="enableExternalImAccount@Checkbox" id="enableExternalImAccount"
+			  value="ognl:externalImAccount.enabled"/>
+          </tr>
+		  <tr jwcid="@common/FieldPanel" for="protocolType"
+			field="component:protocolType"
+			label="message:label.protocolType">
+			<span jwcid="protocolType@PropertySelection" id="protocol"
+			  model="ognl:protocolTypeModel"
+			  value="ognl:externalImAccount.type" />
+		  </tr>
+		  <tr jwcid="@common/FieldPanel" for="username"
+			field="component:username"
+			label="message:label.username">
+            <span jwcid="username@TextField" id="username"
+              value="ognl:externalImAccount.username"
+              validators="spring-validators:required,noWhitespace,validFieldSize"
+              displayName="message:label.username"/>
+		  </tr>
+		  <tr jwcid="@user/ConfirmPassword"
+			password="ognl:externalImAccount.password"
+			passwordDisplayName="message:label.password"
+			confirmPasswordDisplayName="message:label.confirm.password"
+			passwordMismatchMessage="message:error.passwordMismatch">
+		  </tr>
+		  <tr jwcid="@common/FieldPanel" for="displayName"
+			field="component:displayName"
+			label="message:label.displayName">
+            <span jwcid="displayName@TextField" id="displayName"
+              value="ognl:externalImAccount.displayName"
+              validators="spring-validators:validFieldSize"
+              displayName="message:label.displayName"/>
+		  </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>
