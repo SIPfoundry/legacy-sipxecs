@@ -32,7 +32,7 @@ import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class XmppAccountInfo extends XmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00";
-    private static final String MUC_SUBDOMAIN = "room";
+    private static final String MUC_SUBDOMAIN = "conference";
     private static final String USER = "user";
     private static final String USER_NAME = "user-name";
     private static final String PASSWORD = "password";

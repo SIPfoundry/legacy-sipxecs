@@ -61,7 +61,7 @@
     <description>empty IM group</description>
   </group>
   <chat-room>
-    <subdomain>room</subdomain>
+    <subdomain>conference</subdomain>
     <room-owner>One_IM</room-owner>
     <room-name>conf1</room-name>
     <description>Description</description>
@@ -74,7 +74,7 @@
     <conference-extension>300</conference-extension>
   </chat-room>
   <chat-room>
-    <subdomain>room</subdomain>
+    <subdomain>conference</subdomain>
     <room-owner>Three</room-owner>
     <room-name>conf3</room-name>
     <description>Description 3</description>
