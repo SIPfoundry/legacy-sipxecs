@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -27,6 +28,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -90,6 +92,26 @@ public class XmppAccountInfoTest extends TestCase {
         m_userOne.setUserName("One");
         m_userOne.setImId("One_IM");
         m_userOne.setImDisplayName("One_IM_DisplayName");
+
+        Set<ExternalImAccount> externalImAccounts = m_userOne.getExternalImAccounts();
+        ExternalImAccount googleAccount = new ExternalImAccount();
+        googleAccount.setUser(m_userOne);
+        googleAccount.setEnabled(true);
+        googleAccount.setType("gtalk");
+        googleAccount.setUsername("google_username");
+        googleAccount.setPassword("google_password");
+        googleAccount.setDisplayName("google_nickname");
+        externalImAccounts.add(googleAccount);
+
+        // 'yahooAccount' is disabled
+        ExternalImAccount yahooAccount = new ExternalImAccount();
+        yahooAccount.setUser(m_userOne);
+        yahooAccount.setEnabled(false);
+        yahooAccount.setType("yahoo");
+        yahooAccount.setUsername("yahoo_username");
+        yahooAccount.setPassword("yahoo_password");
+        externalImAccounts.add(yahooAccount);
+        m_userOne.setExternalImAccounts(externalImAccounts);
 
         m_userTwo = new User();
         m_userTwo.setPermissionManager(m_pm);

@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -20,6 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -37,6 +39,7 @@ public class XmppAccountInfo extends XmlFile {
     private static final String USER_NAME = "user-name";
     private static final String PASSWORD = "password";
     private static final String DESCRIPTION = "description";
+    private static final String DISPLAY_NAME = "display-name";
     private CoreContext m_coreContext;
     private ConferenceBridgeContext m_conferenceContext;
     private SipxServiceManager m_sipxServiceManager;
@@ -84,7 +87,7 @@ public class XmppAccountInfo extends XmlFile {
 
     private void createPaUserAccount(Element accountInfos) {
         SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
-                 .getServiceByBeanId(SipxImbotService.BEAN_ID);
+                .getServiceByBeanId(SipxImbotService.BEAN_ID);
         String paUserName = imbotService.getPersonalAssistantImId();
         String paPassword = imbotService.getPersonalAssistantImPassword();
 
@@ -106,12 +109,34 @@ public class XmppAccountInfo extends XmlFile {
         Element userAccounts = accountInfos.addElement(USER);
         userAccounts.addElement(USER_NAME).setText(imAccount.getImId());
         userAccounts.addElement("sip-user-name").setText(user.getName());
-        userAccounts.addElement("display-name").setText(imAccount.getImDisplayName());
+        userAccounts.addElement(DISPLAY_NAME).setText(imAccount.getImDisplayName());
         userAccounts.addElement(PASSWORD).setText(imAccount.getImPassword());
         userAccounts.addElement("on-the-phone-message").setText(imAccount.getOnThePhoneMessage());
         userAccounts.addElement("advertise-on-call-status").setText(
                 Boolean.toString(imAccount.advertiseSipPresence()));
         userAccounts.addElement("show-on-call-details").setText(Boolean.toString(imAccount.includeCallInfo()));
+        createUserExternalImAccount(user, userAccounts);
+    }
+
+    private void createUserExternalImAccount(User user, Element userAccounts) {
+        Set<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
+        Element transports = null;
+        for (ExternalImAccount externalImAccount : externalImAccounts) {
+            if (!externalImAccount.isEnabled()) {
+                continue;
+            }
+            if (transports == null) {
+                transports = userAccounts.addElement("transports");
+            }
+            Element transportElement = transports.addElement("transport");
+            transportElement.addElement("type").setText(externalImAccount.getType());
+            transportElement.addElement(USER_NAME).setText(externalImAccount.getUsername());
+            transportElement.addElement(PASSWORD).setText(externalImAccount.getPassword());
+            String displayName = externalImAccount.getDisplayName();
+            if (displayName != null) {
+                transportElement.addElement(DISPLAY_NAME).setText(externalImAccount.getDisplayName());
+            }
+        }
     }
 
     private void createXmppChatRoom(Conference conference, Element accountInfos) {

@@ -14,6 +14,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class SipxOpenfireDaoListener implements DaoEventListener {
@@ -34,7 +35,7 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
     }
 
     private boolean checkGenerateConfig(Object entity) {
-        if (entity instanceof User) {
+        if (entity instanceof User || entity instanceof ExternalImAccount) {
             return true;
         }
         if (entity instanceof Group) {
