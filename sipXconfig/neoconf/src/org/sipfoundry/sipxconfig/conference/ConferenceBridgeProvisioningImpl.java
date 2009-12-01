@@ -14,6 +14,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxRecordingService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -44,6 +45,10 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         if (m_serviceManager.isServiceInstalled(SipxRecordingService.BEAN_ID)) {
             SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxRecordingService.BEAN_ID);
             m_serviceConfigurator.replicateServiceConfig(location, ivrService, true);
+        }
+        if (m_serviceManager.isServiceInstalled(SipxImbotService.BEAN_ID)) {
+            SipxService imbotService = m_serviceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+            m_serviceConfigurator.replicateServiceConfig(location, imbotService, true);
         }
     }
 

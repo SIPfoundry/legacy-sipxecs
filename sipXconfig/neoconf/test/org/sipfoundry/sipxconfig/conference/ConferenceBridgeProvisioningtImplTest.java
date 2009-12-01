@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
+
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -44,6 +46,9 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         SipxService recordingService = new SipxRecordingService();
         recordingService.setBeanId(SipxRecordingService.BEAN_ID);
 
+        SipxService imBotService = new SipxImbotService();
+        imBotService.setBeanId(SipxImbotService.BEAN_ID);
+
         Bridge bridge = new Bridge() {
             @Override
             public Location getLocation() {
@@ -64,12 +69,13 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         sc.replicateServiceConfig(location, service, true);
         sc.replicateServiceConfig(ivrService, true);
         sc.replicateServiceConfig(location, recordingService, true);
+        sc.replicateServiceConfig(location, imBotService, true);
 
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
         rc.generate(DataSet.ALIAS);
 
         replay(ht, rc, sc, service);
-        SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service, ivrService, recordingService);
+        SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);
 
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setHibernateTemplate(ht);
