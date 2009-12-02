@@ -803,7 +803,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSrvLookup::res_query_and_parse in_name = '%s', "
-                 "type = %d (%s): returned error",
+                 "type = %d (%s)",
                  in_name,type,
                  type == T_CNAME ? "CNAME" :
                  type == T_SRV ? "SRV" :
