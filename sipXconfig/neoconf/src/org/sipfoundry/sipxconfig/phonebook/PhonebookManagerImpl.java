@@ -627,14 +627,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
      * Trying to determine if the file is vCard file
      */
     boolean isVcard(BufferedInputStream is, String encoding) {
+        final String vcardSignature = "BEGIN:VCARD";
         try {
-            is.mark(100);
-            BufferedReader isr = new BufferedReader(new InputStreamReader(is, encoding));
+            // keep buffer smaller than the readlimit: trying to ensure that we can reset the stream
+            BufferedReader isr = new BufferedReader(new InputStreamReader(is, encoding), vcardSignature.length() * 2);
+            is.mark(vcardSignature.length() * 10);
             String line;
             do {
                 line = isr.readLine();
             } while (StringUtils.isBlank(line));
-            boolean isVcard = "BEGIN:VCARD".equalsIgnoreCase(line);
+            boolean isVcard = vcardSignature.equalsIgnoreCase(line);
             is.reset();
             return isVcard;
         } catch (IOException e) {
