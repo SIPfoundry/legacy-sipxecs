@@ -82,7 +82,7 @@ public class ConfigurationParser {
        addCallMethodString("enabled", "setS2sServerActive");
        addCallMethodInt("port", "setS2sRemotePort");
        addCallMethodString("disconnect-on-idle", "setS2sDisconnectOnIdle");
-       addCallMethodInt("idle-timeout", "setS2sSessionIdleTime");
+       addCallMethodInt("idle-timeout", "setS2sSessionIdleTimeInMinutes");
        addCallMethodString("any-can-connect", "setS2sAnyCanConnect");
 
        currentTag = s2sAllowedServersTag;
