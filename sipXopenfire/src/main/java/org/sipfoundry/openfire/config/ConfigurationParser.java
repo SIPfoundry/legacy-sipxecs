@@ -9,8 +9,17 @@ import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.xml.sax.InputSource;
 
 public class ConfigurationParser {
-    private static final String WATCHER_CONFIG = "sipxopenfire-config";
+	public static final String WATCHER_CONFIG = "sipxopenfire-config";
+	public static final String S2S_INFO = "server-to-server";
+	public static final String S2S_ALLOWED_SERVERS = "allowed-servers";
+	public static final String S2S_DISALLOWED_SERVERS = "disallowed-servers";
+	public static String s2sTag = String.format("%s/%s", WATCHER_CONFIG, S2S_INFO);
+	public static String s2sAllowedServersTag = String.format("%s/%s", s2sTag, S2S_ALLOWED_SERVERS);
+	public static String s2sDisallowedServersTag = String.format("%s/%s", s2sTag, S2S_DISALLOWED_SERVERS);
     
+    private static String currentTag = null;
+    private static Digester digester;
+
     static {
         Logger logger = Logger.getLogger(Digester.class);
         logger.addAppender(new ConsoleAppender(new SimpleLayout()));
@@ -19,77 +28,76 @@ public class ConfigurationParser {
         logger.addAppender(new ConsoleAppender(new SimpleLayout()));
         logger.setLevel(Level.OFF);
     }
+
+    private static void addCallMethodString(String elementName,
+			String methodName) {
+		digester.addCallMethod(String.format("%s/%s", currentTag, elementName),
+				methodName, 0);
+	}
+
+	private static void addCallMethodInt(String elementName, String methodName) {
+		digester.addCallMethod(String.format("%s/%s", currentTag, elementName),
+				methodName, 0, new Class[] { Integer.class });
+	}
+    
     /*
     * Add the digester rules.
     * 
     * @param digester
     */
    private static void addRules(Digester digester) throws Exception {
-     
-       digester.setUseContextClassLoader(true);
+
+	   digester.setUseContextClassLoader(true);
        digester.addObjectCreate(WATCHER_CONFIG, WatcherConfig.class.getName());
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipx-proxy-domain"),
-               "setProxyDomain", 0);
+       
+       digester.addObjectCreate(s2sTag, XmppS2sInfo.class.getName());
+       digester.addSetNext(s2sTag, "addS2sInfo");
+       
+       digester.addObjectCreate(s2sAllowedServersTag, XmppS2sPolicy.class.getName());
+       digester.addSetNext(s2sAllowedServersTag, "addS2sAllowedPolicy");
+       
+       digester.addObjectCreate(s2sDisallowedServersTag, XmppS2sPolicy.class.getName());
+       digester.addSetNext(s2sDisallowedServersTag, "addS2sDisallowedPolicy");
 
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipx-proxy-port"),
-               "setProxyPort", 0, new Class[] {
-                   Integer.class
-               });
+       currentTag = WATCHER_CONFIG;
+       addCallMethodString("password", "setPassword");
+       addCallMethodString("sipx-proxy-domain", "setProxyDomain");
+       addCallMethodInt("sipx-proxy-port", "setProxyPort");
+       addCallMethodString("resource-list", "setResourceList");
+       addCallMethodString("user-name", "setUserName");
+       addCallMethodString("password", "setPassword");
+       addCallMethodString("watcher-address", "setWatcherAddress");
+       addCallMethodInt("watcher-port", "setWatcherPort");
+       addCallMethodString("log-level", "setLogLevel");
+       addCallMethodString("log-directory", "setLogDirectory");
+       addCallMethodInt("openfire-xml-rpc-port", "setOpenfireXmlRpcPort");
+       addCallMethodString("openfire-host", "setOpenfireHost");
+       addCallMethodString("sipxrest-ip-address", "setSipXrestIpAddress");
+       addCallMethodInt("sipxrest-https-port", "setSipXrestHttpsPort");
+       addCallMethodInt("sipxrest-external-http-port", "setSipXrestHttpPort");
+       addCallMethodString("IM-message-logging", "setImMessageLogging");
+       addCallMethodString("IM-message-logging-directory", "setImMessageLoggingDirectory");
 
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "resource-list"),
-               "setResourceList", 0);
-       
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "user-name"),
-               "setUserName", 0);
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "password"),
-               "setPassword", 0);
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "watcher-address"),
-               "setWatcherAddress", 0);
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "watcher-port"),
-               "setWatcherPort", 0, new Class[] {
-                   Integer.class
-               });
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "log-level"),
-               "setLogLevel", 0);
-      
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "log-directory"),
-               "setLogDirectory", 0);
-       
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "openfire-xml-rpc-port"),
-               "setOpenfireXmlRpcPort", 0, new Class[] {
-                   Integer.class
-               });
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "openfire-host"),
-               "setOpenfireHost", 0);
+       currentTag = s2sTag;
+       addCallMethodString("enabled", "setS2sServerActive");
+       addCallMethodInt("port", "setS2sRemotePort");
+       addCallMethodString("disconnect-on-idle", "setS2sDisconnectOnIdle");
+       addCallMethodInt("idle-timeout", "setS2sSessionIdleTime");
+       addCallMethodString("any-can-connect", "setS2sAnyCanConnect");
 
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-ip-address"),
-               "setSipXrestIpAddress", 0);
-              
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-https-port"),
-               "setSipXrestHttpsPort", 0, new Class[] {
-                   Integer.class
-               });
-      
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "sipxrest-external-http-port"),
-               "setSipXrestHttpPort", 0, new Class[] {
-                   Integer.class
-               });
-       
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "IM-message-logging"),
-               "setImMessageLogging", 0);
-       
-       digester.addCallMethod(String.format("%s/%s", WATCHER_CONFIG, "IM-message-logging-directory"),
-               "setImMessageLoggingDirectory", 0);
-       
+       currentTag = s2sAllowedServersTag;
+       addCallMethodString("host", "setXmppDomainName");
+       addCallMethodInt("port", "setXmppServerPort");
+
+       currentTag = s2sDisallowedServersTag;
+       addCallMethodString("host", "setXmppDomainName");
+       addCallMethodInt("port", "setXmppServerPort");
     }
    
    public WatcherConfig parse(String url) {
-       // Create a Digester instance
-       Digester digester = new Digester();
 
-       //digester.setSchema("file:schema/sipxcallwatcher.xsd");
+       digester = new Digester();
 
-       
        try {
 
            addRules(digester);

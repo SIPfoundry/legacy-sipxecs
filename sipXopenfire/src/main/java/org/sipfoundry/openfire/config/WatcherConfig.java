@@ -18,7 +18,8 @@ public class WatcherConfig {
     private int sipXrestHttpsPort;
     private boolean bImMessageLogging = false;
     private String imMessageLoggingDirectory;
-    
+    private XmppS2sInfo xmppS2sInfo;     // Server to server settings
+
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
     }
@@ -210,11 +211,15 @@ public class WatcherConfig {
 
     public void setImMessageLoggingDirectory( String imMessageLoggingDirectory )
     {
-        this.imMessageLoggingDirectory = imMessageLoggingDirectory;
+    	this.imMessageLoggingDirectory = imMessageLoggingDirectory;
     }
-    
-    
-   
-   
+
+    public void addS2sInfo(XmppS2sInfo xmppS2sInfo) throws Exception {
+    	this.xmppS2sInfo = xmppS2sInfo;
+    }
+
+    public XmppS2sInfo getS2sInfo() {
+    	return this.xmppS2sInfo;
+    }
 
 }
