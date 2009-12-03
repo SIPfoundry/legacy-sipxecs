@@ -374,7 +374,7 @@ public class IMUser {
                     calleeIdent = calleeIdent.substring(4, calleeIdent.length() - 1); 
                     boolean inbound = calleeIdent.equals(m_user.getIdentity());
                     
-                    if(inbound && (termination.equals("F") | callTag.endsWith("VMR,VM"))) {
+                    if(inbound && (termination.equals("A") | callTag.endsWith("VMR,VM"))) {
                         
                         try {
                             startTime += " GMT-0:00"; // time is GMT
@@ -974,6 +974,7 @@ public class IMUser {
                 
             case FIND:
                 findByName(m_context.getFindTerm(), false);
+                cmdResult = "";
                 break;
                 
             case PICKUP:
