@@ -82,6 +82,7 @@
     <pathelement path="${log4j.jar}" />
     <pathelement path="${jain-sip-sdp.jar}" />
     <pathelement path="${commons-net.jar}" />
+    <pathelement path="${vcard4j.jar}" />
     <!-- SOAP -->
     <pathelement path="${jaxrpc.jar}"/>
     <pathelement path="${javamail.jar}"/>

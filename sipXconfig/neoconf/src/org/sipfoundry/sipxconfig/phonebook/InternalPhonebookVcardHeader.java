@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-public class InternalPhonebookCsvHeader implements PhonebookFileEntryHelper {
+public class InternalPhonebookVcardHeader implements PhonebookFileEntryHelper {
     public String getFirstName(String[] row) {
         return row[0];
     }
@@ -23,41 +23,36 @@ public class InternalPhonebookCsvHeader implements PhonebookFileEntryHelper {
     }
 
     public AddressBookEntry getAddressBookEntry(String[] row) {
-        if (row.length < 27) {
+        if (row.length < 22) {
             return null;
         }
 
         AddressBookEntry abe = new AddressBookEntry();
-        abe.setJobTitle(row[3]);
-        abe.setJobDept(row[4]);
-        abe.setCompanyName(row[5]);
-        abe.setAssistantName(row[6]);
-        abe.setCellPhoneNumber(row[7]);
-        abe.setHomePhoneNumber(row[8]);
-        abe.setAssistantPhoneNumber(row[9]);
-        abe.setFaxNumber(row[10]);
-        abe.setImId(row[11]);
-        abe.setAlternateImId(row[12]);
-        abe.setLocation(row[13]);
+        abe.setCellPhoneNumber(row[3]);
+        abe.setHomePhoneNumber(row[4]);
+        abe.setFaxNumber(row[5]);
+        abe.setEmailAddress(row[6]);
+        abe.setAlternateEmailAddress(row[7]);
+        abe.setCompanyName(row[8]);
+        abe.setJobTitle(row[9]);
+        abe.setJobDept(row[10]);
 
         Address homeAddress = new Address();
-        homeAddress.setCity(row[14]);
-        homeAddress.setCountry(row[15]);
-        homeAddress.setState(row[16]);
-        homeAddress.setStreet(row[17]);
-        homeAddress.setZip(row[18]);
+        homeAddress.setStreet(row[11]);
+        homeAddress.setZip(row[12]);
+        homeAddress.setCountry(row[13]);
+        homeAddress.setState(row[14]);
+        homeAddress.setCity(row[15]);
         abe.setHomeAddress(homeAddress);
 
         Address officeAddress = new Address();
-        officeAddress.setCity(row[19]);
+        officeAddress.setStreet(row[16]);
+        officeAddress.setZip(row[17]);
+        officeAddress.setCity(row[18]);
+        officeAddress.setOfficeDesignation(row[19]);
         officeAddress.setCountry(row[20]);
         officeAddress.setState(row[21]);
-        officeAddress.setStreet(row[22]);
-        officeAddress.setZip(row[23]);
-        officeAddress.setOfficeDesignation(row[24]);
         abe.setOfficeAddress(officeAddress);
-        abe.setEmailAddress(row[25]);
-        abe.setAlternateEmailAddress(row[26]);
 
         return abe;
     }

@@ -66,11 +66,13 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-tools-generic-1.4.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/guessencoding-1.1.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/vcard4j-1_1_3.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-lang.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-client-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-contacts-3.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-core-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/google-collect-1.0-rc4.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

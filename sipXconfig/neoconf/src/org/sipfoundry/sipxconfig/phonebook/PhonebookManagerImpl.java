@@ -347,7 +347,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class PhonebookEntryMaker implements Closure {
         private final Map<String, PhonebookEntry> m_entries;
-        private PhonebookFileEntryHelper m_header = new InternalPhonebookCsvHeader();
+        private PhonebookFileEntryHelper m_header = new InternalPhonebookVcardHeader();
         private boolean m_extractHeader;
 
         PhonebookEntryMaker(Map entries, boolean extractHeader) {

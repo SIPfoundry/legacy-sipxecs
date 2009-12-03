@@ -42,6 +42,9 @@
     <pathelement location="${gdata-client.jar}" />
     <pathelement location="${gdata-contacts.jar}" />
     <pathelement location="${gdata-core.jar}" />
+    <pathelement location="${vcard4j.jar}" />
+    <pathelement location="${xalan.jar}" />
+    <pathelement location="${serializer.jar}" />
   </path>
 
   <!-- 
@@ -251,6 +254,9 @@
       <fileset file="${gdata-contacts.jar}" />
       <fileset file="${gdata-core.jar}" />
       <fileset file="${google-collect.jar}" />
+      <fileset file="${vcard4j.jar}" />
+      <fileset file="${xalan.jar}" />
+      <fileset file="${serializer.jar}" />
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />

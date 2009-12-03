@@ -12,13 +12,9 @@
     </property>
   </bean>
 
-  <bean id="vcardParser" class="org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl">
-    <property name="telType" value="work" />
-  </bean>
+  <bean id="vcardParser" class="org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl" />
 
-  <bean id="vcardWriter" class="org.sipfoundry.sipxconfig.phonebook.VcardWriter">
-    <property name="telType" value="work" />
-  </bean>
+  <bean id="vcardWriter" class="org.sipfoundry.sipxconfig.phonebook.VcardWriter" />
 
   <bean id="phonebookCsvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl">
     <property name="skipHeaderLine" value="false" />

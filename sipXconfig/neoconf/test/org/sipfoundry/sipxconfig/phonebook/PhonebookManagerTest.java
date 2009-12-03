@@ -116,7 +116,6 @@ public class PhonebookManagerTest extends TestCase {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         VcardParserImpl impl = new VcardParserImpl();
         context.setCsvParser(new CsvParserImpl());
-        impl.setTelType("work");
         context.setVcardParser(impl);
         context.setVcardEncoding("US-ASCII");
 
@@ -150,7 +149,6 @@ public class PhonebookManagerTest extends TestCase {
         CsvParserImpl csvParser = new CsvParserImpl();
         csvParser.setSkipHeaderLine(false);
         context.setCsvParser(csvParser);
-        impl.setTelType("work");
         context.setVcardParser(impl);
         context.setVcardEncoding("US-ASCII");
 
@@ -165,7 +163,6 @@ public class PhonebookManagerTest extends TestCase {
         csvParser.setSkipHeaderLine(false);
         context.setCsvParser(csvParser);
         VcardParserImpl impl = new VcardParserImpl();
-        impl.setTelType("work");
         context.setVcardParser(impl);
         context.setVcardEncoding("US-ASCII");
 
@@ -179,7 +176,6 @@ public class PhonebookManagerTest extends TestCase {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setVcardWriter(vcardWriter);
         context.setVcardEncoding("US-ASCII");
-        vcardWriter.setTelType("work");
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();
         context.exportPhonebook(new ArrayList(), empty);
@@ -187,9 +183,14 @@ public class PhonebookManagerTest extends TestCase {
         PhonebookEntry e1 = new StringArrayPhonebookEntry("Jean Luc", "Picard", "1234");
         PhonebookEntry e2 = new StringArrayPhonebookEntry("Luke", "Skywalker", "1235");
         PhonebookEntry e3 = new StringArrayPhonebookEntry("", "", "1235");
+        PhonebookEntry e4 = new StringArrayPhonebookEntry("Frank", "Dawson", "+1-919-676-9515", "Senior Programmer",
+                "IT Dept", "Lotus Development Corporation", "", "+34(345)112-345", "+34 (445) 43 22", "",
+                "+1-919-676-9564", "", "", "", "Mountain View", "U.S.A.", "CA", "501 E. Middlefield Rd.", "94043",
+                "Raleigh", "U.S.A.", "NC", "6544 Battleford Drive", "27613-3502", "Lotus PostOffice",
+                "Frank_Dawson@Lotus.com", "fdawson@earthlink.net");
 
         ByteArrayOutputStream actual = new ByteArrayOutputStream();
-        context.exportPhonebook(asList(e1, e2, e3), actual);
+        context.exportPhonebook(asList(e1, e2, e3, e4), actual);
 
         InputStream expectedStream = getClass().getResourceAsStream("export.test.vcf");
         assertNotNull(expectedStream);
