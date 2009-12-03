@@ -71,9 +71,17 @@ public class SipListenerImpl implements SipListener {
                 return;
             }
             TransactionContext transactionContext = TransactionContext.get(responseEvent.getClientTransaction());
+            if ( transactionContext == null ) {
+                logger.warn("Null TransactionContext for " + responseEvent.getClientTransaction());
+            }
+            BackToBackUserAgent backToBackUserAgent = DialogContext.getBackToBackUserAgent(dialog);
+            if ( backToBackUserAgent != null && transactionContext != null && 
+                    transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY ) {
+                backToBackUserAgent.tearDownNow();
+            }
             ServerTransaction serverTransaction = transactionContext.getServerTransaction();
             Response newResponse = SipUtilities.createResponse(serverTransaction, responseEvent.getResponse().getStatusCode());
-            SipUtilities.copyHeaders(responseEvent.getResponse(),newResponse);
+            SipUtilities.copyHeaders(responseEvent.getResponse(),newResponse);   
             serverTransaction.sendResponse(newResponse);
             return;
         }
