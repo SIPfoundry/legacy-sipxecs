@@ -705,6 +705,7 @@ public class IMUser {
 
         private String ProcessCmd(String msg) {
             String cmdResult = "Ok";
+            Collection<ConferenceMember> members;
             
             switch(m_context.getCommand()) {
             case REJECTCALL:
@@ -878,58 +879,46 @@ public class IMUser {
                         DisplayResult = "unmuted.";
                         break;
                 }
-                
-                
+                              
                 String confParty = m_context.getConfParty();
                 
-                if(confParty == null) {
-                    // null means apply to all participants
-
-                    Collection<ConferenceMember> members = ConfTask.getMembers(m_user.getConfName());
-                    
-                    if(members != null) {
-                        for( ConferenceMember member : members) {
+                members = ConfTask.getMembers(m_user.getConfName());
+                if(members == null) {
+                    cmdResult = "No one is in your conference.";
+                    break;
+                }
+                
+                cmdResult = null;
+                
+                for( ConferenceMember member : members) {
+                    if(confParty != null) {
+                        if(confParty.equals(member.memberIndex())) {  
                             cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId());
-                            
-                            if(cmdResult != null) {
-                                break;
+                            if(cmdResult == null) {
+                                cmdResult = member.memberName() + " (" + member.memberNumber() + ") " + DisplayResult;
                             }
-
-                        }
-                        cmdResult = "All participants " + DisplayResult;
+                            break;
+                        }    
                     } else {
-                        cmdResult = "No one is in your conference.";
-                    }                                                 
-                    
-                } else {
-                 
-                    cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + m_context.getConfParty());
-                    if(cmdResult == null) {
-                        ConferenceMember member = ConfTask.getMember(m_user.getConfName(), m_context.getConfParty());
-                        cmdResult = member.memberName() + " (" + member.memberNumber() + ") " + DisplayResult;
+                        cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId());
+                        
+                        if(cmdResult != null) {
+                            break;
+                        }
                     }
+                }
                 
-                }              
-                break;
-            
-            /*    
-            case UNMUTE_CONF_PARTY:
-                cmdResult = ConfTask.ConfCommand(m_user, "unmute " + m_context.getConfParty());
-                if(cmdResult == null) {
-                    ConferenceMember member = ConfTask.getMember(m_user.getConfName(), m_context.getConfParty());
-                    cmdResult = member.memberName() + " (" + member.memberNumber() + ") " + "unmuted.";
+                if(cmdResult != null) {                 
+                    break;
+                }
+                
+                if(confParty == null) {
+                    cmdResult = "All participants " + DisplayResult;
+                } else {
+                    cmdResult = "That participant does not exist.";
                 }
                 break;
-                
-            case DISC_CONF_PARTY:
-                cmdResult = ConfTask.ConfCommand(m_user, "kick " + m_context.getConfParty());
-                if(cmdResult == null) {
-                    ConferenceMember member = ConfTask.getMember(m_user.getConfName(), m_context.getConfParty());
-                    cmdResult = member.memberName() + " (" + member.memberNumber() + ") " + "disconnected.";
-                }
-                break;    
-            */  
-                
+   
             case LOCK_CONF:
                 cmdResult = ConfTask.ConfCommand(m_user, "lock");
                 if(cmdResult == null) {
@@ -953,7 +942,7 @@ public class IMUser {
                     sendIM("The conference is locked, to unlock enter unlock.");
                 }
                 
-                Collection<ConferenceMember> members = ConfTask.getMembers(confName);
+                members = ConfTask.getMembers(confName);
                                 
                 if(members != null) {
                     String muteStr;
@@ -963,7 +952,7 @@ public class IMUser {
                             muteStr  = " is muted";
                         }
                         
-                        sendIM("[" + member.memberId() + "] " + member.memberName() +
+                        sendIM("[" + member.memberIndex() + "] " + member.memberName() +
                                " (" + member.memberNumber() + ")" + muteStr);
                     }
                 } else {

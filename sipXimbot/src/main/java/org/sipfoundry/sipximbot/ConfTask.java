@@ -26,7 +26,7 @@ public class ConfTask extends ConfBasicThread {
         Date date = new Date();   
         
         IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + "(" + member.memberNumber() + ")" + 
-                " entered your conference as participant [" + member.memberId() + "] at " + date.toString());
+                " entered your conference as participant [" + member.memberIndex() + "] at " + date.toString());
     }
 
     public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
