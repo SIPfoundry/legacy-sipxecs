@@ -34,6 +34,7 @@ import javax.sip.address.Hop;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
+import javax.sip.header.ProxyAuthorizationHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
@@ -239,6 +240,10 @@ public class SipListenerImpl implements SipListenerExt {
                             .getDialog());
                     newDialogApplicationData.setRtpSession(dialogApplicationData
                             .getRtpSession());
+                    
+                    ProxyAuthorizationHeader pah = (ProxyAuthorizationHeader) newClientTransaction.getRequest().getHeader(ProxyAuthorizationHeader.NAME);
+                    
+                    newDialogApplicationData.setProxyAuthorizationHeader(pah);
 
                     if (logger.isDebugEnabled()) {
                         logger.debug("SipListenerImpl: New Dialog = "

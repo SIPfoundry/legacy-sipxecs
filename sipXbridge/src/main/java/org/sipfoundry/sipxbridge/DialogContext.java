@@ -40,6 +40,7 @@ import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
+import javax.sip.header.ProxyAuthorizationHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
@@ -176,6 +177,8 @@ class DialogContext {
 
     private boolean terminateOnConfirm;
 
+	private ProxyAuthorizationHeader proxyAuthorizationHeader;
+
   
 
 
@@ -220,6 +223,9 @@ class DialogContext {
                         SessionDescription sd = rtpSession.getReceiver().getSessionDescription();
 
                         request = dialog.createRequest(Request.INVITE);
+                        if ( proxyAuthorizationHeader != null ) {
+                        	request.setHeader(proxyAuthorizationHeader);
+                        }
                         request.removeHeader(AllowHeader.NAME);
                         SipUtilities.addWanAllowHeaders(request);
                         AcceptHeader accept = ProtocolObjects.headerFactory.createAcceptHeader(
@@ -549,6 +555,9 @@ class DialogContext {
 
         }
         Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.getLastResponse()));
+        if ( this.proxyAuthorizationHeader != null ) {
+        	ackRequest.setHeader(proxyAuthorizationHeader);
+        }
         this.setLastResponse(null);
         this.recordLastAckTime();
         SipUtilities.setSessionDescription(ackRequest, sessionDescription);
@@ -623,6 +632,10 @@ class DialogContext {
                         (continuationData != null ? continuationData.getOperation() : null));
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
+                DialogContext peerDialogContext = DialogContext.get(peerDialog);
+                if ( peerDialogContext.proxyAuthorizationHeader != null ) {
+                	reInvite.setHeader(peerDialogContext.proxyAuthorizationHeader);
+                }
                 reInvite.removeHeader(SupportedHeader.NAME);
                 reInvite.removeHeader("remote-party-Id");
                 if ( this.itspInfo != null ) {
@@ -747,7 +760,9 @@ class DialogContext {
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
-
+        if ( proxyAuthorizationHeader != null ) {
+        	sdpOfferInvite.setHeader(proxyAuthorizationHeader);
+        }
         /*
          * Set and fix up the sdp offer to send to the opposite side.
          */
@@ -781,6 +796,9 @@ class DialogContext {
         this.recordLastAckTime();
         this.lastAck = ack;
         logger.debug("SendingAck ON " + dialog);
+        if ( this.proxyAuthorizationHeader != null ) {
+        	ack.setHeader(proxyAuthorizationHeader);
+        }
         dialog.sendAck(ack);
         
         if (terminateOnConfirm) {
@@ -823,6 +841,10 @@ class DialogContext {
      * Send a re-INVITE. The dialog layer will asynchronously send the re-INVITE
      */
     void sendReInvite(ClientTransaction clientTransaction) {
+    	
+    	if ( this.proxyAuthorizationHeader != null ) {
+    		clientTransaction.getRequest().setHeader(this.proxyAuthorizationHeader);
+    	}
       
         if (dialog.getState() != DialogState.TERMINATED) {
              try {
@@ -922,6 +944,10 @@ class DialogContext {
 
         Request ack = dialog.createAck(((CSeqHeader) response.getHeader(CSeqHeader.NAME))
                 .getSeqNumber());
+        
+        if ( this.proxyAuthorizationHeader != null ) {
+        	ack.setHeader(proxyAuthorizationHeader);
+        }
 
         this.sendAck(ack);
 
@@ -940,14 +966,15 @@ class DialogContext {
     void sendBye(boolean forward, String reason) throws SipException {
         try {
             Request bye = dialog.createRequest(Request.BYE);
-            if (reason != null) {
-                ReasonHeader reasonHeader = ProtocolObjects.headerFactory.createReasonHeader("sipXbridge", 
-                        ReasonCode.TIMED_OUT_WAITING_TO_SEND_REINVITE, reason);
-            }
+            
             if ( getSipProvider() != Gateway.getLanProvider() ) {
                 if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(bye);
                 }
+            }
+            
+            if ( this.proxyAuthorizationHeader != null ) {
+            	bye.setHeader(proxyAuthorizationHeader);
             }
             ViaHeader via  = ((ViaHeader) bye.getHeader(ViaHeader.NAME));
             if ( !forward ) via.setParameter("noforward", "true");
@@ -963,10 +990,7 @@ class DialogContext {
         } catch (ParseException ex) {
             logger.error("Unexpected exception",ex);
             throw new SipXbridgeException("Unexpected exception",ex);
-        } catch (InvalidArgumentException ex) {
-            logger.error("Unexpected exception",ex);
-            throw new SipXbridgeException("Unexpected Exception",ex);
-        }
+        } 
     }
     
     /**
@@ -986,6 +1010,9 @@ class DialogContext {
      */
     void forwardBye(ServerTransaction serverTransaction) throws SipException {
              Request bye = dialog.createRequest(Request.BYE);
+             if ( this.proxyAuthorizationHeader != null ) {
+            	 bye.setHeader(this.proxyAuthorizationHeader) ;
+             }
             if ( getSipProvider() != Gateway.getLanProvider() ) {
                 if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
                     SipUtilities.setGlobalAddresses(bye);
@@ -1078,6 +1105,10 @@ class DialogContext {
     public Dialog getDialog() {
         return this.dialog;
     }
+
+	public void setProxyAuthorizationHeader(ProxyAuthorizationHeader pah) {
+		this.proxyAuthorizationHeader = pah;
+	}
 
 
 }
