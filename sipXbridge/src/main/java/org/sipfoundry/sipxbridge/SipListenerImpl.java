@@ -74,6 +74,8 @@ public class SipListenerImpl implements SipListenerExt {
             return;
         }
 
+        TransactionContext transactionContext = TransactionContext.get(ctx);
+
         /*
          * challenge from LAN side. Forward it to the WAN. 
          */
@@ -89,6 +91,13 @@ public class SipListenerImpl implements SipListenerExt {
                     .getClientTransaction().getApplicationData())
                     .getServerTransaction();
             if (stx != null && stx.getState() != TransactionState.TERMINATED) {
+                /*
+                * Tear down the Back to back user agent immediately.
+                */
+                BackToBackUserAgent backToBackUserAgent = DialogContext.getBackToBackUserAgent(dialog);
+                if ( backToBackUserAgent != null && transactionContext.getOperation() == Operation.SEND_INVITE_TO_SIPX_PROXY ) {
+                    backToBackUserAgent.tearDownNow();
+                }
                 /*
                  * Forward it to the peer. Maybe he knows how to handle the challenge and if not
                  * he will hang up the call.
