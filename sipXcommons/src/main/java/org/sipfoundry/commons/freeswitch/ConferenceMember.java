@@ -4,7 +4,8 @@ public class ConferenceMember {
     String m_memberId;
     String m_memberName;
     String m_memberNumber;
-    boolean m_muted;
+    boolean m_muted; 
+    String m_memberIndex;
 
     public boolean isMuted() {
         return m_muted;
@@ -21,6 +22,9 @@ public class ConferenceMember {
     public String memberNumber() {
         return m_memberNumber;
     }
-      
+     
+    public String memberIndex() {
+        return m_memberIndex;
+    }
 }
 

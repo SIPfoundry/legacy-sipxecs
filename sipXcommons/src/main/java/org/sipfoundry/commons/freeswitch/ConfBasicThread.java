@@ -101,6 +101,7 @@ public class ConfBasicThread extends Thread {
                 member.m_muted = false;
                 member.m_memberNumber = memberNumber;
                 member.m_memberName = memberName;
+                member.m_memberIndex = conf.getNextParticipantIndex();
                 conf.add(member.m_memberId, member);
                 ProcessConfUserAdd(conf, member);
                 if(user != null) {

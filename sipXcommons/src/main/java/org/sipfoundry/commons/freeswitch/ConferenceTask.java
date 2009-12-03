@@ -13,6 +13,7 @@ public class ConferenceTask {
     private boolean             m_noOneTalking;
     private User                m_owner;
     private String              m_wavName;
+    private int                 m_participantIndex;
     
     ConferenceTask() {
         m_members = new HashMap<String, ConferenceMember>();
@@ -20,6 +21,7 @@ public class ConferenceTask {
         m_lastMemberTalking = null;
         m_noOneTalking = true;
         m_wavName = null;
+        m_participantIndex = 1;
     }
     
     public int getSize() {
@@ -28,7 +30,10 @@ public class ConferenceTask {
     
     public Collection<ConferenceMember> getMembers() {
         return m_members.values();
-        
+    }
+    
+    public String getNextParticipantIndex() {
+        return String.valueOf(m_participantIndex++);
     }
     
     public User getOwner() {
