@@ -22,6 +22,7 @@ public class BranchesPageTestUi extends ListWebTestCase {
         super("link:branches", "resetBranches", "branch");
         setPager(true);
         setHasDuplicate(false);
+        setExactCheck(false);
     }
 
     public static Test suite() throws Exception {
