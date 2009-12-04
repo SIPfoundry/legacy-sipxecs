@@ -324,18 +324,63 @@ Is this the first @SIPXECS_NAME@ server for this domain ? \n\
         log_printout('Nth System selected\n' )
         isFirstSystem = False
 
-def screen_hostname_error () :
-    global HostName
+def get_hostname () :
+   global reDomain
+   
+   hostname = getfqdn(gethostname())
+   hosterror = ''
 
-    errorExplanation = "\
-Your system hostname ('%s') is not set correctly.\n\
-It needs to be set to a fully qualified DNS name.\n\
-\n\
-Please correct your hostname and rerun sipxecs-setup." % HostName
-    
-    abortMsgAndExit(errorExplanation)
+   if hostname == '' :
+      hosterror = 'hostname is not set'
+   elif not reDomain.search(hostname) :
+      hosterror = "\
+hostname '%s'\n\
+is not a valid fully qualified domain name." % hostname
+   elif hostname == 'localhost.localdomain' :
+      hosterror = "hostname lookup returned '%s'" % hostname
 
+   while hosterror != '' :
 
+      hostExplanation ="\
+%s\n\
+Please set the correct system hostname." % hosterror
+
+      inner = snack.Grid(2, 3)
+
+      l1 = snack.Label("Host Name: ")
+      e1 = snack.Entry(32, HostName)
+
+      inner.setField(l1, 0, 1)
+      inner.setField(e1, 1, 1)
+
+      okButton = snack.Button("   OK   ")
+      inner.setField(okButton, 0, 2, (1,1,1,1))
+
+      f = screen_setup("Host Name", hostExplanation, inner)
+
+      f.run()
+
+      hostname=e1.value()
+
+      screen_end()
+
+      # Test for valid SIP domain name
+      if hostname == "" :
+         hosterror = "hostname is not set"
+      elif not reDomain.search(hostname) :
+         hosterror = "\
+hostname '%s'\n\
+is not a valid fully qualified domain name." % hostname
+      elif hostname == 'localhost.localdomain' :
+         hosterror = "\
+the name '%s' cannot be\n\
+used by other systems" % hostname
+      else:
+         hosterror = ''
+           
+   log_result("HostName", hostname)
+   return hostname
+      
 class ConfigURLOpener(urllib.FancyURLopener):
     # read an URL, with automatic HTTP authentication
 
@@ -364,7 +409,6 @@ def screen_fetch_config ():
     
     masterSystemName=''
     gotConfig=False
-    HostName = getfqdn(gethostname())
     while not gotConfig :
         MasterSystemMessage ="\
 Enter the full hostname of your Master system,\n\
@@ -870,18 +914,12 @@ def do_sipx_setup() :
     progress(10,"Get System Type")
     screen_ask_first ()
 
-    HostName = getfqdn(gethostname())
-    if HostName == '' :
-        screen_hostname_error()
-    else :
-        log_printout("Host Name '%s'" % HostName )
-        
-        nameMatch = reDomain.search(HostName) 
-        if nameMatch != None :
-            DomainName = nameMatch.group(1)
-            log_printout("Domain Name '%s'" % DomainName )
-        else :
-            screen_hostname_error()
+    HostName = get_hostname()
+
+    nameMatch = reDomain.search(HostName) 
+    if nameMatch != None :
+       DomainName = nameMatch.group(1)
+    log_printout("Domain Name '%s'" % DomainName )
 
     if isFirstSystem:
         
@@ -933,6 +971,7 @@ but not running as root, so DNS zone file was not written." )
         screen_confirm_master_config()
 
         progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
+        HostName=get_hostname()
         screen_fetch_config()
         cmdoutput=commands.getoutput('/sbin/service named restart')
 
