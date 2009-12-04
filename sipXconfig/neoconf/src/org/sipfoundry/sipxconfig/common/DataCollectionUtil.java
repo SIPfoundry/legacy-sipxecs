@@ -163,4 +163,12 @@ public final class DataCollectionUtil {
         list.add(newIndex, item);
         return newIndex;
     }
+
+    public static <E> List<E> getPage(List<E> all, int first, int pageSize) {
+        int last = first + pageSize;
+        if (last > all.size()) {
+            last = all.size();
+        }
+        return all.subList(first, last);
+    }
 }

@@ -5,18 +5,17 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -29,8 +28,12 @@ import org.sipfoundry.sipxconfig.admin.alarm.AlarmEvent;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
+
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColumn;
+import static org.sipfoundry.sipxconfig.components.TapestryUtils.isValid;
 
 public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBeginRenderListener {
     private static final String CLIENT = "client";
@@ -46,6 +49,9 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
+
+    @Parameter
+    public abstract SipxValidationDelegate getValidator();
 
     public abstract void setHost(String host);
 
@@ -70,17 +76,12 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
 
     public abstract void setCurrentRow(AlarmEvent alarmEvent);
 
-    public abstract List<AlarmEvent> getAlarmEvents();
+    public abstract List<AlarmEvent> getAlarmEventsCached();
 
-    public abstract void setAlarmEvents(List<AlarmEvent> alarmEvents);
-
-    public abstract HistoryAlarmsTableModel getHistoryAlarmsTableModel();
-
-    public abstract void setHistoryAlarmsTableModel(HistoryAlarmsTableModel tableModel);
+    public abstract void setAlarmEventsCached(List<AlarmEvent> alarmEvents);
 
     public ITableColumn getDate() {
-        return TapestryUtils
-                .createDateColumn("date", getMessages(), getExpressionEvaluator(), getPage().getLocale());
+        return createDateColumn("date", getMessages(), getExpressionEvaluator(), getPage().getLocale());
     }
 
     public void pageBeginRender(PageEvent event) {
@@ -107,42 +108,35 @@ public abstract class HistoryAlarmsPanel extends BaseComponent implements PageBe
             Date startTime = CdrHistory.getDefaultStartTime(getEndDate());
             setStartDate(startTime);
         }
-
-        if (getAlarmEvents() == null) {
-            setAlarmEvents(new ArrayList<AlarmEvent>());
-        }
     }
 
-    @Override
-    protected void prepareForRender(IRequestCycle cycle) {
-        //initialize model data when history tab is rendered
-        if (getHistoryAlarmsTableModel() == null) {
-            HistoryAlarmsTableModel tableModel = new HistoryAlarmsTableModel();
-            tableModel.setAlarmHistoryManager(getAlarmHistoryManager());
-            setHistoryAlarmsTableModel(tableModel);
+    public List<AlarmEvent> getAlarmEvents() {
+        List<AlarmEvent> alarmEvents = getAlarmEventsCached();
+        if (alarmEvents != null) {
+            return alarmEvents;
         }
-    }
-    /**
-     * Populate History Alarms Table Model with required data
-     */
-    private void populateHistoryAlarmsTableModel() {
-        HistoryAlarmsTableModel model = getHistoryAlarmsTableModel();
-        List<AlarmEvent> alarmEvents = getAlarmHistoryManager().getAlarmEvents(getHost(), getStartDate(), getEndDate());
-        model.setAlarmEvents(alarmEvents);
+        try {
+            alarmEvents = getAlarmHistoryManager().getAlarmEvents(getHost(), getStartDate(), getEndDate());
+        } catch (UserException e) {
+            alarmEvents = Collections.emptyList();
+            getValidator().record(e, getMessages());
+        }
+        setAlarmEventsCached(alarmEvents);
+        return alarmEvents;
     }
 
     public void retrieveLogs() {
-        if (!TapestryUtils.isValid(this)) {
+        if (!isValid(this)) {
             return;
         }
 
         if (getStartDate().after(getEndDate())) {
-            TapestryUtils.getValidator(getPage()).record(
-                    new ValidatorException(getMessages().getMessage("message.invalidDates")));
+            getValidator().record(new ValidatorException(getMessages().getMessage("message.invalidDates")));
             return;
         }
 
         getAlarmContext().reloadAlarms();
-        populateHistoryAlarmsTableModel();
+        // force alarm events reloading
+        setAlarmEventsCached(null);
     }
 }

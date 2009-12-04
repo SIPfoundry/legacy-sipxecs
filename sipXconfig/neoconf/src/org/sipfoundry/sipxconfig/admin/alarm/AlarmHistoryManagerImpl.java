@@ -23,6 +23,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
@@ -71,7 +72,7 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
             if (statusCode != 200) {
                 throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
             }
-            byte[] bytes =  httpget.getResponseBody();
+            byte[] bytes = httpget.getResponseBody();
             return new ByteArrayInputStream(bytes);
         } catch (HttpException ex) {
             throw new UserException("&error.https.server", host, ex.getMessage());
@@ -102,17 +103,6 @@ public class AlarmHistoryManagerImpl implements AlarmHistoryManager {
     protected List<AlarmEvent> parseEventsStreamByPage(InputStream responseStream, Date startDate, Date endDate,
             int first, int pageSize) throws IOException {
         List<AlarmEvent> contents = parseEventsStream(responseStream, startDate, endDate);
-
-        return getAlarmEventsByPage(contents, first, pageSize);
-    }
-
-    public List<AlarmEvent> getAlarmEventsByPage(List<AlarmEvent> contents, int first, int pageSize) {
-        int last = first + pageSize;
-        if (last > contents.size()) {
-            last = first + contents.size() % pageSize;
-        }
-
-        List<AlarmEvent> pageContents = contents.subList(first, last);
-        return pageContents;
+        return DataCollectionUtil.getPage(contents, first, pageSize);
     }
 }

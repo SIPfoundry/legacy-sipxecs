@@ -1,4 +1,5 @@
 <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<form jwcid="historyAlarmsForm@Form" delegate="ognl:validator">
   <table>
     <tbody>
       <tr jwcid="@common/FieldPanel" for="hosts"
@@ -28,9 +29,10 @@
 	  </tr>
     </tbody>
   </table>
-  <table jwcid="@common/Table" id="alarmEvent:list"
-      columns="alarm.code, !description:alarm.description, alarm.severity, =date"
-      source="ognl:historyAlarmsTableModel"
-      row="ognl:currentRow"
-      usePager="ognl:true">
-  </table>
+</form>
+<table jwcid="@common/Table" id="alarmEvent:list"
+  columns="alarm.code, !description:alarm.description, alarm.severity, =date"
+  source="ognl:alarmEvents"
+  row="ognl:currentRow"
+  usePager="ognl:true">
+</table>
