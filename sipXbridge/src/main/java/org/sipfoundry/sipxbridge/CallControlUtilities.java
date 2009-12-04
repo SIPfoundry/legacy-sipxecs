@@ -114,7 +114,7 @@ public class CallControlUtilities {
         if (b2bua.getMusicOnHoldDialog() != null && 
                 b2bua.getMusicOnHoldDialog().getState() != DialogState.TERMINATED ) {
             b2bua.sendByeToMohServer();
-            Gateway.getTimer().schedule(new ReOfferTimerTask(response,responseDialog,reOfferDialog), 500);
+            Gateway.getTimer().schedule(new ReOfferTimerTask(response,responseDialog,reOfferDialog), 100);
             return;
         }
         
