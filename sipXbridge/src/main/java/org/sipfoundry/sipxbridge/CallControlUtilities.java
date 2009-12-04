@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
+import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
@@ -110,7 +111,13 @@ public class CallControlUtilities {
                     + dialogContext.getLastResponse());
         }
 
-        b2bua.sendByeToMohServer();
+        if (b2bua.getMusicOnHoldDialog() != null && 
+                b2bua.getMusicOnHoldDialog().getState() != DialogState.TERMINATED ) {
+            b2bua.sendByeToMohServer();
+            Gateway.getTimer().schedule(new ReOfferTimerTask(response,responseDialog,reOfferDialog), 500);
+            return;
+        }
+        
 
         /*
          * Create a new INVITE to send to the other side. The sdp is extracted from the response

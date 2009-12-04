@@ -191,6 +191,8 @@ public class BackToBackUserAgent implements Comparable {
      */
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
 
+    private boolean pendingOperation;
+
    
     // ////////////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -557,7 +559,7 @@ public class BackToBackUserAgent implements Comparable {
             logger.debug("Remove Dialog " + dialog + " Dialog table size = "
                     + this.dialogTable.size());
         }
-        if (this.dialogTable.size() == 1) {
+        if (this.dialogTable.size() == 1 && !this.pendingOperation) {
             // This could be a stuck call. We can never have a situation
             // Wait for 8 seconds. If we still have no dialogs, we are done.
             Gateway.getTimer().schedule(new TimerTask() {
@@ -2340,6 +2342,10 @@ public class BackToBackUserAgent implements Comparable {
         if ( this.rtpBridge != null ) this.rtpBridge.stop();
         Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
         this.tearDown();
+    }
+
+    public void setPendingOperation(boolean pendingOperation) {
+        this.pendingOperation = pendingOperation;
     }
 
 }
