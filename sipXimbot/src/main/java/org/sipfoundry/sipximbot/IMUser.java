@@ -81,6 +81,11 @@ public class IMUser {
                         // ignore error IMs
                         return;
                     }
+                    
+                    if(message.getBody() == null) {
+                        return;
+                    }
+                        
                    
                     String from = chat.getParticipant();
                     if(from.indexOf('/') > 0) {

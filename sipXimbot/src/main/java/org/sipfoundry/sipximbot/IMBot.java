@@ -193,14 +193,18 @@ public class IMBot {
                 public void entriesAdded(Collection<String> entries) {
                 }
 
-                public void entriesDeleted(Collection<String> arg0) {
+                public void entriesDeleted(Collection<String> addresses) {
                     // Contacts have been removed from the roster
-                    for (RosterEntry entry : m_roster.getEntries() ) {
-                        LOG.debug("Removing from roster: " +  entry.getUser());
-                        m_ChatsMap.remove(entry.getUser());
+                    for(String address : addresses) {
+                        for (RosterEntry entry : m_roster.getEntries()) {
+                            if(address.equals(entry.getUser())) {
+                                LOG.debug("Removing from roster: " + entry.getUser());
+                                m_ChatsMap.remove(entry.getUser());
+                            }    
+                        }
                     }
                 }
-
+                
                 public void entriesUpdated(Collection<String> arg0) {                
                 }
 
