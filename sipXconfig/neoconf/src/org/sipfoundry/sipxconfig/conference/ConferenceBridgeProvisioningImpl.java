@@ -36,7 +36,6 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         // only need to replicate files that do not require restart
         SipxFreeswitchService service = bridge.getFreeswitchService();
         m_serviceConfigurator.replicateServiceConfig(location, service, true);
-        service.reloadXml(location);
 
         if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
             SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);

@@ -8,13 +8,17 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import java.util.ArrayList;
 
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxRecordingService;
@@ -23,6 +27,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
+import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.createNiceMock;
@@ -37,8 +42,6 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         final SipxFreeswitchService service = createNiceMock(SipxFreeswitchService.class);
         service.getBeanId();
         expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID);
-        service.reloadXml(location);
-        expectLastCall().andReturn(true);
 
         SipxService ivrService = new SipxIvrService();
         ivrService.setBeanId(SipxIvrService.BEAN_ID);
@@ -86,5 +89,23 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         impl.deploy(0);
 
         verify(ht, rc, sc, service);
+    }
+
+    public void testReloadXml() {
+        Location location = new Location();
+
+        SipxFreeswitchService service = createNiceMock(SipxFreeswitchService.class);
+        expect(service.getConfigurations(true)).andReturn(new ArrayList());
+        service.afterReplication(location);
+        expectLastCall().once();
+        replay(service);
+
+        SipxProcessContext sp = createNiceMock(SipxProcessContext.class);
+
+        ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
+        sc.setSipxProcessContext(sp);
+        sc.replicateServiceConfig(location, service, true);
+
+        verify(service);
     }
 }

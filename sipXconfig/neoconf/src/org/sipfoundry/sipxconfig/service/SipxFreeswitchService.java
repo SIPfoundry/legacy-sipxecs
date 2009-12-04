@@ -63,10 +63,22 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
         return String.format("http://%s:%d/RPC2", location.getFqdn(), getXmlRpcPort());
     }
 
-    public boolean reloadXml(Location location) {
+    @Override
+    public void afterReplication(Location location) {
+        if (location != null) {
+            reloadXml(location);
+        } else {
+            Location[] locations = getLocationsManager().getLocations();
+            for (Location l : locations) {
+                reloadXml(l);
+            }
+        }
+    }
+
+    private void reloadXml(Location location) {
         if (!isRunning(location)) {
             // no need to reloadXml if the service is not running at the moment
-            return true;
+            return;
         }
         boolean success = false;
         Serializable jobId = m_jobContext.schedule("FreeSWITCH reload configuration");
@@ -83,7 +95,6 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
                 m_jobContext.failure(jobId, null, null);
             }
         }
-        return success;
     }
 
     boolean isRunning(Location location) {

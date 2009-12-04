@@ -10,6 +10,8 @@
 
 package org.sipfoundry.sipxconfig.service;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 /**
  * Services can implement these methods to add custom processing.
  */
@@ -24,4 +26,12 @@ public interface ServiceLifeCycle {
     void onStop();
 
     void onRestart();
+
+    /**
+     * Called after configuration files replication for a service succeeds
+     *
+     * @param location if null service configuration was replicated to all locations on which
+     *        service is installed
+     */
+    void afterReplication(Location location);
 }

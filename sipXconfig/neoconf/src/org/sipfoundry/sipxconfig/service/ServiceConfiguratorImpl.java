@@ -74,6 +74,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (serviceRequiresRestart) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
+        service.afterReplication(location);
     }
 
     public void replicateServiceConfig(Collection<SipxService> services) {
@@ -101,6 +102,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (restartRequired) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
+        service.afterReplication(location);
     }
 
     public void replicateLocation(Location location) {
@@ -135,6 +137,7 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         if (serviceRequiresRestart) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
+        service.afterReplication(null);
     }
 
     private boolean replicateConfigurations(Location location, List< ? extends ConfigurationFile> configurations) {

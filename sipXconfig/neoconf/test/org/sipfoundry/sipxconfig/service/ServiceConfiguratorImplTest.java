@@ -13,20 +13,16 @@ package org.sipfoundry.sipxconfig.service;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
-
+import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.service.LocationSpecificService;
-import org.sipfoundry.sipxconfig.service.SipxSupervisorService;
 import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyConfig;
-
-import junit.framework.TestCase;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -37,8 +33,7 @@ import static org.easymock.EasyMock.verify;
 public class ServiceConfiguratorImplTest extends TestCase {
 
     public void testReplicateServiceConfigSipxService() {
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
@@ -64,14 +59,14 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(service);
 
         verify(pc, rc);
+        assertEquals("replicated", service.getTestString());
     }
 
     public void testReplicateServiceConfigSipxServiceLocation() {
         Location location = new Location();
         location.setRegistered(true);
 
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
@@ -100,11 +95,11 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(location, service);
 
         verify(pc, rc, cvm);
+        assertEquals("replicatedOnLocation", service.getTestString());
     }
 
     public void testReplicateServiceConfigSipxServiceBoolean() {
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
@@ -125,14 +120,14 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(service, true);
 
         verify(pc, rc);
+        assertEquals("replicated", service.getTestString());
     }
 
     public void testReplicateServiceConfigLocationSipxServiceOnlyNoRestart() {
         Location location = new Location();
         location.setUniqueId();
 
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
@@ -153,14 +148,14 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(location, service, true);
 
         verify(pc, rc);
+        assertEquals("replicatedOnLocation", service.getTestString());
     }
 
     public void testReplicateServiceConfigLocationSipxServiceAll() {
         Location location = new Location();
         location.setUniqueId();
 
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
@@ -185,12 +180,12 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateServiceConfig(location, service, false);
 
         verify(pc, rc);
+        assertEquals("replicatedOnLocation", service.getTestString());
     }
 
     public void testReplicateAllServiceConfig() {
 
-        SipxService service = new SipxService() {
-        };
+        DummySipxService service = new DummySipxService();
 
         Location location1 = new Location();
         Location location2 = new Location();
@@ -278,5 +273,23 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.replicateAllServiceConfig();
 
         verify(lm, pc, rc, cvm, dm, sm, domainManager, ac);
+        assertEquals("replicatedOnLocation", service.getTestString());
+    }
+
+    static class DummySipxService extends SipxService {
+        private String m_test = "test";
+
+        public String getTestString() {
+            return m_test;
+        }
+
+        @Override
+        public void afterReplication(Location location) {
+            if (location != null) {
+                m_test = "replicatedOnLocation";
+            } else {
+                m_test = "replicated";
+            }
+        }
     }
 }
