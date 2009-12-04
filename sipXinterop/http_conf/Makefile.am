@@ -15,19 +15,22 @@ EXTRA_DIST = \
 	 $(PRE_CFGFILES) \
 	 $(CFGFILES)
 
-install-data-hook: $(foreach cfg,$(CFGFILES) $(PRE_CFGFILES:.pre=),$(sysconfdir)/sipxpbx/$(cfg))
+install-data-hook: $(foreach cfg,$(CFGFILES) $(PRE_CFGFILES:.pre=),@SIPX_INTEROP@/http_conf/$(cfg))
 
-$(sysconfdir)/sipxpbx/httpd.conf: httpd.conf
+@SIPX_INTEROP@/http_conf/httpd.conf: httpd.conf @SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-$(sysconfdir)/sipxpbx/httpd-sipxchange-common.conf.in: httpd-sipxchange-common.conf.in
+@SIPX_INTEROP@/http_conf/httpd-sipxchange-common.conf.in: httpd-sipxchange-common.conf.in @SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-$(sysconfdir)/sipxpbx/httpd-sipxchange-common-ssl.conf: httpd-sipxchange-common-ssl.conf
+@SIPX_INTEROP@/http_conf/httpd-sipxchange-common-ssl.conf: httpd-sipxchange-common-ssl.conf @SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-$(sysconfdir)/sipxpbx/mime.types: $(srcdir)/mime.types
+@SIPX_INTEROP@/http_conf/mime.types: $(srcdir)/mime.types @SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
+
+@SIPX_INTEROP@/http_conf :
+	$(INSTALL) -d $@
 
 $(foreach pre,$(PRE_CFGFILES),$(pre:.pre=)) : % : $(srcdir)/%.pre
 	@echo "Localize $< -> $@"

@@ -570,6 +570,23 @@ do
    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @HTTP_ROOTDIR@/${new_filename}
 done
 
+SRC_HTTPD_CONFDIR="@SIPX_INTEROP@/http_confdir"
+for filename in ${SRC_HTTPD_CONFDIR}/*
+do
+    case ${filename} in
+        *.in)
+            new_filename=$(basename ${filename} .in)
+            process_substitutions ${filename} @SIPX_CONFDIR@/${new_filename}
+            ;;
+        *)
+            new_filename=$(basename ${filename})
+            cp ${filename} @SIPX_CONFDIR@/${new_filename}
+            ;;
+    esac
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CONFDIR@/${new_filename}
+done
+
+
 cat <<EOF
 
  Installation Complete (sipXecs has not been restarted)

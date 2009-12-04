@@ -55,5 +55,8 @@ $(foreach cgi,$(CGIS),$(cgi)) : % : $(srcdir)/%.in
 @SIPX_INTEROP@/http_rootdir/sipXecs.png : $(srcdir)/sipXecs.png @SIPX_INTEROP@/http_rootdir
 	@$(INSTALL) $< $@
 
-@SIPX_INTEROP@/http_rootdir :
+@SIPX_INTEROP@/http_rootdir : @SIPX_INTEROP@
+	$(INSTALL) -d $@
+
+@SIPX_INTEROP@ :
 	$(INSTALL) -d $@

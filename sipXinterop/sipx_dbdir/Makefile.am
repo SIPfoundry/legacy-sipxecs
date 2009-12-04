@@ -15,5 +15,8 @@ install-data-hook: $(foreach db,$(DBS),@SIPX_INTEROP@/db/$(db))
 $(foreach db,$(DBS),@SIPX_INTEROP@/db/$(db)) : @SIPX_INTEROP@/db/% : % @SIPX_INTEROP@/db
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/db :
+@SIPX_INTEROP@/db : @SIPX_INTEROP@
+	$(INSTALL) -d $@
+
+@SIPX_INTEROP@ :
 	$(INSTALL) -d $@

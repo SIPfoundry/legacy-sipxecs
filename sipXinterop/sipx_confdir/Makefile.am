@@ -33,10 +33,10 @@ install-data-hook: \
 	$(foreach conf,$(CONFIGS),@SIPX_INTEROP@/conf/$(conf)) \
 	@SIPX_INTEROP@/conf/interopattendant.wav
 
-$(foreach conf,$(CONFIGS),@SIPX_INTEROP@/conf/$(conf)) : @SIPX_INTEROP@/conf/% : %
+$(foreach conf,$(CONFIGS),@SIPX_INTEROP@/conf/$(conf)) : @SIPX_INTEROP@/conf/% : % @SIPX_INTEROP@/conf
 	$(INSTALL) $< $@
 
-$(foreach conf,$(CONFIGS),$(conf)) : % : %.pre
+$(foreach conf,$(CONFIGS),$(conf)) : % : %.pre 
 	@test -d $$(dirname $@) || mkdir -vp $$(dirname $@) 
 	@echo "Localizing $< -> $@"
 	@$(INTEROP_SUBSTITUTE) $< > $@
@@ -64,7 +64,10 @@ $(foreach conf,$(CONFIGS),$(conf)) : % : %.pre
 @SIPX_INTEROP@/conf/freeswitch : @SIPX_INTEROP@/conf
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@/conf :
+@SIPX_INTEROP@/conf : @SIPX_INTEROP@
+	$(INSTALL) -d $@
+
+@SIPX_INTEROP@ :
 	$(INSTALL) -d $@
 
 
