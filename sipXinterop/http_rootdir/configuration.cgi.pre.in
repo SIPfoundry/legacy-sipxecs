@@ -1,0 +1,35 @@
+#!/bin/bash
+#
+# Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+###################################################
+
+cat <<EOF
+Content-Type: text/html
+
+<html>
+<head>
+<title>@SIP_DOMAIN_NAME@ test server configuration</title>
+</head>
+<body>
+<h1>@SIP_DOMAIN_NAME@ test server configuration</h1>
+<p>
+Configuration at $(date)<br/>
+Server platform version:  $(uname -a)
+</p>
+<p>
+Interop Test configuration version: @INTEROP_VERSION@
+</p>
+
+<h2>sipXecs component versions:</h2>
+<pre>
+$(@SIPX_BINDIR@/sipxecs-config --components-version-build)
+</pre>
+</body>
+</html>
+EOF
+
+
+

@@ -1,0 +1,1232 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>sipXecs Interop Online</title>
+<style type="text/css">
+body
+{
+background-color: white;
+color: #336699;
+margin-left: 5%;
+margin-right: 5%;
+}
+h2
+{
+margin-left: -3%;
+}
+.nav
+{
+background-color: #336699;
+color: white;
+}
+.component
+{
+background-color: #CCCC99;
+}
+h1
+{
+color: #336699;
+margin-top: .75em;
+}
+
+.group
+{
+font-style: italic;
+border-color: #FFCC00;
+border-width: 1;
+border-style: solid;
+}
+code
+{
+white-space: pre;
+}
+img
+{
+   border-width: 0;
+}
+.indented
+{
+   padding-left: 50pt;
+   padding-right: 50pt;
+}
+</style>
+</head>
+
+<body>
+
+<a href="http://nortel.com">
+<img src="Nortel.gif" alt="Nortel" border="0" height="59" width="312" align="left" />
+</a>
+<a href="http://sipxecs.sipfoundry.org">
+<img src="sipXecs.png" alt="sipXecs" border="0" height="80" width="190" align="left" />
+</a>
+
+<h1 align="right">
+&nbsp;Interop Online
+</h1>
+</div>
+<hr/>
+
+<h2>Introduction</h2>
+This server runs sipXecs with a custom "interop" configuration designed to exercise issues
+we have found are important to interoperability with SIP User Agent clients.  It is provided by
+<a href='http://www.nortel.com'>Nortel</a> in cooperation with the <a href='http://www.sipfoundry.org/'>
+SIPfoundry sipXecs project</a> for open interoperability testing of SIP user agents.
+
+<p>
+This server is freely available to all, <strong>but Nortel does not provide any free support for
+diagnosing problems you have with these tests.</strong>  For SIP interoperability assistance with sipXecs,
+post a message on the <a href='http://list.sipfoundry.org/mailman/listinfo/sipx-dev'>sipXecs Developer
+Mailing List</a>.
+
+<blockquote>
+<p>
+<strong>NOTE WELL:</strong>  All communication with this server is
+logged and used under the
+"<a href='https://www.sipit.net/FirstTimers'>SIPit rules</a>":
+It may be used by Nortel Networks for internal testing and
+development, and aggregate information may be released to other
+parties.  Nortel Networks will not deliberately release to other parties any
+information identifiable to a specific user, product, or
+company.
+</p>
+
+<p>
+Information about your use of this server is
+visible to the public through debugging interfaces provided here, and
+through normal SIP capabilities.
+</p>
+
+<p>
+Any information you obtain about other users of this server you may
+use only under the SIPit rules.
+</p>
+</blockquote>
+
+<p>
+You should bring your implementation to <a href="https://www.sipit.net/Main_Page">SIPit</a> to do
+thorough interoperability testing with dozens of other implementations.
+</p>
+
+
+<h2>Links</h2>
+
+<a href='configuration.cgi'>The configuration of this server.</a></p>
+<a href='registrations.cgi'>The registrations on this server.</a></p>
+<form action='dialog-event.cgi' method='GET'>Dialog Event Package Analysis - Extension:
+   <input name='extension' size='4' maxlength='4' /><input type='submit' value='Analyze dialog event' />
+</form>
+
+<h2>Tracing</h2>
+
+<p>
+There is an experimental interface you can use
+to <a href='trace.cgi'>trace the message flow in this system</a>.
+</p>
+
+<h2>Testing Setup</h2>
+
+The Interop Server is setup to allow multiple simultaneous users by dividing the four digit test extensions up into groups numbered 01 through 99.  Each group consists of nine extensions that can
+be registered: 1gg1 through 1gg9, where "gg" is the group number.  You will need only one group number to complete the testing outlined in this document.</p>
+
+To select a free group number view the <a href='registrations.cgi'>Registrations page</a>.  This is a list of the extensions that are currently registered on the Interop Server.  Find a group number that has no registered extensions.  This will be your group number, hereafter referred to as <b>gg</b>.</p>
+
+The credentials for the nine test extensions are:</p>
+
+<table>
+ <tr>
+  <td width=156 valign=top style='width:117.0pt;border:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p><b>Address of Record</b></p>
+  </td>
+  <td width=336 valign=top style='width:3.5in;border:solid windowtext 1.0pt;
+  border-left:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'>sip:1gg<b>X</b>@@SIP_DOMAIN_NAME@ (for <b>X</b>=1..9)</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=156 valign=top style='width:117.0pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'><b>Username / Extension</b></p>
+  </td>
+  <td width=336 valign=top style='width:3.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'>1gg<b>X</b> (The user part from the Address of Record)</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=156 valign=top style='width:117.0pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'><b>Realm</b></p>
+  </td>
+  <td width=336 valign=top style='width:3.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'>@SIP_DOMAIN_NAME@</p>
+  </td>
+ </tr>
+ <tr>
+  <td width=156 valign=top style='width:117.0pt;border:solid windowtext 1.0pt;
+  border-top:none;padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'><b>Password</b></p>
+  </td>
+  <td width=336 valign=top style='width:3.5in;border-top:none;border-left:none;
+  border-bottom:solid windowtext 1.0pt;border-right:solid windowtext 1.0pt;
+  padding:0in 5.4pt 0in 5.4pt'>
+  <p style='margin-top:3.0pt;margin-right:0in;margin-bottom:
+  3.0pt;margin-left:0in'>1234</p>
+  </td>
+ </tr>
+</table></p>
+
+Once you have registered a phone using a free group number, you may consider that group number reserved for the duration of your testing.  Please un-register your phones upon completion.  </p>
+
+<h2>Test Cases</h2>
+
+<ol>
+<!-- To generate this list, run:
+grep "<h3><a name" http_rootdir/index.pre.in.html | grep -v ruby | ruby -e 'STDIN.readlines.each {|line| puts "<li><a href=\"##{line.split(">")[2].split("<")[0]}\">#{line.split(">")[3].split("<")[0][2..-1]}</a></li>"; }'
+-->
+<li><a href="#1">Initial Registration and Registration Refresh</a></li>
+<li><a href="#2">Basic Call</a></li>
+<li><a href="#3">Message Waiting Indication Activation</a></li>
+<li><a href="#4">Dual-Tone Multi-Frequency and Message Waiting Indication Deactivation</a></li>
+<li><a href="#5">User Interface Feedback of 403 (Forbidden) Response</a></li>
+<li><a href="#1">Handling of a 483 (Too Many Hops) Response with "sipfrag" Body</a></li>
+<li><a href="#1">User Interface Feedback of 483 (Too Many Hops) Response</a></li>
+<li><a href="#1">Handling of a 482 (Loop Detected) Response with "sipfrag" Body</a></li>
+<li><a href="#1">User Interface Feedback of 482 (Loop Detected) Response</a></li>
+<li><a href="#10">Accept a Blind Transfer as the Transferee</a></li>
+<li><a href="#11">Initiate a Blind Transfer</a></li>
+<li><a href="#12">Initiate a Consultative Transfer</a></li>
+<li><a href="#13">Forked INVITE - Multiple Serial 18x Responses</a></li>
+<li><a href="#14">Forked INVITE - Multiple Parallel 18x Responses</a></li>
+<li><a href="#15">Handling of a Long Via Path Resulting in Large Messages</a></li>
+<li><a href="#16">Detection and Handling of a Merged INVITE Loop</a></li>
+<li><a href="#17">Call Pick-up - Receiving a Call that is Picked-up</a></li>
+<li><a href="#18">Call Pick-up - Making a Call that is Picked-up</a></li>
+<li><a href="#19">Call Pick-up - Performing a Call Pick-up</a></li>
+<li><a href="#20">Forked Call Pick-up - Making a Forked Call that is Picked-up</a></li>
+<li><a href="#21">Call Park - Retrieved</a></li>
+<li><a href="#22">Call Park - Retrieving</a></li>
+<li><a href="#23">Dialog Event Package Contents</a></li>
+<li><a href="#24">Music On Hold</a></li>
+<li><a href="#25">Ad-hoc Conference</a></li>
+<li><a href="#26">DNS SRV Query - UDP</a></li>
+<li><a href="#27">DNS SRV Query - TCP</a></li>
+<li><a href="#28">Busy Lamp Field Monitoring using a Dialog-Event Resource List</a></li>
+<li><a href="#29">Multiple Dialog Event Subscriptions</a></li>
+</ol>
+
+<hr/>
+<h3><a name='1'>1</a>. Initial Registration and Registration Refresh</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly registers, in accordance with RFC 3261.  In particular:</p>
+<ul>
+<li>The re-sent (with
+authorization) REGISTER request from the Test Phone must use the same Call-ID
+and From tag as used by the initial REGISTER request, which was rejected with a
+401 (Unauthorized) response.  This is a requirement from Section 8.1.3.5 of RFC
+3261.</p>
+<li>The Test Phone must not
+respond incorrectly to the addition of an extra fictitious Contact header in
+the 200 (OK) response to the authorized REGISTER request.  This header will
+contain a false Address of Record (AOR) and a very short expiration time (This
+behavior is allowed by RFC 3261).  The Test Phone must use the expiration time
+from the Contact header that corresponds to the one in the REGISTER request.</p>
+<li>The Test Phone must
+refresh its registration before the expiration time specified in the 200 (OK)
+response.  Note that the Interop Server randomizes the expiration time of each
+register request, so it will normally be less than the time specified by the
+Test Phone in the REGISTER request.
+</ul>
+
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>Register the Test Phone with the Interop Server.</p>
+      <li>Wait at least 30 minutes, or until a refresh of the Test Phone's registration is observed in a
+network trace.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>Successful registrations of the Test Phone will be listed on the Interop Server's <a href='registrations.cgi'>Registrations page</a>.</p>
+      <li>The authentication nonces provided by sipXecs are specific to the from-tag in the request.
+Section 8.1.3.5 of RFC 3261 requires that a re-sent request has the same from-tag as the original request,
+so the nonce that sipX returns in a 401/407 response can always be used in a re-send of the request.</p>
+      <li>The registrar returns to the UA a fictitious contact from another UA with a very short expiration
+time.  (This behavior is allowed by RFC 3261.)</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must successfully register.  (Registration will fail if the re-sent REGISTER request does not contain the same Call-ID and From tag as the initial REGISTER request).</p>
+      <li>The Test Phone must successfully refresh its registration before it expires.</p>
+      <li>The Test Phone must not attempt to refresh its registration sooner than 60 seconds before it expires.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='2'>2</a>. Basic Call</h3>
+
+<b><u>Objective:</u></b> To determine
+whether the Test Phone can dial a basic internal call.  This includes correctly handling a 407 (Proxy Authentication
+Required) rejection of an un-authorized INVITE by re-sending the INVITE with
+the same Call-ID and From tag, and authorization added, in accordance with RFC
+3261.
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 100.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>"100" is the extension of the Interop Server's Auto Attendant. </p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The call must be established, with audio heard from the Auto Attendant.</p>
+      </ul>
+   </td>
+</tr></table>
+
+<hr/>
+<h3><a name='3'>3</a>. Message Waiting Indication Activation</h3>
+
+<b><u>Objective:</u></b> To determine
+whether the Test Phone correctly activates Message Waiting Indication (MWI) for a waiting voicemail
+message.  It must do this by sending a SUBSCRIBE for the message-summary event package, and correctly
+reacting to the subsequent NOTIFY, in accordance with RFC 3842.</p>
+
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg1 or 1gg2.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>Ensure the Test Phone has SUBSCRIBE'd the message-summary event package.</p>
+      <li>From the Other Phone, dial 2gg1 or 2gg2.</p>
+      <li>Leave a voicemail message at the prompt, then hang up.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>2gg1 and 2gg2 are direct paths to the voicemail of 1gg1 and 1gg2 respectively.</p>
+      <li>The Test Phone will not receive an INVITE, and will therefore not ring.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone's MWI must become activated.</p>
+      </ul>
+   </td>
+</tr></table>
+
+<hr/>
+<h3><a name='4'>4</a>. Dual-Tone Multi-Frequency and Message Waiting Indication Deactivation</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly:
+<ul>
+<li>generates Real-time Transport Protocol (RTP) Payload of Dual-Tone Multi-Frequency (DTMF) digits,
+in accordance with RFC 2833; and </p>
+<li>deactivates MWI when the waiting voicemail message is heard, in accordance with RFC 3842.</p>
+</ul>
+
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg1 or 1gg2.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>Ensure the Test Phone's MWI is activated for a waiting voicemail message.</p>
+      <li>From the Test Phone, dial 101 (the voicemail server.)</p>
+      <li>Enter 1234# (PIN) at the prompt.</p>
+      <li>Enter 1 to hear the message, then enter 4 to delete it.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>Entering "1234#", then "1", then "4" should result in the Test Phone sending DTMF events, and
+not tones in the RTP media stream.  If the Test Phone does not send DTMF events, then the voicemail server
+will not receive the entered PIN and will therefore deny login.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must be able to login to voicemail.</p>
+      <li>The Test Phone's MWI must become deactivated.</p>
+      </ul>
+   </td>
+</tr></table>
+
+<hr/>
+<h3><a name='5'>5</a>. User Interface Feedback of 403 (Forbidden) Response</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone's user interface (UI) provides feedback
+of the 403 (Forbidden) reason for the call failure, which is sent in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b>.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 4gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The call will fail.  1gg<b>X</b> (if registered) will not ring.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must communicate a reason for the failure.</p>
+      </ul>
+   </td>
+</tr></table>
+
+<hr/>
+<h3><a name='6'>6</a>. Handling of a 483 (Too Many Hops) Response with "sipfrag" Body</h3>
+
+<b><u>Objective:</u></b> To determine if the Test Phone can handle a 483 (Too Many Hops) response
+with a "sipfrag" Message Body, in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+<b><u>Note:</u></b> The actions for test cases 6. and 7. are identical.  If you are capturing network traces, then you'll only need one for these three cases.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 9000.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The call will fail with a 483 (Too Many Hops) response.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must abandon the failed call, and must be able to continue making and receiving calls.</p>
+      </ul>
+   </td>
+</tr></table>
+
+<hr/>
+<h3><a name='7'>7</a>. User Interface Feedback of 483 (Too Many Hops) Response</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone's user interface provides feedback of the 483 (Too Many
+Hops) reason for the call failure.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 9000.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The call will fail with a 483 (Too Many Hops) response.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must communicate a reason for the failure.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='8'>8</a>. Handling of a 482 (Loop Detected) Response with "sipfrag" Body</h3>
+
+<b><u>Objective:</u></b> To determine if the Test Phone can handle a 482 (Loop Detected) response with a
+"sipfrag" Message Body, in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+
+<b><u>Note:</u></b> The actions for test cases 8. and 9. are identical.  If you are capturing network traces, then you'll only need one for these two cases.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 9001.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The call will fail with a 482 (Loop Detected) response.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must abandon the failed call, and must be able to continue making
+and receiving calls.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='9'>9</a>. User Interface Feedback of 482 (Loop Detected) Response</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone's user interface provides feedback of the 482 (Too Many
+Hops) reason for the call failure.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+<b><u>Note:</u></b> The actions for test cases 8. and 9. are identical.  If you are capturing network traces, then you'll only need one for these two cases.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 9001.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The call will fail with a 482 (Loop Detected) response.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must communicate a reason for the failure.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='10'>10</a>. Accept a Blind Transfer as the Transferee</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles a REFER (without a "Replaces=" in the
+Refer-To header), in accordance with RFC 3515.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b>.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 100.</p>
+      <li>When prompted for an extension, enter 1gg<b>X</b>.</p>
+      <li>When 1gg<b>X</b> rings, answer the call.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>After entering "1gg<b>X</b>" on the Test Phone, ringback should be heard.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Answering 1gg<b>X</b> must result in the call being connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='11'>11</a>. Initiate a Blind Transfer</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly initiates a blind transfer (send
+authenticated REFER without Replaces), in accordance with RFC 3515.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b> and Any other 1gg<b>Y</b>.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, establish a call with one of the other phones.</p>
+      <li>From the Test Phone, initiate a <b>blind</b> transfer of the call to another phone.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>If "music on hold" is configured on the Test Phone, then the transferee should hear
+the music as the transfer is being performed.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Upon completing the transfer, the Test Phone must not show any active calls.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='12'>12</a>. Initiate a Consultative Transfer</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly initiates a consultative transfer, in accordance with RFC 3515.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b> and Any other 1gg<b>Y</b>.</p>
+
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, establish a call with one of the other phones.</p>
+      <li>From the Test Phone, initiate a <b>consultative</b> transfer of the call to another phone.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>If "music on hold" is configured on the Test Phone, then the transferee should hear
+the music as the transfer is being performed.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Upon completing the transfer, the Test Phone must not show any active calls.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='13'>13</a>. Forked INVITE - Multiple Serial 18x Responses</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles the multiple received 18x responses with different
+dialogs when calling a forked destination.  In this case each 18x response will be received approximately 5
+seconds apart.  When the call is answered the Test Phone must send the ACK request within the same dialog in
+which the 200 OK (INVITE) response was received, in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg1, 1gg2, 1gg7, 1gg8, <b>or</b> 1gg9.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 5gg0.</p>
+      <li>One of the Other Phones will ring.  Do not answer this call.</p>
+      <li>After @INTEROP_DEFAULT_SERIAL_EXPIRES@ seconds, a different Other Phone will ring.  Answer this call.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>A call to 5gg0 will be serially forked to 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6 in some random order.
+If not answered, the first extension called will receive a CANCEL when the next is called.  The length
+of time the first call rings is defined by the "Default Serial Fork Expiration" setting, which has been
+set to @INTEROP_DEFAULT_SERIAL_EXPIRES@ seconds on this server.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Answering the second ringing Other Phone must result in the call being connected with the Test
+Phone.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='14'>14</a>. Forked INVITE - Multiple Parallel 18x Responses</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles the multiple received 18x responses with different
+dialogs when calling a forked destination.  In this case each 18x response will be received in quick
+succession.  When the call is answered, the Test Phone must send the ACK request within the same dialog in
+which the 200 OK (INVITE) response was received, in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg1, 1gg2, 1gg7, 1gg8, <b>or</b> 1gg9.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 6gg0.</p>
+      <li>The Other Phones will all ring, answer one of them.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>A call to 6gg0 will be simultaneously forked to 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Answering the Other Phone must result in the call being connected with the Test Phone.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='15'>15</a>. Handling of a Long Via Path Resulting in Large Messages</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles atypically long Via paths
+in INVITE requests that result in large messages, in accordance with RFC 3261.  If transport layer is
+User Datagram Protocol (UDP), then the packets will be fragmented.
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>X</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Other Phone, dial 7gg<b>X</b>.</p>
+      <li>When the Test Phone rings, answer the call.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>A call to 7gg<b>X</b> will spiral several times within the Interop Server so that the
+INVITE request received at 1gg<b>X</b> it will have several Via headers.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>Answering the Test Phone must result in the call being connected normally.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='16'>16</a>. Detection and Handling of a Merged INVITE Loop</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly detects and handles an error where
+a single INVITE is forked and received twice, in accordance with RFC 3261.  The two INVITE requests will
+have the same Call-ID, Cseq, and From tag values, but different branch ids.  The Test Phone must accept
+the first one and return a 482 (Loop Detected) response to the second.  The call must then be connected
+normally when answered.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>X</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Other Phone, dial 8gg<b>X</b>.</p>
+      <li>When the Test Phone rings, answer the call.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>A call to 8gg<b>X</b> will be forked such that two INVITE requests will be received at 1ggX
+with the same Call-ID, Cseq, and From tag values, but different branch ids.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must accept the first INVITE, and subsequently send a 482 (Loop Detected) response
+to the second INVITE.  (Use a network trace to confirm this.)</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='17'>17</a>. Call Pick-up - Receiving a Call that is Picked-up</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly generates dialog-info
+event package NOTIFY requests with usable endpoint identification, in accordance with RFC 4235.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>X</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>Y</b> and 1gg<b>Z</b>.</p>
+
+<b><u>Note:</u></b> If 1gg<b>X</b>, 1gg<b>Y</b>, and 1gg<b>Z</b> are all instances of the Test Phones then the
+actions for test cases 17., 18., and 19. are identical.  If you are capturing network traces, then you'll only need one for these three cases.</p>
+</ul>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From 1gg<b>Y</b>, dial 1gg<b>X</b>, but don't answer the call.</p>
+      <li>From 1gg<b>Z</b>, dial *781gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>*78 is the Directed Call Pickup code.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>1gg<b>X</b> (the Test Phone) must stop ringing.</p>
+      <li>The call between 1gg<b>Y</b> and 1gg<b>Z</b> must be connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='18'>18</a>. Call Pick-up - Making a Call that is Picked-up</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles
+the INVITE with a Replaces header, including the "early-only" flag, in
+accordance with RFC 3891.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>Y</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b> and 1gg<b>Z</b>.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From 1gg<b>Y</b>, dial 1gg<b>X</b>, but don't answer the call.</p>
+      <li>From 1gg<b>Z</b>, dial *781gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>*78 is the Directed Call Pickup code.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>1gg<b>X</b> must stop ringing.</p>
+      <li>The call between 1gg<b>Y</b> (the Test Phone) and 1gg<b>Z</b> must be connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='19'>19</a>. Call Pick-up - Performing a Call Pick-up</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles
+a 200 OK response that was sent as a result of an INVITE with a Replaces
+header, in accordance with RFC 3891.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>Z</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>X</b> and 1gg<b>Y</b>.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From 1gg<b>Y</b>, dial 1gg<b>X</b>, but don't answer the call.</p>
+      <li>From 1gg<b>Z</b>, dial *781gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>*78 is the Directed Call Pickup code.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>1gg<b>X</b> must stop ringing.</p>
+      <li>The call between 1gg<b>Y</b> and 1gg<b>Z</b> (the Test Phone) must be connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='20'>20</a>. Forked Call Pick-up - Making a Forked Call that is Picked-up</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles
+the INVITE with a Replaces header, including the "early-only" flag, in
+accordance with RFC 3891. The added challenge for the Test Phone in this case
+is that the dialog to be replaced will be one of four early dialogs that must be
+tracked.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg1.</p>
+<p class="indented"><b><u>Ringing Phone Extensions:</u></b> 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6.</p>
+<p class="indented"><b><u>Call Pickup Phone Extension:</u></b> 1gg2.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, dial 6gg0.</p>
+      <li>From 1gg2, dial *781gg3.</p>
+      <li>Disconnect the call and repeat the above sequence with 1gg2 dialing *781gg4, *781gg5, and *781gg6.
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>A call to 6gg0 will be simultaneously forked to 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>After each repetition of the sequence:</p>
+      <p class="indented">All of 1gg3, 1gg4, 1gg5, <b>and</b> 1gg6 must stop ringing.</p>
+      <p class="indented">The call between the Test Phone and 1gg2 must be connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='21'>21</a>. Call Park - Retrieved</h3>
+
+<b><u>Objective:</u></b> To determine
+whether the Test Phone correctly handles a REFER with a "Replaces=" in the
+Refer-To header, in accordance with RFC 3515.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1ggX.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any 1ggY</p>
+
+<b><u>Note:</u></b> The actions for test cases 21. and 22. are identical.  If you are capturing network traces, then you'll only need one for these two cases.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone (1ggX), dial the Other Phone (1ggY.)</p>
+      <li>From the Other Phone, park the call with the Test Phone by transferring it to 5gg1.</p>
+      <li>From the Other Phone, retrieve the parked call by dialing *45gg1.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The extensions 5gg1 through 5gg9 are the group's park orbits.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must hear Park audio while parked.</p>
+      <li>The call must be re-connected normally when the Test Phone is un-parked.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='22'>22</a>. Call Park - Retrieving</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly handles
+the INVITE with a Replaces header (without the "early-only" flag) in accordance
+with RFC 3891.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1ggY.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any 1ggX</p>
+
+<b><u>Note:</u></b> The actions for test cases 21. and 22. are identical.  If you are capturing network traces, then you'll only need one for these two cases.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Other Phone (1ggX), dial the Test Phone (1ggY.)</p>
+      <li>From the Test Phone, park the call with the Other Phone by transferring it to 5gg1.</p>
+      <li>From the Test Phone, retrieve the parked call by dialing *45gg1.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The extensions 5gg1 through 5gg9 are the group's park orbits.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Other Phone must hear Park audio while parked.</p>
+      <li>The call must be re-connected normally when the Other Phone is un-parked.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='23'>23</a>. Dialog Event Package Contents</h3>
+
+<b><u>Objective:</u></b> To determine if the dialog event package contents generated by the Test Phone are in
+accordance with Internet-Draft <a href='http://tools.ietf.org/html/draft-worley-sip-dialog-03'>draft-worley-sip-dialog-03</a> - "Guidelines for Implementing the Dialog Event
+Package in User Agents".</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any 1gg<b>X</b>.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other 1gg<b>Y</b> and 1gg<b>Z</b>.</p>
+
+<b><u>Note:</u></b> The actions for test case 17. are identical to this one, and may not need to be repeated.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From 1gg<b>Y</b>, dial 1gg<b>X</b>.</p>
+      <li>From 1gg<b>Z</b>, dial *781gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The dialog event package will be analyzed against some of the criteria in the Internet-Draft
+<a href='http://tools.ietf.org/html/draft-worley-sip-dialog>draft-worley-sip-dialog</a>.  Violations of the guidelines are marked in <font color='red'>red</font>.</p>
+      <li><form action='dialog-event.cgi' method='GET'>
+             Test Phone Extension (1gg<b>X</b>): <input name='extension' size='4' maxlength='4' />
+             <input type='submit' value='Analyze dialog event' />
+          </form></p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>"User-Agent:" must match the Test Phone.<p>
+      <li>"NOTIFY bodies without &lt;dialog-info&gt; elements:" must read "None found".<p>
+      <li>"Content-Type application/dialog-info+xml header:" must read "Present".<p>
+      <li>"Subscription-State header:" must read "Present", with a reformatted eXtensible Markup Language
+(XML) body shown.<p>
+      <li>"XML syntax:" must read "Passed".<p>
+      <li>The subsequent 12 "Guideline" items must have no <font color='red'>red</font> violations.<p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='24'>24</a>. Music On Hold</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly provides
+"music on hold" (MOH) in accordance with the technique described in
+<a href='http://tools.ietf.org/html/draft-worley-service-example'>draft-worley-service-example</a> - "Session Initiation Protocol Service Example
+- Music on Hold".</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any other.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>On the Test Phone, set the configuration of the MOH audio source Uniform Resource Identifier
+(URI) to "sip:~~mh~@@SIP_DOMAIN_NAME@".</p>
+      <li>Establish a call between the Test Phoneand the Other Phone.</p>
+      <li>From the Test Phone, place the call on hold.</p>
+      <li>Note what is heard on the Other Phone, which is on hold.</p>
+      <li>From the Test Phone, take the call off hold.</p>
+
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Other Phone must hear MOH audio while on hold.</p>
+      <li>The call must be re-connected normally when the Other Phone is taken off hold.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='25'>25</a>. Ad-hoc Conference</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone can correctly
+initiate and host a three-party conference, in accordance with RFC 3261.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> Any two.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the Test Phone, initiate and host a three-party conference with the two Other Phones.</p>
+      <li>Disconnect one of the Other Phones.  Note whether the Test Phone and the remaining Other Phone
+are still connected.</p>
+      <li>Disconnect the remaining Other Phone.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The conference must be established with voice path between all participants.</p>
+      <li>When one of the Other Phones disconnects to leave the conference, the call between the Test
+Phone and the remaining Other Phone must still be connected.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='26'>26</a>. DNS SRV Query - UDP</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly performs
+DNS Service Record (SRV) record queries for the SIP service using the UDP
+transport layer, in accordance with RFC 3263.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>On the Test Phone, set the configuration of the SIP service transport layer to UDP, and set the SIP realm to <code>udp.@SIP_DOMAIN_NAME@</code>.</p>
+      <li>Restart the Test Phone (or otherwise re-initializes it's SIP service.)</p>
+      <li>Wait until the Test Phone has completed its restart/re-initialization, or until a DNS SRV query
+for <code>_sip._udp.@SIP_DOMAIN_NAME@</code> is observed in a network trace.
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>This server's configuration supports the SIP domain <code>udp.@SIP_DOMAIN_NAME@</code>.  The Test Phone however will
+fail to register if a DNS record for this domain does not exist.</p>
+      <li>The important part of the test case is whether the Test Phone makes the appropriate DNS SRV query.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must perform a DNS SRV query for <code>_sip._udp.udp.@SIP_DOMAIN_NAME@</code>, which must be observed in a network trace.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='27'>27</a>. DNS SRV Query - TCP</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly performs
+DNS SRV record queries for the SIP service using the Transmission Control
+Protocol (TCP) transport layer, in accordance with RFC 3263.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> Any.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> None.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>On the Test Phone, set the configuration of the SIP service transport layer to TCP, and set the SIP realm to <code>tcp.@SIP_DOMAIN_NAME@</code>.</p>
+      <li>Restart the Test Phone (or otherwise re-initializes it's SIP service.)</p>
+      <li>Wait until the Test Phone has completed its restart/re-initialization, or until a DNS SRV query
+for <code>_sip._tcp.@SIP_DOMAIN_NAME@</code> is observed in a network trace.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>This server's configuration supports the SIP domain <code>tcp.@SIP_DOMAIN_NAME@</code>.  The Test Phone however will
+fail to register if a DNS record for this domain does not exist.</p>
+      <li>The important part of the test case is whether the Test Phone makes the appropriate DNS SRV query.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must perform a DNS SRV query for <code>_sip._tcp.tcp.@SIP_DOMAIN_NAME@</code>, which must be observed in a network trace.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='28'>28</a>. Busy Lamp Field Monitoring using a Dialog-Event Resource List</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly performs
+Busy Lamp Field (BLF) monitoring using a Dialog-Event Resource List, in
+accordance with RFC 4235 and RFC 4662.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg2.</p>
+<p class="indented"><b><u>Other Phone Extension(s):</u></b> 1gg6 and 1gg9.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>Ensure Other Phone 1gg9 is <b>not</b> connected to the network.</p>
+      <li>On the Test Phone, set the configuration of the Resource List URI to one of the following,
+depending on which Resource List format is supported: </p>
+         <ul>
+         <li>Full RFC 4662 - sip:~~rl~F~<b>gg</b>@@SIP_DOMAIN_NAME@</p>
+         <li>Broadworks Restricted - sip:~~rl~C~<b>gg</b>@@SIP_DOMAIN_NAME@</p>
+         </ul>
+      <li>On the Test Phone, set the configuration to perform BLF monitoring of extensions 1gg2 (self),
+1gg6, and 1gg9.</p>
+      <li>Note the initial state of the Test Phone's BLF indications.  They should all be "idle".</p>
+      <li>From the Test Phone, dial 1gg6 and wait for it to ring.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 should be "on a call", and 1gg6 should be "ringing".</p>
+      <li>Answer 1gg6.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 and 1gg6 should both be "on a call".</p>
+      <li>From 1gg6, put the active call on hold.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 and 1gg6 should still both be "on a call".</p>
+      <li>Connect Other Phone 1gg9 to the network, and wait 30 seconds after it has registered.</p>
+      <li>From 1gg6, dial 1gg9 and wait for it to ring.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 and 1gg6 should still both be "on a call", and 1gg9 should be "ringing".</p>
+      <li>Answer 1gg9.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2, 1gg6, and 1gg9 should all be "on a call".</p>
+      <li>From 1gg9, disconnect the call with 1gg6.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 and 1gg6 should still both be "on a call", and 1gg9 should be "idle".</p>
+      <li>From 1gg6, take the call with the Test Phone off hold.</p>
+      <li>Note the Test Phone's BLF indications.  1gg2 and 1gg6 should still both be "on a call".</p>
+      <li>From 1gg6, disconnect the call with the Test Phone.</p>
+      <li>Note the Test Phone's BLF indications.  They should all be "idle".</p>
+      <li></p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The challenge
+  for a Test Phone that does not use a Resource List will be in BLF monitoring
+  Other Phone 1gg9 after it is connected to the network, and registers.  It is
+  possible to correctly perform BLF monitoring without a Dialog-Event Resource
+  List, but this creates redundant network traffic and unnecessary load on the
+  call server and endpoints.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The Test Phone must show each BLF indication change from the Actions above.</p>
+      <li>The Test Phone's use
+  of a Resource List for BLF monitoring is a requirement.  If the Test Phone
+  performs direct endpoint Dialog-Event subscriptions for BLF monitoring, then
+  it fails this test case.</p>
+      </ul>
+   </td>
+</tr></table>
+
+
+<hr/>
+<h3><a name='29'>29</a>. Multiple Dialog Event Subscriptions</h3>
+
+<b><u>Objective:</u></b> To determine whether the Test Phone correctly maintains
+multiple subscriptions to its Dialog Event status, in accordance with RFC 4235.</p>
+
+<b><u>Configuration:</u></b>
+<p class="indented"><b><u>Test Phone Extension:</u></b> 1gg6 or 1gg9 (1gg<b>X</b>.)</p>
+<p class="indented"><b><u>BLF Phone Extension:</u></b> A phone configured to perform BLF monitoring of 1gg<b>X</b>, such
+as the Test Phone from case 28. above.</p>
+<p class="indented"><b><u>Call Pickup Phone Extension:</u></b> Any other.</p>
+
+<table><tr>
+   <td valign=top style='border:solid windowtext 1.0pt; padding:0in 5.4pt 0in 5.4pt'>
+      <b><u>Action</u></b>
+      <ul>
+      <li>From the BLF Phone Extension, dial 1gg<b>X</b>, but don't answer the call.</p>
+      <li>From the Call Pickup Phone Extension, dial *781gg<b>X</b>.  Answer, and then hangup that call.</p>
+      <li>Note the BLF Phone's BLF indication.  1gg<b>X</b> should be "idle".</p>
+      <li>From the Call Pickup Phone Extension, dial 1gg<b>X</b>.</p>
+      </ul>
+      <b><u>Notes &amp; Expected Observations</u></b></p>
+      <ul>
+      <li>The first Dialog Event subscription to the Test Phone is established for BLF monitoring.  The call pickup requires a second Dialog Event subscription to the Test Phone, which is cancelled after the call pickup has been completed.</p>
+      </ul>
+      <b><u>Expected Test Outcome</u></b>
+      <ul>
+      <li>The BLF indication for 1gg<b>X</b> should show "ringing" for the second call.  This shows that the Test Phone was able to handle multiple subscriptions to its Dialog Event status.</p>
+      </ul>
+   </td>
+</tr></table>
+
+</body>
+
+</html>

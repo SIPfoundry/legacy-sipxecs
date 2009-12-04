@@ -66,6 +66,7 @@ AC_ARG_ENABLE(tools,
 if test x$tools = xyes
 then
   AC_CONFIG_SUBDIRS(sipXtools)
+  AC_CONFIG_SUBDIRS(sipXinterop)
 fi
 
 SFAC_DIST_DIR

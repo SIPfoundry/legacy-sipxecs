@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<nattraversal xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00">
+  <info>
+    <state>enabled</state>
+    <behindnat>false</behindnat>
+    <useSTUN>false</useSTUN>
+    <rediscovery-time>60</rediscovery-time>
+    <publicaddress>@INTEROP_ADDR@</publicaddress>
+    <proxyhostport>@INTEROP_ADDR@:5060</proxyhostport>
+    <relayaggressiveness>Aggressive</relayaggressiveness>
+    <concurrentrelays>50</concurrentrelays>
+    <mediarelayexternaladdress>@INTEROP_ADDR@</mediarelayexternaladdress>    <!-- TBD -->
+
+    <mediarelaynativeaddress>@INTEROP_ADDR@</mediarelaynativeaddress>    <!-- TBD -->
+
+    <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
+    <port-range>30000:30500</port-range>
+    <log-level>DEBUG</log-level>
+    <log-directory>@SIPX_LOGDIR@</log-directory>
+    <sipx-supervisor-host>@INTEROP_HOST@</sipx-supervisor-host>
+    <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
+  </info>
+  <localtopology>
+  </localtopology>
+</nattraversal>

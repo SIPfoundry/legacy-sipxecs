@@ -10,7 +10,7 @@ my($log_file) = '@SIPX_LOGDIR@/sipregistrar.log';
 my($registration_file) = '@SIPX_DBDIR@/registration.xml';
 
 # The SIP domain of this server.
-my($sip_domain) = '@SIPXCHANGE_DOMAIN_NAME@';
+my($sip_domain) = '@SIP_DOMAIN_NAME@';
 
 # The un-escape table for backslash escapes.
 my(%unescape) = ("r", "\r",

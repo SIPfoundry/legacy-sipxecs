@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <!--
+        These are voicemail server wide settings.
+        They are used by both the Web UI and TUI
+    -->
+
+    <voicemail>
+        <!-- =================== CUSTOMIZABLE PARAMETERS ====================== -->
+
+        <!--
+            Logging priority level for the Mediaserver CGIs. Log file is voicemail.log
+            Logging levels(from lowest to highest):
+            DEBUG, INFO, NOTICE, WARNING, ERR, CRIT, ALERT, EMERG
+            Tip: When trying to debug a problem, setting the level to DEBUG will be most helpful.
+        -->
+        <voicemail-cgi-log-level>DEBUG</voicemail-cgi-log-level>
+
+        <!-- Default voicemail message subject -->
+        <default-message-subject>Voicemail Message</default-message-subject>
+
+        <!--
+            Frequency in minutes with which the web page listing the messages in a folder
+            will be refreshed.
+        -->
+        <webpage-refresh-interval>5</webpage-refresh-interval>
+
+        <!--
+            Minimum incoming message length in milliseconds.
+            If messages recorded are shorter than this length,
+            then the message will not be saved.
+            Note: This parameter helps to not record hang ups.
+            However the higher the value, the greater the risk of losing valid messages.
+            It is recommended that you do not specify greater than 2000 milliseconds (2 secs).
+        -->
+        <min-message-length>1000</min-message-length>
+
+        <!--
+            Number of messages displayed on the WebUI in one webpage.
+            If the mailbox folder has more messages than the block size defined here,
+            links for viewing those messages will be provided as "More messages : 1 2 3"
+        -->
+        <web-message-block-size>50</web-message-block-size>
+
+        <!-- Voicemail notification emails will be sent from this address. -->
+        <email-notification-addr>postmaster@@INTEROP_HOST@</email-notification-addr>
+
+        <!-- Enables/disables playing envelope information before playing the voicemail
+            Accepts two values: ENABLE and DISABLE
+            -->
+            <voicemail-info-playback>DISABLE</voicemail-info-playback>
+
+        <!-- ========PLEASE DO NOT EDIT PARAMETERS DEFINED BELOW THIS LINE ========== -->
+
+        <!-- To manage multiple domains we have to have an entry per domain here -->
+        <default-domain>@SIP_DOMAIN_NAME@</default-domain>
+
+        <!-- Authentication realm for this installation.  Could be different from domain -->
+        <default-realm>@SIP_DOMAIN_NAME@</default-realm>
+
+        <!-- Secure fully qualified configserver base URL -->
+        <config-server-url-secure>https://@INTEROP_ADDR@:8443</config-server-url-secure>
+
+        <!-- Secure fully qualified configserver mailbox URL -->
+        <email-mailbox-url>https://@INTEROP_HOST@:8443/sipxconfig/mailbox</email-mailbox-url>
+
+        <!-- smtp server name for voicemail notification
+             is no longer configurable: must be 'localhost' -->
+
+        <!-- Location of the voicemail folders -->
+        <mailstore-root>@SIPX_VXMLDATADIR@</mailstore-root>
+
+        <!-- Media Server base directory - home of standard prompts, vxml scripts, etc. -->
+        <mediaserver-root>@wwwdir@/doc</mediaserver-root>
+
+        <!--
+            Non-SSL (HTTP) mediaserver base URL - used for retrieving UI webpages,
+            stylesheets, standard prompts, vxml scripts, etc.
+        -->
+        <mediaserver-url>http://localhost:8090</mediaserver-url>
+
+        <!--
+            Secure mediaserver base URL for accessing CGIs, user's mailbox, etc.
+            If you dont want to use secure connection at all, specify the same
+            value as mediaserver-url here.
+        -->
+        <mediaserver-url-secure>https://localhost:8091</mediaserver-url-secure>
+
+        <!--
+            Non-SSL (HTTP) fully qualified mediaserver base URL - not used right now.
+        -->
+        <full-mediaserver-url>http://@INTEROP_HOST@:8090</full-mediaserver-url>
+
+        <!--
+            Secure fully qualified mediaserver base URL - currently used for constructing links
+            in voicemail notification emails.
+        -->
+        <full-mediaserver-url-secure>https://@INTEROP_HOST@:8091</full-mediaserver-url-secure>
+
+        <!--
+            IVR prompt base URL - used by VXML interpreter for
+            retrieving standard prompts.
+        -->
+        <ivr-prompt-url>file://@wwwdir@/doc</ivr-prompt-url>
+
+        <!--
+            this is a template for when we create new mailboxes.
+            the following folder names will be created in the mailbox
+            directory. Note that the display name can be different
+            to the real name of the attribute the WEB ui uses this
+
+            'name'          - Physical folder name on the file system
+            'displayname'   - WEB User Interface display name
+            'autodelete'    - Specified the folder delete policy for
+                          messages in the designated folder.
+            Possible values: "Logout",
+                         "N days",
+                         "N days",
+                         "N months",
+                         "Never" (default)
+
+            DO NOT change the value specified by <name>.
+            <displayname> can be modified.
+            <autodelete> is not used in this release.
+        -->
+        <folders>
+            <folder>
+                <name>inbox</name>
+                <displayname>In box</displayname>
+                <autodelete>Never</autodelete>
+            </folder>
+
+            <folder>
+                <name>saved</name>
+                <displayname>Saved</displayname>
+                <autodelete>Never</autodelete>
+            </folder>
+
+            <folder>
+                <name>deleted</name>
+                <displayname>Deleted</displayname>
+                <autodelete>On Logout</autodelete>
+            </folder>
+        </folders>
+    </voicemail>
+
+    <!--
+        Status Server CGI (send a get request to this
+        url with 'eventtype=message-summary' and
+        'identity=mailboxidentity' parameters to return retrieve
+        the message summary notify message contents
+    -->
+    <mwi>
+        <mwiurl>https://@INTEROP_ADDR@:8101/cgi/StatusEvent.cgi</mwiurl>
+    </mwi>
+
+</settings>

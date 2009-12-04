@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
+  <!-- Mapping rule to implement the TCP and UDP SRV aliases. -->
+  <hostMatch>
+    <hostPattern>udp.@SIP_DOMAIN_NAME@</hostPattern>
+    <hostPattern>tcp.@SIP_DOMAIN_NAME@</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <host>@SIP_DOMAIN_NAME@</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+  <hostMatch>
+    <hostPattern>@SIP_DOMAIN_NAME@</hostPattern>
+
+    <!-- Sample mapping rule for *90 forwarding prefix -->
+    <!-- Forwards *90xxx to sip:xxx@example.com -->
+    <userMatch>
+      <userPattern>*90x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{vdigits}@example.com&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!--Music on Hold-->
+      <description>Forward music on hold calls to Park Server</description>
+      <userPattern>~~mh~</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:moh@@INTEROP_HOST@:5120&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!--RLS-->
+      <description>Forward resource list subscriptions to RLS</description>
+      <userPattern>~~rl~.</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams>Route=sip:@INTEROP_HOST@:5140</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- 'operator', '0', or extension 100 goes to AutoAttendant -->
+    <userMatch>
+      <!--AutoAttendant-->
+      <description>Default autoattendant dialing plan</description>
+      <userPattern>operator</userPattern>
+      <userPattern>100</userPattern>
+      <userPattern>0</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:IVR@@SIP_DOMAIN_NAME@:15060;action=autoattendant;schedule_id=aa_7;locale=en&gt;;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- extension 101 is used to retrieve voicemail messages -->
+    <userMatch>
+      <description>Default internal dialing plan</description>
+      <userPattern>101</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:IVR@@INTEROP_HOST@:15060;action=retrieve;locale=en&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <description>Default voicemail dialing plan</description>
+      <callTag>VM</callTag>
+      <userPattern>~~vm~.</userPattern>
+      <permissionMatch>
+        <permission>FreeswitchVoicemailServer</permission>
+        <transform>
+          <url>&lt;sip:IVR@@INTEROP_HOST@:15060;mailbox={vdigits};action=deposit;locale=en&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <description>Voicemail redirect dialing rule</description>
+      <callTag>VM</callTag>
+      <userPattern>1xxx</userPattern>
+      <permissionMatch>
+        <permission>FreeswitchVoicemailServer</permission>
+        <transform>
+          <user>~~vm~{digits}</user>
+          <fieldparams>q=0.1</fieldparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Direct Voice Mail Deposit
+      -  2xxx goes direct to voicemail box for any user 1xxx with voicemail
+      -->
+    <userMatch>
+      <callTag>VM</callTag>
+      <userPattern>2xx[12]</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>~~vm~1{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Valid User Transforms
+      - change 3<ext> so that it is challenged when it gets to the
+      - authproxy, and any valid user can make the call.
+      -->
+    <userMatch>
+      <userPattern>3xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>validuser_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>validuser_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- BigShot Transforms
+      - change 4<ext> so that it is challenged when it gets to the
+      - authproxy, and only users with BigShot permission can make
+      - the call.
+      -->
+    <userMatch>
+      <userPattern>4xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>bigshot_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>bigshot_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Long Path
+      - For 7<ext>, put extra spirals in the path to test large messages
+      - and many vias.
+      -->
+    <userMatch>
+      <userPattern>7xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>hop1_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>hop1_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>hop2_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>hop2_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>hop3_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>hop3_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Multiple Invites
+      - For 8<ext>, fork the call and spiral both forks so that the
+      - same call is received at the target with different branch ids
+      - The first should be accepted, and the second rejected.
+      -->
+    <userMatch>
+      <userPattern>8xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>call1_{vdigits}</user>
+        </transform>
+        <transform>
+          <user>call2_{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>call1_xxx</userPattern>
+      <userPattern>call2_xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>1{vdigits}</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Loop
+      -  Forces a Loop Detected error to be returned.
+      -->
+    <userMatch>
+      <userPattern>9001</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>InfiniteLoop</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>InfiniteLoop</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>LoopForever</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>LoopForever</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>InfiniteLoop</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <!-- Test handling of Require header.
+      - Forward *63xxx to xxxx with "Require: merde".
+      -->
+    <userMatch>
+      <userPattern>*63xxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{vdigits}</user>
+          <headerparams name='Require'>merde</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>
+

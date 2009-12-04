@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
+  <autoattendant id="operator">
+    <name>Operator</name>
+    <prompt>@SIPX_INTEROP@/conf/interopattendant.wav</prompt>
+    <menuItems>
+      <menuItem>
+        <dialPad>*</dialPad>
+        <action>repeat_prompt</action>
+      </menuItem>
+    </menuItems>
+    <dtmf>
+      <initialTimeout>7000</initialTimeout>
+      <interDigitTimeout>3000</interDigitTimeout>
+      <extraDigitTimeout>3000</extraDigitTimeout>
+      <maximumDigits>10</maximumDigits>
+    </dtmf>
+    <invalidResponse>
+      <noInputCount>2</noInputCount>
+      <invalidResponseCount>2</invalidResponseCount>
+      <transferOnFailures>false</transferOnFailures>
+    </invalidResponse>
+  </autoattendant>
+  <schedules>
+    <schedule id="aa_7">
+      <holiday/>
+      <regularhours/>
+      <afterhours>
+        <id>operator</id>
+      </afterhours>
+    </schedule>
+  </schedules>
+</autoattendants>

@@ -13,6 +13,7 @@ LOCAL_SHELLSCRIPTS = \
 	sipx-mrtg-threshexceeded \
 	sipx-mrtg-threshok \
 	sipx-readroute \
+	sipx-trace \
 	expire-spread \
 	monitor-spread \
 	sipxproc \

@@ -128,6 +128,8 @@ bool ImdbResource::isReadyToStart(UtlString& missingResource)
 
    if (NULL == mDatabase)
    {
+        OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                      "Getting database '%s' returning missing resource", this->data());
         mDatabase = SIPDBManager::getInstance()->getDatabase(*this);
    }
 
@@ -137,10 +139,18 @@ bool ImdbResource::isReadyToStart(UtlString& missingResource)
       // preload the database.  if it fails (i.e. no xml file) then resource not ready.
       if (SIPDBManager::getInstance()->preloadDatabaseTable(*this) != OS_SUCCESS)
       {
-         OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FAILED to load database %s returning missing resource", this->data());
+         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                       "FAILED to load database '%s' returning missing resource", this->data());
          rc = false;
       }
    }
+   else
+   {
+      OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
+                    "FAILED to get database '%s' returning missing resource", this->data());
+
+   }
+   
    if (!rc)
    {
       missingResource = "";

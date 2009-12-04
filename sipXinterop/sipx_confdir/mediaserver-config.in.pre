@@ -1,0 +1,190 @@
+# ============================================================================
+#
+# Copyright (c) 2001 SpeechWorks International
+#
+# Configuration file for SpeechBrowser client application
+#
+# Rules:
+#       - Lines beginning with '#' are considered comments and ignored
+#       - No comments are supported within a line (following other items)
+#       - Each line is made of three items, a Name, a Type and a Value
+#       - These three items (strings) can be separated by tabs or spaces
+#       - Only the Value string can contain spaces, except trailing spaces
+#         which are ignored
+#       - All items are case-sensitive
+#       - Supported types are 'Environment', 'VXIString', 'VXIInteger',
+#         'VXIFloat' and 'VXIPtr'
+#       - The 'Environment' type is used to set and remove an environment
+#         variable
+#       - Types other than 'Environment' indicate you want to set a map
+#         property
+#       - All properties will be passed as a single map argument to SB
+#         functions
+#       - The value for the 'VXIPtr' type is ignored and considered as NULL
+#       - Environment variables set here will apply not only to the script
+#         environment, but to the real application as well
+#       - To remove a variable from the environment, supply no Value for it
+#       - To use a variable within the script, use the syntax '\$(VARIABLENAME)'
+#       - Variables can only be used within Value items, not in Names and Types
+#
+# Examples:
+#                                  Name                 Type       Value
+#                            -------------------------------------------------
+#  Set an integer property:  myModule.myIntegerKey   VXIInteger  1234
+#  Set a string property:    myModule.myStringKey    VXIString   Any string
+#  Set an env. variable:     MY_VARIABLE             Environment C:\TEMP;D:\ 
+#  Remove an env. variable:  MY_EX_VARIABLE          Environment
+#  Use an env. variable:     myModule.myEnvKey       VXIString   \$(MY_VARIABLE)
+#
+#  You can use several variables within a Value:  \$(TYPE)://\$(DRIVE)/\$(PATH)
+#
+# ============================================================================
+
+####################################
+# Overridden environment variables #
+####################################
+
+VXILOG                                  Environment     @SIPX_LOGDIR@
+VXITMP                                  Environment     @SIPX_DATADIR@/tmp
+
+#############################
+# Base client configuration #
+#############################
+
+### Number of active calls
+### This parameter sets the number of maximum active calls allowed for media server. 
+mediaserver.max.active.calls            VXIInteger      50
+
+### Define what CODECs are available to the user agents.
+mediaserver.rtp.codecs                  VXIString       pcmu pcma telephone-event
+
+### Port / IP configuration
+mediaserver.udp.port                    VXIInteger      5100
+mediaserver.tcp.port                    VXIInteger      5100
+mediaserver.bindip                      VXIString       @INTEROP_ADDR@
+
+### Logging
+client.log.dir                          VXIString       \$(VXILOG)
+client.log.filename                     VXIString       \$(VXILOG)/vxmlengine.log
+mediaserver.log.level                   VXIString       DEBUG
+
+# The default is to log to standard out as well as to a file (set to 1)
+# set to 0 to disable logging to standard out
+client.log.logToStdout                  VXIInteger      0
+
+### Internet fetch, extension rules defined separately below
+client.inet.cacheDir                    VXIString       \$(VXITMP)/cache_sbinet
+client.inet.cacheTotalSizeMB            VXIInteger      40
+client.inet.cacheEntryMaxSizeMB         VXIInteger      4
+client.inet.cacheEntryExpTimeSec        VXIInteger      86400
+client.inet.userAgent                   VXIString       sipXvxml/1.0
+client.inet.acceptCookies               VXIInteger      1
+# client.prompt.baseUrl                   VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/
+client.prompt.baseUrl                   VXIString       file://@HTTP_ROOTDIR@/stdprompts/
+
+### Controls HTAnchor patch
+### n is an integer equal or greater then zero.
+### Zero disables the patch, otherwise n controls how many times the  number if active 
+### instances of SBinetHttpStream class has to drop t zero before the HTAnchor cache is cleaned
+#inet.htAnchorPeriod                     VXIInteger     n
+
+### JavaScript
+client.jsi.runtimeSizeBytes             VXIInteger      16384000
+client.jsi.contextSizeBytes             VXIInteger      131072
+client.jsi.maxBranches                  VXIInteger      100000
+
+### VoiceXML Interpreter
+# client.vxi.beepURI                      VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/stdprompts/beep.wav
+client.vxi.beepURI                      VXIString       file://@HTTP_ROOTDIR@/stdprompts/beep.wav
+
+#####################################
+# testClient specific configuration #
+#####################################
+
+# Overridden if a URI is specified on the command line
+#client.vxmlURL                          VXIString       http://localhost:${MEDIA_SERVER_HTTP_PORT}/vm_vxml/ 
+client.vxmlURL                          VXIString        file:///@HTTP_ROOTDIR@/vm_vxml/ 
+
+##############################
+# Autothrottle configuration #
+##############################
+
+# The autothrottle when engaged periodically monitors the number of messages
+# in the incoming message queue of the Media Task.  If that number exceeds
+# a set limit for a certain number of periods, the autothrottle
+# lowers mediaserver.max.active.calls to 1 less than the current
+# number of calls (but never less than 1).  The autothrottle can be
+# used to regulate mediaserver.max.active.calls to match the
+# capacities of the computer.
+
+# The default of 0 disengages the autothrottle, in which case it
+# causes no overhead.  Non-zero values engage it.
+autothrottle.engage			VXIInteger      0
+# Autothrottle monitoring period, in milliseconds.
+autothrottle.tick                       VXIInteger      1000
+# Message queue limit to activate autothrottle.
+# -1 means the "soft limit" of the mpSignalMsgPool, the special message pool
+# for timer signals to the Media Task.
+autothrottle.limit                      VXIInteger      10
+# Number of consecutive times the message queue must be over the limit to
+# cause mediaserver.max.active.calls to be reduced.
+autothrottle.trigger                    VXIInteger      5
+# If non-zero, causes the autothrottle to log a message giving its
+# statistics every monitoring period.  (Do not use for production systems!)
+autothrottle.verbose                    VXIInteger      0
+
+#################################################
+# Base diagnostic tag offset for each interface #
+#################################################
+
+client.inet.diagLogBase                 VXIInteger      3000
+client.jsi.diagLogBase                  VXIInteger      4000
+client.prompt.diagLogBase               VXIInteger      5000
+client.rec.diagLogBase                  VXIInteger      6000
+client.tel.diagLogBase                  VXIInteger      7000
+client.vxi.diagLogBase                  VXIInteger      8000
+client.object.diagLogBase               VXIInteger      9000
+client.client.diagLogBase               VXIInteger      10000
+
+
+##############################################
+# Diagnostic tags: 0 to disable, 1 to enable #
+##############################################
+
+# OSBprompt (5000), OSBrec (600x), and OSBtel (7000) traces
+client.log.diagTag.5000                 VXIInteger      0
+client.log.diagTag.6000                 VXIInteger      0
+client.log.diagTag.6001                 VXIInteger      0
+client.log.diagTag.7000                 VXIInteger      0
+
+# API/general log traces for other components
+client.log.diagTag.3000                 VXIInteger      0
+client.log.diagTag.4000                 VXIInteger      0
+client.log.diagTag.9000                 VXIInteger      0
+
+# VXI logging, the first is for application diagnostics/errors, the
+# second is the output from the <log> element
+client.log.diagTag.8000                 VXIInteger      0
+client.log.diagTag.8001                 VXIInteger      0
+client.log.diagTag.8002                 VXIInteger      0
+
+# OSBclient API, component, and generic logging respectively
+client.log.diagTag.10000                VXIInteger      0
+client.log.diagTag.10001                VXIInteger      0
+client.log.diagTag.10002                VXIInteger      0
+
+# testClient logging
+client.log.diagTag.60001                VXIInteger      0
+
+#############################################
+# File extension to MIME type mapping rules #
+#############################################
+
+client.inet.extensionRule.alaw          VXIString       audio/x-alaw-basic
+client.inet.extensionRule.txt           VXIString       text/plain
+client.inet.extensionRule.ulaw          VXIString       audio/basic
+client.inet.extensionRule.vox           VXIString       audio/x-dialogic-vox
+client.inet.extensionRule.wav           VXIString       audio/x-wav
+client.inet.extensionRule.xml           VXIString       text/xml
+client.inet.extensionRule.vxml          VXIString       application/vxml+xml
+client.inet.extensionRule.L8            VXIString       audio/L8;rate=8000

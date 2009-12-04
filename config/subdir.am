@@ -32,7 +32,6 @@ LocalizeSipXconfig = sed \
 		  -e 's,@bindir\@,$(bindir),g' \
 		  -e 's,@datadir\@,$(datadir),g' \
 		  -e 's,@sysconfdir\@,$(sysconfdir),g' \
-		  -e 's,@htmldir\@,@htmldir@,g' \
 		  -e 's,@INSTALL\@,@INSTALL@,g' \
 		  -e 's,@install_sh\@,@install_sh@,g' \
 		  -e 's,@libdir\@,$(libdir),g' \

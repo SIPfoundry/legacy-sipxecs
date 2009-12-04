@@ -1,0 +1,35 @@
+Interoperability Test Configuration
+
+This subproject creates a special interoperability test configuration for a sipXecs system. 
+It may be used on a system installed from source, or one installed from rpms.
+
+To install this configuration on a system that already has sipXecs installed:
+
+1) If the system was installed from RPMs, obtain and configure the sipXinterop sources; 
+   (if the system was installed from source, this has already been done - skip this step): 
+
+   a) Check out the project source tree on the target system.
+
+   b) Create the autoconf template files as usual in the top level of the source tree:
+
+        autoreconf -if
+
+   c) Run the configure script to match the existing installation:
+
+        ./configure $(sipxportlib-config --configopts)
+
+      Or, if you prefer a build directory separate from the source tree:
+
+        cd <your-build-dir>
+
+        <relative-path-to-source>/configure $(sipxportlib-config --configopts)
+
+2) Run make in the build directory for this project:
+
+   make all install
+
+3) As root, run the installation script to install the configuration:
+
+   sipxinterop-setup
+
+

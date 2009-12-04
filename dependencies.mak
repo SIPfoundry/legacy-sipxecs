@@ -153,7 +153,6 @@ sipXecs : \
 	sipXmediaLib \
 	sipXopenfire \
 	sipXpage \
-	sipXpark \
 	sipXpbx \
 	sipXportLib \
 	sipXpresence \
@@ -162,11 +161,17 @@ sipXecs : \
 	sipXpublisher \
 	sipXrecording \
 	sipXregistry \
-        sipXrelay \
 	sipXrest \
+	sipXrelay \
+	sipXbridge \
 	sipXrls \
 	sipXsaa \
 	sipXsupervisor \
 	sipXtackLib \
 	sipXtools
 	@echo sipXecs
+
+.PHONY: sipXinterop
+sipXinterop : sipXecs
+	@echo sipXinterop
+
