@@ -15,21 +15,21 @@ EXTRA_DIST = \
 	 $(PRE_CFGFILES) \
 	 $(CFGFILES)
 
-install-data-hook: $(foreach cfg,$(CFGFILES) $(PRE_CFGFILES:.pre=),@SIPX_INTEROP@/http_conf/$(cfg))
+install-data-hook: $(foreach cfg,$(CFGFILES) $(PRE_CFGFILES:.pre=),$(DESTDIR)@SIPX_INTEROP@/http_conf/$(cfg))
 
-@SIPX_INTEROP@/http_conf/httpd.conf: httpd.conf @SIPX_INTEROP@/http_conf
+$(DESTDIR)@SIPX_INTEROP@/http_conf/httpd.conf: httpd.conf $(DESTDIR)@SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/http_conf/httpd-sipxchange-common.conf.in: httpd-sipxchange-common.conf.in @SIPX_INTEROP@/http_conf
+$(DESTDIR)@SIPX_INTEROP@/http_conf/httpd-sipxchange-common.conf.in: httpd-sipxchange-common.conf.in $(DESTDIR)@SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/http_conf/httpd-sipxchange-common-ssl.conf: httpd-sipxchange-common-ssl.conf @SIPX_INTEROP@/http_conf
+$(DESTDIR)@SIPX_INTEROP@/http_conf/httpd-sipxchange-common-ssl.conf: httpd-sipxchange-common-ssl.conf $(DESTDIR)@SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/http_conf/mime.types: $(srcdir)/mime.types @SIPX_INTEROP@/http_conf
+$(DESTDIR)@SIPX_INTEROP@/http_conf/mime.types: $(srcdir)/mime.types $(DESTDIR)@SIPX_INTEROP@/http_conf
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/http_conf :
+$(DESTDIR)@SIPX_INTEROP@/http_conf :
 	$(INSTALL) -d $@
 
 $(foreach pre,$(PRE_CFGFILES),$(pre:.pre=)) : % : $(srcdir)/%.pre

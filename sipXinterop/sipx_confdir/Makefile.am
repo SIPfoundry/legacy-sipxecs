@@ -30,10 +30,10 @@ CONFIGS = \
 EXTRA_DIST = $(foreach conf,$(CONFIGS),$(conf).pre) interopattendant.wav
 
 install-data-hook: \
-	$(foreach conf,$(CONFIGS),@SIPX_INTEROP@/conf/$(conf)) \
-	@SIPX_INTEROP@/conf/interopattendant.wav
+	$(foreach conf,$(CONFIGS),$(DESTDIR)@SIPX_INTEROP@/conf/$(conf)) \
+	$(DESTDIR)@SIPX_INTEROP@/conf/interopattendant.wav
 
-$(foreach conf,$(CONFIGS),@SIPX_INTEROP@/conf/$(conf)) : @SIPX_INTEROP@/conf/% : % @SIPX_INTEROP@/conf
+$(foreach conf,$(CONFIGS),$(DESTDIR)@SIPX_INTEROP@/conf/$(conf)) : $(DESTDIR)@SIPX_INTEROP@/conf/% : % $(DESTDIR)@SIPX_INTEROP@/conf
 	$(INSTALL) $< $@
 
 $(foreach conf,$(CONFIGS),$(conf)) : % : %.pre 
@@ -41,33 +41,33 @@ $(foreach conf,$(CONFIGS),$(conf)) : % : %.pre
 	@echo "Localizing $< -> $@"
 	@$(INTEROP_SUBSTITUTE) $< > $@
 
-@SIPX_INTEROP@/conf/interopattendant.wav: interopattendant.wav @SIPX_INTEROP@/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/interopattendant.wav: interopattendant.wav $(DESTDIR)@SIPX_INTEROP@/conf
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/conf/freeswitch/conf/freeswitch.xml.in : @SIPX_INTEROP@/conf/freeswitch/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/freeswitch.xml.in : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf
 
-@SIPX_INTEROP@/conf/freeswitch/conf/vars.xml.in : @SIPX_INTEROP@/conf/freeswitch/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/vars.xml.in : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf
 
-@SIPX_INTEROP@/conf/freeswitch/conf/dialplan/sipX_context.xml.in : @SIPX_INTEROP@/conf/freeswitch/conf/dialplan
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/dialplan/sipX_context.xml.in : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/dialplan
 
-@SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles/sipX_profile.xml.in : @SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles/sipX_profile.xml.in : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles
 
-@SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles: @SIPX_INTEROP@/conf/freeswitch/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/sip_profiles: $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@/conf/freeswitch/conf/dialplan : @SIPX_INTEROP@/conf/freeswitch/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf/dialplan : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@/conf/freeswitch/conf : @SIPX_INTEROP@/conf/freeswitch
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch/conf : $(DESTDIR)@SIPX_INTEROP@/conf/freeswitch
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@/conf/freeswitch : @SIPX_INTEROP@/conf
+$(DESTDIR)@SIPX_INTEROP@/conf/freeswitch : $(DESTDIR)@SIPX_INTEROP@/conf
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@/conf : @SIPX_INTEROP@
+$(DESTDIR)@SIPX_INTEROP@/conf : $(DESTDIR)@SIPX_INTEROP@
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@ :
+$(DESTDIR)@SIPX_INTEROP@ :
 	$(INSTALL) -d $@
 
 

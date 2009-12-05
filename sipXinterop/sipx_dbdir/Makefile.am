@@ -10,13 +10,13 @@ DBS = \
 
 EXTRA_DIST = $(DBS)
 
-install-data-hook: $(foreach db,$(DBS),@SIPX_INTEROP@/db/$(db))
+install-data-hook: $(foreach db,$(DBS),$(DESTDIR)@SIPX_INTEROP@/db/$(db))
 
-$(foreach db,$(DBS),@SIPX_INTEROP@/db/$(db)) : @SIPX_INTEROP@/db/% : % @SIPX_INTEROP@/db
+$(foreach db,$(DBS),$(DESTDIR)@SIPX_INTEROP@/db/$(db)) : $(DESTDIR)@SIPX_INTEROP@/db/% : % $(DESTDIR)@SIPX_INTEROP@/db
 	$(INSTALL) $< $@
 
-@SIPX_INTEROP@/db : @SIPX_INTEROP@
+$(DESTDIR)@SIPX_INTEROP@/db : $(DESTDIR)@SIPX_INTEROP@
 	$(INSTALL) -d $@
 
-@SIPX_INTEROP@ :
+$(DESTDIR)@SIPX_INTEROP@ :
 	$(INSTALL) -d $@
