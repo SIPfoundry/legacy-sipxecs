@@ -78,7 +78,7 @@ Vendor: SIPfoundry
 Summary: Internal documentation for %name
 Requires: sipxcommserverlib-devel >= %version
 Requires: sipxcalllib-devel >= %version
-Requires: 
+
 %description devel
 Internal class documentation for the pbx classes
 
