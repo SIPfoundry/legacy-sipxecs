@@ -561,7 +561,7 @@ public class BackToBackUserAgent implements Comparable {
         }
         if (this.dialogTable.size() == 1 && !this.pendingOperation) {
             // This could be a stuck call. We can never have a situation
-            // Wait for 8 seconds. If we still have no dialogs, we are done.
+            // Wait for 4 seconds. If we still have no dialogs, we are done.
             Gateway.getTimer().schedule(new TimerTask() {
                 @Override
                 public void run() {
@@ -575,7 +575,7 @@ public class BackToBackUserAgent implements Comparable {
                     }
                    
                 }
-            }, 8000);
+            }, 4000);
 
         }
 

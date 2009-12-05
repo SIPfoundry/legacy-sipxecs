@@ -802,6 +802,7 @@ class DialogContext {
         dialog.sendAck(ack);
         
         if (terminateOnConfirm) {
+            logger.debug("tearing down MOH dialog because of terminateOnConfirm.");
             Request byeRequest = dialog.createRequest(Request.BYE);
 
             ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
@@ -819,6 +820,7 @@ class DialogContext {
      */
     void setTerminateOnConfirm() {
         this.terminateOnConfirm = true;
+        logger.debug("setTerminateOnConfirm: " + this);
         /*
          * Fire off a timer to reap this guy if he does not die in 8 seconds.
          */
@@ -827,6 +829,7 @@ class DialogContext {
             public void run() {
                 try {
                     if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
+                        logger.debug("terminating dialog " + dialog + " because no confirmation received and terminateOnConfirm is set");
                         DialogContext.this.dialog.delete();
                     }
                 } catch (Exception ex) {
@@ -835,6 +838,13 @@ class DialogContext {
             }
         }, 8000);
 
+    }
+    
+    /**
+     * return true if "terminate on confirm" flag is set.
+     */
+    boolean isTerminateOnConfirm() {
+        return this.terminateOnConfirm;
     }
 
     /**

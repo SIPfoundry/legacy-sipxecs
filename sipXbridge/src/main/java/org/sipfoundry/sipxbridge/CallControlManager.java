@@ -18,8 +18,6 @@ import gov.nist.javax.sip.message.SIPResponse;
 import gov.nist.javax.sip.stack.SIPDialog;
 import gov.nist.javax.sip.stack.SIPServerTransaction;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.ListIterator;
@@ -2022,13 +2020,14 @@ class CallControlManager implements SymmitronResetHandler {
         try {
             if (response.getStatusCode() == Response.OK) {
                 /* To avoid rejecting stray packets set up the transmitter side (although this is a
-                 * send-only stream ).
+                 * send-only stream ). We do not want to do this if this is already scheduled for termination
+                 * on confirm because otherwise we will make a mess of the port mappings (race condition).
                  */
                 SessionDescription sd = SipUtilities.getSessionDescription(response);
                 String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress(sd);
                 int port = SipUtilities.getSessionDescriptionMediaPort(sd);
-                if ( DialogContext.get(dialog).getRtpSession() != null  &&
-                        DialogContext.get(dialog).getRtpSession().getTransmitter() != null ) {
+                if (!DialogContext.get(dialog).isTerminateOnConfirm() &&  DialogContext.get(dialog).getRtpSession() != null  &&
+                    DialogContext.get(dialog).getRtpSession().getTransmitter() != null ) {
                     DialogContext.get(dialog).getRtpSession().getTransmitter().setIpAddressAndPort(ipAddress, port);
                 }
                 DialogContext.get(dialog).sendAck(response);

@@ -113,9 +113,21 @@ public class CallControlUtilities {
 
         if (b2bua.getMusicOnHoldDialog() != null && 
                 b2bua.getMusicOnHoldDialog().getState() != DialogState.TERMINATED ) {
-            b2bua.sendByeToMohServer();
-            Gateway.getTimer().schedule(new ReOfferTimerTask(response,responseDialog,reOfferDialog), 100);
-            return;
+         /*
+          * If MOH is still alive, kill and retry. We put a small pause here to shut the MOH media down
+          * so any packets can be flushed before media re-negotiation takes place.
+          */
+          b2bua.sendByeToMohServer();
+            
+           /*
+            * Check to see if the MOH dialog will be terminated when it is confirmed. If so, we do not
+            * have to pause here because the MOH has not been streamed to the ITSP. Otherwise, put in a delay
+            * so any packets bound for the ITSP have cleared before we re-negotiate media.
+            */
+            if (!DialogContext.get(b2bua.getMusicOnHoldDialog()).isTerminateOnConfirm()) {
+            	Gateway.getTimer().schedule(new ReOfferTimerTask(response,responseDialog,reOfferDialog), 50);
+            	return;
+            }
         }
         
 
