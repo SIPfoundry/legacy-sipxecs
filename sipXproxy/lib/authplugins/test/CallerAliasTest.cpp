@@ -39,18 +39,15 @@ class CallerAliasTest : public CppUnit::TestCase
 public:
 
    static CallerAlias*      converter;
-   static SipDbTestContext* TestDbContext;
+   static SipDbTestContext  TestDbContext;
    static SipUserAgent      testUserAgent;
    static SipRouter*        testSipRouter;
 
    void setUp()
       {
-         TestDbContext = new SipDbTestContext(TEST_DATA_DIR "/example.edu",
-                                              TEST_WORK_DIR "/example.edu");
-
-         TestDbContext->inputFile("caller-alias.xml");
-         TestDbContext->inputFile("domain-config");
-         TestDbContext->setSipxDir(SipXecsService::ConfigurationDirType);
+         TestDbContext.inputFile("caller-alias.xml");
+         TestDbContext.inputFile("domain-config");
+         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
       }
 
    void tearDown()
@@ -497,4 +494,5 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
 SipRouter* CallerAliasTest::testSipRouter;
-SipDbTestContext* CallerAliasTest::TestDbContext;
+SipDbTestContext CallerAliasTest::TestDbContextSipDbTestContext(TEST_DATA_DIR "/example.edu",
+                                                                 TEST_WORK_DIR "/example.edu");
