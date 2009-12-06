@@ -11,11 +11,9 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
-import gov.nist.javax.sip.header.SIPHeaderList;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
-import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -191,8 +189,7 @@ public class BackToBackUserAgent implements Comparable {
      */
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
 
-    private boolean pendingOperation;
-
+  
    
     // ////////////////////////////////////////////////////////////////////////
     // Inner classes.
@@ -559,7 +556,7 @@ public class BackToBackUserAgent implements Comparable {
             logger.debug("Remove Dialog " + dialog + " Dialog table size = "
                     + this.dialogTable.size());
         }
-        if (this.dialogTable.size() == 1 && !this.pendingOperation) {
+        if (this.dialogTable.size() == 1 ) {
             // This could be a stuck call. We can never have a situation
             // Wait for 4 seconds. If we still have no dialogs, we are done.
             Gateway.getTimer().schedule(new TimerTask() {
@@ -2344,8 +2341,5 @@ public class BackToBackUserAgent implements Comparable {
         this.tearDown();
     }
 
-    public void setPendingOperation(boolean pendingOperation) {
-        this.pendingOperation = pendingOperation;
-    }
 
 }

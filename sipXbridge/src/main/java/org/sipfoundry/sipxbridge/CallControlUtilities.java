@@ -113,12 +113,10 @@ public class CallControlUtilities {
 
         if (b2bua.getMusicOnHoldDialog() != null && 
                 b2bua.getMusicOnHoldDialog().getState() != DialogState.TERMINATED ) {
-            /*
-            * If MOH is still alive, kill and retry. We put a small pause here to shut the MOH media down
-            * so any packets can be flushed before media re-negotiation takes place.
-            */
-            b2bua.sendByeToMohServer();
-            
+       	 /*
+       	  * If MOH is still alive, kill it.
+          */
+           b2bua.sendByeToMohServer();
         }
         
 
