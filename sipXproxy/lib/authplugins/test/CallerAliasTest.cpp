@@ -494,5 +494,5 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
 SipRouter* CallerAliasTest::testSipRouter;
-SipDbTestContext CallerAliasTest::TestDbContextSipDbTestContext(TEST_DATA_DIR "/example.edu",
-                                                                 TEST_WORK_DIR "/example.edu");
+SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR "/example.edu",
+                                                TEST_WORK_DIR "/calleralias-context");
