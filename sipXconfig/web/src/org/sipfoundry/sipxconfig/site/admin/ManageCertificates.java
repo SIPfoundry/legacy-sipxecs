@@ -19,7 +19,7 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
-import org.sipfoundry.sipxconfig.admin.WebCertificateManager;
+import org.sipfoundry.sipxconfig.admin.CertificateManager;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -40,8 +40,8 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
-    @InjectObject(value = "spring:webCertificateManagerImpl")
-    public abstract WebCertificateManager getWebCertificateManager();
+    @InjectObject(value = "spring:certificateManagerImpl")
+    public abstract CertificateManager getCertificateManager();
 
     @InjectObject(value = "spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -96,7 +96,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
 
         try {
             // load properties
-            Properties properties = getWebCertificateManager().loadCertPropertiesFile();
+            Properties properties = getCertificateManager().loadCertPropertiesFile();
             if (properties != null) {
                 setCountry(properties.getProperty(COUNTRY_PROP));
                 setState(properties.getProperty(STATE_PROP));
@@ -105,7 +105,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
                 setEmail(properties.getProperty(EMAIL_PROP));
 
                 // load csr
-                String csr = getWebCertificateManager().readCSRFile();
+                String csr = getCertificateManager().readCSRFile();
                 setCsr(csr);
             }
         } catch (UserException e) {
@@ -128,10 +128,10 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         properties.setProperty(LOCALITY_PROP, getLocality());
         properties.setProperty(ORGANIZATION_PROP, getOrganization());
         properties.setProperty(EMAIL_PROP, getEmail());
-        getWebCertificateManager().writeCertPropertiesFile(properties);
+        getCertificateManager().writeCertPropertiesFile(properties);
 
         // generate key and csr files
-        getWebCertificateManager().generateCSRFile();
+        getCertificateManager().generateCSRFile();
 
         validator.recordSuccess(getMessages().getMessage("msg.generateSuccess"));
     }
@@ -153,12 +153,12 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         }
 
         if (uploadFile != null) {
-            uploadFile.write(getWebCertificateManager().getCRTFile());
+            uploadFile.write(getCertificateManager().getCRTFile());
         } else if (certificate != null) {
-            getWebCertificateManager().writeCRTFile(certificate);
+            getCertificateManager().writeCRTFile(certificate);
         }
 
-        getWebCertificateManager().copyKeyAndCertificate();
+        getCertificateManager().copyKeyAndCertificate();
 
         validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
     }

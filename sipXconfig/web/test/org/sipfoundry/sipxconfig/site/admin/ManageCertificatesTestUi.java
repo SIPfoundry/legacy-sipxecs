@@ -49,4 +49,16 @@ public class ManageCertificatesTestUi extends WebTestCase {
         //TODO enhanced testing
     }
 
+    public void testAuthoritiesTab() throws Exception {
+        SiteTestHelper.assertNoException(getTester());
+        clickLink("link:authorities");
+        setWorkingForm("importForm");
+        assertFormElementPresent("certificateFile");
+        assertFormElementPresent("import");
+        assertElementPresent("certificates:list");
+        assertElementPresent("deleteCert");
+        clickButton("import");
+        SiteTestHelper.assertUserError(getTester());
+    }
+
 }

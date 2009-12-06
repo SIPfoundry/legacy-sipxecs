@@ -10,9 +10,12 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Properties;
+import java.util.Set;
 
-public interface WebCertificateManager {
+
+public interface CertificateManager {
     Properties loadCertPropertiesFile();
 
     String readCSRFile();
@@ -26,4 +29,24 @@ public interface WebCertificateManager {
     void writeCRTFile(String crt);
 
     void copyKeyAndCertificate();
+
+    boolean validateCertificate(File file);
+
+    String showCertificate(File file);
+
+    public void rehashCertificates();
+
+    public File getCAFile(String fileName);
+
+    public File getCATmpFile(String fileName);
+
+    void deleteCRTAuthorityTmpDirectory();
+
+    void copyCRTAuthority();
+
+    Set<CertificateDecorator> listCertificates();
+
+    void deleteCA(CertificateDecorator cert);
+
+    void deleteCAs(Collection<CertificateDecorator> listCert);
 }

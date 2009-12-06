@@ -13,25 +13,30 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Properties;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
-public class WebCertificateManagerTest extends TestCase {
+public class CertificateManagerTest extends TestCase {
 
-    private WebCertificateManagerImpl m_manager;
+    private CertificateManagerImpl m_manager;
     private LocationsManager m_locationsManager;
     private Location m_primaryLocation;
 
     @Override
     protected void setUp() {
-        m_manager = new WebCertificateManagerImpl();
+        m_manager = new CertificateManagerImpl();
         m_manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         m_manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+        m_manager.setBinCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
+        m_manager.setSslAuthDirectory(TestUtil.getTestSourceDirectory(this.getClass())
+                + File.separator + "testAuthorities");
 
         m_primaryLocation = TestUtil.createDefaultLocation();
 
@@ -77,5 +82,42 @@ public class WebCertificateManagerTest extends TestCase {
         String line = reader.readLine();
         assertEquals("TEST", line);
         assertNull(reader.readLine());
+    }
+
+    public void testValid() throws Exception {
+        boolean valid = m_manager.validateCertificate(new File("invalidCA.crt"));
+        assertFalse(valid);
+        valid = m_manager.validateCertificate(new File("validCA.crt"));
+        assertTrue(valid);
+    }
+
+    public void testShow() throws Exception {
+        String text = m_manager.showCertificate(new File("validCA.crt"));
+        assertEquals("VALID", text);
+    }
+
+    public void testListCertificates() throws Exception {
+        Set<CertificateDecorator> certs =  m_manager.listCertificates();
+        assertEquals(1, certs.size());
+        for (CertificateDecorator cert : certs) {
+            assertEquals("valid1CA.crt", cert.getFileName());
+        }
+    }
+
+    public void testSaveDeleteCert() throws Exception {
+        File tmpCAFile = m_manager.getCATmpFile("validCA.crt");
+
+        FileUtils.copyFile(new File(TestUtil.getTestSourceDirectory(this.getClass())
+                + File.separator + "validCA.crt"), tmpCAFile);
+        m_manager.copyCRTAuthority();
+        m_manager.deleteCRTAuthorityTmpDirectory();
+        Set<CertificateDecorator> certs =  m_manager.listCertificates();
+        assertEquals(2, certs.size());
+
+        CertificateDecorator cert = new CertificateDecorator();
+        cert.setFileName("validCA.crt");
+        m_manager.deleteCA(cert);
+        certs =  m_manager.listCertificates();
+        assertEquals(1, certs.size());
     }
 }
