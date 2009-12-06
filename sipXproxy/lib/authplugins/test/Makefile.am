@@ -159,7 +159,6 @@ subscriptionauthtest_LDADD = \
 	$(COMMON_LIBS)
 
 EXTRA_DATA = \
-	caller-alias.xml \
 	credential.xml \
 	permission.xml \
 	example.edu/caller-aliase.xml \
