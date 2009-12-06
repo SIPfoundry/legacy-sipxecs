@@ -1,4 +1,5 @@
 SIP_DOMAIN_NAME : example.edu
-SIP_REALM : scott
-SHARED_SECRET : zFkXxBFZcB+PxXOqJq6sYUwf
+SIP_DOMAIN_ALIASES : sipx.example.edu example.edu
+SIP_REALM : example.edu
+SHARED_SECRET : BbBbCcCcDdAaAaEeEeFfFf22
 DEFAULT_LANGUAGE : en

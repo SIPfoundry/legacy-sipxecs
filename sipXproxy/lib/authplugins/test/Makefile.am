@@ -27,7 +27,7 @@ check_PROGRAMS = \
 # sandbox
 
 COMMON_CXX_FLAGS = \
-	-DTEST_WORK_DIR=\"@abs_builddir@\" \
+	-DTEST_WORK_DIR=\"@abs_builddir@/work\" \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/lib/authplugins/test\" \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/lib/authplugins \
@@ -162,6 +162,9 @@ EXTRA_DATA = \
 	caller-alias.xml \
 	credential.xml \
 	permission.xml \
+	example.edu/caller-aliase.xml \
+	example.edu/domain-config \
+	mydomain.com/domain-config \
 	transfer-control/domain-config
 
 EXTRA_DIST = $(EXTRA_DATA)

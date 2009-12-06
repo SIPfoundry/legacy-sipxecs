@@ -325,26 +325,6 @@ proxy( int argc, char* argv[] )
     // Initialize the OsSysLog...
     initSysLog(&configDb);
 
-    OsPath DomainConfigfileName = SipXecsService::domainConfigPath();
-    OsConfigDb domainConfigDb;
-
-    if(OS_SUCCESS != domainConfigDb.loadFromFile(DomainConfigfileName))
-    {      
-       OsSysLog::add(FAC_SIP, PRI_CRIT, "Failed to open domain config file: %s\n",
-                     DomainConfigfileName.data());
-    }
-
-    SharedSecret LoopDetectionSecret(domainConfigDb);
-    BranchId::setSecret(LoopDetectionSecret);
-    
-    configDb.get("SIPX_PROXY_DOMAIN_NAME", domainName);
-    if(domainName.isNull())
-    {
-        domainName = ipAddress;
-    }
-    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_DOMAIN_NAME : %s", domainName.data());
-    osPrintf("SIPX_PROXY_DOMAIN_NAME : %s\n", domainName.data());
-    
     configDb.get(CONFIG_SETTING_BIND_IP, bindIp);
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
     {
@@ -613,22 +593,6 @@ proxy( int argc, char* argv[] )
         recurseOnlyOne300 = TRUE;
         OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_SPECIAL_300 : ENABLE");
         osPrintf("SIPX_PROXY_SPECIAL_300 : ENABLE\n");
-    }
-
-    // Get the mapped and local domains
-    OsConfigDb mappedDomains ;
-    configDb.getSubHash("SIP_DOMAINS.", mappedDomains);
-    if(mappedDomains.isEmpty())
-    {
-        //UtlString proxydomain(ipAddress);
-        //proxydomain.append(":5060");
-        //UtlString registryDomain(ipAddress);
-        //registryDomain.append(":4000");
-        //mappedDomains.set(proxydomain, registryDomain.data());
-    }
-    else
-    {
-        OsSysLog::add(FAC_SIP, PRI_WARNING, "WARNING: SIP_DOMAINS. parameters IGNORED");
     }
 
     // Initialize the domaim mapping from the routeRules XML

@@ -22,9 +22,6 @@
 #include "ForwardRules.h"
 #include "SipRouter.h"
 #include "DummyAuthPlugIn.h"
-#include "CallerAlias.h"
-
-extern CallerAlias* CallerAlias::spInstance;
 
 /**
  * Unit test for SipRouter::proxyMessage
@@ -48,6 +45,7 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testRecordRouteNoForwardingRuleMatch);
    CPPUNIT_TEST(testRecordRouteForwardingRuleMatch);
    CPPUNIT_TEST(testRecordRouteOrder);
+   CPPUNIT_TEST(testRouteToDomain);
    CPPUNIT_TEST(testAliasRoute);
    CPPUNIT_TEST(testNoAliasRouted);
    CPPUNIT_TEST(testProxySpiralingRequest);
@@ -100,6 +98,7 @@ public:
          TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
          TestDbContext.setSipxDir(SipXecsService::DatabaseDirType);
          TestDbContext.inputFile("credential.xml");
+         TestDbContext.inputFile("domain-config");
 
          // Construct a SipUserAgent to provide the isMyHostAlias recognizer
          mUserAgent = new SipUserAgent(SIP_PORT, // udp port
@@ -107,15 +106,6 @@ public:
                                        -1,       // tls port
                                        "127.0.0.2" // public address
                                        );
-
-         UtlString internalDomainAlias("example.com:5060");
-         mUserAgent->setHostAliases(internalDomainAlias);
-
-         UtlString internalHostAlias("internal.example.com:5060");
-         mUserAgent->setHostAliases(internalHostAlias);
-
-         UtlString externalAlias("external.example.net:5060");
-         mUserAgent->setHostAliases(externalAlias);
 
          UtlString rulesFile;
          TestDbContext.inputFilePath("routing.xml", rulesFile);
@@ -126,8 +116,6 @@ public:
 
          OsConfigDb testConfigDb;
          CPPUNIT_ASSERT( testConfigDb.loadFromBuffer( SipRouterConfiguration ) == OS_SUCCESS );
-
-         CallerAlias::spInstance = 0;
 
          mSipRouter = new SipRouter(*mUserAgent,
                                      mForwardingRules,
@@ -475,6 +463,52 @@ public:
          int maxForwards;
          CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
       }
+
+   void testRouteToDomain()
+      {
+         /* confirm that Route headers to our own domain are removed and ignored */
+
+         const char* message =
+            "INVITE sip:user@external.example.net SIP/2.0\r\n"
+            "Route: <sip:external.example.net;lr>\n"
+            "Route: <sip:example.com;lr>\n"
+            "Via: SIP/2.0/TCP 10.1.1.3:33855\r\n"
+            "To: sip:user@external.example.com\r\n"
+            "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+            "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Max-Forwards: 20\r\n"
+            "Contact: caller@127.0.0.1\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage testMsg(message, strlen(message));
+         SipMessage testRsp;
+
+         CPPUNIT_ASSERT_EQUAL(SipRouter::SendRequest,mSipRouter->proxyMessage(testMsg, testRsp));
+
+         UtlString requestUri;
+         testMsg.getRequestUri(&requestUri);
+         ASSERT_STR_EQUAL("sip:user@external.example.net", requestUri.data());
+
+         UtlString topRoute;
+         CPPUNIT_ASSERT( testMsg.getRouteUri(0, &topRoute) );
+         ASSERT_STR_EQUAL("<sip:registrar.example.com;lr>", topRoute.data());
+
+         UtlString noRoute;
+         CPPUNIT_ASSERT( !testMsg.getRouteUri(1, &noRoute) );
+
+         UtlString recordRoute;
+         CPPUNIT_ASSERT( testMsg.getRecordRouteUri(0, &recordRoute) );
+         ASSERT_STR_EQUAL("<sip:10.10.10.1:5060;lr>", recordRoute.data());
+
+         // Check that X-SipX-Spiral is not leaking.
+         CPPUNIT_ASSERT( !testMsg.getHeaderValue( 0, SIP_SIPX_SPIRAL_HEADER ) );
+
+         int maxForwards;
+         CPPUNIT_ASSERT(testMsg.getMaxForwards(maxForwards) && maxForwards == 19);
+      }
+
 
    void testAliasRoute()
       {
@@ -1469,13 +1503,10 @@ const char* SipRouterTest::VoiceMail   = "Voicemail";
 const char* SipRouterTest::MediaServer = "Mediaserver";
 const char* SipRouterTest::LocalHost   = "localhost";
 const char* SipRouterTest::SipRouterConfiguration =
-   "SIPX_PROXY_AUTHENTICATE_REALM : example.com\r\n"
    "SIPX_PROXY_HOSTPORT : 10.10.10.1:5060\r\n"
-   "SIPX_PROXY_DOMAIN_NAME : example.com\r\n"
    "SIPX_PROXY_HOOK_LIBRARY.200-dummy : .libs/libDummyAuthPlugin.so\r\n"
    "SIPX_PROXY_HOOK_LIBRARY.205-authrules : ../../lib/authplugins/authplugins/.libs/libEnforceAuthRules.so\r\n"
    "SIPX_PROXY.205-authrules.IDENTITY_VALIDITY_SECONDS : 300\r\n"
-   "SIPX_PROXY_HOOK_LIBRARY.210-fromalias : ../../lib/authplugins/authplugins/.libs/libCallerAlias.so\r\n"
    "\r\n";
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRouterTest);

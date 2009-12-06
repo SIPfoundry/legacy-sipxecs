@@ -74,14 +74,8 @@ public:
 
          testUserAgent.setForking(FALSE);  // Disable forking
 
-         UtlString hostAliases("sipx.example.edu example.edu");
-
-         testUserAgent.setHostAliases(hostAliases);
-
          OsConfigDb configDb;
          configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
-         configDb.set("SIPX_PROXY_DOMAIN_NAME", "example.edu");
-         configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "example.edu");
          configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
          testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);

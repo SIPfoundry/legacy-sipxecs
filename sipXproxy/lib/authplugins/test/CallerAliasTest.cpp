@@ -9,6 +9,7 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
+#include "testlib/FileTestContext.h"
 #include "testlib/SipDbTestContext.h"
 
 #include "os/OsDefs.h"
@@ -37,21 +38,19 @@ class CallerAliasTest : public CppUnit::TestCase
 
 public:
 
-   static CallerAlias*     converter;
-   static SipDbTestContext TestDbContext;
-   static SipUserAgent     testUserAgent;
-   static SipRouter*       testSipRouter;
+   static CallerAlias*      converter;
+   static SipDbTestContext* TestDbContext;
+   static SipUserAgent      testUserAgent;
+   static SipRouter*        testSipRouter;
 
    void setUp()
       {
-         TestDbContext.inputFile("caller-alias.xml");
-         TestDbContext.setSipxDir(SipXecsService::ConfigurationDirType);
+         TestDbContext = new SipDbTestContext(TEST_DATA_DIR "/example.edu",
+                                              TEST_WORK_DIR "/example.edu");
 
-         RouteState::setSecret("fixed"); // force invariant signatures
-
-         UtlString rulesFile;
-         TestDbContext.inputFilePath("rulesdata/routing.xml", rulesFile);
-         mForwardingRules.loadMappings( rulesFile, "Mediaserver", "Voicemail", "localhost" );
+         TestDbContext->inputFile("caller-alias.xml");
+         TestDbContext->inputFile("domain-config");
+         TestDbContext->setSipxDir(SipXecsService::ConfigurationDirType);
       }
 
    void tearDown()
@@ -68,18 +67,12 @@ public:
 
          testUserAgent.setDnsSrvTimeout(1 /* seconds */);
          testUserAgent.setMaxSrvRecords(4);
-         testUserAgent.setUserAgentHeaderProperty("sipXecs/authproxy");
+         testUserAgent.setUserAgentHeaderProperty("sipXecs/sipXproxy");
 
          testUserAgent.setForking(FALSE);  // Disable forking
 
-         UtlString hostAliases("sipx.example.edu sipx.example.edu:5080");
-
-         testUserAgent.setHostAliases(hostAliases);
-
          OsConfigDb configDb;
          configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
-         configDb.set("SIPX_PROXY_DOMAIN_NAME", "example.edu");
-         configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "example.edu");
          configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
          testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
@@ -89,8 +82,6 @@ public:
    //
    void testNoAlias()
       {
-         OsConfigDb configDb;
-
          UtlString identity; // no authenticated identity
          Url requestUri("sip:911@emergency-gw");
 
@@ -134,7 +125,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21eb70d993aca7e9de5c931b25892705f0>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -156,7 +147,7 @@ public:
          spiraledRouteState.update(&testMsg);
 
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21cd701fdee3c04a4e1bb9567cf6ef1d06>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:example.com;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60%21eb70d993aca7e9de5c931b25892705f0>", recordRoute );
 
          // Only one Record-Route header.
          CPPUNIT_ASSERT(!testMsg.getRecordRouteField(1, &recordRoute));
@@ -223,7 +214,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENDE%60.convert%2Ac%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%212e151d9dda70ae4f318a1204fc3c68ea>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkpvaG4gRG9lIjxzaXA6am9obi5kb2VAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENDE%60.convert%2Ac%7Ec2lwOjMwMUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%21af22edde80ff606ad56c3cdcee2718cf>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through
@@ -381,7 +372,7 @@ public:
 
          UtlString recordRoute;
          CPPUNIT_ASSERT(testMsg.getRecordRouteField(0, &recordRoute));
-         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENTM%60.convert%2Ac%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%21d985a5c7aab2f038bdfd37601a50b737>", recordRoute );
+         ASSERT_STR_EQUAL( "<sip:sipx.example.edu;lr;sipXecs-rs=%2Afrom%7EMzA1NDNmMzQ4M2UxY2IxMWVjYjQwODY2ZWRkMzI5NWI%60.convert%2Aa%7EIkV4YW1wbGUgVW5pdmVyc2l0eSI8c2lwOjk3ODU1NTEyMDBAZXhhbXBsZS5lZHU%27O3RhZz0%60.convert%2Aao%7ENTM%60.convert%2Ac%7Ec2lwOjUwNUBleGFtcGxlLmVkdTt0YWc9.convert%2Aco%7EMjQ%60%212374a8f6e8cad3d19d2e7a597f7fbc48>", recordRoute );
 
          /*
           * Now see if the ACK is modified when it comes through
@@ -484,7 +475,6 @@ private:
 CPPUNIT_TEST_SUITE_REGISTRATION(CallerAliasTest);
 
 CallerAlias*     CallerAliasTest::converter;
-SipDbTestContext CallerAliasTest::TestDbContext(TEST_DATA_DIR, TEST_WORK_DIR "/calleralias_context");
 SipUserAgent     CallerAliasTest::testUserAgent(
    PORT_NONE,
    PORT_NONE,
@@ -507,3 +497,4 @@ SipUserAgent     CallerAliasTest::testUserAgent(
    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
                                                 );
 SipRouter* CallerAliasTest::testSipRouter;
+SipDbTestContext* CallerAliasTest::TestDbContext;

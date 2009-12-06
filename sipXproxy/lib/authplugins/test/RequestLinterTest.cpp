@@ -40,9 +40,18 @@ private:
    
 public:
 
+   static FileTestContext* TestContext;
    static RequestLinter* spLinter;
    static SipUserAgent   testUserAgent;
    static SipRouter*     testSipRouter;
+
+   void setUp()
+      {
+         TestContext = new FileTestContext(TEST_DATA_DIR "/mydomain.com",
+                                           TEST_WORK_DIR "/mydomain.com");
+         TestContext->inputFile("domain-config");
+         TestContext->setSipxDir(SipXecsService::ConfigurationDirType);
+      }
 
    UtlString identity; 
    Url requestUri;
@@ -59,8 +68,6 @@ public:
 
       OsConfigDb configDb;
       configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
-      configDb.set("SIPX_PROXY_DOMAIN_NAME", "mydomain.com");
-      configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "mydomain.com");
       configDb.set("SIPX_PROXY_HOSTPORT", "mydomain.com");
 
       testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
@@ -361,3 +368,4 @@ CPPUNIT_TEST_SUITE_REGISTRATION(RequestLinterTest);
 RequestLinter* RequestLinterTest::spLinter = dynamic_cast<RequestLinter*>(getAuthPlugin("linter"));
 SipUserAgent     RequestLinterTest::testUserAgent;
 SipRouter*       RequestLinterTest::testSipRouter;
+FileTestContext* RequestLinterTest::TestContext;

@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME : example.com
+SIP_DOMAIN_ALIASES : internal.example.com external.example.net
+SIP_REALM : example.com
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : example.com
+DEFAULT_LANGUAGE : en
+SHARED_SECRET : BbBbCcCcDdAaAaEeEeFfFf22

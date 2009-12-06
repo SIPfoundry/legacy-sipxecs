@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME : mydomain.com
+SIP_REALM : mydomain.com
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : sipx.mydomain.com
+DEFAULT_LANGUAGE : en
+SHARED_SECRET : BbBbCcCcDdAaAaEeEeFfFf22
+

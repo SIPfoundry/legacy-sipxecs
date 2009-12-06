@@ -16,7 +16,6 @@ SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_S
 
 SIPX_PROXY_AUTHENTICATE_ALGORITHM :
 SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}
-SIPX_PROXY_DOMAIN_NAME : ${proxyService.domainName}
 SIPX_PROXY_HOSTPORT : ${location.address}:${proxyService.sipPort}
 
 SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so

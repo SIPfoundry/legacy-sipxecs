@@ -69,13 +69,26 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    Url defaultUri;
    defaultUri.setHostAddress(dnsName.data());
    defaultUri.setHostPort(port);
-
-   readConfig(configDb, defaultUri);
-   
    
    // read the domain configuration
    OsConfigDb domainConfig;
    domainConfig.loadFromFile(SipXecsService::domainConfigPath());
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter domain config has %d entries", domainConfig.numEntries());
+
+   // get SIP_DOMAIN_NAME from domain-config
+   domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_NAME, mDomainName);
+   if (!mDomainName.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+                    "SIP_DOMAIN_NAME: %s", mDomainName.data());
+      mpSipUserAgent->setHostAliases(mDomainName);
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT, "SipRouter::SipRouter "
+                    "SIP_DOMAIN_NAME not found.");
+   }
 
    // get SIP_DOMAIN_ALIASES from domain-config
    domainConfig.get(SipXecsService::DomainDbKey::SIP_DOMAIN_ALIASES, mDomainAliases);
@@ -89,13 +102,12 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
                     "SIP_DOMAIN_ALIASES not found.");
    }
-
-   int aliasIndex = 0;
-   UtlString aliasString;
    // Using IP-address-based domain aliases in HA configurations creates
    // interaction problems with remote workers (see XX-4557 for details).
    // To avoid these problems, we omit the IP-based domain aliases in the   
    // list of configured domain aliases. 
+   int aliasIndex = 0;
+   UtlString aliasString;
    RegEx refIp4Address("^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$");
    while(NameValueTokenizer::getSubField(mDomainAliases.data(), aliasIndex,
                                          ", \t", &aliasString))
@@ -113,12 +125,31 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
       aliasIndex++;
    }
 
+   // get SIP_REALM from domain-config
+   domainConfig.get(SipXecsService::DomainDbKey::SIP_REALM, mRealm);
+   if (!mRealm.isNull())
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRouter::SipRouter "
+                    "SIP_REALM : %s", mRealm.data());
+   }
+   else
+   {
+      mRealm = mDomainName;
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+                    "SIP_REALM not found: defaulted to domain name '%s'",
+                    mRealm.data());
+   }
+
    // Get the secret to be used in the route recognition hash.
    // get the shared secret for generating signatures
    mSharedSecret = new SharedSecret(domainConfig);
    RouteState::setSecret(mSharedSecret->data());
    SipXauthIdentity::setSecret(mSharedSecret->data());
    SignedUrl::setSecret(mSharedSecret->data());
+   BranchId::setSecret(mSharedSecret->data());
+
+   // read proxy-specific configuration
+   readConfig(configDb, defaultUri);
 
    // Register to get incoming requests
    OsMsgQ* queue = getMessageQueue();
@@ -184,20 +215,6 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                        "   using MD5",
                        algorithm.data());
       }
-   
-      configDb.get("SIPX_PROXY_AUTHENTICATE_REALM", mRealm);
-      if(mRealm.isNull())
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "SipRouter::readConfig "
-                       "SIPX_PROXY_AUTHENTICATE_REALM not specified\n"
-                       "   Phones must be configured with the correct default to authenticate."
-                       );
-         defaultUri.toString(mRealm);
-      }
-      OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                    "SipRouter::readConfig "
-                    "SIPX_PROXY_AUTHENTICATE_REALM : %s", mRealm.data());
    }
    
    configDb.get("SIPX_PROXY_HOSTPORT", mRouteHostPort);
@@ -220,18 +237,6 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                  "SipRouter::readConfig "
                  "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
 
-   configDb.get("SIPX_PROXY_DOMAIN_NAME", mDomainName);
-   if (mDomainName.isNull())
-   {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::readConfig "
-                    "SIPX_PROXY_DOMAIN_NAME not configured.");
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRouter::readConfig "
-                    "SIPX_PROXY_DOMAIN_NAME : %s", mDomainName.data());
-   }
-    
    // Load, instantiate and configure all authorization plugins
    mAuthPlugins.readConfig(configDb);
    

@@ -10,17 +10,16 @@
 #include "cppunit/extensions/HelperMacros.h"
 #include "cppunit/TestCase.h"
 #include "sipxunit/TestUtilities.h"
+#include "testlib/FileTestContext.h"
 #include "utl/PluginHooks.h"
 #include "os/OsConfigDb.h"
 
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
-
 #include "ForwardRules.h"
 #include "SipRouter.h"
-
 #include "SubscriptionAuth.h"
-
+              
 class SubscriptionAuthTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SubscriptionAuthTest);
@@ -42,22 +41,27 @@ class SubscriptionAuthTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
+   static FileTestContext* TestContext;
    SubscriptionAuth* dlgevntauth;
    SipUserAgent     testUserAgent;
    SipRouter*       testSipRouter;
+
+   void setUp()
+      {
+         TestContext = new FileTestContext(TEST_DATA_DIR "/example.edu",
+                                           TEST_WORK_DIR "/example.edu");
+         TestContext->inputFile("domain-config");
+         TestContext->setSipxDir(SipXecsService::ConfigurationDirType);
+      }
+   
    
    SubscriptionAuthTest()
    {
       testUserAgent.setIsUserAgent(FALSE);
       testUserAgent.setUserAgentHeaderProperty("sipXecs/testproxy");
 
-      UtlString hostAliases("sipx.example.edu example.edu");
-      testUserAgent.setHostAliases(hostAliases);
-
       OsConfigDb configDb;
       configDb.set("SIPX_PROXY_AUTHENTICATE_ALGORITHM", "MD5");
-      configDb.set("SIPX_PROXY_DOMAIN_NAME", "example.edu");
-      configDb.set("SIPX_PROXY_AUTHENTICATE_REALM", "example.edu");
       configDb.set("SIPX_PROXY_HOSTPORT", "sipx.example.edu");
 
       testSipRouter = new SipRouter(testUserAgent, mForwardingRules, configDb);
@@ -799,6 +803,8 @@ public:
 private:
    ForwardRules  mForwardingRules;
 };
+
+FileTestContext* SubscriptionAuthTest::TestContext;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SubscriptionAuthTest);
 
