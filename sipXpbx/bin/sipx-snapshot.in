@@ -231,6 +231,7 @@ done
 # file system that we are interested in, with $Work corresponding to /.
 # Since the destination location may not be able to hold the uncompressed
 # data, place it in a recognized temporary location.
+# (mktemp generates a unique name in $TMPDIR, or if that is not set, /tmp.)
 Work=`mktemp -d -t sipx-snapshot.XXXXXX`
 
 # Arrange to capture any error output.
@@ -239,7 +240,9 @@ StderrFile=${Work}/stderr
 exec 3>&2			# Save stderr as fd 3.
 exec 2>${StderrFile}		# Redirect stderr to ${StderrFile}.
 
-# On exit, echo the captured stderr output and delete the work directory.
+# On exit, echo the captured stderr output and delete the work directory and
+# any files whose names have the same prefix.  (Currently, the only such files
+# are the generated core files from the --generate-core-files option.)
 trap "cat ${StderrFile} >&3 ; rm -rf $Work* 2>/dev/null" 0
 
 if [ ${Tar} = YES ]
@@ -644,7 +647,9 @@ then
     for PID_FILE in @SIPX_RUNDIR@/*.pid
     do
         PID=`cat ${PID_FILE}`
-        FILE=/tmp/core.${PID}
+	# Generate the core file into the same directory as we created the
+	# work directory, so a single 'rm' can delete them all.
+        FILE=${Work}-core.${PID}
         echo
         echo Generate core file for ${PID_FILE%.pid} process number $PID into ${FILE}
         echo
