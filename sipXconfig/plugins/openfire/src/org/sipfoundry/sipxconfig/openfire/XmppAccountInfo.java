@@ -196,5 +196,15 @@ public class XmppAccountInfo extends XmlFile {
                 userElement.addElement(USER_NAME).setText(imAccount.getImId());
             }
         }
+
+        Boolean addPersonalAssistant = (Boolean) group.getSettingTypedValue(new BooleanSetting(),
+                "im/add-pa-to-group");
+        if (addPersonalAssistant != null && addPersonalAssistant) {
+            Element userElement = xmmpGroup.addElement(USER);
+            SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxImbotService.BEAN_ID);
+            String paUserName = imbotService.getPersonalAssistantImId();
+            userElement.addElement(USER_NAME).setText(paUserName);
+        }
     }
 }

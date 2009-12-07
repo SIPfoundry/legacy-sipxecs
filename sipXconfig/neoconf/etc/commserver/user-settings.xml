@@ -263,6 +263,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="add-pa-to-group">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
     <setting name="advertise-sip-presence" advanced="yes">
       <type>
         <boolean />

@@ -64,12 +64,12 @@ public class XmppAccountInfoTest extends TestCase {
         m_pm = new PermissionManagerImpl();
         m_pm.setModelFilesContext(m_neoconfModelFilesContext);
 
-        m_group1 = new ImGroup(true, true);
+        m_group1 = new ImGroup(true, true, true);
         m_group1.setName("group1");
         m_group1.setDescription("my group");
 
         // m_group2 im-group is enabled, im-account is disabled
-        m_group2 = new ImGroup(true, false);
+        m_group2 = new ImGroup(true, false, true);
         m_group2.setName("group2");
         m_group2.setDescription("empty IM group");
 
@@ -77,7 +77,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_group3 = new Group();
 
         // m_group4 im-group is disabled, im-account is enabled
-        m_group4 = new ImGroup(false, true);
+        m_group4 = new ImGroup(false, true, false);
         m_group4.setName("group4");
         m_group4.setDescription("NO IM group");
 
@@ -233,10 +233,13 @@ public class XmppAccountInfoTest extends TestCase {
     }
 
     private class ImGroup extends Group {
-        public ImGroup(boolean imGroup, boolean imAccount) {
+        public ImGroup(boolean imGroup, boolean imAccount, boolean addPaToGroup) {
             HashMap<String, String> values = new HashMap<String, String>();
             if (imGroup) {
                 values.put("im/im-group", "1");
+                if (addPaToGroup) {
+                    values.put("im/add-pa-to-group", "1");
+                }
             }
             if (imAccount) {
                 values.put("im/im-account", "1");
