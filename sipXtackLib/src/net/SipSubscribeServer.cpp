@@ -106,7 +106,9 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
                                    &userAgent,
                                    publishContent,
                                    eventHandler,
-                                   subscriptionMgr);
+                                   subscriptionMgr,
+                                   SipSubscribeServer::standardVersionCallback
+           );
     }
 
     return newServer;
