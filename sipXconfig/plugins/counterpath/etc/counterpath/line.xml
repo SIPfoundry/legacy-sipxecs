@@ -321,18 +321,18 @@
     </group>
   </group>
   <group name="voicemail">
-    <setting name="forward_always">
+    <setting name="forward_always" hidden="yes">
       <type refid="true-false" />
       <value>false</value>
     </setting>
-    <setting name="forward_always_uri">
+    <setting name="forward_always_uri" hidden="yes">
       <value />
     </setting>
-    <setting name="forward_busy">
+    <setting name="forward_busy" hidden="yes">
       <type refid="true-false" />
       <value>false</value>
     </setting>
-    <setting name="forward_busy_uri">
+    <setting name="forward_busy_uri" hidden="yes">
       <value />
     </setting>
     <setting name="voicemail_url">
