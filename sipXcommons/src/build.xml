@@ -34,6 +34,8 @@
     <pathelement location="${src.dir}/lib/commons-codec.jar"/>
     <pathelement location="${src.dir}/lib/commons-digester.jar"/>
     <pathelement location="${src.dir}/lib/commons-lang.jar"/>
+    <pathelement location="${src.dir}/lib/jce.jar"/>
+    <pathelement location="${src.dir}/lib/not-yet-commons-ssl.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -191,12 +193,14 @@
       <fileset file="${src.dir}/lib/javamail.jar"/>
       <fileset file="${src.dir}/lib/jaxen.jar"/>
       <fileset file="${src.dir}/lib/javax.servlet.jar"/>
+      <fileset file="${src.dir}/lib/jce.jar"/>
       <fileset file="${src.dir}/lib/jdom-1.0.jar"/>
       <fileset file="${src.dir}/lib/jetty.jar"/>
       <fileset file="${src.dir}/lib/jibx-bind.jar"/>
       <fileset file="${src.dir}/lib/jibx-run.jar"/>
       <fileset file="${src.dir}/lib/junit.jar"/>
       <fileset file="${src.dir}/lib/log4j.jar"/>
+      <fileset file="${src.dir}/lib/not-yet-commons-ssl.jar"/>
       <fileset file="${src.dir}/lib/smack.jar"/>
       <fileset file="${src.dir}/lib/smackx.jar"/>
       <fileset file="${src.dir}/lib/ws-commons-util.jar"/>
