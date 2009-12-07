@@ -17,6 +17,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SubscriptionDB.h"
+#include "sipdb/UserStaticDB.h"
 #include "statusserver/Notifier.h"
 
 // DEFINES
@@ -84,6 +85,43 @@ Notifier::sendNotifyForSubscription (
         &subscribe);
 }
 
+void 
+SendTheNotify( SipMessage& notify,
+               SipUserAgent* sipUserAgent,
+               UtlString uri,
+               UtlString contact,
+               UtlString from,
+               UtlString to,
+               UtlString callid,
+               int notifycseq,
+               UtlString eventtype,
+               UtlString id,
+               UtlString subscriptionState,
+               UtlString recordroute)
+{
+            // Make a copy of the message
+            SipMessage notifyRequest(notify);
+
+            // Set the NOTIFY request headers
+            // swapping the to and from fields
+            notifyRequest.setNotifyData (
+                contact,        // uri (final destination where we send the message)
+                from,           // fromField
+                to,             // toField
+                callid,         // callId
+                notifycseq,     // already incremented
+                eventtype,      // eventtype
+                id,
+                subscriptionState.data(),
+                uri,            // contact
+                recordroute);   // added the missing route field
+
+            // Send the NOTIFY message via the user agent with
+            // the incremented notify csequence value
+            sipUserAgent->setUserAgentHeader( notifyRequest );
+            sipUserAgent->send( notifyRequest );
+}
+
 void
 Notifier::sendNotifyForeachSubscription (
     const char* key,
@@ -99,6 +137,27 @@ Notifier::sendNotifyForeachSubscription (
     mpSubscriptionDB->
         getUnexpiredSubscriptions(
            SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
+
+
+    // Add the static configured contacts.
+    UtlString userUri(key);
+    UtlString eventType(event);
+    UtlString userContact;
+    UtlString userFromUri;
+    UtlString userToUri;
+    UtlString userCallid;
+    if (UserStaticDB::getInstance()->getStaticContact(userUri, eventType, 
+                                                      userContact, userFromUri, userToUri, userCallid)) {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "Notifier::sendNotifyForeachSubscription configured contact %s", userUri.data());
+         int notifycseq = 0;
+         UtlString id("");
+         UtlString subscriptionState("terminated");
+         UtlString recordroute("");
+
+         SendTheNotify(notify, mpSipUserAgent, userUri, userContact, userFromUri, userToUri, userCallid, notifycseq, 
+                       eventType, id, subscriptionState, recordroute);
+    }
 
     int numSubscriptions = subscriptions.getSize();
 
@@ -151,11 +210,6 @@ Notifier::sendNotifyForeachSubscription (
                 recordroute.remove(0);
             }
 
-            // Make a copy of the message
-            SipMessage notifyRequest(notify);
-
-            UtlString statusContact = uri;
-
             UtlString subscriptionState;
             int requestedExpires = -1;
             if ( subscribe )
@@ -179,24 +233,8 @@ Notifier::sendNotifyForeachSubscription (
             // this will guarantee that duplicate messages are rejected
             notifycseq += 1;
 
-            // Set the NOTIFY request headers
-            // swapping the to and from fields
-            notifyRequest.setNotifyData (
-                contact,        // uri (final destination where we send the message)
-                to,             // fromField
-                from,           // toField
-                callid,         // callId
-                notifycseq,     // already incremented
-                eventtype,      // eventtype
-                id,
-                subscriptionState.data(),
-                statusContact,  // contact
-                recordroute);   // added the missing route field
-
-            // Send the NOTIFY message via the user agent with
-            // the incremented notify csequence value
-            mpSipUserAgent->setUserAgentHeader( notifyRequest );
-            mpSipUserAgent->send( notifyRequest );
+            SendTheNotify(notify, mpSipUserAgent, uri, contact, to, from, callid, notifycseq, 
+                          eventtype, id, subscriptionState, recordroute);
 
             // Update the Notify sequence number (CSeq) in the IMDB
             // (We must supply a dummy XML version number.)

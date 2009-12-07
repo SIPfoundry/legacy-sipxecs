@@ -24,5 +24,6 @@
     <file>@SIPX_CONFDIR@/status-config</file>
     <file>@SIPX_CONFDIR@/status-plugin.xml</file>
     <imdb configAccess='read-only'>subscription</imdb>
+    <imdb>userstatic</imdb>
   </resources>
 </sipXecs-process>

@@ -28,6 +28,7 @@
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/UserLocationDB.h"
 #include "sipdb/UserForwardDB.h"
+#include "sipdb/UserStaticDB.h"
 
 #include "SipxRpc.h"
 #include "ImdbRpc.h"
@@ -54,6 +55,7 @@
 #define  REGISTRATION   "registration"
 #define  USERLOCATION   "userlocation"
 #define  USERFORWARD    "userforward"
+#define  USERSTATIC     "userstatic"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -221,6 +223,11 @@ void ImdbRpcMethod::storeTable(const UtlString& tableName){
        if ( UserForwardDB::getInstance()->store() != OS_SUCCESS ){
        }
     }
+
+    else if ( tableName == USERSTATIC ){
+       if ( UserStaticDB::getInstance()->store() != OS_SUCCESS ){
+       }
+    }
 }
 
 
@@ -256,6 +263,10 @@ UtlBoolean ImdbRpcMethod::insertTableRecord(UtlString& tableName, const UtlHashM
 
     else if ( tableName == USERFORWARD ){
        result = UserForwardDB::getInstance()->insertRow(tableRecord);
+    }
+
+    else if ( tableName == USERSTATIC ){
+       result = UserStaticDB::getInstance()->insertRow(tableRecord);
     }
 
     else if ( tableName == CALLER_ALIAS ){
@@ -457,6 +468,10 @@ void ImdbRpcReplaceTable::clearTable(UtlString& tableName)
     {
        UserForwardDB::getInstance()->removeAllRows();
     }
+    else if ( tableName == USERSTATIC )
+    {
+       UserStaticDB::getInstance()->removeAllRows();
+    }
     else
     {
        OsSysLog::add(FAC_SUPERVISOR, PRI_CRIT, "ImdbRpcReplaceTable::clearTable "
@@ -599,6 +614,10 @@ void ImdbRpcRetrieveTable::readTable(UtlString& tableName, ResultSet* imdb_recor
 
     else if ( tableName == USERFORWARD ){
        UserForwardDB::getInstance()->getAllRows( *imdb_records );
+    }
+
+    else if ( tableName == USERSTATIC ){
+       UserStaticDB::getInstance()->getAllRows( *imdb_records );
     }
 
     else if ( tableName == CALLER_ALIAS ){
@@ -956,6 +975,12 @@ UtlBoolean ImdbRpcDeleteTableRecords::deleteTableRecord(UtlString& tableName, co
 
     else if ( tableName == USERFORWARD ){
           UserForwardDB::getInstance()->removeRow(
+                     Url (*((UtlString*)tableRecordKeys.findValue(&identityKey))) );
+       result = TRUE;
+    }
+
+    else if ( tableName == USERSTATIC ){
+          UserStaticDB::getInstance()->removeRow(
                      Url (*((UtlString*)tableRecordKeys.findValue(&identityKey))) );
        result = TRUE;
     }

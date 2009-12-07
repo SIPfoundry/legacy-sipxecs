@@ -30,6 +30,7 @@
 #include "sipdb/SubscriptionDB.h"
 #include "sipdb/UserLocationDB.h"
 #include "sipdb/UserForwardDB.h"
+#include "sipdb/UserStaticDB.h"
 
 // DEFINES
 
@@ -41,6 +42,7 @@
 #define  REGISTRATION   "registration"
 #define  USERLOCATION   "userlocation"
 #define  USERFORWARD    "userforward"
+#define  USERSTATIC     "userstatic"
 #define  SUBSCRIPTION   "subscription"
 
 REGISTER( TableInfo );
@@ -892,6 +894,13 @@ SIPDBManager::preloadDatabaseTable(const UtlString &tableName) const
    else if (tableName == USERFORWARD)
    {
       if (UserForwardDB::getInstance()->isLoaded())
+      {
+          res = OS_SUCCESS;
+      }
+   }
+   else if (tableName == USERSTATIC)
+   {
+      if (UserStaticDB::getInstance()->isLoaded())
       {
           res = OS_SUCCESS;
       }
