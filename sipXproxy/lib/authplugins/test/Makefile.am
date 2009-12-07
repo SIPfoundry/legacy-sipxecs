@@ -161,7 +161,7 @@ subscriptionauthtest_LDADD = \
 EXTRA_DATA = \
 	credential.xml \
 	permission.xml \
-	example.edu/caller-aliase.xml \
+	example.edu/caller-alias.xml \
 	example.edu/domain-config \
 	mydomain.com/domain-config \
 	transfer-control/domain-config
