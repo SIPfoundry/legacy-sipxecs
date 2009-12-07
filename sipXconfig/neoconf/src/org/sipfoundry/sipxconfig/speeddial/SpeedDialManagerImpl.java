@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
@@ -117,7 +117,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         return new OnUserDelete();
     }
 
-    public UserGroupDeleteListener createUserGroupDeleteListener() {
+    public UserGroupSaveDeleteListener createUserGroupDeleteListener() {
         return new OnUserGroupDelete();
     }
 
@@ -128,7 +128,7 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         }
     }
 
-    private class OnUserGroupDelete extends UserGroupDeleteListener {
+    private class OnUserGroupDelete extends UserGroupSaveDeleteListener {
         @Override
         protected void onUserGroupDelete(Group user) {
             List<SpeedDialGroup> speedDialGroups = findSpeedDialForGroupId(user.getId());

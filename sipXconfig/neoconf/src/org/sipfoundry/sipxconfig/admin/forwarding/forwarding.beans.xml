@@ -16,7 +16,7 @@
 
   <bean id="forwardingContextUserDelete" factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener" />
 
-  <bean id="forwardingContextUserGroupDelete" factory-bean="forwardingContextImpl" factory-method="createUserGroupDeleteListener" />
+  <bean id="forwardingContextUserGroupDelete" factory-bean="forwardingContextImpl" factory-method="createUserGroupSaveDeleteListener" />
 
   <bean id="forwardingContextScheduleDelete" factory-bean="forwardingContextImpl" factory-method="createScheduleDeleteListener" />
 

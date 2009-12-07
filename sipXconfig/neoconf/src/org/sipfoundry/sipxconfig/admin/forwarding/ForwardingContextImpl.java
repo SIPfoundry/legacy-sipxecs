@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.ScheduleDeleteListener;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
-import org.sipfoundry.sipxconfig.common.event.UserGroupDeleteListener;
+import org.sipfoundry.sipxconfig.common.event.UserGroupSaveDeleteListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -139,7 +139,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return new OnUserDelete();
     }
 
-    public UserGroupDeleteListener createUserGroupDeleteListener() {
+    public UserGroupSaveDeleteListener createUserGroupSaveDeleteListener() {
         return new OnUserGroupDelete();
     }
 
@@ -155,7 +155,7 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         }
     }
 
-    private class OnUserGroupDelete extends UserGroupDeleteListener {
+    private class OnUserGroupDelete extends UserGroupSaveDeleteListener {
         @Override
         protected void onUserGroupDelete(Group group) {
             List<UserGroupSchedule> schedules = getSchedulesForUserGroupId(group.getId());
@@ -172,8 +172,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
                 }
                 getHibernateTemplate().saveOrUpdateAll(ringsToModify);
                 getHibernateTemplate().deleteAll(schedules);
-                notifyCommserver();
             }
+            notifyCommserver();
+        }
+
+        @Override
+        protected void onUserGroupSave(Group group) {
+            notifyCommserver();
         }
     }
 
