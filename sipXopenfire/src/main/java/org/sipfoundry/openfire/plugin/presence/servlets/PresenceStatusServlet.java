@@ -31,7 +31,7 @@ import org.jivesoftware.openfire.container.Plugin;
 public class PresenceStatusServlet extends SipXOpenfireServlet {
 
     public void init(ServletConfig servletConfig) throws ServletException {
-        super.init(servletConfig,XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE,
+        super.init(servletConfig,XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE_NAME,
                 XmlRpcPresenceProvider.class);
     }
 

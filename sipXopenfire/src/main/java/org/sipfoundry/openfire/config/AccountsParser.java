@@ -34,7 +34,11 @@ public class AccountsParser {
     public static final String USER = "user";
     public static final String GROUP = "group";
     public static final String CHAT_ROOM = "chat-room";
+    public static final String TRANSPORTS = "transports";
+    public static final String TRANSPORT_REGISTRATION = "transport";
     public static String userTag = String.format("%s/%s", XMPP_INFO, USER);
+    public static String transportRegistrationTag = String.format("%s/%s/%s", 
+    		userTag, TRANSPORTS, TRANSPORT_REGISTRATION);
     public static String groupTag = String.format("%s/%s", XMPP_INFO, GROUP);
     public static String chatRoomTag = String.format("%s/%s", XMPP_INFO, CHAT_ROOM);
     public static String groupMemberTag = String.format("%s/%s", groupTag, USER);
@@ -128,6 +132,19 @@ public class AccountsParser {
                      * Make sure that all user accounts can create multi-user chatrooms
                      */
                     plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
+                    
+                    /*
+                     * Update transport registrations for XMPP users in order to 
+                     * support confederation 
+                     */
+                    try{
+                		accountInfo.syncTransportRegistrations();
+                    }
+                    catch( Exception ex ){
+                        logger.error("account parser exception while updating transport registrations " + ex);
+                    }
+                    
+                    
                 }
             } catch (Exception ex) {
                 logger.error("Exception caught while parsing accountsdb ", ex);
@@ -176,15 +193,21 @@ public class AccountsParser {
         AccountsParser.digester = digester;
         digester.setUseContextClassLoader(true);
         digester.addObjectCreate(XMPP_INFO, XmppAccountInfo.class.getName());
+
         digester.addObjectCreate(userTag, XmppUserAccount.class.getName());
         digester.addSetNext(userTag, "addAccount");
+        digester.addObjectCreate(transportRegistrationTag, XmppTransportRegistration.class.getName());
+        digester.addSetNext(transportRegistrationTag, "addTransportRegistration");
 
         digester.addObjectCreate(groupTag, XmppGroup.class.getName());
         digester.addSetNext(groupTag, "addGroup");
+
         digester.addObjectCreate(groupMemberTag, XmppGroupMember.class.getName());
         digester.addSetNext(groupMemberTag, "addMember");
+        
         digester.addObjectCreate(chatRoomTag, XmppChatRoom.class.getName());
         digester.addSetNext(chatRoomTag, "addChatRoom");
+        
         currentTag = userTag;
         addCallMethod("password", "setPassword");
         addCallMethod("user-name", "setUserName");
@@ -194,6 +217,11 @@ public class AccountsParser {
         addCallMethod("conference-extension", "setConferenceExtension");
         addCallMethod("advertise-on-call-status", "setAdvertiseOnCallPreference");
         addCallMethod("show-on-call-details", "setShowOnCallDetailsPreference");
+        currentTag = transportRegistrationTag;
+        addCallMethod("type", "setTransportType");
+        addCallMethod("user-name", "setLegacyUsername");
+        addCallMethod("password", "setLegacyPassword");
+        addCallMethod("display-name", "setLegacyNickname");
         currentTag = groupTag;
         addCallMethod("group-name", "setGroupName");
         addCallMethod("description", "setDescription");

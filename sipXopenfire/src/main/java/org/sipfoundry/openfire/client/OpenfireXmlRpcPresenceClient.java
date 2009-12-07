@@ -27,7 +27,7 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
     
 
     public OpenfireXmlRpcPresenceClient(String serverAddress, int port) throws Exception {
-        super(XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE,serverAddress,port);
+        super(XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE_PATH,serverAddress,port);
      }
     
     public String getXmppPresenceState(String userName) throws OpenfireClientException {

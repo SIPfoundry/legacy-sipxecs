@@ -13,7 +13,7 @@ public class ChatRoomManagementServlet extends SipXOpenfireServlet{
     public void init(ServletConfig servletConfig) throws ServletException {
         super.init(servletConfig, 
                 XmlRpcChatRoomManagementProvider.SERVER, 
-                XmlRpcChatRoomManagementProvider.SERVICE,
+                XmlRpcChatRoomManagementProvider.SERVICE_NAME,
                 XmlRpcChatRoomManagementProvider.class);
     }
     

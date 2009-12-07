@@ -1,6 +1,10 @@
 package org.sipfoundry.openfire.client;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -52,8 +56,7 @@ public abstract class OpenfireXmlRpcClient {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
         config.setEnabledForExceptions(true);
         config.setEnabledForExtensions(true);
-        String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port+"/plugins/sipx-openfire/" + service;
-        // System.out.println("URL = " + url);
+        String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port + service;
         config.setServerURL(new URL(url));     
         this.client.setConfig(config);
         this.server = server;
@@ -70,4 +73,33 @@ public abstract class OpenfireXmlRpcClient {
         return retval;
         
     }
+
+    protected Boolean executeBoolean(String method, Object[] args) throws XmlRpcException {
+        
+        return (Boolean) client.execute(server + "." + method,args);
+    }
+
+    protected String executeString(String method, Object[] args) throws XmlRpcException {
+        
+        return (String) client.execute(server + "." + method,args);
+    }
+
+    protected List<String> executeStringList(String method, Object[] args) throws XmlRpcException {
+        List<String> value = new ArrayList<String>();
+
+        Object[] result = (Object[]) client.execute(server + "." + method,args);
+
+    	// Populate the array of strings
+    	for (int i = 0;  i < result.length;  i++) {
+        	value.add((String)result[i]);
+        }
+
+        return value;
+    }
+
+    protected Object[] executeObjectArray(String method, Object[] args) throws XmlRpcException {
+
+    	return (Object[]) client.execute(server + "." + method,args);
+    }
+
 }

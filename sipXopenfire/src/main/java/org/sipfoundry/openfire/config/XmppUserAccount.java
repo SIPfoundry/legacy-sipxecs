@@ -1,8 +1,14 @@
 package org.sipfoundry.openfire.config;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
 
 public class XmppUserAccount  {
-    
+
+    private static final Logger logger = Logger.getLogger(XmppUserAccount.class);
+
     private String userName;
     
     private String sipUserName;
@@ -17,6 +23,9 @@ public class XmppUserAccount  {
 
     private boolean bShowOnCallDetails;
  
+    private Map<String, XmppTransportRegistration> transportAccounts = 
+    	new HashMap<String, XmppTransportRegistration>();
+
     public XmppUserAccount () {
     }
     public String getEmail() {
@@ -100,4 +109,15 @@ public class XmppUserAccount  {
         return this.bShowOnCallDetails;
     }
 
+    public void addTransportRegistration(XmppTransportRegistration transportRegistration) throws Exception {
+
+        transportRegistration.setUser(this.userName);
+        this.transportAccounts.put(transportRegistration.getTransportType(), transportRegistration);
+        
+        logger.debug("addTransportRegistration: " + transportRegistration.toString());
+    }
+
+    public Map<String, XmppTransportRegistration> getTransportRegistrations() {
+        return this.transportAccounts;
+    }
 }

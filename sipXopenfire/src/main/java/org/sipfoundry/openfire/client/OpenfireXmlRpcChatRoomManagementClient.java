@@ -9,7 +9,7 @@ public class OpenfireXmlRpcChatRoomManagementClient extends OpenfireXmlRpcClient
     
     
     public OpenfireXmlRpcChatRoomManagementClient(String serverAddress, int port) throws Exception {
-       super(XmlRpcChatRoomManagementProvider.SERVER, XmlRpcChatRoomManagementProvider.SERVICE, serverAddress,port);
+       super(XmlRpcChatRoomManagementProvider.SERVER, XmlRpcChatRoomManagementProvider.SERVICE_PATH, serverAddress,port);
     }
     
        
