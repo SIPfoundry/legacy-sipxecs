@@ -50,6 +50,9 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     @Parameter(required = false, defaultValue = "ognl:false")
     public abstract boolean isAdmin();
 
+    @Parameter(required = false, defaultValue = "ognl:false")
+    public abstract boolean isAdvanced();
+
     public void pageBeginRender(PageEvent event) {
         if (getActiveGreetingModel() == null) {
             NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel();

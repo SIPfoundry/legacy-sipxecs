@@ -198,6 +198,9 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserForward">
     <property name="forwardingContext" ref="forwardingContext" />
   </bean>
+  <bean id="userstaticDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">

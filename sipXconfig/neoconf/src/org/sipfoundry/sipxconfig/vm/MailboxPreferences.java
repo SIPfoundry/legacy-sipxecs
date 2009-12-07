@@ -14,6 +14,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class MailboxPreferences {
     public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
+    public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
 
     public static final String PRIMARY_EMAIL_NOTIFICATION = "voicemail/mailbox/primary-email-voicemail-notification";
     public static final String PRIMARY_EMAIL_FORMAT = "voicemail/mailbox/primary-email-format";
@@ -80,6 +81,7 @@ public class MailboxPreferences {
     }
 
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
+    private String m_externalMwi;
 
     private String m_emailAddress;
     private MailFormat m_emailFormat = MailFormat.FULL;
@@ -105,6 +107,7 @@ public class MailboxPreferences {
         m_emailAddress = user.getEmailAddress();
         m_alternateEmailAddress = user.getAlternateEmailAddress();
         m_activeGreeting = ActiveGreeting.fromId((user.getSettingValue(ACTIVE_GREETING)));
+        m_externalMwi = user.getSettingValue(EXTERNAL_MWI);
         m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
         m_emailFormat = MailFormat.valueOf(user.getSettingValue(PRIMARY_EMAIL_FORMAT));
         m_alternateEmailFormat = MailFormat.valueOf(user.getSettingValue(ALT_EMAIL_FORMAT));
@@ -122,6 +125,7 @@ public class MailboxPreferences {
         user.setEmailAddress(m_emailAddress);
         user.setAlternateEmailAddress(m_alternateEmailAddress);
         user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
+        user.setSettingValue(EXTERNAL_MWI, m_externalMwi);
         user.setSettingValue(PRIMARY_EMAIL_NOTIFICATION, m_attachVoicemailToEmail.getValue());
         user.setSettingValue(PRIMARY_EMAIL_FORMAT, m_emailFormat.name());
         user.setSettingValue(ALT_EMAIL_FORMAT, m_alternateEmailFormat.name());
@@ -141,6 +145,14 @@ public class MailboxPreferences {
 
     public void setActiveGreeting(ActiveGreeting activeGreeting) {
         m_activeGreeting = activeGreeting;
+    }
+
+    public String getExternalMwi() {
+        return m_externalMwi;
+    }
+
+    public void setExternalMwi(String externalMwi) {
+        m_externalMwi = externalMwi;
     }
 
     public AttachType getAttachVoicemailToEmail() {

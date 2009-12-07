@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
@@ -20,6 +21,9 @@ public abstract class MailboxPreferencesPage extends UserBasePage {
     public abstract MailboxPreferences getMailboxPreferences();
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
+
+    @Persist
+    public abstract boolean isAdvanced();
 
     @Override
     public void pageBeginRender(PageEvent event) {

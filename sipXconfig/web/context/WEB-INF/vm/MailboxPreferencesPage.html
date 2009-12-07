@@ -7,7 +7,10 @@
   <span jwcid="@common/ErrorMsg"/>
     <form jwcid="mailboxPrefsForm@Form" delegate="bean:validator">
       <table>
-        <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" admin="ognl:userSession.admin"/>
+        <span jwcid="@vm/MailboxPreferencesForm" 
+         preferences="ognl:mailboxPreferences" 
+         admin="ognl:userSession.admin"
+         advanced="ognl:advanced"/>
       </table>
       <span jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback"/>
     </form>

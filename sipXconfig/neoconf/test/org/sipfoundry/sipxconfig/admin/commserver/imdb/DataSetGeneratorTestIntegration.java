@@ -47,4 +47,8 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setUserforwardDataSet(UserForward cfwdTime) {
         m_dataSetGeneratorMap.put(DataSet.USER_FORWARD.getName(), cfwdTime);
     }
+
+    public void setUserstaticDataSet(UserStatic userStatic) {
+        m_dataSetGeneratorMap.put(DataSet.USER_STATIC.getName(), userStatic);
+    }
 }

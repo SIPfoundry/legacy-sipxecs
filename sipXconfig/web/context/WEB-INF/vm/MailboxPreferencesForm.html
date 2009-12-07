@@ -1,4 +1,9 @@
 <div jwcid="@If" condition="ognl:mailboxManager.enabled" renderTag="false">
+  <span jwcid="@If" condition="ognl:admin" renderTag="false">
+    <ul class="component-links">
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+    </ul>
+  </span>
   <tr jwcid="@common/FieldPanel" for="user:activeGreeting"
     field="component:activeGreeting"
     label="message:label.activeGreeting"
@@ -7,6 +12,18 @@
       value="ognl:preferences.activeGreeting"
       model="ognl:activeGreetingModel" />
   </tr>
+  <span jwcid="@If" condition="ognl:advanced" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:externalMwi"
+      field="component:externalMwi"
+      label="message:label.externalMwi"
+      description="message:description.externalMwi">
+      <input jwcid="externalMwi@TextField" id="user:externalMwi" 
+       value="ognl:preferences.externalMwi" 
+       validators="spring-validators:validPhoneOrAor"
+       maxlength=255
+       size=20 />
+    </tr>
+  </span>
   <tr>
 	<td colspan="2"><h3><label jwcid="@Insert" value="message:label.primaryEmail"/></h3></td>
   </tr>
