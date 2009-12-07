@@ -305,7 +305,7 @@ public:
    /// Enum indicating the 4 different lookup types we carry out
    enum LookupTypes
    {
-      FIRST_LookupType =0,
+      FIRST_LookupType = 0,
       SRV_UDP = FIRST_LookupType,
       SRV_TCP,
       SRV_TLS,
@@ -317,7 +317,7 @@ public:
    virtual ~SipSrvLookupThread(void);
 
    /// Get the SRV lookup threads, initializing them if needed
-   static SipSrvLookupThread ** getLookupThreads();
+   static SipSrvLookupThread** getLookupThreads();
 
    /// Implementation of OsServerTask's pure virtual method
    UtlBoolean handleMessage(OsMsg& rMsg);
@@ -343,13 +343,13 @@ private:
    LookupTypes mLookupType;
 
    /// Array holding pointers to the four individual lookup threads
-   static SipSrvLookupThread * mLookupThreads[LAST_LookupType+1];
+   static SipSrvLookupThread* mLookupThreads[LAST_LookupType+1];
 
    /// Attribute indicating whether the lookup threads have been initialized or not
    static UtlBoolean mHaveThreadsBeenInitialized;
 
    /// Events used to signal the completion of a query
-   OsEvent * mQueryCompleted;
+   OsEvent* mQueryCompleted;
 
 };
 
@@ -400,7 +400,7 @@ public:
     */
 
    /// Argument needed by the lookup threads
-   int * list_length_allocated;
+   int* list_length_allocated;
    /**<
     * Length of the array of server_t objects
     * This attribute is shared between all the lookup threads. Access to it
@@ -408,7 +408,7 @@ public:
     */
 
    /// Argument needed by the lookup threads
-   int * list_length_used;
+   int* list_length_used;
    /**<
     * Number of objects in the server_t object array that have been used
     * This attribute is shared between all the lookup threads. Access to it

@@ -139,7 +139,7 @@ OsStatus ResourceListFileReader::initialize()
                      OsSysLog::add(FAC_RLS, PRI_WARNING,
                                    "ResourceListFileReader::initialize "
                                    "ResourceList '%s' already exists -- "
-                                   "continuing to add resources to the list",
+                                   "continuing adding resources to the list",
                                    user_attribute);
                   }
                   OsTask::delay(changeDelay);

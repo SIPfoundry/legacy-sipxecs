@@ -124,8 +124,6 @@ OsStatus RefreshingFileReader::refresh()
       }
       else
       {
-         // Check to see if the file has a different modification time than
-         // the last time we checked.
          OsFile file(mFileName);
          OsFileInfo fileInfo;
          if (file.getFileInfo(fileInfo) == OS_SUCCESS) {

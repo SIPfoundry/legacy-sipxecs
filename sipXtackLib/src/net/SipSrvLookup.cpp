@@ -322,7 +322,7 @@ server_t* SipSrvLookup::servers(const char* domain,
       // Free unused server_t instances, pointer must always be reloaded in this path
       delete[] serverList;
 
-      SipSrvLookupThread ** myQueryThreads = SipSrvLookupThread::getLookupThreads();
+      SipSrvLookupThread** myQueryThreads = SipSrvLookupThread::getLookupThreads();
 
       // Initialize the SRV lookup thread args, and the A Record lookup thread args.
       // They are initialized separately as the A Records are only needed if SRV
@@ -1418,7 +1418,7 @@ UtlBoolean SipSrvLookupThread::handleMessage(OsMsg& rMsg)
 }
 
 /// Get the SRV lookup threads, initializing them if needed
-SipSrvLookupThread ** SipSrvLookupThread::getLookupThreads()
+SipSrvLookupThread** SipSrvLookupThread::getLookupThreads()
 {
    OsLock lock(SipSrvLookupThread::slookupThreadMutex);
 
