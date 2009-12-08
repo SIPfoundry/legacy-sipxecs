@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
@@ -20,6 +20,7 @@ public class LoginHistoryPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(LoginHistoryPageTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -37,7 +38,7 @@ public class LoginHistoryPageTestUi extends WebTestCase {
         assertElementPresent("datetime:time_0");
         assertFormElementPresent("user");
         assertFormElementPresent("remoteip");
-        assertFormElementPresent("logs");
+        assertElementPresent("logs");
         SiteTestHelper.assertNoException(getTester());
         // FIXME: requires enabled javascript and dojo - incompatible with httpunit we are using
         //clickButton("Submit");

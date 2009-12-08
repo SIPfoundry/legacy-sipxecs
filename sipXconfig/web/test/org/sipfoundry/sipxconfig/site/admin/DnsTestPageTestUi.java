@@ -37,7 +37,6 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementPresent("showPrompt");
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
-        assertElementNotPresent("testResults_0");
         // assert help
         setWorkingForm("detailedHelpForm");
         assertElementPresent("setting:toggle");
@@ -54,7 +53,6 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementNotPresent("showPrompt");
         assertElementPresent("provideDns");
         assertElementPresent("runTest");
-        assertElementPresent("testResults_0");
         // assert results / help
         assertElementNotPresent("dnsTestStatus");
         clickLink("setting:toggle");

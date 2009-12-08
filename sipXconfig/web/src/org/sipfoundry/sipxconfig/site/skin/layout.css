@@ -273,6 +273,12 @@ fieldset#loginForm legend {
     position:relative;
 }
 
+.textBox
+{
+    width: 80%;
+    overflow: auto;
+}
+
 #settings-nav ul
 {
 	list-style-type:none;
@@ -368,12 +374,12 @@ ul.component-submit li
 
 table.component
 {
-	width: 80%;
 	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
+    width: 80%;
+    overflow: auto;
 }
-
 
 table.component thead tr th,
 table.component tbody tr th

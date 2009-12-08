@@ -13,7 +13,6 @@
           onchange="literal:javascript:this.form.submit();"/>
       </li>
     </ul>
-    <fieldset>
       <table jwcid="@common/Table" id="service:list" source="ognl:serviceManager.services"
         row="ognl:currentRow" columns="literal:* !name,!enabled,address:address,!descriptor.label"
         selections="ognl:selections" converter="ognl:converter">
@@ -35,6 +34,5 @@
           prompt="message:confirm.delete"/>
       </li>
     </ul>
-    </fieldset>
   </form>
 </div>
