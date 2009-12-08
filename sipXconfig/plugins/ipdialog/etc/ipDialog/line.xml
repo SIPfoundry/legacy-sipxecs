@@ -241,7 +241,7 @@
 
   </group>
 
-  <group name="callForward">
+  <group name="callForward" hidden="yes">
 
     <label>Call Forward</label>
 
