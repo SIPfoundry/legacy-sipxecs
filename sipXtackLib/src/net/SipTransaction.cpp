@@ -2692,7 +2692,8 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                      "mpRequest = %p",
                      mIsServerTransaction, mIsDnsSrvChild,
                      mpDnsDestinations, 
-                     mpDnsDestinations[0].isValidServerT(),
+                     // Only examine mpDnsDestinations[0] if mpDnsDestinations != NULL.
+                     mpDnsDestinations ? mpDnsDestinations[0].isValidServerT() : 0,
                      mpRequest);
     }
 
