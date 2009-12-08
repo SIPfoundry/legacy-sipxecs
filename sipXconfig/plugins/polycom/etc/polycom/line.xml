@@ -284,7 +284,7 @@
       </setting>
     </group>
   </group>
-  <group name="divert">
+  <group name="divert" hidden="yes">
     <setting name="contact">
       <type>
         <!-- ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid
