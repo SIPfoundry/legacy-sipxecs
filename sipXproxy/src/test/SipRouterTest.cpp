@@ -75,6 +75,8 @@ class SipRouterTest : public CppUnit::TestCase
    CPPUNIT_TEST(testProxyMessageWithRouteStateWithAuthentication_DialogForming);
    CPPUNIT_TEST(testProxyMessageWithRouteStateWithAuthentication_InDialog);
    CPPUNIT_TEST(testProxyMessageRouteState_DeniedByPlugin);
+   CPPUNIT_TEST(testAddNatMappingInfoToContactsToNatedMessage);
+   CPPUNIT_TEST(testAddNatMappingInfoToContactsToNonNatedMessage);
    CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -1497,6 +1499,85 @@ public:
       CPPUNIT_ASSERT( !testMsg.getRecordRouteUri(0, &recordRoute) );
    }
 
+   void testAddNatMappingInfoToContactsToNatedMessage()
+   {
+      UtlString  contactString;
+
+      const char* sipMessage =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/UDP 10.1.1.3:33855;branch=zc93133131;received=47.0.0.1\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage sipMsg(sipMessage, strlen(sipMessage));
+   
+      // x-sipX-privcontact should be added for NATed endpoint
+      sipMsg.setContactField("sip:callee@10.1.1.3:33855");
+      sipMsg.setSendAddress("47.0.0.1", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.1:5060;x-sipX-privcontact=10.1.1.3%3A33855>",contactString.data());
+
+      // x-sipX-privcontact should be added for NATed endpoint and should replace x-sipX-nonat
+      sipMsg.setContactField("<sip:callee@10.1.1.3:33855;x-sipX-nonat>");
+      sipMsg.setSendAddress("47.0.0.2", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.2:5060;x-sipX-privcontact=10.1.1.3%3A33855>",contactString.data());
+      CPPUNIT_ASSERT( sipMsg.getContactEntry(1, &contactString) == FALSE );
+
+      // x-sipX-privcontact should be added for NATed endpoint and should replace old x-sipX-privcontact
+      sipMsg.setContactField("<sip:callee@10.1.1.3:33855;x-sipX-privcontact=10.3.3.3%3A1234>");
+      sipMsg.setSendAddress("47.0.0.3", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.3:5060;x-sipX-privcontact=10.1.1.3%3A33855>",contactString.data());
+      CPPUNIT_ASSERT( sipMsg.getContactEntry(1, &contactString) == FALSE );
+   }      
+
+   void testAddNatMappingInfoToContactsToNonNatedMessage()
+   {
+      UtlString  contactString;
+
+      const char* sipMessage =
+         "INVITE sip:user@somewhere.com SIP/2.0\r\n"
+         "Via: SIP/2.0/UDP 47.0.0.1:5060;branch=zc93133131\r\n"
+         "To: sip:user@somewhere.com\r\n"
+         "From: Caller <sip:caller@example.org>; tag=30543f3483e1cb11ecb40866edd3295b\r\n"
+         "Call-Id: f88dfabce84b6a2787ef024a7dbe8749\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 20\r\n"
+         "Content-Length: 0\r\n"
+         "\r\n";
+      SipMessage sipMsg(sipMessage, strlen(sipMessage));
+   
+      // x-sipX-nonat should be added for non-NATed endpoint
+      sipMsg.setContactField("sip:callee@47.0.0.1:5060");
+      sipMsg.setSendAddress("47.0.0.1", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.1:5060;x-sipX-nonat>",contactString.data());
+
+      // x-sipX-nonat should be added for non-NATed endpoint and should replace x-sipX-nonat
+      sipMsg.setContactField("<sip:callee@47.0.0.2:5060;x-sipX-nonat>");
+      sipMsg.setSendAddress("47.0.0.2", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.2:5060;x-sipX-nonat>",contactString.data());
+      CPPUNIT_ASSERT( sipMsg.getContactEntry(1, &contactString) == FALSE );
+
+      // x-sipX-privcontact should be preserved for seemingly non-NATed endpoint
+      sipMsg.setContactField("<sip:callee@47.0.0.3:5060;x-sipX-privcontact=10.3.3.3%3A1234>");
+      sipMsg.setSendAddress("47.0.0.3", 5060);;
+      mSipRouter->addNatMappingInfoToContacts( sipMsg );
+      sipMsg.getContactEntry(0, &contactString);
+      ASSERT_STR_EQUAL("<sip:callee@47.0.0.3:5060;x-sipX-privcontact=10.3.3.3%3A1234>",contactString.data());
+      CPPUNIT_ASSERT( sipMsg.getContactEntry(1, &contactString) == FALSE );
+   }      
 };
 
 const char* SipRouterTest::VoiceMail   = "Voicemail";
