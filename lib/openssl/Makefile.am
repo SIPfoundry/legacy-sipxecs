@@ -1,4 +1,4 @@
-VERSION = 0.9.8l
+VERSION = 0.9.8k
 RELEASE = 1
 
 SRC_DIR = $(srcdir)/src
