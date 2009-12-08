@@ -26,14 +26,37 @@ public class SIPViewer
 ////
     public static void main(String args[]) throws Exception  {
         if (processCmdlineArgs(args))
-        {
+        {        	        	
+        	// check that file exists
+        	if (s_strCmdLineFile != null)
+        	{
+        		File file = new File(s_strCmdLineFile);
+        	
+        		// if file does not exist then let the user know and exit
+        		if (!file.exists())
+        		{        			        	
+        			System.out.println();
+        			System.out.print("File not found: " + s_strCmdLineFile);
+        			System.out.println();
+        			usage();
+        			return;
+        		}
+        	}
+        	        	
             SIPViewerFrame frame = new SIPViewerFrame(true) ;
             if (s_strAliasesFile != null)
                 frame.applyAliasesFile(s_strAliasesFile) ;
             if (s_strCmdLineFile != null) { 
-                frame.applySourceFile(s_strCmdLineFile) ;
+                frame.applySourceFile(s_strCmdLineFile) ;                
             }
-            frame.show() ;
+            
+            frame.setVisible(true);
+            
+            // command line invocation causes frame characteristics to
+            // be skewed until the frame is actually shown on the screen so
+            // we don't actually process any information untill the window is
+            // shown then call the reload
+            frame.m_Reload.execute();
         }
         else
         {

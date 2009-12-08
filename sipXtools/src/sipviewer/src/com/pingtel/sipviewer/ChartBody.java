@@ -34,6 +34,9 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     protected String         m_strMatchCSeqCallId ;
     protected String         m_strMatchDialogId ;
     protected String         m_strMatchCallId ;
+    
+    // this stores the relative position of a key (column) from the
+    // left side of the window
     protected double []      m_key_positions ;
     
     // popup menu used for taking screen shots and other future operations

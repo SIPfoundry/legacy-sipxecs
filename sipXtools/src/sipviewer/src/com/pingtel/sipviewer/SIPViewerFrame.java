@@ -1,16 +1,30 @@
 package com.pingtel.sipviewer;
 
-import javax.swing.*;
-import javax.swing.table.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.lang.*;
-import java.util.*;
-import java.io.*;
-import java.net.*;
-import java.awt.datatransfer.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.net.URL;
+import java.util.Vector;
+
+import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 
 public class SIPViewerFrame extends JFrame {
     // //////////////////////////////////////////////////////////////////////
@@ -99,15 +113,42 @@ public class SIPViewerFrame extends JFrame {
         }
     }
 
-    public void applySourceFile(URL url) throws Exception {
-        Vector vData = SipBranchData.getSipBranchDataElements(url);
-        applyData(vData);
+    public void applySourceFile(URL url) throws Exception {    	    	
+    	
+    	try {
+        	
+        	// whenever loading a new file or reloading a file make sure to reset the
+        	// the pane visibility to single screen, if file contains sipviewer meta info
+        	// and pane is split then it will be split in the SipViewerMetaData methods
+        	setSecondPaneVisiblity(false);
+        	
+            // Save the reload action.
+            m_Reload = new ReloadOpenFile(url.toString());
+        } catch (Exception ex) {
+            System.err.println("Unexpected exception ");
+            ex.printStackTrace();
+        }        
     }
+    
     public void applySourceFile(String strSourceFile) throws Exception {
-        Vector vData = SipBranchData.getSipBranchDataElements(new URL("file:" + strSourceFile));
-        applyData(vData);
+    	        	    	
+    	try {
+        	
+        	// whenever loading a new file or reloading a file make sure to reset the
+        	// the pane visibility to single screen, if file contains sipviewer meta info
+        	// and pane is split then it will be split in the SipViewerMetaData methods
+        	setSecondPaneVisiblity(false);
+
+        	// Save the reload action.
+            m_Reload = new ReloadOpenFile(strSourceFile);                                  
+        } catch (Exception ex) {
+            System.err.println("Unexpected exception ");
+            ex.printStackTrace();
+        }        
     }
 
+    // take the parsed XML data that was converted to SIPBranchData objects and
+    // add them to the ChartDescriptor objects
     protected void applyData(Vector vData) {
         m_model.clear();
 
@@ -139,6 +180,8 @@ public class SIPViewerFrame extends JFrame {
         }
 
         SipBranchData data = null;
+
+        
         for (int i = 0; i < vData.size(); i++) {
             data = (SipBranchData) vData.elementAt(i);
             addEntryToModel(data);
@@ -200,16 +243,27 @@ public class SIPViewerFrame extends JFrame {
         m_scrollPane = new JScrollPane(m_body, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         m_scrollPane.setColumnHeaderView(m_header);
+                
         // Make the viewport's background color black, in case the displayed
         // data panel is smaller than the viewport.
         m_scrollPane.getViewport().setBackground(Color.black);
         
+        // setting the default scroll bar size since starting from command line 
+        // assigns initial value of 100, if meta data was provided then setting
+        // the relative position will be wrong
+        m_scrollPane.getVerticalScrollBar().setMaximum(1584);
+        
         m_scrollPaneSecond = new JScrollPane(m_bodySecond, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-      
+             
         // Make the viewport's background color black, in case the displayed
         // data panel is smaller than the viewport.
         m_scrollPaneSecond.getViewport().setBackground(Color.black);
+        
+        // setting the default scroll bar size since starting from command line 
+        // assigns initial value of 100, if meta data was provided then setting
+        // the relative position will be wrong
+        m_scrollPaneSecond.getVerticalScrollBar().setMaximum(1584);
         
         // by default make the second pane invisible
         m_scrollPaneSecond.setVisible(false);
@@ -308,17 +362,19 @@ public class SIPViewerFrame extends JFrame {
         menu.add(menuItem);
 
         menuItem = new JMenuItem();
-        menuItem.setAction(new icImportSiplogAction());
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
-        menu.add(menuItem);
-
-        menuItem = new JMenuItem();
         menuItem.setAction(new icImportSyslogAction());
         menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.ALT_MASK));
         menu.add(menuItem);
 
         menu.addSeparator();
 
+        menuItem = new JMenuItem();
+        menuItem.setAction(new icSaveAsAction());
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
+        menu.add(menuItem);
+        
+        menu.addSeparator();
+        
         // Add the reload item to the File menu.
         menuItem = new JMenuItem();
         menuItem.setAction(new icReloadAction());
@@ -348,42 +404,86 @@ public class SIPViewerFrame extends JFrame {
     // Objects of this class do no-op reloads, but subclasses can override
     // method execute() to do useful reloads.
     protected class Reload {
+    	
+    	public String getOpenFile() {
+    		return null;
+    	}
+    	
         // Method to be overridden by subclasses.
         public void execute() {
         }
     }
 
+    private class ReloadOpenFile extends Reload {
+        // Store the file name to be reloaded.
+        protected String m_fileName = null;
+
+        // save the file name which is later used in the
+        // execute() method when/if the file is reloaded
+        public ReloadOpenFile(String fileName) {
+            m_fileName = fileName;
+        }
+        
+        public String getOpenFile() 
+        {
+        	return m_fileName;
+        }
+
+        // Reload the file, this is used when user reloads the file
+        // virtually identical to the initial load
+        public void execute() {
+
+            try {
+           	
+                applyData(SipBranchData
+                        .getSipBranchDataElements(new File(m_fileName).toURL()));
+                
+                // now that we got the data lets see if there is any sipviewer config data stored
+                // in this files as
+                if (SipBranchData.nodeContainer != null)
+                {
+                	// lets see if we can get some sipviewer meta data from the file
+                	SipViewerMetaData.setSipViewerMetaData(m_header, m_model, SIPViewerFrame.this, m_scrollPane, m_scrollPaneSecond);
+                }
+                
+            } catch (Exception ex) {
+                System.err.println("Bad File" + m_fileName);
+                ex.printStackTrace();
+            }
+        }
+    }
+    
     protected class icOpenFileAction extends AbstractAction {
         public icOpenFileAction() {
             super("Open Siptrace File");
         }
 
-        protected class ReloadOpenFile extends Reload {
-            // Store the file name to be reloaded.
-            protected String m_fileName;
-
-            public ReloadOpenFile(String fileName) {
-                m_fileName = fileName;
-            }
-
-            // Reload the file.
-            public void execute() {
-
-                try {
-                    applyData(SipBranchData
-                            .getSipBranchDataElements(new File(m_fileName).toURL()));
-                } catch (Exception ex) {
-                    System.err.println("Bad File" + m_fileName);
-                    ex.printStackTrace();
-                }
-            }
-        }
+        
 
         public void actionPerformed(ActionEvent e) {
             String strSource = selectFile(getFrame(), "xml", "SIPViewer XML (pre-rendered)");
             if (strSource != null) {
                 try {
+                	
+                	// whenever loading a new file or reloading a file make sure to reset the
+                	// the pane visibility to single screen, if file contains sipviewer meta info
+                	// and pane is split then it will be split in the SipViewerMetaData methods
+                	setSecondPaneVisiblity(false);
+                	
+                	// get the data from the file, a lot of stuff is actually going on on this line
+                	// the file is parsed to get the XML data, then the XML data is parsed to extract
+                	// each SIP message in XML format, lastly, each message is parsed again to
+                	// convert it to SIPBranchData class and finally its added to the ChartDescriptor
                     applyData(SipBranchData.getSipBranchDataElements(new File(strSource).toURL()));
+                    
+                    // now that we got the data lets see if there is any sipviewer config data stored
+                    // in this files as
+                    if (SipBranchData.nodeContainer != null)
+                    {
+                    	// lets see if we can get some sipviewer meta data from the file
+                    	SipViewerMetaData.setSipViewerMetaData(m_header, m_model, SIPViewerFrame.this, m_scrollPane, m_scrollPaneSecond);
+                    }
+                    
                     // Save the reload action.
                     m_Reload = new ReloadOpenFile(strSource);
                 } catch (Exception ex) {
@@ -396,20 +496,18 @@ public class SIPViewerFrame extends JFrame {
         }
     }
 
-    protected class icImportSiplogAction extends AbstractAction {
-        public icImportSiplogAction() {
-            super("Import Siplog");
+    protected class icSaveAsAction extends AbstractAction {
+        public icSaveAsAction() {
+            super("Save As..");
         }
 
         public void actionPerformed(ActionEvent e) {
-            String strSource = selectFile(getFrame(), "txt", "xpressa siplog");
-            if (strSource != null) {
-                try {
-                    applyData(importSipfile(strSource, "siplog2siptrace"));
-                } catch (Exception exception) {
-                    exception.printStackTrace();
-                }
-            }
+        	
+        	if ((m_Reload.getOpenFile() != null) && (SipBranchData.nodeContainer != null))
+        	{
+        		SipViewerMetaData.saveSipViewerMetaData(SIPViewerFrame.this, m_Reload.getOpenFile(),
+        				m_header, m_model, SIPViewerFrame.this, m_scrollPane, m_scrollPaneSecond);
+        	}
         }
     }
 

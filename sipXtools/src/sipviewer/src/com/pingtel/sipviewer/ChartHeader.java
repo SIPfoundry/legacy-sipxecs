@@ -465,4 +465,15 @@ public class ChartHeader extends Component
             setMouseOver(-1);
         }
     }
+    
+    public double [] getKeyPositions()
+    {
+    	return m_key_positions;
+    }
+    
+    public void setKeyPosition(int index, double position)
+    {
+    	// keep setting the location of this column to the current location
+    	m_key_positions[index] = position;
+    }
 }

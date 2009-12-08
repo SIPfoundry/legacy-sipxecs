@@ -30,7 +30,10 @@ public class SipBranchData
     String frameId;
     String message;
     Vector branchIds;
-
+    
+    // contains JDOM items from the XML file parse operation
+    static Element nodeContainer = null;
+    static Document traceDoc = null;
 
     public SipBranchData(Element xmlBranchNode)
     {
@@ -85,16 +88,29 @@ public class SipBranchData
 
     }
 
-
+    // input is the root container of the input file, it contains individual
+    // XML elements that are SIP messages
     public static Vector getSipBranchDataElements(Element branchContainer)
     {
         Vector nodes = new Vector();
+        
+        // puts all the <branchNode></branchNode> sections into their own
+        // individual element on the list
         List elementList = branchContainer.getChildren("branchNode");
         Element xmlNode;
+        
+        // list containing all the "branchNode" elements
         int count = elementList.size();
+        
+        // loop through all the elements
         for(int i = 0; i < count; i++)
         {
+        	// get the JDOM Element object from the data
             xmlNode = (Element) elementList.get(i);
+            
+            // convert the JDOM object to a SipBranchData object
+            // and add it to the vector that will be used as a source
+            // to store ChartDescriptor elements
             nodes.add(new SipBranchData(xmlNode));
         }
 
@@ -102,23 +118,33 @@ public class SipBranchData
         return(nodes);
     }
 
-
+    // parses the input file and stores SIP data elements in a Vector
+    // which is later processes to reorder the SIP messages (in case
+    // they are not in the proper chronological sequence), then each
+    // vector element in added to SIP Model
+    // Note: This is an overloaded method so don't get confused when
+    // its called again with the container object as the input
     public static Vector getSipBranchDataElements(URL traceFilename)
-    {
-        SAXBuilder builder = new SAXBuilder();
+    {    	    	
+    	// JDOM structure
+    	SAXBuilder builder = new SAXBuilder();
         System.out.println("reading: " + traceFilename);
         Vector nodes = null;
 
-
         try
         {
+        	// open the file and create an input stream
             URLConnection uc = traceFilename.openConnection();
             InputStreamReader input = new InputStreamReader(uc.getInputStream());
             
-            Document traceDoc = builder.build(input);
-            Element nodeContainer = traceDoc.getRootElement();
+            // feed the stream through the JDOM builder and store it in the JDOM document
+            traceDoc = builder.build(input);
+            
+            // get the root container from the JDOM document
+            nodeContainer = traceDoc.getRootElement();
 
-
+            // get the individual sip elements and store them in a vector which 
+            // will be returned as part of this method
             nodes = SipBranchData.getSipBranchDataElements(nodeContainer);
             input.close();
         }
