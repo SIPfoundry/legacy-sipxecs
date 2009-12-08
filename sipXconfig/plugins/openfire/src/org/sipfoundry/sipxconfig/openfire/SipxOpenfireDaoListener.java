@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
+import java.util.List;
+
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -20,7 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class SipxOpenfireDaoListener implements DaoEventListener {
 
     private SipxReplicationContext m_sipxReplicationContext;
-    private ConfigurationFile m_configurationFile;
+    private List<ConfigurationFile> m_configurationFiles;
 
     public void onDelete(Object entity) {
         if (checkGenerateConfig(entity)) {
@@ -52,14 +54,16 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
      * Regenerate openfire configuration whenever a user is added or removed.
      */
     private void generateOpenfireConfig() {
-        m_sipxReplicationContext.replicate(m_configurationFile);
+        for (ConfigurationFile configurationFile : m_configurationFiles) {
+            m_sipxReplicationContext.replicate(configurationFile);
+        }
     }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }
 
-    public void setConfigurationFile(ConfigurationFile configurationFile) {
-        m_configurationFile = configurationFile;
+    public void setConfigurationFiles(List<ConfigurationFile> configurationFiles) {
+        m_configurationFiles = configurationFiles;
     }
 }

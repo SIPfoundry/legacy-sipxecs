@@ -122,4 +122,8 @@ public class ImAccount {
     public boolean includeCallInfo() {
         return (Boolean) m_user.getSettingTypedValue("im/include-call-info");
     }
+
+    public boolean isForwardOnDnd() {
+        return (Boolean) m_user.getSettingTypedValue("im/fwd-vm-on-dnd");
+    }
 }

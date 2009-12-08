@@ -287,6 +287,12 @@
       </type>
       <value>On the phone</value>
     </setting>
+    <setting name="fwd-vm-on-dnd" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="callfwd">
     <setting name="timer">

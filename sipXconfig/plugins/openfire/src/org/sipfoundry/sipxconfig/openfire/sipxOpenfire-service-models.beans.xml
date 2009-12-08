@@ -59,7 +59,12 @@
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <property name="configurationFile" ref="xmppAccountInfo" />
+    <property name="configurationFiles">
+      <list>
+        <ref bean="xmppAccountInfo" />
+        <ref bean="presenceRoutingConfiguration" />
+      </list>
+    </property>
   </bean>
 
 </beans>
