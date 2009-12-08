@@ -13,9 +13,9 @@ import java.io.Serializable;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class Alarm implements Comparable, PrimaryKeySource, Serializable {
+public class Alarm extends BeanWithId implements Comparable, Serializable {
     private String m_alarmId;
 
     private String m_code;

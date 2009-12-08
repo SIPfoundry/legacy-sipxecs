@@ -23,6 +23,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -32,6 +33,13 @@ import org.xml.sax.SAXException;
 
 public class AlarmTypesParser {
     private static final Log LOG = LogFactory.getLog(AlarmTypesParser.class);
+
+    private HibernateTemplate m_hibernate;
+
+    // Constructor
+    public AlarmTypesParser(HibernateTemplate hibernate) {
+        m_hibernate = hibernate;
+    }
 
     public List<Alarm> getTypes(InputStream isAlarmsConfig, InputStream isAlarmsString) {
         List<Alarm> alarms = parseAlarmsConfig(isAlarmsConfig);
@@ -43,6 +51,14 @@ public class AlarmTypesParser {
             alarm.setShortTitle(alarmsString.get(i).getShortTitle());
         }
         return alarms;
+    }
+
+    private Alarm loadAlarm(String alarmIdValue) {
+        List<Alarm> alarms = m_hibernate.findByNamedQueryAndNamedParam("alarmForAlarmId", "alarmId", alarmIdValue);
+        if (alarms.size() > 0) {
+            return alarms.get(0);
+        }
+        return null;
     }
 
     private List<Alarm> parseAlarmsConfig(InputStream is) {
@@ -60,15 +76,22 @@ public class AlarmTypesParser {
                 if (nodeAlarm.getNodeType() == Node.ELEMENT_NODE) {
                     NamedNodeMap alarmMap = nodeAlarm.getAttributes();
                     Node alarmId = alarmMap.getNamedItem("id");
-                    alarmBean.setAlarmId(alarmId.getNodeValue());
+                    String alarmIdValue = alarmId.getNodeValue();
+                    Alarm storedAlarm = loadAlarm(alarmIdValue);
+                    alarmBean.setAlarmId(alarmIdValue);
                     alarmBean.setCode(getNodeValue(nodeAlarm, "code"));
                     alarmBean.setSeverity(getNodeValue(nodeAlarm, "severity"));
                     alarmBean.setComponent(getNodeValue(nodeAlarm, "component"));
                     alarmBean.setShortTitle(getNodeValue(nodeAlarm, "shorttitle"));
-                    alarmBean.setGroupName(getAtributeValue(nodeAlarm, "action", "email"));
-                    String threshold = getAtributeValue(nodeAlarm, "filter", "min_threshold");
-                    int minThreshold = (StringUtils.isBlank(threshold) ? 0 : Integer.parseInt(threshold));
-                    alarmBean.setMinThreshold(minThreshold);
+                    if (storedAlarm != null) {
+                        alarmBean.setGroupName(storedAlarm.getGroupName());
+                        alarmBean.setMinThreshold(storedAlarm.getMinThreshold());
+                    } else {
+                        alarmBean.setGroupName(getAtributeValue(nodeAlarm, "action", "email"));
+                        String threshold = getAtributeValue(nodeAlarm, "filter", "min_threshold");
+                        int minThreshold = (StringUtils.isBlank(threshold) ? 0 : Integer.parseInt(threshold));
+                        alarmBean.setMinThreshold(minThreshold);
+                    }
                 }
                 alarms.add(alarmBean);
             }

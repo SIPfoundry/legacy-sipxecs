@@ -38,12 +38,27 @@
     </set>
   </class>
 
+  <class name="Alarm" table="alarm_code">
+    <id name="id" column="alarm_seq_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_code_seq</param>
+      </generator>
+    </id>
+    <property name="alarmId" column="alarm_code_id" />
+    <property name="groupName" column="email_group" />
+    <property name="minThreshold" column="min_threshold" />
+  </class>
+
   <query name="countAlarmGroupWithSameName">
     <![CDATA[select count (*) from AlarmGroup pg where pg.id = :alarmGroupId and pg.name = :alarmGroupName]]>
   </query>
 
   <query name="anotherAlarmGroupWithSameName">
     <![CDATA[select count (*) from AlarmGroup pg where pg.name = :alarmGroupName]]>
+  </query>
+
+  <query name="alarmForAlarmId">
+    <![CDATA[from Alarm al where al.alarmId = :alarmId]]>
   </query>
 
 </hibernate-mapping>

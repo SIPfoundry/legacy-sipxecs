@@ -121,6 +121,8 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms, List<AlarmGroup> groups) {
+        // save the alarm codes
+        saveAlarmCodes(alarms);
         // save alarm server configuration
         saveAlarmServer(server);
         // replicate new alarm server configuration
@@ -169,6 +171,14 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private void saveAlarmServer(AlarmServer server) {
         HibernateTemplate template = getHibernateTemplate();
         template.saveOrUpdate(server);
+        template.flush();
+    }
+
+    private void saveAlarmCodes(List<Alarm> alarmCodes) {
+        HibernateTemplate template = getHibernateTemplate();
+        Collection oldAlarms = template.loadAll(Alarm.class);
+        template.deleteAll(oldAlarms);
+        template.saveOrUpdateAll(new ArrayList(alarmCodes));
         template.flush();
     }
 
@@ -223,7 +233,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         try {
             InputStream isAlarmsConfig = new FileInputStream(m_configDirectory + "/alarms/sipXalarms-config.xml");
             InputStream isAlarmsString = new FileInputStream(m_alarmsStringsDirectory + "/sipXalarms-strings.xml");
-            AlarmTypesParser parser = new AlarmTypesParser();
+            AlarmTypesParser parser = new AlarmTypesParser(getHibernateTemplate());
             return parser.getTypes(isAlarmsConfig, isAlarmsString);
         } catch (FileNotFoundException e) {
             LOG.error("Cannot find alarm definitions", e);

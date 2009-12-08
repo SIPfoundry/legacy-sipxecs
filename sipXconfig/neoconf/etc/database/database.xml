@@ -332,6 +332,7 @@
 	<antcall target="phonebook-add-user" />
     <antcall target="add_addrbookentry_use_brnch_addr" />
     <antcall target="alarm-groups" />
+    <antcall target="alarm-codes" />
     <antcall target="add_branch_office_designation" />
     <antcall target="add-im-password" />
     <antcall target="add-addressbook-email" />
@@ -1020,6 +1021,9 @@
   </target>
   <target name="alarm-groups" unless="alarm-groups">
     <db-patch patch="alarm-groups"/>
+  </target>
+  <target name="alarm-codes" unless="alarm-codes">
+    <db-patch patch="alarm-codes"/>
   </target>
   <target name="add_branch_office_designation" unless="add_branch_office_designation">
     <db-patch patch="add_branch_office_designation"/>
