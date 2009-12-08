@@ -115,7 +115,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
 
     private String buildAvailablePackagesString() {
         StringBuilder availablePackages = new StringBuilder();
-        availablePackages.append("# Package Name|Installed Version|Updated Version\n");
+        availablePackages.append("Package Name|Installed Version|Updated Version\n");
         for (PackageUpdate packageUpdate : m_availablePackages) {
             availablePackages.append(packageUpdate).append('\n');
         }

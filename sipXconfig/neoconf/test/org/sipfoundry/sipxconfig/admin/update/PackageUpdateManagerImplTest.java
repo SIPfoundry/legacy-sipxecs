@@ -57,7 +57,7 @@ public class PackageUpdateManagerImplTest {
         // Make sure we start in NO_UPDATES_AVAILABLE state
         AlarmContext alarmContext = createMock(AlarmContext.class);
         alarmContext.raiseAlarm("SOFTWARE_UPDATE_AVAILABLE",
-                "# Package Name|Installed Version|Updated Version\nsipxecs|3.11.7|3.11.8-013967\n");
+                "Package Name|Installed Version|Updated Version\nsipxecs|3.11.7|3.11.8-013967\n");
 
         UpdateApi updateApi = createMock(UpdateApi.class);
         updateApi.getAvailableUpdates();

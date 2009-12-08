@@ -414,7 +414,11 @@ table.component tfoot tr td
 table.component .descriptionColumnValue,
 table.component .errorColumnValue
 {
-	white-space:normal;
+   /* because of CSS's forward compatibility guidelines, user agents pick the last one they support */
+   white-space: normal;        /* wrap (CSS 2) */
+   white-space: -moz-pre-wrap; /* wrap, but preserve newlines (Mozilla) */
+   white-space: -o-pre-wrap;   /* wrap, but preserve newlines (Opera 7) */
+   white-space: pre-wrap;      /* wrap, but preserve newlines (CSS 2.1) */
 }
 
 

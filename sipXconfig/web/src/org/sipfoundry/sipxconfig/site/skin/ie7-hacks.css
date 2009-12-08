@@ -10,3 +10,10 @@
 #navigation  ul li ul li  {
 	z-index: 600;
 }
+
+table.component .descriptionColumnValue,
+table.component .errorColumnValue
+{
+   /* IE7 does not support pre-wrap */
+   white-space: normal;
+}

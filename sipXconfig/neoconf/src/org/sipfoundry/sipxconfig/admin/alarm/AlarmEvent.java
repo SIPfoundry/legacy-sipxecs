@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -36,7 +37,7 @@ public class AlarmEvent implements Serializable {
         String[] tokens = StringUtils.split(logLine, ":", 10);
         Alarm alarm = new Alarm();
         alarm.setCode(tokens[8]);
-        alarm.setDescription(tokens[9]);
+        alarm.setDescription(StringEscapeUtils.unescapeJava(tokens[9]));
         alarm.setSeverity(tokens[5]);
 
         m_alarm = alarm;

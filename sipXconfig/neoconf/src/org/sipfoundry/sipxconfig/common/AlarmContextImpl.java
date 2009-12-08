@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -34,7 +35,7 @@ public class AlarmContextImpl implements AlarmContext, ApplicationListener {
 
     public void raiseAlarm(String alarmId, String... alarmParams) {
         try {
-            getAlarmApi().raiseAlarm(getHost(), alarmId, alarmParams);
+            getAlarmApi().raiseAlarm(getHost(), alarmId, ParamsUtils.escape(alarmParams));
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
@@ -61,5 +62,29 @@ public class AlarmContextImpl implements AlarmContext, ApplicationListener {
 
     private AlarmApi getAlarmApi() {
         return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation().getProcessMonitorUrl());
+    }
+
+    static final class ParamsUtils {
+        private static final String[] SEARCH = {
+            "\n", "\t"
+        };
+        private static final String[] REPLACEMENTS = {
+            "&#xA;", "&#x9;"
+        };
+
+        private ParamsUtils() {
+            // utility class
+        }
+
+        /**
+         * Encode whitespace in alarm parameters so that is not removed by XML parser.
+         */
+        static String[] escape(String... alarmParams) {
+            String[] escapedParams = new String[alarmParams.length];
+            for (int i = 0; i < escapedParams.length; i++) {
+                escapedParams[i] = StringUtils.replaceEach(alarmParams[i], SEARCH, REPLACEMENTS);
+            }
+            return escapedParams;
+        }
     }
 }
