@@ -20,8 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-
+import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.dom.DOMDocumentFactory;
@@ -40,11 +39,10 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone.Nortel12x0Context;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-
-import junit.framework.TestCase;
 
 public class Nortel12x0PhoneTest extends TestCase {
 
@@ -121,7 +119,7 @@ public class Nortel12x0PhoneTest extends TestCase {
         model.setProfileTemplate("nortel12x0/nortel12x0.vm");
         phone.setModel(model);
 
-        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>(), true);
+        PhoneTestDriver.supplyTestData(phone, new ArrayList<User>(), true);
         phone.restart();
     }
 
@@ -408,18 +406,22 @@ public class Nortel12x0PhoneTest extends TestCase {
             entry = param;
         }
 
+        @Override
         public String getFirstName() {
             return "bookFirstName" + entry;
         }
 
+        @Override
         public String getLastName() {
             return "bookLastName" + entry;
         }
 
+        @Override
         public String getNumber() {
             return "bookNumber" + entry;
         }
 
+        @Override
         public AddressBookEntry getAddressBookEntry() {
             return null;
         }
