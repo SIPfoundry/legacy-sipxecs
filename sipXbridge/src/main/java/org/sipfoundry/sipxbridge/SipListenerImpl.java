@@ -359,8 +359,9 @@ public class SipListenerImpl implements SipListenerExt {
             } else if (provider == Gateway.getLanProvider()
                     && method.equals(Request.INVITE)
                     && ((viaHeader.getReceived() != null && !Gateway
-                            .isAddressFromProxy(viaHeader.getReceived())) || !Gateway
-                            .isAddressFromProxy(viaHeader.getHost()))) {
+                            .isAddressFromProxy(viaHeader.getReceived())) || 
+                            (viaHeader.getReceived() == null && !Gateway
+                            .isAddressFromProxy(viaHeader.getHost())))) {
                 /*
                  * Check to see that via header originated from proxy server.
                  */
