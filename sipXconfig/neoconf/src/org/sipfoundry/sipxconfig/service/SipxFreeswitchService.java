@@ -14,6 +14,8 @@ import java.io.Serializable;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
@@ -50,6 +52,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     private JobContext m_jobContext;
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private SipxProcessContext m_sipxProcessContext;
+    private SipxReplicationContext m_replicationContext;
 
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
@@ -151,5 +154,15 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     @Required
     public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
         m_sipxProcessContext = sipxProcessContext;
+    }
+
+    @Required
+    public void setReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_replicationContext = sipxReplicationContext;
+    }
+
+    @Override
+    public void onConfigChange() {
+        m_replicationContext.generate(DataSet.ALIAS);
     }
 }

@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -73,10 +72,6 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
                 m_serviceConfigurator.markServiceForRestart(service);
             }
         }
-    }
-
-    public void replicateAliasData() {
-        m_replicationContext.generate(DataSet.ALIAS);
     }
 
     public String getAudioDirectoryPath() {

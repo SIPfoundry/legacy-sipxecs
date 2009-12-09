@@ -416,4 +416,8 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
     public void afterReplication(Location location) {
         // intentionally empty
     }
+
+    public void onConfigChange() {
+        // intentionally empty
+    }
 }

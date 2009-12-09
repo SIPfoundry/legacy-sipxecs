@@ -69,6 +69,5 @@ public abstract class MusicOnHold extends BasePage implements PageBeginRenderLis
         SipxService service = getSipxService();
         service.validate();
         getSipxServiceManager().storeService(service);
-        getMusicOnHoldManager().replicateAliasData();
     }
 }

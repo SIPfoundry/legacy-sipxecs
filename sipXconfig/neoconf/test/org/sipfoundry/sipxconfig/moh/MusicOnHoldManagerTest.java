@@ -106,7 +106,6 @@ public class MusicOnHoldManagerTest extends TestCase {
         replay(replicationContext);
 
         m_musicOnHoldManager.setReplicationContext(replicationContext);
-        m_musicOnHoldManager.replicateAliasData();
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() {

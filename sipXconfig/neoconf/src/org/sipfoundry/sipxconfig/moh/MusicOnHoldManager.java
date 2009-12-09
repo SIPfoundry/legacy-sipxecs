@@ -32,7 +32,5 @@ public interface MusicOnHoldManager extends DialingRuleProvider, AliasOwner, Ali
 
     String getPersonalMohFilesUri(String userName);
 
-    void replicateAliasData();
-
     File getUserAudioDirectory(User user);
 }

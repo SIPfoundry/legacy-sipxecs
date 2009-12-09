@@ -28,6 +28,11 @@ public interface ServiceLifeCycle {
     void onRestart();
 
     /**
+     * Called when service settings are saved to DB.
+     */
+    void onConfigChange();
+
+    /**
      * Called after configuration files replication for a service succeeds
      *
      * @param location if null service configuration was replicated to all locations on which

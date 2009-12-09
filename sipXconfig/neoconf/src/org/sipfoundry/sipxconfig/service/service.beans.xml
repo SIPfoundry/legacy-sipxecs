@@ -550,6 +550,7 @@
         <ref bean="conferenceBundle" />
       </set>
     </property>
+    <property name="replicationContext" ref="sipxReplicationContextDao" />
   </bean>
 
   <bean id="freeswitchConfiguration" parent="serviceConfigurationFile"

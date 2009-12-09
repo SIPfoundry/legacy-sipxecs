@@ -143,6 +143,7 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
 
     public void storeService(SipxService service) {
         saveBeanWithSettings(service);
+        service.onConfigChange();
     }
 
     public Collection<SipxService> getServiceDefinitions() {
