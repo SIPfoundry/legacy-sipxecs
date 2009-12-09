@@ -552,7 +552,19 @@ class DialogContext {
     void sendAck(SessionDescription sessionDescription) throws Exception {
         if (this.getLastResponse() == null) {
             Gateway.logInternalError("Method was called with lastResponse null");
+            throw new SipXbridgeException("sendAck : null last response");
 
+        }
+        if (  this.lastResponse.getStatusCode() != 200 || 
+                !SipUtilities.getCSeqMethod(this.lastResponse).equals(Request.INVITE)) {
+            Gateway.logInternalError("Method was called with lastResponse null");
+            throw new SipXbridgeException("sendAck : last response is not valid " + this.lastResponse);
+        }
+        
+        if ( this.lastResponse.getHeader(ContactHeader.NAME) == null ) {
+            logger.warn("ITSP sent a 200 OK WITHOUT Contact header - silently dropping 200 OK and sending BYE");
+            this.sendBye(true,"200 OK without Contact header sent. Dropping call leg.");
+            return;
         }
         Request ackRequest = dialog.createAck(SipUtilities.getSeqNumber(this.getLastResponse()));
         if ( this.proxyAuthorizationHeader != null ) {
@@ -951,6 +963,23 @@ class DialogContext {
     public void sendAck(Response response) throws Exception {
 
         this.lastResponse = response;
+        
+        if (this.getLastResponse() == null) {
+            Gateway.logInternalError("Method was called with lastResponse null");
+            throw new SipXbridgeException("sendAck : null last response");
+
+        }
+        if (  this.lastResponse.getStatusCode() != 200 || 
+                !SipUtilities.getCSeqMethod(this.lastResponse).equals(Request.INVITE)) {
+            Gateway.logInternalError("Method was called with lastResponse null");
+            throw new SipXbridgeException("sendAck : last response is not valid " + this.lastResponse);
+        }
+        
+        if ( this.lastResponse.getHeader(ContactHeader.NAME) == null ) {
+            logger.warn("ITSP sent a 200 OK WITHOUT Contact header - silently dropping 200 OK and sending BYE");
+            this.sendBye(true,"200 OK without Contact header sent. Dropping call leg.");
+            return;
+        }
 
         Request ack = dialog.createAck(((CSeqHeader) response.getHeader(CSeqHeader.NAME))
                 .getSeqNumber());
