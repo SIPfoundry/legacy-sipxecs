@@ -17,7 +17,9 @@ import java.io.FilenameFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
 
 /**
  * Builds Java Key Store and Trust Store files out of openssl keys and certs.
@@ -50,40 +52,43 @@ public class sipkeystorebuilder {
              return name.endsWith(keySuffix);
            }
         };
-        FilenameFilter certFilter = new FilenameFilter() {
-           public boolean accept(File dir, String name) {
-             return name.endsWith(certSuffix);
-           }
-        };
 
         if (ssldir.isDirectory()) {
            // Valid directory specified.  Now scan for key and cert files to build the KeyStore.
-           KeyStore[] SipXKeyStores = new KeyStore[2];
            File[] keyfiles = ssldir.listFiles(keyFilter);
            for (int i = 0; i < keyfiles.length; i++) {
               // get the matching certificate file.
               String certPath = keyfiles[i].toString().replaceAll(keySuffix,certSuffix);
               File certFile = new File(certPath);
-              FileInputStream fin1 = new FileInputStream(keyfiles[i].toString());
-              byte[] bytes1 = Util.streamToBytes(fin1);
-              FileInputStream fin2 = new FileInputStream(certFile.toString());
-              byte[] bytes2 = Util.streamToBytes(fin2);
-              SipXKeyStores[i] = KeyStoreBuilder.build(bytes1, bytes2, password);
-              File outks = new File(keyfiles[i].toString().replaceAll(keySuffix, keystoreSuffix));
-              FileOutputStream fout = new FileOutputStream(outks);
-              SipXKeyStores[i].store(fout, password);
-              fout.flush();
-              fout.close();
-
+              if (certFile.exists()) {
+                  FileInputStream fin1 = new FileInputStream(keyfiles[i].toString());
+                  byte[] bytes1 = Util.streamToBytes(fin1);
+                  FileInputStream fin2 = new FileInputStream(certFile.toString());
+                  byte[] bytes2 = Util.streamToBytes(fin2);
+                  KeyStore SipXKeyStore = KeyStoreBuilder.build(bytes1, bytes2, password);
+                  File outks = new File(keyfiles[i].toString().replaceAll(keySuffix, keystoreSuffix));
+                  FileOutputStream fout = new FileOutputStream(outks);
+                  SipXKeyStore.store(fout, password);
+                  fout.flush();
+                  fout.close();
+              }
            }
         }
         if (authdir.isDirectory()) {
            // Valid authority directory specified.  Now scan for cert files to build the TrustStore.
-           File[] certFiles = authdir.listFiles(certFilter);
+           File[] certFiles = authdir.listFiles();
            TrustChain trustChain = new TrustChain();
            for (int i = 0; i < certFiles.length; i++) {
-              TrustMaterial trustCerts = new TrustMaterial(certFiles[i].toString());
-              trustChain.addTrustMaterial(trustCerts);
+               try {
+                     TrustMaterial trustCerts = new TrustMaterial(certFiles[i].toString());
+                     trustChain.addTrustMaterial(trustCerts);
+               } catch (IOException ex) {
+                     // skip adding CA.
+               } catch (KeyStoreException ex) {
+                     // skip adding CA.
+               } catch (GeneralSecurityException ex) {
+                     // skip adding CA.
+               }
            }
            File outts = new File(args[0] + "/" + auth + truststoreSuffix);
            FileOutputStream fout = new FileOutputStream(outts);
