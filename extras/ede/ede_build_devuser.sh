@@ -172,8 +172,8 @@ function add_sipxecs_unstable_repo {
 
    sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
 
-   nslookup $NORTEL_INTERNAL_BUILD_HOST | grep "server can't find" &> /dev/null
-   if [ $? != 0 ]; then
+   nslookup $NORTEL_INTERNAL_BUILD_HOST | grep "Name:" &> /dev/null
+   if [ $? == 0 ]; then
       # Use the build server.
       uname -a | grep el5 &> /dev/null
       if [ $? == 0 ]; then
