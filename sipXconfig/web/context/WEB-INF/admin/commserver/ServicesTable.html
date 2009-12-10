@@ -1,5 +1,4 @@
 <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
-  <fieldset>
     <table jwcid="tableView@common/Table" id="servicesTable"
       source="ognl:serviceStatus"
       selections="ognl:selections"
@@ -33,7 +32,6 @@
         <span jwcid="@Insert" value="ognl:serviceRoles" />
       </span>
     </table>
-  </fieldset>
 </form>
 <ul jwcid="actions@Block">
   <li jwcid="@If" condition="ognl:coreContext.debug">
