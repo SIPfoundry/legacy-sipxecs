@@ -46,9 +46,9 @@ EXTRA_DIST = \
   BUILDSTAMP \
   SVN-VERSION \
   LICENSE \
-  plugin.xml \
+  presence-plugin/plugin.xml \
+  presence-plugin/web/WEB-INF/web.xml \
   openfire.xml \
-  web/WEB-INF/web.xml \
   etc/sipxopenfire-prompts.properties \
   src
 

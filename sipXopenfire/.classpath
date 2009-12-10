@@ -5,7 +5,7 @@
 	<classpathentry kind="lib" path="lib/smackx.jar"/>
 	<classpathentry kind="lib" path="/sipxcommons/lib/commons-digester.jar"/>
 	<classpathentry kind="lib" path="/sipxcommons/lib/log4j.jar"/>
-	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/presence-plugin"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/bouncycastle.jar"/>
