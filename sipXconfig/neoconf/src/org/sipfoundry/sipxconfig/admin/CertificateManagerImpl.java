@@ -142,7 +142,7 @@ public class CertificateManagerImpl implements CertificateManager {
 
     private String[] getValidateCertFileCommand(File file) {
         String[] cmdLine = new String[] {
-            m_binCertDirectory + CHECK_CERT, file.getPath()};
+            m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()};
         return cmdLine;
     }
 
