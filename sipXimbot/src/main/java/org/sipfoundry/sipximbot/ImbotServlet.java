@@ -95,7 +95,9 @@ public class ImbotServlet extends HttpServlet {
                     IMBot.sendIM(user, instantMsg);
                 }
 
-            } else {
+            } else if(context.compareToIgnoreCase("addToRoster") == 0) {
+                IMBot.AddToRoster(user);
+            } else {    
                 response.sendError(400, "context not understood");
             }
 

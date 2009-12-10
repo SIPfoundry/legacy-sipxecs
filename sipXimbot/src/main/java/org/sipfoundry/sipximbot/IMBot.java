@@ -34,7 +34,7 @@ public class IMBot {
             .synchronizedMap(new HashMap<String, IMUser>());
     
     private static class IMClientThread extends Thread {
-        private XMPPConnection m_con;
+        private static XMPPConnection m_con;
          
         public IMClientThread() {
         }
@@ -102,6 +102,21 @@ public class IMBot {
             }
         }
         
+        public static void AddToRoster(FullUser user) {         
+            Presence presPacket = new Presence(Presence.Type.subscribe); 
+            presPacket.setFrom(ImbotConfiguration.get().getMyAsstAcct());
+            
+            if(user.getjid().length() != 0) {  
+                presPacket.setTo(user.getjid());                        
+                m_con.sendPacket(presPacket);
+            }
+            
+            if(user.getAltjid().length() != 0) {  
+                presPacket.setTo(user.getAltjid());                                    
+                m_con.sendPacket(presPacket);
+            }
+        }
+        
         public void run() {           
             
             boolean running = true;
@@ -148,7 +163,7 @@ public class IMBot {
                         } catch (InterruptedException e) {
                         }
                         
-                        if(user != null) {
+                        if((user != null) && (m_ChatsMap.get(jid) == null))  {
                             // now subscribe the sender's presence
                             presPacket.setType(Presence.Type.subscribe);
                            
@@ -349,7 +364,7 @@ public class IMBot {
                     toIMUser.sendHeadlineIM(msg);
                 }
             }    
-            
+
             jid = user.getAltjid();
             if(jid != null) {
                 toIMUser = m_ChatsMap.get(jid);
@@ -382,6 +397,9 @@ public class IMBot {
         }
     }
     
+    public static void AddToRoster(FullUser user) {
+        IMClientThread.AddToRoster(user);
+    }
 
     static public void init() {
                       
