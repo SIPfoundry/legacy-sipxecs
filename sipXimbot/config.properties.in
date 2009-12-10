@@ -34,6 +34,6 @@ javamail.jar=${sipxcommons.dir}/javamail.jar
 smack.jar=${sipxcommons.dir}/smack.jar
 smackx.jar=${sipxcommons.dir}/smackx.jar
 sipxopenfire.dir=@SIPX_JAVADIR@/sipXopenfire
-sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-plugin.jar
+sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-presence-plugin.jar
 xmlrpc-common.jar=${sipxcommons.dir}/xmlrpc-common.jar
 
