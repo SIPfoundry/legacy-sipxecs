@@ -555,7 +555,7 @@ public:
     //! Set the number of seconds to wait before trying the next DNS SRV record
     void setDnsSrvTimeout(int timeout);
 
-    //! Set other DNS names or IP addresses which are considered to
+    //! Add other DNS names or IP addresses which are considered to
     //! refer to this SipUserAgent.
     /*! Used with routing decisions to determine whether routes
      * are targeted to this SIP server or not.
