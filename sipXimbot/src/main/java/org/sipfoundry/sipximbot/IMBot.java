@@ -191,6 +191,22 @@ public class IMBot {
             m_roster.addRosterListener(new RosterListener() {
 
                 public void entriesAdded(Collection<String> entries) {
+                    for(String address : entries) {
+                        if(m_ChatsMap.get(address) != null) {
+                            // already in chat map, this will happen
+                            // if subscription was successful
+                            continue;
+                        }          
+                        
+                        FullUser user = findUser(address);
+                        if(user == null) {
+                            LOG.error("Rejected addition from " + address);
+                        } else {                        
+                            IMUser imuser = new IMUser(user, address, null, m_con);
+                            m_ChatsMap.put(address, imuser);
+                            LOG.debug("Entry added: " + address);
+                        }                                                             
+                    }
                 }
 
                 public void entriesDeleted(Collection<String> addresses) {
