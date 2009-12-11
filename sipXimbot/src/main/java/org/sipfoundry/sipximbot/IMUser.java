@@ -570,7 +570,10 @@ public class IMUser {
             
             Date date = new Date();
             long millisec = date.getTime();
-            millisec -= (days-1)*24*60*60*1000;
+            long delta = (days-1)*24*60*60;
+            delta *= 1000;
+            
+            millisec -= delta;
             date.setTime(millisec);            
             
             return format.format(date);
