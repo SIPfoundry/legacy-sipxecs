@@ -65,7 +65,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private String m_sslAuthDirectory;
 
     private String m_certdbDirectory;
-    
+
     private String m_libExecDirectory;
 
     private LocationsManager m_locationsManager;
@@ -83,9 +83,9 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     public void setLibExecDirectory(String libExecDirectory) {
-       m_libExecDirectory = libExecDirectory;
+        m_libExecDirectory = libExecDirectory;
     }
-    
+
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
