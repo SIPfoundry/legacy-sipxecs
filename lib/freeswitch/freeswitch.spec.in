@@ -7,8 +7,8 @@ Name:         sipx-freeswitch
 Summary:      FreeSWITCH open source telephony platform (sipX integration)
 License:      MPL
 Group:        Productivity/Telephony/Servers
-Version:      1.0.4
-Release:      14580
+Version:      1.0.5
+Release:      15901
 URL:          http://www.freeswitch.org/
 Packager:     SIPFoundry <sipx-dev@sipfoundry.org> (original by Michal Bielicki)
 Vendor:       http://www.sipfoundry.org (original by http://www.voiceworks.pl/)
@@ -37,7 +37,7 @@ BuildRequires: gnutls-devel
 BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
 BuildRequires: perl
-%if 0%{?fedora_version} >= 8
+%if 0%{?fedora} >= 8
 BuildRequires: perl-devel
 BuildRequires: perl-ExtUtils-Embed
 %endif
@@ -58,7 +58,7 @@ BuildRequires: db4-devel
 %endif
 
 # Fedora doesn't seem to have 'which' as part of the base system
-%if %{?fedora_version:1}0
+%if %{?fedora:1}0
 BuildRequires: which
 %endif
 
@@ -160,22 +160,22 @@ English language phrases module and directory structure for say module and voice
 %if 0%{?suse_version} > 1000 && 0%{?suse_version} < 1030
 export CFLAGS="$CFLAGS -fstack-protector"
 %endif
-%if 0%{?fedora_version} >= 8
+%if 0%{?fedora} >= 8
 export QA_RPATHS=$[ 0x0001|0x0002 ]
 %endif
 %endif
 
 PASSTHRU_CODEC_MODULES="codecs/mod_g729 codecs/mod_g723_1 codecs/mod_amr"
 SPIDERMONKEY_MODULES="languages/mod_spidermonkey languages/mod_spidermonkey_curl languages/mod_spidermonkey_core_db languages/mod_spidermonkey_odbc languages/mod_spidermonkey_socket languages/mod_spidermonkey_teletone"
-APPLICATIONS_MODULES="applications/mod_commands applications/mod_conference applications/mod_dptools applications/mod_enum applications/mod_esf applications/mod_expr applications/mod_fifo applications/mod_limit applications/mod_rss applications/mod_voicemail applications/mod_fsv"
+APPLICATIONS_MODULES="applications/mod_commands applications/mod_conference applications/mod_dptools applications/mod_enum applications/mod_esf applications/mod_expr applications/mod_fifo applications/mod_limit applications/mod_rss applications/mod_valet_parking applications/mod_voicemail applications/mod_fsv"
 ASR_TTS_MODULES=""
-CODECS_MODULES="codecs/mod_ilbc codecs/mod_h26x codecs/mod_voipcodecs codecs/mod_speex"
+CODECS_MODULES="codecs/mod_bv codecs/mod_celt codecs/mod_h26x codecs/mod_ilbc codecs/mod_siren codecs/mod_skel_codec codecs/mod_speex codecs/mod_voipcodecs"
 DIALPLANS_MODULES="dialplans/mod_dialplan_asterisk dialplans/mod_dialplan_directory dialplans/mod_dialplan_xml"
 DIRECTORIES_MODULES=
 DOTNET_MODULES=
 ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
 EVENT_HANDLERS_MODULES="event_handlers/mod_event_multicast event_handlers/mod_event_socket event_handlers/mod_cdr_csv"
-FORMATS_MODULES="formats/mod_local_stream formats/mod_native_file formats/mod_sndfile formats/mod_tone_stream formats/mod_portaudio_stream"
+FORMATS_MODULES="formats/mod_file_string formats/mod_local_stream formats/mod_native_file formats/mod_portaudio_stream formats/mod_shell_stream formats/mod_sndfile formats/mod_tone_stream"
 LANGUAGES_MODULES="languages/mod_perl languages/mod_lua"
 LOGGERS_MODULES="loggers/mod_console loggers/mod_logfile loggers/mod_syslog"
 SAY_MODULES="say/mod_say_en"
@@ -209,7 +209,8 @@ fi
 		--enable-core-libedit-support \
 		--enable-core-odbc-support \
 %ifos linux
-%if 0%{?fedora_version} >= 8
+%if 0%{?fedora} >= 8
+                --without-libcurl \
 %else
                 --with-libcurl \
 %endif
@@ -355,12 +356,18 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/mod_esf.so*
 %{prefix}/mod/mod_expr.so*
 %{prefix}/mod/mod_fifo.so*
+%{prefix}/mod/mod_file_string.so*
 %{prefix}/mod/mod_limit.so*
 %{prefix}/mod/mod_rss.so*
+%{prefix}/mod/mod_valet_parking.so*
 %{prefix}/mod/mod_voicemail.so*
+%{prefix}/mod/mod_bv.so* 
+%{prefix}/mod/mod_celt.so* 
 %{prefix}/mod/mod_ilbc.so* 
 %{prefix}/mod/mod_h26x.so*
+%{prefix}/mod/mod_siren.so*
 %{prefix}/mod/mod_voipcodecs.so* 
+%{prefix}/mod/mod_skel_codec.so* 
 %{prefix}/mod/mod_speex.so* 
 %{prefix}/mod/mod_dialplan_directory.so* 
 %{prefix}/mod/mod_dialplan_xml.so* 
@@ -369,6 +376,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/mod_iax.so* 
 %{prefix}/mod/mod_portaudio.so* 
 %{prefix}/mod/mod_portaudio_stream.so* 
+%{prefix}/mod/mod_shell_stream.so* 
 %{prefix}/mod/mod_sofia.so* 
 %{prefix}/mod/mod_openzap.so* 
 %{prefix}/mod/mod_loopback.so* 
@@ -387,7 +395,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/ozmod_analog_em.so*
 %{prefix}/mod/ozmod_isdn.so*
 %{prefix}/mod/ozmod_skel.so*
-%{prefix}/mod/ozmod_ss7_boost.so*
 %{prefix}/mod/ozmod_zt.so*
 
 %files codec-passthru-amr
@@ -444,6 +451,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %config(noreplace) %{prefix}/conf/lang/en/*.xml
 %config(noreplace) %{prefix}/conf/lang/en/demo/*.xml
 %config(noreplace) %{prefix}/conf/lang/en/vm/*.xml
+%config(noreplace) %{prefix}/conf/lang/en/dir/*.xml
 %{prefix}/mod/mod_say_en.so*
 
 %changelog

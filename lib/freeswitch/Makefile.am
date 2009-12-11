@@ -1,5 +1,5 @@
-VERSION = 1.0.4
-RELEASE = 14580
+VERSION = 1.0.5
+RELEASE = 15901
 
 SRC_DIR = $(srcdir)/src
 SRC_TARBALL = $(SRC_DIR)/freeswitch-$(VERSION).tar.gz

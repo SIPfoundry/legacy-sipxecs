@@ -44,12 +44,14 @@
     <load module="mod_expr"/>
     <load module="mod_fifo"/>
     <load module="mod_voicemail"/>
+    <!-- <load module="mod_directory"/> -->
     <!-- <load module="mod_fax"/> -->
     <!-- <load module="mod_lcr"/> -->
     <load module="mod_limit"/>
     <load module="mod_esf"/>
     <load module="mod_fsv"/>
-    <load module="mod_cluechoo"/>
+    <!-- <load module="mod_cluechoo"/> -->
+    <load module="mod_valet_parking"/>
     <!-- <load module="mod_spy"/> -->
 
     <!-- SNOM Module -->
@@ -70,6 +72,7 @@
     <load module="mod_h26x"/>
     <load module="mod_siren"/>
     <load module="mod_celt"/> 
+    <load module="mod_bv"/> 
 
     <!-- File Format Interfaces -->
     <load module="mod_sndfile"/>
