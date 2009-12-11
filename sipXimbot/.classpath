@@ -17,7 +17,7 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/smack.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/smackx.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
-	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-plugin.jar" sourcepath="SIPX-PROJECT-ROOT/sipXopenfire"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX-PROJECT-ROOT/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-client.jar"/>

@@ -32,6 +32,6 @@ jetty.jar=${sipxcommons.dir}/jetty.jar
 javax.servlet.jar=${sipxcommons.dir}/javax.servlet.jar
 javamail.jar=${sipxcommons.dir}/javamail.jar
 sipxopenfire.dir=@SIPX_JAVADIR@/sipXopenfire
-sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-plugin.jar
+sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-presence-plugin.jar
 xmlrpc-common.jar=${sipxcommons.dir}/xmlrpc-common.jar
 

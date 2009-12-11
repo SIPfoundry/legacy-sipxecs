@@ -16,7 +16,7 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-logging.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/javamail.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
-	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
