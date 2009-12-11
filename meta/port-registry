@@ -51,11 +51,15 @@ Port    Component         Use
 5223    sipXopenfire      The port used for clients to connect to the server using the old SSL method. 
 5229    sipXopenfire      Flash Cross Domain.
 
+5656    *reserved for test user agents on developer systems*
+
 6050    sipXcallController SIP TCP/UDP port for SIP Signaling.
 6051    sipXcallController SIP TLS     port for SIP Signaling (reserved).
+
+6565    *reserved for test user agents on developer systems*
+
 6666    sipXcallController HTTPS port for REST API (local domain)
 6661    sipXcallController HTTPS port for REST API (foreign domain)
-
 
 7070    sipXopenfire      HTTP  Binding (unsecured).
 7443    sipXopenfire      HTTPS Binding.
