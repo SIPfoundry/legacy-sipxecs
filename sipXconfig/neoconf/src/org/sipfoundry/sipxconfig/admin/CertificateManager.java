@@ -35,6 +35,8 @@ public interface CertificateManager {
     String showCertificate(File file);
 
     public void rehashCertificates();
+    
+    public void generateKeyStores();
 
     public File getCAFile(String fileName);
 

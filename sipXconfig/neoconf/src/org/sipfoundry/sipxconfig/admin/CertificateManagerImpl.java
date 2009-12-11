@@ -52,6 +52,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String PARAMETERS_FLAG = "--parameters";
     private static final String GEN_SSL_KEYS_SH = "/gen-ssl-keys.sh";
     private static final String CA_REHASH = "/ca_rehash";
+    private static final String KEYSTOREGEN_SH = "/sipxkeystoregen";
     private static final String CHECK_CERT = "/check-cert.sh";
     private static final String WEB_ONLY = "--web-only";
 
@@ -64,6 +65,8 @@ public class CertificateManagerImpl implements CertificateManager {
     private String m_sslAuthDirectory;
 
     private String m_certdbDirectory;
+    
+    private String m_libExecDirectory;
 
     private LocationsManager m_locationsManager;
 
@@ -79,6 +82,10 @@ public class CertificateManagerImpl implements CertificateManager {
         m_sslDirectory = sslDirectory;
     }
 
+    public void setLibExecDirectory(String libExecDirectory) {
+       m_libExecDirectory = libExecDirectory;
+    }
+    
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
     }
@@ -157,6 +164,11 @@ public class CertificateManagerImpl implements CertificateManager {
             m_binCertDirectory + CA_REHASH};
         return cmdLine;
     }
+    private String[] getKeyStoreGenCommand() {
+        String[] cmdLine = new String[] {
+            m_libExecDirectory + KEYSTOREGEN_SH};
+        return cmdLine;
+    }
 
     public File getCAFile(String fileName) {
         return new File(m_sslAuthDirectory + File.separator + fileName);
@@ -232,6 +244,14 @@ public class CertificateManagerImpl implements CertificateManager {
             runCommand(getHashCertsCommand());
         } catch (RuntimeException ex) {
             throw new UserException("&error.rehash");
+        }
+    }
+
+    public void generateKeyStores() {
+        try {
+            runCommand(getKeyStoreGenCommand());
+        } catch (RuntimeException ex) {
+            throw new UserException("&error.regenstore");
         }
     }
 

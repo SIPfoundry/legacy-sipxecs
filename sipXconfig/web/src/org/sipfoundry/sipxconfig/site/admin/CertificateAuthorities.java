@@ -113,6 +113,7 @@ public abstract class CertificateAuthorities extends BaseComponent {
         getCertificateManager().copyCRTAuthority();
         getCertificateManager().deleteCRTAuthorityTmpDirectory();
         getCertificateManager().rehashCertificates();
+        getCertificateManager().generateKeyStores();
     }
 
     public void delete() {
@@ -129,5 +130,6 @@ public abstract class CertificateAuthorities extends BaseComponent {
     public void deleteCertificates() {
         Collection<CertificateDecorator> listCert = getSelections().getAllSelected();
         getCertificateManager().deleteCAs(listCert);
+        getCertificateManager().generateKeyStores();
     }
 }

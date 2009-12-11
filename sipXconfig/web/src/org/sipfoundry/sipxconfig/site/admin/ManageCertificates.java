@@ -159,6 +159,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         }
 
         getCertificateManager().copyKeyAndCertificate();
+        getCertificateManager().generateKeyStores();
 
         validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
     }

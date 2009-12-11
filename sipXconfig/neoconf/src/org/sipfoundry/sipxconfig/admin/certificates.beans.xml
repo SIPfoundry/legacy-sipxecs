@@ -17,6 +17,7 @@
     <property name="certDirectory" value="${sysdir.var}/configserver/web-cert"/>
 	<property name="sslDirectory" value="${sysdir.etc}/ssl"/>
 	<property name="sslAuthDirectory" value="${sysdir.etc}/ssl/authorities"/>
+	<property name="libExecDirectory" value="${sysdir.libexec}" />
     <property name="locationsManager" ref="locationsManager"/>
     <property name="certdbDirectory" value="${sysdir.var}/certdb" />
   </bean>
