@@ -73,6 +73,27 @@
 			</fileset>
 		</jar>
 		<copy file="${root}/sipx-openfire-presence-plugin.jar" todir="${root}/lib" />
+      
+      <copy todir="${root}/lib">
+		    <fileset dir="${sipxcommons.dir}">
+			       <include name="${log4j.jarname}"/>
+			       <include name="${xml-rpc-common.jarname}"/>
+			       <include name="${xml-rpc-server.jarname}"/>
+			       <include name="${xml-rpc-client.jarname}"/>
+			       <include name="${ws-commons-util.jarname}"/>
+			       <include name="${commons-collections.jarname}"/>
+			       <include name="${commons-digester.jarname}"/>
+			       <include name="${commons-beanutils.jarname}"/>
+			       <include name="${dom4j.jarname}"/>
+			       <include name="${jainsip.jarname}"/>
+			       <include name="${dnsjava.jarname}"/>
+			       <include name="${sipxcommons.jarname}"/>
+			       <include name="${libhostname.soname}"/>
+			       <include name="${noelios-restlet.jarname}"/>
+			       <include name="${restlet.jarname}"/>
+		    </fileset>
+		</copy>
+
 		<jar jarfile="${root}/dist/sipx-openfire-presence.jar">
                   <fileset dir="${src.dir}/presence-plugin" >
 			   <include name="plugin.xml" />
