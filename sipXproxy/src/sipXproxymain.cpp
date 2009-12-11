@@ -99,13 +99,6 @@ static const char* CALL_STATE_DATABASE_DRIVER =
    "{PostgreSQL}";
 static const char* PROXY_CONFIG_PREFIX = "SIPX_PROXY";
 
-#define PRINT_ROUTE_RULE(APPEND_STRING, FROM_HOST, TO_HOST) \
-    APPEND_STRING.append("\t<route mappingType=\"local\">\n\t\t<routeFrom>"); \
-    APPEND_STRING.append(FROM_HOST); \
-    APPEND_STRING.append("</routeFrom>\n\t\t<routeTo>"); \
-    APPEND_STRING.append(TO_HOST); \
-    APPEND_STRING.append("</routeTo>\n\t</route>\n");
-
 // STRUCTS
 // TYPEDEFS
 
@@ -334,6 +327,16 @@ proxy( int argc, char* argv[] )
           bindIp.data());
     osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
 
+    UtlString hostname;
+    configDb.get("SIPX_PROXY_HOST_NAME", hostname);
+    if (!hostname.isNull())
+    {
+       // bias the selection of SRV records so that if the name of this host is an alternative,
+       // it wins in any selection based on random weighting.
+       SipSrvLookup::setOwnHostname(hostname);
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOST_NAME : %s", hostname.data());
+    
     proxyUdpPort = configDb.getPort("SIPX_PROXY_UDP_PORT");
     if (!portIsValid(proxyUdpPort))
     {
@@ -594,11 +597,6 @@ proxy( int argc, char* argv[] )
         OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_SPECIAL_300 : ENABLE");
         osPrintf("SIPX_PROXY_SPECIAL_300 : ENABLE\n");
     }
-
-    // Initialize the domaim mapping from the routeRules XML
-    // file
-    //OsConfigDb mapRulesDb;
-   
     
     OsPath fileName = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                             FORWARDING_RULES_FILENAME);

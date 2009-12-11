@@ -1,6 +1,7 @@
 SIPX_PROXY_BIND_IP : $!{location.address}
 SIPX_PROXY_DEFAULT_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_EXPIRES').Value
 SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_SERIAL_EXPIRES').Value
+SIPX_PROXY_HOST_NAME : $!{location.fqdn}
 SIPX_PROXY_HOST_ALIASES : $!{location.address}:${proxyService.sipPort} $!{location.fqdn}:${proxyService.sipPort}
 SIPX_PROXY_LOG_CONSOLE :
 SIPX_PROXY_LOG_DIR :

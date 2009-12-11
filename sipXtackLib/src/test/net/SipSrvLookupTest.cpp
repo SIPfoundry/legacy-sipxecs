@@ -536,11 +536,38 @@ public:
            "2.1.4.0:8004,1,0.930,1,TCP\n"
            "" },
 
+         // Test to see that our own name _does_ override weights
+         { "test30", "sip", OsSocket::UNKNOWN, -1, NULL,
+           "2.1.8.1:5060,1,0.244,1,TCP\n"
+           "2.1.8.1:5060,1,0.225,1,UDP\n"
+           "2.1.8.2:5060,1000,0.000,1,UDP\n"
+           "2.1.8.3:5060,100,0.009,1,TCP\n"
+           "" },
+
+         // Test to see that our own name _does_not override priorities
+         { "test31", "sip", OsSocket::UNKNOWN, -1, NULL,
+           "2.1.8.2:5060,1000,0.000,1,UDP\n"
+           "2.1.8.3:5060,100,0.009,1,TCP\n"
+           "2.1.8.1:5060,1,0.244,2,TCP\n"
+           "2.1.8.1:5060,1,0.225,2,UDP\n"
+           "" },
+
+         // Test to see that name preference works among low-priority alternatives
+         { "test32", "sip", OsSocket::UNKNOWN, -1, NULL,
+           "2.1.8.2:5060,1,0.174,1,UDP\n"
+           "2.1.8.1:5060,1,0.244,2,TCP\n"
+           "2.1.8.1:5060,1,0.225,2,UDP\n"
+           "2.1.8.3:5060,100,0.009,2,TCP\n"
+           "" },
+
       };
 
       // Flag for whether any test cases have failed.
       int failure_seen = 0;
 
+      // Set our own host name to testself.example.com
+      SipSrvLookup::setOwnHostname("testself.example.com");
+      
       // Set up the option values we desire for all tests.
       SipSrvLookup::setOption(SipSrvLookup::OptionCodeSortAnswers, 1);
       SipSrvLookup::setOption(SipSrvLookup::OptionCodeSortServers, 1);

@@ -240,6 +240,9 @@ int SipSrvLookup::options[OptionCodeLast+1] = {
    0,                           // OptionCodeLast
 };
 
+/// Sets the hostname of a host to be given preference among alternatives selected by weight
+UtlString SipSrvLookup::mOwnHostname;
+
 /// Sets the timeout parameter for DNS SRV queries. Default is 3
 int SipSrvLookup::mTimeout = 3;
 
@@ -499,6 +502,20 @@ void SipSrvLookup::setOption(OptionCode option, int value)
 
    options[option] = value;
 }
+
+void SipSrvLookup::setOwnHostname(const char* hostname)
+{
+   // Seize the lock, to ensure atomic effect.
+   OsLock lock(sMutex);
+
+   mOwnHostname = hostname;
+}
+
+bool SipSrvLookup::isOwnHostname(const char* hostname)
+{
+   return mOwnHostname.compareTo(hostname, UtlString::ignoreCase) == 0;
+}
+
 
 //! Sets the DNS SRV times.  Defaults: timeout=5, retries=4
 void SipSrvLookup::setDnsSrvTimeouts(int initialTimeoutInSecs, int retries)
@@ -1033,6 +1050,18 @@ int server_compare(const void* a, const void* b,
     else if (s1->priority < s2->priority)
     {
         result = -1;
+    }
+    /*
+     * Next, if our own hostname is set, the check to see of one of these is
+     * our own name - if so, it is preferred regardless of the weights.
+     */
+    else if (SipSrvLookup::isOwnHostname(s1->host))
+    {
+       result = -1;
+    }
+    else if (SipSrvLookup::isOwnHostname(s2->host))
+    {
+       result = 1;
     }
     // Next compare the scores derived from the weights.
     // With the new scheme for computing scores, lower score values should

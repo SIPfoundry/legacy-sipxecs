@@ -23,6 +23,7 @@
 #include "net/SipOutputProcessor.h"
 #include "net/SipUserAgent.h"
 #include "net/SipXauthIdentity.h"
+#include "net/SipSrvLookup.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/CredentialDB.h"
 #include "AuthPlugin.h"
@@ -217,6 +218,16 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
       }
    }
    
+   UtlString hostname;
+   configDb.get("SIPX_PROXY_HOST_NAME", hostname);
+   if (!hostname.isNull())
+   {
+      // bias the selection of SRV records so that if the name of this host is an alternative,
+      // it wins in any selection based on random weighting.
+      SipSrvLookup::setOwnHostname(hostname);
+   }
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SIPX_PROXY_HOST_NAME : %s", hostname.data());
+    
    configDb.get("SIPX_PROXY_HOSTPORT", mRouteHostPort);
    if(mRouteHostPort.isNull())
    {
@@ -227,15 +238,15 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                     );
       defaultUri.toString(mRouteHostPort);
    }
-      
-   // this should really be redundant with the existing aliases,
-   // but it's better to be safe and add it to ensure that it's
-   // properly recognized (the alias db prunes duplicates anyway)
-   mpSipUserAgent->setHostAliases( mRouteHostPort );
-
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRouter::readConfig "
                  "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
+      
+   // these should really be redundant with the existing aliases,
+   // but it's better to be safe and add them to ensure that they are
+   // properly recognized (the alias db prunes duplicates anyway)
+   mpSipUserAgent->setHostAliases( hostname );
+   mpSipUserAgent->setHostAliases( mRouteHostPort );
 
    // Load, instantiate and configure all authorization plugins
    mAuthPlugins.readConfig(configDb);

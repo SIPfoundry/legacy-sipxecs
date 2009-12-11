@@ -3,7 +3,7 @@
 $TTL	86400
 $ORIGIN .
 @	1D IN SOA	@ worley.ariadne.com. (
-			2005060702	; serial
+			2009121000	; serial
 			24H		; refresh
 			1H		; retry
 			1W		; expire
@@ -90,8 +90,22 @@ _sip._udp.test29	1D IN SRV	1 10   8003 test4.example.com.
 _sip._tcp.test29	1D IN SRV	1 100  8002 test4.example.com.
 _sip._tcp.test29	1D IN SRV	1 1    8004 test4.example.com.
 
-;; Records used by more than one test.
+_sip._udp.test30	1D IN SRV	1 1    5060 testself.example.com.
+_sip._tcp.test30	1D IN SRV	1 1    5060 testself.example.com.
+_sip._udp.test30	1D IN SRV	1 1000 5060 testother2.example.com.
+_sip._tcp.test30	1D IN SRV	1 100  5060 testother3.example.com.
 
+_sip._udp.test31	1D IN SRV	2 1    5060 testself.example.com.
+_sip._tcp.test31	1D IN SRV	2 1    5060 testself.example.com.
+_sip._udp.test31	1D IN SRV	1 1000 5060 testother2.example.com.
+_sip._tcp.test31	1D IN SRV	1 100  5060 testother3.example.com.
+
+_sip._udp.test32	1D IN SRV	1 1    5060 testother2.example.com.
+_sip._udp.test32	1D IN SRV	2 1    5060 testself.example.com.
+_sip._tcp.test32	1D IN SRV	2 1    5060 testself.example.com.
+_sip._tcp.test32	1D IN SRV	2 100  5060 testother3.example.com.
+
+;; Records used by more than one test.
 test4.example.com	1D IN A		2.1.4.0
 test5.example.com	1D IN A		2.1.5.0
 test6a.example.com	1D IN A		2.1.6.0
@@ -99,3 +113,7 @@ test6b.example.com	1D IN A		2.1.6.1
 test6udp.example.com	1D IN A		2.1.6.0
 test6tcp.example.com	1D IN A		2.1.6.1
 test7.example.com	1D IN A		2.1.7.0
+
+testself.example.com    1D IN A 2.1.8.1
+testother2.example.com  1D IN A 2.1.8.2
+testother3.example.com  1D IN A 2.1.8.3

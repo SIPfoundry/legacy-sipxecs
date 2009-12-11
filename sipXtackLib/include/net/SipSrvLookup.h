@@ -72,7 +72,7 @@ public:
                             ///< preferred transport protocol
       );
    /**<
-    * Returns the list of server entries for SIP domain name 'domain'.
+    * Returns the ordered list of server entries for SIP domain name 'domain'.
     * Implements the processes of RFC 2543.
     * The search process is modified by the parameters:
     *
@@ -101,6 +101,13 @@ public:
     *    TCP
     *    UDP    (default value)
     * RFC-3261 specifies TCP should be preferred for larger messages
+    *
+    * The standard ordering of SRV records can be biased by passing a name
+    * to setOwnHostname.  If SRV records are used, and this name matches one
+    * of a set of alternative servers that would otherwise be randomly selected
+    * based on weights, then this name will always be the first among those
+    * alternatives.  Note that this does not affect selection based on priorities
+    * or transports.
     *
     * @returns Allocates an array of server_t objects and returns
     * the pointer to it.  Caller is responsible for delete[]'ing the array.
@@ -160,6 +167,12 @@ public:
     * configuration.
     */
 
+   /// Sets our own hostname - if selection is by weight, our own name sorts above other alternatives
+   static void setOwnHostname(const char* hostname);
+
+   /// Is the passed host name the same as that passed to setOwnHostname?
+   static bool isOwnHostname(const char* hostname);
+
    /// Sets the timing parameters for DNS SRV queries.
    static void setDnsSrvTimeouts(int initialTimeoutInSecs,
                                  /**< Timeout in seconds for first query,
@@ -217,6 +230,9 @@ protected:
    /// The array of option values.
    static int options[OptionCodeLast+1];
 
+   /// Our own hostname
+   static UtlString mOwnHostname;
+   
    /// Sets the timeout parameter for DNS SRV queries. Default is 3
    static int mTimeout;
 
