@@ -66,6 +66,7 @@ public class CodecConfigurationForModelTest extends TestCase {
         assertCodecConfigurationForModel(CodecGroupType.IP_6000, "polycom6000");
         assertCodecConfigurationForModel(CodecGroupType.IP_7000, "polycom7000");
         assertCodecConfigurationForModel(CodecGroupType.VVX_1500, "polycomVVX1500");
+        assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom335");
     }
 
     private void assertCodecConfigurationForModel(CodecGroupType codecGroup, String phoneModelId) throws DocumentException {

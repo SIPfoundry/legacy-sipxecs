@@ -41,6 +41,17 @@
       </set>
     </property>
   </bean>
+  <bean id="polycom335" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 335" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+  </bean>
   <bean id="polycom430" parent="polycomModel">
     <property name="label" value="Polycom SoundPoint IP 430" />
     <property name="maxLineCount" value="2" />
