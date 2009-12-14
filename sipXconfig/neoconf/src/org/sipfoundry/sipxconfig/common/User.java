@@ -97,7 +97,7 @@ public class User extends BeanWithGroups implements NamedObject {
 
     private MusicOnHoldManager m_musicOnHoldManager;
 
-    private Set<ExternalImAccount> m_externalImAccounts = new HashSet<ExternalImAccount>(0);
+    private Collection<ExternalImAccount> m_externalImAccounts = new ArrayList<ExternalImAccount>(0);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -569,11 +569,11 @@ public class User extends BeanWithGroups implements NamedObject {
         return m_addressBookEntry.getAlternateEmailAddress();
     }
 
-    public Set<ExternalImAccount> getExternalImAccounts() {
+    public Collection<ExternalImAccount> getExternalImAccounts() {
         return m_externalImAccounts;
     }
 
-    public void setExternalImAccounts(Set<ExternalImAccount> externalImAccounts) {
+    public void setExternalImAccounts(Collection<ExternalImAccount> externalImAccounts) {
         m_externalImAccounts = externalImAccounts;
     }
 }

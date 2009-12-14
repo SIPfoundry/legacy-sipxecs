@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.im;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -73,22 +71,5 @@ public class ExternalImAccount extends BeanWithId {
 
     public void setDisplayName(String displayName) {
         m_displayName = displayName;
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(m_type).append(m_username).toHashCode();
-    }
-
-    @Override
-    public boolean equals(Object other) {
-        if (!(other instanceof ExternalImAccount)) {
-            return false;
-        }
-        if (this == other) {
-            return true;
-        }
-        ExternalImAccount account = (ExternalImAccount) other;
-        return new EqualsBuilder().append(m_type, account.m_type).append(m_username, account.m_username).isEquals();
     }
 }

@@ -39,10 +39,10 @@
     cascade="all"
     column="address_book_entry_id"/>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
-    <set name="externalImAccounts" table="user_external_im_account" cascade="all,delete-orphan" inverse="true">
+    <bag name="externalImAccounts" table="user_external_im_account" cascade="all,delete-orphan" inverse="true">
       <key column="user_id" not-null="true" />
       <one-to-many class="org.sipfoundry.sipxconfig.im.ExternalImAccount" />
-    </set>
+    </bag>
   </class>
 
   <class name="SpecialUser" table="special_user">

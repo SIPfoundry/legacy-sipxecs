@@ -11,9 +11,9 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -93,7 +93,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_userOne.setImId("One_IM");
         m_userOne.setImDisplayName("One_IM_DisplayName");
 
-        Set<ExternalImAccount> externalImAccounts = m_userOne.getExternalImAccounts();
+        Collection<ExternalImAccount> externalImAccounts = m_userOne.getExternalImAccounts();
         ExternalImAccount googleAccount = new ExternalImAccount();
         googleAccount.setUser(m_userOne);
         googleAccount.setEnabled(true);

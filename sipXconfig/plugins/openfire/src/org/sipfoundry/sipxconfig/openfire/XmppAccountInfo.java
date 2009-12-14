@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.openfire;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -119,7 +118,7 @@ public class XmppAccountInfo extends XmlFile {
     }
 
     private void createUserExternalImAccount(User user, Element userAccounts) {
-        Set<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
+        Collection<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
         Element transports = null;
         for (ExternalImAccount externalImAccount : externalImAccounts) {
             if (!externalImAccount.isEnabled()) {

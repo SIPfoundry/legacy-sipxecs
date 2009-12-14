@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import java.util.Collection;
-import java.util.Set;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
@@ -76,7 +75,7 @@ public abstract class XmppUserInfoComponent extends BaseComponent {
         }
 
         User user = getUser();
-        Set<ExternalImAccount> accounts = user.getExternalImAccounts();
+        Collection<ExternalImAccount> accounts = user.getExternalImAccounts();
         for (Integer id : ids) {
             accounts.remove(getCoreContext().getExternalAccountById(id));
         }

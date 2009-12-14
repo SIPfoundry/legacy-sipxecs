@@ -8,8 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.im.ExternalImAccount;
@@ -82,7 +82,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.loadUser(1001);
         assertNotNull(user);
 
-        Set<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
+        Collection<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
         assertNotNull(externalImAccounts);
         assertEquals(0, externalImAccounts.size());
 
@@ -130,7 +130,7 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         ExternalImAccount account = m_coreContext.getExternalAccountById(101);
         User user = account.getUser();
         assertNotNull(user);
-        Set<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
+        Collection<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
         assertNotNull(externalImAccounts);
         assertEquals(2, externalImAccounts.size());
 
