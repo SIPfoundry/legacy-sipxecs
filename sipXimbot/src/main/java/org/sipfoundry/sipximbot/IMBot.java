@@ -106,12 +106,12 @@ public class IMBot {
             Presence presPacket = new Presence(Presence.Type.subscribe); 
             presPacket.setFrom(ImbotConfiguration.get().getMyAsstAcct());
             
-            if(user.getjid().length() != 0) {  
+            if(user.getjid() != null) {  
                 presPacket.setTo(user.getjid());                        
                 m_con.sendPacket(presPacket);
             }
-            
-            if(user.getAltjid().length() != 0) {  
+
+            if(user.getAltjid() != null) {  
                 presPacket.setTo(user.getAltjid());                                    
                 m_con.sendPacket(presPacket);
             }
