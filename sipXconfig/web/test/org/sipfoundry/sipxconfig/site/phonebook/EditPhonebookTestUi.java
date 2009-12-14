@@ -58,6 +58,8 @@ public class EditPhonebookTestUi extends WebTestCase {
     }
 
     public void testImportGmailContacts() {
+        tester.setTextField("item:name", "test-phonebook");
+        tester.clickButton("form:apply");
         assertElementPresent("gmailAddress");
         assertElementPresent("gmailPassword");
         setTextField("item:name", "test-phonebook");

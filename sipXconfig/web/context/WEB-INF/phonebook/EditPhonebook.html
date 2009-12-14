@@ -29,58 +29,60 @@
           htmlId="literal:gms:consumerGroups" />
       </tr>
     </div>
-    <fieldset>
-      <table>
-        <tbody>
-          <tr jwcid="@common/FieldPanel"
-            label="message:label.phonebookFile"
-            field="component:phonebookFile"
-            description="message:description.phonebookFile" >
-            <td>
-              <input type="file" jwcid="phonebookFile@Upload" file="ognl:uploadFile" />
-            </td>
+    <div jwcid="@If" condition="ognl:!phonebook.isNew()" renderTag="false">
+      <fieldset>
+        <table>
+          <tbody>
+            <tr jwcid="@common/FieldPanel"
+              label="message:label.phonebookFile"
+              field="component:phonebookFile"
+              description="message:description.phonebookFile" >
+              <td>
+                <input type="file" jwcid="phonebookFile@Upload" file="ognl:uploadFile" />
+              </td>
           </tr>
-        </tbody>
-      </table>
-    </fieldset>
-    <ul class="form-actions">
-      <li>
-        <input jwcid="@Submit" value="message:import.file" listener="listener:importFromFile" />
-      </li>
-    </ul>
-    <fieldset>
-      <table>
-        <tbody>
-          <tr jwcid="@common/FieldPanel"
-            label="message:label.phonebookGmailAddress"
-            field="component:gmailAddress"
-            description="message:description.phonebookGmailAddress">
-            <td>
-              <input jwcid="gmailAddress@TextField"
-                value="ognl:gmailAddress"
-                displayName="message:label.phonebookGmailAddress"
-                validators="validators:email"
-                autocomplete="off" />
-            </td>
-          </tr>
-          <tr jwcid="@common/FieldPanel"
-            label="message:label.phonebookGmailPassword"
-            field="component:gmailPassword">
-            <td>
-              <input jwcid="gmailPassword@TextField"
-                hidden="true"
-                autocomplete="off"
-                value="ognl:gmailPassword" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </fieldset>
-    <ul class="form-actions">
-      <li>
-        <input jwcid="@Submit" value="message:import.gmail" listener="listener:importGmailAddressBook" />
-      </li>
-    </ul>
+          </tbody>
+       </table>
+      </fieldset>
+      <ul class="form-actions">
+        <li>
+          <input jwcid="@Submit" value="message:import.file" listener="listener:importFromFile" />
+        </li>
+      </ul>
+      <fieldset>
+        <table>
+          <tbody>
+            <tr jwcid="@common/FieldPanel"
+              label="message:label.phonebookGmailAddress"
+              field="component:gmailAddress"
+              description="message:description.phonebookGmailAddress">
+              <td>
+                <input jwcid="gmailAddress@TextField"
+                  value="ognl:gmailAddress"
+                  displayName="message:label.phonebookGmailAddress"
+                  validators="validators:email"
+                  autocomplete="off" />
+              </td>
+            </tr>
+            <tr jwcid="@common/FieldPanel"
+              label="message:label.phonebookGmailPassword"
+              field="component:gmailPassword">
+              <td>
+                <input jwcid="gmailPassword@TextField"
+                  hidden="true"
+                  autocomplete="off"
+                  value="ognl:gmailPassword" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      <ul class="form-actions">
+        <li>
+          <input jwcid="@Submit" value="message:import.gmail" listener="listener:importGmailAddressBook" />
+        </li>
+      </ul>
+    </div>
     <span jwcid="formActions@common/FormActions" listener="listener:savePhonebook" callback="ognl:callback" />
   </form>
 </span>
