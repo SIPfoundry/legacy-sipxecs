@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<presenceRoutingPrefs  xmlns="http://www.sipfoundry.org/sipX/schema/xml/presencerouting-config-00-00">
+<presenceRoutingPrefs xmlns="http://www.sipfoundry.org/sipX/schema/xml/presencerouting-config-00-00">
   <user>
     <userName>200</userName>
     <vmOnDnd>false</vmOnDnd>
@@ -21,4 +21,4 @@
     <userName>204</userName>
     <vmOnDnd>false</vmOnDnd>
   </user>
-</presenceRoutingPrefs >
+</presenceRoutingPrefs>

@@ -33,7 +33,7 @@ public class PresenceRoutingConfiguration extends XmlFile {
     @Override
     public Document getDocument() {
         Document document = FACTORY.createDocument();
-        final Element userPrefs = document.addElement("presenceRoutingPrefs ", NAMESPACE);
+        final Element userPrefs = document.addElement("presenceRoutingPrefs", NAMESPACE);
 
         Closure<User> closure = new Closure<User>() {
             @Override
