@@ -151,6 +151,21 @@ class OsTimer : public UtlContainableAtomic
            void* userData       ///< userData value to store in OsQueuedEvent
       );
 
+   /** Construct a timer that signals by calling
+    *  @code
+    *  pQueue->send(pMsg->createCopy())
+    *  @endcode
+    */
+   OsTimer(OsMsg* pMsg,         ///< Message to send.
+           OsMsgQ* pQueue       ///< Queue to send message to.
+      );
+   /* The OsTimer takes ownersip of *pMsg.
+    * Note that the order of the arguments is opposite of the preceeding
+    * constructor, to avoid ambiguity in calls.
+    * When the OsTimer fires, a copy of *pMsg is queued to *pQueue.
+    * (The copy is made using pMsg->createCopy().)
+    */
+
    /// @}
 
    /// Destructor

@@ -78,6 +78,13 @@ public:
 
    virtual OsMsg* createCopy(void) const;
      //:Create a copy of this msg object (which may be of a derived type)
+     // This virtual (ordinary) method is used because one cannot have a
+     // virtual copy constructor.  Thus one writes
+     // "OsMsg* copyp = originalp->createCopy();" to copy *originalp
+     // according to its run-time type, rather than
+     // "OsMsg* copyp = new OsMsg(*originalp);" because the latter
+     // would invoke the OsMsg copy constructor regardless of the
+     // run-time type of *originalp.
 
    virtual void releaseMsg(void);
      //:Done with message, delete it or mark it unused

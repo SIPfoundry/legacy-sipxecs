@@ -33,15 +33,74 @@ const OsTimer::Interval OsTimer::nullInterval = 0;
 static char dummy;
 #endif /* VALGRIND_TIMER_ERROR */
 
+/// Subclass of OsNotification that queues a copy of a message.
+class OsQueueMsgNotification : public OsNotification
+{
+   /* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+   /* ============================ CREATORS ================================== */
+
+   OsQueueMsgNotification(OsMsgQ* pQueue, ///< Queue to send message to.
+                          OsMsg* pMsg     ///< Message to send.
+      ) :
+      mpQueue(pQueue),
+      mpMsg(pMsg)
+      {
+      }
+   /* The OsQueueMsgNotification takes ownersip of *pMsg. */
+
+   virtual
+   ~OsQueueMsgNotification()
+      {
+         // Free *mpMsg, which this OsQueueMsgNotification owns.
+         delete mpMsg;
+      }
+   //:Destructor
+
+   /* ============================ MANIPULATORS ============================== */
+
+   //:Signal the occurrence of the event
+   virtual OsStatus signal(intptr_t eventData)
+      {
+         // Signaling is done by queueing mpMsg->createCopy() to *mpQueue.
+         return mpQueue->send(*mpMsg->createCopy());
+      }
+
+   /* ============================ ACCESSORS ================================= */
+
+   /* ============================ INQUIRY =================================== */
+
+   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   OsQueueMsgNotification(const OsQueueMsgNotification& rOsQueueMsgNotification);
+   //:Copy constructor (not implemented for this class)
+
+   OsQueueMsgNotification& operator=(const OsQueueMsgNotification& rhs);
+   //:Assignment operator (not implemented for this class)
+
+   // The message queue to which to send the message.
+   OsMsgQ* mpQueue;
+
+   // The message to be copied and sent.
+   OsMsg* mpMsg;
+
+};
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-// Constructor
+// Constructors
+
 // Timer expiration event notification happens using the
 // newly created OsQueuedEvent object
-
-OsTimer::OsTimer(OsMsgQ* pQueue, void* userData) :
+OsTimer::OsTimer(OsMsgQ* pQueue,
+                 void* userData) :
    mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
    mApplicationState(0),
    mTaskState(0),
@@ -72,6 +131,30 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mProcessingInProgress(FALSE),
    mpNotifier(&rNotifier),
    mbManagedNotifier(FALSE),
+   mOutstandingMessages(0),
+   mTimerQueueLink(0),
+   mFiring(FALSE)
+{
+#ifdef VALGRIND_TIMER_ERROR
+   // Initialize the variables for tracking timer access.
+   mLastStartBacktrace = NULL;
+   mLastDestructorBacktrace = NULL;
+#endif /* VALGRIND_TIMER_ERROR */
+}
+
+// Timer expiration event notification is done by queueing a copy of
+// *pMsg to *pQueue.
+OsTimer::OsTimer(OsMsg* pMsg,
+                 OsMsgQ* pQueue) :
+   mBSem(OsBSem::Q_PRIORITY, OsBSem::FULL),
+   mApplicationState(0),
+   mTaskState(0),
+   // Always initialize mDeleting, as we may print its value.
+   mDeleting(FALSE),
+   mProcessingInProgress(FALSE),
+   // *mpNotifier owns the new OsQueueMsgNotification, which owns *pMsg.
+   mpNotifier(new OsQueueMsgNotification(pQueue, pMsg)),
+   mbManagedNotifier(TRUE),
    mOutstandingMessages(0),
    mTimerQueueLink(0),
    mFiring(FALSE)
