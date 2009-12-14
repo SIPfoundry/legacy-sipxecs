@@ -9,7 +9,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
  
     private static String myHandle = "of:" + Math.abs(new Random().nextLong());
 
-    public static final String SERVICE_PATH = "/plugins/sipx-openfire/status";
+    public static final String SERVICE_PATH = "/plugins/sipx-openfire-presence/status";
     public static final String SERVICE_NAME = "status";
     public static final String SERVER = "presenceServer";
 

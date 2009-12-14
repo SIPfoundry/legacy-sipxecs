@@ -83,6 +83,6 @@ public abstract class XmlRpcProvider {
      * @return the plugin
      */
     protected static SipXOpenfirePlugin getPlugin() {
-        return   (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire");
+        return   (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
     }
 }

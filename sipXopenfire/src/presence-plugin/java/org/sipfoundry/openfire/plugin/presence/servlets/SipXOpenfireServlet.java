@@ -38,10 +38,10 @@ public class SipXOpenfireServlet extends HttpServlet {
         log.info("initializing Servlet");
         
         plugin =
-                (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire");
+                (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
       
         // Exclude this servlet from requering the user to login
-        this.path = "sipx-openfire/" + serviceName;
+        this.path = "sipx-openfire-presence/" + serviceName;
         AuthCheckFilter.addExclude(path);
         
         PropertyHandlerMapping handlerMapping = new PropertyHandlerMapping();

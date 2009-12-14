@@ -61,7 +61,7 @@ SIP_REDIRECT.160-ENUM.BASE_DOMAIN : $!enumSettings.getSetting('SIP_REDIRECT.160-
 SIP_REDIRECT_HOOK_LIBRARY.900-PRESENCE : @sipxpbx.lib.dir@/libRedirectorPresenceRouting.so
 SIP_REDIRECT_AUTHORITY_LEVEL.900-PRESENCE : 100
 SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : @sipxpbx.conf.dir@/presencerouting-prefs.xml
-SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL : http://$!{openfire-host}:$!{openfire-xml-rpc-port}/plugins/sipx-openfire/status
+SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL : http://$!{openfire-host}:$!{openfire-xml-rpc-port}/plugins/sipx-openfire-presence/status
 SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL : http://$!{location.address}:9096/RPC2
 SIP_REDIRECT.900-PRESENCE.REALM : $!{registrarService.realm}
 #end
