@@ -145,8 +145,8 @@ fi
 
 if [ -d ${CAdir} ]
 then
-    authorities=`find ${CAdir} \( -name \*.crt -o -name \*.crl -o -name \*.pem \) 2> /dev/null`
-    if [ -n "${authorities}" ]
+    InstalledAuthorities=`find ${CAdir} \( -name \*.crt -o -name \*.crl -o -name \*.pem \) 2> /dev/null`
+    if [ -n "${InstalledAuthorities}" ]
     then
         AuthSwitch="-CApath"
         AuthTarget=${CAdir}
@@ -155,6 +155,7 @@ fi
 
 if [ -f "${Authority}" ]
 then
+    # for now, assume that an authority check is looking for a self-signed cert
     AuthSwitch="-CAfile"
     AuthTarget=${Authority}
 fi
@@ -239,7 +240,7 @@ do
                         > ${CheckFile} 2>&1
                     if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
                     then
-                        echo "SSL Certificate '${Certificate}' is invalid as client certificate." 1>&2
+                        echo "Invalid as client certificate." 1>&2
                         sed 's/^/    /' ${CheckFile} 1>&2
                         ExitStatus=1
                         FailedCerts="${FailedCerts} ${Certificate}"
@@ -250,7 +251,7 @@ do
                         > ${CheckFile} 2>&1
                     if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
                     then
-                        echo "SSL Certificate '${Certificate}' is invalid as server certificate." 1>&2
+                        echo "Invalid as server certificate." 1>&2
                         sed 's/^/    /' ${CheckFile} 1>&2
                         ExitStatus=1
                         FailedCerts="${FailedCerts} ${Certificate}"
@@ -260,35 +261,65 @@ do
             ;;
         
         AUTHORITY)
+            # figure out if this is self-signed
+            isSelfSigned "${Certificate}"
+            IsSelfSigned=$?
+            if [ ${IsSelfSigned} -eq 0 ]
+            then
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo "Is a self-signed certificate." 1>&2
+                fi
+                AuthSwitch="-CAfile"
+                AuthTarget="${Certificate}"
+            else
+                # not self-signed - must be validated by some other cert we already have installed
+                echo "Is not a self-signed certificate;" 1>&2
+                echo "   using installed authorities to validate as an intermediate CA certificate." 1>&2
+                AuthSwitch="-CApath"
+                AuthTarget="${Certificate}"
+            fi
+
             if ${openssl} x509 -purpose -noout -in "${Certificate}" \
                 | grep -E '^SSL (client|server) CA : Yes$' > /dev/null 2>&1
             then
-                # figure out if this is self-signed
-                if isSelfSigned "${Certificate}"
+                if [ "${Feedback}" = "VERBOSE" ]
                 then
-                    if [ "${Feedback}" = "VERBOSE" ]
-                    then
-                        echo "SSL Certificate '${Certificate}' is a root CA certificate." 1>&2
-                    fi
-                    AuthSwitch="-CAfile"
-                    AuthTarget="${Certificate}"
+                    echo "Is tagged for use as a CA certificate." 1>&2
                 fi
+            elif [ ${IsSelfSigned} -eq 0 ]
+            then
+                # self-signed but not tagged for use as a CA certificate
+                # this isn't really correct, but some systems do it, 
+                # so accept it, but issue a warning in verbose mode
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo "Is not tagged for use as a CA certificate." 1>&2
+                fi
+            else
+                # neither self-signed nor tagged as a CA cert - reject
+                echo "Is not tagged for use as a CA certificate and is not self-signed." 1>&2
+                FailedCerts="${FailedCerts} ${Certificate}"
+                ExitStatus=1
+            fi
 
-                # the certificate is meant to be a CA certificate - see if it is internally valid
+            if [ ${ExitStatus} -eq 0 ]
+            then
                 ${openssl} verify ${AuthSwitch} "${AuthTarget}" "${Certificate}" \
                     > ${CheckFile} 2>&1
                 if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
                 then
-                    echo "SSL Certificate '${Certificate}' is not valid." 1>&2
+                    echo "Is not valid." 1>&2
                     sed 's/^/    /' ${CheckFile} 1>&2
                     ExitStatus=1
                     FailedCerts="${FailedCerts} ${Certificate}"
+                else
+                    if [ "${Feedback}" = "VERBOSE" ]
+                    then
+                        echo "Is acceptable as a CA certificate." 1>&2
+                    fi
                 fi
-            else
-                echo "SSL Certificate '${Certificate}' is not a CA certificate." 1>&2
-                ExitStatus=1
-                FailedCerts="${FailedCerts} ${Certificate}"
-            fi                
+            fi
             cat /dev/null > ${CheckFile}
             ;;
     esac
@@ -310,7 +341,7 @@ do
         done
         if [ "${Matched}" = "NO" ]
         then
-            echo "SSL certificate '${Certificate}' subject is not one of: " 1>&2
+            echo "Subject is not one of: " 1>&2
             for name in ${UniqueNames}; do echo "    ${name}" 1>&2; done
             echo "  Actual subject names are: " 1>&2
             for name in ${CertNames}; do echo "    ${name}" 1>&2; done
@@ -368,9 +399,9 @@ do
         cert_name=`subjectName "${Certificate}"`
         caName=`issuerName "${Certificate}"`
 
-        echo "SSL certificate '${Certificate}' name:    ${cert_name}"
-        echo "SSL certificate '${Certificate}' issuer:  ${caName}"
-        echo "SSL certificate '${Certificate}' expires: ${cert_expires}"
+        echo "Name:    ${cert_name}"
+        echo "Issuer:  ${caName}"
+        echo "Expires: ${cert_expires}"
     fi
 
 done
@@ -378,6 +409,7 @@ done
 if [ ${numCertsTested} -eq 0 ]
 then
     echo "No SSL certificate found." 1>&2
+    FailedCerts="${FailedCerts} ${Certificate}"
     ExitStatus=1
 fi
 
