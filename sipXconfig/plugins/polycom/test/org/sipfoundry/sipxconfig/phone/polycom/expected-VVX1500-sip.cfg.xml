@@ -254,6 +254,7 @@
     video.maxCallRate=""
   >
     <codecPref
+      video.codecPref.H261="4"
       video.codecPref.H263="3"
       video.codecPref.H2631998="2"
       video.codecPref.H264="1"
@@ -271,7 +272,7 @@
       video.profile.H263.QcifMpi="1"
       video.profile.H263.SqcifMpi="1"
       video.profile.H2631998.jitterBufferMax="2000"
-      video.profile.H2631998.jitterBufferMin="1500"
+      video.profile.H2631998.jitterBufferMin="150"
       video.profile.H2631998.jitterBufferShrink="70"
       video.profile.H2631998.payloadType="96"
       video.profile.H2631998.CifMpi="1"
@@ -283,6 +284,12 @@
       video.profile.H2631998.annexT=""
       video.profile.H2631998.annexK=""
       video.profile.H2631998.annexN=""
+      video.profile.H261.CifMpi="1"
+      video.profile.H261.QcifMpi="1"
+      video.profile.H261.annexD=""
+      video.profile.H261.jitterBufferMax="2000"
+      video.profile.H261.jitterBufferMin="150"
+      video.profile.H261.jitterBufferShrink="70"
     />
     <camera
       video.camera.flickerAvoidance=""
