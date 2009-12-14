@@ -15,6 +15,7 @@ public class AudioCodesGatewayTest extends TestCase {
 
     public void testGetProfileFilename() {
         AudioCodesGateway gateway = new AudioCodesGateway() {
+            @Override
             int getMaxCalls() {
                 return 0;
             }
@@ -29,12 +30,13 @@ public class AudioCodesGatewayTest extends TestCase {
 
     public void testDefaultDeviceVersion() {
         AudioCodesGateway gateway = new AudioCodesGateway() {
+            @Override
             int getMaxCalls() {
                 return 0;
             }
         };
 
-        assertEquals("5.4", gateway.getDeviceVersion().getVersionId());
+        assertEquals("5.6", gateway.getDeviceVersion().getVersionId());
     }
 
 }

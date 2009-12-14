@@ -33,7 +33,7 @@ public abstract class AudioCodesGateway extends Gateway {
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
 
     public AudioCodesGateway() {
-        setDeviceVersion(AudioCodesModel.REL_5_4);
+        setDeviceVersion(AudioCodesModel.REL_5_6);
     }
 
     public void setDefaultVersionId(String defaultVersionId) {
