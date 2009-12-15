@@ -288,7 +288,7 @@
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
   </target>
-  <target name="test-all" depends="ant-targets.test-all,test-ui,test-api"/>
+  <target name="test-all" depends="ant-targets.test-all,test-api"/>
   <target name="test-war" depends="default.deps,compile.test,war" 
     description="Creates a war file for unittests">
     <delete dir="${test.war}"/>
