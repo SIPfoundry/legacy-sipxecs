@@ -194,7 +194,7 @@ public final class TestUtil {
         final String mailstoreDir = outputDirectory + "/mailstore";
         final String binDir = outputDirectory + "/bin";
         final String tmpDir = outputDirectory + "/tmp";
-        final String sslDir = etcDirectory + "/ssl";
+        final String sslDir = outputDirectory + "/ssl";
         final String authDir = sslDir + "/authorities";
 
         sysProps.setProperty("sysdir.bin", binDir);
@@ -244,10 +244,11 @@ public final class TestUtil {
         File vmDir = createDirectory(mailstoreDir, "Could not create voicemail store");
         createDirectory(tmpDir, "Could not create tmp directory");
         File ssl = createDirectory(sslDir, "Could not create ssl directory");
-        createDirectory(authDir, "Could not create auth directory");
+        File auth = createDirectory(authDir, "Could not create auth directory");
 
         sysProps.setProperty("mailboxManagerImpl.mailstoreDirectory", vmDir.getAbsolutePath());
         sysProps.setProperty("certificateManagerImpl.sslDirectory", ssl.getAbsolutePath());
+        sysProps.setProperty("certificateManagerImpl.sslAuthDirectory", auth.getAbsolutePath());
     }
 
     private static File createDirectory(String directoryName, String errorMessage) {
