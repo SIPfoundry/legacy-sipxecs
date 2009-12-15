@@ -30,7 +30,6 @@ class SipMessage;
 class SipUserAgent;
 class SipDialogMgr;
 class RefreshDialogState;
-class RefreshDialogStateNotification;
 class OsTimer;
 
 // TYPEDEFS
@@ -210,11 +209,11 @@ public:
     //! Handler for SUBSCRIBE and REGISTER responses
     UtlBoolean handleMessage(OsMsg &eventMessage);
 
-    /// Handle a message due to a timer firing.
-    void handleTimerMessage(OsEventMsg& eventMessage);
-
     /// Handle an incoming SIP message.
     void handleSipMessage(SipMessageEvent& eventMessage);
+
+    /// Process a refresh timer event.
+    OsStatus handleRefreshEvent(UtlString& handle);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -244,7 +243,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    friend class RefreshDialogStateNotification;
 
     //! Copy constructor NOT ALLOWED
     SipRefreshManager(const SipRefreshManager& rSipRefreshManager);

@@ -370,7 +370,7 @@ private:
      */
     UtlHashBag mEventTypes;
 
-    // See sipXtackib/doc/developer/SipRefreshManager-Locking.txt for
+    // See sipXtackib/doc/developer/SipSubscribeClient-Locking.txt for
     // how the locks are used.
     // However, in this class we do not need the "object lock", so we use
     // only one OsBSem.

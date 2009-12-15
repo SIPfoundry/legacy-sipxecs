@@ -57,17 +57,6 @@ Pattern for timer event routine:
 	    end if
 	release the object lock
 
-Problem:  timer event routines are not allowed to block (see OsTimer.h).
-
-Baseline solution is to move this code into a message-processing
-routine.
-
-The message has to contain the group id, I think.  Trouble is that the
-timer-stop operation doesn't flush things nicely.
-
-
-
-
 Pattern for an externally-called method that does not affect timers:
 
 	seize the set lock

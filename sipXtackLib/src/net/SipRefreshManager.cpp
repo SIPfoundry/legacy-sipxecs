@@ -29,6 +29,8 @@
 #define SIP_SEND_REQUEST (OsEventMsg::USER_START)
 // msgSubType for an OsMsg that requests calling a callback routine
 #define SIP_CALLBACK     (OsEventMsg::USER_START + 1)
+// msgSubType for an OsMsg for the firing of a refresh timer
+#define EVENT_REFRESH    (OsEventMsg::USER_START + 2)
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -70,33 +72,69 @@ static int calculateResendTime(int providedExpiration,
    );
 
 
-// Forward reference.
-class RefreshDialogState;
-
-
-// Notifier class for RefreshDialogState::mRefreshTimer.
-class RefreshDialogStateNotification : public OsNotification
+/// OsMsg subclass for the firing of mRefreshTimer - A refresh should be sent.
+class RefreshEventMsg : public OsMsg
 {
+   /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   /// Constructor.
-   RefreshDialogStateNotification(RefreshDialogState* state,
-                                  ///< the containing RefreshDialogState
-                                  SipRefreshManager* pRefMgr
-                                  ///< the owning SipRefreshManager
-      );
+   /* ============================ CREATORS ================================== */
 
-   /// Signal the occurrence of the event
-   virtual OsStatus signal(intptr_t timer_i);
+   RefreshEventMsg(const UtlString& handle /**< handle of the RefreshDialogState
+                                             *   for which to send the refresh */
+      ) :
+      OsMsg(OS_EVENT, EVENT_REFRESH),
+      mHandle(handle)
+      {
+      }
 
-   /// Pointer to the containing RefreshDialogState.
-   RefreshDialogState* mpState;
-   /// Pointer to the owning SipRefreshManager.
-   SipRefreshManager* mpRefMgr;
+   virtual
+   ~RefreshEventMsg()
+      {
+      }
+   //:Destructor
+
+   /* ============================ MANIPULATORS ============================== */
+
+   virtual OsMsg* createCopy(void) const
+      {
+         return new RefreshEventMsg(mHandle);
+      };
+   //:Create a copy of this msg object (which may be of a derived type)
+   // This virtual (ordinary) method is used because one cannot have a
+   // virtual copy constructor.  Thus one writes
+   // "OsMsg* copyp = originalp->createCopy();" to copy *originalp
+   // according to its run-time type, rather than
+   // "OsMsg* copyp = new OsMsg(*originalp);" because the latter
+   // would invoke the OsMsg copy constructor regardless of the
+   // run-time type of *originalp.
+
+   /* ============================ ACCESSORS ================================= */
+
+   // Get pointer to the handle value.
+   UtlString* getHandle()
+      {
+         return &mHandle;
+      }
+
+   /* ============================ INQUIRY =================================== */
+
+   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   RefreshEventMsg(const RefreshEventMsg& rRefreshEventMsg);
+   //:Copy constructor (not implemented for this class)
+
+   RefreshEventMsg& operator=(const RefreshEventMsg& rhs);
+   //:Assignment operator (not implemented for this class)
+
+   /// Handle of the RefreshDialogState for which to send the refresh.
+   UtlString mHandle;
+
 };
-
-// Method definitions for RefreshDialogStateNotification are below the
-// declaration of RefreshDialogState.
 
 
 // Private class to contain refresh state.
@@ -106,7 +144,9 @@ class RefreshDialogState : public UtlString
 {
 public:
 
-   RefreshDialogState(SipRefreshManager* pRefMgr
+   RefreshDialogState(const UtlString& handle,
+                      ///< the dialog handle for this refresh
+                      SipRefreshManager* pRefMgr
                       ///< the governing SipRefreshManager
       );
 
@@ -157,9 +197,6 @@ public:
    SipMessage* mpLastRequest;
    /// The current state of this refresh.
    SipRefreshManager::RefreshRequestState mRequestState;
-   /// Notifier for mRefreshTimer.
-   //  Stores pointer to this RefreshDialogState and the SipRefreshManager.
-   RefreshDialogStateNotification mRefreshNotification;
    /// Fires when it is time to refresh.
    OsTimer mRefreshTimer;
    /** The number of consecutive 'transient' failure responses that have been
@@ -180,7 +217,9 @@ private:
 
 /* ============================ CREATORS ================================== */
 
-RefreshDialogState::RefreshDialogState(SipRefreshManager* pRefMgr) :
+RefreshDialogState::RefreshDialogState(const UtlString& handle,
+                                       SipRefreshManager* pRefMgr) :
+   UtlString(handle),
    mSuppressTimerEventRoutines(FALSE),
    mpApplicationData(NULL),
    mpStateCallback(NULL),
@@ -189,8 +228,8 @@ RefreshDialogState::RefreshDialogState(SipRefreshManager* pRefMgr) :
    mExpiration(-1),
    mpLastRequest(NULL),
    mRequestState(SipRefreshManager::REFRESH_REQUEST_UNKNOWN),
-   mRefreshNotification(this, pRefMgr),
-   mRefreshTimer(mRefreshNotification)
+   mRefreshTimer(new RefreshEventMsg(static_cast <const UtlString> (*this)),
+                 pRefMgr->getMessageQueue())
 {
 }
 
@@ -318,75 +357,6 @@ void RefreshDialogState::toString(UtlString& dumpString)
     UtlString stateString;
     SipRefreshManager::refreshState2String(mRequestState, stateString);
     dumpString.append(stateString);
-}
-
-
-// Methods for RefreshDialogStateNotification:
-
-// Constructor.
-RefreshDialogStateNotification::RefreshDialogStateNotification(RefreshDialogState* state,
-                                                               SipRefreshManager* pRefMgr) :
-   mpState(state),
-   mpRefMgr(pRefMgr)
-{
-}
-
-// The timer event routine for RefreshDialogState's.
-OsStatus RefreshDialogStateNotification::signal(intptr_t timer_i)
-{
-   OsLock objectLock(mpRefMgr->mObjectSem);
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "RefreshDialogStateNotification::signal Timer fired, mpState = %p '%s'",
-                 mpState, mpState->data());
-
-   if (!mpState->mSuppressTimerEventRoutines)
-   {
-      // Legitimate states in which to see a timer fire to start
-      // a re-SUBSCRIBE or re-REGISTER attempt.
-      if (mpState->mRequestState == SipRefreshManager::REFRESH_REQUEST_FAILED ||
-          mpState->mRequestState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED)
-      {
-         // Clean the message for resend.
-         mpRefMgr->prepareForResend(*mpState,
-                                    FALSE); // do not expire now
-
-         // Keep track of when this refresh is sent so we know
-         // when the new expiration is relative to.
-         mpState->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "RefreshDialogStateNotification::handleTimerMessage %p->mPendingStartTime = %ld",
-                       mpState, mpState->mPendingStartTime);
-
-         // Do not want to keep the lock while we send the message
-         // as it could block, so we copy the message and send a
-         // message to SipRefreshManager to send the message later.
-         mpRefMgr->getMessageQueue()->sendP(
-            new OsEventMsg(SIP_SEND_REQUEST, 0,
-                           new SipMessage(*(mpState->mpLastRequest))));
-
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-         {
-            UtlString lastRequest;
-            ssize_t length;
-            mpState->mpLastRequest->getBytes(&lastRequest, &length);
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "RefreshDialogStateNotification::handleTimerMessage last request = '%s'",
-                          lastRequest.data());
-         }
-      }
-      // This should not happen
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "RefreshDialogStateNotification::handleTimerMessage "
-                       "timer fired in unexpected mpState %s",
-                       SipRefreshManager::refreshRequestStateText(mpState->mRequestState));
-         // Dump the mpState into the log.
-         mpState->dumpState();
-      }
-   }
-
-   return OS_SUCCESS;
 }
 
 
@@ -1109,6 +1079,15 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg& eventMessage)
        // Our caller deletes eventMessage, which frees everything owned by
        // that CallbackRequestMsg.
     }
+    // Refresh timer fired - A refresh should be sent.
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == EVENT_REFRESH)
+    {
+       // Call handleRefreshEvent on the handle.
+       RefreshEventMsg* m = dynamic_cast <RefreshEventMsg*> (&eventMessage);
+       assert(m != 0);
+       handleRefreshEvent(*m->getHandle());
+    }
 
     return TRUE;
 }
@@ -1531,6 +1510,77 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
    // in eventMessage.
 }
 
+// The timer event routine for mRefreshTimer's.
+// Note that the RefreshDialogState referenced by the handle may no longer exist.
+OsStatus SipRefreshManager::handleRefreshEvent(UtlString& handle)
+{
+   // Seize locks.
+   OsLock setLock(mSetSem);
+   OsLock objectLock(mObjectSem);
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRefreshManager::handleRefreshEvent Timer fired, handle = '%s'",
+                 handle.data());
+
+   RefreshDialogState* state = getAnyDialog(handle);
+
+   if (state)
+   {
+      // Legitimate states in which to see a timer fire to start
+      // a re-SUBSCRIBE or re-REGISTER attempt.
+      if (state->mRequestState == SipRefreshManager::REFRESH_REQUEST_FAILED ||
+          state->mRequestState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED)
+      {
+         // Clean the message for resend.
+         prepareForResend(*state,
+                          FALSE); // do not expire now
+
+         // Keep track of when this refresh is sent so we know
+         // when the new expiration is relative to.
+         state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRefreshManager::handleRefreshEvent %p->mPendingStartTime = %ld",
+                       state, state->mPendingStartTime);
+
+         // Do not want to keep the lock while we send the message
+         // as it could block, so we copy the message and send a
+         // message to SipRefreshManager to send the message later.
+         getMessageQueue()->sendP(
+            new OsEventMsg(SIP_SEND_REQUEST, 0,
+                           new SipMessage(*(state->mpLastRequest))));
+
+         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         {
+            UtlString lastRequest;
+            ssize_t length;
+            state->mpLastRequest->getBytes(&lastRequest, &length);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRefreshManager::handleRefreshEvent last request = '%s'",
+                          lastRequest.data());
+         }
+      }
+      // This should not happen
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRefreshManager::handleRefreshEvent "
+                       "timer fired in unexpected state %s",
+                       SipRefreshManager::refreshRequestStateText(state->mRequestState));
+         // Dump the state into the log.
+         state->dumpState();
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRefreshManager::handleRefreshEvent "
+                    "no state found to match handle '%s'",
+                    handle.data());
+   }      
+
+   return OS_SUCCESS;
+}
+
 /* ============================ ACCESSORS ================================= */
 
 void SipRefreshManager::refreshState2String(RefreshRequestState state,
@@ -1657,8 +1707,8 @@ const char* SipRefreshManager::refreshRequestStateText(SipRefreshManager::Refres
 
 RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDialogHandle)
 {
-   RefreshDialogState* state = (RefreshDialogState*)
-      mRefreshes.find(&messageDialogHandle);
+   RefreshDialogState* state =
+      dynamic_cast <RefreshDialogState*> (mRefreshes.find(&messageDialogHandle));
 
    if (state == NULL)
    {
@@ -1729,8 +1779,8 @@ RefreshDialogState*
                                               const RefreshStateCallback refreshStateCallback,
                                               int& requestedExpiration)
 {
-   RefreshDialogState* state = new RefreshDialogState(this);
-   *(static_cast <UtlString*> (state)) = messageDialogHandle;
+   RefreshDialogState* state =
+      new RefreshDialogState(messageDialogHandle, this);
    state->mpApplicationData = applicationData;
    // refreshStateCallback may not be NULL, because we need to be able to tell
    // the application that a refresh has failed, and the application needs to
