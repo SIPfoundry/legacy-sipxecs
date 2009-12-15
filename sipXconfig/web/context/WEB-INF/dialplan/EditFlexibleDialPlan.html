@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-  <h2><span key="title">Dial Plans</span></h2>
+  <h2><span key="title" class="pageLabel">Dial Plans</span></h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:{'dialingRules','schedules'}" selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -20,14 +20,12 @@
     <form jwcid="@Form" id="dialplan:list:form"
       delegate="bean:validator"
       listener="listener:formSubmit">
-      <ul class="component-links">
-        <li><span jwcid="selectRuleType@dialplan/SelectRuleType"/></li>
-        <li>
-          <a jwcid="revert@DirectLink" id="dialplan:revert" listener="listener:revert">
-            <span key="link.revert">Reset</span>
-          </a>
-        </li>
-      </ul>
+      <span class="componentLinksAlignLeft">
+		  <span jwcid="selectRuleType@dialplan/SelectRuleType"/>
+		  <a jwcid="revert@DirectLink" id="dialplan:revert" listener="listener:revert">
+			<span key="link.revert">Reset</span>
+		  </a>
+	  </span>
       <table jwcid="@common/Table" id="dialplan:list"
         columns="* !name,!enabled,!type,!description,!schedule"
         source="ognl:dialPlanContext.rules"

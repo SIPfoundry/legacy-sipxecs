@@ -1,14 +1,14 @@
 <div jwcid="@common/Border">
-  <h2><span key="title">Localization</span></h2>
+  <h2><span key="title" class="pageLabel">Localization</span></h2>
   <div jwcid="@common/QuickHelp" value="message:description" />
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="languageForm@Form">
 	<fieldset>
-	    <table>
-	      <tr>
-			<td jwcid="@common/InstalledLanguages" language="ognl:language" />
-		  </tr>
-		</table>
+	  <table>
+            <tr>
+              <td jwcid="@common/InstalledLanguages" language="ognl:language" />
+            </tr>
+	  </table>
 		<ul class="component-submit">
 		  <li>
 			<span jwcid="setLanguage@Submit" action="listener:changeLanguage" value="message:button.setLanguage"/>

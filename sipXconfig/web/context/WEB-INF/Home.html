@@ -1,7 +1,8 @@
 <div jwcid="@common/Border" restricted="false">
   <!-- div id="home-graphic" / -->
-  <div jwcid="@If" condition="ognl:userSession.admin">
-      <span jwcid="@user/UserCloud" />
-      <span jwcid="@phone/PhoneCloud" />
-  </div>
+		<div jwcid="@If" condition="ognl:userSession.admin">
+			<div class="leftCloud"><span jwcid="@user/UserCloud" /></div>
+			<div class="rightCloud"><span jwcid="@phone/PhoneCloud" /></div>
+		</div>
 </div>
+

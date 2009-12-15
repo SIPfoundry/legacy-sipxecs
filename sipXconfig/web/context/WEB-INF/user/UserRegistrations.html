@@ -1,7 +1,7 @@
 <div jwcid="@common/Border" restricted="false" useDojo="ognl:true">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <h2 jwcid="@If" condition="ognl:!userSession.admin">
-    <span key="title">User Schedules</span>
+    <span key="title" class="pageLabel">User Schedules</span>
   </h2>
   <p>
 	<span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not

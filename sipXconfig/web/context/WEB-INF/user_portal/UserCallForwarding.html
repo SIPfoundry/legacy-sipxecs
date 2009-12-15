@@ -1,7 +1,7 @@
 <div jwcid="@common/Border" restricted="false">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <h2 jwcid="@If" condition="ognl:!userSession.admin">
-    <span key="title">Call Forwarding</span>
+    <span key="title" class="pageLabel">Call Forwarding</span>
   </h2>
   <div jwcid="@user_portal/UserCallForwardingComponent"
     user="ognl:user" userSession="ognl:userSession"/>

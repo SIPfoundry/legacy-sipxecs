@@ -5,17 +5,21 @@ body
 
 a:link
 {
-	color: #000099;
+	color: #003384;
+	text-decoration:underline;
+	outline:none;
 }
 
 a:visited
 {
-	color: #660099;
+	color: #003384;
+	text-decoration:underline;
 }
 
 a:hover,a:active
 {
-	color: #006699;
+	color: #003384;
+	text-decoration:none;
 }
 
 h1
@@ -25,7 +29,7 @@ h1
 
 h2
 {
-	color: #003333;
+	/*color: #003333;*/
 }
 
 h3
@@ -51,6 +55,7 @@ li.tab a:visited
 	background: url(/sipxconfig/skin/setting-bullet.gif) left no-repeat;
 	padding-left: 18px;
     color: #355563;
+	text-decoration: none;
 }
 
 li.tab .active a:link,
@@ -68,6 +73,7 @@ li.tab .active a:visited
 #voicemailFolders li.tab a:visited
 {
     background:url('/sipxconfig/images/folder.png') left no-repeat;	
+	text-decoration: none;
 }
 
 #voicemailFolders li.tab .active a:link,
@@ -75,70 +81,34 @@ li.tab .active a:visited
 #voicemailFolders li.tab .active a:visited
 {
     background:url('/sipxconfig/images/folder.png') left no-repeat;	
+	text-decoration: none;
 }
 
 
 
 #banner
 {
-	color: #fff;
-	background: url(/sipxconfig/skin/banner-background.png) top left repeat-x #355563;
+
 }
 
 #logo {
-	background: url(/sipxconfig/skin/logo.png) no-repeat left;
-    width: 15.5em;
+	background: url(/sipxconfig/images/layout/sipXlogo.png) no-repeat scroll left top;
+	width:165px;
+	height:38px;
+	display:inline-block;
 }
 
 #banner-links a
 {
-	color: #fff;
+	color: #C8C8CE;
 }
 
 #banner-links a:hover,
 #banner-links a:active
 {
-	color: #003333;
+	color: #EFC300;
 }
 
-#navigation
-{
-	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
-	border-color: #000000;
-}
-
-#navigation li
-{
-	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
-}
-
-#navigation li li {
-    background: #595959;
-}
-
-#navigation li li a {
-    border-bottom-color: #666666;
-    font-weight: normal;
-}
-
-#navigation a
-{
-	font-weight: bold;
-	font-family: Verdana, Arial, sans-serif;
-	color: #FFFFFF;
-	border-color: #000000;
-}
-
-#navigation a:hover,
-#navigation a.over
-{
-	color: #003333;
-	background: #999999;
-}
-
-#contentContainer {
-    background: url(/sipxconfig/skin/leftNav-background.png) top left repeat-y #FFFFFF;
-}
 
 .highlight
 {
@@ -147,10 +117,10 @@ li.tab .active a:visited
 
 #footer
 {
-	color: grey;
-	border-color: grey;
+	color: #ffffff;
+	/*border-color: grey;
 	border-top-width: thin;
-	border-top-style: solid;	
+	border-top-style: solid;*/	
 }
 
 p.message
@@ -160,7 +130,7 @@ p.message
 
 .settingDescription
 {
-	color: #555;
+	color: #5d5c58;
 }
 
 table.component
@@ -172,8 +142,8 @@ table.component
 table.component thead,
 table.component tbody tr th
 {
-	color: #fff;
-	background: #355563;
+	color: #595a5b;
+	background: #355563 url(/sipxconfig/images/layout/tableHeaderBackground.png) repeat-x scroll left top;
 }
 
 table.component thead tr th,
@@ -184,7 +154,7 @@ table.component tbody tr th
 
 table.component th a
 {
-	color: #fff;
+	color: #555;
 }
 
 table.component tfoot tr td
@@ -195,7 +165,7 @@ table.component tfoot tr td
 
 tr.even, tr.even-unheard
 {
-	background: #D3E2E8;
+	border-bottom:solid 1px;
 }
 
 tr.odd, tr.odd-unheard
@@ -240,7 +210,7 @@ form.with-sections legend
 
 .user-warning
 {
-	color: #BB44FF;
+	color: #000000;
 }
 
 .user-success
@@ -305,30 +275,24 @@ div.autocomplete ul strong.highlight {
 }
 
 .linkHome {
-    background: url(/sipxconfig/skin/home.png) no-repeat left;
 }
 
 .linkHelp {
-    background: url(/sipxconfig/skin/help.png) no-repeat left;
 }
 
 .linkLogout {
-    background: url(/sipxconfig/skin/logout.png) no-repeat left;
 }
 
 .linkHome:hover,
 .linkHome:active {
-    background: url(/sipxconfig/skin/home-hover.png) no-repeat left;
 }
 
 .linkHelp:hover,
 .linkHelp:active {
-    background: url(/sipxconfig/skin/help-hover.png) no-repeat left;
 }
 
 .linkLogout:hover,
 .linkLogout:hover {
-    background: url(/sipxconfig/skin/logout-hover.png) no-repeat left;
 }
 
 .testDescription {

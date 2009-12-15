@@ -18,20 +18,18 @@
   </div>
   <div jwcid="@Else">
   <form jwcid="phoneManagement@Form" delegate="bean:validator">
-    <ul class="component-links">
-      <li>
-        <span jwcid="@phone/ModelSelector"/>
-      </li>
-    </ul>
-    <ul class="component-submit">
-      <li>
-        <span jwcid="@setting/GroupFilter"
-          selectedGroupId="ognl:groupId"
-          groups="ognl:phoneContext.groups"
-          queryText="ognl:queryText"
-          searchMode="ognl:searchMode" />
-      </li>
-    </ul>
+
+	<span class="componentLinksAlignLeft">
+	<span jwcid="@setting/GroupFilter"
+	  selectedGroupId="ognl:groupId"
+	  groups="ognl:phoneContext.groups"
+	  queryText="ognl:queryText"
+	  searchMode="ognl:searchMode" />
+	</span>
+	<span class="componentLinksAlignRight">
+		<span jwcid="@phone/ModelSelector"/>
+	</span>
+
     <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
     <ul jwcid="@phone/PhoneTableActions"
       selections="bean:selections"

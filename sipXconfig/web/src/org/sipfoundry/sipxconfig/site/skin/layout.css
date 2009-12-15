@@ -1,11 +1,13 @@
 
 body
 {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
-	font-size:12px;
+	font-family:Arial, Helvetica, Verdana, sans-serif;
+	font-size:14px;
 	margin:0;
 	padding:0;
 	min-width:850px;
+	background:#778da5 url(/sipxconfig/images/layout/backgroundVerticalLine.png) repeat-x scroll left top;
+
 }
 
 h1
@@ -17,7 +19,14 @@ h1
 h2
 {
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:20px;
+	font-size:1em;
+	color: #3C4A5A;
+	text-decoration: none;
+	padding-left:0px;
+	font-weight:normal;
+	margin-top:-30px;
+	margin-left:-10px;
+	position:absolute;
 }
 
 h3
@@ -25,6 +34,7 @@ h3
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:16px;
 	font-weight:bolder;
+	margin-top:0px;
 }
 
 h4
@@ -79,7 +89,7 @@ ul.htabs, ul.vtabs
 	padding:2px;
 	white-space:nowrap;
 	margin:0;
-	padding:0 .3em 0 0;
+	padding:0 0 0 0;
 }
 
 ul.vtabs li
@@ -93,8 +103,10 @@ li.tab
 	padding: .2em 1ex;
 }
 
+/* Login Page Elements */
 #login-content {
  height: 100%;
+ width:404px;
 }
 
 #login-sidebar {
@@ -118,26 +130,60 @@ li.tab
 }
 
 #login-errors .user-error {
-    position: absolute;
-    background: url('/sipxconfig/images/error.png') top left no-repeat; 
+    background: url('/sipxconfig/images/layout/warning.png') top left no-repeat; 
     padding-left: 20px;
     height: 1.5em;
-    width: 500px;
-    margin-top: 50px;
-    margin-left: 52%;
+    width: 404px;
+    margin-left: 10px;
 }
 
 #login-form {
-  margin-top: 0;
-  position: absolute;
-  width: 380px;
-  height: 250px;
-  margin-top: 92px;
-  margin-left: 52%;
-  border: thin solid #355563;
-  background: url('/sipxconfig/skin/loginFormBackground.png') top left repeat-x #EFF3F6;
+   	margin-left:20px;
+  	color:#b9b9b9;
+  	font-family:"Arial";
+	font-weight:normal;
+	font-size:14px;
+}
+#login-form .settingLabel {
+	color:#E1DFE0;
+	font-weight:normal;
+	font-family:"Arial";
+	font-size:14px;
+	margin-left:50px;
+	text-align:left;
+	display:inline;
 }
 
+#login-form .welcome {
+	color:#b9b9b9;
+	font-family:"Arial";
+	font-weight:bold;
+	font-size:22px;
+}
+
+#loginFormRoundedSectionBox {
+	width:404px;	
+	margin-top: 92px;
+	margin-left:auto;
+ 	margin-right:auto;
+}
+
+#loginFormRoundedTop {
+	background:url(/sipxconfig/images/layout/loginRoundedBoxTopBar.png) no-repeat;
+	padding-top:7px;
+}
+#loginFormRoundedBottom {
+	width:404px;
+	height:7px;
+	background:url(/sipxconfig/images/layout/loginRoundedBoxBottomBar.png) no-repeat;
+}
+
+#loginFormRoundedRepeatSide {
+	width:404px;
+	background:url(/sipxconfig/images/layout/loginRoundedBoxRepeatingBar.png) repeat-y;
+	padding-bottom:10px;
+	padding-top:10px;
+}
 #login-title {
   font-size: 16px;
   font-weight: bold;
@@ -148,9 +194,11 @@ li.tab
 
 #login-form input {
     font-size: 16px;
-    height: auto;
+	margin-left:50px;
 }
-
+#login-form input.loginRoundedFormButton {
+	margin-left:120px;
+}
 #login-form label {
     font-size: 12px;
     font-weight: bold;
@@ -163,7 +211,6 @@ fieldset#loginForm legend {
 }
 
 #login-form form {
-  width: 460px;
   margin: 4px;
   padding: 3px;
 }   
@@ -182,12 +229,10 @@ fieldset#loginForm legend {
 }
 
 #logo {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 80px;
+
 }
 
+/*
 #banner
 {
 	height:0;
@@ -204,6 +249,10 @@ fieldset#loginForm legend {
 {
 	text-decoration:none;
 	padding:5px 5px 5px 20px;
+}
+
+#banner-links #logo {
+	float:left;
 }
 
 #navigation
@@ -254,24 +303,22 @@ fieldset#loginForm legend {
 #navigation li li a {
     border-style: none none solid none;
     border-width: 0 0 1px 0;
-}
+}*/
 
 #contentContainer {
-	width: 100%;
-    float: left;
+	width: 1062px;
+	margin-left:auto;
+	margin-right:auto;
+	height:inherit;
 }    
 
 #contentContainer #leftNav {
 	float: left;       
 	min-width: 10em;
+	min-height:100px;
+	margin-top:20px;
 }
 
-#content
-{	
-	padding: 10px;
-    margin-left:10em;
-    position:relative;
-}
 
 .textBox
 {
@@ -294,6 +341,7 @@ fieldset#loginForm legend {
 #settings-content
 {
 	margin-left:0;
+	margin-right:0px;
 }
 
 .highlight
@@ -307,19 +355,15 @@ fieldset#loginForm legend {
 	/* clear:both is important for IE guillotine bug */
 	clear:both;
     text-align:center;
-    padding: 15px;
+    padding-top: 10px;
+	font-family:Arial;
 }
 
 #footer p 
 {
     margin: 0;
-    padding: 3px;
 }
 
-.pageLabel
-{
-	font-weight:bold;
-}
 
 p.message
 {
@@ -331,6 +375,12 @@ p.message
 	font-style:italic;
 }
 
+.settingDescription
+{
+	font-family:Arial;
+	font-size:.8em;
+}
+
 .settingDescription,
 table.component .settingDescription
 {
@@ -340,36 +390,62 @@ table.component .settingDescription
 
 li
 {
-	margin-top:5px;
 	margin-bottom:5px;
 }
 
 ul.component-links
 {
-	width:75%;
-	list-style-type:none;
-	text-align:right;
+	padding-left:0px;
+	margin-top:0px;
+	margin-left:0px;
+	padding-left:0px;
 }
 
-ul.component-links li,
-ul.component-links li form
+ul.component-links li a,
+ul.component-links li form a,
+ul.component-links li a:hover
 {
-	display:inline;
-	padding-left:1em;
+	background:url(/sipxconfig/images/layout/button.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:0px;
+	color:#3d3c38;
+	display:block;
+	text-align:center;
+	text-decoration:none;
+	padding-top:4px;
+}
+
+ul.component-links li a:hover
+{
+	background:url(/sipxconfig/images/layout/buttonDown.png) no-repeat;
 }
 
 ul.component-submit
 {
-	list-style-type:none;
-	margin:5px;
-	padding:0;
+	margin-left:0px;
+	padding-left:0px;
+	margin-top:0px
+	margin-bottom:0px;
 }
 
 ul.component-submit li
 {
 	white-space:nowrap;
 	display:inline;
-	margin:0 5px;
+}
+
+a#setting\3Atoggle {
+	background:transparent url(/sipxconfig/images/layout/long_button.png) repeat scroll 0 0;
+	height:20px;
+	width:160px;
+	padding-top:4px;
+}
+a#setting\3Atoggle:hover {
+	background:transparent url(/sipxconfig/images/layout/long_button_down.png) repeat scroll 0 0;
 }
 
 table.component
@@ -377,22 +453,24 @@ table.component
 	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
-    width: 80%;
-    overflow: auto;
+	border-color:#c0c0c2;
+	color:#595A5B;
+        min-width: 100%;
 }
 
 table.component thead tr th,
 table.component tbody tr th
 {
-	border-width:1px;
-	border-style: solid;
 	white-space:nowrap;
-	padding:3px 5px;
+	font-family:Arial;
+	text-align:left;
+	text-indent:5px;
 }
 
 table.component th a
 {
     text-decoration:none;
+	font-family:Arial;
 }
 
 table.component tbody tr td
@@ -406,6 +484,7 @@ table.component tfoot tr td
 {
 	text-align:center;
 	border-width:1px;
+	border-color:#C0C0C2;
 	white-space:nowrap;
 	border-style:solid;
 	padding:3px;
@@ -421,6 +500,16 @@ table.component .errorColumnValue
    white-space: pre-wrap;      /* wrap, but preserve newlines (CSS 2.1) */
 }
 
+td.tableRowDivider{
+	height:1px;
+	border-bottom:solid;
+	border-bottom-width:thin;
+}
+
+tr.last td.tableRowDivider{
+	height:0px;
+	border:none;
+}
 
 ul.component-selection
 {
@@ -459,38 +548,27 @@ ul.component-pager li
 
 div.date
 {
-    clear:right;
-    float:right;
-    margin:-29px 7px;
     padding:0px;
-    font-weight:bold;
-    right:0px;
-    top:0px;
-    position:relative;
+	margin:0px;
+	color:#C8C8CE;
+	display:inline;
 }
 
-div.right-column,
-div.help
-{
-    clear:right;
-    float:right;
-    margin:5px 0;
-    padding:5px;
-}
 
-div.help
-{
-    width:15%;
+div.help {
+	float:right;
+	margin-right:-178px;
+	clear:right;
+	margin-top:-10px;
+	margin-bottom:15px;
+	padding-left:0px;
+	padding-right:0px;
+	margin-left:18px;
+	width:160px;
 }
-
-div.right-column
-{
-    width:25%;
-}
-
 div.help ul
 {
-	padding-left: 1em;
+	padding-left: 0px;
 	margin-left: 0;
 }
 
@@ -528,8 +606,9 @@ p.reportLabel {
 
 fieldset
 {
-	margin-top:1em;
 	border-style:none;
+	padding-top:5px;
+	padding-left:0px;
 }
 
 label
@@ -565,6 +644,8 @@ ul.form-actions
 {
 	list-style-type:none;
 	text-align:left;
+	padding-left:0px;
+	padding-right:0px;
 }
 
 ul.form-actions li
@@ -586,7 +667,7 @@ ul.form-actions li
 .user-warning,
 .user-success
 {
-	font-weight:bold;
+	font-family:Arial;
 }
 
 .fwd-voicemail
@@ -598,8 +679,6 @@ ul.form-actions li
 .cloud
 {
 	padding: .5em 1em;
-	width: 40%;
-	float: left;
 	margin-bottom: 1em;
 	margin-right: 1em;
 }
@@ -720,3 +799,934 @@ html, body {
 .avatar img {
 	margin: 10px;
 }
+/*
+---------------------------------------
+ Custom Layout CSS
+---------------------------------------
+*/
+
+/* Rounded Small Section Box */
+
+div.roundedTop {
+	padding-top:3px;
+	background:url(/sipxconfig/images/layout/smallBoxTopBar.png) no-repeat;
+}
+div.roundedBottom {
+	padding-top:3px;
+	background:url(/sipxconfig/images/layout/smallBoxBottomBar.png) no-repeat;
+}
+
+div.roundedRepeatSide {
+	width:160px;
+	background:url(/sipxconfig/images/layout/smallBoxRepeatingBar.png) repeat-y;
+}
+
+span.roundedPadding{
+	padding:0px 5px;
+	word-wrap:break-word;
+}
+
+div.roundedSectionBox {
+	padding-bottom:10px;
+}
+
+div.help .roundedSectionBox ul li {
+	list-style-image: url(/sipxconfig/images/layout/linkArrow.png);
+	margin-left:35px;
+	font-family:Arial;
+	font-size:.8em;
+	font-weight:normal;
+}
+
+.arrowLink {
+	list-style-image: url(/sipxconfig/images/layout/linkArrow.png);
+	margin-left:35px;
+	font-family:Arial;
+	font-size:.8em;
+	font-weight:normal;
+}
+
+div.roundedSectionBox content {
+	padding:0 5px;
+}
+
+/* Rounded Quick Help (Quick Tips) Section Box */
+
+div.quickHelpTop {
+	padding-top:3px;
+	background:url(/sipxconfig/images/layout/quickHelpTopBar.png) no-repeat;
+}
+div.quickHelpBottom {
+	padding-top:3px;
+	background:url(/sipxconfig/images/layout/quickHelpBottomBar.png) no-repeat;
+}
+
+div.quickHelpRepeatSide {
+	width:160px;
+	background:url(/sipxconfig/images/layout/quickHelpRepeatingBar.png) repeat-y;
+}
+
+div.quickHelpPadding{
+	padding-left:5px;
+	padding-right:5px;
+	word-wrap:break-word;
+}
+
+div.quickHelpSectionBox {
+	padding-bottom:10px;
+}
+
+div.quickHelpSectionBox p {
+	margin-bottom:0px;
+	margin-top:0px;
+	float:none !important;
+}
+span.quickHelpHeading {
+	color:#5d5c58;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.2em;
+	font-style:normal;
+	display:block;
+	padding-bottom:10px;
+}
+
+/* Rounded Main Content Section Box */
+
+div.mainContentRoundedTop {
+	height:5px;
+	background:url(/sipxconfig/images/layout/mainContentBoxTopBar.png) no-repeat;
+}
+div.mainContentRoundedBottom {
+	background:url(/sipxconfig/images/layout/mainContentBoxBottomBar.png) no-repeat;
+	margin-top:0px;
+	padding-top:6px;
+	padding-bottom:0px;
+}
+
+div.mainContentRoundedRepeatSide {
+	background:url(/sipxconfig/images/layout/mainContentBoxRepeatingBar.png) repeat-y;
+}
+
+span.mainContentRoundedPadding{
+	padding:5px 10px 5px 10px;
+	display:block;
+}
+span.mainContentRoundedPadding p{
+	float:left;
+	clear:both;
+}
+
+div.mainContentRoundedSectionBox {
+			
+	margin-bottom:5px;
+	width:708px;
+	float:left;
+	margin-left:8px;
+	margin-top:20px;
+}
+
+div.mainContentRoundedSectionBox li {
+}
+
+div.mainContentRoundedSectionBox p {
+	padding-left:0px;
+	margin-top:0px;
+}
+
+div.noContent{
+	width:160px;
+}
+
+/* nav */
+div.navigationRoundedSectionBox {
+	margin-left:10px;
+}
+
+
+
+
+/* Left Tabs  */
+
+
+
+li.sideLink,li.sideLinkHover {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.2em;
+	color: #5d5c58;
+	text-decoration: none;
+	overflow:hidden;
+}
+
+li.sideLink a:link,
+li.sideLink a:hover,
+li.sideLink a:visited,
+li.sideLink a,
+li.sideLinkHover a:link,
+li.sideLinkHover a:hover,
+li.sideLinkHover a:visited,
+li.sideLinkHover a
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	color: #5d5c58;
+	text-decoration: none;	
+	display:block;
+	text-indent:5px;
+}
+.sideLink {
+	background:url(/sipxconfig/images/layout/smallBoxRepeatingBar.png) repeat-y;
+}
+li.sideLinkHover {
+	background:url(/sipxconfig/images/layout/leftNavSelected.png) no-repeat; 
+}
+.sideLinkActive {
+	background:url(/sipxconfig/images/layout/leftNavSelected.png) no-repeat;
+}
+
+#breadcrumb,
+.pageLabel
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.2em;
+	color: #3C4A5A;
+	text-decoration: none;
+}
+#breadcrumb {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1em;
+	color: #3C4A5A;
+	text-decoration: none;
+	padding-left:0px;
+	font-weight:normal;
+	margin-top:-30px;
+	margin-left:-10px;
+}
+
+.pageLabel a {
+	margin-left:0px;
+}
+a.pageLabel {
+	font-size:12px;
+}
+
+
+/* banner */
+#banner
+{
+	height:0;
+	padding-top:2px;
+	padding-bottom:20px;
+}
+
+#banner-links
+{
+	text-align: right;
+	padding:0 5px 0 0;
+}
+
+#banner-links #logo {
+	float:left;
+}
+
+#banner-links a
+{
+	text-decoration:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:14px;
+	margin-left:20px;
+}
+
+#banner-links form {
+	display:inline;
+}
+
+.bannerLinkDivider {
+	background:transparent url(/sipxconfig/images/layout/bannerLinkDivider.png) no-repeat scroll left top;
+	margin-left:5px;
+	margin-right:5px;
+	padding-top:3px;
+}
+
+/* Form fields */
+.formFieldLabel {
+}
+
+.formTextfield {
+
+}
+
+.formTextarea {
+
+}
+
+.settingLabel {
+	font-family:Arial;
+	text-align:right;
+	top:auto;
+	color:#5d5c58;
+	display:block;
+}
+
+
+/* Main Content Section */
+#mainContentSectionTopBar {
+	background:url(/sipxconfig/images/layout/sectionIndicatorTopBar.png) no-repeat top left;
+	width:1063px;
+	height:28px;
+	background-color:#EEEEEE;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.2em;
+	color:#FFFFFF;
+	text-indent:10px;
+	padding-bottom:10px;
+	padding-top:6px;
+}
+
+#mainContentSection {
+	background: url(/sipxconfig/images/layout/backgroundRoundedRepeatingBar.png) repeat-y scroll;
+	width:1063px;
+	background-color:#EEEEEE;	
+	float:left;
+}
+
+/* Downloads */
+.downloadLink{
+	width:160px;
+	height:34px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#5d5c58;
+	display:block;
+	text-align:center;
+}
+
+.downloadLink a:link, .downloadLink a:visited {
+	text-decoration:none;
+	background:url(/sipxconfig/images/layout/downloads_button.png) no-repeat;
+	width:160px;
+	height:34px;
+	padding-top:4px;
+	display:block;
+}
+
+.downloadLink a:hover {
+	text-decoration:none;
+	background:url(/sipxconfig/images/layout/downloads_button_down.png) no-repeat;
+}
+.downloadLinkDisabled{
+	width:160px;
+	height:34px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	color:#5d5c58;
+	display:block;
+	text-align:center;
+	background:url(/sipxconfig/images/layout/downloads_button_disabled.png) no-repeat;
+}
+
+/* Rounded Corner Form Fields */
+input.rounded {
+	border: none;
+	background: #FFF;
+	width: 165px;
+}
+.roundedFormTextField {
+	background:  url(rounded.gif) no-repeat left top;
+	padding: 8px;
+	width: 180px;
+}
+.roundedFormButton {
+	background:url(/sipxconfig/images/layout/button.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#3d3c38;
+	outline:none;
+}
+.roundedFormButtonHover {
+	background:url(/sipxconfig/images/layout/buttonDown.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#ffffff;
+	outline:none;
+}
+/* note-only supported in ie7 if doctype is strict */
+input[type="submit"] {
+	background:url(/sipxconfig/images/layout/button.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#3d3c38;
+}
+/* note-only supported in ie7 if doctype is strict */
+input[type="submit"]:hover {
+	background:url(/sipxconfig/images/layout/buttonDown.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#3d3c38;
+}
+
+input[type="submit"].wideButton {
+	background:transparent url(/sipxconfig/images/layout/long_button.png) repeat scroll 0 0;
+	height:24px;
+	width:160px;
+	padding-bottom:3px;
+}
+input[type="submit"].wideButton:hover {
+	background:transparent url(/sipxconfig/images/layout/long_button_down.png) repeat scroll 0 0;
+	height:24px;
+	width:160px;
+	padding-bottom:3px;
+}
+
+a.wideButton {
+	background:transparent url(/sipxconfig/images/layout/long_button.png) repeat scroll 0 0 !important;
+	height:20px !important;
+	width:160px !important;
+}
+
+a.wideButton:hover {
+	background:transparent url(/sipxconfig/images/layout/long_button_down.png) repeat scroll 0 0 !important;
+	height:20px !important;
+	width:160px !important;
+}
+
+/* Help sections */
+.helpHeading {
+	color:#5d5c58;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:1.2em;
+	font-style:normal;
+}
+
+/* Login Page */
+.loginRoundedFormButton, .loginRoundedFormButtonHover {
+	background:url(/sipxconfig/images/layout/buttonDown_black.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	color:#ffffff;
+}
+
+.loginTextfield {
+	background:transparent url(/sipxconfig/images/layout/loginTextfield.png) no-repeat top left; 
+	float:left; 
+	height:24px; 
+	padding-left:5px;
+	overflow:hidden;
+	border:none;
+	width:190px;
+}
+.loginTextfield input {
+	background:transparent url(/sipxconfig/images/layout/loginTextfield.png) no-repeat top right; 
+	height:24px; 
+	padding-top:5px;
+	width:295px;
+	overflow:hidden;
+}
+
+.loginIndent {
+	margin-left:4px;
+}
+
+/* Admin Menu */
+.menuHeading
+{
+	background-image: url(/sipxconfig/images/layout/tab.png);
+	background-repeat: no-repeat;
+	padding-right:3px;
+	float:left;
+	width:115px;
+}
+
+.menuHeadingHover
+{
+	background-image: url(/sipxconfig/images/layout/tab_selected.png);
+	background-repeat: no-repeat;
+	padding-right:3px;
+	float:left;
+	display:block;
+	width:115px;
+}
+
+
+.navigation
+{
+	padding-top:20px;
+}
+
+.menuItem, .menuItemHover {
+	background-color: #ffffff;
+	list-style-type:none;
+	border-bottom:1px solid #C0C0C2;
+	border-left:1px solid #C0C0C2;
+	border-right:1px solid #C0C0C2;
+	border-color:#C0C0C2;
+	display:block;
+	width:114px;
+	height:20px;
+	font-size:12px;
+}
+.menuItemHover {
+	background-color: #c3d7ee !important;
+}
+
+
+.menuItemLink {
+	display: block;
+	text-decoration: none !important;
+	padding:4px 0 3px 4px;
+	font-weight: normal;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:0.9em;
+	text-align:left;
+	width:110px; 
+	height:auto;
+}
+
+
+.menuHeadingLink {
+	display: block;
+	text-decoration: none;
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	color: #000000;
+	height:17px;
+	width:115px;
+	text-align:left;
+	padding-top: 10px;
+	padding-right: 0px;
+	padding-bottom: 0px;
+	padding-left: 0px;
+	text-indent:13px;
+	font-size:12px;
+}
+
+.menuHeading a:hover,
+.menuHeading a.over
+{
+	text-decoration: none;
+}
+
+.menuItem a {
+	text-decoration: none;
+}
+
+.menuItem a:hover
+{
+	background: #C3D7EE; 
+	color: #000;
+	font-size:0.9em;
+	display:block;
+	width:110px;
+	text-decoration: none;
+}
+.menuItem a:visited,
+.menuItem a:active,
+.menuItem a:link {
+	color:#5d5c58;
+	font-size:0.9em;
+	display:block;
+	width:110px;
+	text-decoration: none;
+}
+
+
+
+
+.navigation ul,
+.navigation form
+{
+	padding-bottom:0px;
+	padding-left:0px; margin-left:0px;
+	display:inline-block;
+	margin:0px auto;
+}
+
+.navigation li {
+	margin: 0;
+}
+
+.navigation li ul {
+	display: none;
+	position: absolute;
+}
+
+.navigation li:hover ul,
+.navigation li.over ul {
+	display: block;
+    z-index: 500;
+	padding-left:0px; margin-left:0px;
+}
+
+
+/* Background Section */
+.backgroundRoundedRepeatingSection {
+	background: url(/sipxconfig/images/layout/backgroundRoundedRepeatingBar.png) repeat-y scroll;
+	margin-right:10px;
+}
+.backgroundRoundedBottomSection {
+	background: url(/sipxconfig/images/layout/backgroundRoundedBottom.png) no-repeat left top scroll;
+	height:7px;
+	width:1063px;
+	float:left;
+}
+
+
+li.menuHeadingHover a:hover {
+	text-decoration: none;
+}
+
+
+
+#nav.ul.li.menuHeadingHover {
+	background-image: url(/sipxconfig/images/layout/tab_selected.png);
+	
+}
+.navigation.ul.li:hover {
+	background-image: url(/sipxconfig/images/layout/tab_selected.png) !important;
+	z-index:9000;
+}
+
+.mainContentAreaFix {
+	display:inline;
+}
+
+
+.componentLinksAlignLeft {
+	padding-bottom:5px;
+	display:inline-block;
+}
+.componentLinksAlignLeft ul  {
+	margin-top:0px;
+	margin-bottom:0px;
+	margin-left:0px;
+	padding-left:0px;
+}
+.componentLinksAlignRight {
+	right:-385px;
+	position:relative;
+	padding-bottom:5px;
+	display:inline-block;
+}
+
+/* DROPDOWN SELECT MENUS */
+
+.selectME ul{ /* remove unwanted focus outlines from links */
+	noFocusLine: expression(this.onFocus=this.blur())
+	outline: none;
+	}
+*.selectME:focus ul, *.selectME:focus .cornerstop{ 
+	outline: none; 
+	}
+
+div.clears, span.clears {
+	/*clear: both;*/
+	margin: 0;
+	padding: 0;
+}
+#arrowImg {
+	background: transparent url('/sipxconfig/images/layout/dropdown/select_arrow.png') no-repeat right center scroll;
+	width: 25px;
+	_width:13px;
+	height:22px;
+	_height: 18px;
+	z-index: 10000;
+
+	display: inline-block;
+	margin:0;
+	padding-left: 2px;
+
+	
+}
+div.selectME a:hover {
+	text-decoration: none;
+}
+div.selectME div.cornerstop {
+
+}
+div.selectME div.cornerstop div {
+
+}
+div.selectME div.cornerstop div div {
+
+}
+div.selectME div.cornersbottom {
+
+}
+div.selectME div.cornersbottom div {
+
+}
+div.selectME div.cornersbottom div div {
+
+}
+div.selectME div.middle {
+	background: url('/sipxconfig/images/layout/dropdown/select_left.png') top left no-repeat;
+	margin: 0;
+	padding: 0px 0px 0px 3px;
+	height:23px;
+}
+div.selectME div.middle div {
+	background: transparent url('/sipxconfig/images/layout/dropdown/select_right.png') top right no-repeat;
+	margin: 0;
+	padding: 0px 3px 0px 0px;
+	height:23px;
+}
+div.selectME div.middle div div {
+	padding: 0;
+	margin:0;
+	height:1px;
+	background: transparent url('/sipxconfig/images/layout/dropdown/select_middle.png') top right repeat-x;
+}
+
+
+div.selectME div.first {
+	display: block;
+	line-height: normal;
+	margin: 0;
+	padding: 0;
+	cursor: pointer;
+	position: static;
+	height: 18px;
+	
+ *margin-bottom: -1px;
+}
+div.selectME div.first span.selectME {
+	float: left;
+	display:block;
+	font: 8pt Arial;
+	line-height: 18px;
+	color: #5d5c58;
+	left: 4px;
+	margin: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-indent:3px;
+}
+
+
+div.selectME div.first a, div.selectME div.first a:visited {
+	display:block;
+	padding:0;
+	text-decoration: none;
+}
+
+
+div.selectME ul {
+	list-style-type:none;
+	line-height: normal;
+	padding:0;
+	margin: 0 0 0 0px;
+	z-index: 103;
+	float: left;
+	clear: none;
+}
+
+
+div.selectME ul li {
+	display:none;
+	background-color: #ffffff;
+	list-style-type:none;
+	border-bottom:1px solid #C0C0C2;
+	border-left:1px solid #C0C0C2;
+	border-right:1px solid #C0C0C2;
+	border-color:#C0C0C2;
+	clear:left;
+	position: static;
+	float: left;
+	z-index: 104;
+	margin:0;
+	padding:0;
+	
+}
+
+div.selectME ul li a, div.selectME ul li a:visited {
+	qwhite-space: nowrap;
+	font: 8pt Arial;
+	color:#5d5c58;
+	text-decoration:none;
+	display:block;
+	padding: 4px 8px 4px 8px;
+	margin: 0;
+	qbackground: Red;
+}
+
+div.selectME ul li a:hover {
+	background: #e8e8e8;
+	text-decoration: none;
+}
+
+div.selectME ul li:hover {
+	background-color:#C3D7EE;
+}
+div.selectME ul li:hover a, div.selectME ul li:hover a:visited {
+	background-color:#C3D7EE;
+}
+
+div.selectME ul li.first {
+	
+}
+div.selectME ul li.first a:hover {
+	background-color:#C3D7EE;
+}
+
+div.selectME ul li.last {
+}
+div.selectME ul li.last a {
+}
+div.selectME ul li.last a span{
+}
+div.selectME ul li.last:hover {
+}
+div.selectME ul li.last:hover a {
+}
+div.dropdownBox {
+	overflow-x:hidden;
+	display:block;
+	padding-top:0px;
+	margin-top:22px;
+	padding-left:0px;
+	margin-left:0px;
+	position: absolute;
+}
+
+div.selectME ul li.optGroup {
+	background-color: #ffffff;
+	color:#8a8a8a;
+	text-decoration:none;
+}
+div.selectME ul li b.optGroup {
+	background: transparent url('images/selectopenbg_400x40.gif') repeat-x left top;
+	display:block;
+	padding-left:8px;
+	font-family:Arial;
+	font-size:8pt;
+}
+div.selectME ul li a.optGroupItem {
+	text-indent:5px;
+}
+
+/* Home Page */
+div.leftCloud {
+	width:344px;
+	float:left;
+}
+
+div.rightCloud {
+	width:344px;
+	display:inline-block;
+}
+
+.linkLogout {
+	background: transparent url('/sipxconfig/images/layout/logout.png') no-repeat left bottom;
+}
+.linkHelp {
+	background: transparent url('/sipxconfig/images/layout/question.png') no-repeat left bottom;
+}
+.linkHome {
+	background: transparent url('/sipxconfig/images/layout/home.png') no-repeat left bottom;
+}
+.linkLogout a, .linkHelp a, .linkHome a {
+	margin-left:20px;
+	text-decoration: none;
+}
+.linkUser {
+}
+
+
+
+
+/* MISC */
+#deleteLink, .roundedButtonLink, .roundedButtonLink:link, .roundedButtonLink:visited {
+	display:block;
+	text-align:center;
+	padding-top:4px;
+	background:url(/sipxconfig/images/layout/button.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#3d3c38;
+	text-decoration:none;
+}
+
+#deleteLink:hover, .roundedButtonLink:hover {
+	display:block;
+	text-align:center;
+	padding-top:4px;
+	background:url(/sipxconfig/images/layout/buttonDown.png) no-repeat;
+	width:99px;
+	height:24px;
+	border:none;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:.8em;
+	padding-bottom:3px;
+	color:#ffffff;
+	text-decoration:none;
+}
+
+input:focus, select:focus, checkbox:focus {
+	outline:none;
+}
+
+div.adminPortal {
+	padding-left:235px;
+	
+}
+
+
+
+/* User Portal Navigation */
+div.userPortal {
+	text-align:center;
+	
+}
+ul.userPortalNav li {
+	background-image: url(/sipxconfig/images/layout/tabUser.png);
+	background-repeat: no-repeat;
+	padding-right:3px;
+	float:left;
+	width:115px;
+	height:27px;
+	text-align:center;
+}
+
+ul.userPortalNav li:hover {
+	background-image: url(/sipxconfig/images/layout/tab_selectedUser.png);
+	background-repeat: no-repeat;
+	padding-right:3px;
+	float:left;
+	display:block;
+	width:115px;
+}
+
+ul.userPortalNav li a {
+	height:17px;
+	width:115px;
+	display:block;
+	text-decoration:none;
+	padding-top:10px;
+	color:#000000;
+	font-size:12px;
+	font-family:Arial;
+	font-weight:bold;
+}
+

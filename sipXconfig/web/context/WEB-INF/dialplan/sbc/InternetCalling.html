@@ -1,4 +1,6 @@
 <div jwcid="@common/Border">
+    <h2><span key="title" class="pageLabel">Internet Calling</span></h2>
+
     <span jwcid="@common/TabNavigation" tabNames="ognl:{'internetCalling', 'natTraversal'}" selectedTab="ognl:tab"/>
     <div id="settings-content">
       <span jwcid="@common/ErrorMsg"/>
@@ -6,7 +8,7 @@
     </div>
   <span jwcid="internetCallingTab@Block">
     <form jwcid="internetCalling@Form" delegate="bean:validator">
-    <h2><span key="title">Internet Calling</span></h2>
+
     <div jwcid="@common/QuickHelp" value="message:help.sbc"/>
     <ul class="component-links">
       <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>

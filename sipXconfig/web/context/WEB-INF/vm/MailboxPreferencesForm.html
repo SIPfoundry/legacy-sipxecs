@@ -8,7 +8,7 @@
     field="component:activeGreeting"
     label="message:label.activeGreeting"
     description="message:description.activeGreeting">
-    <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting"
+    <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting" class="changeMe" style="width:170px;"
       value="ognl:preferences.activeGreeting"
       model="ognl:activeGreetingModel" />
   </tr>
@@ -40,7 +40,7 @@
     field="component:voicemailProperties"
     label="message:label.voicemailProperties"
     description="message:description.voicemailProperties">
-    <span jwcid="voicemailProperties@PropertySelection" id="user:voicemailProperties"
+    <span jwcid="voicemailProperties@PropertySelection" id="user:voicemailProperties" class="changeMe" style="width:170px;"
       model="ognl:voicemailPropertiesModel"
       value="ognl:preferences.attachVoicemailToEmail"
       onchange="javascript:this.form.submit();"/>
@@ -50,7 +50,7 @@
 	    field="component:emailFormat"
 	    label="message:label.emailFormat"
 	    description="message:description.emailFormat">
-	    <select jwcid="emailFormat@PropertySelection" id="user:emailFormat"
+	    <select jwcid="emailFormat@PropertySelection" id="user:emailFormat" class="changeMe" style="width:170px;"
 	      value="ognl:preferences.emailFormat"
 	      model="ognl:mailFormatModel" />
 	 </tr>
@@ -121,7 +121,7 @@
 	  field="component:voicemailToAlternateEmailNotification"
 	  label="message:label.voicemailToAlternateEmailNotification"
 	  description="message:description.voicemailToAlternateEmailNotification">
-	<span jwcid="voicemailToAlternateEmailNotification@PropertySelection" id="user:voicemailToAlternateEmailNotification"
+	<span jwcid="voicemailToAlternateEmailNotification@PropertySelection" id="user:voicemailToAlternateEmailNotification" class="changeMe" style="width:170px;"
 		  model="ognl:alternateEmailNotifyModel"
 		  value="ognl:preferences.voicemailToAlternateEmailNotification"
 		  onchange="javascript:this.form.submit();"/>
@@ -131,7 +131,7 @@
 	    field="component:alternateEmailFormat"
 	    label="message:label.alternateEmailFormat"
 	    description="message:description.alternateEmailFormat">
-	    <select jwcid="alternateEmailFormat@PropertySelection" id="user:alternateEmailFormat"
+	    <select jwcid="alternateEmailFormat@PropertySelection" id="user:alternateEmailFormat" class="changeMe" style="width:170px;"
 	      value="ognl:preferences.alternateEmailFormat"
 	      model="ognl:mailFormatModel"
 	      />

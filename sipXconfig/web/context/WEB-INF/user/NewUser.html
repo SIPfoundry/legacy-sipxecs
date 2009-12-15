@@ -1,5 +1,8 @@
 <div jwcid="@common/Border" useDojo="true">
-  <div jwcid="@common/QuickLinks">
+
+ <h2 id="page:newuser"><span key="title" class="pageLabel">New User</span></h2>
+
+ <div jwcid="@common/QuickLinks">
     <ul>
       <li>
         <a jwcid="extensionPoolsLink@DirectLink" id="link:extensionPool"
@@ -10,7 +13,6 @@
     </ul>
   </div>
   <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
-  <h2 id="page:newuser"><span key="title">New User</span></h2>
   <span jwcid="@common/ErrorMsg"/>
   <div id="settings-content">
     <form jwcid="form@Form" delegate="bean:validator">

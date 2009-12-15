@@ -64,4 +64,8 @@
     <!-- need an extra column for a footer -->
     <binding name="colspan" value="components.tableView.tableModel.columnModel.columnCount + 1" />
   </component>
+  <component id="tablePagesCellDivider" type="Any">
+      <!-- need an extra column for a footer -->
+      <binding name="colspan" value="components.tableView.tableModel.columnModel.columnCount + 1" />
+  </component>
 </component-specification>

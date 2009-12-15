@@ -1,7 +1,7 @@
 <div jwcid="@common/Border" useDojo="true">
-  <h2>
-    <span key="title">ACD Reports</span>
-  </h2>
+
+  <h2><span key="title" class="pageLabel">ACD Reports</span></h2>
+
   <span jwcid="@common/ErrorMsg"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
         <span jwcid="@common/TabControl">
@@ -15,10 +15,11 @@
         </span>
     </div>
     <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
+    	<span jwcid="@common/QuickHelp" value="message:acdHistory.help"/>
         <form jwcid="@Form">
           <fieldset>
             <label><span key="label.selectServer">Hosts</span></label>
-            <span jwcid="locationSelector@PropertySelection"
+            <span jwcid="locationSelector@PropertySelection" class="changeMe" style="width: 170px;"
               model="ognl:locationSelectionModel"
               value="ognl:currentLocationId"
               onchange="literal:javascript:this.form.submit();"/>
@@ -26,7 +27,7 @@
         </form>
         <div id="settings-content">
           <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
-          <span jwcid="@common/QuickHelp" value="message:acdHistory.help"/>
+
           <ul class="component-links">
             <li>
               <a jwcid="@common/ExportLink" id="acdHistory:export" listener="listener:export">

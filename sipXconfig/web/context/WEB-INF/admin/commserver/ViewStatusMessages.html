@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-    <h2><span key="title">Messages for</span> <span jwcid="@Insert" value="ognl:serviceLabel" /></h2>
+    <h2><span key="title" class="pageLabel">Messages for</span> <span jwcid="@Insert" value="ognl:serviceLabel" /></h2>
     <ul>
         <li jwcid="@For" source="ognl:statusMessages.statusMessages" value="ognl:currentMessage">
             <span jwcid="@Insert" value="ognl:messages.getMessage(currentMessage.prefix)" />:

@@ -2,15 +2,13 @@
   <span jwcid="@Insert" value="ognl:title"/>
 </span>
 <span jwcid="footer@Block">
-  <a jwcid="addUser@DirectLink" listener="listener:add">
+  <a jwcid="addUser@DirectLink" listener="listener:add" class="roundedButtonLink">
     <span key="add">Add User</span>
   </a>
 </span>
 <span jwcid="@common/Cloud" header="component:header" footer="component:footer">
   <span jwcid="@For" source="ognl:users" value="ognl:user">
-    <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:user.id">
-      <span jwcid="@Insert" value="ognl:user.userName"/>,
-    </a>
+    <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:user.id"><span jwcid="@Insert" value="ognl:user.userName"/></a>&nbsp;|&nbsp;
   </span>
   <a jwcid="@PageLink" page="user/ManageUsers">
     <span key="more.etc">more...</span>

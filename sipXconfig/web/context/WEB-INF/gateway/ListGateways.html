@@ -1,7 +1,8 @@
 <div jwcid="@common/Border">
-  <h2>
-    <span key="title">Gateways</span>
-  </h2>
+
+<h2><span key="title" class="pageLabel">Gateways</span></h2>
+
+  <!-- Begin: Quick Links Section -->
   <div jwcid="@common/QuickLinks">
     <ul>
       <li>
@@ -28,14 +29,14 @@
     <form jwcid="gatewaysListForm@Form" id="list:gateway:form"
       delegate="bean:validator"
       listener="listener:formSubmit">
-      <ul class="component-links">
-        <li>
-          <span jwcid="selectGatewayModel@PropertySelection"
+      <span class="componentLinksAlignLeft">
+
+          <span jwcid="selectGatewayModel@PropertySelection" class="changeMe" style="width: 170px;"
             model="ognl:gatewaySelectionModel"
             value="ognl:gatewayModel"
             onchange="javascript:this.form.submit();"/>
-        </li>
-      </ul>
+
+      </span>
       <fieldset jwcid="gatewayTable" gatewayCollection="ognl:gatewayContext.gateways" />
       <ul class="component-submit">
         <li>

@@ -1,7 +1,7 @@
 <table>
   <tr>
     <td>
-      <input id="ognl:id" jwcid="prompt@PropertySelection"
+      <input id="ognl:id" jwcid="prompt@PropertySelection" class="changeMe" style="width: 190px;"
         model="ognl:tapestry.instructUserToSelect(assetSelectionModel, messages)"
         value="ognl:asset"
         onchange="ognl:submitOnChange ? 'javascript:this.form.submit();' : ''"
@@ -9,7 +9,7 @@
     </td>
     <div  jwcid="@If" condition="ognl:assetExists" renderTag="false">
       <td>
-        <a jwcid="downloadLink@common/DownloadLink" id="link:download"
+        <a jwcid="downloadLink@common/DownloadLink" id="link:download" class="roundedButtonLink"
           dirName="ognl:assetDir"
           fileName="ognl:asset"
           contentType="ognl:contentType">
@@ -17,7 +17,7 @@
         </a>
       </td>
       <td>
-        <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
+        <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled"  class="roundedButtonLink">
           <span key="label.delete">Delete</span>
         </a>
       </td>

@@ -1,5 +1,5 @@
 <div jwcid="@common/Border" useDojo="true">
-  <h2><span key="title"/></h2>
+  <h2><span key="title" class="pageLabel">Groups</span></h2>
   <span jwcid="@common/QuickHelp" value="message:timezone.quickHelp" />
   <span jwcid="errors@common/ErrorMsg"/>
   <form jwcid="timeZoneForm@Form" delegate="bean:validator">
@@ -49,15 +49,15 @@
                 value="ognl:startTime" size="10"/>
             </td>
             <td>
-              <span jwcid="startDayOfWeek@PropertySelection" id="startDayOfWeek" model="ognl:selectDayOfWeekModel"
+              <span class="changeMe" style="width: 110px;" jwcid="startDayOfWeek@PropertySelection" id="startDayOfWeek" model="ognl:selectDayOfWeekModel"
                 value="ognl:startDayOfWeek"/>
             </td>
             <td>
-              <span jwcid="startWeek@PropertySelection" id="startWeek" model="ognl:selectWeekModel"
+              <span class="changeMe" style="width: 110px;" jwcid="startWeek@PropertySelection" id="startWeek" model="ognl:selectWeekModel"
                 value="ognl:startWeek"/>
             </td>
             <td>
-              <span jwcid="startMonth@PropertySelection" id="startMonth"
+              <span class="changeMe" style="width: 110px;" jwcid="startMonth@PropertySelection" id="startMonth"
                 model="ognl:selectMonthModel"
                 value="ognl:startMonth"/>
             </td>
@@ -75,15 +75,15 @@
                 value="ognl:stopTime" size="10"/>
             </td>
             <td>
-              <span jwcid="stopDayOfWeek@PropertySelection" id="stopDayOfWeek" model="ognl:selectDayOfWeekModel"
+              <span class="changeMe" style="width: 110px;" jwcid="stopDayOfWeek@PropertySelection" id="stopDayOfWeek" model="ognl:selectDayOfWeekModel"
                 value="ognl:stopDayOfWeek"/>
             </td>
             <td>
-              <span jwcid="stopWeek@PropertySelection" id="stopWeek" model="ognl:selectWeekModel"
+              <span class="changeMe" style="width: 110px;" jwcid="stopWeek@PropertySelection" id="stopWeek" model="ognl:selectWeekModel"
                 value="ognl:stopWeek"/>
             </td>
             <td>
-              <span jwcid="stopMonth@PropertySelection" id="stopMonth" model="ognl:selectMonthModel"
+              <span class="changeMe" style="width: 110px;" jwcid="stopMonth@PropertySelection" id="stopMonth" model="ognl:selectMonthModel"
                 value="ognl:stopMonth"/>
             </td>
           </tr>

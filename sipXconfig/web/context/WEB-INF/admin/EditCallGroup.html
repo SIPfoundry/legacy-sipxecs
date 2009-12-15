@@ -1,10 +1,9 @@
 <div jwcid="@common/Border">
-  <div class="help">
-    <span key="help.add"/>
-    <br/>
-    <span key="help.change"/>
-  </div>
-<h2 id="callgroup:edit"><span key="title">Call group</span></h2>
+
+<span jwcid="@common/QuickHelp" value="message:help.add"/>
+<span jwcid="@common/QuickHelp" value="message:help.change"/>
+
+<h2 id="callgroup:edit"><span key="title" class="pageLabel">Call group</span></h2>
 <span jwcid="@common/ErrorMsg"/>
 <form jwcid="form@Form" delegate="bean:validator"
   listener="listener:formSubmit">

@@ -1,7 +1,7 @@
 <div jwcid="@common/Border">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <span jwcid="@If" condition="ognl:!userSession.admin">
-    <h2><span key="title">Phones</span></h2>
+    <h2><span key="title" class="pageLabel">Phones</span></h2>
   </span><span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <div jwcid="@common/QuickLinks">
@@ -18,16 +18,16 @@
     </div>
     <div jwcid="@Else">
       <form jwcid="@Form" delegate="bean:validator">
-        <ul class="component-links">
-          <li>
-            <span jwcid="@phone/ModelSelector" userId="ognl:userId"/>
-          </li>
-          <li>
+
+          <span class="componentLinksAlignLeft">
             <span jwcid="addPhones@DirectLink" listener="listener:addExistingPhones">
-              <span key="link.addPhones">Add Phones</span>
+			    <span key="link.addPhones">Add Phones</span>
             </span>
-          </li>
-        </ul>
+          </span>
+          <span class="componentLinksAlignRight">
+            <span jwcid="@phone/ModelSelector" userId="ognl:userId"/>
+          </span>
+
         <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:phones"/>
         <ul jwcid="@phone/PhoneTableActions"
           selections="bean:selections"

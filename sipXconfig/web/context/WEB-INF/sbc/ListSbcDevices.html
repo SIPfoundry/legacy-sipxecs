@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-  <h2><span key="title">Sbcs</span></h2>
+  <h2><span key="title" class="pageLabel">Sbcs</span></h2>
   <div jwcid="@common/QuickLinks">
     <ul>
       <li>
@@ -29,14 +29,12 @@
   </div>
   <div jwcid="@Else">
     <form jwcid="@Form" delegate="bean:validator" listener="listener:formSubmit" id="list:sbc:form">
-      <ul class="component-links">
-        <li>
-          <span jwcid="@PropertySelection"
+      <span class="componentLinksAlignLeft">
+          <span jwcid="@PropertySelection" class="changeMe" style="width: 170px;"
             value="ognl:sbcDescriptor"
             model="ognl:sbcDescriptorSelectionModel"
             onchange="literal:javascript:this.form.submit();"/>
-        </li>
-      </ul>
+      </span>
       <table jwcid="@common/Table" id="list:sbc"
         source="ognl:sbcDeviceManager.sbcDevices"
         columns="* name,address,model,description"

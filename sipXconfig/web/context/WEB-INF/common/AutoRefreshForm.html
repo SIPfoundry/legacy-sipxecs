@@ -1,5 +1,6 @@
 <span jwcid="$content$">
   <span jwcid="@If" condition="ognl:showRefresh" renderTag="false">
+  	<span jwcid="@common/QuickHelp" value="message:refreshHelp"/>
 	  <span jwcid="@If" condition="ognl:auto" renderTag="false">
 	    <span jwcid="@Script"
 	      scriptAsset="asset:autoRefreshFormScript"
@@ -12,6 +13,9 @@
 	    <li>
 	      <form jwcid="intervalForm@Form" delegate="bean:validator">
 	        <span jwcid="auto@Checkbox" value="ognl:auto"/>
+	        	      <span key="refreshEvery">Refresh every</span>&nbsp;
+				      <span jwcid="interval@InlineEditBox" value="ognl:currentInterval" maxlength="4" size="4"/>&nbsp;
+	      <span key="seconds">seconds</span>
 	      </form>
 	    </li>
 	    <li>
@@ -21,12 +25,10 @@
 	        validators="validators:required,min=30,max=6000"
 	        translator="sipxnumber,omitZero=true"/>&nbsp;
 	-->
-	      <span key="refreshEvery">Refresh every</span>&nbsp;
-	      <span jwcid="interval@InlineEditBox" value="ognl:currentInterval" maxlength="4" size="4"/>&nbsp;
-	      <span key="seconds">seconds</span>
+
 	    </li>
 	  </ul>
-	  <span jwcid="@common/QuickHelp" value="message:refreshHelp"/>
+
   </span>
   <form jwcid="refreshForm@Form" delegate="bean:validator">
     <div jwcid="@Any" id="refreshedContent">

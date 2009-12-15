@@ -1,12 +1,14 @@
+<h2>
 <span class="pageLabel">
   <span key="text">Phone:</span>
 </span>
 <span jwcid="@If" condition="ognl:renderSerialNumber" >
   <a jwcid="editPhoneLink@DirectLink"
     listener="listener:editPhone"
-    parameters="ognl:phone.serialNumber">
-    <span jwcid="@Insert" value="ognl:phone.serialNumber">serial number</span>
+    parameters="ognl:phone.serialNumber" class="pageLabel">
+    <span jwcid="@Insert" value="ognl:phone.serialNumber" class="pageLabel">serial number</span>
   </a>
-  &nbsp;/&nbsp;
+  <span class="pageLabel">&nbsp;/&nbsp;</span>
 </span>
-<span jwcid="@Insert" value="ognl:phone.model.label">Phone Model</span>
+<span jwcid="@Insert" value="ognl:phone.model.label" class="pageLabel">Phone Model</span>
+</h2>

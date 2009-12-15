@@ -4,6 +4,9 @@
   </head>
   <body jwcid="$content$">
     <div jwcid="@common/Border">
+
+      <h2><span key="title" class="pageLabel">Emergency Routing</span></h2>
+
       <div class="help">
         <p> <span key="help">Please configure your phones to forward emergency calls to the PSTN gateway directly. You should use
           the caller sensitive forwarding feature only if your phone does not support direct forwarding to a gateway for emergency calls. <br/> <br/>
@@ -12,7 +15,7 @@
           <span key="help.first">Click </span><a jwcid="gatewaysLink" href="" title="Edit Gateways"><span key="help.here">here</span></a>
           <span key="help.tail"> to edit a list of available gateways.</span></p>
       </div>
-      <h2><span key="title">Emergency Routing</span></h2>
+
       <form jwcid="form">
         <ul class="component-links">
           <li> <a jwcid="addExceptionLink" id="erouting:addException" href="#"><span key="link.addExceptions">Add Exceptions</span></a>
@@ -38,7 +41,7 @@
                   <span jwcid="gatewaysLabel">Gateway</span>
                 </td>
                 <td>
-                  <select jwcid="gateways" id="erouting:gateway" size="1">
+                  <select jwcid="gateways" id="erouting:gateway" size="1" class="changeMe" style="width: 130px;">
                     <option value="1">10.2.3.4</option>
                     <option value="2">10.45.6.3</option>
                     <option value="2">128.12.23.4</option>

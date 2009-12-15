@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-  <h2><span key="title">Branches</span></h2>
+  <h2><span key="title" class="pageLabel">Branches</span></h2>
   <div jwcid="@common/QuickHelp" value="message:quick.help" />
   <form jwcid="form@Form">
     <fieldset>
@@ -11,6 +11,7 @@
           </a>
         </li>
       </ul>
+      <span class="componentLinksAlignLeft">
       <ul class="component-submit">
         <li>
           <span jwcid="@setting/GroupFilter"
@@ -19,6 +20,7 @@
             searchMode="ognl:searchMode"/>
         </li>
       </ul>
+      </span>
     </fieldset>
       <div jwcid="@branch/BranchTable"
         viewBranchListener="listener:editBranch"
