@@ -388,12 +388,11 @@ onSetup() {
 # Start CDR call resolver
 onStartup() {
     # Check database version - don't run if it's wrong
+    echo $$ > ${PidFile}
     databasePatch
     if ! databaseVersionCheck; then
        exit 1
     fi
-
-    echo $$ > ${PidFile}
 
     exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
 }
