@@ -262,11 +262,6 @@ then
         chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
         chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.key" || exit 1
 
-        echo "Installing the '${Basename}' Java keystore"
-        cp -v "$Basename.keystore" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
-        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
-        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.keystore" || exit 1
-
 	#The web key is initially the same as the ssl key.
 	if [ "${installQualifier}" = "" ]
 	then
@@ -280,10 +275,6 @@ then
                 chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.key" || exit 1
                 chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.key" || exit 1
 
-                echo "Installing the '${Basename}' Java keystore"
-                cp -v "$Basename.keystore" "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
-                chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
-                chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.keystore" || exit 1
 	fi
 
         certsInstalled+=1
@@ -294,33 +285,6 @@ then
             @bindir@/ssl-cert/check-cert.sh "${InstallDir}/ssl/ssl${installQualifier}.crt"
             certOk+=$?
         fi
-    fi
-
-    if [ -r "${Basename}${installQualifier}.p12" ]
-    then
-        echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        cp -v "$Basename${installQualifier}.p12" "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
-        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
-        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl${installQualifier}.p12" || exit 1
-
-        certsInstalled+=1
-
-	if [ "${installQualifier}" = "" ]
-	then
-        	echo "Installing the '${Basename}' certificate (pkcs12 format)"
-        	cp -v "$Basename.p12" "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
-        	chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
-        	chmod 0600            "${InstallPrefix}${InstallDir}/ssl/ssl-web.p12" || exit 1
-	fi
-    fi
-
-    #copying the .jks file to "${InstallPrefix}${InstallDir}/ssl/authorites.jks"
-    if [ -e "authorities.jks" ]
-    then
-        echo "Installing the authorities.jks file"
-        cp -v "authorities.jks" "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
-        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
-        chmod 0600            "${InstallPrefix}${InstallDir}/ssl/authorities.jks" || exit 1
     fi
 
     if [ ${certOk} -eq 0 -a ${certsInstalled} -gt 0 ]

@@ -7,11 +7,9 @@
 ##  Licensed to the User under the LGPL license.
 
 ################################################################
-## This script is used during an upgrade from 3.10 to 4.0 to 
+## This script is used during an upgrade from 3.10 to 
 ## copy certificate and key files from the 3.10 location to the
-## 4.0 location.  Once copied, the java key stores are generated
-## using gen-ssl-keys.sh and finally installed in the proper 
-## location.
+## new location and then install them.
 ##
 ## See the comments at the top of gen-ssl-keys.sh for the list 
 ## of files in the WorkDir.
@@ -41,19 +39,6 @@ then
 
    cd "${GenDir}/certdb"
    rm -rfv "${OldGenDir}/sipx-certdb/"
-
-   # old data copied.  Generate the Java keystore and then install the certs.
-   # Keystore with HostName
-   # Truststore with caName
-
-   echo "Generating Java Keystore using Certificate"
-   serverName=`hostname --fqdn`
-   @bindir@/ssl-cert/gen-ssl-keys.sh --convert-crt2jks ${serverName} 
-
-   echo "Generating Java Truststore based on CA"
-   caName="`${openssl} x509 -noout -text -in ${serverName}.crt |\
-         grep Issuer: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`"
-   @bindir@/ssl-cert/gen-ssl-keys.sh --convert-ca2trust ${caName}
 
    echo "Changing permissions on new Certificate Database files"
    chown -vR ${sipXuser}   "${GenDir}/certdb" 
