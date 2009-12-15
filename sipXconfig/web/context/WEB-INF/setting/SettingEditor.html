@@ -28,14 +28,14 @@
     maxLength="ognl:setting.type.maxLen" />
 </span>
 <span jwcid="enumBlock@Block">
-  <span jwcid="enumField@PropertySelection" class="changeMe" style="width: 160px;"
+  <span jwcid="enumField@PropertySelection"
     id="ognl:widgetId"
     value="ognl:setting.value"
     model="ognl:enumModel"
     disabled="ognl:disabled" />
 </span>
 <span jwcid="enumListenOnChangeBlock@Block">
-  <span jwcid="enumListenOnChangeField@PropertySelection" class="changeMe" style="width: 150px;"
+  <span jwcid="enumListenOnChangeField@PropertySelection"
     id="ognl:widgetId"
     value="ognl:setting.value"
     model="ognl:enumModel"
@@ -49,7 +49,7 @@
     disabled="ognl:disabled" />
 </span>
 <span jwcid="multiEnumBlock@Block">
-  <span jwcid="multiEnumField@contrib:Palette" class="changeMe" style="width: 150px;"
+  <span jwcid="multiEnumField@contrib:Palette"
     id="ognl:widgetId"
     selected="ognl:setting.typedValue"
     model="ognl:enumModel"
@@ -58,7 +58,7 @@
 </span>
 <span jwcid="fileBlock@Block">
   <span jwcid="@If" condition="ognl:setting.type.variable" renderTag="ognl:false">
-    <span jwcid="fileMultipleField@common/AssetSelectorMultiple" class="changeMe" style="width: 150px;"
+    <span jwcid="fileMultipleField@common/AssetSelectorMultiple"
       id="ognl:widgetId"
       asset="ognl:setting.value"
       assetDir="ognl:setting.type.directory"
@@ -67,7 +67,7 @@
       enabled="ognl:enabled" />
   </span>
   <span jwcid="@Else">
-    <span jwcid="fileSingleField@common/AssetSelectorSingle" class="changeMe" style="width: 150px;"
+    <span jwcid="fileSingleField@common/AssetSelectorSingle"
       id="ognl:widgetId"
       asset="ognl:setting.value"
       assetDir="ognl:setting.type.directory"

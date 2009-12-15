@@ -9,9 +9,7 @@
     </div>
     <span jwcid="@common/ErrorMsg"/>
 
-      <h2><span key="title" class="pageLabel">Conference Server</span></h2>
-
-
+      <h2><span key="title">Conference Server</span></h2>
       <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" listener="listener:formSubmit"
             showRefresh="ognl:tab == 'conferences'" actionBlock="ognl:actionBlockForTab">
         <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />

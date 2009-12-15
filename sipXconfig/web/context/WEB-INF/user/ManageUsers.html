@@ -1,6 +1,6 @@
 <div jwcid="@common/Border">
   <h2>
-    <span key="title" class="pageLabel">Users</span></h2>
+    <span key="title">Users</span></h2>
   <span jwcid="@common/ErrorMsg"/>
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <ul class="component-links">
@@ -9,21 +9,17 @@
     </li>
   </ul>
   <form jwcid="userManagement">
-  	<span class="componentLinksAlignLeft">
     <ul class="component-submit">
       <li>
         <span jwcid="groupFilter"/>
       </li>
     </ul>
-    </span>
     <span jwcid="userTable" class="component"/>
     <ul class="component-submit">
       <li>
         <input id="user:delete" jwcid="delete"/>
         <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
       </li>
-    </ul>
-    <ul class="component-submit">
       <li>
         <span jwcid="groupActions"></span>
       </li>

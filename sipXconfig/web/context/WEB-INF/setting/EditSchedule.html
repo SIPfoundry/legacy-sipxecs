@@ -1,9 +1,9 @@
     <div jwcid="@common/Border" restricted="false">
       <h2 jwcid="@If" condition="ognl:userSession.admin">
-        <span key="title" class="pageLabel">Schedule</span>
+        <span key="title">Schedule</span>
  	  </h2>
 	  <h2 jwcid="@Else">
-		<span key="title" class="pageLabel">Schedule</span>
+		<span key="title">Schedule</span>
 	  </h2>
 	  <span jwcid="@common/ErrorMsg"></span>
 	  <form jwcid="editScheduleForm@Form" delegate="bean:validator" listener="listener:submit">

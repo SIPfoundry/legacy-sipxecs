@@ -2,18 +2,18 @@
   <span jwcid="@Insert" value="ognl:title"/>
 </span>
 <span jwcid="footer@Block">
-  <a jwcid="@PageLink" page="phone/DiscoverDevices" class="roundedButtonLink">
-    <span key="link.discoverDevices"></span>
-  </a>
-  <br>
   <span jwcid="@Form">
     <span jwcid="@phone/ModelSelector"/>
   </span>
-
+  <a jwcid="@PageLink" page="phone/DiscoverDevices">
+    <span key="link.discoverDevices"></span>
+  </a>
 </span>
 <span jwcid="@common/Cloud" header="component:header" footer="component:footer">
   <span jwcid="@For" source="ognl:phones" value="ognl:phone">
-    <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:phone.id"><span jwcid="@Insert" value="ognl:phone.serialNumber"/></a>&nbsp;|&nbsp;
+    <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:phone.id">
+      <span jwcid="@Insert" value="ognl:phone.serialNumber"/>,
+    </a>
   </span>
   <a jwcid="@PageLink" page="phone/ManagePhones">
     <span key="more.etc">more...</span>

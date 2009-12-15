@@ -7,62 +7,40 @@
   <link jwcid="@Relation" type="image/x-icon" rel="shortcut icon" href="/sipxconfig/skin/favicon.ico" />
   <meta jwcid="@Any" name="gwt:property" content="ognl:localeValue"/>
   <body jwcid="@Body">
-
-	<div id="contentContainer">
-
     <div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
       <span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
-      <span jwcid="@Script" scriptAsset="asset:dropdownScript"/>
       <div id="banner">
-
-
+        <div id="logo">&nbsp;</div>
+	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+        <form jwcid="dateForm@Form" id="dateForm"
+			updateComponents="ognl:{'dateContent'}">
+        <div jwcid="@Any" id="dateContent" class="date">
+          <span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
+        </div>
+        </form>
         <div id="banner-links">
-        	<div id="logo">&nbsp;</div>
             <span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
-              <span class="linkUser">
-				  <a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
-					<span jwcid="name@Insert" value="ognl:userName">id</span>
-				  </a>
-			  </span>
-              <span class="bannerLinkDivider">&nbsp;</span>
+              <a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
+                <span jwcid="name@Insert" value="ognl:userName">id</span>
+              </a>
             </span>
-            <span>
-             <form jwcid="dateForm@Form" id="dateForm"
-												updateComponents="ognl:{'dateContent'}">
-									        <div jwcid="@Any" id="dateContent" class="date">
-									          <span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
-									        </div>
-        	</form>
-            </span>
-			<span class="bannerLinkDivider">&nbsp;</span>
-            <span class="linkHome">
-            <a jwcid="@PageLink" id="link.home" page="Home">
+            <a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
                 <span key="link.home">Home</span>
             </a>
-            </span>
-            <span class="bannerLinkDivider">&nbsp;</span>
-            <span class="linkHelp">
-			<a jwcid="helpLink@GenericLink" id="link.help"
+            <a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
                 target="sipxconfig-help"
                 href="ognl:getHelpLink(versionInfo.versionIds)">
                 <span key="link.help">Online Help</span>
-            </a></span>
-        <span class="bannerLinkDivider">&nbsp;</span>
-        <span class="linkLogout">
-		<a jwcid="logoutLink@DirectLink" id="link.logout" listener="listener:logout">
+            </a>
+            <a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout">
                 <span key="link.logout">Logout</span>
-            </a></span>
-
+            </a>
             <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
                 <span jwcid="@search/SearchPanel"/>
             </span>
-
+        </div>
       </div>
-
-	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
-
-      </div>
-      <div class="navigation">
+      <div id="navigation">
         <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
           <span jwcid="@common/AdminNavigation" />
         </span>
@@ -71,62 +49,20 @@
         </span>
       </div>
     </div>
-    <!--TEMP REMOVE <div id="contentContainer"> -->
-
-		<!-- Begin: Main Content Section -->
-		<div id="mainContentSection">
-			<div id="mainContentSectionTopBar"><span jwcid="@Insert" raw="true" value="ognl:getPage().getMessages().getMessage('title')"/></div>
-
-			<div id="leftNav">
-
-			<!-- Begin: Left navigation rounded section -->
-			<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
-				<div class="navigationRoundedSectionBox">
-
-					<div class="roundedRepeatSide">
-					<div class="roundedTop"></div>
-						<span class="roundedPadding">
-								<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
-						</span>
-						<div class="roundedBottom"></div>
-					</div>
-
-				</div>
-				</span>
-				<span jwcid="@Else" renderTag="false">
-				<div class="navigationRoundedSectionBox">
-					<div class="noContent">&nbsp;</div>
-				</div>
-				</span>
-				<!-- End: Left navigation rounded section -->
-
-			</div>
-
-
-			<!-- Begin: Middle content area -->
-			<div id="content" class="backgroundRoundedRepeatingSection">
-				<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-					<span jwcid="@admin/StatusWarning"/>
-				</span>
-				<!-- Begin: rounded content section -->
-  				<div jwcid="@common/RoundedContentSection">
-					<span jwcid="@RenderBody">
-
-
-
-					</span>
-				</div>
-				<!-- End: rounded content section -->
-			</div>
-			<!-- End: Middle content area -->
-
-
-		</div>
-		<div class="backgroundRoundedBottomSection"></div>
-		<!-- End: Main Content Section -->
-
-    <!-- TEMP REMOVE </div> -->
+    <div id="contentContainer">
+        <div id="leftNav">
+            <span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
+                <div jwcid="@RenderBlock" block="ognl:navigationBlock" />
+            </span>
+            &nbsp; <!-- to ensure this block is never empty, so it has the min width -->
+        </div>
+        <div id="content">
+            <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+                <span jwcid="@admin/StatusWarning"/>
+            </span>
+            <span jwcid="@RenderBody">Page content goes here.</span>
+        </div>
+    </div>
     <div jwcid="@common/Footer"></div>
-  </div>
   </body>
 </html>

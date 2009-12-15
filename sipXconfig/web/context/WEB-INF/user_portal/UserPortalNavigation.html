@@ -1,31 +1,9 @@
-<div class="userPortal">
-<ul id="nav" class="userPortalNav">
-  <li>
-    <a href="#" jwcid="@PageLink" id="menu.phonebook" page="user_portal/UserPhonebookPage">
-      <span key="menu.phonebook"/>
-    </a>
-  </li>
+<ul id="nav">
   <li>
     <a jwcid="@PageLink" id="menu.inbox" page="vm/ManageVoicemail"><span key="menu.voicemail">Voicemail</span></a>
   </li>
-
-
   <li>
-    <a href="#" jwcid="@PageLink" id="menu.speedDial" page="speeddial/SpeedDialPage">
-      <span key="menu.speedDial">Speed Dial</span>
-    </a>
-  </li>
-
-  <li jwcid="@If" condition="ognl:userSession.agent">
-    <a href="#" jwcid="@PageLink" id="menu.managePresence" page="user_portal/ManagePresence">
-      <span key="menu.managePresence">Presence</span>
-    </a>
-  </li>
-
-  <li jwcid="@If" condition="ognl:userSession.supervisor">
-    <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="acd/AcdSupervisorConsole">
-      <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
-    </a>
+    <a jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation"><span key="menu.myInformation">MyInformation</span></a>
   </li>
   <li>
     <a jwcid="@PageLink" id="menu.callForwarding" page="user_portal/ManageForwarding">
@@ -33,13 +11,29 @@
     </a>
   </li>
   <li>
+    <a href="#" jwcid="@PageLink" id="menu.speedDial" page="speeddial/SpeedDialPage">
+      <span key="menu.speedDial">Speed Dial</span>
+    </a>
+  </li>
+  <li>
     <a href="#" jwcid="@PageLink" id="menu.userCdr" page="user_portal/UserCdrPage">
       <span key="menu.userCdr">Call Detail Records</span>
     </a>
   </li>
-  <li>
-    <a jwcid="@PageLink" id="menu.myInformation" page="user_portal/EditMyInformation"><span key="menu.myInformation">MyInformation</span></a>
+  <li jwcid="@If" condition="ognl:userSession.agent">
+    <a href="#" jwcid="@PageLink" id="menu.managePresence" page="user_portal/ManagePresence">
+      <span key="menu.managePresence">Presence</span>
+    </a>
   </li>
- <li><a jwcid="@PageLink" id="menu.registrations" page="user/UserRegistrations"><span key="menu.registrations">Registrations</span></a></li>
+  <li jwcid="@If" condition="ognl:userSession.supervisor">
+    <a href="#" jwcid="@PageLink" id="menu.acdSupervisisorConsole" page="acd/AcdSupervisorConsole">
+      <span key="menu.acdSupervisisorConsole">ACD Supervision</span>
+    </a>
+  </li>
+  <li>
+    <a href="#" jwcid="@PageLink" id="menu.phonebook" page="user_portal/UserPhonebookPage">
+      <span key="menu.phonebook"/>
+    </a>
+  </li>
+  <li><a jwcid="@PageLink" id="menu.registrations" page="user/UserRegistrations"><span key="menu.registrations">Registrations</span></a></li>
 </ul>
-</div>

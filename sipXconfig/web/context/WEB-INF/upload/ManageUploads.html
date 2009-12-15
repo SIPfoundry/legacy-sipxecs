@@ -1,12 +1,12 @@
 <div jwcid="@common/Border">
-  <h2><span key="title" class="pageLabel">Device Files</span></h2>
+  <h2><span key="title">Device Files</span></h2>
    <span jwcid="@common/QuickHelp" value="message:prompt.description"/>
   <span jwcid="@common/ErrorMsg"/>
 
   <form jwcid="uploadManagement@Form" delegate="bean:validator" listener="listener:addUpload">
     <ul class="component-links">
       <li>
-        <select jwcid="selectSpecification@PropertySelection" class="changeMe" style="width: 190px;"
+        <select jwcid="selectSpecification@PropertySelection"
           value="ognl:selectedSpecification"
           model="bean:specificationSelection"
           onchange="javascript:this.form.submit();"/>

@@ -1,7 +1,7 @@
 <span jwcid="$content$">
   <span jwcid="@If" condition="ognl:renderCondition">
-      <h2><span class="pageLabel" key="label.user">User:</span>&nbsp;
-      <span class="pageLabel" jwcid="@Insert" value="ognl:bean.userName"/></h2>
+      <span class="pageLabel" key="label.user">User:</span>&nbsp;
+      <span jwcid="@Insert" value="ognl:bean.userName"/>
       <span jwcid="@If" condition="ognl:activeSetting != null && activeSetting.name.equals('personal-attendant')">
         <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
       </span>

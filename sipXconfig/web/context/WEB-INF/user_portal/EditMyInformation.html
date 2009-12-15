@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" restricted="false">
   <h2>
-    <span key="title" class="pageLabel"/>
+    <span key="title"/>
   </h2>
   <span jwcid="@common/TabNavigation" tabNames="ognl:availableTabNames" selectedTab="ognl:tab"/>
   <div id="settings-content">
@@ -52,7 +52,6 @@
 		    languageDescription="message:language.description"
 		    defaultLanguage="ognl:null"/>
       </tr>
-
       <tr jwcid="@common/FieldPanel"
         for="personalAttendant:operator"
         label="message:label.operator"
@@ -87,4 +86,3 @@
 <div jwcid="mohTab@Block">
   <span jwcid="@user_portal/MusicOnHoldComponent" user="ognl:user"/>
 </div>
-

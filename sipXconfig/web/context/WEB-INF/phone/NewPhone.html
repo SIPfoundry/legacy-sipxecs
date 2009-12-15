@@ -1,7 +1,8 @@
 <div jwcid="@common/Border" useDojo="true">
   <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
   <div jwcid="@common/QuickHelp" value="message:help.newPhone">phone config help text here...</div>
-  <h2><span jwcid="@phone/PhoneLabel" class="pageLabel" phone="ognl:phone" renderSerialNumber="ognl:false"/></h2>
+  <h2><span key=title>New Phone</span></h2>
+  <span jwcid="@phone/PhoneLabel" phone="ognl:phone" renderSerialNumber="ognl:false"/>
   <form jwcid="@Form" name="phone:new" delegate="bean:validator">
     <span jwcid="@phone/EditPhoneForm"
       phone="ognl:phone"

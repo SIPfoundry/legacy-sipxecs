@@ -2,7 +2,7 @@
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
   <span jwcid="@If" condition="ognl:!userSession.admin">
-    <h2><span key="title" class="pageLabel">Speed Dial</span></h2>
+    <h2><span key="title">Speed Dial</span></h2>
   </span>
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
@@ -18,7 +18,7 @@
         </table>
       </fieldset>
       <ul jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback">
-	    <li><input jwcid="updatePhones@Submit" listener="listener:onUpdatePhones" id="form:updatePhones" value="message:button.updatePhones" class="wideButton"/></li>
+	    <li><input jwcid="updatePhones@Submit" listener="listener:onUpdatePhones" id="form:updatePhones" value="message:button.updatePhones"/></li>
       </ul>
     </form>
   </div>

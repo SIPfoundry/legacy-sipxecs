@@ -1,5 +1,5 @@
 <div jwcid="@common/Border">
-  <h2><span key="title" class="pageLabel">Add existing phones</span></h2>
+  <h2><span key="title">Add existing phones</span></h2>
   <div jwcid="@common/QuickLinks">
     <ul>
       <li><a jwcid="@PageLink" page="phone/DiscoverDevices" href="#"><span key="discover">Discover devices</span></a></li>
@@ -8,13 +8,15 @@
   <div jwcid="@common/QuickHelp" value="message:help.addPhones">add phones text...</div>
   <span jwcid="@common/ErrorMsg"/>
   <form jwcid="addPhones@Form" delegate="bean:validator">
-	<span class="componentLinksAlignLeft">
-	<span jwcid="@setting/GroupFilter"
-	  selectedGroupId="ognl:groupId"
-	  groups="ognl:phoneContext.groups"
-	  queryText="ognl:queryText"
-	  searchMode="ognl:searchMode" />
-	</span>
+    <ul class="component-submit">
+      <li>
+        <span jwcid="@setting/GroupFilter"
+          selectedGroupId="ognl:groupId"
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode" />
+      </li>
+    </ul>
     <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
     <span jwcid="select@Submit" value="message:button.select"
       listener="listener:select"/>
