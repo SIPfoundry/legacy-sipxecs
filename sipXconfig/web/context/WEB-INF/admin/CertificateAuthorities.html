@@ -35,25 +35,25 @@
       </fieldset>
 	</span>
     <table jwcid="@common/Table" id="certificates:list"
-      columns="* fileName, description"
+      columns="* fileName, certDescription"
       source="ognl:certificatesModel"
       row="ognl:currentRow"
       selections="bean:selections"
       converter="bean:certificateConverter">
-      <span jwcid="descriptionColumnValue@Block">
+      <span jwcid="certDescriptionColumnValue@Block">
         <ul class="settingDescription">
-	  <span jwcid="@LinkSubmit" listener="listener:clickRow">
-	    <span jwcid="@If" condition="ognl:!showDescription">
-		  <span jwcid="@Insert" value="message:ca.showDescription" renderTag="false"/>
-		</span>
-		<span jwcid="@Else">
-		  <span jwcid="@Insert" value="message:ca.hideDescription" renderTag="false"/>
-		</span>
-	  </span>
-	  <span jwcid="@If" condition="ognl:showDescription">
-		<pre><span jwcid="@Insert" value="ognl:savedCertificateText" renderTag="false"/></pre>
-          </span>
-	</ul>
+	    <span jwcid="@LinkSubmit" listener="listener:clickRow">
+	      <span jwcid="@If" condition="ognl:!showDescription">
+		    <span jwcid="@Insert" value="message:ca.showDescription" renderTag="false"/>
+		  </span>
+		  <span jwcid="@Else">
+		    <span jwcid="@Insert" value="message:ca.hideDescription" renderTag="false"/>
+		  </span>
+	    </span>
+	    <span jwcid="@If" condition="ognl:showDescription">
+		  <pre><span jwcid="@Insert" value="ognl:savedCertificateText" renderTag="false"/></pre>
+        </span>
+	    </ul>
       </span>
     </table>
     <ul class="component-submit">
