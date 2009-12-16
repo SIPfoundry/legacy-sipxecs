@@ -235,7 +235,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    // been published.  This ensures that early subscribers do not get
    // NOTIFYs with incomplete information.
    mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL,
-         SipSubscribeServer::standardVersionCallback, FALSE);
+         SipSubscribeServer::standardVersionCallback, TRUE);
    mSubscribeServer.start();
 }
 
