@@ -57,7 +57,7 @@ class SipxLogger < Logger
     def call(severity, time, progname, msg)
       sipx_severity = LOG_LEVEL_LOGGER_TO_SIPX[severity]
       time_str = time.utc.strftime("%Y-%m-%dT%H:%M:%S.") << "%06dZ" % time.usec
-      %Q<"#{time_str}":#{sipx_severity}:#{msg}\n>
+      %Q<"#{time_str}":#{sipx_severity}:#{msg.chomp}\n>
     end
 
   end
