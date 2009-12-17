@@ -223,7 +223,7 @@
     <group name="imap">
       <setting name="host">
         <type>
-          <string />
+          <hostname />
         </type>
       </setting>
       <setting name="port">
