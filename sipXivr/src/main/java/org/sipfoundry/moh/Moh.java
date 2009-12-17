@@ -133,6 +133,7 @@ public class Moh {
      * l        use local_stream://moh (defined in local_stream.conf.xml)
      * p        use portaudio_stream:// (defined in portaudio.conf.xml)
      * u{user}  use per user music ({data}/moh/{username})
+     * n        music source "None", so just hangup.  Silence might also work.
      *</pre>
      */
     void moh(String id){
@@ -153,6 +154,9 @@ public class Moh {
                 // Use default FreeSWITCH MOH
                 musicPath = "local_stream://moh";
             }
+        } else if (id.equals("n")) {
+            // "n" means "Music Source None".  Easiest thing to do is just hangup.
+            return;
         } else {
             // Use original park server music
             musicPath = m_ivrConfig.getPromptsDirectory()+"/../../../parkserver/music/";
