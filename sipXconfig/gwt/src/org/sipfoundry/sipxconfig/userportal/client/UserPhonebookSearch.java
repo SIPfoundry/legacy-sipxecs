@@ -14,9 +14,13 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.smartgwt.client.data.Criteria;
+import com.smartgwt.client.data.DSRequest;
+import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSource;
+import com.smartgwt.client.data.XMLTools;
 import com.smartgwt.client.types.Alignment;
-import com.smartgwt.client.types.OperatorId;
+import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.widgets.IButton;
@@ -55,6 +59,7 @@ public class UserPhonebookSearch implements EntryPoint {
     private static final String LAST_NAME = "last-name";
     private static final String NUMBER = "number";
     private static final String EMAIL = "emailAddress";
+    private static final String QUERY = "query";
 
     private static final String PHONE_CELL = "cellPhoneNumber";
     private static final String PHONE_HOME = "homePhoneNumber";
@@ -68,8 +73,40 @@ public class UserPhonebookSearch implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
+        final SizeLabel sizeLabel = new SizeLabel();
 
-        DataSource phonebookDS = new PhonebookDataSource("phonebookGridId");
+        DataSource phonebookDS = new PhonebookDataSource("phonebookGridId") {
+            @Override
+            protected Object transformRequest(DSRequest request) {
+
+                if (request.getOperationType().equals(DSOperationType.FETCH)) {
+                    request.setActionURL(getDataURL() + "?start=" + request.getStartRow() + "&end="
+                            + request.getEndRow() + "&filter=" + request.getCriteria().getAttributeAsString(QUERY));
+                }
+
+                return super.transformRequest(request);
+            }
+
+            @Override
+            protected void transformResponse(DSResponse response, DSRequest request, Object data) {
+
+                if (request.getOperationType().equals(DSOperationType.FETCH)) {
+                    Integer size = Integer.parseInt(XMLTools.selectString(data, "/phonebook/size"));
+                    Integer filteredSize = Integer.parseInt(XMLTools.selectString(data, "/phonebook/filtered-size"));
+                    Integer startRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/start-row"));
+                    Integer endRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/end-row"));
+
+                    response.setTotalRows(filteredSize);
+                    response.setStartRow(startRow);
+                    response.setEndRow(endRow);
+                    sizeLabel.update(size, filteredSize);
+                } else {
+                    super.transformResponse(response, request, data);
+                }
+
+            }
+        };
+
         final Details topTabSet = new Details(s_searchConstants);
 
         final ListGrid phonebookGrid = new PhonebookGrid(phonebookDS);
@@ -95,6 +132,7 @@ public class UserPhonebookSearch implements EntryPoint {
         VLayout gridLayout = new VLayout();
         gridLayout.setLayoutBottomMargin(5);
         gridLayout.addMember(searchForm);
+        gridLayout.addMember(sizeLabel);
         gridLayout.addMember(hgridLayout);
         gridLayout.setWidth("70%");
 
@@ -124,7 +162,8 @@ public class UserPhonebookSearch implements EntryPoint {
             setOverflow(Overflow.VISIBLE);
             setAlternateRecordStyles(true);
             setDataSource(phonebookDS);
-            fetchData();
+            setAutoFetchData(true);
+            setDataPageSize(100);
 
             setCellHeight(25);
             setHeaderHeight(35);
@@ -165,52 +204,28 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class SearchForm extends DynamicForm {
-        private final TextItem m_firstName;
-        private final TextItem m_lastName;
-        private final TextItem m_number;
-        private final TextItem m_email;
+        private final TextItem m_query;
 
         public SearchForm(DataSource phonebookDS) {
-            m_firstName = new TextItem();
-            m_firstName.setCriteriaField(FIRST_NAME);
-            m_firstName.setOperator(OperatorId.ISTARTS_WITH);
-            m_firstName.setTitle(s_searchConstants.searchWidgetTitle());
+            m_query = new TextItem();
+            m_query.setTitle(s_searchConstants.searchWidgetTitle());
 
-            m_lastName = new TextItem();
-            m_lastName.setCriteriaField(LAST_NAME);
-            m_lastName.setOperator(OperatorId.ISTARTS_WITH);
-            m_lastName.setVisible(false);
-
-            m_number = new TextItem();
-            m_number.setCriteriaField(NUMBER);
-            m_number.setOperator(OperatorId.ISTARTS_WITH);
-            m_number.setVisible(false);
-
-            m_email = new TextItem();
-            m_email.setCriteriaField(EMAIL);
-            m_email.setOperator(OperatorId.ISTARTS_WITH);
-            m_email.setVisible(false);
-
-            setFields(m_firstName, m_lastName, m_number, m_email);
+            setFields(m_query);
             setDataSource(phonebookDS);
-            setOperator(OperatorId.OR);
         }
 
         void addHandler(final ListGrid phonebookGrid) {
             ChangedHandler onChange = new ChangedHandler() {
                 @Override
                 public void onChanged(ChangedEvent event) {
-                    m_lastName.setValue((String) m_firstName.getValue());
-                    m_number.setValue((String) m_firstName.getValue());
-                    m_email.setValue((String) m_firstName.getValue());
-                    if (m_firstName.getValue() != null) {
-                        phonebookGrid.filterData(getValuesAsCriteria());
+                    if (m_query.getValue() != null) {
+                        phonebookGrid.filterData(new Criteria(QUERY, (String) m_query.getValue()));
                     } else {
                         phonebookGrid.filterData();
                     }
                 }
             };
-            m_firstName.addChangedHandler(onChange);
+            m_query.addChangedHandler(onChange);
         }
     }
 
@@ -360,5 +375,16 @@ public class UserPhonebookSearch implements EntryPoint {
      */
     private static String formatPhoneNumber(String phoneNumber) {
         return phoneNumber.replaceAll("[^0-9+]", "");
+    }
+
+    private static class SizeLabel extends Label {
+        public SizeLabel() {
+            setTop(20);
+            setHeight(30);
+        }
+
+        public void update(Integer totalRows, Integer filteredRows) {
+            setContents(s_searchConstants.numberOfEntries() + filteredRows + "/" + totalRows);
+        }
     }
 }

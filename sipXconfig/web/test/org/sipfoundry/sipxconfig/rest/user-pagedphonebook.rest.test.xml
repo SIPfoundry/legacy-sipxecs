@@ -1,0 +1,26 @@
+<phonebook>
+  <size>5</size>
+  <filtered-size>2</filtered-size>
+  <start-row>0</start-row>
+  <end-row>2</end-row>
+  <entries>
+    <entry>
+      <first-name>FirstName1</first-name>
+      <last-name>LastName1</last-name>
+      <number>200</number>
+      <contact-information>
+        <homeAddress/>
+        <officeAddress/>
+      </contact-information>
+    </entry>
+    <entry>
+      <first-name>FirstName2</first-name>
+      <last-name>LastName2</last-name>
+      <number>201</number>
+      <contact-information>
+        <homeAddress/>
+        <officeAddress/>
+      </contact-information>
+    </entry>
+  </entries>
+</phonebook>

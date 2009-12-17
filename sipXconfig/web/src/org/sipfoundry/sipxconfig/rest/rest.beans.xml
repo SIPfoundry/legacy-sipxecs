@@ -41,6 +41,12 @@
   </bean>
   <alias name="userPhonebookResourceAll" alias="/my/phonebook" />
 
+  <bean id="userPagedPhonebookResource" class="org.sipfoundry.sipxconfig.rest.UserPagedPhonebookResource" parent="userPhonebookResource">
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="userPagedPhonebookResource" alias="/my/pagedphonebook?start={start-row}&amp;end={end-row}" />
+
   <bean id="userPhonebookEntry" class="org.sipfoundry.sipxconfig.rest.UserPhonebookEntryResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
 	<property name="phonebookManager" ref="phonebookManager" />

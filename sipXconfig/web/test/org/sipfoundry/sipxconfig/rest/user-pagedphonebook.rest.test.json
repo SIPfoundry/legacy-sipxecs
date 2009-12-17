@@ -1,0 +1,26 @@
+{"phonebook": {
+  "size": 5,
+  "filtered-size": 2,
+  "start-row": 0,
+  "end-row": 2,
+  "entries": [
+    {
+      "first-name": "FirstName1",
+      "last-name": "LastName1",
+      "number": "200",
+      "contact-information": {
+        "homeAddress": {},
+        "officeAddress": {}
+      }
+    },
+    {
+      "first-name": "FirstName2",
+      "last-name": "LastName2",
+      "number": "201",
+      "contact-information": {
+        "homeAddress": {},
+        "officeAddress": {}
+      }
+    }
+  ]
+}}

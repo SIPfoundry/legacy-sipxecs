@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,6 +38,8 @@ import static java.util.Arrays.asList;
 
 import com.glaforge.i18n.io.CharsetToolkit;
 import org.apache.commons.collections.Closure;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.logging.Log;
@@ -206,6 +209,18 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return entries.values();
     }
 
+    public PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow,
+            String endRow, String queryString) {
+        Collection<PhonebookEntry> entries = getEntries(phonebook, user);
+        int totalSize = entries.size();
+        if (!StringUtils.isEmpty(queryString) && !queryString.equals("null")) {
+            CollectionUtils.filter(entries, new PhonebookEntryPredicate(queryString));
+        }
+
+        Collections.sort(new LinkedList(entries), new PhoneEntryComparator());
+        return new PagedPhonebook(entries, totalSize, startRow, endRow);
+    }
+
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook) {
         Map<String, PhonebookEntry> entries = new TreeMap();
         Collection<Group> members = phonebook.getMembers();
@@ -343,6 +358,31 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             compare.append(a.getNumber(), b.getNumber());
             return compare.toComparison();
         }
+    }
+
+    static class PhonebookEntryPredicate implements Predicate {
+
+        private String m_queryString;
+
+        public PhonebookEntryPredicate(String queryString) {
+            m_queryString = queryString;
+        }
+
+        @Override
+        public boolean evaluate(Object phoneEntry) {
+            if (phoneEntry instanceof PhonebookEntry) {
+                PhonebookEntry entry = (PhonebookEntry) phoneEntry;
+                if (StringUtils.containsIgnoreCase(entry.getFirstName(), m_queryString)
+                        || StringUtils.containsIgnoreCase(entry.getLastName(), m_queryString)
+                        || StringUtils.containsIgnoreCase(entry.getNumber(), m_queryString)
+                        || (entry.getAddressBookEntry() != null && StringUtils.containsIgnoreCase(entry
+                                .getAddressBookEntry().getEmailAddress(), m_queryString))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 
     static class PhonebookEntryMaker implements Closure {

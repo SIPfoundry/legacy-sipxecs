@@ -45,6 +45,9 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebook, User user);
 
+    PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow, String endRow,
+            String queryString);
+
     Collection<PhonebookEntry> getEntries(Phonebook phonebook);
 
     Collection<PhonebookEntry> search(Collection<Phonebook> phonebooks, String searchTerm, User user);

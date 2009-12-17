@@ -13,6 +13,7 @@ import com.smartgwt.client.data.DataSourceField;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 
 public class PhonebookDataSource extends DataSource {
+
     public PhonebookDataSource(String id) {
         super();
         setID(id);
@@ -72,22 +73,24 @@ public class PhonebookDataSource extends DataSource {
         DataSourceField officeDesignation = new DataSourceTextField("officeDesignation");
         officeDesignation.setValueXPath("contact-information/officeAddress/officeDesignation");
 
-        setFields(firstName, lastName, number, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
-                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
-                alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet, officeCity,
-                officeCountry, officeState, officeZip, officeDesignation);
-        setRecordXPath("/phonebook/entry");
-        setDataURL("/sipxconfig/rest/my/phonebook");
-
+        setFields(firstName, lastName, number, emailAddress, jobTitle, jobDept, companyName, assistantName,
+                location, cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
+                alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
+                officeCity, officeCountry, officeState, officeZip, officeDesignation);
+        setRecordXPath("/phonebook/entries/entry");
+        setDataURL("/sipxconfig/rest/my/pagedphonebook");
         /*
          * NOTE: ECLIPSE DEBUGGING
          * =======================
-         * REST URL "/sipxconfig/rest/my/phonebook" is not accessible when debugging the project from inside eclipse
+         * REST URL is not accessible when debugging the project from inside eclipse.
          * You can use the data URL "PhonebookTestData.xml" instead. It will give you a set of test data to work with.
+         *
+         * The XX-6996 changes are unfortunately incompatible with this, though we would like to resurrect it.
          *
          * setDataURL("PhonebookTestData.xml");
          */
 
-        setClientOnly(true);
+        setClientOnly(false);
     }
+
 }

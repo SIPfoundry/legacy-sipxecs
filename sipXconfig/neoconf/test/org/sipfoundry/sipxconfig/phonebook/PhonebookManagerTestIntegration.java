@@ -171,4 +171,45 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertNotNull(privatePhonebook);
         assertEquals("privatePhonebook_1002", privatePhonebook.getName());
     }
+
+    public void testGetPagedPhonebook() throws Exception {
+        loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        User yellowthroat = m_coreContext.loadUser(1001);
+        Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(yellowthroat);
+
+        PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "1", "l");
+        assertEquals(4, pagedPhonebook.getSize());
+        assertEquals(3, pagedPhonebook.getFilteredSize());
+        assertEquals(0, pagedPhonebook.getStartRow());
+        assertEquals(1, pagedPhonebook.getEndRow());
+        Iterator<PhonebookEntry> entries = pagedPhonebook.getEntries().iterator();
+        assertEquals("mallard", entries.next().getNumber());
+
+        pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "1", "3", "l");
+        entries = pagedPhonebook.getEntries().iterator();
+        assertEquals("pintail", entries.next().getNumber());
+        assertEquals("yellowthroat", entries.next().getNumber());
+
+        pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "3", null);
+        assertEquals(4, pagedPhonebook.getSize());
+        assertEquals(4, pagedPhonebook.getFilteredSize());
+        assertEquals(0, pagedPhonebook.getStartRow());
+        assertEquals(3, pagedPhonebook.getEndRow());
+        entries = pagedPhonebook.getEntries().iterator();
+        assertEquals("canadian", entries.next().getNumber());
+        assertEquals("mallard", entries.next().getNumber());
+        assertEquals("pintail", entries.next().getNumber());
+
+        pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "10", null);
+        assertEquals(4, pagedPhonebook.getSize());
+        assertEquals(4, pagedPhonebook.getFilteredSize());
+        assertEquals(0, pagedPhonebook.getStartRow());
+        assertEquals(4, pagedPhonebook.getEndRow());
+
+        pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "a", "b", null);
+        assertEquals(4, pagedPhonebook.getSize());
+        assertEquals(4, pagedPhonebook.getFilteredSize());
+        assertEquals(0, pagedPhonebook.getStartRow());
+        assertEquals(4, pagedPhonebook.getEndRow());
+    }
 }

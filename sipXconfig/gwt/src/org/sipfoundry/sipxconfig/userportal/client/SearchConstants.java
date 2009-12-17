@@ -90,4 +90,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String call();
 
     String requestFailed();
+
+    String numberOfEntries();
 }

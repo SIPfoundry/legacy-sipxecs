@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhonebookEntryPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -319,5 +320,29 @@ public class PhonebookManagerTest extends TestCase {
         Iterator<PhonebookEntry> it = entries.iterator();
         assertEquals(it.next().getFirstName(), "Adam");
         assertEquals(it.next().getFirstName(), "Bob");
+    }
+
+    public void testPhonebookEntryPredicate() {
+        PhonebookEntry a = new PhonebookEntry();
+        PhonebookEntry b = new PhonebookEntry();
+
+        a.setLastName("a");
+        a.setFirstName("b");
+        a.setNumber("201");
+        AddressBookEntry abe = new AddressBookEntry();
+        abe.setEmailAddress("test@test.com");
+        a.setAddressBookEntry(abe);
+
+        PhonebookEntryPredicate predicate = new PhonebookEntryPredicate("q");
+        assertFalse(predicate.evaluate(a));
+
+        predicate = new PhonebookEntryPredicate("a");
+        assertTrue(predicate.evaluate(a));
+
+        predicate = new PhonebookEntryPredicate("b");
+        assertTrue(predicate.evaluate(a));
+
+        predicate = new PhonebookEntryPredicate("test");
+        assertTrue(predicate.evaluate(a));
     }
 }
