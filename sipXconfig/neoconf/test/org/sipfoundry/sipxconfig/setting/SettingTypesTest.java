@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.setting;
 
@@ -21,7 +21,9 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -136,6 +138,24 @@ public class SettingTypesTest extends TestCase {
         assertTrue(stringSetting.getTypedValue() instanceof String);
 
         assertSame(stringSetting.getTypedValue().toString(), stringSetting.getValue());
+    }
+
+    public void testIpAddrSettingType() throws Exception {
+        Setting ipAddrSetting = group.getSetting("ipaddr_setting");
+        SettingType type = ipAddrSetting.getType();
+        assertTrue(type instanceof IpAddrSetting);
+        assertTrue(type.isRequired());
+
+        assertEquals("10.1.1.2", ipAddrSetting.getValue());
+    }
+
+    public void testHostnameSettingType() throws Exception {
+        Setting hostnameSetting = group.getSetting("hostname_setting");
+        SettingType type = hostnameSetting.getType();
+        assertTrue(type instanceof HostnameSetting);
+        assertFalse(type.isRequired());
+
+        assertEquals("example.com", hostnameSetting.getValue());
     }
 
     public void testSettingEnumType() {

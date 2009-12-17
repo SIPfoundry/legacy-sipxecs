@@ -32,7 +32,7 @@
 <!ELEMENT value (#PCDATA)>
 
 <!-- settings type system -->
-<!ELEMENT type (string|integer|enum|multi-enum|ipaddr|bitmap|boolean|real|file|sip-uri)?>
+<!ELEMENT type (string|integer|enum|multi-enum|ipaddr|hostname|bitmap|boolean|real|file|sip-uri)?>
 <!ATTLIST type
     required %flag; "no"
     id ID #IMPLIED
@@ -59,6 +59,10 @@
 
 <!ELEMENT ipaddr EMPTY>
 <!ATTLIST ipaddr
+    required %flag; "no">
+
+<!ELEMENT hostname EMPTY>
+<!ATTLIST hostname
     required %flag; "no">
 
 <!ELEMENT bitmap EMPTY>

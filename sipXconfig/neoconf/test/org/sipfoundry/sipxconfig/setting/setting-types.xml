@@ -57,6 +57,20 @@
       <value>bongo</value>
       <description>Setting Description</description>
     </setting>
+    <setting name="hostname_setting">
+      <label>hostname setting</label>
+      <type>
+        <hostname />
+      </type>
+      <value>example.com</value>
+    </setting>
+    <setting name="ipaddr_setting">
+      <label>ipaddr setting</label>
+      <type>
+        <ipaddr required="true" />
+      </type>
+      <value>10.1.1.2</value>
+    </setting>
     <setting name="enum_setting">
       <label>Enum setting label</label>
       <type>

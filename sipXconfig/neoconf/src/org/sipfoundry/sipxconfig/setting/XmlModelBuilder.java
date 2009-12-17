@@ -5,7 +5,7 @@
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
- * $
+ *
  */
 package org.sipfoundry.sipxconfig.setting;
 
@@ -30,7 +30,9 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -51,6 +53,7 @@ public class XmlModelBuilder implements ModelBuilder {
     private static final String REQUIRED = "required";
     private static final String EL_OPTION = "/option";
     private static final String ADD_ENUM_METHOD = "addEnum";
+
     private final File m_configDirectory;
 
     public XmlModelBuilder(File configDirectory) {
@@ -117,7 +120,12 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(new MultiEnumSettingRule(patternPrefix + "multi-enum", typeIdRule));
         digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean", typeIdRule));
         digester.addRuleSet(new FileSettingRule(patternPrefix + "file", typeIdRule));
-        digester.addRuleSet(new SipUriSettingRule(patternPrefix + "sip-uri", typeIdRule));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "sip-uri", typeIdRule,
+                SipUriSetting.class));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "ipaddr", typeIdRule,
+                IpAddrSetting.class));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "hostname", typeIdRule,
+                HostnameSetting.class));
     }
 
     static class AbstractSettingRuleSet extends RuleSetBase {
@@ -396,14 +404,17 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
-    static class SipUriSettingRule extends SettingTypeRule {
-        public SipUriSettingRule(String pattern, SettingTypeIdRule typeIdRule) {
+    static class SpecializedStringSettingRule extends SettingTypeRule {
+        private final Class m_klass;
+
+        public SpecializedStringSettingRule(String pattern, SettingTypeIdRule typeIdRule, Class klass) {
             super(pattern, typeIdRule);
+            m_klass = klass;
         }
 
         @Override
         public void addRuleInstances(Digester digester) {
-            digester.addObjectCreate(getPattern(), SipUriSetting.class);
+            digester.addObjectCreate(getPattern(), m_klass);
             digester.addSetProperties(getPattern());
             digester.addSetNestedProperties(getPattern());
             super.addRuleInstances(digester);
