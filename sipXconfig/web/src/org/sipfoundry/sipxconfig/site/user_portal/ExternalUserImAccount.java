@@ -71,6 +71,7 @@ public abstract class ExternalUserImAccount extends UserBasePage {
 
         ExternalImAccount account = getExternalImAccount();
         getCoreContext().saveExternalAccount(account);
+        setExternalImAccountId(account.getId());
     }
 
     public IPropertySelectionModel getProtocolTypeModel() {

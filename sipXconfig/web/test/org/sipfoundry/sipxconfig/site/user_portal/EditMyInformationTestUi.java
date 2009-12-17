@@ -30,14 +30,14 @@ public class EditMyInformationTestUi extends WebTestCase {
     }
 
     /**
-     * Test that the My Information page displays correctly.  The selected tab
-     * when the page is first displayed should be the voicemail tab
+     * Test that the My Information page displays correctly. The selected tab when the page is
+     * first displayed should be the voicemail tab
      */
     public void testDisplay() {
         clickLink("menu.myInformation");
         SiteTestHelper.assertNoUserError(tester);
         assertElementPresentByXPath("//label[@for='user:activeGreeting']");
-//        assertTextPresent("Active greeting");
+        // assertTextPresent("Active greeting");
     }
 
     public void testTabNavigation() {
@@ -100,39 +100,6 @@ public class EditMyInformationTestUi extends WebTestCase {
         assertTablePresent("externalAccounts:list");
         assertLinkPresent("link:addExternalAccount");
         assertButtonPresent("externalAccounts:delete");
-
-        createExternalAccount();
-        editExternalAccount();
     }
 
-    private void createExternalAccount() {
-        clickLink("link:addExternalAccount");
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
-        setWorkingForm("Form");
-        checkCheckbox("enableExternalImAccount");
-        assertSelectOptionPresent("protocol", "AIM");
-        setTextField("username", "john.doe");
-        setTextField("cp:password", "123");
-        setTextField("cp:confirmPassword", "123");
-        setTextField("displayName", "john");
-        assertButtonPresent("form:ok");
-        clickButton("form:ok");
-    }
-
-    private void editExternalAccount() {
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
-        assertLinkPresentWithText("john.doe");
-        clickLink("editRowLink");
-        setWorkingForm("Form");
-        assertCheckboxSelected("enableExternalImAccount");
-        assertSelectOptionPresent("protocol", "AIM");
-        assertTextFieldEquals("username", "john.doe");
-        assertTextFieldEquals("displayName", "john");
-        assertButtonPresent("form:cancel");
-        clickButton("form:cancel");
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
-    }
 }
