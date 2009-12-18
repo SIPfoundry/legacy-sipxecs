@@ -249,6 +249,7 @@
         <pathelement location="${commons-logging}" />
         <pathelement location="${commons-digester}" />
         <pathelement location="${commons-collections}" />
+        <pathelement location="${commons-codec}" />
         <pathelement location="${commons-beanutils}" />
         <pathelement location="${xml-rpc-common}" />
         <pathelement location="${xml-rpc-server}" />
@@ -305,6 +306,7 @@
         <pathelement location="${commons-logging}" />
         <pathelement location="${commons-digester}" />
         <pathelement location="${commons-collections}" />
+        <pathelement location="${commons-codec}" />
         <pathelement location="${commons-beanutils}" />
         <pathelement location="${xml-rpc-common}" />
         <pathelement location="${xml-rpc-server}" />

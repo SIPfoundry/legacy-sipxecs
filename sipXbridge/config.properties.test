@@ -24,6 +24,7 @@ junit=${sipxcommons.dir}/junit.jar
 log4j=${sipxcommons.dir}/log4j.jar
 stun4j=${src.dir}/lib/Stun4J.jar
 sipunit=${src.dir}/tools/sipunit.jar
+commons-codec=${sipxcommons.dir}/commons-codec.jar
 commons-collections=${sipxcommons.dir}/commons-collections.jar
 commons-digester=${sipxcommons.dir}/commons-digester.jar
 commons-beanutils=${sipxcommons.dir}/commons-beanutils.jar

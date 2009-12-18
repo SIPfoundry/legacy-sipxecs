@@ -12,7 +12,6 @@ import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.clientauthutils.AuthenticationHelper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -46,6 +45,7 @@ import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
+import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.sipxrelay.SymmitronClient;
 import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 
@@ -58,8 +58,10 @@ import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 public class Gateway {
 
     private static Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
+    private static Logger commonsLogger = Logger.getLogger("org.sipfoundry.commons");
 
     private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
+    private static String domainConfigFile = "file:///etc/sipxpbx/domain-config";
 
     /*
      * This is a reserved name for the sipxbridge user.
@@ -70,6 +72,8 @@ public class Gateway {
      * the sipxbridge.xml configuration file.
      */
     private static AccountManagerImpl accountManager;
+
+    private static PeerIdentities peerIdentities;
 
     /*
      * The security manager - handles wrapping credentials etc.
@@ -239,6 +243,21 @@ public class Gateway {
         accountManager = parser.createAccountManager(configurationFile);
     }
 
+    static void parseDomainConfigFile(){
+        Gateway.setConfigurationPath();
+        Gateway.domainConfigFile = Gateway.configurationPath
+                + "/domain-config";
+
+        if (!new File(Gateway.domainConfigFile).exists()) {
+            System.err.println(String.format(
+                    "Configuration %s file not found -- exiting",
+                    Gateway.domainConfigFile));
+            System.exit(-1);
+        }
+        @SuppressWarnings("unused")
+        DomainConfiguration parser = new DomainConfiguration(domainConfigFile);
+    }
+
     static SymmitronClient initializeSymmitron(String address) {
         /*
          * Looks up a symmitron for a given address.
@@ -310,8 +329,9 @@ public class Gateway {
                     new SipFoundryLayout(), Gateway.getLogFile(),true);
             
             logger.setLevel(Level.toLevel(logLevel));
-
             logger.addAppender(logAppender);
+            commonsLogger.setLevel(Level.toLevel(logLevel));
+            commonsLogger.addAppender(logAppender);
         } catch (Exception ex) {
             throw new SipXbridgeException("Error initializing logging", ex);
         }
@@ -984,6 +1004,8 @@ public class Gateway {
         // Wait for the configuration file to become available.
 
         Gateway.initializeLogging();
+        Gateway.parseDomainConfigFile();
+        Gateway.parsePeerIdentitiesFile();
 
         if (Gateway.getState() != GatewayState.STOPPED) {
             logger
@@ -1027,6 +1049,9 @@ public class Gateway {
          */
         startSipListener();
 
+        // Set secret for signing SipXauthIdentity
+        SipXauthIdentity.setSecret(DomainConfiguration.getSharedSecret());
+
         /*
          * Register with ITSPs. Now we can take inbound calls
          */
@@ -1041,7 +1066,7 @@ public class Gateway {
         logger.debug("Global address = " + Gateway.getGlobalAddress());
 
         /*
-         * Can start sending outbound calls. Cannot yet gake inbound calls.
+         * Can start sending outbound calls. Cannot yet make inbound calls.
          */
         Gateway.state = GatewayState.INITIALIZED;
 
@@ -1058,6 +1083,25 @@ public class Gateway {
             Gateway.initHttpsClient();
         }
 
+    }
+
+    private static void parsePeerIdentitiesFile() {
+        Gateway.setConfigurationPath();
+        String peerIdentitiesFile = Gateway.configurationPath
+                + "/peeridentities.xml";
+
+        if (!new File(peerIdentitiesFile).exists()) {
+            System.err.println(String.format(
+                    "Configuration file %s not found -- ignoring",
+                    peerIdentitiesFile));
+            return;
+        }
+        peerIdentities = new PeerIdentities();
+        try {
+            peerIdentities.parse(peerIdentitiesFile);
+        } catch (Exception ex) {
+            logger.error("Exception parsing " + peerIdentitiesFile, ex);
+        }
     }
 
     /**
@@ -1360,6 +1404,10 @@ public class Gateway {
             System.exit(-1);
         }
 
+    }
+
+    public static PeerIdentities getPeerIdentities() {
+        return peerIdentities;
     }
 
    

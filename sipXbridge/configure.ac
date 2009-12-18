@@ -25,7 +25,11 @@ CHECK_JDK
 CHECK_ANT
 
 AC_CONFIG_FILES([
-  Makefile 
+  Makefile
+  src/Makefile
+  etc/Makefile
+  bin/Makefile
+  schema/Makefile
 ])
 
 AC_OUTPUT

@@ -129,6 +129,11 @@ case ${Action} in
 
    CONFIGTEST)
      Status=0
+     # check validity of xml files
+     ! test -e @SIPX_CONFDIR@/peeridentities.xml \
+     || @bindir@/sipx-validate-xml @SIPX_CONFDIR@/peeridentities.xml
+     Status=$(($Status+$?))
+
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipxbridge.log"
      if [ -e $logfile -a ! -w $logfile ]

@@ -45,5 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXbridge
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxbridge-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/schema/peeridentities.xsd
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxbridge.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxbridge-config
 

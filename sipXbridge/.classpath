@@ -7,6 +7,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-logging.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dnsjava.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-beanutils.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-codec.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-collections.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-digester.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-logging-api.jar"/>

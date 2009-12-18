@@ -48,6 +48,7 @@
 		<pathelement location="${commons-logging}" />
 		<pathelement location="${commons-digester}" />
 		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-codec}" />
 		<pathelement location="${commons-beanutils}" />
 		<pathelement location="${sipxrelay-jar}" />
 		<pathelement location="${xml-rpc-common}" />
@@ -69,6 +70,7 @@
 		<pathelement location="${commons-logging}" />
 		<pathelement location="${commons-digester}" />
 		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-codec}" />
 		<pathelement location="${commons-beanutils}" />
 		<pathelement location="${sipxrelay-jar}" />
 		<pathelement location="${xml-rpc-common}" />

@@ -7,7 +7,6 @@
 package org.sipfoundry.sipxbridge;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TimerTask;
@@ -802,4 +801,5 @@ public class ItspAccountInfo implements
         logger.debug("Provider = " + Gateway.getWanProvider(this.outboundTransport.toLowerCase()) );
         return Gateway.getWanProvider(this.outboundTransport.toLowerCase());
     }
+
 }

@@ -17,16 +17,23 @@ import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
 
+import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
@@ -76,6 +83,7 @@ import org.sipfoundry.sipxrelay.KeepaliveMethod;
 import org.sipfoundry.sipxrelay.SymImpl;
 import org.sipfoundry.sipxrelay.SymmitronClient;
 import org.sipfoundry.sipxrelay.SymmitronException;
+
 
 /**
  * A class that represents an ongoing call. An ongoing call maps to exactly one instance of this
@@ -1228,6 +1236,33 @@ public class BackToBackUserAgent implements Comparable {
 
             SipUtilities.addLanAllowHeaders(newRequest);
 
+            if ( SipUtilities.getViaTransport(request).equalsIgnoreCase("TLS")) {
+                logger.debug("incoming request came over TLS");
+                List<String> certIdentities = extractCertIdentities(serverTransaction);
+                if (certIdentities.isEmpty()) {
+                    logger.warn("could not find any identities in the certificate");
+                }
+                else {
+                    logger.debug("found identities: " + certIdentities);
+                    // Policy enforcement: now use the set of SIP
+                    // domain identities gathered from the certificate to
+                    // make authorization decisions.
+                    // Iterate over the subjects in the certificate and use the first one
+                    // that matches a configured peer.
+                    String peerIdentity;
+                    for (String domain : certIdentities) {
+                        if ( (peerIdentity = Gateway.getPeerIdentities().getUserId(domain)) != null) {
+                            // Now attach a signed X-Sipx-Authidentity header with the identity
+                            // configured for this connection
+                            peerIdentity += "@" + Gateway.getSipxProxyDomain();
+                            SipXauthIdentity.insertIdentity(peerIdentity, newRequest,
+                                    SipXauthIdentity.AuthIdentityHeaderName);
+                            break;
+                        }
+                    }
+                }
+            }
+
             TransactionContext tad = new TransactionContext(ct,
                     Operation.SEND_INVITE_TO_SIPX_PROXY);
 
@@ -1262,6 +1297,80 @@ public class BackToBackUserAgent implements Comparable {
 
         }
 
+    }
+
+    /**
+     * Extract identities from certificates exchanged over TLS, based on guidelines
+     * from draft-ietf-sip-domain-certs-04.
+     * @param serverTransaction
+     * @return list of authenticated identities in the form of URIs (i.e. sip:FQHN)
+     */
+    private List<String> extractCertIdentities(ServerTransaction serverTransaction) {
+        List<String> certIdentities = new ArrayList<String>();
+        Certificate[] certs = null;
+        try {
+            certs = ((TransactionExt)serverTransaction).getPeerCertificates();
+        } catch (SSLPeerUnverifiedException ex) {
+            logger.error("Peer unverified", ex);
+            return certIdentities;
+        }
+        for ( Certificate cert : certs) {
+            X509Certificate x509cert = (X509Certificate)cert;
+            Collection<List<?>> subjAltNames = null;
+            try {
+                subjAltNames = x509cert.getSubjectAlternativeNames();
+            } catch (CertificateParsingException ex) {
+                logger.error("Error parsing TLS certificate", ex);
+            }
+            final Integer dnsNameType = 2;
+            final Integer uriNameType = 6;
+            if (subjAltNames != null) {
+                logger.debug("found subjAltNames: " + subjAltNames);
+                // First look for a URI in the subjectAltName field
+                // as per draft-ietf-sip-domain-certs-04
+                for (List<?> altName : subjAltNames) {
+                    // 0th position is the alt name type
+                    // 1st position is the alt name data
+                    if (altName.get(0).equals(uriNameType)) {
+                        logger.debug("found uri " + altName.get(1));
+                        certIdentities.add(altName.get(1).toString());
+                    }
+                }
+                // DNS  An implementation MUST accept a domain name system
+                // identifier as a SIP domain identity if and only if no other
+                // identity is found that matches the "sip" URI type described
+                // above.
+                if (certIdentities.isEmpty()) {
+                    for (List<?> altName : subjAltNames) {
+                        if (altName.get(0).equals(dnsNameType)) {
+                            logger.debug("found dns " + altName.get(1));
+                            certIdentities.add("sip:" + altName.get(1).toString());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // If and only if the subjectAltName does not appear in the
+                // certificate, the implementation MAY examine the CN field of the
+                // certificate.  If a valid DNS name is found there, the
+                // implementation MAY accept this value as a SIP domain identity.
+                String dname = x509cert.getSubjectDN().getName();
+                String cname = "";
+                try {
+                    Pattern EXTRACT_CN = Pattern.compile(".*CN\\s*=\\s*([\\w*\\.]+).*");
+                    Matcher matcher = EXTRACT_CN.matcher(dname);
+                    if (matcher.matches()) {
+                        cname = matcher.group(1);
+                        logger.debug("found CN: " + cname + " from DN: " + dname);
+                        certIdentities.add("sip:" + cname);
+                    }
+                } catch (Exception ex) {
+                    logger.error("exception while extracting CN", ex);
+                }
+            }
+        }
+        return certIdentities;
     }
 
     /**
@@ -1866,8 +1975,6 @@ public class BackToBackUserAgent implements Comparable {
         logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
         String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
         DialogContext inviteDat = DialogContext.get(serverTransaction.getDialog());
-
-        Dialog dialog = serverTransaction.getDialog();
 
         try {
             RtpSession rtpSession = this.createRtpSession(replacedDialog);

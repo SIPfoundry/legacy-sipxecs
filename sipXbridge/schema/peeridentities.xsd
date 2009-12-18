@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema sipX peeridentities.xml: mapping from trusted domain to internal user
+  -->
+<schema
+    xmlns:pi='http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Mapping from trusted domain (e.g. authenticated via TLS) to internal user.
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='peeridentities'>
+    <complexType>
+      <sequence>
+        <element ref='pi:peer' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="peer">
+    <annotation>
+      <documentation>
+        Each peer definition must contain exactly one trusteddomain, and one internaluser.
+        The first user which matches a domain will be used.  The same user may be used
+        for multiple domains.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='pi:trusteddomain' minOccurs='1' maxOccurs='1' />
+        <element ref='pi:internaluser' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='trusteddomain' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The trusted domain URI (e.g. sip:example.com).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='internaluser' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The internal user whose permissions should be used when the trusted domain matches.
+        Internal users are usually of the form ~~pi~unique_domain_or_hash as described
+        in meta/system-sip-identities.
+      </documentation>
+    </annotation>
+  </element>
+</schema>
