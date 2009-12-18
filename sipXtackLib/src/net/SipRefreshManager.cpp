@@ -25,12 +25,10 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-// msgSubType for an OsMsg that requests sending a SIP message
-#define SIP_SEND_REQUEST (OsEventMsg::USER_START)
 // msgSubType for an OsMsg that requests calling a callback routine
-#define SIP_CALLBACK     (OsEventMsg::USER_START + 1)
+#define SIP_CALLBACK     (OsEventMsg::USER_START)
 // msgSubType for an OsMsg for the firing of a refresh timer
-#define EVENT_REFRESH    (OsEventMsg::USER_START + 2)
+#define EVENT_REFRESH    (OsEventMsg::USER_START + 1)
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -1059,17 +1057,6 @@ UtlBoolean SipRefreshManager::handleMessage(OsMsg& eventMessage)
     {
        handleSipMessage(dynamic_cast <SipMessageEvent&> (eventMessage));
     }
-    // Request to send a SIP message
-    else if (msgType == OsMsg::OS_EVENT &&
-             msgSubType == SIP_SEND_REQUEST)
-    {
-       void* p;
-       (dynamic_cast <OsEventMsg&> (eventMessage)).getUserData(p);
-       SipMessage* sipMessagep = (SipMessage*) p;
-       mpUserAgent->send(*sipMessagep);
-       // SipUserAgent::send() doesn't take ownership of sipMessage.
-       // Our caller will delete eventMesage, and with it, *sipMessagep.
-    }
     // Request to call a callback function.
     else if (msgType == OsMsg::OS_EVENT &&
              msgSubType == SIP_CALLBACK)
@@ -1511,72 +1498,91 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
 }
 
 // The timer event routine for mRefreshTimer's.
-// Note that the RefreshDialogState referenced by the handle may no longer exist.
+// When a RefreshDialogState::mRefreshTimer fires, it queues to SipRefreshManager
+// a RefreshEventMsg carrying a copy of the dialog handle of the
+// RefreshDialogState.  SipRefreshManager::handleMessage eventually processes
+// the RefreshEventMsg, and calls ::handleRefreshEvent.
+// Thus, ::handleRefreshEvent may be called after the RefreshDialogState has
+// been deleted or its state has been modified.  Fortunately, there is no
+// functional failure if we just send a refresh message anyway.
 OsStatus SipRefreshManager::handleRefreshEvent(UtlString& handle)
 {
-   // Seize locks.
-   OsLock setLock(mSetSem);
-   OsLock objectLock(mObjectSem);
+   // Pointer to SipMessage (if any) to send after releasing the locks.
+   // *message_to_send is owned by us.
+   SipMessage* message_to_send = NULL;
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRefreshManager::handleRefreshEvent Timer fired, handle = '%s'",
-                 handle.data());
-
-   RefreshDialogState* state = getAnyDialog(handle);
-
-   if (state)
    {
-      // Legitimate states in which to see a timer fire to start
-      // a re-SUBSCRIBE or re-REGISTER attempt.
-      if (state->mRequestState == SipRefreshManager::REFRESH_REQUEST_FAILED ||
-          state->mRequestState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED)
+      // Seize locks.
+      OsLock setLock(mSetSem);
+      OsLock objectLock(mObjectSem);
+
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRefreshManager::handleRefreshEvent Timer fired, handle = '%s'",
+                    handle.data());
+
+      RefreshDialogState* state = getAnyDialog(handle);
+
+      if (state)
       {
-         // Clean the message for resend.
-         prepareForResend(*state,
-                          FALSE); // do not expire now
-
-         // Keep track of when this refresh is sent so we know
-         // when the new expiration is relative to.
-         state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRefreshManager::handleRefreshEvent %p->mPendingStartTime = %ld",
-                       state, state->mPendingStartTime);
-
-         // Do not want to keep the lock while we send the message
-         // as it could block, so we copy the message and send a
-         // message to SipRefreshManager to send the message later.
-         getMessageQueue()->sendP(
-            new OsEventMsg(SIP_SEND_REQUEST, 0,
-                           new SipMessage(*(state->mpLastRequest))));
-
-         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         // Legitimate states in which to see a timer fire to start
+         // a re-SUBSCRIBE or re-REGISTER attempt.
+         if (state->mRequestState == SipRefreshManager::REFRESH_REQUEST_FAILED ||
+             state->mRequestState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED)
          {
-            UtlString lastRequest;
-            ssize_t length;
-            state->mpLastRequest->getBytes(&lastRequest, &length);
+            // Clean the message for resend.
+            prepareForResend(*state,
+                             FALSE); // do not expire now
+
+            // Keep track of when this refresh is sent so we know
+            // when the new expiration is relative to.
+            state->mPendingStartTime = OsDateTime::getSecsSinceEpoch();
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipRefreshManager::handleRefreshEvent last request = '%s'",
-                          lastRequest.data());
+                          "SipRefreshManager::handleRefreshEvent %p->mPendingStartTime = %ld",
+                          state, state->mPendingStartTime);
+
+            // Do not want to keep the lock while we send the message
+            // as it could block, so we copy the message and send it after
+            // we release the locks.
+            message_to_send = new SipMessage(*(state->mpLastRequest));
+
+            if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+            {
+               UtlString lastRequest;
+               ssize_t length;
+               state->mpLastRequest->getBytes(&lastRequest, &length);
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleRefreshEvent last request = '%s'",
+                             lastRequest.data());
+            }
+         }
+         // This should not happen
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipRefreshManager::handleRefreshEvent "
+                          "timer fired in unexpected state %s",
+                          SipRefreshManager::refreshRequestStateText(state->mRequestState));
+            // Dump the state into the log.
+            state->dumpState();
          }
       }
-      // This should not happen
       else
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
                        "SipRefreshManager::handleRefreshEvent "
-                       "timer fired in unexpected state %s",
-                       SipRefreshManager::refreshRequestStateText(state->mRequestState));
-         // Dump the state into the log.
-         state->dumpState();
-      }
+                       "no state found to match handle '%s'",
+                       handle.data());
+      }      
    }
-   else
+
+   // Now that the locks are released, send the message, if we have one to send.
+   if (message_to_send)
    {
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SipRefreshManager::handleRefreshEvent "
-                    "no state found to match handle '%s'",
-                    handle.data());
-   }      
+       mpUserAgent->send(*message_to_send);
+       // SipUserAgent::send() doesn't take ownership of sipMessage,
+       // so we must delete it.
+       delete message_to_send;
+   }
 
    return OS_SUCCESS;
 }
