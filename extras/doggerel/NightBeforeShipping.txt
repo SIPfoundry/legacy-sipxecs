@@ -3,7 +3,7 @@ and throughout the source,
 no one was coding, 'cept Ranga of course!
 
 The buildbot was compiling
-the objects with care. 
+the objects with care.
 Tracking the symbols and binaries with flair.
 
 The ISO was finished
@@ -15,7 +15,7 @@ One more line.  One less bug.
 "This will really be it", he said with a shrug.
 
 So back to the buildbot
-Let it do it's thing.
-For who know what riches this release will bring?
+Let it do its thing.
+For who knows what riches this release will bring?
 
 --Woof!
