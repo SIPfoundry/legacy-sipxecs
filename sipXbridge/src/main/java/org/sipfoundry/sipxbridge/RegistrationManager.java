@@ -44,7 +44,7 @@ public class RegistrationManager {
     public RegistrationManager() {
     }
 
-    public void sendRegistrer(ItspAccountInfo itspAccount, String callId, long cseq) throws SipException {
+    public void sendRegister(ItspAccountInfo itspAccount, String callId, long cseq) throws SipException {
         Request request = SipUtilities.createRegistrationRequest(itspAccount.getSipProvider(),
                 itspAccount,callId,cseq);
         ClientTransaction ct = itspAccount.getSipProvider().getNewClientTransaction(request);

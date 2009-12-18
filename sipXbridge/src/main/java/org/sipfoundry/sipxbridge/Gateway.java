@@ -797,10 +797,10 @@ public class Gateway {
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.getState() != AccountState.INVALID && itspAccount.isEnabled()) {
                     try {
-                        Gateway.registrationManager.sendRegistrer(itspAccount,null,1L);
+                        Gateway.registrationManager.sendRegister(itspAccount,null,1L);
                     } catch (SipException ex) {
                         logger.error("Exception sending REGISTER to "
-                                + itspAccount.getProxyDomain());
+                                + itspAccount.getProxyDomain(), ex);
                         // Maybe an route could not be found so start a timer to
                         // keep trying
                         TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);

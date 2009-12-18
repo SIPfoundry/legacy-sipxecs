@@ -85,7 +85,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     ItspAccountInfo getAccount(Request request) {
 
         SipURI sipUri = (SipURI) request.getRequestURI();
-        logger.debug("getItspAccount: fetching account for " + sipUri);
+        logger.debug("getAccount: fetching account for " + sipUri);
         ItspAccountInfo accountFound = null;
         try {
 
@@ -181,8 +181,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
 
     /**
-     * Get an ITSP account based on the host and port of the indbound request.
-     * Look up the ITSP account based on the tompost via header of the inbound
+     * Get an ITSP account based on the host and port of the inbound request.
+     * Look up the ITSP account based on the topmost via header of the inbound
      * request. Should we reject the request if it is not from a known ITSP?
      *
      * @param host

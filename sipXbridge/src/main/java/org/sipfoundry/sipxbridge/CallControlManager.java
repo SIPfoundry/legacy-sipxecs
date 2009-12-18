@@ -202,7 +202,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void handleReInvite(RequestEvent requestEvent) throws Exception {
-        logger.debug("Re-INVITE proessing.");
+        logger.debug("handleReInvite");
 
         /*
          * Grab context information from inbound request.
@@ -433,6 +433,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent
      */
     private void processInvite(RequestEvent requestEvent) {
+        logger.debug("processInvite");
 
         Request request = requestEvent.getRequest();
         
@@ -613,6 +614,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void processOptions(RequestEvent requestEvent) {
+        logger.debug("processOptions");
         SipProvider provider = (SipProvider) requestEvent.getSource();
         Request request = requestEvent.getRequest();
         ServerTransaction st = requestEvent.getServerTransaction();
@@ -689,6 +691,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent
      */
     private void processRefer(RequestEvent requestEvent) {
+        logger.debug("processRefer");
         TransactionContext tad = null;
 
         BackToBackUserAgent btobua = null;
@@ -847,6 +850,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent -- the ACK request event.
      */
     private void processAck(RequestEvent requestEvent) {
+        logger.debug("processAck");
         try {
             BackToBackUserAgent btobua = DialogContext.getBackToBackUserAgent(requestEvent
                     .getDialog());
@@ -1017,6 +1021,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void processCancel(RequestEvent requestEvent) {
+        logger.debug("processCancel");
 
         Dialog dialog = requestEvent.getDialog();
 
@@ -1100,6 +1105,7 @@ class CallControlManager implements SymmitronResetHandler {
      * Processes an INCOMING BYE
      */
     private void processBye(RequestEvent requestEvent) {
+        logger.debug("processBye");
         try {
             BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(requestEvent
                     .getDialog());
@@ -1272,6 +1278,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
 
     private void inviteToItspOrProxyResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("inviteToItspOrProxyResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1297,7 +1304,7 @@ class CallControlManager implements SymmitronResetHandler {
         dialogContext.setLastResponse(response);
 
         /*
-         * Now send the respose to the server side of the transaction.
+         * Now send the response to the server side of the transaction.
          */
         ServerTransaction serverTransaction = transactionContext.getServerTransaction();
 
@@ -1435,6 +1442,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void sendSdpReofferResponse(ResponseEvent responseEvent ) throws Exception {
+        logger.debug("sendSdpReofferResponse");
     	 Dialog dialog = responseEvent.getDialog();
          DialogContext dialogContext = DialogContext.get(dialog);
          Response response = responseEvent.getResponse();
@@ -1470,6 +1478,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent
      */
     private void forwardSdpSolicitationResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("forwardSdpSolicitationResponse");
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
 
@@ -1533,6 +1542,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void handleInviteWithReplacesResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("handleInviteWithReplacesResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1598,6 +1608,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void forwardReInviteResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("forwardReInviteResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1679,6 +1690,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void referInviteToSipxProxyResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("referInviteToSipxProxyResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1864,6 +1876,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void blindTransferToItspResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("blindTransferToItspResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -2015,6 +2028,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void sendInviteToMohServerResponse(ResponseEvent responseEvent) throws Exception {
+        logger.debug("sendInviteToMohServerResponse");
         Response response = responseEvent.getResponse();
         Dialog dialog = responseEvent.getDialog();
         TransactionContext tad = TransactionContext.get(responseEvent.getClientTransaction());
@@ -2087,6 +2101,7 @@ class CallControlManager implements SymmitronResetHandler {
     private void solicitSdpOfferFromPeerDialogResponse(ResponseEvent responseEvent)
             throws Exception {
 
+        logger.debug("solicitSdpOfferFromPeerDialogResponse");
         /*
          * Grab the response from the IB response event.
          */
@@ -2391,6 +2406,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent -- the response event.
      */
     private void processInviteResponse(ResponseEvent responseEvent) {
+        logger.debug("processInviteResponse");
 
         Response response = responseEvent.getResponse();
 
@@ -2656,6 +2672,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
     private void notifyReferDialog(Request referRequest, Dialog referDialog, Response response)
             throws SipException {
+        logger.debug("notifyReferDialog");
         try {
             Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
             EventHeader eventHeader = ProtocolObjects.headerFactory.createEventHeader("refer");

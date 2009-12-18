@@ -271,8 +271,7 @@ class SipUtilities {
              * public address in the contact header.
              */
             if (provider != Gateway.getLanProvider()
-                    && (itspAccount != null && !itspAccount
-                            .isGlobalAddressingUsed())
+                    && (itspAccount != null && !itspAccount.isGlobalAddressingUsed())
                     || Gateway.getGlobalAddress() == null) {
                 String transport = itspAccount != null ? itspAccount
                         .getOutboundTransport()
@@ -311,15 +310,15 @@ class SipUtilities {
 
                 ContactHeader contactHeader = ProtocolObjects.headerFactory
                         .createContactHeader();
-                String userName = itspAccount != null ? itspAccount
-                        .getUserName() : null;
+                String userName = itspAccount != null ?
+                        itspAccount.getUserName() : null;
                 if (userName == null) {
                     userName = Gateway.SIPXBRIDGE_USER;
                 }
                 SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
                         userName, Gateway.getGlobalAddress());
-                String transport = itspAccount != null ? itspAccount
-                        .getOutboundTransport() : "udp";
+                String transport = itspAccount != null ?
+                        itspAccount.getOutboundTransport() : "udp";
                 sipUri.setPort(Gateway.getGlobalPort(transport));
                 sipUri.setTransportParam(transport);
                 Address address = ProtocolObjects.addressFactory
