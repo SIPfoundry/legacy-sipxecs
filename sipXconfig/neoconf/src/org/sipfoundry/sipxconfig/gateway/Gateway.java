@@ -75,6 +75,7 @@ public class Gateway extends Device implements NamedObject {
         public static final AddressTransport NONE = new AddressTransport("none");
         public static final AddressTransport UDP = new AddressTransport("udp");
         public static final AddressTransport TCP = new AddressTransport("tcp");
+        public static final AddressTransport TLS = new AddressTransport("tls");
 
         public AddressTransport(String name) {
             super(name);
