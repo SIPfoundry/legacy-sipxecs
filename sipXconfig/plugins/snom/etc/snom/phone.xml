@@ -965,7 +965,7 @@
     </setting>
     <setting name="lcserver1" hidden="yes">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
     </setting>
@@ -983,7 +983,7 @@
     </setting>
     <setting name="syslog_server">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
     </setting>

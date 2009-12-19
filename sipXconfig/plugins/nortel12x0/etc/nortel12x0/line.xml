@@ -45,7 +45,7 @@
     </setting>
     <setting name="registrarAddress">
       <type>
-        <ipaddr/>
+        <hostname/>
       </type>
       <value/>
     </setting>
@@ -54,7 +54,7 @@
    <setting name="registrarToAddress" advanced="yes">
      <label>Register to-address</label>
      <type>
-       <ipaddr />
+       <hostname />
      </type>
      <value></value>
      <description>
@@ -66,7 +66,7 @@
    <setting name="registrarFromAddress" advanced="yes">
      <label>Register from-address</label>
      <type>
-       <ipaddr />
+       <hostname />
      </type>
      <value></value>
      <description>
@@ -103,7 +103,7 @@
     </setting>
     <setting name="voiceMailServerAddress">
       <type>
-        <ipaddr/>
+        <string/>
       </type>
       <value/>
     </setting>
@@ -133,7 +133,7 @@
     </setting>
     <setting name="callForwardAddress">
       <type>
-        <ipaddr/>
+        <string/>
       </type>
       <value/>
     </setting>

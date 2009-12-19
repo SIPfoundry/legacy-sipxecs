@@ -58,7 +58,7 @@
     <setting name="domainName">
       <label>Domain Name</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>( &lt; domainName &gt; ) &lt;br/&gt;</description>
@@ -403,7 +403,7 @@
       <setting name="natAddress">
       <label>NAT Address</label>
       <type>
-      <ipaddr />
+      <hostname />
       </type>
       <value />
       <description>
@@ -415,7 +415,7 @@
     <setting name="syslogServer">
       <label>Syslog Server</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
       <description>
@@ -546,7 +546,7 @@
     <setting name="ntpIp">
       <label>Time Server 1</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <description>Domain name or IP address of time server 1 &lt;br/&gt; ( &lt; ntpIp &gt; ) &lt;br/&gt;</description>
     </setting>
@@ -554,7 +554,7 @@
     <setting name="ntpIp2">
       <label>Time Server 2</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <description>Domain name or IP address of time server 2 &lt;br/&gt; ( &lt; ntpIp2 &gt; ) &lt;br/&gt;</description>
     </setting>
@@ -808,7 +808,7 @@
     <setting name="autoConfigAddress">
       <label>Autoconfig Address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
       <description>
@@ -847,7 +847,7 @@
     <setting name="autoConfigHttpProxy">
       <label>Autoconfig Http Proxy</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
       <description>
@@ -1321,7 +1321,7 @@
       <setting name="tftpOrFtpUpgradeServer">
         <label>Upgrade Server</label>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value></value>
         <description>
@@ -1360,7 +1360,7 @@
       <setting name="httpOrHttpsProxy">
         <label>Proxy</label>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value></value>
         <description>

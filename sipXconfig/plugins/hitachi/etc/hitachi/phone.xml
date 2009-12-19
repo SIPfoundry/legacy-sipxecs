@@ -246,7 +246,7 @@
 		<setting name="TFTP_Server_IP" advanced="yes" hidden="yes">
 			<label>TFTP Server IP</label>
 			<type>
-				<ipaddr />
+				<hostname />
 			</type>
 			<value>0.0.0.0</value>
 			<description>
@@ -937,7 +937,7 @@
 			<setting name="Static_NAT_External_IP">
 				<label>Static NAT External IP</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -952,7 +952,7 @@
 			<setting name="STUN_Server">
 				<label>STUN Server</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -1489,7 +1489,7 @@
 			<setting name="Static_NAT_External_IP">
 				<label>Static NAT External IP</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -1504,7 +1504,7 @@
 			<setting name="STUN_Server">
 				<label>STUN Server</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -2041,7 +2041,7 @@
 			<setting name="Static_NAT_External_IP">
 				<label>Static NAT External IP</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -2056,7 +2056,7 @@
 			<setting name="STUN_Server">
 				<label>STUN Server</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -2593,7 +2593,7 @@
 			<setting name="Static_NAT_External_IP">
 				<label>Static NAT External IP</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -2608,7 +2608,7 @@
 			<setting name="STUN_Server">
 				<label>STUN Server</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -3145,7 +3145,7 @@
 			<setting name="Static_NAT_External_IP">
 				<label>Static NAT External IP</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -3160,7 +3160,7 @@
 			<setting name="STUN_Server">
 				<label>STUN Server</label>
 				<type>
-					<ipaddr />
+					<hostname />
 				</type>
 				<value>0.0.0.0</value>
 			</setting>
@@ -3356,7 +3356,7 @@
 		<setting name="NTP_Server1">
 			<label>Primary NTP Server</label>
 			<type>
-				<ipaddr />
+				<hostname />
 			</type>
 			<value/>
 			<description>
@@ -3366,7 +3366,7 @@
 		<setting name="NTP_Server2">
 			<label>Secondary NTP Server</label>
 			<type>
-				<ipaddr />
+				<hostname />
 			</type>
 			<value>198.144.202.251</value>
 			<description>
@@ -5654,7 +5654,7 @@
 		<setting name="Server_IP">
 			<label>Server IP</label>
 			<type>
-				<ipaddr />
+				<hostname />
 			</type>
 			<value>0.0.0.0</value>
 			<description>IP address the Server listens on</description>

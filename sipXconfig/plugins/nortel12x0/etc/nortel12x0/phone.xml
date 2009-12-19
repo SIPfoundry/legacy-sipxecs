@@ -250,7 +250,7 @@
     </setting>
     <setting name="syslogServer">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
     </setting>
@@ -286,13 +286,13 @@
     </setting>
     <setting name="conferenceServerAddress">
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value />
     </setting>
     <setting name="mohServer">
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value />
     </setting>
@@ -353,7 +353,7 @@
     </setting>
     <setting name="natAddress">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
     </setting>
@@ -381,12 +381,12 @@
     </setting>
     <setting name="ntpIp">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
     </setting>
     <setting name="ntpIp2">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
     </setting>
     <setting name="timezone">
@@ -739,7 +739,7 @@
     <group name="sipProxy">
       <setting name="proxyAddress" advanced="yes">
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value />
       </setting>
@@ -749,7 +749,7 @@
       </setting>
       <setting name="proxyAddress1" advanced="yes">
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value />
       </setting>
@@ -886,7 +886,7 @@
     </setting>
     <setting name="sipAutoDialUserid">
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
     </setting>

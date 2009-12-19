@@ -662,7 +662,7 @@
       <setting name="upnp_gateway" advanced="yes">
         <profileName>upnp gateway</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -720,21 +720,21 @@
       <setting name="time_server1" advanced="yes">
         <profileName>time server1</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
       <setting name="time_server2" advanced="yes">
         <profileName>time server2</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
       <setting name="time_server3" advanced="yes">
         <profileName>time server3</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -893,7 +893,7 @@
       <setting name="alternate_tftp_server" advanced="yes">
         <profileName>alternate tftp server</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -902,7 +902,7 @@
       <setting name="ftp_server" advanced="yes">
         <profileName>ftp server</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -925,7 +925,7 @@
       <setting name="http_server" advanced="yes">
         <profileName>http server</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -941,7 +941,7 @@
       <setting name="https_server" advanced="yes">
         <profileName>https server</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -974,7 +974,7 @@
     <setting name="log_server_ip">
       <profileName>log server ip</profileName>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value>0.0.0.0</value>
     </setting>
@@ -1398,7 +1398,7 @@
       <setting name="sip_proxy_ip">
         <profileName>sip proxy ip</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -1412,7 +1412,7 @@
       <setting name="sip_backup_proxy_IP">
         <profileName>sip backup proxy IP</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -1426,7 +1426,7 @@
       <setting name="sip_outbound_proxy">
         <profileName>sip outbound proxy</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -1440,7 +1440,7 @@
       <setting name="sip_registrar_ip">
         <profileName>sip registrar ip</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>
@@ -1454,7 +1454,7 @@
       <setting name="sip_backup_registar_ip">
         <profileName>sip backup registar ip</profileName>
         <type>
-          <ipaddr />
+          <hostname />
         </type>
         <value>0.0.0.0</value>
       </setting>

@@ -63,7 +63,7 @@
     <setting name="registrarAddress">
       <label>Registrar Address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>
@@ -74,7 +74,7 @@
     <setting name="registrarToAddress" advanced="yes">
       <label>Register to-address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>
@@ -86,7 +86,7 @@
     <setting name="registrarFromAddress" advanced="yes">
       <label>Register from-address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>
@@ -120,7 +120,7 @@
     <setting name="proxyAddress" advanced="yes">
       <label>Proxy Address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>
@@ -186,7 +186,7 @@
     <setting name="voiceMailServerAddress">
       <label>Voicemail Access Number</label>
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value></value>
       <description>
@@ -197,7 +197,7 @@
     <setting name="presenceServer">
       <label>PUBLISH/SIMPLE Server</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value></value>
       <description>
@@ -219,7 +219,7 @@
     <setting name="conferenceServerAddress">
       <label>Conference Server URI</label>
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value></value>
       <description>
@@ -230,7 +230,7 @@
     <setting name="mohServer">
       <label>MoH Server URI</label>
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value></value>
       <description>
@@ -279,7 +279,7 @@
     <setting name="callForwardAddress">
       <label>Call Forward Address</label>
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value></value>
       <description>
@@ -702,7 +702,7 @@
     <setting name="natAddress">
       <label>NAT Address</label>
       <type>
-        <ipaddr />
+        <hostname />
       </type>
       <value />
       <description>
@@ -748,7 +748,7 @@
     <setting name="sipAutoDialUserid">
       <label>Auto Dial User ID</label>
       <type>
-        <ipaddr />
+        <string />
       </type>
       <value></value>
       <description>
