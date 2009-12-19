@@ -128,8 +128,8 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
-    public String readCSRFile() {
-        File csrFile = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.csr");
+    public String readCSRFile(String serverName) {
+        File csrFile = new File(m_certDirectory, serverName + "-web.csr");
         try {
             return FileUtils.readFileToString(csrFile, "US-ASCII");
         } catch (FileNotFoundException e) {

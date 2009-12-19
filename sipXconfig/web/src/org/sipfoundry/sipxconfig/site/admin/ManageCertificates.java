@@ -36,6 +36,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
     private static final String LOCALITY_PROP = "localityName";
     private static final String ORGANIZATION_PROP = "organizationName";
     private static final String EMAIL_PROP = "serverEmail";
+    private static final String SERVER_NAME = "serverName";
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -66,6 +67,10 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
 
     public abstract void setOrganization(String organization);
 
+    public abstract String getDefaultServer();
+
+    public abstract void setDefaultServer(String defaultServer);
+
     public abstract String getServer();
 
     public abstract void setServer(String server);
@@ -90,7 +95,8 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
             return;
         }
 
-        setServer(getLocationsManager().getPrimaryLocation().getFqdn());
+        setDefaultServer(getLocationsManager().getPrimaryLocation().getFqdn());
+        setServer(getDefaultServer());
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
@@ -103,9 +109,12 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
                 setLocality(properties.getProperty(LOCALITY_PROP));
                 setOrganization(properties.getProperty(ORGANIZATION_PROP));
                 setEmail(properties.getProperty(EMAIL_PROP));
+                String server = properties.getProperty(SERVER_NAME);
+                server = (server == null) ? getDefaultServer() : server;
+                setServer(server);
 
                 // load csr
-                String csr = getCertificateManager().readCSRFile();
+                String csr = getCertificateManager().readCSRFile(getServer());
                 setCsr(csr);
             }
         } catch (UserException e) {
@@ -128,6 +137,7 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         properties.setProperty(LOCALITY_PROP, getLocality());
         properties.setProperty(ORGANIZATION_PROP, getOrganization());
         properties.setProperty(EMAIL_PROP, getEmail());
+        properties.setProperty(SERVER_NAME, getServer());
         getCertificateManager().writeCertPropertiesFile(properties);
 
         // generate key and csr files

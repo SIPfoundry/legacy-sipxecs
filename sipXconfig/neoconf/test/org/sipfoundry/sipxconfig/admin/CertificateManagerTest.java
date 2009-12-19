@@ -55,6 +55,7 @@ public class CertificateManagerTest extends TestCase {
         prop1.put("localityName", "Austin");
         prop1.put("organizationName", "Test Organization");
         prop1.put("serverEmail", "test@test.org");
+        prop1.put("serverName", "example.org");
         m_manager.writeCertPropertiesFile(prop1);
 
         // load properties from file
@@ -64,6 +65,7 @@ public class CertificateManagerTest extends TestCase {
         assertEquals("Austin", prop2.get("localityName"));
         assertEquals("Test Organization", prop2.get("organizationName"));
         assertEquals("test@test.org", prop2.get("serverEmail"));
+        assertEquals("example.org", prop2.get("serverName"));
 
         // cleanup
         File propertiesFile = new File(TestUtil.getTestSourceDirectory(this.getClass()), "webCert.properties");

@@ -18,7 +18,7 @@ import java.util.Set;
 public interface CertificateManager {
     Properties loadCertPropertiesFile();
 
-    String readCSRFile();
+    String readCSRFile(String serverName);
 
     void writeCertPropertiesFile(Properties properties);
 

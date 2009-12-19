@@ -31,7 +31,7 @@ public class ManageCertificatesTestUi extends WebTestCase {
         assertFormElementPresent("state");
         assertFormElementPresent("locality");
         assertFormElementPresent("organization");
-        assertFormElementPresent("server");
+        assertFormElementPresent("server:id");
         assertFormElementPresent("email");
         assertFormElementPresent("csr");
         //TODO enhanced testing
