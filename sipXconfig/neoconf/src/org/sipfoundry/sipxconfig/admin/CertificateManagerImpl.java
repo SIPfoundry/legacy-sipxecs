@@ -70,6 +70,8 @@ public class CertificateManagerImpl implements CertificateManager {
 
     private LocationsManager m_locationsManager;
 
+    private boolean m_restartNeeded;
+
     public void setBinCertDirectory(String binCertDirectory) {
         m_binCertDirectory = binCertDirectory;
     }
@@ -88,6 +90,10 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    public boolean isRestartNeeded() {
+        return m_restartNeeded;
     }
 
     public Properties loadCertPropertiesFile() {
@@ -250,6 +256,7 @@ public class CertificateManagerImpl implements CertificateManager {
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
+            m_restartNeeded = true;
         } catch (RuntimeException ex) {
             throw new UserException("&error.regenstore");
         }

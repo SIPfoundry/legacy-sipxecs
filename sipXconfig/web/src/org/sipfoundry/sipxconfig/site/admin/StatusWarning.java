@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.admin.CertificateManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
@@ -28,6 +29,9 @@ public abstract class StatusWarning extends BaseComponent {
 
     @InjectObject(value = "spring:packageUpdateManager")
     public abstract PackageUpdateManager getPackageUpdateManager();
+
+    @InjectObject(value = "spring:certificateManager")
+    public abstract CertificateManager getCertificateManager();
 
     /**
      * Show only if there was a failure AND we are NOT on JobStatus page
