@@ -43,7 +43,7 @@
   <element name='trusteddomain' type='normalizedString'>
     <annotation>
       <documentation>
-        The trusted domain URI (e.g. sip:example.com).
+        The trusted domain name (FQDN or IP address, e.g. example.com or 10.10.10.2).
       </documentation>
     </annotation>
   </element>
@@ -51,7 +51,8 @@
   <element name='internaluser' type='normalizedString'>
     <annotation>
       <documentation>
-        The internal user whose permissions should be used when the trusted domain matches.
+        The internal user whose permissions should be used when the request is
+        authenticated against the trusted domain.
         Internal users are usually of the form ~~pi~unique_domain_or_hash as described
         in meta/system-sip-identities.
       </documentation>

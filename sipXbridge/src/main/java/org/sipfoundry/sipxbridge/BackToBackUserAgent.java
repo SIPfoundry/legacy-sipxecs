@@ -1331,9 +1331,18 @@ public class BackToBackUserAgent implements Comparable {
                 for (List<?> altName : subjAltNames) {
                     // 0th position is the alt name type
                     // 1st position is the alt name data
-                    if (altName.get(0).equals(uriNameType)) {
-                        logger.debug("found uri " + altName.get(1));
-                        certIdentities.add(altName.get(1).toString());
+                    try {
+                        if (altName.get(0).equals(uriNameType)) {
+                            SipURI altNameUri = (SipURI) ProtocolObjects.addressFactory
+                                    .createURI((String) altName.get(1));
+                            String altHostName = altNameUri.getHost();
+                            logger.debug("found uri " + altName.get(1) + ", hostName "
+                                    + altHostName);
+                            certIdentities.add(altHostName);
+                        }
+                    } catch (ParseException ex) {
+                        logger.warn("subjAltName in TLS certificate contains invalid URI "
+                                + altName.get(1), ex);
                     }
                 }
                 // DNS  An implementation MUST accept a domain name system
@@ -1344,7 +1353,7 @@ public class BackToBackUserAgent implements Comparable {
                     for (List<?> altName : subjAltNames) {
                         if (altName.get(0).equals(dnsNameType)) {
                             logger.debug("found dns " + altName.get(1));
-                            certIdentities.add("sip:" + altName.get(1).toString());
+                            certIdentities.add(altName.get(1).toString());
                         }
                     }
                 }
@@ -1363,7 +1372,7 @@ public class BackToBackUserAgent implements Comparable {
                     if (matcher.matches()) {
                         cname = matcher.group(1);
                         logger.debug("found CN: " + cname + " from DN: " + dname);
-                        certIdentities.add("sip:" + cname);
+                        certIdentities.add(cname);
                     }
                 } catch (Exception ex) {
                     logger.error("exception while extracting CN", ex);
