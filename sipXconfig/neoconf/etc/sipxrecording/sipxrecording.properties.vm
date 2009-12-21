@@ -2,8 +2,6 @@
 log.level=$recording.getSetting('log.level').Value
 log.file=${service.logDir}/sipxrecording.log
 
-freeswitch.eventSocketPort=8086
-
 recording.docDirectory=${service.docDir}
 recording.sipxchangeDomainName=${service.domainName}
 recording.realm=${service.realm}

@@ -2,7 +2,6 @@
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR$">
       <action application="socket" data="192.168.1.1:8084 async"/>
-      <action application="socket" data="192.168.1.1:8086 async"/>
     </condition>
   </extension>
 </context>
