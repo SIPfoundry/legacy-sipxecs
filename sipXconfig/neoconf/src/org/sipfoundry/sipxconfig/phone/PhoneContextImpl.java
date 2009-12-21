@@ -14,6 +14,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.commons.util.ShortHash;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
@@ -40,6 +44,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -369,5 +374,30 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         user.setLastName(ShortHash.get(serialNumber));
 
         return user;
+    }
+
+    public List<Phone> loadPhonesWithNoLinesByPage(int firstRow, int pageSize, String[] orderBy,
+            boolean orderAscending) {
+        DetachedCriteria c = DetachedCriteria.forClass(Phone.class);
+        addByNoLinesCriteria(c);
+        if (orderBy != null) {
+            for (String o : orderBy) {
+                Order order = orderAscending ? Order.asc(o) : Order.desc(o);
+                c.addOrder(order);
+            }
+        }
+        return getHibernateTemplate().findByCriteria(c, firstRow, pageSize);
+    }
+
+    public int getPhonesWithNoLinesCount() {
+        DetachedCriteria crit = DetachedCriteria.forClass(Phone.class);
+        addByNoLinesCriteria(crit);
+        crit.setProjection(Projections.rowCount());
+        List results = getHibernateTemplate().findByCriteria(crit);
+        return (Integer) DataAccessUtils.requiredSingleResult(results);
+    }
+
+    public static void addByNoLinesCriteria(DetachedCriteria crit) {
+        crit.add(Restrictions.isEmpty("lines"));
     }
 }

@@ -80,5 +80,12 @@ public class ManagePhonesTestUi extends WebTestCase {
         SiteTestHelper.selectOption(tester, "group:filter", "- all -");
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
         assertEquals(allTableCount, allTableCountAgain);
+
+        // add a line registered to the registered phone
+        m_helper.seedLine(1);
+        clickLink("ManagePhones");
+        SiteTestHelper.selectOption(tester, "group:filter", "- unassigned -");
+        int noLinesTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        assertEquals(2, noLinesTableCount);
     }
 }

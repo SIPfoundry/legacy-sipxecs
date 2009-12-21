@@ -202,4 +202,15 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
         assertEquals(0, TestHelper.getConnection().getRowCount("phone_group", "where phone_group.group_id = 1001"));
     }
+
+    public void testLoadPhonesWithNoLinesByPage() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneWithLineSeed.xml");
+
+        List<Phone> page1 = m_context.loadPhonesWithNoLinesByPage(0, 4, new String[] {
+            "serialNumber"}, true);
+        assertEquals(2, page1.size());
+        assertEquals("00002", page1.get(0).getSerialNumber());
+        assertEquals("00004", page1.get(1).getSerialNumber());
+    }
 }

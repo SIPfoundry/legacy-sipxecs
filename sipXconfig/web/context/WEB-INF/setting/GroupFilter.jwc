@@ -9,6 +9,8 @@
   <parameter name="selectedGroupId" required="yes"/>
   <parameter name="queryText" required="yes"/>
   <parameter name="searchMode" required="yes"/>
+  <parameter name="unassignedOptionAvailable" required="no"/>
+  <parameter name="unassignedMode" required="no"/>
 
   <inject property="tapestry" object="spring:tapestry"/>
 

@@ -48,6 +48,10 @@ public class PhoneTableModel implements IBasicTableModel {
         m_phoneContext = context;
     }
 
+    public PhoneContext getPhoneContext() {
+        return m_phoneContext;
+    }
+
     public int getRowCount() {
         return m_phoneContext.getPhonesInGroupCount(m_groupId);
     }

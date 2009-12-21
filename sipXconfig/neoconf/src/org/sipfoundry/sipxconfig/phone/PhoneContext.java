@@ -120,4 +120,8 @@ public interface PhoneContext extends DataObjectSource {
     Collection<Phone> getPhonesByUserIdAndPhoneModel(Integer userId, String modelId);
 
     User createSpecialPhoneProvisionUser(String serialNumber);
+
+    int getPhonesWithNoLinesCount();
+
+    List<Phone> loadPhonesWithNoLinesByPage(int firstRow, int pageSize, String[] orderBy, boolean orderAscending);
 }
