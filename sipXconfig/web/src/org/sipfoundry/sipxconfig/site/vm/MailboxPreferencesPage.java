@@ -18,24 +18,30 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 public abstract class MailboxPreferencesPage extends UserBasePage {
     public static final String PAGE = "vm/MailboxPreferencesPage";
 
+    @Persist
+    public abstract boolean isAdvanced();
+
     public abstract MailboxPreferences getMailboxPreferences();
 
     public abstract void setMailboxPreferences(MailboxPreferences preferences);
 
-    @Persist
-    public abstract boolean isAdvanced();
+    public abstract User getEditedUser();
+
+    public abstract void setEditedUser(User user);
 
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
+        if (getEditedUser() == null) {
+            setEditedUser(getUser());
+        }
         if (getMailboxPreferences() == null) {
-            User user = getUser();
-            setMailboxPreferences(new MailboxPreferences(user));
+            setMailboxPreferences(new MailboxPreferences(getEditedUser()));
         }
     }
 
     public void onApply() {
-        User user = getUser();
+        User user = getEditedUser();
         getMailboxPreferences().updateUser(user);
         getCoreContext().saveUser(user);
     }

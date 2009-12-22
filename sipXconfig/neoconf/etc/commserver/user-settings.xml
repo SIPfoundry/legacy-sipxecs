@@ -91,7 +91,7 @@
         <value>DISABLE</value>
       </setting>
     </group>
-    <group name="voicemail-server">
+    <group name="voicemail-server" hidden="yes">
       <setting name="FreeswitchVoicemailServer">
         <type refid="enable-disable" />
         <value>ENABLE</value>

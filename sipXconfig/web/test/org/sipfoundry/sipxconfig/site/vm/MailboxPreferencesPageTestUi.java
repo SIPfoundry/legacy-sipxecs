@@ -50,4 +50,9 @@ public class MailboxPreferencesPageTestUi extends WebTestCase {
         assertElementNotPresent("user:includeAudioAttachmentAlternateEmail");
 
     }
+
+    public void testVoicemailServer() {
+        SiteTestHelper.assertNoException(tester);
+        assertElementPresent("voicemail:server");
+    }
 }

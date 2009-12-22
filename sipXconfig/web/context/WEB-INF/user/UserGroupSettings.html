@@ -14,7 +14,7 @@
     <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
   </span>
 
-  <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('unified-messaging')">
+  <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('voicemail')">
     <span jwcid="@common/QuickHelp" value="message:quick.help.unifiedMessaging"/>
   </span>
 
@@ -31,7 +31,7 @@
             useLeftNavigation="ognl:false"/>
     </span>
   </div>
-
+  
   <div jwcid="schedulesTab@Block">
     <span jwcid="@common/QuickHelp" value="message:quick.help.schedule"/>
     <form jwcid="userSchedules@Form" delegate="bean:validator">
@@ -77,10 +77,15 @@
           validator="bean:validator"/>
   </div>
 
-  <span jwcid="@If" condition="ognl:parentSetting || tab.equals('schedules')">
-    <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
-      cancelListener="listener:cancel" okListener="listener:ok"
-      applyListener="listener:apply" validator="bean:validator"
-      requiredEnabled="literal:false"/>
+  <span jwcid="@If" condition="ognl:parentSetting || tab.equals('schedules')" renderTag="false">
+    <span jwcid="settingsForm@Form" delegate="bean:validator">
+      <span jwcid="settings@setting/SettingsFieldset" requiredEnabled="literal:false" settings="ognl:parentSetting" />
+      <fieldset jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('voicemail')">
+        <table>
+          <span jwcid="voicemailServer@vm/VoicemailServerComponent" settings="ognl:settings" />
+        </table>
+      </fieldset>
+      <ul jwcid="formActions@common/FormActions" listener="listener:apply"/>
+    </span>
   </span>
 </div>
