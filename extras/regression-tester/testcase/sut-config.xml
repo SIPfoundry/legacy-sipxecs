@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<sut-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/tester-topology-00-00">
+ <user-agent>
+     <!-- This is one polycom phone -->
+     <default-transport>udp</default-transport>
+     <ip-address>192.168.5.242</ip-address>
+     <port>5060</port>
+  </user-agent>
+  <user-agent>
+     <!-- This is another polycom -->
+     <default-transport>udp</default-transport>
+     <ip-address>192.168.5.243</ip-address>
+     <port>5060</port>
+  </user-agent>
+</sut-config>

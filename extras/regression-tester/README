@@ -1,0 +1,29 @@
+What is this?
+This is a regression test tool for sipx.
+
+How this works:
+
+This tool aims to emulated the endpoints under test. It works by record
+and replay.  It uses merged.xml to generate the playback.  It takes as
+input a file containing the endpoints and the merged.xml file generated
+by sipx-trace.  It uses these inputs to figure out the client and server
+transactions in that file and generates the same stimulus through
+external emulated user agents. You have to configure the system with
+these test user agents. For example, if you wanted to construct a test
+where two phones register with the sipx registrar and call each other,
+you would proceed as follows.
+
+Example:
+
+1. Run the test on a system where you would like to gather trace.
+2. Filter the trace using sipx-trace. The merged.xml file thus obtained can have a superset of information.
+3. Copy the merged.xml of interest in the directory testcase/var/log/sipxpbx
+4. Copy the validusers.xml file corresponding to merted.xml in the directory testcase/etc/sipxpbx/validusers.xml
+5. Copy the domain-config file from the system from where the trace has been obtained to testcase/etc/sipxpbx/domain-config
+5. Construct a file that defines the endpoints of interest. Plase this in testcase/sut-config.xml
+6. Run the tester on the system under regression test.  You would provide the testcase directory as input to the tester.
+
+This will result in the call flow in testcase/var/log/sipxpbx/merged.xml
+being emulated on the system under test.
+
+THIS TOOL IS IN AN EARLY STATE OF COMPLETION. IT IS SUBMITTED TO THE REPOSITORY FOR EARLY COMMENTS.
