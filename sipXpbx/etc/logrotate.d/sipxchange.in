@@ -12,13 +12,13 @@ missingok
 # Now we list the files, excluding sipxconfig.log.  If you have
 # a log file that starts with 's' but not with 'sip', and you
 # want it rotated w/o copytruncate, list full path name here
-@SIPX_LOGDIR@/sip?[!c]*.log @SIPX_LOGDIR@/[!sf]*.log {
+@SIPX_LOGDIR@/sip?[!c]*.log @SIPX_LOGDIR@/sip?c[!o]*.log @SIPX_LOGDIR@/[!sf]*.log {
 }
 
 # Java does not reopen log file periodically, make a copy
 # and truncate current log file.  May lose some data, but 
 # this will be addressed in future release
-@SIPX_LOGDIR@/sipxconfig.log {
+@SIPX_LOGDIR@/sipxconfig*.log {
    copytruncate
 }
 
