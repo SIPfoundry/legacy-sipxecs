@@ -113,6 +113,8 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     private static final String PIECHART_SECTIONLABEL_FORMAT = "{0} = {1} ({2})";
 
+    private static final int MAX_CDR_RECORDS = 250000;
+
     @InjectObject(value = "spring:jasperReportContextImpl")
     public abstract JasperReportContext getJasperReportContext();
 
@@ -237,7 +239,7 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
 
     private void computeReportData(String reportName) {
         List<Cdr> cdrs = getCdrManager().getCdrs(getStartTime(), getEndTime(), getCdrSearch(),
-                getUser());
+                getUser(), MAX_CDR_RECORDS, 0);
         Locale locale = getPage().getLocale();
         Date startdate = getStartTime();
         Date enddate = getEndTime();
