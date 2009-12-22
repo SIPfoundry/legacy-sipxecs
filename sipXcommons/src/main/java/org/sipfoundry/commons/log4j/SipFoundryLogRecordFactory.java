@@ -77,7 +77,7 @@ public class SipFoundryLogRecordFactory implements LogRecordFactory {
         }
         String direction = isSender ? OUTGOING : INCOMING;
         String auxInfo = isSender ? "Sent SIP Message :\n"
-                : "Read SIP Message :\n";
+                : "Read SIP Message:\n";
         String end = isSender ? OUTGOING_END : INCOMING_END;
         LogRecord logRecord = new SipFoundryLogRecord(direction + auxInfo
                 + hostPort + message + end);

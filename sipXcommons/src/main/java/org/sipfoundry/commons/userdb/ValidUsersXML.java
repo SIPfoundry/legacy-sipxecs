@@ -72,6 +72,7 @@ public class ValidUsersXML {
     
     public static void setValidUsersFileName(String fileName ) {
         s_validUsersFileName = fileName;
+        s_validUsersFile = null;
     }
     
     

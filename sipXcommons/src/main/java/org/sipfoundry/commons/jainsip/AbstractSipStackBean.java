@@ -1,5 +1,6 @@
 package org.sipfoundry.commons.jainsip;
 
+import gov.nist.core.StackLogger;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.TransactionExt;
@@ -50,11 +51,11 @@ public abstract class AbstractSipStackBean {
 
     private Properties m_properties;
 
-    private AddressFactory m_addressFactory;
+    private static AddressFactory m_addressFactory;
 
-    private HeaderFactory m_headerFactory;
+    private static HeaderFactory m_headerFactory;
 
-    private MessageFactory m_messageFactory;
+    private static MessageFactory m_messageFactory;
 
     private SipStack m_sipStack;
 
@@ -64,14 +65,25 @@ public abstract class AbstractSipStackBean {
     
     private Logger m_serverLogger;
 
+    private static SipFactory factory;
+    
+    static {
+        try {
+            factory = SipFactory.getInstance();
+            factory.setPathName("gov.nist");
+            m_addressFactory = factory.createAddressFactory();
+            m_headerFactory = factory.createHeaderFactory();
+            m_messageFactory = factory.createMessageFactory();
+        }catch (Exception ex) {
+            throw new RuntimeException(ex);
+        } 
+    }
     /**
      * Initialized stack: binds to a port. It should be called before any other operation on the
      * stack.
      */
     public void init() throws Exception {
-        SipFactory factory = SipFactory.getInstance();
-        factory.setPathName("gov.nist");
-
+       
         m_properties = new Properties();
 
         // add more properties here if needed
@@ -83,6 +95,8 @@ public abstract class AbstractSipStackBean {
                 org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
         m_properties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
         m_properties.setProperty("gov.nist.javax.sip.SERVER_LOGGER", ServerLoggerImpl.class.getName());
+        
+    
 
         String logLevel =  SipFoundryLayout.mapSipFoundry2log4j(getLogLevel()).toString();
         m_serverLogger = Logger.getLogger(StackLoggerImpl.class);
@@ -110,12 +124,7 @@ public abstract class AbstractSipStackBean {
 
         try {
             m_sipStack = factory.createSipStack(m_properties);
-
-
             SipStackImpl stack = (SipStackImpl) m_sipStack;
-            m_addressFactory = factory.createAddressFactory();
-            m_headerFactory = factory.createHeaderFactory();
-            m_messageFactory = factory.createMessageFactory();
             RouteList.setPrettyEncode(true);
             ViaList.setPrettyEncode(true);
             SipListener listener = getSipListener(this);
@@ -142,7 +151,7 @@ public abstract class AbstractSipStackBean {
             } else if ( getPlainTextPasswordAccountManager() != null ) {
                 m_authenticationHelper = impl.getAuthenticationHelper(getPlainTextPasswordAccountManager(), m_headerFactory);
             }
-
+          
         } catch (Exception e) {
             throw new SipxSipException("JainSip initialization exception", e);
         }
@@ -194,6 +203,10 @@ public abstract class AbstractSipStackBean {
 
     public SipStackExt getSipStack() {
         return (SipStackExt) this.m_sipStack;
+    }
+    
+    public StackLogger getStackLogger() {
+        return ((SipStackImpl)this.m_sipStack).getStackLogger();
     }
 
     public ListeningPoint getListeningPoint(ListeningPointAddress hostPortTransport) {

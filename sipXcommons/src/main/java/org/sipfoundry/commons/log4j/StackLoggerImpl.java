@@ -2,9 +2,11 @@ package org.sipfoundry.commons.log4j;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.Priority;
@@ -13,11 +15,13 @@ import gov.nist.core.StackLogger;
 
 public class StackLoggerImpl implements StackLogger {
     
-    private static Logger logger = Logger.getLogger(StackLoggerImpl.class) ;
+    private  Logger logger = Logger.getLogger(StackLoggerImpl.class) ;
     
     private static HashMap<String,Integer> levelMap = new HashMap<String,Integer>();
     
     boolean enabled = true;
+
+    private Properties stackProperties;
  
     static {
         levelMap.put(Level.DEBUG.toString(), new Integer(TRACE_DEBUG));
@@ -34,8 +38,8 @@ public class StackLoggerImpl implements StackLogger {
     }
     
     
-    public static void setLogger(Logger logger) {
-        StackLoggerImpl.logger = logger;
+    public void setLogger(Logger logger) {
+       this.logger = logger;
     }
 
     @Override
@@ -138,12 +142,21 @@ public class StackLoggerImpl implements StackLogger {
     @Override
     public void setStackProperties(Properties properties) {
         logger.info("StackProperties " + properties);
+        this.stackProperties = properties;
+        Enumeration appenders = this.logger.getAllAppenders();
+        Logger newLogger = Logger.getLogger(properties.getProperty("javax.sip.STACK_NAME"));
+        while (appenders.hasMoreElements() ) {
+            newLogger.addAppender( (Appender)appenders.nextElement());
+              
+        }
+        newLogger.setLevel(this.logger.getLevel());
+        this.logger = newLogger;
     }
 
     
     @Override
     public String getLoggerName() {
-        return logger.getName();
+        return this.stackProperties.getProperty("javax.sip.STACK_NAME");
     }
 
     @Override

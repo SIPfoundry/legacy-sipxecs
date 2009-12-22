@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<tester-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/tester-topology-00-00">
+  <tester-ip-address>192.168.5.75</tester-ip-address>
+  <tester-base-port>5055</tester-base-port> 
+  <log-level>DEBUG</log-level>
+  <test-user>testuser1</test-user>
+  <test-user>testuser2</test-user>
+</tester-config>
