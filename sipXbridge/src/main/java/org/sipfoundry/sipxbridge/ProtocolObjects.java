@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 
@@ -20,6 +21,7 @@ import javax.sip.header.ServerHeader;
 import javax.sip.header.UserAgentHeader;
 import javax.sip.message.MessageFactory;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.log4j.ServerLoggerImpl;
 import org.sipfoundry.commons.log4j.SipFoundryLogRecordFactory;
@@ -68,8 +70,7 @@ public class ProtocolObjects {
              * Just get the logger for the gateway and give it to the stack.
              */
             Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
-            StackLoggerImpl.setLogger(logger);
-
+         
             String logLevel = Gateway.getLogLevel();
             if (logLevel.equalsIgnoreCase("DEBUG") || logLevel.equalsIgnoreCase("TRACE")) {
                 stackProperties.setProperty("gov.nist.javax.sip.LOG_STACK_TRACE_ON_MESSAGE_SEND", "true");
@@ -99,12 +100,18 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOGGER",ServerLoggerImpl.class.getName());
             
+            Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
+            stackLogger.addAppender(Gateway.logAppender);
+            stackLogger.setLevel(Level.toLevel(logLevel));
+         
             /*
              * Break up the via encoding.
              */
             ViaList.setPrettyEncode(true);
             
             sipStack = ProtocolObjects.sipFactory.createSipStack(stackProperties);
+            
+            
         } catch (Exception ex) {
             ex.printStackTrace();
             logger.error("Error loading factories ", ex);
