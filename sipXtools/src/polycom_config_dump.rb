@@ -171,6 +171,7 @@ def config_dump(root_uri_str, match_name)
 
    # Gather the key value pairs.
    config_file_basenames.each do |config_file_basename|
+      config_file_basename.gsub!(/\[PHONE_MAC_ADDRESS\]/, mac_str)
       config_doc = get_file_xml("#{base_uri_str}#{config_file_basename}")
       add_config(config_hash, config_doc)
    end 

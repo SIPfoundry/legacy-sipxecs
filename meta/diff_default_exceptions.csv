@@ -57,6 +57,8 @@ sip-up.oneTouchVoiceMail, NON-BLANK DEFAULT (XCF-3077)
 sip-voIpProt.SIP.serverFeatureControl.cf, NON-BLANK DEFAULT
 sip-voIpProt.SIP.serverFeatureControl.dnd, NON-BLANK DEFAULT
 
+^sip-tcpIpApp.sntp.daylightSavings, These will depend on the locale that the system is in.
+
 ^phone1-attendant.behaviors.display.spontaneousCallAppearances.normal, XTRN-357
 
 # If the generated profile has Lines programmed, then the following attributes will
@@ -81,6 +83,8 @@ phone1-reg.[1-6].bargeInEnabled, NON-BLANK DEFAULT
 phone1-reg.[1-6].displayName
 phone1-reg.[1-6].outboundProxy.address
 phone1-reg.[1-6].outboundProxy.transport
+^phone1-reg.[1-6].outboundProxy.port, XX-5958
+^phone1-reg.1.label, XX-6976
 phone1-reg.[1-6].server.[1-2].transport, UDPOnly results in an earlier DNS SRV for _sip_udp.hostname, and we don't need NAPTR
 phone1-msg.mwi.[1-6].callBackMode, sipXecs voicemail uses the "contact" callback mode
 phone1-msg.mwi.[1-6].callBack, the callback number will be generated for any programmed Line
@@ -91,6 +95,7 @@ phone1-dialplan.[1-6].routing.server.1.address, sipXecs default Emergency Dial R
 phone1-divert.busy.[1-6].enabled, sipXecs uses server-based call forwarding
 phone1-divert.fwd.[1-6].enabled, sipXecs uses server-based call forwarding
 phone1-divert.noanswer.[1-6].enabled, sipXecs uses server-based call forwarding
+
 
 
 
