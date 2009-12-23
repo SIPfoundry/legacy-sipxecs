@@ -210,7 +210,7 @@
       </setting>
       <setting name="send_internal_ip_address">
         <type refid="true-false" />
-        <value>false</value>
+        <value>true</value>
       </setting>
       <setting name="send_sip_keep_alive_messages">
         <type refid="true-false" />
