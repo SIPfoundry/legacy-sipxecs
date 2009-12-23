@@ -44,7 +44,7 @@
   </bean>
   <bean name="validPhoneOrAor" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>[\d*]+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>
+      <value>([+]?[\d*]+)|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>
     </property>
     <property name="message">
       <value>Please enter digits or sip address only, for example: 123 or john@example.com</value>
