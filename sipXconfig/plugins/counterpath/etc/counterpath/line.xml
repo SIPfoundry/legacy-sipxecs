@@ -296,7 +296,7 @@
         <type>
           <enum>
             <option>
-              <value>auto</value>
+              <value>automatic</value>
             </option>
             <option>
               <value>encrypted</value>
