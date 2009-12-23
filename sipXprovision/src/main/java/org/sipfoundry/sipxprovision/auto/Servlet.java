@@ -466,7 +466,7 @@ public class Servlet extends HttpServlet {
                 useragent = "FileTransport PolycomSoundStationIP-SSIP_6000-UA/3.2.0.0157";
             }
             else if (isNortelIp12x0ConfigurationFilePath(path)) {
-                useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";                
+                useragent = "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)";
             }
         }
 
@@ -515,12 +515,12 @@ public class Servlet extends HttpServlet {
         if (isPolycomConfigurationFilePath(path)) {
 
             if (POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches()) {
-            
+
                 // This file won't be found, so save the REST request overhead.
                 response.sendError(HttpURLConnection.HTTP_NOT_FOUND);
             }
             else if (POLYCOM_OVERRIDES_PATH_RE.matcher(path).matches()) {
-                
+
                 // sipXconfig doesn't currently generate this Polycom config file.  (See XX-5450)
                 PrintWriter out = response.getWriter();
                 out.println("<?xml version=\"1.0\" standalone=\"yes\"?>");
@@ -698,6 +698,7 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_321", new PhoneModel("polycom330", "SoundPoint IP 321"));
         PHONE_MODEL_MAP.put("SPIP_330", new PhoneModel("polycom330", "SoundPoint IP 330"));
         PHONE_MODEL_MAP.put("SPIP_331", new PhoneModel("polycom330", "SoundPoint IP 331"));
+        PHONE_MODEL_MAP.put("SPIP_335", new PhoneModel("polycom335", "SoundPoint IP 335"));
 
         PHONE_MODEL_MAP.put("SPIP_430", new PhoneModel("polycom430", "SoundPoint IP 430"));
         PHONE_MODEL_MAP.put("SPIP_450", new PhoneModel("polycom450", "SoundPoint IP 450"));
