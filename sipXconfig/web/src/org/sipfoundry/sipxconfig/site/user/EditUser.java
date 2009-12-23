@@ -59,14 +59,16 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
         }
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
-        boolean newUsername = getCoreContext().saveUser(user);
+        String oldUserName = getCoreContext().getOriginalUserName(user);
+        String newUserName = user.getUserName();
+        boolean userNameChanged = getCoreContext().saveUser(user);
 
         MailboxManager mmgr = getMailboxManager();
-        if (mmgr.isEnabled() && newUsername) {
-            mmgr.deleteMailbox(user.getUserName());
+        if (mmgr.isEnabled() && userNameChanged) {
+            mmgr.renameMailbox(oldUserName, newUserName);
         }
 
-        if (newUsername) {
+        if (userNameChanged) {
             // FIXME: this should be done automatically by speed dial manager
             getSpeedDialManager().activateResourceList();
         }

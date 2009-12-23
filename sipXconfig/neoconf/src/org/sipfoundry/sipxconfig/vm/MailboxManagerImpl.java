@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -183,6 +184,22 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     public void deleteMailbox(String userId) {
         Mailbox mailbox = getMailbox(userId);
         mailbox.deleteUserDirectory();
+    }
+
+    public void renameMailbox(String oldUserId, String newUserId) {
+        Mailbox oldMailbox = getMailbox(oldUserId);
+        Mailbox newMailbox = getMailbox(newUserId);
+        File oldUserDir = oldMailbox.getUserDirectory();
+        File newUserDir = newMailbox.getUserDirectory();
+        newMailbox.deleteUserDirectory();
+        if (oldUserDir.exists()) {
+            try {
+                FileUtils.moveDirectory(oldUserDir, newUserDir);
+            } catch (IOException e) {
+                throw new MailstoreMisconfigured("Cannot rename mailbox directory "
+                                                 + oldUserDir.getAbsolutePath(), e);
+            }
+        }
     }
 
     public static class YesNo {

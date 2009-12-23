@@ -81,6 +81,7 @@ public class MailboxManagerTest extends TestCase {
         File testMailstore = new File(TestHelper.getTestDirectory() + '/' + System.currentTimeMillis());
         testMailstore.mkdirs();
         FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "200"));
+        FileUtils.copyDirectory(new File(READONLY_MAILSTORE, "200"), new File(testMailstore, "201"));
         return testMailstore;
     }
 
@@ -94,14 +95,22 @@ public class MailboxManagerTest extends TestCase {
         File mailstore = MailboxManagerTest.createTestMailStore();
         MailboxManagerImpl mgr = new MailboxManagerImpl();
         mgr.setMailstoreDirectory(mailstore.getAbsolutePath());
-        Mailbox mbox = mgr.getMailbox("200");
 
+        Mailbox mbox = mgr.getMailbox("200");
         assertTrue(mbox.getUserDirectory().exists());
         mgr.deleteMailbox("200");
         assertFalse(mbox.getUserDirectory().exists());
-
         mgr.deleteMailbox("200");
         assertFalse(mbox.getUserDirectory().exists());
+
+        Mailbox mbox1 = mgr.getMailbox("201");
+        Mailbox mbox2 = mgr.getMailbox("202");
+        assertTrue(mbox1.getUserDirectory().exists());
+        mgr.renameMailbox("201", "202");
+        assertFalse(mbox1.getUserDirectory().exists());
+        assertTrue(mbox2.getUserDirectory().exists());
+        mgr.deleteMailbox("202");
+        assertFalse(mbox2.getUserDirectory().exists());
 
         Mailbox nombox = mgr.getMailbox("non-existing-user");
         assertFalse(nombox.getUserDirectory().exists());

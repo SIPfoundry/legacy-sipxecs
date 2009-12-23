@@ -26,6 +26,8 @@ public interface MailboxManager {
 
     void deleteMailbox(String userId);
 
+    void renameMailbox(String oldUserId, String newUserId);
+
     void saveDistributionLists(Mailbox mailbox, DistributionList[] lists);
 
     DistributionList[] loadDistributionLists(Mailbox mailbox);

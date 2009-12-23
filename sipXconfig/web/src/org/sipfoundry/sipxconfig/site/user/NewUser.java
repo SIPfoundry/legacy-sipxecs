@@ -38,6 +38,7 @@ import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
@@ -59,6 +60,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
 
+    @InjectObject("spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
+
     public abstract User getUser();
 
     public abstract void setUser(User user);
@@ -76,6 +80,12 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
         core.saveUser(user);
+
+        // Initialize the new user's mailbox
+        MailboxManager mmgr = getMailboxManager();
+        if (mmgr.isEnabled()) {
+            mmgr.deleteMailbox(user.getUserName());
+        }
 
         // If necessary, create a conference for this user.
         Group conferenceGroup = getConferenceGroup(user);

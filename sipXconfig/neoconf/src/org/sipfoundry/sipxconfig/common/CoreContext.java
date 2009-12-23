@@ -45,6 +45,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
      */
     boolean saveUser(User user);
 
+    String getOriginalUserName(User user);
+
     void deleteUser(User user);
 
     void deleteUsers(Collection<Integer> usersIds);

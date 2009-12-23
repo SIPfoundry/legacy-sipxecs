@@ -142,6 +142,9 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void deleteMailbox(String userId) {
         }
 
+        public void renameMailbox(String oldUserId, String newUserId) {
+        }
+
         public Mailbox getMailbox(String userId) {
             return null;
         }

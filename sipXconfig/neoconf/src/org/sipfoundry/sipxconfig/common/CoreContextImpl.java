@@ -131,6 +131,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return newUserName;
     }
 
+    public String getOriginalUserName(User user) {
+        return (String) getOriginalValue(user, USERNAME_PROP_NAME);
+    }
+
     /**
      * Check that the system has been restricted to a certain number of users
      *
