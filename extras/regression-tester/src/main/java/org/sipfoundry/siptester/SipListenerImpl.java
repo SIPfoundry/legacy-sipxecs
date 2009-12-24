@@ -49,7 +49,7 @@ public class SipListenerImpl implements SipListenerExt {
     public void processRequest(RequestEvent requestEvent) {
         try {
             RequestExt request = (RequestExt) requestEvent.getRequest();
-          
+
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
             SipProvider sipProvider = (SipProvider) requestEvent.getSource();
             if (serverTransaction == null) {
@@ -61,35 +61,38 @@ public class SipListenerImpl implements SipListenerExt {
 
             Endpoint endpoint = SipTester.getEndpoint(listeningPoint);
 
-            SipServerTransaction sst = endpoint.findSipServerTransaction(request);
+            for (SipServerTransaction sst : endpoint.findSipServerTransaction(request)) {
 
-            if (sst == null) {
-                System.out.println("Unexpected request " + request.getFirstLine());
-                if (request.getMethod().equals(Request.NOTIFY)) {
-                    Response response = SipTester.getMessageFactory().createResponse(Response.OK,
-                            request);
-                    ContactHeader contact = SipUtilities.createContactHeader(listeningPoint);
-                    response.addHeader(contact);
-                    serverTransaction.sendResponse(response);
-                    return;
+                if (sst == null) {
+                    System.out.println("Unexpected request " + request.getFirstLine());
+                    if (request.getMethod().equals(Request.NOTIFY)) {
+                        Response response = SipTester.getMessageFactory().createResponse(
+                                Response.OK, request);
+                        ContactHeader contact = SipUtilities.createContactHeader(listeningPoint);
+                        response.addHeader(contact);
+                        serverTransaction.sendResponse(response);
+                        return;
+                    }
+                    SipTester.fail("Unepxected server transaction "
+                            + request.getFirstLine().trim());
                 }
-                SipTester.fail("Unepxected server transaction " + request.getFirstLine().trim());
+
+                serverTransaction.setApplicationData(sst);
+                sst.setServerTransaction(serverTransaction);
+                String dialogId = sst.getDialogId();
+                SipDialog sipDialog = SipTester.getDialog(dialogId);
+                System.out.println("processRequest " + request.getFirstLine().trim()
+                        + " sipDialog = " + dialogId);
+                if (sipDialog != null) {
+                    sipDialog.setLastRequestReceived(request);
+                }
+                sst.getSipRequest().setRequestEvent(requestEvent);
+                sst.sendResponses();
+                for (SipClientTransaction ct : sst.getSipRequest().getPostConditions()) {
+                    ct.removePrecondition(sst.getSipRequest());
+                }
             }
 
-            serverTransaction.setApplicationData(sst);
-            sst.setServerTransaction(serverTransaction);
-            String dialogId = sst.getDialogId();
-            SipDialog sipDialog = SipTester.getDialog(dialogId);
-            System.out.println("processRequest " + request.getFirstLine().trim() + " sipDialog = " +  dialogId);
-            sipDialog.setLastRequestReceived(request);
-            sst.sendResponses();
-            for ( SipClientTransaction ct : sst.getSipRequest().getPostConditions() ){
-              ct.removePrecondition(sst.getSipRequest());
-            }
-          
-           
-            
-          
         } catch (Exception ex) {
             SipTester.fail("unexpected error processing request", ex);
         }
@@ -107,8 +110,12 @@ public class SipListenerImpl implements SipListenerExt {
                 registrationManager.processResponse(responseEvent);
             } else if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
                     || method.equals(Request.NOTIFY) || method.equals(Request.PRACK)
-                    || method.equals(Request.BYE)    || method.equals(Request.REFER)) {
+                    || method.equals(Request.BYE) || method.equals(Request.REFER)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
+                if ( ctx == null ) {
+                    System.out.println("retransmission -- ingoring");
+                    return;
+                }
                 SipClientTransaction sipCtx = (SipClientTransaction) ctx.getApplicationData();
                 sipCtx.processResponse(responseEvent);
             }

@@ -2,6 +2,7 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipProviderExt;
+import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
 
@@ -259,25 +260,21 @@ public class Endpoint  {
         }).start();
     }
     
-    public SipServerTransaction findSipServerTransaction(Request request ) {
-        logger.debug("find SipServerTransaction " + request.getMethod());
-        this.printServerTransactions();
-        
+    public Collection<SipServerTransaction> findSipServerTransaction(Request request ) {
+        Collection<SipServerTransaction> retval = new HashSet<SipServerTransaction>();    
         Iterator<SipServerTransaction> it = this.serverTransactions.iterator();
         while(it.hasNext() ) {
             SipServerTransaction sst = it.next();
-            if(request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod())) {
+            if(request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod()) && 
+                    sst.getBranch() != null &&
+                    sst.getBranch().equals(SipUtilities.getBranchMatchId(request))) {
                 it.remove();
-                return sst;
+                retval.add(sst);
             }
         }
-        return null;
+        return retval;
     }
     
-    public void printServerTransactions() {
-        for ( SipServerTransaction stx : this.serverTransactions ) {
-            stx.printServerTransaction();
-        }
-    }
+   
 
 }

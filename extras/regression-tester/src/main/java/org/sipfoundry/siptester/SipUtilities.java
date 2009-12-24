@@ -6,11 +6,13 @@ import gov.nist.javax.sip.address.SipURIExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
+import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.MessageFactoryExt;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
 
 import java.net.InetAddress;
+import java.net.URLDecoder;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
@@ -469,7 +471,7 @@ public class SipUtilities {
                 return oldAddress;
             }
         } catch (Exception ex) {
-            SipTester.fail("Unexpected exception",ex);
+            SipTester.fail("Unexpected exception", ex);
             throw new SipTesterException(ex);
         }
     }
@@ -480,30 +482,53 @@ public class SipUtilities {
      * @param message
      * @param newMessage
      */
-    public static void copyHeaders(Message message, Message newMessage) {
-        Iterator<String> headerNames = message.getHeaderNames();
-        while (headerNames.hasNext()) {
-            String headerName = headerNames.next();
-            if (newMessage.getHeader(headerName) == null) {
-                ListIterator<Header> headerIterator = message.getHeaders(headerName);
-                while (headerIterator.hasNext()) {
-                    Header header = headerIterator.next();
-                    Header newHeader = header;
-                    if (newHeader.getName().equals(ReferToHeader.NAME)) {
-                        ReferToHeader referToHeader = (ReferToHeader) newHeader;
-                        Address address = referToHeader.getAddress();
-                        Address newAddress = remapAddress(address);
-                        newHeader = SipTester.getHeaderFactory().createReferToHeader(newAddress);
-                    } else if (newHeader.getName().equals(ReferredByHeader.NAME)) {
-                        ReferredByHeader referToHeader = (ReferredByHeader) newHeader;
-                        Address address = referToHeader.getAddress();
-                        Address newAddress = remapAddress(address);
-                        newHeader = ((HeaderFactoryExt)SipTester.getHeaderFactory()).createReferredByHeader(newAddress);
-                   
+    public static void copyHeaders(Message message, SipMessage triggerMessage, Message newMessage) {
+        try {
+
+            if (triggerMessage instanceof SipRequest) {
+                SipRequest sipRequest = (SipRequest) triggerMessage;
+                Request request = sipRequest.getRequestEvent().getRequest();
+                ReferToHeader referTo = (ReferToHeader) request.getHeader(ReferToHeader.NAME);
+                if (referTo != null) {
+                    SipURIExt uri = (SipURIExt) referTo.getAddress().getURI();
+                    Iterator<String> headerNames = uri.getHeaderNames();
+                    while (headerNames.hasNext()) {
+                        String headerName = headerNames.next();
+                        String headerValue = URLDecoder
+                                .decode(uri.getHeader(headerName), "UTF-8");
+                        newMessage.setHeader(SipTester.getHeaderFactory().createHeader(
+                                headerName, headerValue));
                     }
-                    newMessage.addHeader(newHeader);
+                }                        
+            }
+            Iterator<String> headerNames = message.getHeaderNames();
+            while (headerNames.hasNext()) {
+                String headerName = headerNames.next();
+                if (newMessage.getHeader(headerName) == null) {
+                    ListIterator<Header> headerIterator = message.getHeaders(headerName);
+                    while (headerIterator.hasNext()) {
+                        Header header = headerIterator.next();
+                        Header newHeader = header;
+                        if (newHeader.getName().equals(ReferToHeader.NAME)) {
+                            ReferToHeader referToHeader = (ReferToHeader) newHeader;
+                            Address address = referToHeader.getAddress();
+                            Address newAddress = remapAddress(address);
+                            newHeader = SipTester.getHeaderFactory().createReferToHeader(
+                                    newAddress);
+                        } else if (newHeader.getName().equals(ReferredByHeader.NAME)) {
+                            ReferredByHeader referToHeader = (ReferredByHeader) newHeader;
+                            Address address = referToHeader.getAddress();
+                            Address newAddress = remapAddress(address);
+                            newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory())
+                                    .createReferredByHeader(newAddress);
+
+                        }
+                        newMessage.addHeader(newHeader);
+                    }
                 }
             }
+        } catch (Exception ex) {
+            SipTester.fail("unexepcted exception", ex);
         }
 
     }
@@ -515,8 +540,8 @@ public class SipUtilities {
      * 
      * @return emulated INVITE or null
      */
-    public static RequestExt createInviteRequest(RequestExt sipRequest, Endpoint endpoint)
-            throws Exception {
+    public static RequestExt createRequest(RequestExt sipRequest, SipMessage triggeringMessage,
+            Endpoint endpoint) throws Exception {
         SipURI sipUri = (SipURI) sipRequest.getRequestURI();
         String toUser = ((SipURI) sipRequest.getToHeader().getAddress().getURI()).getUser();
         ValidUsersXML validUsers = SipTester.getSutValidUsers();
@@ -619,7 +644,7 @@ public class SipUtilities {
             sipRequest.setHeader(newRouteHeader);
         }
 
-        SipUtilities.copyHeaders(sipRequest, newRequest);
+        SipUtilities.copyHeaders(sipRequest, triggeringMessage, newRequest);
 
         return (RequestExt) newRequest;
 
@@ -651,13 +676,27 @@ public class SipUtilities {
                 newResponse.setContent(content, contentTypeHeader);
             }
 
-            copyHeaders(response, newResponse);
+            copyHeaders(response, null, newResponse);
 
             return newResponse;
         } catch (Exception ex) {
             SipTester.fail("unxpeceted exception", ex);
             return null;
         }
+    }
+
+    /***
+     * Returns the branch-id parameter from the References header or the bottom most 
+     * via header if References does not exist.
+     */
+    public static String getBranchMatchId(Request request) {
+        Iterator headers = request.getHeaders(ViaHeader.NAME);
+        String bid = null;
+        while ( headers.hasNext()) {
+            ViaHeader viaHeader  = (ViaHeader) headers.next();
+            bid  = viaHeader.getBranch();
+        }
+        return bid;
     }
 
 }

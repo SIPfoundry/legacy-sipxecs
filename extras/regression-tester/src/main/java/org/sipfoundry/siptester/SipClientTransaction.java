@@ -134,7 +134,7 @@ public class SipClientTransaction extends SipTransaction implements
                     SipDialog sipDialog = SipTester.getDialog(dialogId);
                     Request prack = sipDialog.getDialog()
                             .createPrack(sipDialog.getLastResponse());
-                    SipUtilities.copyHeaders(this.sipRequest.getSipRequest(), prack);
+                    SipUtilities.copyHeaders(this.sipRequest.getSipRequest(), this.triggeringMessage, prack);
                     ClientTransaction clientTransaction = provider.getNewClientTransaction(prack);
                     clientTransaction.setApplicationData(this);
                     for (SipServerTransaction sipServerTransaction : this
@@ -150,7 +150,7 @@ public class SipClientTransaction extends SipTransaction implements
                   
                     Request newRequest = sipDialog.getDialog().createRequest(
                             sipRequest.getMethod());
-                    SipUtilities.copyHeaders(this.sipRequest.getSipRequest(), newRequest);
+                    SipUtilities.copyHeaders(this.sipRequest.getSipRequest(), this.triggeringMessage, newRequest);
                     
                     ClientTransaction clientTransaction = provider
                             .getNewClientTransaction(newRequest);
@@ -164,8 +164,8 @@ public class SipClientTransaction extends SipTransaction implements
                 }
             } else {
 
-                RequestExt newRequest = SipUtilities.createInviteRequest(this.sipRequest
-                        .getSipRequest(), endpoint);
+                RequestExt newRequest = SipUtilities.createRequest(this.sipRequest
+                        .getSipRequest(),this.triggeringMessage, endpoint);
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(newRequest);
                 clientTransaction.setApplicationData(this);
@@ -213,6 +213,10 @@ public class SipClientTransaction extends SipTransaction implements
             this.processed = true;
             newClientTransaction.setApplicationData(this);
             System.out.println("handleChallenge " + this.getTransactionId());
+            for (SipServerTransaction st :  this.serverTransactions ) {
+                System.out.println("setBranch " + st.getTransactionId() + " bid " + newClientTransaction.getBranchId() );
+                st.setBranch(newClientTransaction.getBranchId());
+            }
             if ( responseExt.getFromHeader().getTag() != null && responseExt.getToHeader().getTag() != null ) {
                 newClientTransaction.getDialog().sendRequest(newClientTransaction);
             } else {
@@ -358,8 +362,18 @@ public class SipClientTransaction extends SipTransaction implements
         SipTester.getPrintWriter().println("<sip-request><![CDATA[" + this.getSipRequest().getSipRequest() + "]]></sip-request>");
         printHappensBefore();
         printResponses();
+        printMatchingServerTansactions();
         SipTester.getPrintWriter().println("</sip-client-transaction>\n");
         
+    }
+
+    private void printMatchingServerTansactions() {
+        SipTester.getPrintWriter().println("<matching-server-transactions>");
+        for ( SipServerTransaction sst : this.serverTransactions ) {
+            SipTester.getPrintWriter().println("<server-transaction-id>" + sst.getTransactionId() 
+                    + "</server-transaction-id>");
+        }
+        SipTester.getPrintWriter().println("</matching-server-transactions>");
     }
 
 }

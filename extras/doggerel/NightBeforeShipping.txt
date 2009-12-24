@@ -6,16 +6,27 @@ The buildbot was compiling
 the objects with care.
 Tracking the symbols and binaries with flair.
 
+But alas that was not to be
+For bad code it had found you see
+That brought it to its knees.
+
+Scott broke the build in his usual style.
+He had thrown in in a  rather large pile
+Of un-adulterated Perl.
+
 The ISO was finished
 'twas time to be shipped.
 But Martin decided "Hold on, one more fix!"
+While slipping a sea monster into the mix.
 
-So back to the source.
 One more line.  One less bug.
 "This will really be it", he said with a shrug.
+But he never did see the well hidden bug
+Or the monster that lurked below.
 
 So back to the buildbot
 Let it do its thing.
 For who knows what riches this release will bring?
+
 
 --Woof!

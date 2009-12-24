@@ -37,14 +37,15 @@ public class SipServerTransaction extends SipTransaction implements
      */
     private SipDialog dialog;
 
+    /*
+     * The client transaction branch that maps to this server transaction.
+     */
     private String branch;
 
     /*
      * The emulated server transaction.
      */
     private ServerTransaction serverTransaction;
-
-    private static Hashtable<String, SipServerTransaction> branchTable = new Hashtable<String, SipServerTransaction>();
 
     public SipServerTransaction(SipRequest sipRequest) {
         this.sipRequest = sipRequest;
@@ -89,6 +90,7 @@ public class SipServerTransaction extends SipTransaction implements
                   return ((SIPResponse) response).getDialogId(true);
             }
         }
+        
         return null;
     }
 
@@ -117,29 +119,27 @@ public class SipServerTransaction extends SipTransaction implements
     public void setBranch(String branch) {
         this.branch = branch;
         logger.debug("setBranch " + branch);
-        branchTable.put(branch, this);
     }
 
-    public static SipServerTransaction findSipServerTransaction(Request request) {
-        Iterator viaHeaders = request.getHeaders(ViaHeader.NAME);
-        ViaHeader viaHeader = null;
-        while (viaHeaders.hasNext()) {
-            viaHeader = (ViaHeader) viaHeaders.next();
-        }
-
-        String branch = viaHeader.getBranch();
-        logger.debug(branchTable);
-        logger.debug("branch " + branch);
-        return branchTable.get(branch);
+    public String getBranch() {
+        return this.branch;
     }
 
     public void printServerTransaction() {
-        logger.debug("serverTransaction {");
-        logger.debug(this.sipRequest.getSipRequest().getFirstLine().trim());
+        SipTester.getPrintWriter().println("<server-transaction>");
+        SipTester.getPrintWriter().println("<transaction-id>" + this.getTransactionId() + "</transaction-id>");
+        
+        SipTester.getPrintWriter().println("<sip-request><![CDATA[");
+        SipTester.getPrintWriter().print(this.sipRequest.getSipRequest());
+        SipTester.getPrintWriter().println("]]></sip-request>");
+        SipTester.getPrintWriter().println("<responses>");
+        
         for (SipResponse response : this.responses) {
-            logger.debug(response.getSipResponse().getFirstLine().trim());
+            SipTester.getPrintWriter().println("<sip-response><![CDATA[");
+            SipTester.getPrintWriter().println(response.getSipResponse() + "]]></sip-response>" );
         }
-        logger.debug("}");
+        SipTester.getPrintWriter().println("</responses>");
+        SipTester.getPrintWriter().println("</server-transaction>");
     }
 
     public void sendResponses() {
@@ -196,11 +196,13 @@ public class SipServerTransaction extends SipTransaction implements
         this.serverTransaction = serverTransaction;
         serverTransaction.setApplicationData(this);
         DialogExt dialog = (DialogExt) this.serverTransaction.getDialog();
-        dialog.setApplicationData(this.dialog);
         String dialogId = this.getDialogId();
-        SipDialog sipDialog = SipTester.getDialog(dialogId);
-        dialog.setApplicationData(sipDialog);
-        sipDialog.setDialog(dialog);
+        System.out.println("dialogId " + dialogId);
+        if ( dialogId != null ) {
+             SipDialog sipDialog = SipTester.getDialog(dialogId);
+             dialog.setApplicationData(sipDialog);
+             sipDialog.setDialog(dialog);
+        }
     }
 
 }

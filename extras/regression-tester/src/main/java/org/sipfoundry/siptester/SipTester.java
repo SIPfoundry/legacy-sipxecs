@@ -152,7 +152,7 @@ public class SipTester {
                                     + " port = " + endpoint.getSutUA().getPort());
 
                         }
-                        break;
+                       
                     } else
                         throw new SipTesterException("TODO -- handle B2BUA traces");
                 }
@@ -370,7 +370,6 @@ public class SipTester {
                 Endpoint endpoint = sutUa.getEndpoint();
                 logger.debug("endpoint " + endpoint.getSutUA().getIpAddress() + "/"
                         + endpoint.getSutUA().getPort());
-                endpoint.printServerTransactions();
                 Iterator<SipClientTransaction> it = endpoint.getClientTransactions().iterator();
                 while (it.hasNext()) {
 
@@ -470,13 +469,19 @@ public class SipTester {
                 SipClientTransaction currentTx = runIt.next();
                 currentTx.printTransaction();
             }
+            getPrintWriter().println("<!--  SERVER TRANSACTIONS -->");
+            runIt = runnable.iterator();
+            while(runIt.hasNext()) {
+                SipClientTransaction currentTx = runIt.next();
+                for (SipServerTransaction sst : currentTx.getMatchingServerTransactions())  {
+                    sst.printServerTransaction();
+                }
+            }
 
             schedule.flush();
+            schedule.close();
             
-            logger.debug("==============SERVER TRANSACTIONS =============");
-            for (Endpoint endpoint : getEndpoints()) {
-                endpoint.printServerTransactions();
-            }
+            
 
             logger.debug("Map = " + SipTester.actualUserToTestUserMap);
             System.out.println("startTime " + startTime);
