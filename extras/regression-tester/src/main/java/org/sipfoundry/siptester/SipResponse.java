@@ -8,10 +8,13 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.sip.ResponseEvent;
+
 public class SipResponse extends SipMessage {
      private gov.nist.javax.sip.message.ResponseExt sipResponse;
      
-     private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
+     private ResponseEvent responseEvent;
+     
     
     public SipResponse( ResponseExt sipResponse, long time, File logFile) {
         this.sipResponse = sipResponse;
@@ -31,18 +34,30 @@ public class SipResponse extends SipMessage {
         return (MessageExt)sipResponse;
     }
 
-    public void addPostCondition(SipClientTransaction previousTx) {
-        this.postCondition.add(previousTx);
-    
-      
+    public int getStatusCode() {
+       return sipResponse.getStatusCode();
     }
 
-
-
-    public Collection<SipClientTransaction> getPostConditions() {
-        return this.postCondition;
+    /**
+     * @param responseEvent the responseEvent to set
+     */
+    public void setResponseEvent(ResponseEvent responseEvent) {
+        this.responseEvent = responseEvent;
     }
 
+    /**
+     * @return the responseEvent
+     */
+    public ResponseEvent getResponseEvent() {
+        return responseEvent;
+    }
+
+   
+
+   
+
+
+   
    
 
 }

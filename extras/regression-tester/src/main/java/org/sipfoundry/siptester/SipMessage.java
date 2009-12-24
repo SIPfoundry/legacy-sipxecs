@@ -3,11 +3,23 @@ package org.sipfoundry.siptester;
 import gov.nist.javax.sip.message.MessageExt;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.HashSet;
 
 
 public abstract class SipMessage implements Comparable<SipMessage> {
     protected File logFile;
-    protected long time;
+    protected long time;   
+    private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
+    
+    public void addPostCondition(SipClientTransaction previousTx) {
+        this.postCondition.add(previousTx);      
+    }
+    
+    public Collection<SipClientTransaction> getPostConditions() {
+        return this.postCondition;
+    }
+    
     
     @Override
     public int compareTo(SipMessage sipMessage) {

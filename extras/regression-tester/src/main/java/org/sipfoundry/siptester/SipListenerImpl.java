@@ -1,16 +1,9 @@
 package org.sipfoundry.siptester;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Random;
-
-import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.DialogTimeoutEvent;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipListenerExt;
 import gov.nist.javax.sip.message.RequestExt;
-import gov.nist.javax.sip.message.ResponseExt;
-import gov.nist.javax.sip.message.SIPRequest;
 
 import javax.sip.ClientTransaction;
 import javax.sip.DialogTerminatedEvent;
@@ -18,13 +11,10 @@ import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
-import javax.sip.SipListener;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.RequireHeader;
-import javax.sip.header.ToHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -83,15 +73,21 @@ public class SipListenerImpl implements SipListenerExt {
                     serverTransaction.sendResponse(response);
                     return;
                 }
+                SipTester.fail("Unepxected server transaction " + request.getFirstLine().trim());
             }
 
             serverTransaction.setApplicationData(sst);
             sst.setServerTransaction(serverTransaction);
-            SipDialog sipDialogWrapper = sst.getSipDialog();
-            System.out.println("processRequest " + request.getFirstLine().trim() + " sipDialog = " + sipDialogWrapper);
-
-          
+            String dialogId = sst.getDialogId();
+            SipDialog sipDialog = SipTester.getDialog(dialogId);
+            System.out.println("processRequest " + request.getFirstLine().trim() + " sipDialog = " +  dialogId);
+            sipDialog.setLastRequestReceived(request);
             sst.sendResponses();
+            for ( SipClientTransaction ct : sst.getSipRequest().getPostConditions() ){
+              ct.removePrecondition(sst.getSipRequest());
+            }
+          
+           
             
           
         } catch (Exception ex) {
@@ -111,7 +107,7 @@ public class SipListenerImpl implements SipListenerExt {
                 registrationManager.processResponse(responseEvent);
             } else if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
                     || method.equals(Request.NOTIFY) || method.equals(Request.PRACK)
-                    || method.equals(Request.BYE)) {
+                    || method.equals(Request.BYE)    || method.equals(Request.REFER)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
                 SipClientTransaction sipCtx = (SipClientTransaction) ctx.getApplicationData();
                 sipCtx.processResponse(responseEvent);

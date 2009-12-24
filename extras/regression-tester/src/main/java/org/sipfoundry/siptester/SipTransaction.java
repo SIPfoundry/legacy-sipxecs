@@ -1,5 +1,7 @@
 package org.sipfoundry.siptester;
 
+import gov.nist.javax.sip.message.SIPRequest;
+
 public abstract class SipTransaction {
     
     protected SipRequest sipRequest;
@@ -22,6 +24,10 @@ public abstract class SipTransaction {
      */
     public SipRequest getSipRequest() {
         return sipRequest;
+    }
+    
+    public String getTransactionId() {
+        return ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
     }
     
 }

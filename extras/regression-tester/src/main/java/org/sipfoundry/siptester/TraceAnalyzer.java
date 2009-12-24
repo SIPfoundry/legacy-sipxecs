@@ -56,7 +56,7 @@ public class TraceAnalyzer {
                     /*
                      * Find the server tx to which this response belongs.
                      */
-                    if (endpoint.getSipServerTransaction(transactionId) != null) {
+                    if (SipTester.getSipServerTransaction(transactionId) != null) {
                         logger.trace("found SipServerTransaction for message OUTGOING "
                                 + transactionId);
                         /*
@@ -65,7 +65,7 @@ public class TraceAnalyzer {
                         endpoint.addOriginatingPacket(capturedLogPacket);
                     }
 
-                    if (endpoint.getSipClientTransaction(transactionId) != null) {
+                    if (SipTester.getSipClientTransaction(transactionId) != null) {
                         logger.trace("found SipClientTransaction for message OUTGOING  "
                                 + transactionId);
                         /*

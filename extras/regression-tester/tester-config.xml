@@ -5,4 +5,8 @@
   <log-level>DEBUG</log-level>
   <test-user>testuser1</test-user>
   <test-user>testuser2</test-user>
+  <test-user>testuser3</test-user>
+  <test-user>testuser4</test-user>
+  <test-user>testuser5</test-user>
+  <test-user>testuser6</test-user>
 </tester-config>

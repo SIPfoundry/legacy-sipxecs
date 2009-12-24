@@ -35,10 +35,7 @@ public class Endpoint  {
     
     private Collection<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
     
-    private Map<String,SipClientTransaction> clientTransactionMap = new HashMap<String,SipClientTransaction>();
-    
-    private Map<String,SipServerTransaction> serverTransactionMap = new HashMap<String,SipServerTransaction>();
-
+  
     private Map<String,SipProviderExt> sipProviders = new HashMap<String,SipProviderExt>();
      
     Hashtable<String,SipDialog> sipDialogs = new Hashtable<String,SipDialog>();
@@ -120,7 +117,7 @@ public class Endpoint  {
     
     private void addOriginatingSipRequest(SipRequest sipRequest) {
         String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
-        SipClientTransaction clientTx = this.clientTransactionMap.get(transactionid);
+        SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
         /*
          * We handle REGISTER requests independently. We do not emulate REGISTER requests.
          * Just keep track of who registered from where.
@@ -134,7 +131,7 @@ public class Endpoint  {
         if (!SipTester.isExcluded(sipRequest.getSipRequest().getMethod())) {
             if (clientTx == null) {
                 clientTx = new SipClientTransaction(sipRequest);
-                this.clientTransactionMap.put(transactionid, clientTx);
+                SipTester.clientTransactionMap.put(transactionid, clientTx);
                 this.clientTransactions.add(clientTx);
                 clientTx.setEndpoint(this);
                 logger.debug("created clientTransaction "
@@ -148,10 +145,10 @@ public class Endpoint  {
 
     private void addReceivedSipRequest(SipRequest sipRequest) {
         String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
-        SipServerTransaction serverTx = this.serverTransactionMap.get(transactionid);
+        SipServerTransaction serverTx = SipTester.serverTransactionMap.get(transactionid);
         if ( serverTx == null ) {
             serverTx = new SipServerTransaction(sipRequest);
-            this.serverTransactionMap.put(transactionid, serverTx);
+            SipTester.serverTransactionMap.put(transactionid, serverTx);
             this.serverTransactions.add(serverTx);
             serverTx.setEndpoint(this);
             logger.debug("created serverTransaction : " +sipRequest.getSipRequest().getFirstLine());
@@ -162,7 +159,7 @@ public class Endpoint  {
     
     private void addReceivedSipResponse(SipResponse sipResponse) {
         String transactionid = ((SIPResponse)sipResponse.getSipResponse()).getTransactionId();
-        SipClientTransaction clientTx = this.clientTransactionMap.get(transactionid);
+        SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
         if ( clientTx == null ) {
             logger.debug("Cannot find clientTx for received response");
             return;
@@ -172,7 +169,7 @@ public class Endpoint  {
 
     public void addOriginatingSipResponse(SipResponse sipResponse) {
         String transactionid = ((SIPResponse)sipResponse.getSipResponse()).getTransactionId();
-        SipServerTransaction serverTx = this.serverTransactionMap.get(transactionid);
+        SipServerTransaction serverTx = SipTester.getSipServerTransaction(transactionid);
         if ( serverTx == null  )  {
             logger.debug("Cannot find serverTx for transmitted response");
             return;
@@ -180,14 +177,8 @@ public class Endpoint  {
         serverTx.addResponse(sipResponse);  
     }
     
-    public SipServerTransaction getSipServerTransaction(String transactionId) {
-        return this.serverTransactionMap.get(transactionId);
-    }
-
-    public SipClientTransaction getSipClientTransaction(String transactionId) {
-         return this.clientTransactionMap.get(transactionId);
-    }
-
+    
+   
     public Collection<SipClientTransaction> getClientTransactions() {
         return this.clientTransactions;
     }
@@ -230,20 +221,7 @@ public class Endpoint  {
         return this.sipProviders.get(transport.toUpperCase());       
     }
     
-    public SipDialog getDialog(String dialogId) {
-        System.out.println("dialogId " + dialogId);
-        if ( dialogId == null ) return null;
-        else {
-             SipDialog sipDialog = this.sipDialogs.get(dialogId) ;
-             if ( sipDialog != null ) {
-                 return sipDialog;
-             } else {
-                 sipDialog = new SipDialog();
-                 this.sipDialogs.put(dialogId, sipDialog);
-                 return sipDialog;
-             }
-        }
-    }
+    
 
 
 
@@ -268,7 +246,7 @@ public class Endpoint  {
                        // Thread.sleep(timeToSleep);
                         prevTime = ctx.getDelay();
                         System.out.println("aboutToEmulate " + ctx.getSipRequest().getSipRequest().getFirstLine());
-                        if ( ctx.checkPreconditions() ) {
+                        if ( ctx.checkPreconditions() && ! ctx.processed  ) {
                             ctx.createAndSend();
                         }
                      }
@@ -297,10 +275,7 @@ public class Endpoint  {
     }
     
     public void printServerTransactions() {
-        if ( this.serverTransactionMap.isEmpty()) {
-            logger.debug("empty server transaction map");
-        }
-        for ( SipServerTransaction stx : this.serverTransactionMap.values() ) {
+        for ( SipServerTransaction stx : this.serverTransactions ) {
             stx.printServerTransaction();
         }
     }

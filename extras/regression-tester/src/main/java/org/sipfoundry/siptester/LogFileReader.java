@@ -110,14 +110,14 @@ public class LogFileReader {
                         /*
                          * Find the server tx to which this response belongs.
                          */
-                        if (endpoint.getSipServerTransaction(transactionId) != null) {
+                        if (SipTester.getSipServerTransaction(transactionId) != null) {
                             /*
                              * Add the response to the server tx.
                              */
                             endpoint.addOriginatingPacket(capturedLogPacket);
                         }
 
-                        if (endpoint.getSipClientTransaction(transactionId) != null) {
+                        if (SipTester.getSipClientTransaction(transactionId) != null) {
                             logger.trace("found SipClientTransaction for message INCOMING "
                                     + transactionId);
                             /*
@@ -163,7 +163,7 @@ public class LogFileReader {
                         /*
                          * Find the server tx to which this response belongs.
                          */
-                        if (endpoint.getSipServerTransaction(transactionId) != null) {
+                        if (SipTester.getSipServerTransaction(transactionId) != null) {
                             logger.trace("found SipServerTransaction for message OUTGOING "
                                     + transactionId);
                             /*
@@ -172,7 +172,7 @@ public class LogFileReader {
                             endpoint.addOriginatingPacket(capturedLogPacket);
                         }
 
-                        if (endpoint.getSipClientTransaction(transactionId) != null) {
+                        if (SipTester.getSipClientTransaction(transactionId) != null) {
                             logger.trace("found SipClientTransaction for message OUTGOING  "
                                     + transactionId);
                             /*

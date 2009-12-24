@@ -90,15 +90,16 @@ public class SipDialog {
     public void setLastRequestReceived(RequestExt request) {
         this.lastRequestReceived = request;
         if ( this.lastRequestReceived.getMethod().equals(Request.PRACK) ) {
+            System.out.println("releaseParak sem " + this);
             this.prackSem.release();
         }
     }
 
-    public void waitForPrack(Response newResponse) {
+    public void waitForPrack() {
         try {
             boolean acquired = this.prackSem.tryAcquire(10, TimeUnit.SECONDS);
             if (!acquired) {
-                SipTester.fail("Could not acuqire ACK semaphore");
+                SipTester.fail("Could not acuqire PRACK semaphore " + this);
             }
         } catch (Exception ex) {
             SipTester.fail("Unexpected exception ", ex);

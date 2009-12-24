@@ -449,6 +449,31 @@ public class SipUtilities {
         }
     }
 
+    public static Address remapAddress(Address oldAddress) {
+        try {
+            SipURI sipUri = (SipURI) oldAddress.getURI();
+
+            if (sipUri.getHost().equals(SipTester.getSutDomainName())) {
+                String user = sipUri.getUser();
+                String testUser = SipTester.getTestUser(user);
+                SipURI newSipUri = SipTester.getAddressFactory().createSipURI(testUser,
+                        SipTester.getTesterConfig().getSipxProxyDomain());
+                Iterator<String> names = sipUri.getParameterNames();
+                while (names.hasNext()) {
+                    String name = names.next();
+                    String value = sipUri.getParameter(name);
+                    newSipUri.setHeader(name, value);
+                }
+                return SipTester.getAddressFactory().createAddress(newSipUri);
+            } else {
+                return oldAddress;
+            }
+        } catch (Exception ex) {
+            SipTester.fail("Unexpected exception",ex);
+            throw new SipTesterException(ex);
+        }
+    }
+
     /**
      * This routine copies headers from inbound to outbound responses.
      * 
@@ -460,9 +485,23 @@ public class SipUtilities {
         while (headerNames.hasNext()) {
             String headerName = headerNames.next();
             if (newMessage.getHeader(headerName) == null) {
-                ListIterator<Header> responseHeaderIterator = message.getHeaders(headerName);
-                while (responseHeaderIterator.hasNext()) {
-                    newMessage.addHeader(responseHeaderIterator.next());
+                ListIterator<Header> headerIterator = message.getHeaders(headerName);
+                while (headerIterator.hasNext()) {
+                    Header header = headerIterator.next();
+                    Header newHeader = header;
+                    if (newHeader.getName().equals(ReferToHeader.NAME)) {
+                        ReferToHeader referToHeader = (ReferToHeader) newHeader;
+                        Address address = referToHeader.getAddress();
+                        Address newAddress = remapAddress(address);
+                        newHeader = SipTester.getHeaderFactory().createReferToHeader(newAddress);
+                    } else if (newHeader.getName().equals(ReferredByHeader.NAME)) {
+                        ReferredByHeader referToHeader = (ReferredByHeader) newHeader;
+                        Address address = referToHeader.getAddress();
+                        Address newAddress = remapAddress(address);
+                        newHeader = ((HeaderFactoryExt)SipTester.getHeaderFactory()).createReferredByHeader(newAddress);
+                   
+                    }
+                    newMessage.addHeader(newHeader);
                 }
             }
         }
@@ -479,7 +518,7 @@ public class SipUtilities {
     public static RequestExt createInviteRequest(RequestExt sipRequest, Endpoint endpoint)
             throws Exception {
         SipURI sipUri = (SipURI) sipRequest.getRequestURI();
-        String toUser = ((SipURI)sipRequest.getToHeader().getAddress().getURI()).getUser();
+        String toUser = ((SipURI) sipRequest.getToHeader().getAddress().getURI()).getUser();
         ValidUsersXML validUsers = SipTester.getSutValidUsers();
         String domain = sipUri.getHost();
         String method = sipRequest.getMethod();
@@ -519,12 +558,12 @@ public class SipUtilities {
                 && SipTester.getTestUser(fromUser) != null) {
             String newDomain = SipTester.getTesterConfig().getSipxProxyDomain();
             String newFromUser = SipTester.getTestUser(fromUser);
-            SipURI newFromURI = SipTester.getStackBean().getAddressFactory().createSipURI(newFromUser, newDomain);
+            SipURI newFromURI = SipTester.getStackBean().getAddressFactory().createSipURI(
+                    newFromUser, newDomain);
             Address newFromAddress = SipTester.getAddressFactory().createAddress(newFromURI);
             newFromAddress.setDisplayName(newFromUser);
             String fromTag = sipRequest.getFromHeader().getTag();
-            fromHeader = SipTester.getHeaderFactory().createFromHeader(newFromAddress,
-                    fromTag);
+            fromHeader = SipTester.getHeaderFactory().createFromHeader(newFromAddress, fromTag);
 
         }
 
@@ -605,14 +644,15 @@ public class SipUtilities {
                 ToHeader newTo = newResponse.getToHeader();
                 newTo.setTag(toTag);
             }
-            ContentTypeHeader contentTypeHeader = (ContentTypeHeader) response.getHeader(ContentTypeHeader.NAME);
+            ContentTypeHeader contentTypeHeader = (ContentTypeHeader) response
+                    .getHeader(ContentTypeHeader.NAME);
             byte[] content = response.getRawContent();
-            if ( content != null ) {
+            if (content != null) {
                 newResponse.setContent(content, contentTypeHeader);
             }
-            
+
             copyHeaders(response, newResponse);
-            
+
             return newResponse;
         } catch (Exception ex) {
             SipTester.fail("unxpeceted exception", ex);

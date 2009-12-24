@@ -25,16 +25,23 @@ public class SipServerTransaction extends SipTransaction implements
         Comparable<SipServerTransaction> {
     private static Logger logger = Logger.getLogger(SipServerTransaction.class);
 
-    ConcurrentSkipListSet<SipResponse> retransmittedResponses = new ConcurrentSkipListSet<SipResponse>();
+    private ConcurrentSkipListSet<SipResponse> responses = new ConcurrentSkipListSet<SipResponse>();
 
-    ConcurrentSkipListSet<SipRequest> retransmittedRequests = new ConcurrentSkipListSet<SipRequest>();
-
+    /*
+     * The endpoint to which the server transaction belongs.
+     */
     private Endpoint endpoint;
 
+    /*
+     * The Mock dialog to which the server transaction belongs.
+     */
     private SipDialog dialog;
 
     private String branch;
 
+    /*
+     * The emulated server transaction.
+     */
     private ServerTransaction serverTransaction;
 
     private static Hashtable<String, SipServerTransaction> branchTable = new Hashtable<String, SipServerTransaction>();
@@ -58,22 +65,11 @@ public class SipServerTransaction extends SipTransaction implements
     }
 
     public void addRequest(SipRequest sipRequest) {
-        if (sipRequest.getLogFile() == this.sipRequest.getLogFile()) {
-            logger.trace("addRequest : adding retransmitted request");
-            this.retransmittedRequests.add(sipRequest);
-        } else {
-            logger.trace("not adding retransmitted request. File does not match");
-        }
+        logger.debug("retransmittedRequest -- ignoring " + sipRequest.getSipRequest().getFirstLine());
     }
 
     public void addResponse(SipResponse sipResponse) {
-        if (sipRequest.getLogFile() == this.sipRequest.getLogFile()) {
-            logger.debug("SipServerTransaction.addResponse "
-                    + sipResponse.getSipResponse().getFirstLine());
-            this.retransmittedResponses.add(sipResponse);
-        } else {
-            logger.trace("not adding retransmitted response. File does not match");
-        }
+         this.responses.add(sipResponse);       
     }
 
     /**
@@ -83,14 +79,14 @@ public class SipServerTransaction extends SipTransaction implements
      */
     public String getDialogId() {
         if (sipRequest.getSipRequest().getFromHeader().getTag() != null
-                && sipRequest.getSipRequest().getToHeader() != null) {
-            return ((SIPRequest) sipRequest.getSipRequest()).getDialogId(true);
+                && sipRequest.getSipRequest().getToHeader().getTag() != null) {  
+              return ((SIPRequest) sipRequest.getSipRequest()).getDialogId(true);
         }
-        for (SipResponse sipResponse : retransmittedResponses) {
+        for (SipResponse sipResponse : responses) {
             ResponseExt response = sipResponse.getSipResponse();
             if (response.getFromHeader().getTag() != null
-                    && response.getFromHeader().getTag() != null) {
-                return ((SIPResponse) response).getDialogId(true);
+                    && response.getToHeader().getTag() != null) {
+                  return ((SIPResponse) response).getDialogId(true);
             }
         }
         return null;
@@ -120,7 +116,7 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void setBranch(String branch) {
         this.branch = branch;
-        System.out.println("setBranch " + branch);
+        logger.debug("setBranch " + branch);
         branchTable.put(branch, this);
     }
 
@@ -132,15 +128,15 @@ public class SipServerTransaction extends SipTransaction implements
         }
 
         String branch = viaHeader.getBranch();
-        System.out.println(branchTable);
-        System.out.println("branch " + branch);
+        logger.debug(branchTable);
+        logger.debug("branch " + branch);
         return branchTable.get(branch);
     }
 
     public void printServerTransaction() {
         logger.debug("serverTransaction {");
         logger.debug(this.sipRequest.getSipRequest().getFirstLine().trim());
-        for (SipResponse response : this.retransmittedResponses) {
+        for (SipResponse response : this.responses) {
             logger.debug(response.getSipResponse().getFirstLine().trim());
         }
         logger.debug("}");
@@ -149,7 +145,7 @@ public class SipServerTransaction extends SipTransaction implements
     public void sendResponses() {
         try {
             RequestExt request = (RequestExt) serverTransaction.getRequest();
-            Iterator<SipResponse> it = this.retransmittedResponses.iterator();
+            Iterator<SipResponse> it = this.responses.iterator();
             while (it.hasNext()) {
                 ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, it.next());
                 it.remove();
@@ -162,11 +158,11 @@ public class SipServerTransaction extends SipTransaction implements
                         isReliableResponse = true;
                     }
                 }
-                if (newResponse.getFromHeader().getTag() != null && newResponse.getToHeader().getTag() != null ) {
-                    String dialogId = ((SIPResponse) newResponse).getDialogId(true);
-                    SipDialog sipDialog = endpoint.getDialog(dialogId);
+                /*if (newResponse.getFromHeader().getTag() != null && newResponse.getToHeader().getTag() != null ) {
+                    String dialogId = getDialogId();
+                    SipDialog sipDialog = SipTester.getDialog(dialogId);
                     sipDialog.setDialog((DialogExt)serverTransaction.getDialog());
-                }
+                }*/
                 if (!isReliableResponse || newResponse.getStatusCode() / 100 >= 2) {
                     serverTransaction.sendResponse(newResponse);
                 } else {
@@ -176,9 +172,9 @@ public class SipServerTransaction extends SipTransaction implements
                         @Override
                         public void run() {
                             try {      
-                                SipDialog sipDialog = (SipDialog) serverTransaction.getDialog()
-                                        .getApplicationData();
-                                sipDialog.prackSem.tryAcquire(10, TimeUnit.SECONDS);
+                                String dialogId = getDialogId();
+                                SipDialog dialog = SipTester.getDialog(dialogId);
+                                dialog.waitForPrack();
                                 sendResponses();
                             } catch (Exception ex) {
                                 SipTester.fail("Unexpected exception", ex);
@@ -201,7 +197,10 @@ public class SipServerTransaction extends SipTransaction implements
         serverTransaction.setApplicationData(this);
         DialogExt dialog = (DialogExt) this.serverTransaction.getDialog();
         dialog.setApplicationData(this.dialog);
-        this.dialog.setDialog(dialog);
+        String dialogId = this.getDialogId();
+        SipDialog sipDialog = SipTester.getDialog(dialogId);
+        dialog.setApplicationData(sipDialog);
+        sipDialog.setDialog(dialog);
     }
 
 }
