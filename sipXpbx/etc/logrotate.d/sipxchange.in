@@ -9,16 +9,23 @@ rotate 14
 # It's OK if the files aren't there
 missingok
 
-# Now we list the files, excluding sipxconfig.log.  If you have
+# Now we list the files, excluding sipxconfig.log, sipxconfig-logins.log and sipXalarms.log.  If you have
 # a log file that starts with 's' but not with 'sip', and you
 # want it rotated w/o copytruncate, list full path name here
-@SIPX_LOGDIR@/sip?[!c]*.log @SIPX_LOGDIR@/sip?c[!o]*.log @SIPX_LOGDIR@/[!sf]*.log {
+@SIPX_LOGDIR@/sip?[!ac]*.log @SIPX_LOGDIR@/sip?c[!o]*.log @SIPX_LOGDIR@/sip?a[!l]*.log @SIPX_LOGDIR@/[!sf]*.log {
 }
 
 # Java does not reopen log file periodically, make a copy
 # and truncate current log file.  May lose some data, but 
 # this will be addressed in future release
-@SIPX_LOGDIR@/sipxconfig*.log {
+@SIPX_LOGDIR@/sipxconfig.log  @SIPX_LOGDIR@/sipxconfig-[!l]*.log {
+   copytruncate
+}
+
+# sipxconfig-logins and sipXalarms should only be rotated weekly.  Data
+# in these log files provide a history of information needed by sipXconfig.
+@SIPX_LOGDIR@/sipxconfig-l*.log @SIPX_LOGDIR@/sip?al*.log {
+   weekly
    copytruncate
 }
 
