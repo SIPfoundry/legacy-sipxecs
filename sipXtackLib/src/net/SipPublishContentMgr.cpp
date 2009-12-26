@@ -85,7 +85,6 @@ PublishContentContainer::~PublishContentContainer()
 {
    // Delete the stored information.
    mEventContent.destroyAll();
-   mEventVersion.destroyAll();
 }
 
 // Dump the object's internal state.
