@@ -85,12 +85,6 @@ ResourceReference::~ResourceReference()
 
 /* ============================ MANIPULATORS ============================== */
 
-//! Refresh the resource's subscriptions.
-void ResourceReference::refresh()
-{
-   mResourceCached->refresh();
-}
-
 // Add to the HttpBody the current state of the resource.
 void ResourceReference::generateBody(UtlString& rlmi,
                                      HttpBody& body,

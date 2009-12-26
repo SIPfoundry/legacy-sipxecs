@@ -34,9 +34,6 @@
 
 const UtlContainableType ResourceCached::TYPE = "ResourceCached";
 
-// Random number generator.
-UtlRandom ResourceCached::sRandom;
-
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -48,10 +45,7 @@ ResourceCached::ResourceCached(ResourceCache* resourceCache,
    UtlString(uri),
    mResourceCache(resourceCache),
    mContactSetP(0),
-   mSeqNo(getResourceListSet()->getNextSeqNo()),
-   mRefreshTimer(getResourceListServer()->getResourceListTask().
-                    getMessageQueue(),
-                 (void*)(mSeqNo + ResourceListSet::REFRESH_TIMEOUT))
+   mSeqNo(getResourceListSet()->getNextSeqNo())
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCached:: this = %p, URI = '%s'",
@@ -98,20 +92,6 @@ UtlBoolean ResourceCached::hasReferences()
    return !mReferences.isEmpty();
 }
 
-// Refresh the resource's subscriptions.
-void ResourceCached::refresh()
-{
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceCached::refresh URI = '%s'",
-                 data());
-
-   // Reinitialize subscription machinery.
-   terminateSubscriptions();
-
-   // Start subscriptions.
-   startSubscriptions();
-}
-
 //! Start subscriptions for this resource.
 void ResourceCached::startSubscriptions()
 {
@@ -125,17 +105,6 @@ void ResourceCached::startSubscriptions()
                                  // of a RecourceCached.
                                  *(static_cast <UtlString*> (this))
       );
-   // Start the refresh timer.
-   // Choose a random time between 1/2 and 1 times
-   // ResourceListServer::getRefreshInterval().
-   int refresh_time =
-      (int) ((1.0 + ((float) sRandom.rand()) / RAND_MAX) / 2.0 *
-             getResourceListServer()->getRefreshInterval());
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceCached::startSubscriptions refresh_time = %d",
-                 refresh_time);
-   OsTime rt(refresh_time, 0);
-   mRefreshTimer.oneshotAfter(rt);
 }
 
 // Terminate any existing subscriptions for this resource.
@@ -144,9 +113,6 @@ void ResourceCached::terminateSubscriptions()
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCached::terminateSubscriptions URI = '%s'",
                  data());
-
-   // Stop the refresh timer, asynchronously so it cannot block.
-   mRefreshTimer.stop(FALSE);
 
    // Terminate any existing subscriptions.
    if (mContactSetP)
@@ -341,18 +307,9 @@ void ResourceCached::dumpState()
 {
    // indented 6
 
-   OsTimer::OsTimerState state;
-   OsTimer::Time expiresAt;
-   UtlBoolean periodic;
-   OsTimer::Interval period;
-   mRefreshTimer.getFullState(state, expiresAt, periodic, period);
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t      ResourceCached %p UtlString = '%s', mSeqNo = %d, mRefreshTimer = %s/%+d/%s/%d",
-                 this, data(), mSeqNo,
-                 state == OsTimer::STARTED ? "STARTED" : "STOPPED",
-                 (int) ((expiresAt - OsTimer::now()) / 1000000),
-                 periodic ? "periodic" : "one-shot",
-                 (int) period);
+                 "\t      ResourceCached %p UtlString = '%s', mSeqNo = %d",
+                 this, data(), mSeqNo);
    mContactSetP->dumpState();
 }
 

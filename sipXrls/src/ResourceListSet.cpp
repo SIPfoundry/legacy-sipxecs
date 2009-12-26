@@ -116,20 +116,6 @@ void ResourceListSet::finalize()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Refresh the subscriptions of all resources in all resource lists.
-void ResourceListSet::refreshAllResources()
-{
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListSet::refreshAllResources this = %p",
-                 this);
-
-   // Serialize access to the resource list set.
-   OsLock lock(mSemaphore);
-
-   // Send the request to the ResourceCache, which contains all the resources.
-   mResourceCache.refreshAllResources();
-}
-
 // Create and add a resource list.
 bool ResourceListSet::addResourceList(const char* user,
                                       const char* userCons,
@@ -784,33 +770,6 @@ void ResourceListSet::deleteResourceSeqNoMapping(int seqNo)
    {
       OsSysLog::add(FAC_RLS, PRI_WARNING,
                     "ResourceListSet::deleteResourceSeqNoMapping seqNo = %d not found",
-                    seqNo);
-   }
-}
-
-// Refresh the subscriptions of a resource.
-void ResourceListSet::refreshResourceBySeqNo(int seqNo)
-{
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceListSet::refreshResourceBySeqNo seqNo = %d",
-                 seqNo);
-
-   // Serialize access to the resource list set.
-   OsLock lock(mSemaphore);
-
-   // Search for seqNo.
-   UtlInt search_key(seqNo);
-   ResourceCached* resource =
-      dynamic_cast <ResourceCached*> (mEventMap.findValue(&search_key));
-
-   if (resource)
-   {
-      resource->refresh();
-   }
-   else
-   {
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                    "ResourceListSet::refreshResourceBySeqNo seqNo = %d not found",
                     seqNo);
    }
 }

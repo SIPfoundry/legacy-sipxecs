@@ -57,9 +57,6 @@ class ResourceList : public UtlContainableAtomic
    //! Get the ancestor ResourceListServer.
    ResourceListServer* getResourceListServer() const;
 
-   //! Refresh the subscriptions of all resources.
-   void refreshAllResources();
-
    //! Delete all Resource's in the resource list.
    void deleteAllResources();
 

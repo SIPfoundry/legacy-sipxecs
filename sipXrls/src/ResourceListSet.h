@@ -62,8 +62,6 @@ class ResourceListSet : public UtlContainableAtomic
    // Max value must be less than sSeqNoIncrement.
    enum notifyCodes
    {
-      // Refresh subscriptions for a Resource.
-      REFRESH_TIMEOUT,
       // Publish any changed ResourceList's.
       PUBLISH_TIMEOUT,
    };
@@ -92,10 +90,6 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! Get the contained ResourceCache.
    ResourceCache& getResourceCache();
-
-   //! Refresh the subscriptions of all resources in all resource lists.
-   //  May be called externally.
-   void refreshAllResources();
 
    //! Create and add a resource list.
    //  Returns true if resource list was added, returns false if 'user'
@@ -232,10 +226,6 @@ class ResourceListSet : public UtlContainableAtomic
    //! Delete a mapping for a ResourceCached's sequence number.
    void deleteResourceSeqNoMapping(/// the sequence number
                                    int seqNo);
-
-   //! Refresh the subscriptions of a resource.
-   //  May be called externally.
-   void refreshResourceBySeqNo(int seqNo);
 
    // The RLS attempts to publish all changes to resource lists promptly,
    // without publishing several updates to the same resource list

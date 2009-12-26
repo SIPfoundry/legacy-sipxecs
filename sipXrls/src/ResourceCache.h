@@ -73,9 +73,6 @@ class ResourceCache : public UtlContainableAtomic
       /// The ResourceCached that is no longer referenced
       ResourceCached* resourceCached);
 
-   //! Refresh the subscriptions of all resources.
-   void refreshAllResources();
-
    //! Remove dialogs in terminated state and terminated resource instances.
    //  To be called immediately after publishing all changed resource lists.
    void purgeTerminated();

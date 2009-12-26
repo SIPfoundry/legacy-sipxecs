@@ -76,20 +76,6 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
 
       switch (type)
       {
-      case ResourceListSet::REFRESH_TIMEOUT:
-      {
-         // This is a request to refresh a Resource's subscription state.
-         OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                       "ResourceListTask::handleMessage REFRESH_TIMEOUT seqNo = %d",
-                       seqNo);
-
-         getResourceListServer()->getResourceListSet().
-            refreshResourceBySeqNo(seqNo);
-
-         handled = TRUE;
-         break;
-      }
-
       case ResourceListSet::PUBLISH_TIMEOUT:
       {
          // This is a request to publish lists that have changed.
@@ -118,7 +104,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
    }
    else if (rMsg.getMsgType() == RLS_SUBSCRIPTION_MSG)
    {
-      // This is a request to refresh a Resource's subscription state.
+      // This is a subscription event.
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ResourceListTask::handleMessage RLS_SUBSCRIPTION_MSG");
       SubscriptionCallbackMsg* pSubscriptionMsg =

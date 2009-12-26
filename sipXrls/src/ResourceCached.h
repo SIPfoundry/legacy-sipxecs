@@ -93,9 +93,6 @@ class ResourceCached : public UtlString
    //! Determine of there are any references in the set of references.
    UtlBoolean hasReferences();
 
-   //! Refresh the resource's subscriptions.
-   void refresh();
-
    //! Declare that the contents have changed and need to be published.
    //  Start the publishing timer, if publishing has not been suppressed.
    void setToBePublished(/// If true, publish now rather than starting the timer.
@@ -163,12 +160,6 @@ class ResourceCached : public UtlString
 
    //! The sequence number to identify this resource in callback messages.
    int mSeqNo;
-
-   //! The timer for periodically refreshing the resource subscriptions.
-   OsTimer mRefreshTimer;
-
-   //! Random number generator for generating refresh times.
-   static UtlRandom sRandom;
 
    //! Disabled copy constructor
    ResourceCached(const ResourceCached& rResourceCached);

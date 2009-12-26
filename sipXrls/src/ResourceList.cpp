@@ -96,27 +96,6 @@ ResourceList::~ResourceList()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Refresh the subscriptions of all resources.
-void ResourceList::refreshAllResources()
-{
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::refreshAllResources mUserPart = '%s'",
-                 mUserPart.data());
-
-   // Iterate through the resources.
-   UtlSListIterator resourcesItor(mResourcesList);
-   ResourceReference* resource;
-   while ((resource = dynamic_cast <ResourceReference*> (resourcesItor())))
-   {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::refreshAllResources resource = '%s'",
-                 resource->getUri()->data());
-      resource->refresh();
-   }
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::refreshAllResources done");
-}
-
 // Delete all ResourceReference's in the resource list.
 void ResourceList::deleteAllResources()
 {

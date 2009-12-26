@@ -85,9 +85,6 @@ class ResourceReference : public UtlContainableAtomic
    //! Get the ancestor ResourceListServer.
    ResourceListServer* getResourceListServer() const;
 
-   //! Refresh the resource's subscriptions.
-   void refresh();
-
    //! Add to the HttpBody the current state of the resource.
    void generateBody(/// the RLMI XML to be appended to
                      UtlString& rlmi,

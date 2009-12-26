@@ -112,13 +112,12 @@ public:
                                        "rlstest.test", // realm
                                        NULL, 
                                        DIALOG_EVENT_TYPE, 
-                                       DIALOG_EVENT_CONTENT_TYPE,
+                                      DIALOG_EVENT_CONTENT_TYPE,
                                        45140, // TCP port
                                        45140, // UDP port
                                        45140, // TLS port
                                        "127.0.0.1", // Bind IP address
                                        &tempResourceListFile,
-                                       (24 * 60 * 60), // Default subscription refresh interval
                                        (60 * 60), // Default subscription resubscribe interval.
                                        (40 * 60), // Default minimum subscription resubscribe interval.
                                        250,  // publishing delay? 

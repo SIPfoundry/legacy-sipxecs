@@ -109,23 +109,6 @@ void ResourceCache::deleteReferenceToResource(
    }
 }
 
-// Refresh the subscriptions of all resources.
-void ResourceCache::refreshAllResources()
-{
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceCache::refreshAllResources this = %p",
-                 this);
-
-   // Iterate through the resources.
-   UtlHashBagIterator resourceItor(mResources);
-   ResourceCached* resource;
-   while ((resource = dynamic_cast <ResourceCached*> (resourceItor())))
-   {
-      resource->refresh();
-   }
-   // The ResourceCached's will publish any changes in their content.
-}
-
 // Remove dialogs in terminated state and terminated resource instances.
 void ResourceCache::purgeTerminated()
 {

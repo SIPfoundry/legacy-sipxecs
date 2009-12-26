@@ -75,8 +75,6 @@ class ResourceListServer : public UtlContainableAtomic
                       const UtlString& bindIp,
                       /// The file describing the resource lists.
                       UtlString* resourceListFile,
-                      /// Refresh interval for reinitializing connection to resource URIs, in seconds.
-                      int refreshInterval,
                       /// The maximum resubscribe interval to request when making subscriptions.
                       int resubscribeInterval,
                       /// The minimum resubscribe interval.
@@ -112,9 +110,6 @@ class ResourceListServer : public UtlContainableAtomic
 
    //! Shut down the call processing components.
    void shutdown();
-
-   //! Refresh the subscriptions of all resources in all resource lists.
-   void refreshAllResources();
 
    //! Create and add a resource list.
    void addResourceList(/// The user-part of the resource list URI for "full" events.
@@ -185,9 +180,6 @@ class ResourceListServer : public UtlContainableAtomic
    //! Get the ResourceListFileReader.
    ResourceListFileReader& getResourceListFileReader();
 
-   //! Get the refresh interval.
-   int getRefreshInterval() const;
-
    //! Get the resubscribe interval.
    int getResubscribeInterval() const;
 
@@ -239,8 +231,6 @@ class ResourceListServer : public UtlContainableAtomic
    UtlString mClientContactURI;
    //! Name of the file containing the resource lists.
    UtlString mResourceListFile;
-   //! Refresh interval for reinitializing connection to resource URIs, in seconds.
-   int mRefreshInterval;
    //! Max resubscription interval to request whem making subscriptions, in seconds.
    int mResubscribeInterval;
    //! Minimum resubscription interval for subscriptions, in seconds.
@@ -311,12 +301,6 @@ class ResourceListServer : public UtlContainableAtomic
 };
 
 /* ============================ INLINE METHODS ============================ */
-
-// Refresh the subscriptions of all resources in all resource lists.
-inline void ResourceListServer::refreshAllResources()
-{
-   mResourceListSet.refreshAllResources();
-}
 
 // Create and add a resource list.
 inline void ResourceListServer::addResourceList(const char* user,
@@ -417,12 +401,6 @@ inline ResourceListSet& ResourceListServer::getResourceListSet()
 inline ResourceListFileReader& ResourceListServer::getResourceListFileReader()
 {
    return mResourceListFileReader;
-}
-
-// Get the refresh interval.
-inline int ResourceListServer::getRefreshInterval() const
-{
-   return mRefreshInterval;
 }
 
 // Get a resubscribe interval to request when making a subscription.

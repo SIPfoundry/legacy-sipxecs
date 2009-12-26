@@ -70,7 +70,6 @@
 #define RLS_DEFAULT_UDP_PORT          5130       // Default UDP port
 #define RLS_DEFAULT_TCP_PORT          5130       // Default TCP port
 #define RLS_DEFAULT_BIND_IP           "0.0.0.0"  // Default bind ip; all interfaces
-#define RLS_DEFAULT_REFRESH_INTERVAL  (24 * 60 * 60) // Default subscription refresh interval.
 #define RLS_DEFAULT_RESUBSCRIBE_INTERVAL (60 * 60) // Default subscription resubscribe interval.
 #define RLS_DEFAULT_MIN_RESUBSCRIBE_INTERVAL (40 * 60) // Default minimum subscription resubscribe interval.
 #define RLS_PUBLISH_DELAY             100        // Delay time (in milliseconds) before publishing RLMI.
@@ -435,12 +434,6 @@ int main(int argc, char* argv[])
       return 1;
    }
 
-   int refreshInterval;
-   if (configDb.get(CONFIG_SETTING_REFRESH_INTERVAL, refreshInterval) != OS_SUCCESS)
-   {
-      refreshInterval = RLS_DEFAULT_REFRESH_INTERVAL;
-   }
-
    int resubscribeInterval;
    if (configDb.get(CONFIG_SETTING_RESUBSCRIBE_INTERVAL, resubscribeInterval) != OS_SUCCESS)
    {
@@ -486,7 +479,7 @@ int main(int argc, char* argv[])
                              DIALOG_EVENT_TYPE, DIALOG_EVENT_CONTENT_TYPE,
                              tcpPort, udpPort, tcpPort, bindIp,
                              &resourceListFile,
-                             refreshInterval, resubscribeInterval, minResubscribeInterval,
+                             resubscribeInterval, minResubscribeInterval,
                              RLS_PUBLISH_DELAY,
                              20, 20, 20, 20,
                              serverMinExpiration,
