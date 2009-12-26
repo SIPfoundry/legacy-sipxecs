@@ -260,12 +260,12 @@ public:
      *         as part of the key.
      *  \param eventType - SIP event type token
      *  \param noNotify - if TRUE, do not generate any NOTIFYs for this content
-     *         change.
+     *         change.  (You probably do not want to do this.)
      */
     virtual void unpublish(const char* resourceId,
                            const char* eventTypeKey,
                            const char* eventType,
-                           UtlBoolean noNotify=FALSE);
+                           UtlBoolean noNotify = FALSE);
 
     /** Fetch the published content for a given resourceId/eventTypeKey.
      *  The content body pointers point to copies of the stored

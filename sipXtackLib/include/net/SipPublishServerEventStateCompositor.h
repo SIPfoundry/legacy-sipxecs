@@ -65,7 +65,7 @@ public:
      *  as the resourceId and the event type token from the Event header
      *  as the eventTypeKey.  Some event packages may wish to override
      *  this (e.g. the host part of the resourceID, which will usually be an
-     *  IP addressmay make sense in some cases  to be substituted with the
+     *  IP address may make sense in some cases to be substituted with the 
      *  domain name.  In some event packages, the content of the event state
      *  information will vary based upon some Event header parameters, in
      *  which cases it may make sense to include that event header parameter

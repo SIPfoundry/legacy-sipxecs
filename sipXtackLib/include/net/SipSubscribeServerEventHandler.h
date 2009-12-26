@@ -65,12 +65,19 @@ public:
      *  The default behavior is to use the identify from the request URI
      *  as the resourceId and the event type token from the Event header
      *  as the eventTypeKey.  Some event packages may wish to override
-     *  this (e.g. the host part of the resourceID, which will usually be an
-     *  IP address, may make sense in some cases  to be substituted with the
-     *  domain name.  In some event packages, the content of the event state
-     *  information will vary based upon some Event header parameters, in
-     *  which cases it may make sense to include that event header parameter
-     *  in a consistant order and format in the eventTypeKey.)
+     *  this.
+     *  A possible customization is replacing the host part of the
+     *  resourceID, which will usually be an IP address, with the
+     *  domain name.
+     *  Another customization is to include some of the Event header
+     *  parameters in the eventTypeKey, to affect which published
+     *  information is to be selected.  In such cases, the headers
+     *  should be put into a consistent order and format in
+     *  eventTypeKey.  In any case, the resulting eventTypeKey MUST be
+     *  valid as the value of an Event header, and parsing that Event
+     *  header with getKeys must produce the same eventType and
+     *  eventTypeKey values as did parsing the original request.
+     *  (That processing is used when reloading persistent subscriptions.)
      */
     virtual UtlBoolean getKeys(const SipMessage& subscribeRequest,
                                UtlString& resourceId,

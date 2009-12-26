@@ -83,6 +83,9 @@ PublishContentContainer::PublishContentContainer()
 }
 PublishContentContainer::~PublishContentContainer()
 {
+   // Delete the stored information.
+   mEventContent.destroyAll();
+   mEventVersion.destroyAll();
 }
 
 // Dump the object's internal state.
@@ -202,7 +205,7 @@ void SipPublishContentMgr::publish(const char* resourceId,
     if(container == NULL)
     {
         container = new PublishContentContainer();
-        *((UtlString*) container) = key;
+        *(static_cast <UtlString*> (container)) = key;
 	// Save the container in the appropriate hash.
         pContent->insert(container);
     }
@@ -300,8 +303,8 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
                                      UtlBoolean noNotify)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s'",
-                  resourceId, eventTypeKey, eventType);
+                  "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s', noNotify = %d",
+                  resourceId, eventTypeKey, eventType, noNotify);
     UtlBoolean resourceIdProvided = resourceId && *resourceId;
 
     // Construct the key to look up.
@@ -349,7 +352,8 @@ void SipPublishContentMgr::unpublish(const char* resourceId,
        mDefaultContentConstructors.destroy(&key);
     }
 
-    // Don't call the observers if noNotify is set or if this is default content.
+    // Call the observer for the content change, if any, unless this
+    // is default content or noNotify is set.
     if (!noNotify && resourceIdProvided)
     {
        UtlString eventTypeString(eventType);
@@ -409,7 +413,7 @@ UtlBoolean SipPublishContentMgr::setContentChangeObserver(const char* eventType,
     {
         callbackSet = TRUE;
         PublishCallbackContainer* callbackEntry = new PublishCallbackContainer();
-        *((UtlString*)callbackEntry) = eventType;
+        *(static_cast <UtlString*> (callbackEntry)) = eventType;
         callbackEntry->mpApplicationData = applicationData;
         callbackEntry->mpCallback = callbackFunction;
         mEventContentCallbacks.insert(callbackEntry);
