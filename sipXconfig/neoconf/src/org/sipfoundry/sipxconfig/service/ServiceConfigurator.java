@@ -65,4 +65,8 @@ public interface ServiceConfigurator {
     public void initLocations();
 
     public void markServiceForRestart(SipxService service);
+
+    void markServiceForRestart(Location location, Collection< ? extends SipxService> services);
+
+    void markServiceForRestart(Collection< ? extends SipxService> services);
 }

@@ -294,4 +294,13 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     public void markServiceForRestart(SipxService service) {
         m_sipxProcessContext.markServicesForRestart(singleton(service));
     }
+
+    public void markServiceForRestart(Location location, Collection< ? extends SipxService> services) {
+        m_sipxProcessContext.markServicesForRestart(location, services);
+    }
+
+    public void markServiceForRestart(Collection< ? extends SipxService> services) {
+        m_sipxProcessContext.markServicesForRestart(services);
+    }
+
 }

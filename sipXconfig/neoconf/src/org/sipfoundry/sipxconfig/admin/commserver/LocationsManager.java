@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
 public interface LocationsManager {
@@ -32,6 +33,15 @@ public interface LocationsManager {
      * @param location server to save or update
      */
     void storeLocation(Location location);
+
+    /**
+     * Update Nat settings for the corresponding location and publish nat event
+     * (we need to separate location save from nat location save because we need
+     * different location services set to restart, tracked by nat event)
+     * @param location
+     * @param nat
+     */
+    void storeNatLocation(Location location, NatLocation nat);
 
     /**
      * Saves new location in DB without publishing any events (used on location migration task)

@@ -35,8 +35,8 @@ public class NatTraversalManagerImpl implements NatTraversalManager, DaoEventLis
     }
 
     public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            activateNatLocation((Location) entity);
+        if (entity instanceof NatLocation) {
+            activateNatLocation(((NatLocation) entity).getLocation());
         }
     }
 

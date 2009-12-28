@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.nattraversal;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public class NatLocation {
     private boolean m_useStun = true;
 
@@ -23,6 +25,8 @@ public class NatLocation {
     private int m_startRtpPort = 30000;
 
     private int m_stopRtpPort = 31000;
+
+    private Location m_location;
 
     public void setUseStun(boolean useStun) {
         m_useStun = useStun;
@@ -79,4 +83,13 @@ public class NatLocation {
     public void setStunInterval(int stunInterval) {
         m_stunInterval = stunInterval;
     }
+
+    public Location getLocation() {
+        return m_location;
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
+    }
+
 }

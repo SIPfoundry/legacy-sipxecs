@@ -19,6 +19,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
@@ -71,6 +72,14 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
 
     public void storeMigratedLocation(Location location) {
         getHibernateTemplate().saveOrUpdate(location);
+    }
+
+    public void storeNatLocation(Location location, NatLocation nat) {
+        location.setNat(nat);
+        getHibernateTemplate().saveOrUpdate(location);
+        //There is a 1-1 relation between Nat and Location
+        nat.setLocation(location);
+        m_daoEventPublisher.publishSave(nat);
     }
 
     public void storeLocation(Location location) {
