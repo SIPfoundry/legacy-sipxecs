@@ -38,6 +38,7 @@ public class SipRequest extends SipMessage {
      */
     public void setRequestEvent(RequestEvent requestEvent) {
         this.requestEvent = requestEvent;
+        super.dialog = requestEvent.getDialog();
     }
 
 

@@ -6,11 +6,14 @@ import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.sip.Dialog;
+
 
 public abstract class SipMessage implements Comparable<SipMessage> {
     protected File logFile;
     protected long time;   
     private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
+    protected Dialog dialog;
     
     public void addPostCondition(SipClientTransaction previousTx) {
         this.postCondition.add(previousTx);      
@@ -42,7 +45,11 @@ public abstract class SipMessage implements Comparable<SipMessage> {
     
     @Override 
     public int hashCode() {
-        return getSipMessage().getTopmostViaHeader().getBranch().hashCode();
+        return getSipMessage().toString().hashCode();
+    }
+    
+    public Dialog getDialog() {
+        return this.dialog;
     }
     public abstract MessageExt getSipMessage();
     

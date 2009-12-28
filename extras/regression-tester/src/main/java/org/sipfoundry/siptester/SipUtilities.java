@@ -547,11 +547,12 @@ public class SipUtilities {
         ValidUsersXML validUsers = SipTester.getSutValidUsers();
         String domain = sipUri.getHost();
         String method = sipRequest.getMethod();
+        SipProvider provider = endpoint.getProvider("udp");
         /*
          * Find the UserAgent that corresponds to the destination of the INVITE.
          */
         SutUA targetTestUa = null;
-        String targetUser = null;
+        String targetUser = toUser;
         for (User user : validUsers.GetUsers()) {
             if ((toUser.equals(user.getUserName()) || user.getAliases().contains(toUser))) {
                 targetTestUa = SipTester.getSutUA(user.getUserName());
@@ -566,7 +567,7 @@ public class SipUtilities {
          * destined for an ITSP.
          */
         SipURI newSipUri = sipUri;
-        if (domain.equals(SipTester.getSutDomainName()) && targetUser != null) {
+        if (domain.equals(SipTester.getSutDomainName())) {
             String newDomain = SipTester.getTesterConfig().getSipxProxyDomain();
             newSipUri = SipTester.getAddressFactory().createSipURI(targetUser, newDomain);
         }
@@ -578,11 +579,12 @@ public class SipUtilities {
         FromHeader fromHeader = (FromHeader) sipRequest.getFromHeader().clone();
 
         SutUA fromUa = SipTester.getSutUA(fromUser);
-
-        if (domain.equals(SipTester.getSutDomainName())
-                && SipTester.getTestUser(fromUser) != null) {
+        String newFromUser =  SipTester.getTestUser(fromUser);
+        if ( newFromUser == null ) {
+            newFromUser = fromUser; 
+        }
+        if (fromDomain.equals(SipTester.getSutDomainName())) {
             String newDomain = SipTester.getTesterConfig().getSipxProxyDomain();
-            String newFromUser = SipTester.getTestUser(fromUser);
             SipURI newFromURI = SipTester.getStackBean().getAddressFactory().createSipURI(
                     newFromUser, newDomain);
             Address newFromAddress = SipTester.getAddressFactory().createAddress(newFromURI);
@@ -595,7 +597,8 @@ public class SipUtilities {
         Address toAddress = SipTester.getAddressFactory().createAddress(newSipUri);
         ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, null);
 
-        CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
+        //CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
+        CallIdHeader callIdHeader = provider.getNewCallId();
 
         CSeqHeader cseqHeader = sipRequest.getCSeqHeader();
 
@@ -634,7 +637,7 @@ public class SipUtilities {
         }
 
         if (sipRequest.getHeader(ContactHeader.NAME) != null) {
-            ContactHeader contactHeader = SipUtilities.createContactHeader(endpoint);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(endpoint);              
             newRequest.setHeader(contactHeader);
         }
 
@@ -643,7 +646,8 @@ public class SipUtilities {
             RouteHeader newRouteHeader = SipUtilities.createRouteHeader(hop);
             sipRequest.setHeader(newRouteHeader);
         }
-
+        
+       
         SipUtilities.copyHeaders(sipRequest, triggeringMessage, newRequest);
 
         return (RequestExt) newRequest;

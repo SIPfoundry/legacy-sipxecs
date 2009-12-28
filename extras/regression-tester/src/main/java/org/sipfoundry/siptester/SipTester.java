@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sip.address.AddressFactory;
 import javax.sip.address.SipURI;
@@ -23,6 +24,7 @@ import javax.sip.header.HeaderFactory;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
+import javax.sip.message.Response;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
@@ -73,6 +75,8 @@ public class SipTester {
      * Key is ipAddress:port. This is the map from the original machine. TODO - fill this up.
      */
     private static Hashtable<String, SutUA> endpoints = new Hashtable<String, SutUA>();
+
+    static AtomicBoolean failed = new AtomicBoolean(false);
 
     public static Endpoint getEndpoint(String sourceAddress, int port) {
         String key = sourceAddress + ":" + port;
@@ -374,8 +378,7 @@ public class SipTester {
                 while (it.hasNext()) {
 
                     SipClientTransaction ct = it.next();
-                    ct.printTransaction();
-                    /*
+                     /*
                      * This transaction is runnable.
                      */
                     runnable.add(ct);
@@ -421,8 +424,7 @@ public class SipTester {
 
             }
 
-            mapUsers();
-
+        
             /*
              * Determine the happensBefore set of each tx that is runnable.
              */
@@ -459,6 +461,14 @@ public class SipTester {
                         }
                     }
                 }
+                it1 = runnable.iterator();
+                while (it1.hasNext()) {
+                    SipClientTransaction transaction = it1.next();
+                    transaction.setPreconditionSem();
+                        
+                    
+                }
+                
 
             }
 
@@ -480,7 +490,8 @@ public class SipTester {
 
             schedule.flush();
             schedule.close();
-            
+            mapUsers();
+
             
 
             logger.debug("Map = " + SipTester.actualUserToTestUserMap);
@@ -546,6 +557,10 @@ public class SipTester {
 
     public static SipClientTransaction getSipClientTransaction(String transactionId) {
         return clientTransactionMap.get(transactionId);
+    }
+
+    public static boolean checkProvisionalResponses() {
+        return false;
     }
 
 }

@@ -1,5 +1,6 @@
 package org.sipfoundry.siptester;
 
+import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.DialogTimeoutEvent;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipListenerExt;
@@ -84,6 +85,7 @@ public class SipListenerImpl implements SipListenerExt {
                 System.out.println("processRequest " + request.getFirstLine().trim()
                         + " sipDialog = " + dialogId);
                 if (sipDialog != null) {
+                    sipDialog.setDialog((DialogExt)requestEvent.getDialog());
                     sipDialog.setLastRequestReceived(request);
                 }
                 sst.getSipRequest().setRequestEvent(requestEvent);
@@ -91,6 +93,7 @@ public class SipListenerImpl implements SipListenerExt {
                 for (SipClientTransaction ct : sst.getSipRequest().getPostConditions()) {
                     ct.removePrecondition(sst.getSipRequest());
                 }
+               
             }
 
         } catch (Exception ex) {
@@ -103,14 +106,16 @@ public class SipListenerImpl implements SipListenerExt {
         try {
             Response response = responseEvent.getResponse();
             String method = SipUtilities.getCSeqMethod(response);
-            if (method.equals(Request.REGISTER)) {
+           /* if (method.equals(Request.REGISTER)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
                 RegistrationManager registrationManager = (RegistrationManager) ctx
                         .getApplicationData();
                 registrationManager.processResponse(responseEvent);
-            } else if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
+            } else  */
+            
+            if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
                     || method.equals(Request.NOTIFY) || method.equals(Request.PRACK)
-                    || method.equals(Request.BYE) || method.equals(Request.REFER)) {
+                    || method.equals(Request.BYE) || method.equals(Request.REFER) || method.equals(Request.REGISTER)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
                 if ( ctx == null ) {
                     System.out.println("retransmission -- ingoring");

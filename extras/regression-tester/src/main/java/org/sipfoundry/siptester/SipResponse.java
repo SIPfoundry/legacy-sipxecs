@@ -43,6 +43,7 @@ public class SipResponse extends SipMessage {
      */
     public void setResponseEvent(ResponseEvent responseEvent) {
         this.responseEvent = responseEvent;
+        super.dialog = responseEvent.getDialog();
     }
 
     /**
@@ -51,13 +52,6 @@ public class SipResponse extends SipMessage {
     public ResponseEvent getResponseEvent() {
         return responseEvent;
     }
-
-   
-
-   
-
-
-   
    
 
 }

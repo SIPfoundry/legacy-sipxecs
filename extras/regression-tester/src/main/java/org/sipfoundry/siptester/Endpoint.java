@@ -35,8 +35,7 @@ public class Endpoint  {
     private Collection<SipClientTransaction> clientTransactions =  new ConcurrentSkipListSet<SipClientTransaction>();
     
     private Collection<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
-    
-  
+     
     private Map<String,SipProviderExt> sipProviders = new HashMap<String,SipProviderExt>();
      
     Hashtable<String,SipDialog> sipDialogs = new Hashtable<String,SipDialog>();
@@ -119,16 +118,15 @@ public class Endpoint  {
     private void addOriginatingSipRequest(SipRequest sipRequest) {
         String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
         SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
-        /*
-         * We handle REGISTER requests independently. We do not emulate REGISTER requests.
-         * Just keep track of who registered from where.
-         */
-        if ( sipRequest.getSipRequest().getMethod().equals(Request.REGISTER) ) {
+       
+       /* if ( sipRequest.getSipRequest().getMethod().equals(Request.REGISTER) ) {
             String fromUser = ((SipURI)sipRequest.getSipRequest().getFromHeader().getAddress().getURI()).getUser();
             logger.debug("REGISTER seen " + sipRequest.getSipRequest().getFirstLine() + " from " + fromUser);  
             this.getSutUA().addRegistration(fromUser);
             return;
-        }
+        } */
+        
+        
         if (!SipTester.isExcluded(sipRequest.getSipRequest().getMethod())) {
             if (clientTx == null) {
                 clientTx = new SipClientTransaction(sipRequest);
@@ -246,7 +244,8 @@ public class Endpoint  {
                         //if ( timeToSleep > 0 )
                        // Thread.sleep(timeToSleep);
                         prevTime = ctx.getDelay();
-                        System.out.println("aboutToEmulate " + ctx.getSipRequest().getSipRequest().getFirstLine());
+                        System.out.println("aboutToEmulate " + 
+                                ctx.getSipRequest().getSipRequest().getMethod() + " tid = " + ctx.getTransactionId());
                         if ( ctx.checkPreconditions() && ! ctx.processed  ) {
                             ctx.createAndSend();
                         }

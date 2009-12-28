@@ -16,16 +16,18 @@ public class LogFileParser {
     public static String MESSAGE = "message";
     public static String SOURCE_ADDRESS = "sourceAddress";
     public static String DESTINATION_ADDRESS = "destinationAddress";
+    public static String FRAME_ID = "frameId";
     
     
     private static void addRules(Digester digester) {
         digester.addObjectCreate(SIPTRACE, ConcurrentSkipListSet.class);
         digester.addObjectCreate(String.format("%s/%s", SIPTRACE,BRANCHNODE), CapturedLogPacket.class);
         digester.addSetNext(String.format("%s/%s", SIPTRACE,BRANCHNODE),"add");
-        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,TIME),"setTimeStamp",0);
+        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,TIME),"setTime",0);
         digester.addCallMethod(String.format("%s/%s/%s", SIPTRACE,BRANCHNODE,MESSAGE), "setMessage", 0 ); 
         digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,SOURCE_ADDRESS ), "setSourceAddress",0 );
         digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,DESTINATION_ADDRESS ), "setDestinationAddress",0 );
+        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,FRAME_ID ), "setFrameId",0);
     }
    
     public Collection<CapturedLogPacket> parse(String url) {
