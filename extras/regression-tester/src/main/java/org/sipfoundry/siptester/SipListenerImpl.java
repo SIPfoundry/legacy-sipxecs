@@ -16,6 +16,7 @@ import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.Header;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -40,7 +41,7 @@ public class SipListenerImpl implements SipListenerExt {
              * For each registration.
              */
             for (String registration : endpoint.getSutUA().getRegistrations()) {
-                String testUser = SipTester.getTestUser(registration);
+                String testUser = SipTester.getMappedUser(registration);
                 new RegistrationManager(testUser, endpoint).sendRegistrationRequest();
             }
 
@@ -64,16 +65,7 @@ public class SipListenerImpl implements SipListenerExt {
 
             for (SipServerTransaction sst : endpoint.findSipServerTransaction(request)) {
 
-                if (sst == null) {
-                    System.out.println("Unexpected request " + request.getFirstLine());
-                    if (request.getMethod().equals(Request.NOTIFY)) {
-                        Response response = SipTester.getMessageFactory().createResponse(
-                                Response.OK, request);
-                        ContactHeader contact = SipUtilities.createContactHeader(listeningPoint);
-                        response.addHeader(contact);
-                        serverTransaction.sendResponse(response);
-                        return;
-                    }
+                if (sst == null) {                
                     SipTester.fail("Unepxected server transaction "
                             + request.getFirstLine().trim());
                 }
@@ -82,14 +74,13 @@ public class SipListenerImpl implements SipListenerExt {
                 sst.setServerTransaction(serverTransaction);
                 String dialogId = sst.getDialogId();
                 SipDialog sipDialog = SipTester.getDialog(dialogId);
-                System.out.println("processRequest " + request.getFirstLine().trim()
-                        + " sipDialog = " + dialogId);
                 if (sipDialog != null) {
-                    sipDialog.setDialog((DialogExt)requestEvent.getDialog());
+   //                 sipDialog.setDialog((DialogExt)requestEvent.getDialog());
                     sipDialog.setLastRequestReceived(request);
                 }
                 sst.getSipRequest().setRequestEvent(requestEvent);
                 sst.sendResponses();
+                
                 for (SipClientTransaction ct : sst.getSipRequest().getPostConditions()) {
                     ct.removePrecondition(sst.getSipRequest());
                 }

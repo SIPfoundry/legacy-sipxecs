@@ -20,10 +20,6 @@ public class TesterConfigParser {
                 "setTesterBasePort",0);
         digester.addCallMethod(String.format("%s/%s", TESTER_CONFIG, "log-level"),
         "setLogLevel",0);
-        digester.addCallMethod(String.format("%s/%s", TESTER_CONFIG, "test-user"),
-                "addTestUser",0);
-            
-
     }
 
     public SipTesterConfig parse(String url) {

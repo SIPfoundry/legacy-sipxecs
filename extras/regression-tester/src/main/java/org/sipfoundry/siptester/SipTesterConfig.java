@@ -15,8 +15,6 @@ public class SipTesterConfig {
     
     private static int allocatedPort ;
     
-    private HashSet<String> testUsers = new HashSet<String>();
-
     /**
      * @param logLevel the logLevel to set
      */
@@ -75,14 +73,6 @@ public class SipTesterConfig {
         return testerBasePort;
     }
     
-    public void addTestUser(String userName) {
-        this.testUsers.add(userName);
-    }
-    
-    public HashSet<String> getTestUsers() {
-        return this.testUsers;
-        
-    }
    
     
     public static int getPort() {

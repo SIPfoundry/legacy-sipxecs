@@ -23,7 +23,10 @@ import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
+import org.apache.log4j.Logger;
+
 public class SipDialog {
+   
     String fromTag;
     String toTag;
     private DialogExt dialog;
@@ -37,6 +40,9 @@ public class SipDialog {
 
     Collection<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
     
+    
+    private static Logger logger = Logger.getLogger(SipDialog.class);
+    
     public SipDialog() {
 
     }
@@ -48,12 +54,16 @@ public class SipDialog {
     public void addSipServerTransaction(SipServerTransaction sipServerTransaction) {
         this.serverTransactions.add(sipServerTransaction);
         sipServerTransaction.setDialog(this);
+        
     }
 
     /**
      * @param dialog the dialog to set
      */
     public void setDialog(DialogExt dialog) {
+        if ( dialog == null ) {
+            logger.debug("setDialog: setting dialog to null");
+        }
         this.dialog = dialog;
     }
 

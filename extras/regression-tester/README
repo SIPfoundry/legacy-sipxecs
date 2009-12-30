@@ -18,7 +18,7 @@ Example:
 1. Run the test on a system where you would like to gather trace.
 2. Filter the trace using sipx-trace. The merged.xml file thus obtained can have a superset of information.
 3. Copy the merged.xml of interest in the directory testcase/var/log/sipxpbx
-4. Copy the validusers.xml file corresponding to merted.xml in the directory testcase/etc/sipxpbx/validusers.xml
+4. Copy the validusers.xml file corresponding to merged.xml in the directory testcase/etc/sipxpbx/validusers.xml
 5. Copy the domain-config file from the system from where the trace has been obtained to testcase/etc/sipxpbx/domain-config
 5. Construct a file that defines the endpoints of interest. Plase this in testcase/sut-config.xml
 6. Run the tester on the system under regression test.  You would provide the testcase directory as input to the tester.

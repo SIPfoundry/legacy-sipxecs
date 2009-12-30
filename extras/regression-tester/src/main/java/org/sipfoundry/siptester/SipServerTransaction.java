@@ -144,7 +144,11 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void sendResponses() {
         try {
+            System.out.println("serverTransactionId " + this.getBranch() + " tid = " + this.getTransactionId());
             RequestExt request = (RequestExt) serverTransaction.getRequest();
+            if (responses.isEmpty()) {
+                System.out.println("no Responses to SEND ");
+            }
             Iterator<SipResponse> it = this.responses.iterator();
             while (it.hasNext()) {
                 ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, it.next());
@@ -158,11 +162,7 @@ public class SipServerTransaction extends SipTransaction implements
                         isReliableResponse = true;
                     }
                 }
-                /*if (newResponse.getFromHeader().getTag() != null && newResponse.getToHeader().getTag() != null ) {
-                    String dialogId = getDialogId();
-                    SipDialog sipDialog = SipTester.getDialog(dialogId);
-                    sipDialog.setDialog((DialogExt)serverTransaction.getDialog());
-                }*/
+               
                 if (!isReliableResponse || newResponse.getStatusCode() / 100 >= 2) {
                     serverTransaction.sendResponse(newResponse);
                 } else {
@@ -197,11 +197,13 @@ public class SipServerTransaction extends SipTransaction implements
         serverTransaction.setApplicationData(this);
         DialogExt dialog = (DialogExt) this.serverTransaction.getDialog();
         String dialogId = this.getDialogId();
-        System.out.println("dialogId " + dialogId);
-        if ( dialogId != null ) {
-             SipDialog sipDialog = SipTester.getDialog(dialogId);
+        logger.debug("setServerTransaction: dialogId = " +  dialogId);
+        if ( this.dialog != null ) {
+             SipDialog sipDialog = this.dialog;
              dialog.setApplicationData(sipDialog);
              sipDialog.setDialog(dialog);
+        } else {
+            logger.debug("dialog is not set for SipServerTransaction ");
         }
     }
 

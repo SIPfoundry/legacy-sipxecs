@@ -118,14 +118,6 @@ public class Endpoint  {
     private void addOriginatingSipRequest(SipRequest sipRequest) {
         String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
         SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
-       
-       /* if ( sipRequest.getSipRequest().getMethod().equals(Request.REGISTER) ) {
-            String fromUser = ((SipURI)sipRequest.getSipRequest().getFromHeader().getAddress().getURI()).getUser();
-            logger.debug("REGISTER seen " + sipRequest.getSipRequest().getFirstLine() + " from " + fromUser);  
-            this.getSutUA().addRegistration(fromUser);
-            return;
-        } */
-        
         
         if (!SipTester.isExcluded(sipRequest.getSipRequest().getMethod())) {
             if (clientTx == null) {
@@ -134,23 +126,27 @@ public class Endpoint  {
                 this.clientTransactions.add(clientTx);
                 clientTx.setEndpoint(this);
                 logger.debug("created clientTransaction "
-                        + sipRequest.getSipRequest().getFirstLine());
+                        + transactionid);
             } else {
                 clientTx.addRequest(sipRequest);
             }
         }
         
     }
+    
+  
+    
+    
 
     private void addReceivedSipRequest(SipRequest sipRequest) {
-        String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
+        String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId().toLowerCase();
         SipServerTransaction serverTx = SipTester.serverTransactionMap.get(transactionid);
         if ( serverTx == null ) {
             serverTx = new SipServerTransaction(sipRequest);
             SipTester.serverTransactionMap.put(transactionid, serverTx);
             this.serverTransactions.add(serverTx);
             serverTx.setEndpoint(this);
-            logger.debug("created serverTransaction : " +sipRequest.getSipRequest().getFirstLine());
+            logger.debug("created serverTransaction : " + transactionid);
         } else {
             serverTx.addRequest(sipRequest);
         }

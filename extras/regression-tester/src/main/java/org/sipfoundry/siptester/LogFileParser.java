@@ -2,13 +2,22 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.parser.StringMsgParser;
 
+import java.io.File;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.LinkedList;
 
-import org.apache.commons.digester.Digester;
-import org.xml.sax.InputSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 
 public class LogFileParser {
+    
+    private static Logger logger = Logger.getLogger(LogFileParser.class);
     
     public static String SIPTRACE = "sipTrace";
     public static String BRANCHNODE = "branchNode";
@@ -18,32 +27,59 @@ public class LogFileParser {
     public static String DESTINATION_ADDRESS = "destinationAddress";
     public static String FRAME_ID = "frameId";
     
+    LinkedList<CapturedLogPacket> retval = new LinkedList<CapturedLogPacket>();
     
-    private static void addRules(Digester digester) {
-        digester.addObjectCreate(SIPTRACE, ConcurrentSkipListSet.class);
-        digester.addObjectCreate(String.format("%s/%s", SIPTRACE,BRANCHNODE), CapturedLogPacket.class);
-        digester.addSetNext(String.format("%s/%s", SIPTRACE,BRANCHNODE),"add");
-        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,TIME),"setTime",0);
-        digester.addCallMethod(String.format("%s/%s/%s", SIPTRACE,BRANCHNODE,MESSAGE), "setMessage", 0 ); 
-        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,SOURCE_ADDRESS ), "setSourceAddress",0 );
-        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,DESTINATION_ADDRESS ), "setDestinationAddress",0 );
-        digester.addCallMethod(String.format("%s/%s/%s",SIPTRACE,BRANCHNODE,FRAME_ID ), "setFrameId",0);
-    }
-   
-    public Collection<CapturedLogPacket> parse(String url) {
-        Digester digester = new Digester();
+    
+    public Collection<CapturedLogPacket> parseXml( String traceFile  ) {
+      try {
         StringMsgParser.setComputeContentLengthFromMessage(true);
-        addRules(digester);
-        InputSource inputSource = new InputSource(url);
-        try {
-            digester.parse(inputSource);
-        } catch (Exception e) {
-            throw new SipTesterException(e);
-        }
+        File logFile = new File(traceFile);
+        DocumentBuilder builder;
+        builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+        Document traceFileDocument = builder.parse(logFile);
+        walkXml(traceFileDocument);
+        logger.debug("read " + retval.size());
         StringMsgParser.setComputeContentLengthFromMessage(false);
-        return (Collection<CapturedLogPacket>) digester.getRoot();
         
-       
+        return retval;
+      } catch ( Exception ex) {
+          SipTester.fail("Unexpected exception parsing trae file",ex);
+          throw new SipTesterException(ex);
+      }
+ 
         
     }
+    private void walkXml(Document traceFileDocument) {
+      NodeList branchNodes = traceFileDocument.getElementsByTagName(BRANCHNODE);
+      logger.debug("nrecords = " + branchNodes.getLength());
+      for ( int i = 0; i < branchNodes.getLength(); i ++ ) {
+          Node branchNode = branchNodes.item(i);
+          Node next = branchNode.getFirstChild();
+          CapturedLogPacket capturedPacket = new CapturedLogPacket();
+          
+          while ( next != null ) {
+              if (next.getNodeType() == Node.ELEMENT_NODE) {
+                   String name = next.getNodeName();
+                  String text = next.getTextContent();
+                  if ( name.equals(TIME)) {
+                      capturedPacket.setTime(text);
+                  } else if ( name.equals(MESSAGE)) {
+                       capturedPacket.setMessage(text);
+                  } else if ( name.equals(SOURCE_ADDRESS) ) {
+                      capturedPacket.setSourceAddress(text);
+                  } else if ( name.equals(DESTINATION_ADDRESS)) {
+                      capturedPacket.setDestinationAddress(text);
+                  } else if (name.equals(FRAME_ID)) {
+                      capturedPacket.setFrameId(text);
+                  }
+              }
+              next = next.getNextSibling();
+          }
+          capturedPacket.map();
+          retval.add(capturedPacket);
+
+      }
+        
+    }
+    
 }

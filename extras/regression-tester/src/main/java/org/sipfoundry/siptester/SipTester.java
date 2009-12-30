@@ -39,33 +39,31 @@ public class SipTester {
 
     private static SipStackBean sipStackBean;
 
-    private static SutConfig sutConfig;
+    private static SutConfig monitoredInterfaces;
 
     private static Appender appender;
 
     public static final Timer timer = new Timer();
-
-    private static Hashtable<String, String> actualUserToTestUserMap = new Hashtable<String, String>();
 
     private static Logger logger = Logger.getLogger(SipTester.class.getPackage().getName());
 
     private static ValidUsersXML sutValidUsers;
 
     private static String sutDomainName;
-    
-    private static PrintWriter schedule;
-    
-    protected static  Map<String,SipClientTransaction> clientTransactionMap = new HashMap<String,SipClientTransaction>();
-    
-    protected static  Map<String,SipServerTransaction> serverTransactionMap = new HashMap<String,SipServerTransaction>();
 
-    protected static Map<String,SipDialog> sipDialogs = new HashMap<String,SipDialog>();
+    private static PrintWriter schedule;
+
+    protected static Map<String, SipClientTransaction> clientTransactionMap = new HashMap<String, SipClientTransaction>();
+
+    protected static Map<String, SipServerTransaction> serverTransactionMap = new HashMap<String, SipServerTransaction>();
+
+    protected static Map<String, SipDialog> sipDialogs = new HashMap<String, SipDialog>();
 
     static {
         try {
             appender = new SipFoundryAppender(new SipFoundryLayout(), "sipxtester.log");
             logger.addAppender(appender);
-            schedule = new PrintWriter( new File ("schedule.xml"));
+            schedule = new PrintWriter(new File("schedule.xml"));
         } catch (Exception ex) {
             throw new SipTesterException(ex);
         }
@@ -77,6 +75,8 @@ public class SipTester {
     private static Hashtable<String, SutUA> endpoints = new Hashtable<String, SutUA>();
 
     static AtomicBoolean failed = new AtomicBoolean(false);
+
+    private static TestMap testMaps;
 
     public static Endpoint getEndpoint(String sourceAddress, int port) {
         String key = sourceAddress + ":" + port;
@@ -95,7 +95,6 @@ public class SipTester {
         return retval;
     }
 
-
     public static SipTesterConfig getTesterConfig() {
         return testerConfig;
     }
@@ -103,19 +102,22 @@ public class SipTester {
     public static SipStackBean getStackBean() {
         return sipStackBean;
     }
+
     public static SipDialog getDialog(String dialogId) {
-        if ( dialogId == null ) return null;
+        if (dialogId == null)
+            return null;
         else {
-             SipDialog sipDialog = sipDialogs.get(dialogId) ;
-             if ( sipDialog != null ) {
-                 return sipDialog;
-             } else {
-                 sipDialog = new SipDialog();
-                 sipDialogs.put(dialogId, sipDialog);
-                 return sipDialog;
-             }
+            SipDialog sipDialog = sipDialogs.get(dialogId);
+            if (sipDialog != null) {
+                return sipDialog;
+            } else {
+                sipDialog = new SipDialog();
+                sipDialogs.put(dialogId, sipDialog);
+                return sipDialog;
+            }
         }
     }
+
     public static Collection<SipServerTransaction> findMatchingServerTransaction(
             SipClientTransaction sipClientTransaction) {
         String callId = ((RequestExt) sipClientTransaction.getSipRequest().getSipRequest())
@@ -124,46 +126,43 @@ public class SipTester {
                 .getMethod();
 
         logger.debug("Checking "
-                + ((RequestExt) sipClientTransaction.getSipRequest().getSipRequest())
-                        .getFirstLine());
+                + sipClientTransaction.getTransactionId());
 
         ConcurrentSkipListSet<SipServerTransaction> retval = new ConcurrentSkipListSet<SipServerTransaction>();
-        for (Endpoint endpoint : getEndpoints()) {
 
-            /*
-             * TODO: use the References header here for transitive closure. We also need to add
-             * the via header branch to the References header.
-             */
-            Iterator<SipServerTransaction> it1 = endpoint.getServerTransactions().iterator();
-            while (it1.hasNext()) {
-                SipServerTransaction st = it1.next();
-                String callId1 = st.getSipRequest().getSipRequest().getCallIdHeader().getCallId();
-                String method1 = st.getSipRequest().getSipRequest().getMethod();
-                if (callId1.equals(callId) && method1.equals(method)) {
-                    if (st.getSipRequest().getSipRequest().getHeader("References") == null) {
-                        String bottomBranch;
-                        ViaHeader bottomVia = null;
-                        Iterator<ViaHeader> it = st.getSipRequest().getSipRequest().getHeaders(
-                                ViaHeader.NAME);
-                        while (it.hasNext()) {
-                            bottomVia = it.next();
-                        }
-                        bottomBranch = bottomVia.getBranch();
-                        if (bottomBranch.equals(sipClientTransaction.getSipRequest()
-                                .getSipRequest().getTopmostViaHeader().getBranch())) {
-                            retval.add(st);
-                            logger.debug("Found " + endpoint.getSutUA().getIpAddress()
-                                    + " port = " + endpoint.getSutUA().getPort());
+        /*
+         * TODO: use the References header here for transitive closure. We also need to add the
+         * via header branch to the References header.
+         */
+        Iterator<SipServerTransaction> it1 = SipTester.serverTransactionMap.values().iterator();
+        while (it1.hasNext()) {
+            SipServerTransaction st = it1.next();
+            String callId1 = st.getSipRequest().getSipRequest().getCallIdHeader().getCallId();
+            String method1 = st.getSipRequest().getSipRequest().getMethod();
+            if (callId1.equals(callId) && method1.equals(method)) {
+                if (st.getSipRequest().getSipRequest().getHeader("References") == null) {
+                    String bottomBranch;
+                    ViaHeader bottomVia = null;
+                    Iterator<ViaHeader> it = st.getSipRequest().getSipRequest().getHeaders(
+                            ViaHeader.NAME);
+                    while (it.hasNext()) {
+                        bottomVia = it.next();
+                    }
+                    bottomBranch = bottomVia.getBranch();
+                    if (bottomBranch.equals(sipClientTransaction.getSipRequest().getSipRequest()
+                            .getTopmostViaHeader().getBranch())) {
+                        retval.add(st);
+                    }
 
-                        }
-                       
-                    } else
-                        throw new SipTesterException("TODO -- handle B2BUA traces");
-                }
-
+                } else
+                    throw new SipTesterException("TODO -- handle B2BUA traces");
             }
+
         }
 
+        if ( retval.isEmpty()) {
+            logger.debug("no matching server transaction was found");
+        }
         return retval;
     }
 
@@ -179,21 +178,28 @@ public class SipTester {
         return sipStackBean.getMessageFactory();
     }
 
-    public static void addUserMap(String actualUser, String testUser) {
-        actualUserToTestUserMap.put(actualUser, testUser);
-    }
-
-    public static String getTestUser(String actualUser) {
-        String testUser = actualUserToTestUserMap.get(actualUser);
-        if ( testUser == null ) {
-           for ( User user : sutValidUsers.GetUsers()) {
-               if (user.getAliases().contains(actualUser)) {
-                   testUser = actualUserToTestUserMap.get(user.getUserName());
-                   break;
-               }
-           }
+    public static String getMappedUser(String traceUser) {
+        String testUser = testMaps.getMappedUser(traceUser);
+        if (testUser == null) {
+            for (User user : sutValidUsers.GetUsers()) {
+                if (user.getAliases().contains(traceUser)) {
+                    testUser = testMaps.getMappedUser(user.getUserName());
+                    break;
+                }
+            }
         }
         return testUser;
+    }
+
+    public static String getMappedAddress(String traceAddress) {
+        String mappedAddress = testMaps.getMappedAddress(traceAddress);
+        if (mappedAddress == null) {
+            logger.debug("Address Not mapped " + traceAddress);
+            return traceAddress;
+        } else {
+            return mappedAddress;
+        }
+
     }
 
     public static SutUA getSutUA(String user) {
@@ -235,42 +241,6 @@ public class SipTester {
     }
 
     /**
-     * Generate a mapping between actual users and test users. Test users must not be actual
-     * users. These two spaces are kept separate.
-     * 
-     * @throws Exception
-     */
-    public static void mapUsers() throws Exception {
-        HashSet<String> actualUsers = new HashSet<String>();
-
-        for (User user : SipTester.sutValidUsers.GetUsers()) {
-            System.out.println(user.getIdentity());
-            SipURI sipUri = (SipURI) getAddressFactory().createURI("sip:" + user.getIdentity());
-            if (!testerConfig.getTestUsers().contains(sipUri.getUser())
-                    && !sipUri.getUser().startsWith("*")) {
-                actualUsers.add(sipUri.getUser());
-            }
-        }
-
-        Iterator<String> it = SipTester.getTesterConfig().getTestUsers().iterator();
-        Iterator<String> it1 = actualUsers.iterator();
-
-        /*
-         * Note: if we dont have enough test users, we will throw exception.
-         */
-        try {
-            while (it1.hasNext()) {
-                String testUser = it.next();
-                String actualUser = it1.next();
-                SipTester.addUserMap(actualUser, testUser);
-            }
-        } catch (Exception ex) {
-            throw new SipTesterException(
-                    "Could not map actual to test users - check configuration.", ex);
-        }
-    }
-
-    /**
      * @param args
      */
     public static void main(String[] args) throws Exception {
@@ -283,15 +253,18 @@ public class SipTester {
             String traceConfDir = traceprefix + "/etc/sipxpbx/";
 
             String testerConfigFile = System.getProperty("testerConfig", "tester-config.xml");
-            String sutConfigFile = System.getProperty("sutconfig", traceprefix
-                    + "/sut-config.xml");
+            String sutConfigFile = traceprefix + "/monitored-interfaces.xml";
+            String testMapsFile = traceprefix + "/test-maps.xml";
+
             if (!new File(testerConfigFile).exists() || !new File(sutConfigFile).exists()) {
                 System.err.println("Missing config file");
                 return;
             }
 
+            testMaps = new TestMapParser().parse("file:" + testMapsFile);
+
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
-            sutConfig = new SutConfigParser().parse("file:" + sutConfigFile);
+            monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
             ValidUsersXML.setValidUsersFileName(traceprefix + "/etc/sipxpbx/validusers.xml");
             sutValidUsers = ValidUsersXML.update(logger, true);
 
@@ -324,7 +297,7 @@ public class SipTester {
                     testerConfig.setSipxProxyDomain(parts[1].trim());
                 }
             }
-            for (SutUA sutUa : sutConfig.getSutUACollection()) {
+            for (SutUA sutUa : monitoredInterfaces.getSutUACollection()) {
                 String key = sutUa.getIpAddress() + ":" + sutUa.getPort();
 
                 int port = SipTesterConfig.getPort();
@@ -378,7 +351,7 @@ public class SipTester {
                 while (it.hasNext()) {
 
                     SipClientTransaction ct = it.next();
-                     /*
+                    /*
                      * This transaction is runnable.
                      */
                     runnable.add(ct);
@@ -409,7 +382,7 @@ public class SipTester {
                                     + " time = " + sst.getDelay() + " dialogId "
                                     + sst.getDialogId());
                             String dialogId = sst.getDialogId();
-                            if ( dialogId != null ) {
+                            if (dialogId != null) {
 
                                 SipDialog dialog = getDialog(dialogId);
 
@@ -424,7 +397,6 @@ public class SipTester {
 
             }
 
-        
             /*
              * Determine the happensBefore set of each tx that is runnable.
              */
@@ -432,14 +404,14 @@ public class SipTester {
 
             /*
              * For each element of the runnable set, record all the previous clientTransactions
-             * that must run. This builds the dependency list of requests and responses
-             * that must be sent or received before this transaction can run.
+             * that must run. This builds the dependency list of requests and responses that must
+             * be sent or received before this transaction can run.
              */
             while (runIt.hasNext()) {
                 SipClientTransaction currentTx = runIt.next();
                 Iterator<SipClientTransaction> innerIt = runnable.iterator();
                 while (innerIt.hasNext()) {
-                    SipClientTransaction previousTx = innerIt.next();            
+                    SipClientTransaction previousTx = innerIt.next();
                     for (SipResponse sipResponse : previousTx.sipResponses) {
                         if (sipResponse.getTime() < currentTx.getTime()) {
                             currentTx.addHappensBefore(sipResponse);
@@ -449,15 +421,15 @@ public class SipTester {
                             sipResponse.addPostCondition(currentTx);
                         }
                     }
-                    
-                 }
+
+                }
                 Iterator<SipClientTransaction> it1 = runnable.iterator();
-                while(it1.hasNext()) {
+                while (it1.hasNext()) {
                     SipClientTransaction previousTx = it1.next();
                     for (SipServerTransaction sst : previousTx.getMatchingServerTransactions()) {
-                        if ( sst.getTime() < currentTx.getTime() ) {
-                           currentTx.addHappensBefore(sst.getSipRequest());
-                           sst.getSipRequest().addPostCondition(currentTx);
+                        if (sst.getTime() < currentTx.getTime()) {
+                            currentTx.addHappensBefore(sst.getSipRequest());
+                            sst.getSipRequest().addPostCondition(currentTx);
                         }
                     }
                 }
@@ -465,10 +437,8 @@ public class SipTester {
                 while (it1.hasNext()) {
                     SipClientTransaction transaction = it1.next();
                     transaction.setPreconditionSem();
-                        
-                    
+
                 }
-                
 
             }
 
@@ -481,23 +451,17 @@ public class SipTester {
             }
             getPrintWriter().println("<!--  SERVER TRANSACTIONS -->");
             runIt = runnable.iterator();
-            while(runIt.hasNext()) {
+            while (runIt.hasNext()) {
                 SipClientTransaction currentTx = runIt.next();
-                for (SipServerTransaction sst : currentTx.getMatchingServerTransactions())  {
+                for (SipServerTransaction sst : currentTx.getMatchingServerTransactions()) {
                     sst.printServerTransaction();
                 }
             }
 
             schedule.flush();
             schedule.close();
-            mapUsers();
 
-            
-
-            logger.debug("Map = " + SipTester.actualUserToTestUserMap);
             System.out.println("startTime " + startTime);
-
-            System.out.println("UserMap = " + SipTester.actualUserToTestUserMap);
 
             // --- Mappings are completed at this point. Now we can start the emulation -----
 
@@ -546,9 +510,9 @@ public class SipTester {
         else
             return false;
     }
-    
+
     public static SipServerTransaction getSipServerTransaction(String transactionId) {
-        return SipTester.serverTransactionMap.get(transactionId);
+        return SipTester.serverTransactionMap.get(transactionId.toLowerCase());
     }
 
     public static PrintWriter getPrintWriter() {
@@ -556,7 +520,7 @@ public class SipTester {
     }
 
     public static SipClientTransaction getSipClientTransaction(String transactionId) {
-        return clientTransactionMap.get(transactionId);
+        return clientTransactionMap.get(transactionId.toLowerCase());
     }
 
     public static boolean checkProvisionalResponses() {

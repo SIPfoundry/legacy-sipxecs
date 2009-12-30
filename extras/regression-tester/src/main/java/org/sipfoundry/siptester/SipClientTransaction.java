@@ -111,7 +111,8 @@ public class SipClientTransaction extends SipTransaction implements
     
     /**
      * Get the Dialog Id corresponding to a response that has both From and To 
-     * tag assigned to it.
+     * tag assigned to it. We check if the tags match the response tag and return
+     * the dialog Id corresponding to that match. 
      * 
      * @return dialogId -- the dialog ID corresponding to the response.
      */
@@ -124,9 +125,18 @@ public class SipClientTransaction extends SipTransaction implements
                     sipResponse.getSipResponse().getToHeader().getTag() != null && 
                     response.getFromHeader().getTag().equals(sipResponse.getSipResponse().getFromHeader().getTag()) &&
                     response.getToHeader().getTag().equals(sipResponse.getSipResponse().getToHeader().getTag())) {
-                return ((SIPResponse) sipResponse.getSipResponse()).getDialogId(false);
+                    return ((SIPResponse) sipResponse.getSipResponse()).getDialogId(false);
             }
         }
+        for (SipResponse sipResponse : this.sipResponses ) {
+            if ( sipResponse.getSipResponse().getFromHeader().getTag() != null && 
+                    sipResponse.getSipResponse().getToHeader().getTag() != null && 
+                    response.getFromHeader().getTag().equals(sipResponse.getSipResponse().getFromHeader().getTag())) {
+                    return ((SIPResponse) sipResponse.getSipResponse()).getDialogId(false);
+                
+            }
+        }
+       
         return null;
     }
 
@@ -180,8 +190,9 @@ public class SipClientTransaction extends SipTransaction implements
 
                     System.out.println("dialogId " + dialogId);
                     SipDialog sipDialog = SipTester.getDialog(dialogId);
-                    
-                    Request newRequest = sipDialog.getDialog().createRequest(
+                    System.out.println("sipDialog = " + sipDialog);
+                    Request newRequest;
+                    newRequest = sipDialog.getDialog().createRequest(
                             sipRequest.getMethod());
                     SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
                             this.triggeringMessage, newRequest);
@@ -194,7 +205,10 @@ public class SipClientTransaction extends SipTransaction implements
                         sipServerTransaction.setBranch(((RequestExt) newRequest)
                                 .getTopmostViaHeader().getBranch());
                     }
-                    sipDialog.getDialog().sendRequest(clientTransaction);
+                    if ( sipDialog.getDialog() != null )
+                        sipDialog.getDialog().sendRequest(clientTransaction);
+                    else 
+                        clientTransaction.sendRequest();
                 }
             } else {
 
@@ -288,6 +302,8 @@ public class SipClientTransaction extends SipTransaction implements
                     sipDialog.setLastResponse(response);
                     sipDialog.setDialog((DialogExt) dialog);
                 }
+                
+              
             }
 
             if (response.getStatusCode() / 100 >= 2) {

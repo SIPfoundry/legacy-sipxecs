@@ -88,24 +88,28 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
             } else {
                 this.sipMessage = (MessageExt) SipTester.getStackBean().getMessageFactory()
                         .createRequest(logPacket);
-                if (sipMessage instanceof RequestExt) {
-                    String sourceHost = sipMessage.getTopmostViaHeader().getHost();
-                    int sourcePort = sipMessage.getTopmostViaHeader().getPort();
-                    if (sourcePort == -1) {
-                        sourcePort = 5060;
-                    }
-                    HostPort hostPort = new HostPort(sourceHost, sourcePort);
-                    if (this.sourcePort == 0) {
-                        hostMapper.put(this.sourceAddress, hostPort);
-                    }
-                    this.setSourceAddress(sourceHost);
-                    this.setSourcePort(sourcePort);
-                }
+                
             }
             
 
         } catch (Exception ex) {
             throw new SipTesterException(ex);
+        }
+    }
+    
+    public void map() {
+        if (sipMessage instanceof RequestExt) {
+            String sourceHost = sipMessage.getTopmostViaHeader().getHost();
+            int sourcePort = sipMessage.getTopmostViaHeader().getPort();
+            if (sourcePort == -1) {
+                sourcePort = 5060;
+            }
+            HostPort hostPort = new HostPort(sourceHost, sourcePort);
+            if (this.sourcePort == 0) {
+                hostMapper.put(this.sourceAddress, hostPort);
+            }
+            this.setSourceAddress(sourceHost);
+            this.setSourcePort(sourcePort);
         }
     }
 
@@ -120,12 +124,18 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
      */
     @Override
     public int compareTo(CapturedLogPacket other) {
-        if (this.timeStamp == other.timeStamp)
-            return 0;
-        else if (this.timeStamp < other.timeStamp)
+        if (this.timeStamp == other.timeStamp) {
+            if ( this.sipMessage instanceof SipRequest && other.sipMessage instanceof SipResponse )     {
+                return 1;
+            } else if ( this.sipMessage instanceof SipResponse && other.sipMessage instanceof SipRequest ) {
+                return -1;
+            } else return 0;
+        
+        } else if (this.timeStamp < other.timeStamp) {
             return -1;
-        else
+        } else {
             return 1;
+        }
     }
 
     public MessageExt getSipPacket() {
@@ -148,7 +158,7 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
     }
 
     public String getTransactionId() {
-        return ((SIPMessage) sipMessage).getTransactionId();
+        return ((SIPMessage) sipMessage).getTransactionId().toLowerCase();
     }
 
     /**
