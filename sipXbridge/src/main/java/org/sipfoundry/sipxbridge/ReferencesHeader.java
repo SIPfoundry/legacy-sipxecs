@@ -15,6 +15,8 @@ public interface ReferencesHeader  {
     
     public static final String XFER =  "xfer";
     
+    public static final String X_SIPX_BRANCH = "x-sipx-branch";
+    
     public String getCallId();
     
     public void setCallId(String callId);
@@ -22,5 +24,9 @@ public interface ReferencesHeader  {
     public String getRel();
     
     public void setRel(String rel);
+    
+    public String getBranch();
+    
+    public void setBranch(String branch);
 
 }

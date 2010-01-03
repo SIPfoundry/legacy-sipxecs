@@ -14,9 +14,25 @@ public class ReferencesHeaderImpl  implements ReferencesHeader,ExtensionHeader {
     private String callId ;    
     private String rel;
     private String headerName = ReferencesHeader.NAME;
+    private String branch;
+  
 
     public ReferencesHeaderImpl () {
         this.rel = ReferencesHeader.CHAIN;
+    }
+    
+    public ReferencesHeaderImpl(String callId, String rel, String branch) {
+        this.callId = callId;
+        this.rel = rel;
+        this.branch = branch;
+    }
+    
+    public void setBranch(String branch) {
+        this.branch  = branch;
+    }
+    
+    public String getBranch() {
+        return branch;
     }
     
     public String getCallId() {
@@ -36,11 +52,31 @@ public class ReferencesHeaderImpl  implements ReferencesHeader,ExtensionHeader {
     }
 
     public String getValue() {
-       return callId + ";rel="+rel;
+        if ( branch != null ) {
+            return callId + ";rel="+rel+";x-sipx-branch="+branch;
+        } else {
+            return callId + ";rel="+rel;
+        }
     }
 
     public void setValue(String value) throws ParseException {
         throw new UnsupportedOperationException("Op not supported");
+    }
+    
+    public static ReferencesHeader createReferencesHeader(String header ) {
+        String[] parts = header.split(":");
+        if ( ! parts[0].equalsIgnoreCase(ReferencesHeader.NAME)) {
+            throw new IllegalArgumentException("bad header name " + parts[0]);
+        }
+        String[] parts1 = parts[1].split(";rel=");
+        String callId = parts1[0];
+        String[] parts2 = parts1[1].split(";x-sipx-branch=");
+        String rel = parts2[0];
+        String branch = null;
+        if ( parts2.length == 2) {
+            branch = parts2[1];
+        }
+        return new ReferencesHeaderImpl(callId,rel,branch);
     }
 
     public String getName() {
@@ -51,6 +87,7 @@ public class ReferencesHeaderImpl  implements ReferencesHeader,ExtensionHeader {
         ReferencesHeaderImpl references = new ReferencesHeaderImpl();
         references.callId = this.callId;
         references.rel = this.rel;
+        references.branch = this.branch;
         return references;
         
     }

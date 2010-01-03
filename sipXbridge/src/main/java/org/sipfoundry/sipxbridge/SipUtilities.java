@@ -1811,10 +1811,11 @@ class SipUtilities {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
     }
 
-    public static ExtensionHeader createReferencesHeader(String callId, String rel) throws ParseException {
+    public static ExtensionHeader createReferencesHeader(String callId, String branch, String rel) throws ParseException {
         ReferencesHeaderImpl references = new ReferencesHeaderImpl();
         references.setCallId(callId);
         references.setRel(rel);
+        references.setBranch(branch);
         ExtensionHeader extensionHeader = ( ExtensionHeader) ProtocolObjects.headerFactory.createHeader(ReferencesHeader.NAME,
                 references.getValue());
         return extensionHeader;
@@ -1901,6 +1902,12 @@ class SipUtilities {
     public static int getViaPort(Message sipMessage) {
         ViaHeader header = (ViaHeader)sipMessage.getHeader(ViaHeader.NAME);
         return header.getPort();   
+    }
+
+    public static String getTopmostViaBranch(Request request) {
+        ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+        String branchId = viaHeader.getBranch();
+        return branchId;
     }
 
 }

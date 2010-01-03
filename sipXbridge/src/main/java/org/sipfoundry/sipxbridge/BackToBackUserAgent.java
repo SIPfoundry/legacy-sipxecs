@@ -196,6 +196,13 @@ public class BackToBackUserAgent implements Comparable {
      * Dialogs that are not tracked for garbage collection.
      */
     private HashSet<Dialog> cleanupList = new HashSet<Dialog>();
+    
+    
+
+    /*
+     * The Branch ID of the request that created this B2UA instance.
+     */
+    private String creatingBranchId;
 
   
    
@@ -280,6 +287,8 @@ public class BackToBackUserAgent implements Comparable {
              */
             this.creatingCallId = provider.getNewCallId().getCallId();
         }
+        
+        this.creatingBranchId = SipUtilities.getTopmostViaBranch(request);
 
     }
 
@@ -668,6 +677,7 @@ public class BackToBackUserAgent implements Comparable {
             Dialog dialog = requestEvent.getDialog();
             ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
             Request referRequest = referServerTransaction.getRequest();
+            String referBranch =  ((ViaHeader)referRequest.getHeader(ViaHeader.NAME)).getBranch();
             DialogContext dialogContext = DialogContext.get(dialog);
             FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
                     FromHeader.NAME).clone();
@@ -754,7 +764,7 @@ public class BackToBackUserAgent implements Comparable {
             if ( newRequest.getHeader(ReferencesHeader.NAME) == null ) {
                 String oldCallId = SipUtilities.getCallId(referRequest);
                 ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId,
-                        ReferencesHeaderImpl.REFER);
+                        referBranch, ReferencesHeaderImpl.REFER);
                 newRequest.setHeader(referencesHeader);
             }
 
@@ -1167,6 +1177,7 @@ public class BackToBackUserAgent implements Comparable {
 
             ExtensionHeader referencesHeader =
                 SipUtilities.createReferencesHeader(SipUtilities.getCallId(request),
+                        SipUtilities.getTopmostViaBranch(request),
                         ReferencesHeader.CHAIN);
             newRequest.addHeader(referencesHeader);
 
@@ -1434,6 +1445,7 @@ public class BackToBackUserAgent implements Comparable {
 
             ExtensionHeader referencesHeader =
                         SipUtilities.createReferencesHeader(this.creatingCallId,
+                        this.creatingBranchId,
                         ReferencesHeader.SEQUEL);
             newRequest.setHeader(referencesHeader);
             ContactHeader contactHeader = SipUtilities.createContactHeader(
@@ -1690,6 +1702,7 @@ public class BackToBackUserAgent implements Comparable {
 
             String callId = SipUtilities.getCallId(incomingRequest);
             ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
+                    SipUtilities.getTopmostViaBranch(incomingRequest),
                     ReferencesHeader.CHAIN);
             outgoingRequest.setHeader(referencesHeader);
 
