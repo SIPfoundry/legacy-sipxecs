@@ -16,10 +16,10 @@ public class SipResponse extends SipMessage {
      private ResponseEvent responseEvent;
      
     
-    public SipResponse( ResponseExt sipResponse, long time, File logFile) {
+    public SipResponse( ResponseExt sipResponse, long time, String frameId) {
         this.sipResponse = sipResponse;
         this.time = time;
-        this.logFile = logFile;
+        this.setFrameId(frameId);
     }
 
     /**

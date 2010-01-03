@@ -16,8 +16,6 @@ public class TesterConfigParser {
         digester.addObjectCreate(TESTER_CONFIG, SipTesterConfig.class);
         digester.addCallMethod(String.format("%s/%s", TESTER_CONFIG, "tester-ip-address"),
                 "setTesterIpAddress",0);
-        digester.addCallMethod(String.format("%s/%s", TESTER_CONFIG, "tester-base-port"),
-                "setTesterBasePort",0);
         digester.addCallMethod(String.format("%s/%s", TESTER_CONFIG, "log-level"),
         "setLogLevel",0);
     }

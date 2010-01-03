@@ -10,7 +10,7 @@ import javax.sip.Dialog;
 
 
 public abstract class SipMessage implements Comparable<SipMessage> {
-    protected File logFile;
+    private String frameId;
     protected long time;   
     private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
     protected Dialog dialog;
@@ -32,12 +32,6 @@ public abstract class SipMessage implements Comparable<SipMessage> {
        else return 1;
     }
     
-    /**
-     * @return the logFile
-     */
-    public File getLogFile() {
-        return logFile;
-    }
     
     public long getTime() {
         return time;
@@ -52,5 +46,19 @@ public abstract class SipMessage implements Comparable<SipMessage> {
         return this.dialog;
     }
     public abstract MessageExt getSipMessage();
+
+    /**
+     * @param frameId the frameId to set
+     */
+    public void setFrameId(String frameId) {
+        this.frameId = frameId;
+    }
+
+    /**
+     * @return the frameId
+     */
+    public String getFrameId() {
+        return frameId;
+    }
     
 }

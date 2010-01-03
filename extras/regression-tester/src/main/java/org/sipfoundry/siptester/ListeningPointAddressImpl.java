@@ -6,9 +6,9 @@ public class ListeningPointAddressImpl extends ListeningPointAddress {
 
     SipTesterConfig sipTesterConfg;
     String transport;
-    Endpoint endpoint ;
+    EmulatedEndpoint endpoint ;
     
-    public ListeningPointAddressImpl( Endpoint endpoint, String transport) {
+    public ListeningPointAddressImpl( EmulatedEndpoint endpoint, String transport) {
         this.endpoint = endpoint;
         this.transport = transport;
     }

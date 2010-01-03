@@ -35,14 +35,24 @@
              <delete file="sipxtester.log" />
          </target>
 
-         <!-- runs the sample -->
-         <target name="test" description="run the sample script" depends="compile,cleanlogs" >
+         <!-- runs the sample. This example is an emulated blind transfer. -->
+         <target name="test1" description="run the sample script" depends="compile,cleanlogs" >
             <java fork="yes" classname="org.sipfoundry.siptester.SipTester">
                <classpath>
                   <pathelement location="${classes}" />
                </classpath>
                <classpath refid="base.path" />
-               <jvmarg value="-Dsut.prefix.dir=./testcase"/>
+               <jvmarg value="-Dtest.prefix=./example1"/>
+               <jvmarg value="-Dconf.dir=/usr/local/sipx/etc/sipxpbx"/>
+             </java>
+        </target>
+         <target name="test2" description="run the sample script" depends="compile,cleanlogs" >
+            <java fork="yes" classname="org.sipfoundry.siptester.SipTester">
+               <classpath>
+                  <pathelement location="${classes}" />
+               </classpath>
+               <classpath refid="base.path" />
+               <jvmarg value="-Dtest.prefix=./example2"/>
                <jvmarg value="-Dconf.dir=/usr/local/sipx/etc/sipxpbx"/>
              </java>
         </target>

@@ -1,6 +1,5 @@
 package org.sipfoundry.siptester;
 
-import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.DialogTimeoutEvent;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipListenerExt;
@@ -15,8 +14,6 @@ import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
-import javax.sip.header.ContactHeader;
-import javax.sip.header.Header;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -26,31 +23,22 @@ public class SipListenerImpl implements SipListenerExt {
 
     private static Logger logger = Logger.getLogger(SipListenerImpl.class);
 
-    private Endpoint endpoint;
+    private EmulatedEndpoint endpoint;
 
     long wallClockTime;
 
-    public SipListenerImpl(Endpoint endpoint) {
+    public SipListenerImpl(EmulatedEndpoint endpoint) {
         this.endpoint = endpoint;
 
     }
 
-    public void sendRegistration() throws Exception {
-        if (!endpoint.getSutUA().getRegistrations().isEmpty()) {
-            /*
-             * For each registration.
-             */
-            for (String registration : endpoint.getSutUA().getRegistrations()) {
-                String testUser = SipTester.getMappedUser(registration);
-                new RegistrationManager(testUser, endpoint).sendRegistrationRequest();
-            }
-
-        }
-    }
+   
 
     public void processRequest(RequestEvent requestEvent) {
         try {
             RequestExt request = (RequestExt) requestEvent.getRequest();
+            
+            logger.debug("processRequest : " + request.getFirstLine());
 
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
             SipProvider sipProvider = (SipProvider) requestEvent.getSource();
@@ -61,21 +49,14 @@ public class SipListenerImpl implements SipListenerExt {
             ListeningPointExt listeningPoint = (ListeningPointExt) sipProvider
                     .getListeningPoint(request.getTopmostViaHeader().getTransport());
 
-            Endpoint endpoint = SipTester.getEndpoint(listeningPoint);
+            EmulatedEndpoint endpoint = SipTester.getEndpoint(listeningPoint);
 
             for (SipServerTransaction sst : endpoint.findSipServerTransaction(request)) {
-
-                if (sst == null) {                
-                    SipTester.fail("Unepxected server transaction "
-                            + request.getFirstLine().trim());
-                }
-
                 serverTransaction.setApplicationData(sst);
                 sst.setServerTransaction(serverTransaction);
                 String dialogId = sst.getDialogId();
                 SipDialog sipDialog = SipTester.getDialog(dialogId);
                 if (sipDialog != null) {
-   //                 sipDialog.setDialog((DialogExt)requestEvent.getDialog());
                     sipDialog.setLastRequestReceived(request);
                 }
                 sst.getSipRequest().setRequestEvent(requestEvent);

@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<sut-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/tester-topology-00-00">
+ <endpoint>
+     <behavior>PROXY</behavior>
+     <ip-address>192.168.5.75</ip-address>
+     <port>5060</port>
+     <emulated-port>5055</emulated-port>
+  </endpoint>
+  <endpoint>
+     <behavior>UA</behavior>
+     <ip-address>216.82.225.202</ip-address>
+     <port>5060</port>
+     <emulated-port>5056</emulated-port>
+  </endpoint>
+</sut-config>

@@ -113,9 +113,7 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
         }
     }
 
-    public MessageExt getMessage() {
-        return this.sipMessage;
-    }
+  
 
     /*
      * (non-Javadoc)
@@ -230,6 +228,10 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
     
     public void setFrameId(String frameId) {
         this.frameId = frameId.split(" ")[0];
+    }
+    
+    public String getFrameId() {
+        return this.frameId;
     }
     
     public String toString() {

@@ -22,9 +22,9 @@ import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
-public class Endpoint  {
+public class EmulatedEndpoint  {
     
-    private static Logger logger = Logger.getLogger(Endpoint.class);
+    private static Logger logger = Logger.getLogger(EmulatedEndpoint.class);
     
     private String ipAddress;
     
@@ -44,26 +44,28 @@ public class Endpoint  {
     
     private SipStackBean sipStackBean;
 
-    private SutUA sutUa;
+    private TraceEndpoint traceEndpoint;
 
     private long startTime;
+
+    private int emulatedPort;
     
     
-    public Endpoint(String ipAddress, int port) {
+    public EmulatedEndpoint(String ipAddress, int port) {
         this.ipAddress = ipAddress;
         this.port = port;
     }
     
     
     
-    public void setSutUA(SutUA sutUa) {
-        this.sutUa = sutUa;
+    public void setSutUA(TraceEndpoint sutUa) {
+        this.traceEndpoint = sutUa;
     }
     
    
     
-    public SutUA getSutUA() {
-        return this.sutUa;
+    public TraceEndpoint getSutUA() {
+        return this.traceEndpoint;
     }
 
     /**
@@ -86,6 +88,10 @@ public class Endpoint  {
     public void setPort(int port) {
         this.port = port;
     }
+    
+    public void setEmulatedPort(int port) {
+        this.emulatedPort = port;
+    }
 
     /**
      * @return the port
@@ -94,12 +100,13 @@ public class Endpoint  {
         return port;
     }
     
+    
     public void addOriginatingPacket(CapturedLogPacket logPacket) {
         if ( logPacket.getSipPacket() instanceof SIPRequest ) {
-            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getTraceFile());
+            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getFrameId());
             this.addOriginatingSipRequest(sipRequest);
         } else {
-            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getTraceFile());
+            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getFrameId());
             this.addOriginatingSipResponse(sipResponse);
         }
         
@@ -107,10 +114,10 @@ public class Endpoint  {
     
     public void addReceivedPacket(CapturedLogPacket logPacket) {
         if ( logPacket.getSipPacket() instanceof SIPRequest ) {
-            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getTraceFile());
+            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getFrameId());
             this.addReceivedSipRequest(sipRequest);
         } else {
-            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getTraceFile());
+            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getFrameId());
             this.addReceivedSipResponse(sipResponse);
         }
     }
@@ -131,6 +138,17 @@ public class Endpoint  {
                 clientTx.addRequest(sipRequest);
             }
         }
+        
+    }
+    
+    public void removeUnEmulatedClientTransactions(Collection<SipClientTransaction> emulatedSet) {
+       Iterator<SipClientTransaction> it = this.clientTransactions.iterator();
+       while(it.hasNext()) {
+           SipClientTransaction ctx = it.next();
+           if (! emulatedSet.contains(ctx)) {
+               it.remove();
+           }
+       }
         
     }
     
@@ -196,7 +214,7 @@ public class Endpoint  {
     }
     
     public ListeningPointExt getDefaultListeningPoint() {
-        String transport = this.sutUa.getDefaultTransport();
+        String transport = this.traceEndpoint.getDefaultTransport();
         return (ListeningPointExt) this.getProvider(transport).getListeningPoint(transport);
     }
     
@@ -226,12 +244,12 @@ public class Endpoint  {
             public void run() {
                 
                 if (clientTransactions.isEmpty() ) {
-                    System.out.println("Nothing to run");
+                    System.out.println(traceEndpoint.getIpAddress() + ":" + traceEndpoint.getPort() + " Nothing to run");
                     doneFlag = true;
                     return;
                 }
                 try {
-                    long prevTime = Endpoint.this.startTime;
+                    long prevTime = EmulatedEndpoint.this.startTime;
                     Iterator<SipClientTransaction> it = clientTransactions.iterator();
                      
                     while (it.hasNext()) {
@@ -260,9 +278,10 @@ public class Endpoint  {
         Iterator<SipServerTransaction> it = this.serverTransactions.iterator();
         while(it.hasNext() ) {
             SipServerTransaction sst = it.next();
+            logger.debug("sst.getBranch() " + sst.getBranch());
             if(request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod()) && 
                     sst.getBranch() != null &&
-                    sst.getBranch().equals(SipUtilities.getBranchMatchId(request))) {
+                    sst.getBranch().equalsIgnoreCase(SipUtilities.getBranchMatchId(request))) {
                 it.remove();
                 retval.add(sst);
             }

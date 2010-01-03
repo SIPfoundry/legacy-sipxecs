@@ -9,12 +9,14 @@ import org.sipfoundry.commons.jainsip.ListeningPointAddress;
  * This class represents a endpoint from the SUT where the trace was originally taken.
  * 
  */
-public class SutUA  {
+public class TraceEndpoint  {
     private String ipAddress;
     private int    port;
-    private Endpoint endpoint;
+    private EmulatedEndpoint emulatedEndpoint;
     HashSet<String> registrations = new HashSet<String>();
     private String defaultTransport = "udp";
+    private Behavior behavior;
+    private int emulatedPort;
     
     public String getDefaultTransport() {
         return this.defaultTransport;
@@ -49,21 +51,29 @@ public class SutUA  {
         return port;
     }
     
-    public void setEndpoint(Endpoint endpoint) {
-        this.endpoint = endpoint;
-    }
-    public Endpoint getEndpoint() {
-       return this.endpoint;
+    public void setEmulatedPort(String port) {
+        this.emulatedPort = Integer.parseInt(port);
     }
     
-    /**
-     * @param name the name to set
-     */
-    public void addRegistration(String name) {
-        this.registrations.add(name);
+    public void setEmulatedEndpoint(EmulatedEndpoint endpoint) {
+        this.emulatedEndpoint = endpoint;
+        
     }
-    public Collection<String> getRegistrations() {
-        return this.registrations;
+    public EmulatedEndpoint getEmulatedEndpoint() {
+       return this.emulatedEndpoint;
     }
+    
+    public void setBehavior(String behavior) {
+        this.behavior = Behavior.valueOf(behavior);
+    }
+    
+    public Behavior getBehavior() {
+        return this.behavior;
+    }
+
+    public int getEmulatedPort() {
+        return this.emulatedPort;
+    }
+   
       
 }

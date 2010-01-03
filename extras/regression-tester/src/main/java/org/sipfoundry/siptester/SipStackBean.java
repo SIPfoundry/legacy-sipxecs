@@ -28,11 +28,11 @@ public class SipStackBean extends AbstractSipStackBean {
 
     HashSet<ListeningPointAddress> listeningPointAddresses = new HashSet<ListeningPointAddress>();
 
-    private Endpoint endpoint;
+    private EmulatedEndpoint endpoint;
 
     protected SipListenerImpl sipListener;
 
-    public SipStackBean(Endpoint endpoint) {
+    public SipStackBean(EmulatedEndpoint endpoint) {
         super();
         this.endpoint = endpoint;
     }

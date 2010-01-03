@@ -30,7 +30,7 @@ public class SipServerTransaction extends SipTransaction implements
     /*
      * The endpoint to which the server transaction belongs.
      */
-    private Endpoint endpoint;
+    private EmulatedEndpoint endpoint;
 
     /*
      * The Mock dialog to which the server transaction belongs.
@@ -97,14 +97,14 @@ public class SipServerTransaction extends SipTransaction implements
     /**
      * @param endpoint the endpoint to set
      */
-    public void setEndpoint(Endpoint endpoint) {
+    public void setEndpoint(EmulatedEndpoint endpoint) {
         this.endpoint = endpoint;
     }
 
     /**
      * @return the endpoint
      */
-    public Endpoint getEndpoint() {
+    public EmulatedEndpoint getEndpoint() {
         return endpoint;
     }
 

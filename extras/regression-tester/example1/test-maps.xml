@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<test-maps xmlns="http://www.sipfoundry.org/sipX/schema/xml/test-maps-00-00">
+        <user-maps>
+	    <user-map>
+		   <trace-user>user1</trace-user>
+		   <maps-to>testuser1</maps-to>
+	     </user-map>
+	     <user-map>
+		    <trace-user>user2</trace-user>
+		    <maps-to>testuser2</maps-to>
+	     </user-map>
+	     <user-map>
+		    <trace-user>user3</trace-user>
+		    <maps-to>testuser3</maps-to>
+	     </user-map>
+        </user-maps>
+        <address-maps>
+	     <address-map>
+		   <trace-address>192.168.5.240:5060</trace-address>
+		   <maps-to>192.168.5.75:5060</maps-to>
+             </address-map>
+	     <address-map>
+		   <trace-address>sipxpbx.sipxtest.net</trace-address>
+		   <maps-to>sipxtest.sipxtest.net</maps-to>
+	     </address-map>
+	</address-maps>
+</test-maps>
+  

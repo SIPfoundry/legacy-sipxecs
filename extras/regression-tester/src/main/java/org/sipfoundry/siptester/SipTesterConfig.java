@@ -10,11 +10,7 @@ public class SipTesterConfig {
     private String sipxProxyDomain;
     
     private String testerIpAddress;
-    
-    private int testerBasePort ;
-    
-    private static int allocatedPort ;
-    
+      
     /**
      * @param logLevel the logLevel to set
      */
@@ -57,28 +53,5 @@ public class SipTesterConfig {
     public String getTesterIpAddress() {
         return testerIpAddress;
     }
-
-    /**
-     * @param testerBasePort the testerBasePort to set
-     */
-    public void setTesterBasePort(String testerBasePort) {
-        this.testerBasePort = Integer.parseInt(testerBasePort);
-        allocatedPort = this.testerBasePort;
-    }
-
-    /**
-     * @return the testerBasePort
-     */
-    public int getTesterBasePort() {
-        return testerBasePort;
-    }
-    
-   
-    
-    public static int getPort() {
-        return allocatedPort ++;
-    }
-    
-    
 
 }

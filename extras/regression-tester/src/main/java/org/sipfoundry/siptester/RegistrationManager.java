@@ -26,7 +26,7 @@ public class RegistrationManager implements SipListenerExt {
 
     private static Logger logger = Logger.getLogger(RegistrationManager.class);
 
-    private Endpoint endpoint;
+    private EmulatedEndpoint endpoint;
     private String userName;
 
     private RegistrationTimerTask registrationTimerTask;
@@ -61,7 +61,7 @@ public class RegistrationManager implements SipListenerExt {
 
     }
 
-    public RegistrationManager(String userName, Endpoint endpoint) {
+    public RegistrationManager(String userName, EmulatedEndpoint endpoint) {
 
         this.endpoint = endpoint;
         this.userName = userName;

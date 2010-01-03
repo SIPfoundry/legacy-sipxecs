@@ -34,7 +34,7 @@ public class SipClientTransaction extends SipTransaction implements
 
     private ConcurrentSkipListSet<SipMessage> happensBefore = new ConcurrentSkipListSet<SipMessage>();
 
-    private Endpoint endpoint;
+    private EmulatedEndpoint endpoint;
 
     boolean processed;
 
@@ -214,6 +214,7 @@ public class SipClientTransaction extends SipTransaction implements
 
                 RequestExt newRequest = SipUtilities.createRequest(this.sipRequest
                         .getSipRequest(), this.triggeringMessage, endpoint);
+                
                 ClientTransaction clientTransaction = provider
                         .getNewClientTransaction(newRequest);
                 clientTransaction.setApplicationData(this);
@@ -222,9 +223,8 @@ public class SipClientTransaction extends SipTransaction implements
                         .getMatchingServerTransactions()) {
                     sipServerTransaction.setBranch(((RequestExt) newRequest)
                             .getTopmostViaHeader().getBranch());
-                }
+                }   
                 clientTransaction.sendRequest();
-
             }
         } catch (Exception ex) {
             SipTester.fail("unexpectedException", ex);
@@ -234,14 +234,14 @@ public class SipClientTransaction extends SipTransaction implements
     /**
      * @param endpoint the endpoint to set
      */
-    public void setEndpoint(Endpoint endpoint) {
+    public void setEndpoint(EmulatedEndpoint endpoint) {
         this.endpoint = endpoint;
     }
 
     /**
      * @return the endpoint
      */
-    public Endpoint getEndpoint() {
+    public EmulatedEndpoint getEndpoint() {
         return endpoint;
     }
 
@@ -387,7 +387,7 @@ public class SipClientTransaction extends SipTransaction implements
             
             if (!retval) {
                 if (!SipTester.failed.getAndSet(true)) {
-                    for (Endpoint endpoint : SipTester.getEndpoints()) {
+                    for (EmulatedEndpoint endpoint : SipTester.getEndpoints()) {
                         for (SipClientTransaction ctx : endpoint.getClientTransactions()) {
                             if (ctx.waiting) {
                                 ctx.debugPrintHappensBefore();

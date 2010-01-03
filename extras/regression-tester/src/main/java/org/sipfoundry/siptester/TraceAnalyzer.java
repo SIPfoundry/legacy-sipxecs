@@ -45,7 +45,7 @@ public class TraceAnalyzer {
                 int port = capturedLogPacket.getDestinationPort();
                 logger.debug("adding request " + sipRequest.getMethod() + " transactionId " + sipRequest.getTransactionId()  );
                 
-                Endpoint destEndpoint = SipTester.getEndpoint(address, port);
+                EmulatedEndpoint destEndpoint = SipTester.getEndpoint(address, port);
                 if (destEndpoint != null) {
                     destEndpoint.addReceivedPacket(capturedLogPacket);
                     logger.debug(" destEndpoint " + destEndpoint.getIpAddress() + ":" + destEndpoint.getPort());
@@ -57,7 +57,7 @@ public class TraceAnalyzer {
                 if (viaPort == -1) {
                     viaPort = 5060;
                 }
-                Endpoint sourceEndpoint = SipTester.getEndpoint(viaAddress, viaPort);
+                EmulatedEndpoint sourceEndpoint = SipTester.getEndpoint(viaAddress, viaPort);
                  if (sourceEndpoint != null) {
                     sourceEndpoint.addOriginatingPacket(capturedLogPacket);
                     logger.debug("sourceEndpoint " + sourceEndpoint.getIpAddress() + ":" + sourceEndpoint.getPort());
@@ -66,8 +66,7 @@ public class TraceAnalyzer {
                 }
             } else {
                 SipResponse sipResponse = new SipResponse((SIPResponse) capturedLogPacket
-                        .getSipPacket(), capturedLogPacket.getTimeStamp(), capturedLogPacket
-                        .getTraceFile());
+                        .getSipPacket(), capturedLogPacket.getTimeStamp(), capturedLogPacket.getFrameId());
 
                 String transactionId = capturedLogPacket.getTransactionId();
                 logger.debug("checking sipResponse " + transactionId);

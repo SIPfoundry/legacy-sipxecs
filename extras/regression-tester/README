@@ -1,29 +1,75 @@
 What is this?
+=============
 This is a regression test tool for sipx.
 
-How this works:
 
-This tool aims to emulated the endpoints under test. It works by record
-and replay.  It uses merged.xml to generate the playback.  It takes as
-input a file containing the endpoints and the merged.xml file generated
-by sipx-trace.  It uses these inputs to figure out the client and server
-transactions in that file and generates the same stimulus through
-external emulated user agents. You have to configure the system with
-these test user agents. For example, if you wanted to construct a test
+How this works:
+===============
+
+This tool aims to emulate the signaling from a previously recorded
+successful test run.  A developer may run a test case using actual phones
+etc. and re-run the test later using emulated drivers that mimic the
+operation of the phones and gateways of interest. It works by record
+and replay.  It uses a merged.xml from capture of an existing working
+system to generate the signaling playback.
+
+The following are inputs :
+
+- a file containing ${testdir}/sut-config.xml that defines the endpoints to be emulated. These endpoints
+must be identified as Proxy or user-agent.
+- a file  and the merged.xml file generated from running a successful test (using actual phones
+and gatways). This file is filtered using sipx-trace.  
+- a mapping file ${testdir}/test-maps.xml that maps the trace addresses and users to users
+and addresses on the system under test.
+
+It uses these inputs to figure out the client and server transactions
+in that file and generates the same stimulus through emulated endpoints
+that mimic the signaling. The idea is that by mimicing the signaling at
+a later time, we can tell if a regression failure occured. This would
+happen if something changed in the call setup signaling.  The regression
+tester is set up to catch such failures.
+
+Example
+=======
+
+For example, if you wanted to construct a test
 where two phones register with the sipx registrar and call each other,
 you would proceed as follows.
 
-Example:
 
-1. Run the test on a system where you would like to gather trace.
-2. Filter the trace using sipx-trace. The merged.xml file thus obtained can have a superset of information.
-3. Copy the merged.xml of interest in the directory testcase/var/log/sipxpbx
-4. Copy the validusers.xml file corresponding to merged.xml in the directory testcase/etc/sipxpbx/validusers.xml
-5. Copy the domain-config file from the system from where the trace has been obtained to testcase/etc/sipxpbx/domain-config
-5. Construct a file that defines the endpoints of interest. Plase this in testcase/sut-config.xml
-6. Run the tester on the system under regression test.  You would provide the testcase directory as input to the tester.
+1. Run the test on a system where you would like to gather trace. Lets say you have user1 calling user2 on the trace system.
+2. Filter the trace using sipx-trace.  You would need to capture both the phone REGISTER and INVITE tranasactions.
+3. Define the endpoints of interest using the file ${testcase}/sut-config.xml.   In this case the endpoints will be the phones
+from where the call setup signaling originated.
+4. Configure the system under test with emulated users.  These are user accounts on the system under test that 
+will be used for the sole purpose of testing. Lets say you have defined testuser1 and testuser2 for the purpose of testing.
+5. Construct a mapping file test-maps.xml. This will specify that user1 maps to testuser1 and user2 maps to testuser2. This will
+also indicate the address mappings between the trace system and the test system.
+6. Copy the merged.xml of interest in the directory ${testcase}/var/log/sipxpbx
+7. Copy the validusers.xml file corresponding to merged.xml in the directory ${testcase}/etc/sipxpbx/validusers.xml
+8. Run the tester on the system under regression test.  You would provide the testcase directory as input to the tester.
 
 This will result in the call flow in testcase/var/log/sipxpbx/merged.xml
-being emulated on the system under test.
+being emulated on the system under test. 
 
-THIS TOOL IS IN AN EARLY STATE OF COMPLETION. IT IS SUBMITTED TO THE REPOSITORY FOR EARLY COMMENTS.
+To run the canned example
+=========================
+
+Example1
+========
+
+This example emulates a call transfer between two polycom phones. The trace for this has been previously captured
+and set up on trace system.
+
+1. edit example1/test-maps.xml
+
+2. Define testuser1 and testuser2 for the sytem under test.
+
+Execute the test case using
+
+ant test1
+
+
+
+
+THIS TOOL IS IN AN EARLY STATE. IT IS SUBMITTED TO THE REPOSITORY FOR EARLY COMMENTS.

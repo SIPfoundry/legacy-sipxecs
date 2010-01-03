@@ -14,10 +14,10 @@ public class SipRequest extends SipMessage {
     private RequestEvent requestEvent;
     
     
-    public SipRequest(RequestExt sipRequest, long time, File logFile) {
+    public SipRequest(RequestExt sipRequest, long time, String frameId) {
         this.sipRequest = sipRequest;
         this.time = time;
-        this.logFile = logFile;
+        this.setFrameId(frameId);
     }
 
     
