@@ -38,6 +38,7 @@ import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
+import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.ProxyAuthorizationHeader;
@@ -1048,24 +1049,27 @@ class DialogContext {
      * @throws SipException 
      */
     void forwardBye(ServerTransaction serverTransaction) throws SipException {
-             Request bye = dialog.createRequest(Request.BYE);
-             if ( this.proxyAuthorizationHeader != null ) {
-            	 bye.setHeader(this.proxyAuthorizationHeader) ;
-             }
-            if ( getSipProvider() != Gateway.getLanProvider() ) {
-                if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
-                    SipUtilities.setGlobalAddresses(bye);
-                }
+        Request bye = dialog.createRequest(Request.BYE);
+        ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(serverTransaction.getRequest(), 
+                ReferencesHeader.CHAIN);
+        bye.setHeader(referencesHeader);
+        if ( this.proxyAuthorizationHeader != null ) {
+            bye.setHeader(this.proxyAuthorizationHeader) ;
+        }
+        if ( getSipProvider() != Gateway.getLanProvider() ) {
+            if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
+                SipUtilities.setGlobalAddresses(bye);
             }
-          
-            ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);       
+        }
 
-            TransactionContext transactionContext = TransactionContext.attach(
-                    clientTransaction, Operation.PROCESS_BYE);
+        ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);       
 
-            transactionContext.setItspAccountInfo(this.itspInfo);
-            TransactionContext.get(serverTransaction).setClientTransaction(clientTransaction);
-            dialog.sendRequest(clientTransaction);     
+        TransactionContext transactionContext = TransactionContext.attach(
+                clientTransaction, Operation.PROCESS_BYE);
+
+        transactionContext.setItspAccountInfo(this.itspInfo);
+        TransactionContext.get(serverTransaction).setClientTransaction(clientTransaction);
+        dialog.sendRequest(clientTransaction);     
     }
 
     /**

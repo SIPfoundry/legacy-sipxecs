@@ -1909,5 +1909,16 @@ class SipUtilities {
         String branchId = viaHeader.getBranch();
         return branchId;
     }
+    
+    
+    public static ExtensionHeader createReferencesHeader(Request request, String ref) {
+        try {
+            String callId = SipUtilities.getCallId(request);
+            String branchId = SipUtilities.getTopmostViaBranch(request);
+            return SipUtilities.createReferencesHeader(callId, branchId, ref);
+        } catch (Exception ex) {
+            throw new SipXbridgeException("Unexpected exception creating references header" );
+        }
+    }
 
 }

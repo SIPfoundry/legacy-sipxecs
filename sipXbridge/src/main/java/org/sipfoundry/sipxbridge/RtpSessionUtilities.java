@@ -157,6 +157,7 @@ public class RtpSessionUtilities {
 		}
 
 		newInvite.removeHeader(PAssertedIdentityHeader.NAME);
+		newInvite.addHeader(SipUtilities.createReferencesHeader(serverTransaction.getRequest(),ReferencesHeader.CHAIN));
 		AcceptHeader acceptHeader = ProtocolObjects.headerFactory
 				.createAcceptHeader("application", "sdp");
 		newInvite.setHeader(acceptHeader);

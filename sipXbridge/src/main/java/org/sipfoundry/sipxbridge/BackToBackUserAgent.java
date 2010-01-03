@@ -2201,7 +2201,7 @@ public class BackToBackUserAgent implements Comparable {
 
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         Dialog peer = dialogContext.getPeerDialog();
-
+      
         if (!SipUtilities.isRequestNotForwarded(st.getRequest())
                 && dialogContext.isForwardByeToPeer() && peer != null
                 && peer.getState() != DialogState.TERMINATED && peer.getState() != null) {

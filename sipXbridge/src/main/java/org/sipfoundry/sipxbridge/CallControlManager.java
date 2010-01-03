@@ -212,6 +212,10 @@ class CallControlManager implements SymmitronResetHandler {
         Request request = requestEvent.getRequest();
         SipProvider provider = (SipProvider) requestEvent.getSource();
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        
+        String callId = SipUtilities.getCallId(request);
+        String branchId = SipUtilities.getTopmostViaBranch(request);
+        ReferencesHeader referencesHeader = new ReferencesHeaderImpl(callId,ReferencesHeader.CHAIN, branchId);
 
         if ( dialogContext == null ) {
             logger.error("Null Dialog Context detected on dialog " + dialog);
@@ -260,6 +264,8 @@ class CallControlManager implements SymmitronResetHandler {
              * In this case the phone will solicit the ITSP for an offer See Issue 1739
              */
             Request newRequest = peerDialog.createRequest(Request.INVITE);
+            
+            newRequest.setHeader(referencesHeader);
 
 
 
