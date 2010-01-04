@@ -78,12 +78,7 @@ public class SipListenerImpl implements SipListenerExt {
         try {
             Response response = responseEvent.getResponse();
             String method = SipUtilities.getCSeqMethod(response);
-           /* if (method.equals(Request.REGISTER)) {
-                ClientTransaction ctx = responseEvent.getClientTransaction();
-                RegistrationManager registrationManager = (RegistrationManager) ctx
-                        .getApplicationData();
-                registrationManager.processResponse(responseEvent);
-            } else  */
+         
             
             if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
                     || method.equals(Request.NOTIFY) || method.equals(Request.PRACK)
@@ -112,6 +107,9 @@ public class SipListenerImpl implements SipListenerExt {
                     + timeoutEvent.getServerTransaction().getRequest().getMethod() + " Time out");
 
         }
+        
+        
+        SipTester.fail("Transaction time out ");
 
     }
 

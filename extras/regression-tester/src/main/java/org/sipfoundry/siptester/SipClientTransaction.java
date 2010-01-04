@@ -33,6 +33,7 @@ public class SipClientTransaction extends SipTransaction implements
     ConcurrentSkipListSet<SipResponse> sipResponses = new ConcurrentSkipListSet<SipResponse>();
 
     private ConcurrentSkipListSet<SipMessage> happensBefore = new ConcurrentSkipListSet<SipMessage>();
+    
 
     private EmulatedEndpoint endpoint;
 
@@ -372,9 +373,7 @@ public class SipClientTransaction extends SipTransaction implements
     public synchronized  void removePrecondition(SipMessage sipMessage) {
         boolean contains = this.happensBefore.remove(sipMessage);
         if (happensBefore.isEmpty() && contains) {
-            this.triggeringMessage = sipMessage;
-            this.preconditionsSem.release();
-          
+             this.preconditionsSem.release();   
         } 
     }
     
@@ -409,15 +408,21 @@ public class SipClientTransaction extends SipTransaction implements
 
     public void addHappensBefore(SipMessage sipMessage) {
         this.happensBefore.add(sipMessage);
+        this.triggeringMessage = this.happensBefore.descendingIterator().next();
     }
 
     public void printHappensBefore() {
 
         SipTester.getPrintWriter().println("<happens-before>");
+        if ( this.triggeringMessage != null ) {
+            SipTester.getPrintWriter().println("<trigger>" + this.triggeringMessage.getSipMessage() + "</trigger>");
+        }
         for (SipMessage sipMessage : this.happensBefore) {
+            
             SipTester.getPrintWriter().println(
                     "<sip-message><![CDATA[" + sipMessage.getSipMessage() + "]]></sip-message>");
         }
+        
         SipTester.getPrintWriter().println("</happens-before>");
     }
 
