@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<project name="siptester" default="compile" basedir=".">
+<description>
+      Build file
+</description>
+        <property file="build.properties" />
+        <path id="base.path">
+	   <pathelement location="${google-api-translate}" />
+	</path>
+	 <target name="compile"  description="compile the source no tests">
+	       <!-- Compile the java code from ${src} into ${classes} -->
+                <mkdir dir="${classes}" />
+                 <javac srcdir="${src.dir}/src/main/java"
+                                    destdir="${classes}"
+                                    debug="${javac.debug}"
+                                    optimize= "${javac.optimize}"
+                                    debuglevel = "${javac.debuglevel}"
+                                    classpathref="base.path" deprecation="off"> 
+                 </javac>
+         </target>
+	  <target name="clean"  description="clean">
+               <delete dir="${classes}" quiet="true" failonerror="false" />
+         </target>
+
+
+         <!-- runs the sample. This example is an emulated blind transfer. -->
+         <target name="test1" description="run the sample script" depends="clean,compile" >
+            <java fork="yes" classname="org.sipfoundry.translator.Translator">
+               <classpath>
+                  <pathelement location="${classes}" />
+               </classpath>
+               <classpath refid="base.path" />
+               <jvmarg value="-Dsource.file=${top.src.dir}/sipXconfig/neoconf/etc/sipxconference/conference.properties"/>
+               <jvmarg value="-Dsource.language=ENGLISH"/>
+               <jvmarg value="-Dtarget.language=FRENCH"/>
+             </java>
+        </target>
+</project>
