@@ -59,6 +59,9 @@ public class SipTester {
     protected static Map<String, SipServerTransaction> serverTransactionMap = new HashMap<String, SipServerTransaction>();
 
     protected static Map<String, SipDialog> sipDialogs = new HashMap<String, SipDialog>();
+    
+    private static Map<String,CapturedLogPacket> capturedPacketMap = new HashMap<String,CapturedLogPacket>();
+    
 
     static {
         try {
@@ -271,7 +274,11 @@ public class SipTester {
     public static String getTraceDomainName() {
         return sutDomainName;
     }
-
+    
+    public static void addCapturedPacket(CapturedLogPacket capturedPacket) {
+       SipTester.capturedPacketMap.put(capturedPacket.getFrameId(),capturedPacket);
+    }
+    
     /**
      * @param args
      */
@@ -364,9 +371,9 @@ public class SipTester {
 
             }
 
-            System.out.println("Analyzing trace from file");
-            // LogFileReader logFileReader = new LogFileReader(traceprefix + "/var/log/sipxpbx");
-            // logFileReader.readTraces();
+            System.out.println("Analyzing trace from file: " + traceprefix
+                    + "/trace/var/log/sipxpbx/merged.xml");
+            
             TraceAnalyzer traceAnalyzer = new TraceAnalyzer(traceprefix
                     + "/trace/var/log/sipxpbx/merged.xml");
             traceAnalyzer.analyze();
@@ -501,9 +508,12 @@ public class SipTester {
                 System.out.println("Nothing to run!!");
                 System.exit(0);
             }
+          
+            
             runIt = runnable.iterator();
 
             logger.debug("=============== DEPENDENCY MAP =================");
+          
             while (runIt.hasNext()) {
                 SipClientTransaction currentTx = runIt.next();
                 currentTx.printTransaction();
@@ -580,5 +590,7 @@ public class SipTester {
     public static boolean checkProvisionalResponses() {
         return false;
     }
+
+    
 
 }

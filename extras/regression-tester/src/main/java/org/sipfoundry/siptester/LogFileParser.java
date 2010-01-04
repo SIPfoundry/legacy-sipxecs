@@ -39,8 +39,7 @@ public class LogFileParser {
         Document traceFileDocument = builder.parse(logFile);
         walkXml(traceFileDocument);
         logger.debug("read " + retval.size());
-        StringMsgParser.setComputeContentLengthFromMessage(false);
-        
+        StringMsgParser.setComputeContentLengthFromMessage(false);      
         return retval;
       } catch ( Exception ex) {
           SipTester.fail("Unexpected exception parsing trae file",ex);
@@ -77,6 +76,7 @@ public class LogFileParser {
           }
           capturedPacket.map();
           retval.add(capturedPacket);
+          SipTester.addCapturedPacket(capturedPacket);
 
       }
         

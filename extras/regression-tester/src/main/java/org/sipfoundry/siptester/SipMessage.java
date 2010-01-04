@@ -61,4 +61,9 @@ public abstract class SipMessage implements Comparable<SipMessage> {
         return frameId;
     }
     
+    public String getMessageAsXmlComment() {
+        StringBuffer stringBuffer = new StringBuffer() ;
+        return stringBuffer.append("<!--" + this.getSipMessage().toString() + "-->").toString();
+    }
+   
 }

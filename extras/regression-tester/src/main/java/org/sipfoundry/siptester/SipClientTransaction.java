@@ -171,7 +171,6 @@ public class SipClientTransaction extends SipTransaction implements
                         System.out.println("trigger = " + triggeringMessage.getSipMessage());
                     }
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
-                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
                     Response response = sipResponse.getResponseEvent().getResponse();
                     Request prack = dialog.createPrack(response);
@@ -415,12 +414,13 @@ public class SipClientTransaction extends SipTransaction implements
 
         SipTester.getPrintWriter().println("<happens-before>");
         if ( this.triggeringMessage != null ) {
-            SipTester.getPrintWriter().println("<trigger>" + this.triggeringMessage.getSipMessage() + "</trigger>");
+            SipTester.getPrintWriter().println("<trigger>" + this.triggeringMessage.getFrameId() + "</trigger>");
+            SipTester.getPrintWriter().println(this.triggeringMessage.getMessageAsXmlComment());
         }
-        for (SipMessage sipMessage : this.happensBefore) {
-            
+        for (SipMessage sipMessage : this.happensBefore) {            
             SipTester.getPrintWriter().println(
-                    "<sip-message><![CDATA[" + sipMessage.getSipMessage() + "]]></sip-message>");
+                    "<sip-message>" + sipMessage.getFrameId() + "</sip-message>");
+            SipTester.getPrintWriter().println(sipMessage.getMessageAsXmlComment());           
         }
         
         SipTester.getPrintWriter().println("</happens-before>");
@@ -431,8 +431,9 @@ public class SipClientTransaction extends SipTransaction implements
         for (SipResponse sipResponse : this.sipResponses) {
             SipTester.getPrintWriter().println("<response>");
             SipTester.getPrintWriter().println(
-                    "<sip-response><![CDATA[" + sipResponse.getSipResponse()
-                            + "]]></sip-response>");
+                    "<sip-response>" + sipResponse.getFrameId()
+                            + "</sip-response>");
+            SipTester.getPrintWriter().println(sipResponse.getMessageAsXmlComment());
             SipTester.getPrintWriter().println("<post-condition>");
             for (SipClientTransaction postCondition : sipResponse.getPostConditions()) {
                 SipTester.getPrintWriter().println(
@@ -451,8 +452,10 @@ public class SipClientTransaction extends SipTransaction implements
                 "<transaction-id>" + this.getTransactionId() + "</transaction-id>");
         SipTester.getPrintWriter().println("<time>" + this.getTime() + "</time>");
         SipTester.getPrintWriter().println(
-                "<sip-request><![CDATA[" + this.getSipRequest().getSipRequest()
-                        + "]]></sip-request>");
+                "<sip-request>" + this.getSipRequest().getFrameId()
+                        + "</sip-request>");
+        SipTester.getPrintWriter().println(sipRequest.getMessageAsXmlComment());
+        
         printHappensBefore();
         printResponses();
         printMatchingServerTansactions();
