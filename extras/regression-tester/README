@@ -15,12 +15,12 @@ system to generate the signaling playback.
 
 The following are inputs :
 
-- a file containing ${testdir}/sut-config.xml that defines the endpoints to be emulated. These endpoints
-must be identified as Proxy or user-agent.
-- a file  and the merged.xml file generated from running a successful test (using actual phones
-and gatways). This file is filtered using sipx-trace.  
-- a mapping file ${testdir}/test-maps.xml that maps the trace addresses and users to users
-and addresses on the system under test.
+- A file containing ${testdir}/monitored-interfaces.xml that defines the endpoints to be emulated. These endpoints
+must be identified as PROXY or UA.
+- The merged.xml file generated from running a successful test (using actual phones
+and gatways). This file is filtered using sipx-trace and is located in ${testdir}/trace/var/log/sipxpbx/merged.xml.  
+- The domain-config file  ${testdir}/trace/etc/sipxpbx/domain-config taken from the system where the trace was gathered.  
+- A mapping file ${testdir}/test-maps.xml that maps the trace addresses and users to users and addresses on the system under test.
 
 It uses these inputs to figure out the client and server transactions
 in that file and generates the same stimulus through emulated endpoints
