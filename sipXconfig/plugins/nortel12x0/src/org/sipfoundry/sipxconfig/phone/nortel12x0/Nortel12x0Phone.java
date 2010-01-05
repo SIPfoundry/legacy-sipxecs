@@ -45,8 +45,9 @@ public class Nortel12x0Phone extends Phone {
     public static final String DISPLAY_NAME = "registrationAndProxy/displayname";
     public static final String REGISTRATION_SERVER_SETTING = "registrationAndProxy/registrarAddress";
     public static final String PROXY_SERVER_SETTING = "sipSettings/sipProxy/proxyAddress";
+    public static final String PROXY_SERVER_PORT = "sipSettings/sipProxy/proxyPort";
     public static final String MWI_SUBSCRIBE_SETTING = "registrationAndProxy/mwiReqUri";
-    public static final String MOH_SETTING = "phoneSettings/mohServer";
+    public static final String MOH_SETTING = "registrationAndProxy/AccMohServer";
     public static final String VOICEMAIL_ACCESS_NUMBER_SETTING = "registrationAndProxy/voiceMailServerAddress";
     public static final String PRESENCE_SERVER_SETTING = "phoneSettings/presenceServer";
     public static final String RLS_SETTING = "presence/sipRlsUri";
@@ -59,6 +60,9 @@ public class Nortel12x0Phone extends Phone {
     public static final String CALL_PICKUP_PREFIX = "callPickup/callPickupPrefix";
     public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
     public static final String SYSLOG_SERVER = "phoneSettings/syslogServer";
+    public static final String SIP_OUTBOUND_PROXY = "registrationAndProxy/accProxyAddress";
+    public static final String SIP_OUTBOUND_PROXY_PORT_LINE = "registrationAndProxy/accProxyPort";
+    public static final String USER_SHARED_OR_PRIVATE = "registrationAndProxy/lineShared";
 
     private static final int PHONEBOOK_MAX = 200;
     private static final int SPEEDDIAL_MAX = 200;
@@ -97,17 +101,23 @@ public class Nortel12x0Phone extends Phone {
 
     @Override
     protected void setLineInfo(Line line, LineInfo info) {
+        line.setSettingValue(DISPLAY_NAME, info.getDisplayName());
         line.setSettingValue(USER_ID_SETTING, info.getUserId());
         line.setSettingValue(PASSWORD_SETTING, info.getPassword());
         line.setSettingValue(REGISTRATION_SERVER_SETTING, info.getRegistrationServer());
+        line.setSettingValue(VOICEMAIL_ACCESS_NUMBER_SETTING, info.getVoiceMail() + '@'
+            + info.getRegistrationServer());
+        line.setSettingValue(MWI_SUBSCRIBE_SETTING, info.getUserId() + '@' + info.getRegistrationServer());
     }
 
     @Override
     protected LineInfo getLineInfo(Line line) {
         LineInfo info = new LineInfo();
+        info.setDisplayName(line.getSettingValue(DISPLAY_NAME));
         info.setUserId(line.getSettingValue(USER_ID_SETTING));
         info.setPassword(line.getSettingValue(PASSWORD_SETTING));
         info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
+        info.setVoiceMail(line.getSettingValue(VOICEMAIL_ACCESS_NUMBER_SETTING));
         return info;
     }
 
@@ -142,9 +152,9 @@ public class Nortel12x0Phone extends Phone {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(path = MOH_SETTING)
-        public String getUserMoh() {
-            return m_defaults.getMusicOnHoldUri();
+        @SettingEntry(path = PROXY_SERVER_PORT)
+        public String getProxyPort() {
+            return m_defaults.getProxyServerSipPort();
         }
 
         @SettingEntry(path = PRESENCE_SERVER_SETTING)
@@ -349,6 +359,17 @@ public class Nortel12x0Phone extends Phone {
             return defaults.getDomainName();
         }
 
+        @SettingEntry(path = SIP_OUTBOUND_PROXY)
+        public String getSipOutboundProxy() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getDomainName();
+        }
+
+        @SettingEntry(path = SIP_OUTBOUND_PROXY_PORT_LINE)
+        public String getSipOutboundProxyPort() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return defaults.getProxyServerSipPort();
+        }
 
         @SettingEntry(path = MWI_SUBSCRIBE_SETTING)
         public String getMwiSubscribe() {
@@ -359,6 +380,17 @@ public class Nortel12x0Phone extends Phone {
                 uri = u.getUserName() + '@' + defaults.getDomainName();
             }
             return uri;
+        }
+
+        @SettingEntry(path = USER_SHARED_OR_PRIVATE)
+        public boolean getUserIsShared() {
+            User user = m_line.getUser();
+            if (user != null) {
+                if (user.getIsShared()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         @SettingEntry(path = VOICEMAIL_ACCESS_NUMBER_SETTING)
@@ -372,6 +404,16 @@ public class Nortel12x0Phone extends Phone {
             return uri;
         }
 
+        @SettingEntry(path = MOH_SETTING)
+        public String getUserMoh() {
+            User user = m_line.getUser();
+            if (user != null) {
+                String mohUri = user.getMusicOnHoldUri();
+                return  SipUri.stripSipPrefix(mohUri);
+            }
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return SipUri.stripSipPrefix(defaults.getMusicOnHoldUri());
+        }
     }
 
     public void restart() {

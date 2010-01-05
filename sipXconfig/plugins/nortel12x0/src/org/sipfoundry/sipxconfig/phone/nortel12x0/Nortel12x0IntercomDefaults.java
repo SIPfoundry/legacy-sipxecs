@@ -17,13 +17,16 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class Nortel12x0IntercomDefaults {
 
+    public static final String ALERT_INFO_SECRET = "intercom/alertInfoSecret";
+    public static final String INTERCOM_PREFIX_VALUE = "intercom/intercomPrefixValue";
+
     private Phone m_phone;
 
     public Nortel12x0IntercomDefaults(Phone phone) {
         m_phone = phone;
     }
 
-    @SettingEntry(path = "intercom/alertInfoSecret")
+    @SettingEntry(path = ALERT_INFO_SECRET)
     public String getAlertInfoValue() {
         Intercom intercom = getIntercom();
         if (intercom == null || !intercom.isEnabled()) {
@@ -32,7 +35,7 @@ public class Nortel12x0IntercomDefaults {
         return intercom.getCode();
     }
 
-    @SettingEntry(path = "intercom/intercomPrefixValue")
+    @SettingEntry(path = INTERCOM_PREFIX_VALUE)
     public String getIntercomPrefixValue() {
         Intercom intercom = getIntercom();
         if (intercom == null || !intercom.isEnabled()) {

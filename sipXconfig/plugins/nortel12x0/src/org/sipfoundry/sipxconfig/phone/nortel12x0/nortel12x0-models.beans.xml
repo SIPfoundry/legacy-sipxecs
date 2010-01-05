@@ -7,7 +7,7 @@
     <property name="label" value="Nortel IP Phone 1230" />
     <property name="maxLineCount" value="10" />
     <property name="profileTemplate" value="nortel12x0/nortel12x0.vm" />
-    <property name="vendor" value="Nortel IP Phone 1210/1220/1230" />
+    <property name="vendor" value="Nortel" />
     <property name="restartSupported" value="true" />
     <property name="supportedFeatures">
       <set>

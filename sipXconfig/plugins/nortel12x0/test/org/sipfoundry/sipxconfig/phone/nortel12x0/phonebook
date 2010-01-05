@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <configuration>
 <networkSettings>
 <qosDscp><![CDATA[0x00]]></qosDscp>
 <qosVlanId><![CDATA[0]]></qosVlanId>
 </networkSettings>
 <phoneSettings>
+<languageSelected><![CDATA[English]]></languageSelected>
 <dndControl><![CDATA[FALSE]]></dndControl>
 <blinkLightOnIncomingCall><![CDATA[TRUE]]></blinkLightOnIncomingCall>
 <flashLightOnMwi><![CDATA[TRUE]]></flashLightOnMwi>
@@ -17,11 +18,13 @@
 <sessionRefresherFlag><![CDATA[FALSE]]></sessionRefresherFlag>
 <subscriptionExpires><![CDATA[86400]]></subscriptionExpires>
 <hotDeskingAutoLogin><![CDATA[TRUE]]></hotDeskingAutoLogin>
-<mohServer><![CDATA[sip:~~mh~@sipfoundry.org]]></mohServer>
 <autoCallbackTimeout><![CDATA[15]]></autoCallbackTimeout>
 <useRFC2543HoldScheme><![CDATA[FALSE]]></useRFC2543HoldScheme>
 <infoDTMFContentType><![CDATA[application/dtmf-relay]]></infoDTMFContentType>
 <onhookDefaultMode><![CDATA[handsfree]]></onhookDefaultMode>
+<enableRtpAddressFiltering><![CDATA[FALSE]]></enableRtpAddressFiltering>
+<enableRtpPortFiltering><![CDATA[FALSE]]></enableRtpPortFiltering>
+<acceptMWIBlindNOTIFY><![CDATA[FALSE]]></acceptMWIBlindNOTIFY>
 <natTraversal><![CDATA[none]]></natTraversal>
 <callParkMethod><![CDATA[none]]></callParkMethod>
 <callRtrvPrefix><![CDATA[*4]]></callRtrvPrefix>
@@ -32,13 +35,12 @@
 <usePreloadedRoute><![CDATA[FALSE]]></usePreloadedRoute>
 <callerIdBlocking><![CDATA[FALSE]]></callerIdBlocking>
 <callerNameSearchPrecedence>
-<![CDATA[PAId-From-Contact]]>
 <incomingInvite><![CDATA[PAId-From-Contact]]></incomingInvite>
 <okOfInvite><![CDATA[PAId-To-Contact]]></okOfInvite>
 </callerNameSearchPrecedence>
 <rtpPort><![CDATA[5012]]></rtpPort>
 <rfc2833DynamicPayloadType><![CDATA[101]]></rfc2833DynamicPayloadType>
-<preferredCodec><![CDATA[g711ulaw]]></preferredCodec>
+<preferredCodec><![CDATA[g711ulaw|g711alaw|g729]]></preferredCodec>
 <enableRoutingTone><![CDATA[FALSE]]></enableRoutingTone>
 <toneSet><![CDATA[US/Canada]]></toneSet>
 <ringtoneSelected><![CDATA[Ringer1]]></ringtoneSelected>
@@ -55,16 +57,17 @@
 <ntpIp><![CDATA[ntp.example.org]]></ntpIp>
 <timezone><![CDATA[-05:00 Eastern]]></timezone>
 <dstAutoAdjust><![CDATA[FALSE]]></dstAutoAdjust>
-</timesettings> 
+</timesettings>
 <intercom>
-<callInfoHeader>TRUE</callInfoHeader>
+<serverAssistedIntercom><![CDATA[TRUE]]></serverAssistedIntercom>
 <intercomTimeout><![CDATA[15]]></intercomTimeout>
 </intercom>
 <sipProxy>
 <proxyAddress><![CDATA[sipfoundry.org]]></proxyAddress>
+<proxyPort><![CDATA[5555]]></proxyPort>
+<proxyTransport><![CDATA[Auto]]></proxyTransport>
+<proxy1Transport><![CDATA[Auto]]></proxy1Transport>
 <sipPingForServerRedundancy><![CDATA[FALSE]]></sipPingForServerRedundancy>
-<forwardAllThroughProxy>TRUE</forwardAllThroughProxy>
-<registerThroughProxy><![CDATA[TRUE]]></registerThroughProxy>
 </sipProxy>
 <phoneBook>
 <bookEntry1>
@@ -83,6 +86,7 @@
 </phoneSettings>
 <sipAccounts>
 <account_L1>
+<lineShared><![CDATA[FALSE]]></lineShared>
 <authname><![CDATA[juser]]></authname>
 <authPassword><![CDATA[1234]]></authPassword>
 <authId><![CDATA[juser/0004f200e06b]]></authId>
@@ -92,10 +96,14 @@
 <registrarUsedomainName><![CDATA[FALSE]]></registrarUsedomainName>
 <registertimer><![CDATA[3600]]></registertimer>
 </registrar>
+<accTransport><![CDATA[Auto]]></accTransport>
 <mwiSubscribe><![CDATA[TRUE]]></mwiSubscribe>
 <mwiReqUri><![CDATA[juser@sipfoundry.org]]></mwiReqUri>
 <numberofLinekeys><![CDATA[1]]></numberofLinekeys>
+<accProxyAddress><![CDATA[sipfoundry.org]]></accProxyAddress>
+<accProxyPort><![CDATA[5555]]></accProxyPort>
 <voiceMailServerAddress><![CDATA[101@sipfoundry.org]]></voiceMailServerAddress>
+<AccMohServer><![CDATA[~~mh~juser@sipfoundry.org]]></AccMohServer>
 <callForwardMode>
 <none>TRUE</none>
 <callForwardTimer><![CDATA[20]]></callForwardTimer>

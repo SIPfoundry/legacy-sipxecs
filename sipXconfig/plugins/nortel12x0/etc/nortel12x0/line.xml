@@ -15,6 +15,9 @@
     </boolean>
   </type>
   <group name="registrationAndProxy">
+    <setting name="lineShared" hidden="yes">
+      <type refid="on-off"/>
+    </setting>
     <setting name="authname">
       <type>
         <string/>
@@ -49,41 +52,31 @@
       </type>
       <value/>
     </setting>
-    <!--
-
-   <setting name="registrarToAddress" advanced="yes">
-     <label>Register to-address</label>
-     <type>
-       <hostname />
-     </type>
-     <value></value>
-     <description>
-       The field contains the address of record whose registration is to be created or updated &lt;br/&gt; &lt;
-       registrarToAddress &gt; &lt;br/&gt;
-     </description>
-   </setting>
-
-   <setting name="registrarFromAddress" advanced="yes">
-     <label>Register from-address</label>
-     <type>
-       <hostname />
-     </type>
-     <value></value>
-     <description>
-       The field is same as the Register to-address field except the third party registration on your behalf
-       &lt;br/&gt; &lt; registrarFromAddress &gt; &lt;br/&gt;
-     </description>
-   </setting>
--->
     <setting name="registrarUsedomainName" advanced="yes">
       <type refid="on-off"/>
       <value>FALSE</value>
     </setting>
     <setting name="registertimer">
       <type>
-        <integer min="0"/>
+        <integer min="0" max="65535"/>
       </type>
       <value>3600</value>
+    </setting>
+    <setting name="accTransport">
+      <type>
+        <enum>
+          <option>
+            <value>Auto</value>
+          </option>
+          <option>
+            <value>UDP</value>
+          </option>
+          <option>
+            <value>TCP</value>
+          </option>
+        </enum>
+      </type>
+      <value>Auto</value>
     </setting>
     <setting name="mwiSubscribe">
       <type refid="on-off"/>
@@ -101,11 +94,28 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="accProxyAddress">
+      <type>
+        <hostname/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="accProxyPort">
+      <type>
+        <integer min="0" max="65535"/>
+      </type>
+    </setting>
     <setting name="voiceMailServerAddress">
       <type>
         <string/>
       </type>
       <value/>
+    </setting>
+    <setting name="AccMohServer">
+      <type>
+        <string />
+      </type>
+      <value />
     </setting>
   </group>
   <group name="callForward" hidden="yes">

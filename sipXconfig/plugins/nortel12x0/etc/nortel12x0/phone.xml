@@ -14,6 +14,19 @@
       </false>
     </boolean>
   </type>
+  <type id="preferred-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>g711ulaw</value>
+      </option>
+      <option>
+        <value>g711alaw</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+    </multi-enum>
+  </type>
   <!--  NETWORK SETTINGS  -->
   <group name="qos">
     <setting name="qosDscp">
@@ -224,6 +237,19 @@
   </group>
   <!--  PHONE SETTINGS  -->
   <group name="phoneSettings">
+    <setting name="languageSelected">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Canadien français</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
     <setting name="dndControl">
       <type refid="on-off" />
       <value>FALSE</value>
@@ -290,15 +316,9 @@
       </type>
       <value />
     </setting>
-    <setting name="mohServer">
-      <type>
-        <string />
-      </type>
-      <value />
-    </setting>
     <setting name="autoCallbackTimeout">
       <type>
-        <integer min="0" />
+        <integer min="0" max="65535"/>
       </type>
       <value>15</value>
     </setting>
@@ -332,6 +352,18 @@
       </type>
       <value>handsfree</value>
     </setting>
+    <setting name="enableRtpAddressFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="enableRtpPortFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="acceptMWIBlindNOTIFY">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
   </group>
   <!--  NAT TRAVERSAL SETTINGS  -->
   <group name="natSettings">
@@ -359,7 +391,7 @@
     </setting>
     <setting name="sipPingTimer">
       <type>
-        <integer min="0" />
+        <integer min="30" max="65535"/>
       </type>
       <value />
     </setting>
@@ -647,28 +679,16 @@
     </setting>
     <setting name="callPickupPrefix">
       <type>
-        <string />
+        <string maxLen="22" />
       </type>
       <value />
     </setting>
   </group>
   <!--  INTERCOM SETTINGS  -->
   <group name="intercom">
-    <setting name="intercomOption">
-      <type>
-        <enum>
-          <option>
-            <value>callInfoHeader</value>
-          </option>
-          <option>
-            <value>alertInfoHeader</value>
-          </option>
-          <option>
-            <value>intercomPrefix</value>
-          </option>
-        </enum>
-      </type>
-      <value>callInfoHeader</value>
+    <setting name="serverAssistedIntercom">
+      <type refid="on-off" />
+      <value>TRUE</value>
     </setting>
     <setting name="intercomPrefixValue">
       <type>
@@ -684,7 +704,7 @@
     </setting>
     <setting name="intercomTimeout">
       <type>
-        <integer min="0" max="65536" />
+        <integer min="0" max="65535" />
       </type>
       <value>15</value>
     </setting>
@@ -743,9 +763,26 @@
         </type>
         <value />
       </setting>
-      <setting name="sipPingForServerRedundancy" advanced="yes">
-        <type refid="on-off" />
-        <value>FALSE</value>
+      <setting name="proxyPort" advanced="yes">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+      </setting>
+      <setting name="proxyTransport" advanced="yes">
+        <type>
+           <enum>
+            <option>
+              <value>Auto</value>
+            </option>
+            <option>
+              <value>UDP</value>
+            </option>
+            <option>
+              <value>TCP</value>
+            </option>
+          </enum>
+        </type>
+        <value>Auto</value>
       </setting>
       <setting name="proxyAddress1" advanced="yes">
         <type>
@@ -753,27 +790,30 @@
         </type>
         <value />
       </setting>
-      <setting name="proxyOption" advanced="yes">
+      <setting name="proxy1Port" advanced="yes">
         <type>
-          <enum>
+          <integer min="0" max="65535" />
+        </type>
+      </setting>
+      <setting name="proxy1Transport" advanced="yes">
+        <type>
+           <enum>
             <option>
-              <value>noneThroughProxy</value>
+              <value>Auto</value>
             </option>
             <option>
-              <value>forwardAllThroughProxy</value>
+              <value>UDP</value>
             </option>
-            <!--
-         <option>
-           <value>sendFirstInviteToProxy</value>
-         </option>
--->
+            <option>
+              <value>TCP</value>
+            </option>
           </enum>
         </type>
-        <value>forwardAllThroughProxy</value>
+        <value>Auto</value>
       </setting>
-      <setting name="registerThroughProxy" advanced="yes">
+      <setting name="sipPingForServerRedundancy" advanced="yes">
         <type refid="on-off" />
-        <value>TRUE</value>
+        <value>FALSE</value>
       </setting>
     </group>
   </group>
@@ -781,7 +821,7 @@
   <group name="rtpSettings">
     <setting name="rtpPort">
       <type>
-        <integer min="5000" max="65536" />
+        <integer min="5000" max="65535" />
       </type>
       <value>5012</value>
     </setting>
@@ -792,20 +832,8 @@
       <value>101</value>
     </setting>
     <setting name="preferredCodec">
-      <type>
-        <enum>
-          <option>
-            <value>g711ulaw</value>
-          </option>
-          <option>
-            <value>g711alaw</value>
-          </option>
-          <option>
-            <value>g729</value>
-          </option>
-        </enum>
-      </type>
-      <value>g711ulaw</value>
+      <type refid="preferred-codecs-type"/>
+      <value>g711ulaw|g711alaw|g729</value>
     </setting>
   </group>
   <!--  TONE SETTINGS  -->
@@ -886,7 +914,7 @@
     </setting>
     <setting name="sipAutoDialUserid">
       <type>
-        <hostname />
+        <string />
       </type>
       <value />
     </setting>

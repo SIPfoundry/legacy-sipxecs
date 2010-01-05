@@ -6,7 +6,6 @@
 #if($setting.Value.trim())
 #if($setting.ProfileName == "incomingInvite")
 <callerNameSearchPrecedence>
-<![CDATA[$!{setting.Value}]]>
 <${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
 #elseif($setting.ProfileName == "okOfInvite")
 <${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
@@ -107,7 +106,7 @@
 #if($k != 0)
 </speedDials>
 #end
-#end 
+#end
 #########################################################################################
 ## This macro adds the phonebook information if configured in the XML configuration file
 #########################################################################################
@@ -140,7 +139,7 @@
 #########################################################################################
 ####################    Below code makes the XML file    ################################
 #########################################################################################
-<?xml version="1.0" encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <configuration>
 <networkSettings>
 #addGroup($cfg.EndpointSettings.getSetting('qos'))
@@ -157,10 +156,10 @@
 #addGroup($cfg.EndpointSettings.getSetting('featureSettings'))
 <timesettings>
 #addCustomGroup($cfg.EndpointSettings.getSetting('timesettings') 'timeSettings')
-</timesettings> 
+</timesettings>
 #addGroup($cfg.EndpointSettings.getSetting('presence'))
 <intercom>
-#addCustomGroup($cfg.EndpointSettings.getSetting('intercom') 'intercomOption')
+#addGroup($cfg.EndpointSettings.getSetting('intercom'))
 </intercom>
 <sipProxy>
 #addCustomGroup($cfg.EndpointSettings.getSetting('sipSettings').getSetting('sipProxy') 'proxyOption')
