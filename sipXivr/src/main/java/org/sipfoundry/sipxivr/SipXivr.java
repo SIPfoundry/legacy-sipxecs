@@ -13,7 +13,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.Properties;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
@@ -31,7 +30,6 @@ import org.sipfoundry.voicemail.MailboxServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
 
-
 public class SipXivr implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
     private static IvrConfiguration s_config;
@@ -41,6 +39,42 @@ public class SipXivr implements Runnable {
 
     public SipXivr(Socket client) {
         m_clientSocket = client;
+    }
+    /*
+     * diversion header looks like:
+     * variable_sip_h_diversion=<tel:3948809>;reason=no-answer;counter=1;screen=no;privacy=off
+     */
+    private void parseDiversionHeader(Hashtable<String, String> parameters) {
+        
+        String divHeader = m_fses.getVariable("variable_sip_h_diversion");
+               
+        if(divHeader != null) {
+            divHeader = divHeader.toLowerCase();
+            String[] subParms = divHeader.split(";");
+            
+            int index = divHeader.indexOf("tel:");
+            
+            if(index >= 0) {
+                divHeader = divHeader.substring(index+4);
+                index = divHeader.indexOf(">");
+                if(index > 0) {
+                    divHeader = divHeader.substring(0, index);
+                    
+                    parameters.put("action", "deposit");
+                    parameters.put("mailbox", divHeader); 
+                    
+                    // now look for call forward reason
+                    for (String param : subParms) {                      
+                        if(param.startsWith("reason=")) {
+                            param = param.substring("reason=".length());
+                            param.trim();
+                            parameters.put("call-forward-reason", param);
+                            break;
+                        }                      
+                    }                               
+                }
+            }
+        }
     }
 
     /**
@@ -74,6 +108,8 @@ public class SipXivr implements Runnable {
 		                }
 		            }
 		        }
+		        
+		        parseDiversionHeader(parameters);
 		        
 		        LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
 		                m_fses.getVariable("variable_sip_call_id"),
