@@ -257,6 +257,7 @@
     <setting name="LocalISDNRBSource" advanced="yes"/>
     <setting name="PIForDisconnectMsg" advanced="yes"/>
     <setting name="ISDNTransferCapability" advanced="yes"/>
+    <setting name="TrunkTransferMode" advanced="yes"/>
     <setting name="ProgressIndicator2ISDN" advanced="yes"/>
     <setting name="ISDNRxOverlap" advanced="yes"/>
   </group>

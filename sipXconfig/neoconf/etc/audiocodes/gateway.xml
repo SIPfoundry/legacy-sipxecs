@@ -477,9 +477,6 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="SubscriptionMode" hidden="yes" if="fxs">
-      <value>0</value>
-    </setting>
     <setting name="UseGatewayNameForOptions" advanced="yes">
       <type>
         <boolean/>
@@ -541,6 +538,16 @@
           </option>
         </enum>
       </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="trunk-subscription" hidden="yes" if="digital" unless="bri">
+    <setting name="SubscriptionMode" hidden="yes">
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="fxs-subscription" hidden="yes" if="fxs">
+    <setting name="SubscriptionMode" hidden="yes">
       <value>0</value>
     </setting>
   </group>
@@ -969,7 +976,25 @@
         <string maxLen="25"/>
       </type>
     </setting>
-    <group name="MWI" if="fxs">
+    <group name="trunk-mwi" if="digital" unless="bri">
+      <setting name="EnableMWI">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="MwiSourceNumber" advanced="yes"/>
+      <setting name="DefaultNumber" advanced="yes">
+        <value>ServedUser</value>
+      </setting>
+      <setting name="VoiceMailInterface" hidden="yes">
+        <type>
+          <integer/>
+        </type>
+        <value>3</value>
+      </setting>
+    </group>
+    <group name="fxs-mwi" if="fxs">
       <setting name="EnableMWI">
         <type>
           <boolean/>
