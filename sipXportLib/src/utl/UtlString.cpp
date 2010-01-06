@@ -1159,7 +1159,7 @@ int UtlString::compareTo(UtlContainable const * compareContainable) const
     int compareFlag = -1;
 
     if (compareContainable
-                && compareContainable->isInstanceOf(UtlString::TYPE) == TRUE
+                && compareContainable->isInstanceOf(UtlString::TYPE)
            )
     {
         compareFlag = compareTo(((UtlString*) compareContainable)->data());
@@ -1201,7 +1201,7 @@ int UtlString::compareTo(UtlString const * compareStr, CompareCase type) const
 {
     int compareFlag = -1;
 
-    if(compareStr->isInstanceOf(UtlString::TYPE) == TRUE)
+    if (compareStr->isInstanceOf(UtlString::TYPE))
     {
         if (mSize == 0 || compareStr->mSize == 0 )
         {
