@@ -46,6 +46,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@RUBY\@,@RUBY@,g' \
 		  -e 's,@RAKE\@,@RAKE@,g' \
 		  -e 's,@GEM\@,@GEM@,g' \
+		  -e 's,@ODBC_LIBDIR\@,@ODBC_LIBDIR@,g' \
 		  -e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \
 		  -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
 		  -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \

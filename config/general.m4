@@ -1343,7 +1343,7 @@ AC_DEFUN([CHECK_ODBC],
                 [includeval=$withval],
                 [if test -n "$odbc_homeval";
                  then includeval="$odbc_homeval/include";
-                 else includeval="/usr/include /usr/include/odbc /usr/local/include /usr/local/odbc/include";
+                 else includeval="/usr/include /usr/include/odbc /usr/include/unixODBC /usr/local/include /usr/local/odbc/include";
                  fi
                 ]
                 )
@@ -1364,7 +1364,7 @@ AC_DEFUN([CHECK_ODBC],
                 [libval=$withval],
                 [if test -n "$odbc_homeval";
                  then libval="$odbc_homeval/lib";
-                 else libval="/usr/lib /usr/lib64 /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
+                 else libval="/usr/lib64 /usr/lib /usr/lib/odbc /usr/lib/unixODBC /usr/local/lib /usr/local/odbc/lib";
                  fi
                 ]
                 )
@@ -1402,6 +1402,8 @@ AC_DEFUN([CHECK_ODBC],
 
             AC_SUBST(ODBC_LIBS, "-lodbc" )
             AC_SUBST(ODBC_LDFLAGS, "-L$libval")
+            AC_SUBST(ODBC_LIBDIR, $libval)
+            AC_MSG_NOTICE([ODBC_LIBDIR = $ODBC_LIBDIR])
         fi
     fi
 ])dnl

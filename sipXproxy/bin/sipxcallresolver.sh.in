@@ -16,12 +16,7 @@ Args=""
 : ${SslDir:=${ConfDir}/ssl}
 : ${AuthoritiesDir:=${SslDir}/authorities}
 : ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
-# SUSE uses unixODBC sub-directory for some ODBC files
-if test -d @SIPX_LIBDIR@/unixODBC ; then
-    : ${LibOdbcDir:=@SIPX_LIBDIR@/unixODBC}
-else
-    : ${LibOdbcDir:=@SIPX_LIBDIR@}
-fi
+: ${LibOdbcDir:=@ODBC_LIBDIR@}
 : ${Psql:=psql}
 if [ `uname -s` = FreeBSD ] ; then
     : ${ServiceDir:=@PREFIX@/etc/rc.d}

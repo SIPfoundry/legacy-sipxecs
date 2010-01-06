@@ -47,6 +47,7 @@ CHECK_STUNNEL
 CHECK_RUBY([1.8.2])
 CHECK_RAKE([0.5.3])
 CHECK_GEM([0.8.11])
+CHECK_ODBC
 
 AC_ARG_ENABLE(cse-tests,
   AC_HELP_STRING([--enable-cse-tests], [Run unit tests that test saving CSE data to postgres db setup]),
