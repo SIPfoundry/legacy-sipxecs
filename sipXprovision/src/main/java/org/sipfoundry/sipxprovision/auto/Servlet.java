@@ -9,6 +9,7 @@
 package org.sipfoundry.sipxprovision.auto;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,12 +17,9 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.lang.Double;
-import java.lang.Math;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -45,13 +43,10 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
-
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.jetty.servlet.ServletHandler;
-
 import org.sipfoundry.commons.util.ShortHash;
-import org.sipfoundry.sipxprovision.auto.Configuration;
 
 /**
  * A Jetty servlet that auto-provisions phones based on their HTTP requests.
@@ -385,8 +380,8 @@ public class Servlet extends HttpServlet {
      */
     protected static String getPhoneDescription(DetectedPhone phone, Date date) {
         return String.format(
-                "Auto-provisioned\n  %s%s\n  Model: %s\n  Version: %s\n",
-                ID_PREFIX, getUniqueId(phone.mac), phone.model.full_label, phone.version);
+                "Auto-provisioned\n  %s%s\n  Version: %s\n",
+                ID_PREFIX, getUniqueId(phone.mac), phone.version);
     }
 
     protected boolean doProvisionPhone(DetectedPhone phone) {
@@ -446,7 +441,8 @@ public class Servlet extends HttpServlet {
     }
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Override
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String path = request.getPathInfo();
         String useragent = request.getHeader("User-Agent");
@@ -674,7 +670,8 @@ public class Servlet extends HttpServlet {
         public PhoneModel model = new PhoneModel("unknown", "unknown");
         public String version = new String("unknown");
         public String mac = null;
-        public String toString() {
+        @Override
+		public String toString() {
             return "id: " + getUniqueId(mac) + "  mac: " + mac + "  version: " + version +
                 "  model: " + model.full_label;
         }
