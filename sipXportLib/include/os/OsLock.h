@@ -13,6 +13,7 @@
 #define _OsLock_h_
 
 // SYSTEM INCLUDES
+#include <assert.h>
 
 // APPLICATION INCLUDES
 #include "OsSyncBase.h"
@@ -43,6 +44,9 @@
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
 // &nbsp;&nbsp;                      }                               <br>
 // &nbsp;&nbsp;                      ...                             </font>
+// <p>
+// The semaphore can be released before the OsLock is destroyed by calling
+// OsLock::release().
 
 class OsLock
 {
@@ -52,14 +56,32 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsLock(OsSyncBase& rSemaphore)
-   : mrSemaphore(rSemaphore) { rSemaphore.acquire(); };
+   : mrSemaphore(rSemaphore)
+   , mAcquired(true)
+   {
+      rSemaphore.acquire();
+   }
      //:Constructor
 
    virtual
-   ~OsLock()  { mrSemaphore.release(); };
+   ~OsLock()
+   {
+      if (mAcquired)
+      {
+         mrSemaphore.release();
+      }
+   }
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
+
+   /// Release the semaphore before the OsLock is destgroyed.
+   void release()
+   {
+      assert(mAcquired);
+      mAcquired = false;
+      mrSemaphore.release();
+   }
 
 /* ============================ ACCESSORS ================================= */
 
@@ -71,6 +93,11 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsSyncBase& mrSemaphore;
+
+   /// true if the semaphore has been acquired but not released.
+   //  Normally true during the lifetime of the OsLock, but can
+   //  be set false by ::release().
+   bool mAcquired;
 
    OsLock();
      //:Default constructor (not implemented for this class)
