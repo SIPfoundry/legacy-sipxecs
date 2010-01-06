@@ -84,6 +84,8 @@ void writeBranchNodeData(int outputFileDescriptor,
                       UtlString& destination,
                       UtlString& sourceAddress,
                       UtlString& destinationAddress,
+                      UtlBoolean& isOutgoing,
+                      UtlString& remoteAddress,
                       UtlString& transactionId,
                       UtlString& frameId,
                       UtlString& method,
@@ -101,6 +103,7 @@ void writeBranchNodeData(int outputFileDescriptor,
     NameValueTokenizer::frontBackTrim(&method, " \t\n\r");
     NameValueTokenizer::frontBackTrim(&responseCode, " \t\n\r");
     NameValueTokenizer::frontBackTrim(&responseText, " \t\n\r");
+    NameValueTokenizer::frontBackTrim(&remoteAddress," \t\n\r");
     //NameValueTokenizer::frontBackTrim(&message, " \t\n\r");
 
     UtlString node("\t\t<time>");
@@ -129,6 +132,8 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append(destinationAddress);
     node.append("</destinationAddress>\n");
 
+
+
     node.append("\t\t<transactionId>");
     node.append(transactionId);
     node.append("</transactionId>\n");
@@ -153,6 +158,21 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append("\t\t<frameId>");
     node.append(frameId);
     node.append("</frameId>\n");
+
+    node.append("\t\t<remoteHostPort>");
+    node.append(remoteAddress);
+    node.append("</remoteHostPort>\n");
+
+    node.append("\t\t<isOutgoing>");
+    if ( isOutgoing )
+     {
+        node.append("true");
+     }
+     else
+     {
+      	node.append("false");
+     }
+     node.append("</isOutgoing>\n");
 
     node.append("\t\t<message><![CDATA[");
     node.append(message);
@@ -198,6 +218,8 @@ void getMessageData(UtlString& content,
         remotePort.append(&(content.data()[portIndex]),
                           portEnd - portIndex);
         remoteHost.append(remotePort);
+
+        UtlString remoteHostPort = remoteHost;
 
         size_t messageIndex = portEnd + 5;
         ssize_t messageEnd;
@@ -347,6 +369,8 @@ void getMessageData(UtlString& content,
                  isOutgoing ? remoteHost : hostname,
                  isOutgoing ? hostname : remoteSourceAddress,
                  isOutgoing ? remoteSourceAddress : hostname,
+                 isOutgoing,
+                 remoteHostPort,
                  transactionId,
                  eventCount,
                  method,
