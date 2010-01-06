@@ -16,11 +16,11 @@
         </user-maps>
         <address-maps>
 	     <address-map>
-		   <trace-address>192.168.5.240:5060</trace-address>
+		   <trace-address>192.168.5.75:5060</trace-address>
 		   <maps-to>192.168.5.75:5060</maps-to>
              </address-map>
 	     <address-map>
-		   <trace-address>sipxpbx.sipxtest.net</trace-address>
+		   <trace-address>sipxtest.sipxtest.net</trace-address>
 		   <maps-to>sipxtest.sipxtest.net</maps-to>
 	     </address-map>
 	</address-maps>

@@ -10,6 +10,8 @@ public class SipTesterConfig {
     private String sipxProxyDomain;
     
     private String testerIpAddress;
+    
+    private int basePort;
       
     /**
      * @param logLevel the logLevel to set
@@ -52,6 +54,14 @@ public class SipTesterConfig {
      */
     public String getTesterIpAddress() {
         return testerIpAddress;
+    }
+    
+    public void setBasePort(String basePort) {
+        this.basePort = Integer.parseInt(basePort);
+    }
+    
+    public int getBasePort() {
+        return this.basePort;
     }
 
 }

@@ -63,9 +63,9 @@ public class SipClientTransaction extends SipTransaction implements
     }
 
     public int compareTo(SipClientTransaction clientTx) {
-        if (this.getDelay() == clientTx.getDelay())
+        if (this.sipRequest.getTime()  == clientTx.sipRequest.getTime())
             return 0;
-        else if (this.getDelay() < clientTx.getDelay())
+        else if (this.sipRequest.getTime() < clientTx.getSipRequest().getTime() )
             return -1;
         else
             return 1;

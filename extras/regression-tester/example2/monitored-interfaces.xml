@@ -4,12 +4,12 @@
      <behavior>PROXY</behavior>
      <ip-address>192.168.5.75</ip-address>
      <port>5060</port>
-     <emulated-port>5055</emulated-port>
+     <emulated-port>0</emulated-port>
   </endpoint>
   <endpoint>
      <behavior>UA</behavior>
      <ip-address>216.82.225.202</ip-address>
      <port>5060</port>
-     <emulated-port>5056</emulated-port>
+     <emulated-port>1</emulated-port>
   </endpoint>
 </sut-config>

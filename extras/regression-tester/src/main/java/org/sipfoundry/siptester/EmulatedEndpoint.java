@@ -135,7 +135,7 @@ public class EmulatedEndpoint  {
                 logger.debug("created clientTransaction "
                         + transactionid);
             } else {
-                clientTx.addRequest(sipRequest);
+                logger.debug("dropping retransmitted request " + sipRequest.getSipRequest().getFirstLine());
             }
         }
         

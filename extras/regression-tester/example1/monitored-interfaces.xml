@@ -4,18 +4,18 @@
      <behavior>UA</behavior>
      <ip-address>192.168.5.242</ip-address>
      <port>5060</port>
-     <emulated-port>5055</emulated-port>
+     <emulated-port>0</emulated-port>
   </endpoint>
   <endpoint>
      <behavior>UA</behavior>
      <ip-address>192.168.5.243</ip-address>
      <port>5060</port>
-     <emulated-port>5056</emulated-port>
+     <emulated-port>1</emulated-port>
   </endpoint>
   <endpoint>
      <behavior>UA</behavior>
      <ip-address>192.168.5.237</ip-address>
      <port>5060</port>
-     <emulated-port>5057</emulated-port>
+     <emulated-port>2</emulated-port>
   </endpoint>
 </sut-config>

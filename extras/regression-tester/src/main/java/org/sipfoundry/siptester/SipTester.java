@@ -59,9 +59,8 @@ public class SipTester {
     protected static Map<String, SipServerTransaction> serverTransactionMap = new HashMap<String, SipServerTransaction>();
 
     protected static Map<String, SipDialog> sipDialogs = new HashMap<String, SipDialog>();
-    
-    private static Map<String,CapturedLogPacket> capturedPacketMap = new HashMap<String,CapturedLogPacket>();
-    
+
+    private static Map<String, CapturedLogPacket> capturedPacketMap = new HashMap<String, CapturedLogPacket>();
 
     static {
         try {
@@ -129,7 +128,7 @@ public class SipTester {
         String method = ((RequestExt) sipClientTransaction.getSipRequest().getSipRequest())
                 .getMethod();
 
-        logger.debug("Checking " + sipClientTransaction.getTransactionId());
+        logger.debug("Checking " + sipClientTransaction.getTransactionId() + " method " + method);
 
         ConcurrentSkipListSet<SipServerTransaction> retval = new ConcurrentSkipListSet<SipServerTransaction>();
 
@@ -146,46 +145,48 @@ public class SipTester {
                 String method1 = st.getSipRequest().getSipRequest().getMethod();
                 ExtensionHeader extensionHeader = (ExtensionHeader) st.getSipRequest()
                         .getSipRequest().getHeader("References");
+                String branchId = null;
+                String referencesCallId = null;
+                if (extensionHeader != null) {
+                    /*
+                     * Check if the server transaction has a references header that matches the
+                     * client transaction. If so we add the server transaction to our set.
+                     */
+                    String value = extensionHeader.getValue().trim();
+                    String[] parts1 = value.split(";rel=");
+                    referencesCallId = parts1[0];
+                    String[] parts2 = parts1[1].split(";x-sipx-branch=");
+                    String rel = parts2[0];
+                    if (parts2.length == 2) {
+                        branchId = parts2[1].toLowerCase();
+                    }
+                    logger.debug("referencesHeader branchId = " + branchId);
+                }
+                boolean found = false;
+
                 if (method1.equals(method)) {
-                    if (extensionHeader == null) {
-                        if (callId1.equals(callId)) {
-                            String branchId = null;
-                            ViaHeader viaHeader = null;
-                            Iterator<ViaHeader> it = st.getSipRequest().getSipRequest()
-                                    .getHeaders(ViaHeader.NAME);
-                            boolean found = false;
-                            while (it.hasNext()) {
-                                viaHeader = it.next();
-                                branchId = viaHeader.getBranch();
-                                if (branchId.equals(sipClientTransaction.getSipRequest()
-                                        .getSipRequest().getTopmostViaHeader().getBranch())) {
-                                    retval.add(st);
-                                    found = true;
-                                    break;
-                                }
+                    if (callId1.equalsIgnoreCase(callId)) {
+                        ViaHeader viaHeader = null;
+                        Iterator<ViaHeader> it = st.getSipRequest().getSipRequest().getHeaders(
+                                ViaHeader.NAME);
+                        while (it.hasNext()) {
+                            viaHeader = it.next();
+                            branchId = viaHeader.getBranch();
+                            logger.debug("checking branch Id "  + branchId);
+                            if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId())) {
+                                retval.add(st);
+                                found = true;
+                                break;
                             }
                         }
                     } else {
-                        /*
-                         * Check if the server transaction has a references header that matches
-                         * the client transaction. If so we add the server transaction to our set.
-                         */
-                        String value = extensionHeader.getValue().trim();
-                        String[] parts1 = value.split(";rel=");
-                        callId1 = parts1[0];
-                        String[] parts2 = parts1[1].split(";x-sipx-branch=");
-                        String rel = parts2[0];
-                        String branchId = null;
-                        if (parts2.length == 2) {
-                            branchId = parts2[1].toLowerCase();
-                        }
-                        if (branchId == null) {
-                            throw new SipTesterException("TODO -- handle B2BUA traces");
-                        }
-                        logger.debug("referencesHeader branchId = " + branchId);
-                        if (branchId.equals(sipClientTransaction.getTransactionId())) {
+                        logger.debug("callId does not match " + callId + " / " + callId1);
+                    }
+                    logger.debug("Checked : " +    st.getSipRequest().getSipRequest());
+                    if (extensionHeader != null && !found && referencesCallId.equals(callId) && 
+                        method1.equals(method) && branchId != null) {
+                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId())) {
                             retval.add(st);
-                            break;
                         }
 
                     }
@@ -222,8 +223,10 @@ public class SipTester {
                 }
             }
         }
-        if ( testUser == null ) return traceUser;
-        else return testUser;
+        if (testUser == null)
+            return traceUser;
+        else
+            return testUser;
     }
 
     public static String getMappedAddress(String traceAddress) {
@@ -274,11 +277,11 @@ public class SipTester {
     public static String getTraceDomainName() {
         return sutDomainName;
     }
-    
+
     public static void addCapturedPacket(CapturedLogPacket capturedPacket) {
-       SipTester.capturedPacketMap.put(capturedPacket.getFrameId(),capturedPacket);
+        SipTester.capturedPacketMap.put(capturedPacket.getFrameId(), capturedPacket);
     }
-    
+
     /**
      * @param args
      */
@@ -307,7 +310,8 @@ public class SipTester {
 
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
             monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
-            ValidUsersXML.setValidUsersFileName(traceprefix + "/trace/etc/sipxpbx/validusers.xml");
+            ValidUsersXML
+                    .setValidUsersFileName(traceprefix + "/trace/etc/sipxpbx/validusers.xml");
             sutValidUsers = ValidUsersXML.update(logger, true);
 
             // TEST only
@@ -373,7 +377,7 @@ public class SipTester {
 
             System.out.println("Analyzing trace from file: " + traceprefix
                     + "/trace/var/log/sipxpbx/merged.xml");
-            
+
             TraceAnalyzer traceAnalyzer = new TraceAnalyzer(traceprefix
                     + "/trace/var/log/sipxpbx/merged.xml");
             traceAnalyzer.analyze();
@@ -429,7 +433,8 @@ public class SipTester {
                         }
 
                     } else {
-                        logger.debug("could not find matching server transactions for client transaction");
+                        logger
+                                .debug("could not find matching server transactions for client transaction");
                     }
                     ct.addMatchingServerTransactions(serverTransactions);
 
@@ -486,7 +491,8 @@ public class SipTester {
                 while (it1.hasNext()) {
                     SipClientTransaction previousTx = it1.next();
                     for (SipServerTransaction sst : previousTx.getMatchingServerTransactions()) {
-                        if (sst.getTime() < currentTx.getTime()) {
+                        if (sst.getSipRequest().getFrameId() < currentTx.getSipRequest()
+                                .getFrameId()) {
                             currentTx.addHappensBefore(sst.getSipRequest());
                             sst.getSipRequest().addPostCondition(currentTx);
                         }
@@ -499,8 +505,8 @@ public class SipTester {
 
                 }
             }
-            
-            for (TraceEndpoint traceEndpoint : endpoints.values() ) {
+
+            for (TraceEndpoint traceEndpoint : endpoints.values()) {
                 traceEndpoint.getEmulatedEndpoint().removeUnEmulatedClientTransactions(runnable);
             }
 
@@ -508,12 +514,11 @@ public class SipTester {
                 System.out.println("Nothing to run!!");
                 System.exit(0);
             }
-          
-            
+
             runIt = runnable.iterator();
 
             logger.debug("=============== DEPENDENCY MAP =================");
-          
+
             while (runIt.hasNext()) {
                 SipClientTransaction currentTx = runIt.next();
                 currentTx.printTransaction();
@@ -526,6 +531,7 @@ public class SipTester {
                     sst.printServerTransaction();
                 }
             }
+            getPrintWriter().println("<!--  SERVER TRANSACTIONS -->");
 
             schedule.flush();
             schedule.close();
@@ -590,7 +596,5 @@ public class SipTester {
     public static boolean checkProvisionalResponses() {
         return false;
     }
-
-    
 
 }

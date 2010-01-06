@@ -9,6 +9,7 @@ import gov.nist.javax.sip.message.SIPResponse;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 
@@ -70,7 +71,10 @@ public class SipServerTransaction extends SipTransaction implements
     }
 
     public void addResponse(SipResponse sipResponse) {
-         this.responses.add(sipResponse);       
+        boolean added =  this.responses.add(sipResponse);
+        if ( !added ) {
+            logger.debug("response already added");
+        }
     }
 
     /**

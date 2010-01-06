@@ -41,8 +41,8 @@ public class TraceEndpoint  {
     /**
      * @param port the port to set
      */
-    public void setPort(String port) {
-        this.port = Integer.parseInt(port);
+    public void setPort(String port) {  
+        this.port = Integer.parseInt(port) ;
     }
     /**
      * @return the port
@@ -52,7 +52,7 @@ public class TraceEndpoint  {
     }
     
     public void setEmulatedPort(String port) {
-        this.emulatedPort = Integer.parseInt(port);
+        this.emulatedPort = Integer.parseInt(port) + SipTester.getTesterConfig().getBasePort();
     }
     
     public void setEmulatedEndpoint(EmulatedEndpoint endpoint) {

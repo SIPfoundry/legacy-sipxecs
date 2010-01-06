@@ -1,5 +1,7 @@
 package org.sipfoundry.siptester;
 
+import java.util.Collection;
+
 import gov.nist.javax.sip.DialogTimeoutEvent;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipListenerExt;
@@ -50,8 +52,21 @@ public class SipListenerImpl implements SipListenerExt {
                     .getListeningPoint(request.getTopmostViaHeader().getTransport());
 
             EmulatedEndpoint endpoint = SipTester.getEndpoint(listeningPoint);
+            
+            Collection<SipServerTransaction> transactions  = endpoint.findSipServerTransaction(request);
+            
+            if ( transactions.isEmpty())  {
+                if ( endpoint.getSutUA().getBehavior().equals(Behavior.UA)) {
+                    logger.debug("could not find server transaction - default UA behavior.");    
+                    if (request.getMethod().equals(Request.NOTIFY)) {
+                        Response response = SipTester.getMessageFactory().createResponse(
+                                Response.OK, request);
+                        serverTransaction.sendResponse(response);
+                    }
+                }
+            }
 
-            for (SipServerTransaction sst : endpoint.findSipServerTransaction(request)) {
+            for (SipServerTransaction sst : transactions) {
                 serverTransaction.setApplicationData(sst);
                 sst.setServerTransaction(serverTransaction);
                 String dialogId = sst.getDialogId();

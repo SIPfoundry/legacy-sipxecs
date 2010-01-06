@@ -1,7 +1,7 @@
-SIP_DOMAIN_NAME : sipxpbx.sipxtest.net
-SIP_DOMAIN_ALIASES : 192.168.5.240 sipxpbx.sipxtest.net
-SIP_REALM : sipxpbx.sipxtest.net
-SHARED_SECRET : 8ToBLWbY2ZAqo0vqFEDozVdZ
+SIP_DOMAIN_NAME : sipxtest.sipxtest.net
+SIP_DOMAIN_ALIASES : 192.168.5.75 sipxtest.sipxtest.net
+SIP_REALM : sipxtest.sipxtest.net
+SHARED_SECRET : moPeE9jeCanTuYEPbikyZZhd
 DEFAULT_LANGUAGE : en
 SUPERVISOR_PORT : 8092
-CONFIG_HOSTS : sipxpbx.sipxtest.net
+CONFIG_HOSTS : sipxtest.sipxtest.net

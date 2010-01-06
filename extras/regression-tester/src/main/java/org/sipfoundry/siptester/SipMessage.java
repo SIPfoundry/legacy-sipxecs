@@ -2,7 +2,6 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.message.MessageExt;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -10,7 +9,7 @@ import javax.sip.Dialog;
 
 
 public abstract class SipMessage implements Comparable<SipMessage> {
-    private String frameId;
+    private int frameId;
     protected long time;   
     private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
     protected Dialog dialog;
@@ -51,19 +50,19 @@ public abstract class SipMessage implements Comparable<SipMessage> {
      * @param frameId the frameId to set
      */
     public void setFrameId(String frameId) {
-        this.frameId = frameId;
+        this.frameId = Integer.parseInt(frameId);
     }
 
     /**
      * @return the frameId
      */
-    public String getFrameId() {
+    public int getFrameId() {
         return frameId;
     }
     
     public String getMessageAsXmlComment() {
         StringBuffer stringBuffer = new StringBuffer() ;
-        return stringBuffer.append("<!--" + this.getSipMessage().toString() + "-->").toString();
+        return stringBuffer.append("<!-- time = " + this.time + "\n" + "frame = " + this.frameId + "\n" +  this.getSipMessage().toString() + "-->").toString();
     }
    
 }

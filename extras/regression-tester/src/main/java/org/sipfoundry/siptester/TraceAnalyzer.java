@@ -69,7 +69,7 @@ public class TraceAnalyzer {
                         .getSipPacket(), capturedLogPacket.getTimeStamp(), capturedLogPacket.getFrameId());
 
                 String transactionId = capturedLogPacket.getTransactionId();
-                logger.debug("checking sipResponse " + transactionId);
+                logger.debug("checking sipResponse " + capturedLogPacket.getSipPacket().getFirstLine()+ " transactionId " + transactionId);
                 /*
                  * Find the server tx to which this response belongs.
                  */
