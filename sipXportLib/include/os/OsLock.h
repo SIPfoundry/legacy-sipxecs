@@ -14,7 +14,6 @@
 #define _OsLock_h_
 
 // SYSTEM INCLUDES
-#include <assert.h>
 
 // APPLICATION INCLUDES
 #include "OsSyncBase.h"
@@ -80,6 +79,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+
    OsSyncBase& mrSemaphore;
 
    OsLock();
