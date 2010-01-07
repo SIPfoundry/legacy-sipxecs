@@ -68,13 +68,15 @@ public class ConferenceBridgeConfig extends XmlFile {
         if (owner == null) {
             return;
         }
-        Element userEl = usersEl.addElement("item");
-        userEl.addElement("bridgename").setText(conference.getName());
-        userEl.addElement("bridgecontact").setText(conference.getUri());
-        userEl.addElement("extensionname").setText(conference.getExtension());
-        userEl.addElement("ownername").setText(owner.getUserName());
-        userEl.addElement("ownerid").setText(owner.getAddrSpec(domainName));
-        userEl.addElement("mboxserver").setText(ivrServiceHostPort);
+        if (conference.isAutorecorded()) {
+            Element userEl = usersEl.addElement("item");
+            userEl.addElement("bridgename").setText(conference.getName());
+            userEl.addElement("bridgecontact").setText(conference.getUri());
+            userEl.addElement("extensionname").setText(conference.getExtension());
+            userEl.addElement("ownername").setText(owner.getUserName());
+            userEl.addElement("ownerid").setText(owner.getAddrSpec(domainName));
+            userEl.addElement("mboxserver").setText(ivrServiceHostPort);
+        }
     }
 
     @Required

@@ -57,6 +57,7 @@ public class ConferenceBridgeConfigTest extends TestCase {
         conf1.setExtension("123");
         conf1.setOwner(user1);
         conf1.setSettingValue(Conference.MAX_LEGS, "0");
+        conf1.setSettingValue(Conference.AUTO_RECORDING, "1");
         conf1.setUniqueId();
         bridge.addConference(conf1);
 

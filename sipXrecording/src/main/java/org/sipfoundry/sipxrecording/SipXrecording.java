@@ -16,11 +16,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.sipfoundry.commons.freeswitch.Answer;
-import org.sipfoundry.commons.freeswitch.DisconnectException;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.conference.ConfRecordThread;
 
@@ -29,7 +24,6 @@ public class SipXrecording implements Runnable {
     private static RecordingConfiguration s_config;
 
     private Socket m_clientSocket;
-    private FreeSwitchEventSocketInterface m_fses;
 
     public SipXrecording(Socket client) {
         m_clientSocket = client;

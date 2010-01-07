@@ -98,7 +98,6 @@
       <param name="comfort-noise" value="0"/>
       <param name="max-members" value="4"/>
       <param name="moh-sound" value="local_stream://moh"/>
-      <param name="auto-record" value="/tmp/freeswitch/recordings/${conference_name}_${uuid}.wav"/>
     </profile>
   </profiles>
 </configuration>

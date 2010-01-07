@@ -79,9 +79,6 @@
 #else
       <param name="moh-sound" value="$mohLocalStreamUrl"/>
 #end
-#if(${conference.autorecorded})
-      <param name="auto-record" value="/tmp/freeswitch/recordings/${conference_name}_${uuid}.wav"/>
-#end
     </profile>
 #end
   </profiles>

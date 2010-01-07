@@ -30,12 +30,8 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
-import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.MonitorConf;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxrecording.RecordingConfiguration;
+import org.sipfoundry.sipxrecording.RecordCommand;
 
 public class ConfRecordThread extends ConfBasicThread {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
@@ -86,43 +82,53 @@ public class ConfRecordThread extends ConfBasicThread {
 
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
         String confName = event.getEventValue("conference-name");
-        String uniqueId = event.getEventValue("Unique-ID");
-        String wavName = new String(confName + "_" + uniqueId + ".wav");
-        LOG.debug("ConfRecordThread::Creating conference recording " + wavName);
-        conf.setWavName(wavName);
+        ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
+        if (item != null) {
+            String uniqueId = event.getEventValue("Unique-ID");
+            String wavName = new String(confName + "_" + uniqueId + ".wav");
+            LOG.debug("ConfRecordThread::Creating conference recording " + wavName);
+            String confCmd = "record " + sourceName + "/" + wavName;
+            // Send the start recording command to Freeswitch
+            RecordCommand recordcmd = new RecordCommand(getCmdSocket(), confName, confCmd);
+            recordcmd.go();
+            // Store the file name
+            conf.setWavName(wavName);
+        }
     }
 
     public void ProcessConfEnd(FreeSwitchEvent event, ConferenceTask conf) {
         String confName = event.getEventValue("conference-name");
-        String wavName = conf.getWavName();
-        LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
-
-        try {
-            // Let FS finish any recording it may be doing
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
-
-        AuditWavFiles(new File(destName));
-
-        // Use the conference name to find the conference mailbox server.
         ConferenceBridgeItem item = ConferenceBridgeXML.getConferenceBridgeItem(confName);
-        String mboxServerAndPort = item.getMailboxServer();
+        if (item != null) {
+            String wavName = conf.getWavName();
+            LOG.debug("ConfRecordThread::Finished conference recording of " + wavName);
 
-        // Trigger the servlet on the voicemail server to read the WAV file
-        // E.g. "http://s1.example.com:8085/recording/conference?test1_6737347.wav"
-        try {
-            String urlString = "http://" + mboxServerAndPort +
-                               "/recording/conference" + 
-                               "?wn=" + wavName + 
-                               "&on=" + item.getOwnerName() +
-                               "&oi=" + item.getOwnerId() +
-                               "&bc=" + item.getBridgeContact();
-            URL url  = new URL(urlString);
-            URLConnection urlC = url.openConnection();
-            long contentLength = urlC.getContentLength();
-        } catch (IOException e) {
-            LOG.error("ConfRecordThread::Trigger error ", e);
+            try {
+                // Let FS finish any recording it may be doing
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            AuditWavFiles(new File(destName));
+
+            // Use the conference name to find the conference mailbox server.
+            String mboxServerAndPort = item.getMailboxServer();
+
+            // Trigger the servlet on the voicemail server to read the WAV file
+            // E.g. "http://s1.example.com:8085/recording/conference?test1_6737347.wav"
+            try {
+                String urlString = "http://" + mboxServerAndPort +
+                                   "/recording/conference" + 
+                                   "?wn=" + wavName + 
+                                   "&on=" + item.getOwnerName() +
+                                   "&oi=" + item.getOwnerId() +
+                                   "&bc=" + item.getBridgeContact();
+                URL url  = new URL(urlString);
+                URLConnection urlC = url.openConnection();
+                long contentLength = urlC.getContentLength();
+            } catch (IOException e) {
+                LOG.error("ConfRecordThread::Trigger error ", e);
+            }
         }
     }
 }
