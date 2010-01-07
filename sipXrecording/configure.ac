@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXrecording, 4.1.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXrecording, 4.1.6, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
