@@ -231,7 +231,7 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    reset();
    if (urlString && *urlString)
    {
-      parseString(urlString ,isAddrSpec ? AddrSpec : NameAddr, NULL);
+      parseString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL);
    }
 }
 
@@ -1370,7 +1370,8 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    }
 
    // Try to catch when a name-addr is passed but we are expecting an
-   // addr-spec -- many name-addr's start with '<' or '"'.
+   // addr-spec -- many name-addr's start with '<' or '"', but of course
+   // addr-spec's (or any URI) cannot.
    if (AddrSpec == uriForm && (urlString[0] == '<' || urlString[0] == '"'))
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString "
@@ -1460,8 +1461,9 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     * We resolve the first case by treating anything left of the colon as a scheme if
     * it is one of the supported schemes.  Otherwise, we set the scheme to the
     * default (sip) and go on so that it will be parsed as a hostname.  This does not
-    * do the right thing for the (scheme 'sips' host '333') case, but they get what
-    * they deserve.
+    * do the right thing for the (host 'sips' port '333') case, but they get what
+    * they deserve for not writing the scheme explicitly (which they are supposed
+    * to do).
     */
 
    // Parse the scheme (aka url type)
@@ -1479,16 +1481,15 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    else
    {
       /*
-       * It did not match one of the supported scheme names
-       * so proceed on the assumption that it's a host and "sip:" is implied
-       * Leave the workingOffset where it is (before the token).
-       * The code below, through the parsing of host and port
-       * treats this as an implicit 'sip:' url; if it parses ok
-       * up to that point, it resets the scheme to SipsUrlScheme
+       * It did not match one of the supported scheme names so proceed
+       * on the assumption that the text is a host and "sip:" is
+       * implied Leave the workingOffset where it is (before the
+       * token).  The code below, through the parsing of host and port,
+       * treats this as an implicit 'sip:' url; if it parses ok up to
+       * that point, it resets the scheme to SipsUrlScheme.
        */
       mScheme = UnknownUrlScheme;
    }
-
 
    // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)

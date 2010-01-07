@@ -886,6 +886,8 @@ public:
         ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
 
+        // Only the changed attributes should actually change.
+
         url.setDisplayName("Changed Name");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
@@ -917,10 +919,6 @@ public:
         url.setHeaderParameter("ROUTE", "rt2,rt1");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f2=fv2",
                          toString(url));
-
-
-
-        // Only the changed attributes should actually changed
     }
 
     void testRemoveAttributes()
@@ -1207,7 +1205,6 @@ public:
             paramValues, paramCount));
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, paramCount);
     }
-
 
     void testGetOnlyHeaderParameters()
     {
@@ -1621,7 +1618,6 @@ public:
          CPPUNIT_ASSERT(Url::UnknownUrlScheme == url.getScheme());
       }
 
-
     void testGetIdentity()
     {
        // The data for a single test.
@@ -1660,13 +1656,13 @@ public:
  * (the latter will usually also cause the former).
  *
  * Because we don't want the tests to be chatty, and we don't want to pick an
- * arbitrary time for "too long", the following PARSE macro.  It wraps the
+ * arbitrary time for "too long", we use the following PARSE macro.  It wraps the
  * constructor and in the verbose form prints how long it took to run.
  * Normally, this should be disabled, but turn it on if you're making changes
  * to the regular expressions so that you can see any performance/recursion
  * problems.
  */
-#if 0
+#if LOG_PARSE_TIME
 #     define PARSE(name)                        \
       OsTimeLog name##timeLog;                  \
       name##timeLog.addEvent("start  " #name);  \
@@ -1676,7 +1672,7 @@ public:
       name##timeLog.getLogString(name##Log);    \
       printf("\n%s\n", name##Log.data());
 #else
-#     define PARSE(name)                     \
+#     define PARSE(name)                        \
       Url name##Url(name);
 #endif
 
@@ -1943,7 +1939,6 @@ public:
          UtlString url12_nameaddr;
          url12.toString(url12_nameaddr);
          ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
-
       }
 
     /////////////////////////
@@ -2017,7 +2012,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getUri(Url& url)
     {
         assertValue->remove(0);
@@ -2026,7 +2021,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getPath(Url& url, UtlBoolean withQuery = FALSE)
     {
         assertValue->remove(0);
@@ -2035,7 +2030,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getUserId(Url& url)
     {
         assertValue->remove(0);
@@ -2044,7 +2039,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getIdentity(Url& url)
     {
         assertValue->remove(0);
