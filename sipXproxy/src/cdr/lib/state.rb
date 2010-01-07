@@ -157,10 +157,13 @@ class State
   def filter_cdr_user(cdr)
      to_id = cdr.callee_aor
      user = Utils.contact_user(to_id)
-     if @filtered_identities.include?(user)
-        return true
-     end
-     return false
+     filter_user = false
+     @filtered_identities.each { |f_user| 
+        if user.include?(f_user) 
+           filter_user = true 
+        end
+     }
+     return filter_user
   end
   # Strictly speaking this function does not have to be called.
   # Since it is possible that we receive notifications after we already 
