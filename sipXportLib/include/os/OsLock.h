@@ -51,6 +51,8 @@
 
 class OsLock
 {
+   friend class OsUnLock;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
@@ -109,6 +111,11 @@ private:
    OsLock& operator=(const OsLock& rhs);
      //:Assignment operator (not implemented for this class)
 
+   OsSyncBase& getSemaphore()
+   {
+      return mrSemaphore;
+   }
+     //:Get the semaphore.
 };
 
 /* ============================ INLINE METHODS ============================ */

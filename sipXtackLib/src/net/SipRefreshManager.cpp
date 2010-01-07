@@ -705,7 +705,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
          if (!suppressFirstSend)
          {
             // Temporarily free the lock.
-            OsUnLock unlock(mSemaphore);
+            OsUnLock unlock(lock);
 
             // Since we are holding no locks, it doesn't matter if we block here,
             // so we can call SipUserAgent::send() directly.
@@ -962,7 +962,7 @@ UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle,
 
             // Send the message.
             {
-               OsUnLock unlock(mSemaphore);
+               OsUnLock unlock(lock);
 
                mpUserAgent->send(*(state->mpLastRequest));
                // SipUserAgent::send does not take ownership of the message.

@@ -10,13 +10,13 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
 #ifndef _OsUnLock_h_
 #define _OsUnLock_h_
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "OsLock.h"
 #include "OsSyncBase.h"
 
 // DEFINES
@@ -39,7 +39,7 @@
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
 //                                                                   <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      {                               <br>
-// &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         OsUnLock unLock(myBSemaphore);    <br>
+// &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         OsUnLock unLock(lock);    <br>
 //                                                                      <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;         < not in critical section >          <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      }                               <br>
@@ -47,6 +47,16 @@
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
 // &nbsp;&nbsp;                      }                               <br>
 // &nbsp;&nbsp;                      ...                             </font>
+// <p>
+// Note that the argument to OsUnLock::OsUnLock is the OsLock, not the
+// semaphore.  This is to avoid problems when the argument to OsLock is a
+// complex expression, which might not yield the same value when
+// reexecuted.
+// The OsLock should have a scope which statically encloses the scope
+// of the OsUnLock.
+// After the OsUnLock is created, it is good practice to clear the
+// value of any variable whose value is invalidated by the fact that
+// the semaphore has been released.
 // <p>
 // Necessarily, ~OsUnLock() may block.
 // Note that as regards locking, there are two critical sections, and
@@ -65,12 +75,19 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsUnLock(OsSyncBase& rSemaphore)
-   : mrSemaphore(rSemaphore) { rSemaphore.release(); };
+   OsUnLock(OsLock& lock)
+      : mrSemaphore(lock.getSemaphore())
+   {
+      mrSemaphore.release();
+   }
      //:Constructor
+   // lock's scope should statically enclose the scope of this OsUnLock.
 
    virtual
-   ~OsUnLock()  { mrSemaphore.acquire(); };
+   ~OsUnLock()
+   {
+      mrSemaphore.acquire();
+   }
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */

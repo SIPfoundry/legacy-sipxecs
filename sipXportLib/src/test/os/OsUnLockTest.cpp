@@ -66,7 +66,7 @@ int TestThreadA::run(void* pArg)
       OsTask::delay(LONG_DELAY);
       {
          /* A2 */ w(1, 2, 3);
-         OsUnLock unlock(sem);
+         OsUnLock unlock(lock);
          w(3, 4, 5);            // Wait till B3 has been passed.
          // Destroy unlock and thus re-seize the lock.
       }
