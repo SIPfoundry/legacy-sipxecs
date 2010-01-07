@@ -1,5 +1,5 @@
 //
-//
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007, 2008, 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -29,134 +29,143 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-// msgSubType for an OsMsg that requests reestablishing a subscription
-#define SIP_REESTABLISH (OsEventMsg::USER_START)
+// msgSubType for an OsMsg indicating that a starting timer
+// (SubscriptionGroupState::mStartingTimer) has fired.
+#define EVENT_STARTING (OsEventMsg::USER_START)
+// msgSubType for an OsMsg indicating that a restart timer
+// (SubscriptionGroupState::mRestartTimer) has fired.
+#define EVENT_RESTART (OsEventMsg::USER_START + 1)
 
-// We initially allow SUBSCRIPTION_STARTUP_INITIAL secs. for a subscription
-// to start up.  If that fials, we successively double the time until either
-// success, or the startup time would exceed SUBSCRIPTION_STARTUP_MAX
-// (after which the wait interval remains unchanged).
+// We initially allow SUBSCRIPTION_STARTUP_INITIAL secs. for a
+// subscription to start up.  If that fials, we successively double
+// the time allowed until either success, or the startup time would
+// exceed SUBSCRIPTION_STARTUP_MAX (after which the wait interval
+// remains unchanged).
 #define SUBSCRIPTION_STARTUP_INITIAL 15
 #define SUBSCRIPTION_STARTUP_MAX (5 * 60)
 
-#define RESTART_INTERVAL  (24 * 60 * 60) // Subscription restart interval, in secs.
+/// Basic subscription restart interval, in secs.
+// See SubscriptionGroupState::setRestartTimer() for how the restart interval
+// is actually calculated.
+#define RESTART_INTERVAL  (24 * 60 * 60)
 
 // STATIC VARIABLE INITIALIZATIONS
 
-// Private OsMsg type to carry requests to reestablish a subscription.
-// These messages are used both to "reestablish" a subscription that has failed
-// and to "restart" a subscription based on a near-daily timer.
-class ReestablishRequestMsg : public OsMsg
+/// OsMsg subclass for the firing of mStartingTimer.
+// Check whether the subscription has been started successfully.
+class StartingEventMsg : public OsMsg
 {
+   /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   ReestablishRequestMsg(const UtlString& handle
-                         ///< the original handle of the subscription group to reestablish
-      );
+   /* ============================ CREATORS ================================== */
 
-   // Destructor
-   virtual ~ReestablishRequestMsg();
+   StartingEventMsg(const UtlString& handle /**< handle of the SubscriptionGroupState
+                                             *  to restart */
+      ) :
+      OsMsg(OS_EVENT, EVENT_STARTING),
+      mHandle(handle)
+      {
+      }
 
-   /** Initiate the reestablishment of the subscription group with
-    *  handle mEarlyDialogHandle.
-    */
-   void reestablish(SipSubscribeClient& client) const;
+   virtual
+   ~StartingEventMsg()
+      {
+      }
+   //:Destructor
 
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-   virtual UtlContainableType getContainableType() const;
+   /* ============================ MANIPULATORS ============================== */
 
+   virtual OsMsg* createCopy(void) const
+      {
+         return new StartingEventMsg(mHandle);
+      };
+   //:Create a copy of this msg object (which may be of a derived type)
+
+   /* ============================ ACCESSORS ================================= */
+
+   // Get pointer to the handle value.
+   UtlString* getHandle()
+      {
+         return &mHandle;
+      }
+
+   /* ============================ INQUIRY =================================== */
+
+   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   //! DISALLOWED accidental copying
-   ReestablishRequestMsg(const ReestablishRequestMsg& rReestablishRequestMsg);
-   ReestablishRequestMsg& operator=(const ReestablishRequestMsg& rhs);
 
-   //! DISALLOWED intentional copying
-   //  (Will abort at run-time.)
-   virtual OsMsg* createCopy(void) const;
+   StartingEventMsg(const StartingEventMsg& rStartingEventMsg);
+   //:Copy constructor (not implemented for this class)
 
-   /// The original early dialog handle of the SubscriptionGroupState to be restarted.
-   UtlString mEarlyDialogHandle;
+   StartingEventMsg& operator=(const StartingEventMsg& rhs);
+   //:Assignment operator (not implemented for this class)
+
+   /// Handle of the SubscriptionGroupState to check for successful starting.
+   UtlString mHandle;
+
 };
 
-// Constructor
-ReestablishRequestMsg::ReestablishRequestMsg(const UtlString& handle) :
-   OsMsg(OsMsg::OS_EVENT, SIP_REESTABLISH),
-   mEarlyDialogHandle(handle)
+
+/// OsMsg subclass for the firing of mRestartTimer - Subscription should be restarted.
+class RestartEventMsg : public OsMsg
 {
-}
-
-ReestablishRequestMsg::~ReestablishRequestMsg()
-{
-}
-
-// Dynamic copy routine (unused)
-OsMsg* ReestablishRequestMsg::createCopy(void) const
-{
-   assert(FALSE);
-   return NULL;
-}
-
-const UtlContainableType ReestablishRequestMsg::TYPE = "ReestablishRequestMsg";
-
-UtlContainableType ReestablishRequestMsg::getContainableType() const
-{
-   return ReestablishRequestMsg::TYPE;
-}
-
-// Definition of ReestablishRequestMsg::reestablish is at the bottom,
-// with the other methods that implement subscription reestablishment.
-
-
-// Notifier class for SipSubscribeClient::mStartingTimer.
-class SubscriptionStartingNotification : public OsNotification
-{
+   /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   /// Constructor.
-   SubscriptionStartingNotification(SipSubscribeClient* pSubscribeClient,
-                                    ///< the owning SipSubscribeClient
-                                    SubscriptionGroupState* pGroupState
-                                    ///< the relevant SubscriptionGroupState
-      );
+   /* ============================ CREATORS ================================== */
 
-   /// Signal the occurrence of the event
-   virtual OsStatus signal(intptr_t timer_i);
+   RestartEventMsg(const UtlString& handle /**< handle of the SubscriptionGroupState
+                                             *  to restart */
+      ) :
+      OsMsg(OS_EVENT, EVENT_RESTART),
+      mHandle(handle)
+      {
+      }
 
-   /// The owning SipSubscribeClient.
-   SipSubscribeClient* mpSubscribeClient;
+   virtual
+   ~RestartEventMsg()
+      {
+      }
+   //:Destructor
 
-   /// The relevant SubscriptionGroupState.
-   SubscriptionGroupState* mpGroupState;
+   /* ============================ MANIPULATORS ============================== */
+
+   virtual OsMsg* createCopy(void) const
+      {
+         return new RestartEventMsg(mHandle);
+      };
+   //:Create a copy of this msg object (which may be of a derived type)
+
+   /* ============================ ACCESSORS ================================= */
+
+   // Get pointer to the handle value.
+   UtlString* getHandle()
+      {
+         return &mHandle;
+      }
+
+   /* ============================ INQUIRY =================================== */
+
+   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   RestartEventMsg(const RestartEventMsg& rRestartEventMsg);
+   //:Copy constructor (not implemented for this class)
+
+   RestartEventMsg& operator=(const RestartEventMsg& rhs);
+   //:Assignment operator (not implemented for this class)
+
+   /// Handle of the SubscriptionGroupState to restart.
+   UtlString mHandle;
+
 };
-
-// Method definitions for SubscriptionStartingNotification are below the
-// declaration of SubscriptionGroupState.
-
-
-// Notifier class for SipSubscribeClient::mRestartTimer.
-class SubscriptionRestartNotification : public OsNotification
-{
-public:
-
-   /// Constructor.
-   SubscriptionRestartNotification(SipSubscribeClient* pSubscribeClient,
-                                   ///< the owning SipSubscribeClient
-                                   SubscriptionGroupState* pGroupState
-                                   ///< the relevant SubscriptionGroupState
-      );
-
-   /// Signal the occurrence of the event
-   virtual OsStatus signal(intptr_t timer_i);
-
-   /// The owning SipSubscribeClient.
-   SipSubscribeClient* mpSubscribeClient;
-
-   /// The relevant SubscriptionGroupState.
-   SubscriptionGroupState* mpGroupState;
-};
-
-// Method definitions for SubscriptionRestartNotification are below the
-// declaration of SubscriptionGroupState.
 
 
 // Private class to contain information about subscription groups
@@ -227,8 +236,8 @@ public:
    //  Call-Id and from-tag.
    void resetStarting();
 
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-   virtual UtlContainableType getContainableType() const;
+   // This class does not define ::getContainableType or ::TYPE so that objects
+   // compare as members of the base class (UtlString).
 
    //! Random number generator for generating refresh times.
    static UtlRandom sRandom;
@@ -246,7 +255,7 @@ public:
    SipSubscribeClient::NotifyEventCallback mpNotifyCallback;
    // Whether to reestablish subscriptions that fail.
    bool mReestablish;
-   // Whether to restart subscriptions on a long cycle.
+   // Whether to restart subscriptions on an approximately daily cycle.
    bool mRestart;
 
    // true if we are starting the subscription group, false if it is established.
@@ -261,15 +270,8 @@ public:
    // reestablishment.
    int mEstablishingNotifys;
 
-   /// Notifier for mStartingTimer.
-   //  Stores pointer to this SubscriptionGroupState and the SipSubscribeClient.
-   SubscriptionStartingNotification mStartingNotification;
    /// Timer for subscription establishement.
    OsTimer mStartingTimer;
-
-   /// Notifier for mRestartTimer.
-   //  Stores pointer to this SubscriptionGroupState and the SipSubscribeClient.
-   SubscriptionRestartNotification mRestartNotification;
    /// Timer for periodic subscription restart.
    OsTimer mRestartTimer;
 
@@ -299,10 +301,10 @@ SubscriptionGroupState::SubscriptionGroupState(SipSubscribeClient* pClient,
    mRestart(restart),
    mStarting(false),
    mStartingTimeout(-1),
-   mStartingNotification(pClient, this),
-   mStartingTimer(mStartingNotification),
-   mRestartNotification(pClient, this),
-   mRestartTimer(mRestartNotification)
+   mStartingTimer(new StartingEventMsg(static_cast <const UtlString&> (*this)),
+                 pClient->getMessageQueue()),
+   mRestartTimer(new RestartEventMsg(static_cast <const UtlString&> (*this)),
+                 pClient->getMessageQueue())
 {
 }
 
@@ -347,43 +349,6 @@ void SubscriptionGroupState::toString(UtlString& dumpString)
 
 //SubscriptionGroupState& SubscriptionGroupState::operator=(const SubscriptionGroupState& rhs)
 
-const UtlContainableType SubscriptionGroupState::TYPE = "SubscriptionGroupState";
-
-UtlContainableType SubscriptionGroupState::getContainableType() const
-{
-   return SubscriptionGroupState::TYPE;
-}
-
-
-// Constructor.
-SubscriptionStartingNotification::SubscriptionStartingNotification(
-   SipSubscribeClient* pSubscribeClient,
-   SubscriptionGroupState* pGroupState
-   ) :
-   mpSubscribeClient(pSubscribeClient),
-   mpGroupState(pGroupState)
-{
-}
-
-// The definition of SubscriptionStartingNotification::signal is at
-// the bottom, with the other methods that implement subscription
-// reestablishment.
-
-
-// Constructor.
-SubscriptionRestartNotification::SubscriptionRestartNotification(
-   SipSubscribeClient* pSubscribeClient,
-   SubscriptionGroupState* pGroupState
-   ) :
-   mpSubscribeClient(pSubscribeClient),
-   mpGroupState(pGroupState)
-{
-}
-
-// The definition of SubscriptionRestartNotification::signal is at
-// the bottom, with the other methods that implement subscription
-// reestablishment.
-
 
 // Private class to contain information about subscription dialogs within
 // subscription groups
@@ -425,8 +390,8 @@ public:
    // response from SUBSCRIBE as well as by a NOTIFY.)
    bool mNotifyReceived;
 
-   static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
-   virtual UtlContainableType getContainableType() const;
+   // This class does not define ::getContainableType or ::TYPE so that objects
+   // compare as members of the base class (UtlString).
 
 private:
 };
@@ -468,13 +433,6 @@ void SubscriptionDialogState::toString(UtlString& dumpString)
 
 //SubscriptionDialogState& SubscriptionDialogState::operator=(const SubscriptionDialogState& rhs)
 
-const UtlContainableType SubscriptionDialogState::TYPE = "SubscriptionDialogState";
-
-UtlContainableType SubscriptionDialogState::getContainableType() const
-{
-   return SubscriptionDialogState::TYPE;
-}
-
 
 // Constructor
 SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent,
@@ -484,7 +442,7 @@ SipSubscribeClient::SipSubscribeClient(SipUserAgent& userAgent,
     , mpUserAgent(&userAgent)
     , mpDialogMgr(&dialogMgr)
     , mpRefreshManager(&refreshManager)
-    , mSetSem(OsBSem::Q_FIFO, OsBSem::FULL)
+    , mSemaphore(OsBSem::Q_FIFO, OsBSem::FULL)
 {
 }
 
@@ -592,7 +550,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     // If this event type is not in the list, we need to register
     // to receive NOTIFY requests for this event type.
     {
-       OsLock setLock(mSetSem);
+       OsLock lock(mSemaphore);
 
        if (mEventTypes.find(&eventType) == NULL)
        {
@@ -645,7 +603,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
 
     // Put the state in the list
     {
-       OsLock setLock(mSetSem);
+       OsLock lock(mSemaphore);
 
        addGroupState(groupState);
     }
@@ -681,7 +639,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
 
    SubscriptionGroupState* groupState;
    {
-      OsLock setLock(mSetSem);
+      OsLock lock(mSemaphore);
 
       groupState = removeGroupStateByOriginalHandle(earlyDialogHandle);
 
@@ -724,7 +682,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionGroup(const UtlString& earlyDialog
       // that is within the group and terminate that subscription.
       do {
          {
-            OsLock setLock(mSetSem);
+            OsLock lock(mSemaphore);
 
             iterator.reset();
 
@@ -767,7 +725,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHand
 
    SubscriptionDialogState* dialogState;
    {
-      OsLock setLock(mSetSem);
+      OsLock lock(mSemaphore);
 
       // Delete the dialogState so that when the termination NOTIFY arrives
       // it does not match an existing dialog and so does not cause the
@@ -870,7 +828,7 @@ void SipSubscribeClient::endAllSubscriptions()
    // and terminate that subscription.
    do {
       {
-         OsLock setLock(mSetSem);
+         OsLock lock(mSemaphore);
 
          found = !mSubscriptionGroups.isEmpty();
          if (found)
@@ -942,11 +900,23 @@ UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
                 "SipSubscribeClient::handleMessage  SipMessageEvent with NULL SipMessage");
         }
     }
-    // Request to reestablish a subscription.
+    // Starting timer fired - Check subscription to see if it started.
     else if (msgType == OsMsg::OS_EVENT &&
-             msgSubType == SIP_REESTABLISH)
+             msgSubType == EVENT_STARTING)
     {
-       (dynamic_cast <ReestablishRequestMsg&> (eventMessage)).reestablish(*this);
+       // Call handleStartingEvent on the handle.
+       StartingEventMsg* m = dynamic_cast <StartingEventMsg*> (&eventMessage);
+       assert(m != 0);
+       handleStartingEvent(*m->getHandle());
+    }
+    // Restart timer fired - Subscription should be restarted.
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == EVENT_RESTART)
+    {
+       // Call handleRestartEvent on the handle.
+       RestartEventMsg* m = dynamic_cast <RestartEventMsg*> (&eventMessage);
+       assert(m != 0);
+       handleRestartEvent(*m->getHandle());
     }
 
     return (TRUE);
@@ -956,7 +926,7 @@ UtlBoolean SipSubscribeClient::handleMessage(OsMsg &eventMessage)
 
 int SipSubscribeClient::countSubscriptionGroups()
 {
-   OsLock setLock(mSetSem);
+   OsLock lock(mSemaphore);
 
    int count = mSubscriptionGroups.entries();
 
@@ -965,7 +935,7 @@ int SipSubscribeClient::countSubscriptionGroups()
 
 int SipSubscribeClient::countSubscriptionDialogs()
 {
-   OsLock setLock(mSetSem);
+   OsLock lock(mSemaphore);
 
    int count = mSubscriptionDialogs.entries();
 
@@ -1005,7 +975,7 @@ void SipSubscribeClient::getSubscriptionStateEnumString(enum SubscriptionState s
 // Dump the object's internal state.
 void SipSubscribeClient::dumpState()
 {
-   OsLock setLock(mSetSem);
+   OsLock lock(mSemaphore);
 
    // indented 2
 
@@ -1086,7 +1056,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // A subscription received a successful response.
       // We may already have dialog state for it, or we may not.
 
-      OsLock setLock(mSetSem);
+      OsLock lock(mSemaphore);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1162,7 +1132,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // there is no matching credentials or the credentials did
       // not work.
 
-      OsLock setLock(mSetSem);
+      OsLock lock(mSemaphore);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1219,8 +1189,8 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
                           earlyDialogHandle);
 
-            postMessageP(
-               new ReestablishRequestMsg(static_cast <UtlString&> (*groupState)));
+            lock.release();
+            reestablish(static_cast <const UtlString&> (*groupState));
          }
       }
       else
@@ -1247,7 +1217,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 {
     // Hold the locks for the entire function body.
-    OsLock setLock(mSetSem);
+    OsLock lock(mSemaphore);
 
     UtlString eventField;
     notifyRequest.getEventField(&eventField, NULL);
@@ -1600,9 +1570,9 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
              // an un-SUBSCRIBE (which would be redundant).
              endSubscriptionDialogByNotifier(*dialogState);
 
-             // Queue a request to terminate and reestablish the subscription.
-             postMessageP(
-                new ReestablishRequestMsg(static_cast <UtlString&> (*dialogState->mpGroupState)));
+             // Reestablish the subscription.
+             lock.release();
+             reestablish(static_cast <const UtlString&> (*dialogState->mpGroupState));
           }
        }
        else
@@ -1910,30 +1880,30 @@ void SubscriptionGroupState::resetStarting()
    mpSubscriptionRequest->setRawFromField(fromFieldValue);
 }
 
-void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
+void SipSubscribeClient::reestablish(const UtlString& handle)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeClient::reestablish mEarlyDialogHandle = '%s'",
-                 mEarlyDialogHandle.data());
+                 "SipSubscribeClient::reestablish handle = '%s'",
+                 handle.data());
 
    // Terminate all current subscriptions for this group.
    // (This should be factored with ::endSubscriptionGroup.)
 
    // Repeatedly look up the group and terminate one subscription.
    {
-      UtlHashBagIterator iterator(client.mSubscriptionDialogs);
+      UtlHashBagIterator iterator(mSubscriptionDialogs);
       int count = 0;
       UtlBoolean found;
       UtlString key;
 
       do {
          {
-            OsLock setLock(client.mSetSem);
+            OsLock lock(mSemaphore);
 
             found = FALSE;
             // Look up the group state.
             SubscriptionGroupState* groupState =
-               client.getGroupStateByOriginalHandle(mEarlyDialogHandle);
+               getGroupStateByOriginalHandle(handle);
             // Check that reestablishment is set for this group.
             if (groupState && groupState->mReestablish)
             {
@@ -1956,21 +1926,21 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
 
          if (found)
          {
-            client.endSubscriptionDialog(key);
+            endSubscriptionDialog(key);
             count++;
          }
       } while (found);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipSubscribeClient::reestablish exited %d dialogs",
-                       count);
+                    "SipSubscribeClient::reestablish ended %d dialogs",
+	            count);
 
       {
-         OsLock setLock(client.mSetSem);
+         OsLock lock(mSemaphore);
 
          // Look up the group state.
          SubscriptionGroupState* groupState =
-            client.getGroupStateByOriginalHandle(mEarlyDialogHandle);
+            getGroupStateByOriginalHandle(handle);
 
          // Test whether reestablish is set.
          // It may be false because the subscription group is being ended.
@@ -1979,7 +1949,7 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
             // Prepare for the next starting attempt.
             groupState->resetStarting();
             // Reindex the group under the new early dialog handle.
-            client.reindexGroupState(groupState);
+            reindexGroupState(groupState);
 
             // Try establishing the subscription again.
             groupState->setStartingTimer(false);
@@ -1987,10 +1957,10 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
             // Give a copy of the request to the refresh manager to send the
             // SUBSCRIBE and keep the subscription alive.
             UtlString earlyDialogHandle;
-            client.mpRefreshManager->
+            mpRefreshManager->
                initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
                                //< give ownership to mpRefreshManager
-                               &client,
+                               this,
                                // refreshCallback receives the SipSubscribeClient as app. data
                                SipSubscribeClient::refreshCallback,
                                earlyDialogHandle);
@@ -1999,37 +1969,42 @@ void ReestablishRequestMsg::reestablish(SipSubscribeClient& client) const
    }
 }
 
-// The timer event routine for SipSubscribeClient::mStartingTimer.
-// This method can be called while mStartingTimer is being stopped by
-// a method that is deleting *mpGroupState, but that is harmless:
-// the call of postMessageP() is protected by a test of mReestablish,
-// and successfulStart() and transitionToEstablished() only access
-// memeber variables of *mpGroupState.
-OsStatus SubscriptionStartingNotification::signal(intptr_t timer_i)
+// The timer message processing routine for SipSubscribeClient::mStartingTimer.
+OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
 {
-   OsLock setLock(mpSubscribeClient->mSetSem);
+   OsLock lock(mSemaphore);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SubscriptionStartingNotification::signal Timer fired, mpGroupState = %p '%s'",
-                 mpGroupState, mpGroupState->data());
+                 "SubscriptionStartingNotification::signal Timer fired, groupState handle = '%s'",
+                 handle.data());
 
-   // Check to see if we set up the subscription(s) successfully.
-   if (mpGroupState->successfulStart())
+   // Get the SubscriptionGroupState.
+   // Due to race conditions, it may no longer exist.
+   SubscriptionGroupState* groupState = getGroupStateByOriginalHandle(handle);
+   if (groupState)
    {
-      // If so, update the state variables.
-      mpGroupState->transitionToEstablished();
+      // Check to see if we set up the subscription(s) successfully.
+      if (groupState->successfulStart())
+      {
+         // If so, update the state variables.
+         groupState->transitionToEstablished();
+      }
+      else
+      {
+         // Test whether reestablish is set.
+         // It may be false because the subscription is not supposed to restart,
+         // or because the subscription group is being ended.
+         if (groupState->mReestablish)
+         {
+            lock.release();
+            reestablish(static_cast <const UtlString&> (*groupState));
+         }
+      }
    }
    else
    {
-      // Test whether reestablish is set.
-      // It may be false because the subscription is not supposed to restart,
-      // or because the subscription group is being ended.
-      if (mpGroupState->mReestablish)
-      {
-         // Queue a request to reestablish the subscription.
-         mpSubscribeClient->postMessageP(
-            new ReestablishRequestMsg(static_cast <UtlString&> (*mpGroupState)));
-      }
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::handleStartingEvent no SubscriptionGroupState found");
    }
 
    return OS_SUCCESS;
@@ -2056,24 +2031,34 @@ void SubscriptionGroupState::setRestartTimer()
    mRestartTimer.oneshotAfter(rt);
 }
 
-// The timer event routine for SipSubscribeClient::mRestartTimer.
-OsStatus SubscriptionRestartNotification::signal(intptr_t timer_i)
+// The timer message processing routine for SipSubscribeClient::mRestartTimer.
+OsStatus SipSubscribeClient::handleRestartEvent(const UtlString& handle)
 {
-   OsLock setLock(mpSubscribeClient->mSetSem);
+   OsLock lock(mSemaphore);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SubscriptionRestartNotification::signal Timer fired, mpGroupState = %p '%s'",
-                 mpGroupState, mpGroupState->data());
+                 "SipSubscribeClient::handleRestartEvent Timer fired, groupState handle = '%s'",
+                 handle.data());
 
-   // Test whether restart is set.
-   // It may be false because the subscription group is being ended.
-   if (mpGroupState->mRestart)
+   // Get the SubscriptionGroupState.
+   // Due to race conditions, it may no longer exist.
+   SubscriptionGroupState* groupState = getGroupStateByOriginalHandle(handle);
+   if (groupState)
    {
-      // Queue a request to restart (reestablish) the subscription.
-      mpSubscribeClient->postMessageP(
-         new ReestablishRequestMsg(static_cast <UtlString&> (*mpGroupState)));
+      // Test whether restart is set.
+      // It may be false because the subscription group is being ended.
+      if (groupState->mRestart)
+      {
+         groupState->setRestartTimer();
 
-      mpGroupState->setRestartTimer();
+         lock.release();
+         reestablish(static_cast <UtlString&> (*groupState));
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipSubscribeClient::handleRestartEvent no SubscriptionGroupState found");
    }
 
    return OS_SUCCESS;

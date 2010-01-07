@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -213,7 +214,7 @@ public:
     void handleSipMessage(SipMessageEvent& eventMessage);
 
     /// Process a refresh timer event.
-    OsStatus handleRefreshEvent(UtlString& handle);
+    OsStatus handleRefreshEvent(const UtlString& handle);
 
 /* ============================ ACCESSORS ================================= */
 
@@ -293,11 +294,8 @@ private:
     int mDefaultExpiration;
 
     // See sipXtackib/doc/developer/SipRefreshManager-Locking.txt for
-    // how the locks are used.
-    /// Lock to protect mRefreshes.
-    OsBSem mSetSem;
-    /// Lock to protect individual objects in mRefreshes.
-    OsBSem mObjectSem;
+    // how the lock is used.
+    OsBSem mSemaphore;
 
     // RefreshDialogState for each subscription and registration being
     // maintained, indexed by the dialog handle of the dialog or

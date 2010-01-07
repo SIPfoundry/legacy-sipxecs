@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -58,12 +59,6 @@ class SipSubscribeClient : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
-    // These 'friend' declarations could probably be eliminated by a couple of
-    // suitable accessors.
-    friend class ReestablishRequestMsg;
-    friend class SubscriptionStartingNotification;
-    friend class SubscriptionRestartNotification;
 
     enum SubscriptionState
     {
@@ -295,6 +290,12 @@ private:
     //! Handle incoming notify request
     void handleNotifyRequest(const SipMessage& notifyRequest);
 
+    // The timer message processing routine for SipSubscribeClient::mStartingTimer.
+    OsStatus handleStartingEvent(const UtlString& handle);
+
+    // The timer message processing routine for SipSubscribeClient::mRestartTimer.
+    OsStatus handleRestartEvent(const UtlString& handle);
+
     //! Add the state for a subscription group to mSubscriptionGroups.
     /*  Assumes external locking
      */
@@ -327,19 +328,28 @@ private:
     void reindexGroupState(SubscriptionGroupState* groupState);
 
     //! remove the state from mSubscriptionGroups with the specified original handle
-    /*  Assumes external locking
+    /*  Assumes external locking.
      */
     SubscriptionGroupState* removeGroupStateByOriginalHandle(const UtlString& dialogHandle);
 
     //! remove the state from mSubscriptionGroups with the specified current handle
-    /*  Assumes external locking
+    /*  Assumes external locking.
      */
     SubscriptionGroupState* removeGroupStateByCurrentHandle(const UtlString& dialogHandle);
 
     //! remove the state from mSubscriptionDialogs that matches the dialog
-    /*  Assumes external locking
+    /*  Assumes external locking.
      */
     SubscriptionDialogState* removeDialogState(const UtlString& dialogHandle);
+
+    /// Reestablish a subscription.
+    /*  This method  is used both to "reestablish" a subscription that has failed
+     *  and to "restart" a subscription based on a near-daily timer.
+     */
+    void reestablish(const UtlString& handle);
+    // 'handle' is the original handle of the subscription in question,
+    // which is the value of a SubscriptionGroupState as its base class,
+    // UtlString.
 
     //! Copy constructor NOT ALLOWED
     SipSubscribeClient(const SipSubscribeClient& rSipSubscribeClient);
@@ -372,9 +382,7 @@ private:
 
     // See sipXtackib/doc/developer/SipSubscribeClient-Locking.txt for
     // how the locks are used.
-    // However, in this class we do not need the "object lock", so we use
-    // only one OsBSem.
-    OsBSem mSetSem;
+    OsBSem mSemaphore;
 };
 
 /* ============================ INLINE METHODS ============================ */

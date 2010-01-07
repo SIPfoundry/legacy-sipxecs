@@ -1,141 +1,34 @@
-This is an abstract description of the locking system used in
-SipRefreshManager.  The "set lock" is SipRefreshManager::mSetLock, and
-the "object lock" is SipRefreshManager::mObjectLock.
+The locking system used in SipSubscribeClient is very similar to the
+locking system used in SipRefreshManager.
 
 ----------------------------------------------------------------------
 
-Problem:  We have a set of objects, and the objects contain timers.
-When a timer fires, the event routine may modify the object containing
-the timer.  In addition, methods called by other threads may modify
-the objects, and may create and delete objects.  The nastiest part of
-the problem is the race between an externally-called method that wants
-to delete an object and the event routine of a timer within the
-object.
+There are two timers in SubscriptionGroupState:  mStartingTimer and
+mRestartTimer.
 
-Limitation:  We assume that a timer event routine does not affect
-objects other than the one that contains it, and does not delete its
-object.
+mRestartTimer fires on an interval that is from 1/2-day to 1-day.  It
+causes the subscription to be restarted to ensure that any changes in
+the routing of the entity URI are acted upon.  (This can be suppressed
+by setting the restart parameter of ::addSubscription to false.)
 
-Proposed solution:
+When mRestartTimer fires, it queues a RestartEventMsg, which causes
+::handleRestartEvent() to run.  The RestartEventMsg carries the
+original dialog handle of the subscription.  The RestartEventMsg can
+be processed after the state of the subscription has been changed or
+deleted.  The handleRestartEvent() contains code to guard against
+deletion of the subscription state.  The only other significant state
+change is ending the subscription, which sets ::mRestart to false,
+which handleRestartEvent() tests for.  Duplicated restarts of the
+subscription are not hazardous.
 
-The set is given a lock.  There is another lock for access to (all of)
-the objects.
-
-If a thread (but not a timer) possesses a pointer to an object, the
-thread must hold the set lock.  If a thread wishes to access an
-object (with the exception of stopping one of the object timers), it
-must also hold the object lock.
-
-If a thread wishes to create or delete an object, it must hold the
-set lock.  Since this excludes other threads from possessing a
-pointer to the object, the thread need not hold the object lock if
-there are no running timers in the object.
-
-A timer (that is started) is treated much like a thread.  It need not
-hold the set lock as the timer's existence implies that its containing
-object exists.  But in order to read or modify the object (especially
-including restarting itself or other timers), it must hold the object
-lock.
-
-In order to prevent deadlocks, if a thread wants to hold both the set
-lock and the object lock, it must seize the set lock first.
-
-Each object contains a boolean member, SuppressTimerEventRoutines.
-This value is normally false.  If it is true, then the body of the
-timer event routine for every timer in the object is skipped.  A
-consequence of this is that a synchronous stop() applied to a timer
-when it's object's SuppressTimerEventRoutines is true will not start any
-timer, and will it hold the object lock only transiently.  Reading and
-writing SuppressTimerEventRoutines is protected by the object lock.
-
-Pattern for timer event routine:
-
-	seize the object lock
-	    if not SuppressTimerEventRoutines
-	    then
-		    perform the operations
-	    end if
-	release the object lock
-
-Pattern for an externally-called method that does not affect timers:
-
-	seize the set lock
-	    look up the object in question
-	    seize the object lock
-		perform the operations
-	    release the object lock
-	release the set lock
-
-Most externally-called methods will cause state changes in the object
-for which timers should be stopped and started.  In that case, a more
-elaborate pattern is needed:
-
-	seize the set lock
-	    look up the object in question
-	    seize the object lock
-	        set SuppressTimerEventRoutines
-	    release the object lock
-	    # After this point, any timer event routines for the object
-	    # that are executed will not start any timers.
-	    stop timer(s) synchronously
-	    # At this point all the object's timers are stopped and
-	    # there are no queued event routine firings.
-	    seize the object lock
-	        clear SuppressTimerEventRoutines
-	        perform the operations (which may include starting timers)
-	    release the object lock
-	release the set lock
-
-Pattern for an externally-called method to delete an object:
-
-	seize the set lock
-	    look up the object in question
-	    seize the object lock
-	        set SuppressTimerEventRoutines
-	    release the object lock
-	    # After this point, any timer event routines for the object
-	    # that are executed will not start any timers.
-	    stop timer(s) synchronously
-	    # At this point all the object's timers are stopped and
-	    # there are no queued event routine firings.
-	    remove the object from the set
-	    delete the object
-	release the set lock
-
-Pattern for an externally-called method to create an object:
-
-	seize the set lock
-	    create the object
-	    seize the object lock
-	        initialize SuppressTimerEventRoutines to cleared
-	        perform the operations (which may include starting timers)
-	    release the object lock
-	release the set lock
-
-In SipRefreshManager, timer event routines may want to send SIP
-messages.  Since SipUserAgent::send() can take a long time, a timer
-event routine must pass responsibility for doing this to the
-SipRefreshManager's thread, by queueing a message for
-SipRefreshManager::handleMessage to act on.  (It cannot be done by a
-timer event routine, even after it has released the object lock,
-because a method (that holds the set lock) can be waiting for the
-timer event routine to finish.)  This introduces new race conditions,
-in that a message may be sent after the object state changes in a way
-that renders the message obsolete, but SIP already allows for
-duplicated or delayed messages, so no harm can come from this.
-
-Similarly, any call-back routines to be called must be called from
-SipRefreshManager::handleMessage, not from a timer event routine.
-This also creates race conditions, but callback routines are not
-expected to be completely synchronous.
-
-An externally-called method can call send() or a call-back routine,
-but only after it has released all locks.
-
-Note that this scheme does not allow a timer event routine to stop a
-timer, because the pattern for a timer event routine cannot be
-combined with the pattern for stopping timers:  The timer event
-routine must hold the object lock for its entire duration, as its
-execution is conditional upon the value of SuppressTimerEventRoutines.
-But the pattern for stopping timers requires that the object lock be
-free when OsTimer::stop() is called.
+mStartingTimer fires at the point where we want to check whether the
+subscription has been established, and if it has not, to start it
+anew.  When mStartingTimer fires, it queues a StartingEventMsg, which
+causes ::handleStartingEvent() to run.  The StartingEventMsg carries
+the original dialog handle of the subscription.  The StartingEventMsg
+can be processed after the state of the subscription has been changed
+or deleted.  The handleStartingEvent() contains code to guard against
+deletion of the subscription state.  The only other significant state
+change is ending the subscription, which sets ::mReestablish to false,
+which handleStartingEvent() tests for.  Duplicated startings of the
+subscription are not hazardous.

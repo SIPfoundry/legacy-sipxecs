@@ -1,6 +1,7 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -9,17 +10,17 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include <os/OsLock.h>
-#include <os/OsUnLock.h>
-#include <os/OsDateTime.h>
-#include <os/OsMsgQ.h>
-#include <os/OsTimer.h>
-#include <os/OsEventMsg.h>
-#include <utl/UtlHashBagIterator.h>
+#include <net/SipDialog.h>
+#include <net/SipDialogMgr.h>
 #include <net/SipRefreshManager.h>
 #include <net/SipUserAgent.h>
-#include <net/SipDialogMgr.h>
-#include <net/SipDialog.h>
+#include <os/OsDateTime.h>
+#include <os/OsEventMsg.h>
+#include <os/OsLock.h>
+#include <os/OsMsgQ.h>
+#include <os/OsTimer.h>
+#include <os/OsUnLock.h>
+#include <utl/UtlHashBagIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -99,13 +100,6 @@ public:
          return new RefreshEventMsg(mHandle);
       };
    //:Create a copy of this msg object (which may be of a derived type)
-   // This virtual (ordinary) method is used because one cannot have a
-   // virtual copy constructor.  Thus one writes
-   // "OsMsg* copyp = originalp->createCopy();" to copy *originalp
-   // according to its run-time type, rather than
-   // "OsMsg* copyp = new OsMsg(*originalp);" because the latter
-   // would invoke the OsMsg copy constructor regardless of the
-   // run-time type of *originalp.
 
    /* ============================ ACCESSORS ================================= */
 
@@ -176,9 +170,6 @@ public:
    //! Dump contents of RefreshDialogState as a string.
    void toString(UtlString& dumpString);
 
-   /// If true, prevents event timer routines from doing anything.
-   UtlBoolean mSuppressTimerEventRoutines;
-
    /// Application data provided to ::initiateRefresh.
    void* mpApplicationData;
    /// Callback function for changes in subscription state.
@@ -218,7 +209,6 @@ private:
 RefreshDialogState::RefreshDialogState(const UtlString& handle,
                                        SipRefreshManager* pRefMgr) :
    UtlString(handle),
-   mSuppressTimerEventRoutines(FALSE),
    mpApplicationData(NULL),
    mpStateCallback(NULL),
    mExpirationPeriodSeconds(-1),
@@ -513,8 +503,7 @@ SipRefreshManager::SipRefreshManager(SipUserAgent& userAgent,
     , mpUserAgent(&userAgent)
     , mpDialogMgr(&dialogMgr)
     , mDefaultExpiration(3600)
-    , mSetSem(OsBSem::Q_FIFO, OsBSem::FULL)
-    , mObjectSem(OsBSem::Q_FIFO, OsBSem::FULL)
+    , mSemaphore(OsBSem::Q_FIFO, OsBSem::FULL)
     , mReceivingRegisterResponses(FALSE)
     , mReceivingSubscribeResponses(FALSE)
 {
@@ -582,9 +571,8 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
    UtlBoolean existingDialogState = FALSE;
 
    {
-      // Seize locks.
-      OsLock setLock(mSetSem);
-      OsLock objectLock(mObjectSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       // Check for state for this handle in this SipRefreshManager.
       RefreshDialogState* s = getAnyDialog(earlyDialogHandle);
@@ -716,10 +704,8 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
          // Send the request (unless that is suppressed).
          if (!suppressFirstSend)
          {
-            // Temporarily free the locks.
-            // These must be in reverse order from the seizure.
-            OsUnLock objectUnLock(mObjectSem);
-            OsUnLock setUnLock(mSetSem);
+            // Temporarily free the lock.
+            OsUnLock unlock(mSemaphore);
 
             // Since we are holding no locks, it doesn't matter if we block here,
             // so we can call SipUserAgent::send() directly.
@@ -771,7 +757,8 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle,
    RefreshDialogState* state;
 
    {
-      OsLock setLock(mSetSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       // Find the refresh state
       UtlString dialogHandleString(dialogHandle);
@@ -785,11 +772,6 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle,
                        state,
                        refreshRequestStateText(state->mRequestState));
 
-         {
-            OsLock objectLock(mObjectSem);
-            state->mSuppressTimerEventRoutines = TRUE;
-         }
-
          // Stop the refresh timer.
          state->mRefreshTimer.stop(TRUE);
 
@@ -802,7 +784,7 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle,
       }
    }
 
-   // We now have the only pointer to *state and we are not holding locks.
+   // We now have the only pointer to *state and we are not holding the lock.
    if (state)
    {
       // mRequestState tells whether sending a terminating request is
@@ -921,15 +903,15 @@ void SipRefreshManager::stopAllRefreshes()
    // and terminate that refresh.
    do {
       {
-         OsLock setLock(mSetSem);
-         OsLock objectLock(mObjectSem);
+         // Seize lock.
+         OsLock lock(mSemaphore);
 
          found = !mRefreshes.isEmpty();
          if (found)
          {
             iterator.reset();
             // Copy the key of the refresh into a local variable so that we
-            // can release the locks.
+            // can release the lock.
             key = *static_cast <UtlString*>
                (dynamic_cast <RefreshDialogState*>
                 (iterator()));
@@ -954,20 +936,15 @@ UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle,
    RefreshDialogState* state;
 
    {
-      OsLock setLock(mSetSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       state = getAnyDialog(earlyDialogHandle);
       if (state)
       {
          {
-            OsLock objectLock(mObjectSem);
-            state->mSuppressTimerEventRoutines = TRUE;
-            {
-               OsUnLock objectUnLock(mObjectSem);
-
-               state->mRefreshTimer.stop(TRUE);
-            }
-            state->mSuppressTimerEventRoutines = FALSE;
+            // Stop the timer.
+            state->mRefreshTimer.stop(TRUE);
 
             state->mExpirationPeriodSeconds = expirationPeriodSeconds;
             state->mpLastRequest->setExpiresField(expirationPeriodSeconds);
@@ -985,7 +962,7 @@ UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle,
 
             // Send the message.
             {
-               OsUnLock setUnLock(mSetSem);
+               OsUnLock unlock(mSemaphore);
 
                mpUserAgent->send(*(state->mpLastRequest));
                // SipUserAgent::send does not take ownership of the message.
@@ -1012,20 +989,15 @@ UtlBoolean SipRefreshManager::changeCurrentRefreshTime(const char* earlyDialogHa
    RefreshDialogState* state;
 
    {
-      OsLock setLock(mSetSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       state = getAnyDialog(earlyDialogHandle);
       if (state)
       {
          {
-            OsLock objectLock(mObjectSem);
-            state->mSuppressTimerEventRoutines = TRUE;
-            {
-               OsUnLock objectUnLock(mObjectSem);
-
-               state->mRefreshTimer.stop(TRUE);
-            }
-            state->mSuppressTimerEventRoutines = FALSE;
+            // Stop the timer.
+            state->mRefreshTimer.stop(TRUE);
 
             // Keep track of when this refresh is sent so we know
             // when the new expiration is relative to.
@@ -1161,7 +1133,8 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                     refreshStateDump.data());
 #endif
 
-      OsLock setLock(mSetSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       // Find the refresh state for this response
       RefreshDialogState* state = NULL;
@@ -1194,8 +1167,6 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
 
       if (state)
       {
-         OsLock objectLock(mObjectSem);
-
          // Process the response based on the response code.
          int responseCode = sipMessage->getResponseStatusCode();
          UtlString responseText;
@@ -1263,13 +1234,7 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                // A transient failure to be retried.
 
                // Stop the refresh timer.
-               state->mSuppressTimerEventRoutines = TRUE;
-               {
-                  OsUnLock objectUnLock(mObjectSem);
-
-                  state->mRefreshTimer.stop(TRUE);
-               }
-               state->mSuppressTimerEventRoutines = FALSE;
+               state->mRefreshTimer.stop(TRUE);
 
                // Set the refresh timer to the appropriate (short) retry
                // interval.
@@ -1340,13 +1305,7 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                   if (expirationPeriod > 0)
                   {
                      // Stop the refresh timer.
-                     state->mSuppressTimerEventRoutines = TRUE;
-                     {
-                        OsUnLock objectUnLock(mObjectSem);
-
-                        state->mRefreshTimer.stop(TRUE);
-                     }
-                     state->mSuppressTimerEventRoutines = FALSE;
+                     state->mRefreshTimer.stop(TRUE);
 
                      // Set the refresh timer based on the provided time.
                      state->setRefreshTimer(TRUE,
@@ -1429,13 +1388,7 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                      state->mRequestState = REFRESH_REQUEST_FAILED;
 
                      // Stop the refresh timer.
-                     state->mSuppressTimerEventRoutines = TRUE;
-                     {
-                        OsUnLock objectUnLock(mObjectSem);
-
-                        state->mRefreshTimer.stop(TRUE);
-                     }
-                     state->mSuppressTimerEventRoutines = FALSE;
+                     state->mRefreshTimer.stop(TRUE);
                   }
 
                   // The request succeeded.
@@ -1455,13 +1408,7 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
                                 "SipRefreshManager::handleSipMessage Failure");
 
                   // Stop the refresh timer.
-                  state->mSuppressTimerEventRoutines = TRUE;
-                  {
-                     OsUnLock objectUnLock(mObjectSem);
-
-                     state->mRefreshTimer.stop(TRUE);
-                  }
-                  state->mSuppressTimerEventRoutines = FALSE;
+                  state->mRefreshTimer.stop(TRUE);
                }
 
                // Request a callback to let the application know the state changed.
@@ -1505,16 +1452,15 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
 // Thus, ::handleRefreshEvent may be called after the RefreshDialogState has
 // been deleted or its state has been modified.  Fortunately, there is no
 // functional failure if we just send a refresh message anyway.
-OsStatus SipRefreshManager::handleRefreshEvent(UtlString& handle)
+OsStatus SipRefreshManager::handleRefreshEvent(const UtlString& handle)
 {
    // Pointer to SipMessage (if any) to send after releasing the locks.
    // *message_to_send is owned by us.
    SipMessage* message_to_send = NULL;
 
    {
-      // Seize locks.
-      OsLock setLock(mSetSem);
-      OsLock objectLock(mObjectSem);
+      // Seize lock.
+      OsLock lock(mSemaphore);
 
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRefreshManager::handleRefreshEvent Timer fired, handle = '%s'",
@@ -1638,8 +1584,8 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
    int count = 0;
    dumpString.remove(0);
 
-   OsLock setLock(mSetSem);
-   OsLock objectLock(mObjectSem);
+   // Seize lock.
+   OsLock lock(mSemaphore);
 
    UtlHashBagIterator iterator(mRefreshes);
    RefreshDialogState* state = NULL;
@@ -1661,8 +1607,8 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
 // Dump the object's internal state.
 void SipRefreshManager::dumpState()
 {
-   OsLock setLock(mSetSem);
-   OsLock objectLock(mObjectSem);
+   // Seize lock.
+   OsLock lock(mSemaphore);
 
    // indented 4
 
