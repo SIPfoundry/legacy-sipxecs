@@ -16,6 +16,7 @@
 
 #include <os/OsDateTime.h>
 #include <os/OsTimer.h>
+#include <os/OsUnLock.h>
 #include <net/SipSubscribeClient.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialog.h>
@@ -1189,7 +1190,10 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
                           earlyDialogHandle);
 
-            lock.release();
+            OsUnLock unlock(lock);
+            groupState = NULL;
+            dialogState = NULL;
+
             reestablish(static_cast <const UtlString&> (*groupState));
          }
       }
@@ -1571,7 +1575,10 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
              endSubscriptionDialogByNotifier(*dialogState);
 
              // Reestablish the subscription.
-             lock.release();
+             OsUnLock unlock(lock);
+             dialogState = NULL;
+             groupState = NULL;
+
              reestablish(static_cast <const UtlString&> (*dialogState->mpGroupState));
           }
        }
@@ -1996,7 +2003,9 @@ OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
          // or because the subscription group is being ended.
          if (groupState->mReestablish)
          {
-            lock.release();
+            OsUnLock unlock(lock);
+            groupState = NULL;
+
             reestablish(static_cast <const UtlString&> (*groupState));
          }
       }
@@ -2051,7 +2060,9 @@ OsStatus SipSubscribeClient::handleRestartEvent(const UtlString& handle)
       {
          groupState->setRestartTimer();
 
-         lock.release();
+         OsUnLock unlock(lock);
+         groupState = NULL;
+         
          reestablish(static_cast <UtlString&> (*groupState));
       }
    }

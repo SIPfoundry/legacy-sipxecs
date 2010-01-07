@@ -45,9 +45,6 @@
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
 // &nbsp;&nbsp;                      }                               <br>
 // &nbsp;&nbsp;                      ...                             </font>
-// <p>
-// The semaphore can be released before the OsLock is destroyed by calling
-// OsLock::release().
 
 class OsLock
 {
@@ -60,7 +57,6 @@ public:
 
    OsLock(OsSyncBase& rSemaphore)
    : mrSemaphore(rSemaphore)
-   , mAcquired(true)
    {
       rSemaphore.acquire();
    }
@@ -69,22 +65,11 @@ public:
    virtual
    ~OsLock()
    {
-      if (mAcquired)
-      {
-         mrSemaphore.release();
-      }
+      mrSemaphore.release();
    }
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-
-   /// Release the semaphore before the OsLock is destgroyed.
-   void release()
-   {
-      assert(mAcquired);
-      mAcquired = false;
-      mrSemaphore.release();
-   }
 
 /* ============================ ACCESSORS ================================= */
 
@@ -96,11 +81,6 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    OsSyncBase& mrSemaphore;
-
-   /// true if the semaphore has been acquired but not released.
-   //  Normally true during the lifetime of the OsLock, but can
-   //  be set false by ::release().
-   bool mAcquired;
 
    OsLock();
      //:Default constructor (not implemented for this class)
