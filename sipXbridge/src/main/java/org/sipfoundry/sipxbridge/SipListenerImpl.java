@@ -463,7 +463,9 @@ public class SipListenerImpl implements SipListenerExt {
         Dialog dialog = responseEvent.getDialog();
 
         try {
-            if ( response.getStatusCode() == 200 && response.getHeader(ContactHeader.NAME) == null ) {
+            if ( method.equals(Request.INVITE)      &&
+                 response.getStatusCode() == 200    && 
+                 response.getHeader(ContactHeader.NAME) == null ) {
                 logger.debug("Dropping bad response");
                 if (dialog != null && DialogContext.get(dialog) != null) {
                     DialogContext.get(dialog).getBackToBackUserAgent().tearDown("sipXbridge", ReasonCode.PROTOCOL_ERROR, "Protocol Error - 200 OK with no contact");
