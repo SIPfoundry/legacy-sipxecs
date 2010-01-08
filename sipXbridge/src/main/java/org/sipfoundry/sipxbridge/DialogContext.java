@@ -193,7 +193,7 @@ class DialogContext {
     class SessionTimerTask extends TimerTask {
 
         String method;
-       
+            
         public SessionTimerTask(String method) {
             this.method = method;
 
@@ -201,13 +201,14 @@ class DialogContext {
 
         @Override
         public void run() {
-            if (dialog.getState() == DialogState.TERMINATED) {
-                logger.debug("Dialog is terminated -- not firing the  session timer");
-                this.cancel();
-                return;
-            }
+           
 
             try {
+                if (dialog.getState() == DialogState.TERMINATED) {
+                    logger.debug("Dialog is terminated -- not firing the  session timer");
+                    this.cancel();
+                    return;
+                }
                 Request request;
                 logger.debug("Firing Session timer " );
                 logger.debug("DialogState = " + dialog.getState());
