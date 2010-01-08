@@ -459,14 +459,24 @@ public class SipListenerImpl implements SipListenerExt {
         Response response = responseEvent.getResponse();
         CSeqHeader cseqHeader = (CSeqHeader) response
                 .getHeader(CSeqHeader.NAME);
-
         String method = cseqHeader.getMethod();
         Dialog dialog = responseEvent.getDialog();
 
         try {
-
+            if ( response.getStatusCode() == 200 && response.getHeader(ContactHeader.NAME) == null ) {
+                logger.debug("Dropping bad response");
+                if (dialog != null && DialogContext.get(dialog) != null) {
+                    DialogContext.get(dialog).getBackToBackUserAgent().tearDown("sipXbridge", ReasonCode.PROTOCOL_ERROR, "Protocol Error - 200 OK with no contact");
+                } else if ( dialog != null ) {
+                    dialog.delete();
+                }
+                return;
+                
+            }
             if (dialog != null && dialog.getApplicationData() == null
                     && method.equals(Request.INVITE)) {
+                
+               
                 /*
                  * if the tx does not exist but the dialog does exist then this
                  * is a forked response
