@@ -8,7 +8,7 @@ import javax.sip.header.ExtensionHeader;
 
 
 
-public class ReferencesHeaderImpl extends SIPHeader implements ReferencesHeader,ExtensionHeader  {
+public class ReferencesHeaderImpl  implements ReferencesHeader,ExtensionHeader  {
     
     private static final long serialVersionUID = -6235038166218875753L;
     private String callId ;    
@@ -94,8 +94,8 @@ public class ReferencesHeaderImpl extends SIPHeader implements ReferencesHeader,
     
 
     @Override
-    protected String encodeBody() {
-        return getValue();
+    public String toString() {
+        return this.getName() + ":" + getValue();
     }
 
    

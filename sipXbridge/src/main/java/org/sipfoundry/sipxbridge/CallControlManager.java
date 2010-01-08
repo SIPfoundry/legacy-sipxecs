@@ -47,6 +47,7 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentLengthHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
+import javax.sip.header.ExtensionHeader;
 import javax.sip.header.Header;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.ReasonHeader;
@@ -215,7 +216,7 @@ class CallControlManager implements SymmitronResetHandler {
         
         String callId = SipUtilities.getCallId(request);
         String branchId = SipUtilities.getTopmostViaBranch(request);
-        ReferencesHeader referencesHeader = new ReferencesHeaderImpl(callId,ReferencesHeader.CHAIN, branchId);
+        ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,ReferencesHeader.CHAIN, branchId);
 
         if ( dialogContext == null ) {
             logger.error("Null Dialog Context detected on dialog " + dialog);
