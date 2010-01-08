@@ -44,7 +44,8 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = ruby-postgres ruby-dbi freeswitch sipx-jasperreports-deps
+CUSTOM_PACKAGES = ruby-postgres ruby-dbi
+#CUSTOM_PACKAGES = ruby-postgres ruby-dbi freeswitch sipx-jasperreports-deps
 
 .PHONY: fc8
 fc8 : $(CUSTOM_PACKAGES) nsis cppunit xerces-c rubygems rrdtool

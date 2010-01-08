@@ -3,7 +3,7 @@ Version: @VERSION@
 Release: %{buildno}
 
 Summary: FreeSWITCH startup scripts.
-Requires: sipx-freeswitch >= 1.0.4
+Requires: sipx-freeswitch >= 1.0.5
 Requires: sipxcommserverlib >= %version
 License: LGPL
 Group:    Productivity/Telephony/SIP/Servers
