@@ -1190,11 +1190,13 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                           "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
                           earlyDialogHandle);
 
+            UtlString originalHandle(*groupState);
+
             OsUnLock unlock(lock);
             groupState = NULL;
             dialogState = NULL;
 
-            reestablish(static_cast <const UtlString&> (*groupState));
+            reestablish(originalHandle);
          }
       }
       else
@@ -1575,11 +1577,13 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
              endSubscriptionDialogByNotifier(*dialogState);
 
              // Reestablish the subscription.
+             UtlString originalHandle(*dialogState->mpGroupState);
+
              OsUnLock unlock(lock);
              dialogState = NULL;
              groupState = NULL;
 
-             reestablish(static_cast <const UtlString&> (*dialogState->mpGroupState));
+             reestablish(originalHandle);
           }
        }
        else
@@ -2006,7 +2010,7 @@ OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
             OsUnLock unlock(lock);
             groupState = NULL;
 
-            reestablish(static_cast <const UtlString&> (*groupState));
+            reestablish(handle);
          }
       }
    }
@@ -2063,7 +2067,7 @@ OsStatus SipSubscribeClient::handleRestartEvent(const UtlString& handle)
          OsUnLock unlock(lock);
          groupState = NULL;
          
-         reestablish(static_cast <UtlString&> (*groupState));
+         reestablish(handle);
       }
    }
    else
