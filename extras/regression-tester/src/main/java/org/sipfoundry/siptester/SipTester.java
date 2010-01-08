@@ -161,6 +161,7 @@ public class SipTester {
                         branchId = parts2[1].toLowerCase();
                     }
                     logger.debug("referencesHeader branchId = " + branchId);
+                    logger.debug("referencesHeader callId = " + referencesCallId);
                 }
                 boolean found = false;
 
@@ -172,24 +173,29 @@ public class SipTester {
                         while (it.hasNext()) {
                             viaHeader = it.next();
                             branchId = viaHeader.getBranch();
-                            logger.debug("checking branch Id "  + branchId);
-                            if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId())) {
-                                retval.add(st);
-                                found = true;
-                                break;
-                            }
+                           
+                        }
+                        logger.debug("checking branch Id "  + branchId);
+                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId()) 
+                               ) {
+                            retval.add(st);
+                            found = true;           
                         }
                     } else {
                         logger.debug("callId does not match " + callId + " / " + callId1);
                     }
-                    logger.debug("Checked : " +    st.getSipRequest().getSipRequest());
                     if (extensionHeader != null && !found && referencesCallId.equals(callId) && 
-                        method1.equals(method) && branchId != null) {
-                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId())) {
+                        method1.equals(method) && branchId != null) {  
+                        logger.debug("branchId = " + branchId);
+                        logger.debug("st.matchingClientTransaction = "  + st.getMatchingClientTransaction());
+                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId()) 
+                                ) {
                             retval.add(st);
                         }
 
                     }
+                     logger.debug("Checked : " +    st.getSipRequest().getSipRequest());
+                     
                 }
             }
 

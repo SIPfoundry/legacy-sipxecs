@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
+import javax.sip.header.RSeqHeader;
 import javax.sip.header.RequireHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
@@ -27,6 +28,9 @@ public class SipServerTransaction extends SipTransaction implements
     private static Logger logger = Logger.getLogger(SipServerTransaction.class);
 
     private ConcurrentSkipListSet<SipResponse> responses = new ConcurrentSkipListSet<SipResponse>();
+    
+    
+    private SipClientTransaction matchingClientTransaction;
 
     /*
      * The endpoint to which the server transaction belongs.
@@ -71,7 +75,25 @@ public class SipServerTransaction extends SipTransaction implements
     }
 
     public void addResponse(SipResponse sipResponse) {
+        /*
+         * Check to see if this is a reliable provisional response retransmission.
+         */
+        
+        for ( SipResponse response : this.responses ) {
+            ResponseExt prevResponse = response.getSipResponse();
+            RSeqHeader prevRseq = (RSeqHeader) prevResponse.getHeader(RSeqHeader.NAME);
+            ResponseExt currentResponse = sipResponse.getSipResponse();
+            RSeqHeader thisRseq = (RSeqHeader) currentResponse.getHeader(RSeqHeader.NAME);
+            if (prevRseq != null && thisRseq != null &&
+                    prevRseq.getSequenceNumber() == thisRseq.getSequenceNumber()) {
+                logger.debug("Duplicate reliable response transmission");
+                return;         
+            }
+        }
+        
+        logger.debug("adding response " + this.getTransactionId() + " frameId = " + sipResponse.getFrameId());
         boolean added =  this.responses.add(sipResponse);
+        
         if ( !added ) {
             logger.debug("response already added");
         }
@@ -128,6 +150,10 @@ public class SipServerTransaction extends SipTransaction implements
     public String getBranch() {
         return this.branch;
     }
+    
+    public void setMatchingClientTransaction(SipClientTransaction sipClientTransaction) {
+        this.matchingClientTransaction = sipClientTransaction;
+    }
 
     public void printServerTransaction() {
         SipTester.getPrintWriter().println("<server-transaction>");
@@ -155,7 +181,9 @@ public class SipServerTransaction extends SipTransaction implements
             }
             Iterator<SipResponse> it = this.responses.iterator();
             while (it.hasNext()) {
-                ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, it.next());
+                SipResponse nextResponse = it.next();
+                logger.debug("sendingResponse at frame " + nextResponse.getFrameId());
+                ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, nextResponse);
                 it.remove();
 
                 Iterator headerIterator = newResponse.getHeaders(RequireHeader.NAME);
@@ -210,5 +238,11 @@ public class SipServerTransaction extends SipTransaction implements
             logger.debug("dialog is not set for SipServerTransaction ");
         }
     }
+
+    public SipClientTransaction getMatchingClientTransaction() {
+        return this.matchingClientTransaction;
+    }
+
+  
 
 }

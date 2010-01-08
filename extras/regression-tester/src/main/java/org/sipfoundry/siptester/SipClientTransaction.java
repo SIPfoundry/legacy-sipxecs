@@ -87,6 +87,9 @@ public class SipClientTransaction extends SipTransaction implements
 
     public void addMatchingServerTransactions(Collection<SipServerTransaction> serverTransactions) {
         this.serverTransactions = serverTransactions;
+        for (SipServerTransaction sst : this.serverTransactions ) {
+            sst.setMatchingClientTransaction(this);
+        }
     }
 
     public Collection<SipServerTransaction> getMatchingServerTransactions() {
@@ -404,7 +407,8 @@ public class SipClientTransaction extends SipTransaction implements
             return false;
         }
     }
-
+    
+    
     public void addHappensBefore(SipMessage sipMessage) {
         this.happensBefore.add(sipMessage);
         this.triggeringMessage = this.happensBefore.descendingIterator().next();
@@ -491,5 +495,7 @@ public class SipClientTransaction extends SipTransaction implements
         System.err.println("************************************************");
 
     }
+
+    
 
 }
