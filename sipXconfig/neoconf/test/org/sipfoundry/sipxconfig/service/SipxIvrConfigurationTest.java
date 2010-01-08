@@ -25,6 +25,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
     private SipxIvrService m_ivrService;
     private SipxStatusService m_statusService;
     private SipxRestService m_restService;
+    private SipxImbotService m_imbotService;
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
 
@@ -53,6 +54,12 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         m_restService.setModelFilesContext(TestHelper.getModelFilesContext());
         m_restService.setSettingValue("rest-config/httpsPort", "6666");
 
+        m_imbotService = new SipxImbotService();
+        m_imbotService.setModelDir("sipximbot");
+        m_imbotService.setModelName("sipximbot.xml");
+        m_imbotService.setModelFilesContext(TestHelper.getModelFilesContext());
+        m_imbotService.setSettingValue("imbot/httpPort", "8086");
+
         m_locationsManager = createMock(LocationsManager.class);
         m_locationsManager.getLocationsForService(m_restService);
         expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
@@ -68,6 +75,8 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         expectLastCall().andReturn(m_ivrService).atLeastOnce();
         m_sipxServiceManager.getServiceByBeanId(SipxRestService.BEAN_ID);
         expectLastCall().andReturn(m_restService).atLeastOnce();
+        m_sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
+        expectLastCall().andReturn(m_imbotService).atLeastOnce();
     }
 
     public void testWriteWithoutOpenfireService() throws Exception {
@@ -88,7 +97,7 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
     public void testWriteWithOpenfireService() throws Exception {
 
         expect(m_sipxServiceManager.isServiceInstalled("sipxOpenfireService")).andReturn(true);
-        expect(m_sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10");
+        expect(m_sipxServiceManager.getServiceParam("openfire-host")).andReturn("192.168.1.10").atLeastOnce();
         expect(m_sipxServiceManager.getServiceParam("openfire-xml-rpc-port")).andReturn(49094);
 
         replay(m_sipxServiceManager);

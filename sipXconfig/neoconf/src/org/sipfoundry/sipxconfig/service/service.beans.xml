@@ -347,6 +347,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxImbotConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
         <ref bean="contactInformationConfig" />
       </list>
     </property>

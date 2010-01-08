@@ -21,4 +21,5 @@ ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
 #if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
 ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
+ivr.sendIMUrl=http://$!{sipxServiceManager.getServiceParam('openfire-host')}:$!{imbotService.httpPort}/IM
 #end
