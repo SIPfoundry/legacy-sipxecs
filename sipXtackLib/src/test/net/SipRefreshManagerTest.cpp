@@ -300,9 +300,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                (smExpiration - start) - expPeriod);
 #endif
         CPPUNIT_ASSERT(initialRequest);
-        CPPUNIT_ASSERT(smCallbackCount == 2);
-        CPPUNIT_ASSERT(smLastResponseCode == 252);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(2, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(252, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
 
@@ -326,9 +326,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         CPPUNIT_ASSERT(firstRefresh);
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1);
         CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
@@ -415,9 +415,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                (smExpiration - start) - expPeriod);
 #endif
         CPPUNIT_ASSERT(initialRequest);
-        CPPUNIT_ASSERT(smCallbackCount == 2);
-        CPPUNIT_ASSERT(smLastResponseCode == 252);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(2, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(252, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
         long initialExpiration = smExpiration;
@@ -442,9 +442,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         CPPUNIT_ASSERT(firstRefresh);
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1);
         CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
@@ -458,10 +458,10 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         long firstRefreshExpiration = smExpiration;
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(smExpiration + 5 >= initialExpiration + firstRefreshAt - start);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
 
         // This time respond with 408 and confirm that the expiration
         // has not changed.
@@ -484,12 +484,12 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // There should be no callback, and the last seen expiration time
         // should not change.
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
         CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt >= normalRefreshPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt <= normalRefreshPeriod + 1);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
-        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState); // the subscription is still OK
+        CPPUNIT_ASSERT_EQUAL(firstRefreshExpiration, smExpiration);
 
         // The next refresh is an attempt to resend after a transient
         // error, which should happen in 1 second.
@@ -512,9 +512,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         CPPUNIT_ASSERT(thirdRefresh);
-        CPPUNIT_ASSERT(smCallbackCount == 4);
-        CPPUNIT_ASSERT(smLastResponseCode == 254);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(4, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(254, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt >= 1 - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= 1 + 1);
         CPPUNIT_ASSERT(smExpiration >= thirdRefreshAt + expPeriod - 1); // allow 1 sec. variance
@@ -601,9 +601,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                (smExpiration - start) - expPeriod);
 #endif
         CPPUNIT_ASSERT(initialRequest);
-        CPPUNIT_ASSERT(smCallbackCount == 2);
-        CPPUNIT_ASSERT(smLastResponseCode == 252);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(2, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(252, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(smExpiration >= start + expPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(smExpiration <= start + expPeriod + 1);
         long initialExpiration = smExpiration;
@@ -628,9 +628,9 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         CPPUNIT_ASSERT(firstRefresh);
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(firstRefreshAt - start >= normalRefreshPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(firstRefreshAt - start <= normalRefreshPeriod + 1);
         CPPUNIT_ASSERT(smExpiration >= firstRefreshAt + expPeriod - 1); // allow 1 sec. variance
@@ -644,10 +644,10 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                smExpiration - OsDateTime::getSecsSinceEpoch());
 #endif
         long firstRefreshExpiration = smExpiration;
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState);
         CPPUNIT_ASSERT(smExpiration + 5 >= initialExpiration + firstRefreshAt - start);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
 
         // This time respond with 408 and confirm that the expiration
         // has not changed.
@@ -670,12 +670,12 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // There should be no callback, and the last seen expiration time
         // should not change.
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
         CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt >= normalRefreshPeriod - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(secondRefreshAt - firstRefreshAt <= normalRefreshPeriod + 1);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
-        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState); // the subscription is still OK
+        CPPUNIT_ASSERT_EQUAL(firstRefreshExpiration, smExpiration);
 
         // The next refresh is an attempt to resend after a transient
         // error, which should happen in 1 second.
@@ -699,12 +699,12 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // There should be no callback, and the last seen expiration time
         // should not change.
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
         CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt >= resendTime - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= resendTime + 1);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
-        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState); // the subscription is still OK
+        CPPUNIT_ASSERT_EQUAL(firstRefreshExpiration, smExpiration);
 
         // The next refresh is the second attempt to resend after a
         // transient error, which should happen in 2 seconds.
@@ -728,12 +728,12 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // There should be no callback, and the last seen expiration time
         // should not change.
-        CPPUNIT_ASSERT(smCallbackCount == 3);
-        CPPUNIT_ASSERT(smLastResponseCode == 253);
+        CPPUNIT_ASSERT_EQUAL(3, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(253, smLastResponseCode);
         CPPUNIT_ASSERT(fourthRefreshAt - thirdRefreshAt >= resendTime - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(fourthRefreshAt - thirdRefreshAt <= resendTime + 1);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED); // the subscription is still OK
-        CPPUNIT_ASSERT(smExpiration == firstRefreshExpiration);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_SUCCEEDED, smLatestSubState); // the subscription is still OK
+        CPPUNIT_ASSERT_EQUAL(firstRefreshExpiration, smExpiration);
 
         // The next refresh is the third attempt to resend after a
         // transient error, which should happen in 4 seconds.
@@ -757,12 +757,12 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         CPPUNIT_ASSERT(fifthRefresh);
 
         // There should be a callback, showing that the refresh failed.
-        CPPUNIT_ASSERT(smCallbackCount == 4);
-        CPPUNIT_ASSERT(smLastResponseCode == 481);
+        CPPUNIT_ASSERT_EQUAL(4, smCallbackCount);
+        CPPUNIT_ASSERT_EQUAL(481, smLastResponseCode);
         CPPUNIT_ASSERT(fifthRefreshAt - fourthRefreshAt >= resendTime - 1); // allow 1 sec. variance
         CPPUNIT_ASSERT(fifthRefreshAt - fourthRefreshAt <= resendTime + 1);
-        CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_FAILED);
-        CPPUNIT_ASSERT(smExpiration == 0);
+        CPPUNIT_ASSERT_EQUAL(SipRefreshManager::REFRESH_REQUEST_FAILED, smLatestSubState);
+        CPPUNIT_ASSERT_EQUAL(0L, smExpiration);
 
         // Wait to make sure that no further refresh is sent.
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
