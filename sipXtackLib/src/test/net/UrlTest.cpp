@@ -632,11 +632,7 @@ public:
     {
         const char *szUrl = "sip:1234@sipserver:abcd";
         Url url(szUrl);
-        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:1234@sipserver", toString(url));
-        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sipserver", getHostAddress(url));
-	// The port will be returned as PORT_NONE, because Url::Url()
-	// could not parse it.
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, PORT_NONE, url.getHostPort());
+        CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, url.getScheme());
     }
 
    void testMultiple()
@@ -1615,7 +1611,7 @@ public:
 
          UtlString badUrl("!bad:");
          CPPUNIT_ASSERT(!url.fromString(badUrl));
-         CPPUNIT_ASSERT(Url::UnknownUrlScheme == url.getScheme());
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, url.getScheme());
       }
 
     void testGetIdentity()
@@ -1693,7 +1689,7 @@ public:
 
          PARSE(bigname);
 
-         CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bignameUrl.getScheme());
 
          UtlString component;
 
@@ -1727,7 +1723,7 @@ public:
          quoted_bigtoken.append("\"");
          CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken));
 
-         CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigquotnameUrl.getScheme());
 
          bigquotnameUrl.getUserId(component);
          CPPUNIT_ASSERT(! component.compareTo("user"));
@@ -1748,24 +1744,11 @@ public:
 
          UtlString component;
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
-         CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigschemeUrl.getScheme());
 
-         bigschemeUrl.getUserId(component);
-         CPPUNIT_ASSERT(component.isNull());
+         Url bigSchemeAddrSpec(bigscheme, TRUE /* as addr-spec */);
 
-         bigschemeUrl.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());
-
-         Url bigSchemeAddrType(bigscheme, TRUE /* as addr-type */);
-
-         CPPUNIT_ASSERT(bigSchemeAddrType.getScheme() == Url::UnknownUrlScheme); // ?
-
-         bigSchemeAddrType.getUserId(component);
-         CPPUNIT_ASSERT(component.isNull()); // bigtoken
-
-         bigSchemeAddrType.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigSchemeAddrSpec.getScheme());
       }
 
    void testBigUriUser()
@@ -1779,7 +1762,7 @@ public:
 
          PARSE(biguser);
 
-         CPPUNIT_ASSERT(biguserUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, biguserUrl.getScheme());
 
          UtlString component;
 
@@ -1801,7 +1784,7 @@ public:
 
          PARSE(bigusernoscheme);
 
-         CPPUNIT_ASSERT(bigusernoschemeUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigusernoschemeUrl.getScheme());
 
          UtlString component;
 
@@ -1823,7 +1806,7 @@ public:
 
          PARSE(bigok);
 
-         CPPUNIT_ASSERT(bigokUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigokUrl.getScheme());
 
          UtlString component;
 
@@ -1835,10 +1818,8 @@ public:
 
          // user@<bigtoken>
          /*
-          * A really big host name like this causes recursion in the regular expression
-          * that matches a domain name; the limit causes this match to fail.
-          * This is preferable to having the match succeed but either take minutes (yes,
-          * minutes) to do the match and/or overflow the stack, so we let it fail.
+          * The Url class can now handle very large host names in a reasonable
+          * time.  Thus, this string parses correctly now.
           */
 
          UtlString bighost;
@@ -1848,8 +1829,7 @@ public:
 
          PARSE(bighost);
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
-         CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bighostUrl.getScheme());
       }
 
    void testGRUU()

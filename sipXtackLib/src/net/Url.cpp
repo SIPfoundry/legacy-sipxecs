@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -194,8 +195,12 @@ const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)" );
 // AllDigits
 const RegEx AllDigits("^\\+?[0-9*]++$");
 
-// Comma separator between multiple values
-const RegEx CommaSeparator(SWS "," SWS);
+// Regexps that describe what may follow a name-addr/addr-spec in various
+// contexts.
+const RegEx End("$");           // addr-spec not in list
+const RegEx EndComma("$|,");    // addr-spec in list
+const RegEx EndSws(SWS "$");    // name-addr not in list
+const RegEx EndSwsComma(SWS "$|" SWS "," SWS); // name-addr in list
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -1704,14 +1709,33 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          }
       }
 
-      if (nextUri)
+      // At this point, the parse has reached the end of the URI, or the end
+      // of what could be parsed.  Based on uriForm and nextUri, determine
+      // if the parse is successful and return the "remainder of the string"
+      // value.
       {
-         RegEx commaSeparator(CommaSeparator);
-         if (   (commaSeparator.SearchAt(urlString, workingOffset))
-             && (commaSeparator.MatchStart(0) == workingOffset)
+         // Select the regexp that describes allowed following characters.
+         const RegEx* test =
+            AddrSpec == uriForm ?
+            (nextUri ? &EndComma : &End) :
+            (nextUri ? &EndSwsComma : &EndSws);
+         RegEx re(*test);
+
+         // Match the regexp.
+         if (   (re.SearchAt(urlString, workingOffset))
+             && (re.MatchStart(0) == workingOffset)
              )
          {
-            commaSeparator.AfterMatchString(nextUri);
+            // If the match succeeded and nextUri != NULL, store into nextUri.
+            if (nextUri)
+            {
+               re.AfterMatchString(nextUri);
+            }
+         }
+         else
+         {
+            // If the match failed, mark the Url as invalid.
+            mScheme = UnknownUrlScheme;
          }
       }
    }
