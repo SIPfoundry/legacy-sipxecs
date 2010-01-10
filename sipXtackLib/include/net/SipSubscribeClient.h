@@ -345,6 +345,7 @@ private:
     /// Reestablish a subscription.
     /*  This method  is used both to "reestablish" a subscription that has failed
      *  and to "restart" a subscription based on a near-daily timer.
+     *  Seizes the lock.
      */
     void reestablish(const UtlString& handle);
     // 'handle' is the original handle of the subscription in question,
