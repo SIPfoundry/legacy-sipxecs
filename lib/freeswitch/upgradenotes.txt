@@ -1,28 +1,11 @@
 To update FS to another version
 
-Get FS version (either "released" tarball) OR to build a tarball:
-  svn export http://svn.freeswitch.org/svn/freeswitch/trunk freeswitch
-  Note revision!  It'll be needed for later
-
-  Rename "freeswitch" directory based on version:
-     mv freeswitch sipx-freeswitch-1.0.5
-
-  Create tarball using both FS version number and svn revision in name:
-     tar zcf freeswitch-1.0.5-16184.tar.gz ./sipx-freeswitch-1.0.5/
-
-Replace old tarball with new:
-   svn del lib/freeswitch/src/sipx-freeswitch-1.0.4-13909.tar.gz
-   svn add lib/freeswitch/src/sipx-freeswitch-1.0.5-16184.tar.gz
-
 Replace version numbers in various places:
    lib/freeswitch/Makefile.am
-      Version = 1.0.5
-      Release = 16184  Revision from svn export above!
+      VERSION = 1.0.5
+      SVN_RELEASE = 16184  (Revision to build)
    lib/freeswitch/configure.ac
      AC_INIT(freeswitch, 1.0.5, sales@avaya.com)
-   lib/freeswitch/src/freeswitch.spec
-     Version: 1.0.5
-     Release: 16184
 
 Update modules.conf and freeswitch.spec as needed
    The modules that are built are defined in freeswitch.spec, so if
@@ -40,7 +23,7 @@ Build rpm
    make freeswitch    
 
 Install RPM
-   sudo rpm -Uvh lib/dist/RPM/sipx-freeswitch*1.0.5-16184*
+   sudo rpm -Uvh lib/dist/RPM/sipx-freeswitch*1.0.5-1*
 
 Update the FS config files to what comes with the RPM
    sudo ....bin/freeswitch.sh --config
