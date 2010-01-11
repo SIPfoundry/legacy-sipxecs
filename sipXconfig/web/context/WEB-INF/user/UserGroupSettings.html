@@ -23,7 +23,8 @@
           bean="ognl:bean"
           source="ognl:settings.values"
           activeSetting="ognl:parentSetting"
-          editSettingsListener="listener:editGroupSettings">
+          editSettingsListener="listener:editGroupSettings"
+          groupsToHide="literal:moh">
       <span jwcid="@common/TabNavigation"
             tabNames="ognl:availableTabNames"
             selectedTab="ognl:tab"
@@ -62,7 +63,7 @@
       <fieldset jwcid="@speeddial/SpeedDialPanel" speedDialGroup="ognl:speedDialGroup"/>
         <ul jwcid="@common/FormActions" listener="listener:onSpeedDialApply" callback="ognl:callback">
 	      <li>
-	        <input jwcid="updatePhones@Submit" listener="listener:onSpeedDialUpdatePhones" id="form:updatePhones"
+	        <input jwcid="speedialUpdatePhones@Submit" listener="listener:onSpeedDialUpdatePhones" id="form:speedialUpdatePhones"
 	          value="message:button.updatePhones"/>
 	      </li>
         </ul>
@@ -88,4 +89,20 @@
       <ul jwcid="formActions@common/FormActions" listener="listener:apply"/>
     </span>
   </span>
+
+  <div jwcid="mohTab@Block">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.moh" />
+    <form jwcid="musicOnHoldForm@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+      settings="ognl:mohSettings"
+      renderGroupTitle="ognl:false"/>
+    <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback">
+      <li><input jwcid="mohUpdatePhones@Submit"
+            listener="listener:onMohUpdatePhones"
+            id="form:updatePhones"
+            value="message:button.updatePhones"/></li>
+    </ul>
+    </form>
+  </div>
 </div>
+

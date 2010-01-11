@@ -7,7 +7,7 @@
       </span>
       <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
         <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
-          activeSetting="ognl:activeSetting" groupsToHide="literal:voicemail,personal-attendant,callfwd"
+          activeSetting="ognl:activeSetting" groupsToHide="literal:voicemail,personal-attendant,callfwd,moh"
           editSettingsListener="listener:editSettings">
           <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
             <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
@@ -75,6 +75,12 @@
             <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
               listener="listener:viewUserRegistrations" parameters="ognl:bean.id">
               <span key="link.registrations">Registrations</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:MusicOnHoldTabActive">
+            <a jwcid="MusicOnHoldLink@DirectLink" listener="listener:editMusicOnHold"
+              parameters="ognl:bean.id">
+              <span key="link.musicOnHold">Music On Hold</span>
             </a>
           </span>
         </span>

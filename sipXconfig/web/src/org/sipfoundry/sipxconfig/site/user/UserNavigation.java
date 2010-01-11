@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
+import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
 import org.sipfoundry.sipxconfig.site.user_portal.ExtendedUserInfo;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
@@ -69,6 +70,9 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = MailboxPreferencesPage.PAGE)
     public abstract MailboxPreferencesPage getMailboxPreferencesPage();
+
+    @InjectPage(value = MusicOnHoldPage.PAGE)
+    public abstract MusicOnHoldPage getMusicOnHoldPage();
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -157,6 +161,13 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public IPage editMusicOnHold(Integer userId) {
+        MusicOnHoldPage page = getMusicOnHoldPage();
+        page.setUserId(userId);
+        page.setReturnPage(ManageUsers.PAGE);
+        return page;
+    }
+
     public boolean isConferencesTabActive() {
         return UserConferences.PAGE.equals(getPage().getPageName());
     }
@@ -199,6 +210,10 @@ public abstract class UserNavigation extends BeanNavigation {
 
     public boolean isMailboxPreferencesTabActive() {
         return MailboxPreferencesPage.PAGE.equals(getPage().getPageName());
+    }
+
+    public boolean isMusicOnHoldTabActive() {
+        return MusicOnHoldPage.PAGE.equals(getPage().getPageName());
     }
 
     public Collection<Setting> getNavigationGroups() {

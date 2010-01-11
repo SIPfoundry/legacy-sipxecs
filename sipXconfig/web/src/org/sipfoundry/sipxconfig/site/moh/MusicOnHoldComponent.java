@@ -7,7 +7,7 @@
  *
  *
  */
-package org.sipfoundry.sipxconfig.site.user_portal;
+package org.sipfoundry.sipxconfig.site.moh;
 
 import java.util.Collection;
 
@@ -16,6 +16,7 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.callback.ICallback;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -31,6 +32,9 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public abstract class MusicOnHoldComponent extends BaseComponent {
     @Parameter(required = true)
     public abstract User getUser();
+
+    @Parameter
+    public abstract ICallback getCallback();
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -60,6 +64,7 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
             return;
         }
         getCoreContext().saveUser(getUser());
+        getProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), false, null);
     }
 
     public void onUpdatePhones() {
@@ -67,8 +72,11 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
             return;
         }
         getCoreContext().saveUser(getUser());
-        Collection<Phone> phones = getPhoneContext().getPhonesByUserId(getUser().getId());
-        Collection<Integer> ids = DataCollectionUtil.extractPrimaryKeys(phones);
-        getProfileManager().generateProfiles(ids, true, null);
+        getProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), true, null);
+    }
+
+    private Collection<Integer> getPhoneIdsForUser(User user) {
+        Collection<Phone> phones = getPhoneContext().getPhonesByUserId(user.getId());
+        return DataCollectionUtil.extractPrimaryKeys(phones);
     }
 }

@@ -44,6 +44,7 @@ public abstract class UserGroupSettings extends GroupSettings {
     private static final String CONFERENCE = "conference";
     private static final String SPEEDDIAL = "speeddial";
     private static final String CONFIGURE = "configure";
+    private static final String MOH = "moh";
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -104,7 +105,7 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIGURE, SCHEDULES, CONFERENCE, SPEEDDIAL));
+        tabNames.addAll(Arrays.asList(CONFIGURE, SCHEDULES, CONFERENCE, SPEEDDIAL, MOH));
 
         return tabNames;
     }
@@ -230,8 +231,23 @@ public abstract class UserGroupSettings extends GroupSettings {
         setValidationEnabled(true);
         if (TapestryUtils.isValid(this)) {
             onSpeedDialApply();
-            Collection<Integer> ids = getPhoneContext().getPhoneIdsByUserGroupId(getGroupId());
-            getProfileManager().generateProfiles(ids, true, null);
+            updatePhones();
         }
+    }
+
+    public void onMohUpdatePhones() {
+        if (TapestryUtils.isValid(this)) {
+            apply();
+            updatePhones();
+        }
+    }
+
+    public Setting getMohSettings() {
+        return getSettings().getSetting(User.MOH_SETTING);
+    }
+
+    private void updatePhones() {
+        Collection<Integer> ids = getPhoneContext().getPhoneIdsByUserGroupId(getGroupId());
+        getProfileManager().generateProfiles(ids, true, null);
     }
 }

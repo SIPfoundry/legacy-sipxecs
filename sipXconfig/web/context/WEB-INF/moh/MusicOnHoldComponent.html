@@ -1,3 +1,4 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help" />
 <fieldset jwcid="@setting/SettingsFieldset"
     settings="ognl:mohSettings"
     renderGroupTitle="ognl:false"/>
@@ -9,7 +10,7 @@
           includeUploadButton="ognl:true"
           checkForEmptyAssets="ognl:false" />
 
-<ul jwcid="@common/FormActions" listener="listener:save">
+<ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback">
   <li><input jwcid="updatePhones@Submit"
              listener="listener:onUpdatePhones"
              id="form:updatePhones"
