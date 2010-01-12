@@ -44,10 +44,9 @@ public class PeerIdentities {
      * @return the special user identity for the specified domain, or null if domain is not found.
      */
     public String getUserId(String domain) {
-        logger.debug("getUserId for domain " + domain);
         for (Peer peer : mPeers) {
             if (peer.getTrustedDomain().equalsIgnoreCase(domain)) {
-                logger.debug("domain: " + peer.getTrustedDomain() + ", internal user " + peer.getInternalUser());
+                logger.debug("getUserId(" + domain + ") = " + peer.getInternalUser());
                 return peer.getInternalUser();
             }
         }

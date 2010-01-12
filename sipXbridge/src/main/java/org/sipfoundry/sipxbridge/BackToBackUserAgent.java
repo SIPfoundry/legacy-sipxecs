@@ -1247,7 +1247,7 @@ public class BackToBackUserAgent implements Comparable {
                 logger.debug("incoming request came over TLS");
                 List<String> certIdentities = extractCertIdentities(serverTransaction);
                 if (certIdentities.isEmpty()) {
-                    logger.warn("could not find any identities in the certificate");
+                    logger.warn("Could not find any identities in the TLS certificate");
                 }
                 else {
                     logger.debug("found identities: " + certIdentities);
@@ -1257,6 +1257,7 @@ public class BackToBackUserAgent implements Comparable {
                     // Iterate over the subjects in the certificate and use the first one
                     // that matches a configured peer.
                     String peerIdentity;
+                    Boolean foundPeerIdentity = false;
                     for (String domain : certIdentities) {
                         if ( (peerIdentity = Gateway.getPeerIdentities().getUserId(domain)) != null) {
                             // Now attach a signed X-Sipx-Authidentity header with the identity
@@ -1264,8 +1265,12 @@ public class BackToBackUserAgent implements Comparable {
                             peerIdentity += "@" + Gateway.getSipxProxyDomain();
                             SipXauthIdentity.insertIdentity(peerIdentity, newRequest,
                                     SipXauthIdentity.AuthIdentityHeaderName);
+                            foundPeerIdentity = true;
                             break;
                         }
+                    }
+                    if (!foundPeerIdentity) {
+                        logger.warn("No peer identity found for " + certIdentities);
                     }
                 }
             }

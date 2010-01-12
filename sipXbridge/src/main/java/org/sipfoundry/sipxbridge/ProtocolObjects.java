@@ -99,6 +99,7 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.IS_BACK_TO_BACK_USER_AGENT", "true");
             stackProperties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.SERVER_LOGGER",ServerLoggerImpl.class.getName());
+            stackProperties.setProperty("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS", "SSLv3, TLSv1");
             
             Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
             stackLogger.addAppender(Gateway.logAppender);
