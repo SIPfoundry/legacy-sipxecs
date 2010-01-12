@@ -76,6 +76,9 @@ public class ChartHeader extends Component
             int iOffset = dimSize.width / m_iNumKeys ;
             for (int i=0; i<m_iNumKeys; i++)
             {
+                if (m_model.m_keyUsage[i] != 0)
+                {
+                
                 Rectangle rectTextArea = new Rectangle(
                         (int) (m_key_positions[i] * dimSize.width) - (iOffset / 2),
                         0,
@@ -113,6 +116,7 @@ public class ChartHeader extends Component
                 
                 // draw the key text on top of column
                 g.drawString(m_keys[i], xOffset, yOffset) ;
+                }
             }
         }
     }
@@ -167,15 +171,21 @@ public class ChartHeader extends Component
             
             for (int i=0; i<m_iNumKeys; i++)
             {
-                // if the point is within %1 distance of a line (on either side) then
-                // we found the column
-                if ((convertedPoint < (m_key_positions[i] + 0.01)) &&
-                    (convertedPoint > (m_key_positions[i] - 0.01)))   
+                // only consider columns that have not been rendered
+                // invisible, this happens when all the dialogs that
+                // connect to a column are removed by hiding them
+                if (m_model.m_keyUsage[i] != 0)
                 {
-                    iIndex = i;
+                    // if the point is within %1 distance of a line (on either side) then
+                    // we found the column
+                    if ((convertedPoint < (m_key_positions[i] + 0.01)) &&
+                        (convertedPoint > (m_key_positions[i] - 0.01)))   
+                    {
+                        iIndex = i;
                     
-                    // we got the index lets exit loop
-                    break;
+                        // we got the index lets exit loop
+                        break;
+                    }
                 }                
             }
         }
@@ -320,6 +330,10 @@ public class ChartHeader extends Component
             repaint() ;
         }
 
+        public void bodyToHeaderRepaint()
+        {
+            repaint();
+        }
 
         public void entryAdded(int startPosition, int endPosition) { }
         public void entryDeleted(int startPosition, int endPosition) { }
@@ -424,10 +438,15 @@ public class ChartHeader extends Component
                 {
                     // if the point is within %1 distance of a line (on either side)
                 	// then we found the column, also make sure that the column we
-                	// found is no the one that we are currently moving around
+                	// found is not the one that we are currently moving around,
+                    // lastly we need to make sure that the column has some messages
+                    // "connecting" to it, if they were all removed then we don't
+                    // want to be snapping the current colun to some invisible
+                    // column
                     if ((m_iNumKeys != m_movingKeyIndex) && 
                         ((convertedPoint < (m_key_positions[i] + 0.01)) &&
-                        (convertedPoint > (m_key_positions[i] - 0.01))))   
+                        (convertedPoint > (m_key_positions[i] - 0.01))) &&
+                        (m_model.m_keyUsage[i] != 0))   
                     {
                         // user is releasing the mouse button and the column he is
                     	// moving is within 1% of another column so lets make them

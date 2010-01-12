@@ -6,15 +6,23 @@ import java.awt.Color;
 // the source columns to draw the arrow from to
 // the destination arrow, the message text
 // and the background color for the label and
-// for the arrow
+// for the arrow, also it contains the display index
 public class ChartDescriptor
 {
-    public int    sourceColumn ;
-    public String source ;
-    public int    targetColumn ;
-    public String target ;
-    public String label ;
-    public Color  backgroundColor ;
+    public int sourceColumn;
+    public String source;
+    public int targetColumn;
+    public String target;
+    public String label;
 
-    public SipBranchData dataSource ;
+    // background color for the arrow
+    public Color backgroundColor;
+
+    // when a file is loaded all the messages are assigned a
+    // display index, which is simply a sequence of numbers from
+    // 0 to numOfMessages, this is used by sipviewer to know where
+    // each message should be vertically pained on the screen
+    public int displayIndex;
+
+    public SipBranchData dataSource;
 }

@@ -28,9 +28,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class PopUpUtils {
 		
 	static String Item1   = "Capture Screen (2 sec delay)";
-	static String Item2_1 = "Split Screen Mode";
-	static String Item2_2 = "Single Screen Mode";
-	static String Item3   = "Set Dialog Background";
+	static String Item2   = "Set Dialog Background";
+	static String Item3   = "Keep Only This Dialog";
+	static String Item4   = "Remove Dialog";
 	
     public static void captureScreen(SIPViewerFrame frameRef) {
         // Create a file chooser

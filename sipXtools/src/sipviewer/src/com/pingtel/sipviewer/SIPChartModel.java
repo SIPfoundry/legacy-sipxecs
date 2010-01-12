@@ -25,6 +25,8 @@ public class SIPChartModel
 // Attributes
 ////
     protected String    m_trackableKeys[] ;
+    protected int       m_keyUsage[] ;
+    protected int       m_keyUsageOrig[] ;
     protected double    m_trackableKeyPositions[];
     protected int       m_iNumKeys ;
     protected Hashtable m_htAliases ;
@@ -40,6 +42,8 @@ public class SIPChartModel
     {
         m_iNumKeys = 0 ;
         m_trackableKeys = new String[MAX_KEYS] ;
+        m_keyUsage = new int[MAX_KEYS];
+        m_keyUsageOrig = new int[MAX_KEYS];
         m_trackableKeyPositions = new double[MAX_KEYS];
         
         m_iNumEntries = 0 ;
@@ -98,13 +102,28 @@ public class SIPChartModel
             if (m_iNumKeys < MAX_KEYS)
             {
                 int iPosition = m_iNumKeys ;
+                
+                // update the key with very first increment
+                m_keyUsage[m_iNumKeys]++;
+                
+                // we need a second copy in case user decides
+                // to show all dialogs again, then we have to
+                // restore m_keyUsage values to their original
+                m_keyUsageOrig[m_iNumKeys]++;
+                
                 m_trackableKeys[m_iNumKeys++] = objTrackableKey ;
+                
                 fireKeyAdded(iPosition) ;
             }
             else
             {
                 System.err.println("ERROR: Hit max number of keys: " + m_iNumKeys);
             }
+        }
+        else
+        {
+            // we already have this key so lets just update its usage counter
+            incrementKeyUsage(objTrackableKey);
         }
     }
 
@@ -207,11 +226,43 @@ public class SIPChartModel
         return m_iNumKeys ;
     }
 
+    
+    // this method steps through all the messages that
+    // have been loaded and simply decrements the display
+    // index for all of them starting at message "index"
+    // invisible messages have their index set to -1 so
+    // decrementing their index takes them further into
+    // negative, when we display messages we only display
+    // messages that have a positive index and 0, negative
+    // display index messages are considered to be set to
+    // invisible
+    public void deleteEntry(int index)
+    {               
+        for (int x = (index + 1); x < m_iNumEntries; x++)
+        {           
+            m_entries[x].displayIndex--;
+        }
+    }
+    
+    // this method is called when user reloads a file or 
+    // loads a new file, this method resets the key usage
+    // counts from the previous viewing to original 0 so
+    // they can be properly set when file is loaded when
+    // each entry is added
+    public void resetKeyUsageValues()
+    {
+        for (int i = 0; i < m_iNumKeys; i++)
+        {
+            m_keyUsage[i] = 0;
+            m_keyUsageOrig[i] = 0;
+        }
+    }
 
     public void addEntry(   String objTrackableSourceKey,
                             String objTrackableTargetKey,
                             String strLabel,
-                            SipBranchData data)
+                            SipBranchData data,
+                            int displayIndex)
     {
         objTrackableSourceKey = massageKey(objTrackableSourceKey) ;
         objTrackableTargetKey = massageKey(objTrackableTargetKey) ;
@@ -246,7 +297,14 @@ public class SIPChartModel
         entry.targetColumn = findKeyColumn(objTrackableTargetKey) ;
         entry.label = strLabel ;
         entry.dataSource = data ;
+        
+        // setting the default background color of BLACK
         entry.backgroundColor = Color.BLACK;
+        
+        // setting the default display index that is passed into this
+        // method, the index is just a incremental number from 0 to
+        // maxNumOfMessages by 1 step
+        entry.displayIndex = displayIndex;
 
         if (entry.sourceColumn == -1)
         {
@@ -307,6 +365,27 @@ public class SIPChartModel
     {
         return m_iNumEntries ;
     }
+    
+    // returns the actual display size, this is
+    // calculated by looking at all the messages
+    // that have their displayIndex not negative,
+    // so 0 and above
+    public int getDisplaySize()
+    {
+        int displaySize = 0;
+        
+        // loop through all the messages
+        for (int x = 0; x < m_iNumEntries; x++)
+        {
+            // we have a valid index so we increment
+            // the displaySize
+            if (m_entries[x].displayIndex >= 0)
+                displaySize++;
+        }
+        
+        // return size
+        return displaySize ;
+    }
 
 
     public ChartDescriptor getEntryAt(int index)
@@ -319,7 +398,7 @@ public class SIPChartModel
         }
         else
             throw new IllegalArgumentException() ;
-
+ 
         return desc ;
     }
 
@@ -428,6 +507,37 @@ public class SIPChartModel
 
         return objRC ;
     }
+    
+    // every time a new message is added it notifies chart
+    // model about its source and target, which become the
+    // vertical columns, because we allow user to make
+    // dialogs invisible we have to keep track of how
+    // many messages "connect" to a given column, this
+    // method updates any existing keys by 1, a new
+    // key is updated when in addKey
+    protected void incrementKeyUsage(String objTrackableKey)
+    {
+       objTrackableKey = massageKey(objTrackableKey) ;
+
+        // First check real keys
+        for (int i=0; i<m_iNumKeys; i++)
+        {
+            // the key exists already
+            if (objTrackableKey.equals(m_trackableKeys[i]))
+            {
+                // lets increment it and get out
+                m_keyUsage[i]++;
+                
+                // keeps the original value of key usage
+                // that does not change and is used when
+                // user decides to show all the dialogs
+                // after making some of them invisible
+                m_keyUsageOrig[i]++;
+                
+                break ;
+            }
+        }
+    }
 
 
     // Find the column allocated to a key.
@@ -528,6 +638,19 @@ public class SIPChartModel
             listener.entryDeleted(startPosition, endPosition) ;
         }
     }
+    
+    protected void fireKeyVisibilityChanged()
+    {
+        ChartModelListener listener ;
+        Vector listeners = (Vector) m_vListeners.clone() ;
+
+        Enumeration enumListeners = listeners.elements() ;
+        while (enumListeners.hasMoreElements())
+        {
+            listener = (ChartModelListener) enumListeners.nextElement() ;
+            listener.bodyToHeaderRepaint() ;
+        }
+    }
 
 
     // Normalize a key -- Replace :0 suffix with :5060.
@@ -541,6 +664,6 @@ public class SIPChartModel
             strRC += ":5060" ;
         }
 
-        return strRC ;
+        return strRC;
     }
 }
