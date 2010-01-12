@@ -395,7 +395,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             int iOffset = dimSize.width / iNumKeys;
 
             for (int i = 0; i < iNumKeys; i++)
-            {
+            {               
                 // if there are no messages "attached" to a column
                 // then don't display the column
                 if (m_model.m_keyUsage[i] != 0)

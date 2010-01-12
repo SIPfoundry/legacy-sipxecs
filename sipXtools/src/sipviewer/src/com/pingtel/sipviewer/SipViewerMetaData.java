@@ -56,6 +56,11 @@ public class SipViewerMetaData
             {
                 setDisplayLocations(xmlNode.getChild("display_locations"), m_model);
             }
+            
+            if (xmlNode.getChild("usage_counts") != null)
+            {
+                setUsageCounts(xmlNode.getChild("usage_counts"), m_model);
+            }
 
             // set the view mode single/split
             setViewMode(xmlNode.getChildText("mode"), m_frame);
@@ -137,6 +142,25 @@ public class SipViewerMetaData
 
             // set the display index for this particular message
             m_model.getEntryAt(i).displayIndex = Integer.valueOf(display_location.getText());
+        }
+    }
+    
+    // sets the usage counts for all the columns
+    private static void setUsageCounts(Element usage_counts, SIPChartModel m_model)
+    {
+        // used to hold all the usage counts
+        List elementList = usage_counts.getChildren("usage_count");
+
+        Element usage_count;
+        int count = elementList.size();
+
+        for (int x = 0; x < m_model.m_iNumKeys; x++)
+        {            
+            // get the actual count
+            usage_count = (Element) elementList.get(x);
+
+            // set the display index for this particular message
+            m_model.m_keyUsage[x] = Integer.valueOf(usage_count.getText());
         }
     }
 
@@ -304,6 +328,7 @@ public class SipViewerMetaData
         // section
         Element meta = new Element("sipviewer_meta");
         Element locations = new Element("locations");
+        Element usage_counts = new Element("usage_counts");
         Element colors = new Element("colors");
         Element display_locations = new Element("display_locations");
         Element scroll_locations = new Element("scroll_locations");
@@ -329,6 +354,15 @@ public class SipViewerMetaData
 
                     // storing the locations under the "locations" XML tag
                     locations.addContent(location);
+                    
+                    // now lets store the usage count for the columns, basically
+                    // how many times are they really a target or sounrce of a
+                    // message
+                    Element usage_count = new Element("usage_count");
+                    usage_count.setText(Integer.toString(m_model.m_keyUsage[x]));
+
+                    // storing the usage_count under the "locations" XML tag
+                    usage_counts.addContent(usage_count);
                 }
             }
             else
@@ -341,11 +375,21 @@ public class SipViewerMetaData
 
                 // storing the locations under the "locations" XML tag
                 locations.addContent(location);
+                
+                // now lets store the usage count for the columns
+                Element usage_count = new Element("usage_count");
+                usage_count.setText(Integer.toString(m_model.m_keyUsage[x]));
+
+                // storing the usage_count under the "locations" XML tag
+                usage_counts.addContent(usage_count);
             }
         }
 
         // adding locations to the meta data component
         meta.getChildren().add(locations);
+        
+        // adding usage counts to the meta data component
+        meta.getChildren().add(usage_counts);
 
         // if the delete invisible message check box is checked
         // then we have to remove the messages from the XML structure
