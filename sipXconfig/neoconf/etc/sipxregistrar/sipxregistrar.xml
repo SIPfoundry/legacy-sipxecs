@@ -96,7 +96,7 @@
     </setting>
   </group>
   <group name="userparam" advanced="yes">
-    <setting name="SIP_REDIRECT.90-USERPARAM.STRIP_ALL" advanced="yes">
+    <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
       <type>
         <boolean>
           <true>

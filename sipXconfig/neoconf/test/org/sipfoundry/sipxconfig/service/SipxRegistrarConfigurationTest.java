@@ -59,7 +59,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         replay(domainManager);
 
         setSettingValuesForGroup(m_registrarService, "userparam", new String[] {
-            "SIP_REDIRECT.90-USERPARAM.STRIP_ALL"
+            "SIP_REDIRECT.090-USERPARAM.STRIP_ALL"
         }, new String[] {
             "Y"
         });
