@@ -60,7 +60,7 @@ class TestThreadA : public OsTask
 int TestThreadA::run(void* pArg)
 {
    {
-      OsLock lock(sem);
+      OsLockUnlockable lock(sem);
       // (Critical section)
       /* A1 */ w(0, 0, 1);
       // Try to get thread B to seize the lock while we are holding it.

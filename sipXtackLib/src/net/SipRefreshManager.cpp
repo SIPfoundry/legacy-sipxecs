@@ -572,7 +572,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
 
    {
       // Seize lock.
-      OsLock lock(mSemaphore);
+      OsLockUnlockable lock(mSemaphore);
 
       // Check for state for this handle in this SipRefreshManager.
       RefreshDialogState* s = getAnyDialog(earlyDialogHandle);
@@ -904,7 +904,7 @@ void SipRefreshManager::stopAllRefreshes()
    do {
       {
          // Seize lock.
-         OsLock lock(mSemaphore);
+         OsLockUnlockable lock(mSemaphore);
 
          found = !mRefreshes.isEmpty();
          if (found)
@@ -937,7 +937,7 @@ UtlBoolean SipRefreshManager::changeRefreshTime(const char* earlyDialogHandle,
 
    {
       // Seize lock.
-      OsLock lock(mSemaphore);
+      OsLockUnlockable lock(mSemaphore);
 
       state = getAnyDialog(earlyDialogHandle);
       if (state)

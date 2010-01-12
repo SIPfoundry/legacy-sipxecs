@@ -34,7 +34,7 @@
 // <font face="courier">
 // &nbsp;&nbsp;                      ...                             <br>
 // &nbsp;&nbsp;                      {                               <br>
-// &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      OsLock lock(myBSemaphore);    <br>
+// &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      OsLockUnlockable lock(myBSemaphore); <br>
 //                                                                   <br>
 // &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      < critical section >          <br>
 //                                                                   <br>
@@ -48,11 +48,15 @@
 // &nbsp;&nbsp;                      }                               <br>
 // &nbsp;&nbsp;                      ...                             </font>
 // <p>
-// Note that the argument to OsUnLock::OsUnLock is the OsLock, not the
-// semaphore.  This is to avoid problems when the argument to OsLock is a
-// complex expression, which might not yield the same value when
-// reexecuted.
-// The OsLock should have a scope which statically encloses the scope
+// OsLockUnlockable behaves like OsLock, except that it can be the
+// subject of an OsUnlock.  Thus, its critical section is not
+// necessarily coextensive with its scope.
+// <p>
+// Note that the argument to OsUnLock::OsUnLock is the
+// OsLockUnlockable, not the semaphore.  This is to avoid problems
+// when the argument to OsLock is a complex expression, which might
+// not yield the same value when reexecuted.
+// The OsLockUnlockable should have a scope which statically encloses the scope
 // of the OsUnLock.
 // After the OsUnLock is created, it is good practice to clear the
 // value of any variable whose value is invalidated by the fact that
@@ -63,10 +67,54 @@
 // the entries into each of them (the construction of 'lock' and the
 // destruction of 'unLock') must both be considered in regard to deadlocks,
 // etc.
-// In particular, if there are several OsLock's to be released, the
+// In particular, if there are several OsLockUnlockable's to be released, the
 // OsUnLock's should be in the *reverse* order, so that the re-seizures
 // that happen when the OsUnLock's are destroyed happen in the same
 // order as the original seizures.
+
+class OsLockUnlockable : public OsLock
+{
+   friend class OsUnLock;
+
+/* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+/* ============================ CREATORS ================================== */
+
+   OsLockUnlockable(OsSyncBase& rSemaphore)
+   : OsLock(rSemaphore)
+   {
+   }
+     //:Constructor
+
+/* ============================ MANIPULATORS ============================== */
+
+/* ============================ ACCESSORS ================================= */
+
+/* ============================ INQUIRY =================================== */
+
+/* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+/* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   OsLockUnlockable();
+     //:Default constructor (not implemented for this class)
+
+   OsLockUnlockable(const OsLockUnlockable& rOsLock);
+     //:Copy constructor (not implemented for this class)
+
+   OsLockUnlockable& operator=(const OsLockUnlockable& rhs);
+     //:Assignment operator (not implemented for this class)
+
+   OsSyncBase& getSemaphore()
+   {
+      return mrSemaphore;
+   }
+     //:Get the semaphore.
+};
+
 
 class OsUnLock
 {
@@ -75,7 +123,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsUnLock(OsLock& lock)
+   OsUnLock(OsLockUnlockable& lock)
       : mrSemaphore(lock.getSemaphore())
    {
       mrSemaphore.release();

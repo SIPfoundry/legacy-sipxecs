@@ -1133,7 +1133,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // there is no matching credentials or the credentials did
       // not work.
 
-      OsLock lock(mSemaphore);
+      OsLockUnlockable lock(mSemaphore);
 
       // Find the subscription group.
       SubscriptionGroupState* groupState = getGroupStateByCurrentHandle(earlyDialogHandle);
@@ -1223,7 +1223,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
 void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 {
     // Hold the locks for the entire function body.
-    OsLock lock(mSemaphore);
+    OsLockUnlockable lock(mSemaphore);
 
     UtlString eventField;
     notifyRequest.getEventField(&eventField, NULL);
@@ -1983,7 +1983,7 @@ void SipSubscribeClient::reestablish(const UtlString& handle)
 // The timer message processing routine for SipSubscribeClient::mStartingTimer.
 OsStatus SipSubscribeClient::handleStartingEvent(const UtlString& handle)
 {
-   OsLock lock(mSemaphore);
+   OsLockUnlockable lock(mSemaphore);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SubscriptionStartingNotification::signal Timer fired, groupState handle = '%s'",
@@ -2047,7 +2047,7 @@ void SubscriptionGroupState::setRestartTimer()
 // The timer message processing routine for SipSubscribeClient::mRestartTimer.
 OsStatus SipSubscribeClient::handleRestartEvent(const UtlString& handle)
 {
-   OsLock lock(mSemaphore);
+   OsLockUnlockable lock(mSemaphore);
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipSubscribeClient::handleRestartEvent Timer fired, groupState handle = '%s'",
