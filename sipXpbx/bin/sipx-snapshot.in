@@ -350,6 +350,16 @@ Usage:
 
     The --delete-logs option has been removed.
 
+    During execution, sipx-snapshot constructs a temporary directory containing
+    all the information to be saved, and sometimes additional temporary files.
+    Especially if logs are included, this can occupy a lot of disk space.
+    All temporary output is into the directory specified by \$TMPDIR (defaulting
+    to /tmp), per the standard conventions.  If the execution of sipx-snapshot
+    fails or is interrupted, it removes the temporary directory and files.
+
+    During execution, error output (stderr) is put in the file ./stderr in
+    the temporary directory.  This file is saved in the resulting tar file,
+    and at the end of execution, output to the pre-existing stderr.
 USAGE
     exit
 fi
