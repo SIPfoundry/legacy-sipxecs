@@ -115,7 +115,7 @@ public class StackLoggerImpl implements StackLogger {
             }
             pw.close();
             String stackTrace = sw.getBuffer().toString();
-            logDebug(stackTrace);
+            logInfo(stackTrace);
 
         }
         
