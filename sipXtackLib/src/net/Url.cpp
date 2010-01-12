@@ -109,7 +109,8 @@ const RegEx AngleBrackets( SWS "<([^>]+)>" );
  *    to a string will be wrong if that is not kept correct.
  */
 #define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
-const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
+const RegEx SupportedScheme(SUPPORTED_SCHEMES ":" );
+const RegEx SupportedSchemeSWS( SWS SUPPORTED_SCHEMES SWS ":" );
 const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 {
@@ -1471,9 +1472,11 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     * to do).
     */
 
-   // Parse the scheme (aka url type)
+   // Parse the scheme (aka URI type)
    LOG_TIME("scheme   < ");
-   RegEx supportedScheme(SupportedScheme);
+   RegEx supportedScheme(AddrSpec == uriForm ?
+                         SupportedScheme :
+                         SupportedSchemeSWS);
    if (   (supportedScheme.SearchAt(urlString,workingOffset))
        && (supportedScheme.MatchStart(0) == workingOffset)
        )

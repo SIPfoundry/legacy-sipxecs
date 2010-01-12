@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -100,6 +101,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testBigUriNoSchemeUser);
     CPPUNIT_TEST(testBigUriHost);
     CPPUNIT_TEST(testGRUU);
+    CPPUNIT_TEST(testErrors);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -1919,6 +1921,105 @@ public:
          UtlString url12_nameaddr;
          url12.toString(url12_nameaddr);
          ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
+      }
+
+   void testErrors()
+      {
+         // The structure that describes a single test.
+         struct test {          
+            const char* input_string; // input string
+            Url::UriForm uri_form;    // parsing mode
+            bool expected_return;     // expected return from fromString()
+            const char* output_string; // expected value of toString()
+                                       // if fromString() returns true
+            const char* next_uri;      // expected value of nextUri
+                                       // or NULL to indicate no nextUri should be provided
+         };
+
+         // The tests.
+         struct test tests[] =
+            {
+               // AddrSpec without nextUri
+               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", NULL },
+               { " sip:foo@bar", Url::AddrSpec, false, NULL, NULL },
+               { "sip:foo@bar ", Url::AddrSpec, false, NULL, NULL },
+               { "sip:foo@bar,", Url::AddrSpec, false, NULL, NULL },
+               // AddrSpec with nextUri
+               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", "" },
+               { " sip:foo@bar", Url::AddrSpec, false, NULL, "" },
+               { "sip:foo@bar ", Url::AddrSpec, false, NULL, "" },
+               { "sip:foo@bar,", Url::AddrSpec, true, "sip:foo@bar", "" },
+               { "sip:foo@bar, ", Url::AddrSpec, true, "sip:foo@bar", " " },
+               { "sip:foo@bar,x", Url::AddrSpec, true, "sip:foo@bar", "x" },
+               { "sip:foo@bar,xyz", Url::AddrSpec, true, "sip:foo@bar", "xyz" },
+               // AddrSpec addtional error cases
+               { "<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
+               { "FOO sip:foo@bar", Url::AddrSpec, false, NULL, "" },
+               { "\"FOO\"<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
+               { "a!", Url::AddrSpec, false, NULL, "" },
+               // NameAddr without nextUri
+               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { "sip:foo@bar,", Url::NameAddr, false, NULL, NULL },
+               // NameAddr with nextUri
+               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
+               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar,", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar, ", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar,x", Url::NameAddr, true, "sip:foo@bar", "x" },
+               { "sip:foo@bar,xyz", Url::NameAddr, true, "sip:foo@bar", "xyz" },
+               { "<sip:foo@bar>", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "\"FOO\"<sip:foo@bar>", Url::NameAddr, true, "\"FOO\"<sip:foo@bar>", "" },
+               // NameAddr addtional error cases
+               { "FOO sip:foo@bar", Url::NameAddr, false, NULL, "" },
+               { "a!", Url::NameAddr, false, NULL, "" },
+            };
+
+
+         // Execute the tests.
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (test); i++)
+         {
+            // The string to describe a test.
+            char label[100];
+            sprintf(label,
+                    "item %d: Url::fromString('%s', %s, %s)",
+                    i,
+                    tests[i].input_string,
+                    tests[i].uri_form == Url::AddrSpec ? "AddrSpec" : "NameAddr",
+                    tests[i].next_uri ? "&nextUri" : "NULL");
+
+            // Verify that if the expected return is true, then a non-NULL
+            // fromString() value has been supplied.
+            CPPUNIT_ASSERT_MESSAGE(label,
+                                   !tests[i].expected_return ||
+                                   tests[i].output_string);
+
+            // Perform the parse.
+            Url url;
+            UtlString next_uri;
+            bool r = url.fromString(tests[i].input_string,
+                                    tests[i].uri_form,
+                                    tests[i].next_uri ? &next_uri : NULL);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(label,
+                                         tests[i].expected_return,
+                                         r);
+            if (r)
+            {
+               UtlString unparsed;
+               url.toString(unparsed);
+               ASSERT_STR_EQUAL_MESSAGE(label,
+                                        tests[i].output_string,
+                                        unparsed.data());
+               if (tests[i].next_uri) 
+               {
+                  ASSERT_STR_EQUAL_MESSAGE(label,
+                                           tests[i].next_uri,
+                                           next_uri.data());
+               }
+            }
+         }
       }
 
     /////////////////////////
