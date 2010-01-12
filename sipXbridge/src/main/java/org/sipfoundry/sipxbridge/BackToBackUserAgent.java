@@ -11,6 +11,7 @@ import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
@@ -758,16 +759,11 @@ public class BackToBackUserAgent implements Comparable {
                 }
             }
 
-            /*
-             * Set the ReferencesHeader if one has not been added.
-             */
-            if ( newRequest.getHeader(ReferencesHeader.NAME) == null ) {
-                String oldCallId = SipUtilities.getCallId(referRequest);
-                ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId,
-                        referBranch, ReferencesHeaderImpl.REFER);
-                newRequest.setHeader(referencesHeader);
-            }
-
+            String oldCallId = SipUtilities.getCallId(referRequest);
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId,
+                       referBranch, ReferencesHeader.REFER);
+            newRequest.setHeader(referencesHeader);
+      
             /*
              * Remove any header parameters - we have already dealt with them
              * above.
@@ -1175,7 +1171,7 @@ public class BackToBackUserAgent implements Comparable {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
 
-            ExtensionHeader referencesHeader =
+            ReferencesHeader referencesHeader =
                 SipUtilities.createReferencesHeader(SipUtilities.getCallId(request),
                         SipUtilities.getTopmostViaBranch(request),
                         ReferencesHeader.CHAIN);
@@ -1396,12 +1392,16 @@ public class BackToBackUserAgent implements Comparable {
     /**
      * Create a Client Tx pointing towards the park server.
      *
-     * @param - the session description to apply to the INVITE.
+     * @param sessionDescription : the session description to apply to the INVITE.
+     * @param callid : the callId of the response that triggered this client transaction ( so we can 
+     *    form a causal chain).
+     * @param topmostViaBranch : the topmost via branch of the response that triggered this client tx.
+     * 
      *
      * @return the dialog generated as a result of sending the invite to the MOH server.
      *
      */
-    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription) {
+    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription, String callId, String topmostViaBranch) {
 
         ClientTransaction retval = null;
 
@@ -1443,11 +1443,14 @@ public class BackToBackUserAgent implements Comparable {
                     Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
                     maxForwards);
 
-            ExtensionHeader referencesHeader =
-                        SipUtilities.createReferencesHeader(this.creatingCallId,
-                        this.creatingBranchId,
+            if ( topmostViaBranch != null && callId != null ) {
+                ReferencesHeader referencesHeader =
+                        SipUtilities.createReferencesHeader(callId,
+                        topmostViaBranch,
                         ReferencesHeader.SEQUEL);
-            newRequest.setHeader(referencesHeader);
+                newRequest.setHeader(referencesHeader);
+            }
+            
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider(),
                     Gateway.getSipxProxyTransport());
@@ -1701,7 +1704,7 @@ public class BackToBackUserAgent implements Comparable {
             }
 
             String callId = SipUtilities.getCallId(incomingRequest);
-            ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
                     SipUtilities.getTopmostViaBranch(incomingRequest),
                     ReferencesHeader.CHAIN);
             outgoingRequest.setHeader(referencesHeader);
@@ -2470,5 +2473,6 @@ public class BackToBackUserAgent implements Comparable {
         this.tearDown();
     }
 
+   
 
 }

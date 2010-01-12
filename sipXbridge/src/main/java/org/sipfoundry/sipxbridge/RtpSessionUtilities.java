@@ -9,6 +9,7 @@ package org.sipfoundry.sipxbridge;
 import java.text.ParseException;
 
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 
 import javax.sdp.SdpParseException;
@@ -168,6 +169,7 @@ public class RtpSessionUtilities {
 		if (authorizationHeader != null) {
 		    newInvite.setHeader(authorizationHeader);
 		}
+		
 		
 
 		ClientTransaction ctx = ((DialogExt) peerDialog).getSipProvider()

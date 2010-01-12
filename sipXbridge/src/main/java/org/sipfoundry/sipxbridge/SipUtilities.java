@@ -10,6 +10,8 @@ import gov.nist.javax.sdp.MediaDescriptionImpl;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
@@ -1811,14 +1813,10 @@ class SipUtilities {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
     }
 
-    public static ExtensionHeader createReferencesHeader(String callId, String branch, String rel) throws ParseException {
-        ReferencesHeaderImpl references = new ReferencesHeaderImpl();
-        references.setCallId(callId);
-        references.setRel(rel);
-        references.setBranch(branch);
-        ExtensionHeader extensionHeader = ( ExtensionHeader) ProtocolObjects.headerFactory.createHeader(ReferencesHeader.NAME,
-                references.getValue());
-        return extensionHeader;
+    public static ReferencesHeader createReferencesHeader(String callId, String branch, String rel) throws ParseException {
+        HeaderFactoryImpl headerFactory = (HeaderFactoryImpl) ProtocolObjects.headerFactory;
+        return headerFactory.createReferencesHeader(callId, branch, null, rel);
+       
     }
 
     public static String getCSeqMethod(Message message) {
@@ -1904,17 +1902,17 @@ class SipUtilities {
         return header.getPort();   
     }
 
-    public static String getTopmostViaBranch(Request request) {
-        ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+    public static String getTopmostViaBranch(Message message) {
+        ViaHeader viaHeader = (ViaHeader) message.getHeader(ViaHeader.NAME);
         String branchId = viaHeader.getBranch();
         return branchId;
     }
     
     
-    public static ExtensionHeader createReferencesHeader(Request request, String ref) {
+    public static ReferencesHeader createReferencesHeader(Message message, String ref) {
         try {
-            String callId = SipUtilities.getCallId(request);
-            String branchId = SipUtilities.getTopmostViaBranch(request);
+            String callId = SipUtilities.getCallId(message);
+            String branchId = SipUtilities.getTopmostViaBranch(message);
             return SipUtilities.createReferencesHeader(callId, branchId, ref);
         } catch (Exception ex) {
             throw new SipXbridgeException("Unexpected exception creating references header" );

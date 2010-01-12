@@ -10,6 +10,7 @@ package org.sipfoundry.sipxbridge;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
@@ -626,13 +627,15 @@ class DialogContext {
      * Send an INVITE with no SDP to the peer dialog. This solicits an SDP offer from the peer of
      * the given dialog.
      *
-     * @param requestEvent -- the request event for which we have to solicit the offer.
      * @param continuationData -- context information so we can process the continuation.
+     * @param triggeringCallId -- the call ID that triggered this action.
+     * @param triggeringbranchId -- the branch Id of the transaction that triggered this action.
      *
      * @return true if the offer is sent successfully. false if there is already an offer in
      *         progress and hence we should not send an offer.
      */
-    boolean solicitSdpOfferFromPeerDialog(ContinuationData continuationData) throws Exception {
+    boolean solicitSdpOfferFromPeerDialog(ContinuationData continuationData,
+            String triggeringCallId, String triggeringBranchId) throws Exception {
         try {
 
             Dialog peerDialog = DialogContext.getPeerDialog(dialog);
@@ -663,6 +666,12 @@ class DialogContext {
                 } else {
                     logger.warn("Could not find ITSP Information. Sending re-INVITE anyway.");
                 }
+                /*
+                 * Add the references header for causality chaining.
+                 */
+                ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringCallId, triggeringBranchId, 
+                        ReferencesHeader.SEQUEL);
+                reInvite.setHeader(referencesHeader);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
                 ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog)
@@ -766,14 +775,18 @@ class DialogContext {
      * Send an SDP re-OFFER to the other side of the B2BUA.
      *
      * @param sdpOffer -- the sdp offer session description.
+     * @param triggeringResponse -- the triggering response to build the causal chain.
+     * 
      * @throws Exception -- if could not send
      */
-    void sendSdpReOffer(SessionDescription sdpOffer) throws Exception {
+    void sendSdpReOffer(SessionDescription sdpOffer, Response triggeringResponse) throws Exception {
         if (dialog.getState() == DialogState.TERMINATED) {
             logger.warn("Attempt to send SDP re-offer on a terminated dialog");
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
+        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.SEQUEL);
+        sdpOfferInvite.setHeader(referencesHeader);
         if ( proxyAuthorizationHeader != null ) {
         	sdpOfferInvite.setHeader(proxyAuthorizationHeader);
         }
@@ -1051,7 +1064,7 @@ class DialogContext {
      */
     void forwardBye(ServerTransaction serverTransaction) throws SipException {
         Request bye = dialog.createRequest(Request.BYE);
-        ExtensionHeader referencesHeader = SipUtilities.createReferencesHeader(serverTransaction.getRequest(), 
+        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(serverTransaction.getRequest(), 
                 ReferencesHeader.CHAIN);
         bye.setHeader(referencesHeader);
         if ( this.proxyAuthorizationHeader != null ) {
