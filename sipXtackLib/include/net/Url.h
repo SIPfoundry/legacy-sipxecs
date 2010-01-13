@@ -190,22 +190,15 @@ public:
      *  Assumes urlString is in NameAddr format.
      */
 
-    /// Set the value of this Url by parsing the given string.
+    /// Set the value of this url by parsing the given string.
     bool fromString(const UtlString& urlString,  ///< string to parse URL from
                     UriForm     uriForm,         ///< context to be used to parse the uri
-                    UtlString*  nextUri   = NULL ///< text after a trailing comma
+                    UtlString*  nextUri   = NULL ///< anything after a trailing comma
                     );
     /**<
      * This is used just like the constructor, but resets the values for an existing Url.
      * For convenience, it also @returns true iff the urlString parsed as valid.
      *
-     * If nextUri is NULL, urlString must parse completely as a URI.
-     * If uriForm is NameAddr, there may be preceding and following whitespace.
-     * If uriForm is AddrSpec, whitespace is not allowed.
-     * If nextUri is not NULL, urlString may be a suitable URI
-     * followed by a comma and further text; the text following the
-     * comma (and following whitespace, if uriForm == NameAddr) is
-     * returned in *nextUri.
      *
      * Many header field are defined to allow multiple comma-separated Url values.
      * If the values have display name components that contain commas (legal), it
@@ -249,7 +242,7 @@ public:
     //  as a field in a header.
     UtlString toString() const;
 
-    //! Serialize this Url as a proper URI (with no <...>, display name,
+    //! Serialize this URL as a proper URL (with no <...>, display name,
     //  or field parameters).  This is also called 'addr-spec' in RFC 3261.
     void getUri(UtlString& Uri) const;
 

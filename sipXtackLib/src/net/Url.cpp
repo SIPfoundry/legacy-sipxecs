@@ -1,5 +1,4 @@
 //
-// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -109,8 +108,7 @@ const RegEx AngleBrackets( SWS "<([^>]+)>" );
  *    to a string will be wrong if that is not kept correct.
  */
 #define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
-const RegEx SupportedScheme(SUPPORTED_SCHEMES ":" );
-const RegEx SupportedSchemeSWS( SWS SUPPORTED_SCHEMES SWS ":" );
+const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
 const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 {
@@ -196,12 +194,8 @@ const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)" );
 // AllDigits
 const RegEx AllDigits("^\\+?[0-9*]++$");
 
-// Regexps that describe what may follow a name-addr/addr-spec in various
-// contexts.
-const RegEx End("$");           // addr-spec not in list
-const RegEx EndComma("$|,");    // addr-spec in list
-const RegEx EndSws(SWS "$");    // name-addr not in list
-const RegEx EndSwsComma(SWS "$|" SWS "," SWS); // name-addr in list
+// Comma separator between multiple values
+const RegEx CommaSeparator(SWS "," SWS);
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -237,7 +231,7 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    reset();
    if (urlString && *urlString)
    {
-      parseString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL);
+      parseString(urlString ,isAddrSpec ? AddrSpec : NameAddr, NULL);
    }
 }
 
@@ -1376,8 +1370,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    }
 
    // Try to catch when a name-addr is passed but we are expecting an
-   // addr-spec -- many name-addr's start with '<' or '"', but of course
-   // addr-spec's (or any URI) cannot.
+   // addr-spec -- many name-addr's start with '<' or '"'.
    if (AddrSpec == uriForm && (urlString[0] == '<' || urlString[0] == '"'))
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString "
@@ -1467,16 +1460,13 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     * We resolve the first case by treating anything left of the colon as a scheme if
     * it is one of the supported schemes.  Otherwise, we set the scheme to the
     * default (sip) and go on so that it will be parsed as a hostname.  This does not
-    * do the right thing for the (host 'sips' port '333') case, but they get what
-    * they deserve for not writing the scheme explicitly (which they are supposed
-    * to do).
+    * do the right thing for the (scheme 'sips' host '333') case, but they get what
+    * they deserve.
     */
 
-   // Parse the scheme (aka URI type)
+   // Parse the scheme (aka url type)
    LOG_TIME("scheme   < ");
-   RegEx supportedScheme(AddrSpec == uriForm ?
-                         SupportedScheme :
-                         SupportedSchemeSWS);
+   RegEx supportedScheme(SupportedScheme);
    if (   (supportedScheme.SearchAt(urlString,workingOffset))
        && (supportedScheme.MatchStart(0) == workingOffset)
        )
@@ -1489,15 +1479,16 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    else
    {
       /*
-       * It did not match one of the supported scheme names so proceed
-       * on the assumption that the text is a host and "sip:" is
-       * implied Leave the workingOffset where it is (before the
-       * token).  The code below, through the parsing of host and port,
-       * treats this as an implicit 'sip:' url; if it parses ok up to
-       * that point, it resets the scheme to SipsUrlScheme.
+       * It did not match one of the supported scheme names
+       * so proceed on the assumption that it's a host and "sip:" is implied
+       * Leave the workingOffset where it is (before the token).
+       * The code below, through the parsing of host and port
+       * treats this as an implicit 'sip:' url; if it parses ok
+       * up to that point, it resets the scheme to SipsUrlScheme
        */
       mScheme = UnknownUrlScheme;
    }
+
 
    // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)
@@ -1712,33 +1703,14 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          }
       }
 
-      // At this point, the parse has reached the end of the URI, or the end
-      // of what could be parsed.  Based on uriForm and nextUri, determine
-      // if the parse is successful and return the "remainder of the string"
-      // value.
+      if (nextUri)
       {
-         // Select the regexp that describes allowed following characters.
-         const RegEx* test =
-            AddrSpec == uriForm ?
-            (nextUri ? &EndComma : &End) :
-            (nextUri ? &EndSwsComma : &EndSws);
-         RegEx re(*test);
-
-         // Match the regexp.
-         if (   (re.SearchAt(urlString, workingOffset))
-             && (re.MatchStart(0) == workingOffset)
+         RegEx commaSeparator(CommaSeparator);
+         if (   (commaSeparator.SearchAt(urlString, workingOffset))
+             && (commaSeparator.MatchStart(0) == workingOffset)
              )
          {
-            // If the match succeeded and nextUri != NULL, store into nextUri.
-            if (nextUri)
-            {
-               re.AfterMatchString(nextUri);
-            }
-         }
-         else
-         {
-            // If the match failed, mark the Url as invalid.
-            mScheme = UnknownUrlScheme;
+            commaSeparator.AfterMatchString(nextUri);
          }
       }
    }

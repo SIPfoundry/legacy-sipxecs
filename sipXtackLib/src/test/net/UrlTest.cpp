@@ -1,5 +1,4 @@
 //
-// Copyright (C) 2010 Avaya Inc., certain elements licensed under a Contributor Agreement.
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -101,7 +100,6 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testBigUriNoSchemeUser);
     CPPUNIT_TEST(testBigUriHost);
     CPPUNIT_TEST(testGRUU);
-    CPPUNIT_TEST(testErrors);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -634,7 +632,11 @@ public:
     {
         const char *szUrl = "sip:1234@sipserver:abcd";
         Url url(szUrl);
-        CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, url.getScheme());
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sip:1234@sipserver", toString(url));
+        ASSERT_STR_EQUAL_MESSAGE(szUrl, "sipserver", getHostAddress(url));
+	// The port will be returned as PORT_NONE, because Url::Url()
+	// could not parse it.
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(szUrl, PORT_NONE, url.getHostPort());
     }
 
    void testMultiple()
@@ -884,8 +886,6 @@ public:
         ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
 
-        // Only the changed attributes should actually change.
-
         url.setDisplayName("Changed Name");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
@@ -917,6 +917,10 @@ public:
         url.setHeaderParameter("ROUTE", "rt2,rt1");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f2=fv2",
                          toString(url));
+
+
+
+        // Only the changed attributes should actually changed
     }
 
     void testRemoveAttributes()
@@ -1203,6 +1207,7 @@ public:
             paramValues, paramCount));
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, paramCount);
     }
+
 
     void testGetOnlyHeaderParameters()
     {
@@ -1613,8 +1618,9 @@ public:
 
          UtlString badUrl("!bad:");
          CPPUNIT_ASSERT(!url.fromString(badUrl));
-         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, url.getScheme());
+         CPPUNIT_ASSERT(Url::UnknownUrlScheme == url.getScheme());
       }
+
 
     void testGetIdentity()
     {
@@ -1654,13 +1660,13 @@ public:
  * (the latter will usually also cause the former).
  *
  * Because we don't want the tests to be chatty, and we don't want to pick an
- * arbitrary time for "too long", we use the following PARSE macro.  It wraps the
+ * arbitrary time for "too long", the following PARSE macro.  It wraps the
  * constructor and in the verbose form prints how long it took to run.
  * Normally, this should be disabled, but turn it on if you're making changes
  * to the regular expressions so that you can see any performance/recursion
  * problems.
  */
-#if LOG_PARSE_TIME
+#if 0
 #     define PARSE(name)                        \
       OsTimeLog name##timeLog;                  \
       name##timeLog.addEvent("start  " #name);  \
@@ -1670,7 +1676,7 @@ public:
       name##timeLog.getLogString(name##Log);    \
       printf("\n%s\n", name##Log.data());
 #else
-#     define PARSE(name)                        \
+#     define PARSE(name)                     \
       Url name##Url(name);
 #endif
 
@@ -1691,7 +1697,7 @@ public:
 
          PARSE(bigname);
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bignameUrl.getScheme());
+         CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
 
          UtlString component;
 
@@ -1725,7 +1731,7 @@ public:
          quoted_bigtoken.append("\"");
          CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken));
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigquotnameUrl.getScheme());
+         CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
 
          bigquotnameUrl.getUserId(component);
          CPPUNIT_ASSERT(! component.compareTo("user"));
@@ -1746,11 +1752,24 @@ public:
 
          UtlString component;
 
-         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigschemeUrl.getScheme());
+         KNOWN_BUG("fails on FC6", "XPB-843");
+         CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme);
 
-         Url bigSchemeAddrSpec(bigscheme, TRUE /* as addr-spec */);
+         bigschemeUrl.getUserId(component);
+         CPPUNIT_ASSERT(component.isNull());
 
-         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigSchemeAddrSpec.getScheme());
+         bigschemeUrl.getHostAddress(component);
+         CPPUNIT_ASSERT(component.isNull());
+
+         Url bigSchemeAddrType(bigscheme, TRUE /* as addr-type */);
+
+         CPPUNIT_ASSERT(bigSchemeAddrType.getScheme() == Url::UnknownUrlScheme); // ?
+
+         bigSchemeAddrType.getUserId(component);
+         CPPUNIT_ASSERT(component.isNull()); // bigtoken
+
+         bigSchemeAddrType.getHostAddress(component);
+         CPPUNIT_ASSERT(component.isNull());
       }
 
    void testBigUriUser()
@@ -1764,7 +1783,7 @@ public:
 
          PARSE(biguser);
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, biguserUrl.getScheme());
+         CPPUNIT_ASSERT(biguserUrl.getScheme() == Url::SipUrlScheme);
 
          UtlString component;
 
@@ -1786,7 +1805,7 @@ public:
 
          PARSE(bigusernoscheme);
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigusernoschemeUrl.getScheme());
+         CPPUNIT_ASSERT(bigusernoschemeUrl.getScheme() == Url::SipUrlScheme);
 
          UtlString component;
 
@@ -1808,7 +1827,7 @@ public:
 
          PARSE(bigok);
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigokUrl.getScheme());
+         CPPUNIT_ASSERT(bigokUrl.getScheme() == Url::SipUrlScheme);
 
          UtlString component;
 
@@ -1820,8 +1839,10 @@ public:
 
          // user@<bigtoken>
          /*
-          * The Url class can now handle very large host names in a reasonable
-          * time.  Thus, this string parses correctly now.
+          * A really big host name like this causes recursion in the regular expression
+          * that matches a domain name; the limit causes this match to fail.
+          * This is preferable to having the match succeed but either take minutes (yes,
+          * minutes) to do the match and/or overflow the stack, so we let it fail.
           */
 
          UtlString bighost;
@@ -1831,7 +1852,8 @@ public:
 
          PARSE(bighost);
 
-         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bighostUrl.getScheme());
+         KNOWN_BUG("fails on FC6", "XPB-843");
+         CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
       }
 
    void testGRUU()
@@ -1921,105 +1943,7 @@ public:
          UtlString url12_nameaddr;
          url12.toString(url12_nameaddr);
          ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
-      }
 
-   void testErrors()
-      {
-         // The structure that describes a single test.
-         struct test {          
-            const char* input_string; // input string
-            Url::UriForm uri_form;    // parsing mode
-            bool expected_return;     // expected return from fromString()
-            const char* output_string; // expected value of toString()
-                                       // if fromString() returns true
-            const char* next_uri;      // expected value of nextUri
-                                       // or NULL to indicate no nextUri should be provided
-         };
-
-         // The tests.
-         struct test tests[] =
-            {
-               // AddrSpec without nextUri
-               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", NULL },
-               { " sip:foo@bar", Url::AddrSpec, false, NULL, NULL },
-               { "sip:foo@bar ", Url::AddrSpec, false, NULL, NULL },
-               { "sip:foo@bar,", Url::AddrSpec, false, NULL, NULL },
-               // AddrSpec with nextUri
-               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", "" },
-               { " sip:foo@bar", Url::AddrSpec, false, NULL, "" },
-               { "sip:foo@bar ", Url::AddrSpec, false, NULL, "" },
-               { "sip:foo@bar,", Url::AddrSpec, true, "sip:foo@bar", "" },
-               { "sip:foo@bar, ", Url::AddrSpec, true, "sip:foo@bar", " " },
-               { "sip:foo@bar,x", Url::AddrSpec, true, "sip:foo@bar", "x" },
-               { "sip:foo@bar,xyz", Url::AddrSpec, true, "sip:foo@bar", "xyz" },
-               // AddrSpec addtional error cases
-               { "<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
-               { "FOO sip:foo@bar", Url::AddrSpec, false, NULL, "" },
-               { "\"FOO\"<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
-               { "a!", Url::AddrSpec, false, NULL, "" },
-               // NameAddr without nextUri
-               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
-               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
-               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", NULL },
-               { "sip:foo@bar,", Url::NameAddr, false, NULL, NULL },
-               // NameAddr with nextUri
-               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
-               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
-               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", "" },
-               { "sip:foo@bar,", Url::NameAddr, true, "sip:foo@bar", "" },
-               { "sip:foo@bar, ", Url::NameAddr, true, "sip:foo@bar", "" },
-               { "sip:foo@bar,x", Url::NameAddr, true, "sip:foo@bar", "x" },
-               { "sip:foo@bar,xyz", Url::NameAddr, true, "sip:foo@bar", "xyz" },
-               { "<sip:foo@bar>", Url::NameAddr, true, "sip:foo@bar", "" },
-               { "\"FOO\"<sip:foo@bar>", Url::NameAddr, true, "\"FOO\"<sip:foo@bar>", "" },
-               // NameAddr addtional error cases
-               { "FOO sip:foo@bar", Url::NameAddr, false, NULL, "" },
-               { "a!", Url::NameAddr, false, NULL, "" },
-            };
-
-
-         // Execute the tests.
-         for (unsigned int i = 0; i < sizeof (tests) / sizeof (test); i++)
-         {
-            // The string to describe a test.
-            char label[100];
-            sprintf(label,
-                    "item %d: Url::fromString('%s', %s, %s)",
-                    i,
-                    tests[i].input_string,
-                    tests[i].uri_form == Url::AddrSpec ? "AddrSpec" : "NameAddr",
-                    tests[i].next_uri ? "&nextUri" : "NULL");
-
-            // Verify that if the expected return is true, then a non-NULL
-            // fromString() value has been supplied.
-            CPPUNIT_ASSERT_MESSAGE(label,
-                                   !tests[i].expected_return ||
-                                   tests[i].output_string);
-
-            // Perform the parse.
-            Url url;
-            UtlString next_uri;
-            bool r = url.fromString(tests[i].input_string,
-                                    tests[i].uri_form,
-                                    tests[i].next_uri ? &next_uri : NULL);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(label,
-                                         tests[i].expected_return,
-                                         r);
-            if (r)
-            {
-               UtlString unparsed;
-               url.toString(unparsed);
-               ASSERT_STR_EQUAL_MESSAGE(label,
-                                        tests[i].output_string,
-                                        unparsed.data());
-               if (tests[i].next_uri) 
-               {
-                  ASSERT_STR_EQUAL_MESSAGE(label,
-                                           tests[i].next_uri,
-                                           next_uri.data());
-               }
-            }
-         }
       }
 
     /////////////////////////
@@ -2093,7 +2017,7 @@ public:
         return assertValue->data();
     }
 
-    /** 'url' not declared as const, in order to override the Url:: method **/
+    /** API not declared as const **/
     const char *getUri(Url& url)
     {
         assertValue->remove(0);
@@ -2102,7 +2026,7 @@ public:
         return assertValue->data();
     }
 
-    /** 'url' not declared as const, in order to override the Url:: method **/
+    /** API not declared as const **/
     const char *getPath(Url& url, UtlBoolean withQuery = FALSE)
     {
         assertValue->remove(0);
@@ -2111,7 +2035,7 @@ public:
         return assertValue->data();
     }
 
-    /** 'url' not declared as const, in order to override the Url:: method **/
+    /** API not declared as const **/
     const char *getUserId(Url& url)
     {
         assertValue->remove(0);
@@ -2120,7 +2044,7 @@ public:
         return assertValue->data();
     }
 
-    /** 'url' not declared as const, in order to override the Url:: method **/
+    /** API not declared as const **/
     const char *getIdentity(Url& url)
     {
         assertValue->remove(0);
