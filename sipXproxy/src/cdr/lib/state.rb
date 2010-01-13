@@ -159,7 +159,7 @@ class State
      user = Utils.contact_user(to_id)
      filter_user = false
      @filtered_identities.each { |f_user| 
-        if user.include?(f_user) 
+        if !user.nil? && user.include?(f_user) 
            filter_user = true 
         end
      }

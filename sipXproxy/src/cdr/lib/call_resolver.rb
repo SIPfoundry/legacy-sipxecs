@@ -56,6 +56,7 @@ class CallResolver
     start_run = Time.now
 
     # limit the size of the queues: it's better to get starved than too eat all available memory
+    @log.debug("CSE Queue Size = #{@config.cse_queue_size}  CDR Queue Size = #{@config.cdr_queue_size}")
     cdr_queue = SizedQueue.new(@config.cdr_queue_size)
     cse_queue = SizedQueue.new(@config.cse_queue_size)
 
@@ -102,6 +103,7 @@ class CallResolver
       raise t[:exception] if t.status.nil?
     end
     log.debug("CSE Readers threads stopped.")
+    log.debug("CSEs in Queue = #{cse_queue.size()}")
 
     # stop running housekeeping jobs
     @long_calls_cleaner.stop

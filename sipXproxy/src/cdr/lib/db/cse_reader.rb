@@ -24,13 +24,15 @@ class CseReader < Dao
     @last_read_id = nil
     @last_read_time = nil
     @last_cse_event_time = nil
-    log.debug("Polling CSE DB every #{polling_interval} seconds.")
+    log.debug("Polling CSE DB every #{polling_interval} seconds.") if log
     @poll_time = polling_interval
     @synch_time = 120
     if @synch_time < @poll_time
        @synch_time = @poll_time
     end
     @synch_timeslice = @synch_time / @poll_time
+    @database_url = database_url
+    @log = log
     @stop = Terminator.new(polling_interval)
   end
 
@@ -40,7 +42,7 @@ class CseReader < Dao
   #        end
   # If stop time is nil reader will keep on reading the connection forever
   def run(cse_queue, start_id, start_time, stop_time = nil)
-    log.debug("Connecting CSE database.")
+    @log.debug("Connecting CSE database. #{@database_url}") if @log
     connect do | dbh |
       if stop_time
         check_purge(dbh)
@@ -53,33 +55,34 @@ class CseReader < Dao
           check_purge(dbh)
           first_id = @last_read_id
           first_time = @last_read_time unless first_id
-          log.debug("Read CSEs from ID:#{first_id} Time:#{first_time}")
+          @log.debug("Read CSEs from ID:#{first_id} Time:#{first_time}") if @log
           read_cses(dbh, cse_queue, first_id, first_time, nil)
 
           # If we read less than MAX_CSES then we're done reading for now.
           if ((first_id.to_i + MAX_CSES) > @last_read_id.to_i)
-             log.debug("Going to sleep.")
+             @log.debug("Going to sleep. Connection #{@database_url.host}") if @log
              break if @stop.wait
-             log.debug("Waking up.")
+             @log.debug("Waking up. Connection #{@database_url.host}") if @log
           end
         end
       end
     end
   rescue DBI::DatabaseError, DBI::OperationalError, DBI::ProgrammingError => excp
-    log.error("Loss of connection to database - retrying to connect after sleep")
+    @log.error("Loss of connection to database #{@database_url} - retrying to connect after sleep") if @log
     if !@stop.wait
        retry
     end
   rescue
-    log.error("Exception in reader thread: <#{$!}>")
+    @log.error("Exception in reader thread: <#{$!}> - Database = #{@database_url}") if @log
     # save current exception so that we can re-raise it
     Thread.current[:exception] = $!
     raise
   ensure
-    log.debug("Stopping CSE reader.")
+    @log.debug("Stopping CSE reader - #{@database_url.host}.") if @log
   end
 
   def stop
+    @log.debug("CSE Reader - #{@database_url.host} - calling stop") if @log
     @stop.stop
   end
 
@@ -109,7 +112,7 @@ class CseReader < Dao
           # A CSE with a nil cse_id is the trigger that indicates that the cse is a time synch event.
           cse = CallStateEvent.new
           @last_cse_event_time = cse.event_time = DBI::Timestamp.new(@last_cse_event_time.to_time() + @synch_time )
-          log.debug("Injecting synchronize event: new time #{cse.event_time}")
+          @log.debug("Injecting synchronize event: new time #{cse.event_time}") if @log
           cse_queue << cse
 
           # re-init the no cse's read loop counter because we've sent a time synch event.
@@ -122,7 +125,7 @@ class CseReader < Dao
   end
 
   def purge_now(dbh, start_time_cse)
-    log.debug("Purging CSEs older than #{start_time_cse}")
+    @log.debug("Purging CSEs older than #{start_time_cse}") if @log
     sql = CseReader.delete_sql(nil, start_time_cse)
     dbh.prepare(sql) do | sth |
       sth.execute(start_time_cse)
