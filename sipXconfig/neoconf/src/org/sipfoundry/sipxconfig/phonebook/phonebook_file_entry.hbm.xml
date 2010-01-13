@@ -16,7 +16,7 @@
     <many-to-one name="addressBookEntry"
                  class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
 			     unique="true"
-			     cascade="save-update"
+			     cascade="all"
 			     column="address_book_entry_id"/>
 
 	<many-to-one name="phonebook" column="phonebook_id" class="Phonebook" not-null="true"/>
