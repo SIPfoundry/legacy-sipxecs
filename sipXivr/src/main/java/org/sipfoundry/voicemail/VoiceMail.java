@@ -9,6 +9,7 @@
 
 package org.sipfoundry.voicemail;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -17,6 +18,7 @@ import java.util.ResourceBundle;
 import java.util.Vector;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.callpilot.CpRetrieve;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
@@ -41,8 +43,10 @@ public class VoiceMail {
 
     // Global store for VoiceMail resource bundles keyed by locale
     private static final String RESOURCE_NAME = "org.sipfoundry.voicemail.VoiceMail";
+    private static final String CPUI_RESOURCE_NAME = "org.sipfoundry.callpilot.CallPilot";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
-
+    private static HashMap<Locale, ResourceBundle> s_cpui_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
+    
     private org.sipfoundry.sipxivr.IvrConfiguration m_ivrConfig;
     private Localization m_loc;
     private FreeSwitchEventSocketInterface m_fses;
@@ -77,17 +81,21 @@ public class VoiceMail {
         this.m_fses = fses;
         this.m_parameters = parameters;
         this.m_messages = new Vector<Message>();
-
+        
         // Look for "locale" parameter
-        String localeString = parameters.get("locale");
+        String localeString = m_parameters.get("locale");
         if (localeString == null) {
             // Okay, try "lang" instead
-            localeString = parameters.get("lang");
+            localeString = m_parameters.get("lang");
         }
-
-        // Load the resources for the given localeString
-        m_loc = new Localization(RESOURCE_NAME, localeString, 
-                s_resourcesByLocale, ivrConfig, fses);
+        
+        if(usingCPUI()) {
+            m_loc = new Localization(CPUI_RESOURCE_NAME, localeString, 
+                    s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
+        } else {
+            m_loc = new Localization(RESOURCE_NAME, localeString, 
+                    s_resourcesByLocale, m_ivrConfig, m_fses);
+        }
     }
 
     /**
@@ -111,14 +119,13 @@ public class VoiceMail {
         }
     }
 
-
     /**
      * Given an extension, convert to a full URL in this domain
      * 
      * @param extension
      * @return the Url
      */
-    String extensionToUrl(String extension) {
+    public String extensionToUrl(String extension) {
         return "sip:" + extension + "@" + m_ivrConfig.getSipxchangeDomainName();
     }
     
@@ -144,7 +151,7 @@ public class VoiceMail {
         m_action = m_parameters.get("action");
 
         while(mailboxString != null) {
-            LOG.info("Starting voicemail for mailbox \""+mailboxString+"\" action=\""+m_action+"\" in locale " + m_loc.getLocale());
+            LOG.info("Starting voicemail for mailbox \""+mailboxString+"\" action=\""+m_action);
             mailboxString = voicemail(mailboxString);
         }
         LOG.info("Ending voicemail");
@@ -156,18 +163,18 @@ public class VoiceMail {
      * @throws Throwable indicating an error or hangup condition.
      */
     String voicemail(String mailboxString) {
+               
         User user = m_validUsers.getUser(mailboxString) ;
-        Mailbox mailbox = null;
+        m_mailbox = null;
         if (user != null) {
-           mailbox = new Mailbox(user);
+           m_mailbox = new Mailbox(user);   
            if (user.getLocale() == null) {
                user.setLocale(m_loc.getLocale()); // Set the locale for this user to be that passed with the call
            }
         }
         
-        m_mailbox = mailbox;
         if (m_action.equals("deposit")) {
-            if (mailbox == null) {
+            if (m_mailbox == null) {
                 // That extension is not valid.
                 LOG.info("Extension "+mailboxString+" is not valid.");
                 m_loc.play("invalid_extension", "");
@@ -185,8 +192,13 @@ public class VoiceMail {
             // Create the mailbox if it isn't there
             Mailbox.createDirsIfNeeded(m_mailbox);
             try {
+                boolean isOnThePhone = false;
+                String reason = m_parameters.get("call-forward-reason");
+                if(reason != null) {
+                    isOnThePhone = reason.equals("user-busy");
+                }
                 
-                String result = new Deposit(this).depositVoicemail() ;
+                String result = new Deposit(this).depositVoicemail(isOnThePhone);
                 if (result == null) {
                     goodbye();
                     return null ;
@@ -202,18 +214,24 @@ public class VoiceMail {
                 }
                 // Deliver any messages that are pending
                 for (Message message : m_messages) {
-                    message.storeInInbox();
+                    // don't store "click" messages
+                    if(message.getDuration() > 1) {
+                        message.storeInInbox();
+                    }
                 }
             }
         }
         
         if (m_action.equals("retrieve")) {
-            return new Retrieve(this).retrieveVoiceMail();
+            if(usingCPUI()) {
+                return new CpRetrieve(this).retrieveVoiceMail();
+            } else {
+                return new Retrieve(this).retrieveVoiceMail();
+            }
         }
         
         return null;
     }
-
 
     /**
      * Select a distribution list from the list of lists.  Boy is this confuzing!
@@ -301,13 +319,13 @@ public class VoiceMail {
      * @param wavName
      * @return The Recording object
      */
-    Record recordMessage(String wavName) {
+    public Record recordMessage(String wavName) {
         // Flush any typed ahead digits
         m_fses.trimDtmfQueue("") ;
         LOG.info(String.format("Recording message (%s)", wavName));
         Record rec = new Record(m_fses, m_loc.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
-        rec.setRecordTime(300); // TODO a better time here?
+        rec.setRecordTime(300); 
         rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
         rec.go();
         return rec;
@@ -317,7 +335,7 @@ public class VoiceMail {
     /**
      * Transfer to the operator
      */
-    void operator() {
+    public void operator() {
         transfer(getOperator(m_mailbox.getPersonalAttendant()));
     }
     
@@ -326,7 +344,7 @@ public class VoiceMail {
      * 
      * @param uri
      */
-    void transfer(String uri) {
+    public void transfer(String uri) {
         m_loc.play("please_hold", "");
         Transfer xfer = new Transfer(m_fses, uri);
         xfer.go();
@@ -336,7 +354,7 @@ public class VoiceMail {
      * Say good bye and hangup.
      * 
      */
-    void goodbye() {
+    public void goodbye() {
         LOG.info("good bye");
         // Thank you.  Goodbye.
         m_loc.play("goodbye", "");
@@ -348,7 +366,7 @@ public class VoiceMail {
      * or transfer to a destination after playing a prompt.
      * 
      */
-    void failure() {
+    public void failure() {
         LOG.info("Input failure");
 
         if (m_config.isTransferOnFailure()) {
@@ -414,4 +432,28 @@ public class VoiceMail {
     public Mailbox getMailbox() {
         return m_mailbox;
     }
+
+    public void setMailbox(Mailbox newMailbox) {
+        m_mailbox = newMailbox;
+    }
+    
+    public boolean isDeposit() { 
+        return m_action.equals("deposit");
+    }
+        
+    public void playError(String errPrompt, String ...vars) {
+        m_loc.play("error_beep", "");
+        m_fses.trimDtmfQueue("");
+        m_loc.play(errPrompt, "0123456789*#", vars);
+    }
+    
+    public boolean usingCPUI() {
+        // TODO, need to read from somewhere, for now check for existance of a file 
+        // called "callpilot" in the etc/sipxpbx directory
+        
+        String path = System.getProperty("conf.dir");
+        File callpilotFile = new File(path + "/callpilot");
+        
+        return callpilotFile.exists();
+    }    
 }

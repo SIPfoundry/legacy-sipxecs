@@ -66,7 +66,7 @@ public class Greeting {
      * Get the path to the particular greeting type.  Null if there is no such greeting.
      * @return
      */
-    private String getGreetingPath(GreetingType type) {
+    public String getGreetingPath(GreetingType type) {
         String filePath = getGreetingTypeName(type);
 
         if (filePath == null) {
@@ -110,8 +110,8 @@ public class Greeting {
             pl.addFragment("greeting_hasname", nameFile.getPath());
         } else {
             String mailboxName = m_mailbox.getUser().getUserName();
-            if (mailboxName.length() <= 6) {
-                // 6 or less characters, spell it out
+            if (mailboxName.length() <= 8) {
+                // 8 or less characters, spell it out
                 
                 // The owner of extension {letters} ...
                 pl.addFragment("greeting_spellout", mailboxName);

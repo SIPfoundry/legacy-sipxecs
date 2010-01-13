@@ -30,9 +30,9 @@ public class DialByName {
     private static final String RESOURCE_NAME = "org.sipfoundry.sipxivr.DialByNamePrompts";
     private static HashMap<Locale, ResourceBundle> s_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
 
-    private Localization m_loc;
-    private ApplicationConfiguraton m_config;
-    private ValidUsersXML m_validUsers;
+    protected Localization m_loc;
+    protected ApplicationConfiguraton m_config;
+    protected ValidUsersXML m_validUsers;
     private boolean m_OnlyVoicemailUsers;   // Limit users to those who have voicemail permssions
 
     public DialByName(Localization localization, ApplicationConfiguraton config, ValidUsersXML validUsers) {
@@ -49,7 +49,7 @@ public class DialByName {
      * @param digits
      * @return The selected user, null if none
      */
-    DialByNameChoice selectChoice(String digits){
+    protected DialByNameChoice selectChoice(String digits){
         // Lookup the list of validUsers that match the DTMF digits
         Vector<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
 
@@ -232,9 +232,7 @@ public class DialByName {
                 m_loc.play("invalid_try_again", "");
                 continue;
             }
-            
-            
-            
+                        
             // See if the digits they dialed matched anyone, and let them select among
             // all the possibilities
             DialByNameChoice choice = selectChoice(digits);

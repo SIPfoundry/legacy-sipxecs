@@ -11,6 +11,7 @@ package org.sipfoundry.voicemail;
 import java.io.File;
 import java.io.IOException;
 import java.io.SequenceInputStream;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +23,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
@@ -41,8 +44,10 @@ public class VmMessage {
     File m_descriptorFile;
     File m_originalDescriptorFile;
     File m_statusFile;
+    File m_urgentFile;
     MessageDescriptor m_messageDescriptor;
     boolean m_unHeard ;
+    boolean m_urgent;
     
     /**
      * Private constructor for factory method to call
@@ -122,6 +127,13 @@ public class VmMessage {
             me.m_unHeard = true ;
         } 
 
+        // Check for -00.urg
+        File urgent = new File(directory, id+"-00.urg");
+        me.m_urgentFile = urgent;
+        if (urgent.exists()) {
+            me.m_urgent = true ;
+        } 
+        
         return me;
     }
 
@@ -148,8 +160,8 @@ public class VmMessage {
             Priority pr = Priority.NORMAL;
 
             if (msg.isSet(Flag.FLAGGED)) {
-                // TODO:
-                // pr = Priority.URGENT;
+                pr = Priority.URGENT;
+                me.m_urgent = true;
 
             }
             me.m_messageDescriptor.setPriority(pr);
@@ -163,12 +175,19 @@ public class VmMessage {
         me.m_audioFile = new File(baseName+".wav");
         me.m_descriptorFile = new File(baseName+".xml");
         me.m_statusFile = new File(baseName+".sta");
+        me.m_urgentFile = new File(baseName+".urg");
         String operation= "storing stuff";
         try {
             if(me.m_unHeard) {
                 operation = "creating status file "+me.m_statusFile.getPath();
                 LOG.debug("VmMessage::newMessage "+operation);
                 FileUtils.touch(me.m_statusFile);
+            }
+            
+            if(me.m_urgent) {
+                operation = "creating urgent file "+ me.m_urgentFile.getPath();
+                LOG.debug("VmMessage::newMessage "+ operation);
+                FileUtils.touch(me.m_urgentFile);
             }
             
             operation = "creating messageDescriptor "+me.m_descriptorFile.getPath();
@@ -202,17 +221,37 @@ public class VmMessage {
         me.m_messageDescriptor.setTimestamp(recording.getTimestamp());
         me.m_messageDescriptor.setSubject("Voice Message "+me.m_messageId);
         me.m_messageDescriptor.setPriority(recording.getPriority());
+        
+        if(recording.getPriority() == Priority.URGENT) {
+            me.m_urgent = true;           
+        }
+        
+        Vector<User> otherRecipients = recording.getOtherRecipeints();
+        if(otherRecipients != null) {
+            for(User recipient : otherRecipients) {
+                if(!recipient.getUserName().equals(mailbox.getUser().getUserName())) {
+                    me.m_messageDescriptor.addOtherRecipient(recipient.getUserName());
+                }
+            }            
+        }
 
         File tempFile = recording.getWavFile();
         String baseName = mailbox.getInboxDirectory()+me.m_messageId+"-00"; 
         me.m_audioFile = new File(baseName+".wav");
         me.m_descriptorFile = new File(baseName+".xml");
         me.m_statusFile = new File(baseName+".sta");
+        me.m_urgentFile = new File(baseName+".urg");
         String operation= "storing stuff";
         try {
             operation = "creating status file "+me.m_statusFile.getPath();
             LOG.debug("VmMessage::newMessage "+operation);
             FileUtils.touch(me.m_statusFile);
+            
+            if(me.m_urgent) {
+                operation = "creating urgent file "+ me.m_urgentFile.getPath();
+                LOG.debug("VmMessage::newMessage "+ operation);
+                FileUtils.touch(me.m_urgentFile);
+            }
             
             operation = "copying recording .wav file to "+me.m_audioFile.getPath();
             LOG.debug("VmMessage::newMessage "+operation);
@@ -229,7 +268,6 @@ public class VmMessage {
         Mwi.sendMWI(mailbox);
         me.sendToEmail(mailbox);
         
-
         return me;
     }
         
@@ -248,7 +286,8 @@ public class VmMessage {
         File directory = new File(mailbox.getInboxDirectory());
         String baseName = mailbox.getInboxDirectory()+me.m_messageId+"-00"; 
         me.m_statusFile = new File(baseName+".sta");
-
+        me.m_urgentFile = new File(baseName+".urg");
+        
         // Copy (with the new message ID in the names) all the files
         String operation= "copying stuff";
         try {
@@ -278,6 +317,13 @@ public class VmMessage {
 
         // Read the new (but wrong) message descriptor file
         me.m_messageDescriptor = new MessageDescriptorReader().readObject(me.m_descriptorFile);
+        
+        // correct the other recipient list
+        if(me.m_messageDescriptor.getOtherRecipients() != null) {
+            me.m_messageDescriptor.addOtherRecipient(ValidUsersXML.getUserPart(me.m_messageDescriptor.getId()));
+            me.m_messageDescriptor.removeOtherRecipient(mailbox.getUser().getUserName());
+        }
+       
         // Correct the identity in the descriptor file to the correct user
         me.m_messageDescriptor.setId(mailbox.getUser().getIdentity());
         // Correct the subject to the correct subject
@@ -314,13 +360,27 @@ public class VmMessage {
         me.m_messageDescriptor.setTimestamp(recording.getTimestamp());
         me.m_messageDescriptor.setSubject("Fwd:Voice Message "+m_messageId);
         me.m_messageDescriptor.setPriority(recording.getPriority());
+        
+        Vector<User> otherRecipients = recording.getOtherRecipeints();
+        if(otherRecipients != null) {
+            for(User recip: otherRecipients) {
+                if(!recip.getUserName().equals(mailbox.getUser().getUserName())) {
+                    me.m_messageDescriptor.addOtherRecipient(recip.getUserName());
+                }
+            }
+        }
 
+        if(recording.getPriority() == Priority.URGENT) {
+            me.m_urgent = true;           
+        }
+        
         // Copy into the inbox of the mailbox
         File directory = new File(mailbox.getInboxDirectory());
         String baseName = mailbox.getInboxDirectory()+me.m_messageId; 
         me.m_audioFile = new File(baseName+"-00.wav");
         me.m_descriptorFile = new File(baseName+"-00.xml");
         me.m_statusFile = new File(baseName+"-00.sta");
+        me.m_urgentFile = new File(baseName+"-00.urg");
         me.m_combinedAudioFile = new File(baseName+"-FW.wav");
 
         
@@ -330,6 +390,12 @@ public class VmMessage {
             me.m_unHeard = true;
             operation = "creating status file "+me.m_statusFile.getPath();
             FileUtils.touch(me.m_statusFile);
+            
+            if(me.m_urgent) {
+                operation = "creating urgent file "+ me.m_urgentFile.getPath();
+                LOG.debug("VmMessage::newMessage "+ operation);
+                FileUtils.touch(me.m_urgentFile);
+            }
 
             operation = "copying audio file "+m_audioFile.getPath();
             // The old audio file becomes "originalAudioFile" as NewID-01.wav
@@ -473,6 +539,7 @@ public class VmMessage {
             m_combinedAudioFile = moveFileToDirectory(m_combinedAudioFile, newDirectory);
             m_originalDescriptorFile = moveFileToDirectory(m_originalDescriptorFile, newDirectory);
             m_statusFile = moveFileToDirectory(m_statusFile, newDirectory);
+            m_urgentFile = moveFileToDirectory(m_urgentFile, newDirectory);
             m_descriptorFile = moveFileToDirectory(m_descriptorFile, newDirectory);
         } catch (IOException e) {
             LOG.error(String.format("Failed to move message %s to directory %s", m_messageId, newDirectory.getPath()), e);
@@ -531,6 +598,26 @@ public class VmMessage {
         return m_unHeard;
     }
 
+    public boolean isUrgent() {
+        return m_urgent;
+    }
+    
+    public void toggleUrgency() {         
+        getMessageDescriptor();
+        if(m_messageDescriptor.getPriority() == Priority.URGENT) {
+            m_messageDescriptor.setPriority(Priority.NORMAL);
+        } else { 
+            m_messageDescriptor.setPriority(Priority.URGENT);
+        }
+        new MessageDescriptorWriter().writeObject(m_messageDescriptor, m_descriptorFile);
+    }
+    
+    public void markNormal() { 
+        getMessageDescriptor();
+        m_messageDescriptor.setPriority(Priority.NORMAL);
+        new MessageDescriptorWriter().writeObject(m_messageDescriptor, m_descriptorFile);
+    }
+    
     public void markHeard() {
         if (m_unHeard) {
             if (m_statusFile != null) {

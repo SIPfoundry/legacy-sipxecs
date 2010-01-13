@@ -82,7 +82,7 @@ public class MessageTest extends TestCase {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
         makeWaves(wavFile, (byte)0, 8000);
         Message message = Message.newMessage(m_mailbox, wavFile, 
-                "\"Me\" <woof@pingtel.com>", Priority.NORMAL);
+                "\"Me\" <woof@pingtel.com>", Priority.NORMAL, null);
         message.storeInInbox();
         assertEquals("00000001", message.getMessageId());
         assertEquals(m_mailbox.getInboxDirectory()+"00000001-00.wav", message.getWavPath());

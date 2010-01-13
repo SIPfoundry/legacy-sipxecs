@@ -71,6 +71,7 @@ public class Retrieve {
         m_fses.setRedactDTMF(false);
         if (user != null) {
             m_mailbox = new Mailbox(user);
+            m_vm.setMailbox(m_mailbox);
             m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
             LOG.info("Retrieve::retrieveVoiceMail "+m_ident+" logged in");
             // Create the mailbox if it isn't there
@@ -677,7 +678,7 @@ public class Retrieve {
                 askAboutComments = false;
              // Build a message with the comments (if any) from the logged in user
                 comments = Message.newMessage(null, commentsFile, 
-                        m_mailbox.getUser().getUri(), Priority.NORMAL);
+                        m_mailbox.getUser().getUri(), Priority.NORMAL, null);
             }
 
             
@@ -735,7 +736,7 @@ public class Retrieve {
         
         // Build a message with the comments sent by this user.
         Message comments = Message.newMessage(destMailbox, commentsFile, 
-                m_mailbox.getUser().getUri(), Priority.NORMAL);
+                m_mailbox.getUser().getUri(), Priority.NORMAL, null);
 
         // Send the message.
         comments.storeInInbox();
@@ -780,7 +781,7 @@ public class Retrieve {
                     if (message == null) {
                         // Build a message with the recording sent by this user.
                         message = Message.newMessage(destMailbox, recordingFile, 
-                                m_mailbox.getUser().getUri(), Priority.NORMAL);
+                                m_mailbox.getUser().getUri(), Priority.NORMAL, null);
                         // Send the message.
                         message.storeInInbox();
                         dontDeleteTempFile(recordingFile);

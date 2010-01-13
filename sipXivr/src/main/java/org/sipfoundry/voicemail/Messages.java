@@ -10,6 +10,7 @@ package org.sipfoundry.voicemail;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -44,8 +45,11 @@ public class Messages {
     HashMap<String, VmMessage> m_inbox = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_saved = new HashMap<String, VmMessage>();
     HashMap<String, VmMessage> m_deleted = new HashMap<String, VmMessage>();
+    
+    List<String> m_MsgIds;
 
     int m_numUnheard;
+    int m_numUrgent;
 
     File m_inboxDir;
     File m_savedDir;
@@ -61,6 +65,7 @@ public class Messages {
         m_savedDir = new File(mailbox.getSavedDirectory());
         m_deletedDir = new File(mailbox.getDeletedDirectory());
         m_mbxid = mailbox.getUser().getUserName();
+        m_MsgIds = null;
     }
 
     /*
@@ -105,12 +110,34 @@ public class Messages {
     }
     
     public synchronized void update() {
+        
+        List<String> msgIds = new ArrayList<String>();
+        
         // Load the inbox folder and count unheard messages there
-        loadFolder(m_inboxDir, m_inbox, true);
+        loadFolder(m_inboxDir, m_inbox, true, msgIds);
         // Load the saved folder (don't count unheard...shouldn't be any but why take chances!)
-        loadFolder(m_savedDir, m_saved, false);
+        loadFolder(m_savedDir, m_saved, false, msgIds);
         // Load the deleted folder (same with unheard)
-        loadFolder(m_deletedDir, m_deleted, false);
+        loadFolder(m_deletedDir, m_deleted, false, msgIds);
+        
+        // build a mailbox wide list of messageIds as loadFolder is called
+        // then sort the list. this list allows us to easily map a CallPilot Msg Number 
+        // to a message Id
+        
+        if(m_MsgIds == null) {
+            m_MsgIds = msgIds;
+              
+            Collections.sort(m_MsgIds, new Comparator<String>(){
+                public int compare(String o1, String o2) {
+                    
+                    if(Integer.parseInt(o1) > Integer.parseInt(o2)) {
+                        return 1;
+                    } else { 
+                        return -1;
+                    }    
+                }
+            });
+        }
     }
     
     /**
@@ -121,7 +148,8 @@ public class Messages {
      */
     
     @SuppressWarnings("unchecked") // FileUtls.itereateFiles isn't type safe
-    synchronized void loadFolder(File directory, HashMap<String, VmMessage> map, boolean countUnheard) {
+    synchronized void loadFolder(File directory, HashMap<String, VmMessage> map, 
+                                 boolean countUnheard, List<String> msgIds) {
         Pattern p = Pattern.compile("^(\\d+)-00\\.xml$");
         // Load the directory and count unheard
         Iterator<File> fileIterator = FileUtils.iterateFiles(directory, null, false);
@@ -147,6 +175,14 @@ public class Messages {
                 if (countUnheard && vmMessage.isUnHeard()) {
                     m_numUnheard++;
                 }
+                
+                if (vmMessage.isUrgent()) {
+                    m_numUrgent++;
+                }
+                          
+                if(msgIds != null) {
+                    msgIds.add(id);
+                }    
                 
                 map.put(id, vmMessage);
             }
@@ -223,6 +259,10 @@ public class Messages {
         return m_numUnheard;
     }
     
+    public synchronized int getUrgentCount() {
+        return m_numUrgent;
+    }
+    
     public synchronized int getHeardCount() {
         return m_inbox.size() - m_numUnheard ;
     }
@@ -253,6 +293,10 @@ public class Messages {
         if (msg != null) {
             markMessageHeard(msg, sendMwi);
         }
+    }
+    
+    public synchronized boolean isDeleted(VmMessage vmMsg) {
+        return m_deleted.containsKey(vmMsg.getMessageId());
     }
     
     /**
@@ -399,8 +443,45 @@ public class Messages {
         }
     }
 
-    void LoadWaveFile(VmMessage msg) {
+    public void LoadWaveFile(VmMessage msg) {
         ExtMailStore.FetchBody(m_mbxid, msg.getMessageId(), msg.getAudioFile());
     }
+
+    public String getMsgNumber(VmMessage vmMessage) {
+        for(int i=0; i < m_MsgIds.size(); i++) {
+            if(m_MsgIds.get(i).equals(vmMessage.getMessageId())) { 
+                return String.valueOf(i+1);
+            }           
+        }
+        return null;
+    }
     
+    public boolean noMessages() {
+        return m_MsgIds.size() == 0;
+    }
+    
+    public int getLastMsgNumber() {
+        return m_MsgIds.size();    
+    }
+    
+    public VmMessage getMsgByNumber(int msgNumber) {
+        
+        // make is zero based
+        msgNumber--;
+        
+        if(msgNumber < 0) {
+            return null;
+        }
+        
+        if(msgNumber >= m_MsgIds.size()) {
+            return null;
+        }
+        
+        String messageId = m_MsgIds.get(msgNumber);
+        if(messageId != null) {
+            return getMessage(messageId);   
+        }
+        
+        return null;
+    }    
 }

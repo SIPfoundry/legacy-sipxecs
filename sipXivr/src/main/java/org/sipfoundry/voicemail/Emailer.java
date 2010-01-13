@@ -161,7 +161,9 @@ public class Emailer {
                 }
             }
             
-            //TODO message.setHeader("X-Priority", "1"); when we support priority
+            if(m_vmessage.isUrgent()) {
+                message.setHeader("X-Priority", "1");
+            }    
             return message;
         }
         

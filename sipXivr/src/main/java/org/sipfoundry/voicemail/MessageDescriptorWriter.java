@@ -51,7 +51,12 @@ public class MessageDescriptorWriter extends XmlWriterImpl<MessageDescriptor> {
         addAndSet(prefsEl, "timestamp", m_messageDescriptor.getTimestampString());
         addAndSet(prefsEl, "subject", m_messageDescriptor.getSubject());
         addAndSet(prefsEl, "priority", m_messageDescriptor.getPriority().getId());
-        return document ;
+        if(m_messageDescriptor.getOtherRecipients() != null) {
+            for(String otherRecipient : m_messageDescriptor.getOtherRecipients()) {
+                addAndSet(prefsEl, "other_recipient", otherRecipient); 
+            }
+        }
+        return document;
     }
     
     private void addAndSet(Element el, String name, String text) {

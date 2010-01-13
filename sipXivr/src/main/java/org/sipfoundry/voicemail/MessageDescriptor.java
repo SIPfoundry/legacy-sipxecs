@@ -12,6 +12,7 @@ package org.sipfoundry.voicemail;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Vector;
 
 
 
@@ -28,9 +29,11 @@ public class MessageDescriptor {
     private String m_timestamp;
     private String m_subject;
     private Priority m_priority = Priority.NORMAL;
+    private Vector<String> m_otherRecipients;
          
     public enum Priority {
-        NORMAL("normal") ;
+        NORMAL("normal"),
+        URGENT("urgent");
         
         private String m_id;
         
@@ -109,6 +112,23 @@ public class MessageDescriptor {
     
     public String getSubject() {
         return m_subject;
+    }
+    
+    public void addOtherRecipient(String recipient) {
+        if(m_otherRecipients == null) {
+            m_otherRecipients = new Vector<String>();
+        }
+        m_otherRecipients.add(recipient);
+    }
+    
+    public void removeOtherRecipient(String recipient) {
+        if(m_otherRecipients != null) {
+            m_otherRecipients.remove(recipient);
+        }
+    }
+    
+    public Vector<String> getOtherRecipients() {
+        return m_otherRecipients;
     }
     
     public void setSubject(String subject) {

@@ -78,7 +78,7 @@ public class EmailFormatterTest extends TestCase {
         File wavFile = new File(m_testdir.getPath()+"fake.wav");
         makeWaves(wavFile, (byte)0, 8000*(60*2+42));  // two minutes, 42 seconds
         Message message = Message.newMessage(m_mailbox, wavFile, 
-                "\"El Niño\" <sip:5551212@pingtel.com>", Priority.NORMAL);
+                "\"El Niño\" <sip:5551212@pingtel.com>", Priority.NORMAL, null);
         Date stamp = new Date(message.getTimestamp());
         message.storeInInbox();
         if (!Emailer.isJustTesting()) {

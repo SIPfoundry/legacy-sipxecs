@@ -110,7 +110,7 @@ public class MessagesTest extends TestCase {
     
     public void testLoadFolder() throws IOException, InterruptedException {
         Messages m = new Messages();
-        m.loadFolder(m_inboxDir, m.m_inbox, true);
+        m.loadFolder(m_inboxDir, m.m_inbox, true, null);
         assertEquals(0, m.getInboxCount());
 
         FileUtils.touch(new File(m_inboxDir, "0001-00.wav"));
@@ -138,11 +138,11 @@ public class MessagesTest extends TestCase {
         FileUtils.touch(new File(m_inboxDir, "hey there"));
         FileUtils.touch(new File(m_inboxDir, "this.is.a.file"));
 
-        m.loadFolder(m_inboxDir, m.m_inbox, true);
+        m.loadFolder(m_inboxDir, m.m_inbox, true, null);
         assertEquals(5, m.getInboxCount());
         assertEquals(3, m.getUnheardCount());
 
-        m.loadFolder(m_inboxDir, m.m_saved, false);
+        m.loadFolder(m_inboxDir, m.m_saved, false, null);
         assertEquals(5, m.getSavedCount());
         assertEquals(3, m.getUnheardCount());
 
@@ -208,9 +208,9 @@ public class MessagesTest extends TestCase {
         makeMd(new File(m_inboxDir, "0002-00.xml"));
 
         Messages m = Messages.newMessages(mbox);
-        m.loadFolder(m_inboxDir, m.m_inbox, true);
-        m.loadFolder(m_savedDir, m.m_saved, false);
-        m.loadFolder(m_deletedDir, m.m_deleted, false);
+        m.loadFolder(m_inboxDir, m.m_inbox, true, null);
+        m.loadFolder(m_savedDir, m.m_saved, false, null);
+        m.loadFolder(m_deletedDir, m.m_deleted, false, null);
         
         assertEquals(2, m.getInboxCount());
         assertEquals(1, m.getUnheardCount());
@@ -238,9 +238,9 @@ public class MessagesTest extends TestCase {
         // Reload and make sure we get the same result
         Messages.releaseMessages(m);
         m = Messages.newMessages(mbox);
-        m.loadFolder(m_inboxDir, m.m_inbox, true);
-        m.loadFolder(m_savedDir, m.m_saved, false);
-        m.loadFolder(m_deletedDir, m.m_deleted, false);
+        m.loadFolder(m_inboxDir, m.m_inbox, true, null);
+        m.loadFolder(m_savedDir, m.m_saved, false, null);
+        m.loadFolder(m_deletedDir, m.m_deleted, false, null);
 
         assertEquals(2, m.getInboxCount());
         assertEquals(0, m.getUnheardCount());
@@ -327,7 +327,7 @@ public class MessagesTest extends TestCase {
         Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 4);
-        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL, null);
         m.storeInInbox();
         assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
@@ -346,7 +346,7 @@ public class MessagesTest extends TestCase {
         Mailbox mbox = new Mailbox(user, m_mailstoreDir.getPath());
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 4);
-        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL, null);
         m.storeInInbox();
         assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
@@ -396,14 +396,14 @@ public class MessagesTest extends TestCase {
         File tempFile = new File(m_testDir, "temp.wav");
         makeWaves(tempFile, (byte)0, 42);
         
-        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL);
+        Message m = Message.newMessage(mbox, tempFile, "woof@dog", Priority.NORMAL, null);
         m.storeInInbox();
         assertFalse("temp file was not deleted", tempFile.exists());
         VmMessage vm = m.getVmMessage();
         
         File fwdWavFile = new File(m_testDir, "fwd.wav");
         makeWaves(fwdWavFile, (byte)-1, 42);
-        Message m2 = Message.newMessage(mbox, fwdWavFile, "knight@dog", Priority.NORMAL);
+        Message m2 = Message.newMessage(mbox, fwdWavFile, "knight@dog", Priority.NORMAL, null);
         VmMessage vm2 = vm.forward(mbox, m2);
         assertFalse("Message ID didn't change", vm.getMessageId().equals(vm2.getMessageId()));
         assertTrue("vmMessage wasn't created", vm2 != null);
@@ -417,7 +417,7 @@ public class MessagesTest extends TestCase {
         
         File comment = new File(m_testDir, "comment.wav");
         makeWaves(comment, (byte)-1, 42);
-        Message m3 = Message.newMessage(mbox, comment, "knight@dog", Priority.NORMAL);
+        Message m3 = Message.newMessage(mbox, comment, "knight@dog", Priority.NORMAL, null);
         VmMessage vm3 = vm.forward(mbox, m3);
         assertTrue("Combined audio File not created", vm3.m_combinedAudioFile.exists());
     }

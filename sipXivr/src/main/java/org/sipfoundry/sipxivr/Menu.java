@@ -84,7 +84,7 @@ public class Menu {
         return collect(menuPl, "0123456789#*");
     }
 
-    private IvrChoice collect(PromptList menuPl, String validDigits) {
+    protected IvrChoice collect(PromptList menuPl, String validDigits) {
         String digits;
         int invalidCount = 0;
         int timeoutCount = 0;
@@ -92,10 +92,12 @@ public class Menu {
         for (;;) {
             // Check for a failure condition
             if (invalidCount > m_invalidMax) {
-                return m_choice = new IvrChoice(null, IvrChoiceReason.FAILURE);
+                m_choice = new IvrChoice(null, IvrChoiceReason.FAILURE);
+                return m_choice;
             }
             if (timeoutCount > m_timeoutMax) {
-                return m_choice = new IvrChoice(null, IvrChoiceReason.TIMEOUT);
+                m_choice = new IvrChoice(null, IvrChoiceReason.TIMEOUT);
+                return m_choice;
             }
     
             PromptList pl = m_loc.getPromptList();
@@ -104,9 +106,14 @@ public class Menu {
                 pl.addPrompts(m_prePromptPl);
                 playPrePrompt = false ; // Only play it once
             }
+            
             // Play the menu prompts
-            pl.addPrompts(menuPl);
+            if(menuPl != null) {
+                pl.addPrompts(menuPl);           
+            }
+            
             Play p = new Play(m_fses, pl);
+            
             if (m_isStarCancel) {
                 validDigits += "*" ; // Add "*" to valid digits so * can barge
             }

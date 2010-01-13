@@ -9,12 +9,14 @@
 package org.sipfoundry.voicemail;
 
 import java.io.File;
+import java.util.Vector;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
@@ -23,6 +25,7 @@ public class Message {
     private Mailbox m_mailbox;
     private String m_fromUri;
     private Priority m_priority;
+    private Vector<User> m_otherRecipients;
     private File m_wavFile;
     private boolean m_stored;
     private boolean m_isToBeStored;
@@ -52,7 +55,8 @@ public class Message {
      * @param priority
      * @return
      */
-    public static Message newMessage(Mailbox mailbox, File wavFile, String fromUri, Priority priority) {
+    public static Message newMessage(Mailbox mailbox, File wavFile, String fromUri, 
+                                     Priority priority, Vector<User> otherRecipients) {
         Message me = new Message();
         me.m_mailbox = mailbox;
         
@@ -63,6 +67,7 @@ public class Message {
         me.m_isToBeStored = true;
         me.m_duration = 0;
         me.m_timestamp = System.currentTimeMillis();
+        me.m_otherRecipients = otherRecipients;
         return me;
     }
         
@@ -70,9 +75,21 @@ public class Message {
     Priority getPriority() {
         return m_priority;
     }
+    
+    public void togglePriority() {
+        if (m_priority == Priority.NORMAL) {
+            m_priority = Priority.URGENT;
+        } else {
+            m_priority = Priority.NORMAL;
+        }
+    }
 
     public String getFromUri() {
         return m_fromUri;
+    }
+    
+    public Vector<User> getOtherRecipeints() {
+        return m_otherRecipients;
     }
 
     public boolean isToBeStored() {
@@ -109,7 +126,7 @@ public class Message {
             deleteTempWav();
             return Reason.FAILED;
         }
-        
+                
         m_stored = true;
         deleteTempWav();
         
@@ -137,7 +154,7 @@ public class Message {
             return m_wavFile;
         }
     }
-    
+        
     public String getWavPath() {
         return getWavFile().getPath();
     }
