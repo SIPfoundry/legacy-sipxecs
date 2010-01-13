@@ -62,6 +62,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     Phonebook getPrivatePhonebook(User user);
 
+    Phonebook getPrivatePhonebookCreateIfRequired(User user);
+
     PhonebookEntry getPhonebookEntry(Integer phonebookFileEntryId);
 
     void savePhonebookEntry(PhonebookEntry entry);

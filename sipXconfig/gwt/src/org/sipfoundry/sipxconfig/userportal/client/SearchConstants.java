@@ -92,4 +92,24 @@ public interface SearchConstants extends ConstantsWithLookup {
     String requestFailed();
 
     String numberOfEntries();
+
+    String gmailImportFailed();
+
+    String wrongGmailCredentials();
+
+    String internalGmailProblems();
+
+    String gmailConnectionFailed();
+
+    String gmailImportSuccess();
+
+    String gmailImportTitle();
+
+    String gmailImportHelp();
+
+    String importLabel();
+
+    String password();
+
+    String account();
 }

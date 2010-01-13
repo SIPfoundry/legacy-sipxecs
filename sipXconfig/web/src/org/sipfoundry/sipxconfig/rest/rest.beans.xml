@@ -55,6 +55,14 @@
   </bean>
   <alias name="userPhonebookEntry" alias="/my/phonebook/entry/{entryId}" />
 
+  <bean id="googleImportResource" class="org.sipfoundry.sipxconfig.rest.GoogleImportResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="googleImportResource" alias="/my/phonebook/googleImport?account={account}&amp;password={password}" />
+
   <bean id="callResource" class="org.sipfoundry.sipxconfig.rest.CallResource" scope="prototype">
     <property name="sipService" ref="sip" />
     <property name="domainManager" ref="domainManager" />

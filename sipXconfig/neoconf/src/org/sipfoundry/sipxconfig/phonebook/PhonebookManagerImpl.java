@@ -187,14 +187,25 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return requireOneOrZero(privateBooks, query);
     }
 
-    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {
-        if (phonebooks.isEmpty()) {
-            return Collections.emptyList();
+    public Phonebook getPrivatePhonebookCreateIfRequired(User user) {
+        Phonebook phonebook = getPrivatePhonebook(user);
+        if (null == phonebook) {
+            phonebook = new Phonebook();
+            phonebook.setName("privatePhonebook_" + user.getUserName());
+            phonebook.setUser(user);
+            savePhonebook(phonebook);
         }
+
+        return phonebook;
+    }
+
+    public Collection<PhonebookEntry> getEntries(Collection<Phonebook> phonebooks, User user) {
         Map<String, PhonebookEntry> entries = new TreeMap();
-        for (Phonebook phonebook : phonebooks) {
-            for (PhonebookEntry entry : getEntries(phonebook)) {
-                entries.put(getEntryKey(entry), entry);
+        if (!phonebooks.isEmpty()) {
+            for (Phonebook phonebook : phonebooks) {
+                for (PhonebookEntry entry : getEntries(phonebook)) {
+                    entries.put(getEntryKey(entry), entry);
+                }
             }
         }
 
@@ -534,6 +545,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                     DataCollectionUtil.removeByPrimaryKey(book.getMembers(), group.getPrimaryKey());
                     savePhonebook(book);
                 }
+            }
+        } else if (entity instanceof User) {
+            User user = (User) entity;
+            Phonebook privatePhonebook = getPrivatePhonebook(user);
+            if (privatePhonebook != null) {
+                deletePhonebook(privatePhonebook);
             }
         }
     }

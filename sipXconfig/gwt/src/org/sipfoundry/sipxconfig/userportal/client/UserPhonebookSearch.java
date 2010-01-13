@@ -12,6 +12,11 @@ import java.util.LinkedHashMap;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.data.Criteria;
@@ -23,6 +28,7 @@ import com.smartgwt.client.types.Alignment;
 import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.Label;
 import com.smartgwt.client.widgets.Window;
@@ -32,6 +38,7 @@ import com.smartgwt.client.widgets.events.CloseClickHandler;
 import com.smartgwt.client.widgets.events.CloseClientEvent;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.FormItem;
+import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
@@ -64,6 +71,8 @@ public class UserPhonebookSearch implements EntryPoint {
     private static final String PHONE_CELL = "cellPhoneNumber";
     private static final String PHONE_HOME = "homePhoneNumber";
     private static final String PHONE_ASST = "assistantPhoneNumber";
+
+    private static final String WILD_CARD = "*";
 
     private static final String[] FIELDS_PHONENUMBERS = {
         NUMBER, PHONE_CELL, PHONE_HOME, PHONE_ASST
@@ -122,6 +131,30 @@ public class UserPhonebookSearch implements EntryPoint {
         SearchForm searchForm = new SearchForm(phonebookDS);
         searchForm.addHandler(phonebookGrid);
 
+        IButton gmailImport = new IButton(s_searchConstants.gmailImportTitle());
+        gmailImport.addClickHandler(new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                final GmailImportModalWindow gmailModal = new GmailImportModalWindow(phonebookGrid);
+                gmailModal.show();
+            }
+        });
+        gmailImport.setAutoFit(true);
+
+        HLayout leftHLayout = new HLayout();
+        leftHLayout.addMember(searchForm);
+        leftHLayout.setWidth("50%");
+
+        HLayout rightHLayout = new HLayout();
+        rightHLayout.addMember(gmailImport);
+        rightHLayout.setWidth(WILD_CARD);
+        rightHLayout.setAlign(Alignment.RIGHT);
+
+        HLayout topHLayout = new HLayout();
+        topHLayout.addMember(leftHLayout);
+        topHLayout.addMember(rightHLayout);
+        topHLayout.setWidth100();
+
         HLayout hgridLayout = new HLayout();
         hgridLayout.setLayoutRightMargin(5);
         hgridLayout.addMember(phonebookGrid);
@@ -131,7 +164,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
         VLayout gridLayout = new VLayout();
         gridLayout.setLayoutBottomMargin(5);
-        gridLayout.addMember(searchForm);
+        gridLayout.addMember(topHLayout);
         gridLayout.addMember(sizeLabel);
         gridLayout.addMember(hgridLayout);
         gridLayout.setWidth("70%");
@@ -151,7 +184,7 @@ public class UserPhonebookSearch implements EntryPoint {
             firstNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
             lastNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
             numberField.setWidth(NRML_TABLE_FIELD_WIDTH);
-            emailField.setWidth("*");
+            emailField.setWidth(WILD_CARD);
 
             setHeaderTitleStyle("gwtGridHeaderTitle");
             setBaseStyle("gwtGridBody");
@@ -292,13 +325,12 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-    private static class ClickToCallModalWindow extends Window {
+    private static class ModalWindow extends Window {
 
-        public ClickToCallModalWindow(LinkedHashMap<String, String> phoneMap) {
-
+        private void createWindow(String title, String help, DynamicForm form, IButton submitButton) {
             setAutoSize(true);
 
-            setTitle(s_searchConstants.clickToCall());
+            setTitle(title);
             setShowMinimizeButton(false);
             setIsModal(true);
             setShowModalMask(true);
@@ -309,17 +341,34 @@ public class UserPhonebookSearch implements EntryPoint {
                 }
             });
 
+            Label helpText = new Label();
+            helpText.setContents(help);
+            helpText.setWrap(false);
+            helpText.setStyleName("formHint");
+            helpText.setAutoFit(true);
+
+            VLayout importLayout = new VLayout();
+            importLayout.addMember(helpText);
+            importLayout.addMember(form);
+            importLayout.addMember(submitButton);
+            importLayout.setAutoHeight();
+            importLayout.setAutoWidth();
+            importLayout.setLayoutAlign(Alignment.CENTER);
+            addItem(importLayout);
+
+        }
+
+    }
+
+    private static class ClickToCallModalWindow extends ModalWindow {
+
+        public ClickToCallModalWindow(LinkedHashMap<String, String> phoneMap) {
+
             final TextItem numberToDail = new TextItem();
             numberToDail.setShowTitle(false);
             if (0 < phoneMap.keySet().size()) {
                 numberToDail.setValue(formatPhoneNumber((String) phoneMap.keySet().toArray()[0]));
             }
-
-            final Label helpText = new Label();
-            helpText.setContents(s_searchConstants.clickToCallHelp());
-            helpText.setWrap(false);
-            helpText.setStyleName("formHint");
-            helpText.setAutoFit(true);
 
             final SelectItem selectNumber = new SelectItem();
             selectNumber.setValueMap(phoneMap);
@@ -333,9 +382,10 @@ public class UserPhonebookSearch implements EntryPoint {
             selectNumber.setShowTitle(false);
             selectNumber.setDefaultToFirstOption(true);
 
-
             final DynamicForm form = new DynamicForm();
-            form.setFields(new FormItem[] {numberToDail, selectNumber});
+            form.setFields(new FormItem[] {
+                numberToDail, selectNumber
+            });
             form.setLayoutAlign(Alignment.CENTER);
 
             IButton callButton = new IButton();
@@ -351,15 +401,9 @@ public class UserPhonebookSearch implements EntryPoint {
                 }
             });
 
-            final VLayout clickToCallLayout = new VLayout();
-            clickToCallLayout.addMember(helpText);
-            clickToCallLayout.addMember(form);
-            clickToCallLayout.addMember(callButton);
-            clickToCallLayout.setAutoHeight();
-            clickToCallLayout.setAutoWidth();
-            clickToCallLayout.setLayoutAlign(Alignment.CENTER);
+            super.createWindow(s_searchConstants.clickToCall(), s_searchConstants.clickToCallHelp(), form,
+                    callButton);
 
-            addItem(clickToCallLayout);
         }
     }
 
@@ -386,5 +430,70 @@ public class UserPhonebookSearch implements EntryPoint {
         public void update(Integer totalRows, Integer filteredRows) {
             setContents(s_searchConstants.numberOfEntries() + filteredRows + "/" + totalRows);
         }
+    }
+
+    private static class GmailImportModalWindow extends ModalWindow {
+
+        private static final String GMAIL_FIELD_NAME = "mail";
+        private static final String PASSWORD_FIELD_NAME = "pwd";
+        private static final int WRONG_GMAIL_CREDENTIALS_CODE = 743;
+        private static final int INTERNAL_GMAIL_ERROR_CODE = 744;
+        private static final int GMAIL_CONNECTION_FAILED_CODE = 745;
+
+        public GmailImportModalWindow(final ListGrid phonebookGrid) {
+
+            final DynamicForm gmailForm = new DynamicForm();
+            gmailForm.setNumCols(4);
+
+            TextItem emailItem = new TextItem(GMAIL_FIELD_NAME, s_searchConstants.account());
+            PasswordItem passwordItem = new PasswordItem(PASSWORD_FIELD_NAME, s_searchConstants.password());
+            gmailForm.setFields(emailItem, passwordItem);
+
+            IButton importFromGmail = new IButton(s_searchConstants.importLabel());
+            importFromGmail.setLayoutAlign(Alignment.CENTER);
+            importFromGmail.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    String email = gmailForm.getValueAsString(GMAIL_FIELD_NAME);
+                    String pass = gmailForm.getValueAsString(PASSWORD_FIELD_NAME);
+                    String url = "/sipxconfig/rest/my/phonebook/googleImport?account=" + email + "&password=" + pass;
+                    RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, url);
+                    try {
+                        reqBuilder.sendRequest(null, new RequestCallback() {
+
+                            @Override
+                            public void onResponseReceived(Request request, Response response) {
+                                int httpStatusCode = response.getStatusCode();
+                                String message = s_searchConstants.gmailImportFailed();
+                                if (httpStatusCode == WRONG_GMAIL_CREDENTIALS_CODE) {
+                                    message = s_searchConstants.wrongGmailCredentials();
+                                } else if (httpStatusCode == INTERNAL_GMAIL_ERROR_CODE) {
+                                    message = s_searchConstants.internalGmailProblems();
+                                } else if (httpStatusCode == GMAIL_CONNECTION_FAILED_CODE) {
+                                    message = s_searchConstants.gmailConnectionFailed();
+                                } else if (httpStatusCode == Response.SC_OK) {
+                                    message = s_searchConstants.gmailImportSuccess();
+                                }
+                                SC.say(message);
+                                phonebookGrid.setRecords(new ListGridRecord[0]);
+                                phonebookGrid.filterData();
+                            }
+
+                            @Override
+                            public void onError(Request request, Throwable exception) {
+                                SC.say(s_searchConstants.gmailImportFailed());
+                            }
+                        });
+                    } catch (RequestException ex) {
+                        SC.say(s_searchConstants.gmailImportFailed());
+                    }
+                    destroy();
+                }
+            });
+
+            super.createWindow(s_searchConstants.gmailImportTitle(), s_searchConstants.gmailImportHelp(), gmailForm,
+                    importFromGmail);
+        }
+
     }
 }

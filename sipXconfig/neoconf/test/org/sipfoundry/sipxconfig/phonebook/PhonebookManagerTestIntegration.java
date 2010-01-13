@@ -170,6 +170,23 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
         assertNotNull(privatePhonebook);
         assertEquals("privatePhonebook_1002", privatePhonebook.getName());
+        assertEquals(1, m_phonebookManager.getEntries(Collections.singletonList(privatePhonebook), portaluser)
+                .size());
+
+        User anotheruser = m_coreContext.loadUser(1003);
+
+        Collection<Phonebook> phonebooks = m_phonebookManager.getPhonebooksByUser(anotheruser);
+        assertEquals(2, m_phonebookManager.getEntries(phonebooks, portaluser).size());
+
+    }
+
+    public void testDeletePrivatePhonebook() throws Exception {
+        loadDataSet("phonebook/PhonebookSeed.db.xml");
+        assertEquals(3, m_phonebookManager.getPhonebooks().size());
+
+        User portaluser = m_coreContext.loadUser(1002);
+        m_coreContext.deleteUser(portaluser);
+        assertEquals(2, m_phonebookManager.getPhonebooks().size());
     }
 
     public void testGetPagedPhonebook() throws Exception {

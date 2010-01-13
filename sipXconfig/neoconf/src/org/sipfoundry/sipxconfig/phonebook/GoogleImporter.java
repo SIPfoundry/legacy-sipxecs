@@ -55,13 +55,13 @@ public class GoogleImporter {
             entries = resultFeed.getEntries();
         } catch (AuthenticationException e) {
             LOG.warn("Authentication problems", e);
-            throw new UserException("&msg.phonebookGmailAuthError");
+            throw new GmailAuthUserException();
         } catch (ServiceException e) {
             LOG.warn("Google service problems", e);
-            throw new UserException("&msg.phonebookGmailError", e);
+            throw new GmailServiceUserException(e);
         } catch (IOException e) {
             LOG.warn("Connectivity problems", e);
-            throw new UserException("&msg.phonebookGmailTransportError", e);
+            throw new GmailTransportUserException(e);
         }
 
         return entries;
@@ -76,5 +76,29 @@ public class GoogleImporter {
             phonebook.addEntry(phonebookEntry);
         }
         return entries.size();
+    }
+
+    public static class GmailAuthUserException extends UserException {
+
+        public GmailAuthUserException() {
+            super("&msg.phonebookGmailAuthError");
+        }
+
+    }
+
+    public static class GmailServiceUserException extends UserException {
+
+        public GmailServiceUserException(ServiceException e) {
+            super("&msg.phonebookGmailError", e);
+        }
+
+    }
+
+    public static class GmailTransportUserException extends UserException {
+
+        public GmailTransportUserException(IOException e) {
+            super("&msg.phonebookGmailTransportError", e);
+        }
+
     }
 }

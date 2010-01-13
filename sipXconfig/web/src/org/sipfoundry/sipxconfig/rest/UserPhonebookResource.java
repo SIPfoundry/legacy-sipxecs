@@ -39,24 +39,13 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
         }
 
         User user = getUser();
-        Phonebook privatePhonebook = getPhonebookManager().getPrivatePhonebook(user);
-        if (privatePhonebook == null) {
-            Phonebook newPhonebook = new Phonebook();
-            newPhonebook.setName("privatePhonebook_" + user.getUserName());
-            newPhonebook.setUser(user);
-            newPhonebook.setEntries(newEntries);
-            for (PhonebookEntry entry : newEntries) {
-                entry.setPhonebook(newPhonebook);
-            }
-            getPhonebookManager().savePhonebook(newPhonebook);
-        } else {
-            Collection<PhonebookEntry> entries = privatePhonebook.getEntries();
-            entries.addAll(newEntries);
-            for (PhonebookEntry entry : entries) {
-                entry.setPhonebook(privatePhonebook);
-            }
-            getPhonebookManager().savePhonebook(privatePhonebook);
+        Phonebook privatePhonebook = getPhonebookManager().getPrivatePhonebookCreateIfRequired(user);
+        Collection<PhonebookEntry> entries = privatePhonebook.getEntries();
+        entries.addAll(newEntries);
+        for (PhonebookEntry entry : entries) {
+            entry.setPhonebook(privatePhonebook);
         }
+        getPhonebookManager().savePhonebook(privatePhonebook);
     }
 
     static class PrivatePhonebookRepresentation extends XStreamRepresentation<Collection<PhonebookEntry>> {
