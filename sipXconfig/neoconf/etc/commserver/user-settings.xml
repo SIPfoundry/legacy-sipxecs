@@ -137,6 +137,23 @@
       </type>
     </setting>
   </group>
+  <group name="extcontact" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <enum>
+          <option>
+            <value>true</value>
+          </option>
+          <option>
+            <value>false</value>
+          </option>
+        </enum>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="prefix">
+    </setting>
+  </group>
   <group name="personal-attendant">
     <setting name="operator">
       <type>

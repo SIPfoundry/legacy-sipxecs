@@ -22,6 +22,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
@@ -32,6 +33,7 @@ import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
@@ -57,6 +59,9 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
 
+    @InjectObject("spring:forwardingContext")
+    public abstract ForwardingContext getForwardingContext();
+
     @InjectObject("spring:settingDao")
     public abstract SettingDao getSettingDao();
 
@@ -79,19 +84,11 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         CoreContext core = getCoreContext();
         User user = getUser();
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
-        core.saveUser(user);
 
-        // Initialize the new user's mailbox
-        MailboxManager mmgr = getMailboxManager();
-        if (mmgr.isEnabled()) {
-            mmgr.deleteMailbox(user.getUserName());
-        }
-
-        // If necessary, create a conference for this user.
-        Group conferenceGroup = getConferenceGroup(user);
-        if (conferenceGroup != null) {
-            createUserConference(user, conferenceGroup);
-        }
+        // Execute the automatic assignments for the user.
+        GroupAutoAssign groupAutoAssign = new GroupAutoAssign(getConferenceBridgeContext(), getCoreContext(),
+                                                              getForwardingContext(), getMailboxManager());
+        groupAutoAssign.assignUserData(user);
 
         // On saving the user, transfer control to edituser page.
         if (FormActions.APPLY.equals(getButtonPressed())) {

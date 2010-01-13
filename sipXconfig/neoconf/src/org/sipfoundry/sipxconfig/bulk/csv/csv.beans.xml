@@ -5,10 +5,13 @@
   <bean id="csvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl" />
 
   <bean id="csvRowInserter" parent="rowInserter" class="org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
     <property name="domainManager" ref="domainManager" />
     <property name="phoneContext" ref="phoneContext" />
     <property name="settingDao" ref="settingDao" />
+    <property name="permissionManager" ref="permissionManager" />
     <property name="phoneModelSource" ref="phoneModelSource" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="resetPin" value="1234" />

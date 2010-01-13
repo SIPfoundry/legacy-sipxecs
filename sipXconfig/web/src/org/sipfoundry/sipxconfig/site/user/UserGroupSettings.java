@@ -42,6 +42,7 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     private static final String SCHEDULES = "schedules";
     private static final String CONFERENCE = "conference";
+    private static final String EXTCONTACT = "extcontact";
     private static final String SPEEDDIAL = "speeddial";
     private static final String CONFIGURE = "configure";
     private static final String MOH = "moh";
@@ -105,7 +106,7 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIGURE, SCHEDULES, CONFERENCE, SPEEDDIAL, MOH));
+        tabNames.addAll(Arrays.asList(CONFIGURE, SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, MOH));
 
         return tabNames;
     }
@@ -206,6 +207,14 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public boolean isConferenceTabActive() {
         return (CONFERENCE.equalsIgnoreCase(getParentSettingName()));
+    }
+
+    public void editExtContactSettings() {
+        setParentSettingName(EXTCONTACT);
+    }
+
+    public boolean isExtContactTabActive() {
+        return (EXTCONTACT.equalsIgnoreCase(getParentSettingName()));
     }
 
     public void onSpeedDialSubmit() {

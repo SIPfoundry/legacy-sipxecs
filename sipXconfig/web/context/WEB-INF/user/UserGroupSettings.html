@@ -58,6 +58,10 @@
       <form jwcid="@user/UserGroupConferenceSettings" settings="ognl:settings" group="ognl:group" validator="bean:validator" />
   </div>
 
+  <div jwcid="extcontactTab@Block">
+      <form jwcid="@user/UserGroupExtContactSettings" settings="ognl:settings" group="ognl:group" validator="bean:validator" />
+  </div>
+
   <div jwcid="speeddialTab@Block">
     <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSpeedDialSubmit">
       <fieldset jwcid="@speeddial/SpeedDialPanel" speedDialGroup="ognl:speedDialGroup"/>

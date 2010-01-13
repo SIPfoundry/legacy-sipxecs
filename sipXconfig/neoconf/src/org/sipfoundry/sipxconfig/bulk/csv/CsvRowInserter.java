@@ -14,27 +14,37 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class CsvRowInserter extends RowInserter<String[]> {
     private DomainManager m_domainManager;
 
+    private ConferenceBridgeContext m_conferenceBridgeContext;
+
     private CoreContext m_coreContext;
+
+    private ForwardingContext m_forwardingContext;
 
     private PhoneContext m_phoneContext;
 
     private SettingDao m_settingDao;
+
+    private PermissionManager m_permissionManager;
 
     private ModelSource<PhoneModel> m_modelSource;
 
@@ -50,8 +60,16 @@ public class CsvRowInserter extends RowInserter<String[]> {
         m_modelSource = modelSource;
     }
 
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 
     public void setDomainManager(DomainManager domainManager) {
@@ -128,6 +146,15 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         insertData(user, userGroups, phone, phoneGroups);
+
+        // Execute the automatic assignments for the user.
+        if (user != null) {
+            user.setPermissionManager(m_permissionManager);
+
+            GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                                                                  m_forwardingContext, m_mailboxManager);
+            groupAutoAssign.assignUserData(user);
+        }
     }
 
     /**
@@ -295,5 +322,9 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
+    }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
     }
 }
