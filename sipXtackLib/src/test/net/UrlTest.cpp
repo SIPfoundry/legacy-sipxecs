@@ -40,6 +40,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testSipBasicWithPort);
     CPPUNIT_TEST(testIpBasicWithBrackets);
     CPPUNIT_TEST(testSemiHeaderParam);
+    CPPUNIT_TEST(testSipParametersWithComma);
     CPPUNIT_TEST(testSipAdvanced);
     CPPUNIT_TEST(testSipComplexUser);
     CPPUNIT_TEST(testLongHostname);
@@ -291,6 +292,58 @@ public:
 
         ASSERT_STR_EQUAL_MESSAGE(msg, "<sip:rschaaf@sipfoundry.org>", toString(url));
         ASSERT_STR_EQUAL_MESSAGE(msg, "sip:rschaaf@sipfoundry.org", getUri(url));
+    }
+
+    void testSipParametersWithComma()
+    {
+        Url url;
+        UtlString nextUri;
+
+        // A name-addr whose field parameter contains commas, with no
+        // nextUri argument.
+
+        UtlString uri1("<sip:306@10.10.1.2>;methods=\"INVITE, ACK, BYE\"");
+        sprintf(msg, "Field parameters include comma: '%s'", uri1.data());
+
+        CPPUNIT_ASSERT_MESSAGE(msg, url.fromString(uri1, Url::NameAddr, NULL));
+
+        ASSERT_STR_EQUAL_MESSAGE(msg, "10.10.1.2", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "306", getUserId(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
+
+#if 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, uri1, toString(url));
+#endif // 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip:306@10.10.1.2", getUri(url));
+#if 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, "INVITE, ACK, BYE", getFieldParam("methods", url));
+#endif // 0
+
+        // A name-addr whose field parameter contains commas, with a
+        // nextUri argument.
+
+        UtlString uri2("<sip:306@10.10.1.2>;methods=\"INVITE, ACK, BYE\", foo-bar-baz");
+        sprintf(msg, "Field parameters include comma: '%s'", uri2.data());
+
+        CPPUNIT_ASSERT_MESSAGE(msg, url.fromString(uri2, Url::NameAddr, &nextUri));
+
+        ASSERT_STR_EQUAL_MESSAGE(msg, "10.10.1.2", getHostAddress(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip", getUrlType(url));
+        ASSERT_STR_EQUAL_MESSAGE(msg, "306", getUserId(url));
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, PORT_NONE, url.getHostPort());
+
+#if 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, uri1, toString(url));
+#endif // 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, "sip:306@10.10.1.2", getUri(url));
+#if 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, "INVITE, ACK, BYE", getFieldParam("methods", url));
+#endif // 0
+
+#if 0
+        ASSERT_STR_EQUAL_MESSAGE(msg, "foo-bar-baz", nextUri);
+#endif // 0
     }
 
     void testSipAdvanced()
