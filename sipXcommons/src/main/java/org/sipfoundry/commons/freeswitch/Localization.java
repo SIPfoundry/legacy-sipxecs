@@ -12,6 +12,7 @@ package org.sipfoundry.commons.freeswitch;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.apache.log4j.Logger;
@@ -101,7 +102,7 @@ public class Localization {
                 m_resourcesByLocale.put(m_locale, newBundle);
             }
             if (newBundle != null) {
-                LOG.debug(String.format("Localization::changeLocale Loaded resource bundle %s from %s",
+                LOG.debug(String.format("Localization:changeLocale Loaded resource bundle %s from %s",
                         m_bundleName, fromWhere));
                 m_bundle = newBundle;
             } else {
@@ -109,8 +110,16 @@ public class Localization {
             }
         }
 
+        String ttpClass;
+        try {
+            ttpClass = m_bundle.getString("global.ttpClassName");
+        } catch (MissingResourceException e) {
+            ttpClass = null;
+        }
+        
         // Find the TextToPrompt class as well
-        m_ttp = TextToPrompts.getTextToPrompt(m_locale);
+        m_ttp = TextToPrompts.getTextToPrompt(m_locale, ttpClass);
+        
         // Tell it where to find the audio files
         String globalPrefix = m_bundle.getString("global.prefix");
         if (globalPrefix.endsWith("/")) {

@@ -74,7 +74,16 @@ public class Play extends CallCommand {
         if (m_iter.hasNext()) {
             m_finished = false;
             String prompt = m_iter.next();
+            
             m_command = "playback\nexecute-app-arg: " + prompt;
+            
+            // get play offset .. only applies to first wav file
+            int offset = m_prompts.getOffset();
+            if(offset > 0) {
+                m_prompts.setOffset(0);
+                m_command += "@@" + String.valueOf(offset * 8000);              
+            }
+            
             super.start();
         } else {
             m_finished = true;

@@ -47,7 +47,7 @@ public abstract class TextToPrompts {
      * @param l
      * @return
      */
-    public static TextToPrompts getTextToPrompt(Locale l) {
+    public static TextToPrompts getTextToPrompt(Locale l, String className) {
         TextToPrompts foundClass = null;
 
         String lang = l.getLanguage();
@@ -56,9 +56,24 @@ public abstract class TextToPrompts {
 
         String thisClassName = TextToPrompts.class.getCanonicalName();
 
+        if(className != null) {
+            Class< ? > c;
+            try {
+                String fullClassName = thisClassName;
+                int index = fullClassName.indexOf("TextToPrompts");
+                fullClassName = fullClassName.substring(0, index) + className;              
+                
+                c = Class.forName(fullClassName);
+                foundClass = (TextToPrompts) c.newInstance();
+                return foundClass;
+            } catch (Throwable t) {
+                // keep going
+            }
+        }
+        
         // Search for the appropriate class, most generic first.
         // Keep getting more specific until an error is thrown.
-        try {
+        try {           
             Class< ? > c = Class.forName(thisClassName + "_" + lang);
             foundClass = (TextToPrompts) c.newInstance();
             c = Class.forName(thisClassName + "_" + lang + "_" + country);

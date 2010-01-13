@@ -22,6 +22,7 @@ public class PromptList {
     private ArrayList<PromptGroup> m_promptGroups = new ArrayList<PromptGroup>();
     private ResourceBundle m_resourceBundle;
     private TextToPrompts m_ttp;
+    private int m_offsetInSec;
 
     private String m_globalPrefix = "";
 
@@ -145,6 +146,9 @@ public class PromptList {
 
     public void addPrompts(PromptList pl) {
         this.m_promptGroups.addAll(pl.m_promptGroups);
+        if(this.m_offsetInSec == 0) {
+            this.m_offsetInSec = pl.m_offsetInSec;
+        }
     }
 
 
@@ -198,5 +202,13 @@ public class PromptList {
         }
         return result.deleteCharAt(result.length() - 1).toString();
     }
+    
+    public void setOffset(int offsetInSec) {
+        m_offsetInSec = offsetInSec;
+    }    
+
+    public int getOffset() {
+        return m_offsetInSec;
+    }  
 
 }

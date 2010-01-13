@@ -28,11 +28,11 @@ public class TextToPromptsTest extends TestCase {
         // PropertyConfigurator.configure(props);
 
         // See if English works
-        TextToPrompts ttp = TextToPrompts.getTextToPrompt(Locale.ENGLISH);
+        TextToPrompts ttp = TextToPrompts.getTextToPrompt(Locale.ENGLISH, null);
         assertEquals(TextToPrompts.class.getCanonicalName() + "_en", ttp.getClass().getCanonicalName());
 
         // Unknown Locales (such as Klingon) should revert to English. Sucks, but true.
-        ttp = TextToPrompts.getTextToPrompt(new Locale("Klingon"));
+        ttp = TextToPrompts.getTextToPrompt(new Locale("Klingon"), null);
         assertEquals(TextToPrompts.class.getCanonicalName() + "_en", ttp.getClass().getCanonicalName());
     }
 
