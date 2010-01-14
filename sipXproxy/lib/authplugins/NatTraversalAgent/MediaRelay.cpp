@@ -1089,22 +1089,34 @@ bool MediaRelay::getPacketProcessingStatsForMediaRelaySession( const tMediaRelay
 
 OsStatus MediaRelay::signal( intptr_t eventData )
 {
-   OsLock lock( mMutex );
+   mMutex.acquire();
    if( mGenericTimerTickCounter % GENERIC_TIMER_TICKS_BEFORE_BRIDGE_STAT_QUERY == 0 )
    {
       UtlHashMapIterator mediaRelaySessionsIterator( mActiveMediaRelaySessions );
       while( mediaRelaySessionsIterator() )
       {
+         // This while-loop will post one queryBridgeStatistics message on the message
+         // queue for each active media relay session.  When many media relay sessions
+         // are active at once, this can generate a lot of message posts and we
+         // run the risk of filling up the message queue.  The code below releases
+         // the media relay mutex before posting a message.  This is done to ensure
+         // that we never hit the 'queue full' condition while holding the mutex.
+         // Not doing so can create a deadlock condition if the message queue
+         // consumer locks that same mutex while handling messages.  This 
+         // exact deadlock condition has been seen during live trials of sipXecs.
          MediaRelaySession* pMediaRelaySession = 0;
          MediaBridgePair*   pMediaBridgePair = 0;
          pMediaRelaySession = dynamic_cast<MediaRelaySession*>( mediaRelaySessionsIterator.value() );
          if( pMediaRelaySession && ( pMediaBridgePair = pMediaRelaySession->getAssociatedMediaBridgePair() ) )
          {
-            void* opaqueData;
-           opaqueData = (void *)( (intptr_t)pMediaRelaySession->getUniqueHandle() );
-           mAsynchMediaRelayRequestSender.queryBridgeStatistics( mOurInstanceHandle,
-                                                                 pMediaBridgePair->getRtpBridge()->getId(),
-                                                                 opaqueData );
+            UtlString instanceHandle = mOurInstanceHandle;
+            UtlString bridgeId = pMediaBridgePair->getRtpBridge()->getId();
+            void* opaqueData = (void *)( (intptr_t)pMediaRelaySession->getUniqueHandle() );
+            mMutex.release();
+            mAsynchMediaRelayRequestSender.queryBridgeStatistics( instanceHandle,
+                                                                  bridgeId,
+                                                                  opaqueData );
+            mMutex.acquire();
          }
       }
    }
@@ -1125,6 +1137,7 @@ OsStatus MediaRelay::signal( intptr_t eventData )
    }
 
    mGenericTimerTickCounter++;
+   mMutex.release();
    return OS_SUCCESS;
 }
 
