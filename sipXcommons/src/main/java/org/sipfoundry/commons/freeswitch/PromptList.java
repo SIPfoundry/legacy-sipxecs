@@ -87,18 +87,24 @@ public class PromptList {
         int position = 0;
         String type = "cardinal";
         String format = "";
-
+        String value;
+        
         try {
             position = Integer.parseInt(s[0]);
-            type = s[1].trim();
-            format = s[2].trim();
+            value = vars[position];
         } catch (Throwable t) {
-            // Nothing to do, no where to go home...
+        	// 'position' isn't parseable, use it's value directly
+        	value = s[0];
         }
 
+        try {
+	        type = s[1].trim();
+	        format = s[2].trim();
+        } catch (Throwable t) {}
+        
         m_ttp.setType(type);
         m_ttp.setFormat(format);
-        return m_ttp.render(vars[position]);
+        return m_ttp.render(value);
     }
 
     PromptGroup makePromptGroup(String localPrefix, String prompts, String... vars) {
@@ -108,10 +114,16 @@ public class PromptList {
             // Found a variable reference. Render it
             if (prompt.startsWith("{")) {
                 // Replace the reference with bunch of prompts
-                for (String r : renderVariable(prompt, vars).split(":")) {
-                    // Variables do NOT get prefixed
-                    pg.m_prompts.add(r);
-                }
+            	String expand = renderVariable(prompt, vars);
+            	if (expand.startsWith("silence_stream://")) {
+            		// Special internal FreeSWITCH type for silence.
+            		pg.m_prompts.add(expand);
+            	} else {
+	                for (String r : expand.split(":")) {
+	                    // Variables do NOT get prefixed
+	                    pg.m_prompts.add(r);
+	                }
+            	}
             } else {
                 pg.m_prompts.add(appendPrefix(localPrefix, prompt));
             }

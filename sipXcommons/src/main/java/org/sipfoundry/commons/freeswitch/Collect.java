@@ -96,6 +96,13 @@ public class Collect extends CallCommand {
             return true;
         }
 
+        if (!terminate && m_digits.length() == m_maxDigits) {
+	        // put digit back to the DTMF queue
+	        m_fses.pushDtmfQueue(digit);
+	        m_done = true ;
+	        return true;
+        }
+
         // Add digit to list of digits
         m_digits += digit;
 

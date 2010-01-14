@@ -173,6 +173,10 @@ public class Localization {
         return m_ttp;
     }
 
+    public void setTtp(TextToPrompts ttp) {
+    	m_ttp = ttp;
+    }
+    
     public FreeSwitchConfigurationInterface getConfig() {
         return m_config;
     }

@@ -106,6 +106,25 @@ public abstract class FreeSwitchEventSocketInterface {
         LOG.debug(String.format("appendDtmfQueue(%s) dtmfQueue is (%s)",
             redact(digit), redact(getDtmfQueue())));
     }
+    
+    /**
+     * Push digit on the front of the dtmfQueue.
+     * 
+     * @param digit
+     */
+    public void pushDtmfQueue(String digit) {
+    	LinkedBlockingQueue<String> newQueue = new LinkedBlockingQueue<String>();
+
+    	newQueue.add(digit);
+    	
+    	for (String string : m_dtmfQueue) {
+			newQueue.add(string);
+		}
+
+        m_dtmfQueue = newQueue;
+        LOG.debug(String.format("pushDtmfQueue(%s) dtmfQueue is (%s)",
+                redact(digit), redact(getDtmfQueue())));
+    }
 
     /**
      * Parse the initial response from "connect" into name/value pairs. Store in the variables

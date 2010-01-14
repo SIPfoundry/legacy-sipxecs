@@ -115,6 +115,36 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     }
 
     /**
+     * Send an api command to FreeSwitch and await the response.
+     *
+     * Any events sent before the response arrives are queued on the eventQueue.
+     *
+     */
+    public FreeSwitchEvent apiCmdResponse(String cmd) {
+        LOG.debug("FSES::apiCmdResponse " + cmd);
+        // Send the command
+        m_out.printf("api %s%n%n", cmd);
+
+        // Read events off the socket until the api/response is seen.
+        // Other events are queued onto the eventQueue
+        for (;;) {
+            FreeSwitchEvent event = awaitLiveEvent();
+
+            if (event.isEmpty()) {
+            	// Hey! FS closed the socket on us!
+            	return event;
+            } else if (event.getContentType().contentEquals("api/response")) {
+                LOG.debug(String.format("FSES::apiCmdResponse cmd (%s) response (%s)", cmd, event.getHeader(
+                        "Reply-Text", "(No Reply-Text)")));
+                return event;
+            } else {
+                // Push non reply event onto the queue for someone else to deal with.
+                getEventQueue().add(event);
+            }
+        }
+    }
+
+    /**
      * Block waiting for an event to arrive on the socket.
      *
      */

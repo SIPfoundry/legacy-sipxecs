@@ -150,4 +150,11 @@ public class TextToPrompts_enTest extends TestCase {
                 .render("1963-01-26 13:42:11"));
     }
 
+    public void testPause() {
+        TextToPrompts c = new TextToPrompts_en();
+        c.setType(Types.pause);
+        c.setFormat("1234");
+        assertEquals("silence_stream://0", c.render("0"));
+        assertEquals("silence_stream://1234", c.render("-"));
+    }
 }

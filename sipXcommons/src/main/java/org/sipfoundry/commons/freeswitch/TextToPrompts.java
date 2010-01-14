@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
-
 /**
  * Convert a variable into a list of prompt files that expresses that value as audio. A value is
  * text that can be represented as various numerical types. Each type can have additional
@@ -33,7 +31,7 @@ import org.apache.log4j.Logger;
 public abstract class TextToPrompts {
 
     public enum Types {
-        cardinal, ordinal, digits, letters, prompts, date
+        cardinal, ordinal, digits, letters, prompts, date, pause
     }
 
     private String m_prefix; // The prefix for the audio files used on this locale
@@ -141,6 +139,8 @@ public abstract class TextToPrompts {
             return prompts();
         case date:
             return date();
+        case pause:
+        	return pause();
         default:
             break;
         }
@@ -184,7 +184,7 @@ public abstract class TextToPrompts {
      * @param prompts A colon separated list of files.
      * @return A colon separated list of files
      */
-    String appendPrefix(String prompts) {
+    public String appendPrefix(String prompts) {
         if (m_prefix == null || prompts == null || prompts.contentEquals("")) {
             return prompts;
         }
@@ -241,6 +241,19 @@ public abstract class TextToPrompts {
      * @return
      */
     public abstract String prompts();
+
+    public String pause() {
+    	int ms;
+    	
+    	if (getValue().equals("-")) {
+    		ms = Integer.parseInt(getFormat());
+    	} else {
+           ms = Integer.parseInt(getValue());
+    	}
+    
+        String result = String.format("silence_stream://%d", ms);
+        return result;
+    }
 
     public String getValue() {
         return m_value;
@@ -330,4 +343,5 @@ public abstract class TextToPrompts {
         }
         return appendPrefix(result);
     }
+
 }

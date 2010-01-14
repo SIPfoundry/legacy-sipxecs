@@ -30,7 +30,7 @@ public class TextToPrompts_en extends TextToPrompts {
      * @param card
      * @return
      */
-    private String smallCardinal(int card) {
+    protected String smallCardinal(int card) {
         String result = "";
         if (card > 100) {
             int hundreds = card / 100;
@@ -53,7 +53,7 @@ public class TextToPrompts_en extends TextToPrompts {
      * @param card
      * @return
      */
-    private String largeCardinal(int card) {
+    protected String largeCardinal(int card) {
         String result = "";
 
         if (card > 1000000) {
@@ -94,7 +94,7 @@ public class TextToPrompts_en extends TextToPrompts {
      * @param ord
      * @return
      */
-    private String smallOrdinal(int ord) {
+    protected String smallOrdinal(int ord) {
         // Special cases
         switch (ord) {
         case 1:
