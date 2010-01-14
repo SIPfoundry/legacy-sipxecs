@@ -164,7 +164,7 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
 
         Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
+        assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
             assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=l>"));
@@ -173,10 +173,19 @@ public class MusicOnHoldManagerTest extends TestCase {
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
         aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
+        assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
             assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=p>"));
+        }
+
+        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
+                SipxFreeswitchService.SystemMohSetting.NONE.toString());
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        assertTrue(aliasMappings.size() == 4);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappings(alias, "<sip:IVR@FSaddr:42;action=moh;moh=n>"));
         }
 
     }
@@ -188,6 +197,8 @@ public class MusicOnHoldManagerTest extends TestCase {
             assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=l>", alias.getContact());
         } else if ("sip:~~testMohUser~p@randomAddress.test".equals(alias.getIdentity())) {
             assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=p>", alias.getContact());
+        } else if ("sip:~~testMohUser~n@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@FSaddr:42;action=moh;moh=n>", alias.getContact());
         } else {
             return false;
         }
@@ -228,7 +239,7 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
 
         Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
+        assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
             assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=l>"));
@@ -237,10 +248,19 @@ public class MusicOnHoldManagerTest extends TestCase {
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
         aliasMappings = m_musicOnHoldManager.getAliasMappings();
-        assertTrue(aliasMappings.size() == 3);
+        assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
             assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=p>"));
+        }
+
+        service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
+                SipxFreeswitchService.SystemMohSetting.NONE.toString());
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        assertTrue(aliasMappings.size() == 4);
+
+        for (AliasMapping alias : aliasMappings) {
+            assertTrue(checkAliasMappingsHA(alias, "<sip:IVR@192.168.1.1:42;action=moh;moh=n>"));
         }
 
     }
@@ -252,6 +272,8 @@ public class MusicOnHoldManagerTest extends TestCase {
             assertEquals("<sip:IVR@192.168.1.1:42;action=moh;moh=l>", alias.getContact());
         } else if ("sip:~~testMohUser~p@randomAddress.test".equals(alias.getIdentity())) {
             assertEquals("<sip:IVR@192.168.1.1:42;action=moh;moh=p>", alias.getContact());
+        } else if ("sip:~~testMohUser~n@randomAddress.test".equals(alias.getIdentity())) {
+            assertEquals("<sip:IVR@192.168.1.1:42;action=moh;moh=n>", alias.getContact());
         } else {
             return false;
         }

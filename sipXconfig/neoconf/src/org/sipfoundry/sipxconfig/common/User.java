@@ -55,7 +55,7 @@ public class User extends BeanWithGroups implements NamedObject {
     public static final String MOH_AUDIO_SOURCE_SETTING = "moh/audio-source";
 
     public static enum MohAudioSource {
-        FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT;
+        FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
 
         public static MohAudioSource parseSetting(String mohSetting) {
             try {
@@ -542,6 +542,8 @@ public class User extends BeanWithGroups implements NamedObject {
             return m_musicOnHoldManager.getPortAudioMohUri();
         case SYSTEM_DEFAULT:
             return m_musicOnHoldManager.getDefaultMohUri();
+        case NONE:
+            return m_musicOnHoldManager.getNoneMohUri();
         default:
             return m_musicOnHoldManager.getDefaultMohUri();
         }

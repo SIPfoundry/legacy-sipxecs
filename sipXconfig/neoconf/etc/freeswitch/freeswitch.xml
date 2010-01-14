@@ -40,6 +40,9 @@
           <option>
             <value>SOUNDCARD_SRC</value>
           </option>
+          <option>
+            <value>NONE</value>
+          </option>
         </enum>
       </type>
       <value>FILES_SRC</value>

@@ -31,7 +31,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     public static final String LOG_SETTING = "freeswitch-config/FREESWITCH_SIP_DEBUG";
 
     public static enum SystemMohSetting {
-        FILES_SRC, SOUNDCARD_SRC;
+        FILES_SRC, SOUNDCARD_SRC, NONE;
 
         public static SystemMohSetting parseSetting(String mohSetting) {
             try {

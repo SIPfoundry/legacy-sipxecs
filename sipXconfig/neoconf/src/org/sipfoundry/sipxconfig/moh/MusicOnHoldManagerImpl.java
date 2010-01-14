@@ -41,6 +41,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public static final String LOCAL_FILES_SOURCE_SUFFIX = "l";
     public static final String PORT_AUDIO_SOURCE_SUFFIX = "p";
     public static final String USER_FILES_SOURCE_SUFFIX = "u";
+    public static final String NONE_SUFFIX = "n";
 
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
 
@@ -116,6 +117,9 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         case SOUNDCARD_SRC:
             contact = getPortAudioMohUriMapping();
             break;
+        case NONE:
+            contact = getNoneMohUriMapping();
+            break;
         case FILES_SRC:
         default:
             contact = getLocalFilesMohUriMapping();
@@ -127,6 +131,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
         aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping()));
         aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping()));
+        aliasMappings.add(new AliasMapping(getNoneMohUri(), getNoneMohUriMapping()));
 
         return aliasMappings;
     }
@@ -157,6 +162,10 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
 
     public String getLocalFilesMohUri() {
         return getMohUri(m_mohUser + LOCAL_FILES_SOURCE_SUFFIX);
+    }
+
+    public String getNoneMohUri() {
+        return getMohUri(m_mohUser + NONE_SUFFIX);
     }
 
     /**
@@ -221,11 +230,15 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         return getMohUriMapping(LOCAL_FILES_SOURCE_SUFFIX);
     }
 
+    private String getNoneMohUriMapping() {
+        return getMohUriMapping(NONE_SUFFIX);
+    }
+
     /**
      * Build an alias which maps directly to the MOH server
      *
      * IVR@{FS}:{FSPort};action=moh; add "moh=l" for localstream files add "moh=p" for portaudio
-     * (sound card) add "moh=u{username} for personal audio files
+     * (sound card) add "moh=u{username} for personal audio files add "moh=n" for disabled MOH
      *
      */
     private String getMohUriMapping(String mohParam) {

@@ -335,6 +335,9 @@
           <option>
             <value>SYSTEM_DEFAULT</value>
           </option>
+          <option>
+            <value>NONE</value>
+          </option>
         </enum>
       </type>
       <value>SYSTEM_DEFAULT</value>

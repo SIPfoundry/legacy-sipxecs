@@ -293,6 +293,8 @@ public class UserTest extends TestCase {
         expectLastCall().andReturn("sip:~~mh~1234@example.org").anyTimes();
         musicOnHoldManager.getPortAudioMohUri();
         expectLastCall().andReturn("sip:~~mh~p@example.org").anyTimes();
+        musicOnHoldManager.getNoneMohUri();
+        expectLastCall().andReturn("sip:~~mh~n@example.org").anyTimes();
         replay(musicOnHoldManager);
 
         PermissionManagerImpl pm = new PermissionManagerImpl();
@@ -313,6 +315,9 @@ public class UserTest extends TestCase {
 
         user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.SOUNDCARD_SRC.toString());
         assertEquals("sip:~~mh~p@example.org", user.getMusicOnHoldUri());
+
+        user.setSettingValue(User.MOH_AUDIO_SOURCE_SETTING, User.MohAudioSource.NONE.toString());
+        assertEquals("sip:~~mh~n@example.org", user.getMusicOnHoldUri());
 
     }
 
