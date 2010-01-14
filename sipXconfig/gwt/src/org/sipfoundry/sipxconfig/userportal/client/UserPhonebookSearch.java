@@ -251,6 +251,7 @@ public class UserPhonebookSearch implements EntryPoint {
             ChangedHandler onChange = new ChangedHandler() {
                 @Override
                 public void onChanged(ChangedEvent event) {
+                    phonebookGrid.invalidateCache();
                     if (m_query.getValue() != null) {
                         phonebookGrid.filterData(new Criteria(QUERY, (String) m_query.getValue()));
                     } else {
