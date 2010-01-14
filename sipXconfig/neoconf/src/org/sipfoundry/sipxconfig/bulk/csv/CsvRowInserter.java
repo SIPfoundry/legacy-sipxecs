@@ -146,15 +146,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         insertData(user, userGroups, phone, phoneGroups);
-
-        // Execute the automatic assignments for the user.
-        if (user != null) {
-            user.setPermissionManager(m_permissionManager);
-
-            GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
-                                                                  m_forwardingContext, m_mailboxManager);
-            groupAutoAssign.assignUserData(user);
-        }
     }
 
     /**
@@ -253,12 +244,12 @@ public class CsvRowInserter extends RowInserter<String[]> {
     private void insertData(User user, Collection<Group> userGroups, Phone phone,
             Collection<Group> phoneGroups) {
 
-        boolean newMailbox = false;
+        boolean newUser = false;
         if (user != null) {
             for (Group userGroup : userGroups) {
                 user.addGroup(userGroup);
             }
-            newMailbox = m_coreContext.saveUser(user);
+            newUser = m_coreContext.saveUser(user);
         }
 
         if (phoneGroups != null) {
@@ -273,7 +264,13 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         if (user != null) {
-            updateMailbox(user, newMailbox);
+            if (newUser) {
+                // Execute the automatic assignments for the user.
+                user.setPermissionManager(m_permissionManager);
+                GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                                                                      m_forwardingContext, m_mailboxManager);
+                groupAutoAssign.assignUserData(user);
+            }
         }
     }
 

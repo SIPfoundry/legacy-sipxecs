@@ -46,6 +46,7 @@ public class LdapRowInserterTest extends TestCase {
         control.replay();
 
         User joe = new User();
+        Group salesGroup = new Group();
         Group importGroup = new Group();
 
         AttrMap map = new AttrMap();
@@ -68,9 +69,9 @@ public class LdapRowInserterTest extends TestCase {
         coreContext.newUser();
         coreContextControl.andReturn(joe);
         coreContext.getGroupByName("sales", true);
-        coreContextControl.andReturn(null);
+        coreContextControl.andReturn(salesGroup);
         coreContext.saveUser(joe);
-        coreContextControl.andReturn(true);
+        coreContextControl.andReturn(true).atLeastOnce();
         coreContext.deleteUsersByUserName(Collections.singleton("olderImportUser"));
         coreContextControl.replay();
 

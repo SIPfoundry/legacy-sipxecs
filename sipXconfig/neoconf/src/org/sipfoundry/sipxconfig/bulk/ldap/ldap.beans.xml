@@ -43,7 +43,9 @@
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter" parent="rowInserter"
     singleton="false">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
     <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
     <property name="mailboxManager" ref="mailboxManager" />
     <property name="preserveMissingUsers" value="false" />
     <property name="userMapper">

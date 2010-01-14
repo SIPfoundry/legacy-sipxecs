@@ -17,10 +17,13 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 /**
@@ -28,7 +31,9 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
  */
 public class LdapRowInserter extends RowInserter<SearchResult> {
     private LdapManager m_ldapManager;
+    private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
+    private ForwardingContext m_forwardingContext;
     private MailboxManager m_mailboxManager;
     private Set<String> m_existingUserNames;
     private UserMapper m_userMapper;
@@ -91,7 +96,10 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             m_coreContext.saveUser(user);
 
             if (newUser) {
-                m_mailboxManager.deleteMailbox(user.getUserName());
+                // Execute the automatic assignments for the user.
+                GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                                                                      m_forwardingContext, m_mailboxManager);
+                groupAutoAssign.assignUserData(user);
             }
         } catch (NamingException e) {
             throw new RuntimeException(e);
@@ -116,8 +124,16 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_attrMap = attrMap;
     }
 
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 
     public void setPreserveMissingUsers(boolean removeMissingUsers) {
