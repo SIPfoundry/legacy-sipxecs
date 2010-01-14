@@ -78,13 +78,21 @@ public abstract class VoicemailServerComponent extends BaseComponent {
          * Sets selected setting to true, all other settings to false
          */
         public void setSelectedSetting(Setting setting) {
-            Setting set = m_rootSetting.getSetting(m_setPath);
-            for (Setting s : set.getValues()) {
-                if (s.getType() instanceof BooleanSetting) {
-                    s.setTypedValue(s == setting);
+            if (setting != null) {
+                Setting set = m_rootSetting.getSetting(m_setPath);
+                for (Setting s : set.getValues()) {
+                    if (s.getType() instanceof BooleanSetting) {
+                        s.setTypedValue(s == setting);
+                    }
+                }
+            } else {
+                Setting set = m_rootSetting.getSetting(m_setPath);
+                for (Setting s : set.getValues()) {
+                    if (s.getType() instanceof BooleanSetting) {
+                        s.setValue(s.getDefaultValue());
+                    }
                 }
             }
-
         }
     }
 }
