@@ -112,6 +112,12 @@
       </type>
       <value>1</value>
     </setting>
+    <setting name="allow_dialog_subscriptions" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
   </group>
   <group name="resources">
     <setting name="resource_list_method">
