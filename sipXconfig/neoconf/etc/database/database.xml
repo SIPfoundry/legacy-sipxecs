@@ -339,6 +339,7 @@
     <antcall target="gateway-enabled" />
     <antcall target="park-server-migration-task" />
     <antcall target="user-external-im-account" />
+    <antcall target="migrate-pregroup-alarm-contacts" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -947,6 +948,17 @@
   </target>
 
   <!--
+    Patches that use the SQL Procedural Language (PL/pgSQL) should depend on this task to ensure
+    the language is created.  Because 'failonerror' is 'false', it can be run without problem even
+    when the language is already created.
+  -->
+  <target name="createlang-plpgsql">
+    <exec executable="createlang" failonerror="false">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
+    </exec>
+  </target>
+
+  <!--
     - version1 patches
   -->
   <!-- 
@@ -1036,6 +1048,9 @@
   </target>
   <target name="user-external-im-account" unless="user-external-im-account">
     <db-patch patch="user-external-im-account"/>
+  </target>
+  <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
+    <db-patch patch="migrate-pregroup-alarm-contacts"/>
   </target>
 
   <!--

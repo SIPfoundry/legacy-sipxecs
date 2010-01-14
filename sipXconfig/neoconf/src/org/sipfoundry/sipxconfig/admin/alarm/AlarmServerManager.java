@@ -29,8 +29,6 @@ public interface AlarmServerManager {
 
     AlarmGroup getAlarmGroupByName(String alarmGroupName);
 
-    void deleteAlarmGroupsById(Collection<Integer> alarmsIds);
-
     void saveAlarmGroup(AlarmGroup group);
 
     void clear();

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import static java.util.Collections.emptyList;
 
@@ -96,13 +97,26 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         }
     }
 
+    protected boolean isDefaultGroup(AlarmGroup group) {
+        if (group.getName().compareTo(GROUP_NAME_DEFAULT) == 0) {
+            return true;
+        }
+        return false;
+    }
+
     public void removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms) {
         for (Integer id : groupsIds) {
-            // Remove matching group numbers from alarm before removing the alarm group.
             AlarmGroup group = (AlarmGroup) getHibernateTemplate().load(AlarmGroup.class, id);
-            clearAlarmStorage(group.getName(), alarms);
-            getHibernateTemplate().delete(group);
+            // Don't delete the default group.
+            if (!isDefaultGroup(group)) {
+                // Remove matching group numbers from alarm before removing the alarm group.
+                clearAlarmStorage(group.getName(), alarms);
+                getHibernateTemplate().delete(group);
+            } else {
+                LOG.info("Cannot delete the default Alarm Group.");
+            }
         }
+
     }
 
     @Required
@@ -150,11 +164,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         AlarmServer server = new AlarmServer();
         // set email notification enabled by default
         server.setEmailNotificationEnabled(true);
-        // set default email address (Group 1 contact email = SIPXPBXUSER@localhost)
-        AlarmGroup group = createDefaultGroup();
-        if (!isNameInUse(group)) {
-            saveAlarmGroup(group);
-        }
         return server;
     }
 
@@ -208,7 +217,24 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     public List<AlarmGroup> getAlarmGroups() {
-        return getHibernateTemplate().loadAll(AlarmGroup.class);
+
+        List<AlarmGroup> groups = getHibernateTemplate().loadAll(AlarmGroup.class);
+
+        // Create the default group if doesn't already exist.
+        boolean hasDefault = false;
+        for (AlarmGroup group : groups) {
+            if (isDefaultGroup(group)) {
+                hasDefault = true;
+                break;
+            }
+        }
+        if (!hasDefault) {
+            AlarmGroup group = createDefaultGroup();
+            saveAlarmGroup(group);
+            groups.add(group);
+        }
+
+        return groups;
     }
 
     public AlarmGroup getAlarmGroupById(Integer alarmGroupId) {
@@ -216,17 +242,13 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     public AlarmGroup getAlarmGroupByName(String alarmGroupName) {
-        List<AlarmGroup> alarmGroups = getHibernateTemplate().loadAll(AlarmGroup.class);
+        List<AlarmGroup> alarmGroups = getAlarmGroups();
         for (AlarmGroup alarmGroup : alarmGroups) {
             if (alarmGroup.getName() == alarmGroupName) {
                 return alarmGroup;
             }
         }
         return null;
-    }
-
-    public void deleteAlarmGroupsById(Collection<Integer> groupsIds) {
-        removeAll(AlarmGroup.class, groupsIds);
     }
 
     public List<Alarm> getAlarmTypes() {
@@ -242,7 +264,12 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     public void clear() {
-        removeAll(AlarmGroup.class);
+        // The default group will not actually be removed.
+        Collection<Integer> groupsIds = new Vector<Integer>();
+        for (AlarmGroup group : getAlarmGroups()) {
+            groupsIds.add(group.getId());
+        }
+        removeAlarmGroups(groupsIds, getAlarmTypes());
     }
 
     public void saveAlarmGroup(AlarmGroup group) {

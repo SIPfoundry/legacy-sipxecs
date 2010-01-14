@@ -101,7 +101,9 @@ public class AlarmsPageTestUi extends WebTestCase {
             SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("alarmGroups:delete");
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "alarmGroups:list"));
+
+        // The column header row, plus the "default" group that cannot be deleted.
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "alarmGroups:list"));
     }
 
     public void testDisplayHistory() throws Exception {

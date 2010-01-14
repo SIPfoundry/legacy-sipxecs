@@ -12,6 +12,7 @@ import java.util.Collection;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
@@ -46,6 +47,7 @@ public class FirstRunTask implements ApplicationListener {
     private LocationsManager m_locationsManager;
     private PagingContext m_pagingContext;
     private SbcManager m_sbcManager;
+    private AlarmServerManager m_alarmServerManager;
 
     public void runTask() {
         LOG.info("Executing first run tasks...");
@@ -57,6 +59,7 @@ public class FirstRunTask implements ApplicationListener {
         m_pagingContext.getPagingServer();
         m_resetDialPlanTask.reset(false);
         m_sbcManager.loadDefaultSbc();
+        m_alarmServerManager.getAlarmGroups();
 
         enforceRoles();
         generateAllProfiles();
@@ -185,5 +188,10 @@ public class FirstRunTask implements ApplicationListener {
     @Required
     public void setSbcManager(SbcManager sbcManager) {
         m_sbcManager = sbcManager;
+    }
+
+    @Required
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 }

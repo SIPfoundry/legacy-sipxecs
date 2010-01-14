@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -19,6 +21,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmGroup;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -70,10 +74,25 @@ public abstract class AlarmGroupsPanel extends BaseComponent implements PageBegi
     }
 
     public void delete() {
-        Collection allSelected = getAllSelected();
+        Collection<Integer> allSelected = new ArrayList<Integer>(getAllSelected());
         if (allSelected.isEmpty()) {
             return;
         }
+
+        boolean printErrorMessage = false;
+        // do not delete the default alarm group
+        for (Iterator<Integer> iterator = allSelected.iterator(); iterator.hasNext();) {
+            Integer id = iterator.next();
+            if (getAlarmServerManager().getAlarmGroupById(id).getName().endsWith("default")) {
+                printErrorMessage = true;
+                iterator.remove();
+            }
+        }
+        if (printErrorMessage) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutAlarmGroupDeletion")));
+        }
+
         getAlarmServerManager().removeAlarmGroups(allSelected, getAlarmServerManager().getAlarmTypes());
     }
 

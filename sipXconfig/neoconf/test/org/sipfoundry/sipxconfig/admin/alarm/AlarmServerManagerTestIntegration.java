@@ -10,10 +10,12 @@
 package org.sipfoundry.sipxconfig.admin.alarm;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmGroup;
@@ -45,22 +47,23 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
         assertTrue(alarmServer.isEmailNotificationEnabled());
         AlarmGroup alarmGroup = m_alarmServerManager.getAlarmGroupByName("default");
+        assertNotNull(alarmGroup);
         assertEquals("sipxpbxuser@localhost", alarmGroup.getEmailAddresses().get(0));
     }
 
     public void testGetAlarmGroups() throws Exception {
         List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
-        assertEquals(3, groups.size());
+        assertEquals(4, groups.size());
         AlarmGroup group1 = groups.get(0);
         assertEquals("sale", group1.getName());
         assertEquals("Sales", group1.getDescription());
         assertEquals(true, group1.isEnabled());
         Set<User> users = group1.getUsers();
         assertEquals(2, users.size());
-        Iterator it = users.iterator();
+        Iterator<User> it = users.iterator();
         List<String> usersName = new ArrayList<String>();
         while (it.hasNext()) {
-            User user = (User) it.next();
+            User user = it.next();
             usersName.add(user.getName());
         }
         assertTrue(usersName.contains("user1"));
@@ -76,22 +79,9 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         assertEquals(1, users.size());
     }
 
-    public void testDeleteAlarmGroupsById() throws Exception {
-        List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
-        assertEquals(3, groups.size());
-        List<Integer> groupsIds = new ArrayList<Integer>();
-        groupsIds.add(101);
-        groupsIds.add(102);
-        m_alarmServerManager.deleteAlarmGroupsById(groupsIds);
-        groups = m_alarmServerManager.getAlarmGroups();
-
-        // 2 alarm groups should disappear
-        assertEquals(1, groups.size());
-    }
-
     public void testSaveAlarmGroup() throws Exception {
         List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
-        assertEquals(3, groups.size());
+        assertEquals(4, groups.size());
 
         AlarmGroup group = new AlarmGroup();
         group.setName("testing");
@@ -101,7 +91,7 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         group.setUsers(users);
         m_alarmServerManager.saveAlarmGroup(group);
         groups = m_alarmServerManager.getAlarmGroups();
-        assertEquals(4, groups.size());
+        assertEquals(5, groups.size());
     }
 
     public void testSaveDuplicateNumberAlarmGroup() throws Exception {
@@ -115,10 +105,35 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testClear() throws Exception {
+
+        // Add a group.  (To ensure deletion of groups doesn't stop at the default group.)
+        AlarmGroup group = new AlarmGroup();
+        group.setName("testing");
+        group.setDescription("test");
+        m_alarmServerManager.saveAlarmGroup(group);
+
         m_alarmServerManager.clear();
 
-        // they should be gone
-        List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
-        assertEquals(0, groups.size());
+        // All groups except the default should be gone.
+        assertEquals(1, m_alarmServerManager.getAlarmGroups().size());
+    }
+
+    public void testPreventDefaultGroupDeletion() {
+
+        // Add a group.  (To ensure deletion of groups doesn't stop at the default group.)
+        AlarmGroup group = new AlarmGroup();
+        group.setName("testing");
+        group.setDescription("test");
+        m_alarmServerManager.saveAlarmGroup(group);
+
+	// Collect all the group IDs.
+	Collection<Integer> groupsIds = new Vector<Integer>();
+        for (AlarmGroup group1 : m_alarmServerManager.getAlarmGroups()) {
+            groupsIds.add(group1.getId());
+        }
+
+        // Try to delete them all, only the default group should remain.
+        m_alarmServerManager.removeAlarmGroups(groupsIds, m_alarmServerManager.getAlarmTypes());
+        assertEquals(1, m_alarmServerManager.getAlarmGroups().size());
     }
 }
