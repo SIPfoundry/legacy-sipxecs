@@ -155,6 +155,8 @@ public class SymmitronServer implements Symmitron {
     private static final String STUN_ADDRESS_ERROR_ALARM_ID = "STUN_ADDRESS_ERROR";
 
     static final String SIPX_RELAY_STRAY_PACKET_ALARM_ID = "MEDIA_RELAY_STRAY_PACKETS_DETECTED";
+
+    static final int TIMEOUT = 1000;
     
     private static NetworkConfigurationDiscoveryProcess addressDiscovery = null;
     
@@ -962,7 +964,7 @@ public class SymmitronServer implements Symmitron {
             
             DataShuffler.addWorkItem(workItem);
             
-            boolean acquired = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
+            boolean acquired = workItem.workSem.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS);
             
             logger.debug("tryAquire returned with value " + acquired);
             if (!acquired ) {
@@ -1067,7 +1069,7 @@ public class SymmitronServer implements Symmitron {
 
             RemoveSymWorkItem removeSym = new RemoveSymWorkItem(bridgeId,symId);
             DataShuffler.addWorkItem(removeSym);
-            boolean acquired = removeSym.workSem.tryAcquire(500,TimeUnit.MILLISECONDS);
+            boolean acquired = removeSym.workSem.tryAcquire(TIMEOUT,TimeUnit.MILLISECONDS);
             if (!acquired) {
             	return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
             }
@@ -1106,7 +1108,7 @@ public class SymmitronServer implements Symmitron {
 
             AddSymWorkItem workItem  = new AddSymWorkItem(bridgeId,symId);
             DataShuffler.addWorkItem(workItem);
-            boolean acquired = workItem.workSem.tryAcquire(500,TimeUnit.MILLISECONDS);
+            boolean acquired = workItem.workSem.tryAcquire(TIMEOUT,TimeUnit.MILLISECONDS);
             if ( !acquired ) {
                 logger.error("addSym: could not acquire sem");
                 return this.createErrorMap(PROCESSING_ERROR,"semaphore timed out");
@@ -1270,7 +1272,7 @@ public class SymmitronServer implements Symmitron {
             
             GetBridgeStatisticsWorkItem workItem = new GetBridgeStatisticsWorkItem(bridgeId);
             DataShuffler.addWorkItem(workItem);
-            boolean acquired = workItem.workSem.tryAcquire(500, TimeUnit.MILLISECONDS);
+            boolean acquired = workItem.workSem.tryAcquire(TIMEOUT, TimeUnit.MILLISECONDS);
             
             if ( ! acquired ) {
                 logger.error("Timed out acquiring workItem sem ");
