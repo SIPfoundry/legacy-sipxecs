@@ -153,6 +153,8 @@ public:
    /**<
     * The urlString value is parsed and the components saved.
     *
+    * @note Check getScheme() after use to see if the urlString was valid!
+    *
     * Since a constructor cannot return an error, and we don't like to raise exceptions,
     * the validity of the urlString input must be tested by checking the scheme of
     * the resulting Url object.  When the input was not successfully parsed, the
@@ -647,8 +649,6 @@ private:
    mutable UtlString mRawHeaderOrQueryParameters;
    mutable UtlDList* mpHeaderOrQueryParameters;
 
-   bool              parseFieldParameters() const; //< lazy parser for field parameters
-   mutable UtlString mRawFieldParameters;
    mutable UtlDList* mpFieldParameters;
 
 

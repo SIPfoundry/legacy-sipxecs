@@ -177,13 +177,44 @@ const RegEx UrlPath( "([^?,\\s]++)[?,]?" );
 //   $1 matches params
 const RegEx UrlParams( SWS ";([^?>,]++)" );
 
-// FieldParams
+// FieldParamName
 //   allows leading whitespace
 //   is terminated by end of string
-//   $0 matches ;params
-//   $1 matches params
-const RegEx FieldParams( SWS ";([^,]+)" );
+//   $0 matches ;name
+//   $1 matches name
+const RegEx FieldParamName( SWS ";" SWS "(" SIP_TOKEN ")" SWS );
 
+// FieldParamEqualsUnquotedValue
+//   is terminated by end of string
+//   $0 matches =value
+const RegEx FieldParamEqualsUnquotedValue(
+   "=" SWS "(" SIP_TOKEN
+   "|(?:" // host
+   "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name
+   "|" "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
+   "|" "(?:\\[[0-9a-fA-F:.]++\\])" // IPv6 address
+   ")"
+   ")"
+                                    );
+
+// FieldParamValueOkUnquoted
+//   $0 matches any value that can be an unquoted field parameter value
+const RegEx FieldParamValueOkUnquoted(
+   "^(?:" SIP_TOKEN
+   "|(?:" // host
+   "(?:" DOMAIN_LABEL "\\.)*" DOMAIN_LABEL "\\.?" // DNS name
+   "|" "(?:[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3})" // IPv4 address
+   "|" "(?:\\[[0-9a-fA-F:.]++\\])" // IPv6 address
+   ")"
+   ")$"
+                                      );
+
+// FieldParamEqualsQuotedValue
+//   is terminated by end of string
+//   $0 matches ="value" including quotes
+const RegEx FieldParamEqualsQuotedValue(
+   "=" SWS "(" DQUOTE "(?:[^\\" DQUOTE "]++" "|" SLASH "." ")*" DQUOTE ")" // quoted-string
+                                  );
 // HeaderOrQueryParams
 //   allows leading whitespace
 //   is terminated by but does not require a trailing '>'
@@ -196,6 +227,7 @@ const RegEx AllDigits("^\\+?[0-9*]++$");
 
 // Comma separator between multiple values
 const RegEx CommaSeparator(SWS "," SWS);
+const RegEx EndUrl(SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -345,10 +377,6 @@ Url::operator=(const Url& rhs)
          {
             mpFieldParameters->append(new NameValuePairInsensitive(*rhsParam));
          }
-      }
-      else
-      {
-         mRawFieldParameters = rhs.mRawFieldParameters;
       }
    }
 
@@ -968,7 +996,7 @@ UtlBoolean Url::getFieldParameter(const char* name, UtlString& value, int index)
     int foundIndex = 0;
     UtlBoolean found = FALSE;
     value = "";
-    if(mpFieldParameters || const_cast<Url*>(this)->parseFieldParameters())
+    if(mpFieldParameters)
     {
         UtlDListIterator fieldParamIterator(*mpFieldParameters);
         NameValuePairInsensitive* fieldParam = NULL;
@@ -1000,7 +1028,7 @@ UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& va
     NameValuePairInsensitive* field = NULL;
 
     if (   fieldIndex >= 0
-        && (mpFieldParameters || parseFieldParameters())
+        && (mpFieldParameters)
         && ((int)(mpFieldParameters->entries())) > fieldIndex
         )
     {
@@ -1019,7 +1047,7 @@ UtlBoolean Url::getFieldParameter(int fieldIndex, UtlString& name, UtlString& va
 UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames,
                                    UtlString *pValues, int& iActualReturn) const
 {
-    if(!(mpFieldParameters || parseFieldParameters()))
+    if(!mpFieldParameters)
     {
         iActualReturn = 0;
     }
@@ -1049,26 +1077,38 @@ UtlBoolean Url::getFieldParameters(int iMaxReturn, UtlString* pNames,
 
 void Url::setFieldParameter(const char* name, const char* value)
 {
-    NameValuePairInsensitive* nv = new NameValuePairInsensitive(name ? name : "",
-        value ? value : "");
+   if (name && *name != '\000')
+   {
+      // ensure that mpFieldParameters is initialized
+      if (!mpFieldParameters)
+      {
+         mpFieldParameters = new UtlDList;
+      }
 
-    // ensure that mpFieldParameters is initialized
-    if (! (mpFieldParameters || parseFieldParameters()))
-    {
-       mpFieldParameters = new UtlDList;
-    }
+      // create a new object to serve as a search key for an existing one (value is unimportant now)
+      NameValuePairInsensitive* nv = new NameValuePairInsensitive(name, "");
 
-    NameValuePairInsensitive* existingParam = dynamic_cast<NameValuePairInsensitive*>(mpFieldParameters->find(nv));
+      NameValuePairInsensitive* existingParam = dynamic_cast<NameValuePairInsensitive*>(mpFieldParameters->find(nv));
 
-    if (existingParam)
-    {
-       existingParam->setValue(value);
-       delete nv;
-    }
-    else
-    {
-       mpFieldParameters->append(nv);
-    }
+      if (existingParam)
+      {
+         delete nv;
+         existingParam->setValue(value);
+      }
+      else
+      {
+         if ( value && *value != '\000' )
+         {
+            nv->setValue(value);
+         }
+         mpFieldParameters->append(nv);
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT, "Url::setFieldParameter passed a null name");
+      assert(false);
+   }
 }
 
 void Url::removeFieldParameters()
@@ -1079,12 +1119,11 @@ void Url::removeFieldParameters()
       delete mpFieldParameters;
       mpFieldParameters = NULL;
    }
-   mRawFieldParameters.remove(0);
 }
 
 void Url::removeFieldParameter(const char* name)
 {
-    if(mpFieldParameters || parseFieldParameters())
+    if(mpFieldParameters)
     {
         NameValuePairInsensitive nv(name ? name : "", NULL);
 
@@ -1138,9 +1177,7 @@ void Url::toString(UtlString& urlString) const
                          && mpHeaderOrQueryParameters->entries()
                          );
 
-   bool haveFldParams = (   (   mpFieldParameters
-                             || const_cast<Url*>(this)->parseFieldParameters()
-                             )
+   bool haveFldParams = (   mpFieldParameters
                          && mpFieldParameters->entries()
                          );
 
@@ -1685,33 +1722,78 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
 
          // If there was no trouble about '>', continue with parsing
          // field parameters.
-         if (UnknownUrlScheme != mScheme)
-         {
-            LOG_TIME("fldparm   < ");
-            RegEx fieldParameters(FieldParams);
-            if (   (fieldParameters.SearchAt(urlString, workingOffset))
-                   && (fieldParameters.MatchStart(0) == workingOffset)
-               )
-            {
-               LOG_TIME("fldparm   > ");
-               fieldParameters.MatchString(&mRawFieldParameters, 1);
-               workingOffset = fieldParameters.AfterMatch(0);
+         LOG_TIME("fldparm   < ");
+         RegEx commaSeparator(CommaSeparator);
+         RegEx endUrl(EndUrl);
+         RegEx fieldParamNameEquals(FieldParamName);
+         RegEx fieldParamEqualsUnquotedValue(FieldParamEqualsUnquotedValue);
+         RegEx fieldParamEqualsQuotedValue(FieldParamEqualsQuotedValue);
 
-               // actual parsing of the parameters is in parseFieldParameters
-               // so that it only happens if someone asks for them.
+         bool finishedFieldParams = false;
+         while ( !finishedFieldParams && UnknownUrlScheme != mScheme )
+         {
+            if (   (endUrl.SearchAt(urlString, workingOffset))
+                && (endUrl.MatchStart(0) == workingOffset))
+            {
+               workingOffset = endUrl.AfterMatch(0);
+               finishedFieldParams = true;
+            }
+            else if (   (commaSeparator.SearchAt(urlString, workingOffset))
+                     && (commaSeparator.MatchStart(0) == workingOffset) )
+            {
+               if (nextUri)
+               {
+                  commaSeparator.AfterMatchString(nextUri);
+               }
+               
+               workingOffset = commaSeparator.AfterMatch(0);
+               finishedFieldParams = true;
+            }
+            else if (   (fieldParamNameEquals.SearchAt(urlString, workingOffset))
+                     && (fieldParamNameEquals.MatchStart(0) == workingOffset) )
+            {
+               UtlString fieldParamName;
+               UtlString fieldParamValue;
+               fieldParamNameEquals.MatchString(&fieldParamName, 1);
+               workingOffset = fieldParamNameEquals.AfterMatch(0);
+
+               if (   (fieldParamEqualsUnquotedValue.SearchAt(urlString, workingOffset))
+                   && (fieldParamEqualsUnquotedValue.MatchStart(0) == workingOffset) )
+               {
+                  fieldParamEqualsUnquotedValue.MatchString(&fieldParamValue, 1);
+                  workingOffset = fieldParamEqualsUnquotedValue.AfterMatch(0);
+               }
+               else if (   (fieldParamEqualsQuotedValue.SearchAt(urlString, workingOffset))
+                        && (fieldParamEqualsQuotedValue.MatchStart(0) == workingOffset) )
+               {
+                  fieldParamEqualsQuotedValue.MatchString(&fieldParamValue, 1);
+                  workingOffset = fieldParamEqualsQuotedValue.AfterMatch(0);
+               }
+
+               gen_value_unescape(fieldParamName);
+               gen_value_unescape(fieldParamValue);
+
+               if (!mpFieldParameters)
+               {
+                  mpFieldParameters = new UtlDList();
+               }
+
+               mpFieldParameters->append(
+                  new NameValuePairInsensitive(fieldParamName.data(), fieldParamValue.data()));
+            }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "Url::parseString error "
+                             "- expected end of url or field parameter ';name=' "
+                             "at offset %d in '%s'",
+                             workingOffset, urlString
+                             );
+
+               mScheme=UnknownUrlScheme;
             }
          }
-      }
-
-      if (nextUri)
-      {
-         RegEx commaSeparator(CommaSeparator);
-         if (   (commaSeparator.SearchAt(urlString, workingOffset))
-             && (commaSeparator.MatchStart(0) == workingOffset)
-             )
-         {
-            commaSeparator.AfterMatchString(nextUri);
-         }
+         LOG_TIME("fldparm   > ");
       }
    }
 #  ifdef TIME_PARSE
@@ -1838,25 +1920,6 @@ bool Url::parseHeaderOrQueryParameters() const
    return mpHeaderOrQueryParameters != NULL;
 }
 
-bool Url::parseFieldParameters() const
-{
-   if (!mpFieldParameters && !mRawFieldParameters.isNull())
-   {
-      mpFieldParameters = new UtlDList();
-
-#if 0
-      printf("Url::parseFieldParameters mRawFieldParameters = '%s'\n",
-             mRawFieldParameters.data());
-#endif
-      HttpRequestContext::parseCgiVariables(mRawFieldParameters,
-                                            *mpFieldParameters, ";", "=",
-                                            TRUE, &Url::gen_value_unescape);
-      mRawFieldParameters.remove(0);
-   }
-
-   return mpFieldParameters != NULL;
-}
-
 void Url::gen_value_unescape(UtlString& escapedText)
 {
 #if 0
@@ -1864,13 +1927,12 @@ void Url::gen_value_unescape(UtlString& escapedText)
           escapedText.data());
 #endif
 
-    //UtlString unescapedText;
     int numUnescapedChars = 0;
     const char* unescapedTextPtr = escapedText;
     // The number of unescaped characters is always less than
     // or equal to the number of escaped characters.  Therefore
     // we will cheat a little and used the escapedText as
-    // the destiniation to directly write characters in place
+    // the destination to directly write characters in place
     // as the append method is very expensive
     char* resultPtr = new char[escapedText.length() + 1];
 
@@ -1937,7 +1999,7 @@ void Url::gen_value_unescape(UtlString& escapedText)
     escapedText.replace(0, numUnescapedChars, resultPtr);
     escapedText.remove(numUnescapedChars);
     delete[] resultPtr;
-
+   
 #if 0
    printf("Url::gen_value_unescape after escapedText = '%s'\n",
           escapedText.data());
@@ -1948,15 +2010,11 @@ void Url::gen_value_escape(UtlString& unEscapedText)
 {
    // Check if there are any characters in unEscapedText that need to be
    // escaped in a field parameter value.
-   if (strspn(unEscapedText.data(),
-              // Alphanumerics
-              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-              "abcdefghijklmnopqrstuvwxyz"
-              "0123456789"
-              // Characters allowed in tokens
-              "-.!%*_+`'~"
-              // Additional characters allowed by the syntax of "host"
-              "[]:") != unEscapedText.length())
+   
+   RegEx fieldParamValueOkUnquoted(FieldParamValueOkUnquoted);
+
+   UtlString fieldValue;
+   if (!fieldParamValueOkUnquoted.Search(unEscapedText))
    {
       // Temporary string to construct the escaped value in.
       UtlString escapedText;
