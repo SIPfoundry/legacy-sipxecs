@@ -15,7 +15,6 @@ Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
 
 Requires: sipx-openfire >= 3.6.4
-Requires: kraken >= 1.1.2
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
