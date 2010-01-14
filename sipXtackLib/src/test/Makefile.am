@@ -21,25 +21,26 @@ testsuite_LDADD = \
     ../libsipXtack.la
 
 testsuite_SOURCES = \
-    net/BranchIdTest.cpp \
-    net/CallIdTest.cpp \
-    net/GetDigestAuthorizationDataTest.cpp \
-    net/HttpBodyTest.cpp \
-    net/HttpMessageTest.cpp \
-    net/HttpServerTest.cpp \
-    net/NameValuePairInsensitiveTest.cpp \
     net/NameValuePairTest.cpp \
+    net/NameValuePairInsensitiveTest.cpp \
     net/NetAttributeTokenizerTest.cpp \
     net/NetBase64CodecTest.cpp \
     net/NetMd5CodecTest.cpp \
-    net/SdpBodyTest.cpp \
+    net/UrlTest.cpp \
+    net/BranchIdTest.cpp \
+    net/CallIdTest.cpp \
+    net/HttpBodyTest.cpp \
+    net/HttpMessageTest.cpp \
+    net/SipMessageTest.cpp \
+    net/GetDigestAuthorizationDataTest.cpp \
     net/SignedUrlTest.cpp \
+    net/HttpServerTest.cpp \
+    net/SdpBodyTest.cpp \
     net/SipContactDbTest.cpp \
     net/SipDialogEventTest.cpp \
     net/SipDialogMonitorTest.cpp \
     net/SipDialogTest.cpp \
     net/SipLineTest.cpp \
-    net/SipMessageTest.cpp \
     net/SipOutputProcessorTest.cpp \
     net/SipPresenceEventTest.cpp \
     net/SipProxyMessageTest.cpp \
@@ -54,7 +55,6 @@ testsuite_SOURCES = \
     net/SipUserAgentTest.cpp \
     net/SipXauthIdentityTest.cpp \
     net/SipxNatRouteTest.cpp \
-    net/UrlTest.cpp \
     net/XmlRpcTest.cpp
 
 $(srcdir)/net/SipXauthIdentityTest.cpp: net/SipXauthIdentityTest.cpp.in
