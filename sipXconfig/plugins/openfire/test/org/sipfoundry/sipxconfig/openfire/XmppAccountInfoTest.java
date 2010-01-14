@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.openfire;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
@@ -56,10 +59,26 @@ public class XmppAccountInfoTest extends TestCase {
     private Group m_group4;
     private ModelFilesContext m_neoconfModelFilesContext;
     private PermissionManagerImpl m_pm;
+    private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
+    private SipxImbotService m_sipxImbotService = new SipxImbotService();
+
 
     @Override
     protected void setUp() throws Exception {
         m_neoconfModelFilesContext = TestHelper.getModelFilesContext(getModelDirectory("neoconf"));
+        Location location = new Location();
+        location.setAddress("192.168.1.2");
+        location.setFqdn("puppy.org");
+
+        m_sipxServiceManager = createMock(SipxServiceManager.class);
+        m_locationsManager = createMock(LocationsManager.class);
+        m_locationsManager.getLocationsForService(m_sipxImbotService);
+        expectLastCall().andReturn(Arrays.asList(location)).anyTimes();
+
+        replay(m_locationsManager);
+
+        m_sipxImbotService.setLocationsManager(m_locationsManager);
 
         m_pm = new PermissionManagerImpl();
         m_pm.setModelFilesContext(m_neoconfModelFilesContext);
@@ -207,18 +226,19 @@ public class XmppAccountInfoTest extends TestCase {
         expectLastCall().andReturn(m_conferences).atLeastOnce();
         replay(m_conferenceContext);
 
-        SipxImbotService sipxImbotService = new SipxImbotService();
-        sipxImbotService.setBeanName(SipxImbotService.BEAN_ID);
-        sipxImbotService.setModelDir("sipximbot");
-        sipxImbotService.setModelName("sipximbot.xml");
-        sipxImbotService.setModelFilesContext(m_neoconfModelFilesContext);
-        sipxImbotService.setSettingValue("imbot/imId", "MyAssistant");
-        sipxImbotService.setSettingValue("imbot/imPassword", "password");
+        m_sipxImbotService.setBeanName(SipxImbotService.BEAN_ID);
+        m_sipxImbotService.setModelDir("sipximbot");
+        m_sipxImbotService.setModelName("sipximbot.xml");
+        m_sipxImbotService.setModelFilesContext(m_neoconfModelFilesContext);
+        m_sipxImbotService.setSettingValue("imbot/imId", "MyAssistant");
+        m_sipxImbotService.setSettingValue("imbot/imPassword", "password");
 
         SipxServiceManager m_sipxServiceManager = createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID);
-        expectLastCall().andReturn(sipxImbotService).atLeastOnce();
+        expectLastCall().andReturn(m_sipxImbotService).atLeastOnce();
         replay(m_sipxServiceManager);
+
+        paUser.setSipxImbotService(m_sipxImbotService);
 
         XmppAccountInfo xmppAccountInfo = new XmppAccountInfo();
         xmppAccountInfo.setCoreContext(coreContext);

@@ -24,6 +24,9 @@
     <pathelement location="${commons-collections.jar}" />
     <pathelement location="${commons-codec.jar}" />
     <pathelement location="${commons-io.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
   </path>
 
   <!-- 
@@ -58,6 +61,9 @@
     <pathelement location="${lucene.jar}" />
     <pathelement location="${logkit.jar}" />
     <pathelement location="${odmg.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
   </path>
 
   <path id="base.path">

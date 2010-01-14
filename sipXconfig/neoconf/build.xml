@@ -45,6 +45,9 @@
     <pathelement location="${vcard4j.jar}" />
     <pathelement location="${xalan.jar}" />
     <pathelement location="${serializer.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
   </path>
 
   <!-- 
@@ -75,6 +78,9 @@
     <pathelement location="${gdata-contacts.jar}" />
     <pathelement location="${gdata-core.jar}" />
     <pathelement location="${google-collect.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
   </path>
 
   <path id="base.path">
@@ -257,6 +263,9 @@
       <fileset file="${vcard4j.jar}" />
       <fileset file="${xalan.jar}" />
       <fileset file="${serializer.jar}" />
+      <fileset file="${restlet.jar}"/>
+      <fileset file="${restlet-impl.jar}"/>
+      <fileset file="${restlet-spring.jar}"/>
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />

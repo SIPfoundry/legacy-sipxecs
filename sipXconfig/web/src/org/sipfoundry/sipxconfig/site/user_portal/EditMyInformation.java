@@ -25,13 +25,11 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
-import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
-public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
+public abstract class EditMyInformation extends UserBasePage {
     public static final String TAB_CONFERENCES = "conferences";
 
     private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
@@ -46,7 +44,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract void setCurrentRow(Conference currentRow);
 
-    public abstract String getPin();
 
     public abstract User getUserForEditing();
 
@@ -77,12 +74,14 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     public abstract void setActionBlockForConferencesTab(Block b);
 
+    public abstract Setting getImNotificationSettings();
+    public abstract void setImNotificationSettings(Setting paSetting);
+
     public void save() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
         User user = getUserForEditing();
-        UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
 
         savePersonalAttendant(user);
@@ -111,13 +110,13 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             setUserForEditing(user);
         }
 
-        if (getPin() == null) {
-            UserForm.initializePin(getComponent("pin"), this, user);
-        }
-
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {
             setMailboxPreferences(new MailboxPreferences(user));
+        }
+
+        if (getImNotificationSettings() == null) {
+            setImNotificationSettings(getUser().getSettings().getSetting("im_notification"));
         }
 
         PersonalAttendant personalAttendant = getPersonalAttendant();
@@ -149,6 +148,8 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         if (Permission.isEnabled(paPermissionValue)) {
             tabNames.add("menu");
         }
+
+        tabNames.add("myAssistant");
 
         setAvailableTabNames(tabNames);
     }

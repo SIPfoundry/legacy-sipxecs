@@ -93,6 +93,16 @@ public class ContactInformationConfig extends XmlFile {
                 conferenceElement.addElement("pin").setText(conference.getParticipantAccessCode());
             }
         }
+
+        // Adding settings used by PersonalAssistant service.
+        String conferenceEntryIM = user.getSettingValue("im_notification/conferenceEntryIM").toString();
+        String conferenceExitIM = user.getSettingValue("im_notification/conferenceExitIM").toString();
+        String leaveMsgBeginIM = user.getSettingValue("im_notification/leaveMsgBeginIM").toString();
+        String leaveMsgEndIM = user.getSettingValue("im_notification/leaveMsgEndIM").toString();
+        userEl.addElement("conferenceEntryIM").setText(conferenceEntryIM);
+        userEl.addElement("conferenceExitIM").setText(conferenceExitIM);
+        userEl.addElement("leaveMsgBeginIM").setText(leaveMsgBeginIM);
+        userEl.addElement("leaveMsgEndIM").setText(leaveMsgEndIM);
     }
 
     private void addAddressInfo(Element element, Address address) {

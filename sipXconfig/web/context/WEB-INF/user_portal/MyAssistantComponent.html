@@ -1,0 +1,7 @@
+<input jwcid="enablePA@Submit" id="pa:enablePA" listener="listener:onEnablePA" value="message:button.enablePA" />
+<div jwcid="@Insert" raw="true" value="message:enablePADescription" />
+<h3><span jwcid="@Insert" value="message:label.imNotification"/></h3>
+<fieldset jwcid="@setting/SettingsFieldset"
+    settings="ognl:imNotificationSettings"
+    renderGroupTitle="ognl:false"/>
+<ul jwcid="@common/FormActions" listener="listener:save"/>

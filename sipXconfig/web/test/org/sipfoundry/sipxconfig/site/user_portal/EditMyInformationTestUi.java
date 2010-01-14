@@ -102,4 +102,12 @@ public class EditMyInformationTestUi extends WebTestCase {
         assertButtonPresent("externalAccounts:delete");
     }
 
+    public void testTabMyAssistantDisplay() {
+        clickLink("menu.myInformation");
+        clickLink("link:myAssistant");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        assertButtonPresent("pa:enablePA");
+        assertButtonPresent("form:apply");
+    }
 }

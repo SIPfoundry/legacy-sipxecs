@@ -20,6 +20,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.restlet.Client;
+import org.restlet.data.Method;
+import org.restlet.data.Protocol;
+import org.restlet.data.Request;
+import org.restlet.data.Response;
+import org.restlet.data.Status;
+
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.im.ExternalImAccount;
@@ -28,6 +35,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -75,6 +83,8 @@ public class User extends BeanWithGroups implements NamedObject {
 
     private PermissionManager m_permissionManager;
 
+    private SipxImbotService m_sipxImbotService;
+
     private String m_firstName;
 
     private String m_sipPassword;
@@ -98,6 +108,8 @@ public class User extends BeanWithGroups implements NamedObject {
     private MusicOnHoldManager m_musicOnHoldManager;
 
     private Collection<ExternalImAccount> m_externalImAccounts = new ArrayList<ExternalImAccount>(0);
+
+    private Client m_restClient = new Client(Protocol.HTTP);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -510,6 +522,10 @@ public class User extends BeanWithGroups implements NamedObject {
         m_permissionManager = permissionManager;
     }
 
+    public void setSipxImbotService(SipxImbotService sipxImbotService) {
+        m_sipxImbotService = sipxImbotService;
+    }
+
     public AddressBookEntry getAddressBookEntry() {
         return m_addressBookEntry;
     }
@@ -578,4 +594,25 @@ public class User extends BeanWithGroups implements NamedObject {
     public void setExternalImAccounts(Collection<ExternalImAccount> externalImAccounts) {
         m_externalImAccounts = externalImAccounts;
     }
+
+    public boolean requestToAddMyAssistantToRoster() {
+        boolean result;
+        String paAddress = m_sipxImbotService.getAddress();
+        String httpPort = m_sipxImbotService.getHttpPort();
+
+        String uri = String.format("http://%s:%s/IM/%s/addToRoster", paAddress, httpPort, m_userName);
+
+        Request request = new Request(Method.PUT, uri);
+
+        Response response = m_restClient.handle(request);
+
+        if (!response.getStatus().equals(Status.SUCCESS_OK)) {
+            result = false;
+        } else {
+            result = true;
+        }
+
+        return result;
+    }
+
 }

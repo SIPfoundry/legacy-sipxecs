@@ -17,13 +17,7 @@
   </div>
   <fieldset>
     <table>
-      <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
-      <tr jwcid="pin@user/ConfirmPassword"
-        password="ognl:pin"
-        passwordDisplayName="message:label.pin"
-        confirmPasswordDisplayName="message:label.pin2"
-        passwordMismatchMessage="message:error.pinMismatch">
-      </tr>
+      <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" user="ognl:user"/>
     </table>
   </fieldset>
   <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
@@ -85,4 +79,7 @@
 </div>
 <div jwcid="mohTab@Block">
   <span jwcid="@moh/MusicOnHoldComponent" user="ognl:user"/>
+</div>
+<div jwcid="myAssistantTab@Block">
+  <span jwcid="@user_portal/MyAssistantComponent" user="ognl:user"/>
 </div>

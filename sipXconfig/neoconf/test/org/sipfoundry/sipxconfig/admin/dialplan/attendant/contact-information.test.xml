@@ -37,6 +37,10 @@
         <pin>1234</pin>
       </conference>
     </conferences>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
   </user>
   <user>
     <userName>201</userName>
@@ -45,6 +49,10 @@
     <homeAddress/>
     <officeAddress/>
     <conferences/>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
   </user>
   <user>
     <userName>202</userName>
@@ -55,6 +63,10 @@
       <street>1, Branch Street</street>
     </officeAddress>
     <conferences/>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
   </user>
   <user>
     <userName>Jagr</userName>
@@ -63,5 +75,9 @@
     <homeAddress/>
     <officeAddress/>
     <conferences/>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
   </user>
 </contact-info>

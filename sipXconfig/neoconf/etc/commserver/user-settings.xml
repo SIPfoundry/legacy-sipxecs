@@ -311,6 +311,32 @@
       <value>0</value>
     </setting>
   </group>
+  <group name="im_notification">
+    <setting name="conferenceEntryIM">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="conferenceExitIM">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="leaveMsgBeginIM">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="leaveMsgEndIM">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
   <group name="callfwd">
     <setting name="timer">
       <type>
