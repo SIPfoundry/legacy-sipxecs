@@ -273,6 +273,12 @@ fieldset#loginForm legend {
     position:relative;
 }
 
+.tableDiv
+{
+    width:80%;
+    overflow:auto;
+}
+
 .textBox
 {
     width: 80%;
@@ -377,8 +383,7 @@ table.component
 	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
-    width: 80%;
-    overflow: auto;
+    min-width: 100%;
 }
 
 table.component thead tr th,

@@ -2,6 +2,7 @@
   <h2><span key="title">Job Status</span></h2>
   <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
   <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+  <div class="tableDiv">
     <table jwcid="@contrib:TableView" id="jobs:list" class="component"
       source="ognl:jobs" pageSize="-1"
       columns="* name,=startColumn,=stopColumn,status,error">
@@ -25,6 +26,7 @@
         <span jwcid="@Insert" value="ognl:jobErrorMsg" />
       </span>
     </table>
+  </div>
     <ul jwcid="actions@Block">
       <li>
         <input id="jobs:remove" jwcid="remove@Submit"
