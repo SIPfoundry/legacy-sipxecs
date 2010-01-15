@@ -136,8 +136,10 @@ public class ConferenceBridgeXML {
         }
         LOG.debug("Looking for bridge: "  + confName);
         ConferenceBridgeItem item = m_confNameMap.get(confName);
-        LOG.debug("Found bridge: "  + item.getBridgeName());
-        LOG.debug("Found owner: "  + item.getOwnerName());
+        if (item != null) {
+            LOG.debug("Found bridge: "  + item.getBridgeName());
+            LOG.debug("Found owner: "  + item.getOwnerName());
+        }
         return item;
     }
 
