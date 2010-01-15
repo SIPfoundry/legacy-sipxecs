@@ -1,717 +1,3269 @@
-<?xml version="1.0"?>
-<!DOCTYPE model 
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+[
+  <!-- see: http://www.ietf.org/rfc/rfc3261.txt -->
+  <!-- this is actually concatenation of unreserver and user-unreserved sets -->
+  <!ENTITY SIP_USER_UNRESERVED "-_.!~*'\(\)&amp;=+$,;?/">
+  <!ENTITY SIP_USER_CHARS "a-zA-Z0-9&SIP_USER_UNRESERVED;">
+  <!-- 37 === percent -->
+  <!ENTITY SIP_USER_ESCAPED "&#37;[0-9a-fA-F]{2}">
+  <!ENTITY SIP_USER_REGEX "(\[\])">
+  <!-- One octet of an IP address.  (Allows leading zeros, up to 3 digits.) -->
+  <!ENTITY IP_ADDR_OCTET "(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])">
+  <!ENTITY IP_ADDR_OCTET2 "(25[0-4]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]|[0-9])">
+  <!ENTITY IP_ADDR_OCTET3 "(25[0-5]|2[0-2][0-3]|2[2-4][5-9]|1[0-9]{2}|[1-9][0-9]|[0-9])">
+  <!ENTITY IP_ADDR_OCTET4 "(25[0-4]|2[0-2][0-3]|2[2-4][5-9]|1[0-9]{2}|[1-9][0-9]|[0-9])">
+  <!ENTITY IP_ADDR_1 "(&IP_ADDR_OCTET4;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;)">
+  <!ENTITY IP_ADDR_2 "(&IP_ADDR_OCTET3;\.&IP_ADDR_OCTET2;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;)">
+  <!ENTITY IP_ADDR_3 "(&IP_ADDR_OCTET3;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET2;\.&IP_ADDR_OCTET;)">
+  <!ENTITY IP_ADDR_4 "(&IP_ADDR_OCTET3;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET2;)">
+  <!ENTITY IP_ADDR "(&IP_ADDR_1;|&IP_ADDR_2;|&IP_ADDR_3;|&IP_ADDR_4;)">
+  <!-- Components of DNS names, per RFC 1034 section 3.5. -->
+  <!ENTITY DNS_LET_DIG "[A-Za-z0-9]">
+  <!ENTITY DNS_LET_DIG_HYP "[-A-Za-z0-9]">
+  <!ENTITY DNS_LABEL "(&DNS_LET_DIG;(&DNS_LET_DIG_HYP;*&DNS_LET_DIG;)?)">
+  <!-- DNS domain names have at least 2 labels, of which the last contains
+       only letters and has at least 2 chars.  'localhost' is also allowed.. -->
+  <!ENTITY DNS_DOMAIN_NAME "((&DNS_LABEL;\.){1,}[A-Za-z]{2,})">
+]>
 <model>
-  <type id="ena-dis">
-    <boolean>
-      <true>
-        <value>enable</value>
-      </true>
-      <false>
-        <value>disable</value>
-      </false>
-    </boolean>
-  </type>
-  <type id="on-off">
-    <boolean>
-      <true>
-        <value>on</value>
-      </true>
-      <false>
-        <value>off</value>
-      </false>
-    </boolean>
-  </type>
-  <type id="yes-no">
-    <boolean>
-      <true>
-        <value>YES</value>
-      </true>
-      <false>
-        <value>NO</value>
-      </false>
-    </boolean>
-  </type>
-  <type id="port-number">
-    <integer required="yes" min="1" max="65534" />
-  </type>
-  <type id="day-of-week">
-    <enum>
-      <option>
-        <label>Sunday</label>
-        <value>1</value>
-      </option>
-      <option>
-        <label>Monday</label>
-        <value>2</value>
-      </option>
-      <option>
-        <label>Tuesday</label>
-        <value>3</value>
-      </option>
-      <option>
-        <label>Wednesday</label>
-        <value>4</value>
-      </option>
-      <option>
-        <label>Thursday</label>
-        <value>5</value>
-      </option>
-      <option>
-        <label>Friday</label>
-        <value>6</value>
-      </option>
-      <option>
-        <label>Saturday</label>
-        <value>7</value>
-      </option>
-    </enum>
-  </type>
-  <type id="month-of-year">
-    <enum>
-      <option>
-        <label>January</label>
-        <value>1</value>
-      </option>
-      <option>
-        <label>February</label>
-        <value>2</value>
-      </option>
-      <option>
-        <label>March</label>
-        <value>3</value>
-      </option>
-      <option>
-        <label>April</label>
-        <value>4</value>
-      </option>
-      <option>
-        <label>May</label>
-        <value>5</value>
-      </option>
-      <option>
-        <label>June</label>
-        <value>6</value>
-      </option>
-      <option>
-        <label>July</label>
-        <value>7</value>
-      </option>
-      <option>
-        <label>August</label>
-        <value>8</value>
-      </option>
-      <option>
-        <label>September</label>
-        <value>9</value>
-      </option>
-      <option>
-        <label>October</label>
-        <value>10</value>
-      </option>
-      <option>
-        <label>November</label>
-        <value>11</value>
-      </option>
-      <option>
-        <label>December</label>
-        <value>12</value>
-      </option>
-    </enum>
-  </type>
-  <type id="priority-802">
-    <enum>
-      <option>
-        <label>disable</label>
-        <value>-1</value>
-      </option>
-      <option>
-        <value>0</value>
-      </option>
-      <option>
-        <value>1</value>
-      </option>
-      <option>
-        <value>2</value>
-      </option>
-      <option>
-        <value>3</value>
-      </option>
-      <option>
-        <value>4</value>
-      </option>
-      <option>
-        <value>5</value>
-      </option>
-      <option>
-        <value>6</value>
-      </option>
-      <option>
-        <value>7</value>
-      </option>
-    </enum>
-  </type>
-  <type id="vlan_id">
-    <integer required="yes" min="0" max="4094" />
-  </type>
-  <type id="codecs">
-    <enum>
-      <option>
-        <value>G722 wideband codec</value>
-      </option>
-      <option>
-        <value>PCMA standard a-law</value>
-      </option>
-      <option>
-        <value>PCMU standard u-law</value>
-      </option>
-        <option>
-      <value>G729 729 codec</value>
-        </option>
-      <option>
-        <value>G723 high-compression</value>
-      </option>
-    </enum>
-  </type>
-  <group name='NETWORK'>
-    <setting name="DNS_DOMAIN"></setting>
-  </group>
-  <group name='VOIP'>
-    <setting name="SIP_DOMAIN1"></setting>
-    <setting name="SERVER_IP1_1"></setting>
-    <setting name="SERVER_PORT1_1">
-      <type refid="port-number" />
-      <value>5060</value>
-    </setting>
-    <setting name="SIP_DOMAIN2" advanced="yes">
-      <value></value>
-    </setting>
-    <setting name='SERVER_IP1_2' advanced="yes">
-      <value></value>
-    </setting>
-    <setting name='SERVER_PORT1_2' advanced="yes">
-      <type refid="port-number" />
-      <value>5060</value>
-    </setting>
-    <setting name='SERVER_RETRIES' advanced="yes">
-      <type>
-        <integer required="yes" min="1" max="5" />
-      </type>
-      <value>3</value>
-    </setting>
-    <setting name='SIP_PING' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='PROXY_CHECKING' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-  </group>
-  <group name='VM'>
-    <setting name='VMAIL'>
-      <value></value>
-    </setting>
-    <setting name='VMAIL_DELAY'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>1000</value>
-    </setting>
-  </group>
-  <group name='ADMIN'>
-    <setting name='BANNER'>
-      <value></value>
-    </setting>
-    <setting name='AUTOLOGIN_ENABLE'>
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='ADMIN_PASSWORD'>
-      <value>4321</value>
-    </setting>
-  </group>
-  <group name='TIME'>
-    <setting name='TIMEZONE_OFFSET'>
-      <type>
-        <integer required="yes" min="-36000" max="43200" />
-      </type>
-      <value>-18000</value>
-    </setting>
-    <setting name='DST_ENABLE'>
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-  </group>
-  <group name='VOICE'>
-    <setting name='DEF_LANG'>
-      <type>
-        <enum>
-          <option>
-            <value>Czech</value>
-          </option>
-          <option>
-            <value>Dutch</value>
-          </option>
-          <option>
-            <value>English</value>
-          </option>
-          <option>
-            <value>Finnish</value>
-          </option>
-          <option>
-            <value>Francais</value>
-          </option>
-          <option>
-            <value>Norwegian</value>
-          </option>
-          <option>
-            <value>Polish</value>
-          </option>
-          <option>
-            <value>Portuguese</value>
-          </option>
-          <option>
-            <value>Russian</value>
-          </option>
-          <option>
-            <value>Spanish</value>
-          </option>
-          <option>
-            <value>Swedish</value>
-          </option>
-        </enum>
-      </type>
-      <value>English</value>
-    </setting>
-    <setting name='AUDIO_CODEC1'>
-      <type refid="codecs" />
-      <value>G722 wideband codec</value>
-    </setting>
-    <setting name='AUDIO_CODEC2'>
-      <type refid="codecs" />
-      <value>PCMA standard a-law</value>
-    </setting>
-    <setting name='AUDIO_CODEC3'>
-      <type refid="codecs" />
-      <value>PCMU standard u-law</value>
-    </setting>
-    <setting name='AUDIO_CODEC4'>
-      <type refid="codecs" />
-      <value>G729 729 codec</value>
-    </setting>
-    <setting name='AUDIO_CODEC5'>
-      <type refid="codecs" />
-      <value>G723 high-compression</value>
-    </setting>
-  </group>
-  <group name='QOS'>
-    <setting name='DSCP_CONTROL'>
-      <type>
-        <integer required="yes" min="-1" max="63" />
-      </type>
-      <value>40</value>
-    </setting>
-    <setting name='DSCP_MEDIA'>
-      <type>
-        <integer required="yes" min="-1" max="63" />
-      </type>
-      <value>44</value>
-    </setting>
-    <setting name='DSCP_DATA'>
-      <type>
-        <integer required="yes" min="-1" max="63" />
-      </type>
-      <value>40</value>
-    </setting>
-    <setting name='802.1P_CONTROL'>
-      <type>
-        <integer required="yes" min="-1" max="7" />
-      </type>
-      <value>6</value>
-    </setting>
-    <setting name='802.1P_MEDIA'>
-      <type>
-        <integer required="yes" min="-1" max="7" />
-      </type>
-      <value>6</value>
-    </setting>
-    <setting name='802.1P_DATA'>
-      <type>
-        <integer required="yes" min="-1" max="7" />
-      </type>
-      <value>6</value>
-    </setting>
-  </group>
-  <group name='STORAGE'>
-    <setting name='MAX_INBOX_ENTRIES'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>100</value>
-    </setting>
-    <setting name='MAX_OUTBOX_ENTRIES'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>100</value>
-    </setting>
-    <setting name='MAX_REJECTREASONS'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>20</value>
-    </setting>
-    <setting name='MAX_CALLSUBJECT'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>20</value>
-    </setting>
-    <setting name='MAX_PRESENCENOTE'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>20</value>
-    </setting>
-    <setting name='MAX_IM_ENTRIES'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>999</value>
-    </setting>
-    <setting name='MAX_ADDR_BOOK_ENTRIES'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>100</value>
-    </setting>
-  </group>
-  <group name='DEBUG'>
-    <setting name='LOG_LEVEL' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>3</value>
-          </option>
-          <option>
-            <value>2</value>
-          </option>
-          <option>
-            <value>1</value>
-          </option>
-        </enum>
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name='RECOVERY_LEVEL' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>3</value>
-          </option>
-          <option>
-            <value>2</value>
-          </option>
-          <option>
-            <value>1</value>
-          </option>
-        </enum>
-      </type>
-      <value>0</value>
-    </setting>
-  </group>
-  <group name='AUTO'>
-    <setting name='AUTO_UPDATE'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='AUTO_UPDATE_TIME'>
-      <type>
-        <integer required="yes" min="1" max="6" />
-      </type>
-      <value>1</value>
-    </setting>
-  </group>
-  <group name='NAT'>
-    <setting name='NAT_SIGNALLING'>
-      <type>
-        <enum>
-          <option>
-            <value>NONE</value>
-          </option>
-          <option>
-            <value>STUN</value>
-          </option>
-          <option>
-            <value>SIP_PING</value>
-          </option>
-        </enum>
-      </type>
-      <value>NONE</value>
-    </setting>
-    <setting name='NAT_MEDIA'>
-      <type>
-        <enum>
-          <option>
-            <value>NONE</value>
-          </option>
-          <option>
-            <value>STUN</value>
-          </option>
-        </enum>
-      </type>
-      <value>NONE</value>
-    </setting>
-    <setting name='NAT_TTL'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>120</value>
-    </setting>
-    <setting name='STUN_SERVER_IP1'>
-      <value>0.0.0.0</value>
-    </setting>
-    <setting name='STUN_SERVER_PORT1'>
-      <type refid="port-number" />
-      <value>3478</value>
-    </setting>
-    <setting name='STUN_SERVER_IP2'>
-      <value>0.0.0.0</value>
-    </setting>
-    <setting name='STUN_SERVER_PORT2'>
-      <type refid="port-number" />
-      <value>3479</value>
-    </setting>
-  </group>
-  <group name='VQMON' advanced="yes">
-    <setting name='VQMON_PUBLISH'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='VQMON_PUBLISH_IP'>
-      <value>0.0.0.0</value>
-    </setting>
-    <setting name='LISTENING_R_ENABLE'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='LISTENING_R_WARN'>
-      <type>
-        <integer required="yes" min="1" max="100" />
-      </type>
-      <value>80</value>
-    </setting>
-    <setting name='LISTENING_R_EXCE'>
-      <type>
-        <integer required="yes" min="1" max="100" />
-      </type>
-      <value>60</value>
-    </setting>
-    <setting name='PACKET_LOSS_ENABLE'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='PACKET_LOSS_WARN'>
-      <type>
-        <integer required="yes" min="1" max="25600" />
-      </type>
-      <value>256</value>
-    </setting>
-    <setting name='PACKET_LOSS_EXCE'>
-      <type>
-        <integer required="yes" min="1" max="25600" />
-      </type>
-      <value>1280</value>
-    </setting>
-    <setting name='JITTER_ENABLE'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='JITTER_WARN'>
-      <type>
-        <integer required="yes" min="1" max="65536" />
-      </type>
-      <value>3276</value>
-    </setting>
-    <setting name='JITTER_EXCE'>
-      <type>
-        <integer required="yes" min="1" max="65536" />
-      </type>
-      <value>32768</value>
-    </setting>
-    <setting name='DELAY_ENABLE'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='DELAY_WARN'>
-      <type>
-        <integer required="yes" min="1" max="65536" />
-      </type>
-      <value>150</value>
-    </setting>
-    <setting name='DELAY_EXCE'>
-      <type>
-        <integer required="yes" min="1" max="65536" />
-      </type>
-      <value>175</value>
-    </setting>
-    <setting name='SESSION_RPT_EN'>
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='SESSION_RPT_INT'>
-      <type>
-        <integer required="yes" min="0" />
-      </type>
-      <value>60</value>
-    </setting>
-  </group>
-  <group name='TONES' advanced="yes">
-    <setting name='DIAL_TONE'>
-      <value>350,440;-1</value>
-    </setting>
-    <setting name='RINGING_TONE'>
-      <value>440,480;2000,4000</value>
-    </setting>
-    <setting name='BUSY_TONE'>
-      <value>480,620;500,500</value>
-    </setting>
-    <setting name='FASTBUSY_TONE'>
-      <value>425;250,250</value>
-    </setting>
-    <setting name='CONGESTION_TONE'>
-      <value>480,620;250,250</value>
-    </setting>
-  </group>
-  <group name='SYSTEM'>
-    <setting name='AUTH_METHOD' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>AUTH</value>
-          </option>
-          <option>
-            <value>AUTH_INT</value>
-          </option>
-        </enum>
-      </type>
-      <value>AUTH</value>
-    </setting>
-    <setting name='ADDR_BOOK_MODE' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>LOCAL</value>
-          </option>
-          <option>
-            <value>NETWORK</value>
-          </option>
-          <option>
-            <value>BOTH</value>
-          </option>
-        </enum>
-      </type>
-      <value>LOCAL</value>
-    </setting>
-    <setting name='IM_MODE' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>ENCRYPTED</value>
-          </option>
-          <option>
-            <value>TEXT</value>
-          </option>
-          <option>
-            <value>SIMPLE</value>
-          </option>
-          <option>
-            <value>DISABLED</value>
-          </option>
-        </enum>
-      </type>
-      <value>DISABLED</value>
-    </setting>
-    <setting name='HOLD_TYPE' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>rfc3261</value>
-          </option>
-          <option>
-            <value>rfc2543</value>
-          </option>
-        </enum>
-      </type>
-      <value>rfc3261</value>
-    </setting>
-    <setting name='TRANSFER_TYPE' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>rfc3261</value>
-          </option>
-          <option>
-            <value>MCS</value>
-          </option>
-        </enum>
-      </type>
-      <value>rfc3261</value>
-    </setting>
-    <setting name='REDIRECT_TYPE' advanced="yes">
-      <type>
-        <enum>
-          <option>
-            <value>rfc3261</value>
-          </option>
-          <option>
-            <value>MCS</value>
-          </option>
-        </enum>
-      </type>
-      <value>rfc3261</value>
-    </setting>
-     <setting name='ENABLE_BT' advanced="yes">
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='INTERCOM_PAGING' advanced="yes">
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='DEF_DISPLAY_IM' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='ENABLE_3WAY_CALL' advanced="yes">
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='DISABLE_PRIVACY_UI' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='ENABLE_PRACK' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='AUTOLOGIN_ENABLE' advanced="yes">
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='IM_NOTIFY' advanced="yes">
-      <type refid="yes-no" />
-      <value>YES</value>
-    </setting>
-    <setting name='DISABLE_OCT_ENDDIAL' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-    <setting name='FORCE_OCT_ENDDIAL' advanced="yes">
-      <type refid="yes-no" />
-      <value>NO</value>
-    </setting>
-  </group>
+	<type id="ena-dis">
+		<boolean>
+			<true>
+				<value>ENABLE</value>
+			</true>
+			<false>
+				<value>DISABLE</value>
+			</false>
+		</boolean>
+	</type>
+	<type id="lock-unlock">
+		<boolean>
+			<true>
+				<value>LOCK</value>
+			</true>
+			<false>
+				<value>UNLOCK</value>
+			</false>
+		</boolean>
+	</type>
+	<type id="on-off">
+		<boolean>
+			<true>
+				<value>ON</value>
+			</true>
+			<false>
+				<value>OFF</value>
+			</false>
+		</boolean>
+	</type>
+	<type id="yes-no">
+		<boolean>
+			<true>
+				<value>YES</value>
+			</true>
+			<false>
+				<value>NO</value>
+			</false>
+		</boolean>
+	</type>
+	<type id="port-number">
+		<string maxLen="5">
+			<pattern>^(0|[1-9][0-9][2-9][4-9]|[2-9][0-9]{3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$</pattern>
+		</string>
+	</type>
+	<type id="day-of-week">
+		<enum>
+			<option>
+				<label>Sunday</label>
+				<value>1</value>
+			</option>
+			<option>
+				<label>Monday</label>
+				<value>2</value>
+			</option>
+			<option>
+				<label>Tuesday</label>
+				<value>3</value>
+			</option>
+			<option>
+				<label>Wednesday</label>
+				<value>4</value>
+			</option>
+			<option>
+				<label>Thursday</label>
+				<value>5</value>
+			</option>
+			<option>
+				<label>Friday</label>
+				<value>6</value>
+			</option>
+			<option>
+				<label>Saturday</label>
+				<value>7</value>
+			</option>
+		</enum>
+	</type>
+	<type id="month-of-year">
+		<enum>
+			<option>
+				<label>January</label>
+				<value>1</value>
+			</option>
+			<option>
+				<label>February</label>
+				<value>2</value>
+			</option>
+			<option>
+				<label>March</label>
+				<value>3</value>
+			</option>
+			<option>
+				<label>April</label>
+				<value>4</value>
+			</option>
+			<option>
+				<label>May</label>
+				<value>5</value>
+			</option>
+			<option>
+				<label>June</label>
+				<value>6</value>
+			</option>
+			<option>
+				<label>July</label>
+				<value>7</value>
+			</option>
+			<option>
+				<label>August</label>
+				<value>8</value>
+			</option>
+			<option>
+				<label>September</label>
+				<value>9</value>
+			</option>
+			<option>
+				<label>October</label>
+				<value>10</value>
+			</option>
+			<option>
+				<label>November</label>
+				<value>11</value>
+			</option>
+			<option>
+				<label>December</label>
+				<value>12</value>
+			</option>
+		</enum>
+	</type>
+
+	<type id="timezone_offset">
+		<enum>
+			<option>
+				<label>(GMT-10:00) Hawaii</label>
+				<value>-36000</value>
+			</option>
+			<option>
+				<label>(GMT-09:00) Alaska</label>
+				<value>-32400</value>
+			</option>
+			<option>
+				<label>(GMT-08:00) Pacific time (US and Canada)</label>
+				<value>-28800</value>
+			</option>
+			<option>
+				<label>(GMT-07:00) Mountain time (US and Canada)</label>
+				<value>-25200</value>
+			</option>
+			<option>
+				<label>(GMT-06:00) Central time (US and Canada)</label>
+				<value>-21600</value>
+			</option>
+			<option>
+				<label>(GMT-05:00) Eastern time (US and Canada)</label>
+				<value>-18000</value>
+			</option>
+			<option>
+				<label>(GMT-04:00) Atlantic time (US and Canada)</label>
+				<value>-14400</value>
+			</option>
+			<option>
+				<label>(GMT-03:00) Brasilia, Buenos Aires</label>
+				<value> -10800</value>
+			</option>
+			<option>
+				<label>(GMT+00:00) Greenwich, Dublin, Lisbon, London</label>
+				<value>0</value>
+			</option>
+			<option>
+				<label>(GMT+01:00) Amsterdam, Berlin, Rome, Stockholm,Madrid, Paris</label>
+				<value>3600</value>
+			</option>
+			<option>
+				<label>(GMT+02:00) Athens, Istanbul, Cairo, Helsinki,Jerusalem</label>
+				<value>7200</value>
+			</option>
+			<option>
+				<label>(GMT+03:00) Moscow, St. Petersburg</label>
+				<value>10800</value>
+			</option>
+			<option>
+				<label>(GMT+05:30) Bombay, Calcutta, Madras, New Delhi</label>
+				<value> 18000</value>
+			</option>
+			<option>
+				<label>(GMT+08:00) Beijing, Chongqing, Hong Kong,Singapore, Taipei</label>
+				<value>28800</value>
+			</option>
+			<option>
+				<label>(GMT+09:00) Osaka, Sapporo, Tokyo, Seoul</label>
+				<value>32400</value>
+			</option>
+			<option>
+				<label>(GMT+10:00) Canberra, Melbourne, Sydney</label>
+				<value>36000</value>
+			</option>
+			<option>
+				<label>(GMT+12:00) Auckland, Wellington</label>
+				<value>43200</value>
+			</option>
+		</enum>
+	</type>
+
+	<type id="priority-802">
+		<enum>
+			<option>
+				<label>disable</label>
+				<value>-1</value>
+			</option>
+			<option>
+				<value>0</value>
+			</option>
+			<option>
+				<value>1</value>
+			</option>
+			<option>
+				<value>2</value>
+			</option>
+			<option>
+				<value>3</value>
+			</option>
+			<option>
+				<value>4</value>
+			</option>
+			<option>
+				<value>5</value>
+			</option>
+			<option>
+				<value>6</value>
+			</option>
+			<option>
+				<value>7</value>
+			</option>
+		</enum>
+	</type>
+	<type id="vlan_id">
+		<integer min="0" max="4094" />
+	</type>
+	<type id="dscp_limit">
+		<integer min="-1" max="63" />
+	</type>
+	<type id="sca_hold_behaviour">
+		<enum>
+			<option>
+				<value>PRIVATE</value>
+			</option>
+			<option>
+				<value>PUBLIC</value>
+			</option>
+		</enum>
+	</type>
+	<type id="rtp_port">
+		<string>
+			<pattern>^((1[0-9][2-9][4-9]|20[0-5][0-8])|(5[0-9][8-9][1-9]|[6-9][0-9]{3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))-((1[0-9][2-9][4-9]|20[0-5][0-8])|(5[0-9][8-9][1-9]|[6-9][0-9]{3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5]))$</pattern>
+		</string>
+	</type>
+	<type id="validIPv4">
+		<string>
+			<pattern>^(&IP_ADDR;)$</pattern>
+		</string>
+	</type>
+	<type id="validHostOrIp">
+		<string>
+			<pattern>^(&DNS_DOMAIN_NAME;|&IP_ADDR;)$</pattern>
+		</string>
+	</type>
+	<type id="validPhoneOrUri">
+		<string>
+			<pattern>^([\d*]+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6})$</pattern>
+		</string>
+	</type>
+	<type id="password">
+		<string minLen="6" maxLen="10">
+			<pattern>^([\w]*[^\s])$</pattern>
+		</string>
+	</type>
+	<type id="restrictedString">
+		<string minLen="0" maxLen="24">
+			<pattern>^([\w\s]*)$</pattern>
+		</string>
+	</type>
+	<type id="descriptionLen">
+		<string minLen="0" maxLen="24">
+			<pattern>^([\w\s-]*)$</pattern>
+		</string>
+	</type>
+	<type id="image_file">
+		<string>
+			<pattern>^([^\\\\/:\"*?|\^]+)(\.png|.PNG|.jpg|.JPG)$</pattern>
+		</string>
+	</type>
+	<type id="validIdOrPass">
+		<string minLen="4" maxLen="12">
+			<pattern>^([\w]*[^\s])$</pattern>
+		</string>
+	</type>
+	<type id="service-pkg-prot">
+		<enum>
+			<option>
+				<value>HTTP</value>
+			</option>
+			<option>
+				<value>HTTPS</value>
+			</option>
+		</enum>
+	</type>
+	<type id="codecs">
+    	<enum>
+      		<option>
+        		<value>PCMA standard a-law</value>
+      		</option>
+      		<option>
+        		<value>PCMU standard u-law</value>
+      		</option>
+      		<option>
+      			<value>G729 729 codec</value>
+      		</option>
+      		<option>
+        		<value>G722 wideband codec</value>
+      		</option>
+	  		<option>
+        		<value>G7221_24 standard G7221_24</value>
+      		</option>
+      		<option>
+        		<value>G7221_32 standard G7221_32</value>
+      		</option>
+      		<option>
+        		<value>G723 high-compression</value>
+      		</option>
+      		<option>
+        		<value>L16 standard L-16</value>
+      		</option>
+    	</enum>
+ 	</type>
+	<group name="ADMIN">
+		<setting name='ADMIN_PASSWORD'>
+			<value>26567*738</value>
+			<description>This is the admin password</description>
+		</setting>
+	</group>
+	<group name='AUDIOCODECS'>
+		<setting name='AUDIO_CODEC1'>
+      		<type refid="codecs" />
+      		<value>G722 wideband codec</value>
+    	</setting>
+    	<setting name='AUDIO_CODEC2'>
+      		<type refid="codecs" />
+      		<value>PCMU standard u-law</value>
+    	</setting>
+    	<setting name='AUDIO_CODEC3'>
+      		<type refid="codecs" />
+      		<value>PCMA standard a-law</value>
+    	</setting>
+   	 	<setting name='AUDIO_CODEC4'>
+      		<type refid="codecs" />
+      		<value>G729 729 codec</value>
+    	</setting>
+    	<setting name='AUDIO_CODEC5'>
+      		<type refid="codecs" />
+      		<value>G723 high-compression</value>
+    	</setting>
+    	<setting name='G729_ENABLE_ANNEXB'>
+			<type refid="yes-no" />
+			<value>NO</value>
+    	</setting>
+   		<setting name='G723_ENABLE_ANNEXA'>
+			<type refid="yes-no" />
+			<value>NO</value>
+    	</setting>
+	</group>
+	<group name='AUTOLOGIN'>
+		<setting name='AUTOLOGIN_ENABLE'>
+				<type>
+					<enum>
+						<option>
+							<value>YES</value>
+						</option>
+						<option>
+							<value>NO</value>
+						</option>
+						<option>
+							<value>USE_AUTOLOGIN_ID</value>
+						</option>
+					</enum>
+				</type>
+				<value>YES</value>
+				<description>
+					controls whether the set attempts to automatically login to the
+					proxy server.
+					YES - turns on the auto login feature.
+					NO - turns off the auto login feature.
+					USE_AUTOLOGIN_ID - enables the auto login id feature using the
+					userid specified in AUTOLOGIN_ID_KEY01 and the password
+				</description>
+		</setting>
+	</group>
+	<group name="BLF">
+		<setting name='BLF_RESOURCE_LIST_URI'>
+			<type refid="validPhoneOrUri" />
+			<value></value>
+			<description>Sip Uri for BLF resource on server</description>
+		</setting>
+		<setting name='BLF_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				This flag is used to completely disable the BLF feature.  If set
+				to N, the BLF feature is disabled (BLF_RESOURCE_LIST_URI parameter
+				is ignored).
+			</description>
+		</setting>
+	</group>
+	<group name='CONFIG_UPDATES'>
+		<setting name='AUTO_UPDATE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is a command to enable or disable the automatic updating of the IP
+				Phone 1140E with SIP Firmware configuration files from the Prov
+				Server. Enabling this command causes the IP Phone 1140E with SIP
+				Firmware to check for updates once every day. Default is disabled.
+			</description>
+		</setting>
+		<setting name='AUTO_UPDATE_TIME'>
+			<type>
+				<integer min="0"/>
+			</type>
+			<value>0</value>
+			<description>
+				is the actual time in seconds, starting from midnight, before an
+				automatic update occurs. Each IP Phone 1140E adds random numbers
+				to the time specified by this command so every IP Phone 1140E
+				does not try to access the provisioning server at the same time.
+				By default the automatic update feature is disabled (see
+				AUTO_UPDATE_RANGE). x - the time after midnight that the automatic
+				update occurs.
+			</description>
+		</setting>
+		<setting name='AUTO_UPDATE_TIME_RANGE'>
+			<type>
+				<integer min="1" max="6" />
+			</type>
+			<value>1</value>
+			<description>
+				is the range in hours, from the AUTO_UPDATE_TIME whereby an IP
+				Phone 1140E checks for updates from the server. The default range
+				is 1 hour. x - the range in hours when the IP Phone checks for
+				updates from the server. The range can be from 1 to 6 hours
+			</description>
+		</setting>
+	</group>
+	<group name='DEBUG'>
+ 		<setting name='LOG_LEVEL'>
+      		<type>
+				<integer min='0' max='255'/>
+      		</type>
+      		<value>255</value>
+    	</setting>
+    	<setting name='RECOVERY_LEVEL'>
+     		 <type>
+        		<enum>
+          			<option>
+          				<label>Critical</label>
+            			<value>1</value>
+          			</option>
+          			<option>
+          				<label>Major</label>
+            			<value>2</value>
+          			</option>
+          			<option>
+          				<label>Minor</label>
+            			<value>3</value>
+          			</option>
+          			<option>
+          				<label>Info</label>
+           				<value>4</value>
+          			</option>
+        		</enum>
+      		</type>
+      		<value>2</value>
+      		<description>controls the phone recovery if the phone hits any Major or Critical error.
+      		Default is 255, which is equivalent to the recovery level of 2.
+      		</description>
+    	</setting>
+  	</group>
+	<group name='DIAGNOSTIC_TOOLS'>
+		<setting name='PORT_MIRROR_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>Enable or Disable PC Port Mirroring</description>
+		</setting>
+		<setting name='LOGSIP_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - activate logger of SIP packets
+				NO - deactivate logger of SIP packets. This is the default option.
+			</description>
+		</setting>
+		<group name='SSH'>
+			<setting name='SSH'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					Configuration of the SSH server on the phone.
+				</description>
+			</setting>
+			<setting name='SFTP'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					Configuration of the SFTP server on the phone.
+				</description>
+			</setting>
+			<setting name='SSHID'>
+				<type refid="validIdOrPass"/>
+				<description></description>
+			</setting>
+			<setting name='SSHPWD'>
+				<type refid="validIdOrPass"/>
+				<description></description>
+			</setting>
+			<setting name='SFTP_READ_PATTERNS'>
+				<type>
+					<string>
+						<pattern>^(\.\w+,){0,9}(\.\w+)$</pattern>
+					</string>
+				</type>
+				<value>.cfg,.dat</value>
+				<description>
+					File types allowed to read using SFTP. File extensions allowed to write(put)
+					from SIP client
+				</description>
+			</setting>
+			<setting name='SFTP_WRITE_PATTERNS'>
+				<type>
+					<string>
+						<pattern>^(\.\w+,){0,9}(\.\w+)$</pattern>
+					</string>
+				</type>
+				<value>.cfg,.dat</value>
+				<description>File types allowed to write using SFTP</description>
+			</setting>
+		</group>
+	</group>
+	<group name='DOMAIN_SETTINGS'>
+		<group name="DOMAIN1">
+			<setting name="SIP_DOMAIN1">
+				<type refid="validHostOrIp" />
+				<value></value>
+				<description>
+					Please enter valid DNS host name or IP address, for example
+					server.domain.org, 10.1.1.25
+				</description>
+			</setting>
+			<setting name="SERVER_IP1_1">
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name="SERVER_PORT1_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT1_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling TCP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT1_1">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of first proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_IP1_2'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name='SERVER_PORT1_2'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT1_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TCP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT1_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of second proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_RETRIES1'>
+				<type>
+					<integer min="1" max="5" />
+				</type>
+				<value>3</value>
+				<description>
+					Confirms the number of retries for each domain. The default number of retries
+					is 3
+				</description>
+			</setting>
+			<setting name="SIP_DOMAIN1_PROTOS">
+				<type>
+					<enum>
+						<option>
+							<value>UDP</value>
+						</option>
+						<option>
+							<value>TCP</value>
+						</option>
+						<option>
+							<value>TLS</value>
+						</option>
+					</enum>
+				</type>
+				<value>UDP,TCP</value>
+				<description>
+					Connection to each sip domain can be fine tuned to allow for use of three
+					protocols, UDP, TCP, and TLS.  This configuration value will allow the
+					administrator to specify the allowed protocols that the phone may use.
+				</description>
+			</setting>
+		</group>
+		<group name="DOMAIN2" advanced="yes">
+			<setting name="SIP_DOMAIN2">
+				<type refid="validHostOrIp" />
+				<value></value>
+				<description>
+					Please enter valid DNS host name or IP address, for example server.domain.org,
+					10.1.1.25
+				</description>
+			</setting>
+			<setting name="SERVER_IP2_1">
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name="SERVER_PORT2_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT2_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling TCP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT2_1">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of first proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_IP2_2'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name='SERVER_PORT2_2'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT2_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TCP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT2_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of second proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_RETRIES2'>
+				<type>
+					<integer min="1" max="5" />
+				</type>
+				<value>3</value>
+				<description>
+					Confirms the number of retries for each domain. The default
+					number of retries is 3
+				</description>
+			</setting>
+			<setting name="SIP_DOMAIN2_PROTOS">
+				<type>
+					<enum>
+						<option>
+							<value>UDP</value>
+						</option>
+						<option>
+							<value>TCP</value>
+						</option>
+						<option>
+							<value>TLS</value>
+						</option>
+					</enum>
+				</type>
+				<value>UDP,TCP</value>
+				<description>
+					Connection to each sip domain can be fine tuned to allow for
+					use of three protocols, UDP, TCP, and TLS.  This configuration
+					value will allow the administrator to specify the allowed
+					protocols that the phone may use.
+				</description>
+			</setting>
+		</group>
+		<group name="DOMAIN3" advanced="yes">
+			<setting name="SIP_DOMAIN3">
+				<type refid="validHostOrIp" />
+				<value></value>
+				<description>
+					Please enter valid DNS host name or IP address, for example
+					server.domain.org, 10.1.1.25
+				</description>
+			</setting>
+			<setting name="SERVER_IP3_1">
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name="SERVER_PORT3_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT3_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling TCP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT3_1">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of first proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_IP3_2'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name='SERVER_PORT3_2'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT3_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TCP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT3_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of second proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_RETRIES3'>
+				<type>
+					<integer min="1" max="5" />
+				</type>
+				<value>3</value>
+				<description>
+					Confirms the number of retries for each domain. The default
+					number of retries is 3
+				</description>
+			</setting>
+			<setting name="SIP_DOMAIN3_PROTOS">
+				<type>
+					<enum>
+						<option>
+							<value>UDP</value>
+						</option>
+						<option>
+							<value>TCP</value>
+						</option>
+						<option>
+							<value>TLS</value>
+						</option>
+					</enum>
+				</type>
+				<value>UDP,TCP</value>
+				<description>
+					Connection to each sip domain can be fine tuned to allow for use
+					of three protocols, UDP, TCP, and TLS.  This configuration value
+					will allow the administrator to specify the allowed protocols
+					that the phone may use.
+				</description>
+			</setting>
+		</group>
+		<group name="DOMAIN4" advanced="yes">
+			<setting name="SIP_DOMAIN4">
+				<type refid="validHostOrIp" />
+				<value></value>
+				<description>
+					Please enter valid DNS host name or IP address, for example
+					server.domain.org, 10.1.1.25
+				</description>
+			</setting>
+			<setting name="SERVER_IP4_1">
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name="SERVER_PORT4_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT4_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling TCP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT4_1">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of first proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_IP4_2'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name='SERVER_PORT4_2'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT4_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TCP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT4_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of second proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_RETRIES4'>
+				<type>
+					<integer min="1" max="5" />
+				</type>
+				<value>3</value>
+				<description>
+					Confirms the number of retries for each domain. The default
+					number of retries is 3
+				</description>
+			</setting>
+			<setting name="SIP_DOMAIN4_PROTOS">
+				<type>
+					<enum>
+						<option>
+							<value>UDP</value>
+						</option>
+						<option>
+							<value>TCP</value>
+						</option>
+						<option>
+							<value>TLS</value>
+						</option>
+					</enum>
+				</type>
+				<value>UDP,TCP</value>
+				<description>
+					Connection to each sip domain can be fine tuned to allow for
+					use of three protocols, UDP, TCP, and TLS.  This configuration
+					value will allow the administrator to specify the allowed
+					protocols that the phone may use.
+				</description>
+			</setting>
+		</group>
+		<group name="DOMAIN5" advanced="yes">
+			<setting name="SIP_DOMAIN5">
+				<type refid="validHostOrIp" />
+				<value></value>
+				<description>
+					Please enter valid DNS host name or IP address, for example
+					server.domain.org, 10.1.1.25
+				</description>
+			</setting>
+			<setting name="SERVER_IP5_1">
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name="SERVER_PORT5_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT5_1">
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling TCP port of first proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT5_1">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of first proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_IP5_2'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address, for example: 10.1.1.0
+				</description>
+			</setting>
+			<setting name='SERVER_PORT5_2'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>
+					Remote SIP signaling UDP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TCP_PORT5_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TCP port of second proxy server
+				</description>
+			</setting>
+			<setting name="SERVER_TLS_PORT5_2">
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>
+					Remote SIP signaling TLS port of second proxy server
+				</description>
+			</setting>
+			<setting name='SERVER_RETRIES5'>
+				<type>
+					<integer min="1" max="5" />
+				</type>
+				<value>3</value>
+				<description>
+					Confirms the number of retries for each domain. The default
+					number of retries is 3
+				</description>
+			</setting>
+			<setting name="SIP_DOMAIN5_PROTOS">
+				<type>
+					<enum>
+						<option>
+							<value>UDP</value>
+						</option>
+						<option>
+							<value>TCP</value>
+						</option>
+						<option>
+							<value>TLS</value>
+						</option>
+					</enum>
+				</type>
+				<value>UDP,TCP</value>
+				<description>
+					Connection to each sip domain can be fine tuned to allow for
+					use of three protocols, UDP, TCP, and TLS.  This configuration
+					value will allow the administrator to specify the allowed
+					protocols that the phone may use.
+				</description>
+			</setting>
+		</group>
+		<group name="ALL_DOMAIN_SETTINGS">
+			<setting name="SIP_PING">
+				<type refid="yes-no"/>
+				<value>YES</value>
+				<description>
+					The SIP_PING configuration value is used to maintain server
+					heartbeat detection and to keep a firewall pinhole open. When
+					used for server heartbeat detection, the IP Phone 1140E
+					periodically pings the SIP Proxy and awaits a response. When
+					three attempts to ping the SIP Proxy fail, the IP Phone 1140E
+					begins a failover process and attempts to connect to the next
+					configured SIP Proxy IP in the same domain.When a NAT TRAVERSAL
+					method is selected, the SIP_PING configuration value also helps
+					keep a firewall pinhole open.
+				</description>
+			</setting>
+			<setting name='SIP_UDP_PORT'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>Local SIP signaling UDP listening port</description>
+			</setting>
+			<setting name='SIP_TCP_PORT'>
+				<type refid="port-number" />
+				<value>5060</value>
+				<description>Local SIP signaling TCP listening port</description>
+			</setting>
+			<setting name='SIP_TLS_PORT'>
+				<type refid="port-number" />
+				<value>5061</value>
+				<description>Local SIP signaling TLS listening port</description>
+			</setting>
+		</group>
+	</group>
+	<group name='E911'>
+		<setting name='E911_USERNAME'>
+			<type refid="validIdOrPass"/>
+			<value></value>
+			<description>
+				username to be used for E911 login when E911 dialed without a user
+				logged in
+			</description>
+		</setting>
+		<setting name='E911_PASSWORD'>
+			<type refid="validIdOrPass"/>
+			<description>
+				password to be used for E911 login when E911 dialed without a user
+				logged in on set
+			</description>
+		</setting>
+		<setting name='E911_PROXY'>
+			<type refid="validIPv4" />
+			<value>0.0.0.0</value>
+			<description>
+				Please enter a valid IPv4 address for E911 proxy server, for example:
+				10.1.1.0, proxy to be used for E911 login when E911 dialed without
+				a user logged in
+			</description>
+		</setting>
+		<setting name='E911_TXLOC'>
+			<type>
+				<enum>
+					<option>
+						<value>INVITE</value>
+					</option>
+					<option>
+						<value>REGISTER</value>
+					</option>
+				</enum>
+			</type>
+			<value>INVITE</value>
+			<description>
+				Specifies which SIP message type is used to transmit E911 call
+				location information. If set to INVITE, the INVITE SIP message
+				used to initiate an E911 call will contain the location
+				information. If set to REGISTER, the REGISTER of the login used
+				for making the E911 call will have sent the location info
+			</description>
+		</setting>
+		<setting name='ALLOW_EMERGENCY_PRIORITY_HEADER'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Indicate whether "Priority: emergency" header must be added to
+				emergency calls or not.
+			</description>
+		</setting>
+	</group>	
+	<group name='FEATURES'>
+		<setting name='AUTH_METHOD'>
+			<type>
+				<enum>
+					<option>
+						<value>AUTH</value>
+					</option>
+					<option>
+						<value>AUTH_INT</value>
+					</option>
+				</enum>
+			</type>
+			<value>AUTH</value>
+			<description>
+				is used to configure the SIP authentication method.
+				AUTH - only authenticates (username/password)
+				AUTH_INT - authentication plus integrity checking (an MD5 hash of
+				the entity is also computed and checked).
+			</description>
+		</setting>
+		<setting name='ADDR_BOOK_MODE'>
+			<type>
+				<enum>
+					<option>
+						<value>LOCAL</value>
+					</option>
+					<option>
+						<value>NETWORK</value>
+					</option>
+					<option>
+						<value>BOTH</value>
+					</option>
+				</enum>
+			</type>
+			<value>NETWORK</value>
+			<description>
+				is a command to choose the address book that is used to search for
+				other users. The default setting is NETWORK.
+				NETWORK - downloads the user’s address book from the network
+				(MCS). New address book entries are uploaded to the network.
+				LOCAL - creates a user address book and stores it locally on the IP
+				Phone
+				BOTH - attempts to download a network address book and keep a
+				copy on the IP Phone. If a network address book is available, the IP
+				Phone 1140E functions as if NETWORK mode has been selected.
+			</description>
+		</setting>
+		<setting name='HOLD_TYPE'>
+			<type>
+				<enum>
+					<option>
+						<value>rfc3261</value>
+					</option>
+					<option>
+						<value>rfc2543</value>
+					</option>
+				</enum>
+			</type>
+			<value>rfc3261</value>
+			<description>
+				is used to select the protocol to hold a call. The default setting
+				is RFC3261.
+				RFC2543 - RFC 2543 is a standard protocol of the Internet
+				Engineering Task Force (IETF).
+				RFC3261 - RFC3261 is a standard protocol of the IETF
+			</description>
+		</setting>
+		<setting name='TRANSFER_TYPE'>
+			<type>
+				<enum>
+					<option>
+						<value>STANDARD</value>
+					</option>
+					<option>
+						<value>MCS</value>
+					</option>
+				</enum>
+			</type>
+			<value>MCS</value>
+			<description>
+				is used to configure the IP Phone 1140E to activate Nortel conference
+				server-assisted attended transfers, instead of the industry standard
+				method of attended transfers. The default setting is MCS.
+				MCS - the typical attended transfer used by Nortel proxies. MCS
+				uses a conference server to do the attended transfer.
+				STANDARD - the standard method of a transfer. This method does not
+				involve a conference server.
+			</description>
+		</setting>
+		<setting name='REDIRECT_TYPE'>
+			<type>
+				<enum>
+					<option>
+						<value>rfc3261</value>
+					</option>
+					<option>
+						<value>MCS</value>
+					</option>
+				</enum>
+			</type>
+			<value>MCS</value>
+			<description>
+				is a command  used to select different protocols for set redirection.
+				The default setting is MCS.
+				MCS - when the IP Phone 1140E receives either 301(moved permanently)
+				or 302 (moved temporarily) during registration, it is assumed the
+				IP Phone 1140E is moved to a new MCS 5100 system (proxy+registrar)
+				and all subsequent messages are sent to the new address.
+				RFC3261 - the IP Phone 1140E assumes that, if during registration,
+				a 301 (moved permanently) is received, the message contains a new
+				registrar address. The IP Phone 1140E tries to register to the
+				registrar using the existing proxy.
+			</description>
+		</setting>
+		<setting name='ENABLE_3WAY_CALL'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				is a flag to enable or disable local phone-based three-way calling
+				for three-party conferences.
+				YES - enables local (phone-based) three-way calling for three-party
+				conferences. YES is the default.
+				NO - disables local (phone-based) three-way calling.
+			</description>
+		</setting>
+		<setting name='DISABLE_PRIVACY_UI'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is a flag to disable the privacy setting in UI menus. Disabling the
+				privacy setting in UI menus disables the user ability to set privacy
+				options.
+				YES - disables the privacy setting in the UI menus.
+				NO - enables the privacy setting in the UI menus. NO is the default.
+			</description>
+		</setting>
+		<setting name='ENABLE_PRACK'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				PRACK is utilized to make some SIP
+				messages reliable and requires that an ACK be sent with many SIP
+				messages. ENABLE_PRACK is often utilized to verify that early media
+				is being received. See RFC 3262 for details.
+				Note 1: ENABLE_PRACK must be set to NO when connected to
+				the MCS 5100 Release 3.5 system.
+				Note 2: ENABLE_PRACK is provisioned after user logout.
+				NO - disables PRACK and is the default value.
+				YES - enables PRACK.
+			</description>
+		</setting>
+		<setting name='DISABLE_OCT_ENDDIAL'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				is a flag used to configure the pound (#) key. The default setting
+				is YES.
+				YES - the pound (#) key initiates dialing when pressed after a
+				telephone number is entered.
+				NO - the pound (#) key functions as any other digit or character
+				on the dial pad typically used in networks that use vertical service
+				codes or access codes.
+			</description>
+		</setting>
+		<setting name='FORCE_OCT_ENDDIAL'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is a flag used to override attempts to change the function of the
+				pound (#) key on the Graphical User Interface (GUI). The default
+				setting is NO.
+				YES - overrides attempts to change the function of the pound (#)
+				key on the GUI.
+				NO - does not override a change of the function of the pound (#)
+				key on the GUI.
+			</description>
+		</setting>
+		<setting name='DEF_AUDIO_QUALITY'>
+			<type>
+				<enum>
+					<option>
+						<value>High</value>
+					</option>
+					<option>
+						<value>Medium</value>
+					</option>
+					<option>
+						<value>Low</value>
+					</option>
+				</enum>
+			</type>
+			<value>High</value>
+			<description>
+				is a command used for setting the default audio quality used for
+				each new call. Audio quality can be changed when the call is active.
+				If this command is not present in the configuration file, the IP
+				Phone 1140E uses High quality as its default value. The possible
+				parameters for this command are High, Medium, and Low. If any other
+				parameter is entered or these commands are misspelled, the IP Phone
+				1140E uses High as the default setting. The following codecs are
+				used for each selection:
+				Low - G729 ptime 30.
+				Medium - G711 ptime 30.
+				High - G711 ptime 20.
+			</description>
+		</setting>
+		<setting name='ENABLE_BT'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is a flag to enable and disable Bluetooth support in the IP Phone
+				1140E.
+				YES - enables Bluetooth.
+				NO - disables Bluetooth. The default is NO.
+				Note that the IP Phone 1140E hardware does not support Bluetooth
+				and this command is ignored.
+			</description>
+		</setting>
+		<setting name='PROXY_CHECKING'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				enables and disables extra security checking when incoming requests
+				are sent to the IP Phone 1140E. The IP Phone 1140E with SIP Firmware
+				always sends requests through an outgoing proxy. However, it is
+				possible, through this configuration, to be able to accept an incoming
+				request directly or through an incoming proxy.
+				YES - means that the request must come directly from the proxy
+				server. YES is the default to enable proxy checking.
+				NO - means the request can be sent directly to the IP Phone 1140E.
+				(NO is only suitable in a few situations).
+			</description>
+		</setting>
+		<setting name='DISTINCTIVE_RINGING'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				YES - turns on the distinctive ringing feature. This is the default
+				option.
+				NO - turns off the distinctive ringing feature.
+			</description>
+		</setting>
+		<setting name='CALL_WAITING'>
+			<type>
+				<enum>
+					<option>
+						<value>SPEAKER</value>
+					</option>
+					<option>
+						<value>STREAM</value>
+					</option>
+				</enum>
+			</type>
+			<value>SPEAKER</value>
+			<description>
+				SPEAKER - the call waiting tone is played on the phone speaker.
+				This is the default option.
+				STREAM - the call waiting tone is injected into the stream played
+				on the transducer in use for the active call
+			</description>
+		</setting>
+		<setting name='USE_RPORT'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - allows the phone to work from behind and/or in front of a
+				symmetrical NAT with servers and/or clients that support RFC 3581.
+				NO - disables implementation of support for RFC 3581. This is the
+				default option.
+				Note: To provision USE_RPORT, the IP Phone 1140 must be
+				rebooted after the device configuration file is updated. To force
+				a hard reboot after the device configuration file is updated set
+				FORCE_REBOOT YES
+			</description>
+		</setting>
+		<setting name='MAX_RING_TIME'>
+			<type>
+				<integer min="30" max="600" />
+			</type>
+			<value>120</value>
+			<description>
+				an integer between 30 and 600 that sets the number of seconds for
+				incoming calls to ring before ignoring them. The default value is
+				120.
+			</description>
+		</setting>
+		<setting name='EXP_MODULE_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - the set will detect and enable an expansion module.
+				NO - the set will not detect an expansion module. This is the
+				default option.
+			</description>
+		</setting>
+		<setting name='ENABLE_UPDATE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				YES - enables UPDATE message support and adds “UPDATE” to ALLOW
+				header. This is the default option.
+				NO - disables UPDATE message support.
+			</description>
+		</setting>
+		<setting name='PROMPT_ON_LOCATION_OTHER'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - prompt the user to select new location if location “other” was
+				previously selected.
+				NO - do not prompt the user to select new location if location “other”
+				was previously selected. This is the default option
+			</description>
+		</setting>
+		<setting name='RTP_PORT_RANGE'>
+			<type refid="rtp_port"/>
+			<value>50000-50100</value>
+			<description>
+				The maximum RTP port The RTP port value. configuration parameters
+				must satisfy the constraints that (RTP_MAX_PORT - RTP_MIN_PORT)
+				is greater than or equal to 100 and less than 1000.
+			</description>
+		</setting>
+		<setting name='DEFAULT_CFWD_NOTIFY'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is used to configure the "ring splash" which occurs when either
+				local call forwarding (MCS 5100) or network-based call forwarding
+				have been enabled (CS 2000, CS 2100). If this configuration value
+				is enabled, the IP Phone 1140E plays an abbreviated ring tone to
+				remind the user that a call has been forwarded. This configuration
+				value only effects users when their user profile is first created,
+				unless the FORCE_CFWD_NOTIFY flag is also used. The default setting
+				is NO
+				YES - a brief ring splash plays when a call is forwarded.
+				NO - the ring splash is not be played.
+			</description>
+		</setting>
+		<setting name='FORCE_CFWD_NOTIFY'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				allows the administrator to force the behavior of the DEFAULT_CFWD_NOTIFY
+				value on all users who login to the IP Phone 1140E. The default
+				setting is NO.
+				YES - the DEFAULT_CFWD_NOTIFY configuration value is forced
+				into effect for the user.
+				NO - the configuration value is not be forced into effect for the
+				user
+			</description>
+		</setting>
+		<setting name='INTERCOM_PAGING'>
+			<type refid="yes-no" />
+			<value>NO</value>
+		</setting>
+		<setting name='ALPHA_ORDER_LOC_LIST'>
+			<type refid="yes-no" />
+			<value>YES</value>
+		</setting>
+		<setting name='REMOTE_CHECK_FOR_UPDATE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+		</setting>
+		<setting name='SECURE_INCALL_DIGITS'>
+			<type refid="yes-no" />
+			<value>NO</value>
+		</setting>
+		<setting name='AUTOCLEAR_NEWCALL_MSG'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Used to set the idle screen missed calls notification mode. Y means
+				that the notification is cleared as soon as the inbox is entered
+				(without needing to visit all missed entries). N requires user to
+				select each missed call in his inbox to have the notification cleared.
+			</description>
+		</setting>
+		<setting name='MEMCHECK_PERIOD'>
+			<type>
+				<integer min="1800" max="86400"/>
+			</type>
+			<value>1800</value>
+			<description>
+				Specify time period for activating Memory Monitor after boot time
+				or the last Memory checking
+			</description>
+		</setting>
+		<setting name='KEEP_ALIVE_TYPE'>
+			<type>
+				<enum>
+					<option>
+						<value>OS</value>
+					</option>
+					<option>
+						<value>CRLF</value>
+					</option>
+				</enum>
+			</type>
+			<value>OS</value>
+			<description>
+				Type of keep alive to use (OS or CRLF). Please note that CRLF is
+				always active no matter what values are used.
+			</description>
+		</setting>
+		<setting name='CONN_KEEP_ALIVE'>
+			<type>
+				<integer min="0"/>
+			</type>
+			<value>60</value>
+			<description>
+				Allows the administrator to specify the amount of time which should
+				be used for the connnection-keep-alive pings.
+			</description>
+		</setting>
+		<setting name='REGISTER_RETRY_TIME'>
+			<type>
+				<integer min="0"/>
+			</type>
+			<value>30</value>
+			<description>
+				Base time to wait in seconds before retrying a failed connection.
+				When the phone has lost connection with a proxy, this value will
+				be the default amount of time the phone should wait before attempting
+				to reconnect with the proxy.
+			</description>
+		</setting>
+		<setting name='REGISTER_RETRY_MAXTIME'>
+			<type>
+				<integer min="0"/>
+			</type>
+			<value>1800</value>
+			<description>
+				Max time to wait in seconds before retrying a failed connection.
+				When the phone has lost connection with a proxy, this value will
+				be the maximum amount of time the phone will be prepared to wait
+				before attempting to re-register witth the SIP proxy.  After this
+				value has been reached, the phone will continue to use a random
+				value between 50 and 100% of this maximum value
+			</description>
+		</setting>
+		<setting name='SELECT_LAST_INCOMING'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - Multiline function select incoming call; No - Multiline
+				function already selected call remain unchanged.
+			</description>
+		</setting>
+		<setting name='LOGINALPHA_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					This parameter allows the system administrator to set the login and logout of the phone to be in either alphanumeric mode or numeric mode.
+				</description>
+			</setting>
+		<group name='AUTO_ANSWER'>
+			<setting name='ENABLE_ANSWER_MODE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Enable or disable answer mode support, default is ENABLE
+				</description>
+			</setting>
+			<setting name='ANSWER_MODE_MAXALLOWADDR'>
+				<type>
+					<integer min="0" max="200"/>
+				</type>
+				<value>100</value>
+				<description>
+					Answer mode maximum allowed address ranges from 0 to 200,
+					default is 100.
+				</description>
+			</setting>
+			<setting name='ANSWER_MODE_MICMUTE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					Mute mic when call is auto answered, default is NO.
+				</description>
+			</setting>			
+		</group>
+	</group>
+	<group name="FEDERAL">
+		<setting name='DOD_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>DoD network enable or disable</description>
+		</setting>
+		<group name='DSCP'>
+			<setting name='DSCP_OAM'>
+				<type refid="dscp_limit"/>
+				<value>18</value>
+				<description>is a value entered in decimal format.</description>
+			</setting>
+			<setting name='DSCP_MEDIA_FLASHOVERRRIDE'>
+				<type refid="dscp_limit"/>
+				<value>41</value>
+				<description>
+					is a value entered in decimal format. When MLPP service is
+					enabled and precedence level is Flash Override, all outgoing
+					media packet is marked with this value. Usaually do not
+					recommend to change this value.
+				</description>
+			</setting>
+			<setting name='DSCP_MEDIA_FLASH'>
+				<type refid="dscp_limit"/>
+				<value>42</value>
+				<description>
+					is a value entered in decimal format. When MLPP service is
+					enabled and precedence level is Flash, all outgoing media packet
+					is marked with this value. Usaually do not recommend to change
+					this value.
+				</description>
+			</setting>
+			<setting name='DSCP_MEDIA_IMMEDIATE'>
+				<type refid="dscp_limit"/>
+				<value>44</value>
+				<description>
+					is a value entered in decimal format. When MLPP service is
+					enabled and precedence level is Immediate, all outgoing media
+					packet is marked with this value. Usaually do not recommend
+					to change this value.Usaually do not recommend to change this
+					value.
+				</description>
+			</setting>
+			<setting name='DSCP_MEDIA_PRIORITY'>
+				<type refid="dscp_limit"/>
+				<value>45</value>
+				<description>
+					is a value entered in decimal format. When MLPP service is
+					enabled and precedence level is Priority, all outgoing media
+					packet is marked with this value. Usaually do not recommend
+					to change this value.
+				</description>
+			</setting>
+		</group>
+		<group name='MLPP'>
+			<setting name='MLPP_NETWORK_DOMAIN'>
+				<type>
+					<enum>
+						<option>
+							<value>DSN</value>
+						</option>
+					</enum>
+				</type>
+				<value>DSN</value>
+				<description>
+					The network domain (DSN) of the user to be added to the INVITE
+					message of outgoing calls.- for now we will  have DSN only as
+					a drop down option. However, there are plans in the future to
+					support DRSN.
+				</description>
+			</setting>
+			<setting name='MLPP_PRECEDENCE_DOMAIN'>
+				<type>
+					<string maxLen="6">
+						<pattern>^([\d]*)$</pattern>
+					</string>
+				</type>
+				<value>000000</value>
+				<description>
+					The local precedence domain of the user to be added to the INVITE
+					message of outgoing calls.- Precedence Domain will accept
+					hexadecimal characters only- since AS5300 has that limitation
+					in place for a user's precedence domain as well. Default will
+					be 6 zeros "000000". So we can have this as a text box which
+					can have 6 hex values entered in.
+				</description>
+			</setting>
+			<setting name='CALL_WAITING_TONE'>
+				<type>
+					<enum>
+						<option>
+							<value>0</value>
+						</option>
+						<option>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>
+					1- two-beep periodic tone
+					0 -single buzz
+				</description>
+			</setting>
+			<setting name='MAX_APPEARANCE'>
+				<type>
+					<integer min="1" max="10"/>
+				</type>
+				<value>10</value>
+				<description>
+					Maximum appearances(number of calls they can handle) each user
+					on the phone may have
+				</description>
+			</setting>
+		</group>
+		<group name='FEDERAL_FEATURES'>
+			<setting name='CALL_ORIGIN_BUSY'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					The user should not be interrupted (presented with an incoming
+					call) when entering address of outbound call. Intended for DoD.
+				</description>
+			</setting>
+			<setting name='DISABLE_SPKRPHN'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Disables the speakerphone for all non-911 calls. Intended for DoD.
+				</description>
+			</setting>
+			<setting name='SLOW_START_200OK'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Sends SDP offer in 200 OK only If enabled. This is intended for
+					DoD and will behave this way for all communication including PRACK
+				</description>
+			</setting>
+		</group>
+	</group>
+	<group name='FILE_MANAGEMENT'>
+		<setting name='FM_PROFILES_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				Is used for File Manager. Specifies whether  a user is able to copy/
+				delete files from/to Profile Manager
+			</description>
+		</setting>
+		<setting name='FM_LANGS_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				Is used for File Manager.
+				Specifies whether  a user is able to copy/delete files from/to
+				Languages Manager
+			</description>
+		</setting>
+		<setting name='FM_SOUNDS_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				Is used for File Manager. Specifies whether  a user is able to copy/
+				delete files from/to Tone Manager
+			</description>
+		</setting>
+		<setting name='FM_IMAGES_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				Is used for File Manager. Specifies whether  a user is able to copy/
+				delete files from/to Images Manager
+			</description>
+		</setting>
+		<setting name='FM_CERTS_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Is used for File Manager. Specifies whether  a user is able to copy/
+				delete files from/to Certificate Manager
+			</description>
+		</setting>
+		<setting name='FM_CONFIG_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description></description>
+		</setting>
+		<setting name='FM_LOGS_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description></description>
+		</setting>
+	</group>
+	<group name='HOTLINE'>
+    	<setting name='HOTLINE_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>Enables or disables Hotline feature</description>
+		</setting>
+		<setting name='HOTLINE_URL'>
+			<type refid="validPhoneOrUri"/>
+			<value></value>
+			<description>sip uri or phone number e.g. 6139675000</description>
+		</setting>
+   </group>
+   <group name='IPV6'>
+		<setting name='IPV6_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>Enable IPv6 functionality in a dual mode</description>
+		</setting>
+		<setting name='PREFER_IPV6'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				If NO, when there is a choice between IPv4 and IPv6 address, the set
+				will choose the IPv4 address.  This is the default state
+			</description>
+		</setting>
+		<setting name='IPV6_STATELESS'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				Enable IPv6 stateless autoconfiguration.  This enables self
+				configuration in a routed IPv6 network via router discovery messages
+			</description>
+		</setting>
+		<setting name='IPV6_ENABLE_GUI'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Enable IPv6 user configuration interface in the Device Configuration
+				screen
+			</description>
+		</setting>
+	</group>
+	<group name='LANGUAGE'>
+		<setting name='DEF_LANG'>
+			<type>
+				<enum>
+					<option>
+						<value>Czech</value>
+					</option>
+					<option>
+						<value>Danish</value>
+					</option>
+					<option>
+						<value>Dutch</value>
+					</option>
+					<option>
+						<value>English</value>
+					</option>
+					<option>
+						<value>Finnish</value>
+					</option>
+					<option>
+						<value>French</value>
+					</option>
+					<option>
+						<value>German</value>
+					</option>
+					<option>
+						<value>Hungarian</value>
+					</option>
+					<option>
+						<value>Italian</value>
+					</option>
+					<option>
+						<value>Japanese</value>
+					</option>
+					<option>
+						<value>Latvian</value>
+					</option>
+					<option>
+						<value>Norwegian</value>
+					</option>
+					<option>
+						<value>Polish</value>
+					</option>
+					<option>
+						<value>Portuguese</value>
+					</option>
+					<option>
+						<value>Russian</value>
+					</option>
+					<option>
+						<value>Spanish</value>
+					</option>
+					<option>
+						<value>Swedish</value>
+					</option>
+					<option>
+						<value>Turkish</value>
+					</option>
+				</enum>
+			</type>
+			<value>English</value>
+			<description>
+				is a command used for setting the default language. Select one of
+				the supported languages from the language list downloaded. Note
+				that the corresponding language file must be downloaded and stored
+				in the IP Phone 1140E through the [LANGUAGE] section in Provisioning.
+				If the language file is not stored in the IP Phone 1140E, the default
+				language English is used.
+			</description>
+		</setting>
+	</group>
+	<group name='LANGUAGE'>
+		<setting name='DEF_LANG'>
+			<type>
+				<enum>
+					<option>
+						<value>Czech</value>
+					</option>
+					<option>
+						<value>Danish</value>
+					</option>
+					<option>
+						<value>Dutch</value>
+					</option>
+					<option>
+						<value>English</value>
+					</option>
+					<option>
+						<value>Finnish</value>
+					</option>
+					<option>
+						<value>French</value>
+					</option>
+					<option>
+						<value>German</value>
+					</option>
+					<option>
+						<value>Hungarian</value>
+					</option>
+					<option>
+						<value>Italian</value>
+					</option>
+					<option>
+						<value>Japanese</value>
+					</option>
+					<option>
+						<value>Latvian</value>
+					</option>
+					<option>
+						<value>Norwegian</value>
+					</option>
+					<option>
+						<value>Polish</value>
+					</option>
+					<option>
+						<value>Portuguese</value>
+					</option>
+					<option>
+						<value>Russian</value>
+					</option>
+					<option>
+						<value>Spanish</value>
+					</option>
+					<option>
+						<value>Swedish</value>
+					</option>
+					<option>
+						<value>Turkish</value>
+					</option>
+				</enum>
+			</type>
+			<value>English</value>
+			<description>
+				is a command used for setting the default language. Select one of
+				the supported languages from the language list downloaded. Note
+				that the corresponding language file must be downloaded and stored
+				in the IP Phone 1140E through the [LANGUAGE] section in Provisioning.
+				If the language file is not stored in the IP Phone 1140E, the default
+				language English is used.
+			</description>
+		</setting>
+	</group>
+	<group name="LICENSING">
+		<setting name='TECH_SUPPORT_ADDRESS'>
+			<type refid="validPhoneOrUri" />
+			<value></value>
+			<description>Please enter a valid sip address</description>
+		</setting>
+		<setting name='TECH_SUPPORT_LABEL'>
+			<type>
+				<string maxLen="7">
+					<pattern>^([\w\s]*)$</pattern>
+				</string>
+			</type>
+			<description>7 char string for the support soft key label</description>
+		</setting>
+	</group>
+	<group name='MADN'>
+		<setting name='MADN_TIMER'>
+			<type>
+				<integer min="900"/>
+			</type>
+			<value>1800</value>
+			<description>
+				is used to set the MADN polling timer interval (the interval at
+				which the IP Phone 1140E attempts to determine the MADN group of the
+				logged-in user). The minimum value for the polling interval is 900
+				seconds (15 minutes). The default value is 1800.
+			</description>
+		</setting>
+		<setting name='MADN_DIALOG'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				is used to set the SIP URI or the GROUP DN for the subscription to
+				the dialog event. The default value is NO.
+				YES - subscribes to the dialog event using the SIP URI of the user.
+				NO - subscribes to the dialog event using the group of the user.
+				Note: The SIP URI is used to subscribe for MADN support for CS
+				2000.
+			</description>
+		</setting>
+		<setting name='SCA_APPEARANCES'>
+			<type>
+				<integer min="2" max="24" />
+			</type>
+			<value>12</value>
+			<description>
+				sets the maximum number of appearances that will be used for
+				outgoing calls by the Shared Call Appearance (SCA) group.
+			</description>
+		</setting>
+		<setting name='SCA_BROADWORKS'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - activates the Broadsoft Shared Call Appearance (SCA) feature.
+				NO - deactivates the Broadsoft Shared Call Appearance (SCA)
+				feature. This is the default option
+			</description>
+		</setting>
+		<setting name='SCA_HOLD_BEHAVIOUR'>
+			<type refid="sca_hold_behaviour"/>
+			<value>PUBLIC</value>
+			<description>
+				sets the default behavior of the hold button when user determined
+				behavior does not exist. When a user creates a new profile the
+				default behavior is taken from this setting. After the creation
+				of a new profile this configuration setting is not used. The
+				default option is PUBLIC. The SCA feature is supported on
+				BroadWorks servers.
+			</description>
+		</setting>
+	</group>
+	<group name='MESSAGING'>
+		<setting name='VMAIL'>
+			<type id="vmailNum">
+				<string minLen="1" maxLen="20">
+					<pattern>^([A-Za-z0-9-]*)$</pattern>
+				</string>
+			</type>
+			<value>123-1234</value>
+			<description>
+				is the voice mail address which can be the URI or the DN number of
+				the voice mail server. This command takes a string as a parameter.
+				This is the default link for a new user profile only. Individual
+				users can customize the link through Prefs, Message Options, Voice
+				Mail Settings. This command has no effect on the user profiles
+				after it is created.
+				vmail_number - the number or URI of the voicemail server.
+			</description>
+		</setting>
+		<setting name='VMAIL_DELAY'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>1000</value>
+			<description>
+				is a delay, configured in milliseconds, between when the voice mail
+				server answers the call and the start of dialing the voice mail
+				user ID. The default value is 1000ms.
+				x - the delay in milliseconds
+			</description>
+		</setting>
+		<setting name='TOVM_SOFTKEY_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				enabled or disabled
+				YES - enables the toVM soft key on the phone.
+				NO - disables the toVM soft key on the phone.
+			</description>
+		</setting>
+		<setting name='TOVM_VOICEMAIL_ALIAS'>
+			<type refid="restrictedString"/>
+			<value>transfertovm</value>
+			<description>
+				customizes the user ID of the SIP URI of the voice mail system.
+			</description>
+		</setting>
+		<setting name='TOVM_VOICEMAIL_PARAM'>
+			<type refid="restrictedString"/>
+			<value>mbid</value>
+			<description>
+				customizes the parameter name of the SIP URI of the voice mail system.
+			</description>
+		</setting>
+		<setting name='IM_MODE'>
+			<type>
+				<enum>
+					<option>
+						<value>ENCRYPTED</value>
+					</option>
+					<option>
+						<value>TEXT</value>
+					</option>
+					<option>
+						<value>SIMPLE</value>
+					</option>
+					<option>
+						<value>DISABLED</value>
+					</option>
+				</enum>
+			</type>
+			<value>ENCRYPTED</value>
+			<description>
+				is used to configure the mode of instant messaging (IM). The default
+				setting is ENCRYPTED.
+				ENCRYPTED - instant messages are sent encrypted.
+				TEXT - instant messages are sent as text.
+				SIMPLE - instant messages are sent using SIP for Instant Messaging
+				and Presence Leveraging Extensions (SIMPLE) protocol.
+				DISABLED - instant messaging is turned off and no instant
+				messages can sent or received.
+			</description>
+		</setting>
+		<setting name='DEF_DISPLAY_IM'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				enables or disables the display of instant
+				messages (IM). The default setting is NO.
+				YES - enables display of IMs.
+				NO - disables display of IMs.
+			</description>
+		</setting>
+		<setting name='IM_NOTIFY'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				is used to turn on or off the Blue LED indicator upon receipt of
+				an instant message.
+				YES - the Blue LED functions when an instant message is received.
+				NO - the Blue LED does not function when an instant message is
+				received.
+			</description>
+		</setting>
+	</group>
+	<group name='MULTIUSER'>
+		<setting name='MAX_LOGINS'>
+			<type>
+				<integer min="1" max="64" />
+			</type>
+			<value>24</value>
+			<description></description>
+		</setting>
+		<setting name='SECONDARY_LOGOUT_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Whether or not secondary users can be logged out with the primary
+				user's password.</description>
+		</setting>
+		<setting name='LOGOUT_WITHOUT_PASSWORD'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Whether or not logging out requires a password.
+			</description>
+		</setting>
+	</group>
+	<group name='NAT'>
+		<setting name='NAT_SIGNALLING'>
+			<type>
+				<enum>
+					<option>
+						<value>NONE</value>
+					</option>
+					<option>
+						<value>STUN</value>
+					</option>
+					<option>
+						<value>SIP_PING</value>
+					</option>
+				</enum>
+			</type>
+			<value>NONE</value>
+			<description>
+				indicates the type of protocol used for NAT traversal in the
+				signaling port. The IP Phone 1140E with SIP Firmware supports two
+				methods of NAT traversal of the signaling path: SIP_PING and STUN
+				NONE - If the value is not set to None, this parameter overrides the
+				value of the parameter SIP_PING in the device configuration file.
+				SIP_PING - a Nortel proprietary NAT traversal protocol. Note that
+				SIP_PING only supports NAT traversal in the signaling port.
+				STUN - the most common NAT traversal method.
+			</description>
+		</setting>
+		<setting name='NAT_MEDIA'>
+			<type>
+				<enum>
+					<option>
+						<value>NONE</value>
+					</option>
+					<option>
+						<value>STUN</value>
+					</option>
+				</enum>
+			</type>
+			<value>NONE</value>
+			<description>
+				indicates the type of protocol used for NAT traversal in the media
+				ports. The default is NONE.
+				NONE - is the default and disables NAT_MEDIA.
+				STUN - the most common NAT traversal protocol for the media (RTP
+				and Real-time Control Protocol [RTCP]) port.
+				x - is the binding lifetime in seconds.
+			</description>
+		</setting>
+		<setting name='NAT_TTL'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>120</value>
+			<description>
+				is used for future development. Currently, the default value is 2
+				minutes (120 seconds) and SIP IP Phones 1120E/1140E do not process
+				or use the value defined in NAT_TTL [x]. SIP IP Phones 1120E/1140E
+				always ping the ports at regular intervals of 60 seconds regardless
+				of the NAT_TTL value.
+			</description>
+		</setting>
+		<setting name='STUN_SERVER_IP1'>
+			<type refid="validIPv4" />
+			<value>0.0.0.0</value>
+			<description>
+				Please enter a valid IPv4 address for STUN server, for example:
+				10.1.1.0.NAT traversal using STUN protocol requires a STUN server
+				in the public internet. Two STUN server IPs can be provisioned.
+			</description>
+		</setting>
+		<setting name='STUN_SERVER_PORT1'>
+			<type refid="port-number" />
+			<value>3478</value>
+			<description>
+				is the port number used corresponding to STUN_SERVER_IP1. The
+				default port number is 3478.
+			</description>
+		</setting>
+		<setting name='STUN_SERVER_IP2'>
+			<type refid="validIPv4" />
+			<value>0.0.0.0</value>
+			<description>
+				Please enter a valid IPv4 address for STUN server, for example:
+				10.1.1.0.NAT traversal using STUN protocol requires a STUN server
+				in the public internet. Two STUN server IPs can be provisioned.
+			</description>
+		</setting>
+		<setting name='STUN_SERVER_PORT2'>
+			<type refid="port-number" />
+			<value>3478</value>
+			<description>
+				is the port number used corresponding to STUN_SERVER_IP2. The
+				default port number is 3478.
+			</description>
+		</setting>
+	</group>
+	<group name='NETWORK'>
+		<setting name='DNS_DOMAIN'>
+			<type refid="validHostOrIp"/>
+			<value>ca.nortel.com</value>
+			<description>
+				Please enter valid DNS host name or IP address, for example
+				server.domain.org, 10.1.1.25
+			</description>
+		</setting>
+	</group>
+	<group name='QOS'>
+		<setting name='DSCP_CONTROL'>
+			<type refid="dscp_limit"/>
+			<value>40</value>
+			<description>
+				is a value entered in decimal format between -1 and 63. If the
+				value is -1, the DSCP value is picked up by the Service Package.
+				The default value is 40.
+			</description>
+		</setting>
+		<setting name='DSCP_MEDIA'>
+			<type refid="dscp_limit"/>
+			<value>46</value>
+			<description>
+				is a value entered in decimal format between -1 and 63 representing
+				the DSCP value in the Real-time Transfer Protocol packets. If the
+				value is -1, the DSCP value is retrieved from the Service Package.
+				The default value is 44.
+				x - a value from -1 to 63 indicating the DSCP value.
+			</description>
+		</setting>
+		<setting name='DSCP_DATA'>
+			<type refid="dscp_limit"/>
+			<value>40</value>
+			<description>
+				is a value entered in decimal format between -1 and 63 representing
+				the DSCP value in the provisioning packets. If the value is -1,
+				the DSCP value is retrieved from the Service Package. The default
+				value is 40.
+				x - a value from -1 to 63 indicating the DSCP value.
+			</description>
+		</setting>
+		<setting name='802.1P_CONTROL'>
+			<type>
+				<integer min="-1" max="7" />
+			</type>
+			<value>6</value>
+			<description>
+				is a value entered in decimal format between -1 and 7 representing
+				the 802.1P value in the SIP signaling packets. If the value is -1,
+				the 802.1P value is retrieved from the Service Package. The default
+				value is 6.
+				x - the value from -1 to 7 indicating the 802.1P value.
+			</description>
+		</setting>
+		<setting name='802.1P_MEDIA'>
+			<type>
+				<integer min="-1" max="7" />
+			</type>
+			<value>-1</value>
+			<description>
+				is a value entered in decimal format between -1 and 7 representing
+				the 802.1P value in the IP Phone 1140 Media (RTP) packets. If the
+				value is -1 then the 802.1P value is retrieved from the Service
+				Package is the 802.1 setting for media Real-time Transport Protocol
+				(RTP). The default value is -1.
+				x - a value from -1 to 7 indicating the 802.1P value.
+			</description>
+		</setting>
+		<setting name='802.1P_DATA'>
+			<type>
+				<integer min="-1" max="7" />
+			</type>
+			<value>6</value>
+			<description>
+				is a value entered in decimal format between -1 and 7 representing
+				the 802.1P value in the provisioning packets. If the value is -1,
+				the 802.1P value is retrieved from the Service Package. The default
+				value is 6.
+				x - a value from -1 to 7 indicating the 802.1P value.
+			</description>
+		</setting>
+		<group name='VQMON'>
+			<setting name='VQMON_PUBLISH'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is the command that is used to enable or disable the publish
+					message containing the voice quality monitoring metrics sent to
+					the Proactive Voice Quality Monitoring (PVQMoN)	collecting
+					server.
+					YES - enables VQMoN.
+					NO - disables VQMoN. NO is the default.
+				</description>
+			</setting>
+			<setting name='VQMON_PUBLISH_IP'>
+				<type refid="validIPv4" />
+				<value>0.0.0.0</value>
+				<description>
+					Please enter a valid IPv4 address for PVQMoN server, for example:
+					10.1.1.0.It is used to set the IP address of the PVQMoN server
+					that collects voice quality monitoring metrics from the publish
+					message. This IP address is used within the report only.
+				</description>
+			</setting>
+			<setting name='LISTENING_R_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is used to enable or disable the alerts based on the Listening R
+					Minor and Major Thresholds. The default value is vocoder-dependent
+					using a scale from 1 (lowest quality) to 100 (highest quality).
+					Currently default values are used based on VOCODER on a per call
+					basis as summarized below.
+					YES - enables the sending of the alert report based on the Listening
+					R Value.
+					NO - disables the sending of the alert report based on the Listening
+					R Value.
+				</description>
+			</setting>
+			<setting name='LISTENING_R_WARN'>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>70</value>
+				<description>
+					is the threshold to send a report on Listening R less than [xx].
+					The default value is 70. Using 0 will reset it to default based
+					on far end VOCODER.
+					xx - is an INTEGER value used as threshold.
+				</description>
+			</setting>
+			<setting name='LISTENING_R_EXCE'>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>60</value>
+				<description>
+					is the threshold to send a report on Listening R less than [xx].
+					The default value is 60. Using 0 will reset it to default
+					based on far end VOCODER.
+					xx - is an INTEGER value used as threshold.
+				</description>
+			</setting>
+			<setting name='PACKET_LOSS_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is used to enable or disable the alerts based on the packet loss
+					thresholds. Packet loss is the fraction of RTP data packets from
+					the source lost since the beginning of reception. The value is
+					an integer scaled by 256. The range is 1 to 25600.
+					YES - enables the sending of alert report based on the packet loss
+					NO - disables the sending of alert report based on the packet loss
+				</description>
+			</setting>
+			<setting name='PACKET_LOSS_WARN'>
+				<type>
+					<integer min="1" max="25600" />
+				</type>
+				<value>256</value>
+				<description>
+					is the threshold to send a report on Packet Loss greater than
+					[xx]. The default is 256 (1%). Using 0 will reset the threshold
+					to default.
+					xx - is an INTEGER value scaled by 256 that is used as threshold.
+					The range is 1 to 25600.
+				</description>
+			</setting>
+			<setting name='PACKET_LOSS_EXCE'>
+				<type>
+					<integer min="1" max="25600" />
+				</type>
+				<value>1280</value>
+				<description>
+					is the threshold to send a report on Packet Loss greater than
+					[xx]. The default is 1280 (5%). Using 0 will reset the threshold
+					to default.
+					xx - is an INTEGER value scaled by 256 that is used as threshold.
+					The range is 1 to 25600.</description>
+			</setting>
+			<setting name='JITTER_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is used to enable or disable alerts based on the inter-arrival
+					Jitter on incoming RTP packets inter-arrival time. The value is
+					represented in 1/65536 of a second.
+					YES - enables the sending of alert report based on jitter detection
+					NO - disables the sending of alert report based on jitter detection
+				</description>
+			</setting>
+			<setting name='JITTER_WARN'>
+				<type>
+					<integer min="1" max="65535" />
+				</type>
+				<value>3276</value>
+				<description>
+					is the threshold to send a report on Inter-arrival Jitter greater
+					than [xx]. 1 second is broken up into 65535 (0xffff hex) parts.
+					[xx] / 65535 is the threshold in seconds. The default is 3276 (50
+					ms). Using 0 will reset the threshold to default.
+					xx - is an INTEGER value used as threshold
+				</description>
+			</setting>
+			<setting name='JITTER_EXCE'>
+				<type>
+					<integer min="1" max="65535" />
+				</type>
+				<value>32760</value>
+				<description>
+					is the threshold to send a report on Inter-arrival Jitter greater
+					than [xx]. 1 second is broken up into 65535 (0xffff hex) parts.
+					[xx] / 65535 is the threshold in seconds. The default is 32760
+					(500 ms). Using 0 will reset the threshold to default.
+					xx - is an INTEGER value used as threshold
+				</description>
+			</setting>
+			<setting name='DELAY_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is used to enable or disable the alerts based on the excessive
+					delay detection. This is the one-way delay (including system
+					delay) for the call, measured in milliseconds.
+					YES - enables Excessive delay detection.
+					NO - disables Excessive delay detection
+				</description>
+			</setting>
+			<setting name='DELAY_WARN'>
+				<type>
+					<integer min="1" max="65536" />
+				</type>
+				<value>150</value>
+				<description>
+					is the threshold to give warning on Excessive Delay greater than
+					[xx]. The default is 150 ms. Using 0 will reset the threshold
+					to default.
+					xx - is an INTEGER value used as a threshold measured in 1/1000
+					of a second
+				</description>
+			</setting>
+			<setting name='DELAY_EXCE'>
+				<type>
+					<integer min="1" max="65536" />
+				</type>
+				<value>175</value>
+				<description>
+					is the threshold to report unacceptable Excessive Delay greater
+					than [xx]. The default is 175 ms. Using 0 will reset the
+					threshold to default.
+					xx - is an INTEGER value used as a threshold measured in 1/1000
+					of a second.
+				</description>
+			</setting>
+			<setting name='SESSION_RPT_EN'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description></description>
+			</setting>
+			<setting name='SESSION_RPT_INT'>
+				<type>
+					<integer min="60" max="600" />
+				</type>
+				<value>60</value>
+				<description>
+					is used to enable or disable periodic VQMon session reports. The
+					default is disabled. Both session report enable and session
+					report interval must be set if the phone firmware has been
+					upgraded to SIP Release 2.0. Otherwise, the SESSION_RPT_INT
+					default of 60 seconds will be used automatically.
+					YES - enables periodic VQMon session reports.
+					NO - disables periodic VQMon session reports. Default is NO.
+				</description>
+			</setting>
+		</group>
+	</group>
+	<group name="SECURITY">
+		<group name='SRTP'>
+			<setting name='SRTP_ENABLED'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description></description>
+			</setting>
+			<setting name='SRTP_MODE'>
+				<type>
+					<enum>
+						<option>
+							<value>BE-Cap Neg</value>
+						</option>
+						<option>
+							<value>BE-2MLines</value>
+						</option>
+						<option>
+							<value>SecureOnly</value>
+						</option>
+					</enum>
+				</type>
+				<value>BE-2MLines</value>
+				<description>Please select the offer type</description>
+			</setting>
+			<setting name='SRTP_CIPHER_1'>
+				<type>
+					<enum>
+						<option>
+							<value>AES_CM_128_HMAC_SHA1_80</value>
+						</option>
+						<option>
+							<value>AES_CM_128_HMAC_SHA1_32</value>
+						</option>
+						<option>
+							<value>None</value>
+						</option>
+					</enum>
+				</type>
+				<value>AES_CM_128_HMAC_SHA1_80</value>
+				<description>
+					Crypto Suite. Allows the administor to choose which SRTP ciphers
+					should be negotiated and their order of preference.
+				</description>
+			</setting>
+			<setting name='SRTP_CIPHER_2'>
+				<type>
+					<enum>
+						<option>
+							<value>AES_CM_128_HMAC_SHA1_80</value>
+						</option>
+						<option>
+							<value>AES_CM_128_HMAC_SHA1_32</value>
+						</option>
+						<option>
+							<value>None</value>
+						</option>
+					</enum>
+				</type>
+				<value>AES_CM_128_HMAC_SHA1_32</value>
+				<description>
+					Crypto Suite. Allows the administor to choose which SRTP ciphers
+					should be negotiated and their order of preference.
+				</description>
+			</setting>
+			<setting name='MKI_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					YES -Enable MKI for SRTP;
+					NO-Disable MKI for SRTP (Default).
+				</description>
+			</setting>
+		</group>
+		<group name="SECURITY_SETTINGS">
+			<setting name='SECURE_UI_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					addresses from the user on the display (1: on, 0: off)Configure
+					the availability of other sensitive data that may need to be
+					hidden from the normal end-user:such as IP address/MAC address
+					on the phone information screen, and the FE IP Address and Port
+					on the audio quality
+				</description>
+			</setting>
+			<setting name='LOGIN_NOTIFY'>
+				<type refid="on-off" />
+				<value>OFF</value>
+				<description>
+					Display last login's success or failure status (SUCCESS, FAILURE,
+					BOTH, OFF). (Note the parameter updates - different from your
+					original set of parameters.)Allows the administrator to enable/
+					disable the ability to turn on the Last Success Full Login and
+					Last Unsuccessful login banner.
+					Off - don't show either banner.
+					Success - Show the last successful username that logged in.
+					Failure - Show the last unsuccessful login attempt.
+					Both - show both.
+				</description>
+			</setting>
+		</group>
+	</group>
+	<group name='SERVICES'>
+		<setting name='SPEEDLIST_LABEL'>
+			<type refid="restrictedString"/>
+			<value>SDL</value>
+			<description>String  used for SDL key label </description>
+		</setting>
+		<setting name='SPEEDLIST_KEY_INDEX'>
+			<type>
+				<integer min="1" max="64" />
+			</type>
+			<value>0</value>
+			<description>
+				Programmable key to be used for Speed Dial List (default = 0)
+				use value greater than 1 to set Speed Dial List Key the value used
+				must be a valid programmable key index.  In other words, setting
+				the index to 5 on an 1120 will NOT display an SDL key (unless set
+				has a GEM attached).
+			</description>
+		</setting>
+		<setting name='USER_FILE_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				Enables or disables the download of User specific configuration file
+			</description>
+		</setting>
+		<setting name='DEFAULT_ADDRESSBOOK_FILE'>
+			<type>
+				<enum>
+					<option>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<description>
+				specifies the phone specific addressbook filename to use when
+				downloading provisionable files , they are used if not overriden
+				by user.cfg
+			</description>
+		</setting>
+		<setting name='DEFAULT_SPEEDDIALLIST_FILE'>
+			<type>
+				<enum>
+					<option>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<description>
+				specifies the phone specific speedlist filename to use when
+				downloading provisionable files , they are used if not overriden
+				by user.cfg
+			</description>
+		</setting>
+		<setting name='DEFAULT_CUSTOMKEYS_FILE'>
+			<type>
+				<enum>
+					<option>
+						<value></value>
+					</option>
+				</enum>
+			</type>
+			<description>
+				specifies the phone specific customekeys filename to use when
+				downloading provisionable files , they are used if not overriden
+				by user.cfg
+			</description>
+		</setting>
+	</group>
+	<group name='SERVICE_PACKAGE'>
+		<setting name='ENABLE_SERVICE_PACKAGE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				YES - Phone will try to download service package,
+				NO - phone will not subscribe to service package. Default: YES
+				For SCS the default value is NO because SCS doesnot provide a
+				Service Package
+			</description>
+		</setting>
+		<setting name='SERVICE_PACKAGE_PROTOCOL'>
+			<type refid="service-pkg-prot" />
+			<value>HTTP</value>
+			<description>
+				HTTP - Phone will retrieve service package using HTTP;
+				HTTPS - phone will retrieve service package using HTTPS.
+			</description>
+		</setting>
+	</group>
+   	<group name='SESSIONTIMER'>
+    	<setting name='SESSION_TIMER_ENABLE'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>Enable or disable Session Timer</description>
+		</setting>
+		<setting name='SESSION_TIMER_DEFAULT_SE'>
+			<type>
+				<integer min="90"/>
+			</type>
+			<value>1800</value>
+			<description>Default Session Expiration value set in initial session request</description>
+		</setting>
+		<setting name='SESSION_TIMER_MIN_SE'>
+			<type>
+				<integer min="90"/>
+			</type>
+			<value>1800</value>
+			<description>Default Minimum Session Expiration value set in initial session request</description>
+		</setting>
+		<setting name='SET_REQ_REFRESHER'>
+			<type>
+				<integer min="0" max="2"/>
+			</type>
+			<value>0</value>
+			<description>Set Refresher parameter in session request. 0 -- Not Set, 1--uac, 2-uas</description>
+		</setting>
+		<setting name='SET_RESP_REFRESHER'>
+			<type>
+				<integer min="0" max="2"/>
+			</type>
+			<value>2</value>
+			<description>Set Refresher parameter in  the response. 0 -- Not Set (only valid when SET_REQ_REFRESHER is not equal to 0), 1--uac, 2-uas</description>
+		</setting>
+   	</group>	
+	<group name='STORAGE'>
+		<setting name='MAX_INBOX_ENTRIES'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>100</value>
+			<description>
+				is used to restrict the maximum number of inbox entries and takes
+				a number as a parameter. For example 100 limits the number of
+				entries in the inbox to 100. The default limit is 100
+			</description>
+		</setting>
+		<setting name='MAX_OUTBOX_ENTRIES'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>100</value>
+			<description>
+				is used to restrict the maximum number of outbox entries and takes
+				a number as a parameter. For example 100 limits the number of entries
+				in the outbox to 100. The default limit is 100
+			</description>
+		</setting>
+		<setting name='MAX_REJECTREASONS'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>20</value>
+			<description>
+				is used to restrict the maximum number of Call Decline Reasons
+				(Prefs,	Feature Options, Call Decline Reasons) and takes a number
+				as a parameter. The default limit is 20.
+			</description>
+		</setting>
+		<setting name='MAX_CALLSUBJECT'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>20</value>
+			<description>
+				is used to restrict the maximum number of call subjects (Prefs,
+				Feature Options, Call Subject) and takes a number as a parameter.
+				the default limit is 20
+			</description>
+		</setting>
+		<setting name='MAX_PRESENCENOTE'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>20</value>
+			<description>
+				is used to restrict the maximum number of presence notes and takes
+				a number as a parameter. The default limit is 20.
+			</description>
+		</setting>
+		<setting name='MAX_IM_ENTRIES'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>999</value>
+			<description>
+				is used to set the maximum number of instant message (IM) entries
+				and takes a number as a parameter. Once the maximum number is
+				reached, the oldest IM is deleted without any user notification.
+				The default limit is 999.
+			</description>
+		</setting>
+		<setting name='MAX_ADDR_BOOK_ENTRIES'>
+			<type>
+				<integer min="0" />
+			</type>
+			<value>100</value>
+			<description>
+				is used to set the maximum number of entries in the address book
+				and takes a number as a parameter. The default limit is 100.
+			</description>
+		</setting>
+	</group>
+	<group name='TIME'>
+		<setting name='TIMEZONE_OFFSET'>
+			<type refid="timezone_offset"/>
+			<value>0</value>
+			<description>
+				is used to set the current time zone offset from GMT in seconds.
+				TIMEZONE_OFFSET takes a number as a parameter. For example,
+				TIMEZONE_OFFSET -25200 sets the time zone offset to MST, which
+				is GMT-7 (-7*3600 = -25200 seconds)
+			</description>
+		</setting>
+		<setting name='FORCE_TIME_ZONE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				allows you to force the timezone offset on each user’s IP Phone
+				1140E.
+				YES - forces the IP Phone to use the TIMEZONE_OFFSET specified
+				in the device configuration file.
+				NO - uses the value stored in the user preferences
+			</description>
+		</setting>
+		<setting name='SNTP_ENABLE'>
+			<type refid="yes-no" />
+			<value>NO</value>
+			<description>
+				allows the IP Phone 1140E to obtain the time and date from an NTP
+				server.	The default is NO. The IP Phone 1140E updates the time once
+				every 24 hours from the NTP server. If the IP Phone 1140E cannot
+				contact the server, the IP Phone 1140E tries every 15 minutes up
+				to a maximum of 6 attempts, and then hourly attempts are made. If
+				SNTP_ENABLE is set to NO the IP Phone 1140E tries to retrieve the
+				time and date from the SIP proxy server. However, not all SIP proxy
+				servers support this method of retrieving the time and date.
+				YES - enables NTP.
+				NO - disables NT
+			</description>
+		</setting>
+		<setting name='SNTP_SERVER'>
+			<type refid="validIPv4" />
+			<value>0.0.0.0</value>
+			<description>
+				Please enter a valid IPv4 address, for example: 10.1.1.0
+			</description>
+		</setting>
+		<setting name='DST_ENABLED'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description>
+				enables and disables the daylight saving time mechanism. The time
+				received from the server is GMT and is converted to the proper
+				timezone by the IP Phone 1140E. If the Daylight Saving Time feature
+				is enabled, the IP Phone 1140E automatically calculates the DST
+				time at the appropriate date and converts the time to and from DST.
+				The calculations used are based on the new rules applicable to DST
+				in 2007. The IP Phone 1140E is set up to use the North American DST
+				scheme.
+				YES - enables daylight savings time.
+				NO - disables daylight savings time
+			</description>
+		</setting>
+	</group>
+	<group name='TONES'>
+		<setting name='DIAL_TONE'>
+			<value>350,440;-1</value>
+			<description>
+				used to select the tone advising the caller that the exchange is
+				ready to receive call information and invites the user to start
+				sending call information. You can select the country specific tone.
+				The default tone is the North American tone.
+				frequency1 - the frequency of tone 1.
+				frequency2 - the frequency of tone 2.
+				on_time - the duration of the tone when it is on. A -1 indicates
+				a continuous tone.
+				off_time - the duration when no tone is played.
+				The following are examples of DIAL_TONE:
+				1. 350,440;-1 (350 and 440 Hz continuous tone)
+			</description>
+		</setting>
+		<setting name='RINGING_TONE'>
+			<value>440,480;2000,4000</value>
+			<description>
+				is used to select the tone advising the caller that a connection
+				is made and a calling signal is applied to a telephone number or
+				service point. You can select the country specific tone. The
+				default tone is the North American tone.
+				frequency1 - the frequency of tone 1.
+				frequency2 - the frequency of tone 2.
+				on_time - the duration of the tone when it is on. A -1 indicates
+				a continuous tone.
+				off_time - the duration when no tone is played.
+				The following are examples of RINGING_TONE:
+				1. 440,480; 2000,4000 (440 and 480 Hz with 2 seconds on, 4 seconds
+				off)
+			</description>
+		</setting>
+		<setting name='BUSY_TONE'>
+			<value>480,620;500,500</value>
+			<description>
+				is used to select the tone advising the caller that the telephone
+				number is busy. You can select the country specific tone. The
+				default tone is the North American tone.
+				frequency1 - the frequency of tone 1.
+				frequency2 - the frequency of tone 2.
+				on_time - the duration of the tone when it is on. A -1 indicates
+				a continuous tone.
+				off_time - the duration when no tone is played.
+			</description>
+		</setting>
+		<setting name='FASTBUSY_TONE'>
+			<value>425;250,250</value>
+			<description>
+				is used to select the tone advising the caller that the telephone
+				number is busy. It is fast in cadence or frequency. You can select
+				the country specific tone. The default tone is the North American
+				tone.
+				frequency1 - the frequency of tone 1.
+				frequency2 - the frequency of tone 2.
+				on_time - the duration of the tone when it is on. A -1 indicates
+				a continuous tone.
+				off_time - the duration when no tone is played.
+			</description>
+		</setting>
+		<setting name='CONGESTION_TONE'>
+			<value>480,620;250,250</value>
+			<description>
+				is used to select the tone advising the caller that the groups of
+				lines or switching equipment necessary for setting up the required
+				call, or for the use of a specific service, are temporarily engaged.
+				You can select the country specific tone. The default tone is the
+				North American tone.
+				frequency1 - the frequency of tone 1.
+				frequency2 - the frequency of tone 2.
+				on_time - the duration of the tone when it is on. A -1 indicates
+				a continuous tone.
+				off_time - the duration when no tone is played.
+				The IP Phone 1140E supports using WAV files to replace the ringtone
+				Frequency/Cadence pattern. For a system-wide setting, the country
+				default values can be used
+			</description>
+		</setting>
+	</group>
+	<group name='UI_SETTINGS'>
+		<setting name='MENU_AUTO_BACKOUT'>
+			<type>
+				<enum>
+					<option>
+						<label>0sec</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>15sec</label>
+						<value>15</value>
+					</option>
+					<option>
+						<label>30sec</label>
+						<value>30</value>
+					</option>
+					<option>
+						<label>60sec</label>
+						<value>60</value>
+					</option>
+					<option>
+						<label>120sec</label>
+						<value>120</value>
+					</option>
+					<option>
+						<label>200sec</label>
+						<value>200</value>
+					</option>
+					<option>
+						<label>600sec</label>
+						<value>600</value>
+					</option>
+				</enum>
+			</type>
+			<value>30</value>
+			<description>
+				Used to set the auto back-out time on newly created profiles.
+			</description>
+		</setting>
+		<group name="SCREENSAVER_CONFIGURATION">
+			<setting name='SCRNSVR_ENABLE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Used to completely disable the screensaver feature. If set to
+					N, the screensaver UI will not be available to users, and the
+					screensaver will be disabled on the IP phone.
+				</description>
+			</setting>
+			<setting name='SCRNSVR_UNPRTCTD_ENABLE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Used to enable/disable the UI for setting the screensaver
+					without a password.
+				</description>
+			</setting>
+			<setting name='SCRNSVR_UPASS_ENABLE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description></description>
+			</setting>
+			<setting name='SCRNSVR_MODE'>
+				<type>
+					<enum>
+						<option>
+							<value>DISABLE</value>
+						</option>
+						<option>
+							<value>NO_PASS</value>
+						</option>
+						<option>
+							<value>PASS</value>
+						</option>
+					</enum>
+				</type>
+				<value>DISABLE</value>
+				<description>
+					Used to enable/disable the ability for the user to set a
+					screensaver password (less secure simpler password used only
+					for the screensaver feature).
+				</description>
+			</setting>
+			<setting name='SCRNSVR_DELAY'>
+				<type>
+					<enum>
+						<option>
+							<value>5</value>
+						</option>
+						<option>
+							<value>10</value>
+						</option>
+						<option>
+							<value>30</value>
+						</option>
+						<option>
+							<value>60</value>
+						</option>
+					</enum>
+				</type>
+				<value>10</value>
+				<description>
+					Used to set the delay in minutes for the display screensaver
+					for newly created profiles.
+				</description>
+			</setting>
+			<setting name='SCRNSVR_TEXT'>
+				<type refid="restrictedString"/>
+				<value>Screensaver active</value>
+				<description>
+					Used to set the text to be displayed on the screensaver of
+					newly created profiles.
+				</description>
+			</setting>
+			<setting name='SCRNSVR_IMAGE'>
+				<type refid="image_file"/>
+				<description>
+					Used to set the background image file for the display screen
+					saver of newly created profiles. If the specified file does not
+					exist in the IMAGES folder of the IP phone, no background image
+					will be used for the screensaver. Changing this flag’s value
+					for profiles already created has no effect.
+				</description>
+			</setting>
+		</group>
+		<group name="BG_SETTINGS">
+			<setting name='BG_IMAGE_ENABLE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					Used to set the background image file for the display. If the
+					specified file does not exist in the IMAGES folder of the IP
+					phone, no background image will be used for the display.
+				</description>
+			</setting>
+			<setting name='BG_IMG_SELECT_ENABLE'>
+				<type refid="yes-no" />
+				<value>YES</value>
+				<description>
+					User to allow users to change the selected background image for
+					the display. If the flag is set to N, the UI to change the BG
+					image will be hidden from the user locking the currently set
+					image as the BG image of the IP phone.
+				</description>
+			</setting>
+			<setting name='USE_BG_IMAGE '>
+				<type refid="image_file"/>
+				<description>
+					Used to set the device's background image on newly created
+					profiles. If image file does not exist on phone, no image would
+					be used. Changing this flag’s value for profiles already created
+					has no effect.
+				</description>
+			</setting>
+		</group>
+		<group name="BANNER">
+			<setting name='BANNER'>
+				<value>Nortel SIP Client</value>
+				<description>
+					preconfigures the banner on the IP Phone 1140E. Use a text
+					string to set the banner. For example, BANNER ABC Company sets
+					the banner to ABC Company. The text string can have a maximum
+					of 24 characters
+				</description>
+			</setting>
+			<setting name='FORCE_BANNER'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					is set by the system administrator through the configuration
+					file. If FORCE_BANNER is set to YES, the banner from the
+					configuration file is reloaded each time the IP Phone 1140E
+					powers up, even if the user changes the banner manually.
+					YES - causes the banner set by the administrator to override
+					any banner set by the user.
+					NO - allows the user to set the banner
+				</description>
+			</setting>
+			<setting name='LOGIN_BANNER_ENABLE'>
+				<type refid="yes-no" />
+				<value>NO</value>
+				<description>
+					If enabled, this flag will cause the login of the primary user
+					to display the provisioned banner text as part of the login
+					process.
+				</description>
+			</setting>
+		</group>
+	</group>
+	<group name='USB'>
+		<setting name='ATA_REGION'>
+			<type>
+				<enum>
+					<option>
+						<value>NA</value>
+					</option>
+					<option>
+						<value>EU1</value>
+					</option>
+					<option>
+						<value>EU2</value>
+					</option>
+					<option>
+						<value>AusNZ</value>
+					</option>
+				</enum>
+			</type>
+			<value>NA</value>
+			<description></description>
+		</setting>
+		<setting name='ENABLE_USB_PORT'>
+			<type refid="yes-no" />
+			<value>YES</value>
+			<description></description>
+		</setting>
+		<setting name='USB_MOUSE'>
+			<type refid="lock-unlock" />
+			<value>UNLOCK</value>
+			<description></description>
+		</setting>
+		<setting name='USB_KEYBOARD'>
+			<type refid="lock-unlock" />
+			<value>UNLOCK</value>
+			<description></description>
+		</setting>
+		<setting name='USB_HEADSET'>
+			<type refid="lock-unlock" />
+			<value>UNLOCK</value>
+			<description></description>
+		</setting>
+		<setting name='USB_MEMORY_STICK'>
+			<type refid="lock-unlock" />
+			<value>UNLOCK</value>
+			<description></description>
+		</setting>
+	</group>
 </model>

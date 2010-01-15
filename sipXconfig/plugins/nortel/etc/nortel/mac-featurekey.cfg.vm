@@ -1,0 +1,10 @@
+#foreach ($button in $speeddials)
+[key]
+#set($button_id = $velocityCount)
+#set($indexno = $button_id + 1)
+index $indexno
+label $button.Label
+type spdial
+target $button.Number
+retrieve YES
+#end

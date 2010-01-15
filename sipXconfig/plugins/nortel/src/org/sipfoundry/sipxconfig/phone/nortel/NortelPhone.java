@@ -9,22 +9,45 @@
  */
 package org.sipfoundry.sipxconfig.phone.nortel;
 
+import java.text.MessageFormat;
+import java.util.Collection;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.Profile;
+import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-/**
- * Nortel phone.
- */
+
 public class NortelPhone extends Phone {
 
     private static final String NORTEL_FORCE_CONFIG = "nortel/11xxeSIP.cfg";
+    private static final String TYPE = "text/plain";
+    private String m_phonebookFilename = "{0}-phonebook.ab";
+    private String m_featureKeyListFilename = "{0}-fkl.fk";
+    private CoreContext m_coreContext;
 
     public NortelPhone() {
+
+    }
+    /**
+     * sets the coreContext , whicn provides the service layer access
+     * to the user objects
+     * @param coreContext
+     */
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     @Override
@@ -41,10 +64,124 @@ public class NortelPhone extends Phone {
         NortelPhoneDefaults defaults = new NortelPhoneDefaults(phoneDefaults, line);
         addDefaultBeanSettingHandler(defaults);
     }
+    /**
+     * (add profiles to be generated during the profile generation processs)
+     * @see org.sipfoundry.sipxconfig.device.Device#getProfileTypes()
+     */
+    @Override
+    public Profile[] getProfileTypes() {
+        Profile[] profileTypes;
+        PhonebookManager phonebookManager = getPhonebookManager();
+        if (phonebookManager.getPhonebookManagementEnabled()) {
+            /* adds phone profile (or MAC file), phonebook profile and featurekeyList profile in the profiles array. */
+            profileTypes = new Profile[] {
+                new Profile(this),
+                new PhonebookProfile(getPhonebookFilename()),
+                new FeatureKeyListProfile(getFeatureKeyListFilename())
+            };
+        } else {
+            profileTypes = new Profile[] {
+                new Profile(this)
+            };
+        }
+
+        return profileTypes;
+    }
+    /**
+     * Gets the phonebook entries from the phoneContext
+     * and creates a ProfileContext by creating a new nortelPhonebook
+     * @return ProfileContext for Phonebook by creating a new object for NortelPhonebook
+     */
+
+    public ProfileContext getPhonebook() {
+        Collection<PhonebookEntry> entries = getPhoneContext().getPhonebookEntries(this);
+        return new NortelPhonebook(entries, m_coreContext);
+    }
+    /**
+     * @return ProfileContext for FeatureKeyList
+     */
+    public ProfileContext getFeatureKeyList() {
+        SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
+        return new NortelFeatureKeyList(speedDial);
+    }
+
+    @Override
+    public void removeProfiles(ProfileLocation location) {
+        super.removeProfiles(location);
+        location.removeProfile(getPhonebookFilename());
+    }
+    /**
+     * Creates a Phonebook Profile
+     * NortelPhone intends to generate a Phonbook profile thats why
+     * a PhonebookProfile should extend Profile class which
+     * encapsulates the details of creating a profile/configuration file.
+     */
+    static class PhonebookProfile extends Profile {
+        public PhonebookProfile(String name) {
+            super(name, TYPE);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+        /**
+         * @param Device which is a nortel phone
+         * @return ProfileContext for phonebook by calling getPhonebook
+         * which actually creates a ProfileContext
+         */
+        @Override
+        protected ProfileContext createContext(Device device) {
+            NortelPhone phone = (NortelPhone) device;
+            return phone.getPhonebook();
+        }
+    }
+
+    public void setPhonebookFilename(String phonebookFilename) {
+        m_phonebookFilename = phonebookFilename;
+    }
+
+    public String getPhonebookFilename() {
+        return MessageFormat.format(m_phonebookFilename, getProfileFilename());
+    }
+    /**
+     * Creates a FeatureKeyList Profile
+     * NortelPhone intends to generate a FeatureKeyList profile thats why
+     * a FeatureKeyListProfile should extend Profile class which
+     * encapsulates the details of creating a profile/configuration file.
+     */
+    static class FeatureKeyListProfile extends Profile {
+        public FeatureKeyListProfile(String name) {
+            super(name, TYPE);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+        /**
+         * @param Device which is a nortel phone
+         * @return ProfileContext for FeatureKeyList by calling getFeatureKeyList
+         * which actually creates a ProfileContext
+         */
+        @Override
+        protected ProfileContext createContext(Device device) {
+            NortelPhone phone = (NortelPhone) device;
+            return phone.getFeatureKeyList();
+        }
+    }
+
+    public void setFeatureKeyListFileName(String featureKeyListFilename) {
+        m_featureKeyListFilename = featureKeyListFilename;
+    }
+
+    public String getFeatureKeyListFilename() {
+        return MessageFormat.format(m_featureKeyListFilename, getProfileFilename());
+    }
 
     @Override
     public String getProfileFilename() {
-        return getSerialNumber().toUpperCase() + ".cfg";
+        return "SIP" + getSerialNumber().toUpperCase() + ".cfg";
     }
 
     @Override

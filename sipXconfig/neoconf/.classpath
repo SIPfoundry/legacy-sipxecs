@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/easymock-2.2.jar" sourcepath="/LIB_SRC/easymock/2.2/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-codec-1.3.jar" sourcepath="LIB_SRC/commons-codec/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xmlunit-1.3.jar" sourcepath="LIB_SRC/xmlunit/src.zip">
@@ -10,69 +10,69 @@
 			<attribute name="javadoc_location" value="http://xmlunit.sourceforge.net/doc"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar" sourcepath="/LIB_SRC/velocity/1.5/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar" sourcepath="/LIB_SRC/velocity/1.5/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-beanutils-1.7.0.jar" sourcepath="LIB_SRC/commons-beanutils/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/dom4j-1.6.1.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/hibernate-3.2.7.jar" sourcepath="/LIB_SRC/hibernate/3.2.7/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-collections-3.2.jar" sourcepath="/LIB_SRC/commons-collections/3.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-digester-1.8.jar" sourcepath="/LIB_SRC/commons-digester/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-logging-1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-pool-1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/aopalliance-1.0.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jta.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/odmg-3.0.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ehcache-1.6.2.jar" sourcepath="/LIB_SRC/ehcache/1.6.2/ehcache-1.6.2-sources.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/cglib-nodep-2.1_3.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/asm-2.2.3.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/dbunit-2.2.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xercesImpl-2.9.0.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xerces_resolver-2.9.0.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xml-apis.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/p6spy-1.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-digester-1.8.jar" sourcepath="/LIB_SRC/commons-digester/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-logging-1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-pool-1.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/aopalliance-1.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jta.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/odmg-3.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ehcache-1.6.2.jar" sourcepath="/LIB_SRC/ehcache/1.6.2/ehcache-1.6.2-sources.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/cglib-nodep-2.1_3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/asm-2.2.3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/postgresql-8.2-504.jdbc3.jar" sourcepath="/LIB_SRC/pgsql/8.2/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/dbunit-2.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xercesImpl-2.9.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xerces_resolver-2.9.0.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xml-apis.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/p6spy-1.3.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-io-1.4.jar" sourcepath="/LIB_SRC/commons-io/1.3.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jaxen-1.1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/saxpath-1.0fcs.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/logkit-1.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jaxen-1.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/saxpath-1.0fcs.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/logkit-1.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/easymockclassextension-2.2.1.jar" sourcepath="/LIB_SRC/easymockclassextension/2.2.1/src-2.2.1.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xmlrpc-2.0.jar" sourcepath="LIB_SRC/xmlrpc/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/antlr-2.7.6.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/c3p0-0.9.1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/lucene-core-2.0.0.jar" sourcepath="/LIB_SRC/lucene/lucene-2.0.0-src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xmlrpc-2.0.jar" sourcepath="LIB_SRC/xmlrpc/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/antlr-2.7.6.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/c3p0-0.9.1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/lucene-core-2.0.0.jar" sourcepath="/LIB_SRC/lucene/lucene-2.0.0-src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/acegi-security-1.0.7.jar" sourcepath="/LIB_SRC/acegi-security/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/junitperf-1.9.1.jar" sourcepath="LIB_SRC/junitperf/1.9/src.zip"/>
-	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXconfig/neoconf/dist/agent-bindings.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jaxrpc.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/axis-1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-discovery-0.4.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/activation-1.0.2.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/saaj.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/wsdl4j-1.5.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/junitperf-1.9.1.jar" sourcepath="LIB_SRC/junitperf/1.9/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_BUILD_TOP/sipXconfig/neoconf/dist/agent-bindings.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jaxrpc.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/axis-1.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-discovery-0.4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/activation-1.0.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/saaj.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/wsdl4j-1.5.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xstream-1.3.1.jar" sourcepath="/LIB_SRC/xstream/1.3.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXconfig/neoconf/dist/cdr-bindings.jar" sourcepath="/SIPX_BUILD_TOP/sipXconfig/neoconf/dist/cdr-bindings-src"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-ldap-1.1.2.jar" sourcepath="/LIB_SRC/spring-ldap/1.1.2/spring-ldap-src-1.1.2.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ldapbp.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-mock-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src-mock.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/javamail-1.3.2.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_BUILD_TOP/sipXconfig/neoconf/dist/cdr-bindings.jar" sourcepath="/SIPX_BUILD_TOP/sipXconfig/neoconf/dist/cdr-bindings-src"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-ldap-1.1.2.jar" sourcepath="/LIB_SRC/spring-ldap/1.1.2/spring-ldap-src-1.1.2.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/ldapbp.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-mock-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src-mock.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jakarta-oro-2.0.8.jar" sourcepath="/LIB_SRC/oro/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/javamail-1.3.2.jar"/>
 	<classpathentry exported="true" kind="var" path="JAVA_LIBDIR/sipx-jasperreports-deps/jasperreports.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
-	<classpathentry kind="lib" path="etc"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry exported="true" kind="lib" path="etc"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-net.jar" sourcepath="/LIB_SRC/commons-net/1.4.1/commons-net-1.4.1-src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-httpclient-3.0.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-tools-generic-1.4.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/guessencoding-1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/vcard4j-1_1_3.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/guessencoding-1.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/vcard4j-1_1_3.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-lang.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-client-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-contacts-3.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-core-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/google-collect-1.0-rc4.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xalan-2.7.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-client-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-contacts-3.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-core-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/google-collect-1.0-rc4.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xalan-2.7.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

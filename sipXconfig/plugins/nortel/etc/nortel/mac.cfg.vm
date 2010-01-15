@@ -1,32 +1,48 @@
 ## Velocity macros
 ## emit 'setting value' pair
+##velocity 1.5 doesnt allow to do $rtpMinMax[0]
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
 #macro(emit_setting $s)
+#if($s.ProfileName.equals("RTP_PORT_RANGE"))
+#if($s.Value)
+#set($rtpMinMax = $s.Value.split("-"))
+#set($counter = 0)
+#foreach($port in $rtpMinMax)
+#if($counter==0)
+RTP_MIN_PORT $port
+#elseif($counter==1)
+RTP_MAX_PORT $port
+#end
+#set($counter = $counter + 1)
+#end
+#end
+############ SERVICES ############
+#elseif($s.ProfileName.equals("DEFAULT_ADDRESSBOOK_FILE"))
+${s.ProfileName} $phone.PhonebookFilename
+#elseif($s.ProfileName.equals("DEFAULT_CUSTOMKEYS_FILE"))
+${s.ProfileName} $phone.FeatureKeyListFilename
+############ SERVICES ############
+#else
 ${s.ProfileName} $!{s.Value}
+#end
 #end
 ## emit setting line for every setting in the group
 #macro(emit_group $g)
-#foreach ($s in $g.Values)
+#foreach($s in $g.Values)
+#if(!$s.isLeaf())
+#emit_group($s)
+#else
 #emit_setting($s)
 #end
-
+#end
 #end
 #macro(emit_groups_by_name $group_names)
 #foreach ($gn in $group_names)
 #emit_group($phone.Settings.getSetting("$gn"))
 #end
 #end
-
-#emit_groups_by_name(['NETWORK'])
-#foreach ($line in $phone.lines)
-#set($line_id = $velocityCount)
-#foreach ($group in $line.Settings.Values)
-#foreach ($setting in $group.Values)
-${setting.ProfileName} $!{setting.Value}
-#end
-#end
-#end
-
-#emit_groups_by_name(['VOIP', 'VM', 'ADMIN', 'TIME', 'VOICE', 'QOS', 'STORAGE', 'DEBUG', 'AUTO', 'NAT', 'VQMON', 'TONES', 'SYSTEM'])
-#set($lowercase = "$phone.SerialNumber")
-#set($caps = "${lowercase.toUpperCase()}")
-
+#emit_groups_by_name(['ADMIN','AUDIOCODECS','AUTOLOGIN','BLF','CONFIG_UPDATES','DEBUG','DIAGNOSTIC_TOOLS','DOMAIN_SETTINGS','E911','FEATURES','FEDERAL','FILE_MANAGEMENT','HOTLINE','IPV6','LANGUAGE','LICENSING','MADN','MESSAGING','MULTIUSER','NAT','NETWORK','QOS','SECURITY','SERVICES','SERVICE_PACKAGE','SESSIONTIMER','STORAGE','TIME','TONES','UI_SETTINGS','USB'])
