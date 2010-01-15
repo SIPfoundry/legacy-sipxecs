@@ -44,15 +44,15 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     // //
 
     protected SIPViewerFrame m_frame;
-    protected SIPChartModel  m_model;
-    protected SIPInfoPanel   m_infoPanel;
-    protected int            m_iMouseOver;
-    protected int            iOldIndex;
-    protected String         m_strMatchBranchId;
-    protected String         m_strMatchTransactionId;
-    protected String         m_strMatchCSeqCallId;
-    protected String         m_strMatchDialogId;
-    protected String         m_strMatchCallId;
+    protected SIPChartModel m_model;
+    protected SIPInfoPanel m_infoPanel;
+    protected int m_iMouseOver;
+    protected int iOldIndex;
+    protected String m_strMatchBranchId;
+    protected String m_strMatchTransactionId;
+    protected String m_strMatchCSeqCallId;
+    protected String m_strMatchDialogId;
+    protected String m_strMatchCallId;
 
     // this stores the relative position of a key (column) from the
     // left side of the window
@@ -172,8 +172,8 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         if ((index >= 0) && (index < m_model.getSize()))
         {
-            ChartDescriptor entry = (ChartDescriptor) m_model.getEntryAt(index);         
-            
+            ChartDescriptor entry = (ChartDescriptor) m_model.getEntryAt(index);
+
             // if display index has been set to -1 that means user decided not
             // to display the message
             if (entry.displayIndex < 0)
@@ -233,7 +233,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             if ((tmpEntry != null) && (tmpEntry.displayIndex == entry.displayIndex))
             {
                 // we have a valid entry at the specified index and the display
-                // index of the current selected message is equal to the display 
+                // index of the current selected message is equal to the display
                 // index of the message being painted
                 g.setColor(m_highlight_color);
             }
@@ -286,32 +286,33 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             }
 
             // draw call flow arrows (solid, dotted or dashed)
-            if (entry.dataSource.isRequest())
+            if (entry.dataSource.transport.equalsIgnoreCase("tcp"))
             {
+                // messages with transport of tcp are drawn as solid
                 GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
                         GUIUtils.LINE_SOLID);
             }
-            else
+            else if (entry.dataSource.transport.equalsIgnoreCase("udp"))
             {
-                boolean bIsProvision = false;
 
-                String strResponseCode = entry.dataSource.getResponseCode();
-                if ((strResponseCode != null) && strResponseCode.startsWith("1"))
-                {
-                    bIsProvision = true;
-                }
-
-                if (bIsProvision)
-                {
-                    GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
-                            GUIUtils.LINE_DOTTED);
-                }
-                else
-                {
-                    GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
-                            GUIUtils.LINE_DASHED);
-                }
-
+                // messages with udp transport are drawn as dashed
+                GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
+                        GUIUtils.LINE_DASHED);
+            }
+            else if (entry.dataSource.transport.equalsIgnoreCase("tls"))
+            {
+                // messages with tls transport are drawn as dotted
+                GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
+                        GUIUtils.LINE_DOTTED);
+            }
+            else if (entry.dataSource.transport.equalsIgnoreCase("other"))
+            {
+                // any other messages that we could not find the transport
+                // type for or that did not have a via tag we draw as a thick
+                // line
+                // these should be a rare occurrence
+                GUIUtils.drawArrow(g, rectAreaArrow, bEast, null, entry.backgroundColor,
+                        GUIUtils.LINE_THICK);
             }
 
             int xTextOffset = GUIUtils.calcXOffset(entry.label, g, rectAreaText,
@@ -395,14 +396,14 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             int iOffset = dimSize.width / iNumKeys;
 
             for (int i = 0; i < iNumKeys; i++)
-            {               
+            {
                 // if there are no messages "attached" to a column
                 // then don't display the column
                 if (m_model.m_keyUsage[i] != 0)
                 {
                     g.setColor(Color.yellow);
                     g.drawLine((int) (m_key_positions[i] * dimSize.width), 0,
-                               (int) (m_key_positions[i] * dimSize.width), dimSize.height);
+                            (int) (m_key_positions[i] * dimSize.width), dimSize.height);
                 }
             }
         }
@@ -750,12 +751,12 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                     {
                         desc.displayIndex = -1;
                         m_model.deleteEntry(i);
-                        
+
                         // decrement the column counter for both the
                         // source and destination columns
                         m_model.m_keyUsage[desc.sourceColumn]--;
                         m_model.m_keyUsage[desc.targetColumn]--;
-                        
+
                         // force a repaint of the header in case
                         // a column completely disappears
                         m_model.fireKeyVisibilityChanged();
@@ -778,11 +779,11 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                     if (i != iSourceIndex)
                     {
                         desc.displayIndex = -1;
-                        m_model.deleteEntry(i);                 
-                        
+                        m_model.deleteEntry(i);
+
                         m_model.m_keyUsage[desc.sourceColumn]--;
                         m_model.m_keyUsage[desc.targetColumn]--;
-                        
+
                         // force a repaint of the header in case
                         // a column completely disappears
                         m_model.fireKeyVisibilityChanged();
@@ -826,12 +827,12 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                     {
                         desc.displayIndex = -1;
                         m_model.deleteEntry(i);
-                        
+
                         // decrement the column counter for both the
                         // source and destination columns
                         m_model.m_keyUsage[desc.sourceColumn]--;
                         m_model.m_keyUsage[desc.targetColumn]--;
-                        
+
                         // force a repaint of the header in case
                         // a column completely disappears
                         m_model.fireKeyVisibilityChanged();
@@ -847,12 +848,12 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                 // messages by calling deleteEntry
                 sourceDesc.displayIndex = -1;
                 m_model.deleteEntry(iSourceIndex);
-                
+
                 // decrement the column counter for both the
                 // source and destination columns
                 m_model.m_keyUsage[sourceDesc.sourceColumn]--;
                 m_model.m_keyUsage[sourceDesc.targetColumn]--;
-                
+
                 // force a repaint of the header in case
                 // a column completely disappears
                 m_model.fireKeyVisibilityChanged();
@@ -866,7 +867,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     protected void showAllDialogs()
     {
         // loop through all the keys/columns and restore their original
-        // usage values       
+        // usage values
         int iNumKeys = m_model.getNumKeys();
 
         if (iNumKeys > 0)
@@ -877,7 +878,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
                 m_model.m_keyUsage[i] = m_model.m_keyUsageOrig[i];
             }
         }
-            
+
         // loop through all the messages and set the displayIndex to
         // an incremental value starting from 0 to maxNumOfMessages
         for (int i = 0; i < m_model.getSize(); i++)
@@ -899,7 +900,7 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
             bottomChart.revalidate();
             bottomChart.repaint();
         }
-        
+
         m_model.fireKeyVisibilityChanged();
     }
 
@@ -1061,10 +1062,10 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         {
             repaint();
         }
-        
+
         public void bodyToHeaderRepaint()
         {
-            
+
         }
 
         public void entryAdded(int startPosition, int endPosition)

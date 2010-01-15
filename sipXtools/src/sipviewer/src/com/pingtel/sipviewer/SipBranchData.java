@@ -1,6 +1,5 @@
 package com.pingtel.sipviewer;
 
-
 import java.util.Vector;
 import java.util.List;
 import java.util.Enumeration;
@@ -14,7 +13,6 @@ import org.jdom.Element;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 import org.jdom.JDOMException;
-
 
 public class SipBranchData
 {
@@ -30,61 +28,89 @@ public class SipBranchData
     String frameId;
     String message;
     Vector branchIds;
-    
+    String transport;
+
     // contains JDOM items from the XML file parse operation
     static Element nodeContainer = null;
     static Document traceDoc = null;
 
-    public SipBranchData(Element xmlBranchNode)
-    {
+    public SipBranchData(Element xmlBranchNode) {
         method = xmlBranchNode.getChildText("method");
-
 
         responseCode = xmlBranchNode.getChildText("responseCode");
 
-
         responseText = xmlBranchNode.getChildText("responseText");
-
 
         sourceEntity = xmlBranchNode.getChildText("source");
 
-
         destinationEntity = xmlBranchNode.getChildText("destination");
-
 
         sourceAddress = xmlBranchNode.getChildText("sourceAddress");
 
-
         destinationAddress = xmlBranchNode.getChildText("destinationAddress");
 
+        timeStamp = xmlBranchNode.getChildText("time");
 
-        timeStamp  = xmlBranchNode.getChildText("time");
-
-
-        transactionId  = xmlBranchNode.getChildText("transactionId");
+        transactionId = xmlBranchNode.getChildText("transactionId");
         int c = transactionId.charAt(0);
         if (c == 'C' || c == 'A')
         {
             transactionId = transactionId.substring(1);
         }
 
-        frameId  = xmlBranchNode.getChildText("frameId");
-
+        frameId = xmlBranchNode.getChildText("frameId");
 
         message = xmlBranchNode.getChildText("message");
 
+        // we convert the entire message string to lower case and
+        // then look for the "via" tag
+        int viaIndex = message.toLowerCase().indexOf("via");
+
+        // if we found it then lets see what transport we can find
+        if (viaIndex != -1)
+        {
+            // lets get the first 22 characters of the string and convert to
+            // lowercase, then we will search for udp, tcp and tls
+            String sub = message.substring(viaIndex + 3, viaIndex + 22).toLowerCase();
+            if (sub.contains("udp"))
+            {
+                // set transport to udp
+                transport = "udp";
+            }
+            else if (sub.contains("tcp"))
+            {
+                // set transport to tcp
+                transport = "tcp";
+            }
+            else if (sub.contains("tls"))
+            {
+                // set transport to tls
+                transport = "tls";
+            }
+            else
+            {
+                // we were unable to determine
+                // the transport type
+                transport = "other";
+            }
+        }
+        else
+        {
+            // no via tag found so lets mark
+            // trasport as other
+            transport = "other";
+        }
 
         Element branchSet = xmlBranchNode.getChild("branchIdSet");
         branchIds = new Vector();
         List elementList = branchSet.getChildren("branchId");
         Element branchIdNode;
         int count = elementList.size();
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             branchIdNode = (Element) elementList.get(i);
             branchIds.add(branchIdNode.getText());
         }
-
 
     }
 
@@ -93,29 +119,28 @@ public class SipBranchData
     public static Vector getSipBranchDataElements(Element branchContainer)
     {
         Vector nodes = new Vector();
-        
+
         // puts all the <branchNode></branchNode> sections into their own
         // individual element on the list
         List elementList = branchContainer.getChildren("branchNode");
         Element xmlNode;
-        
+
         // list containing all the "branchNode" elements
         int count = elementList.size();
-        
+
         // loop through all the elements
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
-        	// get the JDOM Element object from the data
+            // get the JDOM Element object from the data
             xmlNode = (Element) elementList.get(i);
-            
+
             // convert the JDOM object to a SipBranchData object
             // and add it to the vector that will be used as a source
             // to store ChartDescriptor elements
             nodes.add(new SipBranchData(xmlNode));
         }
 
-
-        return(nodes);
+        return (nodes);
     }
 
     // parses the input file and stores SIP data elements in a Vector
@@ -125,128 +150,112 @@ public class SipBranchData
     // Note: This is an overloaded method so don't get confused when
     // its called again with the container object as the input
     public static Vector getSipBranchDataElements(URL traceFilename)
-    {    	    	
-    	// JDOM structure
-    	SAXBuilder builder = new SAXBuilder();
+    {
+        // JDOM structure
+        SAXBuilder builder = new SAXBuilder();
         System.out.println("reading: " + traceFilename);
         Vector nodes = null;
 
         try
         {
-        	// open the file and create an input stream
+            // open the file and create an input stream
             URLConnection uc = traceFilename.openConnection();
             InputStreamReader input = new InputStreamReader(uc.getInputStream());
-            
-            // feed the stream through the JDOM builder and store it in the JDOM document
+
+            // feed the stream through the JDOM builder and store it in the JDOM
+            // document
             traceDoc = builder.build(input);
-            
+
             // get the root container from the JDOM document
             nodeContainer = traceDoc.getRootElement();
 
-            // get the individual sip elements and store them in a vector which 
+            // get the individual sip elements and store them in a vector which
             // will be returned as part of this method
             nodes = SipBranchData.getSipBranchDataElements(nodeContainer);
             input.close();
-        }
-        catch(JDOMException je)
+        } catch (JDOMException je)
         {
             je.printStackTrace();
-        }
-        catch(IOException ioe)
+        } catch (IOException ioe)
         {
             ioe.printStackTrace();
         }
 
-
-        return(nodes);
+        return (nodes);
     }
 
-
-    public static void main(String argv[]) throws Exception {
+    public static void main(String argv[]) throws Exception
+    {
         String filename = argv[0];
-        URL url = new URL( "file:" + filename);
+        URL url = new URL("file:" + filename);
         Vector nodes = SipBranchData.getSipBranchDataElements(url);
         int count = nodes.size();
-        for(int i = 0; i < count; i++)
+        for (int i = 0; i < count; i++)
         {
             System.out.println((nodes.elementAt(i)));
         }
     }
 
-
     public String getLabel()
     {
         String label;
-        if(isRequest()) label = method;
-        else label = responseCode + " " + responseText;
+        if (isRequest())
+            label = method;
+        else
+            label = responseCode + " " + responseText;
 
-
-        return(label);
+        return (label);
     }
-
 
     public boolean isRequest()
     {
-        return(method != null);
+        return (method != null);
     }
-
 
     public String getMethod()
     {
-        return(method);
+        return (method);
     }
-
 
     public String getResponseCode()
     {
-        return(responseCode);
+        return (responseCode);
     }
-
 
     public String getResponseText()
     {
-        return(responseText);
+        return (responseText);
     }
-
-
 
     public String getSourceEntity()
     {
-        return(sourceEntity);
+        return (sourceEntity);
     }
-
-
 
     public String getDestinationEntity()
     {
-        return(destinationEntity);
+        return (destinationEntity);
     }
-
 
     public String getSourceAddress()
     {
-        return(sourceAddress);
+        return (sourceAddress);
     }
-
 
     public String getDestinationAddress()
     {
-        return(destinationAddress);
+        return (destinationAddress);
     }
-
 
     public String getTimeStamp()
     {
-        return(timeStamp);
+        return (timeStamp);
     }
-
-
 
     public String getTransactionId()
     {
-        return(transactionId);
+        return (transactionId);
     }
-
 
     // Returns the CSeq number, the Call-Id, and the from-tag, which
     // identifies the (end-to-end) transaction (assuming the to-tag is
@@ -255,80 +264,81 @@ public class SipBranchData
     {
         int i = transactionId.lastIndexOf(",");
         String s = (i == -1) ? transactionId : transactionId.substring(0, i);
-        return(s);
+        return (s);
     }
-
 
     // Returns the dialog identifier, the Call-Id, the to-tag, and the
     // from-tag, which identifies the dialog.
     public String getDialogId()
     {
         int i = transactionId.indexOf(",");
-        String s = (i == -1) ? transactionId : transactionId.substring(i+1);
-        return(s);
+        String s = (i == -1) ? transactionId : transactionId.substring(i + 1);
+        return (s);
     }
-
 
     public String getCallId()
     {
         int i = transactionId.indexOf(",");
-        int j = (i == -1) ? -1 : transactionId.indexOf(",", i+1);
-        String s = (j == -1) ? transactionId : transactionId.substring(i+1, j);
-        return(s);
+        int j = (i == -1) ? -1 : transactionId.indexOf(",", i + 1);
+        String s = (j == -1) ? transactionId : transactionId.substring(i + 1, j);
+        return (s);
     }
-
 
     public String getFrameId()
     {
-        return(frameId);
+        return (frameId);
     }
-
 
     public String getMessage()
     {
-       return(message);
+        return (message);
     }
-
 
     public String getThisBranchId()
     {
-        return(branchIds.size() > 0 ? (String)branchIds.elementAt(0) : null);
+        return (branchIds.size() > 0 ? (String) branchIds.elementAt(0) : null);
     }
-
 
     public Vector getBranchIds()
     {
-       return(branchIds);
+        return (branchIds);
     }
-
 
     public String toString()
     {
         StringBuffer buffer = new StringBuffer();
 
+        if (method != null)
+            buffer.append("method: " + method + "\n");
+        if (responseCode != null)
+            buffer.append("responseCode: " + responseCode + "\n");
+        if (responseText != null)
+            buffer.append("responseText: " + responseText + "\n");
+        if (sourceEntity != null)
+            buffer.append("sourceEntity: " + sourceEntity + "\n");
+        if (destinationEntity != null)
+            buffer.append("destinationEntity: " + destinationEntity + "\n");
+        if (sourceAddress != null)
+            buffer.append("sourceAddress: " + sourceAddress + "\n");
+        if (destinationAddress != null)
+            buffer.append("destinationAddress: " + destinationAddress + "\n");
+        if (timeStamp != null)
+            buffer.append("timeStamp: " + timeStamp + "\n");
+        if (transactionId != null)
+            buffer.append("transactionId: " + transactionId + "\n");
+        if (frameId != null)
+            buffer.append("frameId: " + frameId + "\n");
+        if (message != null)
+            buffer.append("message: " + message + "\n");
 
-        if(method != null) buffer.append("method: " + method + "\n");
-        if(responseCode != null) buffer.append("responseCode: " + responseCode + "\n");
-        if(responseText != null) buffer.append("responseText: " + responseText + "\n");
-        if(sourceEntity != null) buffer.append("sourceEntity: " + sourceEntity + "\n");
-        if(destinationEntity != null) buffer.append("destinationEntity: " + destinationEntity + "\n");
-        if(sourceAddress != null) buffer.append("sourceAddress: " + sourceAddress + "\n");
-        if(destinationAddress != null) buffer.append("destinationAddress: " + destinationAddress + "\n");
-        if(timeStamp  != null) buffer.append("timeStamp: " + timeStamp + "\n");
-        if(transactionId != null) buffer.append("transactionId: " + transactionId + "\n");
-        if(frameId != null) buffer.append("frameId: " + frameId + "\n");
-        if(message != null) buffer.append("message: " + message + "\n");
-
-
-        if(branchIds != null)
+        if (branchIds != null)
         {
-            for(Enumeration enumerator = branchIds.elements() ; enumerator.hasMoreElements() ;)
+            for (Enumeration enumerator = branchIds.elements(); enumerator.hasMoreElements();)
             {
                 buffer.append("   branchId: " + (String) enumerator.nextElement() + "\n");
             }
         }
 
-
-        return(buffer.toString());
+        return (buffer.toString());
     }
 }

@@ -754,7 +754,7 @@ public class SIPViewerFrame extends JFrame
         {
             String strText = "SIP Viewer\r\n"
                     + "\r\n"
-                    + "Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.\r\n"
+                    + "Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.\r\n"
                     + "Contributors retain copyright to elements licensed under a Contributor Agreement.\r\n"
                     + "Licensed to the User under the LGPL license.\r\n";
 

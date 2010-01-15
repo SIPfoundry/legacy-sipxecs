@@ -221,7 +221,7 @@ public class SipViewerMetaData
         JPanel accesoryPanel = new JPanel(new GridLayout(2, 1));
         accesoryPanel.setBorder(BorderFactory.createTitledBorder("Save options"));
 
-        JCheckBox checkbox = new JCheckBox("Delete Invisible Dialogs", null);
+        JCheckBox checkbox = new JCheckBox("Omit Invisible Dialogs", null);
         checkbox.setSelected(false);
 
         SaveOptionCheckBox checkBoxListener = new SaveOptionCheckBox(checkbox);
