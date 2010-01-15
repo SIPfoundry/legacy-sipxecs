@@ -175,6 +175,22 @@ public class FullUsers {
                             user.setHomeNum(next.getTextContent().trim());
                         }
                         
+                        if(next.getNodeName().trim().equals("conferenceEntryIM")) {
+                            user.setConfEntryIM(next.getTextContent().trim());
+                        }
+                
+                        if(next.getNodeName().trim().equals("conferenceExitIM")) {
+                            user.setConfExitIM(next.getTextContent().trim());
+                        }
+                        
+                        if(next.getNodeName().trim().equals("leaveMsgBeginIM")) {
+                            user.setVMEntryIM(next.getTextContent().trim());
+                        }
+                        
+                        if(next.getNodeName().trim().equals("leaveMsgEndIM")) {
+                            user.setVMExitIM(next.getTextContent().trim());
+                        }
+                        
                         if(next.getNodeName().trim().equals("imId")) {
                             user.setjid(next.getTextContent().trim() + "@" + config.getSipxchangeDomainName());
                             m_jidMap.put(user.getjid(), user);

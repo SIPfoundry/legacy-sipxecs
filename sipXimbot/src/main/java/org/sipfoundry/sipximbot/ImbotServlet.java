@@ -69,7 +69,7 @@ public class ImbotServlet extends HttpServlet {
         String userString = subDirs[1];
         // The third element is the "context" (ie. "sendIM")
         String context = subDirs[2];
-
+        context = context.toLowerCase();
         
         // Load the list of valid users 
         // (it is static, so don't worry about sucking it in each time, it'll only 
@@ -80,7 +80,7 @@ public class ImbotServlet extends HttpServlet {
             PrintWriter pw = response.getWriter();
             LOG.info(String.format("ImbotServlet::doIt %s %s", method, pathInfo));
 
-            if (context.compareToIgnoreCase("sendIM") == 0) {
+            if (context.startsWith("send")) {
                 if (method.equals(METHOD_POST)) {
                     InputStreamReader input = new InputStreamReader(request.getInputStream());
                     BufferedReader buffer = new BufferedReader(input);                  
@@ -92,7 +92,18 @@ public class ImbotServlet extends HttpServlet {
                         instantMsg += line;
                         line = buffer.readLine();
                     }
-                    IMBot.sendIM(user, instantMsg);
+                    
+                    if(context.equals("sendvmentryim")) {
+                        if(user.getVMEntryIM()) {
+                            IMBot.sendIM(user, instantMsg);
+                        }
+                    } else if(context.equals("sendvmexitim")) {
+                        if(user.getVMExitIM()) {
+                            IMBot.sendIM(user, instantMsg);
+                        }
+                    } else {
+                        IMBot.sendIM(user, instantMsg);
+                    }
                 }
 
             } else if(context.compareToIgnoreCase("addToRoster") == 0) {

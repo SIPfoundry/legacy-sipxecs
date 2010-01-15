@@ -19,7 +19,11 @@ public class FullUser extends User {
     private String  m_confName;
     private String  m_confNum;
     private String  m_confPin;
-
+    private boolean m_sendConfEntryIM;
+    private boolean m_sendConfExitIM;
+    private boolean m_sendVMEntryIM;
+    private boolean m_sendVMExitIM;
+    
     public String getCellNum() {
         return m_cellNumber;
     }
@@ -82,6 +86,38 @@ public class FullUser extends User {
     
     public String getConfPin() {
         return m_confPin;
+    }
+
+    public void setConfEntryIM(String value) {
+        m_sendConfEntryIM = value.equals("1") || value.equals("true");  
+    } 
+    
+    public boolean getConfEntryIM() {
+        return m_sendConfEntryIM;
+    } 
+    
+    public void setConfExitIM(String value) {
+        m_sendConfExitIM = value.equals("1") || value.equals("true");  
+    }   
+    
+    public boolean getConfExitIM() {
+        return m_sendConfExitIM;
+    } 
+    
+    public void setVMEntryIM(String value) {
+        m_sendVMEntryIM = value.equals("1") || value.equals("true");  
     }    
+    
+    public boolean getVMEntryIM() {
+        return m_sendVMEntryIM;
+    } 
+    
+    public void setVMExitIM(String value) {
+        m_sendVMExitIM = value.equals("1") || value.equals("true");  
+    }    
+    
+    public boolean getVMExitIM() {
+        return m_sendVMExitIM;
+    } 
     
 }
