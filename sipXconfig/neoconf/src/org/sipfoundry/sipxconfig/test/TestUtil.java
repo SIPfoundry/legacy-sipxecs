@@ -220,6 +220,7 @@ public final class TestUtil {
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("acdHistoryDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXACD_HISTORY_TEST");
         sysProps.setProperty("acdHistoricalStatsImpl.enabled", Boolean.toString(true));
+        sysProps.setProperty("cdrDataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCDR_TEST");
         sysProps.setProperty("localBackupPlan.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("ftpBackupPlan.backupDirectory", outputDirectory + "/ftpBackup");
         sysProps.setProperty("ftpRestore.downloadDirectory", outputDirectory + "/downloadFtpBackup");

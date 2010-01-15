@@ -1,18 +1,15 @@
-/*
- *
- *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
- *
- * $
- */
 package org.sipfoundry.sipxconfig.cdr;
 
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reportMatcher;
+import static org.easymock.EasyMock.verify;
+
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.ResultSet;
@@ -24,6 +21,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
@@ -31,77 +30,17 @@ import org.apache.commons.lang.time.DateUtils;
 import org.easymock.EasyMock;
 import org.easymock.IArgumentMatcher;
 import org.easymock.internal.matchers.InstanceOf;
-import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.cdr.Cdr.Termination;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.CdrsResultReader;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfo;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.ColumnInfoFactory;
 import org.sipfoundry.sipxconfig.cdr.CdrManagerImpl.DefaultColumnInfoFactory;
-import org.sipfoundry.sipxconfig.cdr.CdrSearch.Mode;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.core.RowCallbackHandler;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.reportMatcher;
-import static org.easymock.EasyMock.verify;
-
-public class CdrManagerImplTest extends SipxDatabaseTestCase {
-
-    // FIXME: reads from real CDR database - needs SIPXCDR_TEST
-    public void _testGetCdrs() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, new CdrSearch(), null);
-        assertTrue(cdrs.size() > 0);
-    }
-
-    public void _testGetCdrsCount() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        int size = cdrManager.getCdrCount(null, null, new CdrSearch(), null);
-        assertTrue(size > 0);
-    }
-
-    public void _testDumpCdrs() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        OutputStreamWriter writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
-    }
-
-    public void _testGetCsv() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        Writer writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrs(writer, null, null, new CdrSearch(), null);
-        writer.flush();
-    }
-
-    public void _testGetJson() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        Writer writer = new OutputStreamWriter(System.err);
-        cdrManager.dumpCdrsJson(writer);
-        writer.flush();
-    }
-
-    public void _testGetCdrsSearch() {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
-        CdrSearch cdrSearch = new CdrSearch();
-        cdrSearch.setMode(Mode.ANY);
-        cdrSearch.setTerm("154");
-        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
-        assertTrue(cdrs.size() > 0);
-    }
+public class CdrManagerImplTest extends TestCase {
 
     static class CalendarTimeZoneMatcher extends InstanceOf {
 
@@ -359,8 +298,8 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         RowCallbackHandler handler = new CdrsCsvWriter(writer, columnInforFactory);
         handler.processRow(rs);
 
-        assertEquals("\"caller\",\"callee\"," + dateStr + "\"\"," + dateStr + "\"404\",\"I\",\"0000-0000\"\n", writer
-                .toString());
+        assertEquals("\"caller\",\"callee\"," + dateStr + "\"\"," + dateStr + "\"404\",\"I\",\"0000-0000\"\n",
+                writer.toString());
 
         verify(rs);
     }
@@ -380,7 +319,7 @@ public class CdrManagerImplTest extends SipxDatabaseTestCase {
         });
         out.setCdrServiceProvider(serviceProvider);
 
-        SipxCallResolverService sipxCallResolverService = new SipxCallResolverService(){
+        SipxCallResolverService sipxCallResolverService = new SipxCallResolverService() {
             public String getAgentAddress() {
                 return host;
             }

@@ -51,6 +51,9 @@ acd.history.db.schema=${top.dir}/report/etc/schema.sql
 acd.history.db.enableUpgradesPatch=${top.dir}/report/etc/enable_upgrades.sql
 acd.history.db.locationFqdnPatch=${top.dir}/report/etc/location_fqdn.sql
 
+cdr.test.db=SIPXCDR_TEST
+cdr.db.schema=${top.dir}/report/etc/cdr_schema.sql
+
 sipxconfig.db.pds=SIPXCONFIG_TEST
 sipxconfig.db.user=@POSTGRESQL_USER@
 sipxpbx.log.dir=@SIPX_LOGDIR@

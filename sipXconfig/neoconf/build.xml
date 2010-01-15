@@ -401,7 +401,7 @@
   </target>
 
   <target name="reset-db"
-          depends="reset-acd-history-db"
+          depends="reset-acd-history-db,reset-cdr-db"
           description="Resets the test database. Needs to be called before UI and WEB tests.">
     <subant target="unittest-reset">
       <!-- THIS PROPERTY VERY IMPORTANT -->
@@ -424,6 +424,18 @@
 	<pgsql url="${acd.history.test.db.url}" src="${acd.history.db.enableUpgradesPatch}" />
 	<pgsql url="${acd.history.test.db.url}" src="${acd.history.db.locationFqdnPatch}" />
     <pgsql url="${acd.history.test.db.url}" src="test/org/sipfoundry/sipxconfig/acd/stats/history-seed.sql" />
+  </target>
+
+  <target name="reset-cdr-db">
+    <property name="cdr.test.db.url" value="jdbc:postgresql://localhost/${cdr.test.db}" />
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${cdr.test.db}" />
+    </exec>
+    <exec executable="createdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${cdr.test.db}" />
+    </exec>
+    <pgsql url="${cdr.test.db.url}" src="${cdr.db.schema}" />
+    <pgsql url="${cdr.test.db.url}" src="test/org/sipfoundry/sipxconfig/cdr/cdr_seed.sql" />
   </target>
 
   <!-- if you want to use this task define hibertnate-tools.dir property for example
