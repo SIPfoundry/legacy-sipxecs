@@ -5,9 +5,9 @@
     </a>
   </li>
 </ul>
-<form jwcid="@common/AutoRefreshForm">
-  <ul class="component-submit">
-    <li><span jwcid="@cdr/CdrFilter" cdrSearch="ognl:cdrSearch"/></li>
-  </ul>
-  <table jwcid="@cdr/CdrTable" source="ognl:cdrTableModel"/>
+<form jwcid="@common/AutoRefreshForm"">
+      <table jwcid="@cdr/CdrTable" source="ognl:cdrTableModel"/>
+      <ul class="component-submit">
+          <li><span jwcid="@cdr/CdrFilter" cdrSearch="ognl:cdrSearch"/></li>
+      </ul>
 </form>
