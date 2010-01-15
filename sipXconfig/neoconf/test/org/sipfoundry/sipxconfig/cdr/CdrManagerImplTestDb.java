@@ -57,15 +57,34 @@ public class CdrManagerImplTestDb extends SipxDatabaseTestCase {
         writer.flush();
     }
 
-    public void testGetCdrsSearch() {
+    public void testGetCdrsSearchFrom() {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
+        CdrSearch cdrSearch = new CdrSearch();
+        cdrSearch.setMode(Mode.CALLER);
+        cdrSearch.setTerm("200");
+        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
+        assertTrue(cdrs.size() == 3);
+    }
+
+    public void testGetCdrsSearchTo() {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
+        CdrSearch cdrSearch = new CdrSearch();
+        cdrSearch.setMode(Mode.CALLEE);
+        cdrSearch.setTerm("201");
+        List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
+        assertTrue(cdrs.size() == 2);
+    }
+
+    public void testGetCdrsSearchAny() {
         ApplicationContext app = TestHelper.getApplicationContext();
         CdrManager cdrManager = (CdrManager) app.getBean(CdrManager.CONTEXT_BEAN_NAME);
         CdrSearch cdrSearch = new CdrSearch();
         cdrSearch.setMode(Mode.ANY);
-        cdrSearch.setTerm("170");
+        cdrSearch.setTerm("200");
         List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
-        assertTrue(cdrs.size() > 0);
+        assertTrue(cdrs.size() == 4);
     }
-
 
 }

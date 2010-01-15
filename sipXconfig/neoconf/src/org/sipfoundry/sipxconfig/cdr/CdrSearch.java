@@ -12,8 +12,14 @@ package org.sipfoundry.sipxconfig.cdr;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
+
 public class CdrSearch {
     public static final Map<String, String> ORDER_TO_COLUMN;
+    public static final String OPEN_PARANTHESIS = "(";
+    public static final String SQM_CLOSED_PARANTHESIS = "')"; // SQM=single quotation mark
+    public static final String AND = " AND ";
+    public static final String EQUALS_SQM = "='";
 
     static {
         Map<String, String> map = new HashMap<String, String>();
@@ -63,30 +69,53 @@ public class CdrSearch {
         m_ascending = ascending;
     }
 
-    public String getColumnsStr() {
-        switch (m_mode) {
-        case CALLER:
-            return CdrManagerImpl.CALLER_AOR;
-        case CALLEE:
-            return CdrManagerImpl.CALLEE_AOR;
-        case ANY:
-            return CdrManagerImpl.CALLEE_AOR + " || " + CdrManagerImpl.CALLER_AOR;
-        default:
-            return null;
-        }
+    private void appendSearchTermSql(StringBuilder sql) {
+        sql.append(" LIKE '%<sip:");
+        sql.append(m_term);
+        sql.append("@%>'");
+    }
+
+    private void appendCallerSql(StringBuilder sql) {
+        sql.append(OPEN_PARANTHESIS);
+        sql.append(CdrManagerImpl.CALLER_AOR);
+        appendSearchTermSql(sql);
+        sql.append(AND);
+        sql.append(CdrManagerImpl.CALLER_INTERNAL);
+        sql.append("=true)");
+    }
+
+    private void appendCalleeSql(StringBuilder sql) {
+        sql.append(OPEN_PARANTHESIS);
+        sql.append(CdrManagerImpl.CALLEE_AOR);
+        appendSearchTermSql(sql);
+        sql.append(AND);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(EQUALS_SQM);
+        sql.append(CallTag.INT);
+        sql.append(SQM_CLOSED_PARANTHESIS);
     }
 
     public boolean appendGetSql(StringBuilder sql) {
-        String columnsStr = getColumnsStr();
-        if (columnsStr == null) {
+        switch (m_mode) {
+        case CALLER:
+            sql.append(AND);
+            appendCallerSql(sql);
+            break;
+        case CALLEE:
+            sql.append(AND);
+            appendCalleeSql(sql);
+            break;
+        case ANY:
+            sql.append(AND);
+            sql.append(OPEN_PARANTHESIS);
+            appendCallerSql(sql);
+            sql.append(" OR ");
+            appendCalleeSql(sql);
+            sql.append(")");
+            break;
+        default:
             return false;
         }
-
-        sql.append(" AND (");
-        sql.append(columnsStr);
-        sql.append(" LIKE '%");
-        sql.append(m_term);
-        sql.append("%')");
         return true;
     }
 

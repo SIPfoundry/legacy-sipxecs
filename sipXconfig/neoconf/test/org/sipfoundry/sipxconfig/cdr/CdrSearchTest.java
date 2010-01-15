@@ -33,7 +33,7 @@ public class CdrSearchTest extends TestCase {
         search.setMode(CdrSearch.Mode.CALLER);
         StringBuilder sql = new StringBuilder();
         assertTrue(sql.toString(), search.appendGetSql(sql));
-        assertEquals(" AND (caller_aor LIKE '%abc%')", sql.toString());
+        assertEquals(" AND (caller_aor LIKE '%<sip:abc@%>' AND caller_internal=true)", sql.toString());
     }
 
     public void testGetSqlCallee() {
@@ -42,7 +42,7 @@ public class CdrSearchTest extends TestCase {
         search.setMode(CdrSearch.Mode.CALLEE);
         StringBuilder sql = new StringBuilder();
         assertTrue(sql.toString(), search.appendGetSql(sql));
-        assertEquals(" AND (callee_aor LIKE '%abc%')", sql.toString());
+        assertEquals(" AND (callee_aor LIKE '%<sip:abc@%>' AND callee_route='INT')", sql.toString());
     }
 
     public void testGetSqlAny() {
@@ -51,7 +51,9 @@ public class CdrSearchTest extends TestCase {
         search.setMode(CdrSearch.Mode.ANY);
         StringBuilder sql = new StringBuilder();
         assertTrue(sql.toString(), search.appendGetSql(sql));
-        assertEquals(" AND (callee_aor || caller_aor LIKE '%abc%')", sql.toString());
+        assertEquals(
+                " AND ((caller_aor LIKE '%<sip:abc@%>' AND caller_internal=true) OR (callee_aor LIKE '%<sip:abc@%>' AND callee_route='INT'))",
+                sql.toString());
     }
 
     public void testGetOrderBySql() {
