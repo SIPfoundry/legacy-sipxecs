@@ -13,14 +13,13 @@ Token="("
 User=admin
 Password=
 
-DefaultPrefix="@prefix@"
+PrefixSet=""
+DefaultPrefix="/"
 DefaultComponents="sipXproxy sipregistrar"
 AllComponents=TRUE
 Components=""
 
 dump=cat
-
-myBinDir=$(dirname $0)
 
 while [ $# -ne 0 ]
 do
@@ -49,7 +48,15 @@ do
                 Action=USAGE
                 break
             else
-                Prefix="${Prefix} $(echo ${2} | perl -pe 's|/$||')"
+                PrefixSet="EXPLICIT"
+                case ${2} in 
+                    */)
+                        Prefix="${Prefix} ${2}"
+                        ;;
+                    */)
+                        Prefix="${Prefix} ${2}/"
+                        ;;
+                esac
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -127,14 +134,14 @@ do
     shift # always consume 1
 done
 
-if [ -z "${Prefix}" ]
+if [ -z "${PrefixSet}" ]
 then
     Prefix=${DefaultPrefix}
 fi
 
 getAllComponents() {
     TMP=$(mktemp -t sipx-trace.components.XXXXXX)
-    trap "rm $TMP* 2>/dev/null" 0
+    #trap "rm $TMP* 2>/dev/null" 0
 
     case ${Action} in
         USAGE)
@@ -146,7 +153,7 @@ getAllComponents() {
                 echo -n "finding ${server} components"
                 for prefix in ${Prefix}
                 do
-                    for c in $(ssh ${server} ls -1 ${prefix}/var/log/sipxpbx | grep -E "\.log${LogExtension}\$")
+                    for c in $(ssh ${server} ls -1 ${prefix}var/log/sipxpbx | grep -E "\.log${LogExtension}\$")
                     do
                         basename $c .log${LogExtension} >> $TMP
                     done
@@ -158,7 +165,7 @@ getAllComponents() {
         LOCAL)
             for prefix in ${Prefix}
             do
-                for c in ${prefix}/var/log/sipxpbx/*.log${LogExtension}
+                for c in ${prefix}var/log/sipxpbx/*.log${LogExtension}
                 do
                     basename $c .log${LogExtension} >> $TMP
                 done
@@ -167,7 +174,7 @@ getAllComponents() {
     esac
 
     Components=$(sort -u $TMP)
-    rm -f $TMP
+    #rm -f $TMP
 }
 
 if [ ${AllComponents} = TRUE ]
@@ -197,8 +204,8 @@ pullServer() { # server
 
     for c in ${Components}
     do
-      echo searching ${system} ${prefix} $c log
-      ssh ${1} "${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
+      echo searching ${system} ${prefix} ${c} log
+      ssh ${system} "${dump} ${prefix}var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
         > ${Trace}/${system}.${c}.log
     done
 }
@@ -211,7 +218,7 @@ grepLog() { # prefix
     for c in ${Components}
     do
       echo searching ${prefix} ${c} log
-      ${dump} ${prefix}/var/log/sipxpbx/${c}.log${LogExtension} \
+      ${dump} ${prefix}var/log/sipxpbx/${c}.log${LogExtension} \
       | grep --text -E "${Token}" \
       > ${Trace}/${alias}.${c}.log
     done
@@ -266,15 +273,15 @@ for log in ${Trace}/*.log
 do 
   xtract=$(basename ${log} .log)
   echo translating ${xtract}
-  ${myBinDir}/syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
+  @SIPX_BINDIR@/syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
 done
 
 echo merging
-${myBinDir}/siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
+@SIPX_BINDIR@/siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
 
 if [ -z "${Output}" ]
 then
-    ${myBinDir}/sipviewer ${Trace}/merged.xml
+    @SIPX_BINDIR@/sipviewer ${Trace}/merged.xml
 else
     cp -v ${Trace}/merged.xml ${Output} 
 fi
