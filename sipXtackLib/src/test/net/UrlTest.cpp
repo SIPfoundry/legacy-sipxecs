@@ -931,6 +931,8 @@ public:
         ASSERT_STR_EQUAL("New Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
 
+        // Only the changed attributes should actually change.
+
         url.setDisplayName("Changed Name");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host:5070;u1=uv1?h1=hv1>;f1=fv1",
                          toString(url));
@@ -962,10 +964,6 @@ public:
         url.setHeaderParameter("ROUTE", "rt2,rt1");
         ASSERT_STR_EQUAL("Changed Name<sip:u@host;u1=uv1?h1=hv1&h1=hv2&expires=20&ROUTE=rt2%2Crt1>;f1=fv1;f2=fv2",
                          toString(url));
-
-
-
-        // Only the changed attributes should actually changed
     }
 
     void testRemoveAttributes()
@@ -1252,7 +1250,6 @@ public:
             paramValues, paramCount));
         CPPUNIT_ASSERT_EQUAL_MESSAGE(msg, 0, paramCount);
     }
-
 
     void testGetOnlyHeaderParameters()
     {
@@ -1663,9 +1660,8 @@ public:
 
          UtlString badUrl("!bad:");
          CPPUNIT_ASSERT(!url.fromString(badUrl));
-         CPPUNIT_ASSERT(Url::UnknownUrlScheme == url.getScheme());
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, url.getScheme());
       }
-
 
     void testGetIdentity()
     {
@@ -1705,13 +1701,13 @@ public:
  * (the latter will usually also cause the former).
  *
  * Because we don't want the tests to be chatty, and we don't want to pick an
- * arbitrary time for "too long", the following PARSE macro.  It wraps the
+ * arbitrary time for "too long", we use the following PARSE macro.  It wraps the
  * constructor and in the verbose form prints how long it took to run.
  * Normally, this should be disabled, but turn it on if you're making changes
  * to the regular expressions so that you can see any performance/recursion
  * problems.
  */
-#if 0
+#if LOG_PARSE_TIME
 #     define PARSE(name)                        \
       OsTimeLog name##timeLog;                  \
       name##timeLog.addEvent("start  " #name);  \
@@ -1721,7 +1717,7 @@ public:
       name##timeLog.getLogString(name##Log);    \
       printf("\n%s\n", name##Log.data());
 #else
-#     define PARSE(name)                     \
+#     define PARSE(name)                        \
       Url name##Url(name);
 #endif
 
@@ -1742,7 +1738,7 @@ public:
 
          PARSE(bigname);
 
-         CPPUNIT_ASSERT(bignameUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bignameUrl.getScheme());
 
          UtlString component;
 
@@ -1776,7 +1772,7 @@ public:
          quoted_bigtoken.append("\"");
          CPPUNIT_ASSERT(! component.compareTo(quoted_bigtoken));
 
-         CPPUNIT_ASSERT(bigquotnameUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigquotnameUrl.getScheme());
 
          bigquotnameUrl.getUserId(component);
          CPPUNIT_ASSERT(! component.compareTo("user"));
@@ -1828,7 +1824,7 @@ public:
 
          PARSE(biguser);
 
-         CPPUNIT_ASSERT(biguserUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, biguserUrl.getScheme());
 
          UtlString component;
 
@@ -1850,7 +1846,7 @@ public:
 
          PARSE(bigusernoscheme);
 
-         CPPUNIT_ASSERT(bigusernoschemeUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigusernoschemeUrl.getScheme());
 
          UtlString component;
 
@@ -1872,7 +1868,7 @@ public:
 
          PARSE(bigok);
 
-         CPPUNIT_ASSERT(bigokUrl.getScheme() == Url::SipUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigokUrl.getScheme());
 
          UtlString component;
 
@@ -1884,10 +1880,8 @@ public:
 
          // user@<bigtoken>
          /*
-          * A really big host name like this causes recursion in the regular expression
-          * that matches a domain name; the limit causes this match to fail.
-          * This is preferable to having the match succeed but either take minutes (yes,
-          * minutes) to do the match and/or overflow the stack, so we let it fail.
+          * The Url class can now handle very large host names in a reasonable
+          * time.  Thus, this string parses correctly now.
           */
 
          UtlString bighost;
@@ -1988,7 +1982,6 @@ public:
          UtlString url12_nameaddr;
          url12.toString(url12_nameaddr);
          ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
-
       }
 
     /////////////////////////
@@ -2062,7 +2055,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getUri(Url& url)
     {
         assertValue->remove(0);
@@ -2071,7 +2064,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getPath(Url& url, UtlBoolean withQuery = FALSE)
     {
         assertValue->remove(0);
@@ -2080,7 +2073,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getUserId(Url& url)
     {
         assertValue->remove(0);
@@ -2089,7 +2082,7 @@ public:
         return assertValue->data();
     }
 
-    /** API not declared as const **/
+    /** 'url' not declared as const, in order to override the Url:: method **/
     const char *getIdentity(Url& url)
     {
         assertValue->remove(0);
