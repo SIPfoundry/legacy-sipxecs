@@ -40,6 +40,9 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
     private MessageExt sipMessage;
     private File traceFile;
     private String frameId;
+    private boolean isOutbound;
+    private String remoteHost;
+    private int remotePort;
 
     public static Hashtable<String, HostPort> hostMapper = new Hashtable<String, HostPort>();
 
@@ -107,9 +110,13 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
             HostPort hostPort = new HostPort(sourceHost, sourcePort);
             if (this.sourcePort == 0) {
                 hostMapper.put(this.sourceAddress, hostPort);
-            }
+            } 
             this.setSourceAddress(sourceHost);
             this.setSourcePort(sourcePort);
+            if ( this.isOutbound) {
+                this.setDestinationAddress(this.remoteHost);
+                this.setDestinationPort(this.remotePort);
+            }
         }
     }
 
@@ -233,6 +240,17 @@ public class CapturedLogPacket implements Comparable<CapturedLogPacket> {
     public String getFrameId() {
         return this.frameId;
     }
+    
+    public void setRemoteHostPort(String remoteHostPort) {
+        String[] parts = remoteHostPort.split(":");
+        this.remoteHost = parts[0];
+        this.remotePort  = Integer.parseInt(parts[1]);
+    }
+    
+    public void setOutbound(String outbound) {
+        this.isOutbound = Boolean.parseBoolean(outbound);
+    }
+    
     
     public String toString() {
        StringBuffer sbuf = new StringBuffer();

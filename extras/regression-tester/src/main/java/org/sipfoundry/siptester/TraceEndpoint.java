@@ -9,14 +9,12 @@ import org.sipfoundry.commons.jainsip.ListeningPointAddress;
  * This class represents a endpoint from the SUT where the trace was originally taken.
  * 
  */
-public class TraceEndpoint  {
-    private String ipAddress;
-    private int    port;
+public class TraceEndpoint extends HostPort  {
     private EmulatedEndpoint emulatedEndpoint;
-    HashSet<String> registrations = new HashSet<String>();
     private String defaultTransport = "udp";
     private Behavior behavior;
     private int emulatedPort;
+    private boolean isEmulated = true;
     
     public String getDefaultTransport() {
         return this.defaultTransport;
@@ -44,12 +42,7 @@ public class TraceEndpoint  {
     public void setPort(String port) {  
         this.port = Integer.parseInt(port) ;
     }
-    /**
-     * @return the port
-     */
-    public int getPort() {
-        return port;
-    }
+  
     
     public void setEmulatedPort(String port) {
         this.emulatedPort = Integer.parseInt(port) + SipTester.getTesterConfig().getBasePort();
@@ -65,6 +58,14 @@ public class TraceEndpoint  {
     
     public void setBehavior(String behavior) {
         this.behavior = Behavior.valueOf(behavior);
+    }
+    
+    public void setIsEmulated(String bool) {
+        this.isEmulated = Boolean.parseBoolean(bool);
+    }
+    
+    public boolean isEmulated() {
+        return this.isEmulated;
     }
     
     public Behavior getBehavior() {

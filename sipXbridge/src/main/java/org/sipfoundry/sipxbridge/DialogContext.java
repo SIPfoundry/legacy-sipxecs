@@ -48,6 +48,7 @@ import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ViaHeader;
+import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -628,14 +629,13 @@ class DialogContext {
      * the given dialog.
      *
      * @param continuationData -- context information so we can process the continuation.
-     * @param triggeringCallId -- the call ID that triggered this action.
-     * @param triggeringbranchId -- the branch Id of the transaction that triggered this action.
+     * @param triggerMessage -- the message that triggered this action.
      *
      * @return true if the offer is sent successfully. false if there is already an offer in
      *         progress and hence we should not send an offer.
      */
     boolean solicitSdpOfferFromPeerDialog(ContinuationData continuationData,
-            String triggeringCallId, String triggeringBranchId) throws Exception {
+           Message triggerMessage) throws Exception {
         try {
 
             Dialog peerDialog = DialogContext.getPeerDialog(dialog);
@@ -669,8 +669,8 @@ class DialogContext {
                 /*
                  * Add the references header for causality chaining.
                  */
-                ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringCallId, triggeringBranchId, 
-                        ReferencesHeader.SEQUEL);
+                ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggerMessage, 
+                        ReferencesHeader.CHAIN);
                 reInvite.setHeader(referencesHeader);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
@@ -785,7 +785,7 @@ class DialogContext {
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
-        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.SEQUEL);
+        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.CHAIN);
         sdpOfferInvite.setHeader(referencesHeader);
         if ( proxyAuthorizationHeader != null ) {
         	sdpOfferInvite.setHeader(proxyAuthorizationHeader);

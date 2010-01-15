@@ -6,6 +6,7 @@ import gov.nist.javax.sip.message.ResponseExt;
 import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -52,6 +53,10 @@ public class SipServerTransaction extends SipTransaction implements
      */
     private ServerTransaction serverTransaction;
 
+    private String dialogId;
+
+    private Collection<SipServerTransaction> matchingServerTransactions = new HashSet<SipServerTransaction>();
+
     public SipServerTransaction(SipRequest sipRequest) {
         this.sipRequest = sipRequest;
         if (sipRequest.getTime() < minDelay) {
@@ -91,7 +96,13 @@ public class SipServerTransaction extends SipTransaction implements
             }
         }
         
-        logger.debug("adding response " + this.getTransactionId() + " frameId = " + sipResponse.getFrameId());
+        if ( dialogId == null && sipResponse.getSipResponse().getFromHeader().getTag() != null && 
+                sipResponse.getSipResponse().getToHeader().getTag() != null ) {
+                String dialogId =  ((SIPResponse) sipResponse.getSipResponse()).getDialogId(true);
+                this.dialogId = dialogId;
+        }
+        
+        System.out.println("adding response " + this.sipRequest.getFrameId() + " frameId = " + sipResponse.getFrameId());
         boolean added =  this.responses.add(sipResponse);
         
         if ( !added ) {
@@ -105,19 +116,8 @@ public class SipServerTransaction extends SipTransaction implements
      * @return
      */
     public String getDialogId() {
-        if (sipRequest.getSipRequest().getFromHeader().getTag() != null
-                && sipRequest.getSipRequest().getToHeader().getTag() != null) {  
-              return ((SIPRequest) sipRequest.getSipRequest()).getDialogId(true);
-        }
-        for (SipResponse sipResponse : responses) {
-            ResponseExt response = sipResponse.getSipResponse();
-            if (response.getFromHeader().getTag() != null
-                    && response.getToHeader().getTag() != null) {
-                  return ((SIPResponse) response).getDialogId(true);
-            }
-        }
         
-        return null;
+        return this.dialogId;
     }
 
     /**
@@ -179,11 +179,23 @@ public class SipServerTransaction extends SipTransaction implements
             if (responses.isEmpty()) {
                 System.out.println("no Responses to SEND ");
             }
+            
+            SipResponse finalResponse = this.responses.last();
+            
             Iterator<SipResponse> it = this.responses.iterator();
             while (it.hasNext()) {
                 SipResponse nextResponse = it.next();
-                logger.debug("sendingResponse at frame " + nextResponse.getFrameId());
+                
+                System.out.println("sendingResponse at frame " + nextResponse.getFrameId() +
+                        " statusCode = " + nextResponse.getStatusCode());
                 ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, nextResponse);
+                
+                if ( nextResponse == finalResponse) {
+                    String correlator = SipUtilities.getCorrelator(newResponse);
+                    for (SipServerTransaction st: this.matchingServerTransactions) {
+                        st.setBranch(correlator);
+                    }
+                }
                 it.remove();
 
                 Iterator headerIterator = newResponse.getHeaders(RequireHeader.NAME);
@@ -194,10 +206,14 @@ public class SipServerTransaction extends SipTransaction implements
                         isReliableResponse = true;
                     }
                 }
-               
+                  
                 if (!isReliableResponse || newResponse.getStatusCode() / 100 >= 2) {
-                    serverTransaction.sendResponse(newResponse);
-                } else {
+                     String dialogId = this.getDialogId();
+                     System.out.println("dialogId = " + dialogId + " request " + this.sipRequest.getFrameId() );
+                     SipDialog sipDialog = SipTester.getDialog(dialogId);
+                     sipDialog.setDialog((DialogExt)serverTransaction.getDialog());
+                     serverTransaction.sendResponse(newResponse);
+                 } else {
                     serverTransaction.getDialog().sendReliableProvisionalResponse(newResponse);
                     new Thread(new Runnable() {
 
@@ -241,6 +257,14 @@ public class SipServerTransaction extends SipTransaction implements
 
     public SipClientTransaction getMatchingClientTransaction() {
         return this.matchingClientTransaction;
+    }
+
+    public SipResponse getFinalResponse() {
+        return this.responses.last();
+    }
+
+    public void setMatchingServerTransactions(Collection<SipServerTransaction> matchingServerTransactions) {
+       this.matchingServerTransactions = matchingServerTransactions;
     }
 
   

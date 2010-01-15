@@ -34,7 +34,7 @@ public class SipClientTransaction extends SipTransaction implements
 
     private ConcurrentSkipListSet<SipMessage> happensBefore = new ConcurrentSkipListSet<SipMessage>();
     
-
+  
     private EmulatedEndpoint endpoint;
 
     boolean processed;
@@ -169,6 +169,14 @@ public class SipClientTransaction extends SipTransaction implements
                 String method = sipRequest.getMethod();
                 if (method.equals(Request.ACK)) {
                     logger.debug("createAndSend ACK -- not sending");
+                    SipResponse sipResponse = (SipResponse) this.triggeringMessage;
+                    Dialog dialog = sipResponse.getResponseEvent().getDialog();
+                    Response response = sipResponse.getResponseEvent().getResponse();
+                    Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipResponse.getResponseEvent().getResponse()));
+                    SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
+                            this.triggeringMessage, ack);
+                    dialog.sendAck(ack);
+               
                 } else if (method.equals(Request.PRACK)) {
                     if ( triggeringMessage instanceof SipRequest) {
                         System.out.println("trigger = " + triggeringMessage.getSipMessage());
@@ -183,17 +191,16 @@ public class SipClientTransaction extends SipTransaction implements
                     clientTransaction.setApplicationData(this);
                     for (SipServerTransaction sipServerTransaction : this
                             .getMatchingServerTransactions()) {
-                        sipServerTransaction.setBranch(((RequestExt) prack).getTopmostViaHeader()
-                                .getBranch());
+                        sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) prack));
                     }
                     this.processed = true;
                     dialog.sendRequest(clientTransaction);
                 } else {
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
-                    System.out.println("dialogId " + dialogId);
+                    logger.debug("dialogId " + dialogId);
                     SipDialog sipDialog = SipTester.getDialog(dialogId);
-                    System.out.println("sipDialog = " + sipDialog);
+                    logger.debug("sipDialog = " + sipDialog + "frameId = " + this.sipRequest.getFrameId() +  " method = " + sipRequest.getMethod() );
                     Request newRequest;
                     newRequest = sipDialog.getDialog().createRequest(
                             sipRequest.getMethod());
@@ -205,8 +212,7 @@ public class SipClientTransaction extends SipTransaction implements
                     clientTransaction.setApplicationData(this);
                     for (SipServerTransaction sipServerTransaction : this
                             .getMatchingServerTransactions()) {
-                        sipServerTransaction.setBranch(((RequestExt) newRequest)
-                                .getTopmostViaHeader().getBranch());
+                        sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) newRequest));
                     }
                     if ( sipDialog.getDialog() != null )
                         sipDialog.getDialog().sendRequest(clientTransaction);
@@ -224,8 +230,7 @@ public class SipClientTransaction extends SipTransaction implements
 
                 for (SipServerTransaction sipServerTransaction : this
                         .getMatchingServerTransactions()) {
-                    sipServerTransaction.setBranch(((RequestExt) newRequest)
-                            .getTopmostViaHeader().getBranch());
+                    sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) newRequest));
                 }   
                 clientTransaction.sendRequest();
             }
@@ -317,13 +322,6 @@ public class SipClientTransaction extends SipTransaction implements
                                 + response.getStatusCode() + " transactionId = "
                                 + this.getTransactionId());
                     }
-                }
-                if (SipUtilities.getCSeqMethod(response).equals(Request.INVITE)
-                        && response.getStatusCode() == Response.OK) {
-
-                    long cseq = SipUtilities.getSequenceNumber(response);
-                    Request ack = dialog.createAck(cseq);
-                    dialog.sendAck(ack);
                 }
             }
             for (SipResponse sipResponse : this.sipResponses) {

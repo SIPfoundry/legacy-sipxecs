@@ -8,6 +8,7 @@ import gov.nist.javax.sip.SipListenerExt;
 import gov.nist.javax.sip.message.RequestExt;
 
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
 import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
@@ -56,16 +57,31 @@ public class SipListenerImpl implements SipListenerExt {
             Collection<SipServerTransaction> transactions  = endpoint.findSipServerTransaction(request);
             
             if ( transactions.isEmpty())  {
-                if ( endpoint.getSutUA().getBehavior().equals(Behavior.UA)) {
-                    logger.debug("could not find server transaction - default UA behavior.");    
-                    if (request.getMethod().equals(Request.NOTIFY)) {
-                        Response response = SipTester.getMessageFactory().createResponse(
+                /*
+                 * Could not find a matching server transaction. Find a ST where the From
+                 * and To tags match. 
+                 */
+                 Dialog dialog = requestEvent.getDialog();
+                 
+                 if (dialog != null  ){
+                     SipDialog sipDialog = (SipDialog) dialog.getApplicationData();
+                     if ( sipDialog != null ) {
+                         sipDialog.setLastRequestReceived(request);
+                     }
+                 } else {
+                     logger.debug("Dialog is null");
+                 }
+                 
+                 
+                 if (! request.getMethod().equals(Request.ACK)) {
+                     Response response = SipTester.getMessageFactory().createResponse(
                                 Response.OK, request);
-                        serverTransaction.sendResponse(response);
-                    }
-                }
+                     serverTransaction.sendResponse(response);
+                 }
+               
             }
-
+            
+           
             for (SipServerTransaction sst : transactions) {
                 serverTransaction.setApplicationData(sst);
                 sst.setServerTransaction(serverTransaction);
@@ -73,8 +89,11 @@ public class SipListenerImpl implements SipListenerExt {
                 SipDialog sipDialog = SipTester.getDialog(dialogId);
                 if (sipDialog != null) {
                     sipDialog.setLastRequestReceived(request);
+                } else {
+                    logger.debug("Could not find a sip dialog "  + request.getFirstLine());
                 }
                 sst.getSipRequest().setRequestEvent(requestEvent);
+                
                 sst.sendResponses();
                 
                 for (SipClientTransaction ct : sst.getSipRequest().getPostConditions()) {

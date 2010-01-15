@@ -26,6 +26,8 @@ public class LogFileParser {
     public static String SOURCE_ADDRESS = "sourceAddress";
     public static String DESTINATION_ADDRESS = "destinationAddress";
     public static String FRAME_ID = "frameId";
+    public static String REMOTE_HOST_PORT = "remoteHostPort";
+    public static String IS_OUTGOING = "isOutgoing";
     
     LinkedList<CapturedLogPacket> retval = new LinkedList<CapturedLogPacket>();
     
@@ -70,7 +72,12 @@ public class LogFileParser {
                       capturedPacket.setDestinationAddress(text);
                   } else if (name.equals(FRAME_ID)) {
                       capturedPacket.setFrameId(text);
+                   } else if ( name.equals(REMOTE_HOST_PORT)) {
+                      capturedPacket.setRemoteHostPort(text);
+                  } else if ( name.equals(IS_OUTGOING)) {
+                      capturedPacket.setOutbound(text);
                   }
+                
               }
               next = next.getNextSibling();
           }

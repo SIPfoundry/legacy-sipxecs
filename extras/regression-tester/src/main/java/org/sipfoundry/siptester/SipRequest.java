@@ -12,6 +12,8 @@ public class SipRequest extends SipMessage {
     private RequestExt sipRequest;
     
     private RequestEvent requestEvent;
+
+    private HostPort hostPort;
     
     
     public SipRequest(RequestExt sipRequest, long time, String frameId) {
@@ -48,7 +50,14 @@ public class SipRequest extends SipMessage {
     public RequestEvent getRequestEvent() {
         return requestEvent;
     }
-
+    
+    public void setTargetHostPort(HostPort hostPort) {
+        this.hostPort = hostPort;
+    }
+    
+    public HostPort getTargetHostPort() {
+        return this.hostPort;
+    }
 
   
 

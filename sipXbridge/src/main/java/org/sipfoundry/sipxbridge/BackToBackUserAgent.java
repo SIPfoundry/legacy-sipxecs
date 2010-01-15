@@ -724,7 +724,8 @@ public class BackToBackUserAgent implements Comparable {
              * proxy server. See XX-5792. Dont do this if we are sending the request directly to a
              * phone!
              */
-            RouteHeader proxyRoute = SipUtilities.createRouteHeader(this.proxyAddress);
+            RouteHeader proxyRoute = SipUtilities.createRouteHeader(this.proxyAddress);          
+            logger.debug("setting ProxyRoute : " + proxyRoute);                      
             newRequest.setHeader(proxyRoute);
 
             /*
@@ -758,10 +759,8 @@ public class BackToBackUserAgent implements Comparable {
                    newRequest.addHeader(header);
                 }
             }
-
-            String oldCallId = SipUtilities.getCallId(referRequest);
-            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(oldCallId,
-                       referBranch, ReferencesHeader.REFER);
+    
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(referRequest, ReferencesHeader.REFER);
             newRequest.setHeader(referencesHeader);
       
             /*
@@ -1171,9 +1170,7 @@ public class BackToBackUserAgent implements Comparable {
                     uri, Request.INVITE, callIdHeader, cseqHeader, fromHeader,
                     toHeader, viaList, maxForwards);
 
-            ReferencesHeader referencesHeader =
-                SipUtilities.createReferencesHeader(SipUtilities.getCallId(request),
-                        SipUtilities.getTopmostViaBranch(request),
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(request,
                         ReferencesHeader.CHAIN);
             newRequest.addHeader(referencesHeader);
 
@@ -1398,6 +1395,7 @@ public class BackToBackUserAgent implements Comparable {
      * Create a Client Tx pointing towards the park server.
      *
      * @param sessionDescription : the session description to apply to the INVITE.
+     * @param triggeringResponse: The response that triggered this action.
      * @param callid : the callId of the response that triggered this client transaction ( so we can 
      *    form a causal chain).
      * @param topmostViaBranch : the topmost via branch of the response that triggered this client tx.
@@ -1406,10 +1404,12 @@ public class BackToBackUserAgent implements Comparable {
      * @return the dialog generated as a result of sending the invite to the MOH server.
      *
      */
-    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription, String callId, String topmostViaBranch) {
+    ClientTransaction createClientTxToMohServer(SessionDescription sessionDescription, Response triggeringResponse) {
 
         ClientTransaction retval = null;
 
+        String callId = SipUtilities.getCallId(triggeringResponse);
+             
         try {
 
             SipURI uri = Gateway.getMusicOnHoldUri();
@@ -1448,13 +1448,11 @@ public class BackToBackUserAgent implements Comparable {
                     Request.INVITE, callIdHeader, cseqHeader, fromHeader, toHeader, viaList,
                     maxForwards);
 
-            if ( topmostViaBranch != null && callId != null ) {
-                ReferencesHeader referencesHeader =
-                        SipUtilities.createReferencesHeader(callId,
-                        topmostViaBranch,
-                        ReferencesHeader.SEQUEL);
-                newRequest.setHeader(referencesHeader);
-            }
+          
+            ReferencesHeader referencesHeader =
+                        SipUtilities.createReferencesHeader(triggeringResponse,              
+                        ReferencesHeader.SERVICE);
+            newRequest.setHeader(referencesHeader);
             
             ContactHeader contactHeader = SipUtilities.createContactHeader(
                     Gateway.SIPXBRIDGE_USER, Gateway.getLanProvider(),
@@ -1708,9 +1706,7 @@ public class BackToBackUserAgent implements Comparable {
                 outgoingRequest.setHeader(authorization);
             }
 
-            String callId = SipUtilities.getCallId(incomingRequest);
-            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(callId,
-                    SipUtilities.getTopmostViaBranch(incomingRequest),
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(incomingRequest,
                     ReferencesHeader.CHAIN);
             outgoingRequest.setHeader(referencesHeader);
 

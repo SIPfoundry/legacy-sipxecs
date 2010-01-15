@@ -218,7 +218,7 @@ class CallControlManager implements SymmitronResetHandler {
         
         String callId = SipUtilities.getCallId(request);
         String branchId = SipUtilities.getTopmostViaBranch(request);
-        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(callId, branchId, ReferencesHeader.CHAIN);
+        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(request, ReferencesHeader.CHAIN);
 
         if ( dialogContext == null ) {
             logger.error("Null Dialog Context detected on dialog " + dialog);
@@ -371,7 +371,7 @@ class CallControlManager implements SymmitronResetHandler {
                 if (Gateway.getMusicOnHoldUri() != null) {
                     SendInviteToMohServerContinuationData cdata = new SendInviteToMohServerContinuationData(
                             requestEvent);
-                    dialogContext.solicitSdpOfferFromPeerDialog(cdata,callId,branchId);
+                    dialogContext.solicitSdpOfferFromPeerDialog(cdata,requestEvent.getRequest());
                 } else {
                     /*
                      * No MOH support on bridge so send OK right away.
@@ -787,9 +787,7 @@ class CallControlManager implements SymmitronResetHandler {
             stx.sendResponse(tryingResponse);
             ReferInviteToSipxProxyContinuationData continuation = new ReferInviteToSipxProxyContinuationData(
                     inviteRequest, requestEvent);
-            String referCallid = SipUtilities.getCallId(requestEvent.getRequest());
-            String referBranchId = SipUtilities.getTopmostViaBranch(requestEvent.getRequest());
-            dat.solicitSdpOfferFromPeerDialog(continuation,referCallid,referBranchId);
+            dat.solicitSdpOfferFromPeerDialog(continuation,requestEvent.getRequest());
 
         } catch (ParseException ex) {
             // This should never happen
@@ -1014,9 +1012,7 @@ class CallControlManager implements SymmitronResetHandler {
                  if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SOLICIT_SDP_OFFER_ON_ACK) {
                     dialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
                     peerDialogContext.setPendingAction(PendingDialogAction.NONE);
-                    String callId = SipUtilities.getCallId(requestEvent.getRequest());
-                    String branchId = SipUtilities.getTopmostViaBranch(requestEvent.getRequest());
-                    dialogContext.solicitSdpOfferFromPeerDialog(null,callId,branchId);
+                    dialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());
                     return;
                  }
             }
@@ -2237,7 +2233,7 @@ class CallControlManager implements SymmitronResetHandler {
                     String topmostViaBranch = (((ResponseExt)response).getTopmostViaHeader()).getBranch();
                     String callId = (((ResponseExt)response).getCallIdHeader()).getCallId();
                     mohCtx = DialogContext.get(dialog).getBackToBackUserAgent()
-                            .createClientTxToMohServer(responseSessionDescription,callId,topmostViaBranch);
+                            .createClientTxToMohServer(responseSessionDescription,responseEvent.getResponse());
 
                     DialogContext.get(dialog).sendMohInvite(mohCtx);
 
@@ -2377,7 +2373,7 @@ class CallControlManager implements SymmitronResetHandler {
                         || b2bua.getMusicOnHoldDialog().getState() == DialogState.TERMINATED) {
                     String callId = ((ResponseExt) response).getCallIdHeader().getCallId();
                     String branchId = ((ResponseExt)response).getTopmostViaHeader().getBranch();
-                    ClientTransaction ctx = b2bua.createClientTxToMohServer(clonedSd,callId,branchId);
+                    ClientTransaction ctx = b2bua.createClientTxToMohServer(clonedSd,responseEvent.getResponse());
                     RtpSession mohRtpSession = DialogContext.getPeerRtpSession(dialog);
                     DialogContext.get(ctx.getDialog()).setRtpSession(mohRtpSession);
                     logger.debug("mohRtpSession = " + mohRtpSession );
@@ -2559,7 +2555,7 @@ class CallControlManager implements SymmitronResetHandler {
                     Request prackRequest = dialog.createPrack(response);
                     SipUtilities.addWanAllowHeaders(prackRequest);
                     ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(response,
-                            ReferencesHeader.SEQUEL);
+                            ReferencesHeader.CHAIN);
                     prackRequest.addHeader(referencesHeader);
 
                     SipProvider provider = (SipProvider) responseEvent.getSource();
@@ -2713,7 +2709,7 @@ class CallControlManager implements SymmitronResetHandler {
                 subscriptionStateHeader.setReasonCode("deactivated");
             }
             notifyRequest.addHeader(subscriptionStateHeader);
-            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(response, ReferencesHeader.SEQUEL);
+            ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(response, "sipxecs-notify-response");
             notifyRequest.setHeader(referencesHeader);
             ContentTypeHeader contentTypeHeader = ProtocolObjects.headerFactory
                     .createContentTypeHeader("message", "sipfrag");

@@ -5,6 +5,7 @@ import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.address.SipURIExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.MessageExt;
@@ -14,6 +15,8 @@ import gov.nist.javax.sip.message.ResponseExt;
 
 import java.net.InetAddress;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Collections;
@@ -626,6 +629,7 @@ public class SipUtilities {
                 fromTag);
         Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri));
         ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, null);
+        
 
         // CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
         CallIdHeader callIdHeader = provider.getNewCallId();
@@ -634,7 +638,7 @@ public class SipUtilities {
 
         String viaHost = SipTester.getTesterConfig().getTesterIpAddress();
         int viaPort = endpoint.getPort();
-        String transport = endpoint.getSutUA().getDefaultTransport();
+        String transport = endpoint.getTraceEndpoint().getDefaultTransport();
 
         ViaHeader viaHeader = SipTester.getHeaderFactory().createViaHeader(viaHost, viaPort,
                 transport, null);
@@ -659,7 +663,26 @@ public class SipUtilities {
             ContactHeader contactHeader = SipUtilities.createContactHeader(endpoint);
             newRequest.setHeader(contactHeader);
         }
-
+        
+        if ( sipRequest.getHeader(ReferToHeader.NAME) != null ) {
+            ReferToHeader oldReferToHeader = (ReferToHeader) sipRequest.getHeader(ReferToHeader.NAME);
+            SipURI oldUri = (SipURI) oldReferToHeader.getAddress().getURI();
+            SipURI newUri = SipUtilities.mapUri(oldUri);
+            Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
+            ReferToHeader newReferToHeader = SipTester.getHeaderFactory().createReferToHeader(newAddress);
+            newRequest.setHeader(newReferToHeader);
+        }
+        
+        if ( sipRequest.getHeader(ReferredByHeader.NAME) != null ) {
+            ReferredByHeader oldReferByHeader = (ReferredByHeader) sipRequest.getHeader(ReferredByHeader.NAME);
+            SipURI oldUri = (SipURI) oldReferByHeader.getAddress().getURI();
+            SipURI newUri = SipUtilities.mapUri(oldUri);
+            Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
+            ReferredByHeader newReferByHeader = SipTester.getHeaderFactory().createReferredByHeader(newAddress);
+            newRequest.setHeader(newReferByHeader);
+        }
+        
+        
         Iterator<Header> routeIterator = sipRequest.getHeaders(RouteHeader.NAME);
 
         while (routeIterator.hasNext()) {
@@ -715,37 +738,86 @@ public class SipUtilities {
             return null;
         }
     }
+    
+    private static final char[] toHex = { '0', '1', '2', '3', '4', '5', '6',
+        '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
+    /**
+     * convert an array of bytes to an hexadecimal string
+     *
+     * @return a string
+     * @param b
+     *            bytes array to convert to a hexadecimal string
+     */
+
+    public static String toHexString(byte b[]) {
+        int pos = 0;
+        char[] c = new char[b.length * 2];
+        for (int i = 0; i < b.length; i++) {
+            c[pos++] = toHex[(b[i] >> 4) & 0x0F];
+            c[pos++] = toHex[b[i] & 0x0f];
+        }
+        return new String(c);
+    }
+    public static String getCorrelator(MessageExt message) {
+        
+        StringBuffer branchCorrelator = new StringBuffer();
+        
+        String triggeredBy = message instanceof Request ? "request" : "response";
+        String branch = message.getTopmostViaHeader().getBranch();
+        String method = message.getCSeqHeader().getMethod(); 
+        
+        branchCorrelator.append(triggeredBy);  
+        branchCorrelator.append("-");
+        branchCorrelator.append(method);
+        branchCorrelator.append("-");
+        branchCorrelator.append(branch);
+        if ( message instanceof Response) {
+            int statusCode = ((Response)message).getStatusCode();
+            branchCorrelator.append("-");
+            branchCorrelator.append(statusCode);
+        }
+        return branchCorrelator.toString().toLowerCase();
+        /*
+        try {
+            MessageDigest m = MessageDigest.getInstance("MD5");
+            byte[] digest = m.digest(branchCorrelator.toString().toLowerCase().getBytes());
+            return toHexString(digest);
+        } catch (NoSuchAlgorithmException e) {
+           throw new SipTesterException(e);
+        }*/
+       
+      
+    }
     /**
      * Returns the branch-id parameter from the References header or the bottom most via header if
      * References does not exist.
      */
     public static String getBranchMatchId(Request request) {
-        Iterator headers = request.getHeaders(ViaHeader.NAME);
-        ExtensionHeader extensionHeader = (ExtensionHeader) request.getHeader("References");
-        if (extensionHeader != null) {
-            String value = extensionHeader.getValue().trim();
-            String[] parts1 = value.split(";rel=");
-            String callId1 = parts1[0];
-            String[] parts2 = parts1[1].split(";x-sipx-branch=");
-            String rel = parts2[0];
-            String branchId = null;
-            if (parts2.length == 2) {
-                branchId = parts2[1].toLowerCase();
+        /*
+         * See if we have a references header. This will give us the connected transaction.
+         */
+        String bid = null;
+        try {
+            ReferencesHeader referencesHeader = (ReferencesHeader) request
+                    .getHeader(ReferencesHeader.NAME);
+            if (referencesHeader != null
+                    && referencesHeader.getParameter("sipxecs-tag") != null) {
+                bid = referencesHeader.getParameter("sipxecs-tag");
             }
 
-            if (branchId != null)
-                return branchId;
+            if (bid == null) {
+                Iterator headers = request.getHeaders(ViaHeader.NAME);
+
+                while (headers.hasNext()) {
+                    ViaHeader viaHeader = (ViaHeader) headers.next();
+                    bid = viaHeader.getBranch();
+                }
+            }
+            return bid;
+        } finally {
+            System.out.println("bid = " + bid);
         }
-
-        String bid = null;
-        while (headers.hasNext()) {
-            ViaHeader viaHeader = (ViaHeader) headers.next();
-            bid = viaHeader.getBranch();
-
-        }
-
-        return bid;
 
     }
 

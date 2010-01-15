@@ -1020,6 +1020,13 @@ public class Gateway {
 
             Gateway.proxyURI = ProtocolObjects.addressFactory.createSipURI(
                     null, getBridgeConfiguration().getSipxProxyDomain());
+            if (  getBridgeConfiguration().getSipxProxyPort() > 0  ) {
+                logger.debug("setting sipx proxy port " + getBridgeConfiguration().getSipxProxyPort() );
+                Gateway.proxyURI.setPort( getBridgeConfiguration().getSipxProxyPort());
+            } else {
+                logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
+                
+            }
         } catch (Exception ex) {
             logger.error("Error initializing proxy address", ex);
             throw new SipXbridgeException(ex);

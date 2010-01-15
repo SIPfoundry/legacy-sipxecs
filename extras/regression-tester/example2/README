@@ -1,6 +1,0 @@
-This test case emulates an outbound call via sipxbridge to bandwidth.com.
-
-You can customize the addresses to your local system address and replace the
-/etc/sipxpbx/sipxbridge.xml file.
-
-Then restart sipxbridge and run the test using ant test2.

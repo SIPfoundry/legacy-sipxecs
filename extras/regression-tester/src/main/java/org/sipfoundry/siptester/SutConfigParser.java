@@ -11,6 +11,7 @@ public class SutConfigParser {
     public static final String PROXY = "proxy";
     public static final String BEHAVIOR = "behavior";
     public static final String IP_ADDRESS = "ip-address";
+    public static final String IS_EMULATED = "is-emulated";
     
     
 
@@ -27,6 +28,9 @@ public class SutConfigParser {
                 "setIpAddress",0);
         digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,PORT),
                 "setPort",0);
+        digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,IS_EMULATED),
+                "setIsEmulated",0);
+     
         digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,EMULATED_PORT),
                 "setEmulatedPort",0);
         digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,BEHAVIOR),

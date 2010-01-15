@@ -11,18 +11,22 @@
 package org.sipfoundry.siptester;
 
 class HostPort {
-    private String host;
-    private int port;
+    protected String ipAddress;
+    protected int port;
     HostPort(String host, int port ) {
-        this.host = host;
+        this.ipAddress = host;
         this.port = port;
+    }
+    
+    HostPort() {
+        
     }
     
     /**
      * @return the host
      */
-    public String getHost() {
-        return host;
+    public String getIpAddress() {
+        return ipAddress;
     }
     /**
      * @return the port
@@ -30,4 +34,20 @@ class HostPort {
     public int getPort() {
         return port;
     }
+    
+    @Override
+    public int hashCode() {
+        return ( ipAddress + ":" + port ).hashCode();
+    }
+    
+    public String toString() {
+        return ipAddress + ":" + port;
+    }
+    
+    @Override
+    public boolean equals(Object that) {
+        HostPort other = (HostPort) that;
+        return this.ipAddress.equals(other.ipAddress) && this.port == other.port;
+    }
+   
 }

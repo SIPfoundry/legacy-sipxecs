@@ -27,6 +27,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -1812,10 +1814,64 @@ class SipUtilities {
     public static String getToTag(Message message) {
         return ((ToHeader) message.getHeader(ToHeader.NAME)).getTag();
     }
+    private static final char[] toHex = { '0', '1', '2', '3', '4', '5', '6',
+        '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
-    public static ReferencesHeader createReferencesHeader(String callId, String branch, String rel) throws ParseException {
+    /**
+     * convert an array of bytes to an hexadecimal string
+     *
+     * @return a string
+     * @param b
+     *            bytes array to convert to a hexadecimal string
+     */
+
+    public static String toHexString(byte b[]) {
+        int pos = 0;
+        char[] c = new char[b.length * 2];
+        for (int i = 0; i < b.length; i++) {
+            c[pos++] = toHex[(b[i] >> 4) & 0x0F];
+            c[pos++] = toHex[b[i] & 0x0f];
+        }
+        return new String(c);
+    }
+    public static ReferencesHeader createReferencesHeader(String callId, String branch,
+            String method , String rel, String triggeredBy, String statusCode) throws ParseException {
         HeaderFactoryImpl headerFactory = (HeaderFactoryImpl) ProtocolObjects.headerFactory;
-        return headerFactory.createReferencesHeader(callId, branch, null, rel);
+        ReferencesHeader referencesHeader =  headerFactory.createReferencesHeader(callId, rel);
+        StringBuffer branchCorrelator = new StringBuffer();
+        
+      
+        if ( triggeredBy != null ) {
+            branchCorrelator.append(triggeredBy);
+            
+        }
+        if ( method != null ) {
+            branchCorrelator.append("-");
+            branchCorrelator.append(method);
+           
+        } 
+        if ( branch != null ) {
+            branchCorrelator.append("-");
+            branchCorrelator.append(branch);
+         
+        }
+        if ( statusCode != null ) {
+            branchCorrelator.append("-");
+            branchCorrelator.append(statusCode);
+        }
+        referencesHeader.setParameter("sipxecs-tag", branchCorrelator.toString().toLowerCase());
+        
+        // TODO -- apply a one way hash here.
+        /*
+        try {
+             MessageDigest md = MessageDigest.getInstance("MD5");
+             byte[] digest  = md.digest(branchCorrelator.toString().toLowerCase().getBytes());
+             referencesHeader.setParameter("sipxecs-tag", toHexString(digest));
+        } catch (NoSuchAlgorithmException e) {
+           throw new SipXbridgeException(e);
+        } */
+          
+        return referencesHeader;
        
     }
 
@@ -1913,7 +1969,16 @@ class SipUtilities {
         try {
             String callId = SipUtilities.getCallId(message);
             String branchId = SipUtilities.getTopmostViaBranch(message);
-            return SipUtilities.createReferencesHeader(callId, branchId, ref);
+            String triggeredBy = "response";
+            String method  = SipUtilities.getCSeqMethod(message);
+            String responseCode = null;
+            
+            if (message instanceof Request ) {
+                triggeredBy = "request";   
+            } else {
+                responseCode = new Integer(((Response)message).getStatusCode()).toString();
+            }
+            return SipUtilities.createReferencesHeader(callId, branchId, method, ref, triggeredBy, responseCode);
         } catch (Exception ex) {
             throw new SipXbridgeException("Unexpected exception creating references header" );
         }

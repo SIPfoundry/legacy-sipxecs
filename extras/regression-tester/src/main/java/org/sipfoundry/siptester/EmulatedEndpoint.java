@@ -22,14 +22,10 @@ import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
 
-public class EmulatedEndpoint  {
+public class EmulatedEndpoint  extends HostPort {
     
     private static Logger logger = Logger.getLogger(EmulatedEndpoint.class);
-    
-    private String ipAddress;
-    
-    private int port;
-    
+        
     private Hashtable<String,ListeningPoint>  listeningPoints = new Hashtable<String,ListeningPoint>(); 
     
     private Collection<SipClientTransaction> clientTransactions =  new ConcurrentSkipListSet<SipClientTransaction>();
@@ -47,24 +43,21 @@ public class EmulatedEndpoint  {
     private TraceEndpoint traceEndpoint;
 
     private long startTime;
-
-    private int emulatedPort;
-    
+ 
     
     public EmulatedEndpoint(String ipAddress, int port) {
-        this.ipAddress = ipAddress;
-        this.port = port;
+        super(ipAddress,port);
     }
     
     
     
-    public void setSutUA(TraceEndpoint sutUa) {
-        this.traceEndpoint = sutUa;
+    public void setTraceEndpoint(TraceEndpoint traceEndpoint) {
+        this.traceEndpoint = traceEndpoint;
     }
     
    
     
-    public TraceEndpoint getSutUA() {
+    public TraceEndpoint getTraceEndpoint() {
         return this.traceEndpoint;
     }
 
@@ -89,10 +82,7 @@ public class EmulatedEndpoint  {
         this.port = port;
     }
     
-    public void setEmulatedPort(int port) {
-        this.emulatedPort = port;
-    }
-
+  
     /**
      * @return the port
      */
@@ -101,45 +91,7 @@ public class EmulatedEndpoint  {
     }
     
     
-    public void addOriginatingPacket(CapturedLogPacket logPacket) {
-        if ( logPacket.getSipPacket() instanceof SIPRequest ) {
-            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getFrameId());
-            this.addOriginatingSipRequest(sipRequest);
-        } else {
-            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getFrameId());
-            this.addOriginatingSipResponse(sipResponse);
-        }
-        
-    }
     
-    public void addReceivedPacket(CapturedLogPacket logPacket) {
-        if ( logPacket.getSipPacket() instanceof SIPRequest ) {
-            SipRequest sipRequest = new SipRequest( (SIPRequest) logPacket.getSipPacket(),logPacket.getTimeStamp(),logPacket.getFrameId());
-            this.addReceivedSipRequest(sipRequest);
-        } else {
-            SipResponse sipResponse = new SipResponse((SIPResponse) logPacket.getSipPacket(), logPacket.getTimeStamp(),logPacket.getFrameId());
-            this.addReceivedSipResponse(sipResponse);
-        }
-    }
-    
-    private void addOriginatingSipRequest(SipRequest sipRequest) {
-        String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
-        SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
-        
-        if (!SipTester.isExcluded(sipRequest.getSipRequest().getMethod())) {
-            if (clientTx == null) {
-                clientTx = new SipClientTransaction(sipRequest);
-                SipTester.clientTransactionMap.put(transactionid, clientTx);
-                this.clientTransactions.add(clientTx);
-                clientTx.setEndpoint(this);
-                logger.debug("created clientTransaction "
-                        + transactionid);
-            } else {
-                logger.debug("dropping retransmitted request " + sipRequest.getSipRequest().getFirstLine());
-            }
-        }
-        
-    }
     
     public void removeUnEmulatedClientTransactions(Collection<SipClientTransaction> emulatedSet) {
        Iterator<SipClientTransaction> it = this.clientTransactions.iterator();
@@ -152,34 +104,19 @@ public class EmulatedEndpoint  {
         
     }
     
+    public void addEmulatedServerTransaction(SipServerTransaction serverTx) {
+        this.serverTransactions.add(serverTx);
+        serverTx.setEndpoint(this);
+        logger.debug("addEmulatedServerTransaction " + this.ipAddress + ":" + this.port + " " + serverTx.getSipRequest().getFrameId());
+     
+    }
+    
+    public void addEmulatedClientTransaction(SipClientTransaction clientTx) {
+        this.clientTransactions.add(clientTx);
+        clientTx.setEndpoint(this);   
+    }
+
   
-    
-    
-
-    private void addReceivedSipRequest(SipRequest sipRequest) {
-        String transactionid = ((SIPRequest)sipRequest.getSipRequest()).getTransactionId().toLowerCase();
-        SipServerTransaction serverTx = SipTester.serverTransactionMap.get(transactionid);
-        if ( serverTx == null ) {
-            serverTx = new SipServerTransaction(sipRequest);
-            SipTester.serverTransactionMap.put(transactionid, serverTx);
-            this.serverTransactions.add(serverTx);
-            serverTx.setEndpoint(this);
-            logger.debug("created serverTransaction : " + transactionid);
-        } else {
-            serverTx.addRequest(sipRequest);
-        }
-    }
-    
-    private void addReceivedSipResponse(SipResponse sipResponse) {
-        String transactionid = ((SIPResponse)sipResponse.getSipResponse()).getTransactionId();
-        SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
-        if ( clientTx == null ) {
-            logger.debug("Cannot find clientTx for received response");
-            return;
-        }
-        clientTx.addResponse(sipResponse);
-    }
-
     public void addOriginatingSipResponse(SipResponse sipResponse) {
         String transactionid = ((SIPResponse)sipResponse.getSipResponse()).getTransactionId();
         SipServerTransaction serverTx = SipTester.getSipServerTransaction(transactionid);
@@ -255,11 +192,13 @@ public class EmulatedEndpoint  {
                     while (it.hasNext()) {
                         SipClientTransaction ctx = it.next();
                         long timeToSleep = ctx.getDelay() - prevTime;
-                        //if ( timeToSleep > 0 )
-                       // Thread.sleep(timeToSleep);
+                        if ( timeToSleep > 0 ) {
+                          Thread.sleep(timeToSleep);
+                        }
                         prevTime = ctx.getDelay();
                         System.out.println("aboutToEmulate " + 
-                                ctx.getSipRequest().getSipRequest().getMethod() + " tid = " + ctx.getTransactionId());
+                                ctx.getSipRequest().getSipRequest().getMethod() + " tid = " + ctx.getTransactionId() + 
+                                " frameId " + ctx.getSipRequest().getFrameId() );
                         if ( ctx.checkPreconditions() && ! ctx.processed  ) {
                             ctx.createAndSend();
                         }
@@ -273,21 +212,30 @@ public class EmulatedEndpoint  {
         }).start();
     }
     
-    public Collection<SipServerTransaction> findSipServerTransaction(Request request ) {
+   
+    
+   public Collection<SipServerTransaction> findSipServerTransaction(Request request ) {
         Collection<SipServerTransaction> retval = new HashSet<SipServerTransaction>();    
         Iterator<SipServerTransaction> it = this.serverTransactions.iterator();
         while(it.hasNext() ) {
             SipServerTransaction sst = it.next();
-            logger.debug("sst.getBranch() " + sst.getBranch());
             if(request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod()) && 
                     sst.getBranch() != null &&
                     sst.getBranch().equalsIgnoreCase(SipUtilities.getBranchMatchId(request))) {
-                it.remove();
-                retval.add(sst);
+                    it.remove();
+                    retval.add(sst);
             }
+        }
+        
+        if ( retval.isEmpty() ) {
+            logger.debug("Could not find a matching server transaction for the incoming request");
         }
         return retval;
     }
+
+
+
+    
     
    
 

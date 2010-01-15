@@ -20,10 +20,11 @@ public class TraceAnalyzer {
     }
 
     public void analyze() {
-        Collection<CapturedLogPacket> capturedLogPackets = new LogFileParser().parseXml( mergedFileName);
+        Collection<CapturedLogPacket> capturedLogPackets = new LogFileParser()
+                .parseXml(mergedFileName);
         Iterator<CapturedLogPacket> it = capturedLogPackets.iterator();
         logger.debug("found " + capturedLogPackets.size() + " packets ");
-        
+
         while (it.hasNext()) {
             CapturedLogPacket capturedLogPacket = it.next();
             logger.debug("examining " + capturedLogPacket.getSipPacket());
@@ -31,7 +32,7 @@ public class TraceAnalyzer {
                 HostPort hostPort = CapturedLogPacket.hostMapper.get(capturedLogPacket
                         .getDestinationAddess());
                 if (hostPort != null) {
-                    capturedLogPacket.setDestinationAddress(hostPort.getHost());
+                    capturedLogPacket.setDestinationAddress(hostPort.getIpAddress());
                     capturedLogPacket.setDestinationPort(hostPort.getPort());
                 }
             }
@@ -40,36 +41,62 @@ public class TraceAnalyzer {
 
             if (capturedLogPacket.getSipPacket() instanceof Request) {
                 String address = capturedLogPacket.getDestinationAddess();
-                SIPRequest sipRequest = ((SIPRequest)capturedLogPacket.getSipPacket());
-                
+                SIPRequest sipRequest = ((SIPRequest) capturedLogPacket.getSipPacket());
+
                 int port = capturedLogPacket.getDestinationPort();
-                logger.debug("adding request " + sipRequest.getMethod() + " transactionId " + sipRequest.getTransactionId()  );
-                
+               
+
                 EmulatedEndpoint destEndpoint = SipTester.getEndpoint(address, port);
-                if (destEndpoint != null) {
-                    destEndpoint.addReceivedPacket(capturedLogPacket);
-                    logger.debug(" destEndpoint " + destEndpoint.getIpAddress() + ":" + destEndpoint.getPort());
-                } else {
-                    logger.debug(" destEndpoint " + address + ":" + port + " is not emulated ");
-                }
+                String transactionid = sipRequest.getTransactionId().toLowerCase();
                 String viaAddress = capturedLogPacket.getTopmostViaHost();
                 int viaPort = capturedLogPacket.getTopmostViaPort();
                 if (viaPort == -1) {
                     viaPort = 5060;
                 }
                 EmulatedEndpoint sourceEndpoint = SipTester.getEndpoint(viaAddress, viaPort);
-                 if (sourceEndpoint != null) {
-                    sourceEndpoint.addOriginatingPacket(capturedLogPacket);
-                    logger.debug("sourceEndpoint " + sourceEndpoint.getIpAddress() + ":" + sourceEndpoint.getPort());
-                } else {
-                    logger.debug("Source Endpoint " + viaAddress + ":" + viaPort + " is not emulated");
+                logger.debug("adding request " + sipRequest.getMethod() + " frameId "
+                        + capturedLogPacket.getFrameId() + " source " + address + " port " + port );
+                if (sourceEndpoint != destEndpoint) {
+                    SipClientTransaction clientTx = SipTester.clientTransactionMap
+                            .get(transactionid);
+
+                    SipRequest srequest = null;
+                    if (clientTx == null) {
+                        srequest = new SipRequest(sipRequest, capturedLogPacket.getTimeStamp(),
+                                capturedLogPacket.getFrameId());
+                        String destinationAddress = capturedLogPacket.getDestinationAddess();
+                        int destinationPort = capturedLogPacket.getDestinationPort();
+                        srequest.setTargetHostPort(new HostPort(destinationAddress,destinationPort));
+                        clientTx = SipTester.addTransmittedSipRequest(srequest);
+                        if (sourceEndpoint != null) {
+                            sourceEndpoint.addEmulatedClientTransaction(clientTx);
+                        }
+                    }
+
+                    SipServerTransaction serverTx = SipTester.serverTransactionMap
+                            .get(transactionid);
+
+                    if (serverTx == null) {
+                        if (srequest == null) {
+                            srequest = new SipRequest(sipRequest, capturedLogPacket
+                                    .getTimeStamp(), capturedLogPacket.getFrameId());
+                        }
+                        serverTx = SipTester.addReceivedSipRequest(srequest);
+                        if (destEndpoint != null) {
+                            destEndpoint.addEmulatedServerTransaction(serverTx);
+                        }
+                    }
                 }
+
             } else {
                 SipResponse sipResponse = new SipResponse((SIPResponse) capturedLogPacket
-                        .getSipPacket(), capturedLogPacket.getTimeStamp(), capturedLogPacket.getFrameId());
+                        .getSipPacket(), capturedLogPacket.getTimeStamp(), capturedLogPacket
+                        .getFrameId());
 
                 String transactionId = capturedLogPacket.getTransactionId();
-                logger.debug("checking sipResponse " + capturedLogPacket.getSipPacket().getFirstLine()+ " transactionId " + transactionId);
+                logger.debug("checking sipResponse "
+                        + capturedLogPacket.getSipPacket().getFirstLine() + " transactionId "
+                        + transactionId);
                 /*
                  * Find the server tx to which this response belongs.
                  */

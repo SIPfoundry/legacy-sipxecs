@@ -1,7 +1,10 @@
 package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
+import gov.nist.javax.sip.header.HeaderFactoryExt;
+import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.message.RequestExt;
+import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -121,98 +124,119 @@ public class SipTester {
         }
     }
 
-    public static Collection<SipServerTransaction> findMatchingServerTransaction(
-            SipClientTransaction sipClientTransaction) {
+    public static void findMatchingServerTransaction(SipServerTransaction sipServerTransaction, 
+            Collection<SipServerTransaction> retval) {
+        SipResponse sipResponse = sipServerTransaction.getFinalResponse();
+        String thisCorrelator = SipUtilities.getCorrelator(sipResponse.getSipResponse());
+        String callId = SipUtilities.getCallId(sipResponse.getSipResponse());
+        for (SipClientTransaction ctx : SipTester.getSipClientTransactions()) {
+            ReferencesHeader extensionHeader = (ReferencesHeader) ctx.getSipRequest()
+                    .getSipRequest().getHeader(ReferencesHeader.NAME);
+         
+            if (extensionHeader != null) {
+                String referencesCallId = extensionHeader.getCallId();
+                String correlator = extensionHeader.getParameter("sipxecs-tag");
+                     
+                /*
+                 * Make a recursive call to find the matching server tx.
+                 */
+                 if (  extensionHeader != null && correlator != null 
+                     && callId.equalsIgnoreCase(referencesCallId)
+                     && correlator.equals(thisCorrelator) ) {
+                    SipTester.findMatchingServerTransaction(ctx, retval);
+                    logger.debug("Found matching ServerTransactions : " + retval.size());
+           
+                }
+            }
+           
+        }
+        
+    }
+    
+    
+    public static void findMatchingServerTransaction(SipClientTransaction sipClientTransaction,
+            Collection<SipServerTransaction> retval) {
         String callId = ((RequestExt) sipClientTransaction.getSipRequest().getSipRequest())
                 .getCallIdHeader().getCallId();
         String method = ((RequestExt) sipClientTransaction.getSipRequest().getSipRequest())
                 .getMethod();
 
-        logger.debug("Checking " + sipClientTransaction.getTransactionId() + " method " + method);
-
-        ConcurrentSkipListSet<SipServerTransaction> retval = new ConcurrentSkipListSet<SipServerTransaction>();
+        logger.debug("findMatchingServerTransaction: transactionId = " + sipClientTransaction.getTransactionId() 
+                + " method = " + method + " frameId = " 
+                + sipClientTransaction.getSipRequest().getFrameId());
 
         /*
          * TODO: use the References header here for transitive closure. We also need to add the
          * via header branch to the References header.
          */
         Iterator<SipServerTransaction> it1 = SipTester.serverTransactionMap.values().iterator();
-        logger.debug("serverTransactionMap size = " + SipTester.serverTransactionMap.size());
-        while (it1.hasNext()) {
-            SipServerTransaction st = it1.next();
-            if (st.getEndpoint() != sipClientTransaction.getEndpoint()) {
-                String callId1 = st.getSipRequest().getSipRequest().getCallIdHeader().getCallId();
-                String method1 = st.getSipRequest().getSipRequest().getMethod();
-                ExtensionHeader extensionHeader = (ExtensionHeader) st.getSipRequest()
-                        .getSipRequest().getHeader("References");
-                String branchId = null;
-                String referencesCallId = null;
-                if (extensionHeader != null) {
-                    /*
-                     * Check if the server transaction has a references header that matches the
-                     * client transaction. If so we add the server transaction to our set.
-                     */
-                    String value = extensionHeader.getValue().trim();
-                    String[] parts1 = value.split(";rel=");
-                    referencesCallId = parts1[0];
-                    String[] parts2 = parts1[1].split(";x-sipx-branch=");
-                    String rel = parts2[0];
-                    if (parts2.length == 2) {
-                        branchId = parts2[1].toLowerCase();
-                    }
-                    logger.debug("referencesHeader branchId = " + branchId);
-                    logger.debug("referencesHeader callId = " + referencesCallId);
-                }
-                boolean found = false;
-
-                if (method1.equals(method)) {
-                    if (callId1.equalsIgnoreCase(callId)) {
-                        ViaHeader viaHeader = null;
-                        Iterator<ViaHeader> it = st.getSipRequest().getSipRequest().getHeaders(
-                                ViaHeader.NAME);
-                        while (it.hasNext()) {
-                            viaHeader = it.next();
-                            branchId = viaHeader.getBranch();
-                           
+        logger.debug("serverTransactionMap size = " + SipTester.serverTransactionMap.size() + " clientTransactionMap size = " + SipTester.clientTransactionMap.size() );
+        for (EmulatedEndpoint endpoint : SipTester.getEndpoints()) {
+            for (SipServerTransaction st : endpoint.getServerTransactions()) {
+                /*
+                 * Do not iterate over loops where the client and server tx are from 
+                 * the same endpoint.
+                 */
+                if (st.getEndpoint() != sipClientTransaction.getEndpoint()) {
+                    
+                    String callId1 = st.getSipRequest().getSipRequest().getCallIdHeader()
+                            .getCallId();
+                    logger.debug("checking " + st.getSipRequest().getFrameId());
+                    String method1 = st.getSipRequest().getSipRequest().getMethod();
+                    if (method1.equals(method)) {
+                        if (callId1.equalsIgnoreCase(callId)) {
+                            ViaHeader viaHeader = st.getSipRequest().getSipRequest().getTopmostViaHeader();
+                            String branchId = viaHeader.getBranch();
+                            if (branchId
+                                    .equalsIgnoreCase(sipClientTransaction.getTransactionId())) {
+                                retval.add(st);
+                            }
+                        } else {
+                            logger.debug("callId does not match " + callId + " / " + callId1);
                         }
-                        logger.debug("checking branch Id "  + branchId);
-                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId()) 
-                               ) {
-                            retval.add(st);
-                            found = true;           
-                        }
-                    } else {
-                        logger.debug("callId does not match " + callId + " / " + callId1);
                     }
-                    if (extensionHeader != null && !found && referencesCallId.equals(callId) && 
-                        method1.equals(method) && branchId != null) {  
-                        logger.debug("branchId = " + branchId);
-                        logger.debug("st.matchingClientTransaction = "  + st.getMatchingClientTransaction());
-                        if (branchId.equalsIgnoreCase(sipClientTransaction.getTransactionId()) 
-                                ) {
-                            retval.add(st);
-                        }
-
-                    }
-                     logger.debug("Checked : " +    st.getSipRequest().getSipRequest());
-                     
                 }
             }
 
         }
 
         if (retval.isEmpty()) {
-            logger.debug("no matching server transaction was found");
+            
+            for (SipClientTransaction ctx : SipTester.getSipClientTransactions()) {
+                ReferencesHeader extensionHeader = (ReferencesHeader) ctx.getSipRequest()
+                        .getSipRequest().getHeader(ReferencesHeader.NAME);
+             
+                if (extensionHeader != null) {
+                    String referencesCallId = extensionHeader.getCallId();
+                    String correlator = extensionHeader.getParameter("sipxecs-tag");
+                    String thisCorrelator = SipUtilities.getCorrelator(sipClientTransaction.getSipRequest().getSipRequest());
+                        
+                    /*
+                     * Make a recursive call to find the matching server tx.
+                     */
+                     if (  extensionHeader != null && correlator != null 
+                         && callId.equalsIgnoreCase(referencesCallId)
+                         && correlator.equals(thisCorrelator) ) {
+                        SipTester.findMatchingServerTransaction(ctx, retval);
+               
+                    }
+                }
+               
+            }
         }
-        return retval;
+
+    }
+
+    private static Collection<SipClientTransaction> getSipClientTransactions() {
+        return SipTester.clientTransactionMap.values();
     }
 
     public static AddressFactory getAddressFactory() {
         return sipStackBean.getAddressFactory();
     }
 
-    public static HeaderFactory getHeaderFactory() {
-        return sipStackBean.getHeaderFactory();
+    public static HeaderFactoryExt getHeaderFactory() {
+        return (HeaderFactoryExt) sipStackBean.getHeaderFactory();
     }
 
     public static MessageFactory getMessageFactory() {
@@ -246,13 +270,6 @@ public class SipTester {
 
     }
 
-    public static TraceEndpoint getSutUA(String user) {
-        for (TraceEndpoint sutUa : SipTester.endpoints.values()) {
-            if (sutUa.registrations.contains(user))
-                return sutUa;
-        }
-        return null;
-    }
 
     public static void fail(String string, Exception ex) {
         logger.error(string, ex);
@@ -316,6 +333,7 @@ public class SipTester {
 
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
             monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
+            monitoredInterfaces.printEndpoints();
             ValidUsersXML
                     .setValidUsersFileName(traceprefix + "/trace/etc/sipxpbx/validusers.xml");
             sutValidUsers = ValidUsersXML.update(logger, true);
@@ -349,7 +367,7 @@ public class SipTester {
                     testerConfig.setSipxProxyDomain(parts[1].trim());
                 }
             }
-            for (TraceEndpoint traceEndpoint : monitoredInterfaces.getTraceEndpoints()) {
+            for (TraceEndpoint traceEndpoint : monitoredInterfaces.getEmulatedEndpoints()) {
                 String key = traceEndpoint.getIpAddress() + ":" + traceEndpoint.getPort();
 
                 int port = traceEndpoint.getEmulatedPort();
@@ -357,7 +375,7 @@ public class SipTester {
                 EmulatedEndpoint endpoint = new EmulatedEndpoint(ipAddress, port);
                 sipStackBean = new SipStackBean(endpoint);
                 traceEndpoint.setEmulatedEndpoint(endpoint);
-                endpoint.setSutUA(traceEndpoint);
+                endpoint.setTraceEndpoint(traceEndpoint);
                 SipTester.endpoints.put(key, traceEndpoint);
                 ListeningPointAddressImpl tcpListeningPointAddress = new ListeningPointAddressImpl(
                         endpoint, "tcp");
@@ -397,8 +415,8 @@ public class SipTester {
             ConcurrentSkipListSet<SipClientTransaction> runnable = new ConcurrentSkipListSet<SipClientTransaction>();
             for (TraceEndpoint traceEndpoint : endpoints.values()) {
                 EmulatedEndpoint endpoint = traceEndpoint.getEmulatedEndpoint();
-                logger.debug("endpoint " + endpoint.getSutUA().getIpAddress() + "/"
-                        + endpoint.getSutUA().getPort());
+                logger.debug("endpoint " + endpoint.getTraceEndpoint().getIpAddress() + "/"
+                        + endpoint.getTraceEndpoint().getPort());
                 Iterator<SipClientTransaction> it = endpoint.getClientTransactions().iterator();
                 while (it.hasNext()) {
 
@@ -415,7 +433,8 @@ public class SipTester {
                         logger.debug("dialog = " + dialog);
                         dialog.addSipClientTransaction(ct);
                     }
-                    Collection<SipServerTransaction> serverTransactions = findMatchingServerTransaction(ct);
+                    ConcurrentSkipListSet<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
+                    findMatchingServerTransaction(ct,serverTransactions);
                     if (!serverTransactions.isEmpty()) {
                         logger.debug("ClientTransaction "
                                 + ct.getSipRequest().getSipRequest().getMethod() + " time "
@@ -445,33 +464,40 @@ public class SipTester {
                     ct.addMatchingServerTransactions(serverTransactions);
 
                     /*
-                     * This transaction is runnable.
+                     * This transaction is runnable if one endpoint is emulated and the remote address 
+                     * is of interest.
                      */
-                    if (traceEndpoint.getBehavior().equals(Behavior.UA)) {
-                        runnable.add(ct);
-                    } else if (traceEndpoint.getBehavior().equals(Behavior.PROXY)) {
-                        /*
-                         * A proxy transaction is only emulated if we emulate both the client and
-                         * server side of the transaction.
-                         */
-                        if (!ct.getMatchingServerTransactions().isEmpty()) {
-                            logger.debug("adding client transaction to runnable");
-                            runnable.add(ct);
-                        } else {
-                            logger.debug("no matching server transaction found");
-                            logger.debug("ct frame = " + ct.getSipRequest().getFrameId());
-                        }
+                    if ( SipTester.monitoredInterfaces.isEndpointOfInterest(ct.sipRequest.getTargetHostPort()) ) {
+                         runnable.add(ct);
+                    } else {
+                       System.out.println("Endpoint not of interest "  + ct.sipRequest.getTargetHostPort() );
                     }
+                    
 
                 }
 
             }
 
             /*
-             * Determine the happensBefore set of each tx that is runnable.
+             * Determine all the server transactions that are activated by server transactions
              */
             Iterator<SipClientTransaction> runIt = runnable.iterator();
-
+            
+            while (runIt.hasNext()) {
+                SipClientTransaction ct = runIt.next();
+                for ( SipServerTransaction sst : ct.getMatchingServerTransactions()) {
+                    Collection<SipServerTransaction> matchingServerTransaction = new HashSet<SipServerTransaction>();
+                    SipTester.findMatchingServerTransaction(sst, matchingServerTransaction);
+                    sst.setMatchingServerTransactions(matchingServerTransaction);
+                }
+            }
+            
+            
+            /*
+            * Determine the happensBefore set of each tx that is runnable.
+            */
+            
+            runIt = runnable.iterator();
             /*
              * For each element of the runnable set, record all the previous clientTransactions
              * that must run. This builds the dependency list of requests and responses that must
@@ -581,7 +607,7 @@ public class SipTester {
     }
 
     public static boolean isExcluded(String method) {
-        if (method.equals(Request.ACK))
+        if (false && method.equals(Request.ACK))
             return true;
         else
             return false;
@@ -601,6 +627,31 @@ public class SipTester {
 
     public static boolean checkProvisionalResponses() {
         return false;
+    }
+
+    public static SipClientTransaction addTransmittedSipRequest(SipRequest sipRequest) {
+        String transactionid = ((SIPRequest) sipRequest.getSipRequest()).getTransactionId()
+                .toLowerCase();
+        SipClientTransaction clientTx = SipTester.clientTransactionMap.get(transactionid);
+        if (clientTx == null) {
+            clientTx = new SipClientTransaction(sipRequest);
+            SipTester.clientTransactionMap.put(transactionid, clientTx);
+            logger.debug("created serverTransaction : " + transactionid);
+        }
+        return clientTx;
+    }
+
+    public static SipServerTransaction addReceivedSipRequest(SipRequest sipRequest) {
+        String transactionid = ((SIPRequest) sipRequest.getSipRequest()).getTransactionId()
+                .toLowerCase();
+        SipServerTransaction serverTx = SipTester.serverTransactionMap.get(transactionid);
+        if (serverTx == null) {
+            serverTx = new SipServerTransaction(sipRequest);
+            SipTester.serverTransactionMap.put(transactionid, serverTx);
+            logger.debug("created serverTransaction : " + transactionid);
+        }
+        return serverTx;
+
     }
 
 }

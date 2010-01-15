@@ -45,7 +45,7 @@ public class RegistrationManager implements SipListenerExt {
             // TODO Auto-generated method stub
             try {
                 cseq++;
-                SipProvider sipProvider = endpoint.getProvider(endpoint.getSutUA()
+                SipProvider sipProvider = endpoint.getProvider(endpoint.getTraceEndpoint()
                         .getDefaultTransport());
                 Request registrationRequest = SipUtilities.createRegistrationRequest(sipProvider,
                         userName, endpoint, callId, cseq);
@@ -69,7 +69,7 @@ public class RegistrationManager implements SipListenerExt {
     }
 
     public void sendRegistrationRequest() throws Exception {
-        SipProvider sipProvider = endpoint.getProvider(endpoint.getSutUA().getDefaultTransport());
+        SipProvider sipProvider = endpoint.getProvider(endpoint.getTraceEndpoint().getDefaultTransport());
         Request registrationRequest = SipUtilities.createRegistrationRequest(sipProvider,
                 userName, endpoint, null, 1L);
         ClientTransaction clientTransaction = sipProvider
@@ -79,7 +79,7 @@ public class RegistrationManager implements SipListenerExt {
     }
     
     public void sendDeRegistrationRequest() throws Exception {
-        SipProvider sipProvider = endpoint.getProvider(endpoint.getSutUA().getDefaultTransport());
+        SipProvider sipProvider = endpoint.getProvider(endpoint.getTraceEndpoint().getDefaultTransport());
         
         Request registrationRequest = SipUtilities.createRegistrationRequest(sipProvider,
                 userName, endpoint, null, 1L);
