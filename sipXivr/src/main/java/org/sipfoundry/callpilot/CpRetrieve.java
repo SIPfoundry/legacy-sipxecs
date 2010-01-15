@@ -130,7 +130,6 @@ public class CpRetrieve {
         for(;;) {
             if(firstTime) {
                 dlg = new CpDialog(m_vm, "login_mailbox", null, "login_delay_help");
-                dlg.setPrePromptList("welcome");
             } else {
                 dlg = new CpDialog(m_vm, null, null, "login_delay_help");
             }

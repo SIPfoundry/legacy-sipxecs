@@ -51,12 +51,18 @@ public class Deposit {
         return m_depositMap.get(user.getUserName());
     }
     
-    private void sendIM(User user, String instantMsg) {
+    private void sendIM(User user, boolean vmEntry, String instantMsg) {
         URL sendIMUrl;
         try {
-            sendIMUrl = new URL(IvrConfiguration.get().getSendIMUrl() + "/" +
-                                    user.getUserName() + "/SendIM");
+            if(vmEntry) {
+                sendIMUrl = new URL(IvrConfiguration.get().getSendIMUrl() + "/" +
+                                    user.getUserName() + "/SendVMEntryIM");
             
+            } else {
+                sendIMUrl = new URL(IvrConfiguration.get().getSendIMUrl() + "/" +
+                        user.getUserName() + "/SendVMExitIM");
+            }
+                
             RemoteRequest rr = new RemoteRequest(sendIMUrl, "text/plain", instantMsg);
             if (!rr.http()) {
                 LOG.error("Deposit::sendIM Trouble with RemoteRequest "+ rr.getResponse());
@@ -69,13 +75,13 @@ public class Deposit {
     private void putChannelUUID(User user, String uuid) {
         m_depositMap.put(user.getUserName(), uuid);     
         
-        sendIM(m_mailbox.getUser(), m_fses.getVariable("channel-caller-id-name") +
+        sendIM(m_mailbox.getUser(), true, m_fses.getVariable("channel-caller-id-name") +
         " is leaving a message.");
     }
     
     private void clearChannelUUID(User user) {
         if(m_depositMap.remove(user.getUserName()) != null) {
-            sendIM(m_mailbox.getUser(), m_fses.getVariable("channel-caller-id-name") +
+            sendIM(m_mailbox.getUser(), false, m_fses.getVariable("channel-caller-id-name") +
             " is no longer leaving a message.");
         }
     }
