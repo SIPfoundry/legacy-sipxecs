@@ -193,12 +193,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     static void initializeLogging() throws SipXOpenfirePluginException {
         try {
-            String javaClassPaths = System.getProperty("java.class.path");
-            String openfireHome = System.getProperty("openfire.home");
-            StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome
-                    + "/lib/sipxcommons.jar");
-            System.setProperty("java.class.path", sb.toString());
-
             // Configure log4j
             Properties props = new Properties();
             props.setProperty("log4j.rootLogger", "warn, file");

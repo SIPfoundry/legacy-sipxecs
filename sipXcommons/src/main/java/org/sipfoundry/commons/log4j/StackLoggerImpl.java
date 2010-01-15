@@ -145,9 +145,10 @@ public class StackLoggerImpl implements StackLogger {
         this.stackProperties = properties;
         Enumeration appenders = this.logger.getAllAppenders();
         Logger newLogger = Logger.getLogger(properties.getProperty("javax.sip.STACK_NAME"));
-        while (appenders.hasMoreElements() ) {
-            newLogger.addAppender( (Appender)appenders.nextElement());
-              
+        if (appenders != null) {
+            while (appenders.hasMoreElements() ) {
+                newLogger.addAppender( (Appender)appenders.nextElement());
+            }  
         }
         newLogger.setLevel(this.logger.getLevel());
         this.logger = newLogger;
