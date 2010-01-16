@@ -16,7 +16,8 @@
     <form jwcid="form@Form" delegate="bean:validator">
       <span jwcid="userForm@user/UserForm"
         user="ognl:user"
-        alwaysShowSipPassword="true" />
+        alwaysShowSipPassword="true"
+        availableGroups="ognl:availableGroups"/>
       <checkbox jwcid="stay@Checkbox" value="ognl:stay"/> <span key="createAnother">Another user?</span>
       <ul jwcid="formActions@common/FormActions"
         callback="ognl:callback"

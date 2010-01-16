@@ -14,7 +14,7 @@
 		user_id="1000"/>
 	<phone 
 		serial_number="999123457789"
-		phone_id="2" 
+		phone_id="1001"
 		description="unittest-sample phone2" 
 		bean_id="testPhone"
       model_id="testPhoneModel"/>	

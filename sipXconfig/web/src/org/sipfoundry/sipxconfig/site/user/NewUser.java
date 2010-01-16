@@ -76,6 +76,10 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
 
     public abstract String getButtonPressed();
 
+    public List<Group> getAvailableGroups() {
+        return getCoreContext().getGroups();
+    }
+
     public IPage commit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;

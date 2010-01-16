@@ -228,6 +228,7 @@
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="settingDao" ref="settingDao" />
   </bean>
 
   <bean id="registrationContext"
@@ -264,6 +265,7 @@
   <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
     <property name="configurationFile" ref="contactInformationConfig" />
+    <property name="settingDao" ref="settingDao" />
   </bean>
 
 </beans>

@@ -23,6 +23,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -113,6 +114,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
         checkImIdUnique(user);
         checkMaxUsers(user, m_maxUserCount);
+        assignBranch(user);
 
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
@@ -433,6 +435,24 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 
+    public List<Group> getAvailableGroups(User user) {
+        List<Group> allGroups = getGroups();
+        List<Group> availableGroups = new ArrayList<Group>();
+        for (Group group : allGroups) {
+            if (user.isGroupAvailable(group)) {
+                availableGroups.add(group);
+            }
+        }
+        return availableGroups;
+    }
+
+    private void assignBranch(User user) {
+        Branch inheritedBranch = user.getInheritedBranch();
+        if (inheritedBranch != null) {
+            user.setBranch(inheritedBranch);
+        }
+    }
+
     public Group getGroupById(Integer groupId) {
         List<Group> groups = m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
         for (Group group : groups) {
@@ -507,6 +527,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 Collection<User> users = getGroupMembers(group);
                 for (User user : users) {
+                    if (user.getInheritedBranch() != null) {
+                        user.setBranch(null);
+                    }
                     Object[] ids = new Object[] {
                         group.getId()
                     };
@@ -536,7 +559,17 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
     }
 
-    public void onSave(Object entity_) {
+    public void onSave(Object entity) {
+        if (entity instanceof Group) {
+            Group group = (Group) entity;
+            if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
+                Collection<User> users = getGroupMembers(group);
+                for (User user : users) {
+                    user.setBranch(group.getBranch());
+                    saveUser(user);
+                }
+            }
+        }
     }
 
     public boolean isAliasInUse(String alias) {

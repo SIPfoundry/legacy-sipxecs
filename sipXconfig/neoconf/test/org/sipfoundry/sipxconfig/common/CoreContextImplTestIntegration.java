@@ -12,7 +12,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.im.ExternalImAccount;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 /**
  * Contains Integration tests. All tests from CoreContextImplTestDb should be moved here and
@@ -20,6 +24,8 @@ import org.sipfoundry.sipxconfig.im.ExternalImAccount;
  */
 public class CoreContextImplTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
+    private BranchManager m_branchManager;
+    private SettingDao m_settingDao;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -145,5 +151,33 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         externalImAccounts = user.getExternalImAccounts();
         assertNotNull(externalImAccounts);
         assertEquals(2, externalImAccounts.size());
+    }
+
+    public void testAvailableGroups() {
+        loadDataSet("common/UserGroupAvailable.db.xml");
+        User user = m_coreContext.loadUser(1001);
+        List<Group> groups = m_coreContext.getAvailableGroups(user);
+        assertEquals(3, groups.size());
+        for (Group group : groups) {
+            assertTrue(group.getId() == null || group.getId() == 1001 ||
+                    group.getId() == 1002 || group.getId() == 1004);
+        }
+    }
+
+    public void testInheritedBranch() {
+        loadDataSet("common/UserGroupAvailable.db.xml");
+        User user = m_coreContext.loadUser(1001);
+        Branch branch = m_branchManager.getBranch(101);
+        user.setBranch(branch);
+        m_coreContext.saveUser(user);
+        assertEquals(100, user.getBranch().getId().intValue());
+    }
+
+    public void setBranchManager(BranchManager branchManager) {
+        m_branchManager = branchManager;
+    }
+
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 }

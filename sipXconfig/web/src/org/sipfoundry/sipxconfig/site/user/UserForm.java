@@ -20,12 +20,14 @@ import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.ComponentClass;
+import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -36,9 +38,8 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
     public abstract ExtensionPoolContext getExtensionPoolContext();
 
+    @Parameter(required = true)
     public abstract User getUser();
-
-    public abstract void setUser(User user);
 
     public abstract String getPin();
 
@@ -51,6 +52,9 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
     public abstract String getGroupsString();
 
     public abstract void setGroupsString(String groups);
+
+    @Parameter(required = true)
+    public abstract List<Group> getAvailableGroups();
 
     // Update the User object if input data is valid
     @Override

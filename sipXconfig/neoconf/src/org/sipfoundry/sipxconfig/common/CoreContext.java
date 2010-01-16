@@ -167,4 +167,6 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
     ExternalImAccount getExternalAccountById(Integer id);
 
     void saveExternalAccount(ExternalImAccount account);
+
+    List<Group> getAvailableGroups(User user);
 }

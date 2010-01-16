@@ -2,8 +2,6 @@
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm">
   <description>UserForm shows/edits a User</description>
-
-  <parameter name="user" required="yes"/>
   <parameter name="alwaysShowSipPassword" default-value="false"/>
 
   <!--
@@ -81,10 +79,6 @@
     <binding name="field" value="components.groupsX"/>
     <binding name="label" value="message:label.groups"/>
     <binding name="description" value="message:description.groups"/>
-  </component>
-  <component id="groups" type="common/GroupMultiSelect">
-    <binding name="value" value="groupsString"/>
-    <binding name="source" value="coreContext.groups"/>
   </component>
   <component id="aliasesPanel" type="common/FieldPanel">
     <binding name="field" value="components.aliases"/>

@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -19,6 +21,7 @@ public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
 
+    @Override
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
@@ -29,10 +32,18 @@ public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         TestHelper.cleanInsertFlat("phone/PhoneSummarySeed.xml");
 
-        Collection summaries = m_context.loadPhones();
+        List<Phone> summaries = m_context.loadPhones();
+
+        Comparator<Phone> idSort = new Comparator<Phone>() {
+            public int compare(Phone phone1, Phone phone2){
+                return phone1.getId() - phone2.getId();
+            }
+        };
+
+        Collections.sort(summaries, idSort);
 
         assertEquals(3, summaries.size());
-        Phone[] summariesArray = (Phone[]) summaries.toArray(new Phone[0]);
+        Phone[] summariesArray = summaries.toArray(new Phone[0]);
 
         assertEquals("unittest-sample phone1", summariesArray[0].getDescription());
         assertEquals(1, summariesArray[0].getLines().size());

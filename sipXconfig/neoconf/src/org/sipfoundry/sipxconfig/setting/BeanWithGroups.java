@@ -93,6 +93,21 @@ public abstract class BeanWithGroups extends BeanWithSettings {
         return getGroupsAsString(getGroups());
     }
 
+    /**
+     * Determines if a group can be added in the list of groups. If this group has a
+     * different branch than an existing group it cannot be added
+     * @return
+     */
+    public boolean isGroupAvailable(Group group) {
+        for (Group tmpGroup : getGroups()) {
+            if (tmpGroup.getBranch() != null && group.getBranch() != null
+                    && !StringUtils.equals(tmpGroup.getBranch().getName(), group.getBranch().getName())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void addGroup(Group tag) {
         getGroups().add(tag);
     }

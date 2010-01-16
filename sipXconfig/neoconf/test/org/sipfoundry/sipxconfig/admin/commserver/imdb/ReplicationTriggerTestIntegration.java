@@ -14,7 +14,10 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -33,6 +36,8 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private SettingDao m_dao;
     private CoreContext m_coreContext;
     private BranchManager m_branchManager;
+    private ConfigurationFile m_contactInformationConfig;
+    private ContactInformationDaoListener m_contactInformationDaoListener;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -58,6 +63,9 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     protected void onTearDownAfterTransaction() throws Exception {
         // restore trigger state...
         m_trigger.setReplicationContext(m_originalSipxReplicationContext);
+        m_contactInformationDaoListener.
+            setSipxReplicationContext(m_originalSipxReplicationContext);
+
     }
 
     /**
@@ -148,12 +156,34 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generate(DataSet.USER_LOCATION);
+        replicationContext.replicate(m_contactInformationConfig);
         replay(replicationContext);
+        m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
         m_trigger.setReplicationContext(replicationContext);
 
         Collection<Integer> allSelected = new ArrayList<Integer>();
         allSelected.add(1000);
         m_branchManager.deleteBranches(allSelected);
+
+        verify(replicationContext);
+    }
+
+    /**
+     * Tests that replication is triggered when branch with users is saved
+     */
+    public void testSaveBranchWithUser() throws Exception {
+        loadDataSet("branch/attached_branches.db.xml");
+
+        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        replicationContext.generate(DataSet.USER_LOCATION);
+        replicationContext.replicate(m_contactInformationConfig);
+        replay(replicationContext);
+        m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
+        m_trigger.setReplicationContext(replicationContext);
+
+        Branch branch = m_branchManager.getBranch(1000);
+
+        m_branchManager.saveBranch(branch);
 
         verify(replicationContext);
     }
@@ -172,4 +202,33 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
         verify(replicationContext);
     }
+
+    /**
+     * Tests that no replication when branch without users is saved
+     */
+    public void testSaveBranchesWithoutUser() throws Exception {
+        loadDataSet("branch/branches.db.xml");
+
+        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        replay(replicationContext);
+        m_trigger.setReplicationContext(replicationContext);
+
+        Branch branch = m_branchManager.getBranch(1);
+        m_branchManager.saveBranch(branch);
+
+        Branch newBranch = new Branch();
+        newBranch.setUniqueId();
+        m_branchManager.saveBranch(newBranch);
+
+        verify(replicationContext);
+    }
+
+    public void setContactInformationConfig(ConfigurationFile contactInformationConfig) {
+        m_contactInformationConfig = contactInformationConfig;
+    }
+
+    public void setContactInformationDaoListener(ContactInformationDaoListener contactInformationDaoListener) {
+        m_contactInformationDaoListener = contactInformationDaoListener;
+    }
+
 }
