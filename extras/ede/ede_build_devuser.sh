@@ -277,7 +277,7 @@ uninstall_sipxecs_rpms
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)
-SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire kraken"
+SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
 
 # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
 # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.
@@ -358,8 +358,8 @@ if [ $BUILD_ALL_DEPENDENCIES ]; then
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       DISTRO=f10
    fi
-   # Manually add sipx-openfire and kraken, since they aren't listed in the CUSTOM_PACKAGES of the lib/Makefile.
-   DEPENDENCY_TARGET="$DISTRO sipx-openfire kraken"
+   # Manually add sipx-openfire, since it's listed in the CUSTOM_PACKAGES of the lib/Makefile.
+   DEPENDENCY_TARGET="$DISTRO sipx-openfire"
    BUILD_DEPENDENCY_TARGET="yup"
 else
    if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
