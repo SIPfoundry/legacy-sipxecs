@@ -89,22 +89,12 @@
 			</td>
             <td/>
 		  </tr>
-          <tr>
-            <td>
-              <span jwcid="csrLabel@FieldLabel"
-				    field="component:csr"/>
-			</td>
-            <td>
-              <span jwcid="csr@TextArea"
-				    value="ognl:csr"
-				    displayName="message:label.csr"
-				    readonly="ognl:true"
-				    rows="16"
-				    cols="65"/>
-			</td>
-		  </tr>
         </table>
-	  </fieldset>
+      </fieldset>
+      <span key="label.csr" renderTag="false"/><br/>
+      <textarea id="csrText" rows="16" readonly="readonly" class="textBox">
+<span jwcid="@Insert" value="ognl:csr"/>
+      </textarea>
     </form>
   </div>
   <div jwcid="importTab@Block">
