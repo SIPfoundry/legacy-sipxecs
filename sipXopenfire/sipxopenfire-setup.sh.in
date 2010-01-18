@@ -17,6 +17,10 @@ then
    chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
    chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
    chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@ 2> /dev/null
+
+   # Remove all softlinks under @OPENFIRE_HOME@/lib
+   find @OPENFIRE_HOME@/lib -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f 2> /dev/null
+
    rm  -f @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
    rm  -f @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
    ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null

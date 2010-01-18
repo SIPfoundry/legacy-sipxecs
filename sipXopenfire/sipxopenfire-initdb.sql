@@ -419,18 +419,6 @@ INSERT INTO ofProperty (name, propValue)
 INSERT INTO ofProperty (name, propValue)
  VALUES('xmpp.client.idle','0');
 
--- Kraken 1.1.2 workaround: Required to be activated immediately to prevent logging from getting disabled
-INSERT INTO ofProperty (name, propValue)
- VALUES('plugin.gateway.irc.enabled','true');
-
--- Kraken 1.1.2 workaround: Required to be activated immediately to prevent logging from getting disabled
-INSERT INTO ofProperty (name, propValue)
- VALUES('plugin.gateway.yahoo.enabled','true');
-
--- Kraken 1.1.2 workaround: Required to be activated immediately to prevent logging from getting disabled
-INSERT INTO ofProperty (name, propValue)
- VALUES('plugin.gateway.myspaceim.enabled','true');
-
 -- Uncomment to enable file tranfer proxy
 -- INSERT INTO ofProperty (name, propValue)
 --  VALUES('xmpp.proxy.enabled','true');

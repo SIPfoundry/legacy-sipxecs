@@ -89,6 +89,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     public static final String CONFERENCE_EXTENSION = "conferenceExtension";
 
+    private static final String PLUGIN_PATH = "sipx-openfire-presence";
+
     private static Logger log = Logger.getLogger(SipXOpenfirePlugin.class);
 
     private static SipXOpenfirePlugin instance;
@@ -193,6 +195,16 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     static void initializeLogging() throws SipXOpenfirePluginException {
         try {
+            String javaClassPaths = System.getProperty("java.class.path");
+            String openfireHome = System.getProperty("openfire.home");
+
+            // Library libhostname.so does not get automatically added to the classpath
+            // probably because the file extension does not match the *.jar pattern
+            StringBuilder sb = new StringBuilder(javaClassPaths).append(":" + openfireHome
+                + "/plugins/" + SipXOpenfirePlugin.PLUGIN_PATH
+                + "/lib/libhostname.so");
+            System.setProperty("java.class.path", sb.toString());
+
             // Configure log4j
             Properties props = new Properties();
             props.setProperty("log4j.rootLogger", "warn, file");
