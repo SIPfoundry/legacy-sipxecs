@@ -87,10 +87,9 @@ public class SipXauthIdentity {
         }
 
         logger.debug("SipXauthIdentity.insert '" + identity + "' into " + headerName);
-        // make sure no existing identity in the message
-        // TODO (requires stack change)
-        // remove(message, headerName);
-        // ProtocolObjects.headerFactory.removeHeader(message, headerName);
+
+        // make sure there is no existing identity in the message
+        message.removeHeader(headerName);
 
         // set Call-Id and from-tag for the signature calculation
         String callId = SipUtilities.getCallId(message);
