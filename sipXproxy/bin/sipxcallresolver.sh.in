@@ -83,7 +83,7 @@ configOdbcDrivers() {
 # Included in the unixODBC package
 [PostgreSQL]
 Description = ODBC for PostgreSQL
-Driver = ${LibOdbcDir}/libodbcpsql.so
+Driver = ${LibOdbcDir}/psqlodbc.so
 Setup = ${LibOdbcDir}/libodbcpsqlS.so
 FileUsage = 1
 EOF
