@@ -692,16 +692,16 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_301", new PhoneModel("polycom300", "SoundPoint IP 301"));
 
         PHONE_MODEL_MAP.put("SPIP_320", new PhoneModel("polycom330", "SoundPoint IP 320"));
-        PHONE_MODEL_MAP.put("SPIP_321", new PhoneModel("polycom321", "SoundPoint IP 321"));
         PHONE_MODEL_MAP.put("SPIP_330", new PhoneModel("polycom330", "SoundPoint IP 330"));
-<<<<<<< HEAD
-        PHONE_MODEL_MAP.put("SPIP_331", new PhoneModel("polycom330", "SoundPoint IP 331"));
-        PHONE_MODEL_MAP.put("SPIP_335", new PhoneModel("polycom335", "SoundPoint IP 335"));
-=======
+
+        PHONE_MODEL_MAP.put("SPIP_321", new PhoneModel("polycom321", "SoundPoint IP 321"));
+
         PHONE_MODEL_MAP.put("SPIP_331", new PhoneModel("polycom331", "SoundPoint IP 331"));
->>>>>>> XX-7225 - Adjust auto-provision for Polycom 321 and 331 to use the new sipXconfig model IDs - updated 321 and 331 polycom model phones to map to polycom321 and polycom331 models
+
+        PHONE_MODEL_MAP.put("SPIP_335", new PhoneModel("polycom335", "SoundPoint IP 335"));
 
         PHONE_MODEL_MAP.put("SPIP_430", new PhoneModel("polycom430", "SoundPoint IP 430"));
+
         PHONE_MODEL_MAP.put("SPIP_450", new PhoneModel("polycom450", "SoundPoint IP 450"));
 
         PHONE_MODEL_MAP.put("SPIP_500", new PhoneModel("polycom500", "SoundPoint IP 500"));
