@@ -15,12 +15,12 @@ import static java.util.Collections.singleton;
 
 import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyConfig;
 
@@ -210,7 +210,6 @@ public class ServiceConfiguratorImplTest extends TestCase {
         LocationsManager lm = createMock(LocationsManager.class);
         DialPlanActivationManager dm = createMock(DialPlanActivationManager.class);
         DomainManager domainManager = createMock(DomainManager.class);
-        AlarmServerManager ac = createMock(AlarmServerManager.class);
 
         lm.getLocations();
         expectLastCall().andReturn(new Location[] {
@@ -218,11 +217,16 @@ public class ServiceConfiguratorImplTest extends TestCase {
         }).anyTimes();
 
         SipxSupervisorService sipxSupervisorService = new SipxSupervisorService();
-
         sipxSupervisorService.setConfigurations(asList(a, b, c));
-
         sm.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
         expectLastCall().andReturn(sipxSupervisorService).anyTimes();
+
+        AlarmContext alarmContext = createMock(AlarmContext.class);
+        SipxAlarmService alarmService = new SipxAlarmService();
+        alarmService.setConfigurations(asList(a, b, c));
+        alarmService.setAlarmContext(alarmContext);
+        sm.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        expectLastCall().andReturn(alarmService).anyTimes();
 
         rc.generateAll();
         expectLastCall().anyTimes();
@@ -231,35 +235,34 @@ public class ServiceConfiguratorImplTest extends TestCase {
         expectLastCall().times(1);
 
         rc.replicate(same(location1), same(a));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         rc.replicate(same(location1), same(b));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         rc.replicate(same(location1), same(c));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         cvm.setConfigVersion(same(service), same(location1));
         cvm.setConfigVersion(same(sipxSupervisorService), same(location1));
+        cvm.setConfigVersion(same(alarmService), same(location1));
 
         rc.replicate(same(location2), same(a));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         rc.replicate(same(location2), same(b));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         rc.replicate(same(location2), same(c));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         cvm.setConfigVersion(same(service), same(location2));
         cvm.setConfigVersion(same(sipxSupervisorService), same(location2));
+        cvm.setConfigVersion(same(alarmService), same(location2));
 
         pc.markServicesForRestart(singleton(service));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
         pc.markServicesForRestart(singleton(sipxSupervisorService));
-        expectLastCall().times(2);
+        expectLastCall().times(3);
 
         domainManager.replicateDomainConfig(rc, location1);
         domainManager.replicateDomainConfig(rc, location2);
 
-        ac.replicateAlarmServer(rc, location1);
-        ac.replicateAlarmServer(rc, location2);
-
-        replay(lm, pc, rc, cvm, dm, sm, domainManager, ac);
+        replay(lm, pc, rc, cvm, dm, sm, domainManager);
 
         sc.setSipxProcessContext(pc);
         sc.setSipxReplicationContext(rc);
@@ -268,11 +271,10 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.setDialPlanActivationManager(dm);
         sc.setSipxServiceManager(sm);
         sc.setDomainManager(domainManager);
-        sc.setAlarmServerManager(ac);
 
         sc.replicateAllServiceConfig();
 
-        verify(lm, pc, rc, cvm, dm, sm, domainManager, ac);
+        verify(lm, pc, rc, cvm, dm, sm, domainManager);
         assertEquals("replicatedOnLocation", service.getTestString());
     }
 

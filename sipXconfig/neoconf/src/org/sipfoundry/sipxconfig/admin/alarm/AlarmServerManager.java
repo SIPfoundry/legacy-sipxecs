@@ -13,9 +13,6 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-
 public interface AlarmServerManager {
     AlarmServer getAlarmServer();
 
@@ -33,9 +30,11 @@ public interface AlarmServerManager {
 
     void clear();
 
-    void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms, List<AlarmGroup> alarmGroups);
-
-    void replicateAlarmServer(SipxReplicationContext replicationContext, Location location);
+    void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
     List<Alarm> getAlarmTypes();
+
+    String getLogDirectory();
+
+    String getHost();
 }

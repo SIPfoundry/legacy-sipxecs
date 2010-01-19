@@ -9,40 +9,50 @@
  */
 package org.sipfoundry.sipxconfig.admin.alarm;
 
-import java.io.InputStream;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import static java.util.Arrays.asList;
 
-import junit.framework.TestCase;
-import org.apache.commons.io.IOUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxAlarmService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
-public class AlarmGroupsConfigurationTest extends TestCase {
+public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
+    private AlarmGroupsConfiguration m_alarmGroupsConf;
+
+    @Override
+    public void setUp() throws Exception {
+        m_alarmGroupsConf = new AlarmGroupsConfiguration();
+        m_alarmGroupsConf.setVelocityEngine(TestHelper.getVelocityEngine());
+        m_alarmGroupsConf.setTemplate("alarms/alarm-groups.vm");
+
+        SipxAlarmService alarmService = new SipxAlarmService();
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(alarmService).anyTimes();
+        EasyMock.replay(sipxServiceManager);
+        m_alarmGroupsConf.setSipxServiceManager(sipxServiceManager);
+    }
+
     public void testGenerateAlarmServer() throws Exception {
-        AlarmGroupsConfiguration alarmGroupsConf = new AlarmGroupsConfiguration();
-        alarmGroupsConf.setVelocityEngine(TestHelper.getVelocityEngine());
-        alarmGroupsConf.setTemplate("alarms/alarm-groups.vm");
-
         AlarmGroup group1 = new AlarmGroup();
         group1.setName("emergency");
         group1.setEmailAddresses(asList("test_email1@example.com"));
         group1.setSmsAddresses(asList("test_sms1@example.com"));
 
-        alarmGroupsConf.generate(asList(group1));
+        AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
+        alarmServerManager.getAlarmGroups();
+        EasyMock.expectLastCall().andReturn(asList(group1)).anyTimes();
+        EasyMock.replay(alarmServerManager);
+        m_alarmGroupsConf.setAlarmServerManager(alarmServerManager);
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(alarmGroupsConf, null);
-        InputStream referenceXmlStream = getClass().getResourceAsStream("alarm-groups-test.xml");
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        assertCorrectFileGeneration(m_alarmGroupsConf, "alarm-groups-test.xml");
     }
 
     public void testGenerateAlarmServerWithUsers() throws Exception {
-        AlarmGroupsConfiguration alarmGroupsConf = new AlarmGroupsConfiguration();
-        alarmGroupsConf.setVelocityEngine(TestHelper.getVelocityEngine());
-        alarmGroupsConf.setTemplate("alarms/alarm-groups.vm");
-
         User user1 = new User();
         user1.setUniqueId();
         user1.setEmailAddress("test_email1@example.com");
@@ -59,10 +69,12 @@ public class AlarmGroupsConfigurationTest extends TestCase {
         group1.setName("emergency");
         group1.setUsers(users);
 
-        alarmGroupsConf.generate(asList(group1));
+        AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
+        alarmServerManager.getAlarmGroups();
+        EasyMock.expectLastCall().andReturn(asList(group1)).anyTimes();
+        EasyMock.replay(alarmServerManager);
+        m_alarmGroupsConf.setAlarmServerManager(alarmServerManager);
 
-        String generatedXml = AbstractConfigurationFile.getFileContent(alarmGroupsConf, null);
-        InputStream referenceXmlStream = getClass().getResourceAsStream("alarm-groups-users-test.xml");
-        assertEquals(IOUtils.toString(referenceXmlStream), generatedXml);
+        assertCorrectFileGeneration(m_alarmGroupsConf, "alarm-groups-users-test.xml");
     }
 }

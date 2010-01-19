@@ -71,7 +71,6 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="domainManager" ref="domainManager" />
-    <property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -747,4 +746,15 @@
     <property name="template" value="sipxprovision/sipxprovision-config.vm" />
   </bean>
 
+  <bean id="sipxAlarmService" class="org.sipfoundry.sipxconfig.service.SipxAlarmService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="sipxsupervisor" />
+    <property name="alarmContext" ref="alarmContext" />
+    <property name="configurations">
+      <list>
+        <ref bean="alarmServerConfiguration" />
+        <ref bean="alarmGroupsConfiguration" />
+      </list>
+    </property>
+  </bean>
 </beans>

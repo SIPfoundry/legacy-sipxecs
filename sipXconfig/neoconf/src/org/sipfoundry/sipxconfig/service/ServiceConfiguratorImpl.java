@@ -23,7 +23,6 @@ import static java.util.Collections.singleton;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -52,8 +51,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private SipxServiceManager m_sipxServiceManager;
 
     private DomainManager m_domainManager;
-
-    private AlarmServerManager m_alarmServerManager;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -220,8 +217,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
             replicateServiceConfig(location, supervisorService);
 
-            // replicate alarm server. alarm server should be re-implemented as a sipx service
-            m_alarmServerManager.replicateAlarmServer(m_replicationContext, location);
+            // replicate alarm server
+            SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+            replicateServiceConfig(location, alarmService);
         }
 
         generateDataSets();
@@ -284,11 +282,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     @Required
     public void setDomainManager(DomainManager domainManager) {
         m_domainManager = domainManager;
-    }
-
-    @Required
-    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
-        m_alarmServerManager = alarmServerManager;
     }
 
     public void markServiceForRestart(SipxService service) {

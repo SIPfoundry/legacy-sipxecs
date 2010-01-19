@@ -7,6 +7,8 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="commserver/alarm-config.vm" />
     <property name="name" value="alarm-config.xml" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 
   <bean id="alarmsConfiguration" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmConfiguration" scope="prototype"
@@ -21,14 +23,16 @@
     <property name="velocityEngine" ref="velocityEngine" />
     <property name="template" value="alarms/alarm-groups.vm" />
     <property name="name" value="alarm-groups.xml" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="alarmServerManager" ref="alarmServerManager" />
   </bean>
 
   <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="alarmServerConfiguration" ref="alarmServerConfiguration" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="alarmsConfiguration" ref="alarmsConfiguration" />
-    <property name="alarmGroupsConfiguration" ref="alarmGroupsConfiguration" />
     <property name="locationsManager" ref="locationsManager" />
     <property name="sipxUser" value="${sysdir.user}" />
     <property name="logDirectory" value="${sysdir.log}" />

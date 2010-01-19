@@ -54,12 +54,14 @@ public class FirstRunTask implements ApplicationListener {
         m_domainManager.initializeDomain();
         m_coreContext.initializeSpecialUsers();
 
-        // create paging server, default dial plan and default Sbc
+        // create paging server, default dial plan, default Sbc and alarm server
         // all of these need to exist before we start replication
         m_pagingContext.getPagingServer();
         m_resetDialPlanTask.reset(false);
         m_sbcManager.loadDefaultSbc();
+
         m_alarmServerManager.getAlarmGroups();
+        m_alarmServerManager.getAlarmServer();
 
         enforceRoles();
         generateAllProfiles();

@@ -10,12 +10,15 @@
 package org.sipfoundry.sipxconfig.admin.alarm;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
-public class AlarmServerConfiguration extends TemplateConfigurationFile {
+public class AlarmServerConfiguration extends SipxServiceConfiguration {
+    private AlarmServerManager m_alarmServerManager;
+
     private boolean m_emailNotificationEnabled;
 
     private String m_fromEmailAddress;
@@ -24,15 +27,18 @@ public class AlarmServerConfiguration extends TemplateConfigurationFile {
 
     private String m_hostName;
 
-    public void generate(AlarmServer alarmServer, String logDirectory, String hostName) {
+    private void generate() {
+        AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
+        String host = m_alarmServerManager.getHost();
         m_emailNotificationEnabled = alarmServer.isEmailNotificationEnabled();
-        m_fromEmailAddress = defaultIfEmpty(alarmServer.getFromEmailAddress(), "postmaster@" + hostName);
-        m_logDirectory = logDirectory;
-        m_hostName = hostName;
+        m_fromEmailAddress = defaultIfEmpty(alarmServer.getFromEmailAddress(), "postmaster@" + host);
+        m_logDirectory = m_alarmServerManager.getLogDirectory();
+        m_hostName = host;
     }
 
     @Override
     protected VelocityContext setupContext(Location location) {
+        generate();
         VelocityContext context = super.setupContext(location);
         context.put("email", m_emailNotificationEnabled);
         context.put("fromEmailAddress", m_fromEmailAddress);
@@ -40,5 +46,10 @@ public class AlarmServerConfiguration extends TemplateConfigurationFile {
         context.put("hostName", m_hostName);
 
         return context;
+    }
+
+    @Required
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 }

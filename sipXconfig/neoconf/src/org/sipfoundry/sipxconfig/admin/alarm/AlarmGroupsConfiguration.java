@@ -14,14 +14,18 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.velocity.VelocityContext;
-import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
+import org.springframework.beans.factory.annotation.Required;
 
-public class AlarmGroupsConfiguration extends TemplateConfigurationFile {
+public class AlarmGroupsConfiguration extends SipxServiceConfiguration {
+    private AlarmServerManager m_alarmServerManager;
+
     private List<AlarmGroup> m_alarmGroups;
 
-    public void generate(List<AlarmGroup> alarmGroups) {
+    private void generate() {
+        List<AlarmGroup> alarmGroups = m_alarmServerManager.getAlarmGroups();
         for (AlarmGroup group : alarmGroups) {
             List<String> userEmailAddresses = new ArrayList<String>();
             Set<User> users = group.getUsers();
@@ -43,8 +47,14 @@ public class AlarmGroupsConfiguration extends TemplateConfigurationFile {
 
     @Override
     protected VelocityContext setupContext(Location location) {
+        generate();
         VelocityContext context = super.setupContext(location);
         context.put("groups", m_alarmGroups);
         return context;
+    }
+
+    @Required
+    public void setAlarmServerManager(AlarmServerManager alarmServerManager) {
+        m_alarmServerManager = alarmServerManager;
     }
 }

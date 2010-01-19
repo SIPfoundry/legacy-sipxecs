@@ -104,7 +104,6 @@ public abstract class AlarmsPage extends BasePage implements PageBeginRenderList
     }
 
     public void activate() {
-        getAlarmServerManager().deployAlarmConfiguration(getAlarmServer(), getAlarms(),
-                getAlarmServerManager().getAlarmGroups());
+        getAlarmServerManager().deployAlarmConfiguration(getAlarmServer(), getAlarms());
     }
 }

@@ -30,6 +30,10 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxAlarmService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -44,9 +48,9 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private static final String GROUP_NAME_DEFAULT = "default";
 
     private SipxReplicationContext m_replicationContext;
-    private AlarmServerConfiguration m_alarmServerConfiguration;
+    private SipxServiceManager m_sipxServiceManager;
+    private ServiceConfigurator m_serviceConfigurator;
     private AlarmConfiguration m_alarmsConfiguration;
-    private AlarmGroupsConfiguration m_alarmGroupsConfiguration;
     private String m_sipxUser;
     private String m_logDirectory;
     private String m_configDirectory;
@@ -64,18 +68,18 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     @Required
-    public void setAlarmServerConfiguration(AlarmServerConfiguration alarmServerConfiguration) {
-        m_alarmServerConfiguration = alarmServerConfiguration;
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 
     @Required
     public void setAlarmsConfiguration(AlarmConfiguration alarmConfiguration) {
         m_alarmsConfiguration = alarmConfiguration;
-    }
-
-    @Required
-    public void setAlarmGroupsConfiguration(AlarmGroupsConfiguration alarmGroupsConfiguration) {
-        m_alarmGroupsConfiguration = alarmGroupsConfiguration;
     }
 
     @Required
@@ -112,9 +116,8 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
                 // Remove matching group numbers from alarm before removing the alarm group.
                 clearAlarmStorage(group.getName(), alarms);
                 getHibernateTemplate().delete(group);
-            } else {
-                LOG.info("Cannot delete the default Alarm Group.");
             }
+            replicateAlarmService();
         }
 
     }
@@ -122,6 +125,10 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     @Required
     public void setLogDirectory(String logDirectory) {
         m_logDirectory = logDirectory;
+    }
+
+    public String getLogDirectory() {
+        return m_logDirectory;
     }
 
     @Required
@@ -134,19 +141,29 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_alarmsStringsDirectory = alarmsStringsDirectory;
     }
 
-    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms, List<AlarmGroup> groups) {
+    public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
         // save the alarm codes
         saveAlarmCodes(alarms);
+
         // save alarm server configuration
         saveAlarmServer(server);
-        // replicate new alarm server configuration
-        replicateAlarmServer(m_replicationContext, null);
+
+        // replicate alarm server and alarm groups configurations
+        replicateAlarms(null);
+
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
-        // replicate new alarm groups configuration
-        replicateAlarmGroupsConfiguration(groups);
 
         m_replicationContext.publishEvent(new AlarmServerActivatedEvent(this));
+    }
+
+    private void replicateAlarms(Location location) {
+        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        if (location == null) {
+            m_serviceConfigurator.replicateServiceConfig(alarmService);
+        } else {
+            m_serviceConfigurator.replicateServiceConfig(location, alarmService);
+        }
     }
 
     public AlarmServer getAlarmServer() {
@@ -191,28 +208,12 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         template.flush();
     }
 
-    public void replicateAlarmServer(SipxReplicationContext replicationContext, Location location) {
-        AlarmServer alarmServer = getAlarmServer();
-        m_alarmServerConfiguration.generate(alarmServer, m_logDirectory, getHost());
-
-        if (location == null) {
-            replicationContext.replicate(m_alarmServerConfiguration);
-        } else {
-            replicationContext.replicate(location, m_alarmServerConfiguration);
-        }
-    }
-
     private void replicateAlarmsConfiguration(List<Alarm> alarms) {
         m_alarmsConfiguration.generate(alarms);
         m_replicationContext.replicate(m_alarmsConfiguration);
     }
 
-    private void replicateAlarmGroupsConfiguration(List<AlarmGroup> groups) {
-        m_alarmGroupsConfiguration.generate(groups);
-        m_replicationContext.replicate(m_alarmGroupsConfiguration);
-    }
-
-    private String getHost() {
+    public String getHost() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
@@ -285,6 +286,8 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         }
 
         getHibernateTemplate().saveOrUpdate(group);
+        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        m_serviceConfigurator.replicateServiceConfig(alarmService);
     }
 
     private void checkForDuplicateNames(AlarmGroup group) {
@@ -331,8 +334,14 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
                 Set<User> users = group.getUsers();
                 if (users.remove(user)) {
                     getHibernateTemplate().saveOrUpdate(group);
+                    replicateAlarmService();
                 }
             }
         }
+    }
+
+    private void replicateAlarmService() {
+        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        m_serviceConfigurator.replicateServiceConfig(alarmService);
     }
 }
