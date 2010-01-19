@@ -30,7 +30,8 @@ import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureExcepti
 public class GroupAutoAssign {
 
     private static final Log LOG = LogFactory.getLog(GroupAutoAssign.class);
-    private static final String EXTCONTACTPREFIX = "extcontact/prefix";
+    private static final String CONFERENCE_PREFIX = "conference/prefix";
+    private static final String EXTCONTACT_PREFIX = "extcontact/prefix";
 
     private ConferenceBridgeContext m_bridgeContext;
     private CoreContext m_coreContext;
@@ -81,21 +82,36 @@ public class GroupAutoAssign {
     }
 
     /**
+     * Creates the contact string from the prefix plus the user
+     * .
+     * @param user The new user being created.
+     * @param contactPrefix The contact prefix.
+     * @return The resulting contact string.
+     */
+    private String contactString(User user, SettingValue contactPrefix) {
+        String extension = user.getExtension(true);
+        String extensionOrName = extension == null ? user.getUserName() : extension;
+        String contactStr = contactPrefix + extensionOrName;
+
+        return contactStr;
+    }
+
+    /**
      * Configures the External Contact MWI settings.
      *
      * @param user The user that has just been created.
      * @param extcontactGroup The group containing external contact settings to use.
      */
-    private String createUserExternalMwi(User user, Group extcontactGroup) {
-        SettingValue extcontactPrefixValue = extcontactGroup.getSettingValue(new SettingImpl(EXTCONTACTPREFIX));
-        String extension = user.getExtension(true);
-        String extensionOrName = extension == null ? user.getUserName() : extension;
-        String extcontactExtension = extcontactPrefixValue + extensionOrName;
+    private void createUserExternalMwi(User user, Group extcontactGroup) {
+        SettingValue extContactPrefix = extcontactGroup.getSettingValue(new SettingImpl(EXTCONTACT_PREFIX));
+        String extContact = contactString(user, extContactPrefix);
 
         LOG.debug(String.format("Creating external contact mwi \"%s\", extension %s, for user %s",
-                  user.getUserName(), extcontactExtension, user.getDisplayName()));
+                  user.getUserName(), extContact, user.getDisplayName()));
 
-        return extcontactExtension;
+        MailboxPreferences mailboxPreferences = new MailboxPreferences(user);
+        mailboxPreferences.setExternalMwi(extContact);
+        mailboxPreferences.updateUser(user);
     }
 
     /**
@@ -105,19 +121,17 @@ public class GroupAutoAssign {
      * @param extcontactGroup The group containing external contact settings to use.
      */
     private void createUserCallForward(User user, Group extcontactGroup) {
-        SettingValue extcontactPrefixValue = extcontactGroup.getSettingValue(new SettingImpl(EXTCONTACTPREFIX));
-        String extension = user.getExtension(true);
-        String extensionOrName = extension == null ? user.getUserName() : extension;
-        String extcontactExtension = extcontactPrefixValue + extensionOrName;
+        SettingValue extContactPrefix = extcontactGroup.getSettingValue(new SettingImpl(EXTCONTACT_PREFIX));
+        String extContact = contactString(user, extContactPrefix);
 
         LOG.debug(String.format("Creating external contact fork \"%s\", extension %s, for user %s, id %s",
-                  user.getUserName(), extcontactExtension, user.getDisplayName(), user.getId()));
+                  user.getUserName(), extContact, user.getDisplayName(), user.getId()));
 
         User reloadUser = m_coreContext.loadUser(user.getId());
         CallSequence callSequence = m_forwardingContext.getCallSequenceForUser(reloadUser);
 
         Ring ring = callSequence.insertRing();
-        ring.setNumber(extcontactExtension);
+        ring.setNumber(extContact);
         ring.setExpiration(callSequence.getCfwdTime());
         ring.setType(AbstractRing.Type.IMMEDIATE);
 
@@ -134,7 +148,6 @@ public class GroupAutoAssign {
     private void createUserConference(User user, Group conferenceGroup) {
         SettingValue bridgeIdValue = conferenceGroup.getSettingValue(new SettingImpl("conference/bridgeId"));
         Integer bridgeId = Integer.parseInt(bridgeIdValue.getValue());
-        SettingValue conferencePrefixValue = conferenceGroup.getSettingValue(new SettingImpl("conference/prefix"));
 
         Bridge bridge = null;
         try {
@@ -146,9 +159,8 @@ public class GroupAutoAssign {
         }
 
         if (bridge != null) {
-            String extension = user.getExtension(true);
-            String extensionOrName = extension == null ? user.getUserName() : extension;
-            String conferenceExtension = conferencePrefixValue + extensionOrName;
+            SettingValue conferencePrefix = conferenceGroup.getSettingValue(new SettingImpl(CONFERENCE_PREFIX));
+            String conferenceExtension = contactString(user, conferencePrefix);
 
             Conference userConference = m_bridgeContext.newConference();
             userConference.setExtension(conferenceExtension.toString());
@@ -174,11 +186,7 @@ public class GroupAutoAssign {
     public void assignUserData(User user) {
         Group extcontactGroup = getHighestGroup(user, "extcontact");
         if (extcontactGroup != null) {
-            String extContact = createUserExternalMwi(user, extcontactGroup);
-
-            MailboxPreferences mailboxPreferences = new MailboxPreferences(user);
-            mailboxPreferences.setExternalMwi(extContact);
-            mailboxPreferences.updateUser(user);
+            createUserExternalMwi(user, extcontactGroup);
         }
 
         m_coreContext.saveUser(user);
