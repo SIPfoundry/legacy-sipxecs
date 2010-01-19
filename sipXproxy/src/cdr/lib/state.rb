@@ -45,6 +45,11 @@ class State
   
   def run
     begin
+      # Bump up the thread priority to something higher than the reader threads
+      # that feed the cse_queue.
+      myThread = Thread.current
+      myThread.priority = 2
+      @log.debug("State Thread priority =  #{myThread.priority}") if @log
       while item = @cse_queue.shift
         if item.kind_of?(Array)
           @log.debug("Start #{item[0]}") if @log

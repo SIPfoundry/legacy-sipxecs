@@ -60,9 +60,9 @@ class CseReader < Dao
 
           # If we read less than MAX_CSES then we're done reading for now.
           if ((first_id.to_i + MAX_CSES) > @last_read_id.to_i)
-             @log.debug("Going to sleep. Connection #{@database_url.host}") if @log
+             @log.debug("Going to sleep. Connection #{@database_url.host}:#{@database_url.port}") if @log
              break if @stop.wait
-             @log.debug("Waking up. Connection #{@database_url.host}") if @log
+             @log.debug("Waking up. Connection #{@database_url.host}:#{@database_url.port}") if @log
           end
         end
       end
@@ -78,11 +78,11 @@ class CseReader < Dao
     Thread.current[:exception] = $!
     raise
   ensure
-    @log.debug("Stopping CSE reader - #{@database_url.host}.") if @log
+    @log.debug("Stopping CSE reader - #{@database_url.host}:#{@database_url.port}.") if @log
   end
 
   def stop
-    @log.debug("CSE Reader - #{@database_url.host} - calling stop") if @log
+    @log.debug("CSE Reader - #{@database_url.host}:#{@database_url.port} - calling stop") if @log
     @stop.stop
   end
 
