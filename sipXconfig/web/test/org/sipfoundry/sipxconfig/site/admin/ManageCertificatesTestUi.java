@@ -23,7 +23,7 @@ public class ManageCertificatesTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(getTester());
     }
 
-    public void tmpdisable_testCsrTab() throws Exception {
+    public void testCsrTab() throws Exception {
         SiteTestHelper.assertNoException(getTester());
         clickLink("link:generate");
         setWorkingForm("generateForm");
@@ -33,8 +33,9 @@ public class ManageCertificatesTestUi extends WebTestCase {
         assertFormElementPresent("organization");
         assertFormElementPresent("server:id");
         assertFormElementPresent("email");
-        assertFormElementPresent("csr");
         //TODO enhanced testing
+        // e.g. leave out some form fields, press Generate button, and check that error message is displayed
+        // e.g. fill in all form fields, press Generate button, and check that certificate text is displayed
     }
 
     public void testCrtTab() throws Exception {
