@@ -33,6 +33,7 @@ and AAA services.
 
 %package cdr
 Requires: %name >= %version
+Requires: postgresql-odbc
 Requires: stunnel
 Requires: ruby
 Requires: ruby-dbi
