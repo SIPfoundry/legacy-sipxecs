@@ -69,7 +69,7 @@ public class PolycomLineDefaults {
         } else {
             mohUri = m_defaults.getMusicOnHoldUri();
         }
-        return  SipUri.stripSipPrefix(mohUri);
+        return SipUri.stripSipPrefix(mohUri);
     }
 
     @SettingEntry(path = PolycomPhone.AUTHORIZATION_ID_PATH)
@@ -146,8 +146,4 @@ public class PolycomLineDefaults {
         return m_defaults.getDomainName();
     }
 
-    @SettingEntry(path = "reg/outboundProxy.port")
-    public String getProxyPort() {
-        return m_defaults.getProxyServerSipPort();
-    }
 }
