@@ -34,26 +34,38 @@ public class PhonebookFileEntryTrigger extends InitTaskListener {
         LOG.info("Begining saving entries from existing CSV/vCard files into the table phonebook_file_entry.");
 
         String directory = m_phonebookManager.getExternalUsersDirectory();
+        File dir = new File(directory);
 
-        Map<Integer, String[]> files = m_phonebookManager.getPhonebookFilesName();
+        if (dir.exists()) {
+            Map<Integer, String[]> files = m_phonebookManager.getPhonebookFilesName();
 
-        for (Map.Entry<Integer, String[]> entry : files.entrySet()) {
-            Integer phonebookId = entry.getKey();
-            for (String fileName : entry.getValue()) {
-                if (StringUtils.isBlank(fileName)) {
-                    continue;
-                }
-                try {
-                    File f = new File(directory, fileName);
-                    InputStream fileStream = new FileInputStream(f);
-                    m_phonebookManager.addEntriesFromFile(phonebookId, fileStream);
-                    f.delete();
-                } catch (FileNotFoundException e) {
-                    LOG.warn("File not found error :" + e.getMessage());
+            for (Map.Entry<Integer, String[]> entry : files.entrySet()) {
+                Integer phonebookId = entry.getKey();
+                for (String fileName : entry.getValue()) {
+                    if (StringUtils.isBlank(fileName)) {
+                        continue;
+                    }
+                    try {
+                        File f = new File(directory, fileName);
+                        InputStream fileStream = new FileInputStream(f);
+                        m_phonebookManager.addEntriesFromFile(phonebookId, fileStream);
+                        f.delete();
+                    } catch (FileNotFoundException e) {
+                        LOG.warn("File not found error :" + e.getMessage());
+                    }
                 }
             }
-        }
 
-        m_phonebookManager.removeTableColumns();
+            m_phonebookManager.removeTableColumns();
+
+            if (dir.delete()) {
+                LOG.info("Directory " + directory + "was successfully deleted !");
+            } else {
+                LOG.info("Failed to delete directory " + directory);
+            }
+
+        } else {
+            LOG.info("Phonebook's directory " + directory + " doesn't exist!");
+        }
     }
 }

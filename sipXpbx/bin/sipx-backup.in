@@ -133,7 +133,6 @@ then
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_VARDIR@/configserver/phone/acd/audio/* \
     @SIPX_VARDIR@/parkserver/music/* \
-    @SIPX_VARDIR@/phonebook/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_PAGEMUSICDIR@/* \
     $SIPX_CERTDB_DIR/* \
