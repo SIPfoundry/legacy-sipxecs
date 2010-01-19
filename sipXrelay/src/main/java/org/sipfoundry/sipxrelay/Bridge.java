@@ -31,10 +31,7 @@ final class Bridge implements BridgeInterface {
 
     private boolean started;
 
-    private static Thread dataShufflerThread;
-
-    private static DataShuffler dataShuffler;
-
+   
     private BridgeState state = BridgeState.INITIAL;
 
     private String id;
@@ -49,12 +46,7 @@ final class Bridge implements BridgeInterface {
 
     long packetsSent = 0;
 
-    static {
-        dataShuffler = new DataShuffler();
-        dataShufflerThread = new Thread(dataShuffler);
-        dataShufflerThread.start();
-    }
-
+    
     // ///////////////////////////////////////////////////////////////////////////////////
     // Private methods.
     // ///////////////////////////////////////////////////////////////////////////////////

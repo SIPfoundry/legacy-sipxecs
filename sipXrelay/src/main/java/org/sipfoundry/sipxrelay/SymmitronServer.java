@@ -163,8 +163,15 @@ public class SymmitronServer implements Symmitron {
     static CRLFReceiver crlfReceiver;
 
     static boolean filterStrayPackets = true;
+  
+    private static Thread dataShufflerThread;
+
+    private static DataShuffler dataShuffler;
+
     
     private static ConcurrentHashMap<String,Semaphore> semaphoreLockTable = new ConcurrentHashMap<String,Semaphore>();
+
+    private static long startTime;
     
     static {
         try {
@@ -808,6 +815,10 @@ public class SymmitronServer implements Symmitron {
     public Map<String, Object> signIn(String remoteHandle) {
 
         logger.info("signIn " + remoteHandle);
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - SymmitronServer.startTime < 3000 ) {
+            return createErrorMap(PROCESSING_ERROR,"Initialization in progress");
+        }
         try {
             checkForControllerReboot(remoteHandle);
             return createSuccessMap();
@@ -1805,6 +1816,7 @@ public class SymmitronServer implements Symmitron {
     public static void main(String[] args) throws Exception {
         try {
 
+            SymmitronServer.startTime = System.currentTimeMillis();
             String command = System.getProperty("sipxrelay.command", "start");
             String filterStr = System.getProperty("sipxrelay.filterStrayPackets","true");
             SymmitronServer.filterStrayPackets = filterStr.equalsIgnoreCase("true");
@@ -1818,6 +1830,11 @@ public class SymmitronServer implements Symmitron {
             } else {
                 System.err.println("unknown start option " + command);
             }
+        
+           dataShuffler = new DataShuffler();
+           dataShufflerThread = new Thread(dataShuffler);
+           dataShufflerThread.start();
+          
 
         } catch (Throwable th) {
             System.err.println("Exiting main: Cause :  " + th.getMessage());
