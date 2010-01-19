@@ -72,7 +72,7 @@ public class CpCmd {
     
     public Command CollectMsgCmd() {
         // at this point the user has already entered 7 ..
-        CpDialog cpDialog = new CpDialog(m_vm, null, "mbx_cmd_delay", "mbx_cmd_help");
+        CpDialog cpDialog = new CpDialog(m_vm, null, "msg_cmd_delay", "msg_cmd_help");
         
         for(;;) {
             String cmd = cpDialog.collectDigit("0123456789#*");
@@ -220,8 +220,8 @@ public class CpCmd {
     }
            
     private Command CollectGreetingsCmd() {
-        // at this point the user has already entered 8 ..
-        CpDialog cpDialog = new CpDialog(m_vm, null, "greetings_cmd_delay", "greetings_cmd_help");
+        // at this point the user has already entered 82 ..
+        CpDialog cpDialog = new CpDialog(m_vm, "greetings_cmd_delay", "greetings_cmd_delay", "greetings_cmd_help");
         
         for(;;) {
             String cmd = cpDialog.collectDigit("0123456789#*");
@@ -259,8 +259,8 @@ public class CpCmd {
     }    
     
     private Command CollectMbxOptionsCmd() {
-        // at this point the user has already entered 8 ..
-        CpDialog cpDialog = new CpDialog(m_vm, null, "mbxoptions_cmd_delay", "mbxoptions_cmd_help");
+        // at this point the user has already entered 80 ..
+        CpDialog cpDialog = new CpDialog(m_vm, "mbxoptions_cmd_delay", "mbxoptions_cmd_delay", "mbxoptions_cmd_help");
         
         for(;;) {
             String cmd = cpDialog.collectDigit("0123456789#*");
