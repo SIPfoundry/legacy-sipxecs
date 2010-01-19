@@ -96,10 +96,6 @@ public class EditMyInformationTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         assertElementPresent("user:imId");
         assertElementPresent("user:imDisplayName");
-
-        assertTablePresent("externalAccounts:list");
-        assertLinkPresent("link:addExternalAccount");
-        assertButtonPresent("externalAccounts:delete");
     }
 
     public void testTabMyAssistantDisplay() {

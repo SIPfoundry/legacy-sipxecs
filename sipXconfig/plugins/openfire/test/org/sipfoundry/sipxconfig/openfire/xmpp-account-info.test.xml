@@ -9,14 +9,6 @@
     <on-the-phone-message>testing phone message</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>
-    <transports>
-      <transport>
-        <type>gtalk</type>
-        <user-name>google_username</user-name>
-        <password>google_password</password>
-        <display-name>google_nickname</display-name>
-      </transport>
-    </transports>
   </user>
   <user>
     <user-name>Three</user-name>

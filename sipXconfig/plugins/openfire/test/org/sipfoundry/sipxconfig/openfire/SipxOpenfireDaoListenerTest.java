@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
-import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 import junit.framework.TestCase;
@@ -56,7 +55,6 @@ public class SipxOpenfireDaoListenerTest extends TestCase {
 
     public void testOnSave() {
         onSaveTest(true, new User());
-        onSaveTest(true, new ExternalImAccount());
         onSaveTest(true, new Conference());
         onSaveTest(true, m_userGroup);
 
@@ -66,7 +64,6 @@ public class SipxOpenfireDaoListenerTest extends TestCase {
 
     public void testOnDelete() {
         onDeleteTest(true, new User());
-        onDeleteTest(true, new ExternalImAccount());
         onDeleteTest(true, new Conference());
         onDeleteTest(true, m_userGroup);
 

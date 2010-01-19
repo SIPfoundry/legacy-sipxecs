@@ -29,7 +29,6 @@ import org.restlet.data.Status;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -106,8 +105,6 @@ public class User extends BeanWithGroups implements NamedObject {
     private Branch m_branch;
 
     private MusicOnHoldManager m_musicOnHoldManager;
-
-    private Collection<ExternalImAccount> m_externalImAccounts = new ArrayList<ExternalImAccount>(0);
 
     private Client m_restClient = new Client(Protocol.HTTP);
 
@@ -585,14 +582,6 @@ public class User extends BeanWithGroups implements NamedObject {
             return null;
         }
         return m_addressBookEntry.getAlternateEmailAddress();
-    }
-
-    public Collection<ExternalImAccount> getExternalImAccounts() {
-        return m_externalImAccounts;
-    }
-
-    public void setExternalImAccounts(Collection<ExternalImAccount> externalImAccounts) {
-        m_externalImAccounts = externalImAccounts;
     }
 
     public boolean requestToAddMyAssistantToRoster() {

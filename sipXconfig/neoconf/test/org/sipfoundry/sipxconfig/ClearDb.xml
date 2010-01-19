@@ -26,7 +26,6 @@
   <table name="user_ring"/>
   <table name="user_group"/>
   <table name="supervisor"/>
-  <table name="user_external_im_account"/>
 
   <!-- dial plans related -->
   <table name="schedule"/>

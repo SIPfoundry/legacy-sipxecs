@@ -14,7 +14,6 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
-import org.sipfoundry.sipxconfig.im.ExternalImAccount;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -80,77 +79,6 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         // strangely, 0 is ignored if there are still records to return
         users = m_coreContext.loadUsersByPage(9, 0);
         assertEquals(1, users.size());
-    }
-
-    public void testSaveUserExternalImAccount() throws Exception {
-        loadDataSet("common/UserSearchSeed.xml");
-
-        User user = m_coreContext.loadUser(1001);
-        assertNotNull(user);
-
-        Collection<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
-        assertNotNull(externalImAccounts);
-        assertEquals(0, externalImAccounts.size());
-
-        ExternalImAccount yahooAccount = new ExternalImAccount();
-        yahooAccount.setUser(user);
-        yahooAccount.setType("yahoo");
-        yahooAccount.setUsername("yahoo_username");
-        yahooAccount.setPassword("yahoo_password");
-        yahooAccount.setEnabled(false);
-        externalImAccounts.add(yahooAccount);
-
-        ExternalImAccount googletalkAccount = new ExternalImAccount();
-        googletalkAccount.setUser(user);
-        googletalkAccount.setType("gtalk");
-        googletalkAccount.setUsername("google_username");
-        googletalkAccount.setPassword("google_password");
-        googletalkAccount.setDisplayName("google_nickname");
-        externalImAccounts.add(googletalkAccount);
-
-        user.setExternalImAccounts(externalImAccounts);
-        m_coreContext.saveUser(user);
-        externalImAccounts = user.getExternalImAccounts();
-        assertNotNull(externalImAccounts);
-        assertEquals(2, externalImAccounts.size());
-    }
-
-    public void testGetExternalAccountById() throws Exception {
-        loadDataSet("common/ExternalImAccountSeed.db.xml");
-
-        ExternalImAccount account = m_coreContext.getExternalAccountById(101);
-        assertNotNull(account);
-        assertEquals(true, account.isEnabled());
-        assertEquals("gtalk", account.getType());
-        assertEquals("john.doe", account.getUsername());
-        assertEquals("John", account.getDisplayName());
-
-        User user = account.getUser();
-        assertNotNull(user);
-        assertEquals(2, user.getExternalImAccounts().size());
-    }
-
-    public void testSaveExternalImAccount() throws Exception {
-        loadDataSet("common/ExternalImAccountSeed.db.xml");
-
-        ExternalImAccount account = m_coreContext.getExternalAccountById(101);
-        User user = account.getUser();
-        assertNotNull(user);
-        Collection<ExternalImAccount> externalImAccounts = user.getExternalImAccounts();
-        assertNotNull(externalImAccounts);
-        assertEquals(2, externalImAccounts.size());
-
-        ExternalImAccount newAccount = new ExternalImAccount();
-        newAccount.setUser(user);
-        newAccount.setEnabled(true);
-        newAccount.setType("icq");
-        newAccount.setUsername("john");
-        newAccount.setPassword("123");
-        m_coreContext.saveExternalAccount(newAccount);
-
-        externalImAccounts = user.getExternalImAccounts();
-        assertNotNull(externalImAccounts);
-        assertEquals(2, externalImAccounts.size());
     }
 
     public void testAvailableGroups() {

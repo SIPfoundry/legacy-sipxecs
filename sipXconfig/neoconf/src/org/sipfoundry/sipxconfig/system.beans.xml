@@ -156,7 +156,6 @@
         <value>org/sipfoundry/sipxconfig/admin/alarm/alarm.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/branch/branch.hbm.xml</value>
-        <value>org/sipfoundry/sipxconfig/im/external-im-account.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">

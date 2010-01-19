@@ -338,7 +338,6 @@
     <antcall target="add-addressbook-email" />
     <antcall target="gateway-enabled" />
     <antcall target="park-server-migration-task" />
-    <antcall target="user-external-im-account" />
     <antcall target="migrate-pregroup-alarm-contacts" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
@@ -1045,9 +1044,6 @@
   </target>
   <target name="gateway-enabled" unless="gateway-enabled">
     <db-patch patch="gateway-enabled"/>
-  </target>
-  <target name="user-external-im-account" unless="user-external-im-account">
-    <db-patch patch="user-external-im-account"/>
   </target>
   <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
     <db-patch patch="migrate-pregroup-alarm-contacts"/>
