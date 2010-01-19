@@ -38,7 +38,7 @@ dist_bin_SCRIPTS = \
 	sipsend \
 	polycom-config
 
-$(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
+$(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in Makefile
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
