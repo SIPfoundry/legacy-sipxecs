@@ -118,42 +118,40 @@ li.tab
 }
 
 #login-errors .user-error {
-    position: absolute;
     background: url('/sipxconfig/images/error.png') top left no-repeat; 
     padding-left: 20px;
     height: 1.5em;
     width: 500px;
     margin-top: 50px;
-    margin-left: 52%;
+    margin-left: 5px;
 }
 
 #login-form {
-  margin-top: 0;
-  position: absolute;
-  width: 380px;
-  height: 250px;
-  margin-top: 92px;
-  margin-left: 52%;
-  border: thin solid #355563;
-  background: url('/sipxconfig/skin/loginFormBackground.png') top left repeat-x #EFF3F6;
+  padding-left: 20px;
 }
 
 #login-title {
-  font-size: 16px;
+  font-size: 22px;
   font-weight: bold;
-  color: #FFFFFF;
   padding: 5px;
-  background: url('/sipxconfig/skin/banner-background.png') top left repeat-x #355563;
 }
 
 #login-form input {
     font-size: 16px;
     height: auto;
 }
-
+#login-form input[type="text"], input[type="password"] {
+    width:240px;
+}
+#login-form input[type="submit"] {
+    margin-left:140px;	
+}
 #login-form label {
     font-size: 12px;
     font-weight: bold;
+    margin-bottom:5px;
+    margin-top:10px;
+    display:inline-block;
 }
 
 fieldset#loginForm legend {
@@ -163,10 +161,17 @@ fieldset#loginForm legend {
 }
 
 #login-form form {
-  width: 460px;
   margin: 4px;
   padding: 3px;
-}   
+}
+
+#loginFormSectionBox {
+	width:350px;	
+	margin-top: 92px;
+	margin-left:auto;
+	margin-right:auto;
+	border:3px solid #3F4D5D;
+}
 
 #lastmodified
 {
@@ -182,9 +187,12 @@ fieldset#loginForm legend {
 }
 
 #logo {
-    position: absolute;
     left: 0;
     top: 0;
+    height: 80px;
+    position:absolute;
+}
+#login-logo {
     height: 80px;
 }
 
@@ -535,6 +543,8 @@ fieldset
 {
 	margin-top:1em;
 	border-style:none;
+	padding-left:0px;
+	margin-left:0px;
 }
 
 label

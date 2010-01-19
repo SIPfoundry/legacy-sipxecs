@@ -1,6 +1,6 @@
 body
 {
-	background: #FFF;
+	background:#778da5 url(/sipxconfig/images/layout/backgroundVerticalLine.png) repeat-x scroll left top;
 }
 
 a:link
@@ -85,9 +85,9 @@ li.tab .active a:visited
 	background: url(/sipxconfig/skin/banner-background.png) top left repeat-x #355563;
 }
 
-#logo {
+#logo, #login-logo {
 	background: url(/sipxconfig/skin/logo.png) no-repeat left;
-    width: 15.5em;
+    	width: 15.5em;
 }
 
 #banner-links a
@@ -379,4 +379,17 @@ div.autocomplete ul strong.highlight {
 
 .avatar img {
 	border: 5px solid  #F0F0F0;
+}
+
+
+#login-form {
+  color:#b9b9b9;
+}
+
+#login-title {
+  color: #b9b9b9;
+}
+
+#loginFormSectionBox {
+	background:#000000;	
 }
