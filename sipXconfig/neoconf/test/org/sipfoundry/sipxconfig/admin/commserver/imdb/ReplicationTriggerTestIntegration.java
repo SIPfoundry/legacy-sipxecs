@@ -204,21 +204,24 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     }
 
     /**
-     * Tests that no replication when branch without users is saved
+     * Tests that no replication is done when branch without users is saved
      */
     public void testSaveBranchesWithoutUser() throws Exception {
-        loadDataSet("branch/branches.db.xml");
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replay(replicationContext);
         m_trigger.setReplicationContext(replicationContext);
 
-        Branch branch = m_branchManager.getBranch(1);
-        m_branchManager.saveBranch(branch);
-
+        //Save new branch
         Branch newBranch = new Branch();
-        newBranch.setUniqueId();
+        newBranch.setName("testBranch");
         m_branchManager.saveBranch(newBranch);
+        flush();
+
+        //Save an existing branch
+        Branch existingBranch = m_branchManager.getBranch("testBranch");
+        m_branchManager.saveBranch(existingBranch);
+        flush();
 
         verify(replicationContext);
     }
