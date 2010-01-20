@@ -8,6 +8,7 @@
  */
 package org.sipfoundry.voicemail;
 
+import java.io.EOFException;
 import java.io.File;
 import java.util.Vector;
 
@@ -167,6 +168,8 @@ public class Message {
                 AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
                 float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
                 m_duration = Math.round(secs); // Round up.
+            } catch (EOFException e) {
+                m_duration = 0;            
             } catch (Exception e) {
                 String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
                 LOG.error(trouble, e);

@@ -31,6 +31,7 @@ import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.sipxivr.PhonePresence;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -196,7 +197,18 @@ public class VoiceMail {
                 String reason = m_parameters.get("call-forward-reason");
                 if(reason != null) {
                     isOnThePhone = reason.equals("user-busy");
-                }
+                } else {
+                    /*
+                    // no diversion header present. check if user on the phone via openfire.
+                    PhonePresence phonePresence;
+                    try {
+                        phonePresence = new PhonePresence();
+                        isOnThePhone = phonePresence.isUserOnThePhone(user.getUserName());
+                    } catch (Exception e) {
+
+                    } 
+                    */                  
+                }                
                 
                 String result = new Deposit(this).depositVoicemail(isOnThePhone);
                 if (result == null) {
@@ -217,7 +229,10 @@ public class VoiceMail {
                     // don't store "click" messages
                     if(message.getDuration() > 1) {
                         message.storeInInbox();
+                    } else {
+                        message.deleteTempWav();
                     }
+                                       
                 }
             }
         }

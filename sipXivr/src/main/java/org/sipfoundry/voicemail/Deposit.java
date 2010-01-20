@@ -131,9 +131,13 @@ public class Deposit {
     
     private void depositMsg() { 
         clearChannelUUID(m_mailbox.getUser());
-        m_message.storeInInbox(); 
-        if(m_message.isToBeStored()) {
-            m_loc.play("msg_left", "");
+        if(m_message.getDuration() > 1) {
+            m_message.storeInInbox(); 
+            if(m_message.isToBeStored()) {
+                m_loc.play("msg_left", "");
+            }
+        } else {
+            m_message.setIsToBeStored(false);
         }
     }
             
