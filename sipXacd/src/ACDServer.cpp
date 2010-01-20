@@ -939,7 +939,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       targetURL.setUrlType("https");
       targetURL.setHostAddress(mFqdn.data());
       targetURL.setHostPort(mWatchdogRpcServerPort);
-      targetURL.setPath("RPC2");
+      targetURL.setPath("/RPC2");
 
       // Make the XMLRPC request to restart this process.
       UtlSList aliases;
