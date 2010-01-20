@@ -511,6 +511,7 @@ SipRedirectorPickUp::lookUp(
       // Add the contact to the contact list.
       UtlString contactStr = "sip:" + userId + "@" + mParkServerDomain;
       Url contactUri(contactStr, Url::AddrSpec);
+      contactUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "PARK");
       contactList.add( contactUri, *this );
 
       return RedirectPlugin::SUCCESS;
@@ -667,6 +668,7 @@ SipRedirectorPickUp::lookUpDialog(
             contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
                                            SIP_REPLACES_EXTENSION);
 
+            contact_URI.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "DPUP");
             // Record the URI as a contact.
             contactList.add( contact_URI, *this );
 
@@ -729,6 +731,7 @@ SipRedirectorPickUp::lookUpDialog(
          Url contact_URI(contactString, Url::AddrSpec);
 
          contact_URI.setUrlParameter("operation", "retrieve");
+         contact_URI.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, "RPARK");
 
          contactList.add( contact_URI, *this );
          // We do not need to suspend this time.*/

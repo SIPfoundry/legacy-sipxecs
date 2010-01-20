@@ -31,6 +31,9 @@ public enum CallTag {
     VMR("VoiceMail Redirect"), // voicemail redirect
     AL("Alias"),  // Alias
     INT("Internal"), // Internal
+    PARK("Park"), // Park
+    RPARK("Retrieve Park"), // Retrieve Park
+    DPUP("Directed Pickup"), // Directed Pickup
     UNK("Unknown"); // unknown
 
     private String m_name;

@@ -192,6 +192,9 @@ public class Cdr {
                     || m_calleeRoute.endsWith(CallTag.VM.toString())
                     || m_calleeRoute.endsWith(CallTag.VMR.toString())
                     || m_calleeRoute.endsWith(CallTag.PAGE.toString())
+                    || m_calleeRoute.endsWith(CallTag.PARK.toString())
+                    || m_calleeRoute.endsWith(CallTag.RPARK.toString())
+                    || m_calleeRoute.endsWith(CallTag.DPUP.toString())
                     || m_calleeRoute.endsWith(CallTag.AL.toString())) {
                     direction = CALL_INTERNAL;
                 }
