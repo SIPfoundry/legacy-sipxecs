@@ -61,7 +61,7 @@ public class SipXivr implements Runnable {
                     divHeader = divHeader.substring(0, index);
                     
                     parameters.put("action", "deposit");
-                    parameters.put("mailbox", divHeader); 
+                    parameters.put("origCalledNumber", divHeader); 
                     
                     // now look for call forward reason
                     for (String param : subParms) {                      

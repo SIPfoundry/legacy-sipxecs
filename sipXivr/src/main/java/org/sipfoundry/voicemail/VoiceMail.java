@@ -144,7 +144,21 @@ public class VoiceMail {
         // Wait a bit so audio doesn't start too fast
         Sleep s = new Sleep(m_fses, 1000);
         s.go();
-        String mailboxString = m_parameters.get("mailbox");
+        
+        // if division header origCalledNumber corresponds to a mailbox
+        // then use it
+        String mailboxString = m_parameters.get("origCalledNumber");
+        if(mailboxString != null) {
+            // validate
+            if(m_validUsers.getUser(mailboxString) == null) {
+                mailboxString = null;
+            }
+        }        
+        
+        if(mailboxString == null) {
+            mailboxString = m_parameters.get("mailbox");
+        }
+        
         if (mailboxString == null) {
             // Use the From: user as the mailbox
             mailboxString = m_fses.getFromUser();
