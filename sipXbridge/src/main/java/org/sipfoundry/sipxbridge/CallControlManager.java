@@ -921,8 +921,14 @@ class CallControlManager implements SymmitronResetHandler {
                  */
 
                 Request ack;
-
-                if (inboundAck.getContentLength().getContentLength() != 0) {
+                ContentTypeHeader contentTypeHeader = (ContentTypeHeader) inboundAck.getHeader(ContentTypeHeader.NAME);
+                
+                String contentType =  contentTypeHeader != null ? contentTypeHeader.getContentType() : null ;
+                String contentSubType =  contentTypeHeader != null ? contentTypeHeader.getContentSubType() : null;
+                
+                if (inboundAck.getContentLength().getContentLength() != 0 && 
+                       contentType.equalsIgnoreCase("application") && 
+                       contentSubType.equalsIgnoreCase("sdp")) {
                     if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_FORWARD_ACK_WITH_SDP_ANSWER) {
                         /*
                          * ACK had a content length so we extract the sdp answer, we re-write it
@@ -959,11 +965,9 @@ class CallControlManager implements SymmitronResetHandler {
                         }
                         ack.setContent(sd.toString(), cth);
                     } else {
-                        /*
-                         * Should I Strip off the SDP answer here? Just loging a warning for now.
-                         */
                         logger
-                                .warn("Got an ACK with SDP but other side does not expect it -- not forwarding ACK");
+                                .error("Got an ACK with SDP but other side does not expect it -- not forwarding ACK");
+                        dialogContext.getBackToBackUserAgent().tearDown(Gateway.SIPXBRIDGE_USER,ReasonCode.PROTOCOL_ERROR,"Unexpected ACK with SDP ");
                         return;
                     }
                 } else {
@@ -996,6 +1000,12 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
 
+                if ( ack.getContentLength().getContentLength() == 0 &&
+                     inboundAck.getContentLength().getContentLength() != 0) {
+                    byte[] content = inboundAck.getRawContent();
+                    ack.setContent(content, contentTypeHeader);
+                }
+                
                 DialogContext.get(peerDialog).sendAck(ack);
 
                 /*
