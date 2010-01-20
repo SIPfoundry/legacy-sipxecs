@@ -103,12 +103,15 @@ public class SipStackBean extends AbstractSipStackBean implements AccountManager
 
     @Override
     public Properties getExtraStackProperties() {
-        /*
-         * Properties extraProperties = new Properties();
-         * extraProperties.setProperty("gov.nist.javax.sip.DELIVER_TERMINATED_EVENT_FOR_NULL_DIALOG",
-         * "true"); return extraProperties;
+        Properties extraProperties = new Properties();
+        /* Enable DELIVER_UNSOLICITED_NOTIFY which will prevent nested acquisition
+         * of Server and Client Transaction semaphores that can lead to 
+         * initialization problems when system is loaded.  Enabling this 
+         * option is harmless in our case because we know the other end is a
+         * well-behaved Subscribe client (sipXrls)
          */
-        return null;
+        extraProperties.setProperty("gov.nist.javax.sip.DELIVER_UNSOLICITED_NOTIFY", "true"); 
+        return extraProperties;
     }
 
 }
