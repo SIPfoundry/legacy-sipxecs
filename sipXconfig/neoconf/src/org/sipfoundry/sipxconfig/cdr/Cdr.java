@@ -9,12 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.cdr;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
-public class Cdr {
+public class Cdr implements Serializable {
+
     public enum Termination {
         UNKNOWN, REQUESTED, IN_PROGRESS, COMPLETED, FAILED, TRANSFER, ABANDONED;
 
@@ -52,6 +54,8 @@ public class Cdr {
     public static final String CALL_MOBILE = "MOBILE";
     public static final String CALL_EMERGENCY = "EMERGENCY";
     public static final String CALL_CUST = "CUSTOM";
+
+    private static final long serialVersionUID = 1L;
 
     private String m_callerAor;
     private String m_calleeAor;

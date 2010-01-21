@@ -11,7 +11,7 @@
   <parameter name="usePager" required="no" default-value="false"/>
   <inject property="tableVariables" object="spring:tableVariables"/>
 
-  <reserved-parameter name="converter"/>
+<!--  <reserved-parameter name="converter"/> -->
   <reserved-parameter name="selection"/>
 
   <!-- B E A N S -->
@@ -36,7 +36,6 @@
   <component id="tableRows" type="contrib:TableRows">
     <inherited-binding name="row" parameter-name="row"/>
     <binding name="class" value="beans.rowClass.next"/>
-    <binding name="volatile" value="true"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
   <component id="tablePagesCell" type="Any">

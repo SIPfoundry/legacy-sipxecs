@@ -9,7 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge;
 
-public class BridgeSbcRegistrationRecord {
+import java.io.Serializable;
+
+public class BridgeSbcRegistrationRecord implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String m_registeredAddress;
     private String m_registrationStatus;
