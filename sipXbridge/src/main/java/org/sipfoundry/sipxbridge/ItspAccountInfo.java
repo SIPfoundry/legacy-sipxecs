@@ -199,7 +199,15 @@ public class ItspAccountInfo implements
      */
     private boolean enabled = true;
 
+    /*
+     * The configured outbound proxy for this ITSP.
+     */
     private String configuredOutboundProxy;
+    
+    /*
+     * Whether or not to relay media for this ITSP.
+     */
+    private boolean alwaysRelayMedia = true;
 
     /*
      * This scans the failure counter table and removes records after a timeout period.
@@ -788,6 +796,24 @@ public class ItspAccountInfo implements
         this.enabled = flag;       
     }
     
+    /**
+     * Return the value of the alwaysRelayMedia flag.
+     * 
+     * @return true if alwaysRelayMedia is set to true.
+     */
+    public boolean isAlwaysRelayMedia() { 
+        return this.alwaysRelayMedia;
+    }
+    
+    /**
+     * Set the alwaysRelayMedia flag
+     * 
+     * @param flag -- the "alwaysRelayMedia" flag
+     */
+    public void setAlwaysRelayMedia(boolean flag) {
+        this.alwaysRelayMedia = flag;
+    }
+
     /**
      * Get the enabled flag.
      * 

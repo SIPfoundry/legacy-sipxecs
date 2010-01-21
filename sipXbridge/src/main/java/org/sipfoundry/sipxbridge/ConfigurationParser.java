@@ -255,6 +255,10 @@ public class ConfigurationParser {
                 "setAddLrRoute", 0, new Class[] {
             Boolean.class
         });
+        
+        digester.addCallMethod(String.format("%s/%s",ITSP_CONFIG,"always-relay-media"), "setAlwaysRelayMedia",0, new Class[] {
+            Boolean.class
+        });
 
     }
 

@@ -505,6 +505,15 @@
 				</xs:simpleType>
 			</xs:element>
 
+			<xs:element name="always-relay-media"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Controls whether media is always relayed or not.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
 		</xs:sequence>
 	</xs:complexType>
 </xs:schema>

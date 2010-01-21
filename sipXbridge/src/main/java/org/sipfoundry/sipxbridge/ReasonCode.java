@@ -30,5 +30,7 @@ public class ReasonCode {
 	public static final int CALL_TERMINATED = 212;
     public static final int RELAYED_ERROR_RESPONSE = 213;
     public static final int FORK_TIMED_OUT = 214;
+    public static final int UNEXPECTED_RESPONSE_CODE = 215;
+    public static final int UNEXPECTED_DIALOG_STATE = 216;
 
 }

@@ -58,6 +58,8 @@ public class BridgeConfiguration {
     private String sipxSupervisorHost;
     private int sipxSupervisorXmlRpcPort;
     private int callLimit = -1;
+    
+    private boolean alwaysRelayMedia;
 
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -537,4 +539,5 @@ public class BridgeConfiguration {
         return callLimit;
     }
 
+  
 }

@@ -17,6 +17,7 @@ import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
+import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
@@ -100,8 +101,9 @@ public class CallControlUtilities {
      * @param reOfferDialog
      * @throws Exception
      */
-    static void sendSdpReOffer(Response response, Dialog responseDialog, Dialog reOfferDialog) throws Exception {
-    	DialogContext.pairDialogs(responseDialog, reOfferDialog);
+    static void sendSdpReOffer(ResponseEvent responseEvent, Dialog responseDialog, Dialog reOfferDialog) throws Exception {
+    	Response response = responseEvent.getResponse();
+        DialogContext.pairDialogs(responseDialog, reOfferDialog);
         BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(reOfferDialog);
         DialogContext dialogContext = (DialogContext) reOfferDialog.getApplicationData();
         if (logger.isDebugEnabled()) {
@@ -139,7 +141,7 @@ public class CallControlUtilities {
             DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);
             
             
-            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer,response);   
+            DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer,responseEvent);   
 
         } else {
             dialogContext.getBackToBackUserAgent().tearDown(
@@ -222,10 +224,14 @@ public class CallControlUtilities {
                  ackSd = answerSessionDescription;
 
                 /*
-                 * Fix up the ports.
+                 * Fix up the ports if necessary.
                  */
-
-                DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(ackSd);
+                DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
+                     
+                if ( peerDialogContext.getItspInfo() != DialogContext.get(dialog).getItspInfo() ||  
+                        peerDialogContext.getItspInfo().isAlwaysRelayMedia() )  {
+                    DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(ackSd);
+                }
 
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
 

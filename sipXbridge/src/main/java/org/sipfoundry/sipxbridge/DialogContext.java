@@ -16,35 +16,26 @@ import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.TimerTask;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.DialogState;
-import javax.sip.InvalidArgumentException;
-import javax.sip.ObjectInUseException;
+import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
 import javax.sip.Transaction;
-import javax.sip.TransactionDoesNotExistException;
 import javax.sip.address.Address;
 import javax.sip.header.AcceptHeader;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
-import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
-import javax.sip.header.ExtensionHeader;
-import javax.sip.header.FromHeader;
-import javax.sip.header.Header;
 import javax.sip.header.ProxyAuthorizationHeader;
-import javax.sip.header.ReasonHeader;
-import javax.sip.header.RouteHeader;
 import javax.sip.header.SubjectHeader;
 import javax.sip.header.SupportedHeader;
 import javax.sip.header.ViaHeader;
@@ -65,6 +56,8 @@ import org.apache.log4j.Logger;
 class DialogContext {
 
     private static Logger logger = Logger.getLogger(DialogContext.class);
+    
+    private static HashMap<String,DialogContext> dialogContextTable = new HashMap<String,DialogContext>();
     
     /*
      * Drives what to do for this dialog when a response is seen for an in-dialog response.
@@ -181,6 +174,12 @@ class DialogContext {
     private boolean terminateOnConfirm;
 
 	private ProxyAuthorizationHeader proxyAuthorizationHeader;
+	
+	/*
+	 * The id for this dialog context.
+	 */
+
+    private String  dialogContextId;
 
   
 
@@ -350,11 +349,25 @@ class DialogContext {
      * Constructor.
      */
     private DialogContext(Dialog dialog) {
+        this.dialogContextId = Integer.toHexString(Math.abs(new Random().nextInt()));
+        dialogContextTable.put(this.dialogContextId, this);
         this.sessionExpires = Gateway.DEFAULT_SESSION_TIMER_INTERVAL;
         this.dialog = dialog;
         this.creationPointStackTrace = SipUtilities.getStackTrace();
     }
-
+    /**
+     * Get the dialog context for a given ID.
+     */
+    public static DialogContext getDialogContext(String id) {
+        return dialogContextTable.get(id);
+    }
+    
+    /**
+     * Remove the dialog context.
+     */
+    public static void removeDialogContext(DialogContext dialogContext) {
+        dialogContextTable.remove(dialogContext.dialogContextId);
+    }
 
     /**
      * Create a dialog to dialog association.
@@ -775,26 +788,46 @@ class DialogContext {
      * Send an SDP re-OFFER to the other side of the B2BUA.
      *
      * @param sdpOffer -- the sdp offer session description.
-     * @param triggeringResponse -- the triggering response to build the causal chain.
+     * @param responseEvent -- the response event that triggered this action.
      * 
      * @throws Exception -- if could not send
      */
-    void sendSdpReOffer(SessionDescription sdpOffer, Response triggeringResponse) throws Exception {
+    void sendSdpReOffer(SessionDescription sdpOffer, ResponseEvent responseEvent) throws Exception {
         if (dialog.getState() == DialogState.TERMINATED) {
             logger.warn("Attempt to send SDP re-offer on a terminated dialog");
             return;
         }
         Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
+        Response triggeringResponse = responseEvent.getResponse();
         ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.CHAIN);
         sdpOfferInvite.setHeader(referencesHeader);
+        
         if ( proxyAuthorizationHeader != null ) {
         	sdpOfferInvite.setHeader(proxyAuthorizationHeader);
         }
         /*
          * Set and fix up the sdp offer to send to the opposite side.
          */
-
-        this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
+        
+        if (! this.itspInfo.isAlwaysRelayMedia() ) {
+             /*
+             * Hairpin back to the same ITSP then do not remap.
+             */
+            DialogExt responseDialog =  (DialogExt) responseEvent.getDialog();
+            DialogContext responseDialogContext = DialogContext.get(responseDialog);
+            
+            if (responseDialogContext.getItspInfo() != this.getItspInfo() || 
+                    responseDialog.getSipProvider() != this.getSipProvider() )   {
+                logger.debug("ITSP info is different from response ITSP so anchoring media. ");
+                this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
+            } else {
+                logger.debug("peerDialogContext matches dialogContext -- not remapping sdpOffer");
+                sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
+            }
+        } else {
+            logger.debug("ITSP has set always relay media -- rewriting SDP ");
+            this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
+        }
 
         SipUtilities.incrementSessionVersion(sdpOffer);
 
@@ -878,7 +911,7 @@ class DialogContext {
      * Send a re-INVITE. The dialog layer will asynchronously send the re-INVITE
      */
     void sendReInvite(ClientTransaction clientTransaction) {
-    	
+    	logger.debug("sendReInvite " + SipUtilities.getStackTrace());
     	if ( this.proxyAuthorizationHeader != null ) {
     		clientTransaction.getRequest().setHeader(this.proxyAuthorizationHeader);
     	}
@@ -1083,6 +1116,7 @@ class DialogContext {
 
         transactionContext.setItspAccountInfo(this.itspInfo);
         TransactionContext.get(serverTransaction).setClientTransaction(clientTransaction);
+        TransactionContext.get(clientTransaction).setServerTransaction(serverTransaction);
         dialog.sendRequest(clientTransaction);     
     }
 
@@ -1163,9 +1197,21 @@ class DialogContext {
         return this.dialog;
     }
 
+    /**
+     * Set the proxy authorization header for this dialog context.
+     * 
+     * @param pah - the proxy authorization header.
+     */
 	public void setProxyAuthorizationHeader(ProxyAuthorizationHeader pah) {
 		this.proxyAuthorizationHeader = pah;
 	}
 
+    public String getDialogContextId() {
+       return dialogContextId;
+    }
+
+	
+	
+	
 
 }

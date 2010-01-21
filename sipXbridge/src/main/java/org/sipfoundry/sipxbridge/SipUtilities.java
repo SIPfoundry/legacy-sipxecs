@@ -1627,6 +1627,22 @@ class SipUtilities {
 
     }
 
+    static String getDialogContextId(Message incomingMessage) {
+        ListIterator headerIterator = incomingMessage
+        .getHeaders(ViaHeader.NAME);
+        String originator = null;
+        ViaHeader via = null;
+        /*
+         * Get the bottom most via header.
+         */
+        while (headerIterator.hasNext()) {
+           via = (ViaHeader) headerIterator.next();  
+        }
+        originator = via.getParameter(BackToBackUserAgent.ORIGINATOR);
+        return originator;
+    }
+    
+    
     static boolean isOriginatorSipXbridge(Message incomingMessage) {
         ListIterator headerIterator = incomingMessage
                 .getHeaders(ViaHeader.NAME);
@@ -1635,8 +1651,7 @@ class SipUtilities {
             ViaHeader via = (ViaHeader) headerIterator.next();
             String originator = via
                     .getParameter(BackToBackUserAgent.ORIGINATOR);
-            if (originator != null
-                    && originator.equals(Gateway.SIPXBRIDGE_USER)) {
+            if (originator != null) {
                 spiral = true;
             }
         }

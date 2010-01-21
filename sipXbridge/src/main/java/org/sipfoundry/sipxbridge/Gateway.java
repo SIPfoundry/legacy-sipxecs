@@ -205,6 +205,7 @@ public class Gateway {
     public static final String SIPX_BRIDGE_ACCOUNT_OK = "SIPX_BRIDGE_ACCOUNT_OK";
 
     public static final int DEFAULT_SESSION_TIMER_INTERVAL = 1800;
+    public static final boolean XX_7362 = true;
 
     private static int oldStunPort = -1;
 

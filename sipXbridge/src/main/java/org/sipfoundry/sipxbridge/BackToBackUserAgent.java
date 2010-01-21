@@ -106,7 +106,7 @@ public class BackToBackUserAgent implements Comparable {
     /*
      * Constants that we stick into the VIA header to detect spirals.
      */
-    static final String ORIGINATOR = "originator";
+    static final String ORIGINATOR = "sipxecs-id";
 
     /*
      * Since we have only one media type we have only one bridge. If we handle multiple media
@@ -200,11 +200,7 @@ public class BackToBackUserAgent implements Comparable {
     
     
 
-    /*
-     * The Branch ID of the request that created this B2UA instance.
-     */
-    private String creatingBranchId;
-
+  
   
    
     // ////////////////////////////////////////////////////////////////////////
@@ -289,7 +285,6 @@ public class BackToBackUserAgent implements Comparable {
             this.creatingCallId = provider.getNewCallId().getCallId();
         }
         
-        this.creatingBranchId = SipUtilities.getTopmostViaBranch(request);
 
     }
 
@@ -950,7 +945,7 @@ public class BackToBackUserAgent implements Comparable {
              * spirals back to us, we need to know that it is a spiral( see processing above that
              * checks this flag).
              */
-            via.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
+            via.setParameter(ORIGINATOR, newDialogContext.getDialogContextId());
 
             /*
              * Send the request. Note that this is not an in-dialog request.
@@ -1143,8 +1138,7 @@ public class BackToBackUserAgent implements Comparable {
 
             ViaHeader viaHeader = SipUtilities.createViaHeader(Gateway.getLanProvider(),
                     transport);
-            viaHeader.setParameter(ORIGINATOR, Gateway.SIPXBRIDGE_USER);
-
+          
             List<ViaHeader> viaList = new LinkedList<ViaHeader>();
 
             viaList.add(viaHeader);
@@ -1212,6 +1206,9 @@ public class BackToBackUserAgent implements Comparable {
 
             DialogContext newDialogContext = DialogContext.attach(this, outboundDialog, ct, ct
                     .getRequest());
+            
+            viaHeader.setParameter(ORIGINATOR, newDialogContext.getDialogContextId());
+
             /*
              * Set the ITSP account info for the inbound INVITE to sipx proxy.
              */
@@ -1801,7 +1798,7 @@ public class BackToBackUserAgent implements Comparable {
              * If we spiraled back, then pair the refered dialog with the outgoing dialog.
              * Otherwise pair the inbound and outboud dialogs.
              */
-            if (!spiral) {
+            if (true || !spiral) {
                 DialogContext.pairDialogs(incomingDialog, outboundDialog);
                 this.addDialog(DialogContext.get(incomingDialog));
 
@@ -1894,6 +1891,7 @@ public class BackToBackUserAgent implements Comparable {
              * Add this to the list of managed dialogs.
              */
             this.addDialog(DialogContext.get(ct.getDialog()));
+            
             /*
              * Send the request.
              */
@@ -2035,6 +2033,11 @@ public class BackToBackUserAgent implements Comparable {
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
                 SipUtilities.addWanAllowHeaders(reInvite);
+                if ( peerDat.getSipProvider() != Gateway.getLanProvider()) {
+                    if (peerDat.getItspInfo() == null || peerDat.getItspInfo().isGlobalAddressingUsed() ) {
+                        SipUtilities.setGlobalAddresses(reInvite);
+                    }
+                }
 
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 wanRtpSession.getTransmitter().setOnHold(false);
@@ -2472,6 +2475,15 @@ public class BackToBackUserAgent implements Comparable {
         if ( this.rtpBridge != null ) this.rtpBridge.stop();
         Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
         this.tearDown();
+    }
+    
+    
+    Dialog getReferringDialogPeer() {
+        return this.referingDialogPeer;
+    }
+
+    public Dialog getReferringDialog() {
+       return this.referingDialog;
     }
 
    

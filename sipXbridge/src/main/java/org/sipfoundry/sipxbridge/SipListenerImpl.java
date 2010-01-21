@@ -309,6 +309,7 @@ public class SipListenerImpl implements SipListenerExt {
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
             }
+            DialogContext.removeDialogContext(dialogContext);
         }
 
     }
