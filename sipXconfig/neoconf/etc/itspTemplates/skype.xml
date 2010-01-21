@@ -91,7 +91,7 @@
       <description>
 	The asserted identity header may be used by the ITSP to determine the originating
 	party for call setup requests.
-        If checked (default), use the default asserted identity.
+        If checked use the default asserted identity.
         Otherwise, you must enter a username@domain to override the default.
       </description>
     </setting>
