@@ -127,7 +127,7 @@ public class IMBot {
             
             Presence presence = new Presence(Type.available);
             presence.setMode(Presence.Mode.available);
-            presence.setStatus("For a list of commands, enter help.");
+            presence.setStatus("Type help for a list of commands.");
             m_con.sendPacket(presence);
             
             m_roster = m_con.getRoster();
@@ -361,7 +361,7 @@ public class IMBot {
             if(jid != null) {
                 toIMUser = m_ChatsMap.get(jid);  
                 if(toIMUser != null) {
-                    toIMUser.sendHeadlineIM(msg);
+                    toIMUser.sendIM(msg);
                 }
             }    
 
@@ -369,7 +369,7 @@ public class IMBot {
             if(jid != null) {
                 toIMUser = m_ChatsMap.get(jid);
                 if(toIMUser != null) {
-                    toIMUser.sendHeadlineIM(msg);
+                    toIMUser.sendIM(msg);
                 }
             }                
         }         
