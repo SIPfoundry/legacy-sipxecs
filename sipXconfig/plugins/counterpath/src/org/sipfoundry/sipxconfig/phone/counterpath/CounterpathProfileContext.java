@@ -48,6 +48,7 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         }
         context.put("line_sip_settings", lineSipSettings);
         context.put("line_xmpp_settings", lineXmppSettings);
+        context.put("max_lines", getDevice().getModel().getMaxLineCount());
 
         return context;
     }

@@ -16,14 +16,22 @@ Success=1
 
 [SETTINGS]
 
-#foreach ($sip_account in $line_sip_settings)
-#set ($line_index = $velocityCount - 1)
+#set ($max_lines_minus_one = $max_lines - 1)
+#foreach ($line_index in [0..$max_lines_minus_one])
+#if($line_index < $line_sip_settings.size())
+#set ($sip_account = $line_sip_settings.get($line_index))
 #foreach ($setting in $sip_account)
 proxies:proxy${line_index}:#generate_setting($setting)
 #end
+#else
+proxies:proxy${line_index}:enabled="false"
+proxies:proxy${line_index}:username=""
+proxies:proxy${line_index}:domain=""
+proxies:proxy${line_index}:password=""
+#end
 
 #end
-#set ($last_sip_line_index = $line_index)
+#set ($last_sip_line_index = $max_lines - 1)
 #foreach ($xmpp_account in $line_xmpp_settings)
 #set ($line_index = $last_sip_line_index + $velocityCount)
 #foreach ($setting in $xmpp_account)
