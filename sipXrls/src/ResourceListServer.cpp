@@ -30,7 +30,9 @@ const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 
 // Milliseconds of delay to allow between calls that add or delete resources
 // to/from ResourceList's when doing bulk updating of ResourceList's.
-const int ResourceListServer::sChangeDelay = 10;
+// :TODO: Clean up the following condition:
+// Modified to be at least as large as SUBSCRIPTION_WAIT in ContactSet.cpp.
+const int ResourceListServer::sChangeDelay = 100;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
