@@ -58,8 +58,6 @@ public class VoiceMail {
 
     private Hashtable<String, String> m_parameters;  // The parameters from the sip URI
     
-    private Vector<Message> m_messages; // Message to be delivered at hangup
-
     private String m_action; // "deposit" or "retrieve"
 
     private Mailbox m_mailbox ;
@@ -81,7 +79,6 @@ public class VoiceMail {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;
         this.m_parameters = parameters;
-        this.m_messages = new Vector<Message>();
         
         // Look for "locale" parameter
         String localeString = m_parameters.get("locale");
@@ -206,49 +203,29 @@ public class VoiceMail {
             }
             // Create the mailbox if it isn't there
             Mailbox.createDirsIfNeeded(m_mailbox);
-            try {
-                boolean isOnThePhone = false;
-                String reason = m_parameters.get("call-forward-reason");
-                if(reason != null) {
-                    isOnThePhone = reason.equals("user-busy");
-                } else {
-                    /*
-                    // no diversion header present. check if user on the phone via openfire.
-                    PhonePresence phonePresence;
-                    try {
-                        phonePresence = new PhonePresence();
-                        isOnThePhone = phonePresence.isUserOnThePhone(user.getUserName());
-                    } catch (Exception e) {
-
-                    } 
-                    */                  
-                }                
-                
-                String result = new Deposit(this).depositVoicemail(isOnThePhone);
-                if (result == null) {
-                    goodbye();
-                    return null ;
-                }
-                m_action = result;
-                
-            } catch (DisconnectException e) {
-            } finally {
+ 
+            boolean isOnThePhone = false;
+            String reason = m_parameters.get("call-forward-reason");
+            if(reason != null) {
+                isOnThePhone = reason.equals("user-busy");
+            } else {
+                /*
+                // no diversion header present. check if user on the phone via openfire.
+                PhonePresence phonePresence;
                 try {
-                    // Let FS finish any recording's it might be doing
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                }
-                // Deliver any messages that are pending
-                for (Message message : m_messages) {
-                    // don't store "click" messages
-                    if(message.getDuration() > 1) {
-                        message.storeInInbox();
-                    } else {
-                        message.deleteTempWav();
-                    }
-                                       
-                }
+                    phonePresence = new PhonePresence();
+                    isOnThePhone = phonePresence.isUserOnThePhone(user.getUserName());
+                } catch (Exception e) {
+
+                } 
+                */                  
+            }                
+            
+            String result = new Deposit(this).depositVoicemail(isOnThePhone);
+            if (result == null) {
+                return null ;
             }
+            m_action = result;
         }
         
         if (m_action.equals("retrieve")) {
@@ -451,14 +428,6 @@ public class VoiceMail {
         return m_sysDistLists;
     }
     
-    /**
-     * Get the list of messages to be delivered at hangup.
-     * @return
-     */
-    public Vector<Message> getMessages() {
-        return m_messages;
-    }
-
     public Mailbox getMailbox() {
         return m_mailbox;
     }

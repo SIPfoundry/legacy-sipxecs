@@ -76,13 +76,22 @@ public class Deposit {
         m_depositMap.put(user.getUserName(), uuid);     
         
         sendIM(m_mailbox.getUser(), true, m_fses.getVariable("channel-caller-id-name") +
-        " is leaving a message.");
+        " is leaving a voice message.");
     }
     
     private void clearChannelUUID(User user) {
         if(m_depositMap.remove(user.getUserName()) != null) {
+            
+            String description = " disconnected without leaving a voice message.";
+            if(m_message != null) {
+                 
+                if(m_message.isToBeStored() && m_message.getDuration() > 1) {
+                    description = "just left a voice message.";
+                }
+            }            
+            
             sendIM(m_mailbox.getUser(), false, m_fses.getVariable("channel-caller-id-name") +
-            " is no longer leaving a message.");
+                   description);
         }
     }
     
@@ -130,7 +139,7 @@ public class Deposit {
     }
     
     private void depositMsg() { 
-        clearChannelUUID(m_mailbox.getUser());
+        
         if(m_message.getDuration() > 1) {
             m_message.storeInInbox(); 
             if(m_message.isToBeStored()) {
@@ -139,6 +148,8 @@ public class Deposit {
         } else {
             m_message.setIsToBeStored(false);
         }
+        
+        clearChannelUUID(m_mailbox.getUser());
     }
             
     private String depositCPUI(boolean isOnThePhone) {                    
@@ -366,7 +377,6 @@ public class Deposit {
             
             m_message = Message.newMessage(m_mailbox, wavFile, m_fses.getDisplayUri(), 
                                            Priority.NORMAL, null);
-            m_vm.getMessages().add(m_message) ;
         } else { 
             wavPath = m_message.getWavPath();
         }
@@ -483,6 +493,7 @@ public class Deposit {
                 // bad entry, timeout, canceled
                 if (!menu.isOkay()) {
                     m_message.setIsToBeStored(false);
+                    m_vm.goodbye();
                     return null;
                 }
                             
@@ -525,9 +536,25 @@ public class Deposit {
         // Message sent, now see what else they want to do
         MoreOptions(m_message.getVmMessage());
         
+        m_vm.goodbye();
+        
         } catch (DisconnectException e) {
+        } finally {
+            try {
+                // Let FS finish any recording's it might be doing
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+            
             clearChannelUUID(m_mailbox.getUser());
-            throw e;
+            
+            // Deliver message that is pending; don't store "click" messages
+            if(m_message.getDuration() > 1) {
+                m_message.storeInInbox();
+            } else {
+                m_message.deleteTempWav();
+            }
+
         }
         return null;       
     }
