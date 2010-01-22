@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -16,12 +17,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry.IAsset;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.WaitingListener;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.RestartNeededService;
@@ -30,6 +34,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
@@ -63,6 +68,9 @@ public abstract class RestartNeededServicesPage extends BasePage implements Page
 
     public abstract void setRestartNeededServices(Collection<RestartNeededService> restartNeededServices);
 
+    @InjectPage(value = WaitingPage.PAGE)
+    public abstract WaitingPage getWaitingPage();
+
     public void pageBeginRender(PageEvent event) {
         if (getRestartNeededServices() == null) {
             setRestartNeededServices(getSipxProcessContext().getRestartNeededServices());
@@ -75,20 +83,34 @@ public abstract class RestartNeededServicesPage extends BasePage implements Page
         return getMessage(getMessages(), key, serviceBeanId);
     }
 
-    public void restart() {
+    public IPage restart() {
         Collection<RestartNeededService> beans = getSelections().getAllSelected();
         if (beans == null) {
-            return;
+            return null;
         }
 
         // Restart needed services on each affected location
-        for (Location location : createLocationToServiceMap(beans).keySet()) {
-            List<SipxService> restartServices = createLocationToServiceMap(beans).get(location);
-            getSipxProcessContext().manageServices(location, restartServices, SipxProcessContext.Command.RESTART);
+        RestartListener restartListener = new RestartListener(beans);
+        if (listenerNeeded(beans)) {
+            WaitingPage waitingPage = getWaitingPage();
+            waitingPage.setWaitingListener(restartListener);
+            return waitingPage;
+        } else {
+            restartListener.restart();
+            // Forces a page refresh
+            setRestartNeededServices(null);
+            return null;
         }
 
-        // Forces a page refresh
-        setRestartNeededServices(null);
+    }
+
+    private boolean listenerNeeded(Collection<RestartNeededService> beans) {
+        for (RestartNeededService bean : beans) {
+            if (bean.isConfigurationRestartNeeded()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private Map<Location, List<SipxService>> createLocationToServiceMap(Collection<RestartNeededService> beans) {
@@ -119,5 +141,25 @@ public abstract class RestartNeededServicesPage extends BasePage implements Page
 
         // Forces a page refresh
         setRestartNeededServices(null);
+    }
+
+    public class RestartListener implements Serializable, WaitingListener {
+        private final Collection<RestartNeededService> m_beans;
+
+        public RestartListener(Collection<RestartNeededService> beans) {
+            m_beans = beans;
+        }
+        public void afterResponseSent() {
+            restart();
+        }
+
+        public void restart() {
+            for (Location location : createLocationToServiceMap(m_beans).keySet()) {
+                List<SipxService> restartServices = createLocationToServiceMap(m_beans).get(location);
+                getSipxProcessContext().manageServices(location, restartServices, SipxProcessContext.Command.RESTART);
+            }
+        }
+
+
     }
 }

@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -28,7 +29,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.io.FileUtils.copyDirectory;
 
@@ -70,7 +76,9 @@ public class CertificateManagerImpl implements CertificateManager {
 
     private LocationsManager m_locationsManager;
 
-    private boolean m_restartNeeded;
+    private SipxProcessContext m_processContext;
+
+    private SipxServiceManager m_sipxServiceManager;
 
     public void setBinCertDirectory(String binCertDirectory) {
         m_binCertDirectory = binCertDirectory;
@@ -88,12 +96,9 @@ public class CertificateManagerImpl implements CertificateManager {
         m_libExecDirectory = libExecDirectory;
     }
 
+    @Required
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public boolean isRestartNeeded() {
-        return m_restartNeeded;
     }
 
     public Properties loadCertPropertiesFile() {
@@ -256,10 +261,19 @@ public class CertificateManagerImpl implements CertificateManager {
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
-            m_restartNeeded = true;
+            //Mark required services for restart
+            markServicesForRestart();
         } catch (RuntimeException ex) {
             throw new UserException("&error.regenstore");
         }
+    }
+
+    private void markServicesForRestart() {
+        SipxConfigService configService = (SipxConfigService) m_sipxServiceManager.
+            getServiceByBeanId(SipxConfigService.BEAN_ID);
+        SipxBridgeService bridgeService = (SipxBridgeService) m_sipxServiceManager.
+            getServiceByBeanId(SipxBridgeService.BEAN_ID);
+        m_processContext.markServicesForRestart(Arrays.asList(configService, bridgeService));
     }
 
     public File getCRTFile() {
@@ -398,4 +412,15 @@ public class CertificateManagerImpl implements CertificateManager {
             super("&error.script.exit.code", exitCode);
         }
     }
+
+    @Required
+    public void setProcessContext(SipxProcessContext processContext) {
+        m_processContext = processContext;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
 }

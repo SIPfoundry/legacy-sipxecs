@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 
 public class RestartNeededService implements Serializable {
     private final String m_fqdn;
@@ -43,5 +45,9 @@ public class RestartNeededService implements Serializable {
             return m_fqdn.equals(service.getLocation()) && m_serviceBeanId.equals(service.getServiceBeanId());
         }
         return false;
+    }
+
+    public boolean isConfigurationRestartNeeded() {
+        return StringUtils.equals(m_serviceBeanId, SipxConfigService.BEAN_ID);
     }
 }

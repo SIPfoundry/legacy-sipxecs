@@ -51,6 +51,4 @@ public interface CertificateManager {
     void deleteCA(CertificateDecorator cert);
 
     void deleteCAs(Collection<CertificateDecorator> listCert);
-
-    boolean isRestartNeeded();
 }

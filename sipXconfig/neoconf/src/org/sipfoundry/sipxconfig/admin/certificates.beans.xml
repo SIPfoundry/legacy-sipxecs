@@ -20,6 +20,8 @@
 	<property name="libExecDirectory" value="${sysdir.libexec}" />
     <property name="locationsManager" ref="locationsManager"/>
     <property name="certdbDirectory" value="${sysdir.var}/certdb" />
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>
+	<property name="processContext" ref="sipxProcessContext"/>
   </bean>
 
 </beans>
