@@ -79,4 +79,27 @@ public class AddExistingPhoneTestUi extends WebTestCase {
         submit("user:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
+
+    public void testGroupFilter() {
+        //create new phone
+        m_helper.seedPhone(1);
+
+        //assign created phone to user
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("test_user");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("Phones");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("addPhones");
+        SiteTestHelper.assertNoUserError(tester);
+
+        //all phones
+        assertEquals(2,SiteTestHelper.getRowCount(tester, "phone:list"));
+
+        //only unasigned phones
+        SiteTestHelper.selectOption(tester, "group:filter", "- unassigned -");
+        int noLinesTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        assertEquals(1, noLinesTableCount);
+
+    }
 }

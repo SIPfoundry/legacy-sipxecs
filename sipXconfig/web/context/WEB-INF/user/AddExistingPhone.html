@@ -14,7 +14,9 @@
           selectedGroupId="ognl:groupId"
           groups="ognl:phoneContext.groups"
           queryText="ognl:queryText"
-          searchMode="ognl:searchMode" />
+          searchMode="ognl:searchMode"
+          unassignedOptionAvailable="ognl:true"
+          unassignedMode="ognl:unassignedMode" />
       </li>
     </ul>
     <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>

@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTableModel;
+import org.sipfoundry.sipxconfig.site.phone.PhoneWithNoLinesTableModel;
 import org.sipfoundry.sipxconfig.site.phone.SearchPhoneTableModel;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 
@@ -67,9 +68,15 @@ public abstract class AddExistingPhone extends UserBasePage {
     @Persist
     public abstract Collection<Integer> getGenerateProfileIds();
 
+    @InitialValue("false")
+    @Persist
+    public abstract boolean getUnassignedMode();
+
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
-        if (!getSearchMode() || StringUtils.isBlank(queryText)) {
+        if (getUnassignedMode()) {
+            return new PhoneWithNoLinesTableModel(getPhoneContext());
+        } else if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId(), null);
         }
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
