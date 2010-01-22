@@ -1744,22 +1744,19 @@ public class BackToBackUserAgent implements Comparable {
             boolean globalAddressing = itspAccountInfo == null
                     || itspAccountInfo.isGlobalAddressingUsed();
             if (spiral) {
-                /*
+            	/*
                  * If this is a spiral, we re-use the RTP session from the refering dialog. This
                  * case occurs when we do a blind transfer.
                  */
-                String dialogContextId = SipUtilities.getDialogContextId(incomingRequest);
-                Dialog inboundDialog =  DialogContext.getDialogContext(dialogContextId).getPeerDialog() ;
-                logger.debug("inboundDialog from ITSP " + DialogContext.getDialogContext(dialogContextId));
-                 
                 if (globalAddressing) {
-                    DialogContext.getRtpSession(inboundDialog).getReceiver()
+                    DialogContext.getRtpSession(this.referingDialog).getReceiver()
                             .setGlobalAddress(this.symmitronClient.getPublicAddress());
                 }
-                DialogContext.getRtpSession(inboundDialog).getReceiver()
+                DialogContext.getRtpSession(this.referingDialog).getReceiver()
                         .setUseGlobalAddressing(globalAddressing);
-                outboundSessionDescription = DialogContext.getRtpSession(inboundDialog)
+                outboundSessionDescription = DialogContext.getRtpSession(this.referingDialog)
                         .getReceiver().getSessionDescription();
+                
            } else {
                 RtpSession wanRtpSession = this.createRtpSession(outboundDialog);
                 wanRtpSession.getReceiver().setUseGlobalAddressing(globalAddressing);
