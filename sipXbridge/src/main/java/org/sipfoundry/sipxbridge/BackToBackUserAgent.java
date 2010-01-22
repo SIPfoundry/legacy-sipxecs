@@ -401,7 +401,6 @@ public class BackToBackUserAgent implements Comparable {
                 logger.debug("replacedDialogPeerDialog = "
                         + ((DialogContext) replacedDialog.getApplicationData()).getPeerDialog());
                 logger.debug("referingDialogPeerDialog = " + this.referingDialogPeer);
-
             }
 
             if (replacedDialogPeerDialog.getState() == DialogState.TERMINATED) {
@@ -504,40 +503,39 @@ public class BackToBackUserAgent implements Comparable {
              * response received.
              */
 
-            if (Gateway.getAccountManager().getBridgeConfiguration().isReInviteSupported()) {
-                Dialog referingDialogPeer = this.referingDialogPeer;
+            Dialog referingDialogPeer = this.referingDialogPeer;
 
-                DialogContext referingDialogPeerApplicationData = DialogContext
-                        .get(referingDialogPeer);
-                Response lastResponse = referingDialogPeerApplicationData.getLastResponse();
-                DialogContext replacedDialogPeerDialogApplicationData = DialogContext
-                        .get(replacedDialogPeerDialog);
-                Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
+            DialogContext referingDialogPeerApplicationData = DialogContext
+            .get(referingDialogPeer);
+            Response lastResponse = referingDialogPeerApplicationData.getLastResponse();
+            DialogContext replacedDialogPeerDialogApplicationData = DialogContext
+            .get(replacedDialogPeerDialog);
+            Request reInvite = replacedDialogPeerDialog.createRequest(Request.INVITE);
 
-                ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData
-                        .getItspInfo();
-                /*
-                 * Patch up outbound re-INVITE.
-                 */
-                if (accountInfo == null || accountInfo.isGlobalAddressingUsed()) {
-                    SipUtilities.setGlobalAddresses(reInvite);
-                }
-
-                SessionDescription sessionDescription = SipUtilities
-                        .getSessionDescription(lastResponse);
-
-                replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
-                        .setSessionDescription(sessionDescription);
-
-                SipUtilities.incrementSessionVersion(sessionDescription);
-
-                reInvite.setContent(sessionDescription.toString(), ProtocolObjects.headerFactory
-                        .createContentTypeHeader("application", "sdp"));
-                SipProvider wanProvider = ((DialogExt) replacedDialogPeerDialog).getSipProvider();
-                ClientTransaction ctx = wanProvider.getNewClientTransaction(reInvite);
-                TransactionContext.attach(ctx, Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
-                replacedDialogPeerDialog.sendRequest(ctx);
+            ItspAccountInfo accountInfo = replacedDialogPeerDialogApplicationData
+            .getItspInfo();
+            /*
+             * Patch up outbound re-INVITE.
+             */
+            if (accountInfo == null || accountInfo.isGlobalAddressingUsed()) {
+                SipUtilities.setGlobalAddresses(reInvite);
             }
+
+            SessionDescription sessionDescription = SipUtilities
+            .getSessionDescription(lastResponse);
+
+            replacedDialogPeerDialogApplicationData.getRtpSession().getReceiver()
+            .setSessionDescription(sessionDescription);
+
+            SipUtilities.incrementSessionVersion(sessionDescription);
+
+            reInvite.setContent(sessionDescription.toString(), ProtocolObjects.headerFactory
+                    .createContentTypeHeader("application", "sdp"));
+            SipProvider wanProvider = ((DialogExt) replacedDialogPeerDialog).getSipProvider();
+            ClientTransaction ctx = wanProvider.getNewClientTransaction(reInvite);
+            TransactionContext.attach(ctx, Operation.HANDLE_SPIRAL_INVITE_WITH_REPLACES);
+                replacedDialogPeerDialog.sendRequest(ctx);
+           
             serverTransaction.sendResponse(response);
 
         } catch (Exception ex) {
@@ -673,7 +671,6 @@ public class BackToBackUserAgent implements Comparable {
             Dialog dialog = requestEvent.getDialog();
             ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
             Request referRequest = referServerTransaction.getRequest();
-            String referBranch =  ((ViaHeader)referRequest.getHeader(ViaHeader.NAME)).getBranch();
             DialogContext dialogContext = DialogContext.get(dialog);
             FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
                     FromHeader.NAME).clone();
@@ -1405,8 +1402,7 @@ public class BackToBackUserAgent implements Comparable {
 
         ClientTransaction retval = null;
 
-        String callId = SipUtilities.getCallId(triggeringResponse);
-             
+              
         try {
 
             SipURI uri = Gateway.getMusicOnHoldUri();
@@ -1538,8 +1534,6 @@ public class BackToBackUserAgent implements Comparable {
             String toDomain) throws SipException {
 
         logger.debug("sendInviteToItsp: " + this);
-        logger.debug("referringDialog = " + this.referingDialog);
-        logger.debug("referringDialogPeer = " + this.referingDialogPeer);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(incomingRequest);
@@ -1754,13 +1748,17 @@ public class BackToBackUserAgent implements Comparable {
                  * If this is a spiral, we re-use the RTP session from the refering dialog. This
                  * case occurs when we do a blind transfer.
                  */
+                String dialogContextId = SipUtilities.getDialogContextId(incomingRequest);
+                Dialog inboundDialog =  DialogContext.getDialogContext(dialogContextId).getPeerDialog() ;
+                logger.debug("inboundDialog from ITSP " + DialogContext.getDialogContext(dialogContextId));
+                 
                 if (globalAddressing) {
-                    DialogContext.getRtpSession(this.referingDialog).getReceiver()
+                    DialogContext.getRtpSession(inboundDialog).getReceiver()
                             .setGlobalAddress(this.symmitronClient.getPublicAddress());
                 }
-                DialogContext.getRtpSession(this.referingDialog).getReceiver()
+                DialogContext.getRtpSession(inboundDialog).getReceiver()
                         .setUseGlobalAddressing(globalAddressing);
-                outboundSessionDescription = DialogContext.getRtpSession(this.referingDialog)
+                outboundSessionDescription = DialogContext.getRtpSession(inboundDialog)
                         .getReceiver().getSessionDescription();
            } else {
                 RtpSession wanRtpSession = this.createRtpSession(outboundDialog);
@@ -2478,13 +2476,6 @@ public class BackToBackUserAgent implements Comparable {
     }
     
     
-    Dialog getReferringDialogPeer() {
-        return this.referingDialogPeer;
-    }
-
-    public Dialog getReferringDialog() {
-       return this.referingDialog;
-    }
 
    
 

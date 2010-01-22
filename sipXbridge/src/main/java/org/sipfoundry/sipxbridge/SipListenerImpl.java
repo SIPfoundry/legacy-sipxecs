@@ -622,8 +622,6 @@ public class SipListenerImpl implements SipListenerExt {
                     ClientTransaction clientTransaction = timeoutEvent
                             .getClientTransaction();
                     Dialog dialog = clientTransaction.getDialog();
-                    BackToBackUserAgent b2bua = DialogContext.get(dialog)
-                            .getBackToBackUserAgent();
                     dialog.delete();
                } else if (request.getMethod().equals(Request.INVITE)) {
                     /*

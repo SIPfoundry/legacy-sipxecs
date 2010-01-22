@@ -101,7 +101,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
                         String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
                       
-                        if ( userStr.equals(accountInfo.getUserName())) {
+                        if (accountInfo.getUserName() != null && userStr.equals(accountInfo.getUserName())) {
                             accountFound = accountInfo;
                             return accountInfo;
                         } 

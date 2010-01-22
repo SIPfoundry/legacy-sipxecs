@@ -497,7 +497,19 @@ class CallControlManager implements SymmitronResetHandler {
 
             BackToBackUserAgent btobua;
        	   
-
+            ItspAccountInfo itspAccount = null;
+            
+            if ( provider == Gateway.getLanProvider() ) {
+                itspAccount = Gateway.getAccountManager().getAccount(request);              
+            } else {
+                 String viaHost = SipUtilities.getViaHost(request);
+                 int viaPort = SipUtilities.getViaPort(request);
+                 if ( viaPort == -1 ) {
+                     viaPort = 5060;
+                 }
+                 itspAccount = Gateway.getAccountManager().getItspAccount(viaHost, viaPort);
+            }
+            
             /*
              * Look at the Dialog context. The B2BUA structure tracks the call and is pointed to
              * by the dialog application data.
@@ -525,14 +537,13 @@ class CallControlManager implements SymmitronResetHandler {
                 BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(replacesDialog);
                 DialogContext dat = DialogContext.get(replacesDialog);
                 DialogContext newDialogContext = DialogContext.attach(b2bua, dialog, serverTransaction, request);
-                
+                newDialogContext.setItspInfo(itspAccount);
+                        
                 b2bua.addDialog(newDialogContext);
 
                 Dialog peerDialog = dat.getPeerDialog();
                 logger.debug("replacesDialogState = " + replacesDialog.getState());
-               // if (replacesDialog.getState() != DialogState.CONFIRMED) {
-               //     dat.setPeerDialog(null);
-               // }
+              
 
                 DialogContext.pairDialogs(dialog, peerDialog);
 
@@ -580,11 +591,10 @@ class CallControlManager implements SymmitronResetHandler {
                 String toDomain = null;
                 // outbound call. better check for valid account
 
-                ItspAccountInfo account = Gateway.getAccountManager().getAccount(request);
-                if (account == null) {
+                 if (itspAccount == null) {
                     return;
                 }
-                if (account.getState() == AccountState.INVALID) {
+                if (itspAccount.getState() == AccountState.INVALID) {
                     Response response = SipUtilities.createResponse(serverTransaction,
                             Response.BAD_GATEWAY);
                     response.setReasonPhrase("Account state is INVALID. Check config.");
@@ -595,7 +605,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * This case occurs when in and outbound proxy are different.
                  */
 
-                toDomain = account.getSipDomain();
+                toDomain = itspAccount.getSipDomain();
 
                 /*
                  * Send the call setup invite out.
@@ -872,7 +882,8 @@ class CallControlManager implements SymmitronResetHandler {
                     .getApplicationData();
 
             Dialog peerDialog = dialogContext.getPeerDialog();
-            
+          
+            logger.debug(String.format("processAck: Dialog/peerDialog  = %s/%s",requestEvent.getDialog(),peerDialog));
             /*
              * Forward the ACK if we have not already done so.
              */
@@ -1025,9 +1036,11 @@ class CallControlManager implements SymmitronResetHandler {
                 peerDialogContext.setPendingAction(PendingDialogAction.NONE);
          
             } else if (peerDialogContext != null &&  peerDialog.getState() == DialogState.CONFIRMED) {
+            	 
+            	 
                  if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SOLICIT_SDP_OFFER_ON_ACK) {
                     dialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-                    peerDialogContext.setPendingAction(PendingDialogAction.NONE);
+                     peerDialogContext.setPendingAction(PendingDialogAction.NONE);
                     dialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());
                  } else  if ( ! dialogContext.getItspInfo().isAlwaysRelayMedia() && 
                       ! peerDialogContext.getItspInfo().isAlwaysRelayMedia() &&
