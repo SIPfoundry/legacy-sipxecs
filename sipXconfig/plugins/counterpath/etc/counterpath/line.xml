@@ -305,9 +305,6 @@
               <value>automatic</value>
             </option>
             <option>
-              <value>encrypted</value>
-            </option>
-            <option>
               <value>tcp</value>
             </option>
             <option>
