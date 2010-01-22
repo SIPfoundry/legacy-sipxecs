@@ -1042,7 +1042,9 @@ class CallControlManager implements SymmitronResetHandler {
                     dialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
                      peerDialogContext.setPendingAction(PendingDialogAction.NONE);
                     dialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());
-                 } else  if ( ! dialogContext.getItspInfo().isAlwaysRelayMedia() && 
+                 } else  if ( dialogContext.getItspInfo() != null && 
+                	  peerDialogContext.getItspInfo() != null &&
+                	  ! dialogContext.getItspInfo().isAlwaysRelayMedia() && 
                       ! peerDialogContext.getItspInfo().isAlwaysRelayMedia() &&
                       dialogContext.getItspInfo() == peerDialogContext.getItspInfo()
                       && SipUtilities.getDialogContextId(requestEvent.getRequest()) != null ) {

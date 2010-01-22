@@ -517,6 +517,10 @@ public class SipListenerImpl implements SipListenerExt {
                         DialogContext context = DialogContext.get(sipDialog);
                         Request request = context.getRequest();
                         DialogContext newContext = DialogContext.attach(b2bua, dialog,context.getDialogCreatingTransaction() , request);
+                        String host = SipUtilities.getViaHost(response);
+                        int port = SipUtilities.getViaPort(response);
+                        ItspAccountInfo itspInfo = Gateway.getAccountManager().getItspAccount(host, port);
+                        newContext.setItspInfo(itspInfo);
                         newContext.setRtpSession(context.getRtpSession());
                         /*
                          * At this point we only do one half of the association
