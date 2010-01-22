@@ -86,7 +86,7 @@ public class Deposit {
             if(m_message != null) {
                  
                 if(m_message.isToBeStored() && m_message.getDuration() > 1) {
-                    description = "just left a voice message.";
+                    description = " just left a voice message.";
                 }
             }            
             
