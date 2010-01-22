@@ -18,18 +18,19 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.data.Criteria;
-import com.smartgwt.client.data.DSRequest;
-import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.DataSource;
-import com.smartgwt.client.data.XMLTools;
 import com.smartgwt.client.types.Alignment;
-import com.smartgwt.client.types.DSOperationType;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
+import com.smartgwt.client.types.Visibility;
+import com.smartgwt.client.util.BooleanCallback;
 import com.smartgwt.client.util.SC;
+import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.IButton;
+import com.smartgwt.client.widgets.Img;
 import com.smartgwt.client.widgets.Label;
 import com.smartgwt.client.widgets.Window;
 import com.smartgwt.client.widgets.events.ClickEvent;
@@ -37,45 +38,40 @@ import com.smartgwt.client.widgets.events.ClickHandler;
 import com.smartgwt.client.widgets.events.CloseClickHandler;
 import com.smartgwt.client.widgets.events.CloseClientEvent;
 import com.smartgwt.client.widgets.form.DynamicForm;
+import com.smartgwt.client.widgets.form.ValuesManager;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
-import com.smartgwt.client.widgets.grid.HoverCustomizer;
+import com.smartgwt.client.widgets.form.validator.RegExpValidator;
+import com.smartgwt.client.widgets.form.validator.RequiredIfFunction;
+import com.smartgwt.client.widgets.form.validator.RequiredIfValidator;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
 import com.smartgwt.client.widgets.grid.events.RecordClickEvent;
 import com.smartgwt.client.widgets.grid.events.RecordClickHandler;
-import com.smartgwt.client.widgets.grid.events.RecordDoubleClickEvent;
-import com.smartgwt.client.widgets.grid.events.RecordDoubleClickHandler;
 import com.smartgwt.client.widgets.layout.HLayout;
 import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
-import com.smartgwt.client.widgets.viewer.DetailViewer;
-import com.smartgwt.client.widgets.viewer.DetailViewerField;
 
+import org.sipfoundry.sipxconfig.userportal.widget.PagedPhonebookDataSource;
 import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
 
 // FIXME: all sizes should be in CSS
 public class UserPhonebookSearch implements EntryPoint {
-    private static final String FIRST_NAME = "first-name";
-    private static final String LAST_NAME = "last-name";
-    private static final String NUMBER = "number";
-    private static final String EMAIL = "emailAddress";
-    private static final String QUERY = "query";
 
-    private static final String PHONE_CELL = "cellPhoneNumber";
-    private static final String PHONE_HOME = "homePhoneNumber";
-    private static final String PHONE_ASST = "assistantPhoneNumber";
-
+    private static final String DUMMY_ID = "-1";
+    private static final String EMPTY_STRING = "";
+    private static final String EMAIL_EXPRESSION = "^([a-zA-Z0-9_.\\-+])+@(([a-zA-Z0-9\\-])+\\.)+[a-zA-Z0-9]{2,4}$";
     private static final String WILD_CARD = "*";
 
     private static final String[] FIELDS_PHONENUMBERS = {
-        NUMBER, PHONE_CELL, PHONE_HOME, PHONE_ASST
+        PhonebookDataSource.NUMBER, PhonebookDataSource.CELL_PHONE_NUMBER, PhonebookDataSource.HOME_PHONE_NUMBER,
+        PhonebookDataSource.ASSISTANT_PHONE_NUMBER
     };
 
     private static SearchConstants s_searchConstants = GWT.create(SearchConstants.class);
@@ -83,48 +79,29 @@ public class UserPhonebookSearch implements EntryPoint {
     @Override
     public void onModuleLoad() {
         final SizeLabel sizeLabel = new SizeLabel();
+        sizeLabel.setWidth100();
 
-        DataSource phonebookDS = new PhonebookDataSource("phonebookGridId") {
+        final DataSource phonebookDS = new PagedPhonebookDataSource("phonebookGridId") {
             @Override
-            protected Object transformRequest(DSRequest request) {
-
-                if (request.getOperationType().equals(DSOperationType.FETCH)) {
-                    request.setActionURL(getDataURL() + "?start=" + request.getStartRow() + "&end="
-                            + request.getEndRow() + "&filter=" + request.getCriteria().getAttributeAsString(QUERY));
-                }
-
-                return super.transformRequest(request);
-            }
-
-            @Override
-            protected void transformResponse(DSResponse response, DSRequest request, Object data) {
-
-                if (request.getOperationType().equals(DSOperationType.FETCH)) {
-                    Integer size = Integer.parseInt(XMLTools.selectString(data, "/phonebook/size"));
-                    Integer filteredSize = Integer.parseInt(XMLTools.selectString(data, "/phonebook/filtered-size"));
-                    Integer startRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/start-row"));
-                    Integer endRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/end-row"));
-
-                    response.setTotalRows(filteredSize);
-                    response.setStartRow(startRow);
-                    response.setEndRow(endRow);
-                    sizeLabel.update(size, filteredSize);
-                } else {
-                    super.transformResponse(response, request, data);
-                }
-
+            protected void onDataFetch(Integer totalRows, Integer filteredRows) {
+                sizeLabel.update(totalRows, filteredRows);
             }
         };
 
-        final Details topTabSet = new Details(s_searchConstants);
+        final PhonebookGrid phonebookGrid = new PhonebookGrid(phonebookDS);
+        final Details details = new Details(phonebookGrid);
+        details.addData();
 
-        final ListGrid phonebookGrid = new PhonebookGrid(phonebookDS);
+        final Details detailsLayout = new Details(phonebookGrid, 6, 6, 6);
+        detailsLayout.addData();
+
         phonebookGrid.addRecordClickHandler(new RecordClickHandler() {
             @Override
             public void onRecordClick(RecordClickEvent event) {
-                topTabSet.setData(phonebookGrid.getSelection());
-                String number = event.getRecord().getAttributeAsString(NUMBER);
+                String number = event.getRecord().getAttributeAsString(PhonebookDataSource.NUMBER);
                 RootPanel.get("call:number").getElement().setPropertyString("value", number);
+                int recordIndex = event.getRecordNum();
+                phonebookGrid.collapeAllRecordsAndExpandThisOne(phonebookGrid.getRecord(recordIndex), recordIndex);
             }
         });
 
@@ -141,8 +118,16 @@ public class UserPhonebookSearch implements EntryPoint {
         });
         gmailImport.setAutoFit(true);
 
+        TabSet tabSet = new TabSet();
+        tabSet.setTabBarPosition(Side.TOP);
+        tabSet.setWidth("75%");
+        tabSet.setHeight(490);
+
+        Tab entriesTab = new Tab(s_searchConstants.entries());
+
         HLayout leftHLayout = new HLayout();
         leftHLayout.addMember(searchForm);
+        leftHLayout.addMember(sizeLabel);
         leftHLayout.setWidth("50%");
 
         HLayout rightHLayout = new HLayout();
@@ -154,42 +139,46 @@ public class UserPhonebookSearch implements EntryPoint {
         topHLayout.addMember(leftHLayout);
         topHLayout.addMember(rightHLayout);
         topHLayout.setWidth100();
+        topHLayout.setHeight(30);
 
-        HLayout hgridLayout = new HLayout();
-        hgridLayout.setLayoutRightMargin(5);
-        hgridLayout.addMember(phonebookGrid);
-        hgridLayout.addMember(topTabSet);
-        hgridLayout.setWidth("100%");
-        hgridLayout.setHeight(300);
+        VLayout layout = new VLayout(5);
+        layout.setMargin(5);
+        layout.addMember(topHLayout);
+        layout.addMember(phonebookGrid);
+        entriesTab.setPane(layout);
 
-        VLayout gridLayout = new VLayout();
-        gridLayout.setLayoutBottomMargin(5);
-        gridLayout.addMember(topHLayout);
-        gridLayout.addMember(sizeLabel);
-        gridLayout.addMember(hgridLayout);
-        gridLayout.setWidth("70%");
+        Tab newContactTab = new Tab(s_searchConstants.addNewContact());
+        newContactTab.setPane(new DetailsLayout(detailsLayout, phonebookGrid));
 
-        RootPanel.get("user_phonebook_grid").add(gridLayout);
+        tabSet.addTab(entriesTab);
+        tabSet.addTab(newContactTab);
+
+        RootPanel.get("user_phonebook_grid").add(tabSet);
+
     }
 
     private static class PhonebookGrid extends ListGrid {
         private static final String NRML_TABLE_FIELD_WIDTH = "20%";
+        private ListGridRecord m_expandedRecord;
+        private int m_expandedRecordIndex = Integer.valueOf(DUMMY_ID);
 
         public PhonebookGrid(DataSource phonebookDS) {
-            ListGridField firstNameField = new ListGridField(FIRST_NAME, s_searchConstants.firstName());
-            ListGridField lastNameField = new ListGridField(LAST_NAME, s_searchConstants.lastName());
-            ListGridField numberField = new ListGridField(NUMBER, s_searchConstants.number());
-            ListGridField emailField = new ListGridField(EMAIL, s_searchConstants.emailAddress());
+            ListGridField firstNameField = new ListGridField(PhonebookDataSource.FIRST_NAME, s_searchConstants
+                    .firstName());
+            ListGridField lastNameField = new ListGridField(PhonebookDataSource.LAST_NAME, s_searchConstants
+                    .lastName());
+            ListGridField numberField = new ListGridField(PhonebookDataSource.NUMBER, s_searchConstants.number());
+            ListGridField emailField = new ListGridField(PhonebookDataSource.EMAIL_ADDRESS, s_searchConstants
+                    .emailAddress());
 
             firstNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
             lastNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
             numberField.setWidth(NRML_TABLE_FIELD_WIDTH);
             emailField.setWidth(WILD_CARD);
 
-            setHeaderTitleStyle("gwtGridHeaderTitle");
-            setBaseStyle("gwtGridBody");
             setEmptyMessage(s_searchConstants.noUserFound());
-            setWidth("71%");
+            setWidth100();
+            setHeight100();
 
             setBodyOverflow(Overflow.AUTO);
             setOverflow(Overflow.VISIBLE);
@@ -201,38 +190,43 @@ public class UserPhonebookSearch implements EntryPoint {
             setCellHeight(25);
             setHeaderHeight(35);
             setFields(firstNameField, lastNameField, numberField, emailField);
-            setupClickToCallRowHover();
 
-            addRecordDoubleClickHandler(new RecordDoubleClickHandler() {
-                public void onRecordDoubleClick(RecordDoubleClickEvent event) {
-                    final LinkedHashMap<String, String> map = new LinkedHashMap<String, String>();
-
-                    for (String fieldName : FIELDS_PHONENUMBERS) {
-                        String numberToDial = event.getRecord().getAttributeAsString(fieldName);
-                        if (numberToDial != null) {
-                            map.put(fieldName + numberToDial, s_searchConstants.getString(fieldName));
-                        }
-                    }
-
-                    final ClickToCallModalWindow winModal = new ClickToCallModalWindow(map);
-                    winModal.show();
-                }
-            });
+            setCanExpandRecords(true);
         }
 
-        // Set ClickToCall hover prompt to all the fields in a row
-        private void setupClickToCallRowHover() {
-            ListGridField[] listGridFields = getFields();
-
-            for (ListGridField listGridField : listGridFields) {
-                listGridField.setShowHover(true);
-                listGridField.setHoverCustomizer(new HoverCustomizer() {
-                    @Override
-                    public String hoverHTML(Object value, ListGridRecord record, int rowNum, int colNum) {
-                        return s_searchConstants.clickToDialHoverInfo();
-                    }
-                });
+        public void collapeAllRecordsAndExpandThisOne(ListGridRecord record, int recordIndex) {
+            if (null != m_expandedRecord) {
+                collapseRecord(m_expandedRecord);
             }
+
+            if (m_expandedRecordIndex != recordIndex) {
+                expandRecord(record);
+                m_expandedRecord = record;
+                m_expandedRecordIndex = recordIndex;
+            } else {
+                m_expandedRecord = null;
+                m_expandedRecordIndex = Integer.valueOf(DUMMY_ID);
+            }
+            this.scrollToRow(recordIndex);
+        }
+
+        public void refreshRecordsWithDelay() {
+            setOpacity(50);
+            // fetch data with 1.5 secs delay so the changes to be picked up
+            Timer refreshTimer = new Timer() {
+                @Override
+                public void run() {
+                    setRecords(new ListGridRecord[0]);
+                    fetchData();
+                    setOpacity(null);
+                }
+            };
+            refreshTimer.schedule(1500);
+        }
+
+        @Override
+        protected Canvas getExpansionComponent(final ListGridRecord record) {
+            return new ExpandedContactComponent(this);
         }
     }
 
@@ -244,7 +238,6 @@ public class UserPhonebookSearch implements EntryPoint {
             m_query.setTitle(s_searchConstants.searchWidgetTitle());
 
             setFields(m_query);
-            setDataSource(phonebookDS);
         }
 
         void addHandler(final ListGrid phonebookGrid) {
@@ -253,7 +246,8 @@ public class UserPhonebookSearch implements EntryPoint {
                 public void onChanged(ChangedEvent event) {
                     phonebookGrid.invalidateCache();
                     if (m_query.getValue() != null) {
-                        phonebookGrid.filterData(new Criteria(QUERY, (String) m_query.getValue()));
+                        phonebookGrid
+                                .filterData(new Criteria(PhonebookDataSource.QUERY, (String) m_query.getValue()));
                     } else {
                         phonebookGrid.filterData();
                     }
@@ -263,68 +257,371 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-    private static class Details extends TabSet {
 
+    private static final class ExpandedContactComponent extends VLayout {
+        private static final IButton EDIT_BUTTON = new IButton(s_searchConstants.edit());
+        private static final IButton SAVE_BUTTON = new IButton(s_searchConstants.save());
+        private static final IButton RESET_BUTTON = new IButton(s_searchConstants.reset());
+        private static final IButton CANCEL_BUTTON = new IButton(s_searchConstants.cancel());
+
+        public ExpandedContactComponent(final PhonebookGrid grid) {
+            setStyleName("gwtExpandedContact");
+            setWidth("670px");
+            setAutoHeight();
+
+            final ListGridRecord record = grid.getSelectedRecord();
+
+            final Details details = new Details(grid);
+            details.setData(record);
+
+            final String entryId = record.getAttributeAsString(PhonebookDataSource.ENTRY_ID);
+
+            IButton removeButton = new IButton(s_searchConstants.delete());
+            removeButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    SC.ask(s_searchConstants.confirmDelete(), new BooleanCallback() {
+                        @Override
+                        public void execute(Boolean value) {
+                            if (value != null && value) {
+                                ((PhonebookDataSource) grid.getDataSource()).deleteEntry(entryId);
+                                grid.refreshRecordsWithDelay();
+                            }
+                        }
+                    });
+                }
+            });
+
+            SAVE_BUTTON.setVisibility(Visibility.HIDDEN);
+            RESET_BUTTON.setVisibility(Visibility.HIDDEN);
+            CANCEL_BUTTON.setVisibility(Visibility.HIDDEN);
+
+            EDIT_BUTTON.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    details.editData(entryId);
+                    showEditControls();
+                }
+            });
+
+            SAVE_BUTTON.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    details.onSaveClick(entryId);
+                    hideEditControls();
+                }
+            });
+
+            RESET_BUTTON.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    details.onResetClick();
+                }
+            });
+
+            CANCEL_BUTTON.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    details.onCancelClick();
+                    hideEditControls();
+                }
+            });
+
+            HLayout formActions = new HLayout();
+            formActions.setMembersMargin(4);
+            formActions.setAlign(Alignment.RIGHT);
+            formActions.setPadding(10);
+
+            if (!entryId.equals(DUMMY_ID)) {
+                formActions.addMember(SAVE_BUTTON);
+                formActions.addMember(RESET_BUTTON);
+                formActions.addMember(CANCEL_BUTTON);
+
+                formActions.addMember(EDIT_BUTTON);
+                formActions.addMember(removeButton);
+            }
+
+            addMember(new DetailsTab(details));
+            addMember(formActions);
+
+        }
+
+        private static final void showEditControls() {
+            SAVE_BUTTON.setVisibility(Visibility.INHERIT);
+            RESET_BUTTON.setVisibility(Visibility.INHERIT);
+            CANCEL_BUTTON.setVisibility(Visibility.INHERIT);
+            EDIT_BUTTON.setVisibility(Visibility.HIDDEN);
+        }
+
+        private static final void hideEditControls() {
+            SAVE_BUTTON.setVisibility(Visibility.HIDDEN);
+            RESET_BUTTON.setVisibility(Visibility.HIDDEN);
+            CANCEL_BUTTON.setVisibility(Visibility.HIDDEN);
+            EDIT_BUTTON.setVisibility(Visibility.INHERIT);
+        }
+    }
+
+
+
+    private static final class DetailsTab extends TabSet {
+        public DetailsTab(Details details) {
+            setHeight("260px");
+
+            HLayout generalLayout = new HLayout();
+            generalLayout.addMember(details.getAvatarSection());
+            generalLayout.addMember(details.getGeneralForm());
+
+            HLayout addressLayout = new HLayout();
+            addressLayout.addMember(details.getHomeForm());
+            addressLayout.addMember(details.getOfficeForm());
+            addressLayout.setMembersMargin(10);
+            addressLayout.setWidth100();
+
+            Tab generalTab = new Tab();
+            generalTab.setPane(generalLayout);
+            generalTab.setTitle(s_searchConstants.generalForm());
+
+            Tab homeTab = new Tab();
+            homeTab.setPane(addressLayout);
+            homeTab.setTitle("Address");
+
+            addTab(generalTab);
+            addTab(homeTab);
+        }
+    }
+
+
+
+    private static final class DetailsLayout extends VLayout {
+        public DetailsLayout(final Details details, final PhonebookGrid grid) {
+            final IButton saveButton = new IButton(s_searchConstants.save());
+            saveButton.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    details.onSaveClick(DUMMY_ID);
+                }
+            });
+
+            Label title = new Label(s_searchConstants.newContact());
+            title.setStyleName("gwtHeading");
+            title.setAutoHeight();
+            title.setWidth100();
+            title.setAlign(Alignment.CENTER);
+
+            addMember(title);
+            addMember(details.getGeneralForm());
+            addMember(details.getHomeForm());
+            addMember(details.getOfficeForm());
+            addMember(saveButton);
+
+            setMembersMargin(10);
+        }
+    }
+
+
+
+    private static class Details {
         private static final String[] FIELDS_GENERAL = {
-            "jobTitle", "jobDept", "companyName", "location", PHONE_CELL, "faxNumber", "imId", "alternateImId",
-            "alternateEmailAddress"
+            PhonebookDataSource.FIRST_NAME, PhonebookDataSource.NUMBER, PhonebookDataSource.EMAIL_ADDRESS,
+            PhonebookDataSource.LAST_NAME, PhonebookDataSource.LOCATION,
+            PhonebookDataSource.ALTERNATE_EMAIL_ADDRESS, PhonebookDataSource.JOB_TITLE,
+            PhonebookDataSource.CELL_PHONE_NUMBER, PhonebookDataSource.IM_ID, PhonebookDataSource.JOB_DEPT,
+            PhonebookDataSource.FAX_NUMBER, PhonebookDataSource.ALTERNATE_IM_ID, PhonebookDataSource.COMPANY_NAME
         };
 
         private static final String[] FIELDS_HOME = {
-            "homeStreet", "homeCity", "homeState", "homeCountry", "homeZip", PHONE_HOME
+            PhonebookDataSource.HOME_STREET, PhonebookDataSource.HOME_STATE, PhonebookDataSource.HOME_ZIP,
+            PhonebookDataSource.HOME_CITY, PhonebookDataSource.HOME_COUNTRY, PhonebookDataSource.HOME_PHONE_NUMBER
         };
 
         private static final String[] FIELDS_OFFICE = {
-            "officeDesignation", "assistantName", PHONE_ASST, "officeStreet", "officeCity", "officeState",
-            "officeCountry", "officeZip"
+            PhonebookDataSource.OFFICE_DESIGNATION, PhonebookDataSource.OFFICE_STREET,
+            PhonebookDataSource.OFFICE_COUNTRY, PhonebookDataSource.ASSISTANT_NAME, PhonebookDataSource.OFFICE_CITY,
+            PhonebookDataSource.OFFICE_ZIP, PhonebookDataSource.ASSISTANT_PHONE_NUMBER,
+            PhonebookDataSource.OFFICE_STATE
         };
 
-        private final DetailViewer m_phonebookViewerGeneral;
-        private final DetailViewer m_phonebookViewerHome;
-        private final DetailViewer m_phonebookViewerOffice;
+        private static PhonebookGrid s_phonebookGrid;
 
-        public Details(SearchConstants constants) {
-            m_phonebookViewerGeneral = new PhonebookViewer(constants, FIELDS_GENERAL);
-            m_phonebookViewerHome = new PhonebookViewer(constants, FIELDS_HOME);
-            m_phonebookViewerOffice = new PhonebookViewer(constants, FIELDS_OFFICE);
+        private final PhonebookForm m_generalForm;
+        private final PhonebookForm m_homeForm;
+        private final PhonebookForm m_officeForm;
+        private final AvatarSection m_avatar = new AvatarSection();
+        private final ValuesManager m_vm;
 
-            Tab tabGeneral = new Tab(s_searchConstants.tabGeneral());
-            Tab tabHome = new Tab(s_searchConstants.tabHome());
-            Tab tabOffice = new Tab(s_searchConstants.tabOffice());
+        private String m_entryId = DUMMY_ID;
+        private boolean m_edit;
 
-            tabGeneral.setPane(m_phonebookViewerGeneral);
-            tabHome.setPane(m_phonebookViewerHome);
-            tabOffice.setPane(m_phonebookViewerOffice);
-
-            setTabBarPosition(Side.TOP);
-            addTab(tabGeneral);
-            addTab(tabHome);
-            addTab(tabOffice);
+        public Details(final PhonebookGrid grid) {
+            this(grid, 4, 2, 2);
         }
 
-        public void setData(ListGridRecord[] selection) {
-            m_phonebookViewerGeneral.setData(selection);
-            m_phonebookViewerHome.setData(selection);
-            m_phonebookViewerOffice.setData(selection);
+        public Details(final PhonebookGrid grid, int generalCols, int homeCols, int officeCols) {
+            m_generalForm = new PhonebookForm(FIELDS_GENERAL, "generalForm", generalCols);
+            m_homeForm = new PhonebookForm(FIELDS_HOME, "homeForm", homeCols);
+            m_officeForm = new PhonebookForm(FIELDS_OFFICE, "officeForm", officeCols);
+
+            m_generalForm.addRequiredValidator(PhonebookDataSource.FIRST_NAME);
+            m_generalForm.addRequiredValidator(PhonebookDataSource.LAST_NAME);
+            m_generalForm.addRequiredValidator(PhonebookDataSource.NUMBER);
+            m_generalForm.addEmailValidator(PhonebookDataSource.EMAIL_ADDRESS);
+            m_generalForm.addEmailValidator(PhonebookDataSource.ALTERNATE_EMAIL_ADDRESS);
+
+            m_vm = new ValuesManager();
+
+            m_generalForm.setValuesManager(m_vm);
+            m_homeForm.setValuesManager(m_vm);
+            m_officeForm.setValuesManager(m_vm);
+
+            s_phonebookGrid = grid;
+        }
+
+        public void onSaveClick(String entryId) {
+            if (m_edit && (m_entryId.isEmpty() || m_entryId.equals(DUMMY_ID))) {
+                SC.say(s_searchConstants.editRecordWarning());
+            } else {
+                if (m_vm.validate()) {
+                    if (m_edit) {
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(m_entryId, m_vm);
+                    } else {
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(m_entryId, m_vm);
+                    }
+                    s_phonebookGrid.refreshRecordsWithDelay();
+                    addData();
+                }
+            }
+        }
+
+        public void onResetClick() {
+            m_vm.resetValues();
+        }
+
+        public void onCancelClick() {
+            m_vm.clearErrors(true);
+            setData(s_phonebookGrid.getSelectedRecord());
+        }
+
+        public void setData(ListGridRecord selection) {
+            m_avatar.update(selection);
+            m_generalForm.setData(selection);
+            m_homeForm.setData(selection);
+            m_officeForm.setData(selection);
+        }
+
+        public void editData(String id) {
+            edit(id);
+            m_generalForm.editData();
+            m_homeForm.editData();
+            m_officeForm.editData();
+        }
+
+        public void addData() {
+            add();
+            m_generalForm.addData();
+            m_homeForm.addData();
+            m_officeForm.addData();
+        }
+
+        private void edit(String id) {
+            m_vm.rememberValues();
+            m_entryId = id;
+            m_edit = true;
+        }
+
+        private void add() {
+            m_vm.clearValues();
+            m_entryId = DUMMY_ID;
+            m_edit = false;
+        }
+
+        public AvatarSection getAvatarSection() {
+            return m_avatar;
+        }
+
+        public PhonebookForm getGeneralForm() {
+            return m_generalForm;
+        }
+
+        public PhonebookForm getHomeForm() {
+            return m_homeForm;
+        }
+
+        public PhonebookForm getOfficeForm() {
+            return m_officeForm;
         }
     }
 
-    private static class PhonebookViewer extends DetailViewer {
 
-        public PhonebookViewer(SearchConstants constants, String[] fieldNames) {
-            setEmptyMessage(constants.selectUser());
-            setFields(createFields(fieldNames, constants));
+
+    private static final class PhonebookForm extends DynamicForm {
+        private static final String TITLE_STYLE = "titleFormStyle";
+
+        public PhonebookForm(String[] fieldNames, String formName, int numCols) {
+            setGroupTitle(s_searchConstants.getString(formName));
+            setIsGroup(true);
+            setNumCols(numCols);
+            setFixedColWidths(true);
+            setFields(createFields(fieldNames, s_searchConstants));
         }
 
-        private DetailViewerField[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
-            DetailViewerField[] fields = new DetailViewerField[fieldNames.length];
+        public void setData(ListGridRecord selection) {
+            for (FormItem item : getFields()) {
+                String itemName = item.getName();
+                String selectionValue = selection.getAttributeAsString(itemName);
+                item.setValue(selectionValue);
+                item.setDisabled(true);
+                item.setTitleStyle(TITLE_STYLE);
+            }
+        }
+
+        public void editData() {
+            for (FormItem item : getFields()) {
+                item.setDisabled(false);
+            }
+        }
+
+        public void addData() {
+            for (FormItem item : getFields()) {
+                item.setDisabled(false);
+                item.setValue(EMPTY_STRING);
+            }
+        }
+
+        private TextItem[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
+            TextItem[] fields = new TextItem[fieldNames.length];
             for (int i = 0; i < fields.length; i++) {
                 String title = constants.getString(fieldNames[i]);
-                fields[i] = new DetailViewerField(fieldNames[i], title);
+                fields[i] = new TextItem(fieldNames[i], title);
+                fields[i].setTitleStyle(TITLE_STYLE);
             }
             return fields;
         }
+
+        public void addRequiredValidator(String name) {
+            FormItem item = getItem(name);
+            RequiredIfValidator requiredValidator = new RequiredIfValidator();
+            requiredValidator.setExpression(new RequiredIfFunction() {
+
+                @Override
+                public boolean execute(FormItem formItem, Object value) {
+                    return true;
+                }
+            });
+            requiredValidator.setErrorMessage(s_searchConstants.requiredField());
+            item.setValidators(requiredValidator);
+        }
+
+        public void addEmailValidator(String name) {
+            FormItem item = getItem(name);
+            RegExpValidator emailValidator = new RegExpValidator();
+            emailValidator.setErrorMessage(s_searchConstants.invalidEmail());
+            emailValidator.setExpression(EMAIL_EXPRESSION);
+            item.setValidators(emailValidator);
+        }
+
     }
+
+
 
     private static class ModalWindow extends Window {
 
@@ -419,19 +716,111 @@ public class UserPhonebookSearch implements EntryPoint {
      * @return the formatted number
      */
     private static String formatPhoneNumber(String phoneNumber) {
-        return phoneNumber.replaceAll("[^0-9+]", "");
+        return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
     }
 
     private static class SizeLabel extends Label {
-        public SizeLabel() {
-            setTop(20);
-            setHeight(30);
-        }
-
         public void update(Integer totalRows, Integer filteredRows) {
-            setContents(s_searchConstants.numberOfEntries() + filteredRows + "/" + totalRows);
+            setContents(s_searchConstants.numberOfEntries() + EMPTY_STRING + filteredRows + "/" + totalRows);
         }
     }
+
+    private static class AvatarSection extends VLayout {
+        private static final String DEFAULT_AVATAR_URL = "http://gravatar.com/avatar";
+
+        private final Img m_avatar;
+        private final Label m_contactName;
+        private final ClickToCallButton m_clickToCall;
+
+        public AvatarSection() {
+            m_avatar = new Img();
+            m_avatar.setStyleName("gwtAvatarImg");
+            m_avatar.setWidth(140);
+            m_avatar.setHeight(140);
+            m_avatar.setLayoutAlign(Alignment.CENTER);
+
+            m_contactName = new Label();
+            m_contactName.setStyleName("gwtContactNameStyle");
+            m_contactName.setAlign(Alignment.CENTER);
+            m_contactName.setAutoHeight();
+
+            final HLayout clickToCallButtonLayout = new HLayout();
+            m_clickToCall = new ClickToCallButton();
+            clickToCallButtonLayout.addMember(m_clickToCall);
+            clickToCallButtonLayout.setPadding(15);
+            clickToCallButtonLayout.setWidth100();
+            clickToCallButtonLayout.setAlign(Alignment.CENTER);
+
+            addMember(m_avatar);
+            addMember(m_contactName);
+            addMember(clickToCallButtonLayout);
+
+            setWidth(150);
+            setHeight100();
+        }
+
+        public void update(ListGridRecord record) {
+            String avatar = getNullSafeValue(record.getAttributeAsString(PhonebookDataSource.AVATAR));
+            if (avatar.isEmpty()) {
+                avatar = DEFAULT_AVATAR_URL;
+            }
+
+            String firstName = getNullSafeValue(record.getAttributeAsString(PhonebookDataSource.FIRST_NAME));
+            String lastName = getNullSafeValue(record.getAttributeAsString(PhonebookDataSource.LAST_NAME));
+            m_clickToCall.update(record);
+            refreshSection(avatar, firstName + " " + lastName);
+        }
+
+        private void refreshSection(String imgSrc, String contactName) {
+            m_avatar.setSrc(imgSrc);
+            m_contactName.setContents(contactName);
+        }
+
+        private String getNullSafeValue(String value) {
+            if (value == null || value.equalsIgnoreCase("null")) {
+                return EMPTY_STRING;
+            }
+            return value;
+        }
+    }
+
+
+
+    private static class ClickToCallButton extends IButton {
+        private final LinkedHashMap<String, String> m_phoneMap;
+
+        public ClickToCallButton() {
+            super(s_searchConstants.call());
+            m_phoneMap = new LinkedHashMap<String, String>();
+
+            addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (!m_phoneMap.isEmpty()) {
+                        final ClickToCallModalWindow winModal = new ClickToCallModalWindow(m_phoneMap);
+                        winModal.show();
+                    }
+                }
+            });
+        }
+
+        public void update(ListGridRecord listGridRecord) {
+            m_phoneMap.clear();
+
+            if (null == listGridRecord) {
+                return;
+            }
+
+            for (String fieldName : FIELDS_PHONENUMBERS) {
+                String numberToDial = listGridRecord.getAttributeAsString(fieldName);
+                if (numberToDial != null) {
+                    m_phoneMap.put(fieldName + numberToDial, s_searchConstants.getString(fieldName));
+                }
+            }
+        }
+    }
+
+
 
     private static class GmailImportModalWindow extends ModalWindow {
 
@@ -452,6 +841,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
             IButton importFromGmail = new IButton(s_searchConstants.importLabel());
             importFromGmail.setLayoutAlign(Alignment.CENTER);
+            importFromGmail.setAutoFit(true);
             importFromGmail.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {

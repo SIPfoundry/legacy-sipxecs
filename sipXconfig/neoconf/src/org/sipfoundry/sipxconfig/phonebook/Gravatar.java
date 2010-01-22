@@ -20,16 +20,23 @@ import static org.apache.commons.lang.StringUtils.defaultString;
  * Calculates URL for the users avatar provided by gravatar.com service
  */
 public class Gravatar {
+
+    public static final String DEFAULT_AVATAR = "http://gravatar.com/avatar";
+
     public enum DefaultType {
         identicon, monsterid, wavatar
     }
 
-    private final User m_user;
+    private final String m_email;
     private DefaultType m_type = DefaultType.wavatar;
     private int m_size = 80;
 
     public Gravatar(User user) {
-        m_user = user;
+        m_email = user.getEmailAddress();
+    }
+
+    public Gravatar(String email) {
+        m_email = email;
     }
 
     public void setType(DefaultType type) {
@@ -46,12 +53,11 @@ public class Gravatar {
      * @return URL that can be used to retrieve gravatar
      */
     public String getUrl() {
-        String email = m_user.getEmailAddress();
-        if (email == null) {
+        if (m_email == null) {
             return null;
         }
 
-        String md5Email = md5Hex(email.toLowerCase());
+        String md5Email = md5Hex(m_email.toLowerCase());
         return format("http://www.gravatar.com/avatar/%s?s=%d&d=%s", md5Email, m_size, m_type);
     }
 
@@ -62,7 +68,7 @@ public class Gravatar {
      *        pass mailbox manager around
      */
     public String getSignupUrl() {
-        String email = defaultString(m_user.getEmailAddress()).toLowerCase();
+        String email = defaultString(m_email).toLowerCase();
         return format("http://en.gravatar.com/site/signup/%s", email);
     }
 }

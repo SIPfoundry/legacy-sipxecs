@@ -23,6 +23,7 @@ public final class HttpRequestBuilder extends RequestBuilder {
 
     public static final String PUT = "PUT";
     public static final String DELETE = "DELETE";
+    public static final String POST = "POST";
 
     private static SearchConstants s_searchConstants = GWT.create(SearchConstants.class);
 
@@ -32,25 +33,41 @@ public final class HttpRequestBuilder extends RequestBuilder {
 
     public static void doPut(String url) {
         HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
-        sendRequest(builder);
+        sendRequest(builder, null);
+    }
+
+    public static void doPut(String url, String postData, String contentType, String variant) {
+        HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
+        builder.setHeader(contentType, variant);
+        sendRequest(builder, postData);
     }
 
     public static void doDelete(String url) {
-        HttpRequestBuilder builder =  new HttpRequestBuilder(DELETE, url);
-        sendRequest(builder);
+        HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
+        sendRequest(builder, null);
     }
 
-    private static void sendRequest(HttpRequestBuilder builder) {
+    public static void doDelete(String url, String contentType, String variant) {
+        HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
+        builder.setHeader(contentType, variant);
+        sendRequest(builder, null);
+    }
+
+    public static void doPost(String url, String postData, String contentType, String variant) {
+        HttpRequestBuilder builder = new HttpRequestBuilder(POST, url);
+        builder.setHeader(contentType, variant);
+        sendRequest(builder, postData);
+    }
+
+    private static void sendRequest(HttpRequestBuilder builder, String postData) {
         try {
-            builder.sendRequest(null, new RequestCallback() {
+            builder.sendRequest(postData, new RequestCallback() {
                 public void onResponseReceived(Request request, Response response) {
                     int httpStatusCode = response.getStatusCode();
-                    if (httpStatusCode != Response.SC_ACCEPTED
-                            && httpStatusCode != Response.SC_OK
+                    if (httpStatusCode != Response.SC_ACCEPTED && httpStatusCode != Response.SC_OK
                             && httpStatusCode != Response.SC_NO_CONTENT) {
                         StringBuilder errorMsg = new StringBuilder(s_searchConstants.requestFailed());
-                        errorMsg.append("\n" + String.valueOf(httpStatusCode) + " "
-                                + response.getStatusText());
+                        errorMsg.append("\n" + String.valueOf(httpStatusCode) + " " + response.getStatusText());
                         Window.alert(errorMsg.toString());
                     }
                 }

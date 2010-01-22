@@ -58,7 +58,7 @@ public class UserPhonebookSearchResource extends UserResource {
         ArrayList<Representable> entriesArray = new ArrayList<Representable>();
         for (PhonebookEntry entry : entries) {
             entriesArray.add(new Representable(entry.getFirstName(), entry.getLastName(), entry.getNumber(), entry
-                    .getAddressBookEntry()));
+                    .getAddressBookEntry(), entry.getId().toString()));
         }
         return entriesArray;
     }
@@ -78,6 +78,8 @@ public class UserPhonebookSearchResource extends UserResource {
 
     static class Representable implements Serializable {
         @SuppressWarnings("unused")
+        private final String m_id;
+        @SuppressWarnings("unused")
         private final String m_firstName;
         @SuppressWarnings("unused")
         private final String m_lastName;
@@ -86,15 +88,19 @@ public class UserPhonebookSearchResource extends UserResource {
         @SuppressWarnings("unused")
         private final AddressBookEntry m_addressBookEntry;
 
-        public Representable(String firstName, String lastName, String number, AddressBookEntry addressBookEntry) {
+        public Representable(String firstName, String lastName, String number, AddressBookEntry addressBookEntry,
+                String id) {
             m_firstName = firstName;
             m_lastName = lastName;
             m_number = number;
             m_addressBookEntry = addressBookEntry;
+            m_id = id;
         }
     }
 
     static class PhonebookEntryRepresentation extends XStreamRepresentation<Collection<Representable>> {
+
+        private static final String ID = "m_id";
 
         public PhonebookEntryRepresentation(MediaType mediaType, Collection<Representable> object) {
             super(mediaType, object);
@@ -106,13 +112,14 @@ public class UserPhonebookSearchResource extends UserResource {
 
         @Override
         protected void configureXStream(XStream xstream) {
-            xstream.omitField(BeanWithId.class, "m_id");
+            xstream.omitField(BeanWithId.class, ID);
             xstream.alias("phonebook", List.class);
             xstream.alias("entry", Representable.class);
             xstream.aliasField("first-name", Representable.class, "firstName");
             xstream.aliasField("last-name", Representable.class, "lastName");
             xstream.aliasField("contact-information", Representable.class, "addressBookEntry");
             xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
+            xstream.omitField(Representable.class, ID);
         }
     }
 }

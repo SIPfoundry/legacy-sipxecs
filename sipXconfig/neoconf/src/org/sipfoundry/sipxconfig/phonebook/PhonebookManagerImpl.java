@@ -209,20 +209,19 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             }
         }
 
-        // Add private phonebook
-        Phonebook privatePhonebook = getPrivatePhonebook(user);
-        if (privatePhonebook != null) {
-            for (PhonebookEntry privateEntry : privatePhonebook.getEntries()) {
-                entries.put(getEntryKey(privateEntry), privateEntry);
-            }
-        }
-
         return entries.values();
     }
 
     public PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow,
             String endRow, String queryString) {
-        Collection<PhonebookEntry> entries = getEntries(phonebook, user);
+        Collection<PhonebookEntry> entries = convertPhonebookEntries(getEntries(phonebook, user));
+
+        // add private phonebook
+        Phonebook privatePhonebook = getPrivatePhonebook(user);
+        if (privatePhonebook != null) {
+            entries.addAll(privatePhonebook.getEntries());
+        }
+
         int totalSize = entries.size();
         if (!StringUtils.isEmpty(queryString) && !queryString.equals("null")) {
             CollectionUtils.filter(entries, new PhonebookEntryPredicate(queryString));
@@ -686,7 +685,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     boolean isVcard(BufferedInputStream is, String encoding) {
         final String vcardSignature = "BEGIN:VCARD";
         try {
-            // keep buffer smaller than the readlimit: trying to ensure that we can reset the stream
+            // keep buffer smaller than the readlimit: trying to ensure that we can reset the
+            // stream
             BufferedReader isr = new BufferedReader(new InputStreamReader(is, encoding), vcardSignature.length() * 2);
             is.mark(vcardSignature.length() * 10);
             String line;
@@ -721,5 +721,20 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         tempFile.delete();
 
         return encoding;
+    }
+
+    private Collection<PhonebookEntry> convertPhonebookEntries(Collection<PhonebookEntry> entriesList) {
+        Collection<PhonebookEntry> fileEntries = new ArrayList<PhonebookEntry>();
+        for (PhonebookEntry entry : entriesList) {
+            PhonebookEntry fileEntry = new PhonebookEntry();
+            fileEntry.setFirstName(entry.getFirstName());
+            fileEntry.setLastName(entry.getLastName());
+            fileEntry.setNumber(entry.getNumber());
+            fileEntry.setAddressBookEntry(entry.getAddressBookEntry());
+            fileEntry.setPhonebook(null);
+            fileEntries.add(fileEntry);
+        }
+
+        return fileEntries;
     }
 }

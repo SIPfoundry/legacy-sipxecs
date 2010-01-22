@@ -75,12 +75,6 @@ public interface SearchConstants extends ConstantsWithLookup {
 
     String officeDesignation();
 
-    String tabGeneral();
-
-    String tabHome();
-
-    String tabOffice();
-
     String clickToCall();
 
     String clickToDialHoverInfo();
@@ -112,4 +106,42 @@ public interface SearchConstants extends ConstantsWithLookup {
     String password();
 
     String account();
+
+    String generalForm();
+
+    String homeForm();
+
+    String officeForm();
+
+    String confirmDelete();
+
+    String selectRecordMessage();
+
+    String deleteRecordWarning();
+
+    String editRecordWarning();
+
+    String add();
+
+    String delete();
+
+    String edit();
+
+    String entries();
+
+    String details();
+
+    String save();
+
+    String reset();
+
+    String cancel();
+
+    String addNewContact();
+
+    String invalidEmail();
+
+    String requiredField();
+
+    String newContact();
 }

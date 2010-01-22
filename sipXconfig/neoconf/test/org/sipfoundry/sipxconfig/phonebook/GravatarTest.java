@@ -23,6 +23,10 @@ public class GravatarTest extends TestCase {
         String url = gravatar.getUrl();
         assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
 
+        gravatar = new Gravatar("iHaveAn@email.com");
+        url = gravatar.getUrl();
+        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
+
         gravatar.setSize(100);
         gravatar.setType(Gravatar.DefaultType.monsterid);
         url = gravatar.getUrl();

@@ -32,6 +32,8 @@ public class AddressBookEntry extends BeanWithId {
     private String m_alternateEmailAddress;
     private boolean m_useBranchAddress = true;
 
+    private String m_avatar = Gravatar.DEFAULT_AVATAR;
+
     public String getJobTitle() {
         return m_jobTitle;
     }
@@ -175,6 +177,14 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setEmailAddress(String emailAddress) {
         m_emailAddress = emailAddress;
+        if (emailAddress != null && !emailAddress.isEmpty()) {
+            Gravatar gravatar = new Gravatar(emailAddress);
+            m_avatar = gravatar.getUrl();
+        }
+    }
+
+    public String getAvatar() {
+        return m_avatar;
     }
 
     public String getAlternateEmailAddress() {

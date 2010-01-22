@@ -6,6 +6,7 @@
     <contact-information>
       <homeAddress/>
       <officeAddress/>
+      <avatar>http://gravatar.com/avatar</avatar>
     </contact-information>
   </entry>
   <entry>
@@ -15,6 +16,7 @@
     <contact-information>
       <homeAddress/>
       <officeAddress/>
+      <avatar>http://gravatar.com/avatar</avatar>
     </contact-information>
   </entry>
 </phonebook>

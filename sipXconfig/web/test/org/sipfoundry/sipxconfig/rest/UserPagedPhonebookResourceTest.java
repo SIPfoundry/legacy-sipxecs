@@ -105,7 +105,9 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         entry2.setFirstName("FirstName2");
         entry2.setLastName("LastName2");
         entry2.setNumber("201");
-        entry2.setAddressBookEntry(new AddressBookEntry());
+        AddressBookEntry abe = new AddressBookEntry();
+        abe.setEmailAddress("iHaveAn@email.com");
+        entry2.setAddressBookEntry(abe);
         entry3.setFirstName("FirstName3");
         entry3.setLastName("LastName3");
         entry3.setNumber("202");

@@ -1,5 +1,6 @@
 <phonebook>
   <entry>
+    <id>-1</id>
     <first-name>Asdfid</first-name>
     <last-name>Kjdicsdfg</last-name>
     <number>200</number>
@@ -36,6 +37,7 @@
     </contact-information>
   </entry>
   <entry>
+    <id>1</id>
     <first-name>Csdfes</first-name>
     <last-name>Sacsde</last-name>
     <number>201</number>
@@ -47,6 +49,7 @@
     </contact-information>
   </entry>
   <entry>
+    <id>-1</id>
     <first-name>Sefsd</first-name>
     <last-name>Adcds</last-name>
     <number>202</number>
@@ -58,6 +61,7 @@
     </contact-information>
   </entry>
   <entry>
+    <id>-1</id>
     <first-name>Wefasd</first-name>
     <last-name>Gsdfawe</last-name>
     <number>203</number>
@@ -69,6 +73,7 @@
     </contact-information>
   </entry>
   <entry>
+    <id>-1</id>
     <first-name>Casdfq</first-name>
     <last-name>Casdf</last-name>
     <number>204</number>

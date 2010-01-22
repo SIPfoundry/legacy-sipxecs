@@ -21,7 +21,6 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
-import org.sipfoundry.sipxconfig.phonebook.Gravatar;
 
 import static org.restlet.data.MediaType.APPLICATION_JSON;
 import static org.restlet.data.MediaType.TEXT_XML;
@@ -43,10 +42,8 @@ public class ContactInformationResource extends UserResource {
         if (addressBook.getUseBranchAddress() && user.getBranch() != null) {
             reprAddressBook.setOfficeAddress(user.getBranch().getAddress());
         }
-        Gravatar gravatar = new Gravatar(user);
 
-        Representable representable = new Representable(user.getFirstName(), user.getLastName(), gravatar.getUrl(),
-                reprAddressBook);
+        Representable representable = new Representable(user.getFirstName(), user.getLastName(), reprAddressBook);
         return new AddressBookRepresentation(variant.getMediaType(), representable);
     }
 
@@ -76,12 +73,10 @@ public class ContactInformationResource extends UserResource {
     static class Representable extends AddressBookEntry implements Serializable {
         private final String m_firstName;
         private final String m_lastName;
-        private final String m_gravatarUrl;
 
-        public Representable(String firstName, String lastName, String gravatarUrl, AddressBookEntry addressBook) {
+        public Representable(String firstName, String lastName, AddressBookEntry addressBook) {
             m_firstName = firstName;
             m_lastName = lastName;
-            m_gravatarUrl = gravatarUrl;
             this.update(addressBook);
         }
 
@@ -91,10 +86,6 @@ public class ContactInformationResource extends UserResource {
 
         public String getLastName() {
             return m_lastName;
-        }
-
-        public String getGravatarUrl() {
-            return m_gravatarUrl;
         }
     }
 
@@ -112,7 +103,7 @@ public class ContactInformationResource extends UserResource {
             xstream.omitField(BeanWithId.class, "m_id");
             xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
             xstream.alias("contact-information", Representable.class);
-            xstream.aliasField("avatar", Representable.class, "gravatarUrl");
+            xstream.aliasField("avatar", Representable.class, "m_avatar");
         }
     }
 }

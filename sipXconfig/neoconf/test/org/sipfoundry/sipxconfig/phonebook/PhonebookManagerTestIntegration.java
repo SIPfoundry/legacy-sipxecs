@@ -176,7 +176,8 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         User anotheruser = m_coreContext.loadUser(1003);
 
         Collection<Phonebook> phonebooks = m_phonebookManager.getPhonebooksByUser(anotheruser);
-        assertEquals(2, m_phonebookManager.getEntries(phonebooks, portaluser).size());
+        assertEquals(2, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
+                .size());
 
     }
 
@@ -228,5 +229,26 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(4, pagedPhonebook.getFilteredSize());
         assertEquals(0, pagedPhonebook.getStartRow());
         assertEquals(4, pagedPhonebook.getEndRow());
+    }
+
+    public void testGetPrivatePagedPhonebook() throws Exception {
+        loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        User canadian = m_coreContext.loadUser(1002);
+        Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(canadian);
+
+        PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
+        assertEquals(5, pagedPhonebook.getSize());
+        Iterator<PhonebookEntry> entries = pagedPhonebook.getEntries().iterator();
+        PhonebookEntry contact1 = entries.next();
+        assertEquals("canadian", contact1.getNumber());
+        assertEquals(new Integer(-1), contact1.getId());
+        PhonebookEntry contact2 = entries.next();
+        assertEquals("mallard", contact2.getNumber());
+        assertEquals(new Integer(-1), contact2.getId());
+        assertEquals("pintail", entries.next().getNumber());
+        assertEquals("yellowthroat", entries.next().getNumber());
+        PhonebookEntry editableContact = entries.next();
+        assertEquals(new Integer(101), editableContact.getId());
+        assertEquals("10020", editableContact.getNumber());
     }
 }

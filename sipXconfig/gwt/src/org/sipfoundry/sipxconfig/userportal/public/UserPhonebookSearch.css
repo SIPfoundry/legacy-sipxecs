@@ -1,54 +1,3 @@
-.gwtGridHeaderTitle, .gwtGridHeaderTitleSelected, .gwtGridHeaderTitleOver, .gwtGridHeaderTitleSelectedOver
-{
-	border-width:1px;
-	border-style: solid;
-	white-space:nowrap;
-	padding:3px 5px;
-	text-align:center;
-	color: #fff;
-	background: #355563;
-	border-color: #1B2B31;
-	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:12px;
-	font-weight:bold;
-}
-
-.gwtGridBody, .gwtGridBodyOver
-{
-	background: #D3E2E8;
-	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:12px;
-	padding-left:3px;
-}
-
-.gwtGridBodyDark, .gwtGridBodyOverDark
-{
-	background: #fff;
-	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:12px;
-	padding-left:3px;
-}
-
-.gwtGridBodySelected, .gwtGridBodySelectedDark
-{
-	color: #FFFFFF;
-	background: #637E8B;
-	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:16px;
-	padding-left:3px;
-	height:40px;
-}
-
-.gwtGridBodySelectedOver, .gwtGridBodySelectedOverDark
-{
-	color: #FFFFFF;
-	background: #637E8B;
-	font-family:Verdana,Arial,Helvetica,sans-serif;
-	font-size:16px;
-	padding-left:3px;
-	height:40px;
-}
-
 .detail, .detailLabel
 {
 	padding:3px;
@@ -59,13 +8,65 @@ fieldset td
 	padding:0px;
 }
 
-a.gwtClickToCall
-{
-    cursor:pointer;
+
+input[disabled='disabled'] {
+	border:0px;
+	background:white;
+	color:blue;
+	cursor:default;
 }
 
-img.gwtClickToCallImg
+input.disabled {
+	border:0px;
+	background:white;
+	color:blue;
+	cursor:default;
+}
+
+input.textItemDisabled {
+	border:0px;
+	background:white;
+	cursor:default;
+}
+
+.titleFormStyle, .titleFormStyleFocused
 {
-	height:13px;
-	width:13px;
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:9px;
+}
+
+td.titleFormStyleDisabled
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:9px;
+}
+
+.gwtContactNameStyle
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
+	font-weight:bold;
+}
+.gwtExpandedContact
+{
+	background:inherit;
+}
+
+.gwtHeading
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:24px;
+	font-weight:bold;
+	margin:10px;
+}
+
+.gwtAvatarImg
+{
+	margin:10px;
+}
+
+fieldset label
+{
+	font-size:9px;
+	padding-right:0px;
 }
