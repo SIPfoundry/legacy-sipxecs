@@ -133,6 +133,7 @@ then
     @SIPX_CONFDIR@/ssl/authorities/* \
     @SIPX_VARDIR@/configserver/phone/acd/audio/* \
     @SIPX_VARDIR@/parkserver/music/* \
+    @SIPX_VXMLDATADIR@/moh/* \
     @SIPX_VXMLDATADIR@/prompts/* \
     @SIPX_PAGEMUSICDIR@/* \
     $SIPX_CERTDB_DIR/* \
@@ -147,9 +148,16 @@ then
   done
 
   for Set in $ConfigSets; do
-    ExtraFiles=`ls $Set 2> /dev/null`
+    ExtraFiles=`ls -d $Set 2> /dev/null`
     for File in $ExtraFiles; do
-      ExistingBackupFiles="$ExistingBackupFiles $File"
+     if [ -d $File ]; then
+       UserFiles=`ls $File/* 2> /dev/null`;
+       for UserFile in $UserFiles; do
+            ExistingBackupFiles="$ExistingBackupFiles $UserFile"
+       done
+     else
+     ExistingBackupFiles="$ExistingBackupFiles $File"
+     fi
     done
   done
 
