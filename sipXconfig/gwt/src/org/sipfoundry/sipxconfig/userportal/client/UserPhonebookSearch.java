@@ -299,7 +299,7 @@ public class UserPhonebookSearch implements EntryPoint {
             EDIT_BUTTON.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    details.editData(entryId);
+                    details.editData();
                     showEditControls();
                 }
             });
@@ -449,7 +449,6 @@ public class UserPhonebookSearch implements EntryPoint {
         private final AvatarSection m_avatar = new AvatarSection();
         private final ValuesManager m_vm;
 
-        private String m_entryId = DUMMY_ID;
         private boolean m_edit;
 
         public Details(final PhonebookGrid grid) {
@@ -477,14 +476,14 @@ public class UserPhonebookSearch implements EntryPoint {
         }
 
         public void onSaveClick(String entryId) {
-            if (m_edit && (m_entryId.isEmpty() || m_entryId.equals(DUMMY_ID))) {
+            if (m_edit && (entryId.isEmpty() || entryId.equals(DUMMY_ID))) {
                 SC.say(s_searchConstants.editRecordWarning());
             } else {
                 if (m_vm.validate()) {
                     if (m_edit) {
-                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(m_entryId, m_vm);
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(entryId, m_vm);
                     } else {
-                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(m_entryId, m_vm);
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(entryId, m_vm);
                     }
                     s_phonebookGrid.refreshRecordsWithDelay();
                     addData();
@@ -508,30 +507,22 @@ public class UserPhonebookSearch implements EntryPoint {
             m_officeForm.setData(selection);
         }
 
-        public void editData(String id) {
-            edit(id);
+        public void editData() {
+            m_vm.rememberValues();
+            m_edit = true;
+
             m_generalForm.editData();
             m_homeForm.editData();
             m_officeForm.editData();
         }
 
         public void addData() {
-            add();
+            m_vm.clearValues();
+            m_edit = false;
+
             m_generalForm.addData();
             m_homeForm.addData();
             m_officeForm.addData();
-        }
-
-        private void edit(String id) {
-            m_vm.rememberValues();
-            m_entryId = id;
-            m_edit = true;
-        }
-
-        private void add() {
-            m_vm.clearValues();
-            m_entryId = DUMMY_ID;
-            m_edit = false;
         }
 
         public AvatarSection getAvatarSection() {
