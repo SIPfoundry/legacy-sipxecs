@@ -64,7 +64,7 @@ public abstract class CdrTable extends BaseComponent {
         getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
     }
 
-    private User getUser() {
+    public User getUser() {
         return getUserSession().getUser(getCoreContext());
     }
 

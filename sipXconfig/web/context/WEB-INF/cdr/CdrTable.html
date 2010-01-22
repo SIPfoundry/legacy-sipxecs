@@ -15,7 +15,7 @@
   </span>
 
   <span jwcid="calleeColumnValue@Block">
-	  <span jwcid="ifCdrTableId@If" condition="ognl:!userSession.admin" renderTag="false">
+	  <span jwcid="ifCdrTableId@If" condition="ognl:!userSession.admin && !user.userName.equals(row.callee)" renderTag="false">
 	    <a jwcid="@DirectLink"
 	      title="message:tooltip.call"
 	      listener="listener:call"
@@ -30,4 +30,19 @@
 	  </span>
   </span>
 
+  <span jwcid="callerColumnValue@Block">
+	  <span jwcid="@If" condition="ognl:!userSession.admin && !user.userName.equals(row.caller)" renderTag="false">
+	    <a jwcid="@DirectLink"
+	      title="message:tooltip.call"
+	      listener="listener:call"
+	      parameters="ognl:row.caller"
+	      asyn="ognl:true">
+	      <span jwcid="@Insert" value="ognl:row.caller"/>
+	    </a>
+	  </span>
+
+	  <span jwcid="@Else" renderTag="false">
+	    <span jwcid="@Insert" value="ognl:row.caller"/>
+	  </span>
+  </span>
 </table>
