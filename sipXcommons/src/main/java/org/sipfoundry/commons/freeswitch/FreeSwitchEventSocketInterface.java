@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 public abstract class FreeSwitchEventSocketInterface {
 
     protected final Logger LOG;
+    private String sessionUUID;
     private HashMap<String, String> m_variables;
     private LinkedBlockingQueue<FreeSwitchEvent> m_eventQueue = new LinkedBlockingQueue<FreeSwitchEvent>();
     private LinkedBlockingQueue<String> m_dtmfQueue = new LinkedBlockingQueue<String>();
@@ -225,6 +226,14 @@ public abstract class FreeSwitchEventSocketInterface {
         return m_config;
     }
 
+    public void setSessionUUID(String UUID) {
+    	sessionUUID = UUID;
+    }
+    
+    public String getSessionUUID() {
+    	return sessionUUID;
+    }
+    
     public String getCallerId() {
         return getVariable("Caller-Caller-ID-Name");
     }

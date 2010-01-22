@@ -24,7 +24,7 @@ public class CallCommand extends FreeSwitchEventHandler {
     public boolean start() {
         m_finished = false;
         // Send the command to the socket
-        m_fses.cmd("sendmsg\ncall-command: execute\nexecute-app-name: " + m_command);
+        m_fses.cmd("sendmsg " + m_fses.getSessionUUID() + "\ncall-command: execute\nexecute-app-name: " + m_command);
         return false;
     }
 

@@ -13,6 +13,7 @@ URL:          http://www.freeswitch.org/
 Packager:     Avaya
 Vendor:       http://www.voiceworks.pl/
 Source0:      %{SOURCE}
+Patch0:       mod_event_socket.patch
 Prefix:       %{prefix}
 
 AutoReqProv:  yes
@@ -123,37 +124,9 @@ Conflicts:	codec-g729
 %description codec-passthru-g729
 Pass-through g729 Codec support for FreeSWITCH open source telephony platform
 
-%package spidermonkey
-Summary:	JavaScript support for the FreeSWITCH open source telephony platform
-Group:		System/Libraries
-Requires:	 %{name} = %{version}-%{release}
-
-%description spidermonkey
-
-%package lua
-Summary:	Lua support for the FreeSWITCH open source telephony platform
-Group:		System/Libraries
-Requires:	%{name} = %{version}-%{release}
-
-%description	lua
-
-%package	perl
-Summary:	Perl support for the FreeSWITCH open source telephony platform
-Group:		System/Libraries
-Requires:	%{name} = %{version}-%{release}
-
-%description	perl
-
-%package lang-en
-Summary:	Provides english language dependand modules and sounds for the FreeSwitch Open Source telephone platform.
-Group:          System/Libraries
-Requires:        %{name} = %{version}-%{release}
-
-%description lang-en
-English language phrases module and directory structure for say module and voicemail
-
 %prep
 %setup -q
+%patch
 
 %build
 %ifos linux
@@ -166,7 +139,7 @@ export QA_RPATHS=$[ 0x0001|0x0002 ]
 %endif
 
 PASSTHRU_CODEC_MODULES="codecs/mod_g729 codecs/mod_g723_1 codecs/mod_amr"
-SPIDERMONKEY_MODULES="languages/mod_spidermonkey languages/mod_spidermonkey_curl languages/mod_spidermonkey_core_db languages/mod_spidermonkey_odbc languages/mod_spidermonkey_socket languages/mod_spidermonkey_teletone"
+SPIDERMONKEY_MODULES=""
 APPLICATIONS_MODULES="applications/mod_commands applications/mod_conference applications/mod_dptools applications/mod_enum applications/mod_esf applications/mod_expr applications/mod_fifo applications/mod_limit applications/mod_rss applications/mod_valet_parking applications/mod_voicemail applications/mod_fsv"
 ASR_TTS_MODULES=""
 CODECS_MODULES="codecs/mod_bv codecs/mod_celt codecs/mod_h26x codecs/mod_ilbc codecs/mod_siren codecs/mod_skel_codec codecs/mod_speex codecs/mod_voipcodecs"
@@ -176,11 +149,11 @@ DOTNET_MODULES=
 ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
 EVENT_HANDLERS_MODULES="event_handlers/mod_event_multicast event_handlers/mod_event_socket event_handlers/mod_cdr_csv"
 FORMATS_MODULES="formats/mod_file_string formats/mod_local_stream formats/mod_native_file formats/mod_portaudio_stream formats/mod_shell_stream formats/mod_sndfile formats/mod_tone_stream"
-LANGUAGES_MODULES="languages/mod_perl languages/mod_lua"
+LANGUAGES_MODULES=""
 LOGGERS_MODULES="loggers/mod_console loggers/mod_logfile loggers/mod_syslog"
-SAY_MODULES="say/mod_say_en"
+SAY_MODULES=""
 TIMERS_MODULES=
-DISABLED_MODULES="applications/mod_soundtouch directories/mod_ldap languages/mod_java languages/mod_python languages/mod_spidermonkey_skel ast_tts/mod_cepstral asr_tts/mod_lumenvox event_handlers/mod_event_test event_handlers/mod_radius_cdr event_handlers/mod_zeroconf formats/mod_shout say/mod_say_it say/mod_say_es say/mod_say_nl"
+DISABLED_MODULES="applications/mod_soundtouch directories/mod_ldap languages/mod_java languages/mod_python languages/mod_spidermonkey_skel ast_tts/mod_cepstral asr_tts/mod_lumenvox event_handlers/mod_event_test event_handlers/mod_radius_cdr event_handlers/mod_zeroconf formats/mod_shout say/mod_say_en say/mod_say_it say/mod_say_es say/mod_say_nl"
 XML_INT_MODULES="xml_int/mod_xml_rpc  xml_int/mod_xml_curl xml_int/mod_xml_cdr"
 MYMODULES="$PASSTHRU_CODEC_MODULES $SPIDERMONKEY_MODULES $APPLICATIONS_MODULES $ASR_TTS_MODULES $CODECS_MODULES $DIALPLANS_MODULES $DIRECTORIES_MODULES $DOTNET_MODULES $ENDPOINTS_MODULES $EVENT_HANDLERS_MODULES $FORMATS_MODULES $LANGUAGES_MODULES $LOGGERS_MODULES $SAY_MODULES $TIMERS_MODULES $XML_INT_MODULES"
 
@@ -225,10 +198,12 @@ touch .noversion
 %{__make}
 
 %install
-# delete unsupported langugages for now
+# delete langugages
+rm -rf conf/lang/en
 rm -rf conf/lang/de
 rm -rf conf/lang/fr
 rm -rf conf/lang/ru
+rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/en
 rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/de
 rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/fr
 rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
@@ -306,7 +281,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %dir %{prefix}/conf/dialplan
 %dir %{prefix}/conf/directory
 %dir %{prefix}/conf/directory/default
-%dir %{prefix}/conf/lang
 %dir %{prefix}/conf/sip_profiles
 %dir %{prefix}/conf/dialplan/default
 %dir %{prefix}/conf/dialplan/public
@@ -409,29 +383,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %defattr(0644, %{fs_user},daemon, 0755)
 %{prefix}/mod/mod_g729.so*
 
-%files spidermonkey
-%defattr(0644, %{fs_user},daemon, 0755)
-%{prefix}/mod/mod_spidermonkey*.so*
-%{prefix}/lib/libjs.so*
-%{prefix}/lib/libnspr4.so
-%{prefix}/lib/libplds4.so
-%{prefix}/lib/libplc4.so
-%dir %{prefix}/conf/autoload_configs
-%config(noreplace) %{prefix}/conf/autoload_configs/spidermonkey.conf.xml
-
-%files lua
-%defattr(0644, %{fs_user},daemon, 0755)
-%{prefix}/mod/mod_lua*.so*
-%dir %{prefix}/conf/autoload_configs
-%config(noreplace) %{prefix}/conf/autoload_configs/lua.conf.xml
-
-%files perl
-%defattr(0644, %{fs_user},daemon, 0755)
-%{prefix}/mod/mod_perl*.so*
-%{prefix}/perl/*
-%dir %{prefix}/conf/autoload_configs
-%config(noreplace) %{prefix}/conf/autoload_configs/perl.conf.xml
-
 %files devel
 %defattr(0644, %{fs_user},daemon, 0755)
 %dir %{prefix}/lib
@@ -442,62 +393,3 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/*.a
 %{prefix}/mod/*.la
 %{prefix}/include/*.h
-
-%files lang-en
-%defattr(0644, %{fs_user},daemon, 0755)
-%dir %{prefix}/conf/lang/en
-%dir %{prefix}/conf/lang/en/demo
-%dir %{prefix}/conf/lang/en/vm
-%config(noreplace) %{prefix}/conf/lang/en/*.xml
-%config(noreplace) %{prefix}/conf/lang/en/demo/*.xml
-%config(noreplace) %{prefix}/conf/lang/en/vm/*.xml
-%config(noreplace) %{prefix}/conf/lang/en/dir/*.xml
-%{prefix}/mod/mod_say_en.so*
-
-%changelog
-* Thu Feb 19 2009 - woof@nortel.com
-- Updated for FreeSWITCH 1.0.3
-* Thu Dec 04 2008 - woof@nortel.com
-- reworked for sipX installations.
-* Thu May 22 2008 - michal.bielicki@voiceworks.pl
-- disabled beta class language stuff
-- bumped revision up to rc6
-- added mod_lua
-- added mod_perl
-- Only bootstrap if no Makfile.in exists
-* Mon Feb 04 2008 - michal.bielicki@voiceworks.pl
-- More fixes to specfile
-- First go at SFE files
-* Sun Feb 03 2008 - michal.bielicki@voiceworks.pl
-- abstraction of prefix
-- more wrong stuff deleted
-- abstraction of mkdir, mv, rm, install etc into macros
-* Fri Jan 18 2008 - michal.bielicki@voiceworks.pl
-- fixes, fixes and more fixes in preparation for rc1
-* Thu Dec 5 2007 - michal.bielicki@voiceworks.pl
-- put in detail configfiles in to split of spidermonkey configs
-- created link from /opt/freesxwitch/conf to /etc%{prefix}
-* Thu Nov 29 2007 - michal.bielicki@voiceworks.pl
-- Added ifdefs for susealities
-- Added specifics for centos/redhat
-- Added specifics for fedora
-- Preparing to use it for adding it to SFE packaging for solaris
-- Added odbc stuff back in
-- made curl default
-- Separate package for mod_spidermonkey
-- got rid of modules.conf and stuffed everything in MODULES env var
-- got rid of handmade Cflags peter added ;)
-- fixed bin and libpaths
-- fixed locationof nspr and js libs
-- fixed odbc requirements
-- added all buildable modules
-- added redhat style init file
-- splitted off language dependant stuff into separate language files
-- disable non complete language modules
-* Tue Apr 24 2007 - peter+rpmspam@suntel.com.tr
-- Added a debug package
-- Split the passthrough codecs into separate packages
-* Fri Mar 16 2007 - peter+rpmspam@suntel.com.tr
-- Added devel package
-* Thu Mar 15 2007 - peter+rpmspam@suntel.com.tr
-- Initial RPM release

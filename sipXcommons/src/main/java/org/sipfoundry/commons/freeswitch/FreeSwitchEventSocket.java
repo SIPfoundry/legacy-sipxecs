@@ -67,11 +67,16 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
         LOG.debug(event.getResponse());
         setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
+        
+        // Record the current session UUID
+        setSessionUUID(getVariable("caller-unique-id"));
 
-        // Enable draining the event queue before the socket closes
-        cmdResponse("linger");
         // Enable reporting of interesting events
-        cmdResponse("myevents");
+        cmdResponse("event plain all");
+        
+        // Set filter to allow events from current UUID
+        cmdResponse("filter Unique-ID " + getSessionUUID());
+        
         return true;
     }
 
@@ -104,8 +109,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
             	// Hey! FS closed the socket on us!
             	return event;
             } else if (event.getContentType().contentEquals("command/reply")) {
-                LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd, event.getHeader(
-                        "Reply-Text", "(No Reply-Text)")));
+                LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd, event.getHeader("Reply-Text", "(No Reply-Text)")));
                 return event;
             } else {
                 // Push non reply event onto the queue for someone else to deal with.
@@ -188,8 +192,21 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
             }
         }
         event = new FreeSwitchEvent(response, content);
-        LOG.debug(String.format("FSES::awaitEvent live response (%s) Event-Name (%s)", event
-                .getContentType(), event.getEventValue("Event-Name", "(null)")));
+        LOG.debug(String.format("FSES::awaitEvent live response (%s) Event-Name (%s) Application (%s)",
+                event.getContentType(), event.getEventValue("Event-Name", "(null)"), event.getEventValue("Application", "(null)")));
+        
+        // Look for a "uuid_bridge" operation which indicates that this FS session
+        // is a consultative transfer target.
+        if (event.getContentType().contentEquals("text/event-plain")
+                && event.getEventValue("Event-Name", "(null)").contentEquals("CHANNEL_EXECUTE")
+                && event.getEventValue("Application", "(null)").contentEquals("uuid_bridge")) {
+            // Retrieve new UUID and update filters.
+            String newUUID = event.getEventValue("Application-Data");
+            setSessionUUID(newUUID);
+            cmd("filter Unique-ID " + newUUID);
+            LOG.debug(String.format("FSES::awaitEvent uuid_bridge to: %s", newUUID));
+        }
+
         return event;
     }
 

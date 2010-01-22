@@ -1,0 +1,305 @@
+--- src/mod/event_handlers/mod_event_socket/mod_event_socket.c.orig
++++ src/mod/event_handlers/mod_event_socket/mod_event_socket.c
+@@ -1941,7 +1941,150 @@
+ 		
+ 		goto done;
+ 
+-	}
++    } else if (!strncasecmp(cmd, "event", 5)) {
++        char *next, *cur;
++        uint32_t count = 0, key_count = 0;
++        uint8_t custom = 0;
++
++        strip_cr(cmd);
++        cur = cmd + 5;
++
++        if (cur && (cur = strchr(cur, ' '))) {
++            for (cur++; cur; count++) {
++                switch_event_types_t type;
++
++                if ((next = strchr(cur, ' '))) {
++                    *next++ = '\0';
++                }
++
++                if (!count) {
++                    if (!strcasecmp(cur, "xml")) {
++                        listener->format = EVENT_FORMAT_XML;
++                        goto end;
++                    } else if (!strcasecmp(cur, "plain")) {
++                        listener->format = EVENT_FORMAT_PLAIN;
++                        goto end;
++                    }
++                }
++
++
++                if (custom) {
++                    if (!listener->allowed_event_hash || switch_core_hash_find(listener->allowed_event_hash, cur)) {
++                        switch_core_hash_insert(listener->event_hash, cur, MARKER);
++                    } else {
++                        switch_snprintf(reply, reply_len, "-ERR permission denied");
++                        goto done;
++                    }
++                } else if (switch_name_event(cur, &type) == SWITCH_STATUS_SUCCESS) {
++                    if (switch_test_flag(listener, LFLAG_AUTH_EVENTS) && !listener->allowed_event_list[type] &&
++                        !switch_test_flag(listener, LFLAG_ALL_EVENTS_AUTHED)) {
++                        switch_snprintf(reply, reply_len, "-ERR permission denied");
++                        goto done;
++                    }
++
++                    key_count++;
++                    if (type == SWITCH_EVENT_ALL) {
++                        uint32_t x = 0;
++                        for (x = 0; x < SWITCH_EVENT_ALL; x++) {
++                            listener->event_list[x] = 1;
++                        }
++                    }
++                    if (type <= SWITCH_EVENT_ALL) {
++                        listener->event_list[type] = 1;
++                    }
++                    if (type == SWITCH_EVENT_CUSTOM) {
++                        custom++;
++                    }
++                }
++
++              end:
++                cur = next;
++            }
++        }
++
++        if (!key_count) {
++            switch_snprintf(reply, reply_len, "-ERR no keywords supplied");
++            goto done;
++        }
++
++        if (!switch_test_flag(listener, LFLAG_EVENTS)) {
++            switch_set_flag_locked(listener, LFLAG_EVENTS);
++        }
++
++        switch_snprintf(reply, reply_len, "+OK event listener enabled %s", listener->format == EVENT_FORMAT_XML ? "xml" : "plain");
++
++    } else if (!strncasecmp(cmd, "nixevent", 8)) {
++        char *next, *cur;
++        uint32_t count = 0, key_count = 0;
++        uint8_t custom = 0;
++
++        strip_cr(cmd);
++        cur = cmd + 5;
++
++        if (cur && (cur = strchr(cur, ' '))) {
++            for (cur++; cur; count++) {
++                switch_event_types_t type;
++
++                if ((next = strchr(cur, ' '))) {
++                    *next++ = '\0';
++                }
++
++                if (custom) {
++                    switch_core_hash_delete(listener->event_hash, cur);
++                } else if (switch_name_event(cur, &type) == SWITCH_STATUS_SUCCESS) {
++                    uint32_t x = 0;
++                    key_count++;
++
++                    if (type == SWITCH_EVENT_CUSTOM) {
++                        custom++;
++                    } else if (type == SWITCH_EVENT_ALL) {
++                        for (x = 0; x <= SWITCH_EVENT_ALL; x++) {
++                            listener->event_list[x] = 0;
++                        }
++                    } else {
++                        if (listener->event_list[SWITCH_EVENT_ALL]) {
++                            listener->event_list[SWITCH_EVENT_ALL] = 0;
++                            for (x = 0; x < SWITCH_EVENT_ALL; x++) {
++                                listener->event_list[x] = 1;
++                            }
++                        }
++                        listener->event_list[type] = 0;
++                    }
++                }
++
++                cur = next;
++            }
++        }
++
++        if (!key_count) {
++            switch_snprintf(reply, reply_len, "-ERR no keywords supplied");
++            goto done;
++        }
++
++        if (!switch_test_flag(listener, LFLAG_EVENTS)) {
++            switch_set_flag_locked(listener, LFLAG_EVENTS);
++        }
++
++        switch_snprintf(reply, reply_len, "+OK events nixed");
++
++    } else if (!strncasecmp(cmd, "noevents", 8)) {
++        flush_listener(listener, SWITCH_FALSE, SWITCH_TRUE);
++
++        if (switch_test_flag(listener, LFLAG_EVENTS)) {
++            uint8_t x = 0;
++            switch_clear_flag_locked(listener, LFLAG_EVENTS);
++            for (x = 0; x <= SWITCH_EVENT_ALL; x++) {
++                listener->event_list[x] = 0;
++            }
++            /* wipe the hash */
++            switch_core_hash_destroy(&listener->event_hash);
++            switch_core_hash_init(&listener->event_hash, listener->pool);
++            switch_snprintf(reply, reply_len, "+OK no longer listening for events");
++        } else {
++            switch_snprintf(reply, reply_len, "-ERR not listening for events");
++        }
++    }
++
+ 	
+ 	if (switch_test_flag(listener, LFLAG_OUTBOUND) && !switch_test_flag(listener, LFLAG_FULL)) {
+ 		goto done;
+@@ -2133,149 +2276,7 @@
+ 		} else {
+ 			switch_snprintf(reply, reply_len, "-ERR not loging");
+ 		}
+-	} else if (!strncasecmp(cmd, "event", 5)) {
+-		char *next, *cur;
+-		uint32_t count = 0, key_count = 0;
+-		uint8_t custom = 0;
+-
+-		strip_cr(cmd);
+-		cur = cmd + 5;
+-
+-		if (cur && (cur = strchr(cur, ' '))) {
+-			for (cur++; cur; count++) {
+-				switch_event_types_t type;
+-
+-				if ((next = strchr(cur, ' '))) {
+-					*next++ = '\0';
+-				}
+-
+-				if (!count) {
+-					if (!strcasecmp(cur, "xml")) {
+-						listener->format = EVENT_FORMAT_XML;
+-						goto end;
+-					} else if (!strcasecmp(cur, "plain")) {
+-						listener->format = EVENT_FORMAT_PLAIN;
+-						goto end;
+-					}
+-				}
+-				
+-				
+-				if (custom) {
+-					if (!listener->allowed_event_hash || switch_core_hash_find(listener->allowed_event_hash, cur)) {
+-						switch_core_hash_insert(listener->event_hash, cur, MARKER);
+-					} else {
+-						switch_snprintf(reply, reply_len, "-ERR permission denied");
+-						goto done;
+-					}
+-				} else if (switch_name_event(cur, &type) == SWITCH_STATUS_SUCCESS) {
+-					if (switch_test_flag(listener, LFLAG_AUTH_EVENTS) && !listener->allowed_event_list[type] && 
+-						!switch_test_flag(listener, LFLAG_ALL_EVENTS_AUTHED)) {
+-						switch_snprintf(reply, reply_len, "-ERR permission denied");
+-						goto done;
+-					}
+-
+-					key_count++;
+-					if (type == SWITCH_EVENT_ALL) {
+-						uint32_t x = 0;
+-						for (x = 0; x < SWITCH_EVENT_ALL; x++) {
+-							listener->event_list[x] = 1;
+-						}
+-					}
+-					if (type <= SWITCH_EVENT_ALL) {
+-						listener->event_list[type] = 1;
+-					}
+-					if (type == SWITCH_EVENT_CUSTOM) {
+-						custom++;
+-					}
+-				}
+-
+-			  end:
+-				cur = next;
+-			}
+-		}
+-
+-		if (!key_count) {
+-			switch_snprintf(reply, reply_len, "-ERR no keywords supplied");
+-			goto done;
+-		}
+-
+-		if (!switch_test_flag(listener, LFLAG_EVENTS)) {
+-			switch_set_flag_locked(listener, LFLAG_EVENTS);
+-		}
+-
+-		switch_snprintf(reply, reply_len, "+OK event listener enabled %s", listener->format == EVENT_FORMAT_XML ? "xml" : "plain");
+-
+-	} else if (!strncasecmp(cmd, "nixevent", 8)) {
+-		char *next, *cur;
+-		uint32_t count = 0, key_count = 0;
+-		uint8_t custom = 0;
+-
+-		strip_cr(cmd);
+-		cur = cmd + 5;
+-
+-		if (cur && (cur = strchr(cur, ' '))) {
+-			for (cur++; cur; count++) {
+-				switch_event_types_t type;
+-
+-				if ((next = strchr(cur, ' '))) {
+-					*next++ = '\0';
+-				}
+-
+-				if (custom) {
+-					switch_core_hash_delete(listener->event_hash, cur);
+-				} else if (switch_name_event(cur, &type) == SWITCH_STATUS_SUCCESS) {
+-					uint32_t x = 0;
+-					key_count++;
+-
+-					if (type == SWITCH_EVENT_CUSTOM) {
+-						custom++;
+-					} else if (type == SWITCH_EVENT_ALL) {
+-						for (x = 0; x <= SWITCH_EVENT_ALL; x++) {
+-							listener->event_list[x] = 0;
+-						}
+-					} else {
+-						if (listener->event_list[SWITCH_EVENT_ALL]) {
+-							listener->event_list[SWITCH_EVENT_ALL] = 0;
+-							for (x = 0; x < SWITCH_EVENT_ALL; x++) {
+-								listener->event_list[x] = 1;
+-							}
+-						}
+-						listener->event_list[type] = 0;
+-					}
+-				}
+-
+-				cur = next;
+-			}
+-		}
+-
+-		if (!key_count) {
+-			switch_snprintf(reply, reply_len, "-ERR no keywords supplied");
+-			goto done;
+-		}
+-
+-		if (!switch_test_flag(listener, LFLAG_EVENTS)) {
+-			switch_set_flag_locked(listener, LFLAG_EVENTS);
+-		}
+-
+-		switch_snprintf(reply, reply_len, "+OK events nixed");
+-
+-	} else if (!strncasecmp(cmd, "noevents", 8)) {
+-		flush_listener(listener, SWITCH_FALSE, SWITCH_TRUE);
+-
+-		if (switch_test_flag(listener, LFLAG_EVENTS)) {
+-			uint8_t x = 0;
+-			switch_clear_flag_locked(listener, LFLAG_EVENTS);
+-			for (x = 0; x <= SWITCH_EVENT_ALL; x++) {
+-				listener->event_list[x] = 0;
+-			}
+-			/* wipe the hash */
+-			switch_core_hash_destroy(&listener->event_hash);
+-			switch_core_hash_init(&listener->event_hash, listener->pool);
+-			switch_snprintf(reply, reply_len, "+OK no longer listening for events");
+-		} else {
+-			switch_snprintf(reply, reply_len, "-ERR not listening for events");
+-		}
+-	}
++    }
+ 
+  done:
+ 
