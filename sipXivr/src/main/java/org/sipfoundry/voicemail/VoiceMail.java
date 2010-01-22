@@ -377,6 +377,7 @@ public class VoiceMail {
         m_loc.play("please_hold", "");
         Transfer xfer = new Transfer(m_fses, uri);
         xfer.go();
+        throw new DisconnectException();
     }
 
     /**

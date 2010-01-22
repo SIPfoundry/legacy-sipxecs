@@ -129,39 +129,51 @@ public class CpDialog {
     private String collectDigit(String validDigits, PromptList immed,
                                 PromptList delay, PromptList help) {
 
+        boolean warningGiven = false;
         CpMenu menu = new CpMenu(m_vm);
         
         menu.setPrePromptPl(m_prePl);
-                
-        m_choice = menu.collectDigit(immed, validDigits);
+
+        for(;;) {
+            m_choice = menu.collectDigit(immed, validDigits);
         
-        m_prePl = null;
-        menu.setPrePromptPl(null);
-        
-        if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {         
-            m_choice = menu.collectDigit(delay, validDigits);
-        }
-        
-        if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
-            menu.setInitialTimeout(10000);
-            m_choice = menu.collectDigit(help, validDigits);
-        }        
-        
-        if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
-            m_choice = menu.collectDigit(m_loc.getPromptList("disc_warn"), validDigits);
-        }
-         
-        if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
-            m_vm.goodbye();
-            return null;        
-        }
-        
-        // bad entry, timeout, canceled
-        if (!menu.isOkay()) {
-            return null;
-        }
+            m_prePl = null;
+            menu.setPrePromptPl(null);
+
+            if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {         
+                m_choice = menu.collectDigit(delay, validDigits);
+            }
             
-        return m_choice.getDigits();
+            if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
+                menu.setInitialTimeout(10000);
+                m_choice = menu.collectDigit(help, validDigits);
+            }        
+            
+            if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
+                m_choice = menu.collectDigit(m_loc.getPromptList("disc_warn"), validDigits);
+                warningGiven = true;
+            }
+             
+            if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
+                m_vm.goodbye();
+                return null;        
+            }
+            
+            // bad entry, timeout, canceled
+            if (!menu.isOkay()) {
+                return null;
+            }
+            
+            if(warningGiven) {
+                if (m_choice.getDigits().equals("#")) {
+                    // through away # and try again
+                    warningGiven = false;
+                    continue;
+                }
+            }
+                
+            return m_choice.getDigits();
+        }
     }
     
     public IvrChoice getChoice() {

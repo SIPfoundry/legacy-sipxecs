@@ -308,7 +308,7 @@ public class CpCmd {
             String cmd = cpDialog.collectDigit("0123456789#*");
             
             if(cmd == null) {
-                return null;
+                return Command.NONE;
             }
             
             // got a digit. if digit received while in the middle of
