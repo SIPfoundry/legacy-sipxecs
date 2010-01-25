@@ -15,6 +15,7 @@
 #   -c CODEDIR: Specify an alternate $CODE directory than the default.
 #   -d: Build the dependency RPMs, versus retrieve them from SIPfoundry.
 #   -r: Build and install from sipXecs RPMs, versus install directly.
+#   -s: Build in sandbox. (Make no changes outside WORKING.)  Incompatible with -r and -d. 
 
 START_DATE=`date`
 
@@ -31,16 +32,20 @@ CODE=main
 LINKS=links
 DIST=DIST
 EDE_LOGS=logs_ede
+FULL_PATH_INSTALL=$WORKING_DIR/$INSTALL
+FULL_PATH_BUILD=$WORKING_DIR/$BUILD
+FULL_PATH_CODE=$WORKING_DIR/$CODE
 FULL_PATH_DIST=$WORKING_DIR/$DIST
 FULL_PATH_EDE_LOGS=$WORKING_DIR/$EDE_LOGS
 FULL_PATH_DEP_RPM_TOPDIR=$WORKING_DIR/$DEP_RPM_TOPDIR
 FULL_PATH_SIPX_RPM_TOPDIR=$WORKING_DIR/$SIPX_RPM_TOPDIR
 FULL_PATH_ECLIPSE_WORKSPACE=$WORKING_DIR/$ECLIPSE_WORKSPACE
 FULL_PATH_EDE_BIN=$WORKING_DIR/$EDE_BIN
+EDE_ENV_FILE=env-ede
 
 # Parse the arguments.
-USAGE="Usage: $0 [-h] [-d] [-r] [-i] [-c CODEDIR]"
-while getopts hc:rdi OPT; do
+USAGE="Usage: $0 [-h] [-d] [-r] [-i] [-s] [-c CODEDIR]"
+while getopts hc:rdis OPT; do
    case "$OPT" in
       h) echo $USAGE
          exit 1
@@ -50,6 +55,8 @@ while getopts hc:rdi OPT; do
       r) BUILD_RPMS="yup"
          ;;
       i) SKIP_LOCAL_SETUP_RUN="yup"
+         ;;
+      s) SANDBOX_MODE="yup"
          ;;
       c) CODE=$OPTARG
          ;;
@@ -73,6 +80,21 @@ if [ "`whoami`" == root ]; then
   echo "ERROR: Do NOT run this script as root (or with sudo.)" >&2
   echo "" >&2
   exit 1
+fi
+
+if [ -n "$SANDBOX_MODE" ]; then
+   if [ -n "$BUILD_RPMS" ]; then
+      echo "" >&2
+      echo "ERROR: The -s and -r options are not compatible." >&2
+      echo "" >&2
+      exit 1
+   fi
+   if [ -n "$BUILD_ALL_DEPENDENCIES" ]; then
+      echo "" >&2
+      echo "ERROR: The -s and -d options are not compatible." >&2
+      echo "" >&2
+      exit 1
+   fi
 fi
 
 DISTRO_EXIT_ERROR=3
@@ -253,54 +275,55 @@ function uninstall_sipxecs_rpms {
    fi
 }
 
-# Stop the old (which may not be running, or even installed...)
-if test -x /etc/init.d/sipxpbx
-then
-   sudo /sbin/service sipxpbx stop 2> /dev/null
-elif test -x /etc/init.d/sipxecs
-then
-   sudo /sbin/service sipxecs stop 2> /dev/null
-elif test -x $INSTALL/etc/init.d/sipxecs
-then
-   sudo $INSTALL/etc/init.d/sipxecs stop 2> /dev/null
-fi
-sudo killall httpd 2> /dev/null
-
 # Make a fresh EDE log dir.
 sudo rm -rf $EDE_LOGS.old 2> /dev/null
 mv $EDE_LOGS $EDE_LOGS.old 2> /dev/null
 mkdir $EDE_LOGS
 
-# Uninstall any old sipXecs RPMs.
-echo "Uninstalling any old sipXecs RPMs..."
-uninstall_sipxecs_rpms
+if [ -z "$SANDBOX_MODE" ]; then
+   # Stop the old (which may not be running, or even installed...)
+   if test -x /etc/init.d/sipxpbx
+   then
+      sudo /sbin/service sipxpbx stop 2> /dev/null
+   elif test -x /etc/init.d/sipxecs
+   then
+      sudo /sbin/service sipxecs stop 2> /dev/null
+   elif test -x $INSTALL/etc/init.d/sipxecs
+   then
+      sudo $INSTALL/etc/init.d/sipxecs stop 2> /dev/null
+   fi
+   sudo killall httpd 2> /dev/null
 
-# Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
-# Fedora 10/11 and CentOS 5.2.)
-SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
+   # Uninstall any old sipXecs RPMs.
+   echo "Uninstalling any old sipXecs RPMs..."
+   uninstall_sipxecs_rpms
 
-# Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
-# Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.
-FREESWITCH_SIPXECS_DEPS="sipx-freeswitch sipx-freeswitch-codec-passthru-amr sipx-freeswitch-codec-passthru-g723_1 sipx-freeswitch-codec-passthru-g729 sipx-freeswitch-devel sipx-freeswitch-lang-en sipx-freeswitch-lua sipx-freeswitch-perl sipx-freeswitch-spidermonkey"
+   # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
+   # Fedora 10/11 and CentOS 5.2.)
+   SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
 
-# Uninstall any old dependency RPMs.
-DEPS_UNINSTALL="$SIPFOUNDRY_BASE_DEPS $FREESWITCH_SIPXECS_DEPS"
-if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
-   # For CentOS 5.2 the BASE_DEPS also come from SIPfoundry dependency RPMs, so we'll refresh them too.
-   DEPS_UNINSTALL="$DEPS_UNINSTALL $BASE_DEPS"
-fi
-echo "Uninstalling any old dependency RPMs..."
-echo DEPS_UNINSTALL: $DEPS_UNINSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
-sudo yum -y remove $DEPS_UNINSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
-yum_remove_result=$?
-echo yum_remove_result: $yum_remove_result >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
-if [ $yum_remove_result != 0 ]; then
-   echo "ERROR: Dependency RPM uninstall failed, see $EDE_LOGS/dependency_rpm_uninstall.log" >&2
-   exit 8
+   # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
+   # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.
+   FREESWITCH_SIPXECS_DEPS="sipx-freeswitch sipx-freeswitch-codec-passthru-amr sipx-freeswitch-codec-passthru-g723_1 sipx-freeswitch-codec-passthru-g729 sipx-freeswitch-devel sipx-freeswitch-lang-en sipx-freeswitch-lua sipx-freeswitch-perl sipx-freeswitch-spidermonkey"
+
+   # Uninstall any old dependency RPMs.
+   DEPS_UNINSTALL="$SIPFOUNDRY_BASE_DEPS $FREESWITCH_SIPXECS_DEPS"
+   if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
+      # For CentOS 5.2 the BASE_DEPS also come from SIPfoundry dependency RPMs, so we'll refresh them too.
+      DEPS_UNINSTALL="$DEPS_UNINSTALL $BASE_DEPS"
+   fi
+   echo "Uninstalling any old dependency RPMs..."
+   echo DEPS_UNINSTALL: $DEPS_UNINSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
+   sudo yum -y remove $DEPS_UNINSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
+   yum_remove_result=$?
+   echo yum_remove_result: $yum_remove_result >> $FULL_PATH_EDE_LOGS/dependency_rpm_uninstall.log
+   if [ $yum_remove_result != 0 ]; then
+      echo "ERROR: Dependency RPM uninstall failed, see $EDE_LOGS/dependency_rpm_uninstall.log" >&2
+      exit 8
+   fi
 fi
 
 # This file can be source'd by a shell (using '.' or 'source'.)
-EDE_ENV_FILE=env-ede
 cat <<EOF > $EDE_ENV_FILE
 WORKING="`pwd`"
 WORKING_DIR="`pwd`"
@@ -338,10 +361,13 @@ for lib_comp in $(ls $CODE/lib);
 do
    sudo rm -rf $CODE/lib/$lib_comp/build 2> /dev/null
 done
-sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
-sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
-sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
 mkdir $INSTALL
+
+if [ -z "$SANDBOX_MODE" ]; then
+   sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
+   sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
+   sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
+fi
 
 # Record useful info.
 echo BUILD_ALL_DEPENDENCIES - $BUILD_ALL_DEPENDENCIES >> $FULL_PATH_EDE_LOGS/info.log
@@ -349,103 +375,105 @@ echo BUILD_RPMS - $BUILD_RPMS >> $FULL_PATH_EDE_LOGS/info.log
 echo CODE - $CODE >> $FULL_PATH_EDE_LOGS/info.log
 echo Distribution - $(return_uname_distro_id) >> $FULL_PATH_EDE_LOGS/info.log
 
-# Build any dependency RPMs which may be specified and/or required.
-# http://sipx-wiki.calivia.com/index.php/Building_dependencies
-if [ $BUILD_ALL_DEPENDENCIES ]; then
-   # Build all those required by the distribution.
-   if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
-      DISTRO=centos5
-   elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
-      DISTRO=f10
-   fi
-   # Manually add sipx-openfire, since it's listed in the CUSTOM_PACKAGES of the lib/Makefile.
-   DEPENDENCY_TARGET="$DISTRO sipx-openfire"
-   BUILD_DEPENDENCY_TARGET="yup"
-else
-   if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
-      # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install
-      # on Fedora 10/11, so we need to build them locally.
-      DEPENDENCY_TARGET=freeswitch
+if [ -z "$SANDBOX_MODE" ]; then
+   # Build any dependency RPMs which may be specified and/or required.
+   # http://sipx-wiki.calivia.com/index.php/Building_dependencies
+   if [ $BUILD_ALL_DEPENDENCIES ]; then
+      # Build all those required by the distribution.
+      if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
+         DISTRO=centos5
+      elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
+         DISTRO=f10
+      fi
+      # Manually add sipx-openfire, since it's listed in the CUSTOM_PACKAGES of the lib/Makefile.
+      DEPENDENCY_TARGET="$DISTRO sipx-openfire"
       BUILD_DEPENDENCY_TARGET="yup"
-   fi
-fi
-if [ $BUILD_DEPENDENCY_TARGET ]; then
-   echo "Building dependency RPMs covered under target(s): $DEPENDENCY_TARGET..."
-   mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
-   echo "%_topdir      $FULL_PATH_DEP_RPM_TOPDIR" > ~/.rpmmacros
-   rpmdev-setuptree
-   pushd $CODE/lib > /dev/null
-   rm -rf cache-file
-   make $DEPENDENCY_TARGET DESTDIR=$FULL_PATH_DIST LIBSRC=$FULL_PATH_DIST/libsrc &> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
-   dep_make_result=$?
-   echo DEPENDENCY_TARGET: $DEPENDENCY_TARGET >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
-   echo $FULL_PATH_DIST/RPM contents: >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
-   ls -la $FULL_PATH_DIST/RPM >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log &> /dev/null
-   echo dep_make_result: $dep_make_result >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
-   if [ $dep_make_result != 0 ]; then
-      echo "ERROR: Dependency RPM build failed, see $EDE_LOGS/dependency_rpm_build.log" >&2
-      exit 9
-   fi
-
-   echo "Creating local repository..."
-   echo [sipxecs-dependencies-local] > $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
-   echo name=sipXecs dependencies local >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
-   echo baseurl=file://$FULL_PATH_DIST/RPM >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
-   echo enabled=1 >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
-   echo gpgcheck=0 >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
-   sudo cp $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo /etc/yum.repos.d/
-   sudo createrepo $FULL_PATH_DIST/RPM > /dev/null 2> $FULL_PATH_EDE_LOGS/createrepo-error.log
-   popd > /dev/null
-fi
-
-# Get ready to install the SIPfoundry dependency RPMs with one big yum command below, regardless
-# of whether it's from the local or sipxecs-unstable repo.
-sudo yum -y update yum
-BIG_DEP_INSTALL="$SIPFOUNDRY_BASE_DEPS"
-
-# CentOS 5.2?
-if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
-   # Unlike Fedora 10/11, these aren't available from the standard repository under CentOS 5.2.
-   BIG_DEP_INSTALL="$BIG_DEP_INSTALL $BASE_DEPS"
-fi
-
-# Were all/any SIPfoundry dependency RPMs built locally?
-if [ $BUILD_ALL_DEPENDENCIES ]; then
-   # All dependencies were built locally, and must be installed locally (from sipxecs-dependencies-local,
-   # which was created above.)
-   BIG_DEP_INSTALL="$BIG_DEP_INSTALL $FREESWITCH_SIPXECS_DEPS"
-else
-   # At least some dependencies must be installed from the sipxecs-unstable repo.
-   add_sipxecs_unstable_repo
-
-   # Is this Fedora 10/11?
-   if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
-      # Fedora 10/11 makes things tricky here.  It mostly uses the Fedora 8 RPMs on sipxecs-unstable,
-      # except that the FreeSWITCH ones will fail to install.  So they were built locally and must be installed
-      # locally (from sipxecs-dependencies-local, which was created above.)
-      echo FREESWITCH_SIPXECS_DEPS: $FREESWITCH_SIPXECS_DEPS >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
-      sudo yum -y install --disablerepo=sipxecs-unstable $FREESWITCH_SIPXECS_DEPS >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log 2> $FULL_PATH_EDE_LOGS/FREESWITCH_SIPXECS_DEPS-error.log
    else
-      # The FreeSWITCH dependencies can also be installed from the sipxecs-unstable repo.
-      BIG_DEP_INSTALL="$BIG_DEP_INSTALL $FREESWITCH_SIPXECS_DEPS"
+      if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
+         # The Fedora 8 sipxecs-unstable FreeSWITCH RPMs will fail to install
+         # on Fedora 10/11, so we need to build them locally.
+         DEPENDENCY_TARGET=freeswitch
+         BUILD_DEPENDENCY_TARGET="yup"
+      fi
    fi
-fi
-echo BIG_DEP_INSTALL: $BIG_DEP_INSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
-sudo yum -y install $BIG_DEP_INSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
-if [ $? != 0 ]; then
-   echo "ERROR: Dependency RPM install failed, see $EDE_LOGS/dependency_rpm_install.log" >&2
-   exit 10
-fi
+   if [ $BUILD_DEPENDENCY_TARGET ]; then
+      echo "Building dependency RPMs covered under target(s): $DEPENDENCY_TARGET..."
+      mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
+      echo "%_topdir      $FULL_PATH_DEP_RPM_TOPDIR" > ~/.rpmmacros
+      rpmdev-setuptree
+      pushd $CODE/lib > /dev/null
+      rm -rf cache-file
+      make $DEPENDENCY_TARGET DESTDIR=$FULL_PATH_DIST LIBSRC=$FULL_PATH_DIST/libsrc &> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
+      dep_make_result=$?
+      echo DEPENDENCY_TARGET: $DEPENDENCY_TARGET >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
+      echo $FULL_PATH_DIST/RPM contents: >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
+      ls -la $FULL_PATH_DIST/RPM >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log &> /dev/null
+      echo dep_make_result: $dep_make_result >> $FULL_PATH_EDE_LOGS/dependency_rpm_build.log
+      if [ $dep_make_result != 0 ]; then
+         echo "ERROR: Dependency RPM build failed, see $EDE_LOGS/dependency_rpm_build.log" >&2
+         exit 9
+      fi
 
-# The rubygems package may have been installed by the base script (Fedora 10/11 - standard repo) or
-# by this script (CentOS 5.2 - SIPfoundry dependency RPMs.)  For simplicity though, we always
-# attempt to update and install gems here in this script.
-sudo gem update --system
-GEM_PACKAGES="file-tail rake"
-for package in $GEM_PACKAGES;
-do
-   sudo_gem_install_and_check $package
-done
+      echo "Creating local repository..."
+      echo [sipxecs-dependencies-local] > $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
+      echo name=sipXecs dependencies local >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
+      echo baseurl=file://$FULL_PATH_DIST/RPM >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
+      echo enabled=1 >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
+      echo gpgcheck=0 >> $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo
+      sudo cp $FULL_PATH_EDE_LOGS/sipxecs-dependencies-local.repo /etc/yum.repos.d/
+      sudo createrepo $FULL_PATH_DIST/RPM > /dev/null 2> $FULL_PATH_EDE_LOGS/createrepo-error.log
+      popd > /dev/null
+   fi
+
+   # Get ready to install the SIPfoundry dependency RPMs with one big yum command below, regardless
+   # of whether it's from the local or sipxecs-unstable repo.
+   sudo yum -y update yum
+   BIG_DEP_INSTALL="$SIPFOUNDRY_BASE_DEPS"
+
+   # CentOS 5.2?
+   if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
+      # Unlike Fedora 10/11, these aren't available from the standard repository under CentOS 5.2.
+      BIG_DEP_INSTALL="$BIG_DEP_INSTALL $BASE_DEPS"
+   fi
+
+   # Were all/any SIPfoundry dependency RPMs built locally?
+   if [ $BUILD_ALL_DEPENDENCIES ]; then
+      # All dependencies were built locally, and must be installed locally (from sipxecs-dependencies-local,
+      # which was created above.)
+      BIG_DEP_INSTALL="$BIG_DEP_INSTALL $FREESWITCH_SIPXECS_DEPS"
+   else
+      # At least some dependencies must be installed from the sipxecs-unstable repo.
+      add_sipxecs_unstable_repo
+
+      # Is this Fedora 10/11?
+      if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
+         # Fedora 10/11 makes things tricky here.  It mostly uses the Fedora 8 RPMs on sipxecs-unstable,
+         # except that the FreeSWITCH ones will fail to install.  So they were built locally and must be installed
+         # locally (from sipxecs-dependencies-local, which was created above.)
+         echo FREESWITCH_SIPXECS_DEPS: $FREESWITCH_SIPXECS_DEPS >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
+         sudo yum -y install --disablerepo=sipxecs-unstable $FREESWITCH_SIPXECS_DEPS >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log 2> $FULL_PATH_EDE_LOGS/FREESWITCH_SIPXECS_DEPS-error.log
+      else
+         # The FreeSWITCH dependencies can also be installed from the sipxecs-unstable repo.
+         BIG_DEP_INSTALL="$BIG_DEP_INSTALL $FREESWITCH_SIPXECS_DEPS"
+      fi
+   fi
+   echo BIG_DEP_INSTALL: $BIG_DEP_INSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
+   sudo yum -y install $BIG_DEP_INSTALL >> $FULL_PATH_EDE_LOGS/dependency_rpm_install.log
+   if [ $? != 0 ]; then
+      echo "ERROR: Dependency RPM install failed, see $EDE_LOGS/dependency_rpm_install.log" >&2
+      exit 10
+   fi
+
+   # The rubygems package may have been installed by the base script (Fedora 10/11 - standard repo) or
+   # by this script (CentOS 5.2 - SIPfoundry dependency RPMs.)  For simplicity though, we always
+   # attempt to update and install gems here in this script.
+   sudo gem update --system
+   GEM_PACKAGES="file-tail rake"
+   for package in $GEM_PACKAGES;
+   do
+      sudo_gem_install_and_check $package
+   done
+fi
 
 # Record the java version being used.
 sudo /usr/sbin/alternatives --display java >> $FULL_PATH_EDE_LOGS/java_alternatives.log
@@ -547,7 +575,7 @@ else
    ACTUAL_BUILD_DIR=$WORKING_DIR/$BUILD
    mkdir -p $ACTUAL_BUILD_DIR
    pushd $ACTUAL_BUILD_DIR > /dev/null
-   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_OPTIMIZED=off JAVAC_DEBUG=on SIPX_BUILD_LABEL=$WORKING_DIR --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS --with-odbc=/usr"
+   CONFIGURE_COMMAND="$FULL_CODE_PATH/configure --srcdir=$FULL_CODE_PATH --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` JAVAC_OPTIMIZED=off JAVAC_DEBUG=on SIPX_BUILD_LABEL=$WORKING_DIR --prefix=$FULL_INSTALL_PATH $CONFIGURE_FLAGS"
    ${CONFIGURE_COMMAND} &> $FULL_PATH_EDE_LOGS/designer_configure_output.log
    config_result=$?
    cp config.log $FULL_PATH_EDE_LOGS
@@ -569,35 +597,37 @@ else
    echo "Completed make..."
    popd > /dev/null
 
-   # Install the gems that were just built (and hidden away...)
-   sudo gem install $FULL_INSTALL_PATH/lib/ruby/gems/1.8/cache/*.gem &> $FULL_PATH_EDE_LOGS/sipxecs_gem_install.log
-   if [ $? != 0 ]; then
-      echo "ERROR: sipXecs gem install failed, see $EDE_LOGS/sipxecs_gem_install.log" >&2
-      exit 17
+   if [ -z "$SANDBOX_MODE" ]; then
+      # Install the gems that were just built (and hidden away...)
+      sudo gem install $FULL_INSTALL_PATH/lib/ruby/gems/1.8/cache/*.gem &> $FULL_PATH_EDE_LOGS/sipxecs_gem_install.log
+      if [ $? != 0 ]; then
+         echo "ERROR: sipXecs gem install failed, see $EDE_LOGS/sipxecs_gem_install.log" >&2
+         exit 17
+      fi
+
+      # This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxecs xxx",
+      # and started automatically after reboot.
+      sudo rm -rf /etc/init.d/sipxecs
+      sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxecs /etc/init.d/sipxecs
+
+      # Cause the logs to be rotated.
+      sudo rm -rf /etc/logrotate.d/sipxchange
+      sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/sipxchange /etc/logrotate.d/sipxchange
+
+      # Adjust the TFTP/FTP directory.
+      TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
+      ruby -e 'path=""; ARGV[0].split("/").each {|x| path+=x+"/"; `sudo chmod g+x #{path}`}' $TFTP_PATH
+      sudo rm -rf /tftpboot
+      sudo ln -s $TFTP_PATH /tftpboot
+
+      # Undo damage that might have been done by a previous RPM build.
+      sudo sed -i -e 's/-s \/var\/sipxdata\/configserver\/phone\/profile\/tftproot/-s \/tftpboot/g' /etc/xinetd.d/tftp
+      sudo /sbin/service xinetd restart
+
+      # Enable the FTP users, also using the /tftpboot directory.
+      add_ftp_user PlcmSpIp PlcmSpIp
+      add_ftp_user lvp2890 28904all
    fi
-
-   # This is needed so often, we might as well make it easily available with "sudo /sbin/service sipxecs xxx",
-   # and started automatically after reboot.
-   sudo rm -rf /etc/init.d/sipxecs
-   sudo ln -s $FULL_INSTALL_PATH/etc/init.d/sipxecs /etc/init.d/sipxecs
-
-   # Cause the logs to be rotated.
-   sudo rm -rf /etc/logrotate.d/sipxchange
-   sudo ln -s $FULL_INSTALL_PATH/etc/logrotate.d/sipxchange /etc/logrotate.d/sipxchange
-
-   # Adjust the TFTP/FTP directory.
-   TFTP_PATH=$FULL_INSTALL_PATH/var/sipxdata/configserver/phone/profile/tftproot
-   ruby -e 'path=""; ARGV[0].split("/").each {|x| path+=x+"/"; `sudo chmod g+x #{path}`}' $TFTP_PATH
-   sudo rm -rf /tftpboot
-   sudo ln -s $TFTP_PATH /tftpboot
-
-   # Undo damage that might have been done by a previous RPM build.
-   sudo sed -i -e 's/-s \/var\/sipxdata\/configserver\/phone\/profile\/tftproot/-s \/tftpboot/g' /etc/xinetd.d/tftp
-   sudo /sbin/service xinetd restart
-
-   # Enable the FTP users, also using the /tftpboot directory.
-   add_ftp_user PlcmSpIp PlcmSpIp
-   add_ftp_user lvp2890 28904all
 fi
 
 # Finish the scripts.
@@ -630,6 +660,21 @@ cat $FULL_PATH_EDE_BIN/tmp >> $FULL_PATH_EDE_BIN/full_conf_build
 cat $FULL_PATH_EDE_BIN/tmp >> $FULL_PATH_EDE_BIN/rebuild
 rm -rf $FULL_PATH_EDE_BIN/tmp
 
+# A script for launching Eclipse with the appropriate parameters, 
+cat <<EOF >> $FULL_PATH_EDE_BIN/ede-eclipse
+#!/bin/bash
+#
+# Generated by '$0' on "`date`"
+
+# Launch...
+eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib
+
+# Remove these directories, since they cause test-integration to fail with mysterious errors.
+find $FULL_PATH_CODE/sipXconfig -type d -name bin.eclipse | xargs rm -rf 
+
+EOF
+chmod +x $FULL_PATH_EDE_BIN/ede-eclipse
+
 # Another script useful for sipXconfig development.
 cat <<EOF >> $FULL_PATH_EDE_BIN/config_rebuild_plus
 #!/bin/bash
@@ -645,26 +690,32 @@ if [ "\`whoami\`" == root ]; then
   exit 1
 fi
 
-pushd $BUILD/sipXconfig
+# Rebuild
+pushd $FULL_PATH_BUILD/sipXconfig
 make
-if [ $? != 0 ]; then
+if [ \$? != 0 ]; then
    echo \"ERROR: sipXconfig make failed!\" >&2
    echo -e '\a'
    exit 2
 fi
 make install
-if [ $? != 0 ]; then
+if [ \$? != 0 ]; then
    echo \"ERROR: sipXconfig make install failed!\" >&2
    echo -e '\a'
    exit 4
 fi
 popd
 
-$INSTALL/bin/sipxproc --restart ConfigServer
+# Restart
+$FULL_PATH_INSTALL/bin/sipxproc --restart ConfigServer
 
-pushd $CODE/sipXconfig
+# Remove these directories, since they cause test-integration to fail with mysterious errors.
+find $FULL_PATH_CODE/sipXconfig -type d -name bin.eclipse | xargs rm -rf 
+
+# Full unit tests
+pushd $FULL_PATH_CODE/sipXconfig
 ant precommit
-if [ $? != 0 ]; then
+if [ \$? != 0 ]; then
    echo \"ERROR: sipXconfig ant precommit failed!\" >&2
    echo -e '\a'
    exit 5
@@ -676,7 +727,7 @@ echo "Start   :" \$START_DATE
 echo -n "Complete: "
 date
 echo ""
-echo "`basename $0` DONE!"
+echo "`basename \\$0` DONE!"
 echo ""
 echo -e '\a'
 
@@ -694,31 +745,33 @@ ln -s $FULL_INSTALL_PATH/bin bin
 ln -s $FULL_INSTALL_PATH/share/sipxecs/process.d process.d
 popd > /dev/null
 
-# Easy scripts to start, stop, restart, and get status.
-echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start > /tmp/sstart
-sudo mv /tmp/sstart /usr/bin/
-sudo chmod a+rx /usr/bin/sstart
-echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/sstop
-sudo mv /tmp/sstop /usr/bin/
-sudo chmod a+rx /usr/bin/sstop
-echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs status > /tmp/sstatus
-sudo mv /tmp/sstatus /usr/bin/
-sudo chmod a+rx /usr/bin/sstatus
-echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/srestart
-echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start >> /tmp/srestart
-sudo mv /tmp/srestart /usr/bin/
-sudo chmod a+rx /usr/bin/srestart
+if [ -z "$SANDBOX_MODE" ]; then
+   # Easy scripts to start, stop, restart, and get status.
+   echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start > /tmp/sstart
+   sudo mv /tmp/sstart /usr/bin/
+   sudo chmod a+rx /usr/bin/sstart
+   echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/sstop
+   sudo mv /tmp/sstop /usr/bin/
+   sudo chmod a+rx /usr/bin/sstop
+   echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs status > /tmp/sstatus
+   sudo mv /tmp/sstatus /usr/bin/
+   sudo chmod a+rx /usr/bin/sstatus
+   echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs stop > /tmp/srestart
+   echo sudo $ETC_AND_VAR_PATH/etc/init.d/sipxecs start >> /tmp/srestart
+   sudo mv /tmp/srestart /usr/bin/
+   sudo chmod a+rx /usr/bin/srestart
 
-# Clear any database contents that might be left over from the last install.
-$FULL_INSTALL_PATH/bin/sipxconfig.sh --database drop create &> $FULL_PATH_EDE_LOGS/sipxconfig_drop_create.log
-$FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> $FULL_PATH_EDE_LOGS/sipxconfig_first-run.log
+   # Clear any database contents that might be left over from the last install.
+   $FULL_INSTALL_PATH/bin/sipxconfig.sh --database drop create &> $FULL_PATH_EDE_LOGS/sipxconfig_drop_create.log
+   $FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> $FULL_PATH_EDE_LOGS/sipxconfig_first-run.log
+fi
 
 # Fix FreeSWITCH
 sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/freeswitch_configtest.log
 
 # Eclipse readiness.
 mkdir -p $FULL_PATH_ECLIPSE_WORKSPACE
-echo alias \'ede-eclipse=eclipse -data $FULL_PATH_ECLIPSE_WORKSPACE -vmargs -Xmx1024M -XX:PermSize=1024M -Dorg.eclipse.swt.internal.gtk.disablePrinting -Djava.library.path=/usr/lib \&\' >> $EDE_ENV_FILE
+echo alias \'ede-eclipse=$FULL_PATH_EDE_BIN/ede-eclipse \&\' >> $EDE_ENV_FILE
 echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
 echo SIPX_MYBUILD_OUT=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
 FULL_PATH_ECLIPSE_SETTINGS=$FULL_PATH_ECLIPSE_WORKSPACE/.metadata/.plugins/org.eclipse.core.runtime/.settings
