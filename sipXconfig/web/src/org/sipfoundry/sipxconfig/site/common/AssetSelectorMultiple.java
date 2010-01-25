@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.common;
 
 import java.io.File;
 
+import org.apache.commons.io.filefilter.FileFileFilter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.Parameter;
@@ -30,8 +31,8 @@ public abstract class AssetSelectorMultiple extends AssetSelector {
         File assetDir = new File(getAssetDir());
         // make sure it exists
         assetDir.mkdirs();
-        // TODO: this probably should be replaced by listFiles with a filter that excludes directories
-        String[] assets = assetDir.list();
+        // list only files
+        String[] assets = assetDir.list(FileFileFilter.FILE);
         if (assets == null) {
             assets = ArrayUtils.EMPTY_STRING_ARRAY;
         }
