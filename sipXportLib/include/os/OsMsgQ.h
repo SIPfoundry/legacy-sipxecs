@@ -39,6 +39,8 @@ typedef void      (*OsMsgQFlushHookPtr) (const OsMsg& rMsg);
 
 class OsMsgQBase
 {
+   friend class OsMsgQShared;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 

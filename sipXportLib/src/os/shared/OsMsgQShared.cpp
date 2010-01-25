@@ -267,10 +267,14 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
    ret = mEmpty.acquire(rTimeout);   // wait for there to be room in the queue
    if (ret != OS_SUCCESS)
    {
-      // The caller should be responsible for logging this information
-      /*OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                      "OsMsgQShared::doSend message send failed - no room, ret = %d",
-                      ret);*/
+      // Do not log problem with the queue for the syslog task to prevent
+      // infinite recursion.
+      if (mName != "syslog")
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                       "OsMsgQShared::doSendCore message send failed for queue '%s' - no room, ret = %d",
+                       mName.data(), ret);
+      }
       if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
       {
 	 ret =  OS_WAIT_TIMEOUT;     // send timed out
@@ -278,6 +282,17 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
    }
    else
    {
+      int count, max;
+      mFull.getCountMax(count, max);
+      // Do not log problem with the queue for the syslog task to prevent
+      // infinite recursion.
+      if (2 * count > max && mName != "syslog")
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+                       "OsMsgQShared::doSendCore message queue '%s' is over half full - count = %d, max = %d",
+                       mName.data(), count, max);
+      }
+
       ret = mGuard.acquire();           // start critical section
       assert(ret == OS_SUCCESS);
 
@@ -301,7 +316,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       if (insResult == NULL)
       {                                 // queue insert failed
          OsSysLog::add(FAC_KERNEL, PRI_CRIT,
-                       "OsMsgQShared::doSend message send failed - insert failed");
+                       "OsMsgQShared::doSendCore message send failed - insert failed");
          assert(FALSE);
 
          if (deleteWhenDone)
@@ -357,13 +372,13 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
 	  }
 
           OsSysLog::add(FAC_KERNEL, pri,
-                        "OsMsgQShared::doSend Message queue %p increased to %d msgs (max=%d)\n",
+                        "OsMsgQShared::doSendCore Message queue %p increased to %d msgs (max=%d)\n",
                         this, curCount, mMaxMsgs);
       }
       else if (decreasedLevel)
       {
           OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                        "OsMsgQShared::doSend Message queue %p decreased to %d msgs (max=%d)\n",
+                        "OsMsgQShared::doSendCore Message queue %p decreased to %d msgs (max=%d)\n",
                         this, curCount, mMaxMsgs);
       }
 #endif
