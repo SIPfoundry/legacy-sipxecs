@@ -41,7 +41,7 @@ public class ConfigurationDiagnosticPageTestUi extends WebTestCase {
         assertLinkPresent("downloadLink");
     }
 
-    public void testDetailedHelp() throws Exception{
+    public void DISABLED_testDetailedHelp() throws Exception{
         SiteTestHelper.assertNoException(tester);
         assertLinkPresentWithText("Show Detailed Help");
         setWorkingForm("refreshForm");
