@@ -75,6 +75,9 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
+   /// Get the current count and maximum count values for this semaphore.
+   virtual void getCountMax(int& count, int& max) = 0;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 

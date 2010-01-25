@@ -162,6 +162,13 @@ OsStatus OsCSemLinux::release(void)
 
 /* ============================ INQUIRY =================================== */
 
+// Get the current count and maximum count values for this semaphore.
+void OsCSemLinux::getCountMax(int& count, int& max)
+{
+   count = mSemImp.count;
+   max = mSemImp.max;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
