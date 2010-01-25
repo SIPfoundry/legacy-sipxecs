@@ -817,6 +817,13 @@
       </setting>
     </group>
   </group>
+  <!--  CODEC PREFERENCE SETTINGS  -->
+  <group name="voiceCodecs">
+    <setting name="preferredCodec">
+      <type refid="preferred-codecs-type"/>
+      <value>g711ulaw|g711alaw|g729</value>
+    </setting>
+  </group>
   <!--  RTP SETTINGS  -->
   <group name="rtpSettings">
     <setting name="rtpPort">
@@ -830,10 +837,6 @@
         <integer min="96" max="127" />
       </type>
       <value>101</value>
-    </setting>
-    <setting name="preferredCodec">
-      <type refid="preferred-codecs-type"/>
-      <value>g711ulaw|g711alaw|g729</value>
     </setting>
   </group>
   <!--  TONE SETTINGS  -->

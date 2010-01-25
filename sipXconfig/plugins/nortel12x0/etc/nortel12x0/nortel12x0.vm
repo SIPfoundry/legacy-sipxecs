@@ -150,6 +150,7 @@
 #addGroup($cfg.EndpointSettings.getSetting('callPark'))
 #addGroup($cfg.EndpointSettings.getSetting('callPickup'))
 #addGroup($cfg.EndpointSettings.getSetting('sipSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('voiceCodecs'))
 #addGroup($cfg.EndpointSettings.getSetting('rtpSettings'))
 #addGroup($cfg.EndpointSettings.getSetting('toneSettings'))
 #addGroup($cfg.EndpointSettings.getSetting('miscSettings'))

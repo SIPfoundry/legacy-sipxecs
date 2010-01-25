@@ -38,9 +38,9 @@
 <incomingInvite><![CDATA[PAId-From-Contact]]></incomingInvite>
 <okOfInvite><![CDATA[PAId-To-Contact]]></okOfInvite>
 </callerNameSearchPrecedence>
+<preferredCodec><![CDATA[g711ulaw|g711alaw|g729]]></preferredCodec>
 <rtpPort><![CDATA[5012]]></rtpPort>
 <rfc2833DynamicPayloadType><![CDATA[101]]></rfc2833DynamicPayloadType>
-<preferredCodec><![CDATA[g711ulaw|g711alaw|g729]]></preferredCodec>
 <enableRoutingTone><![CDATA[FALSE]]></enableRoutingTone>
 <toneSet><![CDATA[US/Canada]]></toneSet>
 <ringtoneSelected><![CDATA[Ringer1]]></ringtoneSelected>
