@@ -237,7 +237,7 @@ class ResourceListServer : public UtlContainableAtomic
    int mMinResubscribeInterval;
    //! Interval to delay after a content change before publishing, in msec.
    OsTime mPublishingDelay;
-   //! The maximum number of reg subscriptions allwed for a resource.
+   //! The maximum number of reg subscriptions allowed for a resource.
    unsigned mMaxRegSubscInResource;
    //! The maximum number of contacts allowed for a reg subscription.
    unsigned mMaxContInRegSubsc;
@@ -416,7 +416,7 @@ inline const OsTime& ResourceListServer::getPublishingDelay() const
    return mPublishingDelay;
 }
 
-// Get the maximum number of reg subscriptions allwed for a resource.
+// Get the maximum number of reg subscriptions allowed for a resource.
 inline unsigned ResourceListServer::getMaxRegSubscInResource() const
 {
    return mMaxRegSubscInResource;
