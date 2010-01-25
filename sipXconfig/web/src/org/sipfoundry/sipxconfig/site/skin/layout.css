@@ -391,7 +391,7 @@ table.component
 	border-collapse: collapse;
 	border-style: solid;
 	border-width: 1px;
-    min-width: 100%;
+    width: 100%;
 }
 
 table.component thead tr th,
