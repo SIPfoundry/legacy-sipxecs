@@ -369,7 +369,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public User createSpecialPhoneProvisionUser(String serialNumber) {
         User user = m_coreContext.getSpecialUser(SpecialUserType.PHONE_PROVISION);
 
-        user.setUserName(SpecialUserType.PHONE_PROVISION.getUserName());
         user.setFirstName("ID:");
         user.setLastName(ShortHash.get(serialNumber));
 
