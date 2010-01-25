@@ -24,7 +24,6 @@
       voIpProt.SIP.keepalive.sessionTimers="0"
       voIpProt.SIP.requestURI.E164.addGlobalPrefix=""
       voIpProt.SIP.allowTransferOnProceeding="0"
-      voIpProt.SIP.musicOnHold.uri="~~mh~@sipfoundry.org"
       voIpProt.SIP.serverFeatureControl.cf="0"
       voIpProt.SIP.serverFeatureControl.dnd="0"
     >

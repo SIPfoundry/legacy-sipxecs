@@ -111,14 +111,6 @@ public class PolycomPhoneDefaults {
         return getMonthIndexPolycomFromJava(getZone().getStopMonth());
     }
 
-
-    @SettingEntry(paths = { "voIpProt.SIP/protocol/musicOnHold.uri", "voIpProt/reg/musicOnHold.uri" })
-    public String getMohUrl() {
-        String mohUri = m_defaults.getMusicOnHoldUri();
-        return SipUri.stripSipPrefix(mohUri);
-
-    }
-
     @SettingEntry(path = "voIpProt/server/1/address")
     public String getRegistrationServer() {
         return m_defaults.getDomainName();

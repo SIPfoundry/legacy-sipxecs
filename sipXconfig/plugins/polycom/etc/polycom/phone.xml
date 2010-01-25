@@ -2325,12 +2325,6 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="musicOnHold.uri">
-      <type>
-         <string />
-       </type>
-       <value />
-    </setting>
     </group>
     <group name="alertInfo">
       <group name="1">
