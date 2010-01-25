@@ -180,10 +180,6 @@ public class CallControlUtilities {
              */
             Set<Integer> answerCodecs = SipUtilities.getMediaFormats(answerSessionDescription);
 
-            /*
-             * Get the transmitter session description for the peer. This is either our old answer
-             * or our old offer.
-             */
             logger.debug("peerTransmitter = " + DialogContext.getPeerTransmitter(dialog));
 
             /*
@@ -231,10 +227,11 @@ public class CallControlUtilities {
                 if ( peerDialogContext.getItspInfo() != DialogContext.get(dialog).getItspInfo() ||  
                         peerDialogContext.getItspInfo().isAlwaysRelayMedia() )  {
                     DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(ackSd);
+              
                 }
 
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
-
+  
                 SipUtilities.incrementSessionVersion(ackSd);
 
             }
@@ -264,7 +261,8 @@ public class CallControlUtilities {
                     .createContentTypeHeader("application", "sdp"));
             dialogContext.sendAck(ackRequest);
             /*
-             * Answer is no longer pending.
+             * Answer is no longer pending. This affects the transition of the DialogContext
+             * State machine.
              */
             dialogContext.setPendingAction(PendingDialogAction.NONE);
 
@@ -338,6 +336,14 @@ public class CallControlUtilities {
 
 
     }
+    
+    
+    /**
+     * Send a TRYING response.
+     * 
+     * @param st -- server transaction for which to send TRYING
+     * @throws SipException -- If Trying cannot be sent.
+     */
 
     public static void sendTryingResponse(ServerTransaction st) throws SipException {
         try {
@@ -347,6 +353,25 @@ public class CallControlUtilities {
             logger.error("Unexpected exception",ex);
             throw new SipXbridgeException("Unexpected ",ex);
         }
+    }
+
+    /**
+     * A boolean check that returns whether or not the relay should be removed
+     * from a call setup. This returns true if both sides of the dialog pair 
+     * point to the same ITSP and the ITSP account has been configured to remove
+     * the relay.
+     * 
+     * @param dialogContext
+     * @return
+     */
+    public static boolean isRemoveRelay(DialogContext dialogContext) {
+        DialogContext peerDialogContext = dialogContext.getPeerDialogContext();
+        
+        return dialogContext.getItspInfo() != null && peerDialogContext.getItspInfo() != null &&
+            dialogContext.getItspInfo() == peerDialogContext.getItspInfo() &&
+            ! dialogContext.getItspInfo().isAlwaysRelayMedia() &&
+            dialogContext.getSipProvider() != Gateway.getLanProvider() &&
+            peerDialogContext.getSipProvider() != Gateway.getLanProvider();
     }
     
 	

@@ -181,6 +181,8 @@ class DialogContext {
 
     private String  dialogContextId;
 
+    private long lastReInviteSent;
+
   
 
 
@@ -209,7 +211,7 @@ class DialogContext {
                     logger.debug("Dialog is terminated -- not firing the  session timer");
                     this.cancel();
                     return;
-                }
+                } 
                 Request request;
                 logger.debug("Firing Session timer " );
                 logger.debug("DialogState = " + dialog.getState());
@@ -217,54 +219,69 @@ class DialogContext {
                 
                 if (dialog.getState() == DialogState.CONFIRMED
                         && DialogContext.get(dialog).getPeerDialog() != null) {
-                    if (method.equalsIgnoreCase(Request.INVITE)) {
-                        SipProvider provider = ((DialogExt) dialog).getSipProvider();
-                        RtpSession rtpSession = getRtpSession();
-                        if (rtpSession == null || rtpSession.getReceiver() == null) {
+
+                    /*
+                     * This is the case of a hairpinned media where we are not relaying the media.
+                     * We implement session timer in this case by soliciting an INVITE and relaying
+                     * the SDP unchanged to the other side.
+                     */
+                    if (CallControlUtilities.isRemoveRelay(DialogContext.this) ) {
+                        /*
+                         * Recently sent a re-INVITE so no need to send again.
+                         */
+                        long currentTime = System.currentTimeMillis();
+                        if ( (currentTime - DialogContext.this.lastReInviteSent)/1000 < 
+                             getItspInfo().getSessionTimerInterval()) {
+                            logger.debug("Session timer was already dispatched. Not sending");
                             return;
                         }
-                        SessionDescription sd = rtpSession.getReceiver().getSessionDescription();
-
-                        request = dialog.createRequest(Request.INVITE);
-                        if ( proxyAuthorizationHeader != null ) {
-                        	request.setHeader(proxyAuthorizationHeader);
-                        }
-                        request.removeHeader(AllowHeader.NAME);
-                        SipUtilities.addWanAllowHeaders(request);
-                        AcceptHeader accept = ProtocolObjects.headerFactory.createAcceptHeader(
-                                "application", "sdp");
-                        request.setHeader(accept);
-                        request.removeHeader(SupportedHeader.NAME);
-
-                        request.setContent(sd.toString(), ProtocolObjects.headerFactory
-                                .createContentTypeHeader("application", "sdp"));
-                        ContactHeader cth = SipUtilities.createContactHeader(provider,
-                                getItspInfo());
-                        request.setHeader(cth);
-                        SessionExpiresHeader sexp = SipUtilities.createSessionExpires(DialogContext.this.sessionExpires);
-                        request.setHeader(sexp);
-                        MinSE minSe = new MinSE();
-                        minSe.setExpires(Gateway.MIN_EXPIRES);
-                        request.setHeader(minSe);
-                        if (getItspInfo() != null && !getItspInfo().stripPrivateHeaders()) {
-                            SubjectHeader sh = ProtocolObjects.headerFactory
-                                    .createSubjectHeader("SipxBridge Session Timer");
-                            request.setHeader(sh);
-                        } else {
-                            SipUtilities.stripPrivateHeaders(request);
-
-                        }
-
-                        if (getItspInfo() == null || getItspInfo().isGlobalAddressingUsed()) {
-                            SipUtilities.setGlobalAddresses(request);
-                        }
-
-                    } else {
                         /*
-                         * This is never used but keep it here for now.
+                         * We now re-INVITE to shuffle the SDP and get them to point at each other.
                          */
-                        request = dialog.createRequest(Request.OPTIONS);
+                        
+                        logger.debug("Sending Session timer re-invite");
+
+                        DialogContext.getPeerDialogContext(getDialog()).setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+                        DialogContext.getPeerDialogContext(getDialog()).solicitSdpOfferFromPeerDialog(null,getRequest());                    
+                        return;
+                    } 
+
+                    SipProvider provider = ((DialogExt) dialog).getSipProvider();
+                    RtpSession rtpSession = getRtpSession();
+                    if (rtpSession == null || rtpSession.getReceiver() == null) {
+                        return;
                     }
+                    SessionDescription sd = rtpSession.getReceiver().getSessionDescription();
+
+                    request = dialog.createRequest(Request.INVITE);
+                    if ( proxyAuthorizationHeader != null ) {
+                        request.setHeader(proxyAuthorizationHeader);
+                    }
+                    request.removeHeader(AllowHeader.NAME);
+                    SipUtilities.addWanAllowHeaders(request);
+                    AcceptHeader accept = ProtocolObjects.headerFactory.createAcceptHeader(
+                            "application", "sdp");
+                    request.setHeader(accept);
+                    request.removeHeader(SupportedHeader.NAME);
+
+                    request.setContent(sd.toString(), ProtocolObjects.headerFactory
+                            .createContentTypeHeader("application", "sdp"));
+                    ContactHeader cth = SipUtilities.createContactHeader(provider,
+                            getItspInfo());
+                    request.setHeader(cth);
+                    SessionExpiresHeader sexp = SipUtilities.createSessionExpires(DialogContext.this.sessionExpires);
+                    request.setHeader(sexp);
+                    MinSE minSe = new MinSE();
+                    minSe.setExpires(Gateway.MIN_EXPIRES);
+                    request.setHeader(minSe);
+                    if (getItspInfo() != null && getItspInfo().stripPrivateHeaders()) {                    
+                        SipUtilities.stripPrivateHeaders(request);
+                    }
+
+                    if (getItspInfo() == null || getItspInfo().isGlobalAddressingUsed()) {
+                        SipUtilities.setGlobalAddresses(request);
+                    }
+
 
                     DialogExt dialogExt = (DialogExt) dialog;
                     ClientTransaction ctx = dialogExt.getSipProvider().getNewClientTransaction(
@@ -457,6 +474,13 @@ class DialogContext {
      */
     static DialogContext getPeerDialogContext(Dialog dialog) {
         return DialogContext.get(DialogContext.getPeerDialog(dialog));
+    }
+    
+    /**
+     * Get the peer dialog context
+     */
+    DialogContext getPeerDialogContext() {
+        return DialogContext.get(this.peerDialog);
     }
 
     /**
@@ -809,21 +833,8 @@ class DialogContext {
          * Set and fix up the sdp offer to send to the opposite side.
          */
         
-        if (! this.itspInfo.isAlwaysRelayMedia() ) {
-             /*
-             * Hairpin back to the same ITSP then do not remap.
-             */
-            DialogExt responseDialog =  (DialogExt) responseEvent.getDialog();
-            DialogContext responseDialogContext = DialogContext.get(responseDialog);
-            
-            if (responseDialogContext.getItspInfo() != this.getItspInfo() || 
-                    responseDialog.getSipProvider() != this.getSipProvider() )   {
-                logger.debug("ITSP info is different from response ITSP so anchoring media. ");
-                this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
-            } else {
-                logger.debug("peerDialogContext matches dialogContext -- not remapping sdpOffer");
-                sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
-            }
+        if ( CallControlUtilities.isRemoveRelay(this) ) {
+            sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
         } else {
             logger.debug("ITSP has set always relay media -- rewriting SDP ");
             this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
@@ -860,6 +871,7 @@ class DialogContext {
         	ack.setHeader(proxyAuthorizationHeader);
         }
         dialog.sendAck(ack);
+       
         
         if (terminateOnConfirm) {
             logger.debug("tearing down MOH dialog because of terminateOnConfirm.");
@@ -915,7 +927,12 @@ class DialogContext {
     	if ( this.proxyAuthorizationHeader != null ) {
     		clientTransaction.getRequest().setHeader(this.proxyAuthorizationHeader);
     	}
-      
+    	
+    	/*
+    	 * Record the last Re-INVITE sent.
+    	 */
+    	this.lastReInviteSent = System.currentTimeMillis();
+    	
         if (dialog.getState() != DialogState.TERMINATED) {
              try {
                 dialog.sendRequest(clientTransaction);
