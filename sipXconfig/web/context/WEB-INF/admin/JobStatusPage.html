@@ -22,9 +22,8 @@
       <span jwcid="statusColumnValue@Block">
         <span jwcid="@Insert" value="ognl:job.status" format="bean:statusFormat"/>
       </span>
-      <span jwcid="errorColumnValue@Block">
-        <span jwcid="@Insert" value="ognl:jobErrorMsg" />
-      </span>
+      <!-- keep the following line into one single line, see XX-7317 -->
+      <span jwcid="errorColumnValue@Block"><span jwcid="@Insert" value="ognl:jobErrorMsg" /></span>
     </table>
   </div>
     <ul jwcid="actions@Block">
