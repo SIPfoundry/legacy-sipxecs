@@ -1132,7 +1132,7 @@ UtlBoolean operator==(const char* compareStr, const UtlString& compareUtlStr)
     return compareUtlStr.compareTo(compareStr) == 0;
 }
 
-UtlBoolean UtlString::operator==(const char *compareStr) const
+UtlBoolean UtlString::operator==(const char* compareStr) const
 {
     return compareTo(compareStr) == 0;
 }
@@ -1142,7 +1142,7 @@ UtlBoolean UtlString::operator==(const UtlString& compareStr) const
     return compareTo(compareStr) == 0;
 }
 
-UtlBoolean UtlString::operator!=(const char *compareStr) const
+UtlBoolean UtlString::operator!=(const char* compareStr) const
 {
     return compareTo(compareStr) != 0;
 }
