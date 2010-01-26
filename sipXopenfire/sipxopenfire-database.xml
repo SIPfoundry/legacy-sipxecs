@@ -51,7 +51,16 @@
           <delete file="/tmp/of-setdomain.sql" />
         </target>
 
-        <target name="setup" depends="setdomain" >
+	    <target name="setfqdn">
+	      <echo  file="/tmp/of-setfqdn.sql" >
+	         DELETE FROM ofProperty where name='xmpp.fqdn';
+	         INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.fqdn','${fqdn}'); 
+	      </echo>
+	      <sipx-sql src="/tmp/of-setfqdn.sql" />
+	      <delete file="/tmp/of-setfqdn.sql" />
+	    </target>	
+
+	<target name="setup" depends="setdomain,setfqdn" >
           <echo  file="/tmp/of-init.sql" >
              DELETE FROM ofUser WHERE name='admin'; 
              INSERT INTO ofUser (username,plainPassword,name,email,creationDate,modificationDate)

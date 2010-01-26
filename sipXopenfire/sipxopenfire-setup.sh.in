@@ -10,6 +10,7 @@ SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
 OPENFIRE_LIB=@OPENFIRE_HOME@/lib
 SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
 SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+FQDN=`hostname -f`
 # Stop openfire if it is running.
 @SIPX_BINDIR@/sipxopenfire.sh --stop > /dev/null
 if [ -e @OPENFIRE_HOME@  ]
@@ -56,9 +57,10 @@ if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]
 then
     @SIPX_BINDIR@/sipxopenfire.sh --database create 2> /dev/null
     @SIPX_BINDIR@/sipxopenfire.sh --database create-tables 2> /dev/null
-    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME} -Dfqdn=${FQDN} 2> /dev/null
 else
     @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database setfqdn -Dfqdn=${FQDN} 2> /dev/null
 fi
 
 #if openfire service is running stop it.

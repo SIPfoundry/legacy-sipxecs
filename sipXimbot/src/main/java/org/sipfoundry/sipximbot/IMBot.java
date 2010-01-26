@@ -125,11 +125,13 @@ public class IMBot {
                 try {
                     config = ImbotConfiguration.get();
                     conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
+                    conf.setSASLAuthenticationEnabled(false); // disable SASL to cope with cases where XMPP domain != FQDN (XX-7293)
                     Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
                     m_con = new XMPPConnection(conf);   
                     m_con.connect();
                     
-                    m_con.login(config.getMyAsstAcct(), config.getMyAsstPswd());
+                    String username = config.getMyAsstAcct().split("@")[0]; // only keep user part and ditch the @domain part if present
+                    m_con.login(username, config.getMyAsstPswd());
                     return true;  
                 } catch (Exception e) {
                     // typically get this exception if server is unreachable or login info is wrong
