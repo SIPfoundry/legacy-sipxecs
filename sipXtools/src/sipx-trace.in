@@ -8,7 +8,7 @@ MyName=$(basename $0)
 Action=LOCAL
 Prefix=""
 Output=""
-Token="("
+Token=""
 
 User=admin
 Password=
@@ -18,6 +18,9 @@ DefaultPrefix="/"
 DefaultComponents="sipXproxy sipregistrar"
 AllComponents=TRUE
 Components=""
+
+Feedback=VERBOSE
+RemoteComponentsSwitch=""
 
 dump=cat
 
@@ -41,6 +44,15 @@ do
             fi
             ;;
 
+        --remote-mode)
+            # This option is not meant to be used directly from the command line.
+            # It changes the script to do the extract of the trace data into a
+            # local file on the system where it is executed.  The path to that 
+            # local file is then printed on stdout.
+            Feedback=QUIET
+            Action=REMOTE
+            ;;
+
         -P|--prefix)
             if [ $# -lt 2 ]
             then
@@ -53,7 +65,7 @@ do
                     */)
                         Prefix="${Prefix} ${2}"
                         ;;
-                    */)
+                    *)
                         Prefix="${Prefix} ${2}/"
                         ;;
                 esac
@@ -102,7 +114,12 @@ do
                 Action=USAGE
                 break
             else
-                Output="${2}"
+                if [ "${2}" = "-" ]
+                then
+                    Output="/dev/stdout"
+                else
+                    Output="${2}"
+                fi
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -134,80 +151,67 @@ do
     shift # always consume 1
 done
 
+if [ ${Action} = REMOTE -a -z "${Output}" ]
+then
+    echo "--output <file> must be specified when using --remote"
+    Action=USAGE
+fi
+
 if [ -z "${PrefixSet}" ]
 then
     Prefix=${DefaultPrefix}
 fi
 
 getAllComponents() {
-    TMP=$(mktemp -t sipx-trace.components.XXXXXX)
-    #trap "rm $TMP* 2>/dev/null" 0
+    ComponentList=${Trace}/components
 
     case ${Action} in
         USAGE)
             ;;
 
         SERVER)
-            for server in $Server
-            do
-                echo -n "finding ${server} components"
-                for prefix in ${Prefix}
-                do
-                    for c in $(ssh ${server} ls -1 ${prefix}var/log/sipxpbx | grep -E "\.log${LogExtension}\$")
-                    do
-                        basename $c .log${LogExtension} >> $TMP
-                    done
-                done
-                echo ""
-            done
+            # components are collected on the remote system
+            RemoteComponentsSwitch="--all-components"
             ;;
 
-        LOCAL)
+        LOCAL|REMOTE)
             for prefix in ${Prefix}
             do
                 for c in ${prefix}var/log/sipxpbx/*.log${LogExtension}
                 do
-                    basename $c .log${LogExtension} >> $TMP
+                    if test -f "${c}" 2> /dev/null
+                    then
+                        basename $c .log${LogExtension} >> ${ComponentList}
+                    fi
                 done
             done
             ;;
     esac
 
-    Components=$(sort -u $TMP)
-    #rm -f $TMP
+    Components=$(sort -u ${ComponentList})
 }
-
-if [ ${AllComponents} = TRUE ]
-then
-    getAllComponents
-elif [ -z "${Components}" ]
-then
-    Components=${DefaultComponents}
-fi
 
 # We have to append "x" to test whether $Token is '(', because an argument
 # to '[' that is '(' and not in the final position is treated as starting a
 # parenthesized expression.
-if [ "${Token}"x = "("x -a ${Action} != USAGE ]
+if [ -z "${Token}" -a ${Action} != USAGE ]
 then
     echo "Must specify at least one token to search for; try '${MyName} --help'." 1>&2
     exit 1;
 else
-    Token="${Token})"
+    Token="${Token}"
 fi
-
-Trace=$(mktemp -t -d trace.XXXXXXXX) || exit
 
 pullServer() { # server
     local system
     system=$1
 
-    for c in ${Components}
-    do
-      echo searching ${system} ${prefix} ${c} log
-      ssh ${system} "${dump} ${prefix}var/log/sipxpbx/${c}.log${LogExtension} | grep --text -E \"${Token}\"" \
-        > ${Trace}/${system}.${c}.log
-    done
+    local remoteFile
+    remoteFile=$(ssh ${system} "sipx-trace --remote-mode ${RemoteComponentsSwitch} --prefix '${Prefix}' --extension '${LogExtension}' '${Token}'")
+    if test $? -eq 0
+    then
+        scp -q ${system}:${remoteFile} ${Trace}/${system}.trace.xml
+    fi
 }
 
 grepLog() { # prefix
@@ -217,13 +221,31 @@ grepLog() { # prefix
     alias=$(echo "$prefix" | perl -p -e 's|/|_|g; s|^\.|_|')
     for c in ${Components}
     do
-      echo searching ${prefix} ${c} log
-      ${dump} ${prefix}var/log/sipxpbx/${c}.log${LogExtension} \
-      | grep --text -E "${Token}" \
-      > ${Trace}/${alias}.${c}.log
+        if [ ${Feedback} = VERBOSE ]; then echo searching ${prefix} ${c} log; fi
+        ${dump} ${prefix}var/log/sipxpbx/${c}.log${LogExtension} \
+        | grep --text -E "(${Token})" \
+        > ${Trace}/${alias}.${c}.log
     done
 }
 
+getComponents () {
+    if [ ${AllComponents} = TRUE ]
+    then
+        getAllComponents
+    else
+        if [ -z "${Components}" ]
+        then
+            Components=${DefaultComponents}
+        fi
+
+        RemoteComponentsSwitch=$(for c in ${Components}; do echo "--component ${c} "; done)
+    fi
+}
+
+createWorkingDir () {
+    Trace=$(mktemp -t -d trace.XXXXXXXX) || exit
+    #TODO trap "rm -rf ${Trace}* 2>/dev/null" 0 
+}
 
 case ${Action} in
     USAGE)
@@ -254,36 +276,59 @@ USAGE
         ;;
     
     SERVER)
+        createWorkingDir
+        getComponents
         for server in $Server
         do 
-          pullServer $server
-        done        
-        ;;
-
-    LOCAL)
-        for prefix in ${Prefix}
-        do
-          grepLog $prefix
+            pullServer $server
         done
         ;;
+
+    LOCAL|REMOTE)
+        createWorkingDir
+        getComponents
+        for prefix in ${Prefix}
+        do
+            grepLog $prefix
+        done
+
+        for log in ${Trace}/*.log /dev/null 
+        do 
+            if test -f ${log} -a ${log} != /dev/null  2> /dev/null
+            then
+                xtract=$(basename ${log} .log)
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo translating ${xtract}
+                fi
+                @SIPX_BINDIR@/syslog2siptrace < ${log} > ${Trace}/${xtract}.trace.xml 2> /dev/null
+            fi
+        done
+        ;;
+
 esac
 
-
-for log in ${Trace}/*.log
-do 
-  xtract=$(basename ${log} .log)
-  echo translating ${xtract}
-  @SIPX_BINDIR@/syslog2siptrace <  ${log} > ${Trace}/${xtract}.trace.xml
+if [ ${Feedback} = VERBOSE ]; then echo merging; fi
+mergefiles=""
+for xml in ${Trace}/*.trace.xml 
+do
+    if test -f ${xml} 2> /dev/null
+    then
+        mergefiles="${mergefiles} ${xml}"
+    fi
 done
-
-echo merging
-@SIPX_BINDIR@/siptrace-merge  ${Trace}/*.trace.xml > ${Trace}/merged.xml
+@SIPX_BINDIR@/siptrace-merge ${mergefiles} > ${Trace}/merged.xml
 
 if [ -z "${Output}" ]
 then
     @SIPX_BINDIR@/sipviewer ${Trace}/merged.xml
 else
-    cp -v ${Trace}/merged.xml ${Output} 
+    cp ${Trace}/merged.xml ${Output} 
+
+    if [ ${Action} = REMOTE ]
+    then
+        echo ${Output}
+    fi
 fi
 
 exit
