@@ -27,11 +27,6 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-// Number of milliseconds to wait after terminating subscriptions to a
-// contact before initiating a subscription that might reach the same
-// UA.
-#define SUBSCRIPTION_WAIT 100
-
 // STATIC VARIABLE INITIALIZATIONS
 
 const UtlContainableType ContactSet::TYPE = "ContactSet";
@@ -572,14 +567,18 @@ void ContactSet::updateSubscriptions()
          {
 	    // If we both terminate subscriptions and create subscriptions,
 	    // wait a short while to allow the terminations to complete.
-            if (SUBSCRIPTION_WAIT > 0)
+            // Note that this wait must be no more than the bulk add/delete
+            // change delay, as that is how fast ResourceListFileReader
+            // generates requests to the ResourceListServer task.
+            int wait = getResourceListServer()->getChangeDelay();
+            if (wait > 0)
             {
                if (subscription_ended_but_no_wait_done_yet)
                {
                   OsSysLog::add(FAC_RLS, PRI_DEBUG,
                                 "ContactSet::updateSubscriptions waiting for %d msec",
-                                SUBSCRIPTION_WAIT);
-                  OsTask::delay(SUBSCRIPTION_WAIT);
+                                wait);
+                  OsTask::delay(wait);
                   subscription_ended_but_no_wait_done_yet = false;
                }
             }
