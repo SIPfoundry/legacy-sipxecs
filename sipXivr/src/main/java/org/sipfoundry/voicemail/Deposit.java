@@ -456,9 +456,14 @@ public class Deposit {
                     m_vm.recordMessage(wavPath);
         
                     String digit = m_fses.getDtmfDigit();
-                    if (digit != null && digit == "0") {
-                        // Don't save the message.
-                        m_message.setIsToBeStored(false);
+                    if (digit != null && digit.equals("0")) {
+                        if(m_message.getDuration() > 2) {
+                            m_message.storeInInbox(); 
+                            m_loc.play("msg_sent", ""); 
+                        } else {
+                            m_message.setIsToBeStored(false);
+                        }
+                        
                         m_vm.transfer(m_vm.getOperator(m_pa));
                         return null;
                     }
