@@ -243,7 +243,7 @@ public class CpMsgDialog{
             if(msgBody == null) {
                 cmd = new CpCmd(m_vm, "compose_immed", "compose_immed", "compose_help"); 
             } else {
-                cmd = new CpCmd(m_vm, "compose_rcd_stopped_immed", "compose_rcd_stopped_delay", 
+                cmd = new CpCmd(m_vm, null, "compose_rcd_stopped_delay", 
                                       "compose_rcd_stopped_help"); 
             }
            
@@ -317,6 +317,8 @@ public class CpMsgDialog{
                 
             case RECORD:
                 msgBody = recordMessageBody(msgBody);
+                prePl = new PromptList(m_vm.getLoc());
+                prePl.addFragment("compose_rcd_stopped_immed");                            
                 break;
                 
             case DELETE:
