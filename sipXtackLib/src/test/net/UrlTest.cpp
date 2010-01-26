@@ -938,6 +938,9 @@ public:
           // a+grave = U+00E0 = UTF-8 C3:A0
           { "\"Ufficio Attivit\xC3\xA0 Grafiche\" <sip:8032@192.168.3.2:5060>",
             "\"Ufficio Attivit\xC3\xA0 Grafiche\""},
+          // Handling of Cyrilic in UTF-8 encoding
+          { "\"\321\202\320\265\320\273\320\265 C\320\275\320\276\320\274_3606\" <sip:3606@sip.svgc.ru>;tag=d79q2a40i3",
+            "\"\321\202\320\265\320\273\320\265 C\320\275\320\276\320\274_3606\""},
        };
 
        for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
