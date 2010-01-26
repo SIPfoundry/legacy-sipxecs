@@ -9,6 +9,7 @@ pkgconf_DATA = \
 wwwconf_files = \
     httpd.conf \
     httpd-sipxchange-common-ssl.conf \
+    httpd-dav.conf  \
     httpd-sipxchange-common.conf.in
 
 EXTRA_DIST = \
@@ -51,10 +52,18 @@ install-data-hook : \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/phonelog.conf \
 	$(DESTDIR)$(localstatedir)/log/sipxpbx/phone \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d \
+	$(DESTDIR)$(wwwdir)/var \
+	$(DESTDIR)$(wwwdir)/webdav \
 	$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange \
 	$(foreach file, $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
 
 $(DESTDIR)$(sysconfdir)/sipxpbx/httpd.conf.d:
+	$(INSTALL) -d -m 755 $@
+
+$(DESTDIR)$(wwwdir)/var:
+	$(INSTALL) -d -m 755 $@
+
+$(DESTDIR)$(wwwdir)/webdav:
 	$(INSTALL) -d -m 755 $@
 
 $(foreach file,$(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %

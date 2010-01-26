@@ -234,6 +234,8 @@ Listen 80
 LoadModule ssl_module @APACHE2_MOD@/mod_ssl.so
 LoadModule @APACHE2_HOST_ACCESS@ @APACHE2_MOD@/@APACHE2_MOD_ACCESS@
 LoadModule auth_digest_module @APACHE2_MOD@/mod_auth_digest.so
+LoadModule authz_user_module @APACHE2_MOD@/mod_authz_user.so
+LoadModule authn_file_module @APACHE2_MOD@/mod_authn_file.so
 LoadModule include_module @APACHE2_MOD@/mod_include.so
 LoadModule log_config_module @APACHE2_MOD@/mod_log_config.so
 LoadModule env_module @APACHE2_MOD@/mod_env.so
@@ -1091,6 +1093,7 @@ Include @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 #### match the pattern below, so that we start modularizing this
 ################################################################
 
+Include @SIPX_CONFDIR@/httpd-dav.conf
 Include @SIPX_CONFDIR@/httpd.conf.d/*.conf
 
 ######
