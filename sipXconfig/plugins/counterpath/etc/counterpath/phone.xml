@@ -616,6 +616,54 @@
         <type refid="true-false"/>
         <value>true</value>
       </setting>
+    <setting name="system:contact_list_storage:resource_list_method">
+      <label>Resource list method</label>
+      <type id="resource_list_methods">
+        <enum>
+          <option>
+            <value>local</value>
+          </option>
+          <option>
+            <value>webdav</value>
+          </option>
+          <option>
+            <value>xcap</value>
+          </option>
+        </enum>
+      </type>
+      <value>webdav</value>
+      <description>The method for storing the resource list.</description>
+    </setting>
+
+    <setting name="system:contact_list_storage:resource_lists_path" hidden="yes">
+      <label>WebDAV root URL</label>
+      <value></value>
+      <description>The path to the root of the contact list storage location. </description>
+    </setting>
+    <setting name="system:contact_list_storage:contacts_server_filename" hidden="yes">
+      <label>The name of the contact list file at the location specified by storage:contact_list_storage:resource_lists_path.</label>
+      <value>Filename</value>
+      <description>This setting is used when:</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_user_name" hidden="yes">
+      <label>Username</label>
+      <value></value>
+      <description>User name to log into the contact list storage location. Not used if resource_list_method is local</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_password" hidden="yes">
+      <label>Password</label>
+      <value></value>
+      <description>Password to log into the contact list storage location. Not used if resource_list_method is local</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_poll_time">
+      <label>Poll time</label>
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+      <description>Used only if Resource list method is “Web DAV” (in seconds), to check if the document has
+        changed on the remote storage.</description>
+    </setting>
       <setting name="system:webdav:ignore_versioning">
         <type refid="true-false"/>
         <value>true</value>

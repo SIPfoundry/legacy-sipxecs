@@ -64,10 +64,21 @@ public class CounterpathPhoneTest extends TestCase {
         m_phone.getLines().get(1).getSettings().getSetting("presence/allow_dialog_subscriptions").setValue("0");
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
-
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise.ini"));
-        assertEquals(expected, location.toString());
+        System.out.println("((((" + expected + "))))");
+        System.out.println("((((" + location.toString(m_phone.getPhoneFilename()) + "))))");
+
+        assertEquals(expected, location.toString(m_phone.getPhoneFilename()));
+
+
+
+        expected = IOUtils.toString(getClass().getResourceAsStream("contactlist.xml"));
+
+        System.out.println("Directory :((((" + expected + "))))");
+        System.out.println("((((" + location.toString(m_phone.getDirectoryFilename()) + "))))");
+
+        assertEquals(expected, location.toString(m_phone.getDirectoryFilename()));
     }
 
     public void testCounterpathLineDefaults() {

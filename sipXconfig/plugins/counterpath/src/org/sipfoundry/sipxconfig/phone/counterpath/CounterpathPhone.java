@@ -9,27 +9,88 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import static java.lang.String.format;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.device.ProfileFilter;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class CounterpathPhone extends Phone {
+
+    public static final String MIME_TYPE_PLAIN = "text/plain";
+
     private static final String REG_USERNAME = "registration/username";
     private static final String REG_AUTH_USERNAME = "registration/authorization_username";
     private static final String REG_DISPLAY_NAME = "registration/display_name";
     private static final String REG_PASSWORD = "registration/password";
     private static final String REG_DOMAIN = "registration/domain";
-    private static final String SUBSCRIPTION_AOR = "network/sip_signaling/proxies:proxy0:workgroup_subscription_aor";
+    private static final String SUBSCRIPTION_AOR =
+        "network/sip_signaling/proxies:proxy0:workgroup_subscription_aor";
+    private static final String RESOURCE_LISTS_PATH =
+        "system/resources/system:contact_list_storage:resource_lists_path";
+    private static final String RESOURCE_LISTS_FILENAME =
+        "system/resources/system:contact_list_storage:contacts_server_filename";
+    private static final String RESOURCE_LISTS_USER_NAME =
+        "system/resources/system:contact_list_storage:resource_lists_user_name";
+    private static final String RESOURCE_LISTS_PASSWORD =
+        "system/resources/system:contact_list_storage:resource_lists_password";
     private static final String VOICEMAIL_URL = "voicemail/voicemail_url";
+    private static final String WEBDAV_REALM = ":WebDAV:";
+    private static final String AUTH_FILE_NAME = "webdav.users.passwd";
+    private static final String WEBDAV_DIR_NAME = "/webdav/";
+    private static final String DIRECTORY_FILE_FORMAT = "%s-directory.xml";
+    private static final String NEW_LINE = "\n";
+    private String m_syswwwdir;
 
+    // private static final String WEBDAV_URL = "resources/resource_lists_path";
     public CounterpathPhone() {
+    }
+
+    public String getSyswwwdir() {
+        return m_syswwwdir;
+    }
+
+    public void setSyswwwdir(String syswwwdir) {
+        m_syswwwdir = syswwwdir;
+    }
+
+    @Override
+    public Profile[] getProfileTypes() {
+        Profile[] profileTypes = new Profile[] {
+            new PhoneProfile(getPhoneFilename())
+        };
+
+        if (getPhonebookManager().getPhonebookManagementEnabled()) {
+            profileTypes = (Profile[]) ArrayUtils.add(profileTypes, new DirectoryProfile(getDirectoryFilename()));
+        }
+
+        return profileTypes;
     }
 
     @Override
@@ -38,14 +99,14 @@ public class CounterpathPhone extends Phone {
     }
 
     @Override
-    public void initialize() {
-        addDefaultBeanSettingHandler(new CounterpathPhoneDefaults(this));
-
+    protected void beforeProfileGeneration() {
+        updateWebDAVUserAuthFile();
     }
 
     @Override
-    protected ProfileContext createContext() {
-        return new CounterpathProfileContext(this, getModel().getProfileTemplate());
+    public void initialize() {
+        addDefaultBeanSettingHandler(new CounterpathPhoneDefaults(this));
+
     }
 
     @Override
@@ -88,6 +149,27 @@ public class CounterpathPhone extends Phone {
             String domain = getPhoneContext().getPhoneDefaults().getDomainName();
             return SipUri.format(speedDial.getResourceListId(true), domain, false);
         }
+
+        @SettingEntry(path = RESOURCE_LISTS_PATH)
+        public String geResourceListsPath() {
+            return "http://" + getPhoneContext().getPhoneDefaults().getDomainName() + "/webdav";
+        }
+
+        @SettingEntry(path = RESOURCE_LISTS_FILENAME)
+        public String geResourceListsFilename() {
+            return format(DIRECTORY_FILE_FORMAT, getSerialNumber());
+        }
+
+        @SettingEntry(path = RESOURCE_LISTS_USER_NAME)
+        public String geResourceListsUserName() {
+            return m_phone.getLine(0).getUser().getUserName();
+        }
+
+        @SettingEntry(path = RESOURCE_LISTS_PASSWORD)
+        public String geResourceListsPassword() {
+            return m_phone.getLine(0).getUser().getSipPassword();
+        }
+
     }
 
     public static class CounterpathLineDefaults {
@@ -114,6 +196,7 @@ public class CounterpathPhone extends Phone {
         public String getAuthenticationUserName() {
             return m_line.getAuthenticationUserName();
         }
+
 
         @SettingEntry(path = "xmpp-config/enabled")
         public boolean isEnabled() {
@@ -174,4 +257,99 @@ public class CounterpathPhone extends Phone {
             return m_line.getPhoneContext().getPhoneDefaults().getVoiceMail();
         }
     }
+
+    public String getPhoneFilename() {
+        return getProfileFilename();
+    }
+
+    public String getDirectoryFilename() {
+        return format(DIRECTORY_FILE_FORMAT, getSerialNumber());
+    }
+
+    static class DirectoryProfile extends Profile {
+        public DirectoryProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            Phone phone = (Phone) device;
+            PhoneContext phoneContext = phone.getPhoneContext();
+            Collection<PhonebookEntry> entries = phoneContext.getPhonebookEntries(phone);
+            return new DirectoryConfiguration(entries, phoneContext.getPhoneDefaults().getDomainName());
+        }
+    }
+
+    static class PhoneProfile extends Profile {
+        public PhoneProfile(String name) {
+            super(name, MIME_TYPE_PLAIN);
+        }
+
+        @Override
+        protected ProfileFilter createFilter(Device device) {
+            return null;
+        }
+
+        @Override
+        protected ProfileContext createContext(Device device) {
+            CounterpathPhone phone = (CounterpathPhone) device;
+            return new CounterpathProfileContext(phone, phone.getModel().getProfileTemplate());
+        }
+    }
+
+    private void updateWebDAVUserAuthFile() {
+        try {
+            User user = this.getLine(0).getUser();
+            String passwordFileNamePath = getSyswwwdir() + WEBDAV_DIR_NAME + AUTH_FILE_NAME;
+            File passwordFile = new File(passwordFileNamePath);
+            String md5text = DigestUtils.md5Hex(user.getUserName() + WEBDAV_REALM + user.getSipPassword());
+
+            if (passwordFile.exists()) {
+                Boolean updated = false;
+
+                Map<String, String> authDB = new HashMap<String, String>();
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(passwordFile)));
+
+                String strLine;
+                String[] tokens = new String[3];
+
+                while ((strLine = br.readLine()) != null) {
+                    tokens = strLine.split(":");
+                    if ((tokens[0].equals(user.getUserName())) && (!tokens[2].equals(md5text))) {
+                        tokens[2] = md5text;
+                        updated = true;
+                    }
+                    authDB.put(tokens[0], tokens[2]);
+                }
+
+                // Close the input stream
+                br.close();
+
+                if (updated) {
+
+                    passwordFile.delete();
+
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+                            passwordFileNamePath)));
+                    for (Map.Entry<String, String> entry : authDB.entrySet()) {
+                        bw.write(entry.getKey() + WEBDAV_REALM + entry.getValue() + NEW_LINE);
+                    }
+                    bw.close();
+                }
+            } else {
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(passwordFile)));
+                bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
+                bw.close();
+            }
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
 }

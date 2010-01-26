@@ -1,5 +1,6 @@
 <project name="cmcprov" default="default">
   <property name="project.dir" value="plugins/cmcprov" />
+  <property file="config.properties" />
   <property name="checkstyle.severity" value="error" />
 
   <import file="../../ant-targets.xml" />
@@ -26,6 +27,8 @@
     <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
       <fileset file="${cmcprov.war}" />
     </copy>
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="${dist.dir}/../cmcprov.properties" todir="${dest.dir}${sipxpbx.conf.dir}/counterpath"/>
   </target>
 
   <!-- D E F A U L T -->
@@ -33,6 +36,7 @@
 
   <!-- W A R -->
   <target name="war" depends="init,compile" description="assemble cmcprov war">
+	<copy file="${dist.dir}/../config.properties" todir="${classes.dir}" />
     <condition property="include.testpage">
       <equals arg1="${debug}" arg2="on" />
     </condition>

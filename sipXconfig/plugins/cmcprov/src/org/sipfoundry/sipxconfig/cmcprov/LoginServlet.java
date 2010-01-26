@@ -10,10 +10,14 @@
 package org.sipfoundry.sipxconfig.cmcprov;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,6 +34,15 @@ public class LoginServlet extends ProvisioningServlet {
     public static final String USERNAME_PASSWORD_ARE_INVALID_ERROR = "Either username or password are invalid";
     public static final String INVALID_CREDIDENTIALS = "Your credentials are not recognized";
     private static final Log LOG = LogFactory.getLog(LoginServlet.class);
+    private static final String WWW_DIR_PROPERTY = "www.dir";
+    private static final String PHONE_DIR_PROPERTY = "sipxconfig.phone.dir";
+    private static final String CONF_DIR_PROPERTY = "conf.dir";
+    private static final String PROPERTY_RESOURCE = "/config.properties";
+    private static final String CONF_RESOURCE = "/counterpath/cmcprov.properties";
+    private static final String CONTACTS_LIST_FILE_SUBFIX = "-directory.xml";
+    private static final String WEBDAV_DIR = "/webdav/";
+    private static final String TFTP_RELATIVE_PATH = "/profile/tftproot/";
+    private static final String DOT = ".";
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws javax.servlet.ServletException,
@@ -42,7 +55,6 @@ public class LoginServlet extends ProvisioningServlet {
                 throw new FailureDataException(INVALID_CREDIDENTIALS);
             }
             Profile[] profileFilenames = phone.getProfileTypes();
-
             // Map<String, String> settings = new Hashtable<String, String>();
             // String queryString = "?username=$username$&password=$password$";
             // String configServerURL = req.getRequestURL().substring(0,
@@ -50,9 +62,28 @@ public class LoginServlet extends ProvisioningServlet {
             // + UPDATE_SERVLET + queryString;
             // settings.put("system:auto_update:config_server_url", configServerURL);
             // settings.put("feature:auto_update:config_server_url", configServerURL);
+            // createWebDAVContactListFile(user.getUserName(), phone);
+            InputStream in = getClass().getResourceAsStream(PROPERTY_RESOURCE);
+            Properties confProperties = new Properties();
+            try {
+                confProperties.load(in);
+            } catch (IOException ex) {
+                LOG.error("loading error :" + PROPERTY_RESOURCE + ex.getMessage());
+            }
+            FileInputStream fin = new FileInputStream(confProperties.getProperty(CONF_DIR_PROPERTY) + CONF_RESOURCE);
+            Properties properties = new Properties();
 
+            try {
+                properties.load(fin);
+            } catch (IOException ex) {
+                LOG.error("loading error:  " + CONF_RESOURCE + ex.getMessage());
+            }
+
+            fin.close();
+
+            updateContactList(user, phone, properties.getProperty(WWW_DIR_PROPERTY), properties
+                    .getProperty(PHONE_DIR_PROPERTY));
             uploadPhoneProfile(profileFilenames[0].getName(), out);
-
             // for (Map.Entry<String, String> e : settings.entrySet()) {
             // out.println(e.getKey() + EQUAL_SIGN + QUOTE_CHAR + e.getValue() + QUOTE_CHAR);
             // }
@@ -106,4 +137,16 @@ public class LoginServlet extends ProvisioningServlet {
         }
         return parameters;
     }
+
+    private void updateContactList(User user, Phone phone, String wwwdir, String phonedir) {
+        String domainName = this.getProvisioningContext().getDomainName();
+        String phoneBookName = phone.getSerialNumber() + CONTACTS_LIST_FILE_SUBFIX;
+        String contactListFilePath = wwwdir + WEBDAV_DIR + user.getUserName() + DOT + domainName + DOT
+                + phoneBookName;
+        String phoneBookFilePath = phonedir + TFTP_RELATIVE_PATH + phoneBookName;
+
+        ContactSynchronizer synchronizer = ContactSynchronizer.getInstance(phoneBookFilePath, contactListFilePath);
+        synchronizer.synChronize();
+    }
+
 }

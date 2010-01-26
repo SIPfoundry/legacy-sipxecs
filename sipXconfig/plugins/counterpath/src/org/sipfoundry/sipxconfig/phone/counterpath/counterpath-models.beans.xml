@@ -17,5 +17,6 @@
   </bean>
 
   <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" singleton="false" parent="abstractPhone">
+    <property name="syswwwdir" value="${sysdir.www}"/>
   </bean>
 </beans>

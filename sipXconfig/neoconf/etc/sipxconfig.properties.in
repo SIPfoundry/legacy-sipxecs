@@ -65,6 +65,7 @@ sysdir.build_number=0000
 sysdir.comment=opendev
 sysdir.user=@sipxpbx.user@
 sysdir.doc=@www.dir@/doc
+sysdir.www=@www.dir@
 sysdir.mailstore=@sipxvxml.data.dir@/mailstore
 sysdir.vxml=@sipxvxml.data.dir@
 sysdir.vxml.prompts=@sipxvxml.data.dir@/prompts
