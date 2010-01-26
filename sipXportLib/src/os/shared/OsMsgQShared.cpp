@@ -271,7 +271,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       // infinite recursion.
       if (mName != "syslog")
       {
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         OsSysLog::add(FAC_KERNEL, PRI_ERR,
                        "OsMsgQShared::doSendCore message send failed for queue '%s' - no room, ret = %d",
                        mName.data(), ret);
       }
@@ -288,7 +288,7 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       // infinite recursion.
       if (2 * count > max && mName != "syslog")
       {
-         OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+         OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
                        "OsMsgQShared::doSendCore message queue '%s' is over half full - count = %d, max = %d",
                        mName.data(), count, max);
       }
