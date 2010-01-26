@@ -17,10 +17,10 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Presence.Type;
+import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.VCard;
-import org.sipfoundry.sipximbot.IMContext.Command;
 import org.sipfoundry.sipximbot.IMUser.UserPresence;
 
 public class IMBot {
@@ -39,6 +39,37 @@ public class IMBot {
         public IMClientThread() {
         }
         
+        /* IMbot client computes the SHA1 hash of the avatar image data itself. 
+         * Include this hash in the user's presence information 
+         * as the XML character data of the <photo/> child of an <x/> element 
+         * qualified by the 'vcard-temp:x:update' namespace
+         */
+        private class AvatarUpdateExtension implements PacketExtension {
+            private String photoHash;
+
+            public void setPhotoHash(String hash) {
+                photoHash = hash;
+            }
+
+            public String getElementName() {
+                return "x";
+            }
+
+            public String getNamespace() {
+                return "vcard-temp:x:update";
+            }
+
+            public String toXML() {
+                StringBuffer buf = new StringBuffer();
+                buf.append("<").append(getElementName()).append(" xmlns=\"").append(getNamespace()).append("\">");
+                buf.append("<photo>");
+                buf.append(photoHash);
+                buf.append("</photo>");
+                buf.append("</").append(getElementName()).append(">");
+                return buf.toString();
+            }
+        }
+        
         private void updateAvatar(ImbotConfiguration config) {
                 
             boolean savingAvatar = false;
@@ -47,10 +78,11 @@ public class IMBot {
                 vCard.load(m_con);
                 URL url;
                 try {
-                    url = new URL("file://" + System.getProperty("var.dir", "/var/sipxpbx") + "/sipximbot/image/avatar.jpg");
+                    url = new URL("file://" + System.getProperty("var.dir", "/var/sipxdata") + "/sipximbot/image/avatar.jpg");
                     vCard.setAvatar(url);
                     savingAvatar = true;
                     vCard.save(m_con);
+                    updateAvatarPresence(vCard);
                 } catch (MalformedURLException e) {
                     LOG.error("Malformed URL in updateAvatar ");     
                 }    
@@ -65,13 +97,25 @@ public class IMBot {
                     }
                     try {
                         vCard.save(m_con);
+                        updateAvatarPresence(vCard);
                     } catch (XMPPException e) {
                         LOG.error("could not update Avatar " + e.getMessage());     
                     }
                 }        
             }           
         }
-
+        
+        private void updateAvatarPresence(VCard vCard) {
+            Presence aPresence = new Presence(Presence.Type.available);
+            AvatarUpdateExtension AvatarExt = new AvatarUpdateExtension();
+            AvatarExt.setPhotoHash(vCard.getAvatarHash());
+            aPresence.addExtension(AvatarExt);
+            aPresence.setStatus("Type help for a list of commands.");
+            aPresence.setFrom(ImbotConfiguration.get().getMyAsstAcct());
+            m_con.sendPacket(aPresence);
+        }
+        
+        
         private boolean connectToXMPPServer() {
             
             ImbotConfiguration config;
@@ -81,9 +125,8 @@ public class IMBot {
                 try {
                     config = ImbotConfiguration.get();
                     conf = new ConnectionConfiguration(config.getOpenfireHost(), 5222);
-                             
                     Roster.setDefaultSubscriptionMode(Roster.SubscriptionMode.manual);
-                    m_con = new XMPPConnection(conf);                                       
+                    m_con = new XMPPConnection(conf);   
                     m_con.connect();
                     
                     m_con.login(config.getMyAsstAcct(), config.getMyAsstPswd());
@@ -124,12 +167,8 @@ public class IMBot {
             if(!connectToXMPPServer()) {
                 return;
             }
-            
-            Presence presence = new Presence(Type.available);
-            presence.setMode(Presence.Mode.available);
-            presence.setStatus("Type help for a list of commands.");
-            m_con.sendPacket(presence);
-            
+
+            updateAvatar(ImbotConfiguration.get());
             m_roster = m_con.getRoster();
                                   
             class PresenceListener implements PacketListener {
@@ -248,8 +287,6 @@ public class IMBot {
                     m_ChatsMap.get(from).setPresence(presence);
                 }
             });
-                  
-            updateAvatar(ImbotConfiguration.get());
             
             while (running) {
                 try {
@@ -261,7 +298,7 @@ public class IMBot {
             }
             m_con.disconnect();
         }
-    }     
+    }  
     
     static public synchronized FullUser findUser(String jid) {        
         m_fullUsers = FullUsers.update();       
