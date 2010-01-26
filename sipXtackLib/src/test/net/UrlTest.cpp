@@ -29,6 +29,7 @@
 class UrlTest : public CppUnit::TestCase
 {
     CPPUNIT_TEST_SUITE(UrlTest);
+    CPPUNIT_TEST(testSchemes);
     CPPUNIT_TEST(testFileBasic);
     CPPUNIT_TEST(testFileWithPortAndPath);
     CPPUNIT_TEST(testHttpBasic);
@@ -129,6 +130,56 @@ public:
     void tearDown()
     {
         delete assertValue;
+    }
+
+    // Test all schemes that should be recognized.
+    void testSchemes()
+    {
+       const char* unknown_s = "UNKNOWN-URL-SCHEME:xxx@yyy";
+       Url unknown(unknown_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(unknown_s,
+                                    Url::UnknownUrlScheme, unknown.getScheme());
+
+       const char* sip_s = "sip:foo@bar";
+       Url sip(sip_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(sip_s,
+                                    Url::SipUrlScheme, sip.getScheme());
+
+       const char* sips_s = "sips:xxx@yyy";
+       Url sips(sips_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(sips_s,
+                                    Url::SipsUrlScheme, sips.getScheme());
+
+       const char* http_s = "http://host/path/file";
+       Url http(http_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(http_s,
+                                    Url::HttpUrlScheme, http.getScheme());
+
+       const char* https_s = "https://host/path/file";
+       Url https(https_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(https_s,
+                                    Url::HttpsUrlScheme, https.getScheme());
+
+       const char* ftp_s = "ftp://host/path/file";
+       Url ftp(ftp_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(ftp_s,
+                                    Url::FtpUrlScheme, ftp.getScheme());
+
+       const char* file_s = "file://host/path/file";
+       Url file(file_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(file_s,
+                                    Url::FileUrlScheme, file.getScheme());
+
+       const char* mailto_s = "mailto:xxx@yyy";
+       Url mailto(mailto_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(mailto_s,
+                                    Url::MailtoUrlScheme, mailto.getScheme());
+
+       // Implicit "sip:" scheme.
+       const char* implicit_s = "foo@bar";
+       Url implicit(implicit_s);
+       CPPUNIT_ASSERT_EQUAL_MESSAGE(implicit_s,
+                                    Url::SipUrlScheme, implicit.getScheme());
     }
 
     void testFileBasic()

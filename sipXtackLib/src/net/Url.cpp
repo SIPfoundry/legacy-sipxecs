@@ -107,7 +107,7 @@ const RegEx AngleBrackets( SWS "<([^>]+)>" );
  *    Similarly, the Scheme value is used as an index into SchemeName, so the translation
  *    to a string will be wrong if that is not kept correct.
  */
-#define SUPPORTED_SCHEMES "(?i:(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
+#define SUPPORTED_SCHEMES "(?i:(UNKNOWN-URL-SCHEME)|(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
 const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
 const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
@@ -1384,6 +1384,14 @@ UtlBoolean Url::isIncludeAngleBracketsSet() const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
+// Special value used inside Url::parseString() to indicate that no
+// recognizable scheme could be found at the start of the string.
+// UnknownUrlScheme is used to indicate that "UNKNOWN-URL-SCHEME:" was
+// found at the start.  Before returning, parseString turns
+// UnrecognizableUrlScheme into UnknownUrlScheme.
+static const Url::Scheme UnrecognizableUrlScheme =
+   Url::NUM_SUPPORTED_URL_SCHEMES;
+
 bool Url::parseString(const char* urlString, ///< string to parse URL from
                       UriForm     uriForm,   ///< which context should be used to parse the uri
                       UtlString*  nextUri    ///< any leftover value following a trailing comma
@@ -1510,20 +1518,26 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    {
       LOG_TIME("scheme   > ");
       // the scheme name matches one of the supported schemes
-      mScheme = static_cast<Scheme>(supportedScheme.Matches()-1);
+      // The first alternative in SUPPORTED_SCHEMES will cause
+      // RegEx::Matches() to return 2, the second will return 3, etc.
+      // So subtract 2 from ::Matches() and add the code for the first
+      // alternative to generate the Scheme value.
+      mScheme = static_cast<Scheme>(
+      	      supportedScheme.Matches() - 2 + Url::UnknownUrlScheme
+	      );
       workingOffset = supportedScheme.AfterMatch(0); // past the ':'
    }
    else
    {
       /*
-       * It did not match one of the supported scheme names
-       * so proceed on the assumption that it's a host and "sip:" is implied
-       * Leave the workingOffset where it is (before the token).
-       * The code below, through the parsing of host and port
-       * treats this as an implicit 'sip:' url; if it parses ok
-       * up to that point, it resets the scheme to SipsUrlScheme
+       * It did not match one of the supported scheme names so proceed
+       * on the assumption that it's a host and "sip:" is implied
+       * Leave the workingOffset where it is (before the token).  The
+       * code below, through the parsing of host and port treats this
+       * as an implicit 'sip:' url; if it parses ok up to that point,
+       * it resets the scheme to SipsUrlScheme
        */
-      mScheme = UnknownUrlScheme;
+      mScheme = UnrecognizableUrlScheme;
    }
 
 
@@ -1544,6 +1558,7 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    case SipUrlScheme:
    case SipsUrlScheme:
    case MailtoUrlScheme:
+   case UnrecognizableUrlScheme:
    default:
       break;
    }
@@ -1586,12 +1601,14 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
 
       workingOffset = hostAndPort.AfterMatch(0);
 
-      if (UnknownUrlScheme == mScheme)
+      if (UnrecognizableUrlScheme == mScheme)
       {
          /*
           * Resolve AMBIGUITY
-          *   Since we were able to parse this as a host and port, it is now safe to
-          *   set the scheme to the implied 'sip:'.
+          *   Since we were able to parse this as a host and port, it
+          *   is now safe to set the scheme to the implied 'sip:'.
+          * Note that if the URI started with "UNKNOWN-URL-SCHEME:",
+          * mScheme == UnknownUrlScheme, and this assignment is not done.
           */
          mScheme = SipUrlScheme;
       }
@@ -1622,11 +1639,20 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       }
    }
 
+   // At this point, we have decided whether or not to assume an
+   // implicit "sip:", so we no longer need to distinguish URIs
+   // without a recognizable scheme from those that are explicitly
+   // marked "UNKNOWN-URL-SCHEME:".
+   if (UnrecognizableUrlScheme == mScheme)
+   {
+      mScheme = UnknownUrlScheme;
+   }
+
    // Next is a path if http, https, or ftp,
    //      OR url parameters if sip or sips.
    // There can be no Url parameters for http, https, or ftp
    //    because semicolon is a valid part of the path value
-   switch ( mScheme )
+   switch (mScheme)
    {
    case FileUrlScheme:
    case FtpUrlScheme:
@@ -1862,7 +1888,13 @@ Url::Scheme Url::scheme( const UtlString& schemeName )
    RegEx supportedSchemeExact(SupportedSchemeExact);
    if (supportedSchemeExact.Search(schemeName.data()))
    {
-      theScheme = static_cast<Scheme>(supportedSchemeExact.Matches()-1);
+      // The first alternative in SUPPORTED_SCHEMES will cause
+      // RegEx::Matches() to return 2, the second will return 3, etc.
+      // So subtract 2 from ::Matches() and add the code for the first
+      // alternative to generate the Scheme value.
+      theScheme = static_cast<Scheme>(
+         supportedSchemeExact.Matches() - 2 + Url::UnknownUrlScheme
+         );
    }
    else
    {
