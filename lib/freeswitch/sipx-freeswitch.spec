@@ -126,7 +126,7 @@ Pass-through g729 Codec support for FreeSWITCH open source telephony platform
 
 %prep
 %setup -q
-%patch
+%patch0
 
 %build
 %ifos linux
