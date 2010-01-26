@@ -26,6 +26,8 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
 
+//import org.apache.commons.lang.StringUtils;
+
 public class SIPViewerFrame extends JFrame
 {
     // //////////////////////////////////////////////////////////////////////
@@ -752,7 +754,17 @@ public class SIPViewerFrame extends JFrame
 
         public void actionPerformed(ActionEvent e)
         {
-            String strText = "SIP Viewer\r\n"
+            // getting the implementation version from the manifest file
+            // located in the jar
+            String version = getClass().getPackage().getImplementationVersion();
+            
+            // if there is no version in the manifest file then just have
+            // nothing
+            if (version == null)
+                version = "";
+            
+            // display the copyright message and the version string
+            String strText = "SIP Viewer " + version + "\r\n"
                     + "\r\n"
                     + "Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.\r\n"
                     + "Contributors retain copyright to elements licensed under a Contributor Agreement.\r\n"

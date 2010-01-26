@@ -4,6 +4,10 @@
 #  -Dtop.build.dir is required if you call ./configure from a different dir
 abs_top_builddir=`cd $(top_builddir) && pwd`
 ANT_FLAGS=-e  -Dtop.build.dir=$(abs_top_builddir) -f $(srcdir)/build.xml
+
+# Passing it everytime ensures it's a fresh value.
+ANT_FLAGS += -Dversion.buildno=$(SIPX_VERSION)
+
 ANT_CMD=JAVA_HOME=$(JAVA_HOME) @ANT@
 
 all : all-ant

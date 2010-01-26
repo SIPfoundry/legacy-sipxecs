@@ -120,6 +120,22 @@
   </target>
 
 
+  <!--
+   - M A N I F E S T
+   -->
+
+  <target name="manifest">
+	<sipxviewer-manifest/>
+  </target>	
+		
+  <presetdef name="sipxviewer-manifest">
+	<manifest file="${dist.dir}/MANIFEST.MF">
+		<attribute name="Specification-Title" value="sipviewer"/>
+		<attribute name="Implementation-Version" value="${version.buildno}"/>
+		<attribute name="Implementation-Vendor" value="SIPfoundry"/>
+	</manifest>				
+  </presetdef>	
+
   <!-- C L E A N -->
   <target name="clean" depends="subclean,realclean"/>
 
