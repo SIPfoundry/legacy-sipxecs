@@ -124,7 +124,6 @@ public class CpCmd {
             // must be an invalid digit, play "invalid digit" and return no command
             if(cmd.length() > 0) {
                 m_vm.playError("bad_cmd");  
-                return null;
             }    
             
             return Command.CANCELED;
