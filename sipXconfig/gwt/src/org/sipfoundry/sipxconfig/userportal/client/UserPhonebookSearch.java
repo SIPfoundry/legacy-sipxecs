@@ -259,10 +259,10 @@ public class UserPhonebookSearch implements EntryPoint {
 
 
     private static final class ExpandedContactComponent extends VLayout {
-        private static final IButton EDIT_BUTTON = new IButton(s_searchConstants.edit());
-        private static final IButton SAVE_BUTTON = new IButton(s_searchConstants.save());
-        private static final IButton RESET_BUTTON = new IButton(s_searchConstants.reset());
-        private static final IButton CANCEL_BUTTON = new IButton(s_searchConstants.cancel());
+        private final IButton m_editButton = new IButton(s_searchConstants.edit());
+        private final IButton m_saveButton = new IButton(s_searchConstants.save());
+        private final IButton m_resetButton = new IButton(s_searchConstants.reset());
+        private final IButton m_cancelButton = new IButton(s_searchConstants.cancel());
 
         public ExpandedContactComponent(final PhonebookGrid grid) {
             setStyleName("gwtExpandedContact");
@@ -292,11 +292,9 @@ public class UserPhonebookSearch implements EntryPoint {
                 }
             });
 
-            SAVE_BUTTON.setVisibility(Visibility.HIDDEN);
-            RESET_BUTTON.setVisibility(Visibility.HIDDEN);
-            CANCEL_BUTTON.setVisibility(Visibility.HIDDEN);
+            hideEditControls();
 
-            EDIT_BUTTON.addClickHandler(new ClickHandler() {
+            m_editButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     details.editData();
@@ -304,22 +302,21 @@ public class UserPhonebookSearch implements EntryPoint {
                 }
             });
 
-            SAVE_BUTTON.addClickHandler(new ClickHandler() {
+            m_saveButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     details.onSaveClick(entryId);
-                    hideEditControls();
                 }
             });
 
-            RESET_BUTTON.addClickHandler(new ClickHandler() {
+            m_resetButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     details.onResetClick();
                 }
             });
 
-            CANCEL_BUTTON.addClickHandler(new ClickHandler() {
+            m_cancelButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
                     details.onCancelClick();
@@ -333,11 +330,11 @@ public class UserPhonebookSearch implements EntryPoint {
             formActions.setPadding(10);
 
             if (!entryId.equals(DUMMY_ID)) {
-                formActions.addMember(SAVE_BUTTON);
-                formActions.addMember(RESET_BUTTON);
-                formActions.addMember(CANCEL_BUTTON);
+                formActions.addMember(m_saveButton);
+                formActions.addMember(m_resetButton);
+                formActions.addMember(m_cancelButton);
 
-                formActions.addMember(EDIT_BUTTON);
+                formActions.addMember(m_editButton);
                 formActions.addMember(removeButton);
             }
 
@@ -346,18 +343,18 @@ public class UserPhonebookSearch implements EntryPoint {
 
         }
 
-        private static final void showEditControls() {
-            SAVE_BUTTON.setVisibility(Visibility.INHERIT);
-            RESET_BUTTON.setVisibility(Visibility.INHERIT);
-            CANCEL_BUTTON.setVisibility(Visibility.INHERIT);
-            EDIT_BUTTON.setVisibility(Visibility.HIDDEN);
+        private final void showEditControls() {
+            m_saveButton.setVisibility(Visibility.INHERIT);
+            m_resetButton.setVisibility(Visibility.INHERIT);
+            m_cancelButton.setVisibility(Visibility.INHERIT);
+            m_editButton.setVisibility(Visibility.HIDDEN);
         }
 
-        private static final void hideEditControls() {
-            SAVE_BUTTON.setVisibility(Visibility.HIDDEN);
-            RESET_BUTTON.setVisibility(Visibility.HIDDEN);
-            CANCEL_BUTTON.setVisibility(Visibility.HIDDEN);
-            EDIT_BUTTON.setVisibility(Visibility.INHERIT);
+        private final void hideEditControls() {
+            m_saveButton.setVisibility(Visibility.HIDDEN);
+            m_resetButton.setVisibility(Visibility.HIDDEN);
+            m_cancelButton.setVisibility(Visibility.HIDDEN);
+            m_editButton.setVisibility(Visibility.INHERIT);
         }
     }
 
@@ -383,7 +380,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
             Tab homeTab = new Tab();
             homeTab.setPane(addressLayout);
-            homeTab.setTitle("Address");
+            homeTab.setTitle(s_searchConstants.address());
 
             addTab(generalTab);
             addTab(homeTab);
@@ -479,14 +476,15 @@ public class UserPhonebookSearch implements EntryPoint {
             if (m_edit && (entryId.isEmpty() || entryId.equals(DUMMY_ID))) {
                 SC.say(s_searchConstants.editRecordWarning());
             } else {
-                if (m_vm.validate()) {
+                if (m_vm.validate() && m_vm.valuesHaveChanged()) {
                     if (m_edit) {
                         ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(entryId, m_vm);
+                        s_phonebookGrid.refreshRecordsWithDelay();
                     } else {
                         ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(entryId, m_vm);
+                        s_phonebookGrid.refreshRecordsWithDelay();
+                        addData();
                     }
-                    s_phonebookGrid.refreshRecordsWithDelay();
-                    addData();
                 }
             }
         }

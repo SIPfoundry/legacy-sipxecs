@@ -144,4 +144,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String requiredField();
 
     String newContact();
+
+    String address();
 }
