@@ -22,10 +22,10 @@ missingok
    copytruncate
 }
 
-# sipxconfig-logins and sipXalarms should only be rotated weekly.  Data
+# sipxconfig-logins and sipXalarms should only be rotated monthly.  Data
 # in these log files provide a history of information needed by sipXconfig.
 @SIPX_LOGDIR@/sipxconfig-l*.log @SIPX_LOGDIR@/sip?al*.log {
-   weekly
+   monthly
    copytruncate
 }
 
@@ -51,7 +51,7 @@ missingok
     copytruncate
 }
 
-@SIPX_LOGDIR@/freeswitch.log {
+@SIPX_LOGDIR@/freeswitch*.log {
     notifempty
     postrotate
         # Tell freeswitch to reopen the log file
