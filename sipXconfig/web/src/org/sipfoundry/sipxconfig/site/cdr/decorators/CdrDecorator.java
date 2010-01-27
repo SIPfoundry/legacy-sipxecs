@@ -48,6 +48,16 @@ public class CdrDecorator implements Serializable {
         return StringUtils.defaultString(m_cdr.getCaller());
     }
 
+    public String getRecipient() {
+        String recipient = m_cdr.getRecipient();
+        String calltypeshortname = m_cdr.getCallTypeShortName();
+        if (calltypeshortname == null) {
+            return StringUtils.defaultString(recipient);
+        } else {
+            return StringUtils.defaultString(recipient + "(" + calltypeshortname + ")");
+        }
+    }
+
     public Date getConnectTime() {
         return m_cdr.getConnectTime();
     }

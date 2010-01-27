@@ -17,6 +17,7 @@
 
 	<field name="caller" class="java.lang.String"/>
 	<field name="callee" class="java.lang.String"/>
+	<field name="recipient" class="java.lang.String"/>
 	<field name="startTime" class="java.util.Date"/>
 	<field name="duration" class="java.lang.String"/>
 	<field name="termination" class="java.lang.String"/>
@@ -102,28 +103,35 @@
 				<graphicElement/>
 			</rectangle>
 			<staticText>
-				<reportElement mode="Opaque" x="0" y="2" width="115" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<reportElement mode="Opaque" x="0" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold" size="10"/>
 				</textElement>
 				<text><![CDATA[From]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="115" y="2" width="115" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<reportElement mode="Opaque" x="95" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold" size="10"/>
 				</textElement>
 				<text><![CDATA[To]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="230" y="2" width="100" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<reportElement mode="Opaque" x="190" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[Recipient]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="285" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold" size="10"/>
 				</textElement>
 				<text><![CDATA[Start]]></text>
 			</staticText>
 			<staticText>
-				<reportElement mode="Opaque" x="330" y="2" width="150" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<reportElement mode="Opaque" x="380" y="2" width="100" height="12" forecolor="#ffffff" backcolor="#333333"/>
 				<textElement textAlignment="Center">
 					<font reportFont="Arial_Bold" size="10"/>
 				</textElement>
@@ -142,29 +150,36 @@
 	<detail>
 		<band height="9">
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="115" y="1" width="115" height="8"/>
-				<textElement>
+				<reportElement positionType="Float" x="95" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{callee}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="230" y="1" width="100" height="8"/>
-				<textElement>
+				<reportElement positionType="Float" x="190" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{recipient}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="285" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{startTime}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
-				<reportElement positionType="Float" x="330" y="1" width="150" height="8"/>
-				<textElement>
+				<reportElement positionType="Float" x="380" y="1" width="100" height="8"/>
+				<textElement textAlignment="Center">
 				    <font reportFont="Arial_Normal" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{duration}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement positionType="Float" x="480" y="1" width="75" height="8"/>
-				<textElement>
+				<textElement textAlignment="Center">
 					<font reportFont="Arial_Normal" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{termination}]]></textFieldExpression>

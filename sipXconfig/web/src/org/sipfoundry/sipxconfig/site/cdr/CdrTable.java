@@ -10,12 +10,15 @@
 package org.sipfoundry.sipxconfig.site.cdr;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IAsset;
+import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.sipfoundry.sipxconfig.admin.dialplan.CallTag;
 import org.sipfoundry.sipxconfig.cdr.Cdr;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -27,6 +30,7 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class CdrTable extends BaseComponent {
+
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
@@ -52,6 +56,18 @@ public abstract class CdrTable extends BaseComponent {
     @InjectState(value = "userSession")
     public abstract UserSession getUserSession();
 
+    @Asset("/images/user.png")
+    public abstract IAsset getNormalUserIcon();
+
+    @Asset("/images/email.png")
+    public abstract IAsset getVoiceMailIcon();
+
+    @Asset("/images/park.png")
+    public abstract IAsset getParkIcon();
+
+    @Asset("/images/retrievepark.png")
+    public abstract IAsset getRetrieveParkIcon();
+
     /**
      * Implements click to call link
      *
@@ -66,6 +82,39 @@ public abstract class CdrTable extends BaseComponent {
 
     public User getUser() {
         return getUserSession().getUser(getCoreContext());
+    }
+
+    public IAsset getRecipientTypeIcon() {
+        IAsset recipientIcon = null;
+        String rowCalleeRoute = null;
+        rowCalleeRoute = getRow().getCalleeRouteTail();
+        if ((rowCalleeRoute != null) && (rowCalleeRoute.length() > 0)) {
+            CallTag calltag = CallTag.valueOf(rowCalleeRoute);
+            switch (calltag) {
+            case VM:
+                recipientIcon = getVoiceMailIcon();
+                break;
+            case RPARK:
+                recipientIcon = getRetrieveParkIcon();
+                break;
+            case PARK:
+                recipientIcon = getParkIcon();
+                break;
+            default:
+                recipientIcon = null;
+            }
+        }
+        return recipientIcon;
+    }
+
+    public String getRecipientIconTitle() {
+        String rowCalleeRoute = null;
+        rowCalleeRoute = getRow().getCalleeRouteTail();
+        if ((rowCalleeRoute != null) && (rowCalleeRoute.length() > 0)) {
+            String key = CallTag.valueOf(rowCalleeRoute).toString();
+            return getMessages().getMessage(key);
+        }
+        return "None";
     }
 
 }

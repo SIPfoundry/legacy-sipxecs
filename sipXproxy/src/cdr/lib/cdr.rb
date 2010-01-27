@@ -330,6 +330,7 @@ class Cdr
     end
     @legs.accept_setup(cse)
     @callee_route = cse.callee_route if !@callee_route
+    @callee_contact = cse.contact if !@callee_contact
     @termination = CALL_IN_PROGRESS_TERM 
     finish
   end

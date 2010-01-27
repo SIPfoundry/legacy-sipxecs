@@ -56,9 +56,13 @@ public class Cdr implements Serializable {
     public static final String CALL_CUST = "CUSTOM";
 
     private static final long serialVersionUID = 1L;
+    private static final String CALLTAG_DELIM = ",";
 
     private String m_callerAor;
     private String m_calleeAor;
+
+    private String m_callerContact;
+    private String m_calleeContact;
 
     private Date m_startTime;
     private Date m_connectTime;
@@ -68,8 +72,10 @@ public class Cdr implements Serializable {
     private int m_failureStatus;
 
     private String m_caller;
+    private String m_originator;
 
     private String m_callee;
+    private String m_recipient;
 
     private String m_callid;
     private String m_reference;
@@ -80,8 +86,16 @@ public class Cdr implements Serializable {
         return m_calleeAor;
     }
 
+    public String getCalleeContact() {
+        return m_calleeContact;
+    }
+
     public String getCallee() {
         return m_callee;
+    }
+
+    public String getRecipient() {
+        return m_recipient;
     }
 
     public void setCalleeAor(String calleeAor) {
@@ -89,17 +103,35 @@ public class Cdr implements Serializable {
         m_callee = SipUri.extractUser(calleeAor);
     }
 
+    public void setCalleeContact(String calleeContact) {
+        m_calleeContact = calleeContact;
+        m_recipient = SipUri.extractUser(calleeContact);
+    }
+
     public String getCallerAor() {
         return m_callerAor;
+    }
+
+    public String getCallerContact() {
+        return m_callerContact;
     }
 
     public String getCaller() {
         return m_caller;
     }
 
+    public String getOriginator() {
+        return m_originator;
+    }
+
     public void setCallerAor(String callerAor) {
         m_callerAor = callerAor;
         m_caller = SipUri.extractFullUser(callerAor);
+    }
+
+    public void setCallerContact(String callerContact) {
+        m_callerContact = callerContact;
+        m_originator = SipUri.extractFullUser(callerContact);
     }
 
     public Date getConnectTime() {
@@ -178,6 +210,17 @@ public class Cdr implements Serializable {
         return m_calleeRoute;
     }
 
+    public String getCalleeRouteTail() {
+        if ((m_calleeRoute != null)
+            && (m_calleeRoute.length() != 0)) {
+            String[] callRoutes = m_calleeRoute.split(CALLTAG_DELIM);
+            if (callRoutes.length > 0) {
+                return callRoutes[callRoutes.length - 1];
+            }
+        }
+        return null;
+    }
+
     public void setCalleeRoute(String calleeroute) {
         m_calleeRoute = calleeroute;
     }
@@ -225,11 +268,24 @@ public class Cdr implements Serializable {
     public String getCallTypeName() {
         String callType = CallTag.UNK.getName();
         if ((m_calleeRoute != null)
-            && (m_calleeRoute != "")) {
-            String[] callRoutes = m_calleeRoute.split(",");
+            && (m_calleeRoute.length() != 0)) {
+            String[] callRoutes = m_calleeRoute.split(CALLTAG_DELIM);
             if (callRoutes.length > 0) {
                 CallTag calltag = CallTag.valueOf(callRoutes[callRoutes.length - 1]);
                 callType = calltag.getName();
+            }
+        }
+        return callType;
+    }
+
+    public String getCallTypeShortName() {
+        String callType = null;
+        if ((m_calleeRoute != null)
+            && (m_calleeRoute.length() != 0)) {
+            String[] callRoutes = m_calleeRoute.split(CALLTAG_DELIM);
+            if (callRoutes.length > 0) {
+                CallTag calltag = CallTag.valueOf(callRoutes[callRoutes.length - 1]);
+                callType = calltag.getShortName();
             }
         }
         return callType;

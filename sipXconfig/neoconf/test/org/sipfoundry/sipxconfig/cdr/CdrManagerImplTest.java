@@ -96,6 +96,12 @@ public class CdrManagerImplTest extends TestCase {
 
         rs.getBoolean("caller_internal");
         expectLastCall().andReturn(true);
+    
+        rs.getString("caller_contact");
+        expectLastCall().andReturn("caller_contact");
+        rs.getString("callee_contact");
+        expectLastCall().andReturn("callee_contact");
+
         rs.getString("callee_route");
         expectLastCall().andReturn("AL,LD");
 
@@ -117,6 +123,8 @@ public class CdrManagerImplTest extends TestCase {
         assertEquals(404, cdr.getFailureStatus());
         assertEquals(Termination.IN_PROGRESS, cdr.getTermination());
         assertEquals(true, cdr.getCallerInternal());
+        assertEquals("caller_contact", cdr.getCallerContact());
+        assertEquals("callee_contact", cdr.getCalleeContact());
         assertEquals("AL,LD", cdr.getCalleeRoute());
         assertEquals(CallTag.LD.getName(), cdr.getCallTypeName());
 

@@ -18,11 +18,12 @@ module CdrResolver
       @@schema_ns = SERVICE_NAMESPACE
       @@schema_type = 'ActiveCall'
       
-      attr_accessor :from, :to, :duration, :start_time
+      attr_accessor :from, :to, :recipient, :duration, :start_time
       
       def initialize(cdr, now)
         @from = cdr.caller_aor
         @to = cdr.callee_aor
+        @recipient = cdr.callee_contact
         @start_time = cdr.start_time.to_time
         # convert time difference to milliseconds
         @duration = ((now - @start_time) * 1000).ceil
