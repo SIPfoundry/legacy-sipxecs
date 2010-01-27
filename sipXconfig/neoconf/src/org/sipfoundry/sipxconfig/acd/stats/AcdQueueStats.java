@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.Serializable;
+
 import org.sipfoundry.sipxconfig.common.SipUri;
 
 /**
@@ -18,7 +20,9 @@ import org.sipfoundry.sipxconfig.common.SipUri;
  * All other values are computed based on the calls currently in the queue.
  *
  */
-public class AcdQueueStats implements AcdStatsItem.QueueName {
+public class AcdQueueStats implements AcdStatsItem.QueueName, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /** Queue URI */
     private String m_queueUri;

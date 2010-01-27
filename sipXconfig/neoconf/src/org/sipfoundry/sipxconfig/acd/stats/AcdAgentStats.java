@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,9 @@ import java.util.Set;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.SipUri;
 
-public class AcdAgentStats implements AcdStatsItem.AgentName {
+public class AcdAgentStats implements AcdStatsItem.AgentName, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static final class State extends Enum {
         public static final State IDLE = new State("idle");

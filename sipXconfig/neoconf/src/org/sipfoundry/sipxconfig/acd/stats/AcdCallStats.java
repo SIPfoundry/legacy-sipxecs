@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.acd.stats;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -18,7 +19,10 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 /**
  * Statisticall data about the single call handled AcdCallStats
  */
-public class AcdCallStats implements AcdStatsItem.AgentName, AcdStatsItem.QueueName {
+public class AcdCallStats implements AcdStatsItem.AgentName, AcdStatsItem.QueueName, Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     /**
      * Call status: the state transition is WAITING,{UNANSWERED|(IN_PROGRESS,COMPLETED)} Values
      * need to match constantct in agent/lib/call.rb
