@@ -74,5 +74,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gdata-core-1.0.jar" sourcepath="/LIB_SRC/gdata/1.39.1/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/google-collect-1.0-rc4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xalan-2.7.1.jar"/>
+       <classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
+       <classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
