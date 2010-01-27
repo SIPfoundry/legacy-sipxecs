@@ -41,6 +41,7 @@ public class SipStackBean extends AbstractSipStackBean {
     public Properties getExtraStackProperties() {
         Properties properties = new Properties();
         properties.setProperty("gov.nist.javax.sip.DELIVER_UNSOLICITED_NOTIFY", "true");
+        properties.setProperty("gov.nist.javax.sip.MIN_KEEPALIVE_TIME_SECONDS", "1");
         return properties;
     }
 

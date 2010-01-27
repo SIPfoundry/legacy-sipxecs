@@ -174,10 +174,10 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void sendResponses() {
         try {
-            System.out.println("serverTransactionId " + this.getBranch() + " tid = " + this.getTransactionId());
+            logger.debug("serverTransactionId " + this.getBranch() + " tid = " + this.getTransactionId());
             RequestExt request = (RequestExt) serverTransaction.getRequest();
             if (responses.isEmpty()) {
-                System.out.println("no Responses to SEND ");
+                logger.debug("no Responses to SEND ");
             }
             
             SipResponse finalResponse = this.responses.last();
@@ -194,6 +194,8 @@ public class SipServerTransaction extends SipTransaction implements
                     String correlator = SipUtilities.getCorrelator(newResponse);
                     for (SipServerTransaction st: this.matchingServerTransactions) {
                         st.setBranch(correlator);
+                        SipDialog peerDialog = SipTester.getDialog(st.getDialogId());
+                        peerDialog.setPeerDialog(SipTester.getDialog(this.getDialogId()));
                     }
                 }
                 it.remove();
@@ -209,9 +211,13 @@ public class SipServerTransaction extends SipTransaction implements
                   
                 if (!isReliableResponse || newResponse.getStatusCode() / 100 >= 2) {
                      String dialogId = this.getDialogId();
-                     System.out.println("dialogId = " + dialogId + " request " + this.sipRequest.getFrameId() );
+                     logger.debug("dialogId = " + dialogId + " request " + this.sipRequest.getFrameId() );
                      SipDialog sipDialog = SipTester.getDialog(dialogId);
                      sipDialog.setDialog((DialogExt)serverTransaction.getDialog());
+                     if ( newResponse.getStatusCode() == 200 &&
+                             newResponse.getCSeqHeader().getMethod().equals(Request.INVITE)) {
+                         sipDialog.setResponseToSend(newResponse);
+                     }
                      serverTransaction.sendResponse(newResponse);
                  } else {
                     serverTransaction.getDialog().sendReliableProvisionalResponse(newResponse);
@@ -265,8 +271,6 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void setMatchingServerTransactions(Collection<SipServerTransaction> matchingServerTransactions) {
        this.matchingServerTransactions = matchingServerTransactions;
-    }
-
-  
+    } 
 
 }

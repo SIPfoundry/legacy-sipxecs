@@ -49,7 +49,7 @@ public class SipClientTransaction extends SipTransaction implements
     private SipMessage triggeringMessage;
 
     private boolean waiting;
-
+    
    
 
     public SipClientTransaction(SipRequest sipRequest) {
@@ -168,19 +168,31 @@ public class SipClientTransaction extends SipTransaction implements
                     && sipRequest.getToHeader().getTag() != null) {
                 String method = sipRequest.getMethod();
                 if (method.equals(Request.ACK)) {
-                    logger.debug("createAndSend ACK -- not sending");
+                    logger.debug("createAndSend ACK");
+                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
+
+                    logger.debug("dialogId " + dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId);
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
-                    Response response = sipResponse.getResponseEvent().getResponse();
+                    for ( SipServerTransaction sst : this.serverTransactions)  {
+                        SipDialog hisDialog = SipTester.getDialog(sst.getDialogId());
+                        hisDialog.setPeerDialog(sipDialog);
+                    }
                     Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipResponse.getResponseEvent().getResponse()));
                     SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
                             this.triggeringMessage, ack);
                     dialog.sendAck(ack);
-               
+                    sipDialog.setRequestToSend(ack);
                 } else if (method.equals(Request.PRACK)) {
                     if ( triggeringMessage instanceof SipRequest) {
                         System.out.println("trigger = " + triggeringMessage.getSipMessage());
                     }
+                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
+
+                    logger.debug("dialogId " + dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                  
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
                     Response response = sipResponse.getResponseEvent().getResponse();
@@ -189,12 +201,17 @@ public class SipClientTransaction extends SipTransaction implements
                             this.triggeringMessage, prack);
                     ClientTransaction clientTransaction = provider.getNewClientTransaction(prack);
                     clientTransaction.setApplicationData(this);
+                    /*
+                     * Establish the end to end dialog association.
+                     */
                     for (SipServerTransaction sipServerTransaction : this
                             .getMatchingServerTransactions()) {
                         sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) prack));
-                    }
+                   }
+                   
                     this.processed = true;
                     dialog.sendRequest(clientTransaction);
+                    
                 } else {
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
@@ -213,7 +230,10 @@ public class SipClientTransaction extends SipTransaction implements
                     for (SipServerTransaction sipServerTransaction : this
                             .getMatchingServerTransactions()) {
                         sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) newRequest));
+                        SipDialog serverDialog = sipServerTransaction.getSipDialog();
+                        serverDialog.setPeerDialog(sipDialog);
                     }
+                    sipDialog.setRequestToSend(newRequest);
                     if ( sipDialog.getDialog() != null )
                         sipDialog.getDialog().sendRequest(clientTransaction);
                     else 
@@ -228,11 +248,23 @@ public class SipClientTransaction extends SipTransaction implements
                         .getNewClientTransaction(newRequest);
                 clientTransaction.setApplicationData(this);
 
+                /*
+                 * Mark the corrlated Server tansactions that will be expected to process
+                 * the incoming request.
+                 */
                 for (SipServerTransaction sipServerTransaction : this
                         .getMatchingServerTransactions()) {
                     sipServerTransaction.setBranch(SipUtilities.getCorrelator((RequestExt) newRequest));
+                   
                 }   
-                clientTransaction.sendRequest();
+                
+                for ( String dialogId : this.getDialogIds()) {
+                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                 
+                    sipDialog.setRequestToSend(newRequest);
+                    
+                }
+                clientTransaction.sendRequest();                
             }
         } catch (Exception ex) {
             SipTester.fail("unexpectedException", ex);
@@ -309,9 +341,10 @@ public class SipClientTransaction extends SipTransaction implements
                 if (sipDialog != null) {
                     sipDialog.setLastResponse(response);
                     sipDialog.setDialog((DialogExt) dialog);
-                }
-                
-              
+                    for (SipServerTransaction sst : serverTransactions ) {
+                        sst.getSipDialog().setPeerDialog(sipDialog);
+                    }
+                }              
             }
 
             if (response.getStatusCode() / 100 >= 2) {
@@ -493,6 +526,8 @@ public class SipClientTransaction extends SipTransaction implements
         System.err.println("************************************************");
 
     }
+
+   
 
     
 

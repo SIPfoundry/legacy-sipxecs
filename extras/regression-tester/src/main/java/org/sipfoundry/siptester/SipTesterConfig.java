@@ -1,6 +1,7 @@
 package org.sipfoundry.siptester;
 
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 
 public class SipTesterConfig {
@@ -12,6 +13,10 @@ public class SipTesterConfig {
     private String testerIpAddress;
     
     private int basePort;
+
+    private int rtpBasePort;
+    
+    private Hashtable<Integer,Integer> portMap = new Hashtable<Integer,Integer>();
       
     /**
      * @param logLevel the logLevel to set
@@ -62,6 +67,26 @@ public class SipTesterConfig {
     
     public int getBasePort() {
         return this.basePort;
+    }
+    
+    public void setRtpBasePort(String basePort) {
+        this.rtpBasePort = Integer.parseInt(basePort);
+    }
+    
+    public int getNextRtpPort() {
+        int retval = this.rtpBasePort;
+        rtpBasePort ++;
+        return retval;
+    }
+
+    public int getMediaPort(int port) {
+       if ( portMap.get(port) != null ) {
+           return portMap.get(port);
+       } else {
+           int retval = getNextRtpPort();
+           portMap.put(port, retval);
+           return retval;
+       }
     }
 
    

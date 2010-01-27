@@ -462,6 +462,8 @@ public class SipTester {
                                 .debug("could not find matching server transactions for client transaction");
                     }
                     ct.addMatchingServerTransactions(serverTransactions);
+                    
+                    
 
                     /*
                      * This transaction is runnable if one endpoint is emulated and the remote address 
@@ -591,6 +593,8 @@ public class SipTester {
                     System.exit(1);
                 }
             }
+            
+            
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -652,6 +656,10 @@ public class SipTester {
         }
         return serverTx;
 
+    }
+
+    public static Collection<SipDialog> getDialogs() {
+        return SipTester.sipDialogs.values();
     }
 
 }

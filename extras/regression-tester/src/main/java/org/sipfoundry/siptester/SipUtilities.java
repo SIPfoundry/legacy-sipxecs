@@ -1,13 +1,11 @@
 package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
-import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.address.SipURIExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
-import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.MessageFactoryExt;
 import gov.nist.javax.sip.message.RequestExt;
@@ -15,45 +13,39 @@ import gov.nist.javax.sip.message.ResponseExt;
 
 import java.net.InetAddress;
 import java.net.URLDecoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
+import java.util.Set;
+import java.util.Vector;
 
+import javax.sdp.Attribute;
+import javax.sdp.Connection;
+import javax.sdp.MediaDescription;
 import javax.sdp.Origin;
 import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
-import javax.sip.ClientTransaction;
-import javax.sip.Dialog;
-import javax.sip.DialogState;
 import javax.sip.InvalidArgumentException;
-import javax.sip.ListeningPoint;
-import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
-import javax.sip.TransactionAlreadyExistsException;
-import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.AddressFactory;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.AcceptHeader;
-import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.EventHeader;
 import javax.sip.header.ExpiresHeader;
-import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
@@ -65,7 +57,6 @@ import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.Message;
-import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -321,7 +312,6 @@ public class SipUtilities {
         } catch (SdpException ex) {
             throw new SipTesterException(ex);
         }
-
     }
 
     public static SessionDescription decrementSessionDescriptionVersionNumber(Response response) {
@@ -478,6 +468,93 @@ public class SipUtilities {
         }
     }
 
+    static MediaDescription getMediaDescription(String desiredMediaType,
+            SessionDescription sessionDescription) {
+        try {
+            Vector sdVector = sessionDescription.getMediaDescriptions(true);
+            MediaDescription mediaDescription = null;
+            for (Object md : sdVector) {
+                MediaDescription media = (MediaDescription) md;
+                String mediaType = media.getMedia().getMediaType();
+                // audi image or video
+                if (mediaType.equals(desiredMediaType)) {
+                    mediaDescription = media;
+                    break;
+                }
+
+            }
+            return mediaDescription;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new SipTesterException("Unexpected exception ", ex);
+        }
+    }
+
+    static Set<String> getMediaTypes(SessionDescription sessionDescription) {
+        HashSet<String> retval = new HashSet<String>();
+        try {
+            Vector sdVector = sessionDescription.getMediaDescriptions(true);
+            MediaDescription mediaDescription = null;
+            for (Object md : sdVector) {
+                MediaDescription media = (MediaDescription) md;
+                String mediaType = media.getMedia().getMediaType();
+                retval.add(mediaType);
+            }
+            return retval;
+        } catch (Exception ex) {
+            logger.error("Unexpected exception", ex);
+            throw new SipTesterException("Unexpected exception ", ex);
+        }
+    }
+
+    static int getSessionDescriptionMediaPort(String mediaType,
+            SessionDescription sessionDescription) {
+        try {
+            MediaDescription mediaDescription = getMediaDescription(mediaType, sessionDescription);
+
+            return mediaDescription.getMedia().getMediaPort();
+        } catch (Exception ex) {
+            throw new SipTesterException("Malformatted sdp", ex);
+        }
+
+    }
+
+    static String getSessionDescriptionMediaIpAddress(String mediaType,
+            SessionDescription sessionDescription) {
+        try {
+            String ipAddress = null;
+            if (sessionDescription.getConnection() != null)
+                ipAddress = sessionDescription.getConnection().getAddress();
+            MediaDescription mediaDescription = getMediaDescription(mediaType, sessionDescription);
+            if (mediaDescription == null) {
+                return null;
+            }
+
+            if (mediaDescription.getConnection() != null) {
+                ipAddress = mediaDescription.getConnection().getAddress();
+            }
+            return ipAddress;
+        } catch (Exception ex) {
+            throw new SipTesterException("Unexpected parse exception ", ex);
+        }
+    }
+
+    static void setMediaAddressPort(SessionDescription sessionDescription, String mediaType,
+            String ipAddress, int port) {
+        try {
+            MediaDescription mediaDescription = getMediaDescription(mediaType, sessionDescription);
+            Connection connection = mediaDescription.getConnection();
+            if (connection != null) {
+                connection.setAddress(ipAddress);
+                mediaDescription.setConnection(connection);
+            }
+            mediaDescription.getMedia().setMediaPort(port);
+        } catch (Exception ex) {
+            throw new SipTesterException(ex);
+        }
+
+    }
+
     /**
      * This routine copies headers from inbound to outbound responses.
      * 
@@ -537,16 +614,46 @@ public class SipUtilities {
                 }
             }
             String oldBranch = ((MessageExt) message).getTopmostViaHeader().getBranch();
-            Header newHeader = SipTester.getHeaderFactory().createHeader(
-                    "x-sipx-original-branch", oldBranch);
-            newMessage.setHeader(newHeader);
+            /*
+             * For debugging purposes, track the original branch from which this request was
+             * obtained.
+             */
+            if (logger.isDebugEnabled()) {
+                Header newHeader = SipTester.getHeaderFactory().createHeader(
+                        "x-sipx-original-branch", oldBranch);
+                newMessage.setHeader(newHeader);
+            }
             newMessage.removeHeader(RecordRouteHeader.NAME);
 
             if (message.getContent() != null) {
+
                 ContentTypeHeader cth = ((MessageExt) message).getContentTypeHeader();
-                byte[] contents = message.getRawContent();
-                newMessage.setContent(contents, cth);
+                if (cth.getContentType().equals("application")
+                        && cth.getContentSubType().equals("sdp")) {
+                    SessionDescription sdp = SipUtilities.getSessionDescription(message);
+                    String mappedAddress = SipTester.getTesterConfig().getTesterIpAddress();
+
+                    /*
+                     * Edit the SDP -- get new ports and stick them in there.
+                     */
+                    sdp.getConnection().setAddress(mappedAddress);
+
+                    for (String type : SipUtilities.getMediaTypes(sdp)) {
+                        int port = SipUtilities.getSessionDescriptionMediaPort(type, sdp);
+                        int mappedPort = SipTester.getTesterConfig().getMediaPort(port);
+                        setMediaAddressPort(sdp, type, mappedAddress, mappedPort);
+                    }
+
+                    newMessage.setContent(sdp, cth);
+
+                } else {
+                    byte[] contents = message.getRawContent();
+                    newMessage.setContent(contents, cth);
+
+                }
+
             }
+
         } catch (Exception ex) {
             SipTester.fail("unexepcted exception", ex);
         }
@@ -606,11 +713,96 @@ public class SipUtilities {
 
     }
 
+    static String getSessionDescriptionMediaAttributeDuplexity(
+            SessionDescription sessionDescription) {
+        try {
+
+            MediaDescription md = getMediaDescription("audio", sessionDescription);
+            for (Object obj : md.getAttributes(false)) {
+                Attribute attr = (Attribute) obj;
+                if (attr.getName().equals("sendrecv"))
+                    return "sendrecv";
+                else if (attr.getName().equals("sendonly"))
+                    return "sendonly";
+                else if (attr.getName().equals("recvonly"))
+                    return "recvonly";
+                else if (attr.getName().equals("inactive"))
+                    return "inactive";
+
+            }
+            return null;
+        } catch (Exception ex) {
+            throw new SipTesterException("Malformatted sdp", ex);
+        }
+
+    }
+
+    static String getSessionDescriptionAttribute(SessionDescription sessionDescription) {
+        try {
+            Vector sessionAttributes = sessionDescription.getAttributes(false);
+            if (sessionAttributes == null)
+                return null;
+            for (Object attr : sessionAttributes) {
+                Attribute attribute = (Attribute) attr;
+                if (attribute.getName().equals("sendrecv")
+                        || attribute.getName().equals("sendonly")
+                        || attribute.getName().equals("recvonly")
+                        || attribute.getName().equals("inactive")) {
+                    return attribute.getName();
+                }
+            }
+            return null;
+        } catch (SdpParseException ex) {
+            throw new SipTesterException("Unexpected exeption retrieving a field", ex);
+        }
+    }
+
+    static boolean isHoldRequest(SessionDescription sessionDescription) {
+
+        int newport = SipUtilities.getSessionDescriptionMediaPort("audio", sessionDescription);
+        String newIpAddress = SipUtilities.getSessionDescriptionMediaIpAddress("audio",
+                sessionDescription);
+
+        /*
+         * Get the a media attribute -- CAUTION - this only takes care of the first media.
+         * Question - what to do when only one media stream is put on hold?
+         */
+
+        String mediaAttribute = SipUtilities
+                .getSessionDescriptionMediaAttributeDuplexity(sessionDescription);
+
+        String sessionAttribute = SipUtilities.getSessionDescriptionAttribute(sessionDescription);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("mediaAttribute = " + mediaAttribute + "sessionAttribute = "
+                    + sessionAttribute);
+        }
+        /*
+         * RFC2543 specified that placing a user on hold was accomplished by setting the
+         * connection address to 0.0.0.0. This has been deprecated, since it doesn't allow for
+         * RTCP to be used with held streams, and breaks with connection oriented media. However,
+         * a UA MUST be capable of receiving SDP with a connection address of 0.0.0.0, in which
+         * case it means that neither RTP nor RTCP should be sent to the peer. Whenever the phone
+         * puts an external call on hold, it sends a re-INVITE to the gateway with "a=sendonly".
+         * Normally, the gateway would respond with "a=recvonly".
+         */
+        String attribute = sessionAttribute != null ? sessionAttribute : mediaAttribute;
+        if (newIpAddress.equals("0.0.0.0")) {
+            return true;
+        } else if (attribute != null
+                && (attribute.equals("sendonly") || attribute.equals("inactive"))) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Creates an emulated request based upon the request to emulate and the mapping provided for
      * the domains and user names.
      * 
-     * @param sipRequest - captured INVITE.
+     * @param sipRequest - captured request.
+     * @param triggeringMessage - message that triggered this action ( during the test run).
+     * @param endpoint - the emulated endpoint where this belongs.
      * 
      * @return emulated INVITE or null
      */
@@ -629,7 +821,6 @@ public class SipUtilities {
                 fromTag);
         Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri));
         ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, null);
-        
 
         // CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
         CallIdHeader callIdHeader = provider.getNewCallId();
@@ -663,26 +854,29 @@ public class SipUtilities {
             ContactHeader contactHeader = SipUtilities.createContactHeader(endpoint);
             newRequest.setHeader(contactHeader);
         }
-        
-        if ( sipRequest.getHeader(ReferToHeader.NAME) != null ) {
-            ReferToHeader oldReferToHeader = (ReferToHeader) sipRequest.getHeader(ReferToHeader.NAME);
+
+        if (sipRequest.getHeader(ReferToHeader.NAME) != null) {
+            ReferToHeader oldReferToHeader = (ReferToHeader) sipRequest
+                    .getHeader(ReferToHeader.NAME);
             SipURI oldUri = (SipURI) oldReferToHeader.getAddress().getURI();
             SipURI newUri = SipUtilities.mapUri(oldUri);
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
-            ReferToHeader newReferToHeader = SipTester.getHeaderFactory().createReferToHeader(newAddress);
+            ReferToHeader newReferToHeader = SipTester.getHeaderFactory().createReferToHeader(
+                    newAddress);
             newRequest.setHeader(newReferToHeader);
         }
-        
-        if ( sipRequest.getHeader(ReferredByHeader.NAME) != null ) {
-            ReferredByHeader oldReferByHeader = (ReferredByHeader) sipRequest.getHeader(ReferredByHeader.NAME);
+
+        if (sipRequest.getHeader(ReferredByHeader.NAME) != null) {
+            ReferredByHeader oldReferByHeader = (ReferredByHeader) sipRequest
+                    .getHeader(ReferredByHeader.NAME);
             SipURI oldUri = (SipURI) oldReferByHeader.getAddress().getURI();
             SipURI newUri = SipUtilities.mapUri(oldUri);
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
-            ReferredByHeader newReferByHeader = SipTester.getHeaderFactory().createReferredByHeader(newAddress);
+            ReferredByHeader newReferByHeader = SipTester.getHeaderFactory()
+                    .createReferredByHeader(newAddress);
             newRequest.setHeader(newReferByHeader);
         }
-        
-        
+
         Iterator<Header> routeIterator = sipRequest.getHeaders(RouteHeader.NAME);
 
         while (routeIterator.hasNext()) {
@@ -738,16 +932,16 @@ public class SipUtilities {
             return null;
         }
     }
-    
-    private static final char[] toHex = { '0', '1', '2', '3', '4', '5', '6',
-        '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+
+    private static final char[] toHex = {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+    };
 
     /**
      * convert an array of bytes to an hexadecimal string
-     *
+     * 
      * @return a string
-     * @param b
-     *            bytes array to convert to a hexadecimal string
+     * @param b bytes array to convert to a hexadecimal string
      */
 
     public static String toHexString(byte b[]) {
@@ -759,36 +953,35 @@ public class SipUtilities {
         }
         return new String(c);
     }
+
     public static String getCorrelator(MessageExt message) {
-        
+
         StringBuffer branchCorrelator = new StringBuffer();
-        
+
         String triggeredBy = message instanceof Request ? "request" : "response";
         String branch = message.getTopmostViaHeader().getBranch();
-        String method = message.getCSeqHeader().getMethod(); 
-        
-        branchCorrelator.append(triggeredBy);  
+        String method = message.getCSeqHeader().getMethod();
+
+        branchCorrelator.append(triggeredBy);
         branchCorrelator.append("-");
         branchCorrelator.append(method);
         branchCorrelator.append("-");
         branchCorrelator.append(branch);
-        if ( message instanceof Response) {
-            int statusCode = ((Response)message).getStatusCode();
+        if (message instanceof Response) {
+            int statusCode = ((Response) message).getStatusCode();
             branchCorrelator.append("-");
             branchCorrelator.append(statusCode);
         }
         return branchCorrelator.toString().toLowerCase();
         /*
-        try {
-            MessageDigest m = MessageDigest.getInstance("MD5");
-            byte[] digest = m.digest(branchCorrelator.toString().toLowerCase().getBytes());
-            return toHexString(digest);
-        } catch (NoSuchAlgorithmException e) {
-           throw new SipTesterException(e);
-        }*/
-       
-      
+         * try { MessageDigest m = MessageDigest.getInstance("MD5"); byte[] digest =
+         * m.digest(branchCorrelator.toString().toLowerCase().getBytes()); return
+         * toHexString(digest); } catch (NoSuchAlgorithmException e) { throw new
+         * SipTesterException(e); }
+         */
+
     }
+
     /**
      * Returns the branch-id parameter from the References header or the bottom most via header if
      * References does not exist.
@@ -801,8 +994,7 @@ public class SipUtilities {
         try {
             ReferencesHeader referencesHeader = (ReferencesHeader) request
                     .getHeader(ReferencesHeader.NAME);
-            if (referencesHeader != null
-                    && referencesHeader.getParameter("sipxecs-tag") != null) {
+            if (referencesHeader != null && referencesHeader.getParameter("sipxecs-tag") != null) {
                 bid = referencesHeader.getParameter("sipxecs-tag");
             }
 
@@ -816,8 +1008,32 @@ public class SipUtilities {
             }
             return bid;
         } finally {
-            System.out.println("bid = " + bid);
+           logger.debug("bid = " + bid);
         }
+
+    }
+
+    public static String computeBranchCorrelator(MessageExt lastMessage) {
+        StringBuffer branchCorrelator = new StringBuffer();
+
+        if (lastMessage instanceof RequestExt) {
+            branchCorrelator.append("request");
+            branchCorrelator.append("-");
+            branchCorrelator.append(((RequestExt) lastMessage).getMethod());
+            branchCorrelator.append("-");
+            branchCorrelator.append(lastMessage.getTopmostViaHeader().getBranch());
+            return branchCorrelator.toString().toLowerCase();
+        } else {
+            branchCorrelator.append("response");
+            branchCorrelator.append("-");
+            String method = lastMessage.getCSeqHeader().getMethod();
+            branchCorrelator.append(method);
+            branchCorrelator.append("-");
+            branchCorrelator.append(lastMessage.getTopmostViaHeader().getBranch());
+            int rc = ((ResponseExt)lastMessage).getStatusCode();
+            branchCorrelator.append("-").append(Integer.toString(rc));
+            return branchCorrelator.toString().toLowerCase();
+         }
 
     }
 
