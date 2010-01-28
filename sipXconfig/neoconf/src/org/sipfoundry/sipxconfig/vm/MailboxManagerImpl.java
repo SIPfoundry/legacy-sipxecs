@@ -43,6 +43,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
     private File m_mailstoreDirectory;
+    private File m_stdpromptDirectory;
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
@@ -177,6 +178,17 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void setMailstoreDirectory(String mailstoreDirectory) {
         m_mailstoreDirectory = new File(mailstoreDirectory);
+    }
+
+    public String getStdpromptDirectory() {
+        if (m_stdpromptDirectory != null) {
+            return m_stdpromptDirectory.getPath();
+        }
+        return null;
+    }
+
+    public void setStdpromptDirectory(String stdpromptDirectory) {
+        m_stdpromptDirectory = new File(stdpromptDirectory);
     }
 
     public Mailbox getMailbox(String userId) {

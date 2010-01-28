@@ -33,6 +33,8 @@ public class MailboxPreferencesPageTestUi extends WebTestCase {
 
     public void testEmailNotification() {
         assertElementPresent("user:activeGreeting");
+        assertElementNotPresent("user:voicemailTui");
+        assertElementNotPresent("user:busyPrompt");
         assertElementPresent("user:emailAddress");
         assertElementPresent("user:voicemailProperties");
 

@@ -22,6 +22,8 @@ public interface MailboxManager {
 
     String getMailstoreDirectory();
 
+    String getStdpromptDirectory();
+
     Mailbox getMailbox(String userId);
 
     void deleteMailbox(String userId);

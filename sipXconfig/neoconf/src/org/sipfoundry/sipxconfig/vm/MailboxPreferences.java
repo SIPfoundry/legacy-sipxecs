@@ -9,11 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class MailboxPreferences {
     public static final String ACTIVE_GREETING = "voicemail/mailbox/active-greeting";
+    public static final String BUSY_PROMPT = "voicemail/mailbox/user-busy-prompt";
+    public static final String VOICEMAIL_TUI = "voicemail/mailbox/voicemail-tui";
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
 
     public static final String PRIMARY_EMAIL_NOTIFICATION = "voicemail/mailbox/primary-email-voicemail-notification";
@@ -76,11 +82,36 @@ public class MailboxPreferences {
         }
     }
 
+    public enum VoicemailTuiType {
+        STANDARD("stdui"), CALLPILOT("cpui");
+
+        private String m_value;
+
+        VoicemailTuiType(String value) {
+            m_value = value;
+        }
+
+        public String getValue() {
+            return m_value;
+        }
+
+        public static VoicemailTuiType fromValue(String value) {
+            for (VoicemailTuiType e : values()) {
+                if (e.m_value.equals(value)) {
+                    return e;
+                }
+            }
+            return STANDARD;
+        }
+    }
+
     public enum MailFormat {
         FULL, MEDIUM, BRIEF;
     }
 
     private ActiveGreeting m_activeGreeting = ActiveGreeting.NONE;
+    private String m_busyPrompt;
+    private VoicemailTuiType m_voicemailTui = VoicemailTuiType.STANDARD;
     private String m_externalMwi;
 
     private String m_emailAddress;
@@ -107,6 +138,8 @@ public class MailboxPreferences {
         m_emailAddress = user.getEmailAddress();
         m_alternateEmailAddress = user.getAlternateEmailAddress();
         m_activeGreeting = ActiveGreeting.fromId((user.getSettingValue(ACTIVE_GREETING)));
+        m_busyPrompt = user.getSettingValue(BUSY_PROMPT);
+        m_voicemailTui = VoicemailTuiType.fromValue(user.getSettingValue(VOICEMAIL_TUI));
         m_externalMwi = user.getSettingValue(EXTERNAL_MWI);
         m_attachVoicemailToEmail = AttachType.fromValue(user.getSettingValue(PRIMARY_EMAIL_NOTIFICATION));
         m_emailFormat = MailFormat.valueOf(user.getSettingValue(PRIMARY_EMAIL_FORMAT));
@@ -125,6 +158,8 @@ public class MailboxPreferences {
         user.setEmailAddress(m_emailAddress);
         user.setAlternateEmailAddress(m_alternateEmailAddress);
         user.setSettingValue(ACTIVE_GREETING, m_activeGreeting.getId());
+        user.setSettingValue(BUSY_PROMPT, m_busyPrompt);
+        user.setSettingValue(VOICEMAIL_TUI, m_voicemailTui.getValue());
         user.setSettingValue(EXTERNAL_MWI, m_externalMwi);
         user.setSettingValue(PRIMARY_EMAIL_NOTIFICATION, m_attachVoicemailToEmail.getValue());
         user.setSettingValue(PRIMARY_EMAIL_FORMAT, m_emailFormat.name());
@@ -145,6 +180,26 @@ public class MailboxPreferences {
 
     public void setActiveGreeting(ActiveGreeting activeGreeting) {
         m_activeGreeting = activeGreeting;
+    }
+
+    public String getBusyPrompt() {
+        return m_busyPrompt;
+    }
+
+    public void setBusyPrompt(String busyPrompt) {
+        m_busyPrompt = busyPrompt;
+    }
+
+    public boolean isBusyPromptVisible() {
+        return (m_voicemailTui == VoicemailTuiType.CALLPILOT);
+    }
+
+    public VoicemailTuiType getVoicemailTui() {
+        return m_voicemailTui;
+    }
+
+    public void setVoicemailTui(VoicemailTuiType voicemailTui) {
+        m_voicemailTui = voicemailTui;
     }
 
     public String getExternalMwi() {
@@ -289,5 +344,20 @@ public class MailboxPreferences {
         return new AttachType[] {
             AttachType.NO, AttachType.YES
         };
+    }
+
+    public VoicemailTuiType[] getOptionsForVoicemailTui(String promptDir) {
+        List list = new ArrayList();
+        list.add(VoicemailTuiType.STANDARD);
+        // Check that the voicemail stdprompts directory is available
+        if (promptDir != null) {
+            // Check if the optional scs-callpilot-prompts package is installed
+            String cpPromptDir = promptDir + "/cpui";
+            if ((new File(cpPromptDir)).exists()) {
+                list.add(VoicemailTuiType.CALLPILOT);
+            }
+        }
+        // Add any additional voicemail prompts packages here
+        return (VoicemailTuiType[]) list.toArray(new VoicemailTuiType[0]);
     }
 }

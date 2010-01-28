@@ -182,6 +182,32 @@
         </type>
         <value>standard</value>
       </setting>
+      <setting name="user-busy-prompt">
+        <type>
+          <enum>
+            <option>
+              <value>true</value>
+            </option>
+            <option>
+              <value>false</value>
+            </option>
+          </enum>
+        </type>
+        <value>true</value>
+      </setting>
+      <setting name="voicemail-tui">
+        <type>
+          <enum>
+            <option>
+              <value>stdui</value>
+            </option>
+            <option>
+              <value>cpui</value>
+            </option>
+          </enum>
+        </type>
+        <value>stdui</value>
+      </setting>
       <setting name="external-mwi">
         <type>
           <string />

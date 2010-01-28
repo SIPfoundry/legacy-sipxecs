@@ -68,6 +68,22 @@
       </annotation>
    </element>
 
+   <element name="userBusyPrompt" type="boolean">
+      <annotation>
+         <documentation>
+            true if callers to this user can get the user busy prompt
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="voicemailTui" type="normalizedString">
+      <annotation>
+         <documentation>
+            identifier for the user voicemail Telephony User Interface
+         </documentation>
+      </annotation>
+   </element>
+
    <element name="canRecordPrompts" type="boolean">
       <annotation>
          <documentation>
@@ -215,6 +231,8 @@
             <element ref="tns:passtoken" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
             <element ref="tns:hasVoicemail" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:userBusyPrompt" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:voicemailTui" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:canTuiChangePin" maxOccurs="1" minOccurs="0"/>
             <element ref="tns:distributions" maxOccurs="1" minOccurs="0"/>

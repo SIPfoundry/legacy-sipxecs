@@ -153,6 +153,10 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             return null;
         }
 
+        public String getStdpromptDirectory() {
+            return null;
+        }
+
         public List<Voicemail> getVoicemail(Mailbox mailbox, String folder) {
             return null;
         }

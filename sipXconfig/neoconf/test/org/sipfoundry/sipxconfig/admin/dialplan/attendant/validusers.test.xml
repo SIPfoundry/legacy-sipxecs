@@ -14,6 +14,8 @@
     <passtoken>9c78d7b04fa11fe0086eb25933b01af3</passtoken>
     <inDirectory>true</inDirectory>
     <hasVoicemail>true</hasVoicemail>
+    <userBusyPrompt>true</userBusyPrompt>
+    <voicemailTui>stdui</voicemailTui>
     <canRecordPrompts>false</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
     <email>
@@ -37,6 +39,8 @@
     <passtoken>6833fd1fc2dd908dc99a3a457d88b812</passtoken>
     <inDirectory>false</inDirectory>
     <hasVoicemail>true</hasVoicemail>
+    <userBusyPrompt>true</userBusyPrompt>
+    <voicemailTui>stdui</voicemailTui>
     <canRecordPrompts>true</canRecordPrompts>
     <canTuiChangePin>true</canTuiChangePin>
     <email>

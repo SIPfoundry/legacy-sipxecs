@@ -139,6 +139,10 @@ public class ValidUsersXML {
                             u.setInDirectory(Boolean.parseBoolean(text));
                         } else if (name.contentEquals("hasVoicemail")) {
                             u.setHasVoicemail(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("userBusyPrompt")) {
+                            u.setUserBusyPrompt(Boolean.parseBoolean(text));
+                        } else if (name.contentEquals("voicemailTui")) {         
+                            u.setVoicemailTui(text);
                         } else if (name.contentEquals("canRecordPrompts")) {
                             u.setCanRecordPrompts(Boolean.parseBoolean(text));
                         } else if (name.contentEquals("canTuiChangePin")) {

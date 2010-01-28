@@ -23,6 +23,8 @@ public class User {
     private String m_passtoken;
     private boolean m_inDirectory;
     private boolean m_hasVoicemail;
+    private boolean m_userBusyPrompt;
+    private String m_voicemailTui;
     private boolean m_canRecordPrompts;
     private boolean m_canTuiChangePin;
     private Vector<String> m_dialPatterns;
@@ -122,6 +124,22 @@ public class User {
 
     public void setHasVoicemail(boolean hasVoicmail) {
         m_hasVoicemail = hasVoicmail;
+    }
+
+    public boolean userBusyPrompt() {
+        return m_userBusyPrompt;
+    }
+
+    public void setUserBusyPrompt(boolean userBusyPrompt) {
+        m_userBusyPrompt = userBusyPrompt;
+    }
+
+    public void setVoicemailTui(String voicemailTui) {
+        m_voicemailTui = voicemailTui;
+    }
+    
+    public String getVoicemailTui() {
+        return m_voicemailTui;
     }
 
     public boolean canRecordPrompts() {

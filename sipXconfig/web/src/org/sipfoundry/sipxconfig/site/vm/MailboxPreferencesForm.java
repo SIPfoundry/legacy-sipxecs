@@ -22,8 +22,11 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
+
 public abstract class MailboxPreferencesForm extends BaseComponent implements PageBeginRenderListener {
     private static final String ATTACH_TYPE = "attachType.";
+    private static final String VOICEMAIL_TUI_TYPE = "voicemailTuiType.";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
@@ -43,6 +46,10 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     public abstract void setAlternateEmailNotifyModel(IPropertySelectionModel model);
 
     public abstract IPropertySelectionModel getAlternateEmailNotifyModel();
+
+    public abstract void setVoicemailTuiModel(IPropertySelectionModel model);
+
+    public abstract IPropertySelectionModel getVoicemailTuiModel();
 
     @Parameter(required = true)
     public abstract MailboxPreferences getPreferences();
@@ -73,6 +80,13 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
             NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel<AttachType>();
             rawModel.setOptions(getPreferences().getAttachOptionsForAlternateEmail());
             setAlternateEmailNotifyModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), ATTACH_TYPE));
+        }
+        if (getVoicemailTuiModel() == null) {
+            NewEnumPropertySelectionModel<VoicemailTuiType> rawModel =
+                new NewEnumPropertySelectionModel<VoicemailTuiType>();
+            String promptDir = getMailboxManager().getStdpromptDirectory();
+            rawModel.setOptions(getPreferences().getOptionsForVoicemailTui(promptDir));
+            setVoicemailTuiModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), VOICEMAIL_TUI_TYPE));
         }
     }
 }

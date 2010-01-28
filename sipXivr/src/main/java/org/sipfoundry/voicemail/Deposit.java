@@ -169,10 +169,12 @@ public class Deposit {
         
         GreetingType type = m_mailbox.getMailboxPreferences().getActiveGreeting().getGreetingType();
         boolean grtRecorded = m_greeting.getGreetingPath(type) != null;        
+        boolean userBusyPrompt = m_mailbox.getUser().userBusyPrompt();
         
         for(;;) {    
         
-            if(true) {
+            // Check if the user wants to generate the "on the phone" message.
+            if(userBusyPrompt) {
                 if(isOnThePhone) {
                     File nameFile = m_mailbox.getRecordedNameFile();
                     if (nameFile.exists()) {           
@@ -392,12 +394,12 @@ public class Deposit {
     public String depositVoicemail(boolean isOnThePhone) {
         try {
         
-        LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" Deposit Voicemail from " + m_fses.getDisplayUri());              
+        User user = m_mailbox.getUser();
+        LOG.info("Mailbox "+user+" Deposit Voicemail from " + m_fses.getDisplayUri());              
                 
-        putChannelUUID(m_mailbox.getUser(), 
-                       m_fses.getVariable("channel-unique-id"));
+        putChannelUUID(user, m_fses.getVariable("channel-unique-id"));
         
-        if(m_vm.usingCPUI()) {
+        if(m_vm.usingCpUi(user)) {
             return depositCPUI(isOnThePhone);
         }
         

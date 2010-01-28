@@ -12,6 +12,27 @@
       value="ognl:preferences.activeGreeting"
       model="ognl:activeGreetingModel" />
   </tr>
+  <span jwcid="@If" condition="ognl:voicemailTuiModel.optionCount > 1" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:voicemailTui"
+      field="component:voicemailTui"
+      label="message:label.voicemailTui"
+      description="message:description.voicemailTui">
+      <select jwcid="voicemailTui@PropertySelection"
+        id="user:voicemailTui"
+        value="ognl:preferences.voicemailTui"
+        model="ognl:voicemailTuiModel" />
+    </tr>
+  </span>
+  <span jwcid="@If" condition="ognl:preferences.busyPromptVisible" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:busyPrompt"
+      field="component:busyPrompt"
+      label="message:label.busyPrompt"
+      description="message:description.busyPrompt">
+      <checkbox jwcid="busyPrompt@Checkbox"
+        id="user:busyPrompt"
+        value="ognl:preferences.busyPrompt" />
+    </tr>
+  </span>
   <span jwcid="@If" condition="ognl:advanced" renderTag="false">
     <tr jwcid="@common/FieldPanel" for="user:externalMwi"
       field="component:externalMwi"

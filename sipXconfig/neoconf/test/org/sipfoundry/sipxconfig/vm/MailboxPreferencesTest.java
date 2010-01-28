@@ -15,8 +15,11 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ACTIVE_GREETING;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.BUSY_PROMPT;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.VOICEMAIL_TUI;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
@@ -76,5 +79,24 @@ public class MailboxPreferencesTest extends XMLTestCase {
         assertTrue((Boolean) user.getSettingTypedValue(IMAP_TLS));
         assertEquals("4321", user.getSettingValue(IMAP_PASSWORD));
         assertEquals(ActiveGreeting.EXTENDED_ABSENCE.getId(), user.getSettingValue(ACTIVE_GREETING));
+    }
+
+    public void testUserTui() {
+        MailboxPreferences mailboxPrefs = new MailboxPreferences();
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+        User user = new User();
+        user.setPermissionManager(pm);
+
+        mailboxPrefs.setBusyPrompt("true");
+        mailboxPrefs.updateUser(user);
+        assertEquals(VoicemailTuiType.STANDARD.getValue(), user.getSettingValue(VOICEMAIL_TUI));
+        assertEquals("true", user.getSettingValue(BUSY_PROMPT));
+
+        mailboxPrefs.setBusyPrompt("false");
+        mailboxPrefs.setVoicemailTui(VoicemailTuiType.CALLPILOT);
+        mailboxPrefs.updateUser(user);
+        assertEquals(VoicemailTuiType.CALLPILOT.getValue(), user.getSettingValue(VOICEMAIL_TUI));
+        assertEquals("false", user.getSettingValue(BUSY_PROMPT));
     }
 }

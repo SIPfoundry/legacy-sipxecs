@@ -49,7 +49,8 @@ public class VoiceMail {
     private static HashMap<Locale, ResourceBundle> s_cpui_resourcesByLocale = new HashMap<Locale, ResourceBundle>();
     
     private org.sipfoundry.sipxivr.IvrConfiguration m_ivrConfig;
-    private Localization m_loc;
+    private Localization m_locStd;
+    private Localization m_locCpui;
     private FreeSwitchEventSocketInterface m_fses;
     private ResourceBundle m_vmBundle;
     private Configuration m_config;
@@ -87,13 +88,10 @@ public class VoiceMail {
             localeString = m_parameters.get("lang");
         }
         
-        if(usingCPUI()) {
-            m_loc = new Localization(CPUI_RESOURCE_NAME, localeString, 
+        m_locStd = new Localization(RESOURCE_NAME, localeString, 
+                   s_resourcesByLocale, m_ivrConfig, m_fses);
+        m_locCpui = new Localization(CPUI_RESOURCE_NAME, localeString, 
                     s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
-        } else {
-            m_loc = new Localization(RESOURCE_NAME, localeString, 
-                    s_resourcesByLocale, m_ivrConfig, m_fses);
-        }
     }
 
     /**
@@ -169,6 +167,20 @@ public class VoiceMail {
         LOG.info("Ending voicemail");
     }
 
+    public boolean usingCpUi(User user) {
+        return (user.getVoicemailTui().compareTo("cpui") == 0);
+    }
+
+    private Localization userLoc(User user) {
+        Localization usrLoc;
+        if (usingCpUi(user)) {
+            usrLoc = m_locCpui;
+        } else {
+            usrLoc = m_locStd;
+        }
+        return usrLoc;
+    }
+
     /**
      * Do the VoiceMail action.
      * 
@@ -176,12 +188,14 @@ public class VoiceMail {
      */
     String voicemail(String mailboxString) {
                
-        User user = m_validUsers.getUser(mailboxString) ;
+        User user = m_validUsers.getUser(mailboxString);
+        Localization usrLoc = userLoc(user);
+         
         m_mailbox = null;
         if (user != null) {
            m_mailbox = new Mailbox(user);   
            if (user.getLocale() == null) {
-               user.setLocale(m_loc.getLocale()); // Set the locale for this user to be that passed with the call
+               user.setLocale(usrLoc.getLocale()); // Set the locale for this user to be that passed with the call
            }
         }
         
@@ -189,7 +203,7 @@ public class VoiceMail {
             if (m_mailbox == null) {
                 // That extension is not valid.
                 LOG.info("Extension "+mailboxString+" is not valid.");
-                m_loc.play("invalid_extension", "");
+                usrLoc.play("invalid_extension", "");
                 goodbye();
                 return null ;
             }
@@ -197,7 +211,7 @@ public class VoiceMail {
             if (!user.hasVoicemail()) {
                 LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" does not have voicemail permission.");
                 // That extension is not valid.
-                m_loc.play("invalid_extension", "");
+                usrLoc.play("invalid_extension", "");
                 goodbye();
                 return null ;
             }
@@ -229,7 +243,7 @@ public class VoiceMail {
         }
         
         if (m_action.equals("retrieve")) {
-            if(usingCPUI()) {
+            if(usingCpUi(user)) {
                 return new CpRetrieve(this).retrieveVoiceMail();
             } else {
                 return new Retrieve(this).retrieveVoiceMail();
@@ -248,7 +262,8 @@ public class VoiceMail {
         Distributions d = null;
         
         // See if the new way to get distribution lists is being used.
-        HashMap<String, DistributionList> dlists = m_mailbox.getUser().getDistributionLists();
+        User user = m_mailbox.getUser();
+        HashMap<String, DistributionList> dlists = user.getDistributionLists();
         if (dlists == null) {
             // Use the old way (distributionListsFile in the user's mailbox directory)
             DistributionsReader dr = new DistributionsReader();
@@ -262,9 +277,11 @@ public class VoiceMail {
         }
         
 
+        Localization usrLoc = userLoc(user);
+
         for(;;) {
             // "Please select the distribution list.  Press * to cancel."
-            PromptList pl = m_loc.getPromptList("deposit_select_distribution");
+            PromptList pl = usrLoc.getPromptList("deposit_select_distribution");
             Menu menu = new VmMenu(this);
             IvrChoice choice = menu.collectDigit(pl, validDigits);
     
@@ -272,7 +289,7 @@ public class VoiceMail {
                 return null;
             }
             String digit = choice.getDigits();
-            LOG.info("Mailbox "+m_mailbox.getUser().getUserName()+" selectDistributionList ("+digit+")");
+            LOG.info("Mailbox "+user.getUserName()+" selectDistributionList ("+digit+")");
             
             Collection<String> userNames = null;
             if (dlists != null) {
@@ -297,7 +314,7 @@ public class VoiceMail {
             }
 
             // "The list you have selected is not valid"
-            m_loc.play("deposit_distribution_notvalid", "");
+            usrLoc.play("deposit_distribution_notvalid", "");
         }
     }
     
@@ -327,9 +344,10 @@ public class VoiceMail {
      */
     public Record recordMessage(String wavName) {
         // Flush any typed ahead digits
+        Localization usrLoc = userLoc(m_mailbox.getUser());
         m_fses.trimDtmfQueue("") ;
         LOG.info(String.format("Recording message (%s)", wavName));
-        Record rec = new Record(m_fses, m_loc.getPromptList("beep"));
+        Record rec = new Record(m_fses, usrLoc.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
         rec.setRecordTime(300); 
         rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
@@ -351,7 +369,8 @@ public class VoiceMail {
      * @param uri
      */
     public void transfer(String uri) {
-        m_loc.play("please_hold", "");
+        Localization usrLoc = userLoc(m_mailbox.getUser());
+        usrLoc.play("please_hold", "");
         Transfer xfer = new Transfer(m_fses, uri);
         xfer.go();
         throw new DisconnectException();
@@ -364,7 +383,8 @@ public class VoiceMail {
     public void goodbye() {
         LOG.info("good bye");
         // Thank you.  Goodbye.
-        m_loc.play("goodbye", "");
+        Localization usrLoc = userLoc(m_mailbox.getUser());
+        usrLoc.play("goodbye", "");
         new Hangup(m_fses).go();
     }
 
@@ -417,11 +437,8 @@ public class VoiceMail {
     }
     
     public Localization getLoc() {
-        return m_loc;
-    }
-    
-    public void setLoc(Localization loc) {
-        m_loc = loc;
+        Localization usrLoc = userLoc(m_mailbox.getUser());
+        return usrLoc;
     }
     
     public HashMap<String, DistributionList> getSysDistList() {
@@ -441,18 +458,10 @@ public class VoiceMail {
     }
         
     public void playError(String errPrompt, String ...vars) {
-        m_loc.play("error_beep", "");
+        Localization usrLoc = userLoc(m_mailbox.getUser());
+        usrLoc.play("error_beep", "");
         m_fses.trimDtmfQueue("");
-        m_loc.play(errPrompt, "0123456789*#", vars);
+        usrLoc.play(errPrompt, "0123456789*#", vars);
     }
     
-    public boolean usingCPUI() {
-        // TODO, need to read from somewhere, for now check for existance of a file 
-        // called "callpilot" in the etc/sipxpbx directory
-        
-        String path = System.getProperty("conf.dir");
-        File callpilotFile = new File(path + "/callpilot");
-        
-        return callpilotFile.exists();
-    }    
 }
