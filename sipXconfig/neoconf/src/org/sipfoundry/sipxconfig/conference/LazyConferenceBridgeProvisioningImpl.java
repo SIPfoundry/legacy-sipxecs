@@ -17,7 +17,7 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
 public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgeProvisioning {
-    private Set<Integer> m_servers = new HashSet<Integer>();
+    private Set<Bridge> m_servers = new HashSet<Bridge>();
 
     private ConferenceBridgeProvisioning m_target;
 
@@ -35,16 +35,16 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
         }
     }
 
-    private synchronized Set<Integer> getTasks() {
+    private synchronized Set<Bridge> getTasks() {
         if (m_servers.isEmpty()) {
             return Collections.emptySet();
         }
         Set oldTasks = m_servers;
-        m_servers = new HashSet<Integer>();
+        m_servers = new HashSet<Bridge>();
         return oldTasks;
     }
 
-    private synchronized void addTasks(Set<Integer> tasks) {
+    private synchronized void addTasks(Set<Bridge> tasks) {
         m_servers.addAll(tasks);
     }
 
@@ -67,12 +67,12 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
 
         @Override
         protected boolean work() {
-            Set<Integer> tasks = getTasks();
+            Set<Bridge> tasks = getTasks();
             try {
-                for (Iterator<Integer> i = tasks.iterator(); i.hasNext();) {
-                    int id = i.next();
+                for (Iterator<Bridge> i = tasks.iterator(); i.hasNext();) {
+                    Bridge bridge = i.next();
                     i.remove();
-                    m_target.deploy(id);
+                    m_target.deploy(bridge);
                 }
                 return true;
             } finally {
@@ -90,8 +90,8 @@ public class LazyConferenceBridgeProvisioningImpl implements ConferenceBridgePro
     /**
      * Add bridge id to the set and notify worker thread
      */
-    public synchronized void deploy(int bridgeId) {
-        m_servers.add(bridgeId);
+    public synchronized void deploy(Bridge bridge) {
+        m_servers.add(bridge);
         notify();
     }
 }

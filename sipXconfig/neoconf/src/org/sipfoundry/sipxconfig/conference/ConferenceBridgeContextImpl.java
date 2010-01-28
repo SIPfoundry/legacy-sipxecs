@@ -72,18 +72,18 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
-        m_provisioning.deploy(bridge.getId());
+        m_provisioning.deploy(bridge);
     }
 
     public void store(Conference conference) {
         validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
         if (conference.isNew()) {
-            //need to make sure that ID is set
+            // need to make sure that ID is set
             getHibernateTemplate().flush();
         }
         m_daoEventPublisher.publishSave(conference);
-        m_provisioning.deploy(conference.getBridge().getId());
+        m_provisioning.deploy(conference.getBridge());
     }
 
     public void validate(Conference conference) {
@@ -114,16 +114,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return conference;
     }
 
-    public void removeBridges(Collection bridgesIds) {
-        List bridges = new ArrayList(bridgesIds.size());
-        for (Iterator i = bridgesIds.iterator(); i.hasNext();) {
-            Serializable id = (Serializable) i.next();
-            Bridge bridge = loadBridge(id);
-            bridges.add(bridge);
-        }
-        getHibernateTemplate().deleteAll(bridges);
-    }
-
     public void removeConferences(Collection conferencesIds) {
         Set<Bridge> bridges = new HashSet<Bridge>();
         for (Iterator i = conferencesIds.iterator(); i.hasNext();) {
@@ -133,7 +123,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             Bridge bridge = conference.getBridge();
             bridge.removeConference(conference);
             bridges.add(bridge);
-            m_provisioning.deploy(bridge.getId());
+            m_provisioning.deploy(bridge);
         }
         getHibernateTemplate().saveOrUpdateAll(bridges);
     }
@@ -324,10 +314,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             bridge = newBridge();
             bridge.setService(location.getService(SipxFreeswitchService.BEAN_ID));
             getHibernateTemplate().save(bridge);
-            m_provisioning.deploy(bridge.getId());
+            m_provisioning.deploy(bridge);
         } else if (bridge != null && !isConferenceInstalled) {
             getHibernateTemplate().delete(bridge);
-            m_daoEventPublisher.publishDelete(bridge);
+            m_provisioning.deploy(bridge);
         }
     }
 

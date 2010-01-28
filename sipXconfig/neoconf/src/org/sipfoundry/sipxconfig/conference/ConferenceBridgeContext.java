@@ -37,8 +37,6 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     Conference newConference();
 
-    void removeBridges(Collection bridgesIds);
-
     void removeConferences(Collection conferencesIds);
 
     Bridge loadBridge(Serializable serverId);

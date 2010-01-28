@@ -27,16 +27,13 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
     private ServiceConfigurator m_serviceConfigurator;
     private SipxServiceManager m_serviceManager;
 
-    public void deploy(int bridgeId) {
-        Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
-        Location location = bridge.getLocation();
-
+    public void deploy(Bridge bridge) {
         m_replicationContext.generate(DataSet.ALIAS);
 
         // only need to replicate files that do not require restart
-        SipxFreeswitchService service = bridge.getFreeswitchService();
-        m_serviceConfigurator.replicateServiceConfig(location, service, true);
-
+        Location location = bridge.getLocation();
+        SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
+        m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true);
         if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
             SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
             m_serviceConfigurator.replicateServiceConfig(ivrService, true);

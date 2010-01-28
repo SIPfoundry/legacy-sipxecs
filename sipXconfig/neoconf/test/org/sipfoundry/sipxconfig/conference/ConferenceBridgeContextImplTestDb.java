@@ -83,19 +83,6 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(1, db.getRowCount("meetme_conference"));
     }
 
-    public void testRemoveBridges() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(3, db.getRowCount("meetme_conference"));
-
-        m_context.removeBridges(Collections.singleton(new Integer(2005)));
-
-        assertEquals(1, db.getRowCount("meetme_bridge"));
-        assertEquals(1, db.getRowCount("meetme_conference"));
-    }
-
     public void testRemoveConferences() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");

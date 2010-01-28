@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+
 public interface ConferenceBridgeProvisioning {
-    void deploy(int bridgeId);
+    void deploy(Bridge bridge);
 }
