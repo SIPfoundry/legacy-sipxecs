@@ -7,62 +7,100 @@
   <link jwcid="@Relation" type="image/x-icon" rel="shortcut icon" href="/sipxconfig/skin/favicon.ico" />
   <meta jwcid="@Any" name="gwt:property" content="ognl:localeValue"/>
   <body jwcid="@Body">
-    <div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
-      <span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
-      <div id="banner">
-        <div id="logo">&nbsp;</div>
-	<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
-        <form jwcid="dateForm@Form" id="dateForm"
-			updateComponents="ognl:{'dateContent'}">
-        <div jwcid="@Any" id="dateContent" class="date">
-          <span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
-        </div>
-        </form>
-        <div id="banner-links">
-            <span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
-              <a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
-                <span jwcid="name@Insert" value="ognl:userName">id</span>
-              </a>
-            </span>
-            <a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
-                <span key="link.home">Home</span>
-            </a>
-            <a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
-                target="sipxconfig-help"
-                href="ognl:getHelpLink(versionInfo.versionIds)">
-                <span key="link.help">Online Help</span>
-            </a>
-            <a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout">
-                <span key="link.logout">Logout</span>
-            </a>
-            <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-                <span jwcid="@search/SearchPanel"/>
-            </span>
-        </div>
-      </div>
-      <div id="navigation">
-        <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-          <span jwcid="@common/AdminNavigation" />
-        </span>
-        <span jwcid="@Else" renderTag="false">
-          <span jwcid="@user_portal/UserPortalNavigation" />
-        </span>
-      </div>
+
+ 		<!-- BEGIN:bodyContentContainer -->
+  	<div id="bodyContentContainer">
+
+
+
+
+			<div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
+				<span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
+				<div id="banner">
+					<div id="logo">&nbsp;</div>
+					<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+					<div id="banner-links">
+
+							<span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
+								<span class="linkUser">
+									<a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
+										<span jwcid="name@Insert" value="ognl:userName">id</span>
+									</a>
+								</span>
+								<span class="bannerLinkDivider">&nbsp;</span>
+							</span>
+							<span>
+								<form jwcid="dateForm@Form" id="dateForm" updateComponents="ognl:{'dateContent'}">
+									<div jwcid="@Any" id="dateContent" class="date">
+										<span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
+									</div>
+								</form>
+							</span>
+							<span class="bannerLinkDivider">&nbsp;</span>
+							<span class="linkHome">
+								<a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
+										<span key="link.home">Home</span>
+								</a>
+							</span>
+							<span class="bannerLinkDivider">&nbsp;</span>
+							<span class="linkHelp">
+								<a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
+										target="sipxconfig-help"
+										href="ognl:getHelpLink(versionInfo.versionIds)">
+										<span key="link.help">Online Help</span>
+								</a>
+							</span>
+							<span class="bannerLinkDivider">&nbsp;</span>
+        			<span class="linkLogout">
+								<a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout">
+									<span key="link.logout">Logout</span>
+								</a>
+							</span>
+							<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+									<span jwcid="@search/SearchPanel"/>
+							</span>
+					</div>
+				</div>
+				<div id="navigation">
+					<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+						<span jwcid="@common/AdminNavigation" />
+					</span>
+					<span jwcid="@Else" renderTag="false">
+						<span jwcid="@user_portal/UserPortalNavigation" />
+					</span>
+				</div>
+			</div>
+
+
+
+
+			<!-- BEGIN:contentContainer -->
+			<div id="contentContainer">
+				<div id="contentContainerSectionTop"><span jwcid="@Insert" raw="true" value="ognl:getPage().getMessages().getMessage('title')"/></div>
+				<div id="leftNav">
+						<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
+								<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
+						</span>
+						&nbsp; <!-- to ensure this block is never empty, so it has the min width -->
+				</div>
+				<div id="content">
+						<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+								<span jwcid="@admin/StatusWarning"/>
+						</span>
+						<span jwcid="@RenderBody">Page content goes here.</span>
+				</div>
+				<div class="contentContainerSectionBottom"></div>
+			</div>
+			<!-- END:contentContainer -->
+
+
+
+
+
+
+			<div jwcid="@common/Footer"></div>
+
     </div>
-    <div id="contentContainer">
-        <div id="leftNav">
-            <span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
-                <div jwcid="@RenderBlock" block="ognl:navigationBlock" />
-            </span>
-            &nbsp; <!-- to ensure this block is never empty, so it has the min width -->
-        </div>
-        <div id="content">
-            <span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-                <span jwcid="@admin/StatusWarning"/>
-            </span>
-            <span jwcid="@RenderBody">Page content goes here.</span>
-        </div>
-    </div>
-    <div jwcid="@common/Footer"></div>
+    <!-- END:bodyContentContainer -->
   </body>
 </html>

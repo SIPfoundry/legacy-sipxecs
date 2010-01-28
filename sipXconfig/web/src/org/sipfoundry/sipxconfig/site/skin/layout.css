@@ -137,7 +137,6 @@ li.tab
 }
 
 #login-form input {
-    font-size: 16px;
     height: auto;
 }
 #login-form input[type="text"], input[type="password"] {
@@ -187,31 +186,36 @@ fieldset#loginForm legend {
 }
 
 #logo {
-    left: 0;
-    top: 0;
-    height: 80px;
-    position:absolute;
+    height: 38px;
+    width:165px;
+    float:left;
 }
 #login-logo {
-    height: 80px;
+    height: 40px;
 }
 
 #banner
 {
-	height:0;
-	padding:55px 0 25px 120px;
+	height:18px;
+	padding-bottom:20px;
+	padding-top:2px;
 }
 
 #banner-links
 {
 	text-align: right;
-	padding:0 5px 0 0;
+	float:right;
 }
 
 #banner-links a
 {
 	text-decoration:none;
 	padding:5px 5px 5px 20px;
+}
+
+#banner-links form
+{
+	display:inline;
 }
 
 #navigation
@@ -472,14 +476,9 @@ ul.component-pager li
 
 div.date
 {
-    clear:right;
-    float:right;
-    margin:-29px 7px;
     padding:0px;
-    font-weight:bold;
-    right:0px;
-    top:0px;
-    position:relative;
+    margin:0px;
+    display:inline;
 }
 
 div.right-column,
@@ -734,4 +733,16 @@ html, body {
 
 .avatar img {
 	margin: 10px;
+}
+
+.bannerLinkDivider {
+	background:transparent url(/sipxconfig/images/layout/bannerLinkDivider.png) no-repeat scroll left top;
+	margin-left:5px;
+	margin-right:5px;
+	padding-top:3px;
+}
+#bodyContentContainer {
+	margin-left:auto;
+	margin-right:auto;
+	width:100%;
 }

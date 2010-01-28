@@ -82,7 +82,6 @@ li.tab .active a:visited
 #banner
 {
 	color: #fff;
-	background: url(/sipxconfig/skin/banner-background.png) top left repeat-x #355563;
 }
 
 #logo, #login-logo {
@@ -98,7 +97,7 @@ li.tab .active a:visited
 #banner-links a:hover,
 #banner-links a:active
 {
-	color: #003333;
+	color: #efc300;
 }
 
 #navigation
@@ -147,7 +146,7 @@ li.tab .active a:visited
 
 #footer
 {
-	color: grey;
+	color: #ffffff;
 	border-color: grey;
 	border-top-width: thin;
 	border-top-style: solid;	
