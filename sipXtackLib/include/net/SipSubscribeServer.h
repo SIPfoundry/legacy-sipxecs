@@ -113,7 +113,7 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  specification as to whether the resource has ceased to exist
  *  (allowing a NOTIFY to be sent with reason=noresource) vs. the
  *  resource is now being serviced by another element (allowing NOTIFY
- *  with reason=deactivated) vs. the resource has not content at this
+ *  with reason=deactivated) vs. the resource has no content at this
  *  time (allowing NOTIFY with no body).
  *
  *  \par Subscription State
