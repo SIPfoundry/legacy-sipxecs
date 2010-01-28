@@ -72,7 +72,7 @@ close IN;
 
 foreach $transaction (keys %failed) {
     my($r) = $request_uri_count{$transaction};
-    my($request_uri) = '';
+    my($request_uri) = '[unknown]';
     my($max_count) = -1;
     foreach $u (keys %$r) {
 	if ($r->{$u} > $max_count) {
