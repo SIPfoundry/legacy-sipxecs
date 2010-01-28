@@ -102,6 +102,11 @@ public class PersonalAttendant {
         return m_operator;
     }
     
+    public void setOperator(String operator) {
+        
+        m_operator = operator;
+    }
+    
     public String getMenuValue(String key) {
         return m_menu.get(key);
     }

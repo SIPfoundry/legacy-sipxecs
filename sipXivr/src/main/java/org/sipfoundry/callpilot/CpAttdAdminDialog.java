@@ -15,12 +15,12 @@ public class CpAttdAdminDialog {
         m_vm = callPilot;
         m_currPswd = currPswd;
     }
-        
+            
     public void chngAttd() {
         
        CpDialog cpDialog;
        String attdExt;
-       PromptList pl = m_vm.getLoc().getPromptList();
+       PromptList pl;
        
        String transferUrl = m_vm.getMailbox().getPersonalAttendant().getOperator(); 
        if(transferUrl != null) {
@@ -30,6 +30,8 @@ public class CpAttdAdminDialog {
        }
        
        for(;;) {
+           pl = m_vm.getLoc().getPromptList();
+           
            if(attdExt.equals("")) {
                pl.addFragment("is_system_attendant");
            } else {
@@ -70,6 +72,12 @@ public class CpAttdAdminDialog {
                m_vm.playError("command_failed");
                break;
            }
+           if(attdExt.length() == 0) {
+               m_vm.getMailbox().getPersonalAttendant().setOperator(null);
+           } else {
+               m_vm.getMailbox().getPersonalAttendant().setOperator(m_vm.extensionToUrl(attdExt));
+           }
+           
        }
     }
 }
