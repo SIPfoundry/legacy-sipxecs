@@ -44,8 +44,6 @@ public class Nortel12x0Phone extends Phone {
     public static final String PASSWORD_SETTING = "registrationAndProxy/authPassword";
     public static final String DISPLAY_NAME = "registrationAndProxy/displayname";
     public static final String REGISTRATION_SERVER_SETTING = "registrationAndProxy/registrarAddress";
-    public static final String PROXY_SERVER_SETTING = "sipSettings/sipProxy/proxyAddress";
-    public static final String PROXY_SERVER_PORT = "sipSettings/sipProxy/proxyPort";
     public static final String MWI_SUBSCRIBE_SETTING = "registrationAndProxy/mwiReqUri";
     public static final String MOH_SETTING = "registrationAndProxy/AccMohServer";
     public static final String VOICEMAIL_ACCESS_NUMBER_SETTING = "registrationAndProxy/voiceMailServerAddress";
@@ -61,7 +59,6 @@ public class Nortel12x0Phone extends Phone {
     public static final String PAGING_PREFIX = "phoneSettings/groupPagingPrefix";
     public static final String SYSLOG_SERVER = "phoneSettings/syslogServer";
     public static final String SIP_OUTBOUND_PROXY = "registrationAndProxy/accProxyAddress";
-    public static final String SIP_OUTBOUND_PROXY_PORT_LINE = "registrationAndProxy/accProxyPort";
     public static final String USER_SHARED_OR_PRIVATE = "registrationAndProxy/lineShared";
 
     private static final int PHONEBOOK_MAX = 200;
@@ -145,16 +142,6 @@ public class Nortel12x0Phone extends Phone {
                 return SipUri.format(m_speedDial.getResourceListId(true), m_defaults.getDomainName(), false);
             }
             return null;
-        }
-
-        @SettingEntry(path = PROXY_SERVER_SETTING)
-        public String getProxyAddress() {
-            return m_defaults.getDomainName();
-        }
-
-        @SettingEntry(path = PROXY_SERVER_PORT)
-        public String getProxyPort() {
-            return m_defaults.getProxyServerSipPort();
         }
 
         @SettingEntry(path = PRESENCE_SERVER_SETTING)
@@ -363,12 +350,6 @@ public class Nortel12x0Phone extends Phone {
         public String getSipOutboundProxy() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
-        }
-
-        @SettingEntry(path = SIP_OUTBOUND_PROXY_PORT_LINE)
-        public String getSipOutboundProxyPort() {
-            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
-            return defaults.getProxyServerSipPort();
         }
 
         @SettingEntry(path = MWI_SUBSCRIBE_SETTING)

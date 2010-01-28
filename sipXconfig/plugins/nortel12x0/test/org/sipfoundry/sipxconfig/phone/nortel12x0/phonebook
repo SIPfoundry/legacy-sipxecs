@@ -63,8 +63,6 @@
 <intercomTimeout><![CDATA[15]]></intercomTimeout>
 </intercom>
 <sipProxy>
-<proxyAddress><![CDATA[sipfoundry.org]]></proxyAddress>
-<proxyPort><![CDATA[5555]]></proxyPort>
 <proxyTransport><![CDATA[Auto]]></proxyTransport>
 <proxy1Transport><![CDATA[Auto]]></proxy1Transport>
 <sipPingForServerRedundancy><![CDATA[FALSE]]></sipPingForServerRedundancy>
@@ -101,7 +99,6 @@
 <mwiReqUri><![CDATA[juser@sipfoundry.org]]></mwiReqUri>
 <numberofLinekeys><![CDATA[1]]></numberofLinekeys>
 <accProxyAddress><![CDATA[sipfoundry.org]]></accProxyAddress>
-<accProxyPort><![CDATA[5555]]></accProxyPort>
 <voiceMailServerAddress><![CDATA[101@sipfoundry.org]]></voiceMailServerAddress>
 <AccMohServer><![CDATA[~~mh~juser@sipfoundry.org]]></AccMohServer>
 <callForwardMode>
