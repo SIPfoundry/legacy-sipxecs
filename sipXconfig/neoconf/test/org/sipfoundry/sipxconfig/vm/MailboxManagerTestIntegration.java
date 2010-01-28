@@ -45,6 +45,20 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         assertEquals(0, countRowsInTable("personal_attendant"));
     }
 
+    public void testUpdatePersonalAttendantForUser() throws Exception {
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
+
+        User newUser = m_coreContext.newUser();
+        m_coreContext.saveUser(newUser);
+
+        PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
+        assertNull(pa.getOperator());
+        m_mailboxManager.updatePersonalAttendantForUser(newUser, "operator");
+        flush();
+        pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
+        assertEquals("operator", pa.getOperator());
+    }
+
     public void setMailboxManager(MailboxManager mailboxManager) {
         m_mailboxManager = mailboxManager;
     }

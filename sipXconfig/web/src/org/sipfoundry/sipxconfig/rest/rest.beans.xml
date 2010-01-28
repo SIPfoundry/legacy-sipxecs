@@ -80,6 +80,22 @@
   </bean>
   <alias name="voicemailPinResource" alias="/my/voicemail/pin/{pin}" />
 
+  <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="personalAttendantOperatorResource" alias="/my/voicemail/operator/{operator}" />
+
+  <bean id="resetPersonalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="resetPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
+
   <bean id="forwardingResource" class="org.sipfoundry.sipxconfig.rest.ForwardingResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />

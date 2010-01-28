@@ -85,9 +85,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         }
         return vms;
     }
+
     private String getMailboxServerUrl(String fqdn, int port) {
         return String.format("http://%s:%d", fqdn, port);
     }
+
     /**
      * Mark voicemail as read
      */
@@ -196,8 +198,8 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
             try {
                 FileUtils.moveDirectory(oldUserDir, newUserDir);
             } catch (IOException e) {
-                throw new MailstoreMisconfigured("Cannot rename mailbox directory "
-                                                 + oldUserDir.getAbsolutePath(), e);
+                throw new MailstoreMisconfigured("Cannot rename mailbox directory " + oldUserDir.getAbsolutePath(),
+                        e);
             }
         }
     }
@@ -286,5 +288,12 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         protected void onUserDelete(User user) {
             removePersonalAttendantForUser(user);
         }
+    }
+
+    @Override
+    public void updatePersonalAttendantForUser(User user, String operatorValue) {
+        PersonalAttendant pa = loadPersonalAttendantForUser(user);
+        pa.setOperator(operatorValue);
+        storePersonalAttendant(pa);
     }
 }

@@ -45,4 +45,6 @@ public interface MailboxManager {
     void storePersonalAttendant(PersonalAttendant pa);
 
     void clearPersonalAttendants();
+
+    void updatePersonalAttendantForUser(User user, String operatorValue);
 }

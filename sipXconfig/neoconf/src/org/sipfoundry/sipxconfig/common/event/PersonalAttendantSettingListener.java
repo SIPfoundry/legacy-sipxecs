@@ -15,7 +15,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
 public class PersonalAttendantSettingListener implements DaoEventListener {
 
@@ -40,7 +39,7 @@ public class PersonalAttendantSettingListener implements DaoEventListener {
         Collection<User> usersInGroup = m_coreContext.getGroupMembers(group);
         for (User user : usersInGroup) {
             String operator = user.getSettingValue(OPERATOR_SETTING);
-            updatePersonalAttendantForUser(user, operator);
+            m_mailboxManager.updatePersonalAttendantForUser(user, operator);
         }
     }
 
@@ -57,13 +56,7 @@ public class PersonalAttendantSettingListener implements DaoEventListener {
             return;
         }
         String operator = user.getSettingValue(OPERATOR_SETTING);
-        updatePersonalAttendantForUser(user, operator);
-    }
-
-    private void updatePersonalAttendantForUser(User user, String operatorValue) {
-        PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(user);
-        pa.setOperator(operatorValue);
-        m_mailboxManager.storePersonalAttendant(pa);
+        m_mailboxManager.updatePersonalAttendantForUser(user, operator);
     }
 
     public void setCoreContext(CoreContext coreContext) {

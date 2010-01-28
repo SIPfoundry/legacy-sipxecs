@@ -189,5 +189,12 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
         public void clearPersonalAttendants() {
             m_attendantMap = new HashMap<User, PersonalAttendant>();
         }
+
+        @Override
+        public void updatePersonalAttendantForUser(User user, String operatorValue) {
+            PersonalAttendant pa = loadPersonalAttendantForUser(user);
+            pa.setOperator(operatorValue);
+            storePersonalAttendant(pa);
+        }
     }
 }
