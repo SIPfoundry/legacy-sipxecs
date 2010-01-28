@@ -47,6 +47,11 @@ then
    ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs 2> /dev/null
    mkdir @OPENFIRE_HOME@/audit/ 2> /dev/null
    chown @SIPXPBXUSER@ @OPENFIRE_HOME@/audit/ 2> /dev/null
+
+   # Disable the admin console by default and remove the favorite web icon.
+   cp -pf ${SIPX_OPENFIRE_DIR}/conf/web.xml.disable_openfire_admin_console \
+          @OPENFIRE_HOME@/plugins/admin/webapp/WEB-INF/web.xml
+   rm -f @OPENFIRE_HOME@/plugins/admin/webapp/favicon.ico 2> /dev/null
 fi 
 
 # Check if we have created the database. If not create it.

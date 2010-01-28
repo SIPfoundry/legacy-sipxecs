@@ -51,4 +51,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence.jar
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/openfire.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.disable_openfire_admin_console
 

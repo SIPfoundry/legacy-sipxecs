@@ -114,6 +114,8 @@
 
 	<target name="install" depends="all,makedirs">
 		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${sipxopenfire.dir}/conf" />
+                <copy file="${src.dir}/web.xml.enable_openfire_admin_console" todir="${dest.dir}${sipxopenfire.dir}/conf" />
+                <copy file="${src.dir}/web.xml.disable_openfire_admin_console" todir="${dest.dir}${sipxopenfire.dir}/conf" />
 		<copy file="${root}/dist/sipx-openfire-presence.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
                 <copy file="${root}/dist/sipx-openfire-presence-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 

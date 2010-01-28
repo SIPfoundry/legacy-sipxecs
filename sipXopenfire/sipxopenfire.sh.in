@@ -105,8 +105,8 @@ echo
 echo  " sipxopenfire.sh --restart "
 echo  "              restarts the daemon  "
 echo
-echo  " sipxopenfire.sh --database "
-echo  "             This runs the database following subcommands "
+echo  " sipxopenfire.sh [-d | --database] "
+echo  "             This runs the following database subcommands "
 echo  "	     drop  " 
 echo  "               drops the database"
 echo  "	     create "
@@ -117,7 +117,14 @@ echo  "	     setup -Ddomain=xmppdomain -Dfqdn=hostfqdn -DconfigDir=sipx_configdi
 echo  "                   create admin user and set up the domain."
 echo  "                   xmppdomian is the DNS domain name for the xmpp server"
 echo  "                   admin user password is admin."
-
+echo
+echo  " sipxopenfire.sh [-a | --admin_console]"
+echo  "             This runs the following admin console subcommands "
+echo  "             enable" 
+echo  "               Enable http and https access to the openfire admin console"
+echo  "             disable" 
+echo  "               Disable http and https access to the openfire admin console"
+echo  "             NOTE: You must restart the 'SipXopenfire' service"
 
 }
 
@@ -189,6 +196,35 @@ databaseCommand() {
     fi       
 }
 
+# Enable or disable the Openfire admin console so that administrators have
+# the choice to access the Openfire admin console directly via http or https 
+# therefore bypassing sipXconfig.
+updateAdminConsole() {
+    case $@ in
+
+        enable)
+
+            # Overwrite a key file that control access to the admin console web interface
+            cp -f ${SIPX_OPENFIRE_DIR}/conf/web.xml.enable_openfire_admin_console \
+                  ${OPENFIRE_HOME}/plugins/admin/webapp/WEB-INF/web.xml
+            echo "The admin console has been enabled. The change will take effect the next time Openfire is restarted."
+            echo "To access the admin console use http://<host>:9094 or https://<host>:9095"
+            ;;
+            
+        disable)
+
+            # Overwrite a key file that control access to the admin console web interface
+            cp -f ${SIPX_OPENFIRE_DIR}/conf/web.xml.disable_openfire_admin_console \
+                  ${OPENFIRE_HOME}/plugins/admin/webapp/WEB-INF/web.xml
+            echo "The admin console has been disabled. The change will take effect the next time Openfire is restarted."
+            ;;
+            
+        *)
+            echo "Invalid parameter: $@ => expected enable or disable"
+            ;;
+    esac           
+}
+
 while [ $# -ne 0 ]
 do
     case ${1} in
@@ -214,6 +250,13 @@ do
 
          -d|--database)
             Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
+            ;;
+
+         -a|--admin_console)
+            Action=ADMIN_CONSOLE
             shift
             Args="${@}"
             break 2
@@ -253,6 +296,10 @@ case "$Action" in
         DATABASE)
                databaseCommand $Args
 		;;
+
+        ADMIN_CONSOLE)
+               updateAdminConsole $Args
+               ;;
 
         SETUP)
 	       onSetup

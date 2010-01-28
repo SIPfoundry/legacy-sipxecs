@@ -49,6 +49,8 @@ EXTRA_DIST = \
   presence-plugin/plugin.xml \
   presence-plugin/web/WEB-INF/web.xml \
   openfire.xml \
+  web.xml.enable_openfire_admin_console \
+  web.xml.disable_openfire_admin_console \
   etc/sipxopenfire-prompts.properties \
   src
 
