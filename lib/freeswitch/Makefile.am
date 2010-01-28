@@ -5,7 +5,6 @@ SVN_RELEASE = 16249
 SRC_DIR = $(srcdir)/src
 SVN_URL = http://svn.freeswitch.org/svn/freeswitch/trunk
 SRC_TARBALL = sipx-freeswitch-$(VERSION)-$(SVN_RELEASE).tar.gz
-SRC_PATCH = mod_event_socket.patch
 SPEC_FILE = sipx-freeswitch.spec
 
 RPM = $(DEST_RPM)/sipx-freeswitch-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
@@ -27,7 +26,6 @@ build-rpms:
 	tar czf $(SRC_TARBALL) sipx-freeswitch-$(VERSION) ; \
 	rm -rf sipx-freeswitch-$(VERSION) ; \
 	popd
-	cp $(srcdir)/$(SRC_PATCH) @RPMBUILD_TOPDIR@/SOURCES/
 	cp $(srcdir)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
 	QA_RPATHS=0x0003 rpmbuild -ba \
 	  --define 'VERSION $(VERSION)' \

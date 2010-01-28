@@ -15,7 +15,7 @@
 #end
   <extension name="IVR">
     <condition field="destination_number" expression="^IVR${dollar}">
-      <action application="socket" data="${location.address}:8084 async"/>
+      <action application="socket" data="${location.address}:8084 async full"/>
     </condition>
   </extension>
 </context>

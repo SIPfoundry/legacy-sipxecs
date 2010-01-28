@@ -13,7 +13,6 @@ URL:          http://www.freeswitch.org/
 Packager:     Avaya
 Vendor:       http://www.voiceworks.pl/
 Source0:      %{SOURCE}
-Patch0:       mod_event_socket.patch
 Prefix:       %{prefix}
 
 AutoReqProv:  yes
@@ -126,7 +125,6 @@ Pass-through g729 Codec support for FreeSWITCH open source telephony platform
 
 %prep
 %setup -q
-%patch0
 
 %build
 %ifos linux
