@@ -1043,30 +1043,29 @@ class CallControlManager implements SymmitronResetHandler {
                      peerDialogContext.setPendingAction(PendingDialogAction.NONE);
                     dialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());
                  } else  if ( dialogContext.getItspInfo() != null && 
-                	  peerDialogContext.getItspInfo() != null &&
-                	  ! dialogContext.getItspInfo().isAlwaysRelayMedia() && 
-                      ! peerDialogContext.getItspInfo().isAlwaysRelayMedia() &&
-                      dialogContext.getItspInfo() == peerDialogContext.getItspInfo()
-                      && SipUtilities.getDialogContextId(requestEvent.getRequest()) != null ) {
-                     String contextId = SipUtilities.getDialogContextId(requestEvent.getRequest());
-                     /*
-                      * We now re-INVITE to shuffle the SDP and get them to point at each other.
-                      */
+                         peerDialogContext.getItspInfo() != null ) {
+                     String contextId = SipUtilities.getDialogContextId(requestEvent.getRequest());          
                      Dialog inboundDialog = DialogContext.getDialogContext(contextId).getPeerDialog();
                      BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
                      b2bua.addDialogToCleanup(dialogContext.getDialog());
                      b2bua.addDialogToCleanup(DialogContext.getPeerDialog(inboundDialog));
                      DialogContext.pairDialogs(inboundDialog, peerDialogContext.getDialog());
-                     
-                     Request reInvite = peerDialogContext.getDialog().createRequest(Request.INVITE);
-                     ReferencesHeader referencesHeader = 
+                     if (! dialogContext.getItspInfo().isAlwaysRelayMedia() && 
+                             ! peerDialogContext.getItspInfo().isAlwaysRelayMedia() &&
+                             dialogContext.getItspInfo() == peerDialogContext.getItspInfo()
+                             && SipUtilities.getDialogContextId(requestEvent.getRequest()) != null ) {
+                         /*
+                          * We now re-INVITE to shuffle the SDP and get them to point at each other.
+                          */
+                         Request reInvite = peerDialogContext.getDialog().createRequest(Request.INVITE);
+                         ReferencesHeader referencesHeader = 
                          SipUtilities.createReferencesHeader(requestEvent.getRequest(),ReferencesHeader.CHAIN);
-                     reInvite.setHeader(referencesHeader);
-                     peerDialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-                     peerDialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());                    
+                         reInvite.setHeader(referencesHeader);
+                         peerDialogContext.setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
+                         peerDialogContext.solicitSdpOfferFromPeerDialog(null,requestEvent.getRequest());                    
+                     }
                  }
             }
-
         } catch (Exception ex) {
             logger.error("Problem sending ack ", ex);
         }
