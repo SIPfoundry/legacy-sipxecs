@@ -233,6 +233,7 @@ done
 # data, place it in a recognized temporary location.
 # (mktemp generates a unique name in $TMPDIR, or if that is not set, /tmp.)
 Work=`mktemp -d -t sipx-snapshot.XXXXXX`
+echo "Work directory is ${Work}"
 
 # Arrange to capture any error output.
 # At the bottom of this script, we will echo this file to the current stderr.
