@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.rest;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -33,6 +32,7 @@ import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -63,12 +63,10 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        Phonebook phonebook = new Phonebook();
-        Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
-        phonebooks.add(phonebook);
+        Collection<Phonebook> phonebooks = TestUtil.getMockAllPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
-        m_phonebookManager.getPhonebooksByUser(m_user);
+        m_phonebookManager.getAllPhonebooksByUser(m_user);
         expectLastCall().andReturn(phonebooks);
         m_phonebookManager.getPagedPhonebook(phonebooks, m_user, "0", "3", "filter");
         expectLastCall().andReturn(getMockPhonebookEntries());

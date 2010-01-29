@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.rest;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -32,6 +31,7 @@ import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -62,15 +62,16 @@ public class UserPhonebookSearchResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        Phonebook phonebook = new Phonebook();
-        Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
-        phonebooks.add(phonebook);
+        Collection<Phonebook> allPhonebooks = TestUtil.getMockAllPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
-        m_phonebookManager.getPhonebooksByUser(m_user);
-        expectLastCall().andReturn(phonebooks);
-        m_phonebookManager.search(phonebooks, "searchTerm", m_user);
+
+        m_phonebookManager.getAllPhonebooksByUser(m_user);
+        expectLastCall().andReturn(allPhonebooks);
+
+        m_phonebookManager.search(allPhonebooks, "searchTerm", m_user);
         expectLastCall().andReturn(getMockPhonebookEntries());
+
         replay(m_phonebookManager);
 
         m_resource = new UserPhonebookSearchResource();

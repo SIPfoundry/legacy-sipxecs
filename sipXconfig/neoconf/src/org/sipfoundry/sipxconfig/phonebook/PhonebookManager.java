@@ -70,6 +70,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void deletePhonebookEntry(PhonebookEntry entry);
 
+    Collection<Phonebook> getAllPhonebooksByUser(User consumer);
+
     // --> this methods will be removed after version update
     void removeTableColumns();
 

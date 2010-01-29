@@ -14,6 +14,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -23,13 +24,11 @@ public class UserPhonebookResourceTest extends UserPhonebookSearchResourceTest {
 
     @Override
     protected void setUp() throws Exception {
-        Phonebook phonebook = new Phonebook();
-        Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
-        phonebooks.add(phonebook);
+        Collection<Phonebook> phonebooks = TestUtil.getMockAllPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
 
-        m_phonebookManager.getPhonebooksByUser(null);
+        m_phonebookManager.getAllPhonebooksByUser(null);
         expectLastCall().andReturn(phonebooks);
         m_phonebookManager.getEntries(phonebooks, m_user);
         expectLastCall().andReturn(getMockPhonebookEntries());

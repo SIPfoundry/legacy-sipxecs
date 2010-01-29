@@ -162,6 +162,15 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         assertEquals("1111", phoneBookEntry.getAddressBookEntry().getCellPhoneNumber());
         assertEquals("2222", phoneBookEntry.getAddressBookEntry().getHomePhoneNumber());
         assertEquals("3333", phoneBookEntry.getAddressBookEntry().getFaxNumber());
+
+        //test set Mobile or Home phone as phoneBookEntry number
+        ce.addPhoneNumber(createPhoneNumber("work", null));
+        phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        assertEquals("1111", phoneBookEntry.getNumber());
+
+        ce.addPhoneNumber(createPhoneNumber("mobile", null));
+        phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        assertEquals("2222", phoneBookEntry.getNumber());
     }
 
     private PhoneNumber createPhoneNumber(String rel, String value) {

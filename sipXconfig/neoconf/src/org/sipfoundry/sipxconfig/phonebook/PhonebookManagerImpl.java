@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.addAll;
 
 import com.glaforge.i18n.io.CharsetToolkit;
 import org.apache.commons.collections.Closure;
@@ -178,6 +179,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
                 PARAM_USER_ID, consumer.getId());
         return books;
+    }
+
+    public Collection<Phonebook> getAllPhonebooksByUser(User consumer) {
+
+        Collection<Phonebook> phonebooks = getPhonebooksByUser(consumer);
+        Phonebook privatePhonebook = getPrivatePhonebook(consumer);
+        if (privatePhonebook != null) {
+            addAll(phonebooks, privatePhonebook);
+        }
+        return phonebooks;
     }
 
     public Phonebook getPrivatePhonebook(User user) {
@@ -336,7 +347,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     private Document documentFromPhonebookEntry(PhonebookEntry entry) {
         Document doc = new Document();
-        addIdToDoc(doc, entry.getNumber());
+        addIdToDoc(doc, String.valueOf(entry.getId()));
         addTextFieldToDocument(doc, entry.getNumber());
         addTextFieldToDocument(doc, entry.getFirstName());
         addTextFieldToDocument(doc, entry.getLastName());
@@ -372,7 +383,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class PhonebookEntryPredicate implements Predicate {
 
-        private String m_queryString;
+        private final String m_queryString;
 
         public PhonebookEntryPredicate(String queryString) {
             m_queryString = queryString;

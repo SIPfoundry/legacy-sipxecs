@@ -79,6 +79,26 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertFalse(entries.hasNext());
     }
 
+    public void testAllPhoneBooksByUser() {
+        loadDataSet("phonebook/PhonebookSeed.db.xml");
+        User user1003 = m_coreContext.loadUser(1003);
+        Collection<Phonebook> phonebooks = m_phonebookManager.getAllPhonebooksByUser(user1003);
+        assertEquals(2, phonebooks.size());
+
+        User user1002 = m_coreContext.loadUser(1002);
+        phonebooks = m_phonebookManager.getAllPhonebooksByUser(user1002);
+        assertEquals(1, phonebooks.size());
+
+        User user1001 = m_coreContext.loadUser(1001);
+        phonebooks = m_phonebookManager.getAllPhonebooksByUser(user1001);
+        assertEquals(0, phonebooks.size());
+
+        User user1000 = m_coreContext.loadUser(1000);
+        phonebooks = m_phonebookManager.getAllPhonebooksByUser(user1000);
+        assertEquals(1, phonebooks.size());
+
+    }
+
     public void testUpdateOnGroupDelete() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         Group g = m_coreContext.getGroupByName("warblers", false);
@@ -183,11 +203,11 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testDeletePrivatePhonebook() throws Exception {
         loadDataSet("phonebook/PhonebookSeed.db.xml");
-        assertEquals(3, m_phonebookManager.getPhonebooks().size());
+        assertEquals(4, m_phonebookManager.getPhonebooks().size());
 
         User portaluser = m_coreContext.loadUser(1002);
         m_coreContext.deleteUser(portaluser);
-        assertEquals(2, m_phonebookManager.getPhonebooks().size());
+        assertEquals(3, m_phonebookManager.getPhonebooks().size());
     }
 
     public void testGetPagedPhonebook() throws Exception {

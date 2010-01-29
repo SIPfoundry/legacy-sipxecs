@@ -23,7 +23,6 @@ import org.restlet.resource.Representation;
 import org.restlet.resource.ResourceException;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
@@ -64,8 +63,7 @@ public class UserPhonebookSearchResource extends UserResource {
     }
 
     protected Collection<Phonebook> getPhonebooks() {
-        User user = getUser();
-        return m_phonebookManager.getPhonebooksByUser(user);
+        return m_phonebookManager.getAllPhonebooksByUser(getUser());
     }
 
     public void setPhonebookManager(PhonebookManager phonebookManager) {

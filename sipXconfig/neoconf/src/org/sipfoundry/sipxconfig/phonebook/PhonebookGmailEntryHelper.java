@@ -111,6 +111,9 @@ public class PhonebookGmailEntryHelper {
         if (!m_contactEntry.hasPhoneNumbers()) {
             return;
         }
+
+        String mobileNumber = null;
+        String homeNumber = null;
         for (PhoneNumber number : m_contactEntry.getPhoneNumbers()) {
             String rel = defaultString(number.getRel());
             String phoneNumber = number.getPhoneNumber();
@@ -118,10 +121,20 @@ public class PhonebookGmailEntryHelper {
                 phonebookEntry.setNumber(phoneNumber);
             } else if (rel.endsWith(MOBILE)) {
                 abe.setCellPhoneNumber(phoneNumber);
+                mobileNumber = phoneNumber;
             } else if (rel.endsWith(HOME)) {
                 abe.setHomePhoneNumber(phoneNumber);
+                homeNumber = phoneNumber;
             } else if (rel.endsWith(FAX)) {
                 abe.setFaxNumber(phoneNumber);
+            }
+        }
+        //Set the available phone number if any
+        if (phonebookEntry.getNumber() == null) {
+            if (mobileNumber != null) {
+                phonebookEntry.setNumber(mobileNumber);
+            } else if (homeNumber != null) {
+                phonebookEntry.setNumber(homeNumber);
             }
         }
     }

@@ -19,6 +19,8 @@ import java.net.URL;
 import java.security.CodeSource;
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -32,6 +34,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
@@ -349,6 +352,28 @@ public final class TestUtil {
         location.setFqdn("sipx.example.org");
         location.setAddress("192.168.1.1");
         return location;
+    }
+
+    /**
+     * Gets mock user group phonebooks
+     */
+    public static Collection<Phonebook> getMockPhonebooks() {
+        Phonebook phonebook = new Phonebook();
+        Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
+        phonebooks.add(phonebook);
+        return phonebooks;
+    }
+
+    /**
+     * Gets mock all user phonebooks
+     */
+    public static Collection<Phonebook> getMockAllPhonebooks() {
+        Phonebook privatePhonebook = new Phonebook();
+        Collection<Phonebook> phonebooks = getMockPhonebooks();
+        Collection<Phonebook> allPhonebooks = new ArrayList<Phonebook>();
+        allPhonebooks.addAll(phonebooks);
+        allPhonebooks.add(privatePhonebook);
+        return phonebooks;
     }
 
     /**
