@@ -8,6 +8,13 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+import static org.sipfoundry.sipxconfig.TestHelper.getModelFilesContext;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
+
 import java.util.Arrays;
 
 import org.easymock.EasyMock;
@@ -21,13 +28,6 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxRestService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-import static org.sipfoundry.sipxconfig.TestHelper.getModelFilesContext;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
     private SipxOpenfireService m_service;
@@ -66,16 +66,15 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         m_service.setModelName("openfire.xml");
         m_service.setLogDir("LogDirTest");
         m_service.setDomainManager(m_domainManager);
-
         m_service.initialize();
         m_service.setModelFilesContext(getModelFilesContext());
         m_service.setSettingTypedValue(SipxOpenfireService.XML_RPC_PORT_SETTING, 9095);
         m_service.setSettingTypedValue("openfire-server-to-server/enabled", true);
         m_service.setSettingTypedValue("openfire-server-to-server/idle-timeout", 3601);
-        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING, "http://server1.org:1234, " +
-                "server2:12345, server2,   server2,     server2, server2:12345");
-        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING, "server3.org:1111");
-
+        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING,
+                "http://server1.org:1234, " + "server2:12345, server2,   server2,     server2, server2:12345");
+        m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING,
+                "server3.org:1111");
 
         m_sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxOpenfireService.BEAN_ID);
@@ -110,6 +109,18 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
         config.setSipxServiceManager(m_sipxServiceManager);
         config.setCoreContext(m_coreContext);
         assertCorrectFileGeneration(config, "expected-sipxopenfire-config");
+
+        verify(m_sipxServiceManager);
+    }
+
+    public void testWriteLogLevelTranslated() throws Exception {
+
+        m_service.setSettingValue(SipxOpenfireService.LOG_SETTING, "EMERG");
+        SipxOpenfireConfiguration config = new SipxOpenfireConfiguration();
+        config.setTemplate("openfire/sipxopenfire.vm");
+        config.setSipxServiceManager(m_sipxServiceManager);
+        config.setCoreContext(m_coreContext);
+        assertCorrectFileGeneration(config, "expected-sipxopenfire-config-log-err");
 
         verify(m_sipxServiceManager);
     }

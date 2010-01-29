@@ -8,7 +8,7 @@
 	<watcher-address>192.168.1.1</watcher-address>
 	<watcher-port>5064</watcher-port>
 	<log-directory>LogDirTest</log-directory>
-	<log-level>INFO</log-level>
+	<log-level>ERR</log-level>
 	<openfire-xml-rpc-port>9095</openfire-xml-rpc-port>
 	<openfire-host>locationTest</openfire-host>
 	<sipxrest-ip-address>192.168.1.1</sipxrest-ip-address>

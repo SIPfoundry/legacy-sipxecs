@@ -17,7 +17,7 @@
 	<watcher-address>$settings.getSetting('settings/watcher-address').Value</watcher-address>
 	<watcher-port>$settings.getSetting('settings/watcher-port').Value</watcher-port>
 	<log-directory>$service.logDir</log-directory>
-	<log-level>$settings.getSetting('settings/log-level').Value</log-level>
+	<log-level>$service.logLevelsMappings.get("${settings.getSetting('settings/log-level').Value}")</log-level>
 	<openfire-xml-rpc-port>$settings.getSetting('settings/openfire-xml-rpc-port').Value</openfire-xml-rpc-port>
 	<openfire-host>$settings.getSetting('settings/openfire-host').Value</openfire-host>
 	<sipxrest-ip-address>$!{restService.address}</sipxrest-ip-address>

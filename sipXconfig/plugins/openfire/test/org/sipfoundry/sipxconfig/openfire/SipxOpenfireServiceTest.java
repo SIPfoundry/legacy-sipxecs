@@ -12,14 +12,14 @@ import static org.easymock.EasyMock.expectLastCall;
 
 import java.util.Arrays;
 
+import junit.framework.TestCase;
+
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-
-import junit.framework.TestCase;
 
 public class SipxOpenfireServiceTest extends TestCase {
     private SipxOpenfireService m_service;
@@ -63,5 +63,6 @@ public class SipxOpenfireServiceTest extends TestCase {
 
         assertEquals(8081, m_service.getPort());
         assertEquals("locationTestChanged", m_service.getServerAddress());
+        assertEquals("NOTICE", m_service.getLogLevel());
     }
 }

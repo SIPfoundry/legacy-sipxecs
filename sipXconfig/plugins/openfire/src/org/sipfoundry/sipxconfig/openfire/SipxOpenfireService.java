@@ -8,7 +8,9 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -26,12 +28,20 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
     public static final String WATCHER_SETTING = "settings/watcher-address";
     public static final String DOMAIN_SETTING = "settings/sipx-proxy-domain";
     public static final String XML_RPC_PORT_SETTING = "settings/openfire-xml-rpc-port";
-    public static final String SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING =
-        "openfire-server-to-server/allowed-servers";
+    public static final String SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING = "openfire-server-to-server/allowed-servers";
     public static final String SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING =
         "openfire-server-to-server/disallowed-servers";
     public static final String SERVER_TO_SERVER_DEFAULT_REMOTE_PORT =
         "openfire-server-to-server/default-remote-server-port";
+
+    public static final String DEBUG = "DEBUG";
+    public static final String INFO = "INFO";
+    public static final String NOTICE = "NOTICE";
+    public static final String WARNING = "WARNING";
+    public static final String ERR = "ERR";
+    public static final String CRIT = "CRIT";
+    public static final String ALERT = "ALERT";
+    public static final String EMERG = "EMERG";
 
     private LocationsManager m_locationsManager;
 
@@ -107,5 +117,18 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
             return getPort();
         }
         return super.getParam(paramName);
+    }
+
+    public static Map<String, String> getLogLevelsMappings() {
+        Map<String, String> mappings = new HashMap<String, String>();
+        mappings.put(DEBUG, DEBUG);
+        mappings.put(INFO, INFO);
+        mappings.put(NOTICE, INFO);
+        mappings.put(WARNING, WARNING);
+        mappings.put(ERR, ERR);
+        mappings.put(CRIT, ERR);
+        mappings.put(ALERT, ERR);
+        mappings.put(EMERG, ERR);
+        return mappings;
     }
 }
