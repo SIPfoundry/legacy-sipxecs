@@ -19,7 +19,6 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.Alignment;
@@ -98,8 +97,6 @@ public class UserPhonebookSearch implements EntryPoint {
         phonebookGrid.addRecordClickHandler(new RecordClickHandler() {
             @Override
             public void onRecordClick(RecordClickEvent event) {
-                String number = event.getRecord().getAttributeAsString(PhonebookDataSource.NUMBER);
-                RootPanel.get("call:number").getElement().setPropertyString("value", number);
                 int recordIndex = event.getRecordNum();
                 phonebookGrid.collapeAllRecordsAndExpandThisOne(phonebookGrid.getRecord(recordIndex), recordIndex);
             }
@@ -120,8 +117,8 @@ public class UserPhonebookSearch implements EntryPoint {
 
         TabSet tabSet = new TabSet();
         tabSet.setTabBarPosition(Side.TOP);
-        tabSet.setWidth("75%");
-        tabSet.setHeight(490);
+        tabSet.setWidth100();
+        tabSet.setHeight100();
 
         Tab entriesTab = new Tab(s_searchConstants.entries());
 
@@ -153,7 +150,7 @@ public class UserPhonebookSearch implements EntryPoint {
         tabSet.addTab(entriesTab);
         tabSet.addTab(newContactTab);
 
-        RootPanel.get("user_phonebook_grid").add(tabSet);
+        tabSet.draw();
 
     }
 

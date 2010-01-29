@@ -3,11 +3,6 @@
 	padding:3px;
 }
 
-fieldset td
-{
-	padding:0px;
-}
-
 
 input[disabled='disabled'] {
 	border:0px;
@@ -63,10 +58,4 @@ td.titleFormStyleDisabled
 .gwtAvatarImg
 {
 	margin:10px;
-}
-
-label
-{
-	font-size:9px;
-	padding-right:0px;
 }

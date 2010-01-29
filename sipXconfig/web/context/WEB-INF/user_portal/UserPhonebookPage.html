@@ -1,6 +1,4 @@
 <div jwcid="@common/Border" restricted="false">
-  <script type="text/javascript">var isomorphicDir = "/sipxconfig/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/sc/";</script>
-  <script jwcid="@Any" type="text/javascript" src="asset:userPhonebookSearchJs"/>
   <h2><span key="title">User Phonebook</span></h2>
   <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@common/ClickToCallPanel" delegate="bean:validator" user="ognl:user"/>
@@ -19,6 +17,7 @@
     </fieldset>
   </form>
   <div class="component">
-    <div id="user_phonebook_grid"> </div>
+    <iframe jwcid="@Any" id="user_phonebook_grid_frame" class="phonebookIframe" src="ognl:widgetSrc" scrolling="no"
+      marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0"> </iframe>
   </div>
 </div>

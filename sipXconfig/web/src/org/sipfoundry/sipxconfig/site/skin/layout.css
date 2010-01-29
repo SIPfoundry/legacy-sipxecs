@@ -735,6 +735,11 @@ html, body {
 	margin: 10px;
 }
 
+.phonebookIframe {
+	width: 80%;
+	height: 490px;
+	background: inherit;
+}
 .bannerLinkDivider {
 	background:transparent url(/sipxconfig/images/layout/bannerLinkDivider.png) no-repeat scroll left top;
 	margin-left:5px;
