@@ -25,6 +25,13 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
+// The string that appears in the Call-Id of all OPTIONS requests generated
+// by NAT Keepalive, and used to detect if a phone is invalidly reporting
+// such an OPTIONS request as a dialog.
+#define NAT_KEEPALIVE_SIGNATURE "-reniatniamtan"
+// Define this symbol to enable detection of invalidly reported OPTIONS.
+#define NAT_KEEPALIVE_DETECT
+
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType ResourceInstance::TYPE = "ResourceInstance";
 
@@ -106,6 +113,8 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceInstance::notifyEventCallback mInstanceName = '%s', content = '%s'",
                  mInstanceName.data(), content->data());
+   // Set to true if we find publishable data.
+   bool publish = false;
 
    // Set the subscription state to "active".
    mSubscriptionState = "active";
@@ -135,6 +144,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
       {
          // If the state is "full", terminate all non-terminated dialogs.  (XECS-1668)
          terminateXmlDialogs();
+         publish = true;
          OsSysLog::add(FAC_RLS, PRI_DEBUG,
                        "ResourceInstance::notifyEventCallback all non-terminated dialogs");
       }
@@ -149,96 +159,128 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
          {
             TiXmlElement* dialog_element = dialog_node->ToElement();
 
-            // Now that we've got a <dialog> element, edit it to fit
-            // into a consolidated event notice.
+            // Determine if the <dialog> is a bogus report of a NAT Keepalive
+            // OPTIONS message, as reported by Polycom SPIP firmware 3.1.2.
+            // (XTRN-425)  If so, ignore it.
 
-            // Prepend the resource instance name to the 'id'
-            // attribute, so it is unique within the <resource>.
-            UtlString id(mInstanceName);
-            // mInstanceName is guaranteed to not contain ';', because
-            // it is a dialog handle that we generate by concatenating
-            // the Call-Id and tags using ',' as a separator.  And ';'
-            // may not appear in Call-Ids or tags.
-            id.append(";");
-            id.append(dialog_element->Attribute("id"));
-            dialog_element->SetAttribute("id", id.data());
+#ifdef NAT_KEEPALIVE_DETECT
+            const char* call_id_attr = dialog_element->Attribute("call-id");
+            // Reject <dialog>s on the narrowest grounds, that is, only if the
+            // call-id attribute is present and contains NAT_KEEPALIVE_SIGNATURE.
+            const bool ok =
+               !(call_id_attr &&
+                 strstr(call_id_attr,
+                        NAT_KEEPALIVE_SIGNATURE) != NULL);
+#else
+            const bool ok = true;
+#endif
+            if (ok)
+            {
+               // Now that we've got a <dialog> element, edit it to fit
+               // into a consolidated event notice.
+               publish = true;
 
-            // Prepare the display name, so we can insert it easily
-            // when we generate consolidated events.
-            // Find or add the <local> element.
-            TiXmlNode* local = dialog_element->FirstChild("local");
-            if (!local)
-            {
-               local = dialog_element->LinkEndChild(new TiXmlElement("local"));
-            }
-            // Find or add the <local><identity> element.
-            TiXmlNode* identity = local->FirstChild("identity");
-            if (!identity)
-            {
-               identity =
-                  local->LinkEndChild(new TiXmlElement("identity"));
-            }
-            // Clear the display attribute.
-            identity->ToElement()->SetAttribute("display", "");
+               // Prepend the resource instance name to the 'id'
+               // attribute, so it is unique within the <resource>.
+               UtlString id(mInstanceName);
+               // mInstanceName is guaranteed to not contain ';', because
+               // it is a dialog handle that we generate by concatenating
+               // the Call-Id and tags using ',' as a separator.  And ';'
+               // may not appear in Call-Ids or tags.
+               id.append(";");
+               id.append(dialog_element->Attribute("id"));
+               dialog_element->SetAttribute("id", id.data());
 
-            // Put the resource URI as the content of the
-            // <local><identity> element.
-            // First, remove all text children.
-            TiXmlNode* child;
-            for (TiXmlNode* prev_child = 0;
-                 (child = identity->IterateChildren(prev_child));
-               )
-            {
-               if (child->Type() == TiXmlNode::TEXT)
+               // Prepare the display name, so we can insert it easily
+               // when we generate consolidated events.
+               // Find or add the <local> element.
+               TiXmlNode* local = dialog_element->FirstChild("local");
+               if (!local)
                {
-                  identity->RemoveChild(child);
-                  // Leave prev_child unchanged.
+                  local = dialog_element->LinkEndChild(new TiXmlElement("local"));
                }
-               else
+               // Find or add the <local><identity> element.
+               TiXmlNode* identity = local->FirstChild("identity");
+               if (!identity)
                {
-                  prev_child = child;
+                  identity =
+                     local->LinkEndChild(new TiXmlElement("identity"));
                }
-            }
-            // Insert a text child containing the URI.
-            identity->LinkEndChild(new TiXmlText(getResourceCached()->
-                                                 getUri()->data()));
+               // Clear the display attribute.
+               identity->ToElement()->SetAttribute("display", "");
 
-            // Now that we have the XML all nice and pretty, store a copy of
-            // it in mXmlDialogs.
-            // Clone the XML and create a UtlVoidPtr to wrap it.
-            TiXmlElement* alloc_xml = dialog_element->Clone()->ToElement();
-
-            // Look for an earlier version of this dialog in the hash map.
-            UtlVoidPtr* p = dynamic_cast <UtlVoidPtr*> (mXmlDialogs.findValue(&id));
-            if (p)
-            {
-               // Replace the old XML with new XML.
-               delete static_cast <TiXmlElement*> (p->getValue());
-               p->setValue(alloc_xml);
-               OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                             "ResourceInstance::notifyEventCallback replaced dialog with id '%s'",
-                             id.data());
-            }
-            else
-            {
-               // Check that we don't have too many dialogs.
-               if (mXmlDialogs.entries() <
-                   getResourceListServer()->getMaxDialogsInResInst())
+               // Put the resource URI as the content of the
+               // <local><identity> element.
+               // First, remove all text children.
+               TiXmlNode* child;
+               for (TiXmlNode* prev_child = 0;
+                    (child = identity->IterateChildren(prev_child));
+                  )
                {
-                  mXmlDialogs.insertKeyAndValue(new UtlString(id),
-                                                new UtlVoidPtr(alloc_xml));
+                  if (child->Type() == TiXmlNode::TEXT)
+                  {
+                     identity->RemoveChild(child);
+                     // Leave prev_child unchanged.
+                  }
+                  else
+                  {
+                     prev_child = child;
+                  }
+               }
+               // Insert a text child containing the URI.
+               identity->LinkEndChild(new TiXmlText(getResourceCached()->
+                                                    getUri()->data()));
+
+               // Now that we have the XML all nice and pretty, store a copy of
+               // it in mXmlDialogs.
+               // Clone the XML and create a UtlVoidPtr to wrap it.
+               TiXmlElement* alloc_xml = dialog_element->Clone()->ToElement();
+
+               // Look for an earlier version of this dialog in the hash map.
+               UtlVoidPtr* p = dynamic_cast <UtlVoidPtr*> (mXmlDialogs.findValue(&id));
+               if (p)
+               {
+                  // Replace the old XML with new XML.
+                  delete static_cast <TiXmlElement*> (p->getValue());
+                  p->setValue(alloc_xml);
                   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                                "ResourceInstance::notifyEventCallback added dialog with id '%s'",
+                                "ResourceInstance::notifyEventCallback replaced dialog with id '%s'",
                                 id.data());
                }
                else
                {
-                  // Free alloc_xml, because we aren't saving a pointer to it.
-                  delete alloc_xml;
-                  OsSysLog::add(FAC_RLS, PRI_ERR,
-                                "ResourceInstance::notifyEventCallback cannot add dialog with id '%s', already %zu in ResourceInstance '%s'",                                id.data(), mXmlDialogs.entries(),
-                                mInstanceName.data());
+                  // Check that we don't have too many dialogs.
+                  if (mXmlDialogs.entries() <
+                      getResourceListServer()->getMaxDialogsInResInst())
+                  {
+                     mXmlDialogs.insertKeyAndValue(new UtlString(id),
+                                                   new UtlVoidPtr(alloc_xml));
+                     OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                   "ResourceInstance::notifyEventCallback added dialog with id '%s'",
+                                   id.data());
+                  }
+                  else
+                  {
+                     // Free alloc_xml, because we aren't saving a pointer to it.
+                     delete alloc_xml;
+                     OsSysLog::add(FAC_RLS, PRI_ERR,
+                                   "ResourceInstance::notifyEventCallback cannot add dialog with id '%s', already %zu in ResourceInstance '%s'",                                id.data(), mXmlDialogs.entries(),
+                                   mInstanceName.data());
+                  }
                }
+            }
+            else
+            {
+               // The <dialog> was rejected because it appears to report
+               // a NAT Maintainer OPTIONS message.
+               // We log this at DEBUG level because if these appear,
+               // there is likely to be one every 20 seconds.
+               OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                             "ResourceInstance::notifyEventCallback "
+                             "ignored <dialog> reporting a NAT Keepalive message "
+                             "in subscription dialog handle '%s' - "
+                             "see XTRN-426",
+                             mInstanceName.data());
             }
          }
       }
@@ -261,8 +303,11 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
       destroyXmlDialogs();
    }
 
-   // Get the change published
-   getResourceCached()->setToBePublished(FALSE, getResourceCached()->getUri());
+   // Get the change published, if we found <dialog> that was not incorrect.
+   if (publish)
+   {
+      getResourceCached()->setToBePublished(FALSE, getResourceCached()->getUri());
+   }
 }
 
 // Process a termination of the subscription of this ResourceInstance.
