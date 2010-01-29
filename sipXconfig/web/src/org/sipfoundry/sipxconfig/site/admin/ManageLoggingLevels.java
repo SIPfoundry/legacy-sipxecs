@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdProvisioningContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
@@ -74,6 +76,9 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
 
     @InjectObject(value = "spring:acdProvisioningContext")
     public abstract AcdProvisioningContext getAcdProvisioningContext();
+
+    @InjectObject(value = "spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
 
     public abstract Collection<LoggingEntity> getLoggingEntities();
 
@@ -139,11 +144,19 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
                 getDialPlanActivationManager().replicateDialPlan(true);
                 getServiceConfigurator().markServiceForRestart(serviceToRestart);
             } else if (entity instanceof AcdServer) {
-                AcdServer server = (AcdServer) entity;
+                AcdServer modelServer = (AcdServer) entity;
+                Location modelLocation = modelServer.getLocation();
                 AcdContext context = getAcdContext();
-                context.store(server);
-                getAcdProvisioningContext().deploy(server.getId());
-                getServiceConfigurator().markServiceForRestart(serviceToRestart);
+                List servers = context.getServers();
+                for (Object server : servers) {
+                    AcdServer acdServer = (AcdServer) server;
+                    Location acdLocation = acdServer.getLocation();
+                    acdServer.setSettingValue(acdServer.LOG_SETTING, modelServer
+                            .getSettingValue(acdServer.LOG_SETTING));
+                    context.store(acdServer);
+                    getAcdProvisioningContext().deploy(acdServer.getId());
+                    getServiceConfigurator().markServiceForRestart(serviceToRestart);
+                }
             }
         }
         getServiceConfigurator().replicateServiceConfig(services);

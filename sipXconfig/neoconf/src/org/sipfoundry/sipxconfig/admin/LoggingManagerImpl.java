@@ -58,9 +58,10 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
 
             } else if (bean instanceof AcdServer) {
                 LOG.warn("Special case of ACD (AcdServer)");
-                AcdServer server = m_acdContext.getAcdServerForLocationId(m_locationsManager
-                        .getPrimaryLocation().getId());
-                loggingEntity  = server;
+                List servers = m_acdContext.getServers();
+                if (servers.size() > 0) {
+                    loggingEntity = (AcdServer) servers.get(0);
+                }
             } else {
                 LOG.warn("For now, only logging entities of the following types are supported: "
                         + "SipxService, BridgeSbc and AcdService ");
@@ -70,7 +71,6 @@ public class LoggingManagerImpl implements LoggingManager, BeanFactoryAware {
                 logEnabledServices.add(loggingEntity);
             }
         }
-
         return logEnabledServices;
     }
 
