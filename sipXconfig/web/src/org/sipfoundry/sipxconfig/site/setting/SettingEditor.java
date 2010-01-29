@@ -32,11 +32,14 @@ import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
+import org.sipfoundry.sipxconfig.setting.CustomSettingMessages;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
@@ -154,6 +157,25 @@ public abstract class SettingEditor extends BaseComponent {
             if (StringUtils.isNotEmpty(patternString)) {
                 Pattern pattern = new Pattern();
                 pattern.setPattern(patternString);
+
+                ///////////////////////////////////////////////////////////////
+                // The IpAddrSetting and HostnameSetting involves a long and
+                // complicated regular expression so we don't want to show
+                // the default error message when the Pattern validation fails.
+                ///////////////////////////////////////////////////////////////
+
+                if (type instanceof HostnameSetting) {
+                    String customMessage = CustomSettingMessages.getMessagePattern(
+                                                 CustomSettingMessages.INVALID_HOSTNAME_PATTERN,
+                                                 Locale.getDefault());
+                    pattern.setMessage(customMessage);
+                } else if (type instanceof IpAddrSetting) {
+                    String customMessage = CustomSettingMessages.getMessagePattern(
+                                                 CustomSettingMessages.INVALID_IPADDR_PATTERN,
+                                                 Locale.getDefault());
+                    pattern.setMessage(customMessage);
+                }
+
                 validators.add(pattern);
             }
         }
