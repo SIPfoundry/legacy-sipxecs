@@ -204,10 +204,15 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
         }
 
         public void execute(Object id) {
-            ActiveConferenceMember member = getMemberById((Integer) id);
-            if (member != null) {
-                execute(getConference(), member);
-                TapestryUtils.recordSuccess(ActiveConferenceControl.this, m_msgSuccess);
+            if (id != null) {
+                ActiveConferenceMember member = getMemberById((Integer) id);
+
+                if (member != null) {
+                    execute(getConference(), member);
+                    TapestryUtils.recordSuccess(ActiveConferenceControl.this, m_msgSuccess);
+                }
+            } else {
+                recordFailure(new UserException(getMessages().getMessage("error.noSuchMemberNullId")));
             }
         }
 
