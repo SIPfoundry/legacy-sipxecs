@@ -206,6 +206,15 @@ void SipMessage::setSipRequestFirstHeaderLine(const char* method,
 {
    //fix for bug : 1667 - 12/18/2001
    Url tempRequestUri(uri, TRUE);
+   Url::Scheme s = tempRequestUri.getScheme();
+   // Log error if the URI is not parsable or is not sip:/sips:.
+   if (!(s == Url::SipUrlScheme || s == Url::SipsUrlScheme))
+   {
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SipMessage::setSipRequestFirstHeaderLine "
+                    "setting request-URI of SipMessage to non-SIP URI '%s'",
+                    uri);
+   }
    UtlString strRequestUri;
    tempRequestUri.removeUrlParameter("method");
    tempRequestUri.removeAngleBrackets();
