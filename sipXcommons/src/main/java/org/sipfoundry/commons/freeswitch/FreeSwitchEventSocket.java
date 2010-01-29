@@ -66,17 +66,20 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         }
 
         LOG.debug(event.getResponse());
-        setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
+        setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));      
         
-        // Record the current session UUID
-        setSessionUUID(getVariable("caller-unique-id"));
-
+        String UUID = getVariable("caller-unique-id");
+        setSessionUUID(UUID);
+        
         // Enable reporting of interesting events
-        cmdResponse("event plain all");
-        
-        // Set filter to allow events from current UUID
-        cmdResponse("filter Unique-ID " + getSessionUUID());
-        
+         
+        if(UUID != null) {
+            cmdResponse("event plain all");
+            cmdResponse("filter Unique-ID " + UUID);
+        } else {
+            cmdResponse("myevents");   
+        }
+         
         return true;
     }
 
