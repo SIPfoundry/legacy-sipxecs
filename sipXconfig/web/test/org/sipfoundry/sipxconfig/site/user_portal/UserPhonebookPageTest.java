@@ -50,7 +50,7 @@ public class UserPhonebookPageTest extends TestCase {
 
         Collection<Phonebook> phonebooks = Collections.singletonList(new Phonebook());
         m_phonebookManager = createMock(PhonebookManager.class);
-        m_phonebookManager.getPhonebooksByUser(m_portalUser);
+        m_phonebookManager.getPublicPhonebooksByUser(m_portalUser);
         expectLastCall().andReturn(phonebooks).anyTimes();
         m_phonebookManager.getEntries(phonebooks, m_portalUser);
         expectLastCall().andReturn(m_allEntries).anyTimes();

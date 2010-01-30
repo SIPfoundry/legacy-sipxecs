@@ -33,7 +33,10 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void deletePhonebooks(Collection<Integer> ids);
 
-    Collection<Phonebook> getPhonebooksByUser(User user);
+    /**
+     * Gets phonebooks created by the administrator for the provided user
+     */
+    Collection<Phonebook> getPublicPhonebooksByUser(User user);
 
     Phonebook getPhonebook(Integer phonebookId);
 
@@ -70,6 +73,9 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void deletePhonebookEntry(PhonebookEntry entry);
 
+    /**
+     * Gets all phonebooks for the provided user
+     */
     Collection<Phonebook> getAllPhonebooksByUser(User consumer);
 
     // --> this methods will be removed after version update

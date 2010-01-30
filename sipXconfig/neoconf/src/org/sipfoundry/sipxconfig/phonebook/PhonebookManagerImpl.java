@@ -175,7 +175,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return requireOneOrZero(books, query);
     }
 
-    public Collection<Phonebook> getPhonebooksByUser(User consumer) {
+    public Collection<Phonebook> getPublicPhonebooksByUser(User consumer) {
         Collection<Phonebook> books = getHibernateTemplate().findByNamedQueryAndNamedParam("phoneBooksByUser",
                 PARAM_USER_ID, consumer.getId());
         return books;
@@ -183,7 +183,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public Collection<Phonebook> getAllPhonebooksByUser(User consumer) {
 
-        Collection<Phonebook> phonebooks = getPhonebooksByUser(consumer);
+        Collection<Phonebook> phonebooks = getPublicPhonebooksByUser(consumer);
         Phonebook privatePhonebook = getPrivatePhonebook(consumer);
         if (privatePhonebook != null) {
             addAll(phonebooks, privatePhonebook);

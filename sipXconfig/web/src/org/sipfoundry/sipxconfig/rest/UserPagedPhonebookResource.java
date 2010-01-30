@@ -33,7 +33,7 @@ public class UserPagedPhonebookResource extends UserPhonebookSearchResource {
         String start = form.getFirstValue("start");
         String end = form.getFirstValue("end");
         String queryString = form.getFirstValue("filter");
-        Collection<Phonebook> phonebooks = getPhonebooks();
+        Collection<Phonebook> phonebooks = getPhonebookManager().getPublicPhonebooksByUser(getUser());
         PagedPhonebook pagedPhonebook = getPhonebookManager().getPagedPhonebook(phonebooks, getUser(), start, end,
                 queryString);
         PrivatePagedPhonebook privatePagedPhonebook = new PrivatePagedPhonebook(pagedPhonebook.getSize(),

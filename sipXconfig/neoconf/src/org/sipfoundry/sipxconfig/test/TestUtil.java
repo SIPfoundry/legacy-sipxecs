@@ -357,7 +357,7 @@ public final class TestUtil {
     /**
      * Gets mock user group phonebooks
      */
-    public static Collection<Phonebook> getMockPhonebooks() {
+    public static Collection<Phonebook> getMockPublicPhonebooks() {
         Phonebook phonebook = new Phonebook();
         Collection<Phonebook> phonebooks = new ArrayList<Phonebook>();
         phonebooks.add(phonebook);
@@ -369,7 +369,7 @@ public final class TestUtil {
      */
     public static Collection<Phonebook> getMockAllPhonebooks() {
         Phonebook privatePhonebook = new Phonebook();
-        Collection<Phonebook> phonebooks = getMockPhonebooks();
+        Collection<Phonebook> phonebooks = getMockPublicPhonebooks();
         Collection<Phonebook> allPhonebooks = new ArrayList<Phonebook>();
         allPhonebooks.addAll(phonebooks);
         allPhonebooks.add(privatePhonebook);

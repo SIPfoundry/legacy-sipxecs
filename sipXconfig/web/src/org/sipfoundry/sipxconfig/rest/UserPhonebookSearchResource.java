@@ -46,7 +46,7 @@ public class UserPhonebookSearchResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         Form form = getRequest().getResourceRef().getQueryAsForm();
         m_searchTerm = form.getFirstValue("query");
-        Collection<Phonebook> phonebooks = getPhonebooks();
+        Collection<Phonebook> phonebooks = m_phonebookManager.getAllPhonebooksByUser(getUser());
         // TODO
         Collection<PhonebookEntry> entries = m_phonebookManager.search(phonebooks, m_searchTerm, getUser());
 
@@ -60,10 +60,6 @@ public class UserPhonebookSearchResource extends UserResource {
                     .getAddressBookEntry(), entry.getId().toString()));
         }
         return entriesArray;
-    }
-
-    protected Collection<Phonebook> getPhonebooks() {
-        return m_phonebookManager.getAllPhonebooksByUser(getUser());
     }
 
     public void setPhonebookManager(PhonebookManager phonebookManager) {

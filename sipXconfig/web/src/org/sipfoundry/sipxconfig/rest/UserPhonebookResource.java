@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 public class UserPhonebookResource extends UserPhonebookSearchResource {
     @Override
     public Representation represent(Variant variant) throws ResourceException {
-        Collection<Phonebook> phonebooks = getPhonebooks();
+        Collection<Phonebook> phonebooks = getPhonebookManager().getAllPhonebooksByUser(getUser());
         Collection<PhonebookEntry> entries = getPhonebookManager().getEntries(phonebooks, getUser());
         return new PhonebookEntryRepresentation(variant.getMediaType(), convertPhonebookEntries(entries));
     }

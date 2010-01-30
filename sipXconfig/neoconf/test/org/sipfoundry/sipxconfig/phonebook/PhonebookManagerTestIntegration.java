@@ -70,7 +70,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         // yellowthroat should not see any sparrows, but see other warblers and ducks
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User yellowthroat = m_coreContext.loadUser(1001);
-        Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(yellowthroat);
+        Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
         Iterator<PhonebookEntry> entries = m_phonebookManager.getEntries(books, yellowthroat).iterator();
         assertEquals("canadian", entries.next().getNumber());
         assertEquals("mallard", entries.next().getNumber());
@@ -195,7 +195,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
         User anotheruser = m_coreContext.loadUser(1003);
 
-        Collection<Phonebook> phonebooks = m_phonebookManager.getPhonebooksByUser(anotheruser);
+        Collection<Phonebook> phonebooks = m_phonebookManager.getPublicPhonebooksByUser(anotheruser);
         assertEquals(2, m_phonebookManager.getPagedPhonebook(phonebooks, anotheruser, "0", "10", null).getEntries()
                 .size());
 
@@ -213,7 +213,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testGetPagedPhonebook() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User yellowthroat = m_coreContext.loadUser(1001);
-        Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(yellowthroat);
+        Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
 
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "1", "l");
         assertEquals(4, pagedPhonebook.getSize());
@@ -254,7 +254,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testGetPrivatePagedPhonebook() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User canadian = m_coreContext.loadUser(1002);
-        Collection<Phonebook> books = m_phonebookManager.getPhonebooksByUser(canadian);
+        Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(canadian);
 
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
         assertEquals(5, pagedPhonebook.getSize());

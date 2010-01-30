@@ -107,7 +107,7 @@ public abstract class UserPhonebookPage extends UserBasePage {
 
     private Collection<Phonebook> getPhonebooks() {
         User user = getUser();
-        return getPhonebookManager().getPhonebooksByUser(user);
+        return getPhonebookManager().getPublicPhonebooksByUser(user);
     }
 
     /**

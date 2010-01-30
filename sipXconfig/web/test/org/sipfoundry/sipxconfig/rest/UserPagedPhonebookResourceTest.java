@@ -63,10 +63,10 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        Collection<Phonebook> phonebooks = TestUtil.getMockAllPhonebooks();
+        Collection<Phonebook> phonebooks = TestUtil.getMockPublicPhonebooks();
 
         m_phonebookManager = createMock(PhonebookManager.class);
-        m_phonebookManager.getAllPhonebooksByUser(m_user);
+        m_phonebookManager.getPublicPhonebooksByUser(m_user);
         expectLastCall().andReturn(phonebooks);
         m_phonebookManager.getPagedPhonebook(phonebooks, m_user, "0", "3", "filter");
         expectLastCall().andReturn(getMockPhonebookEntries());
