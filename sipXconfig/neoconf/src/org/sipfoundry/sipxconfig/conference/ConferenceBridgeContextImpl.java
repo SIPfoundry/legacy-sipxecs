@@ -53,6 +53,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
     private static final String CONFERENCE_BY_NAME = "conferenceByName";
     private static final String OWNER = "owner";
+    private static final String PERCENT = "%";
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
@@ -234,6 +235,17 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             }
         };
         return getHibernateTemplate().executeFind(callback);
+    }
+
+    public List<Conference> searchConferences(final String searchTerm) {
+        String searchTermLike = (new StringBuilder()).append(PERCENT).append(searchTerm).append(PERCENT).toString();
+        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam("searchConferences",
+                new String[] {
+                    "name", "ext", "description", "ownerFName", "ownerLName", "ownerUName"
+                }, new String[] {
+                    searchTermLike, searchTerm, searchTermLike, searchTermLike, searchTermLike, searchTerm
+                });
+        return conferences;
     }
 
     public int countFilterConferences(final Integer bridgeId, final Integer ownerGroupId) {

@@ -88,19 +88,19 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(3, db.getRowCount("meetme_conference"));
+        assertEquals(4, db.getRowCount("meetme_conference"));
 
         m_context.removeConferences(Collections.singleton(new Integer(3002)));
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(2, db.getRowCount("meetme_conference"));
+        assertEquals(3, db.getRowCount("meetme_conference"));
     }
 
     public void testLoadBridge() throws Exception {
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2006));
 
-        assertEquals(1, bridge.getConferences().size());
+        assertEquals(2, bridge.getConferences().size());
     }
 
     public void testLoadConference() throws Exception {
@@ -115,7 +115,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
         List<Conference> conferences = m_context.getAllConferences();
 
-        assertEquals(3, conferences.size());
+        assertEquals(4, conferences.size());
         Set<String> names = new HashSet<String>();
         for (Conference conference : conferences) {
             names.add(conference.getName());
@@ -221,5 +221,26 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         // pick an unused extension, should be OK
         conf.setExtension("1800");
         m_context.validate(conf);
+    }
+
+    public void testSearchConferences() throws Exception {
+        TestHelper.getConnection();
+        TestHelper.insertFlat("conference/participants.db.xml");
+        TestHelper.insertFlat("conference/conferences_and_lines.db.xml");
+
+        assertEquals(1, getConferencesCount("1699"));// ext
+        assertEquals(3, getConferencesCount("test1002"));// owner username
+        assertEquals(1, getConferencesCount("test1003"));// owner username
+        assertEquals(0, getConferencesCount("100"));// owner username - no partial match
+        assertEquals(0, getConferencesCount("17"));// extension - no partial match
+        assertEquals(3, getConferencesCount("cOnF_nAmE"));// conf name - partial and case
+                                                          // insensitive match
+        assertEquals(3, getConferencesCount("MaX"));// owner first name - partial and c.i. match
+        assertEquals(3, getConferencesCount("AfInO"));// owner last name - partial and c.i. match
+    }
+
+    private int getConferencesCount(String searchTerm) {
+        List<Conference> confList = m_context.searchConferences(searchTerm);
+        return confList.size();
     }
 }

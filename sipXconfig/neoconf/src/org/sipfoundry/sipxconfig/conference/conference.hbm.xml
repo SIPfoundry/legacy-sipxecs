@@ -63,4 +63,9 @@
   <query name="bridgeByHost">
     <![CDATA[from Bridge bridge where bridge.service.location.fqdn = :value]]>
   </query>
+
+  <query name="searchConferences">
+    <![CDATA[from Conference conf where lower(conf.name) like lower(:name) or conf.extension = :ext or lower(conf.description) like lower(:description) or lower(conf.owner.firstName) like lower(:ownerFName) or lower(conf.owner.lastName) like lower(:ownerLName) or conf.owner.userName = :ownerUName]]>
+  </query>
+
 </hibernate-mapping>

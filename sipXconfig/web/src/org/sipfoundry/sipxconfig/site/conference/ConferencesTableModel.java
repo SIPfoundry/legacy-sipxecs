@@ -95,9 +95,7 @@ public class ConferencesTableModel implements IBasicTableModel {
                     orderBy, orderAscending).iterator();
         }
         IdentityToBean identityToBean = new IdentityToBean(m_identity);
-        return m_searchManager.search(Conference.class, m_queryText, firstRow, pageSize, orderBy, orderAscending,
-                identityToBean).iterator();
-
+        return m_conferenceContext.searchConferences(m_queryText).iterator();
     }
 
 }

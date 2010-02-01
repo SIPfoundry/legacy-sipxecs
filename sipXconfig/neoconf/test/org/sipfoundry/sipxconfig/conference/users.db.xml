@@ -1,6 +1,6 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>  
-  <users user_id="1002" user_name="test1002"/>
+  <users user_id="1002" user_name="test1002" first_name="Maxim" last_name="Afinogenov"/>
   <users user_id="1003" user_name="test1003"/>
   <users user_id="1004" user_name="test1004"/>
   <users user_id="1005" user_name="test1005"/>

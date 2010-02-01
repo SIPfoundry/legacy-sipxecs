@@ -20,4 +20,6 @@
     description="conf_desc_3002" extension="1700" owner_id="1002" enabled="0" />
   <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3003" name="conf_name_3003"
     description="conf_desc_3003" extension="1701" owner_id="1002" enabled="0" />
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3004" name="conference_name_3003"
+    description="conf_desc_3003" extension="1703" owner_id="1003" enabled="0" />
 </dataset>

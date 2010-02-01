@@ -57,6 +57,8 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     List<Conference> filterConferences(final Integer bridgeId, final Integer ownerGroupId);
 
+    List<Conference> searchConferences(final String searchTerm);
+
     int countFilterConferences(final Integer bridgeId, final Integer ownerGroupId);
 
     List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer ownerGroupId, int firstRow,
