@@ -29,6 +29,8 @@ then
    rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar 2> /dev/null
    rm -f @OPENFIRE_HOME@/plugins/sipx-openfire-presence.jar 2> /dev/null
    ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire-presence.jar @OPENFIRE_HOME@/plugins 2> /dev/null
+   rm -f ${OPENFIRE_LIB}/sipx-openfire-vcard-provider.jar 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/lib/sipx-openfire-vcard-provider.jar ${OPENFIRE_LIB} 2> /dev/null
 
    # If the openfire configuration directory is either a soft link or does not exist, then
    # create a regular directory and copy the duplicate configuration file managed by sipXecs.

@@ -10,6 +10,8 @@
 	<property name="root" value="${top.build.dir}" />
 	<property name="presence-classes" value="${root}/presence/classes" />
 	<property name="presence-src" location="${src.dir}/src/presence-plugin/java" />
+	<property name="prov-classes" value="${root}/provider/classes" />
+	<property name="prov-src" location="${src.dir}/src/provider/java" />
 	<property name="lib" location="${src.dir}/lib" />
 	<property name="openfire-lib-dir" location="${openfire.home}/lib" />
         <property name="openfire-jar" value="${openfire-lib-dir}/openfire.jar" />
@@ -24,6 +26,17 @@
 			target="${javac.target}"
 			srcdir="${presence-src}"
 			destdir="${presence-classes}" />
+	</presetdef>
+
+	<presetdef name="openfire-prov-javac">
+		<javac debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			deprecation="${javac.deprecation}"
+			optimize="${javac.optimize}"
+			source="${javac.source}"
+			target="${javac.target}"
+			srcdir="${prov-src}"
+			destdir="${prov-classes}" />
 	</presetdef>
 
 
@@ -50,6 +63,20 @@
 		</openfire-presence-javac>
 	</target>
 
+    <target name="prov-compile">
+       <mkdir  dir="${prov-classes}" />
+       <openfire-prov-javac>
+          <classpath>
+             <pathelement location="${log4j}" />
+             <pathelement location="${openfire-jar}/" />
+             <pathelement location="${sipxcommons}" />
+             <pathelement location="${commons-digester}" />
+             <pathelement location="${noelios-restlet}" />
+             <pathelement location="${restlet}" />
+          </classpath>
+       </openfire-prov-javac>
+    </target>
+
 
     <target name = "clean" >
        <delete dir="${presence-classes}" />
@@ -57,17 +84,26 @@
 	   <delete file="${root}/sipx-openfire-presence-plugin.jar" />
 	   <delete file="${root}/dist/sipx-openfire-presence.jar" />
 	   <delete file="${root}/dist/sipx-openfire-presence-plugin.jar" />
+       <delete dir="${prov-classes}" />
+       <delete file="${root}/sipx-openfire-vcard-provider.jar" />
 	   <delete file="${root}/sipxopenfire-setup.sh" />
 	   <delete file="${root}/sipxopenfire.sh" />
 	</target>
 
-	<target name="all" depends="compile">
+	<target name="all" depends="compile, prov-compile">
 		<mkdir dir="${build.dir}/dist"/>
 		<mkdir  dir="${root}/lib" />
 		<copy file="presence-plugin/plugin.xml" todir="${presence-classes}" />
 		<copy file="${root}/config.properties" todir="${presence-classes}" />
+		<copy file="${root}/config.properties" todir="${prov-classes}" />
 		<jar jarfile="${root}/sipx-openfire-presence-plugin.jar">
 			<fileset dir="${presence-classes}" >
+				<include name="**/*.class" />
+			    <include name="config.properties" />
+			</fileset>
+		</jar>
+		<jar jarfile="${root}/sipx-openfire-vcard-provider.jar">
+			<fileset dir="${prov-classes}" >
 				<include name="**/*.class" />
 			    <include name="config.properties" />
 			</fileset>
@@ -104,6 +140,7 @@
                   </fileset>
 		</jar>
 		<copy file="${root}/sipx-openfire-presence-plugin.jar" todir="${build.dir}/dist" />
+		<copy file="${root}/sipx-openfire-vcard-provider.jar" todir="${build.dir}/dist" />
 	</target>
 
         <target name="makedirs" >
@@ -118,6 +155,7 @@
                 <copy file="${src.dir}/web.xml.disable_openfire_admin_console" todir="${dest.dir}${sipxopenfire.dir}/conf" />
 		<copy file="${root}/dist/sipx-openfire-presence.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
                 <copy file="${root}/dist/sipx-openfire-presence-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
+                <copy file="${root}/dist/sipx-openfire-vcard-provider.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
 		<copy file="${src.dir}/etc/sipxopenfire-prompts.properties" todir="${dest.dir}${sipxpbx.conf.dir}/openfire" />
