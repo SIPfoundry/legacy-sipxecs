@@ -1,5 +1,6 @@
 package org.sipfoundry.openfire.plugin.presence;
 
+import java.io.NotActiveException;
 import java.util.Map;
 import java.util.Random;
 import org.apache.log4j.Logger;
@@ -23,6 +24,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         try {
             String jid = appendDomain(xmppUsername);
             log.info("GetPresenceState " + jid);
+            assertPlugInReady();
             Map retval = createSuccessMap();
             UnifiedPresence unifiedPresence = 
                   PresenceUnifier.getInstance().getUnifiedPresence( xmppUsername );
@@ -31,7 +33,12 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         } catch (IllegalArgumentException e) {
             log.error("Invalid enum value ",e);
             return createErrorMap(ErrorCode.INVALID_XMPP_PRESENCE_VALUE, e.getMessage());
-        } catch (Exception e) {
+        }
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
+        catch (Exception e) {
             log.error("User Not Found",e);
             return createErrorMap(ErrorCode.USER_NOT_FOUND, e.getMessage());
         }
@@ -41,11 +48,17 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         try {
             String jid = appendDomain(xmppUsername);
             log.info("setPresenceState" + jid + " XMPP presence " + xmppPresenceAsString);
+            assertPlugInReady();
             Map retval = createSuccessMap();
             UnifiedPresence.XmppPresence xmppPresence = UnifiedPresence.XmppPresence.valueOf( xmppPresenceAsString ); 
             getPlugin().setPresenceState(jid, xmppPresence);   
             return retval;
-        } catch ( Exception ex) {
+        }
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
+        catch ( Exception ex) {
             log.error("User Not Found",ex);
             return createErrorMap(ErrorCode.USER_NOT_FOUND, ex.getMessage());
         }
@@ -55,10 +68,16 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         try {
             String jid = appendDomain(id);
             log.info("setPresenceStatus " + jid + " status = " + status);
+            assertPlugInReady();
             Map retval = createSuccessMap();
             getPlugin().setPresenceStatus(jid,  status);   
             return retval;
-        } catch ( Exception ex) {
+        } 
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
+        catch ( Exception ex) {
             log.error("User Not Found",ex);
             return createErrorMap(ErrorCode.USER_NOT_FOUND, ex.getMessage());
         }
@@ -68,13 +87,19 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
         try {
             String jid = appendDomain(id);
             log.info("getPresenceStatus " + jid) ;
+            assertPlugInReady();
             Map retval = createSuccessMap();
             String presenceStatus = getPlugin().getPresenceStatus(jid);
             if ( presenceStatus != null ) {
                 retval.put(CUSTOM_PRESENCE_MESSAGE, presenceStatus);
             }
             return retval;
-        } catch (Exception ex) {
+        } 
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
+        catch (Exception ex) {
             log.error("UserNotFound ", ex);
             return createErrorMap(ErrorCode.USER_NOT_FOUND,ex.getMessage());
         }
@@ -104,6 +129,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     public Map getUnifiedPresenceInfo( String sipId ) {
         try {
            log.info("getUnifiedPresenceInfo " + sipId);
+           assertPlugInReady();
            String xmppUser = getPlugin().getXmppId(sipId);
            if ( xmppUser == null ) {
               Map errorMap = createErrorMap(ErrorCode.SIP_ID_NOT_FOUND, "SIP ID Not found in database.");
@@ -123,7 +149,12 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
            retval.put(UNIFIED_PRESENCE, unifiedPresence.getUnifiedPresence());
            retval.put(CUSTOM_PRESENCE_MESSAGE, unifiedPresence.getXmppStatusMessageWithSipState());
            return retval;
-        } catch (Exception ex) {
+        } 
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
+        catch (Exception ex) {
             log.error("Processing error",ex);
             return createErrorMap(ErrorCode.PROCESSING_ERROR,ex.getMessage());
         }
@@ -132,20 +163,43 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
     
     public Map registerPresenceMonitor(String protocol, String serverUrl ) 
     {
-        log.info("registerPresenceMonitor " + protocol + " " + serverUrl );            
-        PresenceUnifier.getInstance().addUnifiedPresenceChangeListener( protocol, serverUrl );
-        Map retval = createSuccessMap();
-        retval.put(INSTANCE_HANDLE, myHandle);
-        return retval;
+        try {
+            log.info("registerPresenceMonitor " + protocol + " " + serverUrl );            
+            assertPlugInReady();
+            PresenceUnifier.getInstance().addUnifiedPresenceChangeListener( protocol, serverUrl );
+            Map retval = createSuccessMap();
+            retval.put(INSTANCE_HANDLE, myHandle);
+            return retval;
+        }
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
     }
      
     public Map ping( String originatorName ) 
     {
-        log.info("ping received from " + originatorName );            
-        Map retval = createSuccessMap();
-        retval.put(INSTANCE_HANDLE, myHandle);
-        return retval;
+        try
+        {
+            log.info("ping received from " + originatorName );            
+            assertPlugInReady();
+            Map retval = createSuccessMap();
+            retval.put(INSTANCE_HANDLE, myHandle);
+            return retval;
+        }
+        catch( NotActiveException e ){
+            log.error("plug-in not active error: ",e);
+            return createErrorMap(ErrorCode.NOT_READY,e.getMessage());
+        }
     }
     
+    private void assertPlugInReady() throws NotActiveException
+    {
+        if( getPlugin().isInitialized() == false )
+        {
+            throw new NotActiveException("sipXopenfire not yet initialized");
+        }
+    }
+
 
 }

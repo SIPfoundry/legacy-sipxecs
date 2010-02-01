@@ -57,11 +57,11 @@ public class OpenfireXmlRcpUnifiedPresenceNotificationClient extends OpenfireXml
             args[5] = newUnifiedPresence.getXmppStatusMessage();
             retval = (String)client.execute("UnifiedPresenceChangeListener.unifiedPresenceChanged", args);
         }catch (XmlRpcException e) {
-            logger.info( "unifiedPresenceChanged caught XmlRpcException for server " + serverUrl + " : " + e.getMessage() );
+            logger.info( "unifiedPresenceChanged caught XmlRpcException for server " + serverUrl + " : ", e );
             logger.info( "removing change listener as a result" );
             PresenceUnifier.getInstance().removeUnifiedPresenceChangeListener("xmlrpc", serverUrl );
         }catch (Exception e ){
-            logger.info( "unifiedPresenceChanged caught exception for server " + serverUrl + " : " + e.getMessage() );
+            logger.info( "unifiedPresenceChanged caught exception for server " + serverUrl + " : ", e );
         }
         if (retval != null && !retval.equals("ok"))
         {

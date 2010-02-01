@@ -70,6 +70,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private JID componentJID;
     private XMPPServer server;
     private Localizer localizer;
+    private boolean isInitialized = false;
 
     private static String DEFAULT_MUC_SERVICE = "conference";
     
@@ -349,10 +350,18 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             log.error("Error initializing CallWatcher", e);
             throw new SipXOpenfirePluginException("Init error", e);
         }
+        
+        isInitialized = true;
+    }
+    
+    public boolean isInitialized()
+    {
+        return isInitialized;
     }
 
     public void destroyPlugin() {
         log.debug("DestroyPlugin");
+        isInitialized = false;
         if( accountsParser != null ){
             accountsParser.stopScanner();
         }

@@ -30,6 +30,8 @@ public class SipXOpenfireServlet extends HttpServlet {
   
 
     public void init(ServletConfig servletConfig, String serverName, String serviceName, Class provider) throws ServletException {
+        plugin = (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
+        
         super.init(servletConfig);
         // Register new component
         ComponentManager componentManager = ComponentManagerFactory.getComponentManager();
@@ -37,8 +39,6 @@ public class SipXOpenfireServlet extends HttpServlet {
         log = componentManager.getLog();
         log.info("initializing Servlet");
         
-        plugin =
-                (SipXOpenfirePlugin) XMPPServer.getInstance().getPluginManager().getPlugin("sipx-openfire-presence");
       
         // Exclude this servlet from requering the user to login
         this.path = "sipx-openfire-presence/" + serviceName;
