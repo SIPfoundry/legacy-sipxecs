@@ -15,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,6 +62,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String KEYSTOREGEN_SH = "/sipxkeystoregen";
     private static final String CHECK_CERT = "/check-cert.sh";
     private static final String WEB_ONLY = "--web-only";
+    private static final String SSL_CERT = "ssl.crt";
 
     private String m_binCertDirectory;
 
@@ -160,24 +162,29 @@ public class CertificateManagerImpl implements CertificateManager {
 
     private String[] getValidateCertFileCommand(File file) {
         String[] cmdLine = new String[] {
-            m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()};
+            m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()
+        };
         return cmdLine;
     }
 
     private String[] getShowCertFileCommand(File file) {
         String[] cmdLine = new String[] {
-            m_binCertDirectory + GEN_SSL_KEYS_SH, "--show-cert", file.getPath()};
+            m_binCertDirectory + GEN_SSL_KEYS_SH, "--show-cert", file.getPath()
+        };
         return cmdLine;
     }
 
     private String[] getHashCertsCommand() {
         String[] cmdLine = new String[] {
-            m_binCertDirectory + CA_REHASH};
+            m_binCertDirectory + CA_REHASH
+        };
         return cmdLine;
     }
+
     private String[] getKeyStoreGenCommand() {
         String[] cmdLine = new String[] {
-            m_libExecDirectory + KEYSTOREGEN_SH};
+            m_libExecDirectory + KEYSTOREGEN_SH
+        };
         return cmdLine;
     }
 
@@ -261,7 +268,7 @@ public class CertificateManagerImpl implements CertificateManager {
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
-            //Mark required services for restart
+            // Mark required services for restart
             markServicesForRestart();
         } catch (RuntimeException ex) {
             throw new UserException("&error.regenstore");
@@ -269,10 +276,10 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     private void markServicesForRestart() {
-        SipxConfigService configService = (SipxConfigService) m_sipxServiceManager.
-            getServiceByBeanId(SipxConfigService.BEAN_ID);
-        SipxBridgeService bridgeService = (SipxBridgeService) m_sipxServiceManager.
-            getServiceByBeanId(SipxBridgeService.BEAN_ID);
+        SipxConfigService configService = (SipxConfigService) m_sipxServiceManager
+                .getServiceByBeanId(SipxConfigService.BEAN_ID);
+        SipxBridgeService bridgeService = (SipxBridgeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxBridgeService.BEAN_ID);
         m_processContext.markServicesForRestart(Arrays.asList(configService, bridgeService));
     }
 
@@ -281,8 +288,7 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     public void deleteCA(CertificateDecorator cert) {
-        File certdbFile = new File(m_certdbDirectory + File.separatorChar + cert.getFileName());
-        if (certdbFile.exists()) {
+        if (isSystemGenerated(cert.getFileName())) {
             throw new UserException("&error.delete.default.ca", cert.getFileName());
         }
 
@@ -300,6 +306,18 @@ public class CertificateManagerImpl implements CertificateManager {
         } catch (IOException ex) {
             throw new UserException("&error.delete.cert");
         }
+    }
+
+    // check the issuer DN name against ssl.crt (always signed by sipx)
+    private boolean isSystemGenerated(String fileName) {
+        X509Certificate sslCrt = X509CertificateUtils.getX509Certificate(m_sslDirectory + File.separatorChar
+                + SSL_CERT);
+        X509Certificate currentCertificate = X509CertificateUtils.getX509Certificate(m_certdbDirectory
+                + File.separatorChar + fileName);
+        if (sslCrt != null && currentCertificate != null) {
+            return StringUtils.equals(sslCrt.getIssuerDN().getName(), currentCertificate.getIssuerDN().getName());
+        }
+        return false;
     }
 
     public void deleteCAs(Collection<CertificateDecorator> listCert) {
@@ -338,6 +356,8 @@ public class CertificateManagerImpl implements CertificateManager {
             }
             certificateDecorator = new CertificateDecorator();
             certificateDecorator.setFileName(file.getName());
+            certificateDecorator.setDirName(file.getParentFile().getPath());
+            certificateDecorator.setSystemGenerated(isSystemGenerated(file.getName()));
             certificates.add(certificateDecorator);
         }
         return certificates;
@@ -348,7 +368,7 @@ public class CertificateManagerImpl implements CertificateManager {
             FileUtils.deleteDirectory(new File(getCATmpDir()));
         } catch (IOException ex) {
             LOG.error("Cannot delete temporary directory");
-            //Temporary path cannot be deleted
+            // Temporary path cannot be deleted
         }
     }
 
@@ -375,8 +395,8 @@ public class CertificateManagerImpl implements CertificateManager {
         try {
             Runtime runtime = Runtime.getRuntime();
             String[] cmdLine = new String[] {
-                m_binCertDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY, DEFAULTS_FLAG,
-                PARAMETERS_FLAG, PROPERTIES_FILE,
+                m_binCertDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY,
+                DEFAULTS_FLAG, PARAMETERS_FLAG, PROPERTIES_FILE,
             };
             Process proc = runtime.exec(cmdLine);
             LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));

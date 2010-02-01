@@ -40,6 +40,19 @@
       row="ognl:currentRow"
       selections="bean:selections"
       converter="bean:certificateConverter">
+      <span jwcid="fileNameColumnValue@Block">
+        <span jwcid="@If" condition="ognl:currentRow.systemGenerated">
+          <span jwcid="link@common/DownloadLink"
+            fileName="ognl:currentRow.fileName"
+            dirName="ognl:currentRow.dirName"
+            contentType="literal:application/octet-stream">
+              <span jwcid="@Insert" value="ognl:currentRow.fileName"/>
+          </span>
+        </span>
+        <span jwcid="@Else">
+          <span jwcid="@Insert" value="ognl:currentRow.fileName"/>
+        </span>
+      </span>
       <span jwcid="certDescriptionColumnValue@Block">
         <ul class="settingDescription">
 	    <span jwcid="@LinkSubmit" listener="listener:clickRow">

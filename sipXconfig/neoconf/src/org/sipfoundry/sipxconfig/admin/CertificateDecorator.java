@@ -17,6 +17,8 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 public class CertificateDecorator implements Comparable, PrimaryKeySource, Serializable {
     private String m_fileName;
+    private String m_dirName;
+    private boolean m_systemGenerated;
 
     public int compareTo(Object certificate) {
         return m_fileName.compareTo(((CertificateDecorator) certificate).getFileName());
@@ -55,6 +57,22 @@ public class CertificateDecorator implements Comparable, PrimaryKeySource, Seria
 
     public void setFileName(String fileName) {
         m_fileName = fileName;
+    }
+
+    public String getDirName() {
+        return m_dirName;
+    }
+
+    public void setDirName(String dirName) {
+        m_dirName = dirName;
+    }
+
+    public boolean isSystemGenerated() {
+        return m_systemGenerated;
+    }
+
+    public void setSystemGenerated(boolean systemGenerated) {
+        m_systemGenerated = systemGenerated;
     }
 
 }
