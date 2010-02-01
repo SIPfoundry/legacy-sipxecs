@@ -150,7 +150,7 @@ public class CpDialog {
             }        
             
             if(m_choice.getIvrChoiceReason() == IvrChoiceReason.TIMEOUT) {
-                m_choice = menu.collectDigit(m_loc.getPromptList("disc_warn"), validDigits);
+                m_choice = menu.collectDigit(m_loc.getPromptList("disc_warn"), validDigits + "#");
                 warningGiven = true;
             }
              
