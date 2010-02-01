@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 public class Distributions {
-
+    
     private HashMap<String, Vector<String>>m_Lists = new HashMap<String, Vector<String>>();
     private StringBuilder m_indices = new StringBuilder(); // A string with each index concatenated.
     

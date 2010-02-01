@@ -30,7 +30,7 @@ public class MessageDescriptorReader extends XmlReaderImpl<MessageDescriptor> {
         md.setSubject(valueOf("subject"));
         md.setPriority((Priority.valueOfById(valueOf("priority"))));
         
-        List<Element> recipients = m_root.selectNodes("other_recipient");
+        List<Element> recipients = m_root.selectNodes("otherrecipient");
         for (Element recipient : recipients) {
             md.addOtherRecipient(recipient.getTextTrim());
         }
