@@ -18,9 +18,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamImplicit;
 import com.thoughtworks.xstream.converters.basic.DateConverter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 import com.thoughtworks.xstream.mapper.MapperWrapper;
@@ -227,6 +229,7 @@ public class Voicemail implements Comparable {
         static final String TIMESTAMP_FORMAT = "EEE, d-MMM-yyyy hh:mm:ss aaa z";
         // see XCF-1519
         static final String TIMESTAMP_FORMAT_NO_ZONE = "EEE, d-MMM-yyyy hh:mm:ss aaa";
+
         private Date m_timestamp;
         private int m_durationsecs;
         private String m_subject;
@@ -234,12 +237,19 @@ public class Voicemail implements Comparable {
         private String m_priority;
         private String m_id;
 
+        @XStreamImplicit(itemFieldName="otherrecipient")
+        private List<String> m_otherRecipients;
+
         public int getDurationsecs() {
             return m_durationsecs;
         }
 
         public int getDurationMillis() {
             return getDurationsecs() * 1000;
+        }
+
+        public List<String> getOtherRecipients() {
+            return m_otherRecipients;
         }
 
         public String getFrom() {
