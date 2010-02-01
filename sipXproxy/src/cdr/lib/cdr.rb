@@ -40,7 +40,7 @@ class CallLeg
     end      
     @status ||= Cdr::CALL_IN_PROGRESS_TERM
     @to_tag = cse.to_tag
-    @callee_contact = Utils.contact_without_params(cse.contact)
+    @callee_contact = Utils.contact_without_params(cse.contact) if !@callee_contact
     @callee_route = cse.callee_route
   end
   
