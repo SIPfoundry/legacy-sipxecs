@@ -237,7 +237,7 @@ public class Voicemail implements Comparable {
         private String m_priority;
         private String m_id;
 
-        @XStreamImplicit(itemFieldName="otherrecipient")
+        @XStreamImplicit(itemFieldName = "otherrecipient")
         private List<String> m_otherRecipients;
 
         public int getDurationsecs() {
