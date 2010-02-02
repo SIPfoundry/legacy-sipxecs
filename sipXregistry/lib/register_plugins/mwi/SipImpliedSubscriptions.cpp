@@ -274,7 +274,7 @@ void SipImpliedSubscriptions::takeAction(
                     );
 
       // This phone - accepts message waiting notifies,
-      // but don't subscribe to them, so we'll do it for them.
+      // but doesn't subscribe to them, so we'll do it for them.
       SipMessage subscribeRequest;
       UtlString  callId;
       UtlString  fromTag;
