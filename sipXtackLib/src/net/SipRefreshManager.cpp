@@ -579,7 +579,7 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
       if (s)
       {
          existingRefreshState = TRUE;
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing refresh state '%s'",
                        earlyDialogHandle.data(),
                        s->data());
@@ -588,14 +588,14 @@ UtlBoolean SipRefreshManager::initiateRefresh(SipMessage* subscribeOrRegisterReq
       else if (mpDialogMgr->dialogExists(earlyDialogHandle))
       {
          existingDialogState = TRUE;
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing dialog state",
                        earlyDialogHandle.data());
       }
       else if (mpDialogMgr->earlyDialogExistsFor(earlyDialogHandle))
       {
          existingDialogState = TRUE;
-         OsSysLog::add(FAC_SIP, PRI_ERR,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRefreshManager::initiateRefresh called with dialog handle '%s' that matches existing early dialog state",
                        earlyDialogHandle.data());
       }

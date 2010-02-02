@@ -1186,7 +1186,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
          // set, reestablish the subscription.
          if (!groupState->mStarting && groupState->mReestablish)
          {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipSubscribeClient::refreshCallback REFRESH_REQUEST_FAILED triggering reestablishment for group '%s'",
                           earlyDialogHandle);
 
