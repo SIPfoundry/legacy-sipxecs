@@ -164,15 +164,16 @@ p.message
 
 table.component
 {
-	border-color: #1B2B31;
+	border-color: #c0c0c2;
 	background: #fff;
+	color:#595A5B;
 }
 
 table.component thead,
 table.component tbody tr th
 {
-	color: #fff;
-	background: #355563;
+	color: #595a5b;
+	background: #e6e6e6 url(/sipxconfig/images/layout/tableHeaderBackground.png) repeat-x scroll left top;
 }
 
 table.component thead tr th,
@@ -183,18 +184,18 @@ table.component tbody tr th
 
 table.component th a
 {
-	color: #fff;
+	color: #595A5B;
 }
 
 table.component tfoot tr td
 {
 	background: #FFFFFF;
-	border-color: #1B2B31;
+	border-color: #C0C0C2;
 }
 
 tr.even, tr.even-unheard
 {
-	background: #D3E2E8;
+	background: #fff;
 }
 
 tr.odd, tr.odd-unheard
