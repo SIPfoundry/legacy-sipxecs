@@ -77,8 +77,8 @@ Appearance::Appearance( AppearanceAgent* appAgent,
 Appearance::~Appearance()
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                 "Appearance::~ mUri = '%s'",
-                 mUri.data());
+                 "Appearance::~ this = %p, mUri = '%s'",
+                 this, mUri.data());
 
    // Delete this Appearance from mSubscribeMap.
    getAppearanceGroupSet().deleteSubscribeMapping(&mSubscriptionEarlyDialogHandle);
@@ -95,7 +95,7 @@ Appearance::~Appearance()
    OsTask::delay(100);
    OsSysLog::add(FAC_SAA,
                  ret ? PRI_DEBUG : PRI_WARNING,
-                 "Appearance::~ endSubscriptionGroup %s mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
+                 "Appearance::~ endSubscriptionGroup %s: mUri = '%s', mSubscriptionEarlyDialogHandle = '%s'",
                  ret ? "succeeded" : "failed",
                  mUri.data(),
                  mSubscriptionEarlyDialogHandle.data());
@@ -110,9 +110,9 @@ void Appearance::subscriptionEventCallback(
    const UtlString* subscriptionState)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                 "Appearance::subscriptionEventCallback "
+                 "Appearance::subscriptionEventCallback this = %p, "
                  "uri = '%s', newState = %d, earlyDialogHandle = '%s', dialogHandle = '%s', subscriptionState = '%s'",
-                 mUri.data(), newState, mSubscriptionEarlyDialogHandle.data(),
+                 this, mUri.data(), newState, mSubscriptionEarlyDialogHandle.data(),
                  dialogHandle->data(), subscriptionState->data());
 
    switch (newState)
@@ -147,6 +147,11 @@ void Appearance::subscriptionEventCallback(
          getAppearanceGroup()->publish(true, true, lPartialContent);
          delete lPartialContent;
       }
+
+      // our subscription might be refreshed, but any outstanding dialogs have been terminated,
+      // so reset to default
+      mbShortTimeout = false;
+
       OsSysLog::add(FAC_SAA, PRI_INFO,
                     "Appearance::subscriptionEventCallback "
                     "subscription terminated for uri = '%s', dialogHandle = '%s'",
@@ -182,8 +187,8 @@ void Appearance::getDialogs(SipDialogEvent *content)
 bool Appearance::terminateDialogs(bool terminateHeldDialogs)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
-                 "Appearance::terminateDialogs mUri = '%s': terminating %zu dialogs",
-                 mUri.data(), mDialogs.entries());
+                 "Appearance::terminateDialogs this = %p, mUri = '%s': terminating %zu dialogs",
+                 this, mUri.data(), mDialogs.entries());
    UtlHashMapIterator itor(mDialogs);
    UtlString* handle;
    bool ret = false;  // nothing changed
@@ -243,8 +248,8 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
          pNewDialog->getLocalParameter("+sip.rendering", rendering);
          pNewDialog->getState(dialogState, event, code);
          OsSysLog::add(FAC_SAA, PRI_DEBUG,
-               "Appearance::updateState received %s update for: '%s', appearance '%s', state '%s', rendering '%s'",
-               state.data(), mUri.data(), appearanceId.data(), dialogState.data(), rendering.data());
+               "Appearance::updateState this = %p received %s update for '%s', appearance '%s', state '%s', rendering '%s'",
+               this, state.data(), mUri.data(), appearanceId.data(), dialogState.data(), rendering.data());
 
          // is this an update for an existing subscription, or new data?
          UtlString dialogId;
