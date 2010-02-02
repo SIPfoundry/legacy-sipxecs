@@ -6,6 +6,7 @@ import gov.nist.javax.sip.DialogTimeoutEvent;
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipListenerExt;
 import gov.nist.javax.sip.message.RequestExt;
+import gov.nist.javax.sip.message.SIPRequest;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -35,7 +36,21 @@ public class SipListenerImpl implements SipListenerExt {
 
     }
 
-   
+    class SstResponseSender implements Runnable {
+
+        private SipServerTransaction sst;
+        SstResponseSender(SipServerTransaction sst ){
+            this.sst = sst;
+        }
+        @Override
+        public void run() {
+        
+            sst.sendResponses();
+            
+           
+        }
+        
+    }
 
     public void processRequest(RequestEvent requestEvent) {
         try {
@@ -45,7 +60,7 @@ public class SipListenerImpl implements SipListenerExt {
 
             ServerTransaction serverTransaction = requestEvent.getServerTransaction();
             SipProvider sipProvider = (SipProvider) requestEvent.getSource();
-            if (serverTransaction == null) {
+            if (serverTransaction == null && ! request.getMethod().equals(Request.ACK)) {
                 serverTransaction = sipProvider.getNewServerTransaction(request);
             }
 
@@ -57,49 +72,48 @@ public class SipListenerImpl implements SipListenerExt {
             Collection<SipServerTransaction> transactions  = endpoint.findSipServerTransaction(request);
             
             if ( transactions.isEmpty())  {
+                
                 /*
-                 * Could not find a matching server transaction. Find a ST where the From
-                 * and To tags match. 
-                 */
-                 Dialog dialog = requestEvent.getDialog();
+                 * Could not find a matching server transaction. 
+                  */
+                
+                 /*String dialogId = ((SIPRequest) (requestEvent.getRequest())).getDialogId(true);
+                 SipDialog sipDialog = SipTester.getDialog(dialogId);
+                 sipDialog.setLastRequestReceived(request);*/
                  
-                 if (dialog != null  ){
-                     SipDialog sipDialog = (SipDialog) dialog.getApplicationData();
-                     if ( sipDialog != null ) {
-                         sipDialog.setLastRequestReceived(request);
-                     }
-                 } else {
-                     logger.debug("Dialog is null");
-                 }
-                 
+                
                  
                  if (! request.getMethod().equals(Request.ACK)) {
                      Response response = SipTester.getMessageFactory().createResponse(
                                 Response.OK, request);
                      serverTransaction.sendResponse(response);
                  }
+                 return;
                
             }
             
            
             for (SipServerTransaction sst : transactions) {
-                serverTransaction.setApplicationData(sst);
-                sst.setServerTransaction(serverTransaction);
+                if ( serverTransaction != null ) {
+                    serverTransaction.setApplicationData(sst);
+                    sst.setServerTransaction(serverTransaction);
+                    SipTester.mapViaParameters(sst.getSipRequest().getSipRequest(),request);
+                }
                 String dialogId = sst.getDialogId();
                 SipDialog sipDialog = SipTester.getDialog(dialogId);
+                logger.debug("Emulating server Transaction at frame " + sst.getSipRequest().getFrameId());
                 if (sipDialog != null) {
                     sipDialog.setLastRequestReceived(request);
                 } else {
                     logger.debug("Could not find a sip dialog "  + request.getFirstLine());
                 }
                 sst.getSipRequest().setRequestEvent(requestEvent);
-                
-                sst.sendResponses();
-                
+                if ( ! request.getMethod().equals(Request.ACK)) {
+                    new Thread( new SstResponseSender(sst)).start();
+                }
                 for (SipClientTransaction ct : sst.getSipRequest().getPostConditions()) {
                     ct.removePrecondition(sst.getSipRequest());
                 }
-               
             }
 
         } catch (Exception ex) {
@@ -114,9 +128,14 @@ public class SipListenerImpl implements SipListenerExt {
             String method = SipUtilities.getCSeqMethod(response);
          
             
-            if (method.equals(Request.INVITE) || method.equals(Request.SUBSCRIBE)
-                    || method.equals(Request.NOTIFY) || method.equals(Request.PRACK)
-                    || method.equals(Request.BYE) || method.equals(Request.REFER) || method.equals(Request.REGISTER)) {
+            if (method.equals(Request.INVITE) 
+                    || method.equals(Request.SUBSCRIBE)
+                    || method.equals(Request.NOTIFY) 
+                    || method.equals(Request.PRACK)
+                    || method.equals(Request.BYE) 
+                    || method.equals(Request.REFER) 
+                    || method.equals(Request.REGISTER)
+                    || method.equals(Request.CANCEL)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
                 if ( ctx == null ) {
                     System.out.println("retransmission -- ingoring");

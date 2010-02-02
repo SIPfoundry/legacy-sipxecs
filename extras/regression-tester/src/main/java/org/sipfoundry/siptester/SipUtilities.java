@@ -11,6 +11,8 @@ import gov.nist.javax.sip.message.MessageFactoryExt;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URLDecoder;
 import java.text.ParseException;
@@ -563,10 +565,11 @@ public class SipUtilities {
      * @param newMessage -- the new message to copy headers into.
      * @param newMessage
      */
-    public static void copyHeaders(Message message, SipMessage triggerMessage,
+    public static void copyHeaders(SipMessage traceMessage, SipMessage triggerMessage,
             Message newMessage, TraceEndpoint traceEndpoint) {
         try {
-
+            Message message = traceMessage.getSipMessage();
+            logger.debug("message = " + message);
             if (triggerMessage instanceof SipRequest) {
                 SipRequest sipRequest = (SipRequest) triggerMessage;
                 Request request = sipRequest.getRequestEvent().getRequest();
@@ -623,7 +626,7 @@ public class SipUtilities {
              */
             if (logger.isDebugEnabled()) {
                 Header newHeader = SipTester.getHeaderFactory().createHeader(
-                        "x-sipx-original-branch", oldBranch);
+                        "x-sipx-emulated-frame", Integer.toString(traceMessage.getFrameId()));
                 newMessage.setHeader(newHeader);
             }
             newMessage.removeHeader(RecordRouteHeader.NAME);
@@ -809,8 +812,9 @@ public class SipUtilities {
      * 
      * @return emulated INVITE or null
      */
-    public static RequestExt createRequest(RequestExt sipRequest, SipMessage triggeringMessage,
+    public static RequestExt createRequest(SipRequest traceRequest, SipMessage triggeringMessage,
             EmulatedEndpoint endpoint) throws Exception {
+        RequestExt sipRequest = traceRequest.getSipRequest();
         SipURI requestUri = (SipURI) sipRequest.getRequestURI();
         SipURI toSipUri = (SipURI) sipRequest.getToHeader().getAddress().getURI();
         SipURI fromSipUri = (SipURI) sipRequest.getFromHeader().getAddress().getURI();
@@ -823,23 +827,48 @@ public class SipUtilities {
         FromHeader fromHeader = SipTester.getHeaderFactory().createFromHeader(newFromAddress,
                 fromTag);
         Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri,endpoint.getTraceEndpoint()));
-        ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, null);
+        String toTag = sipRequest.getToHeader().getTag();
+        ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, toTag);
 
-        // CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
-        CallIdHeader callIdHeader = provider.getNewCallId();
+        CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
+        //CallIdHeader callIdHeader = provider.getNewCallId();
 
         CSeqHeader cseqHeader = sipRequest.getCSeqHeader();
 
-        String viaHost = SipTester.getTesterConfig().getTesterIpAddress();
-        int viaPort = endpoint.getPort();
-        String transport = endpoint.getTraceEndpoint().getDefaultTransport();
-
-        ViaHeader viaHeader = SipTester.getHeaderFactory().createViaHeader(viaHost, viaPort,
-                transport, null);
-
         LinkedList<ViaHeader> viaList = new LinkedList<ViaHeader>();
 
-        viaList.add(viaHeader);
+      
+        
+        Iterator<ViaHeader> viaHeaders = sipRequest.getHeaders(ViaHeader.NAME);
+        boolean topmostVia = true;
+        while ( viaHeaders.hasNext()) {
+            ViaHeader vh  = viaHeaders.next();
+            String mappedHostPort = null;
+            if ( topmostVia ) {
+                 String mappedHost = SipTester.getMappedAddress(vh.getHost());
+                 mappedHostPort = mappedHost + ":" + endpoint.getPort();
+            } else {
+                 mappedHostPort = SipTester.getMappedAddress(vh.getHost() + ":" + 
+                    ( vh.getPort() == -1 ? 5060 : vh.getPort() ));
+            }
+            String transport = vh.getTransport();
+            ViaHeader viaHeader = (ViaHeader) SipTester.getHeaderFactory().createHeader("Via: SIP/2.0/" 
+                    + transport.toUpperCase() + " "+mappedHostPort);
+          
+            viaHeader.setBranch(vh.getBranch());
+            Iterator<String> parameters = vh.getParameterNames();
+            while (parameters.hasNext()) {
+                String parameter = parameters.next();
+                String value = vh.getParameter(parameter);
+                String parameterValue = SipTester.getMappedViaParameter(parameter,value);
+                if ( !parameter.equals("rport") && !parameter.equals("branch")) {
+                    viaHeader.setParameter(parameter, parameterValue);
+                }
+               
+            }
+            viaList.add(viaHeader);
+          
+        } 
 
         byte[] content = sipRequest.getRawContent();
 
@@ -894,7 +923,7 @@ public class SipUtilities {
             newRequest.addHeader(newRouteHeader);
         }
 
-        SipUtilities.copyHeaders(sipRequest, triggeringMessage, newRequest, endpoint.getTraceEndpoint());
+        SipUtilities.copyHeaders(traceRequest, triggeringMessage, newRequest, endpoint.getTraceEndpoint());
 
         newRequest.removeHeader(RecordRouteHeader.NAME);
         return (RequestExt) newRequest;
@@ -902,9 +931,9 @@ public class SipUtilities {
     }
 
     public static ResponseExt createResponse(EmulatedEndpoint endpoint, RequestExt request,
-            SipResponse sipResponse) {
+            SipResponse traceResponse) {
         try {
-            Response response = sipResponse.getSipResponse();
+            Response response = traceResponse.getSipResponse();
             int statusCode = response.getStatusCode();
             ResponseExt newResponse = (ResponseExt) SipTester.getMessageFactory().createResponse(
                     statusCode, request);
@@ -914,7 +943,7 @@ public class SipUtilities {
             ContactHeader contactHeader = SipUtilities.createContactHeader(endpoint
                     .getListeningPoint(transport));
             newResponse.setHeader(contactHeader);
-            String toTag = sipResponse.getSipResponse().getToHeader().getTag();
+            String toTag = traceResponse.getSipResponse().getToHeader().getTag();
 
             if (toTag != null) {
                 ToHeader newTo = newResponse.getToHeader();
@@ -927,7 +956,7 @@ public class SipUtilities {
                 newResponse.setContent(content, contentTypeHeader);
             }
 
-            copyHeaders(response, null, newResponse,endpoint.getTraceEndpoint());
+            copyHeaders(traceResponse, null, newResponse,endpoint.getTraceEndpoint());
 
             return newResponse;
         } catch (Exception ex) {
@@ -1040,4 +1069,32 @@ public class SipUtilities {
 
     }
 
+    
+    public static Request createAck(SipRequest traceRequest, SipMessage triggeringMessage,
+            EmulatedEndpoint endpoint, Response response) throws Exception {
+       Request ackRequest = SipUtilities.createRequest(traceRequest, triggeringMessage, endpoint);
+       ContactHeader cth  = (ContactHeader) response.getHeader(ContactHeader.NAME);
+       RouteHeader routeHeader = SipTester.getHeaderFactory().createRouteHeader(cth.getAddress());
+       ((SipURI) routeHeader.getAddress().getURI()).setLrParam();
+       ackRequest.setHeader(routeHeader);
+       ackRequest.setHeader(response.getHeader(FromHeader.NAME));
+       ackRequest.setHeader(response.getHeader(ToHeader.NAME));
+       return ackRequest;
+    }
+    
+    static String getStackTrace() {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        StackTraceElement[] ste = new Exception().getStackTrace();
+        // Skip the log writer frame and log all the other stack frames.
+        for (int i = 0; i < ste.length; i++) {
+            String callFrame = "[" + ste[i].getFileName() + ":"
+                    + ste[i].getLineNumber() + "]";
+            pw.print(callFrame);
+        }
+        pw.close();
+        return sw.getBuffer().toString();
+      
+    }
+    
 }

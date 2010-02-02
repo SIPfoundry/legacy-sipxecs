@@ -191,6 +191,8 @@ public class EmulatedEndpoint extends HostPort {
                                 + ctx.getSipRequest().getFrameId());
                         if (ctx.checkPreconditions() && !ctx.processed) {
                             ctx.createAndSend();
+                        } else {
+                            System.out.println("Could not emulate " + ctx.getSipRequest().getFrameId());
                         }
                     }
                     doneFlag = true;
@@ -215,6 +217,18 @@ public class EmulatedEndpoint extends HostPort {
             }
         }
 
+        if (retval.isEmpty()) {
+            logger.debug("Could not find transaction template. Looking for first matching transaction.");
+            it = this.serverTransactions.iterator();
+            while (it.hasNext()) {
+                SipServerTransaction sst = it.next();
+                  if (request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod())) {
+                    it.remove();
+                    retval.add(sst);
+                    break;            
+                }
+            }
+         }
         if (retval.isEmpty()) {
             logger.debug("Could not find a matching server transaction for the incoming request");
         }

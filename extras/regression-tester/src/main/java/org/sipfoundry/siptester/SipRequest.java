@@ -4,6 +4,7 @@ import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.RequestExt;
 
 import java.io.File;
+import java.util.HashSet;
 
 import javax.sip.RequestEvent;
 
@@ -14,6 +15,7 @@ public class SipRequest extends SipMessage {
     private RequestEvent requestEvent;
 
     private HostPort hostPort;
+   
     
     
     public SipRequest(RequestExt sipRequest, long time, String frameId) {
@@ -22,6 +24,8 @@ public class SipRequest extends SipMessage {
         this.setFrameId(frameId);
     }
 
+   
+    
     
     /**
      * @return the sipRequest

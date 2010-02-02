@@ -42,6 +42,11 @@ public class SipStackBean extends AbstractSipStackBean {
         Properties properties = new Properties();
         properties.setProperty("gov.nist.javax.sip.DELIVER_UNSOLICITED_NOTIFY", "true");
         properties.setProperty("gov.nist.javax.sip.MIN_KEEPALIVE_TIME_SECONDS", "1");
+        if ( this.endpoint.getTraceEndpoint().getBehavior() == Behavior.PROXY ) {
+            properties.setProperty("javax.sip.AUTOMATIC_DIALOG_SUPPORT", "off");
+            
+        }
+        properties.setProperty("gov.nist.javax.sip.THREAD_POOL_SIZE", "32");
         return properties;
     }
 

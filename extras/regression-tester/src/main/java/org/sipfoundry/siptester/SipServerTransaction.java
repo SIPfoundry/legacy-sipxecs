@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.sip.Dialog;
 import javax.sip.ServerTransaction;
+import javax.sip.TransactionState;
 import javax.sip.header.RSeqHeader;
 import javax.sip.header.RequireHeader;
 import javax.sip.header.ViaHeader;
@@ -116,8 +117,11 @@ public class SipServerTransaction extends SipTransaction implements
      * @return
      */
     public String getDialogId() {
-        
-        return this.dialogId;
+        if (sipRequest.getSipRequest().getMethod().equals(Request.ACK)) {
+            return ((SIPRequest) sipRequest.getSipRequest()).getDialogId(true);
+        } else {
+            return this.dialogId;
+        }
     }
 
     /**
@@ -144,10 +148,12 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void setBranch(String branch) {
         this.branch = branch;
-        logger.debug("setBranch " + branch);
+        logger.debug("setBranch " + this + " branch = "  + branch + " Endpoint " + this.endpoint.getPort());
     }
 
     public String getBranch() {
+        logger.debug("SipServerTransaction : " + this + " getBranch : "  + this.getSipRequest().getSipRequest().getMethod() 
+                + " branch  " +  this.branch);
         return this.branch;
     }
     
@@ -173,6 +179,8 @@ public class SipServerTransaction extends SipTransaction implements
     }
 
     public void sendResponses() {
+        int responseToSendFrameId = 0;
+           
         try {
             logger.debug("serverTransactionId " + this.getBranch() + " tid = " + this.getTransactionId());
             RequestExt request = (RequestExt) serverTransaction.getRequest();
@@ -181,15 +189,18 @@ public class SipServerTransaction extends SipTransaction implements
             }
             
             SipResponse finalResponse = this.responses.last();
-            
-            Iterator<SipResponse> it = this.responses.iterator();
+             Iterator<SipResponse> it = this.responses.iterator();
             while (it.hasNext()) {
                 SipResponse nextResponse = it.next();
-                
-                System.out.println("sendingResponse at frame " + nextResponse.getFrameId() +
-                        " statusCode = " + nextResponse.getStatusCode());
+                nextResponse.waitForPrecondition();
+                System.out.println(this.getSipRequest().getFrameId() + 
+                        " sendingResponse at frame " + nextResponse.getFrameId() +
+                        " statusCode = " + nextResponse.getStatusCode() 
+                        + " transactonState = " + serverTransaction.getState());
                 ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, nextResponse);
-                
+                if ( serverTransaction.getState() == TransactionState.TERMINATED ) {
+                    continue;
+                }
                 if ( nextResponse == finalResponse) {
                     String correlator = SipUtilities.getCorrelator(newResponse);
                     for (SipServerTransaction st: this.matchingServerTransactions) {
@@ -218,9 +229,14 @@ public class SipServerTransaction extends SipTransaction implements
                              newResponse.getCSeqHeader().getMethod().equals(Request.INVITE)) {
                          sipDialog.setResponseToSend(newResponse);
                      }
+                     responseToSendFrameId = nextResponse.getFrameId();
                      serverTransaction.sendResponse(newResponse);
-                 } else {
-                    serverTransaction.getDialog().sendReliableProvisionalResponse(newResponse);
+                } else {
+                    if ( serverTransaction.getDialog() != null ) {
+                        serverTransaction.getDialog().sendReliableProvisionalResponse(newResponse);
+                    } else {
+                        serverTransaction.sendResponse(newResponse);
+                    }
                     new Thread(new Runnable() {
 
                         @Override
@@ -228,22 +244,27 @@ public class SipServerTransaction extends SipTransaction implements
                             try {      
                                 String dialogId = getDialogId();
                                 SipDialog dialog = SipTester.getDialog(dialogId);
-                                dialog.waitForPrack();
                                 sendResponses();
                             } catch (Exception ex) {
                                 SipTester.fail("Unexpected exception", ex);
                             }
                         }
                     }).start();
+
                     return;
                 }
 
             }
         } catch (Exception ex) {
+            System.out.println("Error sending response " + responseToSendFrameId);
             SipTester.fail("Unexpected exception ", ex);
 
         }
 
+    }
+    
+    public ConcurrentSkipListSet<SipResponse> getResponses () {
+        return this.responses;
     }
 
     public void setServerTransaction(ServerTransaction serverTransaction) {
@@ -252,7 +273,7 @@ public class SipServerTransaction extends SipTransaction implements
         DialogExt dialog = (DialogExt) this.serverTransaction.getDialog();
         String dialogId = this.getDialogId();
         logger.debug("setServerTransaction: dialogId = " +  dialogId);
-        if ( this.dialog != null ) {
+        if ( this.dialog != null && dialog != null ) {
              SipDialog sipDialog = this.dialog;
              dialog.setApplicationData(sipDialog);
              sipDialog.setDialog(dialog);
@@ -271,6 +292,8 @@ public class SipServerTransaction extends SipTransaction implements
 
     public void setMatchingServerTransactions(Collection<SipServerTransaction> matchingServerTransactions) {
        this.matchingServerTransactions = matchingServerTransactions;
-    } 
+    }
+
+    
 
 }

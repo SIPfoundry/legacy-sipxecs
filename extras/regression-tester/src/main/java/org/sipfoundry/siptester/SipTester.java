@@ -61,9 +61,15 @@ public class SipTester {
 
     protected static Map<String, SipServerTransaction> serverTransactionMap = new HashMap<String, SipServerTransaction>();
 
-    protected static Map<String, SipDialog> sipDialogs = new HashMap<String, SipDialog>();
+    protected static HashSet<SipDialog> sipDialogs = new HashSet<SipDialog>();
 
     private static Map<String, CapturedLogPacket> capturedPacketMap = new HashMap<String, CapturedLogPacket>();
+    
+    /*
+     * This map is a cache of mapped emulated parameters to actual via header parameters. This
+     * map is set up when we see an inbound request.
+     */
+    private static Map<String,String> traceToActualViaParameters = new HashMap<String,String>();
 
     static {
         try {
@@ -83,6 +89,8 @@ public class SipTester {
     static AtomicBoolean failed = new AtomicBoolean(false);
 
     private static TestMap testMaps;
+
+    private static ConcurrentSkipListSet<SipClientTransaction> runnable;
 
     public static EmulatedEndpoint getEndpoint(String sourceAddress, int port) {
         String key = sourceAddress + ":" + port;
@@ -113,14 +121,16 @@ public class SipTester {
         if (dialogId == null)
             return null;
         else {
-            SipDialog sipDialog = sipDialogs.get(dialogId);
-            if (sipDialog != null) {
-                return sipDialog;
-            } else {
-                sipDialog = new SipDialog();
-                sipDialogs.put(dialogId, sipDialog);
-                return sipDialog;
+            for (SipDialog sipDialog : SipTester.sipDialogs) {
+                if (sipDialog.getDialogIds().contains(dialogId)) {
+                    return sipDialog;
+                }
             }
+           
+            SipDialog sipDialog = new SipDialog(dialogId);
+            sipDialogs.add(sipDialog);
+            return sipDialog;
+           
         }
     }
 
@@ -263,7 +273,15 @@ public class SipTester {
         String mappedAddress = testMaps.getMappedAddress(traceAddress);
         if (mappedAddress == null) {
             logger.debug("Address Not mapped " + traceAddress);
-            return traceAddress;
+            String[] parts = traceAddress.split(":");
+            String hostPart = parts[0];
+            String portPart = null;
+            if ( parts.length > 1 ) {
+                portPart = traceAddress.split(":")[1];
+            }
+            if ( testMaps.getMappedAddress(hostPart) != null) {
+                return testMaps.getMappedAddress(hostPart) + (portPart != null ?  ":" + portPart : "") ;
+            } else return traceAddress;
         } else {
             return mappedAddress;
         }
@@ -275,11 +293,23 @@ public class SipTester {
         logger.error(string, ex);
         System.err.println("Exception during processing ");
         ex.printStackTrace();
+        for (SipClientTransaction ctx : SipTester.runnable) {
+            if ( !ctx.processed ) 
+                ctx.debugPrintHappensBefore();
+        }
         System.exit(-1);
     }
 
     public static void fail(String string) {
+        logger.error(string);
         System.err.println(string);
+        for (SipClientTransaction ctx : SipTester.runnable) {
+            if ( ! ctx.processed )
+                ctx.debugPrintHappensBefore();
+        }
+        for ( SipDialog sipDialog : SipTester.sipDialogs ) {
+            logger.debug("Dialog " + sipDialog + " ids = " + sipDialog.getDialogIds());
+        }
         System.exit(-1);
     }
 
@@ -412,7 +442,7 @@ public class SipTester {
             /*
              * The list of transactions that are runnable.
              */
-            ConcurrentSkipListSet<SipClientTransaction> runnable = new ConcurrentSkipListSet<SipClientTransaction>();
+            SipTester.runnable = new ConcurrentSkipListSet<SipClientTransaction>();
             for (TraceEndpoint traceEndpoint : endpoints.values()) {
                 EmulatedEndpoint endpoint = traceEndpoint.getEmulatedEndpoint();
                 logger.debug("endpoint " + endpoint.getTraceEndpoint().getIpAddress() + "/"
@@ -512,7 +542,7 @@ public class SipTester {
                     SipClientTransaction previousTx = innerIt.next();
                     for (SipResponse sipResponse : previousTx.sipResponses) {
                         if (sipResponse.getTime() < currentTx.getTime() &&
-                                sipResponse.getSipResponse().getStatusCode() != 100 ) {
+                              sipResponse.getSipResponse().getStatusCode() != 100) {
                             currentTx.addHappensBefore(sipResponse);
                             /*
                              * Augment the set of client transactions that
@@ -537,7 +567,24 @@ public class SipTester {
                 while (it1.hasNext()) {
                     SipClientTransaction transaction = it1.next();
                     transaction.setPreconditionSem();
-
+                }
+                
+                
+               
+                for(SipServerTransaction sst : SipTester.serverTransactionMap.values() ) {
+                    
+                    for (SipResponse resp : sst.getResponses()) {
+                        it1 = runnable.iterator();
+                        
+                        while(it1.hasNext()) {
+                            SipClientTransaction sct = it1.next();
+                          
+                            if ( sct.getSipRequest().getTime() < resp.getTime()) {
+                                sct.addPostCondition(resp);
+                            }
+                        }
+                        
+                    }
                 }
             }
 
@@ -659,8 +706,43 @@ public class SipTester {
 
     }
 
-    public static Collection<SipDialog> getDialogs() {
-        return SipTester.sipDialogs.values();
+    /**
+     * Get a mapped trace value for a via parameter.
+     * 
+     * @param parameterName
+     * @param value
+     * @return
+     */
+    public static String getMappedViaParameter(String parameterName, String value) {
+        String key = (parameterName + "=" + value).toLowerCase();
+        if ( SipTester.traceToActualViaParameters.get(key ) != null ) {
+            return SipTester.traceToActualViaParameters.get(key);
+        } else {
+            logger.debug("map not found for " + key);
+            return value;
+        }
     }
+
+    /**
+     * Set up a map of via parameters (trace to actual).
+     * 
+     * @param traceRequest -- trace request from which to extract the
+     * @param request
+     */
+    public static void mapViaParameters(RequestExt traceRequest, RequestExt request) {
+        ViaHeader actualViaHeader = request.getTopmostViaHeader();
+        Iterator<String> parameterNames = traceRequest.getTopmostViaHeader().getParameterNames();
+        while(parameterNames.hasNext()) {
+            String parameterName = parameterNames.next();
+            String emulatedParameterValue = traceRequest.getTopmostViaHeader().getParameter(parameterName);
+            if (actualViaHeader.getParameter(parameterName) != null ) {
+                String key = (parameterName + "=" + emulatedParameterValue).toLowerCase();
+                SipTester.traceToActualViaParameters.put(key, actualViaHeader.getParameter(parameterName));
+            }
+        }
+        
+    }
+
+
 
 }

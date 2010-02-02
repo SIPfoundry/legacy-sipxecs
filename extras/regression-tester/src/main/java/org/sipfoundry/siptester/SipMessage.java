@@ -13,6 +13,7 @@ public abstract class SipMessage implements Comparable<SipMessage> {
     protected long time;   
     private HashSet<SipClientTransaction> postCondition = new HashSet<SipClientTransaction>();
     protected Dialog dialog;
+   
     
     public void addPostCondition(SipClientTransaction previousTx) {
         this.postCondition.add(previousTx);      
@@ -21,6 +22,8 @@ public abstract class SipMessage implements Comparable<SipMessage> {
     public Collection<SipClientTransaction> getPostConditions() {
         return this.postCondition;
     }
+    
+   
     
     
     @Override
