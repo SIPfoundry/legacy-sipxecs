@@ -451,7 +451,11 @@ class SipUtilities {
             
             registrarUri.setTransportParam(itspAccount.getOutboundTransport());
 
-            if (itspAccount.isInboundProxyPortSet()) {
+            /*
+             * If a non standard proxy port has been set, then use it. Otherwise, we do not 
+             * want to set the port, we want DNS SRV mechanisms to kick in.
+             */
+            if (itspAccount.isInboundProxyPortSet() || itspAccount.getInboundProxyPort() != 5060) {
                 registrarUri.setPort(itspAccount.getInboundProxyPort());
             }
             Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
