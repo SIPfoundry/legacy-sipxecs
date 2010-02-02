@@ -110,18 +110,23 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    b.remove(0);
    b.append(BEGIN_DIALOG);
    UtlString singleLine;
-   singleLine = DOUBLE_QUOTE + mId + DOUBLE_QUOTE;
+   singleLine = DOUBLE_QUOTE;
+   XmlEscape(singleLine, mId);
+   singleLine += DOUBLE_QUOTE;
    b += singleLine;
    if (!mCallId.isNull())
    {
       b.append(CALL_ID_EQUAL);
-      singleLine = DOUBLE_QUOTE + mCallId + DOUBLE_QUOTE;
+      singleLine = DOUBLE_QUOTE;
+      XmlEscape(singleLine, mCallId);
+      singleLine += DOUBLE_QUOTE;
       b += singleLine;
    }
 
    if (!mLocalTag.isNull())
    {
       b.append(LOCAL_TAG_EQUAL);
+      // mLocalTag is a token
       singleLine = DOUBLE_QUOTE + mLocalTag + DOUBLE_QUOTE;
       b += singleLine;
    }
@@ -129,6 +134,7 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    if (!mRemoteTag.isNull())
    {
       b.append(REMOTE_TAG_EQUAL);
+      // mRemoteTag is a token
       singleLine = DOUBLE_QUOTE + mRemoteTag + DOUBLE_QUOTE;
       b += singleLine;
    }
@@ -136,6 +142,7 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    if (!mDirection.isNull())
    {
       b.append(DIRECTION_EQUAL);
+      // mDirection is a token
       singleLine = DOUBLE_QUOTE + mDirection + DOUBLE_QUOTE;
       b += singleLine;
    }
@@ -146,6 +153,7 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    if (!mEvent.isNull())
    {
       b.append(EVENT_EQUAL);
+      // mEvent is a token
       singleLine = DOUBLE_QUOTE + mEvent + DOUBLE_QUOTE;
       b += singleLine;
    }
@@ -153,6 +161,7 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    if (!mCode.isNull())
    {
       b.append(CODE_EQUAL);
+      // mCode is a token
       singleLine = DOUBLE_QUOTE + mCode + DOUBLE_QUOTE;
       b += singleLine;
    }
@@ -162,37 +171,40 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    b += singleLine;
 
    // Duration element
-   int duration = mDuration;
-   char durationBuffer[20];
-   if (duration !=0)
+   if (mDuration !=0)
    {
-      duration = OsDateTime::getSecsSinceEpoch() - mDuration;
-      sprintf(durationBuffer, "%d", duration);
-      b += BEGIN_DURATION + UtlString(durationBuffer) + END_DURATION;
+      b += BEGIN_DURATION;
+      b.appendNumber((Int64) OsDateTime::getSecsSinceEpoch() - mDuration);
+      b += END_DURATION;
    }
 
    // Local element
    b.append(BEGIN_LOCAL);
-   UtlString displayName;
    if (!mLocalIdentity.isNull())
    {
       b.append(BEGIN_IDENTITY);
       if (!mLocalDisplay.isNull())
       {
-         displayName = mLocalDisplay;
+         UtlString displayName = mLocalDisplay;
          NameValueTokenizer::frontBackTrim(&displayName, "\"");
          b.append(DISPLAY_EQUAL);
-         singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+         singleLine = DOUBLE_QUOTE;
+         XmlEscape(singleLine, displayName);
+         singleLine += DOUBLE_QUOTE;
          b += singleLine;
       }
 
-      singleLine = END_BRACKET + mLocalIdentity + END_IDENTITY;
+      singleLine = END_BRACKET;
+      XmlEscape(singleLine, mLocalIdentity);
+      singleLine += END_IDENTITY;
       b += singleLine;
    }
 
    if (!mLocalTarget.isNull() && mLocalTarget.compareTo("sip:") != 0)
    {
-      singleLine = BEGIN_TARGET + mLocalTarget + DOUBLE_QUOTE + END_LINE;
+      singleLine = BEGIN_TARGET;
+      XmlEscape(singleLine, mLocalTarget);
+      singleLine += DOUBLE_QUOTE END_LINE;
       b += singleLine;
       // add optional parameters
       UtlDListIterator* iterator = getLocalParameterIterator();
@@ -201,9 +213,9 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
       {
          singleLine = BEGIN_DIALOG_PARAM;
          singleLine += PNAME;
-         singleLine += nvp->data();
+         XmlEscape(singleLine, nvp->data());
          singleLine += PVALUE;
-         singleLine += nvp->getValue();
+         XmlEscape(singleLine, nvp->getValue());
          singleLine += END_DIALOG_PARAM;
          b += singleLine;
       }
@@ -221,22 +233,28 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
    if (!mRemoteIdentity.isNull())
    {
       b.append(BEGIN_IDENTITY);
-      UtlString displayName = mRemoteDisplay;
-      if (!displayName.isNull())
+      if (!mRemoteDisplay.isNull())
       {
+         UtlString displayName = mRemoteDisplay;
          NameValueTokenizer::frontBackTrim(&displayName, "\"");
          b.append(DISPLAY_EQUAL);
-         singleLine = DOUBLE_QUOTE + displayName + DOUBLE_QUOTE;
+         singleLine = DOUBLE_QUOTE;
+         XmlEscape(singleLine, displayName);
+         singleLine += DOUBLE_QUOTE;
          b += singleLine;
       }
 
-      singleLine = END_BRACKET + mRemoteIdentity + END_IDENTITY;
+      singleLine = END_BRACKET;
+      XmlEscape(singleLine, mRemoteIdentity);
+      singleLine += END_IDENTITY;
       b += singleLine;
    }
 
    if (!mRemoteTarget.isNull() && mRemoteTarget.compareTo("sip:") != 0)
    {
-      singleLine = BEGIN_TARGET + mRemoteTarget + DOUBLE_QUOTE + END_LINE;
+      singleLine = BEGIN_TARGET;
+      XmlEscape(singleLine, mRemoteTarget);
+      singleLine += DOUBLE_QUOTE END_LINE;
       b += singleLine;
       // add optional parameters
       UtlDListIterator* iterator = getRemoteParameterIterator();
@@ -245,9 +263,9 @@ void Dialog::getBytes(UtlString& b, ssize_t& l)
       {
          singleLine = BEGIN_DIALOG_PARAM;
          singleLine += PNAME;
-         singleLine += nvp->data();
+         XmlEscape(singleLine, nvp->data());
          singleLine += PVALUE;
-         singleLine += nvp->getValue();
+         XmlEscape(singleLine, nvp->getValue());
          singleLine += END_DIALOG_PARAM;
          b += singleLine;
       }
@@ -996,15 +1014,16 @@ void SipDialogEvent::buildBody(int* version) const
    singleLine = DOUBLE_QUOTE + mDialogState + DOUBLE_QUOTE;
    dialogEvent += singleLine;
 
-   Url entityUri(mEntity);
    dialogEvent.append(ENTITY_EQUAL);
-   singleLine = DOUBLE_QUOTE + entityUri.toString() + DOUBLE_QUOTE;
+   singleLine = DOUBLE_QUOTE;
+   XmlEscape(singleLine, mEntity);
+   singleLine += DOUBLE_QUOTE;
    dialogEvent += singleLine;
    dialogEvent.append(END_LINE);
 
    // Take the lock (we will be modifying the state even though 'this'
    // is read-only).
-   ((SipDialogEvent*)this)->mLock.acquire();
+   (const_cast <SipDialogEvent*> (this))->mLock.acquire();
 
    // Dialog elements
    UtlSListIterator dialogIterator(mDialogs);
@@ -1021,12 +1040,12 @@ void SipDialogEvent::buildBody(int* version) const
    dialogEvent.append(END_DIALOG_INFO);
 
    // Update body text (even though 'this' is read-only).
-   ((SipDialogEvent*)this)->mBody = dialogEvent;
-   ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
+   (const_cast <SipDialogEvent*> (this))->mBody = dialogEvent;
+   (const_cast <SipDialogEvent*> (this))->bodyLength = dialogEvent.length();
    // mVersion is not updated, as that is used only to record
    // the version of parsed events.
 
-   ((SipDialogEvent*)this)->mLock.release();
+   (const_cast <SipDialogEvent*> (this))->mLock.release();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s",
                  mBody.data());

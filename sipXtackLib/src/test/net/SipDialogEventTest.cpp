@@ -25,6 +25,7 @@ class SipDialogEventTest : public CppUnit::TestCase
    CPPUNIT_TEST(testDialogPackageFromPolycom);
    CPPUNIT_TEST(testDialogPackageWithParams);
    CPPUNIT_TEST(testCopyAndSearchDialog);
+   CPPUNIT_TEST(testEscaping);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -332,6 +333,59 @@ public:
 
          copiedDialogEvent.buildBodyGetBytes(&bodyString, &bodyLength);
          ASSERT_STR_EQUAL(modifiedPackageVersion0, bodyString.data());
+      }
+
+   void testEscaping()
+      {
+         const char* testString =
+            "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+            "<dialog-info xmlns=\"urn:ietf:params:xml:ns:dialog-info\" version=\"&version;\" state=\"full\" entity=\"sip:entity&amp;@example.com;&amp;=&amp;\">\n"
+            "<dialog id=\"&lt;&gt;&amp;\" call-id=\"callid&lt;&gt;\" local-tag=\"localtag\" remote-tag=\"remotetag\" direction=\"recipient\">\n"
+            "<state event=\"rejected\" code=\"456\">terminated</state>\n"
+            "<duration>1</duration>\n"
+            "<local>\n"
+            "<identity display=\"local&lt;&gt;&amp;\">sip:local&amp;@example.com;a&amp;=b&amp;</identity>\n"
+            "<target uri=\"sip:localtarget&amp;@example.com;a&amp;=b&amp;\">\n"
+            "</target>\n"
+            "</local>\n"
+            "<remote>\n"
+            "<identity display=\"remote&lt;&gt;&amp;\">sip:remote&amp;@example.com;a&amp;=b&amp;</identity>\n"
+            "<target uri=\"sip:remotetarget&amp;@example.com;a&amp;=b&amp;\">\n"
+            "</target>\n"
+            "</remote>\n"
+            "</dialog>\n"
+            "</dialog-info>\n"
+            ;
+
+         // Allocate *dialog on the heap, so that it is freed when
+         // dialogEvent goes out of scope, and not freed when dialog
+         // goes out of scope.
+         Dialog* dialog =
+            new Dialog("<>&", "callid<>", "localtag", "remotetag", "recipient");
+
+         dialog->setState("terminated", "rejected", "456");
+         dialog->setDuration(OsDateTime::getSecsSinceEpoch());
+
+         dialog->setLocalIdentity("sip:local&@example.com;a&=b&", "local<>&");
+         dialog->setLocalTarget("sip:localtarget&@example.com;a&=b&");
+         dialog->setLocalParameter("localparam", "<>&");
+
+         dialog->setRemoteIdentity("sip:remote&@example.com;a&=b&", "remote<>&");
+         dialog->setRemoteTarget("sip:remotetarget&@example.com;a&=b&");
+         dialog->setRemoteParameter("remoteparam", "<>&");
+
+         SipDialogEvent dialogEvent("full", "sip:entity&@example.com;&=&");
+
+         dialogEvent.insertDialog(dialog);
+
+         sleep(1);              // so that the duration is now 1
+
+         dialogEvent.buildBody(NULL);
+         const char* b;
+         ssize_t l;
+         dialogEvent.getBytes(&b, &l);
+
+         ASSERT_STR_EQUAL(testString, b);
       }
 };
 

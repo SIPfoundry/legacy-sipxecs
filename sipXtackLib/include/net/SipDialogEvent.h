@@ -162,6 +162,7 @@ class Dialog : public UtlContainable
 
    void getState(UtlString& state, UtlString& event, UtlString& code) const;
 
+   // start time of the dialog, or 0 if unknown
    void setDuration(const unsigned long duration);
 
    unsigned long getDuration() const;
@@ -250,7 +251,7 @@ class Dialog : public UtlContainable
    UtlString mCode;
 
    // Variables for duration element
-   long mDuration;
+   long mDuration;              // start time of the dialog, or 0 if unknown
 
    // Variables for replaces element
    UtlString mNewCallId;
