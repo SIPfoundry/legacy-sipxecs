@@ -1250,7 +1250,8 @@ public class BackToBackUserAgent implements Comparable {
                     String peerIdentity;
                     Boolean foundPeerIdentity = false;
                     for (String domain : certIdentities) {
-                        if ( (peerIdentity = Gateway.getPeerIdentities().getUserId(domain)) != null) {
+                        PeerIdentities peers = Gateway.getPeerIdentities();
+                        if ( (peers != null) && (peerIdentity = peers.getUserId(domain)) != null) {
                             // Now attach a signed X-Sipx-Authidentity header with the identity
                             // configured for this connection
                             peerIdentity += "@" + Gateway.getSipxProxyDomain();
