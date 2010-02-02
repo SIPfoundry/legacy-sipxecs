@@ -27,6 +27,10 @@
                                     classpathref="base.path" deprecation="off"> 
                  </javac>
          </target>
+         <target name="jar" depends="compile" description="build jar file">
+         	<jar basedir="${classes}" destfile="regression-tester.jar" />
+         </target>
+           
 	  <target name="clean"  description="clean">
                <delete dir="${classes}" quiet="true" failonerror="false" />
          </target>

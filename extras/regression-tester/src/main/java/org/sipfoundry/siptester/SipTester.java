@@ -511,7 +511,8 @@ public class SipTester {
                 while (innerIt.hasNext()) {
                     SipClientTransaction previousTx = innerIt.next();
                     for (SipResponse sipResponse : previousTx.sipResponses) {
-                        if (sipResponse.getTime() < currentTx.getTime()) {
+                        if (sipResponse.getTime() < currentTx.getTime() &&
+                                sipResponse.getSipResponse().getStatusCode() != 100 ) {
                             currentTx.addHappensBefore(sipResponse);
                             /*
                              * Augment the set of client transactions that

@@ -181,7 +181,7 @@ public class SipClientTransaction extends SipTransaction implements
                     }
                     Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipResponse.getResponseEvent().getResponse()));
                     SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
-                            this.triggeringMessage, ack);
+                            this.triggeringMessage, ack, this.endpoint.getTraceEndpoint());
                     dialog.sendAck(ack);
                     sipDialog.setRequestToSend(ack);
                 } else if (method.equals(Request.PRACK)) {
@@ -198,7 +198,7 @@ public class SipClientTransaction extends SipTransaction implements
                     Response response = sipResponse.getResponseEvent().getResponse();
                     Request prack = dialog.createPrack(response);
                     SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
-                            this.triggeringMessage, prack);
+                            this.triggeringMessage, prack,this.endpoint.getTraceEndpoint());
                     ClientTransaction clientTransaction = provider.getNewClientTransaction(prack);
                     clientTransaction.setApplicationData(this);
                     /*
@@ -222,7 +222,7 @@ public class SipClientTransaction extends SipTransaction implements
                     newRequest = sipDialog.getDialog().createRequest(
                             sipRequest.getMethod());
                     SipUtilities.copyHeaders(this.sipRequest.getSipRequest(),
-                            this.triggeringMessage, newRequest);
+                            this.triggeringMessage, newRequest,this.endpoint.getTraceEndpoint());
 
                     ClientTransaction clientTransaction = provider
                             .getNewClientTransaction(newRequest);
@@ -441,6 +441,7 @@ public class SipClientTransaction extends SipTransaction implements
     
     
     public void addHappensBefore(SipMessage sipMessage) {
+       
         this.happensBefore.add(sipMessage);
         this.triggeringMessage = this.happensBefore.descendingIterator().next();
     }

@@ -457,10 +457,10 @@ public class SipUtilities {
         }
     }
 
-    public static Address remapAddress(Address oldAddress) {
+    public static Address remapAddress(Address oldAddress, TraceEndpoint traceEndpoint) {
         try {
             SipURI sipUri = (SipURI) oldAddress.getURI();
-            SipURI newSipUri = SipUtilities.mapUri(sipUri);
+            SipURI newSipUri = SipUtilities.mapUri(sipUri,traceEndpoint);
             return SipTester.getAddressFactory().createAddress(newSipUri);
         } catch (Exception ex) {
             SipTester.fail("Unexpected exception", ex);
@@ -558,10 +558,13 @@ public class SipUtilities {
     /**
      * This routine copies headers from inbound to outbound responses.
      * 
-     * @param message
+     * @param message -- the message to transform.
+     * @param triggerMessage -- the message that triggered this request.
+     * @param newMessage -- the new message to copy headers into.
      * @param newMessage
      */
-    public static void copyHeaders(Message message, SipMessage triggerMessage, Message newMessage) {
+    public static void copyHeaders(Message message, SipMessage triggerMessage,
+            Message newMessage, TraceEndpoint traceEndpoint) {
         try {
 
             if (triggerMessage instanceof SipRequest) {
@@ -591,20 +594,20 @@ public class SipUtilities {
                         if (newHeader.getName().equals(ReferToHeader.NAME)) {
                             ReferToHeader referToHeader = (ReferToHeader) newHeader;
                             Address address = referToHeader.getAddress();
-                            Address newAddress = remapAddress(address);
+                            Address newAddress = remapAddress(address,traceEndpoint);
                             newHeader = SipTester.getHeaderFactory().createReferToHeader(
                                     newAddress);
                         } else if (newHeader.getName().equals(ReferredByHeader.NAME)) {
                             ReferredByHeader referToHeader = (ReferredByHeader) newHeader;
                             Address address = referToHeader.getAddress();
-                            Address newAddress = remapAddress(address);
+                            Address newAddress = remapAddress(address,traceEndpoint);
                             newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory())
                                     .createReferredByHeader(newAddress);
 
                         } else if (newHeader.getName().equals(RouteHeader.NAME)) {
                             RouteHeader routeHeader = (RouteHeader) newHeader;
                             Address address = routeHeader.getAddress();
-                            Address newAddress = remapAddress(address);
+                            Address newAddress = remapAddress(address,traceEndpoint);
                             newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory())
                                     .createRouteHeader(newAddress);
 
@@ -660,7 +663,7 @@ public class SipUtilities {
 
     }
 
-    public static SipURI mapUri(SipURI uri) {
+    public static SipURI mapUri(SipURI uri, TraceEndpoint traceEndpoint) {
         try {
             /*
              * Find the UserAgent that corresponds to the destination of the INVITE.
@@ -670,7 +673,7 @@ public class SipUtilities {
             int toPort = uri.getPort();
             String targetUser = uri.getUser();
 
-            if (targetUser != null) {
+            if (targetUser != null /*&& traceEndpoint.getBehavior() == Behavior.UA*/ ) {
                 ValidUsersXML validUsers = SipTester.getTraceValidUsers();
                 if (toDomain.equals(SipTester.getTraceDomainName())) {
                     for (User user : ValidUsersXML.GetUsers()) {
@@ -813,13 +816,13 @@ public class SipUtilities {
         SipURI fromSipUri = (SipURI) sipRequest.getFromHeader().getAddress().getURI();
         String method = sipRequest.getMethod();
         SipProvider provider = endpoint.getProvider("udp");
-        SipURI newRequestUri = mapUri(requestUri);
-        SipURI newFromURI = mapUri(fromSipUri);
+        SipURI newRequestUri = mapUri(requestUri,endpoint.getTraceEndpoint());
+        SipURI newFromURI = mapUri(fromSipUri,endpoint.getTraceEndpoint());
         Address newFromAddress = SipTester.getAddressFactory().createAddress(newFromURI);
         String fromTag = sipRequest.getFromHeader().getTag();
         FromHeader fromHeader = SipTester.getHeaderFactory().createFromHeader(newFromAddress,
                 fromTag);
-        Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri));
+        Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri,endpoint.getTraceEndpoint()));
         ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, null);
 
         // CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
@@ -859,7 +862,7 @@ public class SipUtilities {
             ReferToHeader oldReferToHeader = (ReferToHeader) sipRequest
                     .getHeader(ReferToHeader.NAME);
             SipURI oldUri = (SipURI) oldReferToHeader.getAddress().getURI();
-            SipURI newUri = SipUtilities.mapUri(oldUri);
+            SipURI newUri = SipUtilities.mapUri(oldUri,endpoint.getTraceEndpoint());
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
             ReferToHeader newReferToHeader = SipTester.getHeaderFactory().createReferToHeader(
                     newAddress);
@@ -870,7 +873,7 @@ public class SipUtilities {
             ReferredByHeader oldReferByHeader = (ReferredByHeader) sipRequest
                     .getHeader(ReferredByHeader.NAME);
             SipURI oldUri = (SipURI) oldReferByHeader.getAddress().getURI();
-            SipURI newUri = SipUtilities.mapUri(oldUri);
+            SipURI newUri = SipUtilities.mapUri(oldUri,endpoint.getTraceEndpoint());
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
             ReferredByHeader newReferByHeader = SipTester.getHeaderFactory()
                     .createReferredByHeader(newAddress);
@@ -883,7 +886,7 @@ public class SipUtilities {
             RouteHeader routeHeader = (RouteHeader) routeIterator.next();
             logger.debug("routeHeader = " + routeHeader);
             SipURI routeUri = (SipURI) routeHeader.getAddress().getURI();
-            SipURI newSipUri = SipUtilities.mapUri(routeUri);
+            SipURI newSipUri = SipUtilities.mapUri(routeUri,endpoint.getTraceEndpoint());
             Address routeAddress = SipTester.getAddressFactory().createAddress(newSipUri);
             RouteHeader newRouteHeader = SipTester.getHeaderFactory().createRouteHeader(
                     routeAddress);
@@ -891,7 +894,7 @@ public class SipUtilities {
             newRequest.addHeader(newRouteHeader);
         }
 
-        SipUtilities.copyHeaders(sipRequest, triggeringMessage, newRequest);
+        SipUtilities.copyHeaders(sipRequest, triggeringMessage, newRequest, endpoint.getTraceEndpoint());
 
         newRequest.removeHeader(RecordRouteHeader.NAME);
         return (RequestExt) newRequest;
@@ -924,7 +927,7 @@ public class SipUtilities {
                 newResponse.setContent(content, contentTypeHeader);
             }
 
-            copyHeaders(response, null, newResponse);
+            copyHeaders(response, null, newResponse,endpoint.getTraceEndpoint());
 
             return newResponse;
         } catch (Exception ex) {

@@ -267,7 +267,7 @@ public class SipDialog {
         try {
             boolean acquired = this.prackSem.tryAcquire(10, TimeUnit.SECONDS);
             if (!acquired) {
-                SipTester.fail("Could not acuqire PRACK semaphore " + this);
+                SipTester.fail("Could not acquire PRACK semaphore " + this);
             }
         } catch (Exception ex) {
             SipTester.fail("Unexpected exception ", ex);
