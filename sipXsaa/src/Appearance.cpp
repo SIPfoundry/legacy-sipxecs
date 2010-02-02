@@ -138,7 +138,11 @@ void Appearance::subscriptionEventCallback(
       bool bContentChanged = terminateDialogs(false); // terminate only non-held dialogs
       if ( bContentChanged)
       {
-         SipDialogEvent* lPartialContent = new SipDialogEvent("partial", mUri.data());
+         OsSysLog::add(FAC_SAA, PRI_INFO,
+                    "Appearance::subscriptionEventCallback "
+                    "terminated dialogs held by uri = '%s'",
+                    mUri.data());
+         SipDialogEvent* lPartialContent = new SipDialogEvent("partial", mAppearanceGroup->getUser().data());
          getDialogs(lPartialContent);
          getAppearanceGroup()->publish(true, true, lPartialContent);
          delete lPartialContent;
