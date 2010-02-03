@@ -12,6 +12,7 @@
 #include <sipxunit/TestUtilities.h>
 
 #include <os/OsDefs.h>
+#include <net/NameValuePairInsensitive.h>
 #include <net/SipDialogEvent.h>
 
 
@@ -346,11 +347,13 @@ public:
             "<local>\n"
             "<identity display=\"local&lt;&gt;&amp;\">sip:local&amp;@example.com;a&amp;=b&amp;</identity>\n"
             "<target uri=\"sip:localtarget&amp;@example.com;a&amp;=b&amp;\">\n"
+            "<param pname=\"localparam\" pval=\"&lt;&gt;&amp;\"/>\n"
             "</target>\n"
             "</local>\n"
             "<remote>\n"
             "<identity display=\"remote&lt;&gt;&amp;\">sip:remote&amp;@example.com;a&amp;=b&amp;</identity>\n"
             "<target uri=\"sip:remotetarget&amp;@example.com;a&amp;=b&amp;\">\n"
+            "<param pname=\"remoteparam\" pval=\"&lt;&gt;&amp;\"/>\n"
             "</target>\n"
             "</remote>\n"
             "</dialog>\n"
@@ -368,11 +371,11 @@ public:
 
          dialog->setLocalIdentity("sip:local&@example.com;a&=b&", "local<>&");
          dialog->setLocalTarget("sip:localtarget&@example.com;a&=b&");
-         dialog->setLocalParameter("localparam", "<>&");
+         dialog->addLocalParameter(new NameValuePairInsensitive("localparam", "<>&"));
 
          dialog->setRemoteIdentity("sip:remote&@example.com;a&=b&", "remote<>&");
          dialog->setRemoteTarget("sip:remotetarget&@example.com;a&=b&");
-         dialog->setRemoteParameter("remoteparam", "<>&");
+         dialog->addRemoteParameter(new NameValuePairInsensitive("remoteparam", "<>&"));
 
          SipDialogEvent dialogEvent("full", "sip:entity&@example.com;&=&");
 
