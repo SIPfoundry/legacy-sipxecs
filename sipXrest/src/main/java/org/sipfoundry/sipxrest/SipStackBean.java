@@ -97,6 +97,7 @@ public class SipStackBean extends AbstractSipStackBean {
     public Properties getExtraStackProperties() {
        Properties properties = new Properties();
        properties.setProperty("gov.nist.javax.sip.IS_BACK_TO_BACK_USER_AGENT", "true");
+       properties.setProperty("gov.nist.javax.sip.MAX_FORK_TIME", "120");
        return properties;
     } 
 

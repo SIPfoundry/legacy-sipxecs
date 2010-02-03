@@ -12,6 +12,7 @@ package org.sipfoundry.callcontroller;
 import java.text.ParseException;
 import java.util.Iterator;
 
+import gov.nist.javax.sip.ResponseEventExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.message.SIPResponse;
 
@@ -105,10 +106,17 @@ public class SipListenerImpl extends AbstractSipListener {
         }
     }
 
-    public void processResponse(ResponseEvent responseEvent) {
+    public void processResponse(ResponseEvent responseEv) {
+        ResponseEventExt responseEvent = (ResponseEventExt) responseEv;
+        
         try {
+            
             ClientTransaction clientTransaction = responseEvent.getClientTransaction();
             if (clientTransaction == null) {
+                if ( responseEvent.isForkedResponse()) {
+                    LOG.debug("Forked response seen");
+                    clientTransaction = responseEvent.getOriginalTransaction();
+                }
                 LOG.debug("clientTransaction NULL -- dropping response ");
                 return;
             }
