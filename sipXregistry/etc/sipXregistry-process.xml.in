@@ -22,7 +22,6 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <osconfig>@SIPX_CONFDIR@/registrar-config</osconfig>
-    <osconfig>@SIPX_CONFDIR@/presencerouting-prefs.xml</osconfig>
     <file>@SIPX_CONFDIR@/mappingrules.xml</file>
     <file>@SIPX_CONFDIR@/fallbackrules.xml</file>
     <imdb>credential</imdb>
@@ -32,5 +31,6 @@
     <imdb configAccess='read-only'>subscription</imdb>
     <imdb>userlocation</imdb>
     <imdb>userforward</imdb>
+    <imdb>presencerouting</imdb>
   </resources>
 </sipXecs-process>

@@ -201,6 +201,9 @@
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
   </bean>
+  <bean id="presenceroutingDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.PresenceRouting">
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">

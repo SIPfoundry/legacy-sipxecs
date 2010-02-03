@@ -62,7 +62,6 @@
     <property name="configurationFiles">
       <list>
         <ref bean="xmppAccountInfo" />
-        <ref bean="presenceRoutingConfiguration" />
       </list>
     </property>
   </bean>
