@@ -180,7 +180,7 @@ public abstract class AbstractSipListener implements SipListener {
 
         if (retval) {
 
-            RestServer.timer.schedule(new CallIdCollectorTask(id), 8000);
+            RestServer.timer.schedule(new CallIdCollectorTask(id), 180000);
         }
         return retval;
     }
@@ -196,9 +196,6 @@ public abstract class AbstractSipListener implements SipListener {
                 String callId = SipHelper.getCallId(st.getRequest());
                 String toTag = SipHelper.getToTag(st.getRequest());
                 String id = callId + COLON + toTag;
-                if (this.callIds.contains(id)) {
-                    RestServer.timer.schedule(new CallIdCollectorTask(id), 8000);
-                }
                 return callIds.contains(id);
             }
 
@@ -212,9 +209,6 @@ public abstract class AbstractSipListener implements SipListener {
                 String callId = SipHelper.getCallId(ct.getRequest());
                 String fromTag = SipHelper.getFromTag(ct.getRequest());
                 String id = callId + COLON + fromTag;
-                if (this.callIds.contains(id)) {
-                    RestServer.timer.schedule(new CallIdCollectorTask(id), 8000);
-                }
                 return callIds.contains(id);
             }
 

@@ -160,7 +160,7 @@ public class DialogContext {
     }
 
     public void addDialog(Dialog dialog, Request request) {
-        logger.debug("addDialog " + this + " dialogs = "+ this.dialogs);
+        logger.debug(" addDialog " + this  + " dialogs = "+ this.dialogs + " adding dialog " + dialog );
         this.dialogs.add(dialog);
         dialog.setApplicationData(this);
         this.dialogTable.put(dialog, request);

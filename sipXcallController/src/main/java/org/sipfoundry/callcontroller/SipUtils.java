@@ -79,7 +79,7 @@ public class SipUtils {
 
     public synchronized static DialogContext createDialogContext(String key, int timeout, int cachetimeout, 
     		UserCredentialHash credentials, String method,String agent, String callingParty, String calledParty) {
-        logger.debug("createDialogCOntext " + key);
+        logger.debug("createDialogContext " + key);
         DialogContext dialogContext = getDialogContext(key);
         if (dialogContext != null) {
             dialogContext.remove();

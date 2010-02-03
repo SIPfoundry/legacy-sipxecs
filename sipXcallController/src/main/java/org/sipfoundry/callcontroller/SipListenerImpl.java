@@ -12,6 +12,7 @@ package org.sipfoundry.callcontroller;
 import java.text.ParseException;
 import java.util.Iterator;
 
+import gov.nist.javax.sip.ClientTransactionExt;
 import gov.nist.javax.sip.ResponseEventExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.message.SIPResponse;
@@ -111,14 +112,15 @@ public class SipListenerImpl extends AbstractSipListener {
         
         try {
             
-            ClientTransaction clientTransaction = responseEvent.getClientTransaction();
-            if (clientTransaction == null) {
+            ClientTransactionExt clientTransaction = (ClientTransactionExt) responseEvent.getClientTransaction();
+            if (clientTransaction == null && responseEvent.getDialog() != null ) {
                 if ( responseEvent.isForkedResponse()) {
                     LOG.debug("Forked response seen");
                     clientTransaction = responseEvent.getOriginalTransaction();
+                } else {
+                    LOG.debug("clientTransaction NULL -- dropping response ");
+                    return;
                 }
-                LOG.debug("clientTransaction NULL -- dropping response ");
-                return;
             }
             TransactionContext tad = (TransactionContext) clientTransaction
                     .getApplicationData();
@@ -127,6 +129,14 @@ public class SipListenerImpl extends AbstractSipListener {
             String method = SipHelper.getCSeqMethod(response);
             LOG.debug("processResponse : " + method + " statusCode " + response.getStatusCode());
             DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+            LOG.debug("originalClientTransaction = " + responseEvent.getOriginalTransaction());
+            LOG.debug("dialog " + dialog + " originalDialog = " + clientTransaction.getDefaultDialog() + " dialogContext = "  + dialogContext);
+            
+            if ( dialogContext == null ) {
+                // This is a forked response. Get the dialog context from the original dialog.
+                dialogContext = DialogContext.get(clientTransaction.getDefaultDialog());
+                dialogContext.addDialog(dialog, clientTransaction.getRequest());
+            }
 
             if (tad != null) {
 

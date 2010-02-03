@@ -132,9 +132,11 @@ class TransactionContext {
                     return;
                 }
                 ClientTransaction ctx = m_helper.handleChallenge(response, clientTransaction);
+                LOG.debug("NEW clientTransaction = " + ctx + " newDialog = " + ctx.getDialog());
                 /* The old dialog is terminated -- take him out */
                 dialogContext.removeMe(dialog);
                 dialogContext.addDialog(ctx.getDialog(), ctx.getRequest());
+                
                 ctx.getDialog().setApplicationData(dialogContext);
                 m_counter++;
                 if (ctx != null) {
