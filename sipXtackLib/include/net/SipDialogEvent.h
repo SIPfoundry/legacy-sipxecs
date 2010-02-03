@@ -201,6 +201,7 @@ class Dialog : public UtlContainable
 
    void getRemoteTarget(UtlString& url) const;
 
+   // Add new parameter/value pair -- must not duplicate existing parameter.
    void addLocalParameter(NameValuePairInsensitive* nvp);
 
    //! Return an iterator that will retrieve all local parameters in the event.
@@ -209,10 +210,12 @@ class Dialog : public UtlContainable
     // is deleted.
    UtlDListIterator* getLocalParameterIterator();
 
+   // Update existing parameter/value pair -- parameter must exist.
    bool setLocalParameter(const char* pname, const UtlString& pvalue);
 
    bool getLocalParameter(const char* pname, UtlString& pvalue);
 
+   // Add new parameter/value pair -- must not duplicate existing parameter.
    void addRemoteParameter(NameValuePairInsensitive* nvp);
 
    //! Return an iterator that will retrieve all remote parameters in the event.
@@ -221,6 +224,7 @@ class Dialog : public UtlContainable
     // is deleted.
    UtlDListIterator* getRemoteParameterIterator();
 
+   // Update existing parameter/value pair -- parameter must exist.
    bool setRemoteParameter(const char* pname, const UtlString& pvalue);
 
    bool getRemoteParameter(const char* pname, UtlString& pvalue);
