@@ -22,8 +22,6 @@
 <useRFC2543HoldScheme><![CDATA[FALSE]]></useRFC2543HoldScheme>
 <infoDTMFContentType><![CDATA[application/dtmf-relay]]></infoDTMFContentType>
 <onhookDefaultMode><![CDATA[handsfree]]></onhookDefaultMode>
-<enableRtpAddressFiltering><![CDATA[FALSE]]></enableRtpAddressFiltering>
-<enableRtpPortFiltering><![CDATA[FALSE]]></enableRtpPortFiltering>
 <acceptMWIBlindNOTIFY><![CDATA[FALSE]]></acceptMWIBlindNOTIFY>
 <natTraversal><![CDATA[none]]></natTraversal>
 <callParkMethod><![CDATA[none]]></callParkMethod>
@@ -41,6 +39,8 @@
 <preferredCodec><![CDATA[g711ulaw|g711alaw|g729]]></preferredCodec>
 <rtpPort><![CDATA[5012]]></rtpPort>
 <rfc2833DynamicPayloadType><![CDATA[101]]></rfc2833DynamicPayloadType>
+<enableRtpAddressFiltering><![CDATA[FALSE]]></enableRtpAddressFiltering>
+<enableRtpPortFiltering><![CDATA[FALSE]]></enableRtpPortFiltering>
 <enableRoutingTone><![CDATA[FALSE]]></enableRoutingTone>
 <toneSet><![CDATA[US/Canada]]></toneSet>
 <ringtoneSelected><![CDATA[Ringer1]]></ringtoneSelected>
@@ -48,7 +48,6 @@
 <sipAutoDial><![CDATA[FALSE]]></sipAutoDial>
 <disableCallWaiting><![CDATA[FALSE]]></disableCallWaiting>
 <disableStarCodes><![CDATA[TRUE]]></disableStarCodes>
-<useOnlyUdpSrv><![CDATA[FALSE]]></useOnlyUdpSrv>
 <disableWebUi><![CDATA[FALSE]]></disableWebUi>
 <enableCallPark><![CDATA[TRUE]]></enableCallPark>
 <enableConferencing><![CDATA[TRUE]]></enableConferencing>

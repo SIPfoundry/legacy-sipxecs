@@ -352,14 +352,6 @@
       </type>
       <value>handsfree</value>
     </setting>
-    <setting name="enableRtpAddressFiltering">
-      <type refid="on-off" />
-      <value>FALSE</value>
-    </setting>
-    <setting name="enableRtpPortFiltering">
-      <type refid="on-off" />
-      <value>FALSE</value>
-    </setting>
     <setting name="acceptMWIBlindNOTIFY">
       <type refid="on-off" />
       <value>FALSE</value>
@@ -838,6 +830,14 @@
       </type>
       <value>101</value>
     </setting>
+    <setting name="enableRtpAddressFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="enableRtpPortFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
   </group>
   <!--  TONE SETTINGS  -->
   <group name="toneSettings">
@@ -928,10 +928,6 @@
     <setting name="disableStarCodes">
       <type refid="on-off" />
       <value>TRUE</value>
-    </setting>
-    <setting name="useOnlyUdpSrv">
-      <type refid="on-off" />
-      <value>FALSE</value>
     </setting>
   </group>
   <!--  FEATURE SETTINGS  -->
