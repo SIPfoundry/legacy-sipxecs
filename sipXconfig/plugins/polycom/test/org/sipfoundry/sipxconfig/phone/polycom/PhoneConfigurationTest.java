@@ -79,8 +79,12 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
 
         m_pg.generate(m_location, cfg, null, "profile");
 
+        System.out.println("*** BEGIN actual profile content. ***");
         dumpXml(m_location.getReader(), System.out);
-
+        System.out.println("*** END actual profile content. ***");
+        System.out.println("*** BEGIN expected profile content. ***");
+        dumpXml(getClass().getResourceAsStream("expected-phone.cfg.xml"), System.out);
+        System.out.println("*** END expected profile content. ***");
         assertPolycomXmlEquals(getClass().getResourceAsStream("expected-phone.cfg.xml"), m_location.getReader());
     }
 
@@ -147,7 +151,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         String xml_path = "/phone1/reg";
         DOMElement reg_element = (DOMElement) profile.selectSingleNode(xml_path);
         System.out.println("*** BEGIN actual profile " + xml_path + " content. ***");
-        dumpXml(reg_element, System.out);
+        dumpXml(reg_element, System.out, "");
         System.out.println("*** END actual profile " + xml_path + " content. ***");
 
         // The sipXprovisoin special user line.
@@ -185,7 +189,7 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         xml_path = "/phone1/msg/mwi";
         DOMElement mwi_element = (DOMElement) profile.selectSingleNode(xml_path);
         System.out.println("*** BEGIN actual profile " + xml_path + " content. ***");
-        dumpXml(reg_element, System.out);
+        dumpXml(reg_element, System.out, "");
         System.out.println("*** END actual profile " + xml_path + " content. ***");
 
         // All mwis are disabled.

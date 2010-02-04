@@ -10,8 +10,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 
 import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -47,11 +45,9 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
 
         m_pg.generate(m_location, app, null, "profile");
 
-        InputStream expectedPhoneStream = getClass().getResourceAsStream(
-                "expected-macaddress.cfg");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
-        
-        assertPolycomXmlEquals(expectedXml, m_location.getReader());
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-macaddress.cfg");
+
+        assertPolycomXmlEquals(expectedPhoneStream, m_location.getReader());
         expectedPhoneStream.close();
     }
 }

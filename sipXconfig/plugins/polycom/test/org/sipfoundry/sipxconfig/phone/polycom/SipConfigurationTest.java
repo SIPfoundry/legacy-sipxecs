@@ -10,8 +10,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,15 +57,19 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
 
-        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // XCF-3581: No longer automatically generating phone emergency dial routing. These
+        // settings
         // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.
         phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
         phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
         phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
 
-        // XX-6875: Polycom offers and accepts codecs that are de-selected.  De-selected codecs must be
-        // explicitly generated with blank values.  Otherwise the default values from the polycom_sip.cfg
-        // file are used, some of which are non-blank.  The value below means G711Mu is de-selected.
+        // XX-6875: Polycom offers and accepts codecs that are de-selected. De-selected codecs
+        // must be
+        // explicitly generated with blank values. Otherwise the default values from the
+        // polycom_sip.cfg
+        // file are used, some of which are non-blank. The value below means G711Mu is
+        // de-selected.
         phone.setSettingValue("voice/codecPref/OTHERS", "G711A|G729AB");
 
         phone.beforeProfileGeneration();
@@ -77,9 +79,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
 
-        Reader expectedXml = new InputStreamReader(expected);
-
-        assertPolycomXmlEquals(expectedXml, m_location.getReader());
+        assertPolycomXmlEquals(expected, m_location.getReader());
         expected.close();
     }
 
@@ -102,7 +102,8 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         tester = PhoneTestDriver.supplyTestData(phone);
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
-        // XCF-3581: No longer automatically generating phone emergency dial routing.  These settings
+        // XCF-3581: No longer automatically generating phone emergency dial routing. These
+        // settings
         // are as if they'd been manually configured under Phone - Dial Plan - Emergency Routing.
         phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
         phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
@@ -115,9 +116,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-VVX1500-sip.cfg.xml");
 
-        Reader expectedXml = new InputStreamReader(expected);
-
-        assertPolycomXmlEquals(expectedXml, m_location.getReader());
+        assertPolycomXmlEquals(expected, m_location.getReader());
 
         expected.close();
     }
