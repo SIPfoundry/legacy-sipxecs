@@ -41,7 +41,7 @@ class ResourceListServer;
  *  ResourceListSet that contains it.  Access to it is locked by the
  *  ResourceListSet containing it.
  *  A ResourceInstance is created when a subscription is created and
- *  is destroyed when the subscription ends  (by a SubscriptionSet).
+ *  is destroyed when the subscription ends (by a SubscriptionSet).
  *  Conversely, when a ResourceInstance is destroyed, the destructor
  *  terminates its subscription (if it has not already been terminated).
  *  A ResourceInstance is a child of the SubscriptionSet that was created
