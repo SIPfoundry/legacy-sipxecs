@@ -14,8 +14,11 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include "filereader/RefreshingFileReader.h"
+#include "registry/RedirectPlugin.h"
 #include "registry/RedirectPlugin.h"
 #include "os/OsTimer.h"
+#include "os/OsMutex.h"
 #include "net/XmlRpcMethod.h"
 
 // DEFINES
@@ -27,14 +30,19 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class PresenceRoutingUserPreferences
+class PresenceRoutingUserPreferences : public RefreshingFileReader
 {
 public:
-   OsStatus loadPrefs(const UtlString& configFileName );
+   PresenceRoutingUserPreferences();
    bool forwardToVoicemailOnDnd(const UtlString& sipUsername );
-   
+   virtual ~PresenceRoutingUserPreferences(){};
+
+protected:
+   virtual OsStatus initialize();
+
 private:
    UtlHashMap mUserVmOnDndPreferences;
+   OsMutex    mMutex;
    OsStatus parseDocument( TiXmlDocument* pDoc );
 };
 

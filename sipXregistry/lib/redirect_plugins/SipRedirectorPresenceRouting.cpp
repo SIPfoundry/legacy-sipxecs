@@ -17,6 +17,7 @@
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcResponse.h"
 #include "os/OsDateTime.h"
+#include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
@@ -215,7 +216,7 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     OsSysLog::add(FAC_SIP, PRI_INFO,
                  "%s::readConfig prefsFilename = %s",
                  mLogName.data(), prefsFilename.data());
-    mUserPrefs.loadPrefs( prefsFilename );
+    mUserPrefs.setFileName( &prefsFilename );
     
     UtlString openFirePresenceServerUrlAsString;
     if ((configDb.get(CONFIG_OPENFIRE_PRESENCE_SERVER_URL, openFirePresenceServerUrlAsString) != OS_SUCCESS) ||
@@ -584,6 +585,9 @@ OsStatus SipRedirectorPresenceRouting::signal(intptr_t eventData)
          mbRegisteredWithOpenfire = false;
       }
    }
+   
+   // Refresh the user presence preferences in case they changed
+   mUserPrefs.refresh();
    return OS_SUCCESS;
 }
 
@@ -642,16 +646,21 @@ XmlRpcMethod* UnifiedPresenceChangedMethod::get()
     return true;
 }
 
-OsStatus PresenceRoutingUserPreferences::loadPrefs(const UtlString& configFileName )
+PresenceRoutingUserPreferences::PresenceRoutingUserPreferences() :
+   mMutex( OsMutex::Q_FIFO )
+{
+}
+
+OsStatus PresenceRoutingUserPreferences::initialize()
 {
    OsStatus currentStatus = OS_SUCCESS;
-   TiXmlDocument* pDoc = new TiXmlDocument( configFileName.data() );
+   TiXmlDocument* pDoc = new TiXmlDocument( mFileName.data() );
 
    if( !pDoc->LoadFile() )
    {
       UtlString parseError = pDoc->ErrorDesc();
       OsSysLog::add( FAC_NAT, PRI_ERR, "PresenceRoutingFileReader: ERROR parsing  '%s': %s"
-                    ,configFileName.data(), parseError.data());
+                    ,mFileName.data(), parseError.data());
       currentStatus = OS_NOT_FOUND;
    }
    else
@@ -663,8 +672,9 @@ OsStatus PresenceRoutingUserPreferences::loadPrefs(const UtlString& configFileNa
 
 OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
 {
+   OsLock lock( mMutex );
    TiXmlNode* presenceRoutingNode;
-   
+   mUserVmOnDndPreferences.destroyAll();
    if( (presenceRoutingNode = pDoc->FirstChild("presenceRoutingPrefs")) != NULL &&
          presenceRoutingNode->Type() == TiXmlNode::ELEMENT)
    {
@@ -698,6 +708,7 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
 
 bool PresenceRoutingUserPreferences::forwardToVoicemailOnDnd(const UtlString& sipUsername )
 {
+   OsLock lock( mMutex );
    UtlBool* pForwardToVoicemailOnDnd = 
                 (UtlBool*)(mUserVmOnDndPreferences.findValue( &sipUsername ));
    if( pForwardToVoicemailOnDnd != NULL )
