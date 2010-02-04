@@ -28,7 +28,7 @@ public class CpAttdAdminDialog {
        } else {
            attdExt = "";
        }
-       
+
        for(;;) {
            pl = m_vm.getLoc().getPromptList();
            

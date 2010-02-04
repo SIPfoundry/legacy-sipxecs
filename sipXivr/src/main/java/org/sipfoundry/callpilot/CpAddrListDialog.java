@@ -8,6 +8,7 @@ import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.DialByNameChoice;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.Distributions;
@@ -96,7 +97,7 @@ public class CpAddrListDialog {
         PromptList helpPl;
         User user;
         
-        String namePrefix = "11"; // TODO:
+        String namePrefix = ((IvrConfiguration)m_vm.getLoc().getConfig()).getCPUINameDialingPrefix();
         
         for(;;) {
             helpPl = m_vm.getLoc().getPromptList();

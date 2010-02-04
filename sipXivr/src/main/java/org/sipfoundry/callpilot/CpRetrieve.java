@@ -338,6 +338,9 @@ public class CpRetrieve {
         VmMessage currMsg;
         PromptList prePl = null;    
         int duration = 0;
+        
+        m_startPos = 0;
+        m_msgPlaying = false;
     
         for(;;) {                                                   
             if(m_newVmMessage != null) {

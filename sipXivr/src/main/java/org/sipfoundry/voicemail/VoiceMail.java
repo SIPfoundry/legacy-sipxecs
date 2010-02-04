@@ -51,6 +51,7 @@ public class VoiceMail {
     private org.sipfoundry.sipxivr.IvrConfiguration m_ivrConfig;
     private Localization m_locStd;
     private Localization m_locCpui;
+    private Localization m_locCurr;
     private FreeSwitchEventSocketInterface m_fses;
     private ResourceBundle m_vmBundle;
     private Configuration m_config;
@@ -167,20 +168,6 @@ public class VoiceMail {
         LOG.info("Ending voicemail");
     }
 
-    public boolean usingCpUi(User user) {
-        return (user.getVoicemailTui().compareTo("cpui") == 0);
-    }
-
-    private Localization userLoc(User user) {
-        Localization usrLoc;
-        if (usingCpUi(user)) {
-            usrLoc = m_locCpui;
-        } else {
-            usrLoc = m_locStd;
-        }
-        return usrLoc;
-    }
-
     /**
      * Do the VoiceMail action.
      * 
@@ -189,13 +176,14 @@ public class VoiceMail {
     String voicemail(String mailboxString) {
                
         User user = m_validUsers.getUser(mailboxString);
-        Localization usrLoc = userLoc(user);
+        Localization usrLoc = setLoc(usingCpUi(user));
          
         m_mailbox = null;
         if (user != null) {
            m_mailbox = new Mailbox(user);   
            if (user.getLocale() == null) {
                user.setLocale(usrLoc.getLocale()); // Set the locale for this user to be that passed with the call
+               user.getLocale();
            }
         }
         
@@ -244,8 +232,10 @@ public class VoiceMail {
         
         if (m_action.equals("retrieve")) {
             if(usingCpUi(user)) {
+                setLoc(true);
                 return new CpRetrieve(this).retrieveVoiceMail();
             } else {
+                setLoc(false);
                 return new Retrieve(this).retrieveVoiceMail();
             }
         }
@@ -276,8 +266,8 @@ public class VoiceMail {
             m_mailbox.getDistributionListsFile().delete();
         }
         
-
-        Localization usrLoc = userLoc(user);
+        // these prompts only exist in the sipX prompt set
+        Localization usrLoc = m_locStd;
 
         for(;;) {
             // "Please select the distribution list.  Press * to cancel."
@@ -344,10 +334,9 @@ public class VoiceMail {
      */
     public Record recordMessage(String wavName) {
         // Flush any typed ahead digits
-        Localization usrLoc = userLoc(m_mailbox.getUser());
         m_fses.trimDtmfQueue("") ;
         LOG.info(String.format("Recording message (%s)", wavName));
-        Record rec = new Record(m_fses, usrLoc.getPromptList("beep"));
+        Record rec = new Record(m_fses, m_locCurr.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
         rec.setRecordTime(300); 
         rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
@@ -369,8 +358,7 @@ public class VoiceMail {
      * @param uri
      */
     public void transfer(String uri) {
-        Localization usrLoc = userLoc(m_mailbox.getUser());
-        usrLoc.play("please_hold", "");
+        m_locCurr.play("please_hold", "");
         Transfer xfer = new Transfer(m_fses, uri);
         xfer.go();
         throw new DisconnectException();
@@ -383,8 +371,7 @@ public class VoiceMail {
     public void goodbye() {
         LOG.info("good bye");
         // Thank you.  Goodbye.
-        Localization usrLoc = userLoc(m_mailbox.getUser());
-        usrLoc.play("goodbye", "");
+        m_locCurr.play("goodbye", "");
         new Hangup(m_fses).go();
     }
 
@@ -436,9 +423,26 @@ public class VoiceMail {
         m_validUsers = validUsers;
     }
     
+    public boolean usingCpUi(User user) {
+        if(user == null) {
+            // return true if the system wide primary UI is set to use CPUI
+            return m_ivrConfig.isCPUIPrimary();          
+        } else {
+            return (user.getVoicemailTui().compareTo("cpui") == 0);
+        }
+    }
+    
+    public Localization setLoc(boolean usingCPUI) {
+        if(usingCPUI) {
+            m_locCurr = m_locCpui;
+        } else {
+            m_locCurr = m_locStd;
+        }
+        return m_locCurr;
+    }
+    
     public Localization getLoc() {
-        Localization usrLoc = userLoc(m_mailbox.getUser());
-        return usrLoc;
+        return(m_locCurr);
     }
     
     public HashMap<String, DistributionList> getSysDistList() {
@@ -458,10 +462,9 @@ public class VoiceMail {
     }
         
     public void playError(String errPrompt, String ...vars) {
-        Localization usrLoc = userLoc(m_mailbox.getUser());
-        usrLoc.play("error_beep", "");
+        m_locCurr.play("error_beep", "");
         m_fses.trimDtmfQueue("");
-        usrLoc.play(errPrompt, "0123456789*#", vars);
+        m_locCurr.play(errPrompt, "0123456789*#", vars);
     }
     
 }

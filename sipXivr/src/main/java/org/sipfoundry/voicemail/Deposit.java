@@ -97,7 +97,8 @@ public class Deposit {
     
     public Deposit(VoiceMail vm) {
         m_vm = vm;
-        m_loc = vm.getLoc();
+        
+        m_loc = m_vm.setLoc(m_vm.usingCpUi(null));
         m_fses = m_loc.getFreeSwitchEventSocketInterface();
         m_mailbox = vm.getMailbox();
         m_pa = m_mailbox.getPersonalAttendant();
@@ -165,7 +166,7 @@ public class Deposit {
         boolean isTag = false;
         CpDialog cpDialog;
         
-        PromptList pl = new PromptList(m_vm.getLoc());    
+        PromptList pl = new PromptList(m_loc);    
         
         GreetingType type = m_mailbox.getMailboxPreferences().getActiveGreeting().getGreetingType();
         boolean grtRecorded = m_greeting.getGreetingPath(type) != null;        
@@ -216,7 +217,7 @@ public class Deposit {
                 String tagCmd = cpDialog.collectDigit("2#");
                 
                 if(tagCmd.equals("2")) {
-                    pl = new PromptList(m_vm.getLoc());  
+                    pl = new PromptList(m_loc);  
                     continue;
                 }    
                 
@@ -224,7 +225,7 @@ public class Deposit {
             }                   
                 
             if (digit.equals("*")) {
-                pl = new PromptList(m_vm.getLoc());  
+                pl = new PromptList(m_loc);  
                 continue;
             }  
             
@@ -241,7 +242,7 @@ public class Deposit {
             }
                                     
             if(cmd == Command.CANCELED) {
-                pl = new PromptList(m_vm.getLoc());  
+                pl = new PromptList(m_loc);  
                 continue;
             } else {
                 break;   
@@ -399,9 +400,10 @@ public class Deposit {
                 
         putChannelUUID(user, m_fses.getVariable("channel-unique-id"));
         
-        if(m_vm.usingCpUi(user)) {
+        // by passing null, usingCpUi will return if CPUI is the primary UI
+        if(m_vm.usingCpUi(null)) {
             return depositCPUI(isOnThePhone);
-        }
+        }        
         
         Greeting:
         for(;;) {

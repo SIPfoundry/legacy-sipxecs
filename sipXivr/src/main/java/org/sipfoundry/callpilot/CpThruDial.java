@@ -7,6 +7,7 @@ import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 import org.sipfoundry.voicemail.VoiceMail;
 
@@ -46,13 +47,13 @@ public class CpThruDial {
            return;
        }
        
-       // TODO "11" needs to be configurable
+       String namePrefix = ((IvrConfiguration)m_vm.getLoc().getConfig()).getCPUINameDialingPrefix();
        
        // either digits entered start with 11 and remaining digits are a name or
        // digits are an extension to transfer to. Must be a SipX user to prevent
        // toll fraud .. ie can't dial 90 to get an operator
        
-       if(!digits.startsWith("11")) {           
+       if(!digits.startsWith(namePrefix)) {           
            if(m_vm.getValidUsers().getUser(digits) == null) {
                // don't allow transfer to a non-user or external number
                m_vm.playError("invalid_extension");

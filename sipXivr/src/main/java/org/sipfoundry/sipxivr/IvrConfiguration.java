@@ -44,6 +44,9 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     private String m_openfireHost; // The host name where the Openfire service runs
     private int m_openfireXmlRpcPort; // The port number to use for XML-RPC Openfire requests
     
+    private boolean m_CPUIisPrimary;
+    private String  m_nameDialPrefix;
+    
     private static IvrConfiguration s_current;
     private static File s_propertiesFile;
     private static long s_lastModified;
@@ -141,6 +144,20 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             if(m_sendIMUrl == null) {
                 m_sendIMUrl = "http://" + m_sipxchangeDomainName + ":8086/IM";
             }
+            
+            String defaultTUI = props.getProperty("ivr.defaultTui");
+            if(defaultTUI == null) {
+                m_CPUIisPrimary = false;
+            } else {
+                m_CPUIisPrimary = defaultTUI.equals("cpui");
+            }
+             
+            String nameDialPrefix = props.getProperty("ivr.nameDialPrefix");
+            if(nameDialPrefix == null) {
+                m_nameDialPrefix = "11";
+            } else {
+                m_nameDialPrefix = nameDialPrefix;
+            }            
             
             // Make up the 3pcc REST server URL for now until it is provided by sipxconfig
             // For now assume that the REST service resides on the same system as this service
@@ -261,7 +278,15 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
     public void setOpenfireXmlRpcPort(int port) {
         m_openfireXmlRpcPort = port;
     }
-
+    
+    public boolean isCPUIPrimary() {
+        return m_CPUIisPrimary;
+    }
+    
+    public String getCPUINameDialingPrefix() {
+        return m_nameDialPrefix;
+    }
+    
 	@Override
 	public Logger getLogger() {
 		return LOG;
