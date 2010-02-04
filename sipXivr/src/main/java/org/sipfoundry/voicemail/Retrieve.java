@@ -47,6 +47,8 @@ public class Retrieve {
     String m_userEnteredPin;        // PIN the user entered at login
     
     String m_ident; // Used to identify a particular call in the logs
+    static final int SKIPDURATION = 5; // in seconds 
+    static final int DURATION_TO_END = 2; // in seconds -  the duration to the end of the message
     
     public Retrieve(VoiceMail vm) {
         m_vm = vm;
@@ -57,7 +59,7 @@ public class Retrieve {
     }
     
     public String retrieveVoiceMail() {
-        if (m_mailbox != null) {
+        if (m_mailbox != null) { 
             m_ident = "Mailbox "+m_mailbox.getUser().getUserName();
         } else {
             m_ident = "Mailbox (unknown)";
@@ -382,9 +384,12 @@ public class Retrieve {
     }
 
     void playMessages(Messages.Folders folder) {
-        List<VmMessage> folderList = null;;
+        List<VmMessage> folderList = null;
         String menuFragment = null;
-        String validDigits = null ;
+        String validDigits = null;
+        int startPos = 0;
+        int duration = 0;
+        
         switch (folder) {
             case INBOX: folderList = m_messages.getInbox(); break;
             case SAVED: folderList = m_messages.getSaved(); break;
@@ -393,15 +398,14 @@ public class Retrieve {
         for (VmMessage vmMessage : folderList) {
             boolean playMessage = true;
             boolean playInfo = false;
+            PromptList messagePl= null;
+            PromptList prePromptPl= null;
             for(;;) {
-                PromptList messagePl = m_loc.getPromptList();
-                PromptList prePromptPl = m_loc.getPromptList();
-                
+                messagePl = m_loc.getPromptList();
+                prePromptPl = m_loc.getPromptList();
                 m_messages.LoadWaveFile(vmMessage);
-                
                 // {the message}
                 messagePl.addPrompts(vmMessage.getAudioFile().getPath());
-                
                 // Read the message descriptor file to obtain the info we need
                 MessageDescriptor md = new MessageDescriptorReader().readObject(vmMessage.getDescriptorFile());
                 // Determine if the message is from a known user
@@ -418,7 +422,7 @@ public class Retrieve {
                 case INBOX: 
                     LOG.info("Retrieve::playMessages INBOX "+m_ident);
 
-                    validDigits="12345#";
+                    validDigits="1234579#";
                     if (user != null) {
                         menuFragment = "msg_inbox_options_reply";
                         validDigits += "6";
@@ -433,11 +437,13 @@ public class Retrieve {
                     // {if from sipXuser} "To reply, press 6."
                     // "To play the next message, press #."
                     // "To return to the main menu, press *."
+                    // "To fast forward message press 9."
+                    // "To rewind message press 7."
                     break;
                 case SAVED: 
                     LOG.info("Retrieve::playMessages SAVED "+m_ident);
 
-                    validDigits="1245#";
+                    validDigits="124579#";
                     if (user != null) {
                         menuFragment = "msg_saved_options_reply";
                         validDigits += "6";
@@ -451,11 +457,13 @@ public class Retrieve {
                     // {if from sipXuser} "To reply, press 6."
                     // "To play the next message, press #."
                     // "To return to the main menu, press *."
+                    // "To fast forward message press 9."
+                    // "To rewind message press 7."
                     break;
                 case DELETED: 
                     LOG.info("Retrieve::playMessages DELETED "+m_ident);
 
-                    validDigits="12345#";
+                    validDigits="1234579#";
                     if (user != null) {
                         menuFragment = "msg_deleted_options_reply";
                         validDigits += "6";
@@ -470,7 +478,8 @@ public class Retrieve {
                     // {if from sipXuser} "To reply, press 6."  
                     // "To play the next message, press #." 
                     // "To return to the main menu, press *."
-
+                    // "To fast forward message press 9."
+                    // "To rewind message press 7."
                     break;
                 }
                 
@@ -478,6 +487,7 @@ public class Retrieve {
                 // This is so we can barge it with a digit press and act on the digit in the menu.
                 if (playMessage) {
                     prePromptPl.addPrompts(messagePl);
+                    prePromptPl.setOffset(startPos);
                     playMessage = false;
                 }
                 // Same with the message info.
@@ -485,11 +495,14 @@ public class Retrieve {
                     prePromptPl.addPrompts(messageInfo(md));
                     playInfo = false;
                 }
-     
+
                 VmDialog vmd = new VmDialog(m_vm, menuFragment);
                 vmd.setPrePromptList(prePromptPl);
                 vmd.setSpeakCanceled(false);
-                String digit = vmd.collectDigit(validDigits);
+                long playStart = System.currentTimeMillis();
+                String digit = vmd.collectDigit(validDigits); //message starts playing here
+                duration = (int) ((System.currentTimeMillis() - playStart)/1000);
+
                 if (digit == null) {
                     // Timeout, cancel, or errors
                     return;
@@ -500,10 +513,12 @@ public class Retrieve {
                 
                 if (digit.equals("1")) {
                     playInfo = true;
+                    startPos = 0;
                     continue;
                 }
                 if (digit.equals("2")) {
                     playMessage = true;
+                    startPos = 0;
                     continue;
                 }
                 if (digit.equals("3")) {
@@ -514,6 +529,7 @@ public class Retrieve {
                     } else {
                         m_loc.play("msg_restored", "");
                     }
+                    startPos = 0;
                     break;
                 }
                 if (digit.equals("4")) {
@@ -524,18 +540,48 @@ public class Retrieve {
                     } else {
                         m_loc.play("msg_deleted", "");
                     }
+                    startPos = 0;
                     break;
                 }
                 if (digit.equals("5")) {
                     forward(vmMessage);
+                    startPos = 0;
                     continue;
                 }
                 if (digit.equals("6")) {
                     reply(vmMessage, user);
+                    startPos = 0;
                     continue;
                 }
                 if (digit.equals("#")) {
+                    startPos = 0;
                     break;
+                }
+                // press '7' to rewind the message
+                if (digit.equals("7")) {
+                    startPos = startPos + duration - SKIPDURATION;
+                    if(startPos >= vmMessage.getDuration()) {
+                        startPos = (int) vmMessage.getDuration() - DURATION_TO_END;
+                    }
+                    else if(startPos < 0) {
+                        startPos = 0;
+                    }
+                    if(prePromptPl != null) {
+                        playMessage = true;
+                    }
+                    continue;
+                }
+                
+                //press '9'to fast forward the message
+                if (digit.equals("9")) {
+                    startPos = startPos + duration + SKIPDURATION;
+                    if(startPos >= vmMessage.getDuration()) {
+                        startPos = (int) vmMessage.getDuration() - DURATION_TO_END;
+                    }
+                    if(prePromptPl != null) {
+                        playMessage = true;
+                    }
+                    continue;
                 }
             }
         }
