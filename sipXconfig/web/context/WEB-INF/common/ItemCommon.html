@@ -8,6 +8,9 @@
     </span>
     <span jwcid="ifUseName@If" condition="ognl:useName">
      <tr jwcid="@common/FieldPanel" for="item:name" field="component:name" label="message:name">
+		<!--[if IE]>
+		<input type="text" style="display: none;" disabled="disabled" size="1" />
+		<![endif]-->
         <input jwcid="name@TextField" id="item:name"
           maxlength="40"
           validators="ognl:nameValidator"
