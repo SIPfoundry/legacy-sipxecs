@@ -95,7 +95,8 @@ public abstract class UserPhonebookPage extends UserBasePage {
         String domain = getDomainManager().getDomain().getName();
         String userAddrSpec = getUser().getAddrSpec(domain);
         String destAddrSpec = SipUri.fix(number, domain);
-        getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
+        String displayName = "ClickToCall";
+        getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
     }
 
     /**

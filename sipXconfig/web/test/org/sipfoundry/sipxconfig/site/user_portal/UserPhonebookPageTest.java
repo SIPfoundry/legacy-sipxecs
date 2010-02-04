@@ -82,8 +82,8 @@ public class UserPhonebookPageTest extends TestCase {
 
     public void testCall() {
         SipService sipService = createMock(SipService.class);
-        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.com");
-        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.org");
+        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "ClickToCall", "sip:123@example.com");
+        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "ClickToCall", "sip:123@example.org");
         replay(sipService);
 
         PropertyUtils.write(m_out, "sipService", sipService);

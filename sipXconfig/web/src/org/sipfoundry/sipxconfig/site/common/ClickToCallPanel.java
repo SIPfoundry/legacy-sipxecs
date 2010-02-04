@@ -38,6 +38,7 @@ public abstract class ClickToCallPanel extends BaseComponent {
         String userAddrSpec = getUser().getAddrSpec(domain);
         String number = getNumber();
         String destAddrSpec = SipUri.fix(number, domain);
-        getSipService().sendRefer(getUser(), userAddrSpec, destAddrSpec);
+        String displayName = "ClickToCall";
+        getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
     }
 }
