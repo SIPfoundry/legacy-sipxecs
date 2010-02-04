@@ -9,6 +9,7 @@
 package org.sipfoundry.callpilot;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -79,8 +80,9 @@ public class CpRetrieve {
                     if (user.hasVoicemail()) {
                         // Those with voicemail permissions get the whole menu
                         
-                        List<VmMessage> msgList = m_messages.getInbox();
+                        ArrayList<VmMessage> msgList = new ArrayList<VmMessage>(m_messages.getInbox());                        
                         msgList.addAll(m_messages.getSaved());
+                        
                         PromptList statusPl = status();
                         
                         if(m_messages.noMessages()) {
