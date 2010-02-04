@@ -168,6 +168,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxRegistrarConfiguration" />
+        <ref bean="presenceRoutingConfiguration" />
       </list>
     </property>
     <property name="domainManager" ref="domainManager" />
@@ -184,6 +185,13 @@
     <property name="template" value="sipxregistrar/registrar-config.vm" />
     <property name="name" value="registrar-config" />
     <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="presenceRoutingConfiguration" class="org.sipfoundry.sipxconfig.service.PresenceRoutingConfiguration"
+    parent="defaultConfigurationFile">
+    <property name="name" value="presencerouting-prefs.xml"/>
+    <property name="coreContext" ref="coreContext" />
+    <property name="restartRequired" value="false" />
   </bean>
 
   <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"

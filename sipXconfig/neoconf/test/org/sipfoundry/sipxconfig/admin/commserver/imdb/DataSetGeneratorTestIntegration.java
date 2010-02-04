@@ -51,8 +51,4 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void setUserstaticDataSet(UserStatic userStatic) {
         m_dataSetGeneratorMap.put(DataSet.USER_STATIC.getName(), userStatic);
     }
-
-    public void setPresenceroutingDataSet(PresenceRouting presenceRouting) {
-        m_dataSetGeneratorMap.put(DataSet.PRESENCE_ROUTING.getName(), presenceRouting);
-    }
 }
