@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmGroup;
@@ -104,30 +103,15 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
         }
     }
 
-    public void testClear() throws Exception {
-
-        // Add a group.  (To ensure deletion of groups doesn't stop at the default group.)
-        AlarmGroup group = new AlarmGroup();
-        group.setName("testing");
-        group.setDescription("test");
-        m_alarmServerManager.saveAlarmGroup(group);
-
-        m_alarmServerManager.clear();
-
-        // All groups except the default should be gone.
-        assertEquals(1, m_alarmServerManager.getAlarmGroups().size());
-    }
-
     public void testPreventDefaultGroupDeletion() {
-
         // Add a group.  (To ensure deletion of groups doesn't stop at the default group.)
         AlarmGroup group = new AlarmGroup();
         group.setName("testing");
         group.setDescription("test");
         m_alarmServerManager.saveAlarmGroup(group);
 
-	// Collect all the group IDs.
-	Collection<Integer> groupsIds = new Vector<Integer>();
+        // Collect all the group IDs.
+        Collection<Integer> groupsIds = new ArrayList<Integer>();
         for (AlarmGroup group1 : m_alarmServerManager.getAlarmGroups()) {
             groupsIds.add(group1.getId());
         }

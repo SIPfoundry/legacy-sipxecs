@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -79,21 +78,12 @@ public abstract class AlarmGroupsPanel extends BaseComponent implements PageBegi
             return;
         }
 
-        boolean printErrorMessage = false;
-        // do not delete the default alarm group
-        for (Iterator<Integer> iterator = allSelected.iterator(); iterator.hasNext();) {
-            Integer id = iterator.next();
-            if (getAlarmServerManager().getAlarmGroupById(id).getName().endsWith("default")) {
-                printErrorMessage = true;
-                iterator.remove();
-            }
-        }
+        boolean printErrorMessage = getAlarmServerManager().removeAlarmGroups(allSelected,
+                getAlarmServerManager().getAlarmTypes());
         if (printErrorMessage) {
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
             validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutAlarmGroupDeletion")));
         }
-
-        getAlarmServerManager().removeAlarmGroups(allSelected, getAlarmServerManager().getAlarmTypes());
     }
 
     public Collection getAllSelected() {

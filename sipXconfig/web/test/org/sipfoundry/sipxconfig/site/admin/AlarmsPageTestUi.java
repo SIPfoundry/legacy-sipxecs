@@ -55,6 +55,9 @@ public class AlarmsPageTestUi extends WebTestCase {
         editGroup();
 
         reloadPage();
+        editDefaultGroupName();
+
+        reloadPage();
         deleteAllGroups();
     }
 
@@ -68,6 +71,19 @@ public class AlarmsPageTestUi extends WebTestCase {
         assertTextFieldEquals("item:description", "test group");
         assertButtonPresent("form:cancel");
         clickButton("form:cancel");
+    }
+
+    private void editDefaultGroupName() {
+        clickLinkWithExactText("default");
+        SiteTestHelper.assertNoException(tester);
+
+        setWorkingForm("alarmGroupForm");
+        assertTextFieldEquals("item:name", "default");
+        setTextField("item:name", "another");
+        assertButtonPresent("form:ok");
+        clickButton("form:ok");
+        // renaming the default alarm group isn't allowed
+        SiteTestHelper.assertUserError(tester);
     }
 
     private void createGroup() {

@@ -60,8 +60,8 @@ public class FirstRunTask implements ApplicationListener {
         m_resetDialPlanTask.reset(false);
         m_sbcManager.loadDefaultSbc();
 
-        m_alarmServerManager.getAlarmGroups();
         m_alarmServerManager.getAlarmServer();
+        m_alarmServerManager.getAlarmGroups();
 
         enforceRoles();
         generateAllProfiles();

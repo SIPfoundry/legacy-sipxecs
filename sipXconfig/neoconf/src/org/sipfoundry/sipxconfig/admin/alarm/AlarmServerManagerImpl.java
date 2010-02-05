@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 
 import static java.util.Collections.emptyList;
 
@@ -94,7 +93,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private void clearAlarmStorage(String groupName, List<Alarm> alarms) {
         for (int i = 0; i < alarms.size(); i++) {
             Alarm alarm = alarms.get(i);
-            if (groupName.compareTo(alarm.getGroupName()) == 0) {
+            if (groupName.equals(alarm.getGroupName())) {
                 // If this alarm's group name is being removed then use the disabled group name.
                 alarm.setGroupName(GROUP_NAME_DISABLED);
             }
@@ -102,13 +101,14 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     protected boolean isDefaultGroup(AlarmGroup group) {
-        if (group.getName().compareTo(GROUP_NAME_DEFAULT) == 0) {
+        if (group.getName().equals(GROUP_NAME_DEFAULT)) {
             return true;
         }
         return false;
     }
 
-    public void removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms) {
+    public boolean removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms) {
+        boolean affectDefaultGroup = false;
         for (Integer id : groupsIds) {
             AlarmGroup group = (AlarmGroup) getHibernateTemplate().load(AlarmGroup.class, id);
             // Don't delete the default group.
@@ -116,9 +116,12 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
                 // Remove matching group numbers from alarm before removing the alarm group.
                 clearAlarmStorage(group.getName(), alarms);
                 getHibernateTemplate().delete(group);
+            } else {
+                affectDefaultGroup = true;
             }
-            replicateAlarmService();
         }
+        replicateAlarmService();
+        return affectDefaultGroup;
 
     }
 
@@ -245,10 +248,11 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     public AlarmGroup getAlarmGroupByName(String alarmGroupName) {
         List<AlarmGroup> alarmGroups = getAlarmGroups();
         for (AlarmGroup alarmGroup : alarmGroups) {
-            if (alarmGroup.getName() == alarmGroupName) {
+            if (alarmGroup.getName().equals(alarmGroupName)) {
                 return alarmGroup;
             }
         }
+
         return null;
     }
 
@@ -264,30 +268,29 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         }
     }
 
-    public void clear() {
-        // The default group will not actually be removed.
-        Collection<Integer> groupsIds = new Vector<Integer>();
-        for (AlarmGroup group : getAlarmGroups()) {
-            groupsIds.add(group.getId());
-        }
-        removeAlarmGroups(groupsIds, getAlarmTypes());
-    }
-
     public void saveAlarmGroup(AlarmGroup group) {
         if (group.isNew()) {
             // check if new object
             checkForDuplicateNames(group);
+            getHibernateTemplate().save(group);
         } else {
             // on edit action - check if the group name for this group was modified
             // if the group name was changed then perform duplicate group name checking
             if (isNameChanged(group)) {
                 checkForDuplicateNames(group);
+                // don't rename the default group
+                AlarmGroup defaultAlarmGroup = getAlarmGroupByName(GROUP_NAME_DEFAULT);
+                if (defaultAlarmGroup != null) {
+                    if (defaultAlarmGroup.getId().equals(group.getId())
+                            && !group.getName().equals(GROUP_NAME_DEFAULT)) {
+                        throw new UserException("&msg.defalutAlarmGroupRename");
+                    }
+                }
             }
+            getHibernateTemplate().merge(group);
         }
 
-        getHibernateTemplate().saveOrUpdate(group);
-        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
-        m_serviceConfigurator.replicateServiceConfig(alarmService);
+        replicateAlarmService();
     }
 
     private void checkForDuplicateNames(AlarmGroup group) {
@@ -298,7 +301,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
     private boolean isNameInUse(AlarmGroup group) {
         String groupName = group.getName();
-        if (groupName.compareTo(GROUP_NAME_DISABLED) == 0) {
+        if (groupName.equals(GROUP_NAME_DISABLED)) {
             return true;
         }
         List count = getHibernateTemplate().findByNamedQueryAndNamedParam("anotherAlarmGroupWithSameName",

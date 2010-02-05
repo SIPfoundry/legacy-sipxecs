@@ -18,7 +18,7 @@ public interface AlarmServerManager {
 
     List<AlarmGroup> getAlarmGroups();
 
-    void removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms);
+    boolean removeAlarmGroups(Collection<Integer> groupsIds, List<Alarm> alarms);
 
     AlarmGroup loadAlarmGroup(Serializable id);
 
@@ -27,8 +27,6 @@ public interface AlarmServerManager {
     AlarmGroup getAlarmGroupByName(String alarmGroupName);
 
     void saveAlarmGroup(AlarmGroup group);
-
-    void clear();
 
     void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
