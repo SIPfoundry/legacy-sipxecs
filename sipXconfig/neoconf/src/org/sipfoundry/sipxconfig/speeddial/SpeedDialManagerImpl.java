@@ -45,12 +45,12 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
         }
         if (!speeddialGroups.isEmpty()) {
             /*
-             * If there are more than 1 group, choose the first group on the list that has a
+             * If there are more than 1 group, choose the last group on the list that has a
              * non-zero number of speeddial buttons defined.
              */
-            for (SpeedDialGroup speedDialGroup : speeddialGroups) {
-                if (0 < speedDialGroup.getButtons().size()) {
-                    return speedDialGroup.getSpeedDial(user);
+            for (int i = speeddialGroups.size() - 1; i >= 0; i--) {
+                if (0 < speeddialGroups.get(i).getButtons().size()) {
+                    return speeddialGroups.get(i).getSpeedDial(user);
                 }
             }
         }
