@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.sipfoundry.sipxconfig.service.SipxService;
 
@@ -48,6 +49,17 @@ public interface SipxProcessContext {
      * @param location information about the host on which services are running
      */
     void manageServices(Location location, Collection< ? extends SipxService> services, Command command);
+
+    /**
+     * Perform operation on specific location services. Make sure that services from location
+     * that contains the configuration service are operated last. Otherwise some services may
+     * not be managed anymore because the configuration service (Jetty Context) may be down and cannot launch
+     * any other call
+     *
+     * @param servicesMap a map that defines which services on which location has to be managed
+     * @param command
+     */
+    void manageServices(Map<Location, List<SipxService>> servicesMap, Command command);
 
     /**
      * Retrieve the list of the services that should be started and stopped on the location to

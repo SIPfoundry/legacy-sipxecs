@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.PROCESS_STATE_CHANGE;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
@@ -180,6 +181,27 @@ public class SipxProcessContextImpl implements SipxProcessContext {
     public void manageServices(Collection< ? extends SipxService> processes, Command command) {
         for (Location location : m_locationsManager.getLocations()) {
             manageServices(location, processes, command);
+        }
+    }
+
+    public void manageServices(Map<Location, List<SipxService>> servicesMap, Command command) {
+        Location configLocation = null;
+        List<SipxService> restartServicesLast = null;
+        SipxService configService = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        for (Location location : servicesMap.keySet()) {
+            List<SipxService> restartServices = servicesMap.get(location);
+            //remember only the first location where configuration service is found
+            //anyway, config service runs only on one location
+            if (!restartServices.contains(configService) || configLocation != null) {
+                manageServices(location, restartServices, command);
+            } else {
+                configLocation = location;
+                restartServicesLast = restartServices;
+            }
+        }
+        //restart services from config location last
+        if (configLocation != null && restartServicesLast != null) {
+            manageServices(configLocation, restartServicesLast, command);
         }
     }
 

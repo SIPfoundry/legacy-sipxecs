@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,6 +23,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -51,6 +53,7 @@ import static org.sipfoundry.sipxconfig.test.TestUtil.getMockSipxServiceManager;
 public class SipxProcessContextImplTest extends TestCase {
     private SipxProcessContextImpl m_processContextImpl;
     private LocationsManager m_locationsManager;
+    private SipxServiceManager m_sipxServiceManager;
     private Set<SipxServiceBundle> m_bundleSet = new HashSet<SipxServiceBundle>();
     SipxRegistrarService m_registrarService;
     SipxParkService m_parkService;
@@ -60,6 +63,14 @@ public class SipxProcessContextImplTest extends TestCase {
 
     private final static SipxService[] PROCESSES = new SipxService[] {
         new SipxRegistrarService(), new SipxParkService()
+    };
+
+    private final static SipxService[] PROCESSES_2 = new SipxService[] {
+        new SipxConfigService(), new SipxParkService()
+    };
+
+    private final static SipxService[] PROCESSES_3 = new SipxService[] {
+        new SipxRegistrarService()
     };
 
     private final static SipxService[] START_PROCESSLIST = new SipxService[] {
@@ -120,8 +131,14 @@ public class SipxProcessContextImplTest extends TestCase {
         expectLastCall().andReturn(location).anyTimes();
         replay(m_locationsManager);
 
+        m_sipxServiceManager = createNiceMock(SipxServiceManager.class);
+        m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        expectLastCall().andReturn(PROCESSES_2[0]);
+        replay(m_sipxServiceManager);
+
         m_processContextImpl = new SipxProcessContextImpl();
         m_processContextImpl.setLocationsManager(m_locationsManager);
+        m_processContextImpl.setSipxServiceManager(m_sipxServiceManager);
         m_processContextImpl.setAuditLogContext(new AuditLogContextImpl());
     }
 
@@ -271,6 +288,42 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.STOP);
         m_processContextImpl.manageServices(location, Arrays.asList(START_PROCESSLIST), Command.START);
         m_processContextImpl.manageServices(location, Arrays.asList(PROCESSES), Command.RESTART);
+        verify(provider, api);
+    }
+
+    public void testRestartServicesMapLocation() {
+        Location location1 = new Location();
+        location1.setUniqueId();
+        location1.setName("location1");
+        location1.setFqdn("location1Fqdn");
+        location1.setRegistered(true);
+
+        Location location2 = new Location();
+        location2.setUniqueId();
+        location2.setName("location2");
+        location2.setFqdn("location2Fqdn");
+        location2.setRegistered(true);
+
+        ProcessManagerApi api = createStrictMock(ProcessManagerApi.class);
+
+        api.restart(host(), asArray(PROCESSES_3[0].getProcessName()), block());
+        expectLastCall().andReturn(null);
+        api.restart(host(), asArray(PROCESSES_2[0].getProcessName(), PROCESSES_2[1].getProcessName()), block());
+        expectLastCall().andReturn(null);
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location2.getProcessMonitorUrl());
+        expectLastCall().andReturn(api);
+        provider.getApi(location1.getProcessMonitorUrl());
+        expectLastCall().andReturn(api);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        replay(provider, api);
+
+        Map<Location, List<SipxService>> servicesMap = new HashMap<Location, List<SipxService>>();
+        servicesMap.put(location1, Arrays.asList(PROCESSES_2));
+        servicesMap.put(location2, Arrays.asList(PROCESSES_3));
+        m_processContextImpl.manageServices(servicesMap, Command.RESTART);
         verify(provider, api);
     }
 

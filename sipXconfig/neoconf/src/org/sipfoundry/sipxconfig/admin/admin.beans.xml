@@ -130,4 +130,9 @@
   </bean>
 
   <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"/>
+
+  <bean id="restartListener" class="org.sipfoundry.sipxconfig.admin.RestartListener" scope="prototype">
+	<property name="sipxProcessContext" ref="sipxProcessContext" />
+  </bean>
+
 </beans>

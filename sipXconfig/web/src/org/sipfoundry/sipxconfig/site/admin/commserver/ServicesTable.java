@@ -18,6 +18,7 @@ import java.util.Map;
 import static java.util.Collections.sort;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.IPage;
@@ -30,10 +31,12 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.admin.RestartListener;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
@@ -46,11 +49,13 @@ import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
+import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 import org.sipfoundry.sipxconfig.site.sbc.EditSbcDevice;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
@@ -96,6 +101,12 @@ public abstract class ServicesTable extends BaseComponent {
 
     @InjectPage(EditLocationPage.PAGE)
     public abstract EditLocationPage getEditLocationPage();
+
+    @InjectPage(value = WaitingPage.PAGE)
+    public abstract WaitingPage getWaitingPage();
+
+    @InjectObject("spring:restartListener")
+    public abstract RestartListener getRestartListener();
 
     @Bean
     public abstract SelectMap getSelections();
@@ -238,38 +249,61 @@ public abstract class ServicesTable extends BaseComponent {
             getServiceLocation().removeServiceByBeanId(beanId);
         }
         getLocationsManager().storeLocation(getServiceLocation());
-        refresh();
     }
 
     public void start() {
         manageServices(SipxProcessContext.Command.START);
-        refresh();
     }
 
     public void stop() {
         manageServices(SipxProcessContext.Command.STOP);
-        refresh();
     }
 
-    public void restart() {
-        manageServices(SipxProcessContext.Command.RESTART);
-        refresh();
+    public IPage restart() {
+        return manageServices(SipxProcessContext.Command.RESTART);
     }
 
-    private void manageServices(SipxProcessContext.Command operation) {
+    private IPage manageServices(SipxProcessContext.Command operation) {
         Collection<String> serviceBeanIds = getSelections().getAllSelected();
         if (serviceBeanIds == null) {
-            return;
+            return null;
         }
 
         SipxServiceManager sipxServiceManager = getSipxServiceManager();
         List<SipxService> services = new ArrayList<SipxService>(serviceBeanIds.size());
+
+        boolean config = false;
+        boolean restartOperation = operation.equals(Command.RESTART);
+
         for (String beanId : serviceBeanIds) {
+            if (StringUtils.equals(beanId, SipxConfigService.BEAN_ID)) {
+                config = true;
+            }
             SipxService service = sipxServiceManager.getServiceByBeanId(beanId);
-            if (service != null) {
+            if (service != null && (!config || restartOperation)) {
                 services.add(service);
             }
         }
-        getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+
+        if (config && restartOperation) {
+            return performRestart(services);
+        } else {
+            getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+            refresh();
+            if (config && !restartOperation) {
+                throw new UserException("&only.restart.available");
+            }
+            return null;
+        }
+    }
+
+    private IPage performRestart(List<SipxService> services) {
+        RestartListener restartListener = getRestartListener();
+        Map<Location, List<SipxService>> servicesMap = new HashMap<Location, List<SipxService>>();
+        servicesMap.put(getServiceLocation(), services);
+        restartListener.setServicesMap(servicesMap);
+        WaitingPage waitingPage = getWaitingPage();
+        waitingPage.setWaitingListener(restartListener);
+        return waitingPage;
     }
 }
