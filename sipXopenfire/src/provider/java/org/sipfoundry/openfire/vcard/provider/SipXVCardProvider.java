@@ -58,16 +58,16 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * The name of the avatar element (<tt>&lt;PHOTO&gt;</tt>) in the vCard XML.
      */
-    private static final String DOMAIN_CONFIG_FILENAME = "/domain-config";
-    private static final String PLUGIN_CONFIG_FILENAME = "/config.properties";
-    private static final String PROP_SIPX_CONF_DIR = "sipxpbx.conf.dir";
-    private static final String PROP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
-    private static final String PROP_SECRET = "SHARED_SECRET";
-    private static final String DEFAULT_DOMAIN_NAME = "localhost";
-    private static final String DEFAULT_SECRET = "unknown";
-    private static final String MODIFY_METHOD = "PUT";
-    private static final String QUERY_METHOD = "GET";
-    private String m_SipDomainName;
+    static final String DOMAIN_CONFIG_FILENAME = "/domain-config";
+    static final String PLUGIN_CONFIG_FILENAME = "/config.properties";
+    static final String PROP_SIPX_CONF_DIR = "sipxpbx.conf.dir";
+    static final String PROP_CONFIG_HOST_NAME = "CONFIG_HOSTS";
+    static final String PROP_SECRET = "SHARED_SECRET";
+    static final String DEFAULT_DOMAIN_NAME = "localhost";
+    static final String DEFAULT_SECRET = "unknown";
+    static final String MODIFY_METHOD = "PUT";
+    static final String QUERY_METHOD = "GET";
+    private String m_ConfigHostName;
     private String m_SharedSecret;
 
     /**
@@ -87,11 +87,11 @@ public class SipXVCardProvider implements VCardProvider {
         Properties domain_config = loadProperties(DOMAIN_CONFIG_FILENAME);
         if (null != domain_config) {
 
-            m_SipDomainName = domain_config.getProperty(PROP_DOMAIN_NAME, DEFAULT_DOMAIN_NAME);
+            m_ConfigHostName = domain_config.getProperty(PROP_CONFIG_HOST_NAME, DEFAULT_DOMAIN_NAME).split(" ")[0];
             m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
         }
 
-        Log.info("Domain name is " + m_SipDomainName + " ShardSecret is " + m_SharedSecret);
+        Log.info("CONFIG_HOSTS is " + m_ConfigHostName );
 
         initTLS();
 
@@ -112,7 +112,7 @@ public class SipXVCardProvider implements VCardProvider {
         try {
             String sipUserName = getAORFromJABBERID(username);
             if (sipUserName != null) {
-                String resp = RestInterface.sendRequest(MODIFY_METHOD, m_SipDomainName,
+                String resp = RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName,
                         sipUserName, m_SharedSecret, element);
                 Log.debug("response from createVCard is " + resp);
             } else {
@@ -136,10 +136,10 @@ public class SipXVCardProvider implements VCardProvider {
         try {
             String sipUserName = getAORFromJABBERID(username);
             if (sipUserName != null) {
-                String resp = RestInterface.sendRequest(QUERY_METHOD, m_SipDomainName,
+                String resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName,
                         sipUserName, m_SharedSecret, null);
                 if (resp != null) {
-                    vCardElement = RestInterface.buildVCardFromXMLContactInfo(resp);
+                    vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
                     if (vCardElement != null) {
                         defaultProvider.deleteVCard(username);
                         defaultProvider.createVCard(username, vCardElement);
@@ -173,7 +173,7 @@ public class SipXVCardProvider implements VCardProvider {
         try {
             String sipUserName = getAORFromJABBERID(username);
             if (sipUserName != null) {
-                RestInterface.sendRequest(MODIFY_METHOD, m_SipDomainName, sipUserName,
+                RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName, sipUserName,
                         m_SharedSecret, vCardElement);
 
                 return loadVCard(username);
