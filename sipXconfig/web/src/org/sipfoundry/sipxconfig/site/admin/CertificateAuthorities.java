@@ -98,7 +98,7 @@ public abstract class CertificateAuthorities extends BaseComponent {
         String caFileName = uploadFile.getFileName();
         File tmpCAFile = getCertificateManager().getCATmpFile(caFileName);
         getUploadFile().write(tmpCAFile);
-        boolean valid = getCertificateManager().validateCertificate(tmpCAFile);
+        boolean valid = getCertificateManager().validateCertificateAuthority(tmpCAFile);
         if (!valid) {
             getValidator().record(new UserException("&error.valid", caFileName), getMessages());
             return;

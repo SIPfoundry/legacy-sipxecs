@@ -110,36 +110,80 @@
                     value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@UPLOAD"
 				    onchange="javascript:this.form.submit();"/>
 			</td>
+			<td>
+			  <span jwcid="crtFileRadioLabel@FieldLabel" field="component:crtFileRadio" displayName="message:label.file"/>
+			</td>
+			<td>
+              <span jwcid="crtRadio@Radio"
+                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@TEXT"
+                    onchange="javascript:this.form.submit();"/>
+            </td>
+            <td>
+			  <span jwcid="crtRadioLabel@FieldLabel" field="component:crtRadio" displayName="message:label.text"/>
+			</td>
+          </tr>
+        </table>
+        <table>
+          <span jwcid="@If" condition="ognl:!uploadDisabled">
+          <tr>
             <td>
               <span jwcid="crtFileLabel@FieldLabel"
 			        field="component:crtFile"/>
             </td>
 			<td>
 			  <span jwcid="crtFile@Upload"
-                    file="ognl:uploadFile"
+                    file="ognl:uploadCrtFile"
                     displayName="message:label.crtFile"
                     disabled="ognl:uploadDisabled"/>
 			</td>
-          </tr>
-          <tr>
+		 </tr>
+		 <tr>
+            <td>
+              <span jwcid="keyFileLabel@FieldLabel"
+			        field="component:keyFile"/>
+            </td>
 			<td>
-              <span jwcid="crtRadio@Radio"
-                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@TEXT"
-                    onchange="javascript:this.form.submit();"/>
+			  <span jwcid="keyFile@Upload"
+                    file="ognl:uploadKeyFile"
+                    displayName="message:label.keyFile"
+                    disabled="ognl:uploadDisabled"/>
 			</td>
+          </tr>
+          </span>
+          <span jwcid="@If" condition="ognl:uploadDisabled">
+          <tr>
             <td>
               <span jwcid="crtLabel@FieldLabel"
                     field="component:crt"/>
 			</td>
+	      </tr>
+          <tr>
             <td>
               <span jwcid="crt@TextArea"
                     value="ognl:certificate"
                     displayName="message:label.crt"
-                    rows="16"
+                    rows="8"
                     cols="65"
                     disabled="ognl:textDisabled"/>
 			</td>
-          </tr>
+           </tr>
+           <tr>
+             <td>
+               <span jwcid="keyLabel@FieldLabel"
+                    field="component:key"/>
+			 </td>
+           </tr>
+           <tr>
+             <td>
+               <span jwcid="key@TextArea"
+                     value="ognl:key"
+                     displayName="message:label.key"
+                     rows="8"
+                     cols="65"
+                     disabled="ognl:textDisabled"/>
+			 </td>
+           </tr>
+          </span>
         </table>
         <span jwcid="import@Submit"
               id="import"

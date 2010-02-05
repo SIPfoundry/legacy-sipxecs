@@ -83,9 +83,13 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
 
     public abstract void setCsr(String csr);
 
-    public abstract IUploadFile getUploadFile();
+    public abstract IUploadFile getUploadCrtFile();
+
+    public abstract IUploadFile getUploadKeyFile();
 
     public abstract String getCertificate();
+
+    public abstract String getKey();
 
     @InitialValue(value = "@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@UPLOAD")
     public abstract Integer getImportMethodSelected();
@@ -152,24 +156,31 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
             return;
         }
 
-        IUploadFile uploadFile = getUploadFile();
+        IUploadFile uploadCrtFile = getUploadCrtFile();
+        IUploadFile uploadKeyFile = getUploadKeyFile();
         String certificate = getCertificate();
+        String key = getKey();
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
 
-        if (uploadFile == null && certificate == null) {
+        if (uploadCrtFile == null && certificate == null) {
             validator.record(new UserException("&msg.selectOneSource"), getMessages());
             return;
         }
 
-        if (uploadFile != null) {
-            uploadFile.write(getCertificateManager().getCRTFile());
+        if (uploadCrtFile != null) {
+            uploadCrtFile.write(getCertificateManager().getCRTFile());
         } else if (certificate != null) {
             getCertificateManager().writeCRTFile(certificate);
         }
 
-        getCertificateManager().copyKeyAndCertificate();
-        getCertificateManager().generateKeyStores();
+        if (uploadKeyFile != null) {
+            uploadKeyFile.write(getCertificateManager().getKeyFile());
+        } else if (key != null) {
+            getCertificateManager().writeKeyFile(key);
+        }
+
+        getCertificateManager().importKeyAndCertificate(uploadKeyFile == null && key == null);
 
         validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
     }

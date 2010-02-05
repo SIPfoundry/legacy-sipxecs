@@ -87,9 +87,16 @@ public class CertificateManagerTest extends TestCase {
     }
 
     public void testValid() throws Exception {
-        boolean valid = m_manager.validateCertificate(new File("invalidCA.crt"));
+        boolean valid = m_manager.validateCertificate(new File("invalidCRT.crt"));
         assertFalse(valid);
-        valid = m_manager.validateCertificate(new File("validCA.crt"));
+        valid = m_manager.validateCertificate(new File("validCRT.crt"));
+        assertTrue(valid);
+    }
+
+    public void testValidCA() throws Exception {
+        boolean valid = m_manager.validateCertificateAuthority(new File("invalidCA.crt"));
+        assertFalse(valid);
+        valid = m_manager.validateCertificateAuthority(new File("validCA.crt"));
         assertTrue(valid);
     }
 

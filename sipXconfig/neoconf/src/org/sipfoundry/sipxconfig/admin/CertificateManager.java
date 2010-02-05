@@ -26,11 +26,17 @@ public interface CertificateManager {
 
     File getCRTFile();
 
+    File getKeyFile();
+
     void writeCRTFile(String crt);
 
-    void copyKeyAndCertificate();
+    void writeKeyFile(String key);
+
+    void importKeyAndCertificate(boolean isCsrBased);
 
     boolean validateCertificate(File file);
+
+    boolean validateCertificateAuthority(File file);
 
     String showCertificate(File file);
 

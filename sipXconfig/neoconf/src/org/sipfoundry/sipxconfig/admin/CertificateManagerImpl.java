@@ -62,7 +62,10 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String KEYSTOREGEN_SH = "/sipxkeystoregen";
     private static final String CHECK_CERT = "/check-cert.sh";
     private static final String WEB_ONLY = "--web-only";
+    private static final String WEB_KEY = "-web.key";
     private static final String SSL_CERT = "ssl.crt";
+    private static final String ERROR_CERT_VALIDATE = "&error.validate";
+    private static final String ERROR_MSG_COPY = "&msg.copyError";
 
     private String m_binCertDirectory;
 
@@ -160,11 +163,17 @@ public class CertificateManagerImpl implements CertificateManager {
         return cmdLine;
     }
 
-    private String[] getValidateCertFileCommand(File file) {
-        String[] cmdLine = new String[] {
-            m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()
-        };
-        return cmdLine;
+    private String[] getValidateCertFileCommand(File file, boolean isCA) {
+        if (isCA) {
+            return new String[] {
+                m_binCertDirectory + CHECK_CERT, "--certificate-authority ", file.getPath()
+            };
+        } else {
+            return new String[] {
+                m_binCertDirectory + CHECK_CERT, file.getPath()
+            };
+        }
+
     }
 
     private String[] getShowCertFileCommand(File file) {
@@ -180,7 +189,6 @@ public class CertificateManagerImpl implements CertificateManager {
         };
         return cmdLine;
     }
-
     private String[] getKeyStoreGenCommand() {
         String[] cmdLine = new String[] {
             m_libExecDirectory + KEYSTOREGEN_SH
@@ -235,16 +243,27 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
-    public boolean validateCertificate(File file) {
+    public boolean validateCertificateAuthority(File file) {
         try {
-            runCommand(getValidateCertFileCommand(file));
+            runCommand(getValidateCertFileCommand(file, true));
             return true;
         } catch (ScriptExitException ex) {
             deleteCRTAuthorityTmpDirectory();
             return false;
         } catch (RuntimeException ex) {
             deleteCRTAuthorityTmpDirectory();
-            throw new UserException("&error.validate", file.getName());
+            throw new UserException(ERROR_CERT_VALIDATE, file.getName());
+        }
+    }
+
+    public boolean validateCertificate(File file) {
+        try {
+            runCommand(getValidateCertFileCommand(file, false));
+            return true;
+        } catch (ScriptExitException ex) {
+            return false;
+        } catch (RuntimeException ex) {
+            throw new UserException(ERROR_CERT_VALIDATE, file.getName());
         }
     }
 
@@ -285,6 +304,10 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public File getCRTFile() {
         return new File(m_certDirectory, getPrimaryServerFqdn() + "-web.crt");
+    }
+
+    public File getKeyFile() {
+        return new File(m_certDirectory, getPrimaryServerFqdn() + WEB_KEY);
     }
 
     public void deleteCA(CertificateDecorator cert) {
@@ -381,42 +404,79 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
-    public void copyKeyAndCertificate() {
-        File sourceCertificate = getCRTFile();
-        if (!sourceCertificate.exists()) {
+    public void writeKeyFile(String key) {
+        File keyFile = getKeyFile();
+        try {
+            FileUtils.writeStringToFile(keyFile, key);
+        } catch (IOException e) {
+            throw new UserException(WRITE_ERROR, keyFile.getPath());
+        }
+    }
+
+    public void importKeyAndCertificate(boolean isCsrBased) {
+        File newCertificate = getCRTFile();
+        if (!newCertificate.exists()) {
             return;
         }
 
-        File sourceKey = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.key");
-        if (!sourceKey.exists()) {
+        File newKey = getKeyFile();
+        if (!newKey.exists()) {
             return;
+        }
+
+        if (!validateCertificate(getCRTFile())) {
+            throw new UserException("&error.valid");
+        }
+
+        File oldCertificate = new File(m_sslDirectory, "ssl-web.crt");
+        File oldKey = new File(m_sslDirectory, "ssl-web.key");
+
+        File backupCertificate = new File(m_sslDirectory, "ssl-web.oldcrt");
+        File backupKey = new File(m_sslDirectory, "ssl-web.oldkey");
+
+        try {
+            if (isCsrBased) {
+                Runtime runtime = Runtime.getRuntime();
+                String[] cmdLine = new String[] {
+                    m_binCertDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY,
+                    DEFAULTS_FLAG, PARAMETERS_FLAG, PROPERTIES_FILE,
+                };
+                Process proc = runtime.exec(cmdLine);
+                LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));
+                proc.waitFor();
+                if (proc.exitValue() != 0) {
+                    throw new UserException(SCRIPT_ERROR, SCRIPT_EXCEPTION_MESSAGE + proc.exitValue());
+                }
+            }
+
+            FileUtils.copyFile(oldCertificate, backupCertificate);
+            FileUtils.copyFile(oldKey, backupKey);
+
+            FileUtils.copyFile(newCertificate, oldCertificate);
+            FileUtils.copyFile(newKey, oldKey);
+        } catch (Exception ex) {
+            throw new UserException(ERROR_MSG_COPY);
         }
 
         try {
-            Runtime runtime = Runtime.getRuntime();
-            String[] cmdLine = new String[] {
-                m_binCertDirectory + GEN_SSL_KEYS_SH, WORKDIR_FLAG, m_certDirectory, "--pkcs", WEB_ONLY,
-                DEFAULTS_FLAG, PARAMETERS_FLAG, PROPERTIES_FILE,
-            };
-            Process proc = runtime.exec(cmdLine);
-            LOG.debug(RUNNING + StringUtils.join(cmdLine, BLANK));
-            proc.waitFor();
-            if (proc.exitValue() != 0) {
-                throw new UserException(SCRIPT_ERROR, SCRIPT_EXCEPTION_MESSAGE + proc.exitValue());
+            generateKeyStores();
+        } catch (UserException userException) {
+            try {
+                FileUtils.copyFile(backupCertificate, oldCertificate);
+                FileUtils.copyFile(backupKey, oldKey);
+
+                backupCertificate.delete();
+                backupKey.delete();
+
+            } catch (Exception ex) {
+                throw new UserException(ERROR_MSG_COPY);
             }
-            File destinationCertificate = new File(m_sslDirectory, "ssl-web.crt");
-            File destinationKey = new File(m_sslDirectory, "ssl-web.key");
-            FileUtils.copyFile(sourceCertificate, destinationCertificate);
-            FileUtils.copyFile(sourceKey, destinationKey);
-            File sourceKeyStore = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.keystore");
-            File destinationKeyStore = new File(m_sslDirectory, "ssl-web.keystore");
-            FileUtils.copyFile(sourceKeyStore, destinationKeyStore);
-            File sourcePkcsKeyStore = new File(m_certDirectory, getPrimaryServerFqdn() + "-web.p12");
-            File destinationPkcsKeyStore = new File(m_sslDirectory, "ssl-web.p12");
-            FileUtils.copyFile(sourcePkcsKeyStore, destinationPkcsKeyStore);
-        } catch (Exception e) {
-            throw new UserException("&msg.copyError");
+
+            throw userException;
         }
+
+        backupCertificate.delete();
+        backupKey.delete();
     }
 
     private String getPrimaryServerFqdn() {

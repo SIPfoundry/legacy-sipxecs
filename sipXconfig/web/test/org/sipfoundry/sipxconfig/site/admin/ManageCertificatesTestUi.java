@@ -43,10 +43,11 @@ public class ManageCertificatesTestUi extends WebTestCase {
         clickLink("link:import");
         setWorkingForm("importForm");
         assertFormElementPresent("crtFile");
-        assertFormElementPresent("crt");
-        assertFormElementPresent("importMethod");
+        assertFormElementPresent("keyFile");
+
         assertElementPresent("importMethod0");
-        assertElementPresent("importMethod1");
+        assertElementPresent("importMethod2");
+
         //TODO enhanced testing
     }
 
