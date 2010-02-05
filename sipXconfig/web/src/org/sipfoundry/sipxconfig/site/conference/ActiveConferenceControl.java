@@ -146,6 +146,9 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     @Asset(value = "context:/WEB-INF/conference/ActiveConferenceControl.script")
     public abstract IAsset getScript();
 
+    @Asset(value = "context:/WEB-INF/conference/ControlCheckbox.script")
+    public abstract IAsset getControlCheckboxScript();
+
     void recordFailure(UserException ue) {
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (validator instanceof SipxValidationDelegate) {
