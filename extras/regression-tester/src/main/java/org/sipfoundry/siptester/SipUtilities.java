@@ -6,6 +6,7 @@ import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
+import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.MessageFactoryExt;
 import gov.nist.javax.sip.message.RequestExt;
@@ -614,6 +615,12 @@ public class SipUtilities {
                             newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory())
                                     .createRouteHeader(newAddress);
 
+                        } else if (newHeader.getName().equals(ReplacesHeader.NAME)) {
+                            ReplacesHeader replacesHeader = (ReplacesHeader) newHeader;
+                            String fromTag = SipTester.getMappedFromTag(replacesHeader.getFromTag());
+                            String toTag = SipTester.getMappedToTag(replacesHeader.getToTag());
+                            String callId = replacesHeader.getCallId();
+                            newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory()).createReplacesHeader(callId, toTag, fromTag);
                         }
                         newMessage.addHeader(newHeader);
                     }
@@ -925,7 +932,10 @@ public class SipUtilities {
 
         SipUtilities.copyHeaders(traceRequest, triggeringMessage, newRequest, endpoint.getTraceEndpoint());
 
-        newRequest.removeHeader(RecordRouteHeader.NAME);
+        if ( endpoint.getTraceEndpoint().getBehavior() == Behavior.UA) {
+            newRequest.removeHeader(RecordRouteHeader.NAME);
+        }
+        
         return (RequestExt) newRequest;
 
     }

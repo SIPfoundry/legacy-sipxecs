@@ -2,23 +2,18 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipProviderExt;
-import gov.nist.javax.sip.message.RequestExt;
-import gov.nist.javax.sip.message.SIPRequest;
 import gov.nist.javax.sip.message.SIPResponse;
 
-import java.net.DatagramSocket;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
-import javax.sip.address.SipURI;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
@@ -169,8 +164,7 @@ public class EmulatedEndpoint extends HostPort {
             public void run() {
 
                 if (clientTransactions.isEmpty()) {
-                    System.out.println(traceEndpoint.getIpAddress() + ":"
-                            + traceEndpoint.getPort() + " Nothing to run");
+                    System.out.println(traceEndpoint.getTraceIpAddresses() +  " Nothing to run");
                     doneFlag = true;
                     return;
                 }

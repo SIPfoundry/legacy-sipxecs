@@ -280,6 +280,8 @@ public class SipServerTransaction extends SipTransaction implements
         } else {
             logger.debug("dialog is not set for SipServerTransaction ");
         }
+        RequestExt request = (RequestExt)serverTransaction.getRequest();
+        SipTester.mapFromTag(this.getSipRequest().getSipRequest(),request);
     }
 
     public SipClientTransaction getMatchingClientTransaction() {

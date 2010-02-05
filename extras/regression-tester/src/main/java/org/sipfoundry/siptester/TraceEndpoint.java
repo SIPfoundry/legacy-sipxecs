@@ -9,12 +9,47 @@ import org.sipfoundry.commons.jainsip.ListeningPointAddress;
  * This class represents a endpoint from the SUT where the trace was originally taken.
  * 
  */
-public class TraceEndpoint extends HostPort  {
+public class TraceEndpoint   {
     private EmulatedEndpoint emulatedEndpoint;
     private String defaultTransport = "udp";
     private Behavior behavior;
     private int emulatedPort;
     private boolean isEmulated = true;
+    
+    protected HashSet<HostPort> traceIpAddresses = new HashSet<HostPort>();
+   
+    
+    public HashSet<HostPort> getTraceIpAddresses() {
+        return this.traceIpAddresses;
+    }
+    
+    public void addHostPort(String hostPort) {
+        int port = 5060;
+        String host = hostPort;
+        if (hostPort.indexOf(":") > 0 ) {
+            port = Integer.parseInt(hostPort.substring(hostPort.indexOf(":") + 1));
+            host = hostPort.substring(0,hostPort.indexOf(":"));
+        }
+        this.traceIpAddresses.add( new HostPort(host,port));
+       
+    }
+    
+    
+    @Override
+    public int hashCode() {
+       return traceIpAddresses.hashCode();
+    }
+    
+    public String toString() {
+        return traceIpAddresses.toString();
+    }
+    
+    @Override
+    public boolean equals(Object that) {
+        TraceEndpoint other = (TraceEndpoint) that;
+        return this.traceIpAddresses.equals(other.traceIpAddresses);
+    }
+   
     
     public String getDefaultTransport() {
         return this.defaultTransport;
@@ -27,26 +62,11 @@ public class TraceEndpoint extends HostPort  {
     /**
      * @param ipAddress the ipAddress to set
      */
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
+    public void addTraceHostPort(HostPort hostPort) {
+       this.traceIpAddresses.add(hostPort);
     }
-    /**
-     * @return the ipAddress
-     */
-    public String getIpAddress() {
-        return ipAddress;
-    }
-    /**
-     * @param port the port to set
-     */
-    public void setPort(String port) {  
-        this.port = Integer.parseInt(port) ;
-    }
-  
     
-    public void setEmulatedPort(String port) {
-        this.emulatedPort = Integer.parseInt(port) + SipTester.getTesterConfig().getBasePort();
-    }
+    
     
     public void setEmulatedEndpoint(EmulatedEndpoint endpoint) {
         this.emulatedEndpoint = endpoint;
@@ -74,6 +94,10 @@ public class TraceEndpoint extends HostPort  {
 
     public int getEmulatedPort() {
         return this.emulatedPort;
+    }
+    
+    public void setEmulatedPort(String portString) {
+        this.emulatedPort =  SipTester.getTesterConfig().getBasePort() + Integer.parseInt(portString);
     }
    
       

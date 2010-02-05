@@ -4,6 +4,7 @@ import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.message.RequestExt;
+import gov.nist.javax.sip.message.ResponseExt;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.BufferedReader;
@@ -70,6 +71,10 @@ public class SipTester {
      * map is set up when we see an inbound request.
      */
     private static Map<String,String> traceToActualViaParameters = new HashMap<String,String>();
+    
+    private static Map<String,String> toTagMap = new HashMap<String,String>();
+    
+    private static Map<String,String> fromTagMap = new HashMap<String,String>();
 
     static {
         try {
@@ -84,7 +89,7 @@ public class SipTester {
     /*
      * Key is ipAddress:port. This is the map from the original machine. TODO - fill this up.
      */
-    private static Hashtable<String, TraceEndpoint> endpoints = new Hashtable<String, TraceEndpoint>();
+    private static HashSet<TraceEndpoint> traceEndpoints = new HashSet<TraceEndpoint>();
 
     static AtomicBoolean failed = new AtomicBoolean(false);
 
@@ -92,18 +97,23 @@ public class SipTester {
 
     private static ConcurrentSkipListSet<SipClientTransaction> runnable;
 
-    public static EmulatedEndpoint getEndpoint(String sourceAddress, int port) {
-        String key = sourceAddress + ":" + port;
-        if (endpoints.get(key) != null) {
-            return endpoints.get(key).getEmulatedEndpoint();
-        } else {
-            return null;
+    public static EmulatedEndpoint getEmulatedEndpoint(String sourceAddress, int port) {
+         
+        for ( TraceEndpoint traceEndpoint : SipTester.traceEndpoints ) {
+            for ( HostPort hp : traceEndpoint.traceIpAddresses ) {
+                if ( hp.getIpAddress().equals(sourceAddress) && hp.getPort() == port) {
+                    return traceEndpoint.getEmulatedEndpoint();
+                }
+            }
         }
+        
+        return null;
+        
     }
 
-    public static Collection<EmulatedEndpoint> getEndpoints() {
+    public static Collection<EmulatedEndpoint> getEmulatedEndpoints() {
         Collection<EmulatedEndpoint> retval = new HashSet<EmulatedEndpoint>();
-        for (TraceEndpoint sutUa : endpoints.values()) {
+        for (TraceEndpoint sutUa : traceEndpoints ) {
             retval.add(sutUa.getEmulatedEndpoint());
         }
         return retval;
@@ -181,7 +191,7 @@ public class SipTester {
          */
         Iterator<SipServerTransaction> it1 = SipTester.serverTransactionMap.values().iterator();
         logger.debug("serverTransactionMap size = " + SipTester.serverTransactionMap.size() + " clientTransactionMap size = " + SipTester.clientTransactionMap.size() );
-        for (EmulatedEndpoint endpoint : SipTester.getEndpoints()) {
+        for (EmulatedEndpoint endpoint : SipTester.getEmulatedEndpoints()) {
             for (SipServerTransaction st : endpoint.getServerTransactions()) {
                 /*
                  * Do not iterate over loops where the client and server tx are from 
@@ -363,7 +373,6 @@ public class SipTester {
 
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
             monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
-            monitoredInterfaces.printEndpoints();
             ValidUsersXML
                     .setValidUsersFileName(traceprefix + "/trace/etc/sipxpbx/validusers.xml");
             sutValidUsers = ValidUsersXML.update(logger, true);
@@ -398,15 +407,14 @@ public class SipTester {
                 }
             }
             for (TraceEndpoint traceEndpoint : monitoredInterfaces.getEmulatedEndpoints()) {
-                String key = traceEndpoint.getIpAddress() + ":" + traceEndpoint.getPort();
-
+               
                 int port = traceEndpoint.getEmulatedPort();
                 String ipAddress = testerConfig.getTesterIpAddress();
                 EmulatedEndpoint endpoint = new EmulatedEndpoint(ipAddress, port);
                 sipStackBean = new SipStackBean(endpoint);
                 traceEndpoint.setEmulatedEndpoint(endpoint);
                 endpoint.setTraceEndpoint(traceEndpoint);
-                SipTester.endpoints.put(key, traceEndpoint);
+                SipTester.traceEndpoints.add(traceEndpoint);
                 ListeningPointAddressImpl tcpListeningPointAddress = new ListeningPointAddressImpl(
                         endpoint, "tcp");
                 ListeningPointAddressImpl udpListeningPointAddress = new ListeningPointAddressImpl(
@@ -428,6 +436,9 @@ public class SipTester {
                 endpoint.setSipStack(sipStackBean);
 
             }
+            for (TraceEndpoint traceEndpoint : SipTester.traceEndpoints) {
+                logger.debug("traceEndpoint = " + traceEndpoint.getTraceIpAddresses());
+            }
 
             System.out.println("Analyzing trace from file: " + traceprefix
                     + "/trace/var/log/sipxpbx/merged.xml");
@@ -442,11 +453,14 @@ public class SipTester {
             /*
              * The list of transactions that are runnable.
              */
+            for ( TraceEndpoint traceEndpoint : SipTester.traceEndpoints ) {
+                System.out.println("traceEndpoint = " + traceEndpoint.getTraceIpAddresses());
+                System.out.println("clientTransaction = " 
+                        + traceEndpoint.getEmulatedEndpoint().getClientTransactions().size());
+            }
             SipTester.runnable = new ConcurrentSkipListSet<SipClientTransaction>();
-            for (TraceEndpoint traceEndpoint : endpoints.values()) {
+            for (TraceEndpoint traceEndpoint : traceEndpoints) {
                 EmulatedEndpoint endpoint = traceEndpoint.getEmulatedEndpoint();
-                logger.debug("endpoint " + endpoint.getTraceEndpoint().getIpAddress() + "/"
-                        + endpoint.getTraceEndpoint().getPort());
                 Iterator<SipClientTransaction> it = endpoint.getClientTransactions().iterator();
                 while (it.hasNext()) {
 
@@ -509,6 +523,8 @@ public class SipTester {
                 }
 
             }
+            
+            System.out.println("phase1 runnable.size() " + runnable.size());
 
             /*
              * Determine all the server transactions that are activated by server transactions
@@ -588,7 +604,7 @@ public class SipTester {
                 }
             }
 
-            for (TraceEndpoint traceEndpoint : endpoints.values()) {
+            for (TraceEndpoint traceEndpoint : traceEndpoints) {
                 traceEndpoint.getEmulatedEndpoint().removeUnEmulatedClientTransactions(runnable);
             }
 
@@ -624,14 +640,14 @@ public class SipTester {
 
             Thread.sleep(500);
 
-            for (TraceEndpoint traceEndpoint : endpoints.values()) {
+            for (TraceEndpoint traceEndpoint : traceEndpoints) {
                 traceEndpoint.getEmulatedEndpoint().runEmulatedCallFlow(startTime);
             }
 
             while (true) {
                 Thread.sleep(1000);
                 boolean doneFlag = true;
-                for (TraceEndpoint traceEndpoint : endpoints.values()) {
+                for (TraceEndpoint traceEndpoint : traceEndpoints) {
                     if (!traceEndpoint.getEmulatedEndpoint().doneFlag) {
                         doneFlag = false;
                     }
@@ -651,7 +667,7 @@ public class SipTester {
     }
 
     public static EmulatedEndpoint getEndpoint(ListeningPointExt listeningPoint) {
-        for (EmulatedEndpoint endpoint : SipTester.getEndpoints()) {
+        for (EmulatedEndpoint endpoint : SipTester.getEmulatedEndpoints()) {
             if (endpoint.getListeningPoints().contains(listeningPoint))
                 return endpoint;
         }
@@ -742,7 +758,36 @@ public class SipTester {
         }
         
     }
+    
+    public static void mapToTag(ResponseExt traceResponse, ResponseExt response) {
+        String traceToTag = traceResponse.getToHeader().getTag();
+        String actualToTag = response.getToHeader().getTag();
+        SipTester.toTagMap.put(traceToTag, actualToTag);
+    }
 
+    public static void mapFromTag(RequestExt traceRequest, RequestExt request) {
+        String traceFromTag = traceRequest.getFromHeader().getTag();
+        String actualFromTag = request.getFromHeader().getTag();
+        SipTester.fromTagMap.put(traceFromTag,actualFromTag);
+    }
+
+    public static String getMappedFromTag(String traceFromTag) {
+        if (SipTester.fromTagMap.get(traceFromTag) != null ){
+            return SipTester.fromTagMap.get(traceFromTag);
+        } else {
+            logger.debug("Map not found for " + traceFromTag);
+            return traceFromTag;
+        }
+    }
+    
+    public static String getMappedToTag(String traceToTag ) {
+        if (SipTester.toTagMap.get(traceToTag) != null ){
+            return SipTester.toTagMap.get(traceToTag);
+        } else {
+            logger.debug("Map not found for " + traceToTag);
+            return traceToTag;
+        }
+    }
 
 
 }

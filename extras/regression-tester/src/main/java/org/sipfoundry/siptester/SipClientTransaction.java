@@ -428,6 +428,10 @@ public class SipClientTransaction extends SipTransaction implements
                  * code.
                  */
                 if (sipResponse.getSipResponse().getStatusCode() == response.getStatusCode()) {
+                    if ( sipResponse.getSipResponse().getToHeader().getTag() != null && 
+                            response.getToHeader().getTag() != null ) {
+                        SipTester.mapToTag(sipResponse.getSipResponse(), response);
+                    }
                     if (response.getStatusCode() / 100 >= 2
                             && !SipTester.checkProvisionalResponses()) {
                         for (SipResponse sipResponse1 : this.sipResponses) {
@@ -483,7 +487,7 @@ public class SipClientTransaction extends SipTransaction implements
 
             if (!retval) {
                 if (!SipTester.failed.getAndSet(true)) {
-                    for (EmulatedEndpoint endpoint : SipTester.getEndpoints()) {
+                    for (EmulatedEndpoint endpoint : SipTester.getEmulatedEndpoints()) {
                         for (SipClientTransaction ctx : endpoint.getClientTransactions()) {
                             if (ctx.waiting) {
                                 ctx.debugPrintHappensBefore();

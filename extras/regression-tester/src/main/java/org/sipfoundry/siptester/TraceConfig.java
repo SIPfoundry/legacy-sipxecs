@@ -4,28 +4,29 @@ import java.util.HashSet;
 
 public class TraceConfig {
       
-    HashSet<TraceEndpoint> traceEndpointCollection = new HashSet<TraceEndpoint>();
+    HashSet<TraceEndpoint> emulatedEndpoints = new HashSet<TraceEndpoint>();
     
-    HashSet<HostPort> endpointsOfInterest = new HashSet<HostPort> ();
-    
+    HashSet<TraceEndpoint> allEndpoints = new HashSet<TraceEndpoint>();
+      
     
     public void addTraceEndpoint(TraceEndpoint traceEndpoint) {
         if ( traceEndpoint.isEmulated() ) {
-            this.traceEndpointCollection.add(traceEndpoint);
-        } 
-        this.endpointsOfInterest.add(traceEndpoint);
+            this.emulatedEndpoints.add(traceEndpoint);
+        }
+        this.allEndpoints.add(traceEndpoint);
+      
+        System.out.println("traceEndpoint = " + traceEndpoint.getTraceIpAddresses());
     }
     
     public HashSet<TraceEndpoint> getEmulatedEndpoints() {
-        return this.traceEndpointCollection;
+        return this.emulatedEndpoints;
     }
 
     public boolean isEndpointOfInterest(HostPort targetHostPort) {
-       return endpointsOfInterest.contains(targetHostPort);
-    }
-
-    public void printEndpoints() {
-      System.out.println(this.endpointsOfInterest)  ;
+       for (TraceEndpoint traceEndpoint : this.allEndpoints) {
+           if ( traceEndpoint.getTraceIpAddresses().contains(targetHostPort)) return true;
+       }
+       return false;
     }
     
    

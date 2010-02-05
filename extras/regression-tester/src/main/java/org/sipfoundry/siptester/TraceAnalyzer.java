@@ -46,14 +46,14 @@ public class TraceAnalyzer {
                 int port = capturedLogPacket.getDestinationPort();
                
 
-                EmulatedEndpoint destEndpoint = SipTester.getEndpoint(address, port);
+                EmulatedEndpoint destEndpoint = SipTester.getEmulatedEndpoint(address, port);
                 String transactionid = sipRequest.getTransactionId().toLowerCase();
                 String viaAddress = capturedLogPacket.getTopmostViaHost();
                 int viaPort = capturedLogPacket.getTopmostViaPort();
                 if (viaPort == -1) {
                     viaPort = 5060;
                 }
-                EmulatedEndpoint sourceEndpoint = SipTester.getEndpoint(viaAddress, viaPort);
+                EmulatedEndpoint sourceEndpoint = SipTester.getEmulatedEndpoint(viaAddress, viaPort);
                 logger.debug("adding request " + sipRequest.getMethod() + " frameId "
                         + capturedLogPacket.getFrameId() + " source " + address + " port " + port );
                 if (sourceEndpoint != destEndpoint) {

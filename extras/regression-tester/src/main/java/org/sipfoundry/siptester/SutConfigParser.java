@@ -25,9 +25,7 @@ public class SutConfigParser {
         digester.addObjectCreate(String.format("%s/%s", SUT_CONFIG,ENDPOINT), TraceEndpoint.class);
         digester.addSetNext(String.format("%s/%s", SUT_CONFIG,ENDPOINT), "addTraceEndpoint");      
         digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,IP_ADDRESS),
-                "setIpAddress",0);
-        digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,PORT),
-                "setPort",0);
+                "addHostPort",0);
         digester.addCallMethod(String.format("%s/%s/%s", SUT_CONFIG,ENDPOINT,IS_EMULATED),
                 "setIsEmulated",0);
      
