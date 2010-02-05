@@ -201,7 +201,7 @@ public class CpRetrieve {
             pl.addFragment("have_new_messages_lots"); 
         }    
         
-        int newUrgent = m_messages.getUrgentCount();
+        int newUrgent = m_messages.getUnhreadUrgentCount();
         
         if(newUrgent > 0) {
             if(newUrgent == unheard) {

@@ -49,7 +49,7 @@ public class Messages {
     List<String> m_MsgIds;
 
     int m_numUnheard;
-    int m_numUrgent;
+    int m_numUnheadUrgent;
 
     File m_inboxDir;
     File m_savedDir;
@@ -172,14 +172,14 @@ public class Messages {
                 if (vmMessage == null) {
                     continue;
                 }
+                
                 if (countUnheard && vmMessage.isUnHeard()) {
                     m_numUnheard++;
+                    if(vmMessage.isUrgent()) {
+                        m_numUnheadUrgent++; 
+                    }
                 }
-                
-                if (vmMessage.isUrgent()) {
-                    m_numUrgent++;
-                }
-                          
+                                         
                 if(msgIds != null) {
                     msgIds.add(id);
                 }    
@@ -259,8 +259,8 @@ public class Messages {
         return m_numUnheard;
     }
     
-    public synchronized int getUrgentCount() {
-        return m_numUrgent;
+    public synchronized int getUnhreadUrgentCount() {
+        return m_numUnheadUrgent;
     }
     
     public synchronized int getHeardCount() {
