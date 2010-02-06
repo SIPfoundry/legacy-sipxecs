@@ -53,16 +53,7 @@ public class SipStackBean extends AbstractSipStackBean {
 
     @Override
     public SecureAccountManager getHashedPasswordAccountManager() {
-        try {
-            if ( endpoint.getTraceEndpoint().getBehavior().equals(Behavior.UA) || 
-                    endpoint.getTraceEndpoint().getBehavior().equals(Behavior.PROXY) ) {
-                    return new AccountManagerImpl();
-            } else {
-                return null;
-            }
-        } catch (Exception ex) {
-            throw new SipTesterException(ex);
-        }
+        return null;
     }
     
   
@@ -79,7 +70,16 @@ public class SipStackBean extends AbstractSipStackBean {
 
     @Override
     public AccountManager getPlainTextPasswordAccountManager() {
-        return null;
+        try {
+            if ( endpoint.getTraceEndpoint().getBehavior().equals(Behavior.UA) || 
+                    endpoint.getTraceEndpoint().getBehavior().equals(Behavior.PROXY) ) {
+                    return new AccountManagerImpl();
+            } else {
+                return null;
+            }
+        } catch (Exception ex) {
+            throw new SipTesterException(ex);
+        }
     }
 
     @Override

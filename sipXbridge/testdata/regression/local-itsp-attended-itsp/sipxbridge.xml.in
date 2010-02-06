@@ -26,11 +26,11 @@
   </bridge-configuration>
 
   <itsp-account>
-    <itsp-proxy-domain>tester-config.tester-ip-address</itsp-proxy-domain>
+    <itsp-proxy-domain>ot.bandwidth.com</itsp-proxy-domain>
     <itsp-proxy-address>tester-config.tester-ip-address</itsp-proxy-address>
     <itsp-proxy-listening-port>5056</itsp-proxy-listening-port>
     <register-on-initialization>false</register-on-initialization>
-    <use-global-addressing>true</use-global-addressing>
+    <use-global-addressing>false</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
     <is-user-phone>true</is-user-phone>
