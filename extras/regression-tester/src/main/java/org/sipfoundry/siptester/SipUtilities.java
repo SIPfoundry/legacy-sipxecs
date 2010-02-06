@@ -2,6 +2,7 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.address.SipURIExt;
+import gov.nist.javax.sip.clientauthutils.DigestServerAuthenticationHelper;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
@@ -53,12 +54,14 @@ import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.HeaderFactory;
 import javax.sip.header.MaxForwardsHeader;
+import javax.sip.header.ProxyAuthenticateHeader;
 import javax.sip.header.ReasonHeader;
 import javax.sip.header.RecordRouteHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ToHeader;
 import javax.sip.header.ViaHeader;
+import javax.sip.header.WWWAuthenticateHeader;
 import javax.sip.message.Message;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
@@ -334,98 +337,6 @@ public class SipUtilities {
         }
     }
 
-    /**
-     * Create a basic registration request.
-     */
-
-    static Request createRegistrationRequestTemplate(String userName, EmulatedEndpoint endpoint,
-            SipProvider sipProvider, String callId, long cseq) throws ParseException,
-            InvalidArgumentException, SipException {
-        AddressFactory addressFactory = endpoint.getStackBean().getAddressFactory();
-
-        HeaderFactory headerFactory = endpoint.getStackBean().getHeaderFactory();
-
-        String registrar = SipTester.getTesterConfig().getSipxProxyDomain();
-
-        SipURI requestUri = addressFactory.createSipURI(null, registrar);
-
-        if (sipProvider == null)
-            throw new NullPointerException("Null sipProvider");
-
-        /*
-         * We register with From and To headers set to the proxy domain.
-         */
-        String proxyDomain = SipTester.getTesterConfig().getSipxProxyDomain();
-        SipURI fromUri = SipTester.getStackBean().getAddressFactory().createSipURI(userName,
-                proxyDomain);
-
-        SipURI toUri = addressFactory.createSipURI(userName, proxyDomain);
-
-        Address fromAddress = addressFactory.createAddress(fromUri);
-
-        FromHeader fromHeader = headerFactory.createFromHeader(fromAddress, new Long(Math
-                .abs(new java.util.Random().nextLong())).toString());
-
-        Address toAddress = addressFactory.createAddress(toUri);
-
-        ToHeader toHeader = headerFactory.createToHeader(toAddress, null);
-
-        CallIdHeader callidHeader = callId == null ? sipProvider.getNewCallId() : headerFactory
-                .createCallIdHeader(callId);
-
-        CSeqHeader cseqHeader = headerFactory.createCSeqHeader(cseq, Request.REGISTER);
-
-        MaxForwardsHeader maxForwards = headerFactory.createMaxForwardsHeader(20);
-
-        ViaHeader viaHeader = createViaHeader(endpoint.getDefaultListeningPoint());
-
-        List<ViaHeader> list = new LinkedList<ViaHeader>();
-        list.add(viaHeader);
-
-        Request request = messageFactory.createRequest(requestUri, Request.REGISTER,
-                callidHeader, cseqHeader, fromHeader, toHeader, list, maxForwards);
-
-        String outboundRegistrar = registrar;
-
-        SipURI registrarUri = addressFactory.createSipURI(null, outboundRegistrar);
-
-        Collection<Hop> hops = new FindSipServer(logger).findSipServers(registrarUri);
-
-        if (hops == null || hops.isEmpty()) {
-            throw new SipException("No route to registrar found");
-        }
-
-        RouteHeader routeHeader = SipUtilities.createRouteHeader(hops.iterator().next());
-        request.setHeader(routeHeader);
-        return request;
-    }
-
-    static Request createRegistrationRequest(SipProvider sipProvider, String userName,
-            EmulatedEndpoint endpoint, String callId, long cseq) throws SipException,
-            SipTesterException {
-
-        try {
-            Request request = createRegistrationRequestTemplate(userName, endpoint, sipProvider,
-                    callId, cseq);
-
-            ContactHeader contactHeader = createContactHeader(endpoint);
-            contactHeader.removeParameter("expires");
-
-            request.addHeader(contactHeader);
-            int registrationTimer = 600;
-            ExpiresHeader expiresHeader = SipTester.getHeaderFactory().createExpiresHeader(
-                    registrationTimer);
-            request.addHeader(expiresHeader);
-            return request;
-        } catch (Exception ex) {
-            String s = "Unexpected error creating register -- check proxy configuration ";
-            logger.fatal(s, ex);
-            throw new SipTesterException(s, ex);
-
-        }
-
-    }
-
     private static ContactHeader createContactHeader(EmulatedEndpoint endpoint) {
         try {
             String ipAddress = endpoint.getIpAddress();
@@ -463,7 +374,7 @@ public class SipUtilities {
     public static Address remapAddress(Address oldAddress, TraceEndpoint traceEndpoint) {
         try {
             SipURI sipUri = (SipURI) oldAddress.getURI();
-            SipURI newSipUri = SipUtilities.mapUri(sipUri,traceEndpoint);
+            SipURI newSipUri = SipUtilities.mapUri(sipUri, traceEndpoint);
             return SipTester.getAddressFactory().createAddress(newSipUri);
         } catch (Exception ex) {
             SipTester.fail("Unexpected exception", ex);
@@ -621,11 +532,28 @@ public class SipUtilities {
                             String toTag = SipTester.getMappedToTag(replacesHeader.getToTag());
                             String callId = replacesHeader.getCallId();
                             newHeader = ((HeaderFactoryExt) SipTester.getHeaderFactory()).createReplacesHeader(callId, toTag, fromTag);
+                       
                         }
                         newMessage.addHeader(newHeader);
                     }
                 }
+                   
             }
+                
+            if ( newMessage.getHeader(ProxyAuthenticateHeader.NAME) != null ) {
+                    ProxyAuthenticateHeader pah = (ProxyAuthenticateHeader)newMessage.getHeader(ProxyAuthenticateHeader.NAME);
+                    String realm = pah.getRealm();
+                    DigestServerAuthenticationHelper dah = new DigestServerAuthenticationHelper();
+                     if ( traceEndpoint.getBehavior() == Behavior.ITSP ) {
+                        ItspAccount itspAccount = SipTester.getItspAccounts().getItspAccount(traceEndpoint.getEmulatedEndpoint().getPort());
+                    if ( itspAccount == null ) {
+                        SipTester.fail("Cannot find an itsp account at this port " + traceEndpoint.getEmulatedEndpoint().getPort());
+                        dah.generateChallenge(SipTester.getHeaderFactory(), ((Response) newMessage), realm);
+                    }
+                 }
+             }
+           
+            
             String oldBranch = ((MessageExt) message).getTopmostViaHeader().getBranch();
             /*
              * For debugging purposes, track the original branch from which this request was
@@ -682,19 +610,6 @@ public class SipUtilities {
             String toDomain = uri.getHost();
             int toPort = uri.getPort();
             String targetUser = uri.getUser();
-
-            if (targetUser != null /*&& traceEndpoint.getBehavior() == Behavior.UA*/ ) {
-                ValidUsersXML validUsers = SipTester.getTraceValidUsers();
-                if (toDomain.equals(SipTester.getTraceDomainName())) {
-                    for (User user : ValidUsersXML.GetUsers()) {
-                        if ((targetUser.equals(user.getUserName()) || user.getAliases().contains(
-                                targetUser))) {
-                            targetUser = SipTester.getMappedUser(user.getUserName());
-                            break;
-                        }
-                    }
-                }
-            }
 
             String newToDomain = toPort == -1 ? SipTester.getMappedAddress(toDomain) : SipTester
                     .getMappedAddress(toDomain + ":" + toPort);
@@ -827,55 +742,54 @@ public class SipUtilities {
         SipURI fromSipUri = (SipURI) sipRequest.getFromHeader().getAddress().getURI();
         String method = sipRequest.getMethod();
         SipProvider provider = endpoint.getProvider("udp");
-        SipURI newRequestUri = mapUri(requestUri,endpoint.getTraceEndpoint());
-        SipURI newFromURI = mapUri(fromSipUri,endpoint.getTraceEndpoint());
+        SipURI newRequestUri = mapUri(requestUri, endpoint.getTraceEndpoint());
+        SipURI newFromURI = mapUri(fromSipUri, endpoint.getTraceEndpoint());
         Address newFromAddress = SipTester.getAddressFactory().createAddress(newFromURI);
         String fromTag = sipRequest.getFromHeader().getTag();
         FromHeader fromHeader = SipTester.getHeaderFactory().createFromHeader(newFromAddress,
                 fromTag);
-        Address toAddress = SipTester.getAddressFactory().createAddress(mapUri(toSipUri,endpoint.getTraceEndpoint()));
+        Address toAddress = SipTester.getAddressFactory().createAddress(
+                mapUri(toSipUri, endpoint.getTraceEndpoint()));
         String toTag = sipRequest.getToHeader().getTag();
         ToHeader toHeader = SipTester.getHeaderFactory().createToHeader(toAddress, toTag);
 
         CallIdHeader callIdHeader = sipRequest.getCallIdHeader();
-        //CallIdHeader callIdHeader = provider.getNewCallId();
+        // CallIdHeader callIdHeader = provider.getNewCallId();
 
         CSeqHeader cseqHeader = sipRequest.getCSeqHeader();
 
         LinkedList<ViaHeader> viaList = new LinkedList<ViaHeader>();
 
-      
-        
         Iterator<ViaHeader> viaHeaders = sipRequest.getHeaders(ViaHeader.NAME);
         boolean topmostVia = true;
-        while ( viaHeaders.hasNext()) {
-            ViaHeader vh  = viaHeaders.next();
+        while (viaHeaders.hasNext()) {
+            ViaHeader vh = viaHeaders.next();
             String mappedHostPort = null;
-            if ( topmostVia ) {
-                 String mappedHost = SipTester.getMappedAddress(vh.getHost());
-                 mappedHostPort = mappedHost + ":" + endpoint.getPort();
+            if (topmostVia) {
+                String mappedHost = SipTester.getMappedAddress(vh.getHost());
+                mappedHostPort = mappedHost + ":" + endpoint.getPort();
             } else {
-                 mappedHostPort = SipTester.getMappedAddress(vh.getHost() + ":" + 
-                    ( vh.getPort() == -1 ? 5060 : vh.getPort() ));
+                mappedHostPort = SipTester.getMappedAddress(vh.getHost() + ":"
+                        + (vh.getPort() == -1 ? 5060 : vh.getPort()));
             }
             String transport = vh.getTransport();
-            ViaHeader viaHeader = (ViaHeader) SipTester.getHeaderFactory().createHeader("Via: SIP/2.0/" 
-                    + transport.toUpperCase() + " "+mappedHostPort);
-          
+            ViaHeader viaHeader = (ViaHeader) SipTester.getHeaderFactory().createHeader(
+                    "Via: SIP/2.0/" + transport.toUpperCase() + " " + mappedHostPort);
+
             viaHeader.setBranch(vh.getBranch());
             Iterator<String> parameters = vh.getParameterNames();
             while (parameters.hasNext()) {
                 String parameter = parameters.next();
                 String value = vh.getParameter(parameter);
-                String parameterValue = SipTester.getMappedViaParameter(parameter,value);
-                if ( !parameter.equals("rport") && !parameter.equals("branch")) {
+                String parameterValue = SipTester.getMappedViaParameter(parameter, value);
+                if (!parameter.equals("rport") && !parameter.equals("branch")) {
                     viaHeader.setParameter(parameter, parameterValue);
                 }
-               
+
             }
             viaList.add(viaHeader);
-          
-        } 
+
+        }
 
         byte[] content = sipRequest.getRawContent();
 
@@ -898,7 +812,7 @@ public class SipUtilities {
             ReferToHeader oldReferToHeader = (ReferToHeader) sipRequest
                     .getHeader(ReferToHeader.NAME);
             SipURI oldUri = (SipURI) oldReferToHeader.getAddress().getURI();
-            SipURI newUri = SipUtilities.mapUri(oldUri,endpoint.getTraceEndpoint());
+            SipURI newUri = SipUtilities.mapUri(oldUri, endpoint.getTraceEndpoint());
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
             ReferToHeader newReferToHeader = SipTester.getHeaderFactory().createReferToHeader(
                     newAddress);
@@ -909,7 +823,7 @@ public class SipUtilities {
             ReferredByHeader oldReferByHeader = (ReferredByHeader) sipRequest
                     .getHeader(ReferredByHeader.NAME);
             SipURI oldUri = (SipURI) oldReferByHeader.getAddress().getURI();
-            SipURI newUri = SipUtilities.mapUri(oldUri,endpoint.getTraceEndpoint());
+            SipURI newUri = SipUtilities.mapUri(oldUri, endpoint.getTraceEndpoint());
             Address newAddress = SipTester.getAddressFactory().createAddress(newUri);
             ReferredByHeader newReferByHeader = SipTester.getHeaderFactory()
                     .createReferredByHeader(newAddress);
@@ -922,7 +836,7 @@ public class SipUtilities {
             RouteHeader routeHeader = (RouteHeader) routeIterator.next();
             logger.debug("routeHeader = " + routeHeader);
             SipURI routeUri = (SipURI) routeHeader.getAddress().getURI();
-            SipURI newSipUri = SipUtilities.mapUri(routeUri,endpoint.getTraceEndpoint());
+            SipURI newSipUri = SipUtilities.mapUri(routeUri, endpoint.getTraceEndpoint());
             Address routeAddress = SipTester.getAddressFactory().createAddress(newSipUri);
             RouteHeader newRouteHeader = SipTester.getHeaderFactory().createRouteHeader(
                     routeAddress);
@@ -930,12 +844,13 @@ public class SipUtilities {
             newRequest.addHeader(newRouteHeader);
         }
 
-        SipUtilities.copyHeaders(traceRequest, triggeringMessage, newRequest, endpoint.getTraceEndpoint());
+        SipUtilities.copyHeaders(traceRequest, triggeringMessage, newRequest, endpoint
+                .getTraceEndpoint());
 
-        if ( endpoint.getTraceEndpoint().getBehavior() == Behavior.UA) {
+        if (endpoint.getTraceEndpoint().getBehavior() == Behavior.UA) {
             newRequest.removeHeader(RecordRouteHeader.NAME);
         }
-        
+
         return (RequestExt) newRequest;
 
     }
@@ -966,7 +881,7 @@ public class SipUtilities {
                 newResponse.setContent(content, contentTypeHeader);
             }
 
-            copyHeaders(traceResponse, null, newResponse,endpoint.getTraceEndpoint());
+            copyHeaders(traceResponse, null, newResponse, endpoint.getTraceEndpoint());
 
             return newResponse;
         } catch (Exception ex) {
@@ -1050,7 +965,7 @@ public class SipUtilities {
             }
             return bid;
         } finally {
-           logger.debug("bid = " + bid);
+            logger.debug("bid = " + bid);
         }
 
     }
@@ -1072,39 +987,39 @@ public class SipUtilities {
             branchCorrelator.append(method);
             branchCorrelator.append("-");
             branchCorrelator.append(lastMessage.getTopmostViaHeader().getBranch());
-            int rc = ((ResponseExt)lastMessage).getStatusCode();
+            int rc = ((ResponseExt) lastMessage).getStatusCode();
             branchCorrelator.append("-").append(Integer.toString(rc));
             return branchCorrelator.toString().toLowerCase();
-         }
+        }
 
     }
 
-    
     public static Request createAck(SipRequest traceRequest, SipMessage triggeringMessage,
             EmulatedEndpoint endpoint, Response response) throws Exception {
-       Request ackRequest = SipUtilities.createRequest(traceRequest, triggeringMessage, endpoint);
-       ContactHeader cth  = (ContactHeader) response.getHeader(ContactHeader.NAME);
-       RouteHeader routeHeader = SipTester.getHeaderFactory().createRouteHeader(cth.getAddress());
-       ((SipURI) routeHeader.getAddress().getURI()).setLrParam();
-       ackRequest.setHeader(routeHeader);
-       ackRequest.setHeader(response.getHeader(FromHeader.NAME));
-       ackRequest.setHeader(response.getHeader(ToHeader.NAME));
-       return ackRequest;
+        Request ackRequest = SipUtilities
+                .createRequest(traceRequest, triggeringMessage, endpoint);
+        ContactHeader cth = (ContactHeader) response.getHeader(ContactHeader.NAME);
+        RouteHeader routeHeader = SipTester.getHeaderFactory()
+                .createRouteHeader(cth.getAddress());
+        ((SipURI) routeHeader.getAddress().getURI()).setLrParam();
+        ackRequest.setHeader(routeHeader);
+        ackRequest.setHeader(response.getHeader(FromHeader.NAME));
+        ackRequest.setHeader(response.getHeader(ToHeader.NAME));
+        return ackRequest;
     }
-    
+
     static String getStackTrace() {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         StackTraceElement[] ste = new Exception().getStackTrace();
         // Skip the log writer frame and log all the other stack frames.
         for (int i = 0; i < ste.length; i++) {
-            String callFrame = "[" + ste[i].getFileName() + ":"
-                    + ste[i].getLineNumber() + "]";
+            String callFrame = "[" + ste[i].getFileName() + ":" + ste[i].getLineNumber() + "]";
             pw.print(callFrame);
         }
         pw.close();
         return sw.getBuffer().toString();
-      
+
     }
-    
+
 }

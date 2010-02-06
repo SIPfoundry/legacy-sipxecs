@@ -26,7 +26,7 @@
   </bridge-configuration>
 
   <itsp-account>
-    <itsp-proxy-domain>192.168.5.75</itsp-proxy-domain>
+    <itsp-proxy-domain>ot.bandwidth.com</itsp-proxy-domain>
     <itsp-proxy-address>192.168.5.75</itsp-proxy-address>
     <itsp-proxy-listening-port>5056</itsp-proxy-listening-port>
     <register-on-initialization>false</register-on-initialization>

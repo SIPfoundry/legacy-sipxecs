@@ -138,7 +138,7 @@ public class SipListenerImpl implements SipListenerExt {
                     || method.equals(Request.CANCEL)) {
                 ClientTransaction ctx = responseEvent.getClientTransaction();
                 if ( ctx == null ) {
-                    System.out.println("retransmission -- ingoring");
+                    logger.debug("retransmission -- ingoring");
                     return;
                 }
                 SipClientTransaction sipCtx = (SipClientTransaction) ctx.getApplicationData();

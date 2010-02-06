@@ -120,7 +120,7 @@ public class SipDialog {
                     } else {
                         this.packetsReceived++;
                         String command = new String(buffer);
-                        System.out.println("command " + command);
+                        System.out.println( command);
                         if (command.startsWith("ECHO_REQUEST")) {
                             byte[] response = "ECHO_RESPONSE".getBytes();
                             DatagramPacket responsePacket = new DatagramPacket(response,
@@ -346,7 +346,7 @@ public class SipDialog {
                sendBytes();
             }
             else if (peerDialog != null && peerDialog.isLocalEndOnHold ) {
-                System.out.println("Remote end is on hold " + peerDialog);
+                logger.debug("Remote end is on hold " + peerDialog);
             }
 
         }
@@ -392,7 +392,7 @@ public class SipDialog {
 
             }
         }
-        System.out.println("setRequestToSend : " + this + " method = " + ((RequestExt) request).getMethod() + " isOnHold = " + isLocalEndOnHold);
+        logger.debug("setRequestToSend : " + this + " method = " + ((RequestExt) request).getMethod() + " isOnHold = " + isLocalEndOnHold);
         this.lastRequestSent = request;
     }
 

@@ -7,15 +7,11 @@ import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
 import gov.nist.javax.sip.message.SIPRequest;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Timer;
@@ -23,24 +19,20 @@ import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.sip.address.AddressFactory;
-import javax.sip.address.SipURI;
-import javax.sip.header.ExtensionHeader;
-import javax.sip.header.HeaderFactory;
 import javax.sip.header.ViaHeader;
 import javax.sip.message.MessageFactory;
 import javax.sip.message.Request;
-import javax.sip.message.Response;
 
 import org.apache.log4j.Appender;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 
 public class SipTester {
 
     private static SipTesterConfig testerConfig;
+    
+    private static ItspAccounts itspAccounts;
 
     private static SipStackBean sipStackBean;
 
@@ -51,10 +43,6 @@ public class SipTester {
     public static final Timer timer = new Timer();
 
     private static Logger logger = Logger.getLogger(SipTester.class.getPackage().getName());
-
-    private static ValidUsersXML sutValidUsers;
-
-    private static String sutDomainName;
 
     private static PrintWriter schedule;
 
@@ -97,6 +85,7 @@ public class SipTester {
 
     private static ConcurrentSkipListSet<SipClientTransaction> runnable;
 
+  
     public static EmulatedEndpoint getEmulatedEndpoint(String sourceAddress, int port) {
          
         for ( TraceEndpoint traceEndpoint : SipTester.traceEndpoints ) {
@@ -263,22 +252,6 @@ public class SipTester {
         return sipStackBean.getMessageFactory();
     }
 
-    public static String getMappedUser(String traceUser) {
-        String testUser = testMaps.getMappedUser(traceUser);
-        if (testUser == null) {
-            for (User user : sutValidUsers.GetUsers()) {
-                if (user.getAliases().contains(traceUser)) {
-                    testUser = testMaps.getMappedUser(user.getUserName());
-                    break;
-                }
-            }
-        }
-        if (testUser == null)
-            return traceUser;
-        else
-            return testUser;
-    }
-
     public static String getMappedAddress(String traceAddress) {
         String mappedAddress = testMaps.getMappedAddress(traceAddress);
         if (mappedAddress == null) {
@@ -323,23 +296,7 @@ public class SipTester {
         System.exit(-1);
     }
 
-    public static ValidUsersXML getTraceValidUsers() {
-        return sutValidUsers;
-    }
 
-    /**
-     * @param sutDomainName the sutDomainName to set
-     */
-    public static void setSutDomainName(String sutDomainName) {
-        SipTester.sutDomainName = sutDomainName;
-    }
-
-    /**
-     * @return the sutDomainName
-     */
-    public static String getTraceDomainName() {
-        return sutDomainName;
-    }
 
     public static void addCapturedPacket(CapturedLogPacket capturedPacket) {
         SipTester.capturedPacketMap.put(capturedPacket.getFrameId(), capturedPacket);
@@ -363,6 +320,7 @@ public class SipTester {
             String testerConfigFile = System.getProperty("testerConfig", "tester-config.xml");
             String sutConfigFile = traceprefix + "/monitored-interfaces.xml";
             String testMapsFile = traceprefix + "/test-maps.xml";
+            String prefixDir = System.getProperties().getProperty("prefix.dir","/usr/local/sipx");
 
             if (!new File(testerConfigFile).exists() || !new File(sutConfigFile).exists()) {
                 System.err.println("Missing config file");
@@ -371,41 +329,11 @@ public class SipTester {
 
             testMaps = new TestMapParser().parse("file:" + testMapsFile);
 
+            
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
             monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
-            ValidUsersXML
-                    .setValidUsersFileName(traceprefix + "/trace/etc/sipxpbx/validusers.xml");
-            sutValidUsers = ValidUsersXML.update(logger, true);
-
-            // TEST only
-            String confDir = System.getProperty("conf.dir", "/usr/local/sipx/etc/sipxpbx");
-
-            ValidUsersXML.setValidUsersFileName(confDir + "/validusers.xml");
-            ValidUsersXML.update(logger, true);
-            File traceDomainConfigFile = new File(traceConfDir + "/domain-config");
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(
-                    traceDomainConfigFile));
-            String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts[0].trim().equals("SIP_DOMAIN_NAME")) {
-                    setSutDomainName(parts[1].trim());
-                }
-            }
-
-            bufferedReader.close();
-            /*
-             * Read the domain config file for the current system.
-             */
-            File domainConfigFile = new File(confDir + "/domain-config");
-
-            bufferedReader = new BufferedReader(new FileReader(domainConfigFile));
-            while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = line.split(":");
-                if (parts[0].trim().equals("SIP_DOMAIN_NAME")) {
-                    testerConfig.setSipxProxyDomain(parts[1].trim());
-                }
-            }
+            itspAccounts = ItspAccounts.createItspAccounts("file://" + prefixDir + "/etc/sipxpbx/sipxbridge.xml");
+              
             for (TraceEndpoint traceEndpoint : monitoredInterfaces.getEmulatedEndpoints()) {
                
                 int port = traceEndpoint.getEmulatedPort();
@@ -441,10 +369,10 @@ public class SipTester {
             }
 
             System.out.println("Analyzing trace from file: " + traceprefix
-                    + "/trace/var/log/sipxpbx/merged.xml");
+                    + "/merged.xml");
 
             TraceAnalyzer traceAnalyzer = new TraceAnalyzer(traceprefix
-                    + "/trace/var/log/sipxpbx/merged.xml");
+                    + "/merged.xml");
             traceAnalyzer.analyze();
             System.out.println("Completed reading trace");
 
@@ -454,8 +382,8 @@ public class SipTester {
              * The list of transactions that are runnable.
              */
             for ( TraceEndpoint traceEndpoint : SipTester.traceEndpoints ) {
-                System.out.println("traceEndpoint = " + traceEndpoint.getTraceIpAddresses());
-                System.out.println("clientTransaction = " 
+                logger.debug("traceEndpoint = " + traceEndpoint.getTraceIpAddresses());
+                logger.debug("clientTransaction = " 
                         + traceEndpoint.getEmulatedEndpoint().getClientTransactions().size());
             }
             SipTester.runnable = new ConcurrentSkipListSet<SipClientTransaction>();
@@ -516,7 +444,7 @@ public class SipTester {
                     if ( SipTester.monitoredInterfaces.isEndpointOfInterest(ct.sipRequest.getTargetHostPort()) ) {
                          runnable.add(ct);
                     } else {
-                       System.out.println("Endpoint not of interest "  + ct.sipRequest.getTargetHostPort() );
+                       logger.debug("Endpoint not of interest "  + ct.sipRequest.getTargetHostPort() );
                     }
                     
 
@@ -524,7 +452,7 @@ public class SipTester {
 
             }
             
-            System.out.println("phase1 runnable.size() " + runnable.size());
+            logger.debug("phase1 runnable.size() " + runnable.size());
 
             /*
              * Determine all the server transactions that are activated by server transactions
@@ -788,6 +716,16 @@ public class SipTester {
             return traceToTag;
         }
     }
+
+   
+    /**
+     * @return the itspAccounts
+     */
+    public static ItspAccounts getItspAccounts() {
+        return itspAccounts;
+    }
+
+  
 
 
 }

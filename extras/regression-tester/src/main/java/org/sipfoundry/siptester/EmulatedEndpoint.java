@@ -179,7 +179,7 @@ public class EmulatedEndpoint extends HostPort {
                             Thread.sleep(timeToSleep);
                         }
                         prevTime = ctx.getDelay();
-                        System.out.println("aboutToEmulate "
+                        logger.debug("aboutToEmulate "
                                 + ctx.getSipRequest().getSipRequest().getMethod() + " tid = "
                                 + ctx.getTransactionId() + " frameId "
                                 + ctx.getSipRequest().getFrameId());

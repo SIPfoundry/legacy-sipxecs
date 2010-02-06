@@ -1,7 +1,5 @@
 <?xml version="1.0" ?>
 <test-maps xmlns="http://www.sipfoundry.org/sipX/schema/xml/test-maps-00-00">
-<!-- A file that maps addresses that appear in the trace file to those that appear
-     in the system under test -->
         <address-maps>
 	     <address-map>
 		   <trace-address>69.140.53.66</trace-address>
@@ -13,10 +11,6 @@
              </address-map>
 	     <address-map>
 		   <trace-address>216.82.225.202</trace-address>
-		   <maps-to>192.168.5.75</maps-to>
-             </address-map>
-	     <address-map>
-		   <trace-address>ot.bandwidth.com</trace-address>
 		   <maps-to>192.168.5.75</maps-to>
              </address-map>
 	     <address-map>

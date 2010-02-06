@@ -103,7 +103,7 @@ public class SipServerTransaction extends SipTransaction implements
                 this.dialogId = dialogId;
         }
         
-        System.out.println("adding response " + this.sipRequest.getFrameId() + " frameId = " + sipResponse.getFrameId());
+        logger.debug("adding response " + this.sipRequest.getFrameId() + " frameId = " + sipResponse.getFrameId());
         boolean added =  this.responses.add(sipResponse);
         
         if ( !added ) {
@@ -193,10 +193,11 @@ public class SipServerTransaction extends SipTransaction implements
             while (it.hasNext()) {
                 SipResponse nextResponse = it.next();
                 nextResponse.waitForPrecondition();
-                System.out.println(this.getSipRequest().getFrameId() + 
-                        " sendingResponse at frame " + nextResponse.getFrameId() +
-                        " statusCode = " + nextResponse.getStatusCode() 
-                        + " transactonState = " + serverTransaction.getState());
+                System.out.println( 
+                        "sendResponse FrameId " + nextResponse.getFrameId() +
+                        " request FrameId = " + this.sipRequest.getFrameId() + 
+                        " method = " + nextResponse.getSipResponse().getCSeqHeader().getMethod() +
+                        " statusCode = " + nextResponse.getStatusCode());
                 ResponseExt newResponse = SipUtilities.createResponse(endpoint, request, nextResponse);
                 if ( serverTransaction.getState() == TransactionState.TERMINATED ) {
                     continue;

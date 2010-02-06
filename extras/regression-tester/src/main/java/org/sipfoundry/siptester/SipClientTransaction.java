@@ -170,9 +170,11 @@ public class SipClientTransaction extends SipTransaction implements
             RequestExt sipRequest = (RequestExt) this.sipRequest.getSipRequest();
             String transport = sipRequest.getTopmostViaHeader().getTransport();
             SipProviderExt provider = this.endpoint.getProvider(transport);
-            System.out.println("createAndSend : " + sipRequest.getMethod() + " transactionId = "
+            logger.debug("createAndSend : " + sipRequest.getMethod() + " transactionId = "
                     + ((SIPRequest) this.getSipRequest().getSipRequest()).getTransactionId());
-
+            System.out.println("sendRequest at frameId = " +
+                    + this.sipRequest.getFrameId() + " method = "
+                    + sipRequest.getMethod());
             if (this.triggeringMessage != null
                     && triggeringMessage instanceof SipResponse
                     && triggeringMessage.getSipMessage().getCallIdHeader().getCallId().equals(
@@ -221,7 +223,7 @@ public class SipClientTransaction extends SipTransaction implements
                     }
                 } else if (method.equals(Request.PRACK)) {
                     if (triggeringMessage instanceof SipRequest) {
-                        System.out.println("trigger = " + triggeringMessage.getSipMessage());
+                        logger.debug("trigger = " + triggeringMessage.getSipMessage());
                     }
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
@@ -326,6 +328,7 @@ public class SipClientTransaction extends SipTransaction implements
                 }
                 clientTransaction.sendRequest();
             }
+            
         } catch (Exception ex) {
             SipTester.fail("unexpectedException", ex);
         } finally {
@@ -386,7 +389,7 @@ public class SipClientTransaction extends SipTransaction implements
 
     public void processResponse(ResponseEvent responseEvent) {
         try {
-            System.out.println("processResponse " + responseEvent.getResponse().getStatusCode()
+            logger.debug("processResponse " + responseEvent.getResponse().getStatusCode()
                     + " transactionId " + this.getTransactionId());
             ResponseExt response = (ResponseExt) responseEvent.getResponse();
 

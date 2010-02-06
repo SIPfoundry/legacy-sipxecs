@@ -3,41 +3,28 @@
 <!-- A file that tells us what endpoints we are intersted in and whether or not these will be emulated
      in the tester -->
  <endpoint>
-     <!-- the behavior tells us where to look for configuration information -->
      <behavior>PROXY</behavior>
      <is-emulated>true</is-emulated>
      <ip-address>192.168.5.75</ip-address>
-     <port>5060</port>
      <emulated-port>0</emulated-port>
   </endpoint>
   <endpoint>
-     <!-- This tag tells us to look in sibxbridge.xml for configuration
-     information for this endpoint.  The IP address and port tell us how 
-     to filter the captured signaling. -->
      <behavior>ITSP</behavior>
      <is-emulated>true</is-emulated>
-     <ip-address>216.82.224.202</ip-address>
-     <port>5060</port>
+     <ip-address>216.82.224.202:5060</ip-address>
      <emulated-port>1</emulated-port>
   </endpoint>
 
-  <!-- These are not emulated edpoints. These are interfaces that we
-  are interested in monitoring.  These specify what parts of the trace 
-  we need to pick up when driving the tester. -->
-
   <endpoint>
      <is-emulated>false</is-emulated>
-     <ip-address>192.168.5.75</ip-address>
-     <port>5090</port>
+     <ip-address>192.168.5.75:5090</ip-address>
   </endpoint>
   <endpoint>
      <is-emulated>false</is-emulated>
-     <ip-address>192.168.5.75</ip-address>
-     <port>5080</port>
+     <ip-address>192.168.5.75:5080</ip-address>
   </endpoint>
   <endpoint>
      <is-emulated>false</is-emulated>
-     <ip-address>69.140.53.66</ip-address>
-     <port>5080</port>
+     <ip-address>69.140.53.66:5080</ip-address>
   </endpoint>
 </sut-config>

@@ -35,6 +35,7 @@ public class SipStackBean extends AbstractSipStackBean {
     public SipStackBean(EmulatedEndpoint endpoint) {
         super();
         this.endpoint = endpoint;
+        
     }
 
     @Override
@@ -53,11 +54,18 @@ public class SipStackBean extends AbstractSipStackBean {
     @Override
     public SecureAccountManager getHashedPasswordAccountManager() {
         try {
-            return new AccountManagerImpl();
+            if ( endpoint.getTraceEndpoint().getBehavior().equals(Behavior.UA) || 
+                    endpoint.getTraceEndpoint().getBehavior().equals(Behavior.PROXY) ) {
+                    return new AccountManagerImpl();
+            } else {
+                return null;
+            }
         } catch (Exception ex) {
             throw new SipTesterException(ex);
         }
     }
+    
+  
 
     @Override
     public Collection<ListeningPointAddress> getListeningPointAddresses() {

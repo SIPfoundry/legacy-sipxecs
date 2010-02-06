@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="siptester" default="compile" basedir=".">
+<project name="siptester" default="test" basedir=".">
 <description>
       Build file
 </description>
@@ -17,6 +17,18 @@
 	   <pathelement location="${regression-tester-jar}" />
 	</path>
 	<property name="sipxproc" value="${prefix.dir}/bin/sipxproc" />
+
+	<target name="help" description="print help text. ">
+	   <echo> 
+	   **************************************** 
+	    syntax   :
+	    ant -Dtestname=test-name -Daddress=tester-ip-address test 
+	    example  :
+	    ant -Dtestname=itsp-local-blind-local -Daddress=192.168.5.240 test
+	    ****************************************
+	    </echo>
+	</target>
+
 	<presetdef name="brestart">
         	<exec  executable="sudo">
           		<arg value= "${sipxproc}" />
@@ -24,18 +36,22 @@
           		<arg value= "SipXbridge" />
         	</exec>
 	</presetdef>
-        <target name="itsp-forward-itsp" description="Hairpinned call forwarding with re-invite" >
-        	<delete file="sipxtester.log" />
-    	 	<delete file="/usr/local/sipx/etc/sipxpbx/sipxbridge.xml" />
-    	 	<copy file="./itsp-forward-itsp/sipxbridge.xml" todir="/usr/local/sipx/etc/sipxpbx/" />
+        <target name="test" description="Hairpinned call forwarding with re-invite" >
+                <exec executable="./convert.sh">
+                      <arg value="${address}" /> 
+                      <arg value="${testname}" />
+                </exec>
+        	<delete file="sipxtester.log" failonerror="false" />
+    	 	<delete file="/usr/local/sipx/etc/sipxpbx/sipxbridge.xml" failonerror="false" />
+    	 	<copy file="./${testname}/sipxbridge.xml" todir="/usr/local/sipx/etc/sipxpbx/" />
     	 	<brestart />
-    	 	<sleep seconds="20" />
+    	 	<sleep seconds="10" />
      		<java fork="yes" classname="org.sipfoundry.siptester.SipTester">
            		<classpath>
                			<pathelement location="${classes}" />
            		</classpath>
            		<classpath refid="base.path" />
-          		<jvmarg value="-Dtest.prefix=./itsp-forward-itsp"/>
+          		<jvmarg value="-Dtest.prefix=./${testname}"/>
     		</java>
 	</target>
         <target name="itsp-local-blind-local" description="blind transfer of incoming ITSP call to a local extension" >

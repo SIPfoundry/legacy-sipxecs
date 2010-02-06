@@ -1,20 +1,18 @@
 package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.clientauthutils.UserCredentialHash;
+import gov.nist.javax.sip.clientauthutils.UserCredentials;
 
-public class UserCredentialsImpl implements UserCredentialHash {
-    public String credHash;
+public class UserCredentialsImpl implements UserCredentials {
     private String userName;
+    private String password;
     
-    public UserCredentialsImpl( String userName, String credHash) {
-        this.credHash = credHash;
+    public UserCredentialsImpl(String userName, String password ) {
         this.userName = userName;
+        this.password = password;
     }
 
-    @Override
-    public String getHashUserDomainPassword() {
-        return credHash;
-    }
+   
 
     @Override
     public String getSipDomain() {
@@ -24,6 +22,27 @@ public class UserCredentialsImpl implements UserCredentialHash {
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+
+    /**
+     * @param password the password to set
+     */
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+
+
+    /**
+     * @return the password
+     */
+    public String getPassword() {
+        return password;
     }
 
 }
