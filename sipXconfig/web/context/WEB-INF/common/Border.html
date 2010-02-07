@@ -9,10 +9,6 @@
 
  		<!-- BEGIN:bodyContentContainer -->
   	<div id="bodyContentContainer">
-
-
-
-
 			<div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
 				<span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
 				<div id="banner">
@@ -29,11 +25,7 @@
 								<span class="bannerLinkDivider">&nbsp;</span>
 							</span>
 							<span>
-								<form jwcid="dateForm@Form" id="dateForm" updateComponents="ognl:{'dateContent'}">
-									<div jwcid="@Any" id="dateContent" class="date">
-										<span jwcid="currentDate@Insert" value="ognl:date" format="ognl:dateFormat">21 August 2008</span>
-									</div>
-								</form>
+								<div jwcid="dateContent@Any" class="date"/>
 							</span>
 							<span class="bannerLinkDivider">&nbsp;</span>
 							<span class="linkHome">

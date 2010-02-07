@@ -162,4 +162,10 @@
     <property name="phoneContext" ref="phoneContext" />
   </bean>
   <alias name="profileResource" alias="/phone/{serialNumber}/profile/{name}" />
+
+  <bean id="configServerTimeResource" class="org.sipfoundry.sipxconfig.rest.ConfigServerTimeResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="configServerTimeResource" alias="/time" />
 </beans>

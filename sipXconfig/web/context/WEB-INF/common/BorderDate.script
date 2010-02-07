@@ -5,22 +5,39 @@
 <script>
 <body>
 <![CDATA[
-dojo.require("tapestry.form");
+dojo.require("dojo.io.*");
+dojo.require("dojo.io.ScriptSrcIO");
 
-function setRefreshTimer() {
-	setTimeout('refreshDate()', 30000);
+var targetUrl = "/sipxconfig/rest/time";
+
+function makeRequest() {
+    dojo.io.bind({
+        url: targetUrl,
+        load: onLoad,
+        error:onError,
+        mimetype: "text/plain",
+        timeout: onTimeout,
+        timeoutSeconds: 10
+    });
 }
 
-function refreshDate() {
-	tapestry.form.submitAsync(dojo.byId("dateForm"));
-	setTimeout('refreshDate()', 30000);
+function onLoad(type, data, event){
+	targetNode = dojo.byId("dateContent");
+	targetNode.innerHTML = data;
+	setTimeout('makeRequest()', 30000);
 }
 
+function onError(type, error){
+	setTimeout('makeRequest()', 30000);
+}
 
+function onTimeout(){
+	setTimeout('makeRequest()', 30000);
+}
 
 ]]>
 </body>
 <initialization>
-setRefreshTimer()
+	makeRequest();
 </initialization>
 </script>

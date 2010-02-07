@@ -9,10 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import java.text.DateFormat;
-import java.text.Format;
 import java.util.Collection;
-import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
@@ -199,14 +196,6 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public IAsset[] getStylesheets() {
         return getTapestry().getStylesheets(this);
-    }
-
-    public Format getDateFormat() {
-        return DateFormat.getDateTimeInstance(DateFormat.DEFAULT, DateFormat.SHORT, getPage().getLocale());
-    }
-
-    public Date getDate() {
-        return new Date();
     }
 
     public String getLocaleValue() {
