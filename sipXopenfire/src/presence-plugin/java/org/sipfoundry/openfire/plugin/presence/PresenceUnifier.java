@@ -294,12 +294,11 @@ public class PresenceUnifier implements PresenceEventListener
             if( sipXopenfirePlugin.shouldDisplayUserOnThePhoneStatus( unifiedPresence.getXmppUsername() ) == true ){
                 xmppStatusMessageWithSipState = sipXopenfirePlugin.getOnThePhoneMessage(unifiedPresence.getJidAsString());
                 if (xmppStatusMessageWithSipState != null){
+                    if( sipXopenfirePlugin.shouldDisplayCallDetails( unifiedPresence.getXmppUsername() ) == true && 
+                        unifiedPresence.getRemoteSipEndpoint() != null ){
+                        xmppStatusMessageWithSipState += " (" + unifiedPresence.getRemoteSipEndpoint() + ") ";
+                    }
                     if (unifiedPresence.getXmppStatusMessage().length() != 0 ){
-                        if( sipXopenfirePlugin.shouldDisplayCallDetails( unifiedPresence.getXmppUsername() ) == true && 
-                            unifiedPresence.getRemoteSipEndpoint() != null )
-                        {
-                            xmppStatusMessageWithSipState += " (" + unifiedPresence.getRemoteSipEndpoint() + ") ";
-                        }
                         xmppStatusMessageWithSipState += " - " + unifiedPresence.getXmppStatusMessage();
                     }
                 }
