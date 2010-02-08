@@ -146,6 +146,7 @@ class RtpTransmitterEndpoint {
             String ipAddress = SipUtilities
                     .getSessionDescriptionMediaIpAddress(sessionDescription);
             int port = SipUtilities.getSessionDescriptionMediaPort(sessionDescription);
+                    
 
             if (logger.isDebugEnabled()) {
                 logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress
@@ -153,15 +154,16 @@ class RtpTransmitterEndpoint {
             }
 
             if (this.sessionDescription == null || !this.ipAddress.equals(ipAddress)
-                    || this.port != port) {
+                    || this.port != port  ) {
                 this.symTransmitter.setIpAddressAndPort(ipAddress, port, keepAliveInterval,
                         keepAliveMethod);
                 this.ipAddress = ipAddress;
-                this.port = port;
-                this.symTransmitter.setOnHold(false);     
-                
+                this.port = port; 
+                this.symTransmitter.setOnHold(false);
             }
             this.sessionDescription = sessionDescription;
+            
+          //  this.symTransmitter.setOnHold(this.rtpSession.isHoldRequest(sessionDescription));
 
         } catch (Exception ex) {
             logger.error("Unexpected exception ", ex);

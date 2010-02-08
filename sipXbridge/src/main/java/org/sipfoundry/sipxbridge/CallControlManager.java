@@ -971,14 +971,13 @@ class CallControlManager implements SymmitronResetHandler {
                         SipUtilities.incrementSessionVersion(sd);
                         peerDialogContext.getRtpSession().getReceiver().setSessionDescription(sd);
                         /*
-                         * HACK ALERT Some ITPSs do not like sendonly so make sure it is sendrecv
+                         * We want to play MOH when the local party is on hold so always
+                         * set the attribute to sendrecv when sending ACK to itsp.
                          */
-                        if (SipUtilities.getSessionDescriptionMediaAttributeDuplexity(sd) != null) {
-                            SipUtilities.setDuplexity(sd, "sendrecv");
+                        SipUtilities.setDuplexity(sd, "sendrecv");
 
-                        }
                         ack.setContent(sd.toString(), cth);
-                    } else {
+                     } else {
                         logger
                                 .error("Got an ACK with SDP but other side does not expect it -- not forwarding ACK");
                         dialogContext.getBackToBackUserAgent().tearDown(Gateway.SIPXBRIDGE_USER,ReasonCode.PROTOCOL_ERROR,"Unexpected ACK with SDP ");

@@ -39,6 +39,7 @@ import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
+import java.util.zip.ZipOutputStream;
 
 import javax.sdp.Attribute;
 import javax.sdp.Connection;
@@ -1878,6 +1879,7 @@ class SipUtilities {
             branchCorrelator.append("-");
             branchCorrelator.append(statusCode);
         }
+   
         referencesHeader.setParameter("sipxecs-tag", branchCorrelator.toString().toLowerCase());
         
         // TODO -- apply a one way hash here.

@@ -1791,17 +1791,11 @@ public class BackToBackUserAgent implements Comparable {
             lp.setSentBy(sentBy);
 
             /*
-             * If we spiraled back, then pair the refered dialog with the outgoing dialog.
-             * Otherwise pair the inbound and outboud dialogs.
+             * pair the inbound and outboud dialogs.
              */
-            if (true || !spiral) {
-                DialogContext.pairDialogs(incomingDialog, outboundDialog);
-                this.addDialog(DialogContext.get(incomingDialog));
-
-            } else {
-                DialogContext.pairDialogs(this.referingDialogPeer, outboundDialog);
-                this.addDialogToCleanup(incomingDialog);
-            }
+           
+            DialogContext.pairDialogs(incomingDialog, outboundDialog);
+            this.addDialog(DialogContext.get(incomingDialog));
 
             SessionDescription sessionDescription = SipUtilities
                     .getSessionDescription(incomingRequest);
