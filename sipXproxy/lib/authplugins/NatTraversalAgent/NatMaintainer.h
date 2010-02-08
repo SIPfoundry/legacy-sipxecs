@@ -98,6 +98,9 @@ private:
    uint32_t mRefreshRoundNumber;      ///< Counter of refresh rounds.
    RegistrationDB* mpRegistrationDB;  ///< The registration DB.
    SubscriptionDB* mpSubscriptionDB;  ///< The subscription DB.
+   int             mNextSeqValue;     ///< Sequence number to use in next OPTIONS wave 
+   UtlString       mBaseCallId;       ///< Call-id from which all the others will be derived
+   
    OsMutex mTimerMutex;
    ///< Time-outs of mTimerMutex.acquire() provide the timing signal.
    SipRouter* mpSipRouter;            ///< SipRouter through which to send keepalives.

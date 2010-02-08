@@ -12,6 +12,7 @@
 #include "os/OsDateTime.h"
 #include "utl/UtlSListIterator.h"
 #include "utl/UtlSList.h"
+#include "net/CallId.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "SipRouter.h"
@@ -19,6 +20,7 @@
 
 // DEFINES
 #define NAT_REFRESH_INTERVAL_IN_MILLISECS (20000)
+#define NAT_MAINTAINER_MARKER_STRING ("sipXecs-reniatniamtan")
 #define NUMBER_OF_UDP_PORTS (65536)
 // NAMESPACES
 using namespace std;
@@ -30,6 +32,7 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mRefreshRoundNumber( 0 ),
    mpRegistrationDB( RegistrationDB::getInstance() ),
    mpSubscriptionDB( SubscriptionDB::getInstance() ),
+   mNextSeqValue( 1 ),
    mTimerMutex( OsMutex::Q_FIFO ),
    mpSipRouter( sipRouter ),
    mpEndpointsKeptAliveList(
@@ -55,7 +58,12 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
        "\r\n";
 
    mpKeepAliveMessage = new SipMessage( optionsMessageString, optionsMessageString.length() );
-
+   
+   // base call Id, base branch and From-tag
+   CallId::getNewCallId( mBaseCallId );
+   UtlString fromTag;
+   CallId::getNewTag( fromTag );
+   mpKeepAliveMessage->setFromFieldTag( fromTag );   
 }
 
 NatMaintainer::~NatMaintainer()
@@ -94,6 +102,11 @@ int NatMaintainer::run( void* runArg )
          {
             mRefreshRoundNumber++;
             int timeNow = OsDateTime::getSecsSinceEpoch();
+            
+            // Increment CSeq so that the OPTIONS sent in this 
+            // wave have incrementing Cseq as per spec
+            mpKeepAliveMessage->setCSeqField( mNextSeqValue, "OPTIONS" );
+            mNextSeqValue++;
 
             // timer has expired - refresh timeout
             UtlSList resultList;
@@ -190,6 +203,15 @@ void NatMaintainer::sendKeepAliveToEndpoint( const char* pIpAddress, uint16_t po
    }
    if( bDoSendKeepAlive )
    {
+      // Generate unique call-id and branches for each remote endpoint
+      UtlString callId = pIpAddress;
+      callId.append('-').appendNumber( portNumber, "%d" )
+            .append('-').append( NAT_MAINTAINER_MARKER_STRING ).append('-').append( mBaseCallId );
+      mpKeepAliveMessage->setCallIdField( callId );
+      
+      UtlString branchId = callId;
+      branchId.appendNumber( mNextSeqValue, "%d" );
+      mpKeepAliveMessage->setTopViaTag( branchId.data(), "branch" );   
       mpSipRouter->sendUdpKeepAlive( *mpKeepAliveMessage, pIpAddress, portNumber );
    }
 }
