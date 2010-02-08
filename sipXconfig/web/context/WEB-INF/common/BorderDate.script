@@ -8,7 +8,7 @@
 dojo.require("dojo.io.*");
 dojo.require("dojo.io.ScriptSrcIO");
 
-var targetUrl = "/sipxconfig/rest/time";
+var targetUrl = "/sipxconfig/rest/my/time";
 
 function makeRequest() {
     dojo.io.bind({

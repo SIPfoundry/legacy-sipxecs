@@ -167,5 +167,5 @@
     <property name="coreContext" ref="coreContext" />
     <property name="readable" value="true" />
   </bean>
-  <alias name="configServerTimeResource" alias="/time" />
+  <alias name="configServerTimeResource" alias="/my/time" />
 </beans>
