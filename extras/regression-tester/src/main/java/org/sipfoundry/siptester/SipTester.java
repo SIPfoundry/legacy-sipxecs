@@ -116,7 +116,7 @@ public class SipTester {
         return sipStackBean;
     }
 
-    public static SipDialog getDialog(String dialogId) {
+    public static SipDialog getDialog(String dialogId, EmulatedEndpoint endpoint) {
         if (dialogId == null)
             return null;
         else {
@@ -126,7 +126,7 @@ public class SipTester {
                 }
             }
            
-            SipDialog sipDialog = new SipDialog(dialogId);
+            SipDialog sipDialog = new SipDialog(dialogId,endpoint);
             sipDialogs.add(sipDialog);
             return sipDialog;
            
@@ -401,7 +401,7 @@ public class SipTester {
                     HashSet<String> dialogIds = ct.getDialogIds();
                     logger.debug("dialog Ids " + dialogIds);
                     for (String dialogId : dialogIds) {
-                        SipDialog dialog = getDialog(dialogId);
+                        SipDialog dialog = getDialog(dialogId,endpoint);
                         logger.debug("dialog = " + dialog);
                         dialog.addSipClientTransaction(ct);
                     }
@@ -423,7 +423,7 @@ public class SipTester {
                             String dialogId = sst.getDialogId();
                             if (dialogId != null) {
 
-                                SipDialog dialog = getDialog(dialogId);
+                                SipDialog dialog = getDialog(dialogId,endpoint);
 
                                 dialog.addSipServerTransaction(sst);
                             }

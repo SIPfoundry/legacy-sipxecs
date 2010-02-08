@@ -17,6 +17,7 @@
 	   <pathelement location="${regression-tester-jar}" />
 	</path>
 	<property name="sipxproc" value="${prefix.dir}/bin/sipxproc" />
+	<property name="address" value="192.168.5.75" />
 
 	<target name="help" description="print help text. ">
 	   <echo> 

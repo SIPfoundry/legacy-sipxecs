@@ -687,7 +687,6 @@ public class SipUtilities {
 
     static boolean isHoldRequest(SessionDescription sessionDescription) {
 
-        int newport = SipUtilities.getSessionDescriptionMediaPort("audio", sessionDescription);
         String newIpAddress = SipUtilities.getSessionDescriptionMediaIpAddress("audio",
                 sessionDescription);
 

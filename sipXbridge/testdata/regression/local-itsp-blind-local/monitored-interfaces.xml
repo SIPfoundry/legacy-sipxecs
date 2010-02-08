@@ -13,7 +13,6 @@
      <behavior>ITSP</behavior>
      <is-emulated>true</is-emulated>
      <ip-address>216.82.225.202</ip-address>
-     <ip-address>216.82.224.202</ip-address>
      <emulated-port>1</emulated-port>
   </endpoint>
   <endpoint>

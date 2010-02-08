@@ -31,7 +31,6 @@
   </endpoint>
   <endpoint>
      <is-emulated>false</is-emulated>
-     <ip-address>69.140.53.66</ip-address>
-     <port>5080</port>
+     <ip-address>69.140.53.66:5080</ip-address>
   </endpoint>
 </sut-config>

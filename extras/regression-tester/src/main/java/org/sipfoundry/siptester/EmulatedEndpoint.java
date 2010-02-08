@@ -208,6 +208,7 @@ public class EmulatedEndpoint extends HostPort {
                     && sst.getBranch().equalsIgnoreCase(SipUtilities.getBranchMatchId(request))) {
                 it.remove();
                 retval.add(sst);
+                break;
             }
         }
 

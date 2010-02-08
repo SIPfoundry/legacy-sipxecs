@@ -206,8 +206,8 @@ public class SipServerTransaction extends SipTransaction implements
                     String correlator = SipUtilities.getCorrelator(newResponse);
                     for (SipServerTransaction st: this.matchingServerTransactions) {
                         st.setBranch(correlator);
-                        SipDialog peerDialog = SipTester.getDialog(st.getDialogId());
-                        peerDialog.setPeerDialog(SipTester.getDialog(this.getDialogId()));
+                        SipDialog peerDialog = SipTester.getDialog(st.getDialogId(),endpoint);
+                        peerDialog.setPeerDialog(SipTester.getDialog(this.getDialogId(),endpoint));
                     }
                 }
                 it.remove();
@@ -224,7 +224,7 @@ public class SipServerTransaction extends SipTransaction implements
                 if (!isReliableResponse || newResponse.getStatusCode() / 100 >= 2) {
                      String dialogId = this.getDialogId();
                      logger.debug("dialogId = " + dialogId + " request " + this.sipRequest.getFrameId() );
-                     SipDialog sipDialog = SipTester.getDialog(dialogId);
+                     SipDialog sipDialog = SipTester.getDialog(dialogId,endpoint);
                      sipDialog.setDialog((DialogExt)serverTransaction.getDialog());
                      if ( newResponse.getStatusCode() == 200 &&
                              newResponse.getCSeqHeader().getMethod().equals(Request.INVITE)) {
@@ -244,7 +244,7 @@ public class SipServerTransaction extends SipTransaction implements
                         public void run() {
                             try {      
                                 String dialogId = getDialogId();
-                                SipDialog dialog = SipTester.getDialog(dialogId);
+                                SipDialog dialog = SipTester.getDialog(dialogId,SipServerTransaction.this.endpoint);
                                 sendResponses();
                             } catch (Exception ex) {
                                 SipTester.fail("Unexpected exception", ex);

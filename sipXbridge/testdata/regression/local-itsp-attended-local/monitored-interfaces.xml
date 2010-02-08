@@ -3,7 +3,6 @@
 <!-- A file that tells us what endpoints we are intersted in and whether or not these will be emulated
      in the tester -->
  <endpoint>
-     <!-- the behavior tells us where to look for configuration information -->
      <behavior>PROXY</behavior>
      <is-emulated>true</is-emulated>
      <ip-address>192.168.5.75</ip-address>
@@ -13,7 +12,6 @@
      <behavior>ITSP</behavior>
      <is-emulated>true</is-emulated>
      <ip-address>216.82.225.202</ip-address>
-     <ip-address>216.82.224.202</ip-address>
      <emulated-port>1</emulated-port>
   </endpoint>
   <endpoint>

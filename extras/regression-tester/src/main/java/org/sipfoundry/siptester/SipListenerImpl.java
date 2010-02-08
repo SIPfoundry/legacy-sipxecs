@@ -100,7 +100,7 @@ public class SipListenerImpl implements SipListenerExt {
                     SipTester.mapViaParameters(sst.getSipRequest().getSipRequest(),request);
                 }
                 String dialogId = sst.getDialogId();
-                SipDialog sipDialog = SipTester.getDialog(dialogId);
+                SipDialog sipDialog = SipTester.getDialog(dialogId,sst.getEndpoint());
                 logger.debug("Emulating server Transaction at frame " + sst.getSipRequest().getFrameId());
                 if (sipDialog != null) {
                     sipDialog.setLastRequestReceived(request);

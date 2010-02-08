@@ -191,10 +191,10 @@ public class SipClientTransaction extends SipTransaction implements
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
                     logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     for (SipServerTransaction sst : this.serverTransactions) {
-                        SipDialog hisDialog = SipTester.getDialog(sst.getDialogId());
+                        SipDialog hisDialog = SipTester.getDialog(sst.getDialogId(),this.endpoint);
                         hisDialog.setPeerDialog(sipDialog);
                     }
                     
@@ -219,6 +219,7 @@ public class SipClientTransaction extends SipTransaction implements
                                 this.triggeringMessage, ack, this.endpoint.getTraceEndpoint());
                         
                         logger.debug(this.getSipRequest().getFrameId() + " Sending stateless ACK " + ack);
+                        sipDialog.setRequestToSend(ack);
                         provider.sendRequest(ack);
                     }
                 } else if (method.equals(Request.PRACK)) {
@@ -228,7 +229,7 @@ public class SipClientTransaction extends SipTransaction implements
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
                     logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
 
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
@@ -271,7 +272,7 @@ public class SipClientTransaction extends SipTransaction implements
                     String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
                     logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
                     logger.debug("sipDialog = " + sipDialog + "frameId = "
                             + this.sipRequest.getFrameId() + " method = "
                             + sipRequest.getMethod());
@@ -321,7 +322,7 @@ public class SipClientTransaction extends SipTransaction implements
                 }
 
                 for (String dialogId : this.getDialogIds()) {
-                    SipDialog sipDialog = SipTester.getDialog(dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
 
                     sipDialog.setRequestToSend(newRequest);
 
@@ -404,7 +405,7 @@ public class SipClientTransaction extends SipTransaction implements
             Dialog dialog = responseEvent.getDialog();
             if (response.getFromHeader().getTag() != null
                     && response.getToHeader().getTag() != null) {
-                SipDialog sipDialog = SipTester.getDialog(this.getDialogId(response));
+                SipDialog sipDialog = SipTester.getDialog(this.getDialogId(response),endpoint);
                 if (sipDialog != null) {
                     sipDialog.setLastResponse(response);
                     sipDialog.setDialog((DialogExt) dialog);
