@@ -17,15 +17,14 @@
 	   <pathelement location="${regression-tester-jar}" />
 	</path>
 	<property name="sipxproc" value="${prefix.dir}/bin/sipxproc" />
-	<property name="address" value="192.168.5.75" />
 
 	<target name="help" description="print help text. ">
 	   <echo> 
 	   **************************************** 
 	    syntax   :
-	    ant -Dtestname=test-name -Daddress=tester-ip-address test 
+	    ant -Dtestname=test-name -Daddress=tester-ip-address test  --Dprefix.dir=prefix-dir
 	    example  :
-	    ant -Dtestname=itsp-local-blind-local -Daddress=192.168.5.240 test
+	    ant -Dtestname=itsp-local-blind-local -Daddress=192.168.5.240 --Dprefix.dir=/usr/local/sipx test
 	    ****************************************
 	    </echo>
 	</target>
