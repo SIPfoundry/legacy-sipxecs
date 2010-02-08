@@ -319,7 +319,12 @@ public class CpRetrieve {
         if(m_vmMessage != null) {
                        
             if(m_msgPlaying) {
-                CpCmd cmd = new CpCmd(m_vm, "end_of_msg_immed", "end_of_msg_delay", "end_of_msg_help");
+                CpCmd cmd;
+                if(m_messages.isDeleted(m_vmMessage)) {
+                    cmd = new CpCmd(m_vm, "end_of_msg_immed", "end_of_deleted_msg_delay", "end_of_deleted_msg_help");
+                } else {
+                    cmd = new CpCmd(m_vm, "end_of_msg_immed", "end_of_msg_delay", "end_of_msg_help");
+                }
                 cmd.midMessagePlayBackPrompts("middle_of_msg_delay", 
                                                "middle_of_msg_help",
                                                m_vmMessage.getDuration()*1000);
