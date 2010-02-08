@@ -36,6 +36,7 @@ public class CounterpathPhoneTest extends TestCase {
         CounterpathPhoneModel counterpathModel = new CounterpathPhoneModel("counterpath");
         counterpathModel.setProfileTemplate("counterpath/counterpath.ini.vm");
         counterpathModel.setModelId("counterpathCMCEnterprise");
+        counterpathModel.setMaxLineCount(5);
         m_phone = new CounterpathPhone();
         m_phone.setModel(counterpathModel);
         m_phone.setDefaults(new DeviceDefaults());

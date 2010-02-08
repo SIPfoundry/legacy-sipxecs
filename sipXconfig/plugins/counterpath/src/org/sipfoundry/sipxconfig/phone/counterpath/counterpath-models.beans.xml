@@ -6,7 +6,7 @@
   <bean id="counterpathStandard" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="counterpath" />
     <property name="label" value="Counterpath" />
-    <property name="maxLineCount" value="10"/>
+    <property name="maxLineCount" value="5"/>
     <property name="profileTemplate" value="counterpath/counterpath.ini.vm" />
     <property name="vendor" value="Counterpath"/>
     <property name="serialNumberPattern" value="[a-zA-Z0-9]+"/>
