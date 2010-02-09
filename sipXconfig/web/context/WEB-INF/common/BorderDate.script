@@ -12,6 +12,7 @@ var targetUrl = "/sipxconfig/rest/my/time";
 
 function makeRequest() {
     dojo.io.bind({
+        preventCache:true, //make sure to make a fresh GET every time
         url: targetUrl,
         load: onLoad,
         error:onError,
