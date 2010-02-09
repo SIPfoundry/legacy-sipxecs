@@ -4,9 +4,7 @@
   </h2>
 
   <div id="settings-content">
-    <span jwcid="@If" condition="ognl:!parentSetting && !tab.equals('schedules')">
-       <span jwcid="@common/ErrorMsg" />
-    </span>
+    <span jwcid="@common/ErrorMsg" />
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
 
