@@ -13,6 +13,7 @@ EXTRA_DIST = \
    sipximbot.spec \
    config.properties.in \
    lib \
+   etc/sipximbot-prompts.properties \
    src
 
 
