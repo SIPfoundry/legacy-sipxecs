@@ -504,8 +504,7 @@ public class CpRetrieve {
                     break;
                     
                 case TOOLS:
-                    // CpTools cptools = new CpTools(m_vm);
-                    // cptools.go();
+                    m_vm.playError("invalid_cmd");
                     break;
                     
                 case GOTO:
