@@ -76,7 +76,8 @@ public class Deposit {
         m_depositMap.put(user.getUserName(), uuid);     
         
         sendIM(m_mailbox.getUser(), true, m_fses.getVariable("channel-caller-id-name") +
-        " is leaving a voice message.");
+               " (" + m_fses.getVariable("channel-caller-id-number") + ")" +        
+               " is leaving a voice message.");
     }
     
     private void clearChannelUUID(User user) {
@@ -91,6 +92,7 @@ public class Deposit {
             }            
             
             sendIM(m_mailbox.getUser(), false, m_fses.getVariable("channel-caller-id-name") +
+                   " (" + m_fses.getVariable("channel-caller-id-number") + ")" +     
                    description);
         }
     }
