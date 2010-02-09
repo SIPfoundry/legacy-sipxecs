@@ -26,7 +26,8 @@
 # --exclude-method=method (*)
 # excludes all messages that are requests or responses with the
 # specified method (in the CSeq field).  The value 'I' or 'i' means
-# 'INVITE|CANCEL|ACK|BYE', which is suitable for tracing call setup/teardown.
+# 'INVITE|CANCEL|ACK|BYE|REFER', which is suitable for tracing call
+# setup/teardown.
 # The value 'S' or 's' means 'SUBSCRIBE|NOTIFY', which is suitable for
 # tracing subscriptionns.
 #
@@ -99,12 +100,12 @@ while ($ARGV[0] =~ m/^-/) {
 	$subroutine .= ' && ($time le "' . quotemeta($1) . '~") ';
     } elsif ($option =~ m/^--exclude-method=(.*)$/) {
 	my $v = $1;
-	$v = 'INVITE|CANCEL|ACK|BYE' if $v eq 'I' || $v eq 'i';
+	$v = 'INVITE|CANCEL|ACK|BYE|REFER' if $v eq 'I' || $v eq 'i';
 	$v = 'SUBSCRIBE|NOTIFY' if $v eq 'S' || $v eq 's';
 	$subroutine .= ' && ($entry !~ m/\nCSeq:\s*\d+\s*(' . $v . ')\b/i) ';
     } elsif ($option =~ m/^--include-method=(.*)$/) {
 	my $v = $1;
-	$v = 'INVITE|CANCEL|ACK|BYE' if $v eq 'I' || $v eq 'i';
+	$v = 'INVITE|CANCEL|ACK|BYE|REFER' if $v eq 'I' || $v eq 'i';
 	$v = 'SUBSCRIBE|NOTIFY' if $v eq 'S' || $v eq 's';
 	$subroutine .= ' && ($entry =~ m/\nCSeq:\s*\d+\s*(' . $v . ')\b/i) ';
     } elsif ($option =~ m/^--event=(.*)$/) {
