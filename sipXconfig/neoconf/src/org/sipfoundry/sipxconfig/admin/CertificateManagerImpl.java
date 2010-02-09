@@ -29,7 +29,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
@@ -66,6 +65,8 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String SSL_CERT = "ssl.crt";
     private static final String ERROR_CERT_VALIDATE = "&error.validate";
     private static final String ERROR_MSG_COPY = "&msg.copyError";
+    private static final String ERROR_VALID = "&error.valid";
+    private static final String EXTERNAL_KEY_BASED = "external-key-based";
 
     private String m_binCertDirectory;
 
@@ -78,8 +79,6 @@ public class CertificateManagerImpl implements CertificateManager {
     private String m_certdbDirectory;
 
     private String m_libExecDirectory;
-
-    private LocationsManager m_locationsManager;
 
     private SipxProcessContext m_processContext;
 
@@ -99,11 +98,6 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public void setLibExecDirectory(String libExecDirectory) {
         m_libExecDirectory = libExecDirectory;
-    }
-
-    @Required
-    public void setLocationsManager(LocationsManager locationsManager) {
-        m_locationsManager = locationsManager;
     }
 
     public Properties loadCertPropertiesFile() {
@@ -302,12 +296,21 @@ public class CertificateManagerImpl implements CertificateManager {
         m_processContext.markServicesForRestart(Arrays.asList(configService, bridgeService));
     }
 
-    public File getCRTFile() {
-        return new File(m_certDirectory, getPrimaryServerFqdn() + "-web.crt");
+    public File getCRTFile(String serverName) {
+        return new File(m_certDirectory, serverName + "-web.crt");
     }
 
-    public File getKeyFile() {
-        return new File(m_certDirectory, getPrimaryServerFqdn() + WEB_KEY);
+    public File getExternalCRTFile() {
+        return getCRTFile(EXTERNAL_KEY_BASED);
+    }
+
+    public File getKeyFile(String serverName) {
+        return new File(m_certDirectory, serverName + WEB_KEY);
+    }
+
+
+    public File getExternalKeyFile() {
+        return getKeyFile(EXTERNAL_KEY_BASED);
     }
 
     public void deleteCA(CertificateDecorator cert) {
@@ -395,17 +398,22 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
-    public void writeCRTFile(String crt) {
-        File crtFile = getCRTFile();
+    public void writeCRTFile(String crt, String server) {
+        File crtFile = getCRTFile(server);
+
         try {
-            FileUtils.writeStringToFile(crtFile, crt);
+            FileUtils.writeStringToFile(getCRTFile(server), crt);
         } catch (IOException e) {
             throw new UserException(WRITE_ERROR, crtFile.getPath());
         }
     }
 
+    public void writeExternalCRTFile(String crt) {
+        writeCRTFile(crt, EXTERNAL_KEY_BASED);
+    }
+
     public void writeKeyFile(String key) {
-        File keyFile = getKeyFile();
+        File keyFile = getExternalKeyFile();
         try {
             FileUtils.writeStringToFile(keyFile, key);
         } catch (IOException e) {
@@ -413,19 +421,19 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
-    public void importKeyAndCertificate(boolean isCsrBased) {
-        File newCertificate = getCRTFile();
+    public void importKeyAndCertificate(String server, boolean isCsrBased) {
+        File newCertificate = isCsrBased ? getCRTFile(server) : getExternalCRTFile();
         if (!newCertificate.exists()) {
-            return;
+            throw new UserException(ERROR_VALID);
         }
 
-        File newKey = getKeyFile();
+        File newKey = isCsrBased ? getKeyFile(server) :  getExternalKeyFile();
         if (!newKey.exists()) {
-            return;
+            throw new UserException(ERROR_VALID);
         }
 
-        if (!validateCertificate(getCRTFile())) {
-            throw new UserException("&error.valid");
+        if (!validateCertificate(newCertificate)) {
+            throw new UserException(ERROR_VALID);
         }
 
         File oldCertificate = new File(m_sslDirectory, "ssl-web.crt");
@@ -477,10 +485,6 @@ public class CertificateManagerImpl implements CertificateManager {
 
         backupCertificate.delete();
         backupKey.delete();
-    }
-
-    private String getPrimaryServerFqdn() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
     }
 
     public void setCertdbDirectory(String certdbDirectory) {

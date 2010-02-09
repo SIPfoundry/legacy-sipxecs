@@ -162,25 +162,34 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
         String key = getKey();
 
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(this);
+        boolean isCsrBased = uploadKeyFile == null && key == null;
 
         if (uploadCrtFile == null && certificate == null) {
             validator.record(new UserException("&msg.selectOneSource"), getMessages());
             return;
         }
 
-        if (uploadCrtFile != null) {
-            uploadCrtFile.write(getCertificateManager().getCRTFile());
-        } else if (certificate != null) {
-            getCertificateManager().writeCRTFile(certificate);
+        if (isCsrBased) {
+            if (uploadCrtFile != null) {
+                uploadCrtFile.write(getCertificateManager().getCRTFile(getServer()));
+            } else if (certificate != null) {
+                getCertificateManager().writeCRTFile(certificate, getServer());
+            }
+        } else {
+            if (uploadCrtFile != null) {
+                uploadCrtFile.write(getCertificateManager().getExternalCRTFile());
+            } else if (certificate != null) {
+                getCertificateManager().writeExternalCRTFile(certificate);
+            }
         }
 
         if (uploadKeyFile != null) {
-            uploadKeyFile.write(getCertificateManager().getKeyFile());
+            uploadKeyFile.write(getCertificateManager().getExternalKeyFile());
         } else if (key != null) {
             getCertificateManager().writeKeyFile(key);
         }
 
-        getCertificateManager().importKeyAndCertificate(uploadKeyFile == null && key == null);
+        getCertificateManager().importKeyAndCertificate(getServer(), isCsrBased);
 
         validator.recordSuccess(getMessages().getMessage("msg.importSuccess"));
     }

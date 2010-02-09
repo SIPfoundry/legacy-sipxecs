@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Collection;
 import java.util.Properties;
 import java.util.Set;
 
@@ -20,31 +21,29 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxConfigService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class CertificateManagerTest extends TestCase {
 
     private CertificateManagerImpl m_manager;
-    private LocationsManager m_locationsManager;
     private Location m_primaryLocation;
 
     @Override
     protected void setUp() {
         m_manager = new CertificateManagerImpl();
+
         m_manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         m_manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         m_manager.setBinCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         m_manager.setSslAuthDirectory(TestUtil.getTestSourceDirectory(this.getClass())
                 + File.separator + "testAuthorities");
+        m_manager.setLibExecDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
 
         m_primaryLocation = TestUtil.createDefaultLocation();
-
-        m_locationsManager = EasyMock.createMock(LocationsManager.class);
-        m_locationsManager.getPrimaryLocation();
-        EasyMock.expectLastCall().andReturn(m_primaryLocation).anyTimes();
-        EasyMock.replay(m_locationsManager);
-        m_manager.setLocationsManager(m_locationsManager);
     }
 
     public void testWriteAndLoadCertPropertiesFile() {
@@ -74,16 +73,45 @@ public class CertificateManagerTest extends TestCase {
 
     public void testGetCRTFilePath() {
         assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
-                + m_locationsManager.getPrimaryLocation().getFqdn() + "-web.crt", m_manager.getCRTFile().getPath());
+                + m_primaryLocation.getFqdn() + "-web.crt", m_manager.getCRTFile(
+                        m_primaryLocation.getFqdn()).getPath());
     }
 
     public void testWriteCRTFile() throws Exception {
         String certificate = new String("TEST");
-        m_manager.writeCRTFile(certificate);
-        BufferedReader reader = new BufferedReader(new FileReader(m_manager.getCRTFile()));
-        String line = reader.readLine();
-        assertEquals("TEST", line);
-        assertNull(reader.readLine());
+        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.writeCRTFile(certificate, m_primaryLocation.getFqdn());
+        compareFileContents(m_manager.getCRTFile(m_primaryLocation.getFqdn()), certificate);
+    }
+
+    public void testGetExternalCRTFilePath() {
+        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+                + "external-key-based-web.crt", m_manager.getExternalCRTFile().getAbsolutePath());
+    }
+
+    public void testWriteExternalCRTFile() throws Exception {
+        String certificate = new String("TEST");
+        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.writeExternalCRTFile(certificate);
+        compareFileContents(m_manager.getExternalCRTFile(), certificate);
+    }
+
+    public void testGetKeyFilePath() {
+        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+                + m_primaryLocation.getFqdn() + "-web.key", m_manager.getKeyFile(
+                        m_primaryLocation.getFqdn()).getPath());
+    }
+
+    public void testGetExternalKeyFilePath() {
+        assertEquals(TestUtil.getTestSourceDirectory(this.getClass()) + File.separator
+                + "external-key-based-web.key", m_manager.getExternalKeyFile().getAbsolutePath());
+    }
+
+    public void testWriteKeyFile() throws Exception {
+        String key = new String("TESTKEY");
+        m_manager.setCertDirectory(TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs");
+        m_manager.writeKeyFile(key);
+        compareFileContents(m_manager.getExternalKeyFile(), key);
     }
 
     public void testValid() throws Exception {
@@ -128,5 +156,59 @@ public class CertificateManagerTest extends TestCase {
         m_manager.deleteCA(cert);
         certs =  m_manager.listCertificates();
         assertEquals(1, certs.size());
+    }
+
+    public void testImportKeyAndCertificate() throws Exception {
+        SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
+        sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(new SipxConfigService()).atLeastOnce();
+        sipxServiceManager.getServiceByBeanId(SipxBridgeService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(new SipxBridgeService()).atLeastOnce();
+
+        SipxProcessContext processContext = EasyMock.createMock(SipxProcessContext.class);
+        processContext.markServicesForRestart((Collection) EasyMock.anyObject());
+        EasyMock.expectLastCall().atLeastOnce();
+
+        m_manager.setSipxServiceManager(sipxServiceManager);
+        m_manager.setProcessContext(processContext);
+
+        EasyMock.replay(sipxServiceManager, processContext);
+
+        String sslDirectory = TestUtil.getTestOutputDirectory("neoconf") + File.separator + "certs" +
+            File.separator + "ssl";
+
+        File sslWebCert = new File(sslDirectory + File.separator + "ssl-web.crt");
+        File sslWebKey = new File(sslDirectory + File.separator + "ssl-web.key");
+
+        (new File(sslDirectory)).mkdirs();
+        sslWebCert.createNewFile();
+        sslWebKey.createNewFile();
+
+        m_manager.setSslDirectory(sslDirectory);
+        m_manager.importKeyAndCertificate(m_primaryLocation.getFqdn(), true);
+        compareFileContents(sslWebCert, "CSR_BASED_CERT");
+        compareFileContents(sslWebKey, "CSR_BASED_KEY");
+
+        m_manager.setSslDirectory(sslDirectory);
+        m_manager.importKeyAndCertificate(m_primaryLocation.getAddress(), false);
+        compareFileContents(sslWebCert, "EXTERNAL_KEY_BASED_CERT");
+        compareFileContents(sslWebKey, "EXTERNAL_KEY_BASED_KEY");
+
+        m_manager.setSslDirectory(sslDirectory);
+        m_manager.importKeyAndCertificate("random.domain.org", true);
+        compareFileContents(sslWebCert, "CSR_BASED_CERT_DIFFERNET_DOMAIN");
+        compareFileContents(sslWebKey, "CSR_BASED_KEY_DIFFERNET_DOMAIN");
+
+        m_manager.setSslDirectory(sslDirectory);
+        m_manager.importKeyAndCertificate("random.domain.org", false);
+        compareFileContents(sslWebCert, "EXTERNAL_KEY_BASED_CERT");
+        compareFileContents(sslWebKey, "EXTERNAL_KEY_BASED_KEY");
+    }
+
+    private void compareFileContents(File file, String expectedOutput) throws Exception {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line = reader.readLine();
+        assertEquals(expectedOutput, line);
+        assertNull(reader.readLine());
     }
 }

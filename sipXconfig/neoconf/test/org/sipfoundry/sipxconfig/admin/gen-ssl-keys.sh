@@ -1,7 +1,7 @@
 #!/bin/sh
-if [ "${2}" = "validCA.crt" ]
+if [ "${2}" = "invalidCA.crt" ]
 then
-  echo -n "VALID"
-else
   exit 1
+else
+  echo -n "VALID"
 fi

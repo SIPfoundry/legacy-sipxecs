@@ -24,15 +24,21 @@ public interface CertificateManager {
 
     void generateCSRFile();
 
-    File getCRTFile();
+    File getCRTFile(String server);
 
-    File getKeyFile();
+    File getExternalCRTFile();
 
-    void writeCRTFile(String crt);
+    void writeCRTFile(String crt, String server);
+
+    void writeExternalCRTFile(String crt);
+
+    File getKeyFile(String server);
+
+    File getExternalKeyFile();
 
     void writeKeyFile(String key);
 
-    void importKeyAndCertificate(boolean isCsrBased);
+    void importKeyAndCertificate(String server, boolean isCsrBased);
 
     boolean validateCertificate(File file);
 
