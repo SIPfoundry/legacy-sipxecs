@@ -19,6 +19,11 @@
     </span>
   </div>
   <div jwcid="imIdColumnValue@Block">
-    <span jwcid="@Insert" value="ognl:userImID" />
+    <span jwcid="@If" condition="ognl:userImAccount.enabled">
+      <span jwcid="@Insert" class="enabled" value="ognl:userImAccount.imId" />
+    </span>
+    <span jwcid="@Else">
+      <span jwcid="@Insert" class="disabled" value="ognl:userImAccount.imId" />
+    </span>
   </div>
 </table>

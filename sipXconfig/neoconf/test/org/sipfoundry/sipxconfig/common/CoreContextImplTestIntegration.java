@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -49,6 +50,18 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         // check im id uniqueness for an existing user
         User existingUser = m_coreContext.loadUser(1001);
         assertTrue(m_coreContext.isImIdUnique(existingUser));
+    }
+
+    public void testImIdAsAlias() throws Exception {
+        loadDataSet("common/users-im-ids.db.xml");
+        // test if ImId as alias in use
+        assertTrue(m_coreContext.isAliasInUse("openfire2"));
+
+        // check im id uniqueness for a new user
+        User user = new User();
+        user.setImId("Alias1");
+        assertEquals("Alias1", m_coreContext.checkForDuplicateNameOrAlias(user));
+        assertEquals(1, m_coreContext.getBeanIdsOfObjectsWithAlias("openfire1").size());
     }
 
     public void testLoadUsersByPage() throws Exception {

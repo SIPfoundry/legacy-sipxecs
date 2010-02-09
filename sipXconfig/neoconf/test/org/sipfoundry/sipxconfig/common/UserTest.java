@@ -159,8 +159,8 @@ public class UserTest extends TestCase {
         user.setAliasesString("mambo tango");
         checkAliases(user);
 
-        List aliasMappings = user.getAliasMappings("sipfoundry.org");
-        assertEquals(2, aliasMappings.size());
+        List aliasMappings = user.getAliasMappings("sipfoundry.org", "imId");
+        assertEquals(3, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo@sipfoundry.org", alias.getIdentity());
 
@@ -169,6 +169,13 @@ public class UserTest extends TestCase {
         alias = (AliasMapping) aliasMappings.get(1);
         assertEquals("tango@sipfoundry.org", alias.getIdentity());
         assertEquals(CONTACT, alias.getContact());
+
+        AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
+        assertEquals("imId@sipfoundry.org", imIdAlias.getIdentity());
+
+        List otherAliasMappings = user.getAliasMappings("sipfoundry.org", "mambo");
+        assertEquals(2, otherAliasMappings.size());
+
     }
 
     private void checkAliases(User user) {
@@ -182,7 +189,7 @@ public class UserTest extends TestCase {
     public void testGetEmptyAliases() {
         User user = new User();
         user.setUserName("username");
-        List aliasMappings = user.getAliasMappings("sipfoundry.org");
+        List aliasMappings = user.getAliasMappings("sipfoundry.org", "");
         assertEquals(0, aliasMappings.size());
     }
 

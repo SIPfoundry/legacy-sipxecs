@@ -72,8 +72,9 @@
     <![CDATA[select u from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
   </query>
 
-  <query name="userIdsByNameOrAlias">
-    <![CDATA[select distinct u.id from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+  <query name="userIdsByNameOrAliasOrImId">
+    <![CDATA[select distinct u.id from User u left outer join u.aliases alias left outer join u.addressBookEntry abe
+    where u.userName = :value or alias = :value or abe.imId = :value]]>
   </query>
 
   <query name="userGroupMembers">

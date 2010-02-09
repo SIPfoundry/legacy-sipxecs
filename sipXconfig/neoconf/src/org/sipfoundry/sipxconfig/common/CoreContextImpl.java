@@ -47,7 +47,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators";
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
-    private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
+    private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID = "userIdsByNameOrAliasOrImId";
     private static final String QUERY_USER = "from User";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
     private static final String QUERY_IM_ID = "imId";
@@ -242,12 +242,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     /**
-     * Check whether the user has a username or alias that collides with an existing username or
-     * alias. Check for internal collisions as well, for example, the user has an alias that is
-     * the same as the username. (Duplication within the aliases is not possible because the
-     * aliases are stored as a Set.) If there is a collision, then return the bad name (username
-     * or alias). Otherwise return null. If there are multiple collisions, then it's arbitrary
-     * which name is returned.
+     * Check whether the user has a username or alias or ImId that collides with an existing
+     * username or alias. Check for internal collisions as well, for example, the user has an
+     * alias that is the same as the username. (Duplication within the aliases is not possible
+     * because the aliases are stored as a Set.) If there is a collision, then return the bad name
+     * (username or alias). Otherwise return null. If there are multiple collisions, then it's
+     * arbitrary which name is returned.
      *
      * @param user user to test
      * @return name that collides
@@ -272,6 +272,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                         break;
                     }
                 }
+                // check if user ImId is unique in alias namespace
+                ImAccount imAccount = new ImAccount(user);
+                if (!m_aliasManager.canObjectUseAlias(user, imAccount.getImId())) {
+                    result = imAccount.getImId();
+                }
+
             }
         }
 
@@ -471,10 +477,18 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public Collection getAliasMappings() {
-        List aliases = new ArrayList();
-        for (User user : loadUsers()) {
-            aliases.addAll(user.getAliasMappings(getDomainName()));
-        }
+        final List aliases = new ArrayList();
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                ImAccount imAccount = new ImAccount(user);
+                // add ImId as an alias only if account enabled
+                String imIdAlias = imAccount.isEnabled() ? imAccount.getImId() : StringUtils.EMPTY;
+                aliases.addAll(user.getAliasMappings(getDomainName(), imIdAlias));
+            }
+        };
+        DaoUtils.forAllUsersDo(this, closure);
+
         return aliases;
     }
 
@@ -572,17 +586,17 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public boolean isAliasInUse(String alias) {
-        // Look for the ID of a user with a user ID or user alias matching the specified SIP
-        // alias.
+        // Look for the ID of a user with a user ID, user alias or user ImId matching the
+        // specified SIP alias.
         // If there is one, then the alias is in use.
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE,
-                alias);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID,
+                VALUE, alias);
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_USER_IDS_BY_NAME_OR_ALIAS,
-                VALUE, alias);
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID, VALUE, alias);
         Collection bids = BeanId.createBeanIdCollection(ids, User.class);
         return bids;
     }

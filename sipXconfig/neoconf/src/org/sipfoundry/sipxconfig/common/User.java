@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.restlet.Client;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
@@ -42,9 +41,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isBlank;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trimToNull;
+import static org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping.createUri;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -331,19 +332,28 @@ public class User extends BeanWithGroups implements NamedObject {
         return null;
     }
 
-    public List getAliasMappings(String domainName) {
+    public List getAliasMappings(String domainName, String additionalAlias) {
         final String contact = getUri(domainName);
         List mappings = new ArrayList(getAliases().size());
         for (String alias : getAliases()) {
-            if (isBlank(alias)) {
-                throw new RuntimeException("Found an empty alias for user " + m_userName);
-            }
-            final String identity = AliasMapping.createUri(alias, domainName);
-            AliasMapping mapping = new AliasMapping(identity, contact);
-            mappings.add(mapping);
+            mappings.add(getAliasMapping(alias, contact, domainName));
+        }
+
+        // add additional alias only if not blank and not in existing mappings
+        if (!isBlank(additionalAlias) && !getAliases().contains(additionalAlias)) {
+            mappings.add(getAliasMapping(additionalAlias, contact, domainName));
         }
 
         return mappings;
+    }
+
+    private AliasMapping getAliasMapping(String alias, final String contact, String domainName) {
+        if (isBlank(alias)) {
+            throw new RuntimeException("Found an empty alias for user " + m_userName);
+        }
+        final String identity = createUri(alias, domainName);
+        AliasMapping mapping = new AliasMapping(identity, contact);
+        return mapping;
     }
 
     /**
@@ -540,7 +550,7 @@ public class User extends BeanWithGroups implements NamedObject {
     }
 
     public boolean hasImAccount() {
-        return StringUtils.isNotEmpty(getImId());
+        return isNotEmpty(getImId());
     }
 
     public String getMusicOnHoldUri() {

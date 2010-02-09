@@ -28,6 +28,6 @@ public interface AliasManager extends AliasOwner {
      * system needs to continue to operate smoothly in this situation.)
      * If alias is null, then return true, since null aliases don't cause SIP collisions.
      */
-    public boolean canObjectUseAlias(BeanWithId bean, String alias);
+    boolean canObjectUseAlias(BeanWithId bean, String alias);
 
 }

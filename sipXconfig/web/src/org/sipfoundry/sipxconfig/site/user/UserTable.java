@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 
-import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -73,9 +72,8 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
         }
     }
 
-    public String getUserImId() {
-        ImAccount imAccount = new ImAccount(getCurrentUser());
-        return imAccount.isEnabled() ? imAccount.getImId() : EMPTY;
+    public ImAccount getUserImAccount() {
+        return new ImAccount(getCurrentUser());
     }
 
     public IAsset getUserIcon() {
