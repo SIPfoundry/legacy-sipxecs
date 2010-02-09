@@ -1,7 +1,7 @@
 
 body
 {
-	font-family:Verdana, Arial, Helvetica, sans-serif;
+	font-family:Arial, Verdana, Helvetica, sans-serif;
 	font-size:12px;
 	margin:0;
 	padding:0;
@@ -18,6 +18,8 @@ h2
 {
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:20px;
+	margin:0px;
+	display:inline-block;
 }
 
 h3
@@ -79,7 +81,7 @@ ul.htabs, ul.vtabs
 	padding:2px;
 	white-space:nowrap;
 	margin:0;
-	padding:0 .3em 0 0;
+	padding:0 0 0 0;
 }
 
 ul.vtabs li
@@ -90,7 +92,25 @@ ul.vtabs li
 
 li.tab
 {
-	padding: .2em 1ex;
+	padding: 0.2em 0;
+}
+
+li.tab a:link,
+li.tab a:hover,
+li.tab a:visited
+{
+        text-decoration: none;
+    	padding-left:10px;
+    	display: block;
+}
+
+li div.tabLink
+{
+	margin: .2em 0;
+}
+
+#voicemailFolders li.tab {
+	text-indent:10px;
 }
 
 #login-content {
@@ -271,24 +291,24 @@ fieldset#loginForm legend {
 
 #contentContainer {
 	width: 100%;
-    float: left;
+    	float: left;
 }    
 
 #contentContainer #leftNav {
 	float: left;       
-	min-width: 10em;
+	padding-left:10px;
+	min-width:166px;
 }
 
 #content
 {	
-	padding: 10px;
-    margin-left:10em;
-    position:relative;
+    margin-left:10px;
+    float:left;
+    width:65%;
 }
 
 .tableDiv
 {
-    width:80%;
     overflow:auto;
 }
 
@@ -365,7 +385,6 @@ li
 
 ul.component-links
 {
-	width:75%;
 	list-style-type:none;
 	text-align:right;
 }
@@ -382,13 +401,14 @@ ul.component-submit
 	list-style-type:none;
 	margin:5px;
 	padding:0;
+	margin-bottom:0px;
 }
 
 ul.component-submit li
 {
 	white-space:nowrap;
 	display:inline;
-	margin:0 5px;
+	margin-right:5px;
 }
 
 table.component
@@ -488,13 +508,14 @@ div.help
 {
     clear:right;
     float:right;
-    margin:5px 0;
-    padding:5px;
+    /*margin:-20px -878px 15px 708px;*/
+    padding:0px;
+    margin-right:-190px;
 }
 
 div.help
 {
-    width:15%;
+	width:160px;
 }
 
 div.right-column
@@ -542,10 +563,9 @@ p.reportLabel {
 
 fieldset
 {
-	margin-top:1em;
+	margin:0px;
 	border-style:none;
-	padding-left:0px;
-	margin-left:0px;
+	padding:0px;
 }
 
 label
@@ -581,6 +601,7 @@ ul.form-actions
 {
 	list-style-type:none;
 	text-align:left;
+	margin-bottom:0px;
 }
 
 ul.form-actions li
@@ -751,5 +772,54 @@ html, body {
 #bodyContentContainer {
 	margin-left:auto;
 	margin-right:auto;
+	width:95%;
+}
+
+.roundedSectionBoxTopLeft, .roundedSectionBoxTopRight, .roundedSectionBoxBottomLeft, .roundedSectionBoxBottomRight, .roundedMainSectionBoxTopLeft, .roundedMainSectionBoxTopRight, .roundedMainSectionBoxBottomLeft, .roundedMainSectionBoxBottomRight, .roundedIndicatorSectionBoxTopLeft, .roundedIndicatorSectionBoxTopRight { 
+	height: 8px;
+	font-size: 2px;
+}
+.roundedSectionBoxTopLeft, .roundedSectionBoxBottomLeft, .roundedMainSectionBoxTopLeft, .roundedMainSectionBoxBottomLeft, .roundedIndicatorSectionBoxTopLeft { 
+	margin-right: 5px;
+}
+.roundedSectionBoxTopRight, .roundedSectionBoxBottomRight, .roundedMainSectionBoxTopRight, .roundedMainSectionBoxBottomRight, .roundedIndicatorSectionBoxTopRight { 
+	margin-left: 5px;
+	margin-top: -8px;
+}
+.roundedSectionBoxTopRight, .roundedMainSectionBoxTopRight, .roundedIndicatorSectionBoxTopRight {
+	background-position: 100% 0;
+}
+.roundedSectionBoxBottomLeft, .roundedMainSectionBoxBottomLeft  { 
+	background-position: 0 -8px;
+}
+.roundedSectionBoxBottomRight, .roundedMainSectionBoxBottomRight { 
+	background-position: 100% -8px;
+}
+.roundedSectionBoxInside, .roundedIndicatorSectionBoxInside{
+	padding-left: 10px;
+	padding-right:10px;
+}
+#leftNav li {
+	margin:0px;
+}
+
+#contentContainerSectionTop {
+	margin-top:-7px;
+	padding-bottom:10px;
+}
+.roundedSectionBoxInsideContent, .roundedMainSectionBoxInsideContent {
+	display:inline-block;
 	width:100%;
+}
+.roundedNavSectionBoxInsideContent {
+	padding-left: 0px;
+	padding-right:0px;
+}
+.roundedIndicatorSectionBoxInside {
+	margin-left:1px;
+	margin-right:1px;
+	font-size:12pt;
+}
+div.adminPortal {
+	padding-left:235px;	
 }

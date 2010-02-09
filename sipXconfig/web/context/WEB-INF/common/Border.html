@@ -67,20 +67,49 @@
 
 			<!-- BEGIN:contentContainer -->
 			<div id="contentContainer">
-				<div id="contentContainerSectionTop"><span jwcid="@Insert" raw="true" value="ognl:getPage().getMessages().getMessage('title')"/></div>
-				<div id="leftNav">
-						<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
-								<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
-						</span>
-						&nbsp; <!-- to ensure this block is never empty, so it has the min width -->
+				<div class="roundedMainSectionBoxTopLeft"></div><div class="roundedMainSectionBoxTopRight"></div>
+				<div class="roundedMainSectionBoxInside">
+					<span class="roundedMainSectionBoxInsideContent">
+						<div id="contentContainerSectionTop">
+							<div class="roundedIndicatorSectionBoxTopLeft"></div><div class="roundedIndicatorSectionBoxTopRight"></div>
+							<div class="roundedIndicatorSectionBoxInside">
+								<span jwcid="@Insert" raw="true" value="ognl:getPage().getMessages().getMessage('title')"/>
+							</div>
+						</div>
+
+						<!-- BEGIN:leftNav -->
+						<div id="leftNav">
+								<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
+									<div class="roundedSectionBoxTopLeft"></div><div class="roundedSectionBoxTopRight"></div>
+									<div class="roundedSectionBoxInside roundedNavSectionBoxInsideContent">
+										<span class="roundedSectionBoxInsideContent">
+											<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
+										</span>
+									</div>
+									<div class="roundedSectionBoxBottomLeft"></div><div class="roundedSectionBoxBottomRight"></div>
+								</span>
+								<span jwcid="@Else" renderTag="false">
+									<span class="roundedSectionBoxInsideContent">&nbsp;</span><!-- to ensure this block is never empty, so it has the min width -->
+								</span>
+						</div>
+						<!-- END:leftNav -->
+						<div id="content">
+							<div class="roundedSectionBoxTopLeft"></div><div class="roundedSectionBoxTopRight"></div>
+								<div class="roundedSectionBoxInside">
+									<span class="roundedSectionBoxInsideContent">
+										<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+												<span jwcid="@admin/StatusWarning"/>
+										</span>
+										<span jwcid="@RenderBody">Page content goes here.</span>
+									</span>
+								</div>
+							<div class="roundedSectionBoxBottomLeft"></div><div class="roundedSectionBoxBottomRight"></div>
+						</div>
+						<div class="contentContainerSectionBottom"></div>
+
+					</span>
 				</div>
-				<div id="content">
-						<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
-								<span jwcid="@admin/StatusWarning"/>
-						</span>
-						<span jwcid="@RenderBody">Page content goes here.</span>
-				</div>
-				<div class="contentContainerSectionBottom"></div>
+				<div class="roundedMainSectionBoxBottomLeft"></div><div class="roundedMainSectionBoxBottomRight"></div>
 			</div>
 			<!-- END:contentContainer -->
 

@@ -17,3 +17,7 @@ table.component .errorColumnValue
    /* IE7 does not support pre-wrap */
    white-space: normal;
 }
+
+#contentContainer #leftNav {
+   float: left; width:15%;
+}
