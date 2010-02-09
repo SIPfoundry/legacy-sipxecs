@@ -19,7 +19,6 @@ import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.packet.VCard;
 import org.sipfoundry.sipximbot.IMUser.UserPresence;
 
@@ -35,6 +34,7 @@ public class IMBot {
     
     private static class IMClientThread extends Thread {
         private static XMPPConnection m_con;
+        private static Localizer m_localizer;
          
         public IMClientThread() {
         }
@@ -110,7 +110,7 @@ public class IMBot {
             AvatarUpdateExtension AvatarExt = new AvatarUpdateExtension();
             AvatarExt.setPhotoHash(vCard.getAvatarHash());
             aPresence.addExtension(AvatarExt);
-            aPresence.setStatus("Type help for a list of commands.");
+            aPresence.setStatus(m_localizer.localize("cmd_help"));
             aPresence.setFrom(ImbotConfiguration.get().getMyAsstAcct());
             m_con.sendPacket(aPresence);
         }
@@ -169,6 +169,8 @@ public class IMBot {
             if(!connectToXMPPServer()) {
                 return;
             }
+            
+            m_localizer = new Localizer();
 
             updateAvatar(ImbotConfiguration.get());
             m_roster = m_con.getRoster();
@@ -210,7 +212,7 @@ public class IMBot {
                            
                             m_con.sendPacket(presPacket);
                             
-                            IMUser imuser = new IMUser(user, jid, null, m_con);
+                            IMUser imuser = new IMUser(user, jid, null, m_con, m_localizer);
                             m_ChatsMap.put(jid, imuser);
                         }
                         
@@ -232,7 +234,7 @@ public class IMBot {
             for (RosterEntry entry : entries) {
                 user = findUser(entry.getUser());
                 if(user != null) {
-                    IMUser imuser = new IMUser(user, entry.getUser(), m_roster.getPresence(entry.getUser()), m_con);                               
+                    IMUser imuser = new IMUser(user, entry.getUser(), m_roster.getPresence(entry.getUser()), m_con, m_localizer);                               
                     m_ChatsMap.put(entry.getUser(), imuser);
                 } else {
                     try {
@@ -258,7 +260,7 @@ public class IMBot {
                         if(user == null) {
                             LOG.error("Rejected addition from " + address);
                         } else {                        
-                            IMUser imuser = new IMUser(user, address, null, m_con);
+                            IMUser imuser = new IMUser(user, address, null, m_con, m_localizer);
                             m_ChatsMap.put(address, imuser);
                             LOG.debug("Entry added: " + address);
                         }                                                             

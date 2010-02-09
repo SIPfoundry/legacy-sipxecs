@@ -49,6 +49,7 @@
     <!-- BINARIES/LIB/SCRIPTS -->
     <delete dir="${dest.dir}${sipximbot.lib.dir}"/>
     <mkdir dir="${dest.dir}${sipximbot.lib.dir}"/>
+    <copy file="${src.dir}/etc/sipximbot-prompts.properties" todir="${dest.dir}${conf.dir}/imbot" />
     <copy todir="${dest.dir}${sipximbot.lib.dir}">
        <fileset file="${build.dir}/dist/sipXimbot.jar"/>
     </copy>

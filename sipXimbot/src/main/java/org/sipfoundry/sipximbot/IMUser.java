@@ -3,7 +3,6 @@ package org.sipfoundry.sipximbot;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Socket;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -12,10 +11,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
@@ -27,7 +24,6 @@ import org.jivesoftware.smack.packet.Presence;
 import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
-import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipximbot.CallHelper.CallHelperReturnCode;
@@ -53,7 +49,7 @@ public class IMUser {
         }
         
         private Chat           m_chat;
-        private Localization   m_loc;
+        private String         m_resource;;
         private IMUser         m_callingUser;
         private IMContext      m_context;
         private FullUser       m_user;
@@ -63,16 +59,19 @@ public class IMUser {
         private Date           m_atUntilTime;
         private Date           m_blockUntilTime;
         private String         m_callSubject;
+        private Localizer      m_localizer;
         
         // collection of jabber ids to poke (let it be known) when this user becomes avaiable. 
         private Collection<IMUser>  m_usersToPoke;
         static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
        
         
-        IMUser(FullUser user, String jabberId, Presence presence, XMPPConnection con) {
+        IMUser(FullUser user, String jabberId, Presence presence, XMPPConnection con, Localizer localizer) {
             m_con = con;
+            m_localizer = localizer;
             m_usersToPoke = new HashSet<IMUser>();
-            m_user = user;
+            m_user = user;      
+            m_resource = null;
             // m_atPlace = Place.WORK;
    
             m_chat = m_con.getChatManager().createChat(jabberId, new MessageListener() {
@@ -85,8 +84,7 @@ public class IMUser {
                     if(message.getBody() == null) {
                         return;
                     }
-                        
-                   
+                                           
                     String from = chat.getParticipant();
                     if(from.indexOf('/') > 0) {
                         from = from.substring(0, from.indexOf('/'));
@@ -117,26 +115,31 @@ public class IMUser {
                     
                     LOG.debug("From " + from + " IM: " + message.getBody());
                     
-                    boolean cmdComplete = m_context.receivedIM(message.getBody());
-                    
-                    if(cmdComplete) {
-                        String cmdResult = ProcessCmd(message.getBody());
-                        if (cmdResult.length() > 0) {
-                            sendIM(cmdResult);
-                        } 
-
-                        m_context.clearContext();
-                    }                  
+                    synchronized(this) {
+                        m_resource = message.getFrom();
+                        m_context.setResource(m_resource);
+                        boolean cmdComplete = m_context.receivedIM(message.getBody());
+                        
+                        if(cmdComplete) {
+                            String cmdResult = ProcessCmd(message.getBody());
+                            if (cmdResult.length() > 0) {
+                                sendIM(cmdResult);
+                            } 
+    
+                            m_context.clearContext();
+                        }
+                        m_resource = null;
+                    }
                 } 
             });  
 
             LOG.debug("Created chat for " + jabberId);
-            m_context = new IMContext(m_chat, Command.NONE, m_loc);
+            m_context = new IMContext(m_chat, Command.NONE, m_localizer);
         }
         
         private void sendPokes() {
             for(IMUser imuser : m_usersToPoke) {
-                imuser.sendIM(m_user.getDisplayName() + " is now available");
+                imuser.sendIM(m_user.getDisplayName() + " " + localize("is_now_available"));
             }
             m_usersToPoke.clear();
         }
@@ -228,15 +231,15 @@ public class IMUser {
                     
             if(!expired) {
                 if(fromPlace == Place.CELL) {
-                    atName = "your cell phone";
+                    atName = localize("cell");
                 }
                 
                 if(fromPlace == Place.HOME) {
-                    atName = "home";
+                    atName = localize("home");
                 }
                 
                 if(fromPlace == Place.WORK) {
-                    atName = "work";
+                    atName = localize("work");
                 }
                 
                 if(fromPlace == Place.UNKNOWN && fromNumber != null) {
@@ -247,43 +250,48 @@ public class IMUser {
             return atName;
         }
         
+        
+        private String localize(String prompt) {
+            return m_localizer.localize(prompt);
+        }
+        
         private void Call(Place fromPlace, String fromNumber, String uriToCall, String nameToCall) {
             
             String fromURI = currentlyAtUri(fromPlace, fromNumber);
                                                     
             String atName = atName(fromPlace, fromNumber);
             if(atName != null) {
-                atName = "from " + atName;
+                atName = localize("from") + " " + atName;
             } else {
                 atName = "";
             }
                     
-            sendIM("Calling " + nameToCall + " " + atName);                   
+            sendIM(localize("calling") + " " + nameToCall + " " + atName);                   
 
             try {    
                 CallHelper callHelper = new CallHelper();
 
                 CallHelperReturnCode ret = callHelper.call(fromURI, uriToCall, m_user.getUserName(), 20);
                 switch (ret) {
-                
+                                
                 case NO_ANSWER:
-                    sendIM("You did not answer.");                    
+                    sendIM(localize("did_not_answer"));                    
                     break;
                     
                 case BUSY:
-                    sendIM("Your phone is busy.");  
+                    sendIM(localize("phone_busy"));  
                     break;
                     
                 case FORBIDDEN:
-                    sendIM("You cannot dial that number.");  
+                    sendIM(localize("forbidden"));  
                     break;
                     
                 case INVALID:                    
-                    sendIM("Your call could not be completed.");                   
+                    sendIM(localize("invalid"));                   
                     break;
                     
                 case FAILURE:
-                    sendIM("Your number is not valid.");  
+                    sendIM(localize("failure"));  
                     break;                 
                 }
                 
@@ -295,23 +303,19 @@ public class IMUser {
         public void sendCommand(Command command, String msg) {
             m_context.sendCommand(command, msg);
         }       
-        
-        public void sendHeadlineIM(String msg) {
-            try {
-                Message message = new Message();             
-                message.setBody(msg);
-                message.setType(Message.Type.headline);
-                m_chat.sendMessage(message);
-            } catch (XMPPException e) {
-                LOG.error("exception in sendHeadlineIM " + e.getMessage());
-            }
-        }  
-        
+         
         public void sendIM(String msg) {
             try {
-                m_chat.sendMessage(msg);
+                Message message = new Message();
+                if(m_resource != null) {
+                    message.setTo(m_resource);
+                } else {
+                    message.setTo(m_chat.getParticipant());
+                }
+                message.setBody(msg);
+                m_chat.sendMessage(message);
             } catch (XMPPException e) {
-                LOG.error("exception in sendHeadlineIM " + e.getMessage());
+                LOG.error("exception in sendIM " + e.getMessage());
             }
         }  
         
@@ -391,7 +395,7 @@ public class IMUser {
                             if(dateOfCall.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
                                 if(dateOfCall.get(Calendar.YEAR) == today.get(Calendar.YEAR)) {
                                     df = timeFormat;
-                                    todayStr = "today ";
+                                    todayStr = localize("today") + " ";
                                 }
                             }
                         
@@ -402,9 +406,10 @@ public class IMUser {
                             
                             if(histStr.length() == 0) {
                                 if(daysOfHist == 1) {
-                                    histStr = "Your missed calls today ..";
+                                    histStr = localize("missed_today");
                                 } else {
-                                    histStr = "Your missed calls for the last " + daysOfHist + " days ..";
+                                    histStr = localize("missed_many_days") + " " + 
+                                               daysOfHist + " " + " days ..";
                                 }    
                             }
       
@@ -421,14 +426,14 @@ public class IMUser {
                 sendIM(histStr);
 
                 if(daysOfHist == 1) {
-                    return "For older missed calls, enter missed <number of days>. e.g. missed 5";
+                    return "For older missed calls, enter missed 'number of days'. e.g. missed 5";
                 } else {
                     return "";
                 }
             } else {
                 if(daysOfHist == 1) {
                     return "You have no missed calls today.\n" +
-                           "For older missed calls, enter missed <number of days>. e.g. missed 5";
+                           "For older missed calls, enter missed 'number of days'. e.g. missed 5";
                 } else {
                     return "You have no missed calls for the last " + daysOfHist + " days.";
                 }
@@ -446,15 +451,15 @@ public class IMUser {
 
                 switch(presence) {
                     case AVAILABLE:
-                        presAndStatus += " is available";    
+                        presAndStatus += " " + localize("is_available");    
                         break;
                     
                     case BUSY:
-                        presAndStatus += " is busy";           
+                        presAndStatus += " " + localize("is_busy");           
                         break;
                     
                     case AWAY:
-                        presAndStatus += " is away";    
+                        presAndStatus += " " + localize("is_away");    
                         break;
                                  
                     case ONPHONE:
@@ -465,11 +470,11 @@ public class IMUser {
                                 break;
                             }
                         }
-                        presAndStatus += " is on the phone";    
+                        presAndStatus += " " + localize("is_on_phone");    
                         break;                   
                         
                     case INCONFERENCE:
-                        presAndStatus += " is on a conference call";    
+                        presAndStatus += " " + localize("is_conferenced");    
                         break;              
                 }
                 
@@ -493,9 +498,9 @@ public class IMUser {
             NodeList matches = doc.getElementsByTagName("entry");    
             
             if(matches.getLength() == 0) {
-                sendIM("No matches found.");
+                sendIM(localize("no_matches"));
             } else if(matches.getLength() > 7) {
-                sendIM("Too many matches found.");               
+                sendIM(localize("too_many_matches"));               
             } else {            
  
                 String firstName = "";
@@ -653,13 +658,9 @@ public class IMUser {
             String uuid = getUUID(m_user);
             
             if(uuid == null) {
-                result = "There is no call to listen to.";     
+                result = localize("no_voice_msg");     
             } else {    
-                try {
-                    String voicemailURL = ImbotConfiguration.get().getVoicemailRootUrl();
-                    URL url = new URL(voicemailURL);
-                    String addr = url.getHost();
-                    
+                try {                    
                     // TODO: for now assume localhost .. 
                     
                     Socket socket = new Socket("localhost", 8021);
@@ -684,13 +685,9 @@ public class IMUser {
             String uuid = getUUID(m_user);
             
             if(uuid == null) {
-                result = "There is no call to pickup.";     
+                result = localize("no_voice_msg");     
             } else {    
-                try {
-                    String voicemailURL = ImbotConfiguration.get().getVoicemailRootUrl();
-                    URL url = new URL(voicemailURL);
-                    String addr = url.getHost();
-                    
+                try {                    
                     // TODO: for now assume localhost .. 
                     Socket socket = new Socket("localhost", 8021);
                           
@@ -800,42 +797,42 @@ public class IMUser {
                 if(m_context.getToPlace() == Place.CONFERENCE) {
                     numToCall = m_user.getConfNum();
                     if(numToCall == null) {
-                        cmdResult = "I don't know your conference number.";
+                        cmdResult = localize("conference_unknown");
                         break;
                     }
-                    nameToCall = "your conference";
+                    nameToCall = localize("conference");
                 }
                 
                 if(m_context.getToPlace() == Place.CELL) {
                     numToCall = m_user.getCellNum();
                     if(numToCall == null) {
-                        cmdResult = "I don't know your cell number.";
+                        cmdResult = localize("cell_unknown");
                         break;
                     }
-                    nameToCall = "your cell phone";
+                    nameToCall = localize("cell");
                 }
                 
                 if(m_context.getToPlace() == Place.HOME) {
                     numToCall = m_user.getHomeNum();
                     if(numToCall == null) {
-                        cmdResult = "I don't know your home number.";
+                        cmdResult = localize("home_unknown");
                         break;
                     }
-                    nameToCall = "home";
+                    nameToCall = localize("home");
                 } 
                 
                 fromPlace = m_context.getFromPlace();
                 
                 if(m_context.getFromPlace() == Place.CELL) {
                     if(m_user.getCellNum() == null) {
-                        cmdResult = "I don't know your cell number.";
+                        cmdResult = localize("cell_unknown");
                         break;
                     }
                 }
                 
                 if(m_context.getFromPlace() == Place.HOME) {
                     if(m_user.getHomeNum() == null) {
-                        cmdResult = "I don't know your home number.";
+                        cmdResult = localize("home_unknown");
                         break;
                     }
                 }
@@ -874,17 +871,17 @@ public class IMUser {
                 switch(m_context.getCommand()) {
                     case MUTE_CONF_PARTY:
                         ConfCmd = "mute ";
-                        DisplayResult = "muted.";
+                        DisplayResult = localize("muted");
                         break;
                         
                     case DISC_CONF_PARTY:
                         ConfCmd = "kick ";
-                        DisplayResult = "disconnected.";
+                        DisplayResult = localize("disconnected");
                         break;
                         
                     case UNMUTE_CONF_PARTY:
                         ConfCmd = "unmute ";
-                        DisplayResult = "unmuted.";
+                        DisplayResult = localize("unmuted");
                         break;
                 }
                               
@@ -892,7 +889,7 @@ public class IMUser {
                 
                 members = ConfTask.getMembers(m_user.getConfName());
                 if(members == null) {
-                    cmdResult = "No one is in your conference.";
+                    cmdResult = localize("conference_empty");
                     break;
                 }
                 
@@ -921,23 +918,23 @@ public class IMUser {
                 }
                 
                 if(confParty == null) {
-                    cmdResult = "All participants " + DisplayResult;
+                    cmdResult = localize("all_participants") + " " + DisplayResult;
                 } else {
-                    cmdResult = "That participant does not exist.";
+                    cmdResult = localize("participant_not_exist");
                 }
                 break;
    
             case LOCK_CONF:
                 cmdResult = ConfTask.ConfCommand(m_user, "lock");
                 if(cmdResult == null) {
-                    cmdResult = "Conference locked.";
+                    cmdResult = localize("conference_locked");
                 }
                 break;    
                 
             case UNLOCK_CONF:
                 cmdResult = ConfTask.ConfCommand(m_user, "unlock");
                 if(cmdResult == null) {
-                    cmdResult = "Conference unlocked.";
+                    cmdResult = localize("conference_unlocked");
                 }
                 break;    
                 
@@ -947,7 +944,7 @@ public class IMUser {
                 
                 boolean isLocked = ConfTask.isLocked(confName);
                 if(isLocked) {
-                    sendIM("The conference is locked, to unlock enter unlock.");
+                    sendIM(localize("conference_is_locked"));
                 }
                 
                 members = ConfTask.getMembers(confName);
@@ -957,14 +954,14 @@ public class IMUser {
                     for( ConferenceMember member : members) {
                         muteStr = "";
                         if(member.isMuted()) {
-                            muteStr  = " is muted";
+                            muteStr  = localize("is_muted");
                         }
                         
                         sendIM("[" + member.memberIndex() + "] " + member.memberName() +
-                               " (" + member.memberNumber() + ")" + muteStr);
+                               " (" + member.memberNumber() + ") " + muteStr);
                     }
                 } else {
-                    cmdResult = "No one is in your conference.";
+                    cmdResult = localize("conference_empty");
                 }               
 
                 break; 

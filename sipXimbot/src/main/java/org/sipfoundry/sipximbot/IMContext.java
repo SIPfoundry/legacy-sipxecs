@@ -5,6 +5,7 @@ import java.util.StringTokenizer;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.XMPPException;
+import org.jivesoftware.smack.packet.Message;
 import org.sipfoundry.commons.freeswitch.Localization;
 
 /*
@@ -68,10 +69,11 @@ public class IMContext {
         WHO,
         CONFERENCE,
         PICKUP,
-        LISTENIN
+        LISTENIN 
     }
     
     private Chat    m_chat;
+    private String  m_resource;
     private Command m_command;
     private Date    m_untilTime;
     
@@ -89,15 +91,17 @@ public class IMContext {
     // "until" but are waiting on the user to enter a time 
     private int     m_historyNum;
     private long    m_timeReceived;
+    private Localizer m_localizer;
     
     private static final long s_TIMEOUT = 15*1000; // ten second user response timeout 
     
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
         
-    public IMContext(Chat chat, Command command, Localization loc) {
+    public IMContext(Chat chat, Command command, Localizer localizer) {
         clearContext();
         m_command = command;
         m_chat = chat;       
+        m_localizer = localizer;
     }
     
     public void clearContext() {
@@ -164,9 +168,20 @@ public class IMContext {
         clearContext();        
     }
     
+    private String localize(String prompt) {
+        return m_localizer.localize(prompt);
+    }
+    
     private void sendMsg(String msg) {
         try {
-            m_chat.sendMessage(msg);
+            Message message = new Message();
+            if(m_resource != null) {
+                message.setTo(m_resource);
+            } else {
+                message.setTo(m_chat.getParticipant());
+            }
+            message.setBody(msg);
+            m_chat.sendMessage(message);
         } catch (XMPPException e) {
             LOG.error("IMContext.sendMsg XMPP Exception: " + m_chat.getParticipant());
         }         
@@ -174,7 +189,7 @@ public class IMContext {
     
     private void parseFindCmd(StringTokenizer st) {
         if(!st.hasMoreTokens()) {
-            sendMsg("Reply with:  name. For example: Smith");
+            sendMsg(localize("find_reply"));
         } else {    
             m_findTerm = st.nextToken();
             m_complete = true;  
@@ -188,7 +203,7 @@ public class IMContext {
         if(!ParsingTo) {      
             if("from".startsWith(word)) {               
                 if(!st.hasMoreTokens()) {
-                    sendMsg("From where? Reply with: cell, home, work or number. For example: cell");
+                    sendMsg(localize("where_reply"));
                     return success;
                 } else {
                     word = st.nextToken();  
@@ -227,7 +242,7 @@ public class IMContext {
                 phoneNumber = word;
                 
             } else {
-                sendErrMsg("that is an invalid phone number");
+                sendErrMsg(localize("invalid_number"));
             }
         }
         
@@ -248,7 +263,7 @@ public class IMContext {
         
         boolean success = false;
         if(!st.hasMoreTokens()) {
-            sendMsg("From where? Reply with: cell, home, work or number. For example: cell");
+            sendMsg(localize("where_reply"));
         } else {                         
             success = parseNameOrNumber(st, false);    
         }   
@@ -257,12 +272,12 @@ public class IMContext {
     
     private void parseCallCmd(StringTokenizer st) {
         if(!st.hasMoreTokens()) {
-            sendMsg("Reply with: cell, home or person's name or number. For example: 234-5678 or Smith");
+            sendMsg(localize("call_reply"));
         } else {
             if(parseNameOrNumber(st, true) ) {
                 m_command = Command.CALL_FROM;
                 if(!st.hasMoreTokens()) {
-                    sendMsg("Reply with from cell or home or a phone number. For example, from cell");
+                    sendMsg(localize("where_reply"));
                 } else {    
                     m_complete = parsePlace(st);
                 } 
@@ -274,19 +289,18 @@ public class IMContext {
         boolean success = true;
         
         if(!st.hasMoreTokens()) {
-            sendMsg("Reply with: all or participant number, type who if you don't know it");
+            sendMsg(localize("conf_party_reply"));
             return false;
         } else {       
             m_confParty = st.nextToken();
-            if(m_confParty.equals("all")) {
+            if(m_confParty.equals(localize("all"))) {
               m_confParty = null;
               
-            } else {
-            
+            } else {            
                 try {
                     Integer.parseInt(m_confParty);                
                 } catch (NumberFormatException nfe) {
-                    sendErrMsg("that is not a valid participant number");
+                    sendErrMsg(localize("invalid_participant"));
                     success = false;
                 }       
             }
@@ -315,31 +329,173 @@ public class IMContext {
     public int getHistoryNum() {
         return m_historyNum;
     }
-    
-    private void sendHelp() {
-
-        sendMsg(//"To review your status, enter status\n" +
-                "To call someone, enter call <name or number> from <cell or home or number> e.g. call jones from cell\n" +
-                "To review your missed calls, enter missed\n" +
-                "To enter your conference bridge, enter conference\n" +
-                "To search your phone books, enter find <last or first name> e.g. find smith\n" + 
-                // "To block calls, enter block until <time>\n" +
-                // "To receive calls, enter unblock\n" +
-                // "To receive calls at a specific number, enter at <number> until <time>  e.g. at cell until 3pm\n" +
-                "To see who is on your conference, enter who\n" +
-                "To mute a conference participant, enter mute <participant number>\n" +
-                "To mute all conference participants, enter mute all\n" +
-                "To unmute a conference participant, enter unmute <participant number>\n" +
-                "To unmute all conference participants, enter unmute all\n" +
-                "To disconnect a conference participant, enter disconnect <participant number>\n" +
-                "To disconnect all conference participants, enter disconnect all\n" +
-                "To lock your conference, enter lock\n" +
-                "To unlock your conference, enter unlock\n" + 
-                "To listen to a caller leaving voicemail, enter listen\n" +
-                "To retrieve a caller from voicemail, enter pickup"); 
-    }
+        
+    private void sendHelp(StringTokenizer st) {
+        
+        if(st.hasMoreTokens()) {            
+            Command cmd = cmdStrtoCommand(st.nextToken().trim());
+              
+            switch (cmd) {
+            case CALL:    
+                sendMsg(localize("call_help_1"));
+                sendMsg(localize("call_help_2"));
+                sendMsg(localize("call_help_3"));
+                sendMsg(localize("call_help_4"));
+                sendMsg(localize("call_help_5"));
+                break;             
+            
+            case CONFERENCE:
+                sendMsg(localize("conf_help_1"));
+                sendMsg(localize("conf_help_2"));
+                sendMsg(localize("conf_help_3"));
+                sendMsg(localize("conf_help_4"));
+                break;
+            
+            case FIND:    
+                sendMsg(localize("find_help_1"));
+                sendMsg(localize("find_help_2"));
+                sendMsg(localize("find_help_3"));
+                break;
+            
+            case HISTORY:    
+                sendMsg(localize("history_help"));
+                break;
+                        
+            case MUTE_CONF_PARTY:    
+                sendMsg(localize("mute_help_1"));
+                sendMsg(localize("mute_help_2"));
+                sendMsg(localize("mute_help_3"));
+                sendMsg(localize("mute_help_4"));
+                break;   
+            
+            case UNMUTE_CONF_PARTY: 
+                sendMsg(localize("unmute_help_1"));
+                sendMsg(localize("unmute_help_2"));
+                sendMsg(localize("unmute_help_3"));
+                sendMsg(localize("unmute_help_4"));
+                break;   
+            
+            case DISC_CONF_PARTY:
+                sendMsg(localize("disc_conf_help_1"));
+                sendMsg(localize("disc_conf_help_2"));
+                sendMsg(localize("disc_conf_help_3"));
+                sendMsg(localize("disc_conf_help_4"));
+                break;   
      
+            case LOCK_CONF:         
+                sendMsg(localize("lock_help"));
+                break;   
+
+            case UNLOCK_CONF:
+                sendMsg(localize("unlock_help")); 
+                break;
+            
+            case WHO:
+                sendMsg(localize("who_help"));
+                break;   
+
+            case PICKUP:            
+                sendMsg(localize("pickup_help"));
+                break;
+            
+            case LISTENIN:
+                sendMsg(localize("listen_help"));
+                break;
+            
+            case NONE:
+                sendMsg(localize("do_not_understand"));
+                break;
+            }    
+            return;
+            
+        }     
+        
+        sendMsg("Commands: call, find, missed, listen, pickup, conference, " +
+                "who, mute, unmute, disconnect, lock, unlock or any short forms");
+        
+        sendMsg("Type help followed by a command for details (e.g. 'help call')");                  
+    }
+    
+    private Command cmdStrtoCommand(String cmd) {
+        
+        int matches = 0;
+        Command result = Command.NONE;
+        
+        if(localize("call").startsWith(cmd)) {
+            result = Command.CALL;        
+            matches++;
+        }
+        
+        if(localize("conference").startsWith(cmd)) {
+            result = Command.CONFERENCE;      
+            matches++;
+        }
+
+        if(localize("missed").startsWith(cmd)) {
+            result = Command.HISTORY;
+            matches++;
+        }
+        
+        if(localize("help").startsWith(cmd)) {
+            result = Command.HELP;
+        }
+        
+        if(localize("find").startsWith(cmd)) {
+            matches++;
+            result = Command.FIND;
+        }
+                           
+        if(localize("mute").startsWith(cmd)) {
+            matches++;
+            result = Command.MUTE_CONF_PARTY;   
+        }
+        
+        if(localize("unmute").startsWith(cmd)) {
+            matches++;
+            result = Command.UNMUTE_CONF_PARTY;   
+        }
+        
+        if(localize("disconnect").startsWith(cmd)) {
+            matches++;
+            result = Command.DISC_CONF_PARTY;   
+        }          
+        
+        if(localize("lock").startsWith(cmd)) {
+            result = Command.LOCK_CONF;
+            matches++;
+        }
+        
+        if(localize("unlock").startsWith(cmd)) {
+            result = Command.UNLOCK_CONF;
+            matches++;
+        }
+        
+        if(localize("who").startsWith(cmd)) {
+            result = Command.WHO;
+            matches++;
+        }
+        
+        if(localize("pickup").startsWith(cmd)) {
+            result = Command.PICKUP;
+            matches++;
+        }
+        
+        if(localize("listen").startsWith(cmd)) {
+            result = Command.LISTENIN;
+            matches++;
+        }
+        
+        if(matches != 1) {
+            result = Command.NONE;
+        }
+        
+        return result;
+    }        
+
     private void parseIM(String rcvIM) {
+        
+        int matches = 0;
+        
         rcvIM.trim();
         rcvIM = rcvIM.toLowerCase();
         
@@ -347,32 +503,34 @@ public class IMContext {
         
         int numTokens = st.countTokens();
         if(numTokens == 0) return;
-        
+                
         if(m_command == Command.NONE) {
             String firstWord = st.nextToken(); 
-            
-            // perhaps the first word of the IM corresponds to a command
-            if("call".startsWith(firstWord)) {
-                m_command = Command.CALL;             
+
+            if(localize("call").startsWith(firstWord)) {
+                m_command = Command.CALL;        
+                matches++;
             }
             
-            if("conference".startsWith(firstWord)) {
+            if(localize("conference").startsWith(firstWord)) {
                 m_toPlace = Place.CONFERENCE;
-                m_command = Command.CALL_FROM;             
+                m_command = Command.CALL_FROM;      
+                matches++;
             }
-            
-            // disambiguate with Mute command
-            if("missed".startsWith(firstWord) && firstWord.length() > 1) {
+
+            if(localize("missed").startsWith(firstWord)) {
                 m_command = Command.HISTORY;
+                matches++;
             }
             
-            if("help".startsWith(firstWord)) {
+            if(localize("help").startsWith(firstWord)) {
                 // we deal with help ourselves 
-                sendHelp();
+                sendHelp(st);
                 return;
             }
             
-            if("find".startsWith(firstWord)) {
+            if(localize("find").startsWith(firstWord)) {
+                matches++;
                 m_command = Command.FIND;
             }
             
@@ -397,48 +555,57 @@ public class IMContext {
             }
             */  
                         
-            // disambiguate with Missed command
-            if("mute".startsWith(firstWord) && firstWord.length() > 1) {
+            if(localize("mute").startsWith(firstWord)) {
+                matches++;
                 m_command = Command.MUTE_CONF_PARTY;   
             }
             
-            if("unmute".startsWith(firstWord) && firstWord.length() > 2) {
+            if(localize("unmute").startsWith(firstWord)) {
+                matches++;
                 m_command = Command.UNMUTE_CONF_PARTY;   
             }
             
-            if("disconnect".startsWith(firstWord)) {
+            if(localize("disconnect").startsWith(firstWord)) {
+                matches++;
                 m_command = Command.DISC_CONF_PARTY;   
             }          
             
-            if("lock".startsWith(firstWord)) {
+            if(localize("lock").startsWith(firstWord)) {
                 m_complete = true;
-                m_command = Command.LOCK_CONF;   
+                m_command = Command.LOCK_CONF;
+                matches++;
             }
             
-            if("unlock".startsWith(firstWord) && firstWord.length() > 2) {
+            if(localize("unlock").startsWith(firstWord)) {
                 m_complete = true;
-                m_command = Command.UNLOCK_CONF;   
+                m_command = Command.UNLOCK_CONF;
+                matches++;
             }
             
-            if("who".startsWith(firstWord)) {
+            if(localize("who").startsWith(firstWord)) {
                 m_complete = true;
-                m_command = Command.WHO;   
+                m_command = Command.WHO;
+                matches++;
             }
             
-            if("pickup".startsWith(firstWord)) {
+            if(localize("pickup").startsWith(firstWord)) {
                 m_command = Command.PICKUP;
                 m_complete = true;
+                matches++;
             }
             
-            if("listen".startsWith(firstWord)) {
+            if(localize("listen").startsWith(firstWord)) {
                 m_command = Command.LISTENIN;
+                matches++;
                 m_complete = true;
             }
-        } 
-        
-        if(m_command == Command.NONE) {
-            sendMsg("I do not understand. Enter help");
-        }
+            
+            if(matches != 1) {
+                m_command = Command.NONE;
+                m_complete  = false;
+                sendMsg(localize("do_not_understand"));
+            }
+        }        
         
         if(!m_complete && m_command != Command.NONE) {
             // in the middle of a command
@@ -512,6 +679,10 @@ public class IMContext {
         parseIM(rcvIM);
         
         return m_complete;
+    }
+
+    public void setResource(String resource) {
+        m_resource = resource;
     }
     
     /*
