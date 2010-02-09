@@ -69,7 +69,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         assertElementNotPresent("detailedHelp");
     }
 
-    public void testRunDns() throws Exception {
+    public void DISABLED_testRunDns() throws Exception {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
 
@@ -82,7 +82,7 @@ public class DnsTestPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testChangeSystemConfiguration() throws Exception {
+    public void DISABLED_testChangeSystemConfiguration() throws Exception {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         setWorkingForm("dnsTestForm");
@@ -108,5 +108,13 @@ public class DnsTestPageTestUi extends WebTestCase {
 
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
+    }
+
+    /*
+     * Disabling unit test
+     * For more info, see: http://track.sipfoundry.org/browse/XX-7630
+     */
+    public void test_DISABLED() {
+        return;
     }
 }

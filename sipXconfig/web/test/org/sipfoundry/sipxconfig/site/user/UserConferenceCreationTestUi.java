@@ -27,7 +27,15 @@ public class UserConferenceCreationTestUi extends WebTestCase {
         clickLink("resetConferenceBridgeContext");
     }
 
-    public void testConferenceCreation() {
+    /*
+     * Disabling unit test
+     * For more info, see: http://track.sipfoundry.org/browse/XX-7630
+     */
+    public void test_DISABLED() {
+        return;
+    }
+
+    public void DISABLED_testConferenceCreation() {
         // Create the test bridge and a user group for conference creation.
         m_helper.createBridge();
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", 1);

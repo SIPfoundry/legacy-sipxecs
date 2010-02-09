@@ -33,7 +33,15 @@ public class EditScheduleTestUi extends WebTestCase {
         setWorkingForm("userSchedules");
     }
 
-    public void testAddDeleteSchedule() throws Exception {
+    /*
+     * Disabling unit test
+     * For more info, see: http://track.sipfoundry.org/browse/XX-7630
+     */
+    public void test_DISABLED() {
+        return;
+    }
+
+    public void DISABLED_testAddDeleteSchedule() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
@@ -47,7 +55,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testAddSchedulesWithPeriodsThatOverlap() throws Exception {
+    public void DISABLED_testAddSchedulesWithPeriodsThatOverlap() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule_overlap");
@@ -72,7 +80,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testAddSchedulesWithStartHourGreaterThanStopHour() throws Exception {
+    public void DISABLED_testAddSchedulesWithStartHourGreaterThanStopHour() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule_startstop");
@@ -86,7 +94,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testAddSchedulesWithNoPeriodDefined() throws Exception {
+    public void DISABLED_testAddSchedulesWithNoPeriodDefined() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule_noperiod");
@@ -96,7 +104,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
-    public void testAddSchedulesWithSameName() throws Exception {
+    public void DISABLED_testAddSchedulesWithSameName() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule");
@@ -110,7 +118,7 @@ public class EditScheduleTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
     }
 
-    public void testAddDeleteScheduleWithSpacesInName() throws Exception {
+    public void DISABLED_testAddDeleteScheduleWithSpacesInName() throws Exception {
         SiteTestHelper.assertNoException(tester);
         clickLink("link:addSchedule");
         setTextField("item:name", "schedule name with spaces");
