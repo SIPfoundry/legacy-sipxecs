@@ -44,6 +44,11 @@ public class NewEnumPropertySelectionModel<E extends Enum<E>> implements IProper
 
     public Object translateValue(String value) {
         int i = Integer.parseInt(value);
+        // This is a robustness handling. If ever run into the indexOutOfBound
+        // situation, reset the index to 0.
+        if (i >= m_options.length) {
+            i = 0;
+        }
         return m_options[i];
     }
 

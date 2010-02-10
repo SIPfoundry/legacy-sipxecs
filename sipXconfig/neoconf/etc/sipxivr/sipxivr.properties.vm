@@ -23,3 +23,5 @@ ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
 ivr.sendIMUrl=http://$!{sipxServiceManager.getServiceParam('openfire-host')}:$!{imbotService.httpPort}/IM
 #end
+ivr.nameDialPrefix=$ivr.getSetting('nameDialPrefix').Value
+ivr.defaultTui=$ivr.getSetting('defaultTui').Value

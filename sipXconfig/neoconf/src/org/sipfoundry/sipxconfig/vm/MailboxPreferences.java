@@ -55,7 +55,7 @@ public class MailboxPreferences {
                     return greeting;
                 }
             }
-            throw new IllegalArgumentException("id not recognized " + id);
+            return NONE;
         }
     }
 
@@ -328,6 +328,20 @@ public class MailboxPreferences {
 
     public boolean isImapServerConfigured() {
         return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
+    }
+
+    public ActiveGreeting[] getOptionsForActiveGreeting() {
+        List list = new ArrayList();
+        if (m_voicemailTui == VoicemailTuiType.STANDARD) {
+            list.add(ActiveGreeting.NONE);
+            list.add(ActiveGreeting.STANDARD);
+            list.add(ActiveGreeting.OUT_OF_OFFICE);
+            list.add(ActiveGreeting.EXTENDED_ABSENCE);
+        } else {
+            list.add(ActiveGreeting.STANDARD);
+            list.add(ActiveGreeting.OUT_OF_OFFICE);
+        }
+        return (ActiveGreeting[]) list.toArray(new ActiveGreeting[0]);
     }
 
     public AttachType[] getAttachOptions(boolean isAdmin) {

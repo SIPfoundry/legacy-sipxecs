@@ -4,14 +4,6 @@
       <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
     </ul>
   </span>
-  <tr jwcid="@common/FieldPanel" for="user:activeGreeting"
-    field="component:activeGreeting"
-    label="message:label.activeGreeting"
-    description="message:description.activeGreeting">
-    <select jwcid="activeGreeting@PropertySelection" id="user:activeGreeting"
-      value="ognl:preferences.activeGreeting"
-      model="ognl:activeGreetingModel" />
-  </tr>
   <span jwcid="@If" condition="ognl:voicemailTuiModel.optionCount > 1" renderTag="false">
     <tr jwcid="@common/FieldPanel" for="user:voicemailTui"
       field="component:voicemailTui"
@@ -20,9 +12,20 @@
       <select jwcid="voicemailTui@PropertySelection"
         id="user:voicemailTui"
         value="ognl:preferences.voicemailTui"
-        model="ognl:voicemailTuiModel" />
+        model="ognl:voicemailTuiModel"
+        onchange="javascript:this.form.submit();"
+        />
     </tr>
   </span>
+  <tr jwcid="@common/FieldPanel" for="user:activeGreeting"
+    field="component:activeGreeting"
+    label="message:label.activeGreeting"
+    description="message:description.activeGreeting">
+    <select jwcid="activeGreeting@PropertySelection"
+      id="user:activeGreeting"
+      value="ognl:preferences.activeGreeting"
+      model="ognl:activeGreetingModel" />
+  </tr>
   <span jwcid="@If" condition="ognl:preferences.busyPromptVisible" renderTag="false">
     <tr jwcid="@common/FieldPanel" for="user:busyPrompt"
       field="component:busyPrompt"

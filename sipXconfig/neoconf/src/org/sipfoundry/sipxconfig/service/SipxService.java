@@ -58,6 +58,8 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
     /** If true sipXconfig will enable group title on config page */
     private boolean m_groupTitleEnabled;
 
+    private String m_hiddenSettings;
+
     public String getProcessName() {
         return m_processName;
     }
@@ -212,6 +214,14 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
 
     public boolean isGroupTitleEnabled() {
         return m_groupTitleEnabled;
+    }
+
+    public void setHiddenSettings(String settings) {
+        m_hiddenSettings = settings;
+    }
+
+    public String getHiddenSettings() {
+        return m_hiddenSettings;
     }
 
     /**

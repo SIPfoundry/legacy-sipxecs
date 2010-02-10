@@ -12,17 +12,13 @@
     <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
   </span>
 
-  <span jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('voicemail')">
-    <span jwcid="@common/QuickHelp" value="message:quick.help.unifiedMessaging"/>
-  </span>
-
   <div jwcid="@common/LeftNavigation" renderCondition="ognl:groupId">
     <span jwcid="settingsNavigation@setting/SettingsNavigation"
           bean="ognl:bean"
           source="ognl:settings.values"
           activeSetting="ognl:parentSetting"
           editSettingsListener="listener:editGroupSettings"
-          groupsToHide="literal:moh">
+          groupsToHide="literal:voicemail,moh">
       <span jwcid="@common/TabNavigation"
             tabNames="ognl:availableTabNames"
             selectedTab="ognl:tab"
@@ -83,14 +79,19 @@
   <span jwcid="@If" condition="ognl:parentSetting || tab.equals('schedules')" renderTag="false">
     <span jwcid="settingsForm@Form" delegate="bean:validator">
       <span jwcid="settings@setting/SettingsFieldset" requiredEnabled="literal:false" settings="ognl:parentSetting" />
-      <fieldset jwcid="@If" condition="ognl:parentSettingName && parentSettingName.equals('voicemail')">
-        <table>
-          <span jwcid="voicemailServer@vm/VoicemailServerComponent" settings="ognl:settings" />
-        </table>
-      </fieldset>
       <ul jwcid="formActions@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
     </span>
   </span>
+
+  <div jwcid="voicemailTab@Block">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.unifiedMessaging"/>
+    <form jwcid="voicemailForm@Form" delegate="bean:validator">
+      <span jwcid="vmTui@vm/VoicemailTuiComponent" settings="ognl:settings" />
+      <span jwcid="vmSettings@setting/SettingsFieldset" settings="ognl:voicemailSettings" renderGroupTitle="ognl:false" />
+      <span jwcid="vmServer@vm/VoicemailServerComponent" settings="ognl:settings" />
+      <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
+    </form>
+  </div>
 
   <div jwcid="mohTab@Block">
     <span jwcid="@common/QuickHelp" value="message:quick.help.moh" />

@@ -45,6 +45,7 @@ public abstract class UserGroupSettings extends GroupSettings {
     private static final String EXTCONTACT = "extcontact";
     private static final String SPEEDDIAL = "speeddial";
     private static final String CONFIGURE = "configure";
+    private static final String VOICEMAIL = "voicemail";
     private static final String MOH = "moh";
 
     @InjectObject(value = "spring:forwardingContext")
@@ -106,7 +107,7 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIGURE, SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, MOH));
+        tabNames.addAll(Arrays.asList(CONFIGURE, VOICEMAIL, SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, MOH));
 
         return tabNames;
     }
@@ -244,6 +245,18 @@ public abstract class UserGroupSettings extends GroupSettings {
         }
     }
 
+    public void editVoicemailSettings() {
+        setParentSettingName(VOICEMAIL);
+    }
+
+    public boolean isVoicemailTabActive() {
+        return (VOICEMAIL.equalsIgnoreCase(getParentSettingName()));
+    }
+
+    public Setting getVoicemailSettings() {
+        return getSettings().getSetting(VOICEMAIL);
+    }
+
     public void onMohUpdatePhones() {
         if (TapestryUtils.isValid(this)) {
             apply();
@@ -252,7 +265,7 @@ public abstract class UserGroupSettings extends GroupSettings {
     }
 
     public Setting getMohSettings() {
-        return getSettings().getSetting(User.MOH_SETTING);
+        return getSettings().getSetting(MOH);
     }
 
     private void updatePhones() {

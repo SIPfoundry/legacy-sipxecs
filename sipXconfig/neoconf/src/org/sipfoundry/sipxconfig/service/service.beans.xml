@@ -288,6 +288,8 @@
     <property name="modelDir" value="sipxivr" />
     <property name="editable" value="true" />
     <property name="groupTitleEnabled" value="true" />
+    <property name="callPilotSettings" value="nameDialPrefix, defaultTui"/>
+    <property name="cpuiDir" value="${sysdir.doc}/stdprompts/cpui"/>
     <property name="configurations">
       <list>
         <ref bean="sipxIvrConfiguration" />

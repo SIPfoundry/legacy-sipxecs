@@ -31,7 +31,7 @@
       </option>
     </enum>
   </type>
-  <group name="ivr" advanced="yes">
+  <group name="ivr">
     <setting name="log.file" hidden="yes">
       <value>sipxivr.log</value>
     </setting>
@@ -44,6 +44,22 @@
         <integer />
       </type>
       <value>8084</value>
+    </setting>
+    <setting name="nameDialPrefix">
+      <value>11</value>
+    </setting>
+    <setting name="defaultTui">
+      <type>
+        <enum>
+          <option>
+            <value>stdui</value>
+          </option>
+          <option>
+            <value>cpui</value>
+          </option>
+        </enum>
+      </type>
+      <value>stdui</value>
     </setting>
     <setting name="httpsPort" advanced="yes">
       <type>

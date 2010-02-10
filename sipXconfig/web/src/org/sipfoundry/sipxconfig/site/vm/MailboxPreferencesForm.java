@@ -27,13 +27,10 @@ import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 public abstract class MailboxPreferencesForm extends BaseComponent implements PageBeginRenderListener {
     private static final String ATTACH_TYPE = "attachType.";
     private static final String VOICEMAIL_TUI_TYPE = "voicemailTuiType.";
+    private static final String ACTIVE_GREETING_TYPE = "activeGreeting.";
 
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
-
-    public abstract void setActiveGreetingModel(IPropertySelectionModel model);
-
-    public abstract IPropertySelectionModel getActiveGreetingModel();
 
     public abstract void setVoicemailPropertiesModel(IPropertySelectionModel model);
 
@@ -60,12 +57,13 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     @Parameter(required = false, defaultValue = "ognl:false")
     public abstract boolean isAdvanced();
 
+    public IPropertySelectionModel getActiveGreetingModel() {
+        NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel();
+        rawModel.setOptions(getPreferences().getOptionsForActiveGreeting());
+        return (new LocalizedOptionModelDecorator(rawModel, getMessages(), ACTIVE_GREETING_TYPE));
+    }
+
     public void pageBeginRender(PageEvent event) {
-        if (getActiveGreetingModel() == null) {
-            NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel();
-            rawModel.setEnumType(ActiveGreeting.class);
-            setActiveGreetingModel(new LocalizedOptionModelDecorator(rawModel, getMessages(), "activeGreeting."));
-        }
         if (getVoicemailPropertiesModel() == null) {
             NewEnumPropertySelectionModel<AttachType> rawModel = new NewEnumPropertySelectionModel<AttachType>();
             rawModel.setOptions(getPreferences().getAttachOptions(isAdmin()));
