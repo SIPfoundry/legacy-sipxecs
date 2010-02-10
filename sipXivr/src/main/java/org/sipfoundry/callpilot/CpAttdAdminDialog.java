@@ -41,10 +41,15 @@ public class CpAttdAdminDialog {
            cpDialog = new CpDialog(m_vm, "to_change_attd");
            cpDialog.setPrePromptList(pl);
            
-           String cmd = cpDialog.collectDigit("1*");
+           String cmd = cpDialog.collectDigit("0123456789#*");
            
            if(cmd.equals("*")) {
                break;
+           }
+           
+           if(!cmd.equals("1")) {
+               m_vm.playError("bad_cmd");
+               continue;
            }
            
            cpDialog = new CpDialog(m_vm, "attd_change");          

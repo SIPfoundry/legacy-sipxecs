@@ -558,14 +558,15 @@ public class Deposit {
             }
             
             clearChannelUUID(m_mailbox.getUser());
-            
-            // Deliver message that is pending; don't store "click" messages
-            if(m_message.getDuration() > 1) {
-                m_message.storeInInbox();
-            } else {
-                m_message.deleteTempWav();
-            }
 
+            if(m_message != null) {
+                // Deliver message that is pending; don't store "click" messages
+                if(m_message.getDuration() > 1) {
+                    m_message.storeInInbox();
+                } else {
+                    m_message.deleteTempWav();
+                }
+            }
         }
         return null;       
     }

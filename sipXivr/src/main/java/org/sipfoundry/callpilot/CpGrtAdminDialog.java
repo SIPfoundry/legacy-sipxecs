@@ -129,7 +129,7 @@ public class CpGrtAdminDialog {
                 vmd.setPrePromptList(messagePl);
             }
     
-            String digit = vmd.collectDigit("12#");
+            String digit = vmd.collectDigit("0123456789#*");
     
             // bad entry, timeout, canceled
             if (digit == null) {
@@ -156,6 +156,9 @@ public class CpGrtAdminDialog {
                 m_log.info(String.format("Retrieve::recordDialog "+ident+" accepted recording (%s)", wavPath));
                 return wavFile;
             }
+            
+            // must be an invalid entry
+            m_vm.playError("bad_cmd");
         }
     }    
     
