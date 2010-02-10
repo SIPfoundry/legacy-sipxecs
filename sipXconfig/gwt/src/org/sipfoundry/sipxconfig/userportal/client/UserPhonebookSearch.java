@@ -263,8 +263,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
         public ExpandedContactComponent(final PhonebookGrid grid) {
             setStyleName("gwtExpandedContact");
-            setWidth("670px");
-            setAutoHeight();
+            setWidth("80%");
 
             final ListGridRecord record = grid.getSelectedRecord();
 
@@ -359,17 +358,23 @@ public class UserPhonebookSearch implements EntryPoint {
 
     private static final class DetailsTab extends TabSet {
         public DetailsTab(Details details) {
+            setOverflow(Overflow.VISIBLE);
             setHeight("260px");
 
             HLayout generalLayout = new HLayout();
             generalLayout.addMember(details.getAvatarSection());
             generalLayout.addMember(details.getGeneralForm());
+            generalLayout.setOverflow(Overflow.VISIBLE);
+            generalLayout.setAutoHeight();
+            generalLayout.setAutoWidth();
 
             HLayout addressLayout = new HLayout();
             addressLayout.addMember(details.getHomeForm());
             addressLayout.addMember(details.getOfficeForm());
             addressLayout.setMembersMargin(10);
+            addressLayout.setOverflow(Overflow.VISIBLE);
             addressLayout.setWidth100();
+            addressLayout.setHeight100();
 
             Tab generalTab = new Tab();
             generalTab.setPane(generalLayout);
