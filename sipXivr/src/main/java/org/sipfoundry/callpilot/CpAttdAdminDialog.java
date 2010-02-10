@@ -1,6 +1,7 @@
 package org.sipfoundry.callpilot;
 
 import org.sipfoundry.commons.freeswitch.PromptList;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.RestfulRequest;
@@ -20,7 +21,9 @@ public class CpAttdAdminDialog {
         
        CpDialog cpDialog;
        String attdExt;
+       String tmpAttdExt;
        PromptList pl;
+       User user = null;
        
        String transferUrl = m_vm.getMailbox().getPersonalAttendant().getOperator(); 
        if(transferUrl != null) {
@@ -53,16 +56,24 @@ public class CpAttdAdminDialog {
            }
            
            cpDialog = new CpDialog(m_vm, "attd_change");          
-           attdExt = cpDialog.collectDigits(9);
+           tmpAttdExt = cpDialog.collectDigits(9);
     
-           if(attdExt.length() == 0) {  
+           if(tmpAttdExt.length() == 0) {  
                return;
            } 
            
-           if(attdExt.equals("0")) {
-               attdExt = "";   
+           if(tmpAttdExt.equals("0")) {
+               tmpAttdExt = "";
+           } else {
+               user = m_vm.getValidUsers().getUser(tmpAttdExt);         
+               if (user == null){
+                   m_vm.playError("invalid_number");
+                   continue;
+               }
            }
-    
+           
+           attdExt= tmpAttdExt;
+           
            // Use sipXconfig's RESTful interface to change the attendant extension
            try {
                RestfulRequest rr = new RestfulRequest(
