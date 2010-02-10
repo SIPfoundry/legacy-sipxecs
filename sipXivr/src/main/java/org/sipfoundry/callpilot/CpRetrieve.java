@@ -514,10 +514,14 @@ public class CpRetrieve {
                     } else {
                         CpGotoDialog gotoDlg = new CpGotoDialog(m_vm);
                         String msgNum = gotoDlg.gotoMsg();
-                        gotoMessage(Integer.parseInt(msgNum));
+                        
+                        if(msgNum != null) {
+                            gotoMessage(Integer.parseInt(msgNum));
+                        }    
                         
                         msgDlg = new CpMsgDialog(m_vm, m_messages, m_vmMessage);
                         prePl = msgDlg.Header();
+                        
                     }    
                     break;                 
                     
