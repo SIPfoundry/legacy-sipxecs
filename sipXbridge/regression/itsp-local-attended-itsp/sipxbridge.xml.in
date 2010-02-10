@@ -9,7 +9,7 @@
     <local-port>5090</local-port>
     <sipx-proxy-domain>tester-config.tester-ip-address</sipx-proxy-domain>
     <sipx-proxy-port>5055</sipx-proxy-port>
-    <sipx-supervisor-host>sipxtest.sipxtest.net</sipx-supervisor-host>
+    <sipx-supervisor-host>tester-config.tester-ip-address</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
@@ -21,7 +21,7 @@
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
     <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
     <log-level>DEBUG</log-level>
-    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+    <log-directory>@SIPX_LOGDIR@</log-directory>
     <location-id>1</location-id>
   </bridge-configuration>
 
@@ -30,7 +30,7 @@
     <itsp-proxy-address>tester-config.tester-ip-address</itsp-proxy-address>
     <itsp-proxy-listening-port>5056</itsp-proxy-listening-port>
     <register-on-initialization>false</register-on-initialization>
-    <use-global-addressing>false</use-global-addressing>
+    <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
     <is-user-phone>true</is-user-phone>
@@ -40,6 +40,5 @@
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
   </itsp-account>
-
 
 </sipxbridge-config>

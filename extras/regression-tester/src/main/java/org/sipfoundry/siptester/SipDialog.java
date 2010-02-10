@@ -426,7 +426,9 @@ public class SipDialog {
            logger.debug("LocalEndOnHold");
         }
 
-        logger.debug("setRequestToSend : " + this + " method = " + ((RequestExt) request).getMethod() + " isOnHold = " + mediaListener.isLocalEndOnHold);
+        if ( mediaListener != null ) {
+        	logger.debug("setRequestToSend : " + this + " method = " + ((RequestExt) request).getMethod() + " isOnHold = " + mediaListener.isLocalEndOnHold);
+        }
         this.lastRequestSent = request;
     }
 

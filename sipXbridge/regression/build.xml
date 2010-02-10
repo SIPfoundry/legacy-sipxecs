@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="siptester" default="test" basedir=".">
+<description>
+      Build file
+</description>
+        <property file="../config.properties" />
+        <available file="tester.properties" property="configured"/>
+        <fail unless="configured" message="please create a file tester.properties address=your-ip-address there. See tester.properties.example" />
+        <property file="tester.properties" />
+        <path id="base.path">
+	   <pathelement location="${sipxcommons}" />
+	   <pathelement location="${log4j}" />
+	   <pathelement location="${jainsip}" />
+	   <pathelement location="${commons-digester}" />
+	   <pathelement location="${commons-collections}" />
+	   <pathelement location="${commons-beanutils}" />
+ 	   <pathelement location="${commons-logging-api}" />
+	   <pathelement location="${commons-logging}" />
+	   <pathelement location="${dnsjava}" />
+	   <pathelement location="lib/regression-tester.jar" />
+	</path>
+
+		
+	<target name="rstart" description="start the relay" >
+        	<exec  executable="${bin.dir}/sipxrelay.sh" spawn="yes">
+          		<arg value= "--start" />
+        	</exec>
+        </target>
+
+	<target name="rstop" description="stop the relay" >
+        	<exec  executable="${bin.dir}/sipxrelay.sh" spawn="yes">
+          		<arg value= "--stop" />
+        	</exec>
+        </target>
+
+        <target name="test" description="run a test" >
+                <exec executable="./convert.sh">
+                      <arg value="${address}" /> 
+                      <arg value="${testname}" />
+                </exec>
+                <copy file="${conf.dir}/sipxbridge.xml" toDir="./" />
+                <copy file="${testname}/sipxbridge.xml" toDir="${conf.dir}" />
+        	<delete file="sipxtester.log" failonerror="false" />
+        	<exec  executable="${bin.dir}/sipxbridge.sh" spawn="yes" >
+          		<arg value= "--start" />
+        	</exec>
+    	 	<sleep seconds="10" />
+     		<java fork="yes" classname="org.sipfoundry.siptester.SipTester">
+           		<classpath>
+               			<pathelement location="${classes}" />
+           		</classpath>
+           		<classpath refid="base.path" />
+          		<jvmarg value="-Dtest.prefix=./${testname}"/>
+    		</java>
+        	<exec  executable="${bin.dir}/sipxbridge.sh">
+          		<arg value= "--stop" />
+        	</exec>
+                <copy file="./sipxbridge.xml" toDir="${conf.dir}" />
+	</target>
+</project>

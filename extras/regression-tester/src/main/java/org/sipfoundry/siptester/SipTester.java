@@ -320,7 +320,10 @@ public class SipTester {
             String testerConfigFile = System.getProperty("testerConfig", "tester-config.xml");
             String sutConfigFile = traceprefix + "/monitored-interfaces.xml";
             String testMapsFile = traceprefix + "/test-maps.xml";
-            String prefixDir = System.getProperties().getProperty("prefix.dir","/usr/local/sipx");
+            String confDir =  System.getenv("CONF_DIR");
+            if ( confDir == null ) {
+            	confDir = System.getProperties().getProperty("conf.dir","/usr/local/sipx/etc/sipxpbx");
+            }
 
             if (!new File(testerConfigFile).exists() || !new File(sutConfigFile).exists()) {
                 System.err.println("Missing config file");
@@ -332,7 +335,7 @@ public class SipTester {
             
             testerConfig = new TesterConfigParser().parse("file:" + testerConfigFile);
             monitoredInterfaces = new SutConfigParser().parse("file:" + sutConfigFile);
-            itspAccounts = ItspAccounts.createItspAccounts("file://" + prefixDir + "/etc/sipxpbx/sipxbridge.xml");
+            itspAccounts = ItspAccounts.createItspAccounts("file://" + confDir + "/sipxbridge.xml");
               
             for (TraceEndpoint traceEndpoint : monitoredInterfaces.getEmulatedEndpoints()) {
                

@@ -24,5 +24,6 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXrelay/dist/sipXrelay.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/Stun4J.jar"/>
-	<classpathentry kind="output" path="bin.eclipse"/>
+	<classpathentry kind="var" path="SIPX_BUILD_TOP"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>
