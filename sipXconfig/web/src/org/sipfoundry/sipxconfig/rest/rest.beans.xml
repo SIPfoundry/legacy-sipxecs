@@ -168,4 +168,19 @@
     <property name="readable" value="true" />
   </bean>
   <alias name="configServerTimeResource" alias="/my/time" />
+
+  <bean id="mailboxPrefsGetResource" class="org.sipfoundry.sipxconfig.rest.ActiveGreetingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="mailboxPrefsGetResource" alias="/mailbox/{user}/preferences/activegreeting" />
+
+  <bean id="mailboxPrefsPutResource" class="org.sipfoundry.sipxconfig.rest.ActiveGreetingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="mailboxPrefsPutResource" alias="/mailbox/{user}/preferences/activegreeting/{greeting}" />
+
 </beans>
