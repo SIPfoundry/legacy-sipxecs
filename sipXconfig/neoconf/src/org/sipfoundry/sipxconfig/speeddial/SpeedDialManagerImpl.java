@@ -96,10 +96,8 @@ public class SpeedDialManagerImpl extends SipxHibernateDaoSupport implements Spe
     }
 
     public void saveSpeedDial(SpeedDial speedDial) {
-        if (!speedDial.getButtons().isEmpty()) {
-            getHibernateTemplate().saveOrUpdate(speedDial);
-            activateResourceList();
-        }
+        getHibernateTemplate().saveOrUpdate(speedDial);
+        activateResourceList();
     }
 
     public void saveSpeedDialGroup(SpeedDialGroup speedDialGroup) {

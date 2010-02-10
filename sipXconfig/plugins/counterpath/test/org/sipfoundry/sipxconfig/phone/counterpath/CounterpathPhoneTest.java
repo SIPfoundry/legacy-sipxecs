@@ -129,24 +129,6 @@ public class CounterpathPhoneTest extends TestCase {
         assertEquals("sip:~~rl~C~jsmit@example.org", phoneDefaults.getWorkgroupSubscriptionAor());
     }
 
-    public void testCounterpathNoSpeedDials() {
-        DeviceDefaults defaults = new DeviceDefaults();
-        defaults.setDomainManager(TestHelper.getTestDomainManager("example.org"));
-
-        PhoneContext phoneContextMock = EasyMock.createMock(PhoneContext.class);
-        phoneContextMock.getSpeedDial(m_phone);
-        EasyMock.expectLastCall().andReturn(null).anyTimes();
-        phoneContextMock.getPhoneDefaults();
-        EasyMock.expectLastCall().andReturn(defaults).anyTimes();
-        EasyMock.replay(phoneContextMock);
-
-        m_phone.setPhoneContext(phoneContextMock);
-
-        CounterpathPhoneDefaults phoneDefaults = m_phone.new CounterpathPhoneDefaults(m_phone);
-
-        assertNull(phoneDefaults.getWorkgroupSubscriptionAor());
-    }
-
     private void supplyUserData() {
         m_user = new User();
         m_user.setPermissionManager(m_permissionManager);

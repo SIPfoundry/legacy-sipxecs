@@ -74,7 +74,8 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
         }
 
         m_sdm.saveSpeedDial(speedDial);
-        assertEquals(buttonCount, getConnection().getRowCount("speeddial_button", "WHERE label = 'testSave'"));
+        assertEquals(buttonCount, getConnection().getRowCount("speeddial_button",
+                "WHERE label = 'testSave'"));
     }
 
     public void testSaveSpeedDialForGroup() throws Exception {
@@ -91,14 +92,8 @@ public class SpeedDialManagerTestDb extends SipxDatabaseTestCase {
         }
 
         m_sdm.saveSpeedDialGroup(speedDialgroup);
-        assertEquals(buttonCount, getConnection().getRowCount("speeddial_group_button", "WHERE label = 'testSave'"));
-    }
-
-    public void testSaveEmptySpeedDialForUser() throws Exception {
-        TestHelper.insertFlat("speeddial/user_without_speeddial.db.xml");
-        SpeedDial speedDial = m_sdm.getSpeedDialForUserId(1001, true);
-        m_sdm.saveSpeedDial(speedDial);
-        assertNull(m_sdm.getSpeedDialForUserId(1001, false));
+        assertEquals(buttonCount, getConnection().getRowCount("speeddial_group_button",
+                "WHERE label = 'testSave'"));
     }
 
     public void testOnDeleteUser() throws Exception {
