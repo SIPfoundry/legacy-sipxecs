@@ -9,7 +9,7 @@
              </address-map>
 	     <address-map>
 		   <trace-address>216.82.224.202</trace-address>
-		   <maps-to>testerconfig.tester-ip-address</maps-to>
+		   <maps-to>tester-config.tester-ip-address</maps-to>
              </address-map>
 	     <address-map>
 		   <trace-address>192.168.5.75</trace-address>

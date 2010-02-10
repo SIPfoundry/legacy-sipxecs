@@ -4,7 +4,9 @@ Edit tester.properties and put your IP address there. See tester.properties.exam
 
 The make target is "regression"
 
-Make, install and configure sipx. You do not need to configure any trunks.  Turn off STUN.
+Make, install and configure sipx. 
+You do not need to configure any trunks.  
+Just run sipxecs-setup and optinally turn off STUN (because it is a pain).
 
 Sipx need not be running when you run the regression tests.
 

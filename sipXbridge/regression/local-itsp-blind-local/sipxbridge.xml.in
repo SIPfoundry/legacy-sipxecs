@@ -21,7 +21,7 @@
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
     <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
     <log-level>DEBUG</log-level>
-    <log-directory>@SIPX_LOGDIR@</log-directory>
+    <log-directory>sipx.logdir</log-directory>
     <location-id>1</location-id>
   </bridge-configuration>
 

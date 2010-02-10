@@ -372,12 +372,14 @@ public class SipDialog {
 
         
         if (request.getMethod().equals(Request.ACK) && this.remoteIpAddress != null  && 
-                this.remotePort != 0) {  
-               try {
-                   Thread.sleep(100);
-               } catch (Exception ex) {}
-               sendBytes();
-        }
+                this.remotePort != 0) {
+			SipTester.timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					sendBytes();
+				}
+			}, 100);
+		}
 
     }
 

@@ -1,0 +1,6 @@
+#!/bin/sh
+source tester.properties
+sipx_logdir=@SIPX_LOGDIR@
+cat nattraversalrules.xml.in | sed -e "s/tester-config.tester-ip-address/${address}/" | sed -e "s!sipx.logdir!${sipx_logdir}!" > nattraversalrules.xml
+cp @SIPX_CONFDIR@/nattraversalrules.xml nattraveralrules.xml.save
+cp nattraversalrules.xml @SIPX_CONFDIR@

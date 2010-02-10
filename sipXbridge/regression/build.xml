@@ -22,6 +22,8 @@
 
 		
 	<target name="rstart" description="start the relay" >
+		<chmod  file="copynattraversalrules.sh" perm="ugo+rwx" />
+		<exec executable="./copynattraversalrules.sh" />
         	<exec  executable="${bin.dir}/sipxrelay.sh" spawn="yes">
           		<arg value= "--start" />
         	</exec>
@@ -34,12 +36,11 @@
         </target>
 
         <target name="test" description="run a test" >
-                <exec executable="./convert.sh">
+		<chmod  file="copysipxbridge.sh" perm="ugo+rwx" />
+                <exec executable="./copysipxbridge.sh">
                       <arg value="${address}" /> 
                       <arg value="${testname}" />
                 </exec>
-                <copy file="${conf.dir}/sipxbridge.xml" toDir="./" />
-                <copy file="${testname}/sipxbridge.xml" toDir="${conf.dir}" />
         	<delete file="sipxtester.log" failonerror="false" />
         	<exec  executable="${bin.dir}/sipxbridge.sh" spawn="yes" >
           		<arg value= "--start" />
@@ -55,6 +56,6 @@
         	<exec  executable="${bin.dir}/sipxbridge.sh">
           		<arg value= "--stop" />
         	</exec>
-                <copy file="./sipxbridge.xml" toDir="${conf.dir}" />
+                <copy file="./sipxbridge.xml.save" toDir="${conf.dir}" failonerror="false" />
 	</target>
 </project>
