@@ -2,14 +2,11 @@ To run the tests
 ================
 Edit tester.properties and put your IP address there. See tester.properties.example
 
-The make target is "regression"
-
 Make, install and configure sipx. 
 You do not need to configure any trunks.  
-Just run sipxecs-setup and optinally turn off STUN (because it is a pain).
+Just run sipxecs-setup after make install.
 
-Sipx need not be running when you run the regression tests.
+Sipx should not be running when you run the regression tests. The tester will start/stop the services it needs.
 
-From the BUILD/sipXbridge/regression directory
-
-you can run the Make target 'regression'.  This will execute the regression test cases.
+From the BUILD/sipXbridge/regression directory run the Make target
+'regression'.  This will execute the regression test cases.

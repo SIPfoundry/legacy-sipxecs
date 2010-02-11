@@ -1,7 +1,7 @@
 include $(top_srcdir)/config/subdir.am
 
 regression:
-	cp -r $(srcdir)/* ./
+	cp -rf $(srcdir)/* ./
 	@$(LocalizeSipXconfig) $(srcdir)/copynattraversalrules.sh.in > copynattraversalrules.sh
 	@$(LocalizeSipXconfig) $(srcdir)/copysipxbridge.sh.in > copysipxbridge.sh
 	$(ANT_CMD) -f build.xml rstart
