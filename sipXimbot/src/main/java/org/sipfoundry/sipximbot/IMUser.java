@@ -787,6 +787,7 @@ public class IMUser {
                               
             case CALL_FROM:
                 
+                String queryString = "";
                 String numToCall = null;
                 String nameToCall = "";
                 Place fromPlace = Place.UNKNOWN;
@@ -800,6 +801,12 @@ public class IMUser {
                         cmdResult = localize("conference_unknown");
                         break;
                     }
+                    
+                    String confPin = m_user.getConfPin();
+                    if(confPin != null) {
+                        queryString = "?confpin=" + confPin;
+                    }
+                    
                     nameToCall = localize("conference");
                 }
                 
@@ -858,7 +865,7 @@ public class IMUser {
                 }
                 
                 if(numToCall != null) {
-                    Call(fromPlace, fromNumber, extensionToUrl(numToCall), nameToCall);
+                    Call(fromPlace, fromNumber, extensionToUrl(numToCall) + queryString, nameToCall);
                 }                
                 break;            
             

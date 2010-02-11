@@ -89,8 +89,15 @@ public class CallHelper {
 		} else {
 			m_callTimeout = m_maxNoAnswerTimeoutValue;
 		}
+		
+		String delimiter;
+		if(calledNumber.contains("?")) {
+		    delimiter = "&";
+		} else {
+		    delimiter = "?";
+		}
 
-		String parametersUrl = callingNumber + "/" + calledNumber + "?agent="
+		String parametersUrl = callingNumber + "/" + calledNumber + delimiter + "agent="
 				+ userId + "&timeout=" + m_callTimeout;
 
 		// Convert seconds to milliseconds
