@@ -9,7 +9,7 @@
     </span>
    <tr jwcid="thresholdColumnValue@Block">
       <span jwcid="@If" condition="ognl:currentRow.minThreshold!=0">
-        <td jwcid="minThreshold@TextField" value="ognl:currentRow.minThreshold" translator="translator:number" validators="validators:required,min=1" displayName="message:threshold" />
+        <td jwcid="minThreshold@TextField" value="ognl:currentRow.minThreshold" translator="translator:integer" validators="validators:required,min=1" displayName="message:threshold" />
       </span>
       <span jwcid="@Else">
         <td jwcid="@Insert" value="literal:n/a" />

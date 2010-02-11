@@ -13,6 +13,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+import org.apache.tapestry.form.IFormComponent;
+import org.apache.tapestry.form.ValidationMessages;
+import org.apache.tapestry.valid.ValidatorException;
+
 /**
  * Integer translator using locale acceptable symbols.
  *
@@ -33,5 +37,15 @@ public class IntTranslator extends SipxconfigNumberTranslator {
         DecimalFormat format = (DecimalFormat) NumberFormat.getIntegerInstance(locale);
         format.setGroupingUsed(false);
         return format;
+    }
+
+    @Override
+    protected Object parseText(IFormComponent field, ValidationMessages messages, String text)
+        throws ValidatorException {
+        if (text.matches("(\\d)+(\\D)+")) {
+            throw new ValidatorException(buildMessage(messages, field, getMessageKey()), getConstraint());
+        } else {
+            return super.parseText(field, messages, text);
+        }
     }
 }
