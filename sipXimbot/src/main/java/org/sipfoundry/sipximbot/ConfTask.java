@@ -24,18 +24,26 @@ public class ConfTask extends ConfBasicThread {
 
     public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
         
+        if(conf.getOwner() == null) {
+            return;
+        }
+        
         FullUsers users = FullUsers.update();
         FullUser owner = users.isValidUser(conf.getOwner().getUserName());
         
         if(owner.getConfEntryIM()) {
             Date date = new Date();   
             
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + "(" + member.memberNumber() + ")" + 
+            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ")" + 
                     " entered your conference as participant [" + member.memberIndex() + "] at " + date.toString());
         }
     }
 
     public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
+                
+        if(conf.getOwner() == null) {
+            return;
+        }
         
         FullUsers users = FullUsers.update();
         FullUser owner = users.isValidUser(conf.getOwner().getUserName());
@@ -43,7 +51,7 @@ public class ConfTask extends ConfBasicThread {
         if(owner.getConfExitIM()) {
             Date date = new Date();  
             
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + "(" + member.memberNumber() + ")" + 
+            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ")" + 
                     " left your conference at " + date.toString());
         }
     }
