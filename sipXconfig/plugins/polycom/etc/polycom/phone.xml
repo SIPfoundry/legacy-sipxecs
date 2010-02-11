@@ -1228,59 +1228,59 @@
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.fixedDayEnable" advanced="yes">
+    <setting name="daylightSavings.fixedDayEnable" hidden="yes">
       <type>
         <boolean />
       </type>
       <value>0</value>
     </setting>
-    <setting name="daylightSavings.start.month" advanced="yes">
+    <setting name="daylightSavings.start.month" hidden="yes">
       <type refid="monthOfYear" />
       <value />
     </setting>
-    <setting name="daylightSavings.start.date" advanced="yes">
+    <setting name="daylightSavings.start.date" hidden="yes">
       <type>
         <integer min="0" max="31" />
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.start.time" advanced="yes">
+    <setting name="daylightSavings.start.time" hidden="yes">
       <type>
         <integer min="0" max="23" />
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.start.dayOfWeek" advanced="yes">
+    <setting name="daylightSavings.start.dayOfWeek" hidden="yes">
       <type refid="dayOfWeek" />
       <value />
     </setting>
-    <setting name="daylightSavings.start.dayOfWeek.lastInMonth" advanced="yes">
+    <setting name="daylightSavings.start.dayOfWeek.lastInMonth" hidden="yes">
       <type>
         <boolean />
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.stop.month" advanced="yes">
+    <setting name="daylightSavings.stop.month" hidden="yes">
       <type refid="monthOfYear" />
       <value />
     </setting>
-    <setting name="daylightSavings.stop.date" advanced="yes">
+    <setting name="daylightSavings.stop.date" hidden="yes">
       <type>
         <integer min="0" max="31" />
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.stop.time" advanced="yes">
+    <setting name="daylightSavings.stop.time" hidden="yes">
       <type>
         <integer min="0" max="23" />
       </type>
       <value />
     </setting>
-    <setting name="daylightSavings.stop.dayOfWeek" advanced="yes">
+    <setting name="daylightSavings.stop.dayOfWeek" hidden="yes">
       <type refid="dayOfWeek" />
       <value />
     </setting>
-    <setting name="daylightSavings.stop.dayOfWeek.lastInMonth" advanced="yes">
+    <setting name="daylightSavings.stop.dayOfWeek.lastInMonth" hidden="yes">
       <type>
         <boolean />
       </type>
