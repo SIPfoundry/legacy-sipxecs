@@ -439,6 +439,7 @@
         log.level.change.net="4"
         log.level.change.cfg="4"
         log.level.change.cdp="4"
+        log.level.change.lldp="4"
         log.level.change.pmt="4"
         log.level.change.ftp="4"
         log.level.change.ares="4"
@@ -459,7 +460,6 @@
         log.level.change.ttrs="4"
         log.level.change.usb="4"
         log.level.change.srtp="4"
-        log.level.change.lldp="4"
         log.level.change.clink="4"
         log.level.change.pnetm="4"
         log.level.change.peer="4"
@@ -470,6 +470,9 @@
         log.level.change.usbio="4"
         log.level.change.pres="4"
         log.level.change.pwrsv="4"
+        log.level.change.poll="4"
+        log.level.change.push="4"
+        log.level.change.wmgr="4"
       />
     </level>
     <render

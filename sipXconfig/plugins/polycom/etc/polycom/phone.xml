@@ -1654,6 +1654,9 @@
       <setting name="usbio" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="pres" copy-of="so" unless="pre_3.2.0_model"/>
       <setting name="pwrsv" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="poll" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="push" copy-of="so" unless="pre_3.2.0_model"/>
+      <setting name="wmgr" copy-of="so" unless="pre_3.2.0_model"/>
     </group>
     <group name="device.syslog" advanced="yes">
       <setting name="serverName.set" hidden="yes">
