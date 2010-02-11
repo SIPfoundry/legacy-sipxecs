@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
@@ -23,6 +26,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathLineDefaults;
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
+import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
@@ -110,6 +114,32 @@ public class CounterpathPhoneTest extends TestCase {
     public void testCounterpathPhoneDefaults() {
         SpeedDial speedDial = new SpeedDial();
         supplyUserData();
+        speedDial.setUser(m_user);
+
+        DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDomainManager(TestHelper.getTestDomainManager("example.org"));
+
+        PhoneContext phoneContextMock = EasyMock.createMock(PhoneContext.class);
+        phoneContextMock.getSpeedDial(m_phone);
+        EasyMock.expectLastCall().andReturn(speedDial).anyTimes();
+        phoneContextMock.getPhoneDefaults();
+        EasyMock.expectLastCall().andReturn(defaults).anyTimes();
+        EasyMock.replay(phoneContextMock);
+
+        m_phone.setPhoneContext(phoneContextMock);
+
+        CounterpathPhoneDefaults phoneDefaults = m_phone.new CounterpathPhoneDefaults(m_phone);
+
+    }
+
+    public void testCounterpathWithBLFSpeeddials() {
+        SpeedDial speedDial = new SpeedDial();
+        supplyUserData();
+        List<Button> buttons = new ArrayList<Button>();
+        Button button1 = new Button("test_button_one", "1000");
+        button1.setBlf(true);
+        buttons.add(button1);
+        speedDial.setButtons(buttons);
         speedDial.setUser(m_user);
 
         DeviceDefaults defaults = new DeviceDefaults();

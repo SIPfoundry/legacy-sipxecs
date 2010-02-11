@@ -143,7 +143,7 @@ public class CounterpathPhone extends Phone {
         @SettingEntry(path = SUBSCRIPTION_AOR)
         public String getWorkgroupSubscriptionAor() {
             SpeedDial speedDial = getPhoneContext().getSpeedDial(m_phone);
-            if (speedDial == null) {
+            if (speedDial == null || !speedDial.isBlf()) {
                 return null;
             }
             String domain = getPhoneContext().getPhoneDefaults().getDomainName();
