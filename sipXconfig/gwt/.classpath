@@ -6,5 +6,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/smartgwt-2.0.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/smartgwt-skins-2.0.jar"/>
 	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gwt-user-2.0.0.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/gwt-dev-linux-2.0.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
