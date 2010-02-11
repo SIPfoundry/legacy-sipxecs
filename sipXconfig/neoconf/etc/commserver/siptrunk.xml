@@ -39,7 +39,7 @@
     <setting name="register-on-initialization">
       <label>Register on initialization</label>
       <type refid="switch"></type>
-      <value>true</value>
+      <value>false</value>
       <description>Defines whether or not to register with the given ITSP on initialization.</description>
     </setting>
     <setting name="itsp-proxy-address" advanced="yes">

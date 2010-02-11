@@ -29,7 +29,7 @@
     <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
     <user-name>juser</user-name>
     <password>1234</password>
-    <register-on-initialization>true</register-on-initialization>
+    <register-on-initialization>false</register-on-initialization>
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
     <itsp-proxy-listening-port>5061</itsp-proxy-listening-port>
     <itsp-transport>UDP</itsp-transport>
