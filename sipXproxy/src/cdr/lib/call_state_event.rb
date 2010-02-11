@@ -11,7 +11,7 @@ require 'utils/utils'
 class CallStateEvent
 
   FIELDS = [:id, :observer, :event_seq, :event_time, :event_type, :cseq, :call_id, :from_tag, :to_tag,
-    :from_url, :to_url, :contact, :refer_to, :referred_by, :failure_status, :failure_reason, :request_uri, :reference, :caller_internal, :callee_route]
+    :from_url, :to_url, :contact, :refer_to, :referred_by, :failure_status, :failure_reason, :request_uri, :reference, :caller_internal, :callee_route, :branch_id, :via_count]
   
   attr_accessor(*FIELDS)
   

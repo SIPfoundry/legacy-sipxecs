@@ -38,8 +38,9 @@ create table version_history(
  * Version 3: view_cdrs patch
  * Version 4: index CSE and CDR tables on timestamp
  * Version 5: add reference field in CSE and CDR tables.
+ * Version 6: add branch_id and via_count fields in CSE table.
  */
-insert into version_history (version, applied) values (5, now());
+insert into version_history (version, applied) values (6, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -84,8 +85,10 @@ create table call_state_events (
    failure_reason  text,    /* For Call Failure events, holds error text */
    request_uri     text,    /* URI from the request header */
    reference       text,    /* Value from References  - contains Call_Id and relationship */
-   caller_internal boolean,          /* Indication if the caller is internal or not.  Used for determining call type */
-   callee_route    text              /* List/History of callee route.  Used for determining call type */
+   caller_internal boolean,      /* Indication if the caller is internal or not.  Used for determining call type */
+   callee_route    text,         /* List/History of callee route.  Used for determining call type */
+   branch_id       text,         /* Branch-Id (i.e. transaction id). Used for determining final invite response */
+   via_count       int2          /* Count of # of via's for the branch-id.  Used for determining final invite response */
 );
 
 create index call_state_events_event_time on call_state_events (event_time);

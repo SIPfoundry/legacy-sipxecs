@@ -31,6 +31,8 @@ def make_cse(args)
   cse.from_url='sip:alice@example.com; tag=f'
   cse.to_url='sip:bob@example.com; tag=g'
   cse.contact='sip:alice@1.1.1.1'
+  cse.branch_id='abc'
+  cse.via_count=2
   
   if(args)
     args.each { |field, value| 
@@ -122,7 +124,7 @@ class CallLegsTest < Test::Unit::TestCase
   def test_empty_done?
     assert !CallLegs.new.done?
   end
-  
+ 
   def test_accept
     cl = CallLegs.new
     
@@ -216,6 +218,8 @@ class CdrTest < Test::Unit::TestCase
   
   def test_accept_failure
     cdr = Cdr.new('test')
+    cse = make_cse(:to_tag => nil, :event_type => 'R', :event_time => 100)
+    cdr.accept(cse)
     cse = make_cse(:to_tag => 't6', :event_type => 'F', :event_time => 100)
     assert_not_nil cdr.accept(cse)    
   end

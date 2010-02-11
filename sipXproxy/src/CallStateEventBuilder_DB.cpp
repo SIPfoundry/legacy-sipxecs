@@ -47,6 +47,9 @@ static const char* CallEvent_DefaultElement =
 static const char* CallEvent_DefaultBoolElement =
   "null,";
 
+static const char* CallEvent_DefaultEndIntElement =
+  "0";
+
 static const char* CallEvent_DefaultEndElement =
   "\'\'";
 
@@ -118,6 +121,8 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
       mReferences.remove(0);
       mCallerInternal.remove(0);
       mCalleeRoute.remove(0);
+      mBranchId.remove(0);
+      mViaCount.remove(0);
 
       mEventComplete = true;
    }
@@ -140,6 +145,8 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                  const UtlString& contact,
                                                  const UtlString& references,
+                                                 const UtlString& branch_id,
+                                                 int              via_count,
                                                  const bool callerInternal
                                                  )
 {
@@ -161,6 +168,14 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       else {
          mCallerInternal = "\'f\',";
       }
+
+      UtlString nbranchId;
+      replaceSingleQuotes(branch_id, nbranchId);
+      mBranchId = "\'" + nbranchId + "\',";
+
+      char buffer[10];
+      snprintf(buffer, 10, "%d", via_count);
+      mViaCount = buffer;
    }
    else
    {
@@ -183,7 +198,9 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
 void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
                                                const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                const UtlString& contact,
-                                               const UtlString& calleeRoute
+                                               const UtlString& calleeRoute,
+                                               const UtlString& branch_id,
+                                               int              via_count
                                                )
 {
    if (builderStateIsOk(CallSetupEvent))
@@ -196,7 +213,15 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
 
       UtlString ncalleeRoute;
       replaceSingleQuotes(calleeRoute, ncalleeRoute);
-      mCalleeRoute = "\'" + ncalleeRoute + "\'";
+      mCalleeRoute = "\'" + ncalleeRoute + "\',";
+
+      UtlString nbranchId;
+      replaceSingleQuotes(branch_id, nbranchId);
+      mBranchId = "\'" + nbranchId + "\',";
+
+      char buffer[10];
+      snprintf(buffer, 10, "%d", via_count);
+      mViaCount = buffer;
    }
    else
    {
@@ -217,6 +242,8 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
  */
 void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                                 const UtlString& branch_id,
+                                                 int via_count,
                                                  int statusCode,
                                                  const UtlString& statusMsg
                                                  )
@@ -228,6 +255,14 @@ void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
       char buffer[256];
       snprintf(buffer, 256, "%d,\'%s\',", statusCode, statusMsg.data());
       mFailureElement = buffer;
+
+      UtlString nbranchId;
+      replaceSingleQuotes(branch_id, nbranchId);
+      mBranchId = "\'" + nbranchId + "\',";
+
+      snprintf(buffer, 256, "%d", via_count);
+      mViaCount = buffer;
+
    }
    else
    {
@@ -391,7 +426,9 @@ void CallStateEventBuilder_DB::reset()
    mRequestUri = CallEvent_DefaultElement;
    mReferences = CallEvent_DefaultElement;
    mCallerInternal = CallEvent_DefaultBoolElement;
-   mCalleeRoute = CallEvent_DefaultEndElement;
+   mCalleeRoute = CallEvent_DefaultElement;
+   mBranchId = CallEvent_DefaultElement;
+   mViaCount = CallEvent_DefaultEndIntElement;
    mEndElement.remove(0);
    mEventComplete = false;
 }
@@ -444,6 +481,8 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
       event.append(mReferences);
       event.append(mCallerInternal);
       event.append(mCalleeRoute);
+      event.append(mBranchId);
+      event.append(mViaCount);
       event.append(");");
 
       reset();

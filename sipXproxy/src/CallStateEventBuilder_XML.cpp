@@ -245,7 +245,10 @@ void CallStateEventBuilder_XML::observerEvent(int sequenceNumber, ///< for Obser
 void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                                  const UtlString& contact,
-                                                 const UtlString& references
+                                                 const UtlString& references,
+                                                 const UtlString& branch_id,
+                                                 int              via_count,
+                                                 const bool callerInternal
                                                  )
 {
    if (builderStateIsOk(CallRequestEvent))
@@ -276,7 +279,10 @@ void CallStateEventBuilder_XML::callRequestEvent(int sequenceNumber,
  */
 void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
                                                const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                               const UtlString& contact
+                                               const UtlString& contact,
+                                               const UtlString& calleeRoute,
+                                               const UtlString& branch_id,
+                                               int              via_count
                                                )
 {
    if (builderStateIsOk(CallSetupEvent))
@@ -307,6 +313,8 @@ void CallStateEventBuilder_XML::callSetupEvent(int sequenceNumber,
  */
 void CallStateEventBuilder_XML::callFailureEvent(int sequenceNumber,
                                                  const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                                 const UtlString& branch_id,
+                                                 int via_count,
                                                  int statusCode,
                                                  const UtlString& statusMsg
                                                  )

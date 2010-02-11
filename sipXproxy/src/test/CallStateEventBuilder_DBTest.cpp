@@ -92,7 +92,7 @@ public:
 
          incrementTime(1);
 
-         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcdef-ghijkl-mnopqrs@sip.net;rel=xfer",false);
+         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcdef-ghijkl-mnopqrs@sip.net;rel=xfer","z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 2, false);
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98");
@@ -109,7 +109,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.012','R',1,'08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98','8633744','','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>','Contact <sip:requestor@sip.net>','','',0,'','','abcdef-ghijkl-mnopqrs@sip.net;rel=xfer','f','');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.012','R',1,'08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98','8633744','','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>','Contact <sip:requestor@sip.net>','','',0,'','','abcdef-ghijkl-mnopqrs@sip.net;rel=xfer','f','','z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737',2);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -129,7 +129,7 @@ public:
 
          incrementTime(1);
 
-         builder.callSetupEvent(1, testTime, "Contact <sip:responder@sip.net>","callTag=LOCAL");
+         builder.callSetupEvent(1, testTime, "Contact <sip:responder@sip.net>","callTag=LOCAL", "z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 1);
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98");
@@ -146,7 +146,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.014','S',2,'08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98','3744863','19b8e5bK3a','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a','Contact <sip:responder@sip.net>','','',0,'','','',null,'callTag=LOCAL');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.014','S',2,'08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98','3744863','19b8e5bK3a','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a','Contact <sip:responder@sip.net>','','',0,'','','',null,'callTag=LOCAL','z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737',1);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -166,7 +166,7 @@ public:
 
          incrementTime(1);
 
-         builder.callFailureEvent(1, testTime, 403, "Forbidden <dummy>");
+         builder.callFailureEvent(1, testTime, "z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 2, 403, "Forbidden <dummy>");
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98");
@@ -183,7 +183,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','F',3,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','','','',403,'Forbidden <dummy>','','',null,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','F',3,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','','','',403,'Forbidden <dummy>','','',null,'','z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737',2);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -224,7 +224,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',4,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'','<sip:200@example.com>','',null,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',4,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'','<sip:200@example.com>','',null,'','',0);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -265,7 +265,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',5,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\\'Éê½­ÌÎ\\'<sip:1002@sip.net>;tag=7448633','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'','<sip:200@example.com>','',null,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',5,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\\'Éê½­ÌÎ\\'<sip:1002@sip.net>;tag=7448633','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\\'Joe Caller\\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'','<sip:200@example.com>','',null,'','',0);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -302,7 +302,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.018','E',6,'9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98','3374486','a19b8e5bK3','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3','','','',0,'','','',null,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.018','E',6,'9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98','3374486','a19b8e5bK3','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3','','','',0,'','','',null,'','',0);"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());

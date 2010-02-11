@@ -92,7 +92,7 @@ public:
 
          incrementTime(1);
 
-         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcd-efgh-hijkl@sip.net;rel=refer");
+         builder.callRequestEvent(1, testTime, "Contact <sip:requestor@sip.net>", "abcd-efgh-hijkl@sip.net;rel=refer", "z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 2, true);
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98");
@@ -129,7 +129,7 @@ public:
 
          incrementTime(1);
 
-         builder.callSetupEvent(1, testTime, "Contact <sip:responder@sip.net>");
+         builder.callSetupEvent(1, testTime, "Contact <sip:responder@sip.net>", "INT", "z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 1);
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98");
@@ -166,7 +166,7 @@ public:
 
          incrementTime(1);
 
-         builder.callFailureEvent(1, testTime, 403, "Forbidden <dummy>");
+         builder.callFailureEvent(1, testTime, "z9hG4bK354ef9578fadfc082aa9b53f7e7db83c373737", 2, 403, "Forbidden <dummy>");
          CPPUNIT_ASSERT(!builder.finishElement(event));
 
          UtlString callId("9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98");

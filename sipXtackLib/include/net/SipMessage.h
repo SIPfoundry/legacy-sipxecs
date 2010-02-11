@@ -178,6 +178,9 @@ class SipUserAgent;
 #define SIP_BAD_METHOD_CODE 405
 #define SIP_BAD_METHOD_TEXT "Method Not Allowed"
 
+#define SIP_PROXY_AUTH_REQ_CODE 407
+#define SIP_PROXY_AUTH_REQ_TEXT "Proxy Authentication Required"
+
 #define SIP_REQUEST_TIMEOUT_CODE 408
 #define SIP_REQUEST_TIMEOUT_TEXT "Request timeout"
 

@@ -9,7 +9,8 @@ sql_files = \
     index_on_time.sql \
     reference.sql \
     contact.sql \
-    calldirection.sql
+    calldirection.sql \
+    transaction.sql
 
 EXTRA_DIST = \
     $(sql_files)

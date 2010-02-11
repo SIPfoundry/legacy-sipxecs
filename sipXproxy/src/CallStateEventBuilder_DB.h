@@ -57,6 +57,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
                          const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                          const UtlString& contact,
                          const UtlString& references,
+                         const UtlString& branch_id,
+                         int              via_count,
                          const bool callerInternal
                          );
    /**<
@@ -71,7 +73,9 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    void callSetupEvent(int sequenceNumber,
                        const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                        const UtlString& contact,
-                       const UtlString& calleeRoute
+                       const UtlString& calleeRoute,
+                       const UtlString& branch_id,
+                       int              via_count
                        );
    /**<
     * Requires:
@@ -84,6 +88,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    /// Begin a Call Failure Event - an error response to an INVITE has been observed
    void callFailureEvent(int sequenceNumber,
                          const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                         const UtlString& branch_id,
+                         int via_count,
                          int statusCode,
                          const UtlString& statusMsg
                          );
@@ -169,6 +175,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    UtlString mReferences;
    UtlString mCallerInternal;
    UtlString mCalleeRoute;
+   UtlString mBranchId;
+   UtlString mViaCount;
    bool      mEventComplete;
 
    void newEvent(int sequenceNumber,

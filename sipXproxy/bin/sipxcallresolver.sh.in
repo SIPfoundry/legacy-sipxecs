@@ -31,7 +31,7 @@ fi
 : ${PgUser:=@POSTGRESQL_USER@}
 : ${PgSchema:=${ConfDir}/cdr/schema.sql}
 : ${RubyCmd:=@RUBY@}
-: ${DbVersion:=5}
+: ${DbVersion:=6}
 : ${DbPatchDir:=${ConfDir}/cdr}
 : ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
 : ${CallResolverLog:=${LogDir}/sipcallresolver.log}
@@ -101,8 +101,9 @@ EOF
 # special patch that upgrades DB version to the latest version - only use once
 VersionPatch="upgrade_version"
 
-UpgradePatches5=""
-UpgradePatches4="reference contact calldirection $VersionPatch"
+UpgradePatches6=""
+UpgradePatches5="transaction $VersionPatch"
+UpgradePatches4="reference contact calldirection transaction $UpgradePatches5"
 UpgradePatches3="index_on_time $UpgradePatches4"
 UpgradePatches2="view_cdrs $UpgradePatches3"
 UpgradePatches1="refer_uri $UpgradePatches2"

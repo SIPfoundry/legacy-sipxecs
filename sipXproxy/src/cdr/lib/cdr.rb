@@ -216,6 +216,8 @@ class Cdr
     @caller_contact = nil
     @caller_internal = false
     @callee_route = nil
+    @branch_id = nil
+    @via_count = nil
   end
   
   FIELDS = [:call_id, :from_tag, :to_tag, :caller_aor, :callee_aor, 
@@ -252,7 +254,9 @@ class Cdr
          accept_call_end(cse)  unless ((cse.failure_status != SIP_BAD_TRANSACTION_CODE) && (cse.failure_status != SIP_REQUEST_TIMEOUT_CODE))
       else
          # non-established calls only consider a failure if the reason is not a timeout, auth required or unauthorized.
-         accept_call_end(cse)  unless ((cse.failure_status == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_status == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_status == SIP_UNAUTHORIZED_CODE))
+         if ((@branch_id) && (@via_count) && (cse.branch_id == @branch_id) && (cse.via_count == @via_count))
+            accept_call_end(cse)  unless ((cse.failure_status == SIP_REQUEST_TIMEOUT_CODE) || (cse.failure_status == SIP_PROXY_AUTH_REQUIRED_CODE) || (cse.failure_status == SIP_UNAUTHORIZED_CODE))
+         end
       end
     when cse.call_transfer?
       accept_call_transfer(cse)
@@ -296,6 +300,8 @@ class Cdr
   def accept_call_request(cse)
     original = !cse.to_tag
     @caller_internal = cse.caller_internal 
+    @via_count = cse.via_count if (!@via_count || cse.via_count < @via_count) 
+    @branch_id = cse.branch_id if (!@branch_id || cse.via_count <= @via_count) 
     # bailout if we already have original request and this one is not
     return if(@got_original && !original)
     
@@ -327,6 +333,8 @@ class Cdr
         @reference = cse.reference
         @caller_internal = cse.caller_internal 
         @caller_contact = Utils.contact_without_params(cse.contact)
+        @via_count = cse.via_count 
+        @branch_id = cse.branch_id 
     end
     @legs.accept_setup(cse)
     @callee_route = cse.callee_route if !@callee_route

@@ -16,15 +16,83 @@
 #include <net/SipXauthIdentity.h>
 #include <os/OsDateTime.h>
 #include "os/OsEventMsg.h"
+#include "os/OsMutex.h"
 #include <os/OsSysLog.h>
+#include <utl/UtlHashMapIterator.h>
 
 //#define TEST_PRINT 1
 #define LOG_DEBUG 1
+#define CSE_AGENT_OUTPUT_PROC_PRIO (105)
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 const int SipXProxyCallStateFlushInterval = 20; /* seconds */
+const int SipXProxyCallStateCleanupInterval = 60 * 30; /* 60 seconds * 30 = 30 minutes */
+
+
+class BranchTimePair : public UtlString
+{
+
+public:
+   BranchTimePair(const char* name, const unsigned long* time = NULL) :
+      UtlString(name)
+   {
+      if ( time ) {
+         setValue(time);
+      }      
+   }
+
+   virtual
+   ~BranchTimePair()
+   {
+   }
+
+   BranchTimePair& operator=(const BranchTimePair& rhs)
+   {
+      if (this == &rhs)            // handle the assignment to self case
+         return *this;
+
+      ((UtlString&) *this) = rhs.data();
+      setValue(&rhs.timeInt);
+
+      return *this;
+
+   }
+      //:Copy constructor
+   BranchTimePair(const BranchTimePair& rBranchTimePair):
+   UtlString(rBranchTimePair),
+   timeInt(0) 
+   {
+      setValue(&rBranchTimePair.timeInt);
+   }
+      //:Copy constructor
+      
+   const unsigned long* getValue()
+   {
+      return &timeInt;
+   }
+   //: get value int
+   //   //! returns: the integer containing the value <br>
+   //      //! Note: this should not be freed as it is part of this object
+   //
+   void setValue(const unsigned long* time)
+   {
+      if ( time ) 
+      {
+         timeInt = *time;
+      }
+   }
+
+protected:
+
+private:
+   unsigned long timeInt;
+   int count;
+
+   BranchTimePair();
+      //: Hide default constructor
+};
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -42,7 +110,9 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
    mpBuilder(NULL),
    mpWriter(pWriter),
    mSequenceNumber(0),
-   mFlushTimer(getMessageQueue(), 0)
+   mFlushTimer(getMessageQueue(), 0),
+   mCallTransMutex(OsMutex::Q_FIFO),
+   SipOutputProcessor( CSE_AGENT_OUTPUT_PROC_PRIO )
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
@@ -109,7 +179,7 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
    sipUserAgent.addMessageObserver(*getMessageQueue(),
                                    SIP_INVITE_METHOD,
                                    TRUE, // Requests,
-                                   TRUE, //Responses,
+                                   FALSE, //Responses,
                                    TRUE, //Incoming,
                                    FALSE, //OutGoing,
                                    "", //eventName,
@@ -127,13 +197,20 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
                                    NULL // no observerData
                                    );                                   
 
+   sipUserAgent.addSipOutputProcessor( this );
+
+   // set up periodic timer to cleanup dead calls in the CallTransMap
+   mpCleanupTimeoutCallback = new OsCallback((void*)this, CleanupTransMap);
+   mpCleanupMapTimer = new OsTimer(*mpCleanupTimeoutCallback);
+   mpCleanupMapTimer->periodicEvery(OsTime(), OsTime(SipXProxyCallStateCleanupInterval, 0)) ;
 }
 
 // Destructor
 SipXProxyCseObserver::~SipXProxyCseObserver()
 {
    mFlushTimer.stop();
-   
+   mpCleanupMapTimer->stop();
+
    if (mpBuilder)
    {
       delete mpBuilder;
@@ -147,6 +224,60 @@ SipXProxyCseObserver::~SipXProxyCseObserver()
 }
 
 /* ============================ MANIPULATORS ============================== */
+
+void SipXProxyCseObserver::handleOutputMessage( SipMessage& message,
+                                                const char* address,
+                                                int port )
+{
+   UtlString method;
+   UtlString viaValue;
+   UtlString branchId;
+   UtlString callId;
+   int       rspStatus = 0;
+   
+   
+   if (message.isResponse()) {
+      int seq;
+      if (message.getCSeqField(&seq, &method)) {
+         if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase)) {
+            rspStatus = message.getResponseStatusCode();
+            if (rspStatus >= SIP_2XX_CLASS_CODE) {
+                SipMessageEvent* finalTransResponse = new SipMessageEvent(new SipMessage(message), SipMessageEvent::APPLICATION);
+                this->postMessage(*finalTransResponse);
+                delete finalTransResponse;
+            }          
+         }          
+      }          
+   }          
+}
+
+void SipXProxyCseObserver::CleanupTransMap(void* userData, const intptr_t eventData)
+{
+    const int SECONDS_IN_AN_HOUR = 3600;
+    const int MAX_CALL_LENGTH = SECONDS_IN_AN_HOUR * 8;
+
+    unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
+    SipXProxyCseObserver* Observer = (SipXProxyCseObserver*) userData; 
+
+    // Acquire the map mutex and then iterate over the entries seeing if any need to be deleted.
+    Observer->mCallTransMutex.acquire();
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipXProxyCseObserver CleanupTransMap number of entries in map = %i", Observer->mCallTransMap.entries());
+    UtlHashMapIterator callTransIter(Observer->mCallTransMap);
+    UtlString* callId;
+    while ((callId = dynamic_cast <UtlString*>(callTransIter())) != NULL)
+    {
+       BranchTimePair* callIdValue = dynamic_cast <BranchTimePair*> (callTransIter.value());
+       const unsigned long* entryTime = callIdValue->getValue();
+       if ( (currentTime - *entryTime) > MAX_CALL_LENGTH ) 
+       {
+          // Delete the entry.  It's way too old.
+          Observer->mCallTransMap.destroy(callId);
+       } 
+    }
+    Observer->mCallTransMutex.release();
+
+}
 
 UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
 {
@@ -310,6 +441,16 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString fromField;
             sipMsg->getFromField(&fromField);
 
+
+            // collect the branch Id (i.e. transaction id) and via count.
+            UtlString viaValue;
+            int viaCount;
+            UtlString branchId;
+            viaCount = sipMsg->getCountHeaderFields(SIP_VIA_FIELD);
+            viaCount = viaCount + sipMsg->getCountHeaderFields(SIP_SHORT_VIA_FIELD);
+            if ( sipMsg->getViaFieldSubField( &viaValue, 0 ) ) {
+               sipMsg->getViaTag( viaValue, "branch", branchId );
+            }
             UtlString referTo;
             UtlString referredBy;
             UtlString requestUri;
@@ -338,6 +479,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
             int cseqNumber;
             sipMsg->getCSeqField(&cseqNumber, &responseMethod);            
 
+            BranchTimePair* callIdBranchIdTime;
             // generate the call state event record
             if (mpBuilder)
             {
@@ -345,6 +487,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                UtlString recordRoute;
                bool routeFound = false;
                bool paiPresent = false;
+
                switch (thisMsgIs)
                {
                case aCallRequest:
@@ -352,10 +495,36 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   if (sipxIdentity.getIdentity(identity)) {
                      paiPresent = true;
                   }
-                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references, paiPresent);
+
+                  if ( branchId && branchId.data() ) {
+                     mCallTransMutex.acquire();
+                     unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
+                     if (NULL == mCallTransMap.insertKeyAndValue(new UtlString(callId), new BranchTimePair(branchId.data(), &currentTime)) ) {
+                        mCallTransMutex.release();
+                        return(TRUE);
+                     }
+                     mCallTransMutex.release();
+                  }
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references, branchId, viaCount, paiPresent);
                   break;
                   
                case aCallSetup:
+                  // Clear out from the map only if rspStatus is higher than 200 as its possible to receive multiple 200 messages.
+                  // If the response is 200, the call in the map will be cleared out when the call ends.
+                  mCallTransMutex.acquire();
+                  callIdBranchIdTime = (BranchTimePair*) mCallTransMap.findValue(&callId);
+                  if ( callIdBranchIdTime && (0 == branchId.compareTo(callIdBranchIdTime)) ) {
+                     if ( rspStatus > SIP_2XX_CLASS_CODE ) {
+                           mCallTransMap.destroy(&callId);
+                        }
+                     mCallTransMutex.release();
+                  }
+                  else
+                  {
+                     // CallId/BranchId are either not found or doesn't match.  Not a final response.
+                     mCallTransMutex.release();
+                     return(TRUE);
+                  }
                   for (int rrNum = 0;
                        (!routeFound && sipMsg->getRecordRouteUri(rrNum, &recordRoute));
                        rrNum++
@@ -368,14 +537,38 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                         routeFound = true;
                      }
                   }
-                  mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact, calleeRoute);
+                  mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact, calleeRoute, branchId, viaCount);
                   break;
    
                case aCallFailure:
-                  mpBuilder->callFailureEvent(mSequenceNumber, timeNow, rspStatus, rspText);
+                  // Failure case means that the response code is > 400.  If the call is found
+                  // in the map, then this is a final response.  Delete from the map and build an event.
+                  mCallTransMutex.acquire();
+                  callIdBranchIdTime = (BranchTimePair*) mCallTransMap.findValue(&callId);
+                  if ( callIdBranchIdTime && (0 == branchId.compareTo(callIdBranchIdTime)) ) {
+                     mCallTransMap.destroy(&callId);
+                     mCallTransMutex.release();
+                     if ( rspStatus != SIP_PROXY_AUTH_REQ_CODE ) {
+                        mpBuilder->callFailureEvent(mSequenceNumber, timeNow, branchId, viaCount, rspStatus, rspText);
+                     }
+                     else {
+                        // response was an authentication required.  Don't build a CSE for these as a new Invite will
+                        // occur.
+                        return(TRUE);
+                     }
+                  }
+                  else
+                  {
+                     // Call was not found in the map so this is not a final response.  Ignore it.
+                     mCallTransMutex.release();
+                     return(TRUE);
+                  }
                   break;
                   
                case aCallEnd:
+                  mCallTransMutex.acquire();
+                  mCallTransMap.destroy(&callId);
+                  mCallTransMutex.release();
                   mpBuilder->callEndEvent(mSequenceNumber, timeNow);
                   break;
                   

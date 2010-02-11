@@ -180,6 +180,8 @@ void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
                                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                              const UtlString& contact,
                                              const UtlString& references,
+                                             const UtlString& branch_id,
+                                             int              via_count,
                                              const bool callerInternal
                                              )
 {
@@ -199,7 +201,9 @@ void CallStateEventBuilder::callRequestEvent(int sequenceNumber,
 void CallStateEventBuilder::callSetupEvent(int sequenceNumber,
                                            const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
                                            const UtlString& contact,
-                                           const UtlString& calleeRoute
+                                           const UtlString& calleeRoute,
+                                           const UtlString& branch_id,
+                                           int              via_count
                                            )
 {
    bool CalledBaseClassMethod_callSetupEvent = false;
@@ -217,6 +221,8 @@ void CallStateEventBuilder::callSetupEvent(int sequenceNumber,
  */
 void CallStateEventBuilder::callFailureEvent(int sequenceNumber,
                                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                             const UtlString& branch_id,
+                                             int via_count,
                                              int statusCode,
                                              const UtlString& statusMsg
                                              )
