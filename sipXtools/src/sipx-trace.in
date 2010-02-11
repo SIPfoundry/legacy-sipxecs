@@ -9,6 +9,7 @@ Action=LOCAL
 Prefix=""
 Output=""
 Token=""
+Debug=NODEBUG
 
 User=admin
 Password=
@@ -27,9 +28,9 @@ dump=cat
 while [ $# -ne 0 ]
 do
     case ${1} in
-        ##
-        ## handle an option with a value followiing
-        ##
+        --debug)
+            DEBUG=DEBUG
+            ;;
 
         -s|--server)
             if [ $# -lt 2 ]
@@ -139,9 +140,9 @@ do
             ;;
 
         *)
-            if [ "${Token}"x = "("x ]
+            if [ -z "${Token}" ]
             then
-                Token="${Token}$1"
+                Token="$1"
             else
                 Token="${Token}|$1"
             fi
@@ -191,15 +192,10 @@ getAllComponents() {
     Components=$(sort -u ${ComponentList})
 }
 
-# We have to append "x" to test whether $Token is '(', because an argument
-# to '[' that is '(' and not in the final position is treated as starting a
-# parenthesized expression.
 if [ -z "${Token}" -a ${Action} != USAGE ]
 then
     echo "Must specify at least one token to search for; try '${MyName} --help'." 1>&2
     exit 1;
-else
-    Token="${Token}"
 fi
 
 pullServer() { # server
@@ -244,7 +240,16 @@ getComponents () {
 
 createWorkingDir () {
     Trace=$(mktemp -t -d trace.XXXXXXXX) || exit
-    #TODO trap "rm -rf ${Trace}* 2>/dev/null" 0 
+    trap "cleanWorkingDir" 0 
+}
+
+cleanWorkingDir () {
+    if [ ${DEBUG} != ${DEBUG} ]
+    then
+        rm -rf ${Trace}* 2>/dev/null
+    else
+        echo "working directory: ${Trace}"
+    fi
 }
 
 case ${Action} in
