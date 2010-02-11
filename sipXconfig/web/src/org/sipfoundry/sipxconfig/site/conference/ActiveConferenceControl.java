@@ -200,11 +200,6 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public abstract class Action implements Closure {
-        private final String m_msgSuccess;
-
-        public Action(String msgSuccess) {
-            m_msgSuccess = getMessages().getMessage(msgSuccess);
-        }
 
         public void execute(Object id) {
             if (id != null) {
@@ -212,10 +207,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
 
                 if (member != null) {
                     execute(getConference(), member);
-                    TapestryUtils.recordSuccess(ActiveConferenceControl.this, m_msgSuccess);
                 }
-            } else {
-                recordFailure(new UserException(getMessages().getMessage("error.noSuchMemberNullId")));
             }
         }
 
@@ -254,7 +246,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public void deafUsers() {
-        Closure deaf = new Action("msg.success.deaf") {
+        Closure deaf = new Action() {
             @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().deafUser(conference, member);
@@ -264,7 +256,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public void undeafUsers() {
-        Closure deaf = new Action("msg.success.undeaf") {
+        Closure deaf = new Action() {
             @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().undeafUser(conference, member);
@@ -274,7 +266,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public void muteUsers() {
-        Closure deaf = new Action("msg.success.mute") {
+        Closure deaf = new Action() {
             @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().muteUser(conference, member);
@@ -284,7 +276,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public void unmuteUsers() {
-        Closure deaf = new Action("msg.success.unmute") {
+        Closure deaf = new Action() {
             @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().unmuteUser(conference, member);
@@ -294,7 +286,7 @@ public abstract class ActiveConferenceControl extends BaseComponent implements P
     }
 
     public void kickUsers() {
-        Closure kick = new Action("msg.success.kick") {
+        Closure kick = new Action() {
             @Override
             public void execute(Conference conference, ActiveConferenceMember member) {
                 getActiveConferenceContext().kickUser(conference, member);
