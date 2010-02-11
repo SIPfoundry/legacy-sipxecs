@@ -14,6 +14,7 @@ var targetUrl = location.href;
 
 function makeRequest() {
     dojo.io.bind({
+    	preventCache:true,
         url: targetUrl,
         load: onLoad,
         error:onError,
