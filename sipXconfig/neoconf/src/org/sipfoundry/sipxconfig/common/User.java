@@ -340,7 +340,8 @@ public class User extends BeanWithGroups implements NamedObject {
         }
 
         // add additional alias only if not blank and not in existing mappings
-        if (!isBlank(additionalAlias) && !getAliases().contains(additionalAlias)) {
+        if (!isBlank(additionalAlias) && !getAliases().contains(additionalAlias)
+               && !additionalAlias.equals(getUserName())) {
             mappings.add(getAliasMapping(additionalAlias, contact, domainName));
         }
 

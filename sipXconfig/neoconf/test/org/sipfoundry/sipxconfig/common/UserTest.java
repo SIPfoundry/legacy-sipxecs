@@ -161,6 +161,7 @@ public class UserTest extends TestCase {
 
         List aliasMappings = user.getAliasMappings("sipfoundry.org", "imId");
         assertEquals(3, aliasMappings.size());
+
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo@sipfoundry.org", alias.getIdentity());
 
@@ -173,9 +174,14 @@ public class UserTest extends TestCase {
         AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
         assertEquals("imId@sipfoundry.org", imIdAlias.getIdentity());
 
-        List otherAliasMappings = user.getAliasMappings("sipfoundry.org", "mambo");
-        assertEquals(2, otherAliasMappings.size());
+        List otherAliasMappings1 = user.getAliasMappings("sipfoundry.org", "mambo");
+        assertEquals(2, otherAliasMappings1.size());
 
+        // Set the additional alias, imId, to user's userName, it should not be
+        // added as an alias.
+        String imId = user.getUserName();
+        List otherAliasMappings2 = user.getAliasMappings("sipfoundry.org", imId);
+        assertEquals(2, otherAliasMappings2.size());
     }
 
     private void checkAliases(User user) {
