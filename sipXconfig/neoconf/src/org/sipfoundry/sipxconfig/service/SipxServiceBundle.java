@@ -22,6 +22,7 @@ public class SipxServiceBundle implements Model {
     private boolean m_onlyRemote;
     private int m_min;
     private int m_max;
+    private boolean m_resetAffectLocation;
 
     public SipxServiceBundle(String name) {
         m_name = name;
@@ -102,6 +103,14 @@ public class SipxServiceBundle implements Model {
 
     public void setMax(int max) {
         m_max = max;
+    }
+
+    public boolean isResetAffectLocation() {
+        return m_resetAffectLocation;
+    }
+
+    public void setResetAffectLocation(boolean resetAffectLocation) {
+        m_resetAffectLocation = resetAffectLocation;
     }
 
     /**

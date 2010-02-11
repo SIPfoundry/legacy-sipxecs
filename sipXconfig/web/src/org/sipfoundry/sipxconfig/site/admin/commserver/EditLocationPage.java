@@ -31,6 +31,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
     public static final String MONITOR_TAB = "monitorTarget";
     private static final String CONFIG_TAB = "configureLocation";
     private static final String NAT_TAB = "natLocation";
+    private static final String BUNDLE_TAB = "configureBundle";
 
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
@@ -65,7 +66,7 @@ public abstract class EditLocationPage extends PageWithCallback implements PageB
 
     public Collection<String> getAvailableTabNames() {
         Collection<String> tabNames = new ArrayList<String>();
-        tabNames.addAll(Arrays.asList(CONFIG_TAB, "listServices", NAT_TAB));
+        tabNames.addAll(Arrays.asList(CONFIG_TAB, BUNDLE_TAB, "listServices", NAT_TAB));
         if (getMonitoringContext().isEnabled()) {
             tabNames.add(MONITOR_TAB);
         }

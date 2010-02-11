@@ -16,6 +16,14 @@
       <span jwcid="@admin/commserver/LocationPanel" locationBean="ognl:locationBean" callback="ognl:callback"/>
     </form>
   </div>
+  <div jwcid="configureBundleTab@Block">
+    <span jwcid="@If" condition="ognl:locationBean.isNew() || !registered" renderTag="false">
+      <span jwcid="@common/QuickHelp" value="message:quick.help.new"/>
+    </span>
+    <form jwcid="@Form" delegate="bean:validator">
+      <span jwcid="@admin/commserver/ConfigureBundlesPanel" locationBean="ognl:locationBean" callback="ognl:callback"/>
+    </form>
+  </div>
   <div jwcid="listServicesTab@Block">
     <span jwcid="@common/QuickHelp" value="message:quick.help"/>
     <span jwcid="servicesTable@admin/commserver/ServicesTable" breadCrumbs="ognl:breadCrumbs"

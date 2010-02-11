@@ -50,6 +50,7 @@ public class Location extends BeanWithId {
     private boolean m_registered;
     private List<String> m_installedBundles;
     private NatLocation m_nat = new NatLocation();
+    private ServerRoleLocation m_serverRoles = new ServerRoleLocation();
 
     private Collection<LocationSpecificService> m_services;
     private DaoEventPublisher m_daoEventPublisher;
@@ -96,6 +97,14 @@ public class Location extends BeanWithId {
 
     public void setNat(NatLocation nat) {
         m_nat = nat;
+    }
+
+    public ServerRoleLocation getServerRoles() {
+        return m_serverRoles;
+    }
+
+    public void setServerRoles(ServerRoleLocation serverRoles) {
+        m_serverRoles = serverRoles;
     }
 
     @Required

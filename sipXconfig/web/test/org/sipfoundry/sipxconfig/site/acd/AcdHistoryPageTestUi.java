@@ -29,7 +29,7 @@ public class AcdHistoryPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         //make sure acd call center is not attached to primary location
         clickLink("editLocationLink");
-        clickLink("link:configureLocation");
+        clickLink("link:configureBundle");
         uncheckCheckbox("MultiplePropertySelection", "1");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);

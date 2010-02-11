@@ -8,6 +8,7 @@
 
   <bean id="abstractBundle" abstract="true" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
     <property name="autoEnable" value="false" />
+    <property name="resetAffectLocation" value="false" />
   </bean>
 
   <bean id="managementBundle" parent="abstractBundle">
@@ -46,6 +47,7 @@
   <bean id="callCenterBundle" parent="abstractBundle">
     <constructor-arg value="callCenter" />
     <property name="autoEnable" value="true" />
+    <property name="resetAffectLocation" value="true" />
   </bean>
 
   <bean id="conferenceBundle" parent="abstractBundle">

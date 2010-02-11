@@ -1,0 +1,8 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<fieldset>
+    <legend><span key="label.roles">Roles</span></legend>
+    <span jwcid="@contrib:MultiplePropertySelection"
+      selectedList="ognl:bundles"
+      model="ognl:bundlesModel"/>
+</fieldset>
+<ul jwcid="@common/FormActions" listener="listener:saveLocation" callback="ognl:callback"/>

@@ -27,6 +27,7 @@ public class LocationsPageTestUi extends WebTestCase {
         assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
         clickLink("editLocationLink");
         assertLinkPresent("link:configureLocation");
+        assertLinkPresent("link:configureBundle");
         assertLinkPresent("link:listServices");
         assertLinkPresent("link:natLocation");
         assertLinkPresent("link:monitorTarget");
