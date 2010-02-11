@@ -6,39 +6,24 @@
 <body>
 <![CDATA[
 dojo.require("dojo.io.*");
-dojo.require("dojo.io.ScriptSrcIO");
 
-var targetUrl = "/sipxconfig/rest/my/time";
+var currentDate;
 
-function makeRequest() {
-    dojo.io.bind({
-        preventCache:true, //make sure to make a fresh GET every time
-        url: targetUrl,
-        load: onLoad,
-        error:onError,
-        mimetype: "text/plain",
-        timeout: onTimeout,
-        timeoutSeconds: 10
-    });
+function initDate(){
+	targetNode = dojo.byId("dateComponent");
+	currentDate = new Date(targetNode.innerHTML);
+	updateDate(0); //we format the date to be consistent displayed with subsequent updates
 }
-
-function onLoad(type, data, event){
-	targetNode = dojo.byId("dateContent");
-	targetNode.innerHTML = data;
-	setTimeout('makeRequest()', 30000);
-}
-
-function onError(type, error){
-	setTimeout('makeRequest()', 30000);
-}
-
-function onTimeout(){
-	setTimeout('makeRequest()', 30000);
+function updateDate(interval){
+	currentDate.setMilliseconds(currentDate.getMilliseconds()+interval);
+	targetNode = dojo.byId("dateComponent");
+	targetNode.innerHTML = currentDate.toLocaleString();
+	setTimeout('updateDate(60000)', 60000);
 }
 
 ]]>
 </body>
 <initialization>
-	makeRequest();
+	initDate();
 </initialization>
 </script>

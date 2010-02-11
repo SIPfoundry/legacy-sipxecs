@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.text.DateFormat;
 import java.util.Collection;
+import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
@@ -222,5 +224,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             return productTitle;
         }
         return String.format("%s::%s", productTitle, pageTitle);
+    }
+
+    public String getDate() {
+        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,
+                DateFormat.SHORT, getPage().getLocale());
+        return dateFormat.format(new Date());
     }
 }
