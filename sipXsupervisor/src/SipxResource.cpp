@@ -19,6 +19,7 @@
 
 #include "SipxProcessResource.h"
 #include "FileResource.h"
+#include "DirectoryResource.h"
 #include "ImdbResource.h"
 #include "SqldbResource.h"
 #include "SipxResource.h"
@@ -27,8 +28,8 @@
 // CONSTANTS
 UtlContainableType SipxResource::TYPE = "SipxResource";
 
-const char* RequiredAttributeName     = "required";
-const char* ConfigAccessAttributeName = "configAccess";
+const char* SipxResource::RequiredAttributeName     = "required";
+const char* SipxResource::ConfigAccessAttributeName = "configAccess";
 
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -71,6 +72,11 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
    {
       resourceElementIsValid =
          FileResource::parse(processDefinitionDoc, resourceElement, currentProcess);
+   }
+   else if (0==strcmp(resourceTypeName,DirectoryResource::DirectoryResourceTypeName))
+   {
+      resourceElementIsValid =
+         DirectoryResource::parse(processDefinitionDoc, resourceElement, currentProcess);
    }
    else
    {
@@ -137,7 +143,12 @@ void SipxResource::modified()
 /// Whether or not the SipxResource may be written by configuration update methods.
 bool SipxResource::isWriteable()
 {
-   return ( mWritableImplicit || mWritable );
+   return ( mImplicitAccess || ( mAccess & WriteAccess ) );
+}
+
+bool SipxResource::isReadable()
+{
+   return ( mImplicitAccess || ( mAccess & ReadAccess ) );
 }
 
 /// Determine whether or not the values in a containable are comparable.
@@ -150,8 +161,8 @@ UtlContainableType SipxResource::getContainableType() const
 SipxResource::SipxResource(const char* uniqueId) :
    UtlString(uniqueId),
    mFirstDefinition(true),
-   mWritableImplicit(true),
-   mWritable(false)
+   mImplicitAccess(true),
+   mAccess(ReadAccess+WriteAccess)
 {
 }
 
@@ -166,6 +177,14 @@ void SipxResource::usedBy(SipxProcess* currentProcess)
       mUsedBy.append(currentProcess->resource());
       currentProcess->requireResource(this);
    }
+}
+
+/// Does the name in this DOM attribute match attributeName?
+bool SipxResource::isAttribute(const TiXmlAttribute* attribute,
+                               const char* attributeName
+                               )
+{
+   return 0==strcmp(attributeName, attribute->Name());
 }
 
 
@@ -211,17 +230,60 @@ bool SipxResource::parseAttribute(const TiXmlDocument& document,
    {
       if (0==attributeValue.compareTo("read-write", UtlString::ignoreCase))
       {
-         mWritableImplicit = false;
-         mWritable = true;
+         mImplicitAccess = false;
+         mAccess = ReadAccess+WriteAccess;
+         attributeIsValid = true;
+      }
+      else if (0==attributeValue.compareTo("write-only", UtlString::ignoreCase))
+      {
+         if (mFirstDefinition)
+         {
+            mAccess = WriteAccess;
+         }
+         else if (mImplicitAccess)
+         {
+            // implicit is read-write, so this is ok
+         }
+         else
+         {
+            mAccess |= WriteAccess;
+         }
+         mImplicitAccess = false;            
          attributeIsValid = true;
       }
       else if (0==attributeValue.compareTo("read-only", UtlString::ignoreCase))
       {
-         if (mWritableImplicit && mFirstDefinition)
+         if (mFirstDefinition)
          {
-            mWritableImplicit = false;
-            mWritable = false;
+            mAccess = ReadAccess;
          }
+         else if (mImplicitAccess)
+         {
+            // implicit is read-write, so this is ok
+         }
+         else
+         {
+            mAccess |= ReadAccess;
+         }
+         mImplicitAccess = false;            
+         attributeIsValid = true;
+      }
+      else if (0==attributeValue.compareTo("no-access", UtlString::ignoreCase))
+      {
+         if (mFirstDefinition || mAccess == 0)
+         {
+            mAccess = 0;
+         }
+         else
+         {
+            UtlString description;
+            appendDescription(description);
+            
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "SipxResource::parseAttribute "
+                          "conflicting access for '%s': resolved in favor of no-access",
+                          description.data());
+         }
+         mImplicitAccess = false;            
          attributeIsValid = true;
       }
       else

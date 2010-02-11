@@ -1,0 +1,52 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>FileDir</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <defaultDir>/var/log/filedir</defaultDir>
+      <execute>/bin/filedir1.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <user>firstuser</user>
+      <execute>/bin/filedir2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/filedir3.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>--really</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/filedir.pid</pid>
+    <log>/var/log/filedir.log</log>
+  </status>
+  <resources>
+
+    <file configAccess='read-write'>/common/specific.xml</file>
+    <file configAccess='read-only'>/common/implicit/rw/specific.xml</file>
+    <file configAccess='read-write'>/common/explicit/rw/specific.xml</file>
+
+    <file>/common/implied.xml</file>
+
+    <directory configAccess='read-write'>
+      <path>/common</path>
+      <filePattern configAccess='read-only'>*.xml</filePattern>
+      <filePattern>*.abc</filePattern>
+    </directory>
+
+    <directory> <!-- implicitly read-write -->
+      <path>/common/implicit/rw</path>
+      <filePattern configAccess='read-only'>*.xml</filePattern>
+      <filePattern>*.abc</filePattern>
+    </directory>
+
+    <directory configAccess='read-write'>
+      <path>/common/explicit/rw</path>
+      <filePattern configAccess='read-only'>*.xml</filePattern>
+      <filePattern>*.abc</filePattern>
+    </directory>
+
+  </resources>
+</sipXecs-process>

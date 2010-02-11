@@ -49,6 +49,13 @@ class HttpFileAccess : public HttpService
 
   private:
 
+   void sendFile(const UtlString& path,
+                 const UtlString& peerName,
+                 const HttpRequestContext& requestContext,
+                 const HttpMessage& request,
+                 HttpMessage*& response
+                 );
+
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
    HttpFileAccess(const HttpFileAccess& nocopyconstructor);

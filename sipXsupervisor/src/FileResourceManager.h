@@ -30,8 +30,17 @@ class FileResourceManager
    /// Singleton accessor
    static FileResourceManager* getInstance();
 
+   /// Control whether or not a find request will check for directory matches
+   typedef enum
+   {
+      CheckForDirectoryMatches,
+      RequireExactFileMatch
+   } FileMatchRule;
+
    /// Return an existing FileResource or NULL if no FileResource is found for 'fileName'.
-   FileResource* find(const char* fileName /**< full path to the file */);
+   FileResource* find(const char* fileName, /**< full path to the file */
+                      FileMatchRule fileMatchRule = CheckForDirectoryMatches
+                      );
 
    /// Add the new fileResource to those available in the system.
    void save(FileResource* fileResource /**< new FileResource object */);

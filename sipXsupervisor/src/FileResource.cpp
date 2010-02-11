@@ -52,7 +52,8 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
          FileResourceManager* fileResourceMgr = FileResourceManager::getInstance();
 
          FileResource* fileResource;
-         if (!(fileResource = fileResourceMgr->find(path)))
+         if (!(fileResource = fileResourceMgr->find(path,
+                                                    FileResourceManager::RequireExactFileMatch)))
          {
             fileResource = new FileResource(path);
          }
@@ -116,15 +117,16 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxPr
    // Check to see if it has already been declared as a resource.
    FileResourceManager* fileResourceMgr = FileResourceManager::getInstance();
    FileResource*        logFile;
-   if ( !(logFile = fileResourceMgr->find(logFilePath)))
+   if ( !(logFile = fileResourceMgr->find(logFilePath,
+                                          FileResourceManager::RequireExactFileMatch)))
    {
       // a log file resource is read-only and not required
       logFile = new FileResource(logFilePath.data());
       logFile->usedBy(currentProcess);
       currentProcess->resourceIsOptional(logFile); // logs are never required
 
-      logFile->mWritableImplicit = false;
-      logFile->mWritable = false;
+      logFile->mImplicitAccess = false;
+      logFile->mAccess = ReadAccess;
 
       logFile->mFirstDefinition = false;
 

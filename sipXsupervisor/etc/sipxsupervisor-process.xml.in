@@ -24,5 +24,27 @@
     <file>@SIPX_CONFDIR@/alarm-groups.xml</file>
     <file>@SIPX_CONFDIR@/alarms/sipXalarms-config.xml</file>
     <file>@SIPX_LOGDIR@/sipXalarms.log</file>
+    <directory required='true'>
+      <path>@SIPX_DATDIR@/process.d</path>
+      <filePattern configAccess='read-only'>*-process.xml</filePattern>
+    </directory>
+    <directory required='true' configAccess='no-access'>
+      <!-- 
+      - The ssl directory holds keys and certificates. 
+      - The keys may not be read remotely 
+      - The certificates may be read
+      -->
+      <path>@SIPX_CONFDIR@/ssl</path>
+      <filePattern configAccess='read-only'>*.crt</filePattern>
+    </directory>
+    <directory required='true' configAccess='no-access'>
+      <!-- 
+      - The ssl/authorities directory holds public keys for trusted
+      - certificate authorities.  These are writable so that sipXconfig
+      - can install new ones.
+      -->
+      <path>@SIPX_CONFDIR@/ssl/authorities</path>
+      <filePattern configAccess='read-write'>*.crt</filePattern>
+    </directory>
   </resources>
 </sipXecs-process>

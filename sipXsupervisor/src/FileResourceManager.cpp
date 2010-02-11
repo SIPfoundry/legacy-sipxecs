@@ -14,6 +14,7 @@
 
 #include "FileResource.h"
 #include "FileResourceManager.h"
+#include "DirectoryResourceManager.h"
 
 // DEFINES
 // CONSTANTS
@@ -43,18 +44,49 @@ FileResourceManager* FileResourceManager::getInstance()
    return spSingleton;
 }
 
-
 /// Return an existing FileResource or NULL if no FileResource is found.
-FileResource* FileResourceManager::find(const char* fileName /**< full path to the file */)
+FileResource* FileResourceManager::find(const char* fileName, /**< full path to the file */
+                                        FileMatchRule fileMatchRule
+                                        )
 {
-   OsLock tableMutex(mFileResourceTableLock);
-
+   FileResource* returnedResource=NULL;
+   
    UtlString path(fileName);
 
-   return dynamic_cast<FileResource*>(mFileResourceTable.find(&path));
+   {
+      OsLock tableMutex(mFileResourceTableLock);
+      returnedResource = dynamic_cast<FileResource*>(mFileResourceTable.find(&path));
+   }
+
+   if (!returnedResource && fileMatchRule == CheckForDirectoryMatches)
+   {
+      returnedResource =
+         dynamic_cast<FileResource*>(
+            DirectoryResourceManager::getInstance()->findFilename(fileName));
+   }
+
+   if ( OsSysLog::willLog( FAC_SUPERVISOR, PRI_DEBUG ))
+   {
+      UtlString resourceDescription;
+
+      if (returnedResource)
+      {
+         resourceDescription.append("found ");
+         returnedResource->appendDescription(resourceDescription);
+      }
+      else
+      {
+         resourceDescription.append("not found");
+      }
+      
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG, "FileResourceManager::find '%s' %s",
+                    fileName, resourceDescription.data());
+   }
+
+   return returnedResource;
 }
 
-/// Return an existing FileResource or NULL if no FileResource is found.
+/// Store a new FileResource
 void FileResourceManager::save(FileResource* fileResource)
 {
    OsLock tableMutex(mFileResourceTableLock);

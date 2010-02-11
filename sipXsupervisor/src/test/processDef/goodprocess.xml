@@ -33,5 +33,17 @@
        <dbdriver>{dbdriver}</dbdriver>
        <userpassword>dbpassword</userpassword>
     </sqldb>
+    <directory required='false'>
+      <path>/etc/sipxpbx/goodprocess</path>
+      <filePattern configAccess='read-write'>*.xml</filePattern>
+      <filePattern configAccess='read-only'>abc*.xyz</filePattern>
+      <filePattern configAccess='write-only'>good*</filePattern>
+      <filePattern>*ab*-x-*</filePattern>
+    </directory>
+    <directory required='false' configAccess='no-access'>
+      <path>/etc/sipxpbx/goodprocess/secrets</path>
+      <filePattern configAccess='read-only'>*.readable</filePattern>
+      <filePattern configAccess='write-only'>*.writable</filePattern>
+    </directory>
   </resources>
 </sipXecs-process>

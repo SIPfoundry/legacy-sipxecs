@@ -21,7 +21,8 @@ testsuite_SOURCES = \
 	 SipxProcessStateTest.cpp \
 	 SipxProcessVersionsTest.cpp \
 	 SipxCommandTest.cpp \
-	 SipxResourceUseTest.cpp
+	 SipxResourceUseTest.cpp \
+	 FileDirResourceTest.cpp
 
 alarm_testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
@@ -53,11 +54,13 @@ EXTRA_DATA = \
     alarm-localization/test-localization-strings.xml \
     alarm-localization/test-localization-strings_fr.xml \
     processDef/badconfigaccess.xml \
+    processDef/baddiraccess.xml \
     processDef/badexecute.xml \
     processDef/badfileattr.xml \
     processDef/badfile.xml \
     processDef/badlog.xml \
     processDef/badNamespace.xml \
+    processDef/badpatterns.xml \
     processDef/badpid.xml \
     processDef/badrequired.xml \
     processDef/badRoot.xml \
@@ -73,6 +76,8 @@ EXTRA_DATA = \
     processDef/noconfigtest.xml \
     processDef/noexecute.xml \
     processDef/noname.xml \
+    processDef/nopath.xml \
+    processDef/nopattern.xml \
     processDef/nostart.xml \
     processDef/nostatus.xml \
     processDef/notalog.xml \
@@ -84,6 +89,9 @@ EXTRA_DATA = \
     processDef/unknownstatus1.xml \
     processDef/unknownstatus2.xml \
     processDef/versionnottext.xml \
+	 fileDir/firstprocess.xml \
+	 resourceUse/firstprocess.xml \
+    resourceUse/secondprocess.xml \
 	 commandDef/goodcommand.xml \
 	 processState/newprocess.xml \
 	 processVersions/someprocess.xml

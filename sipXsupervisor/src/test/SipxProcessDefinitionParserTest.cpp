@@ -26,6 +26,8 @@
 #include "SipxProcessManager.h"
 #include "FileResource.h"
 #include "FileResourceManager.h"
+#include "DirectoryResource.h"
+#include "DirectoryResourceManager.h"
 #include "ImdbResource.h"
 #include "ImdbResourceManager.h"
 #include "SqldbResource.h"
@@ -42,6 +44,7 @@ class SipxProcessDefinitionParserTest : public CppUnit::TestCase
    CPPUNIT_TEST(badCommands);
    CPPUNIT_TEST(badStatus);
    CPPUNIT_TEST(badResources);
+   CPPUNIT_TEST(badPattern);
    CPPUNIT_TEST(goodProcess);
    CPPUNIT_TEST(duplicateProcess);
    CPPUNIT_TEST_SUITE_END();
@@ -210,6 +213,27 @@ public:
 
       };
 
+   void badPattern()
+      {
+         FileTestContext testContext(TEST_DATA_DIR "processDef",
+                                     TEST_WORK_DIR "processDef"
+                                     );
+         UtlString path;
+         SipxProcess* process;
+
+         testContext.inputFilePath("baddiraccess.xml", path);
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
+
+         testContext.inputFilePath("badpatterns.xml", path);
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
+
+         testContext.inputFilePath("nopath.xml", path);
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
+
+         testContext.inputFilePath("nopattern.xml", path);
+         CPPUNIT_ASSERT(NULL == (process = SipxProcess::createFromDefinition(path)));
+      };
+
    void goodProcess()
       {
          FileTestContext testContext(TEST_DATA_DIR "processDef",
@@ -316,6 +340,45 @@ public:
          sqldbResource->appendDescription(description);
          ASSERT_STR_EQUAL("SQL database 'GOODdbserverdbuser'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
+
+         DirectoryResource* directoryResource;
+         CPPUNIT_ASSERT((directoryResource =
+                         DirectoryResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess", "")));
+         CPPUNIT_ASSERT( directoryResource->isWriteable());
+         description.remove(0);
+         directoryResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/goodprocess'",description.data());
+         CPPUNIT_ASSERT(directoryResource->mUsedBy.containsReference(processResource));
+
+         FileResource* fileInDirResource;
+         CPPUNIT_ASSERT((fileInDirResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess/XMLFILE.xml")));
+         CPPUNIT_ASSERT( fileInDirResource->isWriteable());
+         CPPUNIT_ASSERT( fileInDirResource->isReadable());
+         description.remove(0);
+         fileInDirResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/goodprocess' pattern '*.xml'",description.data());
+         CPPUNIT_ASSERT(fileInDirResource->mUsedBy.containsReference(processResource));
+
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess/secrets/foo.readable")));
+         CPPUNIT_ASSERT( ! fileResource->isWriteable());
+         CPPUNIT_ASSERT( fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/goodprocess/secrets' pattern '*.readable'",description.data());
+         CPPUNIT_ASSERT(! process->mRequiredResources.containsReference(fileResource));
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/goodprocess/secrets/foo.writable")));
+         CPPUNIT_ASSERT( fileResource->isWriteable());
+         CPPUNIT_ASSERT( ! fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/goodprocess/secrets' pattern '*.writable'",description.data());
+         CPPUNIT_ASSERT(! process->mRequiredResources.containsReference(fileResource));
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
       };
 
    void duplicateProcess()

@@ -111,6 +111,24 @@ public:
          ASSERT_STR_EQUAL("file '/etc/sipxpbx/firstprocess-config'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/commondir/ok-first.xml")));
+         CPPUNIT_ASSERT( fileResource->isWriteable());
+         CPPUNIT_ASSERT( ! fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/commondir' pattern '*-first.xml'",description.data());
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/commondir/ok-common.xml")));
+         CPPUNIT_ASSERT( fileResource->isWriteable());
+         CPPUNIT_ASSERT( ! fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/commondir' pattern '*-common.xml'",description.data());
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
          ImdbResource* imdbResource;
          CPPUNIT_ASSERT((imdbResource =
                          ImdbResourceManager::getInstance()->find("firsttable")));
@@ -142,9 +160,7 @@ public:
          UtlString  description;
 
          /*
-          * If you change any of the expectations in this test, you will need to
-          * update the secondProcess test below.  That test retrieves the
-          * definition that this one creates.
+          * This test uses the resources created by the firstProcess test above
           */
 
          testContext.inputFilePath("secondprocess.xml", path);
@@ -196,6 +212,26 @@ public:
          description.remove(0);
          fileResource->appendDescription(description);
          ASSERT_STR_EQUAL("file '/etc/sipxpbx/secondprocess-config'",description.data());
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/commondir/ok-second.xml")));
+         CPPUNIT_ASSERT( ! fileResource->isWriteable());
+         CPPUNIT_ASSERT( fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/commondir' pattern '*-second.xml'",description.data());
+         CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
+
+         // because the first process defined this to be writable,
+         // it is even though our def declares it write-only
+         CPPUNIT_ASSERT((fileResource =
+                         FileResourceManager::getInstance()->find("/etc/sipxpbx/commondir/ok-common.xml")));
+         CPPUNIT_ASSERT( fileResource->isWriteable());
+         CPPUNIT_ASSERT( fileResource->isReadable());
+         description.remove(0);
+         fileResource->appendDescription(description);
+         ASSERT_STR_EQUAL("directory '/etc/sipxpbx/commondir' pattern '*-common.xml'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          ImdbResource* imdbResource;

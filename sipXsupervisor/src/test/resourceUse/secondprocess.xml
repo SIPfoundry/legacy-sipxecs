@@ -25,6 +25,11 @@
   <resources>
     <file>/etc/sipxpbx/secondprocess.xml</file>
     <file>/etc/sipxpbx/common.xml</file>
+    <directory>
+      <path>/etc/sipxpbx/commondir</path>
+      <filePattern configAccess='read-only'>*-second.xml</filePattern>
+      <filePattern configAccess='read-only'>*-common.xml</filePattern>
+    </directory>
     <osconfig required='false'>/etc/sipxpbx/secondprocess-config</osconfig>
     <imdb configAccess='read-only'>secondtable</imdb>
     <sqldb>

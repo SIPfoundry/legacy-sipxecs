@@ -251,9 +251,10 @@ bool FileRpcReplaceFile::execute(const HttpRequestContext& requestContext,
                      else if (!fileResource->isWriteable())
                      {
                         UtlString faultMsg;
-                        faultMsg.append("File '");
+                        faultMsg.append("Write access to '");
                         faultMsg.append(*pfileName);
-                        faultMsg.append("' is not writeable (configAccess='read-only')");
+                        faultMsg.append("' denied by process resource ");
+                        fileResource->appendDescription(faultMsg);
                         OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "FileRpc::replaceFile %s",
                                       faultMsg.data());
                         result=false;

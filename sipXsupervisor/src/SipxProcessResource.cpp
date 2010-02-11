@@ -170,7 +170,7 @@ UtlContainableType SipxProcessResource::getContainableType() const
 SipxProcessResource::SipxProcessResource(const char* uniqueId) :
    SipxResource(uniqueId)
 {
-   mWritable=false;
+   mAccess=ReadAccess;
 }
 
 /// destructor

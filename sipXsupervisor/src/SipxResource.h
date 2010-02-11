@@ -91,6 +91,9 @@ class SipxResource : public UtlString
    /// Whether or not the SipxResource may be written by configuration update methods.
    virtual bool isWriteable();
 
+   /// Whether or not the SipxResource may be read by file access methods.
+   virtual bool isReadable();
+   
 ///@}
 // ================================================================
 /** @name           Container Support Operations
@@ -126,10 +129,26 @@ class SipxResource : public UtlString
     * as one specific to its subclass.
     */
 
+   static const char* RequiredAttributeName;
+   static const char* ConfigAccessAttributeName;
+
+   /// is the attribute name the value in attributeName?
+   bool isAttribute(const TiXmlAttribute* attribute,
+                    const char* attributeName
+                    );
+
    bool mFirstDefinition; ///< true only until saved in the appropriate ResourceManager
 
-   bool mWritableImplicit; ///< true if no definition had an explicit 'configAccess' attribute.
-   bool mWritable; ///< the value from the 'configAccess' attribute.
+
+   bool mImplicitAccess; ///< true if no definition had an explicit 'configAccess' attribute.
+
+   typedef enum 
+   {
+      ReadAccess   = 0x01,
+      WriteAccess  = 0x02
+   } ResourceAccess;
+   
+   int mAccess; ///< the value from the 'configAccess' attribute.
 
    UtlSList mUsedBy;  ///< SipxProcessResource objects that use this SipxResource.
 

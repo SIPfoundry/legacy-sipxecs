@@ -25,6 +25,11 @@
   <resources>
     <file>/etc/sipxpbx/firstprocess.xml</file>
     <file>/etc/sipxpbx/common.xml</file>
+    <directory>
+      <path>/etc/sipxpbx/commondir</path>
+      <filePattern configAccess='write-only'>*-first.xml</filePattern>
+      <filePattern configAccess='write-only'>*-common.xml</filePattern>
+    </directory>
     <osconfig required='false'>/etc/sipxpbx/firstprocess-config</osconfig>
     <imdb configAccess='read-only'>firsttable</imdb>
     <sqldb>

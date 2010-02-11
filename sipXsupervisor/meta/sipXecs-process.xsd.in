@@ -183,6 +183,7 @@
         </documentation>
       </annotation>
     </attribute>
+
     <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
       <annotation>
         <documentation>
@@ -274,7 +275,9 @@
       </documentation>
     </annotation>
     <restriction base='string'>
+      <enumeration value='no-access'/>
       <enumeration value='read-only'/>
+      <enumeration value='write-only'/>
       <enumeration value='read-write'/>
     </restriction>
   </simpleType>
@@ -293,6 +296,7 @@
           <element ref='proc:imdb'/>
           <element ref='proc:process'/>
           <element ref='proc:sqldb'/>
+          <element ref='proc:directory'/>
         </choice>
       </sequence>
     </complexType>
@@ -336,6 +340,73 @@
         SQL database and connection information.
       </documentation>
     </annotation>
+  </element>
+
+  <element name='directory'>
+    <complexType>
+      <annotation>
+        <documentation>
+          Describes a directory used by a process.  
+          The single required path element provides the path to the
+          directory.
+          Each filePattern element provides the pattern for a file name that
+          may exist in the directory.
+          If the 'required' attribute is 'true' on a directory element,
+          then the path must exist for the service to be started; if 'false',
+          then the path need not exist to start the process.
+          If 'required' is false, and 'configAccess' is 'read-write', then
+          the supervisor may create the directory when a file is written to
+          it. 
+          The 'configAccess' from the directory element is inherited by any 
+          filePattern element that does not have an eplicit configAccess.
+
+          The definition of a resource for a specific file using 'file',
+          'osconfig', or 'log' takes precedence over one defined using 
+          'directory' that matches the specific name.
+        </documentation>
+      </annotation>
+      <sequence>
+        <element ref='proc:path' minOccurs='1' maxOccurs='1'/>
+        <element ref='proc:filePattern' minOccurs='1' maxOccurs='unbounded'/>
+      </sequence>
+      <attributeGroup ref='proc:ResourceAttributes'/>
+    </complexType>
+  </element>
+  
+  <element name='path' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Content is the full path to a directory (it should not end with a '/').
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='filePattern'>
+    <complexType mixed='false'>
+      <annotation>
+        <documentation>
+          Content is a pattern expression that matches potential file names.
+          The content may consist of any legal file name character ('/' is
+          forbidden).  
+          The character '*' represents any sequence of file name
+          characters that does not begin with '.' and does not contain '/'.
+          The filePattern may have a 'configAccess' attribute, which 
+          overrides any configAccess set on the directory.
+        </documentation>
+      </annotation>
+      <simpleContent>
+        <extension base='normalizedString'>
+          <attribute name='configAccess' type='proc:ConfigAccess' default='read-write'>
+            <annotation>
+              <documentation>
+                Declares the kind of access granted to the configuration system to this resource.
+                The access granted is the most permissive allowed by any process definition.
+              </documentation>
+            </annotation>
+          </attribute>
+        </extension>
+      </simpleContent>
+    </complexType>
   </element>
 
 </schema>
