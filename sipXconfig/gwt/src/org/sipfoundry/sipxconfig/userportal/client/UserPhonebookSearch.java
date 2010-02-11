@@ -623,7 +623,7 @@ public class UserPhonebookSearch implements EntryPoint {
             setShowMinimizeButton(false);
             setIsModal(true);
             setShowModalMask(true);
-            centerInPage();
+            setAutoCenter(true);
             addCloseClickHandler(new CloseClickHandler() {
                 public void onCloseClick(CloseClientEvent event) {
                     destroy();
