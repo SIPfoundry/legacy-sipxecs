@@ -191,11 +191,9 @@ public class ActiveGreetingResourceTest extends TestCase {
                 return null;
             }
         };
-        try {
-            m_resource.storeRepresentation(representation);
-        } catch (IllegalArgumentException ex) {
-            assertEquals("id not recognized blablabla", ex.getMessage());
-        }
+        m_resource.storeRepresentation(representation);
+        assertEquals("none", m_coreContext.loadUserByUserName("200").getSettingValue(
+                "voicemail/mailbox/active-greeting"));
     }
 
 }
