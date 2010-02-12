@@ -85,7 +85,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     public void storeServerRoleLocation(Location location, ServerRoleLocation role) {
         location.setServerRoles(role);
         getHibernateTemplate().saveOrUpdate(location);
-        //There is a 1-1 relation between Nat and Location
         role.setLocation(location);
         m_daoEventPublisher.publishSave(role);
     }

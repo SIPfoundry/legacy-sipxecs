@@ -307,4 +307,19 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     public void setRedundantSipRouterBundle(SipxServiceBundle redundantSipRouterBundle) {
         m_redundantSipRouterBundle = redundantSipRouterBundle;
     }
+
+    public void testStoreServerRoleLocation() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        Location[] emptyLocations = m_out.getLocations();
+        assertEquals(0, emptyLocations.length);
+        assertEquals(0, m_conferenceBridgeContext.getBridges().size());
+
+        Location location = new Location();
+        location.setName("test location");
+        location.setAddress("192.168.1.2");
+        location.setFqdn("location1");
+        location.setInstalledBundles(asList("conferenceBundle"));
+        m_out.storeServerRoleLocation(location, new ServerRoleLocation());
+        assertEquals(1,m_conferenceBridgeContext.getBridges().size());
+    }
 }

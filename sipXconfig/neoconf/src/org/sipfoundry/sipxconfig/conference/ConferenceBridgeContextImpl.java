@@ -25,6 +25,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -308,7 +309,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             onLocationSpecificServiceDelete((LocationSpecificService) entity);
         } else if (entity instanceof Location) {
             onLocationDelete((Location) entity);
+        } else if (entity instanceof ServerRoleLocation) {
+            onLocationDelete(((ServerRoleLocation) entity).getLocation());
         }
+
     }
 
     public Bridge getBridgeForLocationId(Integer locationId) {
@@ -336,6 +340,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void onSave(Object entity) {
         if (entity instanceof Location) {
             onLocationSave((Location) entity);
+        } else if (entity instanceof ServerRoleLocation) {
+            onLocationSave(((ServerRoleLocation) entity).getLocation());
         }
     }
 
