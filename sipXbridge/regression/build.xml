@@ -52,6 +52,7 @@
            		</classpath>
            		<classpath refid="base.path" />
           		<jvmarg value="-Dtest.prefix=./${testname}"/>
+          		<jvmarg value="-Dconf.dir=${conf.dir}"/>
     		</java>
         	<exec  executable="${bin.dir}/sipxbridge.sh">
           		<arg value= "--stop" />

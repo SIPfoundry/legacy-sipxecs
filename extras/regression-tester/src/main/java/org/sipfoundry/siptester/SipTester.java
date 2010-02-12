@@ -324,6 +324,7 @@ public class SipTester {
             if ( confDir == null ) {
             	confDir = System.getProperties().getProperty("conf.dir","/usr/local/sipx/etc/sipxpbx");
             }
+            System.out.println("conf.dir = " + confDir);
 
             if (!new File(testerConfigFile).exists() || !new File(sutConfigFile).exists()) {
                 System.err.println("Missing config file");

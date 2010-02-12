@@ -55,6 +55,7 @@ public class ItspAccounts  {
 
   
     public  static ItspAccounts createItspAccounts(String url) throws Exception {
+    	System.out.println("create ITSP accounts " + url);
         Digester digester = new Digester();
         addRules(digester);
         digester.parse(new InputSource(url));
