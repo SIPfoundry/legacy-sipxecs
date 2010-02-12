@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdProvisioningContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -145,22 +144,21 @@ public abstract class ManageLoggingLevels extends BasePage implements PageBeginR
                 getServiceConfigurator().markServiceForRestart(serviceToRestart);
             } else if (entity instanceof AcdServer) {
                 AcdServer modelServer = (AcdServer) entity;
-                Location modelLocation = modelServer.getLocation();
                 AcdContext context = getAcdContext();
-                List servers = context.getServers();
-                for (Object server : servers) {
-                    AcdServer acdServer = (AcdServer) server;
-                    Location acdLocation = acdServer.getLocation();
-                    acdServer.setSettingValue(acdServer.LOG_SETTING, modelServer
-                            .getSettingValue(acdServer.LOG_SETTING));
+                List<AcdServer> servers = context.getServers();
+                for (AcdServer acdServer : servers) {
+                    acdServer.setSettingValue(AcdServer.LOG_SETTING, modelServer
+                            .getSettingValue(AcdServer.LOG_SETTING));
                     context.store(acdServer);
                     getAcdProvisioningContext().deploy(acdServer.getId());
-                    getServiceConfigurator().markServiceForRestart(serviceToRestart);
                 }
             }
         }
         getServiceConfigurator().replicateServiceConfig(services);
 
         getLoggingManager().setEntitiesToProcess(new ArrayList<LoggingEntity>());
+
+        //forces page refresh
+        setLoggingEntities(null);
     }
 }

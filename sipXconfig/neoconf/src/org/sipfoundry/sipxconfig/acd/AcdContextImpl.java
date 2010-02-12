@@ -89,7 +89,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
     }
 
-    public List getServers() {
+    public List<AcdServer> getServers() {
         return getHibernateTemplate().loadAll(AcdServer.class);
     }
 

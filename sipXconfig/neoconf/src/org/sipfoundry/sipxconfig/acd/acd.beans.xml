@@ -69,6 +69,8 @@
       <bean class="org.sipfoundry.sipxconfig.acd.AcdProvisioningContextImpl">
         <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
         <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="serviceConfigurator" ref="serviceConfigurator"/>
+		<property name="sipxServiceManager" ref="sipxServiceManager"/>
         <property name="jobContext" ref="jobContext"/>
       </bean>
     </property>

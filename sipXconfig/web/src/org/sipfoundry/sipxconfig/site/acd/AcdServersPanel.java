@@ -32,6 +32,7 @@ public abstract class AcdServersPanel extends BaseComponent {
 
     public abstract IActionListener getAction();
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this) && TapestryUtils.isValid(this)) {

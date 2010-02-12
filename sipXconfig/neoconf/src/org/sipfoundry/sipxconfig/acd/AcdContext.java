@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.User;
 public interface AcdContext extends AliasOwner, AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "acdContext";
 
-    List getServers();
+    List<AcdServer> getServers();
 
     boolean isAcdServerIdValid(int acdServerId);
 
