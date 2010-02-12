@@ -11,13 +11,13 @@ regression:
 	@$(LocalizeSipXconfig) $(srcdir)/copynattraversalrules.sh.in > copynattraversalrules.sh
 	@$(LocalizeSipXconfig) $(srcdir)/copysipxbridge.sh.in > copysipxbridge.sh
 	$(ANT_CMD) -f build.xml rstart
-	$(ANT_CMD) -f build.xml -Dtestname=itsp-forward-itsp
-	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-attended-itsp
-	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-blind-local
-	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-attended-itsp
-	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-attended-local
-	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-blind-itsp
-	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-blind-local
+	$(ANT_CMD) -f build.xml -Dtestname=itsp-forward-itsp -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-attended-itsp -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-blind-local -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-attended-itsp -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-attended-local -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-blind-itsp -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-blind-local -Dconf.dir=@SIPX_CONFDIR@
 	$(ANT_CMD) -f build.xml rstop
 
 .PHONY: regression

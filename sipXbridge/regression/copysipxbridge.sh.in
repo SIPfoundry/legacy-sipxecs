@@ -2,7 +2,11 @@
 echo $1
 echo $2
 sipx_logdir=@SIPX_LOGDIR@
-cp  @SIPX_CONFDIR@/sipxbridge.xml sipxbridge.xml.save
+rm -f sipxbridge.xml.save
+if [ -e @SIPX_CONFDIR@/sipxbridge.xml ]
+then
+	cp  @SIPX_CONFDIR@/sipxbridge.xml sipxbridge.xml.save
+fi
 cat tester-config.xml.in | sed -e "s/tester-config.tester-ip-address/$1/" > tester-config.xml
 cat $2/sipxbridge.xml.in | sed -e "s/tester-config.tester-ip-address/$1/"| sed -e "s!sipx.logdir!${sipx_logdir}!" > @SIPX_CONFDIR@/sipxbridge.xml
 cat $2/test-maps.xml.in | sed -e "s/tester-config.tester-ip-address/$1/" > $2/test-maps.xml
