@@ -544,6 +544,13 @@ do_setup() {
             fi
         fi
 
+        # Ensure that the /dev/dsp device is writable by all.
+        # This is required for proper FreeSWITCH operation.
+        if test -e /dev/dsp
+        then
+            chmod 666 /dev/dsp
+        fi
+
         # Ensure the sipx-restore and sipx-archive-common scripts are
         # both owned by root.
         make_root_writable_only @SIPX_BINDIR@/sipx-restore
