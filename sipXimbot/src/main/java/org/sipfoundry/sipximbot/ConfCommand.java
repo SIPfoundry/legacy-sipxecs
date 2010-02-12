@@ -9,6 +9,7 @@ public class ConfCommand extends CallCommand {
    String  m_confName;
    boolean m_success;
    String  m_errString;
+   Localizer m_localizer;
     
    public  boolean start() {
        m_finished = false;
@@ -17,11 +18,12 @@ public class ConfCommand extends CallCommand {
        return false;
    }
         
-   public ConfCommand(FreeSwitchEventSocketInterface fses, String confName, String confCommand) {         
+   public ConfCommand(FreeSwitchEventSocketInterface fses, String confName, String confCommand, Localizer localizer) {         
        super(fses);
        m_confName = confName;
        m_command = confCommand;  
        m_success = false;
+       m_localizer = localizer;
    }
    
    public boolean isSucessful() {
@@ -43,12 +45,12 @@ public class ConfCommand extends CallCommand {
            }
            
            if(content.startsWith("Non-Existant")) {
-               m_errString = "That person does not exist.";
+               m_errString = m_localizer.localize("user_not_exists");
                m_finished = true;
            }
        
            if(content.startsWith("Conference") && content.endsWith("not found\n")) {
-               m_errString = "No one is in your conference.";
+               m_errString = m_localizer.localize("conference_empty");
                m_finished = true;
            }
            

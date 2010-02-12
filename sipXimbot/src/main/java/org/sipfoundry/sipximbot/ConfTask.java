@@ -10,7 +10,12 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 public class ConfTask extends ConfBasicThread {
     
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
-     
+    static Localizer m_localizer;
+    
+    ConfTask() {
+        m_localizer = new Localizer();
+    }
+    
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
         FullUsers users = FullUsers.update();
         FullUser owner = users.findByConfName(event.getEventValue("conference-name"));
@@ -34,8 +39,8 @@ public class ConfTask extends ConfBasicThread {
         if(owner.getConfEntryIM()) {
             Date date = new Date();   
             
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ")" + 
-                    " entered your conference as participant [" + member.memberIndex() + "] at " + date.toString());
+            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ") " + 
+                         m_localizer.localize("participant_entered") + " [" + member.memberIndex() + "] at " + date.toString());
         }
     }
 
@@ -51,18 +56,18 @@ public class ConfTask extends ConfBasicThread {
         if(owner.getConfExitIM()) {
             Date date = new Date();  
             
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ")" + 
-                    " left your conference at " + date.toString());
+            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ") " + 
+                         m_localizer.localize("participant_left") + " " + date.toString());
         }
     }
       
-    public static synchronized String ConfCommand(FullUser user, String cmd) {
+    public static synchronized String ConfCommand(FullUser user, String cmd, Localizer localizer) {
                    
         if(user.getConfName() == null) {
-            return "You do not own a conference.";
+            return m_localizer.localize("no_conf");
         }
 
-        ConfCommand confcmd = new ConfCommand(ConfBasicThread.getCmdSocket(), user.getConfName(), cmd);                                     
+        ConfCommand confcmd = new ConfCommand(ConfBasicThread.getCmdSocket(), user.getConfName(), cmd, localizer);                                     
         confcmd.go();
         
         if (confcmd.isSucessful()) {

@@ -409,7 +409,7 @@ public class IMUser {
                                     histStr = localize("missed_today");
                                 } else {
                                     histStr = localize("missed_many_days") + " " + 
-                                               daysOfHist + " " + " days ..";
+                                               daysOfHist + " " + localize("days") + " ..";
                                 }    
                             }
       
@@ -426,16 +426,15 @@ public class IMUser {
                 sendIM(histStr);
 
                 if(daysOfHist == 1) {
-                    return "For older missed calls, enter missed 'number of days'. e.g. missed 5";
+                    return localize("for_older_missed");
                 } else {
                     return "";
                 }
             } else {
                 if(daysOfHist == 1) {
-                    return "You have no missed calls today.\n" +
-                           "For older missed calls, enter missed 'number of days'. e.g. missed 5";
+                    return localize("no_missed_today");
                 } else {
-                    return "You have no missed calls for the last " + daysOfHist + " days.";
+                    return localize("no_missed_days") + " " + daysOfHist + " " + localize("days");
                 }
             }
         }
@@ -609,7 +608,7 @@ public class IMUser {
                 LOG.error("exception in callHistory " + e.getMessage());
             } 
                              
-            return "An error has occurred.";            
+            return localize("error");            
         }
         
         private String getUUID(FullUser user) {
@@ -672,7 +671,7 @@ public class IMUser {
                     }
                     fses.close();
                 } catch (Exception e) {
-                    result = "Unexpected error.";
+                    result = localize("error");   
                     LOG.error("exception in doListen " + e.getMessage());     
                 }
             }
@@ -697,7 +696,7 @@ public class IMUser {
                     }
                     fses.close();
                 } catch (Exception e) {
-                    result = "Unexpected error.";
+                    result = localize("error");   
                     LOG.error("exception in doPickUp " + e.getMessage());     
                 }
             }
@@ -905,14 +904,14 @@ public class IMUser {
                 for( ConferenceMember member : members) {
                     if(confParty != null) {
                         if(confParty.equals(member.memberIndex())) {  
-                            cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId());
+                            cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId(), m_localizer);
                             if(cmdResult == null) {
                                 cmdResult = member.memberName() + " (" + member.memberNumber() + ") " + DisplayResult;
                             }
                             break;
                         }    
                     } else {
-                        cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId());
+                        cmdResult = ConfTask.ConfCommand(m_user, ConfCmd + member.memberId(), m_localizer);
                         
                         if(cmdResult != null) {
                             break;
@@ -932,14 +931,14 @@ public class IMUser {
                 break;
    
             case LOCK_CONF:
-                cmdResult = ConfTask.ConfCommand(m_user, "lock");
+                cmdResult = ConfTask.ConfCommand(m_user, "lock", m_localizer);
                 if(cmdResult == null) {
                     cmdResult = localize("conference_locked");
                 }
                 break;    
                 
             case UNLOCK_CONF:
-                cmdResult = ConfTask.ConfCommand(m_user, "unlock");
+                cmdResult = ConfTask.ConfCommand(m_user, "unlock", m_localizer);
                 if(cmdResult == null) {
                     cmdResult = localize("conference_unlocked");
                 }
