@@ -36,6 +36,7 @@
     <pathelement location="${src.dir}/lib/commons-lang.jar"/>
     <pathelement location="${src.dir}/lib/jce.jar"/>
     <pathelement location="${src.dir}/lib/not-yet-commons-ssl.jar"/>
+    <pathelement location="${src.dir}/lib/postgresql-jdbc.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
