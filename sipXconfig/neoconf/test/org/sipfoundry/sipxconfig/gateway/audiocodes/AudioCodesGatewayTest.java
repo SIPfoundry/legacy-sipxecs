@@ -38,5 +38,4 @@ public class AudioCodesGatewayTest extends TestCase {
 
         assertEquals("5.6", gateway.getDeviceVersion().getVersionId());
     }
-
 }

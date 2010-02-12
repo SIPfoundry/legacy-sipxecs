@@ -498,7 +498,16 @@
     <setting name="Cnonce" if="fxs" advanced="yes">
       <value>Default_Cnonce</value>
     </setting>
-    <setting name="AuthenticationMode" if="fxs" hidden="yes">
+    <setting name="UserName" if="5.4orLater">
+      <value></value>
+    </setting>
+    <setting name="Password" if="5.4orLater">
+      <type>
+        <string password="yes" />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="AuthenticationMode" if="5.4orLater">
       <type>
         <enum>
           <option>
@@ -507,9 +516,12 @@
           <option>
             <value>1</value>
           </option>
+          <option>
+            <value>3</value>
+          </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>1</value>
     </setting>
     <setting name="SIPChallengeCachingMode" advanced="yes" unless="5.0">
       <type>
