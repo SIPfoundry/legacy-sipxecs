@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
  * Ring - represents one stage in a call forwaring sequence
  */
 public class Ring extends AbstractRing {
-    private static final String VALID_TIME_PARAM = ";sipx-ValidTime=%s";
+    private static final String VALID_TIME_PARAM = ";sipx-ValidTime=\"%s\"";
 
     private String m_number = StringUtils.EMPTY;
     private CallSequence m_callSequence;

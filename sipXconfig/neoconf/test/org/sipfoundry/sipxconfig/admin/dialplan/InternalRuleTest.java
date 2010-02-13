@@ -155,22 +155,22 @@ public class InternalRuleTest extends TestCase {
         assertEquals("20004", v.getPatterns()[0]);
         assertEquals(0, v.getPermissions().size());
         UrlTransform tv = (UrlTransform) v.getTransforms()[0];
-        String actualUrl = StringUtils.substring(tv.getUrl(), 0, -9);
-        assertEquals("<sip:IVR@192.168.1.1:0;action=retrieve>;sipx-ValidTime=", actualUrl);
+        String actualUrl = StringUtils.substring(tv.getUrl(), 0, -10);
+        assertEquals("<sip:IVR@192.168.1.1:0;action=retrieve>;sipx-ValidTime=\"", actualUrl);
 
         assertEquals(TEST_DESCRIPTION, vt.getDescription());
         assertEquals("7xxxxx", vt.getPatterns()[0]);
         assertEquals(0, vt.getPermissions().size());
         UrlTransform tvt = (UrlTransform) vt.getTransforms()[0];
-        actualUrl = StringUtils.substring(tvt.getUrl(), 0, -9);
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;sipx-ValidTime=", actualUrl);
+        actualUrl = StringUtils.substring(tvt.getUrl(), 0, -10);
+        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;sipx-ValidTime=\"", actualUrl);
 
         assertEquals(TEST_DESCRIPTION, vf.getDescription());
         assertEquals("~~vm~.", vf.getPatterns()[0]);
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
-        actualUrl = StringUtils.substring(tvf.getUrl(), 0, -9);
-        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1;sipx-ValidTime=", actualUrl);
+        actualUrl = StringUtils.substring(tvf.getUrl(), 0, -10);
+        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1;sipx-ValidTime=\"", actualUrl);
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }

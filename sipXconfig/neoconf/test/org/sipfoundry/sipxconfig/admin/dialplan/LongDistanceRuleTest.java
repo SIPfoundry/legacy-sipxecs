@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * LongDistanceRuleTest
  */
 public class LongDistanceRuleTest extends TestCase {
-    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=";
+    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=\"";
     private LongDistanceRule m_rule;
     private Schedule m_schedule;
 

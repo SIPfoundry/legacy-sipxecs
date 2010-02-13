@@ -76,7 +76,7 @@ public class RingTest extends TestCase {
                 + Integer.toHexString(stopWithTimezone);
 
         String contact = ring.calculateContact("sipfoundry.org", q, false, true, null);
-        assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0;sipx-ValidTime=" + expected,
+        assertEquals("<sip:444@sipfoundry.org?expires=45>;q=1.0;sipx-ValidTime=\"" + expected + "\"",
                 contact);
 
         Ring ring2 = new Ring();
@@ -86,13 +86,13 @@ public class RingTest extends TestCase {
         ring2.setSchedule(schedule);
         String contact2 = ring2.calculateContact("sipfoundry.org", q, true, true, null);
         assertEquals(
-                "<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95;sipx-ValidTime="
-                        + expected, contact2);
+                "<sip:333@sipfoundry.org;sipx-noroute=Voicemail?expires=25>;q=0.95;sipx-ValidTime=\""
+                        + expected + "\"", contact2);
 
         // with new q value - ring2 is delayed, q mustbe < 1.0
         ForkQueueValue q1 = new ForkQueueValue(3);
         contact2 = ring2.calculateContact("sipfoundry.org", q1, false, true, null);
-        assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95;sipx-ValidTime=" + expected,
+        assertEquals("<sip:333@sipfoundry.org?expires=25>;q=0.95;sipx-ValidTime=\"" + expected + "\"",
                 contact2);
     }
 

@@ -142,7 +142,7 @@ public class SiteToSiteDialingRuleTest {
             String[] fieldParams = full.getFieldParams();
             assertEquals(2, fieldParams.length);
             assertTrue(fieldParams[0].startsWith("q="));
-            assertTrue(fieldParams[1].startsWith("sipx-ValidTime="));
+            assertTrue(fieldParams[1].startsWith("sipx-ValidTime=\""));
             assertEquals(full.getHeaderParams()[0], "expires=60");
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             assertNull(full.getUrlParams());
@@ -208,7 +208,7 @@ public class SiteToSiteDialingRuleTest {
         FullTransform tr = (FullTransform) transforms[0];
         assertEquals("999{vdigits}", tr.getUser());
         String[] fieldParams = tr.getFieldParams();
-        assertTrue(fieldParams[0].startsWith("sipx-ValidTime="));
+        assertTrue(fieldParams[0].startsWith("sipx-ValidTime=\""));
         assertNull(tr.getHost());
     }
 
