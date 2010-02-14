@@ -16,6 +16,7 @@ import java.util.Collections;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
@@ -126,6 +127,45 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("localhost", dbLocations[0].getFqdn());
 
         EasyMock.verify(daoEventPublisher);
+    }
+
+    public void testStoreLocationWithDuplicateFqdnOrIp() throws Exception {
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        Location location = new Location();
+        location.setName("test location");
+        location.setAddress("10.1.1.1");
+        location.setFqdn("localhost");
+        m_out.storeLocation(location);
+
+        Location[] dbLocations = m_out.getLocations();
+        assertEquals(1, dbLocations.length);
+        assertEquals("test location", dbLocations[0].getName());
+        assertEquals("10.1.1.1", dbLocations[0].getAddress());
+        assertEquals("localhost", dbLocations[0].getFqdn());
+
+        location = new Location();
+        location.setName("test location");
+        location.setAddress("10.1.1.2");
+        // Same FQDN
+        location.setFqdn("localhost");
+        try {
+            m_out.storeLocation(location);
+            assertTrue(false);
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
+
+        location = new Location();
+        location.setName("test location");
+        // Same ip address
+        location.setAddress("10.1.1.1");
+        location.setFqdn("localhost.localdomain");
+        try {
+            m_out.storeLocation(location);
+            assertTrue(false);
+        } catch (UserException ex) {
+            assertTrue(true);
+        }
     }
 
     public void testDelete() throws Exception {

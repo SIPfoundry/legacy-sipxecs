@@ -23,12 +23,17 @@ import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
+import static org.springframework.dao.support.DataAccessUtils.intResult;
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
 
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
+    private static final String LOCATION_PROP_IP = "ipAddress";
+    private static final String LOCATION_PROP_ID = "locationId";
+    private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+
     private DaoEventPublisher m_daoEventPublisher;
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
@@ -88,14 +93,50 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         role.setLocation(location);
         m_daoEventPublisher.publishSave(role);
     }
+
     public void storeLocation(Location location) {
         if (location.isNew()) {
+            if (isFqdnOrIpInUseExceptThis(location)) {
+                throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
+            }
             getHibernateTemplate().save(location);
             m_daoEventPublisher.publishSave(location);
         } else {
+            if (isFqdnOrIpChanged(location) && isFqdnOrIpInUseExceptThis(location)) {
+                throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
+            }
             m_daoEventPublisher.publishSave(location);
             getHibernateTemplate().update(location);
         }
+    }
+
+    /**
+     * Need to verify if existing fqdn or ip are about to be changed in order to be
+     * in sync with potential situations for versions before 4.1.6 when an user may have
+     * at least two locations with the same fqdn or ip. (This situation probably will never
+     * appear but we have to be sure). If no ip/fqdn change occurs, no user exception is thrown
+     * no matter if there is at least one more location with the same ip or fqdn
+     */
+    private boolean isFqdnOrIpChanged(Location location) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("sameLocationWithSameFqdnOrIp",
+                new String[] {
+                    LOCATION_PROP_ID, LOCATION_PROP_NAME, LOCATION_PROP_IP
+                }, new Object[] {
+                    location.getId(), location.getFqdn(), location.getAddress()
+                });
+
+        return intResult(count) == 0;
+    }
+
+    private boolean isFqdnOrIpInUseExceptThis(Location location) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "anotherLocationWithSameFqdnOrIpExceptThis", new String[] {
+                    LOCATION_PROP_ID, LOCATION_PROP_NAME, LOCATION_PROP_IP
+                }, new Object[] {
+                    location.getId(), location.getFqdn(), location.getAddress()
+                });
+
+        return intResult(count) > 0;
     }
 
     public void deleteLocation(Location location) {

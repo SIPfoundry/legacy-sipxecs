@@ -43,4 +43,12 @@
     <![CDATA[from Location l where l.branch = :branch]]>
   </query>
 
+  <query name="anotherLocationWithSameFqdnOrIpExceptThis">
+    <![CDATA[select count (*) from Location location where location.id != :locationId and (location.fqdn = :fqdn or location.address = :ipAddress)]]>
+  </query>
+
+  <query name="sameLocationWithSameFqdnOrIp">
+    <![CDATA[select count (*) from Location location where location.id = :locationId and location.fqdn = :fqdn and location.address = :ipAddress]]>
+  </query>
+
 </hibernate-mapping>
