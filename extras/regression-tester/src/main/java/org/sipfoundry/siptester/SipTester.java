@@ -60,6 +60,8 @@ public class SipTester {
      */
     private static Map<String,String> traceToActualViaParameters = new HashMap<String,String>();
     
+    private static Map<String,String> branchMap = new HashMap<String,String>();
+    
     private static Map<String,String> toTagMap = new HashMap<String,String>();
     
     private static Map<String,String> fromTagMap = new HashMap<String,String>();
@@ -729,7 +731,13 @@ public class SipTester {
         return itspAccounts;
     }
 
-  
+	
+	
+	
+
+	
+	
+
 
 
 }

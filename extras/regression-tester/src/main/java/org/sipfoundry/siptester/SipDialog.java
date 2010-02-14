@@ -87,7 +87,7 @@ public class SipDialog {
         MediaListener mediaListener;
         int packets;
         public PacketChecker(MediaListener mediaListener) {
-            System.out.println("Expect ECHO request");
+            System.out.println("Expect ECHO request @ " + SipDialog.this.endpoint.getIpAddress() + ":" + SipDialog.this.mediaListener.port);
             this.mediaListener = mediaListener;
             this.packets = mediaListener.packetsReceived;
         }
@@ -401,9 +401,9 @@ public class SipDialog {
         }
     }
     
-    public void setRequestToSend(Request request) {
+    public void setRequestToSend(Request request, boolean isSpiral) {
         this.updateRequest(request);
-        if (request.getContentLength().getContentLength() != 0) {
+        if (request.getContentLength().getContentLength() != 0 && !isSpiral) {
             ContentTypeHeader cth = ((RequestExt) request).getContentTypeHeader();
             if (cth.getContentType().equals("application")
                     && cth.getContentSubType().equals("sdp")) {
@@ -420,9 +420,11 @@ public class SipDialog {
                     new Thread(mediaListener).start();
                 }
                
+            } else {
+            	System.out.println("isSpiral");
             }
         }
-        if (request.getMethod().equals(Request.ACK) && !mediaListener.isLocalEndOnHold ) {
+        if (request.getMethod().equals(Request.ACK) &&  mediaListener != null && !mediaListener.isLocalEndOnHold ) {
             this.mediaListener.expectPacketIn(300);
         } else if (request.getMethod().equals(Request.ACK)){
            logger.debug("LocalEndOnHold");

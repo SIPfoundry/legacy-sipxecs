@@ -71,17 +71,8 @@ public class SipListenerImpl implements SipListenerExt {
             
             Collection<SipServerTransaction> transactions  = endpoint.findSipServerTransaction(request);
             
-            if ( transactions.isEmpty())  {
-                
-                /*
-                 * Could not find a matching server transaction. 
-                  */
-                
-                 /*String dialogId = ((SIPRequest) (requestEvent.getRequest())).getDialogId(true);
-                 SipDialog sipDialog = SipTester.getDialog(dialogId);
-                 sipDialog.setLastRequestReceived(request);*/
-                 
-                
+             
+            if ( transactions.isEmpty())  {              
                  
                  if (! request.getMethod().equals(Request.ACK)) {
                      Response response = SipTester.getMessageFactory().createResponse(
@@ -93,11 +84,15 @@ public class SipListenerImpl implements SipListenerExt {
             }
             
            
+          
             for (SipServerTransaction sst : transactions) {
                 if ( serverTransaction != null ) {
                     serverTransaction.setApplicationData(sst);
                     sst.setServerTransaction(serverTransaction);
                     SipTester.mapViaParameters(sst.getSipRequest().getSipRequest(),request);
+                    endpoint.mapBranch(sst.getSipRequest().getSipRequest().getMethod(),
+                    		sst.getSipRequest().getSipRequest().getTopmostViaHeader().getBranch(), 
+                    		request.getTopmostViaHeader().getBranch());
                 }
                 String dialogId = sst.getDialogId();
                 SipDialog sipDialog = SipTester.getDialog(dialogId,sst.getEndpoint());
@@ -168,8 +163,7 @@ public class SipListenerImpl implements SipListenerExt {
 
     @Override
     public void processDialogTimeout(DialogTimeoutEvent timeoutEvent) {
-        // TODO Auto-generated method stub
-
+    	SipTester.fail("Dialog timed out");
     }
 
     @Override
@@ -180,8 +174,7 @@ public class SipListenerImpl implements SipListenerExt {
 
     @Override
     public void processIOException(IOExceptionEvent exceptionEvent) {
-        // TODO Auto-generated method stub
-
+      SipTester.fail("Unexpected IO Exception");
     }
 
     @Override

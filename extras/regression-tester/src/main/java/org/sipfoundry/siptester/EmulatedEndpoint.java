@@ -2,6 +2,7 @@ package org.sipfoundry.siptester;
 
 import gov.nist.javax.sip.ListeningPointExt;
 import gov.nist.javax.sip.SipProviderExt;
+import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
 
 import javax.sip.ListeningPoint;
 import javax.sip.SipProvider;
+import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 
 import org.apache.log4j.Logger;
@@ -39,8 +41,9 @@ public class EmulatedEndpoint extends HostPort {
     private TraceEndpoint traceEndpoint;
 
     private long startTime;
+    
+    private HashMap<String,String> branchMap = new HashMap<String,String>();
 
-    private int packetCount;
 
     public EmulatedEndpoint(String ipAddress, int port) {
         super(ipAddress, port);
@@ -229,7 +232,26 @@ public class EmulatedEndpoint extends HostPort {
         }
         return retval;
     }
+    
+    public  boolean isBranchMapped(String method, String branch ) {
+		return branchMap.containsKey(method + ":" + branch);
+	}
+	public void mapBranch(String method, String traceBranch, String emulatedBranch) {
+			branchMap.put(method + ":" + traceBranch, emulatedBranch);
+	}
 
+    public boolean isSpiral(RequestExt sipRequest) {
+		String branch = SipUtilities.getBottomViaHeader(sipRequest).getBranch();
+		String method = sipRequest.getMethod();
+		return isBranchMapped(method,branch);
+	}
+	
+
+    public String getMappedBranch(String method, String branch) {
+		 if ( branchMap.get(method + ":" + branch) != null ) {
+			 return branchMap.get(method + ":" + branch);	 
+		 } else return branch;
+	}
   
 
 }

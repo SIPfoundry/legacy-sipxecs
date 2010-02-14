@@ -168,6 +168,7 @@ public class SipClientTransaction extends SipTransaction implements
         try {
             this.processed = true;
             RequestExt sipRequest = (RequestExt) this.sipRequest.getSipRequest();
+            boolean spiral = this.endpoint.isSpiral(sipRequest);
             String transport = sipRequest.getTopmostViaHeader().getTransport();
             SipProviderExt provider = this.endpoint.getProvider(transport);
             logger.debug("createAndSend : " + sipRequest.getMethod() + " transactionId = "
@@ -209,7 +210,7 @@ public class SipClientTransaction extends SipTransaction implements
                             .getResponseEvent().getResponse()));
                         SipUtilities.copyHeaders(this.sipRequest,
                             this.triggeringMessage, ack, this.endpoint.getTraceEndpoint());
-                        sipDialog.setRequestToSend(ack);
+                        sipDialog.setRequestToSend(ack,spiral);
                         dialog.sendAck(ack);
                        
                     } else {
@@ -219,7 +220,7 @@ public class SipClientTransaction extends SipTransaction implements
                                 this.triggeringMessage, ack, this.endpoint.getTraceEndpoint());
                         
                         logger.debug(this.getSipRequest().getFrameId() + " Sending stateless ACK " + ack);
-                        sipDialog.setRequestToSend(ack);
+                        sipDialog.setRequestToSend(ack,spiral);
                         provider.sendRequest(ack);
                     }
                 } else if (method.equals(Request.PRACK)) {
@@ -295,7 +296,7 @@ public class SipClientTransaction extends SipTransaction implements
                         SipDialog serverDialog = sipServerTransaction.getSipDialog();
                         serverDialog.setPeerDialog(sipDialog);
                     }
-                    sipDialog.setRequestToSend(newRequest);
+                    sipDialog.setRequestToSend(newRequest,spiral);
                     if (sipDialog.getDialog() != null)
                         sipDialog.getDialog().sendRequest(clientTransaction);
                     else
@@ -324,7 +325,7 @@ public class SipClientTransaction extends SipTransaction implements
                 for (String dialogId : this.getDialogIds()) {
                     SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
 
-                    sipDialog.setRequestToSend(newRequest);
+                    sipDialog.setRequestToSend(newRequest,spiral);
 
                 }
                 clientTransaction.sendRequest();

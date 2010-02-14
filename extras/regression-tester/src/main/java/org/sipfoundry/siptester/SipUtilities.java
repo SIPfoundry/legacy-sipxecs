@@ -614,8 +614,6 @@ public class SipUtilities {
 				}
 			}
 
-			String oldBranch = ((MessageExt) message).getTopmostViaHeader()
-					.getBranch();
 			/*
 			 * For debugging purposes, track the original branch from which this
 			 * request was obtained.
@@ -628,37 +626,49 @@ public class SipUtilities {
 			}
 			newMessage.removeHeader(RecordRouteHeader.NAME);
 
+			ViaHeader bottomVia = SipUtilities.getBottomViaHeader(traceMessage.getSipMessage());
+			String method = SipUtilities.getCSeqMethod(newMessage);
 			if (message.getContent() != null) {
-
 				ContentTypeHeader cth = ((MessageExt) message)
 						.getContentTypeHeader();
-				if (cth.getContentType().equals("application")
-						&& cth.getContentSubType().equals("sdp")) {
-					SessionDescription sdp = SipUtilities
-							.getSessionDescription(message);
-					String mappedAddress = SipTester.getTesterConfig()
-							.getTesterIpAddress();
+				
+				
+				boolean spiral =  traceEndpoint.getEmulatedEndpoint().isBranchMapped(method, bottomVia.getBranch());
+			    
+				// BUGBUG -- revisit this code.
+				if (newMessage instanceof Response || !spiral) {
+					if (cth.getContentType().equals("application")
+							&& cth.getContentSubType().equals("sdp")) {
+						SessionDescription sdp = SipUtilities
+								.getSessionDescription(message);
+						String mappedAddress = SipTester.getTesterConfig()
+								.getTesterIpAddress();
 
-					/*
-					 * Edit the SDP -- get new ports and stick them in there.
-					 */
-					sdp.getConnection().setAddress(mappedAddress);
+						/*
+						 * Edit the SDP -- get new ports and stick them in
+						 * there.
+						 */
+						sdp.getConnection().setAddress(mappedAddress);
 
-					for (String type : SipUtilities.getMediaTypes(sdp)) {
-						int port = SipUtilities.getSessionDescriptionMediaPort(
-								type, sdp);
-						int mappedPort = SipTester.getTesterConfig()
-								.getMediaPort(port);
-						setMediaAddressPort(sdp, type, mappedAddress,
-								mappedPort);
+						for (String type : SipUtilities.getMediaTypes(sdp)) {
+							int port = SipUtilities
+									.getSessionDescriptionMediaPort(type, sdp);
+							int mappedPort = SipTester.getTesterConfig()
+									.getMediaPort(port);
+							setMediaAddressPort(sdp, type, mappedAddress,
+									mappedPort);
+						}
+
+						newMessage.setContent(sdp, cth);
+
+					} else {
+						byte[] contents = message.getRawContent();
+						newMessage.setContent(contents, cth);
+
 					}
-
-					newMessage.setContent(sdp, cth);
-
 				} else {
 					byte[] contents = message.getRawContent();
 					newMessage.setContent(contents, cth);
-
 				}
 
 			}
@@ -667,6 +677,16 @@ public class SipUtilities {
 			SipTester.fail("unexepcted exception", ex);
 		}
 
+	}
+
+	public static ViaHeader getBottomViaHeader(Message newMessage) {
+		ListIterator<ViaHeader> viaHeaders = newMessage
+				.getHeaders(ViaHeader.NAME);
+		ViaHeader viaHeader = null;
+		while (viaHeaders.hasNext()) {
+			viaHeader = viaHeaders.next();
+		}
+		return viaHeader;
 	}
 
 	public static SipURI mapUri(SipURI uri, TraceEndpoint traceEndpoint) {
@@ -863,8 +883,7 @@ public class SipUtilities {
 					.createHeader(
 							"Via: SIP/2.0/" + transport.toUpperCase() + " "
 									+ mappedHostPort);
-
-			viaHeader.setBranch(vh.getBranch());
+			viaHeader.setBranch(endpoint.getMappedBranch(method,vh.getBranch()));
 			Iterator<String> parameters = vh.getParameterNames();
 			while (parameters.hasNext()) {
 				String parameter = parameters.next();
@@ -1130,5 +1149,7 @@ public class SipUtilities {
 		return sw.getBuffer().toString();
 
 	}
+
+	
 
 }
