@@ -18,6 +18,7 @@ import static java.util.Collections.singleton;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
@@ -274,8 +275,13 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     }
 
     public void onDelete(Object entity) {
-        if (entity instanceof Location) {
-            Location location = (Location) entity;
+        Location location = null;
+        if (entity instanceof ServerRoleLocation) {
+            location = ((ServerRoleLocation) entity).getLocation();
+        } else if (entity instanceof Location) {
+            location = (Location) entity;
+        }
+        if (null != location) {
             BridgeSbc bridgeSbc = getBridgeSbc(location);
             if (null != bridgeSbc) {
                 deleteSbcDevice(bridgeSbc);
@@ -284,8 +290,13 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
     }
 
     public void onSave(Object entity) {
-        if (entity instanceof Location) {
-            Location location = (Location) entity;
+        Location location = null;
+        if (entity instanceof ServerRoleLocation) {
+            location = ((ServerRoleLocation) entity).getLocation();
+        } else if (entity instanceof Location) {
+            location = (Location) entity;
+        }
+        if (null != location) {
             BridgeSbc bridgeSbc = getBridgeSbc(location);
             if (location.isBundleInstalled(m_borderControllerBundle.getModelId())) {
                 if (null == bridgeSbc) {
