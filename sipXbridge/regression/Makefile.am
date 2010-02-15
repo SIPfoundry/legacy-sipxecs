@@ -11,6 +11,8 @@ regression:
 	@$(LocalizeSipXconfig) $(srcdir)/copynattraversalrules.sh.in > copynattraversalrules.sh
 	@$(LocalizeSipXconfig) $(srcdir)/copysipxbridge.sh.in > copysipxbridge.sh
 	$(ANT_CMD) -f build.xml rstart
+	$(ANT_CMD) -f build.xml -Dtestname=local-itsp-local-hangup -Dconf.dir=@SIPX_CONFDIR@
+	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-hangup-after-transfer -Dconf.dir=@SIPX_CONFDIR@
 	$(ANT_CMD) -f build.xml -Dtestname=itsp-forward-itsp -Dconf.dir=@SIPX_CONFDIR@
 	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-attended-itsp -Dconf.dir=@SIPX_CONFDIR@
 	$(ANT_CMD) -f build.xml -Dtestname=itsp-local-blind-local -Dconf.dir=@SIPX_CONFDIR@

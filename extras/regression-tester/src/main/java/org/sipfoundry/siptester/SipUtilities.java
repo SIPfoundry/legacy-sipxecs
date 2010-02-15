@@ -12,6 +12,7 @@ import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.MessageFactoryExt;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
+import gov.nist.javax.sip.message.SIPMessage;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -1148,6 +1149,19 @@ public class SipUtilities {
 		pw.close();
 		return sw.getBuffer().toString();
 
+	}
+
+	public static String getDialogId(MessageExt sipMessage, boolean isServer, Behavior behavior) {
+		if (behavior == Behavior.PROXY) {
+			String callId = sipMessage.getCallIdHeader().getCallId();
+			if (isServer) {
+				return callId + ":" + sipMessage.getFromHeader().getTag();
+			} else {
+				return callId + ":" + sipMessage.getToHeader().getTag();
+			}
+		} else {
+			return ((SIPMessage)sipMessage).getDialogId(isServer);
+		}
 	}
 
 	

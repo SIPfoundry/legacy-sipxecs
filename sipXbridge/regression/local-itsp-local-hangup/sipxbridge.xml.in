@@ -1,0 +1,61 @@
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <global-address>tester-config.tester-ip-address</global-address>
+    <external-address>tester-config.tester-ip-address</external-address>
+    <external-port>5080</external-port>
+    <local-address>tester-config.tester-ip-address</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>tester-config.tester-ip-address</sipx-proxy-domain>
+    <sipx-proxy-port>5055</sipx-proxy-port>
+    <sipx-supervisor-host>tester-config.tester-ip-address</sipx-supervisor-host>
+    <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>8088</xml-rpc-port>
+    <call-limit>-1</call-limit>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <music-on-hold-address>~~mh~</music-on-hold-address>
+    <music-on-hold-delay-miliseconds>500</music-on-hold-delay-miliseconds>
+    <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
+    <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
+    <log-level>DEBUG</log-level>
+    <log-directory>sipx.logdir</log-directory>
+    <location-id>1</location-id>
+  </bridge-configuration>
+
+  <itsp-account>
+    <itsp-proxy-domain>ot.bandwidth.com</itsp-proxy-domain>
+    <itsp-proxy-address>tester-config.tester-ip-address</itsp-proxy-address>
+    <itsp-proxy-listening-port>5056</itsp-proxy-listening-port>
+    <register-on-initialization>false</register-on-initialization>
+    <use-global-addressing>false</use-global-addressing>
+    <strip-private-headers>false</strip-private-headers>
+    <default-asserted-identity>true</default-asserted-identity>
+    <is-user-phone>true</is-user-phone>
+    <loose-route-invite>true</loose-route-invite>
+    <registration-interval>600</registration-interval>
+    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
+    <sip-keepalive-method>CR-LF</sip-keepalive-method>
+    <rtp-keepalive-method>NONE</rtp-keepalive-method>
+  </itsp-account>
+
+  <itsp-account>
+    <itsp-proxy-domain>192.168.5.236</itsp-proxy-domain>
+    <register-on-initialization>false</register-on-initialization>
+    <itsp-proxy-address>tester-config.tester-ip-address</itsp-proxy-address>
+    <itsp-proxy-listening-port>5057</itsp-proxy-listening-port>
+    <itsp-transport>UDP</itsp-transport>
+    <use-global-addressing>false</use-global-addressing>
+    <strip-private-headers>false</strip-private-headers>
+    <default-asserted-identity>true</default-asserted-identity>
+    <is-user-phone>true</is-user-phone>
+    <loose-route-invite>true</loose-route-invite>
+    <registration-interval>600</registration-interval>
+    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
+    <sip-keepalive-method>CR-LF</sip-keepalive-method>
+    <rtp-keepalive-method>NONE</rtp-keepalive-method>
+  </itsp-account>
+
+</sipxbridge-config>

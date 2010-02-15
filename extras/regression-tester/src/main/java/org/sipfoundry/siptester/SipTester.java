@@ -5,6 +5,7 @@ import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
+import gov.nist.javax.sip.message.SIPMessage;
 import gov.nist.javax.sip.message.SIPRequest;
 
 import java.io.File;
@@ -87,6 +88,8 @@ public class SipTester {
 
     private static ConcurrentSkipListSet<SipClientTransaction> runnable;
 
+	private static int emulatedSoFar;
+
   
     public static EmulatedEndpoint getEmulatedEndpoint(String sourceAddress, int port) {
          
@@ -118,6 +121,12 @@ public class SipTester {
         return sipStackBean;
     }
 
+    public static SipDialog getDialog(SipRequest sipRequest, boolean isServer, EmulatedEndpoint endpoint) {
+    	String dialogId = SipUtilities.getDialogId(sipRequest.getSipRequest(), isServer,endpoint.getTraceEndpoint().getBehavior());
+    	logger.debug("getDialog " + dialogId);
+    	return getDialog(dialogId,endpoint);
+    	
+    }
     public static SipDialog getDialog(String dialogId, EmulatedEndpoint endpoint) {
         if (dialogId == null)
             return null;
@@ -730,6 +739,17 @@ public class SipTester {
     public static ItspAccounts getItspAccounts() {
         return itspAccounts;
     }
+
+	public static void setEmulated(int frameId) {
+		if ( SipTester.emulatedSoFar < frameId ) {
+			SipTester.emulatedSoFar = frameId;
+		}
+		
+	}
+
+	public static int getMaxEmulatedFrame() {
+		return SipTester.emulatedSoFar;
+	}
 
 	
 	

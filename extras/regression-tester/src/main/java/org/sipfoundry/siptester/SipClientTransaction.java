@@ -121,7 +121,9 @@ public class SipClientTransaction extends SipTransaction implements
             ResponseExt response = sipResponse.getSipResponse();
             if (response.getFromHeader().getTag() != null
                     && response.getToHeader().getTag() != null) {
-                dialogIds.add(((SIPResponse) response).getDialogId(false));
+            	String dialogId = SipUtilities.getDialogId((ResponseExt)response, false,
+            			this.endpoint.getTraceEndpoint().getBehavior());
+                dialogIds.add(dialogId);
             }
         }
         return dialogIds;
@@ -145,7 +147,8 @@ public class SipClientTransaction extends SipTransaction implements
                             sipResponse.getSipResponse().getFromHeader().getTag())
                     && response.getToHeader().getTag().equals(
                             sipResponse.getSipResponse().getToHeader().getTag())) {
-                return ((SIPResponse) sipResponse.getSipResponse()).getDialogId(false);
+            	return SipUtilities.getDialogId(sipResponse.getSipResponse(),false, this.getEndpoint().getTraceEndpoint().getBehavior());
+            	
             }
         }
         for (SipResponse sipResponse : this.sipResponses) {
@@ -153,7 +156,8 @@ public class SipClientTransaction extends SipTransaction implements
                     && sipResponse.getSipResponse().getToHeader().getTag() != null
                     && response.getFromHeader().getTag().equals(
                             sipResponse.getSipResponse().getFromHeader().getTag())) {
-                return ((SIPResponse) sipResponse.getSipResponse()).getDialogId(false);
+            	return SipUtilities.getDialogId(sipResponse.getSipResponse(),false, this.getEndpoint().getTraceEndpoint().getBehavior());
+            	
 
             }
         }
@@ -167,15 +171,16 @@ public class SipClientTransaction extends SipTransaction implements
     public void createAndSend() {
         try {
             this.processed = true;
-            RequestExt sipRequest = (RequestExt) this.sipRequest.getSipRequest();
-            boolean spiral = this.endpoint.isSpiral(sipRequest);
-            String transport = sipRequest.getTopmostViaHeader().getTransport();
+            RequestExt requestExt = (RequestExt) this.sipRequest.getSipRequest();
+            SipTester.setEmulated(this.sipRequest.getFrameId());
+            boolean spiral = this.endpoint.isSpiral(requestExt);
+            String transport = requestExt.getTopmostViaHeader().getTransport();
             SipProviderExt provider = this.endpoint.getProvider(transport);
-            logger.debug("createAndSend : " + sipRequest.getMethod() + " transactionId = "
+            logger.debug("createAndSend : " + requestExt.getMethod() + " transactionId = "
                     + ((SIPRequest) this.getSipRequest().getSipRequest()).getTransactionId());
             System.out.println("sendRequest at frameId = " +
                     + this.sipRequest.getFrameId() + " method = "
-                    + sipRequest.getMethod());
+                    + requestExt.getMethod());
             if (this.triggeringMessage != null
                     && triggeringMessage instanceof SipResponse
                     && triggeringMessage.getSipMessage().getCallIdHeader().getCallId().equals(
@@ -184,15 +189,15 @@ public class SipClientTransaction extends SipTransaction implements
                             .getStatusCode() == Response.UNAUTHORIZED)) {
                 this.handleChallenge();
 
-            } else if (sipRequest.getFromHeader().getTag() != null
-                    && sipRequest.getToHeader().getTag() != null) {
-                String method = sipRequest.getMethod();
+            } else if (requestExt.getFromHeader().getTag() != null
+                    && requestExt.getToHeader().getTag() != null) {
+                String method = requestExt.getMethod();
                 if (method.equals(Request.ACK)) {
                     logger.debug("createAndSend ACK");
-                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
+                    // String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
-                    logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
+                    // logger.debug("dialogId " + dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     for (SipServerTransaction sst : this.serverTransactions) {
                         SipDialog hisDialog = SipTester.getDialog(sst.getDialogId(),this.endpoint);
@@ -227,10 +232,10 @@ public class SipClientTransaction extends SipTransaction implements
                     if (triggeringMessage instanceof SipRequest) {
                         logger.debug("trigger = " + triggeringMessage.getSipMessage());
                     }
-                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
+                   //  String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
 
-                    logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
+                    // logger.debug("dialogId " + dialogId);
+                   // SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
 
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
@@ -270,19 +275,21 @@ public class SipClientTransaction extends SipTransaction implements
                     }
 
                 } else {
-                    String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
+                    // String dialogId = ((SIPRequest) requestExt).getDialogId(false);
+                	
+                	//String dialogId = SipUtilities.getDialogId(requestExt, false, endpoint.getTraceEndpoint().getBehavior());
 
-                    logger.debug("dialogId " + dialogId);
-                    SipDialog sipDialog = SipTester.getDialog(dialogId,this.endpoint);
+                    // logger.debug("dialogId " + dialogId);
+                    SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
                     logger.debug("sipDialog = " + sipDialog + "frameId = "
                             + this.sipRequest.getFrameId() + " method = "
-                            + sipRequest.getMethod());
+                            + requestExt.getMethod());
                     Request newRequest;
                     if (sipDialog.getDialog() == null) {
                         newRequest = SipUtilities.createRequest(this.sipRequest, triggeringMessage,
                                 endpoint);
                     } else {
-                        newRequest = sipDialog.getDialog().createRequest(sipRequest.getMethod());
+                        newRequest = sipDialog.getDialog().createRequest(requestExt.getMethod());
                     }
                     SipUtilities.copyHeaders(this.sipRequest,
                             this.triggeringMessage, newRequest, this.endpoint.getTraceEndpoint());

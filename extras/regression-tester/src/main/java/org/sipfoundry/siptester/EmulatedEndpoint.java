@@ -220,7 +220,8 @@ public class EmulatedEndpoint extends HostPort {
             it = this.serverTransactions.iterator();
             while (it.hasNext()) {
                 SipServerTransaction sst = it.next();
-                  if (request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod())) {
+                  if (request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod()) &&
+                		  sst.getSipRequest().getFrameId() > SipTester.getMaxEmulatedFrame()) {
                     it.remove();
                     retval.add(sst);
                     break;            

@@ -12,6 +12,7 @@ package org.sipfoundry.siptester;
 
 import gov.nist.core.InternalErrorHandler;
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.ResponseExt;
 import gov.nist.javax.sip.message.SIPRequest;
@@ -47,424 +48,489 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 
 public class SipDialog {
-    private static Logger logger = Logger.getLogger(SipDialog.class);
+	private static Logger logger = Logger.getLogger(SipDialog.class);
 
-    private String localTag;
-    private String remoteTag;
-    private DialogExt dialog;
-    private Response lastResponse;
-    private RequestExt lastRequestReceived;
-    
-    private String dialogIdSetAtStackTrace;
-    
-    private HashSet<String> dialogIds = new HashSet<String>();
+	private String localTag;
+	private String remoteTag;
+	private DialogExt dialog;
+	private Response lastResponse;
+	private RequestExt lastRequestReceived;
 
-    Collection<SipClientTransaction> clientTransactions = new ConcurrentSkipListSet<SipClientTransaction>();
+	private String dialogIdSetAtStackTrace;
 
-    Collection<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
+	private HashSet<String> dialogIds = new HashSet<String>();
 
-    SipDialog peerDialog;
+	Collection<SipClientTransaction> clientTransactions = new ConcurrentSkipListSet<SipClientTransaction>();
 
-    private String remoteIpAddress;
-    private int remotePort;
-    static int packetReceivedCounter = 1;
-    static int packetSentCounter = 1;
+	Collection<SipServerTransaction> serverTransactions = new ConcurrentSkipListSet<SipServerTransaction>();
 
-    private static Hashtable<String, MediaListener> mediaListeners = new Hashtable<String, MediaListener>();
-    private MediaListener mediaListener;
-    private Request lastRequestSent;
+	SipDialog peerDialog;
 
-    private Address localParty;
+	private String remoteIpAddress;
+	private int remotePort;
+	static int packetReceivedCounter = 1;
+	static int packetSentCounter = 1;
 
-    private Address remoteParty;
+	private static Hashtable<String, MediaListener> mediaListeners = new Hashtable<String, MediaListener>();
+	private MediaListener mediaListener;
+	private Request lastRequestSent;
 
-    private EmulatedEndpoint endpoint;
+	private Address localParty;
 
-    private ResponseExt lastResponseSent;
+	private Address remoteParty;
 
-  
-    class PacketChecker extends TimerTask {
-        MediaListener mediaListener;
-        int packets;
-        public PacketChecker(MediaListener mediaListener) {
-            System.out.println("Expect ECHO request @ " + SipDialog.this.endpoint.getIpAddress() + ":" + SipDialog.this.mediaListener.port);
-            this.mediaListener = mediaListener;
-            this.packets = mediaListener.packetsReceived;
-        }
-        @Override
-        public void run() {
-           if ( mediaListener.packetsReceived == packets && ! mediaListener.isLocalEndOnHold) {
-               System.out.println("Did not see expected packets @ " + mediaListener.ipAddress + ":" + mediaListener.port);
-           }
-        }
-    }
-    class MediaListener implements Runnable {
+	private EmulatedEndpoint endpoint;
 
-        byte[] buffer = new byte[1024];
-        boolean running = false;
-        private int packetsReceived;
-        private DatagramSocket mediaSocket;
-        private String ipAddress;
-        private int port;
-        private String remoteIpAddress;
-        private int remotePort;
-        public boolean isLocalEndOnHold;
-        
-       
-        public MediaListener(String ipAddress, int port) throws Exception {
-            logger.debug("MediaListener : listening at " + ipAddress + ":" + port);
-            InetAddress inetAddress = InetAddress.getByName(ipAddress);
-            this.ipAddress = ipAddress;
-            this.port = port;
-            this.remoteIpAddress = SipDialog.this.remoteIpAddress;
-            this.remotePort = SipDialog.this.remotePort;
-            mediaSocket = new DatagramSocket(port, inetAddress);
-        }
-        
-        public DatagramSocket getMediaSocket() {
-            return mediaSocket;
-        }
+	private ResponseExt lastResponseSent;
 
-        public boolean isRunning() {
-            return running;
-        }
+	class PacketChecker extends TimerTask {
+		MediaListener mediaListener;
+		int packets;
 
-        @Override
-        public void run() {
-            running = true;
-            while (true) {
-                try {
-                    DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
-                    mediaSocket.receive(datagramPacket);
-                    logger.debug("got packet " + packetReceivedCounter++);
-                    if (isLocalEndOnHold) {
-                        System.out.println("Unexpected media packet received from "
-                                + datagramPacket.getAddress() + ":" +datagramPacket.getPort());
-                        System.out.println("Packet seen at " + ipAddress + ":" + port);
-                        System.out.println("Trace Endpoint " + 
-                                SipDialog.this.endpoint.getTraceEndpoint().getTraceIpAddresses());
-                        System.out.println("Last request received " + lastRequestReceived);
-                        System.out.println("Last response sent " + lastResponseSent);
-                        System.out.println("Last request sent " + lastRequestSent);
-                        
-                        SipTester.fail("Unexpected packets seen");
-                    } else {
-                        this.packetsReceived++;
-                        String command = new String(buffer);
-                        System.out.println( command + " @ " + ipAddress + ":" + port);
-                        if (command.startsWith("ECHO_REQUEST")) {
-                            
-                            byte[] response = "ECHO_RESPONSE".getBytes();
-                            DatagramPacket responsePacket = new DatagramPacket(response,
-                                    response.length);
-                            InetAddress iaddr = InetAddress.getByName(remoteIpAddress);
-                            responsePacket.setAddress(iaddr);
-                            responsePacket.setPort(remotePort);
-                             logger.debug("sending packet " + packetSentCounter++ + " to "
-                                    + remoteIpAddress + ":" + remotePort);
-                             mediaSocket.send(responsePacket);
-                             
-
-                        }
-                    }
-                } catch (Exception ex) {
-                    logger.error("Exception occured while processing ECHO_REQUEST ");
-                    logger.error("Exception sending packet to " + remoteIpAddress + ":" + remotePort,ex);
-                    logger.error("LastResponse = " + lastResponse);
-                    logger.error("LastRequest " + lastRequestReceived);
-                    throw new SipTesterException(ex);
-                }
-            }
-
-        }
-
-        /**
-         * @return the packetsReceived
-         */
-        public int getPacketsReceived() {
-            return packetsReceived;
-        }
-
-        public void setRemoteIpAddress(String remoteIpAddress) {
-           this.remoteIpAddress = remoteIpAddress;
-        }
-
-        public void setRemotePort(int remotePort) {
-           this.remotePort = remotePort;
-        }
-
-        public void expectPacketIn(int miliseconds) {
-            SipTester.timer.schedule(new PacketChecker(this), miliseconds);
-        }
-
-      
-    }
-
-    public SipDialog(String dialogId, EmulatedEndpoint endpoint) {
-        logger.debug("creating sipDialog " + dialogId);
-        this.dialogIds.add(dialogId);
-        this.endpoint = endpoint;
-
-    }
-
-    MediaListener createMediaListener(String ipAddress, int port) {
-        String key = ipAddress + ":" + port;
-        logger.debug("createMediaListener : " + this + " ipAddress:port = " + ipAddress + ":" + port);
-        try {
-            if (mediaListeners.containsKey(key)) {
-                this.mediaListener = mediaListeners.get(key);
-                return mediaListeners.get(key);
-            } else {
-                MediaListener mediaListener = new MediaListener(ipAddress, port);
-                mediaListeners.put(key, mediaListener);
-                this.mediaListener = mediaListener;   
-                return mediaListener;
-            }
-
-        } catch (Exception ex) {
-            logger.error("Problem creating media listener",ex);
-            return null;
-        }
-    }
-
-    public void addSipClientTransaction(SipClientTransaction sipClientTransaction) {
-        this.clientTransactions.add(sipClientTransaction);
-    }
-
-    public void addSipServerTransaction(SipServerTransaction sipServerTransaction) {
-        this.serverTransactions.add(sipServerTransaction);
-        sipServerTransaction.setDialog(this);
-
-    }
-
-    /**
-     * @param dialog the dialog to set
-     */
-    public void setDialog(DialogExt dialog) {
-        if (dialog == null) {
-            logger.debug("setDialog: setting dialog to null");
-        }
-        this.dialog = dialog;
-    }
-
-    /**
-     * @return the dialog
-     */
-    public DialogExt getDialog() {
-        return dialog;
-    }
-
-    public Response getLastResponse() {
-        return this.lastResponse;
-    }
-
-    
-
-    public void sendBytes() {
-        try {
-            byte[] buffer = "ECHO_REQUEST".getBytes();
-            if ( remoteIpAddress == null || remotePort == 0 ) {
-                return;
-            }
-
-            logger.debug("sending packet " + packetSentCounter++ + " to " + this.remoteIpAddress
-                    + ":" + this.remotePort);
-            DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
-            InetAddress iaddr = InetAddress.getByName(this.remoteIpAddress);
-            datagramPacket.setAddress(iaddr);
-            datagramPacket.setPort(remotePort);
-
-            int currentCount = mediaListener.getPacketsReceived();
-
-            mediaListener.getMediaSocket().send(datagramPacket);
-
-            Thread.sleep(100);
-            if (mediaListener.getPacketsReceived() == currentCount ) {
-                logger.debug("No Echo RESPONSE seen.");
-            }
-
-        } catch (Exception ex) {
-            logger.error("Exception occured while sending bytes on " + this);
-            SipTester.fail("Unexpected exception sending bytes", ex);
-        }
-
-    }
-
-    public void setLastResponse(Response response) {
-        this.lastResponse = response;
-        this.localTag = ((SIPResponse)response).getFrom().getTag();
-        if ( this.remoteTag == null ) {
-            this.remoteTag = ((SIPResponse)response).getTo().getTag();
-        }
-        this.localParty = ((SIPResponse) response).getFrom().getAddress();
-        this.remoteParty = ((SIPResponse) response).getTo().getAddress();
-        
-        /*
-         * Actual tag assigned so put a pointer to this from the actual dialog id.
-         */
-        if ( this.remoteTag != null ) {
-            String dialogId = ((SIPResponse) response).getDialogId(false);
-            this.addDialogId(dialogId);
-        }
-        
-    
-       
-        if (response.getContentLength().getContentLength() != 0) {
-            SessionDescription sd = SipUtilities.getSessionDescription(response);
-            this.remoteIpAddress = SipTester.getMappedAddress(SipUtilities
-                    .getSessionDescriptionMediaIpAddress("audio", sd));
-            this.remotePort = SipUtilities.getSessionDescriptionMediaPort("audio", sd);
-            if ( this.mediaListener != null ) {
-                mediaListener.setRemoteIpAddress(remoteIpAddress);
-                mediaListener.setRemotePort(remotePort);
-            }
-        }
-
-    }
-
-    private void addDialogId(String dialogId) {
-        this.dialogIds.add(dialogId); 
-        if ( this.dialogIds.size() > 2) {
-            logger.error("last dialogId set at " + this.dialogIdSetAtStackTrace);
-            logger.error("Error occured at : " + SipUtilities.getStackTrace());
-            SipTester.fail("Internal inconsistency on dialog " + this);
-        }
-        this.dialogIdSetAtStackTrace = SipUtilities.getStackTrace();
-        
-    }
-
-    public void setLastRequestReceived(RequestExt request) {
-        this.lastRequestReceived = request;
-        boolean tagSet = false;
-        if (this.localTag == null)  {
-              this.localTag = request.getToHeader().getTag();
-              tagSet = true;
-        }
-        if ( this.remoteTag == null ) {
-            this.remoteTag = request.getFromHeader().getTag();
-            tagSet = true;
-        }
-        
-        if ( request.getFromHeader().getTag() != null && request.getToHeader().getTag() != null  && tagSet) {      
-            String dialogId = ((SIPRequest) request).getDialogId(true);
-           
-            this.addDialogId(dialogId);
-            logger.debug("dialogIds = " + this.dialogIds);
-        }
-        
-        
-        if (request.getContentLength().getContentLength() != 0) {
-            ContentTypeHeader cth = request.getContentTypeHeader();
-            if (cth.getContentType().equals("application")
-                    && cth.getContentSubType().equals("sdp")) {
-                SessionDescription sd = SipUtilities.getSessionDescription(request);
-                if (sd != null) {
-                    this.remoteIpAddress = SipTester.getMappedAddress(SipUtilities
-                            .getSessionDescriptionMediaIpAddress("audio", sd));
-                    this.remotePort = SipUtilities.getSessionDescriptionMediaPort("audio", sd);
-                    if ( mediaListener != null ) {
-                        mediaListener.setRemoteIpAddress(remoteIpAddress);
-                        mediaListener.setRemotePort(remotePort);
-                    }
-                }
-            }
-        }
-
-        
-        if (request.getMethod().equals(Request.ACK) && this.remoteIpAddress != null  && 
-                this.remotePort != 0) {
-			SipTester.timer.schedule(new TimerTask() {
-				@Override
-				public void run() {
-					sendBytes();
-				}
-			}, 100);
+		public PacketChecker(MediaListener mediaListener) {
+			System.out.println("Expect ECHO request @ "
+					+ SipDialog.this.endpoint.getIpAddress() + ":"
+					+ SipDialog.this.mediaListener.port);
+			this.mediaListener = mediaListener;
+			this.packets = mediaListener.packetsReceived;
 		}
 
-    }
+		@Override
+		public void run() {
+			if (mediaListener.packetsReceived == packets
+					&& !mediaListener.isLocalEndOnHold) {
+				System.out.println("Did not see expected packets @ "
+						+ mediaListener.ipAddress + ":" + mediaListener.port);
+			}
+		}
+	}
 
-    
-    
-    private void updateRequest(Request request) {
-        try {
-            FromHeader from = ((RequestExt) request).getFromHeader();
-            if (this.localTag != null) {
-                from.setTag(localTag);
-            } 
+	class MediaListener implements Runnable {
 
-            ToHeader to = ((RequestExt) request).getToHeader();
-            if (this.remoteTag != null) {
-                to.setTag(this.remoteTag);
-            }
-        } catch (ParseException ex) {
-            InternalErrorHandler.handleException(ex);
-        }
-    }
-    
-    public void setRequestToSend(Request request, boolean isSpiral) {
-        this.updateRequest(request);
-        if (request.getContentLength().getContentLength() != 0 && !isSpiral) {
-            ContentTypeHeader cth = ((RequestExt) request).getContentTypeHeader();
-            if (cth.getContentType().equals("application")
-                    && cth.getContentSubType().equals("sdp")) {
-                SessionDescription sessionDescription = SipUtilities
-                        .getSessionDescription(request);
+		byte[] buffer = new byte[1024];
+		boolean running = false;
+		private int packetsReceived;
+		private DatagramSocket mediaSocket;
+		private String ipAddress;
+		private int port;
+		private String remoteIpAddress;
+		private int remotePort;
+		public boolean isLocalEndOnHold;
 
-                String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress("audio",
-                        sessionDescription);
-                int port = SipUtilities.getSessionDescriptionMediaPort("audio",
-                        sessionDescription);
-                this.mediaListener = createMediaListener(ipAddress, port);
-                mediaListener.isLocalEndOnHold = SipUtilities.isHoldRequest(sessionDescription);
-                if (mediaListener != null && !mediaListener.isRunning()) {
-                    new Thread(mediaListener).start();
-                }
-               
-            } else {
-            	System.out.println("isSpiral");
-            }
-        }
-        if (request.getMethod().equals(Request.ACK) &&  mediaListener != null && !mediaListener.isLocalEndOnHold ) {
-            this.mediaListener.expectPacketIn(300);
-        } else if (request.getMethod().equals(Request.ACK)){
-           logger.debug("LocalEndOnHold");
-        }
+		public MediaListener(String ipAddress, int port) throws Exception {
+			logger.debug("MediaListener : listening at " + ipAddress + ":"
+					+ port);
+			InetAddress inetAddress = InetAddress.getByName(ipAddress);
+			this.ipAddress = ipAddress;
+			this.port = port;
+			this.remoteIpAddress = SipDialog.this.getRemoteIpAddress();
+			this.remotePort = SipDialog.this.getRemotePort();
+			mediaSocket = new DatagramSocket(port, inetAddress);
+		}
 
-        if ( mediaListener != null ) {
-        	logger.debug("setRequestToSend : " + this + " method = " + ((RequestExt) request).getMethod() + " isOnHold = " + mediaListener.isLocalEndOnHold);
-        }
-        this.lastRequestSent = request;
-    }
+		public DatagramSocket getMediaSocket() {
+			return mediaSocket;
+		}
 
-    public void setResponseToSend(ResponseExt response) {
-        this.lastResponseSent = response;
-        if ( response.getFromHeader().getTag() != null && response.getToHeader().getTag() != null ) {
-            this.localTag = response.getToHeader().getTag();
-            String dialogId = ((SIPResponse) response).getDialogId(true);
-            this.addDialogId(dialogId);
-        }
-        if (response.getCSeqHeader().getMethod().equals(Request.INVITE) && 
-                response.getContentLength().getContentLength() != 0) {
-            SessionDescription sessionDescription = SipUtilities.getSessionDescription(response);
-            String ipAddress = SipUtilities.getSessionDescriptionMediaIpAddress("audio",
-                    sessionDescription);
-            int port = SipUtilities.getSessionDescriptionMediaPort("audio", sessionDescription);
-            this.mediaListener = createMediaListener(ipAddress, port);
-            mediaListener.isLocalEndOnHold = SipUtilities.isHoldRequest(sessionDescription);
-            logger.debug("localEndOnHold " + mediaListener.isLocalEndOnHold);
+		public boolean isRunning() {
+			return running;
+		}
 
-            if (mediaListener != null && !mediaListener.isRunning()) {
-                new Thread(mediaListener).start();
-            }
-        }
-    }
+		@Override
+		public void run() {
+			running = true;
+			while (true) {
+				try {
+					DatagramPacket datagramPacket = new DatagramPacket(buffer,
+							buffer.length);
+					mediaSocket.receive(datagramPacket);
+					logger.debug("got packet " + packetReceivedCounter++);
+					if (isLocalEndOnHold) {
+						System.out
+								.println("Unexpected media packet received from "
+										+ datagramPacket.getAddress()
+										+ ":"
+										+ datagramPacket.getPort());
+						System.out.println("Packet seen at " + ipAddress + ":"
+								+ port);
+						System.out.println("Trace Endpoint "
+								+ SipDialog.this.endpoint.getTraceEndpoint()
+										.getTraceIpAddresses());
+						System.out.println("Last request received "
+								+ lastRequestReceived);
+						System.out.println("Last response sent "
+								+ lastResponseSent);
+						System.out.println("Last request sent "
+								+ lastRequestSent);
 
-    public void setPeerDialog(SipDialog sipDialog) {
-        this.peerDialog = sipDialog;
-    }
+						SipTester.fail("Unexpected packets seen");
+					} else {
+						this.packetsReceived++;
+						String command = new String(buffer);
+						System.out.println(command + " @ " + ipAddress + ":"
+								+ port);
+						if (command.startsWith("ECHO_REQUEST")) {
 
-    public Collection<String> getDialogIds() {
-        return this.dialogIds;
-    }
+							byte[] response = "ECHO_RESPONSE".getBytes();
+							DatagramPacket responsePacket = new DatagramPacket(
+									response, response.length);
+							InetAddress iaddr = InetAddress
+									.getByName(remoteIpAddress);
+							responsePacket.setAddress(iaddr);
+							responsePacket.setPort(remotePort);
+							logger.debug("sending packet "
+									+ packetSentCounter++ + " to "
+									+ remoteIpAddress + ":" + remotePort);
+							mediaSocket.send(responsePacket);
+
+						}
+					}
+				} catch (Exception ex) {
+					logger
+							.error("Exception occured while processing ECHO_REQUEST ");
+					logger.error("Exception sending packet to "
+							+ remoteIpAddress + ":" + remotePort, ex);
+					logger.error("LastResponse = " + lastResponse);
+					logger.error("LastRequest " + lastRequestReceived);
+					throw new SipTesterException(ex);
+				}
+			}
+
+		}
+
+		/**
+		 * @return the packetsReceived
+		 */
+		public int getPacketsReceived() {
+			return packetsReceived;
+		}
+
+		public void setRemoteIpAddress(String remoteIpAddress) {
+			if ( remoteIpAddress == null) throw new NullPointerException("Attempt to set null remoteIpAddress ");
+			this.remoteIpAddress = remoteIpAddress;
+		}
+
+		public void setRemotePort(int remotePort) {
+			this.remotePort = remotePort;
+		}
+
+		public void expectPacketIn(int miliseconds) {
+			SipTester.timer.schedule(new PacketChecker(this), miliseconds);
+		}
+
+	}
+
+	public SipDialog(String dialogId, EmulatedEndpoint endpoint) {
+		logger.debug("creating sipDialog " + dialogId);
+		this.dialogIds.add(dialogId);
+		this.endpoint = endpoint;
+
+	}
+
+	MediaListener createMediaListener(String ipAddress, int port) {
+		String key = ipAddress + ":" + port;
+		logger.debug("createMediaListener : " + this + " ipAddress:port = "
+				+ ipAddress + ":" + port);
+		try {
+			if (mediaListeners.containsKey(key)) {
+				this.mediaListener = mediaListeners.get(key);
+				return mediaListeners.get(key);
+			} else {
+				MediaListener mediaListener = new MediaListener(ipAddress, port);
+				mediaListeners.put(key, mediaListener);
+				this.mediaListener = mediaListener;
+				return mediaListener;
+			}
+
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			logger.error("Problem creating media listener", ex);
+			return null;
+		}
+	}
+
+	public void addSipClientTransaction(
+			SipClientTransaction sipClientTransaction) {
+		this.clientTransactions.add(sipClientTransaction);
+	}
+
+	public void addSipServerTransaction(
+			SipServerTransaction sipServerTransaction) {
+		this.serverTransactions.add(sipServerTransaction);
+		sipServerTransaction.setDialog(this);
+
+	}
+
+	/**
+	 * @param dialog
+	 *            the dialog to set
+	 */
+	public void setDialog(DialogExt dialog) {
+		if (dialog == null) {
+			logger.debug("setDialog: setting dialog to null");
+		}
+		this.dialog = dialog;
+	}
+
+	/**
+	 * @return the dialog
+	 */
+	public DialogExt getDialog() {
+		return dialog;
+	}
+
+	public Response getLastResponse() {
+		return this.lastResponse;
+	}
+
+	public void sendBytes() {
+		try {
+			byte[] buffer = "ECHO_REQUEST".getBytes();
+			if (getRemoteIpAddress() == null || getRemotePort() == 0 || mediaListener == null ) {
+				return;
+			}
+
+			logger.debug("sending packet " + packetSentCounter++ + " to "
+					+ this.getRemoteIpAddress() + ":" + this.getRemotePort());
+			DatagramPacket datagramPacket = new DatagramPacket(buffer,
+					buffer.length);
+			InetAddress iaddr = InetAddress.getByName(this.getRemoteIpAddress());
+			datagramPacket.setAddress(iaddr);
+			datagramPacket.setPort(getRemotePort());
+
+			int currentCount = mediaListener.getPacketsReceived();
+
+			mediaListener.getMediaSocket().send(datagramPacket);
+
+			Thread.sleep(100);
+			if (mediaListener.getPacketsReceived() == currentCount) {
+				logger.debug("No Echo RESPONSE seen.");
+			}
+
+		} catch (Exception ex) {
+			logger.error("Exception occured while sending bytes on " + this);
+			SipTester.fail("Unexpected exception sending bytes", ex);
+		}
+
+	}
+
+	synchronized public void setLastResponse(Response response) {
+		this.lastResponse = response;
+		this.localTag = ((SIPResponse) response).getFrom().getTag();
+		if (this.remoteTag == null) {
+			this.remoteTag = ((SIPResponse) response).getTo().getTag();
+		}
+		this.localParty = ((SIPResponse) response).getFrom().getAddress();
+		this.remoteParty = ((SIPResponse) response).getTo().getAddress();
+
+		/*
+		 * Actual tag assigned so put a pointer to this from the actual dialog
+		 * id.
+		 */
+		if (this.remoteTag != null) {
+			String dialogId = SipUtilities.getDialogId((MessageExt)response, false, this.endpoint.getTraceEndpoint().getBehavior());
+			//((SIPResponse) response).getDialogId(false);
+			this.addDialogId(dialogId);
+		}
+
+		if (response.getContentLength().getContentLength() != 0) {
+			SessionDescription sd = SipUtilities
+					.getSessionDescription(response);
+			this.setRemoteIpAddress(SipUtilities
+					.getSessionDescriptionMediaIpAddress("audio", sd));
+			this.setRemotePort(SipUtilities.getSessionDescriptionMediaPort(
+					"audio", sd));
+			if (this.mediaListener != null) {
+				mediaListener.setRemoteIpAddress(getRemoteIpAddress());
+				mediaListener.setRemotePort(getRemotePort());
+			}
+		}
+
+	}
+
+	private void addDialogId(String dialogId) {
+		this.dialogIds.add(dialogId);
+	    /* if (this.dialogIds.size() > 2) {
+			logger
+					.error("last dialogId set at "
+							+ this.dialogIdSetAtStackTrace);
+			logger.error("Error occured at : " + SipUtilities.getStackTrace());
+			SipTester.fail("Internal inconsistency on dialog " + this);
+		} */
+		this.dialogIdSetAtStackTrace = SipUtilities.getStackTrace();
+
+	}
+
+	synchronized public void setLastRequestReceived(RequestExt request) {
+		this.lastRequestReceived = request;
+		boolean tagSet = false;
+		if (this.localTag == null) {
+			this.localTag = request.getToHeader().getTag();
+			tagSet = true;
+		}
+		if (this.remoteTag == null) {
+			this.remoteTag = request.getFromHeader().getTag();
+			tagSet = true;
+		}
+
+		if (request.getFromHeader().getTag() != null
+				&& request.getToHeader().getTag() != null && tagSet) {
+			String dialogId = SipUtilities.getDialogId((RequestExt)request, true, this.endpoint.getTraceEndpoint().getBehavior()) ;
+			//((SIPRequest) request).getDialogId(true);
+
+			this.addDialogId(dialogId);
+			logger.debug("dialogIds = " + this.dialogIds);
+		}
+
+		if (request.getContentLength().getContentLength() != 0) {
+			ContentTypeHeader cth = request.getContentTypeHeader();
+			if (cth.getContentType().equals("application")
+					&& cth.getContentSubType().equals("sdp")) {
+				SessionDescription sd = SipUtilities
+						.getSessionDescription(request);
+				if (sd != null) {
+					this.setRemoteIpAddress(SipUtilities
+									.getSessionDescriptionMediaIpAddress(
+											"audio", sd));
+					this.setRemotePort(SipUtilities
+							.getSessionDescriptionMediaPort("audio", sd));
+					if (mediaListener != null) {
+						mediaListener.setRemoteIpAddress(getRemoteIpAddress());
+						mediaListener.setRemotePort(getRemotePort());
+					}
+				}
+			}
+		}
+
+		if (request.getMethod().equals(Request.ACK)) {
+			if (this.getRemoteIpAddress() != null &&
+				this.getRemotePort() != 0) {
+				SipTester.timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						sendBytes();
+					}
+				}, 100);
+			} else {
+				logger.debug("this.remoteIpAddress = " + this + " remoteIp/port = "
+						+ this.getRemoteIpAddress()
+						+ " remote port " 
+						+ this.getRemotePort() );
+			}
+		}
+
+	}
+
+	private void updateRequest(Request request) {
+		try {
+			FromHeader from = ((RequestExt) request).getFromHeader();
+			if (this.localTag != null) {
+				from.setTag(localTag);
+			}
+
+			ToHeader to = ((RequestExt) request).getToHeader();
+			if (this.remoteTag != null) {
+				to.setTag(this.remoteTag);
+			}
+		} catch (ParseException ex) {
+			InternalErrorHandler.handleException(ex);
+		}
+	}
+
+	public void setRequestToSend(Request request, boolean isSpiral) {
+		this.updateRequest(request);
+		if (request.getContentLength().getContentLength() != 0 && !isSpiral) {
+			ContentTypeHeader cth = ((RequestExt) request)
+					.getContentTypeHeader();
+			if (cth.getContentType().equals("application")
+					&& cth.getContentSubType().equals("sdp")) {
+				SessionDescription sessionDescription = SipUtilities
+						.getSessionDescription(request);
+
+				String ipAddress = SipUtilities
+						.getSessionDescriptionMediaIpAddress("audio",
+								sessionDescription);
+				int port = SipUtilities.getSessionDescriptionMediaPort("audio",
+						sessionDescription);
+				this.mediaListener = createMediaListener(ipAddress, port);
+				mediaListener.isLocalEndOnHold = SipUtilities
+						.isHoldRequest(sessionDescription);
+				if (mediaListener != null && !mediaListener.isRunning()) {
+					new Thread(mediaListener).start();
+				}
+
+			} else {
+				System.out.println("isSpiral");
+			}
+		}
+		if (request.getMethod().equals(Request.ACK) && mediaListener != null
+				&& !mediaListener.isLocalEndOnHold) {
+			this.mediaListener.expectPacketIn(300);
+		} else if (request.getMethod().equals(Request.ACK)) {
+			logger.debug("LocalEndOnHold");
+		}
+
+		if (mediaListener != null) {
+			logger.debug("setRequestToSend : " + this + " method = "
+					+ ((RequestExt) request).getMethod() + " isOnHold = "
+					+ mediaListener.isLocalEndOnHold);
+		}
+		this.lastRequestSent = request;
+	}
+
+	public void setResponseToSend(ResponseExt response) {
+		this.lastResponseSent = response;
+		if (response.getFromHeader().getTag() != null
+				&& response.getToHeader().getTag() != null) {
+			this.localTag = response.getToHeader().getTag();
+			String dialogId = SipUtilities.getDialogId((MessageExt)response, true, this.endpoint.getTraceEndpoint().getBehavior()); 
+			//((SIPResponse) response).getDialogId(true);
+			this.addDialogId(dialogId);
+		}
+		if (response.getCSeqHeader().getMethod().equals(Request.INVITE)
+				&& response.getContentLength().getContentLength() != 0) {
+			SessionDescription sessionDescription = SipUtilities
+					.getSessionDescription(response);
+			String ipAddress = SipUtilities
+					.getSessionDescriptionMediaIpAddress("audio",
+							sessionDescription);
+			int port = SipUtilities.getSessionDescriptionMediaPort("audio",
+					sessionDescription);
+			this.mediaListener = createMediaListener(ipAddress, port);
+			mediaListener.isLocalEndOnHold = SipUtilities
+					.isHoldRequest(sessionDescription);
+			logger.debug("localEndOnHold " + mediaListener.isLocalEndOnHold);
+
+			if (mediaListener != null && !mediaListener.isRunning()) {
+				new Thread(mediaListener).start();
+			}
+		}
+	}
+
+	public void setPeerDialog(SipDialog sipDialog) {
+		this.peerDialog = sipDialog;
+	}
+
+	public Collection<String> getDialogIds() {
+		return this.dialogIds;
+	}
+
+	public void setRemoteIpAddress(String remoteIpAddress) {
+	if ( remoteIpAddress == null ) throw new NullPointerException("Null remote IP address ");
+		this.remoteIpAddress = remoteIpAddress;
+	}
+
+	public String getRemoteIpAddress() {
+		return remoteIpAddress;
+	}
+
+	public void setRemotePort(int remotePort) {
+		logger.debug("setRemotePort " + this + " port = " + remotePort);
+		this.remotePort = remotePort;
+	}
+
+	public int getRemotePort() {
+		return remotePort;
+	}
 
 }
