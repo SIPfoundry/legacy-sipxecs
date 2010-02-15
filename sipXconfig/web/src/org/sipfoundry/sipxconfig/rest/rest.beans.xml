@@ -178,6 +178,7 @@
 
   <bean id="mailboxPrefsPutResource" class="org.sipfoundry.sipxconfig.rest.ActiveGreetingResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
     <property name="readable" value="true" />
     <property name="modifiable" value="true" />
   </bean>

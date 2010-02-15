@@ -10,23 +10,37 @@
 
 package org.sipfoundry.sipxconfig.vm;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
-import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
-
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.ACTIVE_GREETING;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.BUSY_PROMPT;
-import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.VOICEMAIL_TUI;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_HOST;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PASSWORD;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_PORT;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.IMAP_TLS;
 import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.PRIMARY_EMAIL_NOTIFICATION;
+import static org.sipfoundry.sipxconfig.vm.MailboxPreferences.VOICEMAIL_TUI;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import org.custommonkey.xmlunit.XMLTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.AttachType;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.MailFormat;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 
 public class MailboxPreferencesTest extends XMLTestCase {
+    private MailboxPreferencesWriter m_writer;
+
+    protected void setUp() {
+        m_writer = new MailboxPreferencesWriter();
+        m_writer.setVelocityEngine(TestHelper.getVelocityEngine());
+    }
+
     public void testGetValueOfById() {
         MailboxPreferences.ActiveGreeting actual = MailboxPreferences.ActiveGreeting.fromId("none");
         assertSame(MailboxPreferences.ActiveGreeting.NONE, actual);
@@ -98,5 +112,15 @@ public class MailboxPreferencesTest extends XMLTestCase {
         mailboxPrefs.updateUser(user);
         assertEquals(VoicemailTuiType.CALLPILOT.getValue(), user.getSettingValue(VOICEMAIL_TUI));
         assertEquals("false", user.getSettingValue(BUSY_PROMPT));
+    }
+
+    public void testWritePreferences() throws Exception {
+        StringWriter actual = new StringWriter();
+        MailboxPreferences prefs = new MailboxPreferences();
+        prefs.setActiveGreeting(ActiveGreeting.EXTENDED_ABSENCE);
+
+        m_writer.writeObject(prefs, actual);
+        InputStream expectedIn = getClass().getResourceAsStream("expected-mailboxprefs.xml");
+        assertXMLEqual(new InputStreamReader(expectedIn), new StringReader(actual.toString()));
     }
 }

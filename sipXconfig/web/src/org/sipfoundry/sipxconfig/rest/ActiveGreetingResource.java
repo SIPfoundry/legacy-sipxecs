@@ -21,6 +21,7 @@ import org.restlet.resource.StringRepresentation;
 import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences.ActiveGreeting;
 import static org.restlet.data.MediaType.TEXT_PLAIN;
@@ -29,6 +30,7 @@ import static org.restlet.data.MediaType.TEXT_XML;
 public class ActiveGreetingResource extends Resource {
     private CoreContext m_coreContext;
     private String m_userName;
+    private MailboxManager m_mboxManager;
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -56,6 +58,8 @@ public class ActiveGreetingResource extends Resource {
         // string
         user.setSettingValue(MailboxPreferences.ACTIVE_GREETING, ActiveGreeting.fromId(greeting).getId());
         m_coreContext.saveUser(user);
+        //write user's mailboxprefs.xml to get consistent data
+        m_mboxManager.writePreferencesFile(user);
     }
 
     private Document getDom(String greeting) {
@@ -74,4 +78,11 @@ public class ActiveGreetingResource extends Resource {
         m_coreContext = coreContext;
     }
 
+    public MailboxManager getMailboxManager() {
+        return m_mboxManager;
+    }
+
+    public void setMailboxManager(MailboxManager mboxManager) {
+        m_mboxManager = mboxManager;
+    }
 }

@@ -27,8 +27,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
 import org.easymock.classextension.EasyMock;
 import org.restlet.data.Request;
 import org.restlet.resource.Representation;
@@ -39,10 +37,12 @@ import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class ActiveGreetingResourceTest extends TestCase {
     private User m_user;
     private CoreContext m_coreContext;
+    private MailboxManager m_mboxManager;
     private PermissionManager m_pManager;
     private ActiveGreetingResource m_resource;
 
@@ -77,7 +77,14 @@ public class ActiveGreetingResourceTest extends TestCase {
         m_coreContext.loadUserByUserName(m_user.getUserName());
         expectLastCall().andReturn(m_user);
         EasyMock.replay(m_coreContext);
+
+        m_mboxManager = EasyMock.createMock(MailboxManager.class);
+        m_mboxManager.writePreferencesFile(m_user);
+        expectLastCall().anyTimes();
+        EasyMock.replay(m_mboxManager);
+
         m_resource.setCoreContext(m_coreContext);
+        m_resource.setMailboxManager(m_mboxManager);
     }
 
     public void testRepresentXml() throws Exception {

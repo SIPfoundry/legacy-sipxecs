@@ -9,14 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.site.vm;
 
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
+import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
 public abstract class MailboxPreferencesPage extends UserBasePage {
     public static final String PAGE = "vm/MailboxPreferencesPage";
+
+    @InjectObject(value = "spring:mailboxManager")
+    public abstract MailboxManager getMailboxManager();
 
     @Persist
     public abstract boolean isAdvanced();
@@ -44,5 +49,9 @@ public abstract class MailboxPreferencesPage extends UserBasePage {
         User user = getEditedUser();
         getMailboxPreferences().updateUser(user);
         getCoreContext().saveUser(user);
+        MailboxManager mmgr = getMailboxManager();
+        if (mmgr.isEnabled()) {
+            getMailboxManager().writePreferencesFile(user);
+        }
     }
 }

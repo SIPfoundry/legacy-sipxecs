@@ -9,12 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createStrictMock;
+import static org.easymock.classextension.EasyMock.replay;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -26,10 +31,6 @@ import org.sipfoundry.sipxconfig.vm.Mailbox;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.Voicemail;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.classextension.EasyMock.createStrictMock;
-import static org.easymock.classextension.EasyMock.replay;
 
 public class PersonalAttendantSettingListenerTest extends TestCase {
 
@@ -199,6 +200,9 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             PersonalAttendant pa = loadPersonalAttendantForUser(user);
             pa.setOperator(operatorValue);
             storePersonalAttendant(pa);
+        }
+
+        public void writePreferencesFile(User user) {
         }
     }
 }

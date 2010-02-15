@@ -44,7 +44,6 @@ public abstract class EditMyInformation extends UserBasePage {
 
     public abstract void setCurrentRow(Conference currentRow);
 
-
     public abstract User getUserForEditing();
 
     public abstract void setUserForEditing(User user);
@@ -75,6 +74,7 @@ public abstract class EditMyInformation extends UserBasePage {
     public abstract void setActionBlockForConferencesTab(Block b);
 
     public abstract Setting getImNotificationSettings();
+
     public abstract void setImNotificationSettings(Setting paSetting);
 
     public void save() {
@@ -85,6 +85,10 @@ public abstract class EditMyInformation extends UserBasePage {
         getCoreContext().saveUser(user);
 
         savePersonalAttendant(user);
+        MailboxManager mailMgr = getMailboxManager();
+        if (mailMgr.isEnabled()) {
+            mailMgr.writePreferencesFile(user);
+        }
     }
 
     private void savePersonalAttendant(User user) {

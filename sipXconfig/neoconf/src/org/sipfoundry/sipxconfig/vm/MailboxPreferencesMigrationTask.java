@@ -49,6 +49,7 @@ public class MailboxPreferencesMigrationTask extends InitTaskListener {
                 }
                 preferences.updateUser(user);
                 m_coreContext.saveUser(user);
+                m_mailboxManager.writePreferencesFile(user);
                 LOG.debug("Saved preferences for user: " + user.getUserName());
             }
         };

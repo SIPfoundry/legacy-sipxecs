@@ -17,6 +17,11 @@
         <property name="coreContext" ref="coreContext" />
       </bean>
     </property>
+    <property name="mailboxPreferencesWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
+        <property name="velocityEngine" ref="velocityEngine" />
+      </bean>
+    </property>
     <property name="coreContext" ref="coreContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager"/>

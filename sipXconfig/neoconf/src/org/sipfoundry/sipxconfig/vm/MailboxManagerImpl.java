@@ -47,6 +47,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private DistributionListsReader m_distributionListsReader;
     private DistributionListsWriter m_distributionListsWriter;
     private PersonalAttendantWriter m_personalAttendantWriter;
+    private MailboxPreferencesWriter m_mailboxPreferencesWriter;
     private CoreContext m_coreContext;
     private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
@@ -307,5 +308,15 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         PersonalAttendant pa = loadPersonalAttendantForUser(user);
         pa.setOperator(operatorValue);
         storePersonalAttendant(pa);
+    }
+
+    public void writePreferencesFile(User user) {
+        Mailbox mailbox = getMailbox(user.getUserName());
+        File file = mailbox.getVoicemailPreferencesFile();
+        m_mailboxPreferencesWriter.writeObject(new MailboxPreferences(user), file);
+    }
+
+    public void setMailboxPreferencesWriter(MailboxPreferencesWriter mailboxWriter) {
+        m_mailboxPreferencesWriter = mailboxWriter;
     }
 }
