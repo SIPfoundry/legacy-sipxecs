@@ -241,12 +241,7 @@ fieldset#loginForm legend {
 
 #navigation
 {       
-	border-style: solid none solid none;
-	border-width: 1px;
-	float: left;
-	width: 100%;
-	margin: 0;
-	padding: 0;
+
 }
 
 #navigation ul,
@@ -254,39 +249,47 @@ fieldset#loginForm legend {
 {
 	margin: 0;
 	padding: 0;
+	display:inline-block;
 }
 
 #navigation li {
 	float: left;
 	position: relative;
-	width: 13em;
+	min-width:115px;
 	text-align:center;
 	margin: 0;
-	padding: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 0;
+	padding-right:2px;
+}
+
+#navigation li li {
+    	margin-left:-1px;
+    	min-width:113px;
+    	padding-right:0px;
 }
 
 #navigation li ul {
 	display: none;
 	position: absolute;
+	border-bottom:1px solid #bebebe;
 }
 
 #navigation li:hover ul,
 #navigation li.over ul { 
 	display: block; 
-    z-index: 500;
+    	z-index: 500;
 }
 
 #navigation a {
 	display: block;
 	text-decoration: none;
-	padding: 5px 0;
-	border-width: 0 1px 0 0;
-	border-style: solid;
+	padding: 2px 0;
 }
 
 #navigation li li a {
-    border-style: none none solid none;
-    border-width: 0 0 1px 0;
+
 }
 
 #contentContainer {
@@ -820,6 +823,9 @@ html, body {
 	margin-right:1px;
 	font-size:12pt;
 }
-div.adminPortal {
-	padding-left:235px;	
+
+div.adminPortal,
+div.userPortal
+{
+	text-align:center;
 }

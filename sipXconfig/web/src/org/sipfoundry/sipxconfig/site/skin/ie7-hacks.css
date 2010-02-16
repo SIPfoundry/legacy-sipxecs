@@ -1,6 +1,10 @@
 #navigation li ul {
-	top: 2em;
+	/*top: 2em;*/
 	left: 0em;
+}
+
+#navigation li  {
+	width:115px; 
 }
 
 #navigation  ul li {
@@ -20,4 +24,10 @@ table.component .errorColumnValue
 
 #contentContainer #leftNav {
    float: left; width:15%;
+}
+div.adminPortal,
+div.userPortal,
+{
+	padding-left:235px;
+	text-align:center;
 }

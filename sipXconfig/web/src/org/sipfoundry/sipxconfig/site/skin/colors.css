@@ -105,17 +105,19 @@ li.tab .active a:visited
 
 #navigation
 {
-	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
-	border-color: #000000;
+	
 }
 
 #navigation li
 {
-	background: url(/sipxconfig/skin/nav-background.png) top left repeat-x #595959;
+	
 }
 
 #navigation li li {
-    background: #595959;
+    	background: #ffffff;
+    	border-left:1px solid #bebebe;
+    	border-right:1px solid #bebebe;
+	border-top:1px solid #bebebe;
 }
 
 #navigation li li a {
@@ -127,15 +129,20 @@ li.tab .active a:visited
 {
 	font-weight: bold;
 	font-family: Arial, Verdana, sans-serif;
-	color: #FFFFFF;
-	border-color: #000000;
+	color: #000000;
 }
 
 #navigation a:hover,
 #navigation a.over
 {
 	color: #003333;
-	background: #999999;
+	background: #E7EEF8;
+}
+
+#navigation A.heading:hover,
+#navigation A.heading.over
+{
+	background:none;
 }
 
 #contentContainer {
