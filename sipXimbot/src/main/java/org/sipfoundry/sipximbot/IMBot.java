@@ -140,7 +140,7 @@ public class IMBot {
                     LOG.error("Could not login to XMPP server " + e.getMessage());     
                 }
                 try {
-                    sleep(5000);
+                    sleep(10000);
                 } catch (InterruptedException e) {
                     return false;
                 }
