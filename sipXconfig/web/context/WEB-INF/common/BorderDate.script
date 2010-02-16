@@ -3,27 +3,24 @@
 	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
 	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
 <script>
+
+<input-symbol key="date" class="java.lang.String" required="yes"/>
+
 <body>
 <![CDATA[
-dojo.require("dojo.io.*");
+var currentDate = new Date("${date}");
+var interval=60000;
 
-var currentDate;
-
-function initDate(){
+function updateDate(){
 	targetNode = dojo.byId("dateComponent");
-	currentDate = new Date(targetNode.innerHTML);
-	updateDate(0); //we format the date to be consistent displayed with subsequent updates
-}
-function updateDate(interval){
+	targetNode.innerHTML = currentDate.toUTCString();
 	currentDate.setMilliseconds(currentDate.getMilliseconds()+interval);
-	targetNode = dojo.byId("dateComponent");
-	targetNode.innerHTML = currentDate.toLocaleString();
-	setTimeout('updateDate(60000)', 60000);
+	setTimeout('updateDate()', interval);
 }
 
 ]]>
 </body>
 <initialization>
-	initDate();
+	updateDate();
 </initialization>
 </script>

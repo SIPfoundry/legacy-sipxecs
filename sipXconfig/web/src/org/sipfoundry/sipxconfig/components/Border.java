@@ -128,6 +128,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         }
     }
 
+    public String getDate() {
+        DateFormat dateFormat = DateFormat.getDateTimeInstance();
+        return dateFormat.format(new Date());
+    }
+
     // FIXME: change to search by name - it's kept in the hashmap by name
     private Block searchForNavigationBlock(Collection<IComponent> components) {
         for (IComponent value : components) {
@@ -224,11 +229,5 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             return productTitle;
         }
         return String.format("%s::%s", productTitle, pageTitle);
-    }
-
-    public String getDate() {
-        DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.DEFAULT,
-                DateFormat.SHORT, getPage().getLocale());
-        return dateFormat.format(new Date());
     }
 }

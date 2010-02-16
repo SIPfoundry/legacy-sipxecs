@@ -10,7 +10,7 @@
  		<!-- BEGIN:bodyContentContainer -->
   	<div id="bodyContentContainer">
 			<div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
-				<span jwcid="@Script" scriptAsset="asset:borderDateScript"/>
+				<span jwcid="@Script" scriptAsset="asset:borderDateScript" date="ognl:date"/>
 				<div id="banner">
 					<div id="logo">&nbsp;</div>
 					<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
@@ -24,7 +24,7 @@
 								</span>
 								<span class="bannerLinkDivider">&nbsp;</span>
 							</span>
-							<div jwcid="dateComponent@Insert" value="ognl:date" renderTag="true" class="date" />
+							<div jwcid="dateComponent@Any" renderTag="true" class="date" />
 							<span class="bannerLinkDivider">&nbsp;</span>
 							<span class="linkHome">
 								<a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
