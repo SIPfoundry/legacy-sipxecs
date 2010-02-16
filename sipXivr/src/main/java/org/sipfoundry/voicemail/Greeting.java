@@ -170,6 +170,20 @@ public class Greeting {
             }
             // Please leave a message.
             pl.addFragment("greeting_please_leave_message");
+            
+            boolean isCPUI;
+            // Check if the UI beingused is the CallPilot UI
+            if(m_vm.isDeposit()) {
+                isCPUI = m_vm.usingCpUi(null);
+            } else { 
+                isCPUI = m_vm.usingCpUi(m_mailbox.getUser());
+            }
+            
+            if(!isCPUI) {
+                // When you are finished, press1 for more options, To reach the operator,
+                // dial 0 at anytime
+                pl.addFragment("VoiceMail_options");
+            }
 
         }
         return pl ;
