@@ -1,7 +1,7 @@
 #!/bin/sh
 
 OPERATION="ZoneAdmin"
-source /usr/bin/sipx-archive-common
+source @SIPX_BINDIR@/sipx-archive-common
 
 # Look for the INTERACTIVE flag first, before processing any other command-line arguments.
 INTERACTIVE="yes"
@@ -11,8 +11,8 @@ do
     -n|--non-interactive)
       INTERACTIVE="no"
       # Re-direct stderr and stdout to a log file.
-      rm -rf /var/log/sipxpbx/sipx-zoneadmin.log
-      exec 3<>/var/log/sipxpbx/sipx-zoneadmin.log
+      rm -rf @SIPX_LOGDIR@/sipx-zoneadmin.log
+      exec 3<>@SIPX_LOGDIR@/sipx-zoneadmin.log
       exec 2>&3
       exec 1>&3
       ;;
