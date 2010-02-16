@@ -175,7 +175,7 @@
       <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
          <shorttitle>SipXproxy ran out of resources for NAT traversal. </shorttitle>
          <description>SipXproxy could not allocate the Media Relay Session required for a call likely resulting in speech path issues.</description>
-         <resolution>Not enough RTP ports are allocated to the Media Relay.  Increase the RTP port range allocated to the Media Relay using sipXconifg (under System->Servers->(click on server)->NAT->Show Advanced Settings).</resolution>
+         <resolution>Not enough RTP ports are allocated to the Media Relay.  Increase the RTP port range allocated to the Media Relay using sipXconfig (under System->Servers->(click on server)->NAT->Show Advanced Settings).</resolution>
       </alarm>
       <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
          <shorttitle>An ITSP is missing required configuration parameters</shorttitle>
