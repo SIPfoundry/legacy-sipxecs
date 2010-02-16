@@ -10,6 +10,7 @@
 # PATH.
 PATH=$PATH:/sbin
 
+Debug=NODEBUG
 Action=SNAPSHOT
 DoWebFiles=YES
 SaveSecrets=NO
@@ -60,6 +61,11 @@ Arguments="$*"
 while [ $# -ne 0 ]
 do
     case ${1} in
+
+        --debug)
+            Debug=DEBUG
+            exit;
+            ;;
 
         -v|--version)
             echo @VERSION@
@@ -233,7 +239,10 @@ done
 # data, place it in a recognized temporary location.
 # (mktemp generates a unique name in $TMPDIR, or if that is not set, /tmp.)
 Work=`mktemp -d -t sipx-snapshot.XXXXXX`
-echo "Work directory is ${Work}"
+if [ ${Debug} = DEBUG ]
+then
+    echo "Work directory is ${Work}"
+fi
 
 # Arrange to capture any error output.
 # At the bottom of this script, we will echo this file to the current stderr.
@@ -460,6 +469,10 @@ cat > $Work.copy-files <<EOF
 /etc/yum.repos.d
 EOF
 
+openfireLogs () {
+    ( ls -1 @SIPX_LOGDIR@/openfire/*.log | grep -v _ ) 2> /dev/null
+}
+
 # Add the requested log files
 case ${Logs} in
     none)
@@ -477,7 +490,7 @@ case ${Logs} in
 
         # Place extract.log at the top level of the tar file.
         CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-        for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log
+        for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs)
         do
             # Start cutting at the base log.
             if cutIfTimestamps "${base_log}"
@@ -521,7 +534,7 @@ case ${Logs} in
         done
         ;;
     current)
-        for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log
+        for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs)
         do
           echo $log >> $Work.copy-files
         done
@@ -530,6 +543,7 @@ case ${Logs} in
         if ! ls -1 \
              @SIPX_LOGDIR@/*log.${Logs}{,.gz} \
              @SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
+             $(openfireLogs) \
              2>/dev/null \
              | grep '.' \
              >> $Work.copy-files
@@ -539,7 +553,7 @@ case ${Logs} in
         fi
         ;;
     all)
-        for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.*
+        for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log
         do
           echo $log >> $Work.copy-files
         done
