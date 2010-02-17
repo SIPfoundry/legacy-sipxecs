@@ -18,6 +18,8 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.Alignment;
@@ -921,10 +923,11 @@ public class UserPhonebookSearch implements EntryPoint {
                 public void onClick(ClickEvent event) {
                     String email = gmailForm.getValueAsString(GMAIL_FIELD_NAME);
                     String pass = gmailForm.getValueAsString(PASSWORD_FIELD_NAME);
-                    String url = "/sipxconfig/rest/my/phonebook/googleImport?account=" + email + "&password=" + pass;
+                    String url = "/sipxconfig/rest/my/phonebook/googleImport";
                     RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, url);
+                    reqBuilder.setHeader("Content-Type", "application/json");
                     try {
-                        reqBuilder.sendRequest(null, new RequestCallback() {
+                        reqBuilder.sendRequest(createPostData(email, pass), new RequestCallback() {
 
                             @Override
                             public void onResponseReceived(Request request, Response response) {
@@ -960,5 +963,13 @@ public class UserPhonebookSearch implements EntryPoint {
                     importFromGmail);
         }
 
+        private String createPostData(String account, String password) {
+            JSONObject values = new JSONObject();
+            values.put("account", new JSONString(account));
+            values.put("password", new JSONString(password));
+            JSONObject credentials = new JSONObject();
+            credentials.put("credentials", values);
+            return credentials.toString();
+        }
     }
 }

@@ -94,6 +94,19 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
+        if (!books.isEmpty()) {
+            Collection<Phonebook> privatePhonebooks = new ArrayList<Phonebook>();
+            for (Phonebook book : books) {
+                if (book.getUser() != null) {
+                    privatePhonebooks.add(book);
+                }
+            }
+            if (!privatePhonebooks.isEmpty()) {
+                // remove private phone books
+                books.removeAll(privatePhonebooks);
+            }
+        }
+
         return books;
     }
 
@@ -202,7 +215,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Phonebook phonebook = getPrivatePhonebook(user);
         if (null == phonebook) {
             phonebook = new Phonebook();
-            phonebook.setName("privatePhonebook_" + user.getUserName());
+            phonebook.setName("privatePhonebook_" + user.getId());
             phonebook.setUser(user);
             savePhonebook(phonebook);
         }

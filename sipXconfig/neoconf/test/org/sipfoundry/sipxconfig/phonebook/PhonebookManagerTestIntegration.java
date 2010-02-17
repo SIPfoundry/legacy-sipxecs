@@ -203,11 +203,27 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testDeletePrivatePhonebook() throws Exception {
         loadDataSet("phonebook/PhonebookSeed.db.xml");
-        assertEquals(4, m_phonebookManager.getPhonebooks().size());
+        // should not return private phonebooks - set back to 4 when supported
+        assertEquals(2, m_phonebookManager.getPhonebooks().size());
 
         User portaluser = m_coreContext.loadUser(1002);
+        Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(portaluser);
+        assertEquals("privatePhonebook_1002", privatePhonebook.getName());
         m_coreContext.deleteUser(portaluser);
-        assertEquals(3, m_phonebookManager.getPhonebooks().size());
+
+        assertNull(m_phonebookManager.getPrivatePhonebook(portaluser));
+    }
+
+    public void testGetPrivatePhonebookCreateIfRequired() throws Exception {
+        loadDataSet("phonebook/PhonebookSeed.db.xml");
+        // should not return private phonebooks - set back to 3 when supported
+        User portaluser = m_coreContext.loadUser(1002);
+        Phonebook portalUserPrivatePhonebook = m_phonebookManager.getPrivatePhonebookCreateIfRequired(portaluser);
+        assertEquals("privatePhonebook_1002", portalUserPrivatePhonebook.getName());
+
+        User yellowthroat = m_coreContext.loadUser(1001);
+        Phonebook yellowthroatPrivatePhonebook = m_phonebookManager.getPrivatePhonebookCreateIfRequired(yellowthroat);
+        assertEquals("privatePhonebook_1001", yellowthroatPrivatePhonebook.getName());
     }
 
     public void testGetPagedPhonebook() throws Exception {
