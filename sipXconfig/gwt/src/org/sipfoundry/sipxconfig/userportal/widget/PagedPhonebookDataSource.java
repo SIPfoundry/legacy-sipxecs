@@ -13,20 +13,34 @@ import com.smartgwt.client.data.DSResponse;
 import com.smartgwt.client.data.XMLTools;
 import com.smartgwt.client.types.DSOperationType;
 
-public class PagedPhonebookDataSource extends PhonebookDataSource {
+public abstract class PagedPhonebookDataSource extends PhonebookDataSource {
+
+    public static final int PAGE_SIZE = 500;
+    private int m_pageNumber;
 
     public PagedPhonebookDataSource(String id) {
         super(id);
         setRecordXPath("/phonebook/entries/entry");
         setDataURL("/sipxconfig/rest/my/pagedphonebook");
+        setPageNumber(1);
+    }
+
+    public void setPageNumber(int pageNumber) {
+        m_pageNumber = pageNumber;
+    }
+
+    public int getPageNumber() {
+        return m_pageNumber;
     }
 
     @Override
     protected Object transformRequest(DSRequest request) {
 
         if (request.getOperationType().equals(DSOperationType.FETCH)) {
-            request.setActionURL(getDataURL() + "?start=" + request.getStartRow() + "&end=" + request.getEndRow()
-                    + "&filter=" + request.getCriteria().getAttributeAsString(QUERY));
+            String startRow = String.valueOf((PAGE_SIZE * getPageNumber()) - PAGE_SIZE);
+            String endRow = String.valueOf(PAGE_SIZE * getPageNumber());
+            request.setActionURL(getDataURL() + "?start=" + startRow + "&end=" + endRow
+                    + "&filter=");
         }
 
         return super.transformRequest(request);
@@ -34,24 +48,13 @@ public class PagedPhonebookDataSource extends PhonebookDataSource {
 
     @Override
     protected void transformResponse(DSResponse response, DSRequest request, Object data) {
-
         if (request.getOperationType().equals(DSOperationType.FETCH)) {
             Integer size = Integer.parseInt(XMLTools.selectString(data, "/phonebook/size"));
-            Integer filteredSize = Integer.parseInt(XMLTools.selectString(data, "/phonebook/filtered-size"));
-            Integer startRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/start-row"));
-            Integer endRow = Integer.parseInt(XMLTools.selectString(data, "/phonebook/end-row"));
-
-            response.setTotalRows(filteredSize);
-            response.setStartRow(startRow);
-            response.setEndRow(endRow);
-            onDataFetch(size, filteredSize);
+            onDataFetch(size);
         } else {
             super.transformResponse(response, request, data);
         }
-
     }
 
-    protected void onDataFetch(Integer size, Integer filteredSize) {
-
-    }
+    protected abstract void onDataFetch(Integer size);
 }

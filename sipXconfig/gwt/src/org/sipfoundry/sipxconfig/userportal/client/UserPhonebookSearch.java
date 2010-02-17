@@ -19,9 +19,9 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.user.client.Timer;
-import com.smartgwt.client.data.Criteria;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.Alignment;
+import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
 import com.smartgwt.client.types.Visibility;
@@ -77,13 +77,13 @@ public class UserPhonebookSearch implements EntryPoint {
 
     @Override
     public void onModuleLoad() {
-        final SizeLabel sizeLabel = new SizeLabel();
-        sizeLabel.setWidth100();
+
+        final PageBrowseLayout pageBrowseLayout = new PageBrowseLayout();
 
         final DataSource phonebookDS = new PagedPhonebookDataSource("phonebookGridId") {
             @Override
-            protected void onDataFetch(Integer totalRows, Integer filteredRows) {
-                sizeLabel.update(totalRows, filteredRows);
+            protected void onDataFetch(Integer size) {
+                pageBrowseLayout.update(size, this);
             }
         };
 
@@ -102,8 +102,10 @@ public class UserPhonebookSearch implements EntryPoint {
             }
         });
 
-        SearchForm searchForm = new SearchForm(phonebookDS);
+        final SearchForm searchForm = new SearchForm(phonebookDS);
         searchForm.addHandler(phonebookGrid);
+
+        pageBrowseLayout.setup(phonebookGrid, phonebookDS, searchForm);
 
         IButton gmailImport = new IButton(s_searchConstants.gmailImportTitle());
         gmailImport.addClickHandler(new ClickHandler() {
@@ -124,7 +126,6 @@ public class UserPhonebookSearch implements EntryPoint {
 
         HLayout leftHLayout = new HLayout();
         leftHLayout.addMember(searchForm);
-        leftHLayout.addMember(sizeLabel);
         leftHLayout.setWidth("50%");
 
         HLayout rightHLayout = new HLayout();
@@ -142,6 +143,7 @@ public class UserPhonebookSearch implements EntryPoint {
         layout.setMargin(5);
         layout.addMember(topHLayout);
         layout.addMember(phonebookGrid);
+        layout.addMember(pageBrowseLayout);
         entriesTab.setPane(layout);
 
         Tab newContactTab = new Tab(s_searchConstants.addNewContact());
@@ -152,6 +154,59 @@ public class UserPhonebookSearch implements EntryPoint {
 
         tabSet.draw();
 
+    }
+
+    private static class PageBrowseLayout extends HLayout {
+
+        private final IButton m_nextPage = new IButton(s_searchConstants.nextPage());
+        private final IButton m_previousPage = new IButton(s_searchConstants.previousPage());
+
+        public PageBrowseLayout() {
+            m_nextPage.setDisabled(true);
+            m_previousPage.setDisabled(true);
+
+            addMember(m_previousPage);
+            addMember(m_nextPage);
+        }
+
+        public void setup(final PhonebookGrid phonebookGrid, final DataSource phonebookDS,
+                final SearchForm searchForm) {
+
+            m_nextPage.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (phonebookDS instanceof PagedPhonebookDataSource) {
+                        PagedPhonebookDataSource pagedPhonebookDS = (PagedPhonebookDataSource) phonebookDS;
+                        pagedPhonebookDS.setPageNumber(pagedPhonebookDS.getPageNumber() + 1);
+                        searchForm.clearValues();
+                        phonebookGrid.refreshPhonebook();
+                    }
+                }
+            });
+
+            m_previousPage.addClickHandler(new ClickHandler() {
+                @Override
+                public void onClick(ClickEvent event) {
+                    if (phonebookDS instanceof PagedPhonebookDataSource) {
+                        PagedPhonebookDataSource pagedPhonebookDS = (PagedPhonebookDataSource) phonebookDS;
+                        pagedPhonebookDS.setPageNumber(pagedPhonebookDS.getPageNumber() - 1);
+                        searchForm.clearValues();
+                        phonebookGrid.refreshPhonebook();
+                    }
+                }
+            });
+        }
+
+        public void update(Integer size, DataSource phonebookDS) {
+
+            if (phonebookDS instanceof PagedPhonebookDataSource) {
+                PagedPhonebookDataSource pagedPhonebookDS = (PagedPhonebookDataSource) phonebookDS;
+                int currentPageNum = pagedPhonebookDS.getPageNumber();
+
+                m_nextPage.setDisabled(size <= PagedPhonebookDataSource.PAGE_SIZE * currentPageNum);
+                m_previousPage.setDisabled(1 == currentPageNum);
+            }
+        }
     }
 
     private static class PhonebookGrid extends ListGrid {
@@ -182,7 +237,6 @@ public class UserPhonebookSearch implements EntryPoint {
             setAlternateRecordStyles(true);
             setDataSource(phonebookDS);
             setAutoFetchData(true);
-            setDataPageSize(100);
 
             setCellHeight(25);
             setHeaderHeight(35);
@@ -201,10 +255,17 @@ public class UserPhonebookSearch implements EntryPoint {
                 m_expandedRecord = record;
                 m_expandedRecordIndex = recordIndex;
             } else {
-                m_expandedRecord = null;
-                m_expandedRecordIndex = Integer.valueOf(DUMMY_ID);
+                resetExpandedRowIndex();
             }
             this.scrollToRow(recordIndex);
+        }
+
+        public void refreshPhonebook() {
+            if (null != m_expandedRecord) {
+                collapseRecord(m_expandedRecord);
+            }
+            resetExpandedRowIndex();
+            invalidateCache();
         }
 
         public void refreshRecordsWithDelay() {
@@ -213,8 +274,7 @@ public class UserPhonebookSearch implements EntryPoint {
             Timer refreshTimer = new Timer() {
                 @Override
                 public void run() {
-                    setRecords(new ListGridRecord[0]);
-                    fetchData();
+                    refreshPhonebook();
                     setOpacity(null);
                 }
             };
@@ -225,34 +285,64 @@ public class UserPhonebookSearch implements EntryPoint {
         protected Canvas getExpansionComponent(final ListGridRecord record) {
             return new ExpandedContactComponent(this);
         }
+
+        private void resetExpandedRowIndex() {
+            m_expandedRecord = null;
+            m_expandedRecordIndex = Integer.valueOf(DUMMY_ID);
+        }
     }
 
     private static class SearchForm extends DynamicForm {
-        private final TextItem m_query;
+        private final TextItem m_firstName;
+        private final TextItem m_lastName;
+        private final TextItem m_number;
+        private final TextItem m_email;
 
         public SearchForm(DataSource phonebookDS) {
-            m_query = new TextItem();
-            m_query.setTitle(s_searchConstants.searchWidgetTitle());
+            m_firstName = new TextItem();
+            m_firstName.setCriteriaField(PhonebookDataSource.FIRST_NAME);
+            m_firstName.setOperator(OperatorId.ISTARTS_WITH);
+            m_firstName.setTitle(s_searchConstants.searchWidgetTitle());
 
-            setFields(m_query);
+            m_lastName = new TextItem();
+            m_lastName.setCriteriaField(PhonebookDataSource.LAST_NAME);
+            m_lastName.setOperator(OperatorId.ISTARTS_WITH);
+            m_lastName.setVisible(false);
+
+            m_number = new TextItem();
+            m_number.setCriteriaField(PhonebookDataSource.NUMBER);
+            m_number.setOperator(OperatorId.ISTARTS_WITH);
+            m_number.setVisible(false);
+
+            m_email = new TextItem();
+            m_email.setCriteriaField(PhonebookDataSource.EMAIL_ADDRESS);
+            m_email.setOperator(OperatorId.ISTARTS_WITH);
+            m_email.setVisible(false);
+
+            setFields(m_firstName, m_lastName, m_number, m_email);
+            setDataSource(phonebookDS);
+            setOperator(OperatorId.OR);
         }
 
         void addHandler(final ListGrid phonebookGrid) {
             ChangedHandler onChange = new ChangedHandler() {
                 @Override
                 public void onChanged(ChangedEvent event) {
-                    phonebookGrid.invalidateCache();
-                    if (m_query.getValue() != null) {
-                        phonebookGrid
-                                .filterData(new Criteria(PhonebookDataSource.QUERY, (String) m_query.getValue()));
+                    m_lastName.setValue((String) m_firstName.getValue());
+                    m_number.setValue((String) m_firstName.getValue());
+                    m_email.setValue((String) m_firstName.getValue());
+                    if (m_firstName.getValue() != null) {
+                        phonebookGrid.filterData(getValuesAsCriteria());
                     } else {
                         phonebookGrid.filterData();
                     }
                 }
             };
-            m_query.addChangedHandler(onChange);
+            m_firstName.addChangedHandler(onChange);
         }
     }
+
+
 
 
     private static final class ExpandedContactComponent extends VLayout {
@@ -263,7 +353,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
         public ExpandedContactComponent(final PhonebookGrid grid) {
             setStyleName("gwtExpandedContact");
-            setWidth("80%");
+            setWidth("95%");
 
             final ListGridRecord record = grid.getSelectedRecord();
 
@@ -622,7 +712,6 @@ public class UserPhonebookSearch implements EntryPoint {
             setTitle(title);
             setShowMinimizeButton(false);
             setIsModal(true);
-            setShowModalMask(true);
             setAutoCenter(true);
             addCloseClickHandler(new CloseClickHandler() {
                 public void onCloseClick(CloseClientEvent event) {
@@ -708,12 +797,6 @@ public class UserPhonebookSearch implements EntryPoint {
      */
     private static String formatPhoneNumber(String phoneNumber) {
         return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
-    }
-
-    private static class SizeLabel extends Label {
-        public void update(Integer totalRows, Integer filteredRows) {
-            setContents(s_searchConstants.numberOfEntries() + EMPTY_STRING + filteredRows + "/" + totalRows);
-        }
     }
 
     private static class AvatarSection extends VLayout {

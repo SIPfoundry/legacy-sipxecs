@@ -32,8 +32,11 @@ public class PagedPhonebook implements Serializable {
         m_startRow = parseRow(start, DEFAULT_START_ROW);
         m_endRow = parseRow(stop, DEFAULT_END_ROW);
 
+        if (m_startRow > m_filteredSize) {
+            m_startRow = m_filteredSize;
+        }
+
         if (m_endRow > m_filteredSize) {
-            m_startRow = 0;
             m_endRow = m_filteredSize;
         }
 

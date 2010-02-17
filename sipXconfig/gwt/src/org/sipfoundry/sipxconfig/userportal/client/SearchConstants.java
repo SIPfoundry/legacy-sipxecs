@@ -146,4 +146,8 @@ public interface SearchConstants extends ConstantsWithLookup {
     String newContact();
 
     String address();
+
+    String nextPage();
+
+    String previousPage();
 }
