@@ -13,7 +13,8 @@
                 <span jwcid="@contrib:XTile"
                     listener="listener:handleWaitingListener"
                     sendName="triggerWaitingListener"
-                    receiveName="onWaitingListenerResponse" />
+                    receiveName="onWaitingListenerResponse"
+                    disableCaching="ognl:true"/>
                 <h2>
                     <img jwcid="@Image" image="asset:loadingImage" />
                     <span key="restartServer">Server is restarting</span>
