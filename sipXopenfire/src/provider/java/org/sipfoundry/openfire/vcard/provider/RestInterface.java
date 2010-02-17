@@ -240,9 +240,19 @@ public class RestInterface {
             Element vcardRootElement = vcardDoc.getRootElement();
 
             for (Element el : (List<Element>) contactRootElement.elements()) {
-                if (vcardRootElement.element(el.getName()) == null) {
+                Element vElement;
+                if ((vElement = vcardRootElement.element(el.getName())) == null) {
                     Log.debug(" In refillMissingContactInfo Element = [" + el.getName() + "] not found!");
                     vcardRootElement.add(el.createCopy());
+                }
+                else {
+                    String newStr = refillMissingContactInfo(vElement.asXML(), el.asXML());
+                    if ((newStr.compareTo(vElement.asXML()) != 0)) {
+                        Document vcardSubDoc = sreader.read(new StringReader(newStr));
+                        Element vcardSubRootElement = vcardSubDoc.getRootElement();
+                        vcardRootElement.remove(vElement);
+                        vcardRootElement.add(vcardSubRootElement.createCopy());
+                    }
                 }
             }
             Log.debug("vcard XML string after refill is " + vcardRootElement.asXML());
